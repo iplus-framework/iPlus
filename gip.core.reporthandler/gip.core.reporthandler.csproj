@@ -1,0 +1,907 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6AD88CAF-A168-4BC2-9ECE-F62E7B216465}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>gip.core.reporthandler</RootNamespace>
+    <AssemblyName>gip.core.reporthandler</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>3</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>
+    </DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>
+    </DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BarcodeStandard, Version=2.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\BarcodeLib.2.2.3\lib\netstandard2.0\BarcodeStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="combit.ListLabel17, Version=17.3.4478.22246, Culture=neutral, PublicKeyToken=a7a30592cb4a94be, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\combit.ListLabel17.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.7.2.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\DocumentFormat.OpenXml.2.7.2\lib\net40\DocumentFormat.OpenXml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ICSharpCode.AvalonEdit, Version=5.0.3.0, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\RoslynPad\ICSharpCode.AvalonEdit.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="QRCoder, Version=1.3.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\QRCoder.1.3.6\lib\net40\QRCoder.dll</HintPath>
+    </Reference>
+    <Reference Include="ReachFramework" />
+    <Reference Include="RoslynPad.Editor.Windows, Version=1.0.6.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\RoslynPad\RoslynPad.Editor.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data.Entity">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.Services.Client" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\System.Drawing.Common.4.7.0\lib\net461\System.Drawing.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Printing" />
+    <Reference Include="System.Reflection.Context" />
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Speech" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="UIAutomationTypes" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <Compile Include="CodeCompletionXsdGenerator.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CodeCompletionXsdGenerator.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CodeCompletionXsdGeneratorVBR.cs" />
+    <Compile Include="Configuration\ReportConfigurationWrapper.cs" />
+    <Compile Include="FlowDocEditor\EditLib\DocRuler.cs" />
+    <Compile Include="FlowDocEditor\EditLib\HTML\htmlcssparser.cs" />
+    <Compile Include="FlowDocEditor\EditLib\HTML\htmlfromxamlconverter.cs" />
+    <Compile Include="FlowDocEditor\EditLib\HTML\htmllexicalanalyzer.cs" />
+    <Compile Include="FlowDocEditor\EditLib\HTML\htmlparser.cs" />
+    <Compile Include="FlowDocEditor\EditLib\HTML\htmlschema.cs" />
+    <Compile Include="FlowDocEditor\EditLib\HTML\htmltokentype.cs" />
+    <Compile Include="FlowDocEditor\EditLib\HTML\htmltoxamlconverter.cs" />
+    <Compile Include="FlowDocEditor\EditLib\HyperlinkHelper.cs" />
+    <Compile Include="FlowDocEditor\EditLib\ImageHelper.cs" />
+    <Compile Include="FlowDocEditor\EditLib\resizingadorner.cs" />
+    <Compile Include="FlowDocEditor\EditLib\Translator\TranslatorContainer.cs" />
+    <Compile Include="FlowDocEditor\EditLib\Translator\TranslatorHelper.cs" />
+    <Compile Include="FlowDocEditor\EditLib\XPS\XPSHelper.cs" />
+    <Compile Include="FlowDocEditor\EditLib\XPS\XPStoFlowDocument.cs" />
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Edit\FindDialog.xaml.cs">
+      <DependentUpon>FindDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Edit\GoToDialog.xaml.cs">
+      <DependentUpon>GoToDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Edit\ReplaceDialog.xaml.cs">
+      <DependentUpon>ReplaceDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Format\FontDialog.xaml.cs">
+      <DependentUpon>FontDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Format\FontSizeDialog.xaml.cs">
+      <DependentUpon>FontSizeDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Format\LineSpacingDialog.xaml.cs">
+      <DependentUpon>LineSpacingDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Help\AboutDialog.xaml.cs">
+      <DependentUpon>AboutDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Insert\ChartDialog.xaml.cs">
+      <DependentUpon>ChartDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Insert\DateDialog.xaml.cs">
+      <DependentUpon>DateDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Insert\InsertLineDialog.xaml.cs">
+      <DependentUpon>InsertLineDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Insert\LinkDialog.xaml.cs">
+      <DependentUpon>LinkDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Insert\ObjectDialog.xaml.cs">
+      <DependentUpon>ObjectDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Insert\ObjectPropertiesDialog.xaml.cs">
+      <DependentUpon>ObjectPropertiesDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Insert\ShapeDialog.xaml.cs">
+      <DependentUpon>ShapeDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Insert\TableDialog.xaml.cs" />
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Insert\TimeDialog.xaml.cs" />
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Insert\VideoDialog.xaml.cs" />
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Tools\SpellCheckDialog.xaml.cs">
+      <DependentUpon>SpellCheckDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Dialogs\Tools\TranslateDialog.xaml.cs">
+      <DependentUpon>TranslateDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\DocEditor\DocumentEditor.cs" />
+    <Compile Include="FlowDocEditor\Editor\DocEditor\DocumentTab.cs" />
+    <Compile Include="FlowDocEditor\Editor\DocEditor\FlowDocumenttoOpenXML.cs" />
+    <Compile Include="FlowDocEditor\Editor\DocEditor\OpenXMLtoFlowDocument.cs" />
+    <Compile Include="FlowDocEditor\Editor\DocEditor\TabHeader.xaml.cs">
+      <DependentUpon>TabHeader.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\FlowDocEditor.xaml.cs">
+      <DependentUpon>FlowDocEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Misc\AppHelper.cs" />
+    <Compile Include="FlowDocEditor\Editor\Misc\FluentAddons\FluentEmoticonGallery.xaml.cs">
+      <DependentUpon>FluentEmoticonGallery.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Misc\FluentAddons\FluentTableGrid.xaml.cs">
+      <DependentUpon>FluentTableGrid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FlowDocEditor\Editor\Misc\FluentAddons\SymbolPanel.xaml.cs">
+      <DependentUpon>SymbolPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Flowdoc\Document\Barcode\InlineBarcode.cs" />
+    <Compile Include="Flowdoc\Document\InlineUIValueBase.cs" />
+    <Compile Include="Flowdoc\ReportConfiguration\ConfigurationMethod.cs" />
+    <Compile Include="Flowdoc\ReportConfiguration\ConfigurationParameter.cs" />
+    <Compile Include="Flowdoc\ReportConfiguration\ReportConfiguration.cs" />
+    <Compile Include="Flowdoc\Document\InlineACMethodValue.cs" />
+    <Compile Include="Flowdoc\Document\InlineTableCellConfigurationValue.cs" />
+    <Compile Include="Flowdoc\Document\TableRowDataBase.cs" />
+    <Compile Include="Flowdoc\Events\PaginatorNewTableCellEventArgs.cs" />
+    <Compile Include="Flowdoc\Events\PaginatorNextRowEventArgs.cs" />
+    <Compile Include="Flowdoc\DocumentWalker.cs" />
+    <None Include="Flowdoc\Document\Chart\BarChart2D.cs">
+      <SubType>Code</SubType>
+    </None>
+    <Compile Include="Flowdoc\Document\InlineAggregateValue.cs" />
+    <Compile Include="Flowdoc\Document\InlineContextValue.cs" />
+    <Compile Include="Flowdoc\Document\InlineDocumentValue.cs" />
+    <Compile Include="Flowdoc\Document\InlineTableCellValue.cs" />
+    <Compile Include="Flowdoc\Document\ReportProperties.cs" />
+    <Compile Include="Flowdoc\Document\SectionDataGroup.cs" />
+    <Compile Include="Flowdoc\Document\SectionReportFooter.cs" />
+    <Compile Include="Flowdoc\Document\SectionReportHeader.cs" />
+    <Compile Include="Flowdoc\Document\TableRowData.cs" />
+    <Compile Include="Flowdoc\Document\TableRowDataDyn.cs" />
+    <Compile Include="Flowdoc\Document\TableRowDataDynHeader.cs" />
+    <Compile Include="Flowdoc\Events\ImageErrorEventArgs.cs" />
+    <Compile Include="Flowdoc\Events\ImageEventArgs.cs" />
+    <Compile Include="Flowdoc\Events\PaginatorEventArgs.cs" />
+    <Compile Include="Flowdoc\Events\PaginatorOnSetValueEventArgs.cs" />
+    <Compile Include="Flowdoc\Document\InlineValueBase.cs" />
+    <Compile Include="Flowdoc\Document\InlinePropertyValueBase.cs" />
+    <Compile Include="Flowdoc\Document\InlineBoolValue.cs" />
+    <Compile Include="Flowdoc\Interfaces\IAggregateValue.cs" />
+    <Compile Include="Flowdoc\Interfaces\IChart.cs" />
+    <Compile Include="Flowdoc\Interfaces\IInlineValue.cs" />
+    <Compile Include="Flowdoc\Interfaces\IInlinePropertyValue.cs" />
+    <Compile Include="Flowdoc\Interfaces\IDictRef.cs" />
+    <Compile Include="Flowdoc\Interfaces\ITableRowData.cs" />
+    <Compile Include="Flowdoc\MultipleReportPaginator.cs" />
+    <Compile Include="Flowdoc\ReportContextValueType.cs" />
+    <Compile Include="Flowdoc\ReportDocument.cs" />
+    <Compile Include="Flowdoc\ReportPaginator.cs" />
+    <Compile Include="Flowdoc\ReportPaginatorDynamicCache.cs" />
+    <Compile Include="Flowdoc\ReportPaginatorStaticCache.cs" />
+    <Compile Include="Flowdoc\VBReportEditor.xaml.cs">
+      <DependentUpon>VBReportEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Flowdoc\VBReportViewer.cs" />
+    <Compile Include="Flowdoc\XamlHelper.cs" />
+    <Compile Include="Flowdoc\XPSPrinterUtils.cs" />
+    <Compile Include="LLClasses\StreamSerializationHelper.cs" />
+    <Compile Include="LLObjectDataProvider\DataProviderWrapper.cs" />
+    <Compile Include="LLObjectDataProvider\ObjectDataProvider.cs" />
+    <Compile Include="LLObjectDataProvider\ObjectDataProviderCache.cs" />
+    <Compile Include="LLObjectDataProvider\ObjectDataSourceDataProvider.cs" />
+    <Compile Include="LLObjectDataProvider\ObjectEnumeratorT.cs" />
+    <Compile Include="LLObjectDataProvider\ObjectTableColumn.cs" />
+    <Compile Include="LLObjectDataProvider\ObjectTableRelation.cs" />
+    <Compile Include="LLObjectDataProvider\ObjectTableRowT.cs" />
+    <Compile Include="LLObjectDataProvider\ObjectTableT.cs" />
+    <Compile Include="LLObjectDataProvider\UsedIdentifierHelper.cs" />
+    <Compile Include="LLClasses\VBListLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="VBBSOReport.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VBBSOReportDialog.cs" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <EmbeddedResource Include="VBXMLEditorSchemas\VBRSchema.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj">
+      <Project>{893D3B1B-DC55-4684-8B5D-941F1049151B}</Project>
+      <Name>gip.core.autocomponent</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj">
+      <Project>{16FB4111-5110-46E5-851D-38A4D7522F85}</Project>
+      <Name>gip.core.datamodel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gip.core.layoutengine\gip.core.layoutengine.csproj">
+      <Project>{A294786A-0921-4773-A0BF-F98F5AFCAE0D}</Project>
+      <Name>gip.core.layoutengine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gip.ext.fluent\gip.ext.fluent.csproj">
+      <Project>{4C92FCF4-3561-499F-BC5B-F2F089863047}</Project>
+      <Name>gip.ext.fluent</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.VisualBasic.PowerPacks.10.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft Visual Basic PowerPacks 10.0</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Edit\FindDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Edit\GoToDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Edit\ReplaceDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Format\FontDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Format\FontSizeDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Format\LineSpacingDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Help\AboutDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Insert\ChartDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Insert\DateDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Insert\InsertLineDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Insert\LinkDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Insert\ObjectDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Insert\ObjectPropertiesDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Insert\ShapeDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Insert\TableDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Insert\TimeDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Insert\VideoDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Tools\SpellCheckDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Dialogs\Tools\TranslateDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\DocEditor\TabHeader.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\FlowDocEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Misc\FluentAddons\FluentEmoticonGallery.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Misc\FluentAddons\FluentTableGrid.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FlowDocEditor\Editor\Misc\FluentAddons\SymbolPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Flowdoc\VBReportEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Edit\find16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Edit\findreplace16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Edit\goto16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Format\font16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Format\fontsize16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Format\linespacing16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Help\about.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Insert\chart16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Insert\date16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Insert\horizontalline16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Insert\link.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Insert\object.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Insert\shape16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Insert\symbol16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Insert\table.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Insert\time16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Insert\video16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Tools\options.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Tools\spellcheck16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Dialogs\Tools\translate16.ico" />
+    <Resource Include="FlowDocEditor\Editor\Images\Common\add16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Common\add48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Common\cancel16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Common\cancel48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Common\error32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Common\info32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Common\ok16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Common\ok48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Common\question32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Common\remove16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Common\remove48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Contextual\color16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Contextual\color32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\backgroundcolor16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\backgroundcolor48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Close\close16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Close\close48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Close\closeall16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Close\closeall48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Close\closeallbutthis16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Close\closeallbutthis48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\exitapp16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\exitapp48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\archive16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\archive48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\audio16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\audio48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\blogger16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\connect16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\disconnect16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\email16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\email48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\export16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\export32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\ftp16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\ftp48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\image16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\image48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\twitter16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\twitter32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\wordpress16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\wordpress48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\xps16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\Export\xps48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\import16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\import32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\new16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\new32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\new48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\open16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\open32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\open48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\pagesetup16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\pagesetup48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\print16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\print32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\print48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\printer32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\printpreview16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\printpreview48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\properties32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\readonly16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\readonly48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\recent16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\recent32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\recent48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\revert16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\revert48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\save16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\save48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\saveall16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\saveall48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\saveas16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\saveas48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\savecopy16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\savecopy48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\statistics16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Document\statistics48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\copy16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\copy32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\copy48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\copyline16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\copyline48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\copyparagraph16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\copyparagraph48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\cut16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\cut32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\cut48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\cutline16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\cutline48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\cutparagraph16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\cutparagraph48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\delete16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\delete32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\delete48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\deleteline16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\deleteline48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\deleteparagraph16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\deleteparagraph48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\find16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\find32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\find48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\findreplace16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\findreplace32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\findreplace48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\goto16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\goto32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\goto48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\lowercase16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\lowercase32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\lowercase48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\paste16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\paste32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\paste48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\pasteimage16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\pasteimage48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\redo16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\redo32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\redo48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\selectall16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\selectall32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\selectall48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\selectline16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\selectline48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\selectparagraph16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\selectparagraph48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\undo16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\undo32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\undo48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\uppercase16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\uppercase32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Edit\uppercase48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\bold16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\bold48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\bulletlist16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\bulletlist48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\center16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\center48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\clearformatting16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\clearformatting32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\clearformatting48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\font16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\font48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\fontcolor16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\fontcolor48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\fontfacecolor16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\fontfacecolor48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\fontsize16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\fontsize48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\indentless16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\indentless48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\indentmore16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\indentmore48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\italic16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\italic48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\justify16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\justify48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\left16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\left48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\linespacing16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\linespacing32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\linespacing48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\Lists\boxbullet32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\Lists\circlebullet32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\Lists\decimallist32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\Lists\discbullet32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\Lists\lowerlatin32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\Lists\lowerroman32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\Lists\squarebullet32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\Lists\upperlatin32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\Lists\upperroman32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\ltr.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\ltr16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\ltr32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\ltr48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\numberlist16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\numberlist48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\right16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\right48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\rtl16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\rtl32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\rtl48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\strikethrough16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\strikethrough48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\subscript16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\subscript32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\subscript48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\superscript16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\superscript32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\superscript48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\underline16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Format\underline48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\about16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\about32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\about48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\back16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\checkforupdates16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\checkforupdates48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\donate16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\donate32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\donate48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\help16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\license16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\license48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\onlinehelp16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\onlinehelp32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\onlinehelp48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\reportbug16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\reportbug32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\reportbug48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\website16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\website32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Help\website48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\chart16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\chart32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\chart48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\date16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\date32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\date48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\datemore16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\datemore48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\angel16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\angel32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\angry16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\angry32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\cool16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\cool32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\crying16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\crying32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\devilish16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\devilish32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\embarrassed16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\embarrassed32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\kiss16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\kiss32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\laugh16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\laugh32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\monkey16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\monkey32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\plain16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\plain32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\raspberry16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\raspberry32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\sad16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\sad32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\sick16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\sick32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\smile16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\smile32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\smile48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\smilebig16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\smilebig32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\smirk16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\smirk32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\surprise16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\surprise32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\tired16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\tired32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\uncertain16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\uncertain32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\wink16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\wink32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\worried16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Emoticons\worried32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\footer16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\footer32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\footer48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\header16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\header32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\header48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\horizontalline16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\horizontalline32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\horizontalline48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\image16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\image32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\image48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\link16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\link32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\link48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\object16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\object32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\object48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Object\button16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Object\checkbox16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Object\properties16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Object\radiobutton16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\Object\textblock16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\shape16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\shape32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\shape48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\symbol16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\symbol32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\symbol48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\table16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\table32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\table48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\textfile16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\textfile32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\textfile48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\time16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\time32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\time48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\timemore16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\timemore48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\video16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\video32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Insert\video48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\linedown16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\linedown32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\linedown48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\lineleft16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\lineleft32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\lineleft48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\lineright16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\lineright32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\lineright48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\lineup16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\lineup32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\lineup48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\pagedown16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\pagedown32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\pagedown48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\pageleft16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\pageleft32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\pageleft48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\pageright16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\pageright32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\pageright48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\pageup16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\pageup32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Navigation\pageup48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\PageLayout\backgroundcolor16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\PageLayout\backgroundcolor32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\PageLayout\backgroundcolor48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\PageLayout\pagemargins32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\PageLayout\pagemargins48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\PageLayout\pagesize32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\close8.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\edit16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\home16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\home48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\html16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\html48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\rtf16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\rtf32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\rtf48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\tools16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\tools48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\txt16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\txt48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\xaml16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\xaml32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tab\xaml48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\clear16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\clear48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\correctall16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\correctall48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\definitions16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\definitions32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\definitions48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\ignorespellingerror16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\ignorespellingerror48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\nextspellingerror16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\nextspellingerror48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\openfolder16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\openfolder48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\options16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\options32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\options48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\plugins16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\plugins32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\plugins48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\previousspellingerror16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\previousspellingerror48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\reset16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\reset48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\speech16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\speech32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\speech48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\spellcheck16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\spellcheck32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\spellcheck48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\startup16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\templates32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\templates48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\theme16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\translate16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\translate32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\Tools\translate48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\fullscreen16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\fullscreen32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\fullscreen48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\resetzoom16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\resetzoom32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\resetzoom48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\ruler16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\ruler32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\ruler48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\statusbar16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\statusbar32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\statusbar48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\verticalruler32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\zoomin16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\zoomin32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\zoomin48.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\zoomout16.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\zoomout32.png" />
+    <Resource Include="FlowDocEditor\Editor\Images\View\zoomout48.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="VBControlScripts\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CodeCompletionXsdGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CodeCompletionXsdGenerator.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,17 @@
+﻿<UserControl
+    x:Class="gip.core.layoutengine.PropertyGrid.Editors.VBTransformEditorSingleView"
+    xmlns="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine"
+    >
+    <StackPanel Width="300" Margin="6">
+        <local:VBComboBox Grid.Column="1" Height="24" ShowCaption="False" x:Name="ComboTransform" SelectionChanged="ComboTransform_SelectionChanged">
+            <local:VBComboBoxItem x:Name="RotateTransform">RotateTransform</local:VBComboBoxItem>
+            <local:VBComboBoxItem x:Name="ScaleTransform">ScaleTransform</local:VBComboBoxItem>
+            <local:VBComboBoxItem x:Name="SkewTransform">SkewTransform</local:VBComboBoxItem>
+            <local:VBComboBoxItem x:Name="TranslateTransform">TranslateTransform</local:VBComboBoxItem>
+            <local:VBComboBoxItem x:Name="MatrixTransform">MatrixTransform</local:VBComboBoxItem>
+        </local:VBComboBox>
+        <local:VBPropertyGridView x:Name="TransformProperties" ShowAs="OnlyPropertyGrid"  MinHeight="100" Margin="0,5,0,0" />
+    </StackPanel>
+</UserControl>

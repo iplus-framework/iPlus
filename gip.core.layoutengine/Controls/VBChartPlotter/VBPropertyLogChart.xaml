@@ -1,0 +1,150 @@
+﻿<UserControl x:Class="gip.core.layoutengine.VBPropertyLogChart"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine"
+    xmlns:ddd="clr-namespace:gip.ext.chart;assembly=gip.ext.chart"
+    xmlns:ddd1="clr-namespace:gip.ext.chart.Common;assembly=gip.ext.chart"
+    xmlns:ddd2="clr-namespace:gip.ext.chart.Charts;assembly=gip.ext.chart"
+     Background="Transparent" x:Name="ucChart">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/Shared.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Themes/RibbonBarStyleAero.xaml" />
+                <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Icons/TimeTo.xaml" />
+                <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Icons/TimeFrom.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Icons/Pause.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Icons/Stop.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Icons/Play.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Icons/Preview.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Icons/Print.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Icons/LoadRefresh.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" MaxHeight="70"/>
+        </Grid.RowDefinitions>
+
+        <ContentControl x:Name="chartContent" Content="{Binding ElementName=ucChart, Path=ChartControl}" Grid.ColumnSpan="3"></ContentControl>
+
+        <local:VBGrid x:Name="ucLiveConsole" Margin="0,5,0,0" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center">
+            <local:VBGrid.RowDefinitions>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="30"></RowDefinition>
+            </local:VBGrid.RowDefinitions>
+            <local:VBGrid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="30"></ColumnDefinition>
+                <ColumnDefinition Width="2"></ColumnDefinition>
+                <ColumnDefinition Width="30"></ColumnDefinition>
+                <ColumnDefinition Width="2"></ColumnDefinition>
+                <ColumnDefinition Width="30"></ColumnDefinition>
+                <ColumnDefinition Width="90"/>
+            </local:VBGrid.ColumnDefinitions>
+            <local:VBButton Grid.Column="1" x:Name="ucButtonPlay" Click="ucButtonPlay_Click" >
+                <ContentControl Style="{StaticResource IconPlayStyleGip}"/>
+            </local:VBButton>
+            <local:VBButton Grid.Column="3" x:Name="ucButtonPause" Click="ucButtonPause_Click" >
+                <ContentControl Style="{StaticResource IconPauseStyleGip}"/>
+            </local:VBButton>
+            <local:VBButton Grid.Column="5" x:Name="ucButtonStop" Click="ucButtonStop_Click" >
+                <ContentControl Style="{StaticResource IconStopStyleGip}"/>
+            </local:VBButton>
+        </local:VBGrid>
+
+        <local:VBGrid x:Name="ucArchiveConsole" Margin="0,5,0,0" Grid.Row="1" Grid.Column="1">
+            <local:VBGrid.RowDefinitions>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="30"></RowDefinition>
+            </local:VBGrid.RowDefinitions>
+            <local:VBGrid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="30"></ColumnDefinition>
+                <ColumnDefinition Width="100*" MaxWidth="250"></ColumnDefinition>
+                <ColumnDefinition Width="30"></ColumnDefinition>
+                <ColumnDefinition Width="100*" MaxWidth="250"></ColumnDefinition>
+                <ColumnDefinition Width="30"></ColumnDefinition>
+                <ColumnDefinition Width="90"></ColumnDefinition>
+
+            </local:VBGrid.ColumnDefinitions>
+
+            <local:VBContentControlIcon local:VBGrid.Column="1">
+                <ContentControl local:VBGrid.Column="1" Style="{StaticResource IconTimeFromStyleGip}"/>
+            </local:VBContentControlIcon>
+            <local:VBDateTimePicker local:VBGrid.Column="2" Visibility="Visible" Margin="0,0,10,0" x:Name="ucDatepickerFrom" ShowCaption="False"></local:VBDateTimePicker>
+            <local:VBContentControlIcon local:VBGrid.Column="3">
+                <ContentControl local:VBGrid.Column="1" Style="{StaticResource IconTimeToStyleGip}"/>
+            </local:VBContentControlIcon>
+            <local:VBDateTimePicker local:VBGrid.Column="4" Visibility="Visible" Margin="0,0,10,0" x:Name="ucDatepickerTo" ShowCaption="False"></local:VBDateTimePicker>
+            <!--<StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="7">
+                <local:VBComboBox x:Name="SmoothingOn" MinWidth="100" MaxWidth="300" ShowCaption="False" />
+                <local:VBTextBlock Text="Range" ACIdentifier="Range" ACCaption="en{'Range'}de{'Bereich'}" VerticalAlignment="Center" Margin="20,0,0,0"/>
+                <local:VBSlider x:Name="SmoothingRange" Maximum="10" Minimum="1" Value="5" Width="100" Ticks="1,2,3,4,5,6,7,8,9,10" Margin="5,0,0,0" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                <local:VBTextBlock Text="{Binding ElementName=SmoothingRange, Path=Value}" Width="20" VerticalAlignment="Center" Margin="5,0,0,0" />
+
+                <local:VBTextBlock Text="Decay" ACIdentifier="Decay" ACCaption="en{'Decay'}de{'Dämpfung'}"  VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <local:VBSlider x:Name="SmootingDecay" Maximum="1.0" Minimum="0.1" Value="0.8" Width="100" Ticks="0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0" Margin="5,0,0,0" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
+                <local:VBTextBlock Text="{Binding ElementName=SmootingDecay, Path=Value}" Width="20" VerticalAlignment="Center" Margin="5,0,0,0" />
+            </StackPanel>-->
+            <local:VBButton x:Name="ucButtonLoadArchive" Grid.Column="5" Click="ucButtonLoadArchive_Click" >
+                <ContentControl Style="{StaticResource IconLoadRefreshStyleGip}"/>
+            </local:VBButton>
+        </local:VBGrid>
+
+        <local:VBGrid x:Name="ucInterpolationConsole" Margin="0,5,0,0" Grid.Row="1" Grid.Column="1">
+            <local:VBGrid.RowDefinitions>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="30"></RowDefinition>
+            </local:VBGrid.RowDefinitions>
+            <local:VBGrid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="30"></ColumnDefinition>
+                <ColumnDefinition Width="100*" MaxWidth="250"></ColumnDefinition>
+                <ColumnDefinition Width="30"></ColumnDefinition>
+                <ColumnDefinition Width="100*" MaxWidth="250"></ColumnDefinition>
+                <ColumnDefinition Width="30"></ColumnDefinition>
+                <ColumnDefinition Width="90"></ColumnDefinition>
+
+            </local:VBGrid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="7">
+                <local:VBComboBox x:Name="SmoothingOn" MinWidth="100" MaxWidth="300" ShowCaption="False" SelectionChanged="SmoothingOn_SelectionChanged" />
+                <local:VBTextBlock Text="Range" ACIdentifier="Range" ACCaption="en{'Range'}de{'Bereich'}" VerticalAlignment="Center" Margin="20,0,0,0"/>
+                <local:VBSlider x:Name="SmoothingRange" Maximum="10" Minimum="1" Value="5" Width="100" Ticks="1,2,3,4,5,6,7,8,9,10" Margin="5,0,0,0" TickPlacement="BottomRight" IsSnapToTickEnabled="True" ValueChanged="SmoothingRange_ValueChanged"/>
+                <local:VBTextBlock Text="{Binding ElementName=SmoothingRange, Path=Value}" Width="20" VerticalAlignment="Center" Margin="5,0,0,0" />
+
+                <local:VBTextBlock Text="Decay" ACIdentifier="Decay" ACCaption="en{'Decay'}de{'Dämpfung'}"  VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <local:VBSlider x:Name="SmootingDecay" Maximum="1.0" Minimum="0.1" Value="0.8" Width="100" Ticks="0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0" Margin="5,0,0,0" TickPlacement="BottomRight" IsSnapToTickEnabled="True" ValueChanged="SmootingDecay_ValueChanged"/>
+                <local:VBTextBlock Text="{Binding ElementName=SmootingDecay, Path=Value}" Width="20" VerticalAlignment="Center" Margin="5,0,0,0" />
+            </StackPanel>
+        </local:VBGrid>
+
+        <local:VBGrid x:Name="ucPrintConsole" Margin="5,5,0,0" Grid.Row="1" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="30" />
+                <ColumnDefinition Width="2" />
+                <ColumnDefinition Width="30" />
+                <ColumnDefinition Width="10" />
+            </Grid.ColumnDefinitions>
+            <local:VBGrid.RowDefinitions>
+                <RowDefinition Height="30"></RowDefinition>
+            </local:VBGrid.RowDefinitions>
+
+            <local:VBButton x:Name="ucButtonPrintMode" Grid.Column="1" Click="ucButtonPrintMode_Click" >
+                <ContentControl Style="{StaticResource IconPreviewStyleGip}"/>
+            </local:VBButton>
+            <local:VBButton x:Name="ucButtonPrint" Grid.Column="3" Click="ucButtonPrint_Click" >
+                <ContentControl Style="{StaticResource IconPrintStyleGip}"/>
+            </local:VBButton>
+        </local:VBGrid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,1152 @@
+﻿{
+  "IsBuildTransferJobJson": false,
+  "IsDoJob": true,
+  "IsUpdateProjectFile": false,
+  "IsClientUpdate": true,
+  "OperationContexts": [
+    {
+      "Order": 1,
+      "DataContextID": "varioiplus",
+      "ContextProjectFile": "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\trunk\\iPlus\\gip.core.datamodel\\gip.core.datamodel.csproj",
+      "ContextFolders": [ "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\trunk\\iPlus\\gip.core.datamodel\\DbScripts\\iPlus\\" ],
+      "OperationFiles": [
+        {
+          "Name": "dbsync-0001-aagincic.sql",
+          "Version": 1,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-01-20T14:57:11",
+          "MinDate": "2015-01-20T14:57:11",
+          "UsedScriptDate": "2015-01-20T15:02:11"
+        },
+        {
+          "Name": "dbsync-0002-aagincic.sql",
+          "Version": 2,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-01-20T14:57:11",
+          "MinDate": "2015-01-20T14:57:11",
+          "UsedScriptDate": "2015-01-20T15:03:11"
+        },
+        {
+          "Name": "dbsync-0003-mkozlina.sql",
+          "Version": 3,
+          "UpdateAuthor": "mkozlina",
+          "MaxDate": "2015-01-21T13:58:58",
+          "MinDate": "2015-01-21T13:58:58",
+          "UsedScriptDate": "2015-01-21T13:58:58"
+        },
+        {
+          "Name": "dbsync-0004-ihrastinski.sql",
+          "Version": 4,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2016-01-21T14:38:19",
+          "MinDate": "2016-01-21T14:38:19",
+          "UsedScriptDate": "2016-01-21T14:38:19"
+        },
+        {
+          "Name": "dbsync-0005-dlisak.sql",
+          "Version": 5,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-02-05T17:52:53",
+          "MinDate": "2016-02-05T17:52:53",
+          "UsedScriptDate": "2016-02-05T17:53:53"
+        },
+        {
+          "Name": "dbsync-0006-aagincic.sql",
+          "Version": 6,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-03-14T16:53:04",
+          "MinDate": "2016-03-14T16:53:04",
+          "UsedScriptDate": "2016-03-14T16:53:04"
+        },
+        {
+          "Name": "dbsync-0007-aagincic.sql",
+          "Version": 7,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-04-22T17:13:28",
+          "MinDate": "2016-04-22T17:13:28",
+          "UsedScriptDate": "2016-04-22T17:13:28"
+        },
+        {
+          "Name": "dbsync-0008-ihrastinski.sql",
+          "Version": 8,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2016-09-19T11:14:30",
+          "MinDate": "2016-09-19T11:14:30",
+          "UsedScriptDate": "2016-09-19T11:14:30"
+        },
+        {
+          "Name": "dbsync-0009-aagincic.sql",
+          "Version": 9,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-10-14T10:18:37",
+          "MinDate": "2016-10-14T10:18:37",
+          "UsedScriptDate": "2016-10-14T10:18:37"
+        },
+        {
+          "Name": "dbsync-0010-ihrastinski.sql",
+          "Version": 10,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2016-10-28T18:05:17",
+          "MinDate": "2016-10-28T18:05:17",
+          "UsedScriptDate": "2016-10-28T18:05:17"
+        },
+        {
+          "Name": "dbsync-0011-ihrastinski.sql",
+          "Version": 11,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2016-12-23T11:53:50",
+          "MinDate": "2016-12-23T11:53:50",
+          "UsedScriptDate": "2016-12-23T11:53:50"
+        },
+        {
+          "Name": "dbsync-0012-ihrastinski.sql",
+          "Version": 12,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2016-12-27T08:49:23",
+          "MinDate": "2016-12-27T08:49:23",
+          "UsedScriptDate": "2016-12-27T08:49:23"
+        },
+        {
+          "Name": "dbsync-0013-ihrastinski.sql",
+          "Version": 13,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2017-01-13T17:24:20",
+          "MinDate": "2017-01-13T17:24:20",
+          "UsedScriptDate": "2017-01-13T17:24:20"
+        },
+        {
+          "Name": "dbsync-0014-aagincic.sql",
+          "Version": 14,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2017-01-16T14:37:38",
+          "MinDate": "2017-01-16T14:37:38",
+          "UsedScriptDate": "2017-01-16T14:37:38"
+        },
+        {
+          "Name": "dbsync-0015-aagincic.sql",
+          "Version": 15,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2017-01-19T13:18:14",
+          "MinDate": "2017-01-19T13:18:14",
+          "UsedScriptDate": "2017-01-19T13:18:14"
+        },
+        {
+          "Name": "dbsync-0016-dlisak.sql",
+          "Version": 16,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2017-02-14T13:42:07",
+          "MinDate": "2017-02-14T13:42:07",
+          "UsedScriptDate": "2017-02-14T13:42:07"
+        },
+        {
+          "Name": "dbsync-0017-ihrastinski.sql",
+          "Version": 17,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2017-02-22T12:02:00",
+          "MinDate": "2017-02-22T12:02:00",
+          "UsedScriptDate": "2017-02-22T12:02:00"
+        },
+        {
+          "Name": "dbsync-0018-ihrastinski.sql",
+          "Version": 18,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2017-04-06T10:57:56",
+          "MinDate": "2017-04-06T10:57:56",
+          "UsedScriptDate": "2017-04-06T10:57:56"
+        },
+        {
+          "Name": "dbsync-0019-dlisak.sql",
+          "Version": 19,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2017-05-22T13:49:22",
+          "MinDate": "2017-05-22T13:49:22",
+          "UsedScriptDate": "2017-05-22T13:50:22"
+        },
+        {
+          "Name": "dbsync-0020-ihrastinski.sql",
+          "Version": 20,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2017-06-02T15:09:27",
+          "MinDate": "2017-06-02T15:09:27",
+          "UsedScriptDate": "2017-06-02T15:09:27"
+        },
+        {
+          "Name": "dbsync-0021-ihrastinski.sql",
+          "Version": 21,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2017-10-23T07:33:31",
+          "MinDate": "2017-10-23T07:33:31",
+          "UsedScriptDate": "2017-10-23T07:33:31"
+        },
+        {
+          "Name": "dbsync-0022-ihrastinski.sql",
+          "Version": 22,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2017-10-23T11:56:46",
+          "MinDate": "2017-10-23T11:56:46",
+          "UsedScriptDate": "2017-10-23T11:56:46"
+        },
+        {
+          "Name": "dbsync-0023-ihrastinski.sql",
+          "Version": 23,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2017-11-09T13:37:31",
+          "MinDate": "2017-11-09T13:37:31",
+          "UsedScriptDate": "2017-11-09T13:37:31"
+        },
+        {
+          "Name": "dbsync-0024-ihrastinski.sql",
+          "Version": 24,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2017-11-07T08:28:59",
+          "MinDate": "2017-11-07T08:28:59",
+          "UsedScriptDate": "2017-11-07T08:28:59"
+        },
+        {
+          "Name": "dbsync-0025-dlisak.sql",
+          "Version": 25,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2018-01-10T18:27:49",
+          "MinDate": "2018-01-10T18:27:49",
+          "UsedScriptDate": "2018-01-10T18:27:49"
+        },
+        {
+          "Name": "dbsync-0026-dlisak.sql",
+          "Version": 26,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2018-01-23T11:51:04",
+          "MinDate": "2018-01-23T11:51:04",
+          "UsedScriptDate": "2018-01-23T11:51:04"
+        },
+        {
+          "Name": "dbsync-0027-dlisak.sql",
+          "Version": 27,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2018-03-14T11:54:17",
+          "MinDate": "2018-03-14T11:54:17",
+          "UsedScriptDate": "2018-03-14T11:54:17"
+        },
+        {
+          "Name": "dbsync-0028-aagincic.sql",
+          "Version": 28,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-07-03T13:59:41",
+          "MinDate": "2018-07-03T13:59:41",
+          "UsedScriptDate": "2018-07-03T13:59:41"
+        },
+        {
+          "Name": "dbsync-0029-aagincic.sql",
+          "Version": 29,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-03-21T15:43:39",
+          "MinDate": "2018-03-21T15:43:39",
+          "UsedScriptDate": "2018-03-21T15:43:39"
+        },
+        {
+          "Name": "dbsync-0030-aagincic.sql",
+          "Version": 30,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-03-22T16:55:25",
+          "MinDate": "2018-03-22T16:55:25",
+          "UsedScriptDate": "2018-03-22T16:55:25"
+        },
+        {
+          "Name": "dbsync-0031-ihrastinski.sql",
+          "Version": 31,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2018-05-07T12:07:39",
+          "MinDate": "2018-05-07T12:07:39",
+          "UsedScriptDate": "2018-05-07T12:07:39"
+        },
+        {
+          "Name": "dbsync-0032-ihrastinski.sql",
+          "Version": 32,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2018-04-16T11:32:15",
+          "MinDate": "2018-04-16T11:32:15",
+          "UsedScriptDate": "2018-04-16T11:32:15"
+        },
+        {
+          "Name": "dbsync-0033-aagincic.sql",
+          "Version": 33,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-07-03T13:59:41",
+          "MinDate": "2018-07-03T13:59:41",
+          "UsedScriptDate": "2018-07-03T14:00:41"
+        },
+        {
+          "Name": "dbsync-0034-ihrastinski.sql",
+          "Version": 34,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2018-06-04T11:30:39",
+          "MinDate": "2018-06-04T11:30:39",
+          "UsedScriptDate": "2018-06-04T11:30:39"
+        },
+        {
+          "Name": "dbsync-0035-ihrastinski.sql",
+          "Version": 35,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2018-06-04T11:30:39",
+          "MinDate": "2018-06-04T11:30:39",
+          "UsedScriptDate": "2018-06-04T11:31:39"
+        },
+        {
+          "Name": "dbsync-0036-ihrastinski.sql",
+          "Version": 36,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2018-08-21T15:14:23",
+          "MinDate": "2018-08-21T15:14:23",
+          "UsedScriptDate": "2018-08-21T15:14:23"
+        },
+        {
+          "Name": "dbsync-0037-ihrastinski.sql",
+          "Version": 37,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2018-08-31T09:31:40",
+          "MinDate": "2018-08-31T09:31:40",
+          "UsedScriptDate": "2018-08-31T09:31:40"
+        },
+        {
+          "Name": "dbsync-0038-aagincic.sql",
+          "Version": 38,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-09-18T14:10:30",
+          "MinDate": "2018-09-18T14:10:30",
+          "UsedScriptDate": "2018-09-18T14:10:30"
+        },
+        {
+          "Name": "dbsync-0039-aagincic.sql",
+          "Version": 39,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-09-18T14:10:30",
+          "MinDate": "2018-09-18T14:10:30",
+          "UsedScriptDate": "2018-09-18T14:11:30"
+        },
+        {
+          "Name": "dbsync-0040-ihrastinski.sql",
+          "Version": 40,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2018-11-02T15:38:16",
+          "MinDate": "2018-11-02T15:38:16",
+          "UsedScriptDate": "2018-11-02T15:39:16"
+        },
+        {
+          "Name": "dbsync-0041-aagincic.sql",
+          "Version": 41,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-11-09T22:10:42",
+          "MinDate": "2018-11-09T22:10:42",
+          "UsedScriptDate": "2018-11-09T22:10:42"
+        }
+      ]
+    },
+    {
+      "Order": 2,
+      "DataContextID": "variobatch",
+      "ContextProjectFile": "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\trunk\\iPlusMES\\gip.mes.datamodel\\gip.mes.datamodel.csproj",
+      "ContextFolders": [ "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\trunk\\iPlusMES\\gip.mes.datamodel\\DbScripts\\iPlusMES\\" ],
+      "OperationFiles": [
+        {
+          "Name": "dbsync-0001-aagincic.sql",
+          "Version": 1,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-01-20T14:57:11",
+          "MinDate": "2015-01-20T14:57:11",
+          "UsedScriptDate": "2015-01-20T14:57:11"
+        },
+        {
+          "Name": "dbsync-0002-aagincic.sql",
+          "Version": 2,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-01-20T14:57:11",
+          "MinDate": "2015-01-20T14:57:11",
+          "UsedScriptDate": "2015-01-20T14:58:11"
+        },
+        {
+          "Name": "dbsync-0003-aagincic.sql",
+          "Version": 3,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-01-20T14:57:11",
+          "MinDate": "2015-01-20T14:57:11",
+          "UsedScriptDate": "2015-01-20T14:59:11"
+        },
+        {
+          "Name": "dbsync-0004-aagincic.sql",
+          "Version": 4,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-01-20T14:57:11",
+          "MinDate": "2015-01-20T14:57:11",
+          "UsedScriptDate": "2015-01-20T15:00:11"
+        },
+        {
+          "Name": "dbsync-0005-aagincic.sql",
+          "Version": 5,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-01-20T14:57:11",
+          "MinDate": "2015-01-20T14:57:11",
+          "UsedScriptDate": "2015-01-20T15:01:11"
+        },
+        {
+          "Name": "dbsync-0006-aagincic.sql",
+          "Version": 6,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-01-23T12:44:56",
+          "MinDate": "2015-01-23T12:44:56",
+          "UsedScriptDate": "2015-01-23T12:44:56"
+        },
+        {
+          "Name": "dbsync-0007-aagincic.sql",
+          "Version": 7,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-01-27T18:35:38",
+          "MinDate": "2015-01-27T18:35:38",
+          "UsedScriptDate": "2015-01-27T18:35:38"
+        },
+        {
+          "Name": "dbsync-0008-aagincic.sql",
+          "Version": 8,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-02-09T23:14:28",
+          "MinDate": "2015-02-09T23:14:28",
+          "UsedScriptDate": "2015-02-09T23:14:28"
+        },
+        {
+          "Name": "dbsync-0009-aagincic.sql",
+          "Version": 9,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-02-11T16:18:46",
+          "MinDate": "2015-02-11T16:18:46",
+          "UsedScriptDate": "2015-02-11T16:18:46"
+        },
+        {
+          "Name": "dbsync-0010-aagincic.sql",
+          "Version": 10,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-03-06T14:34:48",
+          "MinDate": "2015-03-06T14:34:48",
+          "UsedScriptDate": "2015-03-06T14:34:48"
+        },
+        {
+          "Name": "dbsync-0011-aagincic.sql",
+          "Version": 11,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-02-25T23:17:47",
+          "MinDate": "2015-02-25T23:17:47",
+          "UsedScriptDate": "2015-02-25T23:17:47"
+        },
+        {
+          "Name": "dbsync-0012-aagincic.sql",
+          "Version": 12,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-03-12T23:04:47",
+          "MinDate": "2015-03-12T23:04:47",
+          "UsedScriptDate": "2015-03-12T23:04:47"
+        },
+        {
+          "Name": "dbsync-0013-aagincic.sql",
+          "Version": 13,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-03-14T13:38:44",
+          "MinDate": "2015-03-14T13:38:44",
+          "UsedScriptDate": "2015-03-14T13:38:44"
+        },
+        {
+          "Name": "dbsync-0014-aagincic.sql",
+          "Version": 14,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-03-16T20:45:20",
+          "MinDate": "2015-03-16T20:45:20",
+          "UsedScriptDate": "2015-03-16T20:45:20"
+        },
+        {
+          "Name": "dbsync-0015-aagincic.sql",
+          "Version": 15,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-03-17T17:19:15",
+          "MinDate": "2015-03-17T17:19:15",
+          "UsedScriptDate": "2015-03-17T17:19:15"
+        },
+        {
+          "Name": "dbsync-0016-aagincic.sql",
+          "Version": 16,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-03-18T08:24:51",
+          "MinDate": "2015-03-18T08:24:51",
+          "UsedScriptDate": "2015-03-18T08:24:51"
+        },
+        {
+          "Name": "dbsync-0017-aagincic.sql",
+          "Version": 17,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-03-18T20:00:03",
+          "MinDate": "2015-03-18T20:00:03",
+          "UsedScriptDate": "2015-03-18T20:00:03"
+        },
+        {
+          "Name": "dbsync-0018-aagincic.sql",
+          "Version": 18,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-04-16T21:52:03",
+          "MinDate": "2015-04-16T21:52:03",
+          "UsedScriptDate": "2015-04-16T21:52:03"
+        },
+        {
+          "Name": "dbsync-0019-aagincic.sql",
+          "Version": 19,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-04-25T14:11:29",
+          "MinDate": "2015-04-25T14:11:29",
+          "UsedScriptDate": "2015-04-25T14:11:29"
+        },
+        {
+          "Name": "dbsync-0020-aagincic.sql",
+          "Version": 20,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-04-27T15:33:47",
+          "MinDate": "2015-04-27T15:33:47",
+          "UsedScriptDate": "2015-04-27T15:33:47"
+        },
+        {
+          "Name": "dbsync-0021-aagincic.sql",
+          "Version": 21,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-05-04T15:24:31",
+          "MinDate": "2015-05-04T15:24:31",
+          "UsedScriptDate": "2015-05-04T15:24:31"
+        },
+        {
+          "Name": "dbsync-0022-aagincic.sql",
+          "Version": 22,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-05-04T15:24:31",
+          "MinDate": "2015-05-04T15:24:31",
+          "UsedScriptDate": "2015-05-04T15:25:31"
+        },
+        {
+          "Name": "dbsync-0023-dlisak.sql",
+          "Version": 23,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2015-05-26T11:40:56",
+          "MinDate": "2015-05-26T11:40:56",
+          "UsedScriptDate": "2015-05-26T11:40:56"
+        },
+        {
+          "Name": "dbsync-0024-dlisak.sql",
+          "Version": 24,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2015-05-29T09:26:26",
+          "MinDate": "2015-05-29T09:26:26",
+          "UsedScriptDate": "2015-05-29T09:26:26"
+        },
+        {
+          "Name": "dbsync-0025-aagincic.sql",
+          "Version": 25,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-05-29T13:57:25",
+          "MinDate": "2015-05-29T13:57:25",
+          "UsedScriptDate": "2015-05-29T13:57:25"
+        },
+        {
+          "Name": "dbsync-0026-aagincic.sql",
+          "Version": 26,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-05-31T15:52:47",
+          "MinDate": "2015-05-31T15:52:47",
+          "UsedScriptDate": "2015-05-31T15:52:47"
+        },
+        {
+          "Name": "dbsync-0027-dlisak.sql",
+          "Version": 27,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2015-06-02T09:57:14",
+          "MinDate": "2015-06-02T09:57:14",
+          "UsedScriptDate": "2015-06-02T09:57:14"
+        },
+        {
+          "Name": "dbsync-0028-dlisak.sql",
+          "Version": 28,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2015-06-02T11:12:34",
+          "MinDate": "2015-06-02T11:12:34",
+          "UsedScriptDate": "2015-06-02T11:12:34"
+        },
+        {
+          "Name": "dbsync-0029-aagincic.sql",
+          "Version": 29,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-06-05T16:58:14",
+          "MinDate": "2015-06-05T16:58:14",
+          "UsedScriptDate": "2015-06-05T16:58:14"
+        },
+        {
+          "Name": "dbsync-0030-aagincic.sql",
+          "Version": 30,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-06-05T16:58:14",
+          "MinDate": "2015-06-05T16:58:14",
+          "UsedScriptDate": "2015-06-05T16:59:14"
+        },
+        {
+          "Name": "dbsync-0031-aagincic.sql",
+          "Version": 31,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-06-08T14:02:12",
+          "MinDate": "2015-06-08T14:02:12",
+          "UsedScriptDate": "2015-06-08T14:02:12"
+        },
+        {
+          "Name": "dbsync-0032-aagincic.sql",
+          "Version": 32,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-06-09T13:28:06",
+          "MinDate": "2015-06-09T13:28:06",
+          "UsedScriptDate": "2015-06-09T13:28:06"
+        },
+        {
+          "Name": "dbsync-0033-aagincic.sql",
+          "Version": 33,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-06-11T18:45:42",
+          "MinDate": "2015-06-11T18:45:42",
+          "UsedScriptDate": "2015-06-11T18:45:42"
+        },
+        {
+          "Name": "dbsync-0034-dlisak.sql",
+          "Version": 34,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2015-06-17T11:01:06",
+          "MinDate": "2015-06-17T11:01:06",
+          "UsedScriptDate": "2015-06-17T11:01:06"
+        },
+        {
+          "Name": "dbsync-0035-dlisak.sql",
+          "Version": 35,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2015-06-18T16:26:43",
+          "MinDate": "2015-06-18T16:26:43",
+          "UsedScriptDate": "2015-06-18T16:26:43"
+        },
+        {
+          "Name": "dbsync-0036-dlisak.sql",
+          "Version": 36,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2015-06-19T14:13:27",
+          "MinDate": "2015-06-19T14:13:27",
+          "UsedScriptDate": "2015-06-19T14:13:27"
+        },
+        {
+          "Name": "dbsync-0037-aagincic.sql",
+          "Version": 37,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-06-23T14:11:41",
+          "MinDate": "2015-06-23T14:11:41",
+          "UsedScriptDate": "2015-06-23T14:11:41"
+        },
+        {
+          "Name": "dbsync-0038-aagincic.sql",
+          "Version": 38,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-07-08T18:01:11",
+          "MinDate": "2015-07-08T18:01:11",
+          "UsedScriptDate": "2015-07-08T18:01:11"
+        },
+        {
+          "Name": "dbsync-0039-ihrastinski.sql",
+          "Version": 39,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2015-07-13T17:21:31",
+          "MinDate": "2015-07-13T17:21:31",
+          "UsedScriptDate": "2015-07-13T17:21:31"
+        },
+        {
+          "Name": "dbsync-0040-aagincic.sql",
+          "Version": 40,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-08-20T10:34:31",
+          "MinDate": "2015-08-20T10:34:31",
+          "UsedScriptDate": "2015-08-20T10:34:31"
+        },
+        {
+          "Name": "dbsync-0041-aagincic.sql",
+          "Version": 41,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-09-01T13:44:53",
+          "MinDate": "2015-09-01T13:44:53",
+          "UsedScriptDate": "2015-09-01T13:44:53"
+        },
+        {
+          "Name": "dbsync-0042-dlisak.sql",
+          "Version": 42,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2015-10-17T10:45:19",
+          "MinDate": "2015-10-17T10:45:19",
+          "UsedScriptDate": "2015-10-17T10:45:19"
+        },
+        {
+          "Name": "dbsync-0043-aagincic.sql",
+          "Version": 43,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-11-05T13:52:10",
+          "MinDate": "2015-11-05T13:52:10",
+          "UsedScriptDate": "2015-11-05T13:52:10"
+        },
+        {
+          "Name": "dbsync-0044-dlisak.sql",
+          "Version": 44,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2015-11-06T17:33:16",
+          "MinDate": "2015-11-06T17:33:16",
+          "UsedScriptDate": "2015-11-06T17:33:16"
+        },
+        {
+          "Name": "dbsync-0045-aagincic.sql",
+          "Version": 45,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-11-10T15:19:09",
+          "MinDate": "2015-11-10T15:19:09",
+          "UsedScriptDate": "2015-11-10T15:19:09"
+        },
+        {
+          "Name": "dbsync-0046-aagincic.sql",
+          "Version": 46,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-11-11T16:32:08",
+          "MinDate": "2015-11-11T16:32:08",
+          "UsedScriptDate": "2015-11-11T16:32:08"
+        },
+        {
+          "Name": "dbsync-0047-aagincic.sql",
+          "Version": 47,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-11-26T18:56:41",
+          "MinDate": "2015-11-26T18:56:41",
+          "UsedScriptDate": "2015-11-26T18:56:41"
+        },
+        {
+          "Name": "dbsync-0048-aagincic.sql",
+          "Version": 48,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2015-12-10T17:40:55",
+          "MinDate": "2015-12-10T17:40:55",
+          "UsedScriptDate": "2015-12-10T17:40:55"
+        },
+        {
+          "Name": "dbsync-0049-aagincic.sql",
+          "Version": 49,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-01-08T18:53:28",
+          "MinDate": "2016-01-08T18:53:28",
+          "UsedScriptDate": "2016-01-08T18:53:28"
+        },
+        {
+          "Name": "dbsync-0050-aagincic.sql",
+          "Version": 50,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-01-08T18:53:28",
+          "MinDate": "2016-01-08T18:53:28",
+          "UsedScriptDate": "2016-01-08T18:54:28"
+        },
+        {
+          "Name": "dbsync-0051-aagincic.sql",
+          "Version": 51,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-01-08T18:53:28",
+          "MinDate": "2016-01-08T18:53:28",
+          "UsedScriptDate": "2016-01-08T18:55:28"
+        },
+        {
+          "Name": "dbsync-0052-aagincic.sql",
+          "Version": 52,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-01-14T17:15:25",
+          "MinDate": "2016-01-14T17:15:25",
+          "UsedScriptDate": "2016-01-14T17:15:25"
+        },
+        {
+          "Name": "dbsync-0053-aagincic.sql",
+          "Version": 53,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-01-14T17:22:56",
+          "MinDate": "2016-01-14T17:22:56",
+          "UsedScriptDate": "2016-01-14T17:22:56"
+        },
+        {
+          "Name": "dbsync-0054-aagincic.sql",
+          "Version": 54,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-01-18T09:30:51",
+          "MinDate": "2016-01-18T09:30:51",
+          "UsedScriptDate": "2016-01-18T09:30:51"
+        },
+        {
+          "Name": "dbsync-0055-aagincic.sql",
+          "Version": 55,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-01-22T15:34:19",
+          "MinDate": "2016-01-22T15:34:19",
+          "UsedScriptDate": "2016-01-22T15:34:19"
+        },
+        {
+          "Name": "dbsync-0056-dlisak.sql",
+          "Version": 56,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-02-02T18:21:14",
+          "MinDate": "2016-02-02T18:21:14",
+          "UsedScriptDate": "2016-02-02T18:21:14"
+        },
+        {
+          "Name": "dbsync-0057-dlisak.sql",
+          "Version": 57,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-02-05T17:52:53",
+          "MinDate": "2016-02-05T17:52:53",
+          "UsedScriptDate": "2016-02-05T17:52:53"
+        },
+        {
+          "Name": "dbsync-0058-aagincic.sql",
+          "Version": 58,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-02-19T13:32:28",
+          "MinDate": "2016-02-19T13:32:28",
+          "UsedScriptDate": "2016-02-19T13:32:28"
+        },
+        {
+          "Name": "dbsync-0059-aagincic.sql",
+          "Version": 59,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-02-19T17:29:07",
+          "MinDate": "2016-02-19T17:29:07",
+          "UsedScriptDate": "2016-02-19T17:29:07"
+        },
+        {
+          "Name": "dbsync-0060-dlisak.sql",
+          "Version": 60,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-03-04T17:58:08",
+          "MinDate": "2016-03-04T17:58:08",
+          "UsedScriptDate": "2016-03-04T17:58:08"
+        },
+        {
+          "Name": "dbsync-0061-aagincic.sql",
+          "Version": 61,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-03-07T15:47:14",
+          "MinDate": "2016-03-07T15:47:14",
+          "UsedScriptDate": "2016-03-07T15:47:14"
+        },
+        {
+          "Name": "dbsync-0062-dlisak.sql",
+          "Version": 62,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-03-07T18:50:00",
+          "MinDate": "2016-03-07T18:50:00",
+          "UsedScriptDate": "2016-03-07T18:50:00"
+        },
+        {
+          "Name": "dbsync-0063-dlisak.sql",
+          "Version": 63,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-03-08T11:20:29",
+          "MinDate": "2016-03-08T11:20:29",
+          "UsedScriptDate": "2016-03-08T11:20:29"
+        },
+        {
+          "Name": "dbsync-0064-dlisak.sql",
+          "Version": 64,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-03-17T17:18:58",
+          "MinDate": "2016-03-17T17:18:58",
+          "UsedScriptDate": "2016-03-17T17:18:58"
+        },
+        {
+          "Name": "dbsync-0065-aagincic.sql",
+          "Version": 65,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-03-23T09:36:20",
+          "MinDate": "2016-03-23T09:36:20",
+          "UsedScriptDate": "2016-03-23T09:36:20"
+        },
+        {
+          "Name": "dbsync-0066-dlisak.sql",
+          "Version": 66,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-05-19T17:43:06",
+          "MinDate": "2016-05-19T17:43:06",
+          "UsedScriptDate": "2016-05-19T17:43:06"
+        },
+        {
+          "Name": "dbsync-0067-ihrastinski.sql",
+          "Version": 67,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2016-05-24T18:19:37",
+          "MinDate": "2016-05-24T18:19:37",
+          "UsedScriptDate": "2016-05-24T18:19:37"
+        },
+        {
+          "Name": "dbsync-0068-dlisak.sql",
+          "Version": 68,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-05-27T17:52:20",
+          "MinDate": "2016-05-27T17:52:20",
+          "UsedScriptDate": "2016-05-27T17:52:20"
+        },
+        {
+          "Name": "dbsync-0069-dlisak.sql",
+          "Version": 69,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-05-30T17:51:33",
+          "MinDate": "2016-05-30T17:51:33",
+          "UsedScriptDate": "2016-05-30T17:51:33"
+        },
+        {
+          "Name": "dbsync-0070-dlisak.sql",
+          "Version": 70,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-05-30T17:51:33",
+          "MinDate": "2016-05-30T17:51:33",
+          "UsedScriptDate": "2016-05-30T17:52:33"
+        },
+        {
+          "Name": "dbsync-0071-dlisak.sql",
+          "Version": 71,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-06-07T08:50:45",
+          "MinDate": "2016-06-07T08:50:45",
+          "UsedScriptDate": "2016-06-07T08:50:45"
+        },
+        {
+          "Name": "dbsync-0072-aagincic.sql",
+          "Version": 72,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-06-24T15:01:25",
+          "MinDate": "2016-06-24T15:01:25",
+          "UsedScriptDate": "2016-06-24T15:01:25"
+        },
+        {
+          "Name": "dbsync-0073-aagincic.sql",
+          "Version": 73,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2016-06-28T15:57:36",
+          "MinDate": "2016-06-28T15:57:36",
+          "UsedScriptDate": "2016-06-28T15:57:36"
+        },
+        {
+          "Name": "dbsync-0074-dlisak.sql",
+          "Version": 74,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-07-08T09:30:17",
+          "MinDate": "2016-07-08T09:30:17",
+          "UsedScriptDate": "2016-07-08T09:30:17"
+        },
+        {
+          "Name": "dbsync-0075-dlisak.sql",
+          "Version": 75,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2016-08-01T12:01:53",
+          "MinDate": "2016-08-01T12:01:53",
+          "UsedScriptDate": "2016-08-01T12:01:53"
+        },
+        {
+          "Name": "dbsync-0076-dlisak.sql",
+          "Version": 76,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2017-01-12T14:17:16",
+          "MinDate": "2017-01-12T14:17:16",
+          "UsedScriptDate": "2017-01-12T14:17:16"
+        },
+        {
+          "Name": "dbsync-0077-ihrastinski.sql",
+          "Version": 77,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2017-05-25T11:50:41",
+          "MinDate": "2017-05-25T11:50:41",
+          "UsedScriptDate": "2017-05-25T11:50:41"
+        },
+        {
+          "Name": "dbsync-0078-ihrastinski.sql",
+          "Version": 78,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2017-05-12T17:30:02",
+          "MinDate": "2017-05-12T17:30:02",
+          "UsedScriptDate": "2017-05-12T17:30:02"
+        },
+        {
+          "Name": "dbsync-0079-ihrastinski.sql",
+          "Version": 79,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2017-05-16T09:39:37",
+          "MinDate": "2017-05-16T09:39:37",
+          "UsedScriptDate": "2017-05-16T09:39:37"
+        },
+        {
+          "Name": "dbsync-0080-dlisak.sql",
+          "Version": 80,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2017-05-22T13:49:22",
+          "MinDate": "2017-05-22T13:49:22",
+          "UsedScriptDate": "2017-05-22T13:49:22"
+        },
+        {
+          "Name": "dbsync-0081-aagincic.sql",
+          "Version": 81,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2017-06-19T14:36:23",
+          "MinDate": "2017-06-19T14:36:23",
+          "UsedScriptDate": "2017-06-19T14:36:23"
+        },
+        {
+          "Name": "dbsync-0082-dlisak.sql",
+          "Version": 82,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2017-06-29T11:49:18",
+          "MinDate": "2017-06-29T11:49:18",
+          "UsedScriptDate": "2017-06-29T11:49:18"
+        },
+        {
+          "Name": "dbsync-0083-aagincic.sql",
+          "Version": 83,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-01-19T16:06:09",
+          "MinDate": "2018-01-19T16:06:09",
+          "UsedScriptDate": "2018-01-19T16:06:09"
+        },
+        {
+          "Name": "dbsync-0084-dlisak.sql",
+          "Version": 84,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2018-03-02T11:30:10",
+          "MinDate": "2018-03-02T11:30:10",
+          "UsedScriptDate": "2018-03-02T11:30:10"
+        },
+        {
+          "Name": "dbsync-0085-dlisak.sql",
+          "Version": 85,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2018-03-02T12:04:49",
+          "MinDate": "2018-03-02T12:04:49",
+          "UsedScriptDate": "2018-03-02T12:04:49"
+        },
+        {
+          "Name": "dbsync-0086-dlisak.sql",
+          "Version": 86,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2018-03-20T11:56:00",
+          "MinDate": "2018-03-20T11:56:00",
+          "UsedScriptDate": "2018-03-20T11:56:00"
+        },
+        {
+          "Name": "dbsync-0087-aagincic.sql",
+          "Version": 87,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-03-21T16:47:56",
+          "MinDate": "2018-03-21T16:47:56",
+          "UsedScriptDate": "2018-03-21T16:47:56"
+        },
+        {
+          "Name": "dbsync-0088-aagincic.sql",
+          "Version": 88,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-03-22T13:11:12",
+          "MinDate": "2018-03-22T13:11:12",
+          "UsedScriptDate": "2018-03-22T13:11:12"
+        },
+        {
+          "Name": "dbsync-0089-aagincic.sql",
+          "Version": 89,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-06-05T16:17:01",
+          "MinDate": "2018-06-05T16:17:01",
+          "UsedScriptDate": "2018-06-05T16:17:01"
+        },
+        {
+          "Name": "dbsync-0090-aagincic.sql",
+          "Version": 90,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-06-06T18:20:44",
+          "MinDate": "2018-06-06T18:20:44",
+          "UsedScriptDate": "2018-06-06T18:20:44"
+        },
+        {
+          "Name": "dbsync-0091-aagincic.sql",
+          "Version": 91,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-06-22T16:49:55",
+          "MinDate": "2018-06-22T16:49:55",
+          "UsedScriptDate": "2018-06-22T16:49:55"
+        },
+        {
+          "Name": "dbsync-0092-aagincic.sql",
+          "Version": 92,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-07-19T11:00:01",
+          "MinDate": "2018-07-19T11:00:01",
+          "UsedScriptDate": "2018-07-19T11:00:01"
+        },
+        {
+          "Name": "dbsync-0093-aagincic.sql",
+          "Version": 93,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-07-19T15:50:12",
+          "MinDate": "2018-07-19T15:50:12",
+          "UsedScriptDate": "2018-07-19T15:50:12"
+        },
+        {
+          "Name": "dbsync-0094-aagincic.sql",
+          "Version": 94,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-07-20T11:06:24",
+          "MinDate": "2018-07-20T11:06:24",
+          "UsedScriptDate": "2018-07-20T11:06:24"
+        },
+        {
+          "Name": "dbsync-0095-dlisak.sql",
+          "Version": 95,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2018-07-27T11:44:30",
+          "MinDate": "2018-07-27T11:44:30",
+          "UsedScriptDate": "2018-07-27T11:44:30"
+        },
+        {
+          "Name": "dbsync-0096-dlisak.sql",
+          "Version": 96,
+          "UpdateAuthor": "dlisak",
+          "MaxDate": "2018-07-30T16:19:37",
+          "MinDate": "2018-07-30T16:19:37",
+          "UsedScriptDate": "2018-07-30T16:19:37"
+        },
+        {
+          "Name": "dbsync-0097-ihrastinski.sql",
+          "Version": 97,
+          "UpdateAuthor": "ihrastinski",
+          "MaxDate": "2018-11-02T15:38:16",
+          "MinDate": "2018-11-02T15:38:16",
+          "UsedScriptDate": "2018-11-02T15:38:16"
+        }
+      ]
+    },
+    {
+      "Order": 1,
+      "DataContextID": "vbcoffee",
+      "ContextProjectFile": "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\trunk\\BranchSCoffee\\gipcoffee.mes.datamodel\\gipcoffee.mes.datamodel.csproj",
+      "ContextFolders": [ "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\trunk\\BranchSCoffee\\gipcoffee.mes.datamodel\\DbScripts\\vbcoffee\\" ],
+      "OperationFiles": [
+        {
+          "Name": "dbsync-0001-aagincic.sql",
+          "Version": 1,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-07-06T14:48:43",
+          "MinDate": "2018-07-06T14:48:43",
+          "UsedScriptDate": "2018-07-06T14:48:43"
+        },
+        {
+          "Name": "dbsync-0002-aagincic.sql",
+          "Version": 2,
+          "UpdateAuthor": "aagincic",
+          "MaxDate": "2018-07-06T14:48:43",
+          "MinDate": "2018-07-06T14:48:43",
+          "UsedScriptDate": "2018-07-06T14:49:43"
+        }
+      ]
+    }
+  ]
+}

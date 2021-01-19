@@ -1,0 +1,33 @@
+<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine">
+    <ControlTemplate x:Key="NormalPieGip" TargetType="{x:Type local:VBProgressBar}">
+        <Grid x:Name="LayoutRoot">
+            <!-- attach the view model -->
+            <local:VBProgressBarCircularViewModel.Attach>
+                <local:VBProgressBarCircularViewModel HoleSizeFactor="0.75"/>
+            </local:VBProgressBarCircularViewModel.Attach>
+
+
+            <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Stroke="LightGray" Fill="Transparent"
+                       StrokeThickness="0.3">
+            </Ellipse>
+
+            <local:VBPiePiece CentreX="{Binding CentreX}" CentreY="{Binding CentreY}"
+                              RotationAngle="0" WedgeAngle="{Binding Angle}"
+                              Radius="{Binding Radius}" Fill="LightBlue"/>
+
+            <Grid local:GridUtils.RowDefinitions="*,3.5*,*"
+                    local:GridUtils.ColumnDefinitions="*,3.5*,*">
+                <TextBlock Text="{Binding Percent, StringFormat=0%}"
+                            Foreground="DarkBlue"
+                            FontWeight="Bold" FontSize="20"
+                            Grid.Row="1" Grid.Column="1"
+                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Grid>
+        </Grid>
+    </ControlTemplate>
+</ResourceDictionary>

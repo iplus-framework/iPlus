@@ -1,0 +1,251 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{96014A57-E700-478F-850E-452E9BFCAA90}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>gip.core.communication</RootNamespace>
+    <AssemblyName>gip.core.communication</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>
+    </DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>..\bin\Release\gip.core.communication.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.8.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Portable.BouncyCastle.1.8.8\lib\net40\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NModbus4, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\NModbus4.2.1.0\lib\net40\NModbus4.dll</HintPath>
+    </Reference>
+    <Reference Include="Opc.Ua.Client, Version=1.4.363.0, Culture=neutral, PublicKeyToken=bfa7a73c5cf4b6e8, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Client.1.4.363.107\lib\net462\Opc.Ua.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Opc.Ua.Configuration, Version=1.4.363.0, Culture=neutral, PublicKeyToken=bfa7a73c5cf4b6e8, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Configuration.1.4.363.107\lib\net462\Opc.Ua.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Opc.Ua.Core, Version=1.4.363.0, Culture=neutral, PublicKeyToken=bfa7a73c5cf4b6e8, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Core.1.4.363.107\lib\net462\Opc.Ua.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data.Entity">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.IdentityModel.Selectors" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Extensions.cs" />
+    <Compile Include="FileSystem\CyclicExport\PAXMLCyclicExport.cs" />
+    <Compile Include="FileSystem\CyclicExport\PAFileCyclicExport.cs" />
+    <Compile Include="FileSystem\CyclicExport\PAFileCyclicGroupBase.cs" />
+    <Compile Include="FileSystem\PAXMLDocExporterBase.cs" />
+    <Compile Include="FileSystem\PAXMLDocImporterScript.cs" />
+    <Compile Include="FileSystem\PAFileSystemWatcherBase.cs" />
+    <Compile Include="FileSystem\PAFileSystemXMLWatcher.cs" />
+    <Compile Include="FileSystem\PAXMLDocImporterBase.cs" />
+    <Compile Include="FileSystem\PropertyExport\PAFilePropertyLogGroup.cs" />
+    <Compile Include="FileSystem\PropertyExport\PAFilePropertyLogConfig.cs" />
+    <Compile Include="FileSystem\PropertyExport\PAFilePropertyLogExport.cs" />
+    <Compile Include="PLC\OPC\OPCUA\OPCUAClientACService.cs" />
+    <Compile Include="PLC\OPC\OPCUA\OPCUAClientACSession.cs" />
+    <Compile Include="PLC\OPC\OPCUA\OPCUAClientACSubscr.cs" />
+    <Compile Include="PLC\OPC\OPCUA\OPCUAClientMonitoredItem.cs" />
+    <Compile Include="PLC\OPC\OPCUA\OPCUAClientSession.cs" />
+    <Compile Include="PLC\OPC\OPCUA\OPCUAClientSubscr.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Smtp\ACSmtpClient.cs" />
+    <Compile Include="Smtp\PAAlarmMessengerSmtp.cs" />
+    <Compile Include="PLC\OPC\OPCItemConfig.cs" />
+    <Compile Include="PLC\OPC\ACComponents\OPCClientACService.cs" />
+    <Compile Include="PLC\OPC\Softing\OPCClientSACService.cs" />
+    <Compile Include="PLC\OPC\Softing\OPCClientSACSession.cs" />
+    <Compile Include="PLC\OPC\Softing\OPCClientSACSubscr.cs" />
+    <Compile Include="PLC\OPC\Softing\OPCClientSoftingDaSession.cs" />
+    <Compile Include="PLC\OPC\Softing\OPCClientSoftingDaItem.cs" />
+    <Compile Include="PLC\OPC\Softing\OPCClientSoftingDaSubscr.cs" />
+    <Compile Include="PLC\OPC\ACComponents\OPCClientACSubscription.cs" />
+    <Compile Include="PLC\OPC\ACComponents\OPCClientACSession.cs" />
+    <Compile Include="SPSCommunication\BaseACComponents\ACService.cs" />
+    <Compile Include="SPSCommunication\BaseACComponents\ACSession.cs" />
+    <Compile Include="SPSCommunication\BaseACComponents\ACSessionObjSerializer.cs" />
+    <Compile Include="SPSCommunication\BaseACComponents\ACSubscription.cs" />
+    <Compile Include="SPSCommunication\Driver\Beckhoff\ADSSession.cs" />
+    <Compile Include="SPSCommunication\Driver\Endianess.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\ACComponents\ModbusItem.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\ACComponents\ModbusService.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\ACComponents\ModbusSession.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\ACComponents\ModbusSubscr.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\HelperClasses\ItemSyntaxResolver.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\HelperClasses\ModbusDataBlock.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\HelperClasses\ModbusDataBlockItems.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\HelperClasses\ModbusDataBlocksRAM.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\HelperClasses\Reading\ModbusPollingPlan.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\HelperClasses\Reading\ModbusPollingPlanEntry.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\HelperClasses\Sending\ModbusItems2SendEntry.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\HelperClasses\Sending\ModbusItems2SendQueue.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\HelperClasses\Sending\ModbusItemsSendPackage.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\ProtocolImpl\Conversion.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\ProtocolImpl\Enums.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\Types\Byte.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\Types\DInt.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\Types\Real.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\Types\DWord.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\Types\Int.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\Types\String.cs" />
+    <Compile Include="SPSCommunication\Driver\Modbus\Types\Word.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ACComponents\S7TCPItem.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ACComponents\S7TCPService.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ACComponents\S7TCPSession.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ACComponents\S7TCPSubscr.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\Reading\S7TCPPollingPlan.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\Reading\S7TCPPollingPlanEntry.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\S7TCPDataBlock.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\S7TCPDataBlockItems.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\S7TCPDataBlocksRAM.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\Sending\S7TCPItems2SendEntry.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\Sending\S7TCPItems2SendQueue.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\Sending\S7TCPItemsSendPackage.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ProtocolImpl\Conversion.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ProtocolImpl\Enums.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ProtocolImpl\ItemSyntaxResolver.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ProtocolImpl\PLC.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Byte.cs" />
+    <Compile Include="SPSCommunication\Driver\ByteArray.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Counter.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\DInt.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Real.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\DWord.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Int.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\String.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Struct.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Timer.cs" />
+    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Word.cs" />
+    <Compile Include="WebService\PAExportERPGroup.cs" />
+    <Compile Include="WebService\PAExporterERPBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\gip.bso.iplus\gip.bso.iplus.csproj">
+      <Project>{763ea3dc-3fb4-4d74-a252-a6a8811f0461}</Project>
+      <Name>gip.bso.iplus</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj">
+      <Project>{893D3B1B-DC55-4684-8B5D-941F1049151B}</Project>
+      <Name>gip.core.autocomponent</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj">
+      <Project>{16FB4111-5110-46E5-851D-38A4D7522F85}</Project>
+      <Name>gip.core.datamodel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gip.ext.opctoolbox\gip.ext.opctoolbox.csproj">
+      <Project>{BB162D04-7C12-4700-AB7D-9D1A5B823E2E}</Project>
+      <Name>gip.ext.opctoolbox</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.VisualBasic.PowerPacks.10.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft Visual Basic PowerPacks 10.0</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="PLC\OPC\OPCUA\OPCUAClient.Config.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="VBControlScripts\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

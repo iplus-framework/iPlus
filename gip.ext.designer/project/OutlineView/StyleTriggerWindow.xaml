@@ -1,0 +1,7 @@
+﻿<Window x:Class="gip.ext.designer.OutlineView.StyleTriggerWindow" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:OutlineView="clr-namespace:gip.ext.designer.OutlineView" 
+        Height="438" Width="750" Title="Edit Items" WindowStartupLocation="CenterScreen">
+    <OutlineView:TriggersCollectionEditor x:Name="TriggerEditor"></OutlineView:TriggersCollectionEditor>
+</Window>

@@ -1,0 +1,37 @@
+﻿// Copyright (c) AlphaSierraPapa for the SharpDevelop Team (for details please see \doc\copyright.txt)
+// This code is distributed under the GNU LGPL (for details please see \doc\license.txt)
+
+using System;
+
+namespace gip.ext.design.Extensions
+{
+	/// <summary>
+	/// Attribute to specify that the decorated class is a WPF extension for the specified item type.
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Class, AllowMultiple=true, Inherited=false)]
+	public sealed class ExtensionDisabledAttribute : Attribute
+	{
+        Type _DisabledExtension;
+		
+		/// <summary>
+		/// Gets/Sets the type of another extension that this extension is overriding.
+		/// </summary>
+		public Type DisabledExtension 
+        {
+			get { return _DisabledExtension; }
+		}
+
+		/// <summary>
+		/// Create a new ExtensionForAttribute that specifies that the decorated class
+		/// is a WPF extension for the specified item type.
+		/// </summary>
+        public ExtensionDisabledAttribute(Type disabledExtension)
+		{
+			if (disabledExtension == null)
+                throw new ArgumentNullException("disabledExtension");
+			if (!disabledExtension.IsClass)
+                throw new ArgumentException("disabledExtension must be a class");
+            _DisabledExtension = disabledExtension;
+		}
+	}
+}

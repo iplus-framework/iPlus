@@ -1,0 +1,39 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine">
+    <Style x:Key="IconRedoStyleGip" TargetType="{x:Type ContentControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ContentControl}">
+                    <Viewbox Stretch="Uniform">
+                        <Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Ebene_1_46" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                            <Path x:Name="Path_47" Width="23.3395" Height="18.8278" Canvas.Left="0.0253315" Canvas.Top="2.5387" Stretch="Fill" StrokeLineJoin="Round" 
+				    Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
+				    Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
+                  Data="F1 M 6.63742,20.8665C 5.76766,16.2047 4.8979,11.5429 6.29664,9.73686C 7.69539,7.93086 11.3626,8.98071 15.0299,10.0306L 14.0291,13.5265L 22.8648,10.3823L 17.0315,3.0387L 16.5311,4.78667L 16.0307,6.53463C 11.5485,5.25148 7.0663,3.96834 4.48207,6.06536C 1.89785,8.16238 1.21159,13.6396 0.525331,19.1168L 6.63742,20.8665 Z "/>
+                        </Canvas>
+                    </Viewbox>
+                    <!--<ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsMouseOver}" Value="True">
+                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
+                            <Setter TargetName="Part2" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart2}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsPressed}" Value="True">
+                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
+                            <Setter TargetName="Part2" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart2}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsEnabled}" Value="True">
+                            <Setter TargetName="Part1" Property="Fill" Value="Black"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>-->
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="IconRedoStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconRedoStyleGip}">
+    </Style>
+
+</ResourceDictionary>
+
+

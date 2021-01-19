@@ -1,0 +1,1512 @@
+<?xml version="1.0"?>
+<xs:schema xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:vbr="http://www.iplus-framework.com/report/xaml" targetNamespace="http://www.iplus-framework.com/report/xaml" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="pack://application:,,,/gip.core.layoutengine;component/VBXMLEditorSchemas/XamlPresentation2006.xsd" namespace="http://schemas.microsoft.com/winfx/2006/xaml/presentation" />
+  <xs:simpleType name="enumBaselineAlignment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Top" />
+      <xs:enumeration value="Center" />
+      <xs:enumeration value="Bottom" />
+      <xs:enumeration value="Baseline" />
+      <xs:enumeration value="TextTop" />
+      <xs:enumeration value="TextBottom" />
+      <xs:enumeration value="Subscript" />
+      <xs:enumeration value="Superscript" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumFlowDirection">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="LeftToRight" />
+      <xs:enumeration value="RightToLeft" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="InlineACMethodValue">
+    <xs:sequence>
+      <xs:group ref="vbr:VBReportItems" />
+      <xs:element name="InlineACMethodValue.ParameterNameIndex" type="dInt32Container" />
+      <xs:element name="InlineACMethodValue.DictKey" />
+      <xs:element name="InlineACMethodValue.VBContent" />
+      <xs:element name="InlineACMethodValue.AggregateGroup" />
+      <xs:element name="InlineACMethodValue.StringFormat" />
+      <xs:element name="InlineACMethodValue.CultureInfo" />
+      <xs:element name="InlineACMethodValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineACMethodValue.Value" type="dObjectContainer" />
+      <xs:element name="InlineACMethodValue.Text" />
+      <xs:element name="InlineACMethodValue.BaselineAlignment" />
+      <xs:element name="InlineACMethodValue.TextDecorations" />
+      <xs:element name="InlineACMethodValue.FlowDirection" />
+      <xs:element name="InlineACMethodValue.FontFamily" type="dFontFamilyContainer" />
+      <xs:element name="InlineACMethodValue.FontStyle" type="dFontStyleContainer" />
+      <xs:element name="InlineACMethodValue.FontWeight" type="dFontWeightContainer" />
+      <xs:element name="InlineACMethodValue.FontStretch" type="dFontStretchContainer" />
+      <xs:element name="InlineACMethodValue.FontSize" type="dDoubleContainer" />
+      <xs:element name="InlineACMethodValue.Foreground" type="dBrushContainer" />
+      <xs:element name="InlineACMethodValue.Background" type="dBrushContainer" />
+      <xs:element name="InlineACMethodValue.TextEffects" />
+      <xs:element name="InlineACMethodValue.Style" type="dStyleContainer" />
+      <xs:element name="InlineACMethodValue.OverridesDefaultStyle" />
+      <xs:element name="InlineACMethodValue.Resources" />
+      <xs:element name="InlineACMethodValue.Name" />
+      <xs:element name="InlineACMethodValue.Tag" type="dObjectContainer" />
+      <xs:element name="InlineACMethodValue.Language" type="dXmlLanguageContainer" />
+      <xs:element name="InlineACMethodValue.FocusVisualStyle" type="dStyleContainer" />
+      <xs:element name="InlineACMethodValue.Cursor" type="dCursorContainer" />
+      <xs:element name="InlineACMethodValue.ForceCursor" />
+      <xs:element name="InlineACMethodValue.InputScope" type="dInputScopeContainer" />
+      <xs:element name="InlineACMethodValue.DataContext" type="dObjectContainer" />
+      <xs:element name="InlineACMethodValue.BindingGroup" />
+      <xs:element name="InlineACMethodValue.ToolTip" type="dObjectContainer" />
+      <xs:element name="InlineACMethodValue.ContextMenu" type="dContextMenuContainer" />
+      <xs:element name="InlineACMethodValue.IsEnabled" />
+      <xs:element name="InlineACMethodValue.Focusable" />
+      <xs:element name="InlineACMethodValue.AllowDrop" />
+    </xs:sequence>
+    <xs:attribute name="ParameterNameIndex" />
+    <xs:attribute name="DictKey" />
+    <xs:attribute name="VBContent" />
+    <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="StringFormat" />
+    <xs:attribute name="CultureInfo" />
+    <xs:attribute name="MaxLength" />
+    <xs:attribute name="Value" />
+    <xs:attribute name="Text" />
+    <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
+    <xs:attribute name="TextDecorations" />
+    <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+    <xs:attribute name="FontFamily" />
+    <xs:attribute name="FontStyle" />
+    <xs:attribute name="FontWeight" />
+    <xs:attribute name="FontStretch" />
+    <xs:attribute name="FontSize" />
+    <xs:attribute name="Foreground" />
+    <xs:attribute name="Background" />
+    <xs:attribute name="TextEffects" />
+    <xs:attribute name="Style" />
+    <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Resources" />
+    <xs:attribute name="Name" />
+    <xs:attribute name="Tag" />
+    <xs:attribute name="Language" />
+    <xs:attribute name="FocusVisualStyle" />
+    <xs:attribute name="Cursor" />
+    <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="InputScope" />
+    <xs:attribute name="DataContext" />
+    <xs:attribute name="BindingGroup" />
+    <xs:attribute name="ToolTip" />
+    <xs:attribute name="ContextMenu" />
+    <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+  </xs:complexType>
+  <xs:element name="InlineACMethodValue" type="vbr:InlineACMethodValue" />
+  <xs:complexType name="InlineTableCellConfigurationValue">
+    <xs:sequence>
+      <xs:group ref="vbr:VBReportItems" />
+      <xs:element name="InlineTableCellConfigurationValue.ParameterNameIndex" type="dInt32Container" />
+      <xs:element name="InlineTableCellConfigurationValue.DictKey" />
+      <xs:element name="InlineTableCellConfigurationValue.VBContent" />
+      <xs:element name="InlineTableCellConfigurationValue.AggregateGroup" />
+      <xs:element name="InlineTableCellConfigurationValue.StringFormat" />
+      <xs:element name="InlineTableCellConfigurationValue.CultureInfo" />
+      <xs:element name="InlineTableCellConfigurationValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineTableCellConfigurationValue.Value" type="dObjectContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.Text" />
+      <xs:element name="InlineTableCellConfigurationValue.BaselineAlignment" />
+      <xs:element name="InlineTableCellConfigurationValue.TextDecorations" />
+      <xs:element name="InlineTableCellConfigurationValue.FlowDirection" />
+      <xs:element name="InlineTableCellConfigurationValue.FontFamily" type="dFontFamilyContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.FontStyle" type="dFontStyleContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.FontWeight" type="dFontWeightContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.FontStretch" type="dFontStretchContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.FontSize" type="dDoubleContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.Foreground" type="dBrushContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.Background" type="dBrushContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.TextEffects" />
+      <xs:element name="InlineTableCellConfigurationValue.Style" type="dStyleContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.OverridesDefaultStyle" />
+      <xs:element name="InlineTableCellConfigurationValue.Resources" />
+      <xs:element name="InlineTableCellConfigurationValue.Name" />
+      <xs:element name="InlineTableCellConfigurationValue.Tag" type="dObjectContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.Language" type="dXmlLanguageContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.FocusVisualStyle" type="dStyleContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.Cursor" type="dCursorContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.ForceCursor" />
+      <xs:element name="InlineTableCellConfigurationValue.InputScope" type="dInputScopeContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.DataContext" type="dObjectContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.BindingGroup" />
+      <xs:element name="InlineTableCellConfigurationValue.ToolTip" type="dObjectContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.ContextMenu" type="dContextMenuContainer" />
+      <xs:element name="InlineTableCellConfigurationValue.IsEnabled" />
+      <xs:element name="InlineTableCellConfigurationValue.Focusable" />
+      <xs:element name="InlineTableCellConfigurationValue.AllowDrop" />
+    </xs:sequence>
+    <xs:attribute name="ParameterNameIndex" />
+    <xs:attribute name="DictKey" />
+    <xs:attribute name="VBContent" />
+    <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="StringFormat" />
+    <xs:attribute name="CultureInfo" />
+    <xs:attribute name="MaxLength" />
+    <xs:attribute name="Value" />
+    <xs:attribute name="Text" />
+    <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
+    <xs:attribute name="TextDecorations" />
+    <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+    <xs:attribute name="FontFamily" />
+    <xs:attribute name="FontStyle" />
+    <xs:attribute name="FontWeight" />
+    <xs:attribute name="FontStretch" />
+    <xs:attribute name="FontSize" />
+    <xs:attribute name="Foreground" />
+    <xs:attribute name="Background" />
+    <xs:attribute name="TextEffects" />
+    <xs:attribute name="Style" />
+    <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Resources" />
+    <xs:attribute name="Name" />
+    <xs:attribute name="Tag" />
+    <xs:attribute name="Language" />
+    <xs:attribute name="FocusVisualStyle" />
+    <xs:attribute name="Cursor" />
+    <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="InputScope" />
+    <xs:attribute name="DataContext" />
+    <xs:attribute name="BindingGroup" />
+    <xs:attribute name="ToolTip" />
+    <xs:attribute name="ContextMenu" />
+    <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+  </xs:complexType>
+  <xs:element name="InlineTableCellConfigurationValue" type="vbr:InlineTableCellConfigurationValue" />
+  <xs:complexType name="TableRowDataBase">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dTableRow">
+        <xs:sequence>
+          <xs:group ref="vbr:VBReportItems" />
+          <xs:element name="TableRowDataBase.DictKey" />
+          <xs:element name="TableRowDataBase.VBSource" />
+          <xs:element name="TableRowDataBase.ColumnWidthInfos" />
+          <xs:element name="TableRowDataBase.StringFormat" />
+          <xs:element name="TableRowDataBase.MaxLength" type="dInt32Container" />
+          <xs:element name="TableRowDataBase.CultureInfo" />
+          <xs:element name="TableRowDataBase.BreakPageBeforeNextRow" />
+          <xs:element name="TableRowDataBase.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="TableRowDataBase.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="TableRowDataBase.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="TableRowDataBase.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="TableRowDataBase.FontSize" type="dDoubleContainer" />
+          <xs:element name="TableRowDataBase.Foreground" type="dBrushContainer" />
+          <xs:element name="TableRowDataBase.Background" type="dBrushContainer" />
+          <xs:element name="TableRowDataBase.TextEffects" />
+          <xs:element name="TableRowDataBase.Style" type="dStyleContainer" />
+          <xs:element name="TableRowDataBase.OverridesDefaultStyle" />
+          <xs:element name="TableRowDataBase.Resources" />
+          <xs:element name="TableRowDataBase.Name" />
+          <xs:element name="TableRowDataBase.Tag" type="dObjectContainer" />
+          <xs:element name="TableRowDataBase.Language" type="dXmlLanguageContainer" />
+          <xs:element name="TableRowDataBase.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="TableRowDataBase.Cursor" type="dCursorContainer" />
+          <xs:element name="TableRowDataBase.ForceCursor" />
+          <xs:element name="TableRowDataBase.InputScope" type="dInputScopeContainer" />
+          <xs:element name="TableRowDataBase.DataContext" type="dObjectContainer" />
+          <xs:element name="TableRowDataBase.BindingGroup" />
+          <xs:element name="TableRowDataBase.ToolTip" type="dObjectContainer" />
+          <xs:element name="TableRowDataBase.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="TableRowDataBase.IsEnabled" />
+          <xs:element name="TableRowDataBase.Focusable" />
+          <xs:element name="TableRowDataBase.AllowDrop" />
+        </xs:sequence>
+        <xs:attribute name="DictKey" />
+        <xs:attribute name="VBSource" />
+        <xs:attribute name="ColumnWidthInfos" />
+        <xs:attribute name="StringFormat" />
+        <xs:attribute name="MaxLength" />
+        <xs:attribute name="CultureInfo" />
+        <xs:attribute name="BreakPageBeforeNextRow" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="TextEffects" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="TableRowDataBase" type="vbr:TableRowDataBase" />
+  <xs:simpleType name="enumReportAggregateValueType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Average" />
+      <xs:enumeration value="Count" />
+      <xs:enumeration value="Maximum" />
+      <xs:enumeration value="Minimum" />
+      <xs:enumeration value="Sum" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="InlineAggregateValue">
+    <xs:sequence>
+      <xs:group ref="vbr:VBReportItems" />
+      <xs:element name="InlineAggregateValue.AggregateGroup" />
+      <xs:element name="InlineAggregateValue.AggregateValueType" />
+      <xs:element name="InlineAggregateValue.EmptyValue" />
+      <xs:element name="InlineAggregateValue.ErrorValue" />
+      <xs:element name="InlineAggregateValue.StringFormat" />
+      <xs:element name="InlineAggregateValue.CultureInfo" />
+      <xs:element name="InlineAggregateValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineAggregateValue.Value" type="dObjectContainer" />
+      <xs:element name="InlineAggregateValue.Text" />
+      <xs:element name="InlineAggregateValue.BaselineAlignment" />
+      <xs:element name="InlineAggregateValue.TextDecorations" />
+      <xs:element name="InlineAggregateValue.FlowDirection" />
+      <xs:element name="InlineAggregateValue.FontFamily" type="dFontFamilyContainer" />
+      <xs:element name="InlineAggregateValue.FontStyle" type="dFontStyleContainer" />
+      <xs:element name="InlineAggregateValue.FontWeight" type="dFontWeightContainer" />
+      <xs:element name="InlineAggregateValue.FontStretch" type="dFontStretchContainer" />
+      <xs:element name="InlineAggregateValue.FontSize" type="dDoubleContainer" />
+      <xs:element name="InlineAggregateValue.Foreground" type="dBrushContainer" />
+      <xs:element name="InlineAggregateValue.Background" type="dBrushContainer" />
+      <xs:element name="InlineAggregateValue.TextEffects" />
+      <xs:element name="InlineAggregateValue.Style" type="dStyleContainer" />
+      <xs:element name="InlineAggregateValue.OverridesDefaultStyle" />
+      <xs:element name="InlineAggregateValue.Resources" />
+      <xs:element name="InlineAggregateValue.Name" />
+      <xs:element name="InlineAggregateValue.Tag" type="dObjectContainer" />
+      <xs:element name="InlineAggregateValue.Language" type="dXmlLanguageContainer" />
+      <xs:element name="InlineAggregateValue.FocusVisualStyle" type="dStyleContainer" />
+      <xs:element name="InlineAggregateValue.Cursor" type="dCursorContainer" />
+      <xs:element name="InlineAggregateValue.ForceCursor" />
+      <xs:element name="InlineAggregateValue.InputScope" type="dInputScopeContainer" />
+      <xs:element name="InlineAggregateValue.DataContext" type="dObjectContainer" />
+      <xs:element name="InlineAggregateValue.BindingGroup" />
+      <xs:element name="InlineAggregateValue.ToolTip" type="dObjectContainer" />
+      <xs:element name="InlineAggregateValue.ContextMenu" type="dContextMenuContainer" />
+      <xs:element name="InlineAggregateValue.IsEnabled" />
+      <xs:element name="InlineAggregateValue.Focusable" />
+      <xs:element name="InlineAggregateValue.AllowDrop" />
+    </xs:sequence>
+    <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="AggregateValueType" type="vbr:enumReportAggregateValueType" />
+    <xs:attribute name="EmptyValue" />
+    <xs:attribute name="ErrorValue" />
+    <xs:attribute name="StringFormat" />
+    <xs:attribute name="CultureInfo" />
+    <xs:attribute name="MaxLength" />
+    <xs:attribute name="Value" />
+    <xs:attribute name="Text" />
+    <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
+    <xs:attribute name="TextDecorations" />
+    <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+    <xs:attribute name="FontFamily" />
+    <xs:attribute name="FontStyle" />
+    <xs:attribute name="FontWeight" />
+    <xs:attribute name="FontStretch" />
+    <xs:attribute name="FontSize" />
+    <xs:attribute name="Foreground" />
+    <xs:attribute name="Background" />
+    <xs:attribute name="TextEffects" />
+    <xs:attribute name="Style" />
+    <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Resources" />
+    <xs:attribute name="Name" />
+    <xs:attribute name="Tag" />
+    <xs:attribute name="Language" />
+    <xs:attribute name="FocusVisualStyle" />
+    <xs:attribute name="Cursor" />
+    <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="InputScope" />
+    <xs:attribute name="DataContext" />
+    <xs:attribute name="BindingGroup" />
+    <xs:attribute name="ToolTip" />
+    <xs:attribute name="ContextMenu" />
+    <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+  </xs:complexType>
+  <xs:element name="InlineAggregateValue" type="vbr:InlineAggregateValue" />
+  <xs:complexType name="InlineContextValue">
+    <xs:sequence>
+      <xs:group ref="vbr:VBReportItems" />
+      <xs:element name="InlineContextValue.DictKey" />
+      <xs:element name="InlineContextValue.VBContent" />
+      <xs:element name="InlineContextValue.AggregateGroup" />
+      <xs:element name="InlineContextValue.StringFormat" />
+      <xs:element name="InlineContextValue.CultureInfo" />
+      <xs:element name="InlineContextValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineContextValue.Value" type="dObjectContainer" />
+      <xs:element name="InlineContextValue.Text" />
+      <xs:element name="InlineContextValue.BaselineAlignment" />
+      <xs:element name="InlineContextValue.TextDecorations" />
+      <xs:element name="InlineContextValue.FlowDirection" />
+      <xs:element name="InlineContextValue.FontFamily" type="dFontFamilyContainer" />
+      <xs:element name="InlineContextValue.FontStyle" type="dFontStyleContainer" />
+      <xs:element name="InlineContextValue.FontWeight" type="dFontWeightContainer" />
+      <xs:element name="InlineContextValue.FontStretch" type="dFontStretchContainer" />
+      <xs:element name="InlineContextValue.FontSize" type="dDoubleContainer" />
+      <xs:element name="InlineContextValue.Foreground" type="dBrushContainer" />
+      <xs:element name="InlineContextValue.Background" type="dBrushContainer" />
+      <xs:element name="InlineContextValue.TextEffects" />
+      <xs:element name="InlineContextValue.Style" type="dStyleContainer" />
+      <xs:element name="InlineContextValue.OverridesDefaultStyle" />
+      <xs:element name="InlineContextValue.Resources" />
+      <xs:element name="InlineContextValue.Name" />
+      <xs:element name="InlineContextValue.Tag" type="dObjectContainer" />
+      <xs:element name="InlineContextValue.Language" type="dXmlLanguageContainer" />
+      <xs:element name="InlineContextValue.FocusVisualStyle" type="dStyleContainer" />
+      <xs:element name="InlineContextValue.Cursor" type="dCursorContainer" />
+      <xs:element name="InlineContextValue.ForceCursor" />
+      <xs:element name="InlineContextValue.InputScope" type="dInputScopeContainer" />
+      <xs:element name="InlineContextValue.DataContext" type="dObjectContainer" />
+      <xs:element name="InlineContextValue.BindingGroup" />
+      <xs:element name="InlineContextValue.ToolTip" type="dObjectContainer" />
+      <xs:element name="InlineContextValue.ContextMenu" type="dContextMenuContainer" />
+      <xs:element name="InlineContextValue.IsEnabled" />
+      <xs:element name="InlineContextValue.Focusable" />
+      <xs:element name="InlineContextValue.AllowDrop" />
+    </xs:sequence>
+    <xs:attribute name="DictKey" />
+    <xs:attribute name="VBContent" />
+    <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="StringFormat" />
+    <xs:attribute name="CultureInfo" />
+    <xs:attribute name="MaxLength" />
+    <xs:attribute name="Value" />
+    <xs:attribute name="Text" />
+    <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
+    <xs:attribute name="TextDecorations" />
+    <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+    <xs:attribute name="FontFamily" />
+    <xs:attribute name="FontStyle" />
+    <xs:attribute name="FontWeight" />
+    <xs:attribute name="FontStretch" />
+    <xs:attribute name="FontSize" />
+    <xs:attribute name="Foreground" />
+    <xs:attribute name="Background" />
+    <xs:attribute name="TextEffects" />
+    <xs:attribute name="Style" />
+    <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Resources" />
+    <xs:attribute name="Name" />
+    <xs:attribute name="Tag" />
+    <xs:attribute name="Language" />
+    <xs:attribute name="FocusVisualStyle" />
+    <xs:attribute name="Cursor" />
+    <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="InputScope" />
+    <xs:attribute name="DataContext" />
+    <xs:attribute name="BindingGroup" />
+    <xs:attribute name="ToolTip" />
+    <xs:attribute name="ContextMenu" />
+    <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+  </xs:complexType>
+  <xs:element name="InlineContextValue" type="vbr:InlineContextValue" />
+  <xs:complexType name="InlineDocumentValue">
+    <xs:sequence>
+      <xs:group ref="vbr:VBReportItems" />
+      <xs:element name="InlineDocumentValue.DictKey" />
+      <xs:element name="InlineDocumentValue.VBContent" />
+      <xs:element name="InlineDocumentValue.AggregateGroup" />
+      <xs:element name="InlineDocumentValue.StringFormat" />
+      <xs:element name="InlineDocumentValue.CultureInfo" />
+      <xs:element name="InlineDocumentValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineDocumentValue.Value" type="dObjectContainer" />
+      <xs:element name="InlineDocumentValue.Text" />
+      <xs:element name="InlineDocumentValue.BaselineAlignment" />
+      <xs:element name="InlineDocumentValue.TextDecorations" />
+      <xs:element name="InlineDocumentValue.FlowDirection" />
+      <xs:element name="InlineDocumentValue.FontFamily" type="dFontFamilyContainer" />
+      <xs:element name="InlineDocumentValue.FontStyle" type="dFontStyleContainer" />
+      <xs:element name="InlineDocumentValue.FontWeight" type="dFontWeightContainer" />
+      <xs:element name="InlineDocumentValue.FontStretch" type="dFontStretchContainer" />
+      <xs:element name="InlineDocumentValue.FontSize" type="dDoubleContainer" />
+      <xs:element name="InlineDocumentValue.Foreground" type="dBrushContainer" />
+      <xs:element name="InlineDocumentValue.Background" type="dBrushContainer" />
+      <xs:element name="InlineDocumentValue.TextEffects" />
+      <xs:element name="InlineDocumentValue.Style" type="dStyleContainer" />
+      <xs:element name="InlineDocumentValue.OverridesDefaultStyle" />
+      <xs:element name="InlineDocumentValue.Resources" />
+      <xs:element name="InlineDocumentValue.Name" />
+      <xs:element name="InlineDocumentValue.Tag" type="dObjectContainer" />
+      <xs:element name="InlineDocumentValue.Language" type="dXmlLanguageContainer" />
+      <xs:element name="InlineDocumentValue.FocusVisualStyle" type="dStyleContainer" />
+      <xs:element name="InlineDocumentValue.Cursor" type="dCursorContainer" />
+      <xs:element name="InlineDocumentValue.ForceCursor" />
+      <xs:element name="InlineDocumentValue.InputScope" type="dInputScopeContainer" />
+      <xs:element name="InlineDocumentValue.DataContext" type="dObjectContainer" />
+      <xs:element name="InlineDocumentValue.BindingGroup" />
+      <xs:element name="InlineDocumentValue.ToolTip" type="dObjectContainer" />
+      <xs:element name="InlineDocumentValue.ContextMenu" type="dContextMenuContainer" />
+      <xs:element name="InlineDocumentValue.IsEnabled" />
+      <xs:element name="InlineDocumentValue.Focusable" />
+      <xs:element name="InlineDocumentValue.AllowDrop" />
+    </xs:sequence>
+    <xs:attribute name="DictKey" />
+    <xs:attribute name="VBContent" />
+    <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="StringFormat" />
+    <xs:attribute name="CultureInfo" />
+    <xs:attribute name="MaxLength" />
+    <xs:attribute name="Value" />
+    <xs:attribute name="Text" />
+    <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
+    <xs:attribute name="TextDecorations" />
+    <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+    <xs:attribute name="FontFamily" />
+    <xs:attribute name="FontStyle" />
+    <xs:attribute name="FontWeight" />
+    <xs:attribute name="FontStretch" />
+    <xs:attribute name="FontSize" />
+    <xs:attribute name="Foreground" />
+    <xs:attribute name="Background" />
+    <xs:attribute name="TextEffects" />
+    <xs:attribute name="Style" />
+    <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Resources" />
+    <xs:attribute name="Name" />
+    <xs:attribute name="Tag" />
+    <xs:attribute name="Language" />
+    <xs:attribute name="FocusVisualStyle" />
+    <xs:attribute name="Cursor" />
+    <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="InputScope" />
+    <xs:attribute name="DataContext" />
+    <xs:attribute name="BindingGroup" />
+    <xs:attribute name="ToolTip" />
+    <xs:attribute name="ContextMenu" />
+    <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+  </xs:complexType>
+  <xs:element name="InlineDocumentValue" type="vbr:InlineDocumentValue" />
+  <xs:complexType name="InlineTableCellValue">
+    <xs:sequence>
+      <xs:group ref="vbr:VBReportItems" />
+      <xs:element name="InlineTableCellValue.DictKey" />
+      <xs:element name="InlineTableCellValue.VBContent" />
+      <xs:element name="InlineTableCellValue.AggregateGroup" />
+      <xs:element name="InlineTableCellValue.StringFormat" />
+      <xs:element name="InlineTableCellValue.CultureInfo" />
+      <xs:element name="InlineTableCellValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineTableCellValue.Value" type="dObjectContainer" />
+      <xs:element name="InlineTableCellValue.Text" />
+      <xs:element name="InlineTableCellValue.BaselineAlignment" />
+      <xs:element name="InlineTableCellValue.TextDecorations" />
+      <xs:element name="InlineTableCellValue.FlowDirection" />
+      <xs:element name="InlineTableCellValue.FontFamily" type="dFontFamilyContainer" />
+      <xs:element name="InlineTableCellValue.FontStyle" type="dFontStyleContainer" />
+      <xs:element name="InlineTableCellValue.FontWeight" type="dFontWeightContainer" />
+      <xs:element name="InlineTableCellValue.FontStretch" type="dFontStretchContainer" />
+      <xs:element name="InlineTableCellValue.FontSize" type="dDoubleContainer" />
+      <xs:element name="InlineTableCellValue.Foreground" type="dBrushContainer" />
+      <xs:element name="InlineTableCellValue.Background" type="dBrushContainer" />
+      <xs:element name="InlineTableCellValue.TextEffects" />
+      <xs:element name="InlineTableCellValue.Style" type="dStyleContainer" />
+      <xs:element name="InlineTableCellValue.OverridesDefaultStyle" />
+      <xs:element name="InlineTableCellValue.Resources" />
+      <xs:element name="InlineTableCellValue.Name" />
+      <xs:element name="InlineTableCellValue.Tag" type="dObjectContainer" />
+      <xs:element name="InlineTableCellValue.Language" type="dXmlLanguageContainer" />
+      <xs:element name="InlineTableCellValue.FocusVisualStyle" type="dStyleContainer" />
+      <xs:element name="InlineTableCellValue.Cursor" type="dCursorContainer" />
+      <xs:element name="InlineTableCellValue.ForceCursor" />
+      <xs:element name="InlineTableCellValue.InputScope" type="dInputScopeContainer" />
+      <xs:element name="InlineTableCellValue.DataContext" type="dObjectContainer" />
+      <xs:element name="InlineTableCellValue.BindingGroup" />
+      <xs:element name="InlineTableCellValue.ToolTip" type="dObjectContainer" />
+      <xs:element name="InlineTableCellValue.ContextMenu" type="dContextMenuContainer" />
+      <xs:element name="InlineTableCellValue.IsEnabled" />
+      <xs:element name="InlineTableCellValue.Focusable" />
+      <xs:element name="InlineTableCellValue.AllowDrop" />
+    </xs:sequence>
+    <xs:attribute name="DictKey" />
+    <xs:attribute name="VBContent" />
+    <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="StringFormat" />
+    <xs:attribute name="CultureInfo" />
+    <xs:attribute name="MaxLength" />
+    <xs:attribute name="Value" />
+    <xs:attribute name="Text" />
+    <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
+    <xs:attribute name="TextDecorations" />
+    <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+    <xs:attribute name="FontFamily" />
+    <xs:attribute name="FontStyle" />
+    <xs:attribute name="FontWeight" />
+    <xs:attribute name="FontStretch" />
+    <xs:attribute name="FontSize" />
+    <xs:attribute name="Foreground" />
+    <xs:attribute name="Background" />
+    <xs:attribute name="TextEffects" />
+    <xs:attribute name="Style" />
+    <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Resources" />
+    <xs:attribute name="Name" />
+    <xs:attribute name="Tag" />
+    <xs:attribute name="Language" />
+    <xs:attribute name="FocusVisualStyle" />
+    <xs:attribute name="Cursor" />
+    <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="InputScope" />
+    <xs:attribute name="DataContext" />
+    <xs:attribute name="BindingGroup" />
+    <xs:attribute name="ToolTip" />
+    <xs:attribute name="ContextMenu" />
+    <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+  </xs:complexType>
+  <xs:element name="InlineTableCellValue" type="vbr:InlineTableCellValue" />
+  <xs:simpleType name="enumTextAlignment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Left" />
+      <xs:enumeration value="Right" />
+      <xs:enumeration value="Center" />
+      <xs:enumeration value="Justify" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumLineStackingStrategy">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BlockLineHeight" />
+      <xs:enumeration value="MaxHeight" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumWrapDirection">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Left" />
+      <xs:enumeration value="Right" />
+      <xs:enumeration value="Both" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="ReportProperties">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dSection">
+        <xs:sequence>
+          <xs:group ref="vbr:VBReportItems" />
+          <xs:element name="ReportProperties.ReportName" />
+          <xs:element name="ReportProperties.ReportTitle" />
+          <xs:element name="ReportProperties.StringFormat" />
+          <xs:element name="ReportProperties.CultureInfo" />
+          <xs:element name="ReportProperties.AutoSelectPrinterName" />
+          <xs:element name="ReportProperties.AutoSelectPageOrientation" />
+          <xs:element name="ReportProperties.AutoSelectTray" type="dInt32Container" />
+          <xs:element name="ReportProperties.AutoPageMediaSize" />
+          <xs:element name="ReportProperties.HasTrailingParagraphBreakOnPaste" />
+          <xs:element name="ReportProperties.IsHyphenationEnabled" />
+          <xs:element name="ReportProperties.Margin" type="dThicknessContainer" />
+          <xs:element name="ReportProperties.Padding" type="dThicknessContainer" />
+          <xs:element name="ReportProperties.BorderThickness" type="dThicknessContainer" />
+          <xs:element name="ReportProperties.BorderBrush" type="dBrushContainer" />
+          <xs:element name="ReportProperties.TextAlignment" />
+          <xs:element name="ReportProperties.FlowDirection" />
+          <xs:element name="ReportProperties.LineHeight" type="dDoubleContainer" />
+          <xs:element name="ReportProperties.LineStackingStrategy" />
+          <xs:element name="ReportProperties.BreakPageBefore" />
+          <xs:element name="ReportProperties.BreakColumnBefore" />
+          <xs:element name="ReportProperties.ClearFloaters" />
+          <xs:element name="ReportProperties.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="ReportProperties.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="ReportProperties.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="ReportProperties.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="ReportProperties.FontSize" type="dDoubleContainer" />
+          <xs:element name="ReportProperties.Foreground" type="dBrushContainer" />
+          <xs:element name="ReportProperties.Background" type="dBrushContainer" />
+          <xs:element name="ReportProperties.TextEffects" />
+          <xs:element name="ReportProperties.Style" type="dStyleContainer" />
+          <xs:element name="ReportProperties.OverridesDefaultStyle" />
+          <xs:element name="ReportProperties.Resources" />
+          <xs:element name="ReportProperties.Name" />
+          <xs:element name="ReportProperties.Tag" type="dObjectContainer" />
+          <xs:element name="ReportProperties.Language" type="dXmlLanguageContainer" />
+          <xs:element name="ReportProperties.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="ReportProperties.Cursor" type="dCursorContainer" />
+          <xs:element name="ReportProperties.ForceCursor" />
+          <xs:element name="ReportProperties.InputScope" type="dInputScopeContainer" />
+          <xs:element name="ReportProperties.DataContext" type="dObjectContainer" />
+          <xs:element name="ReportProperties.BindingGroup" />
+          <xs:element name="ReportProperties.ToolTip" type="dObjectContainer" />
+          <xs:element name="ReportProperties.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="ReportProperties.IsEnabled" />
+          <xs:element name="ReportProperties.Focusable" />
+          <xs:element name="ReportProperties.AllowDrop" />
+        </xs:sequence>
+        <xs:attribute name="ReportName" />
+        <xs:attribute name="ReportTitle" />
+        <xs:attribute name="StringFormat" />
+        <xs:attribute name="CultureInfo" />
+        <xs:attribute name="AutoSelectPrinterName" />
+        <xs:attribute name="AutoSelectPageOrientation" />
+        <xs:attribute name="AutoSelectTray" />
+        <xs:attribute name="AutoPageMediaSize" />
+        <xs:attribute name="HasTrailingParagraphBreakOnPaste" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHyphenationEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="Padding" />
+        <xs:attribute name="BorderThickness" />
+        <xs:attribute name="BorderBrush" />
+        <xs:attribute name="TextAlignment" type="vbr:enumTextAlignment" />
+        <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+        <xs:attribute name="LineHeight" />
+        <xs:attribute name="LineStackingStrategy" type="vbr:enumLineStackingStrategy" />
+        <xs:attribute name="BreakPageBefore" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="BreakColumnBefore" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ClearFloaters" type="vbr:enumWrapDirection" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="TextEffects" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ReportProperties" type="vbr:ReportProperties" />
+  <xs:complexType name="SectionDataGroup">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dSection">
+        <xs:sequence>
+          <xs:group ref="vbr:VBReportItems" />
+          <xs:element name="SectionDataGroup.DataGroupName" />
+          <xs:element name="SectionDataGroup.StringFormat" />
+          <xs:element name="SectionDataGroup.CultureInfo" />
+          <xs:element name="SectionDataGroup.HasTrailingParagraphBreakOnPaste" />
+          <xs:element name="SectionDataGroup.IsHyphenationEnabled" />
+          <xs:element name="SectionDataGroup.Margin" type="dThicknessContainer" />
+          <xs:element name="SectionDataGroup.Padding" type="dThicknessContainer" />
+          <xs:element name="SectionDataGroup.BorderThickness" type="dThicknessContainer" />
+          <xs:element name="SectionDataGroup.BorderBrush" type="dBrushContainer" />
+          <xs:element name="SectionDataGroup.TextAlignment" />
+          <xs:element name="SectionDataGroup.FlowDirection" />
+          <xs:element name="SectionDataGroup.LineHeight" type="dDoubleContainer" />
+          <xs:element name="SectionDataGroup.LineStackingStrategy" />
+          <xs:element name="SectionDataGroup.BreakPageBefore" />
+          <xs:element name="SectionDataGroup.BreakColumnBefore" />
+          <xs:element name="SectionDataGroup.ClearFloaters" />
+          <xs:element name="SectionDataGroup.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="SectionDataGroup.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="SectionDataGroup.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="SectionDataGroup.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="SectionDataGroup.FontSize" type="dDoubleContainer" />
+          <xs:element name="SectionDataGroup.Foreground" type="dBrushContainer" />
+          <xs:element name="SectionDataGroup.Background" type="dBrushContainer" />
+          <xs:element name="SectionDataGroup.TextEffects" />
+          <xs:element name="SectionDataGroup.Style" type="dStyleContainer" />
+          <xs:element name="SectionDataGroup.OverridesDefaultStyle" />
+          <xs:element name="SectionDataGroup.Resources" />
+          <xs:element name="SectionDataGroup.Name" />
+          <xs:element name="SectionDataGroup.Tag" type="dObjectContainer" />
+          <xs:element name="SectionDataGroup.Language" type="dXmlLanguageContainer" />
+          <xs:element name="SectionDataGroup.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="SectionDataGroup.Cursor" type="dCursorContainer" />
+          <xs:element name="SectionDataGroup.ForceCursor" />
+          <xs:element name="SectionDataGroup.InputScope" type="dInputScopeContainer" />
+          <xs:element name="SectionDataGroup.DataContext" type="dObjectContainer" />
+          <xs:element name="SectionDataGroup.BindingGroup" />
+          <xs:element name="SectionDataGroup.ToolTip" type="dObjectContainer" />
+          <xs:element name="SectionDataGroup.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="SectionDataGroup.IsEnabled" />
+          <xs:element name="SectionDataGroup.Focusable" />
+          <xs:element name="SectionDataGroup.AllowDrop" />
+        </xs:sequence>
+        <xs:attribute name="DataGroupName" />
+        <xs:attribute name="StringFormat" />
+        <xs:attribute name="CultureInfo" />
+        <xs:attribute name="HasTrailingParagraphBreakOnPaste" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHyphenationEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="Padding" />
+        <xs:attribute name="BorderThickness" />
+        <xs:attribute name="BorderBrush" />
+        <xs:attribute name="TextAlignment" type="vbr:enumTextAlignment" />
+        <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+        <xs:attribute name="LineHeight" />
+        <xs:attribute name="LineStackingStrategy" type="vbr:enumLineStackingStrategy" />
+        <xs:attribute name="BreakPageBefore" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="BreakColumnBefore" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ClearFloaters" type="vbr:enumWrapDirection" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="TextEffects" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="SectionDataGroup" type="vbr:SectionDataGroup" />
+  <xs:complexType name="SectionReportFooter">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dSection">
+        <xs:sequence>
+          <xs:group ref="vbr:VBReportItems" />
+          <xs:element name="SectionReportFooter.PageFooterHeight" type="dDoubleContainer" />
+          <xs:element name="SectionReportFooter.HasTrailingParagraphBreakOnPaste" />
+          <xs:element name="SectionReportFooter.IsHyphenationEnabled" />
+          <xs:element name="SectionReportFooter.Margin" type="dThicknessContainer" />
+          <xs:element name="SectionReportFooter.Padding" type="dThicknessContainer" />
+          <xs:element name="SectionReportFooter.BorderThickness" type="dThicknessContainer" />
+          <xs:element name="SectionReportFooter.BorderBrush" type="dBrushContainer" />
+          <xs:element name="SectionReportFooter.TextAlignment" />
+          <xs:element name="SectionReportFooter.FlowDirection" />
+          <xs:element name="SectionReportFooter.LineHeight" type="dDoubleContainer" />
+          <xs:element name="SectionReportFooter.LineStackingStrategy" />
+          <xs:element name="SectionReportFooter.BreakPageBefore" />
+          <xs:element name="SectionReportFooter.BreakColumnBefore" />
+          <xs:element name="SectionReportFooter.ClearFloaters" />
+          <xs:element name="SectionReportFooter.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="SectionReportFooter.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="SectionReportFooter.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="SectionReportFooter.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="SectionReportFooter.FontSize" type="dDoubleContainer" />
+          <xs:element name="SectionReportFooter.Foreground" type="dBrushContainer" />
+          <xs:element name="SectionReportFooter.Background" type="dBrushContainer" />
+          <xs:element name="SectionReportFooter.TextEffects" />
+          <xs:element name="SectionReportFooter.Style" type="dStyleContainer" />
+          <xs:element name="SectionReportFooter.OverridesDefaultStyle" />
+          <xs:element name="SectionReportFooter.Resources" />
+          <xs:element name="SectionReportFooter.Name" />
+          <xs:element name="SectionReportFooter.Tag" type="dObjectContainer" />
+          <xs:element name="SectionReportFooter.Language" type="dXmlLanguageContainer" />
+          <xs:element name="SectionReportFooter.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="SectionReportFooter.Cursor" type="dCursorContainer" />
+          <xs:element name="SectionReportFooter.ForceCursor" />
+          <xs:element name="SectionReportFooter.InputScope" type="dInputScopeContainer" />
+          <xs:element name="SectionReportFooter.DataContext" type="dObjectContainer" />
+          <xs:element name="SectionReportFooter.BindingGroup" />
+          <xs:element name="SectionReportFooter.ToolTip" type="dObjectContainer" />
+          <xs:element name="SectionReportFooter.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="SectionReportFooter.IsEnabled" />
+          <xs:element name="SectionReportFooter.Focusable" />
+          <xs:element name="SectionReportFooter.AllowDrop" />
+        </xs:sequence>
+        <xs:attribute name="PageFooterHeight" />
+        <xs:attribute name="HasTrailingParagraphBreakOnPaste" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHyphenationEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="Padding" />
+        <xs:attribute name="BorderThickness" />
+        <xs:attribute name="BorderBrush" />
+        <xs:attribute name="TextAlignment" type="vbr:enumTextAlignment" />
+        <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+        <xs:attribute name="LineHeight" />
+        <xs:attribute name="LineStackingStrategy" type="vbr:enumLineStackingStrategy" />
+        <xs:attribute name="BreakPageBefore" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="BreakColumnBefore" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ClearFloaters" type="vbr:enumWrapDirection" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="TextEffects" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="SectionReportFooter" type="vbr:SectionReportFooter" />
+  <xs:complexType name="SectionReportHeader">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dSection">
+        <xs:sequence>
+          <xs:group ref="vbr:VBReportItems" />
+          <xs:element name="SectionReportHeader.PageHeaderHeight" type="dDoubleContainer" />
+          <xs:element name="SectionReportHeader.HasTrailingParagraphBreakOnPaste" />
+          <xs:element name="SectionReportHeader.IsHyphenationEnabled" />
+          <xs:element name="SectionReportHeader.Margin" type="dThicknessContainer" />
+          <xs:element name="SectionReportHeader.Padding" type="dThicknessContainer" />
+          <xs:element name="SectionReportHeader.BorderThickness" type="dThicknessContainer" />
+          <xs:element name="SectionReportHeader.BorderBrush" type="dBrushContainer" />
+          <xs:element name="SectionReportHeader.TextAlignment" />
+          <xs:element name="SectionReportHeader.FlowDirection" />
+          <xs:element name="SectionReportHeader.LineHeight" type="dDoubleContainer" />
+          <xs:element name="SectionReportHeader.LineStackingStrategy" />
+          <xs:element name="SectionReportHeader.BreakPageBefore" />
+          <xs:element name="SectionReportHeader.BreakColumnBefore" />
+          <xs:element name="SectionReportHeader.ClearFloaters" />
+          <xs:element name="SectionReportHeader.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="SectionReportHeader.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="SectionReportHeader.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="SectionReportHeader.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="SectionReportHeader.FontSize" type="dDoubleContainer" />
+          <xs:element name="SectionReportHeader.Foreground" type="dBrushContainer" />
+          <xs:element name="SectionReportHeader.Background" type="dBrushContainer" />
+          <xs:element name="SectionReportHeader.TextEffects" />
+          <xs:element name="SectionReportHeader.Style" type="dStyleContainer" />
+          <xs:element name="SectionReportHeader.OverridesDefaultStyle" />
+          <xs:element name="SectionReportHeader.Resources" />
+          <xs:element name="SectionReportHeader.Name" />
+          <xs:element name="SectionReportHeader.Tag" type="dObjectContainer" />
+          <xs:element name="SectionReportHeader.Language" type="dXmlLanguageContainer" />
+          <xs:element name="SectionReportHeader.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="SectionReportHeader.Cursor" type="dCursorContainer" />
+          <xs:element name="SectionReportHeader.ForceCursor" />
+          <xs:element name="SectionReportHeader.InputScope" type="dInputScopeContainer" />
+          <xs:element name="SectionReportHeader.DataContext" type="dObjectContainer" />
+          <xs:element name="SectionReportHeader.BindingGroup" />
+          <xs:element name="SectionReportHeader.ToolTip" type="dObjectContainer" />
+          <xs:element name="SectionReportHeader.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="SectionReportHeader.IsEnabled" />
+          <xs:element name="SectionReportHeader.Focusable" />
+          <xs:element name="SectionReportHeader.AllowDrop" />
+        </xs:sequence>
+        <xs:attribute name="PageHeaderHeight" />
+        <xs:attribute name="HasTrailingParagraphBreakOnPaste" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHyphenationEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="Padding" />
+        <xs:attribute name="BorderThickness" />
+        <xs:attribute name="BorderBrush" />
+        <xs:attribute name="TextAlignment" type="vbr:enumTextAlignment" />
+        <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+        <xs:attribute name="LineHeight" />
+        <xs:attribute name="LineStackingStrategy" type="vbr:enumLineStackingStrategy" />
+        <xs:attribute name="BreakPageBefore" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="BreakColumnBefore" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ClearFloaters" type="vbr:enumWrapDirection" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="TextEffects" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="SectionReportHeader" type="vbr:SectionReportHeader" />
+  <xs:complexType name="TableRowData">
+    <xs:sequence>
+      <xs:group ref="vbr:VBReportItems" />
+      <xs:element name="TableRowData.Configuration" />
+      <xs:element name="TableRowData.DictKey" />
+      <xs:element name="TableRowData.VBSource" />
+      <xs:element name="TableRowData.ColumnWidthInfos" />
+      <xs:element name="TableRowData.StringFormat" />
+      <xs:element name="TableRowData.MaxLength" type="dInt32Container" />
+      <xs:element name="TableRowData.CultureInfo" />
+      <xs:element name="TableRowData.BreakPageBeforeNextRow" />
+      <xs:element name="TableRowData.FontFamily" type="dFontFamilyContainer" />
+      <xs:element name="TableRowData.FontStyle" type="dFontStyleContainer" />
+      <xs:element name="TableRowData.FontWeight" type="dFontWeightContainer" />
+      <xs:element name="TableRowData.FontStretch" type="dFontStretchContainer" />
+      <xs:element name="TableRowData.FontSize" type="dDoubleContainer" />
+      <xs:element name="TableRowData.Foreground" type="dBrushContainer" />
+      <xs:element name="TableRowData.Background" type="dBrushContainer" />
+      <xs:element name="TableRowData.TextEffects" />
+      <xs:element name="TableRowData.Style" type="dStyleContainer" />
+      <xs:element name="TableRowData.OverridesDefaultStyle" />
+      <xs:element name="TableRowData.Resources" />
+      <xs:element name="TableRowData.Name" />
+      <xs:element name="TableRowData.Tag" type="dObjectContainer" />
+      <xs:element name="TableRowData.Language" type="dXmlLanguageContainer" />
+      <xs:element name="TableRowData.FocusVisualStyle" type="dStyleContainer" />
+      <xs:element name="TableRowData.Cursor" type="dCursorContainer" />
+      <xs:element name="TableRowData.ForceCursor" />
+      <xs:element name="TableRowData.InputScope" type="dInputScopeContainer" />
+      <xs:element name="TableRowData.DataContext" type="dObjectContainer" />
+      <xs:element name="TableRowData.BindingGroup" />
+      <xs:element name="TableRowData.ToolTip" type="dObjectContainer" />
+      <xs:element name="TableRowData.ContextMenu" type="dContextMenuContainer" />
+      <xs:element name="TableRowData.IsEnabled" />
+      <xs:element name="TableRowData.Focusable" />
+      <xs:element name="TableRowData.AllowDrop" />
+    </xs:sequence>
+    <xs:attribute name="Configuration" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="DictKey" />
+    <xs:attribute name="VBSource" />
+    <xs:attribute name="ColumnWidthInfos" />
+    <xs:attribute name="StringFormat" />
+    <xs:attribute name="MaxLength" />
+    <xs:attribute name="CultureInfo" />
+    <xs:attribute name="BreakPageBeforeNextRow" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="FontFamily" />
+    <xs:attribute name="FontStyle" />
+    <xs:attribute name="FontWeight" />
+    <xs:attribute name="FontStretch" />
+    <xs:attribute name="FontSize" />
+    <xs:attribute name="Foreground" />
+    <xs:attribute name="Background" />
+    <xs:attribute name="TextEffects" />
+    <xs:attribute name="Style" />
+    <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Resources" />
+    <xs:attribute name="Name" />
+    <xs:attribute name="Tag" />
+    <xs:attribute name="Language" />
+    <xs:attribute name="FocusVisualStyle" />
+    <xs:attribute name="Cursor" />
+    <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="InputScope" />
+    <xs:attribute name="DataContext" />
+    <xs:attribute name="BindingGroup" />
+    <xs:attribute name="ToolTip" />
+    <xs:attribute name="ContextMenu" />
+    <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+  </xs:complexType>
+  <xs:element name="TableRowData" type="vbr:TableRowData" />
+  <xs:complexType name="TableRowDataDyn">
+    <xs:sequence>
+      <xs:group ref="vbr:VBReportItems" />
+      <xs:element name="TableRowDataDyn.DictKey" />
+      <xs:element name="TableRowDataDyn.VBSource" />
+      <xs:element name="TableRowDataDyn.ColumnWidthInfos" />
+      <xs:element name="TableRowDataDyn.StringFormat" />
+      <xs:element name="TableRowDataDyn.MaxLength" type="dInt32Container" />
+      <xs:element name="TableRowDataDyn.CultureInfo" />
+      <xs:element name="TableRowDataDyn.BreakPageBeforeNextRow" />
+      <xs:element name="TableRowDataDyn.FontFamily" type="dFontFamilyContainer" />
+      <xs:element name="TableRowDataDyn.FontStyle" type="dFontStyleContainer" />
+      <xs:element name="TableRowDataDyn.FontWeight" type="dFontWeightContainer" />
+      <xs:element name="TableRowDataDyn.FontStretch" type="dFontStretchContainer" />
+      <xs:element name="TableRowDataDyn.FontSize" type="dDoubleContainer" />
+      <xs:element name="TableRowDataDyn.Foreground" type="dBrushContainer" />
+      <xs:element name="TableRowDataDyn.Background" type="dBrushContainer" />
+      <xs:element name="TableRowDataDyn.TextEffects" />
+      <xs:element name="TableRowDataDyn.Style" type="dStyleContainer" />
+      <xs:element name="TableRowDataDyn.OverridesDefaultStyle" />
+      <xs:element name="TableRowDataDyn.Resources" />
+      <xs:element name="TableRowDataDyn.Name" />
+      <xs:element name="TableRowDataDyn.Tag" type="dObjectContainer" />
+      <xs:element name="TableRowDataDyn.Language" type="dXmlLanguageContainer" />
+      <xs:element name="TableRowDataDyn.FocusVisualStyle" type="dStyleContainer" />
+      <xs:element name="TableRowDataDyn.Cursor" type="dCursorContainer" />
+      <xs:element name="TableRowDataDyn.ForceCursor" />
+      <xs:element name="TableRowDataDyn.InputScope" type="dInputScopeContainer" />
+      <xs:element name="TableRowDataDyn.DataContext" type="dObjectContainer" />
+      <xs:element name="TableRowDataDyn.BindingGroup" />
+      <xs:element name="TableRowDataDyn.ToolTip" type="dObjectContainer" />
+      <xs:element name="TableRowDataDyn.ContextMenu" type="dContextMenuContainer" />
+      <xs:element name="TableRowDataDyn.IsEnabled" />
+      <xs:element name="TableRowDataDyn.Focusable" />
+      <xs:element name="TableRowDataDyn.AllowDrop" />
+    </xs:sequence>
+    <xs:attribute name="DictKey" />
+    <xs:attribute name="VBSource" />
+    <xs:attribute name="ColumnWidthInfos" />
+    <xs:attribute name="StringFormat" />
+    <xs:attribute name="MaxLength" />
+    <xs:attribute name="CultureInfo" />
+    <xs:attribute name="BreakPageBeforeNextRow" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="FontFamily" />
+    <xs:attribute name="FontStyle" />
+    <xs:attribute name="FontWeight" />
+    <xs:attribute name="FontStretch" />
+    <xs:attribute name="FontSize" />
+    <xs:attribute name="Foreground" />
+    <xs:attribute name="Background" />
+    <xs:attribute name="TextEffects" />
+    <xs:attribute name="Style" />
+    <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Resources" />
+    <xs:attribute name="Name" />
+    <xs:attribute name="Tag" />
+    <xs:attribute name="Language" />
+    <xs:attribute name="FocusVisualStyle" />
+    <xs:attribute name="Cursor" />
+    <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="InputScope" />
+    <xs:attribute name="DataContext" />
+    <xs:attribute name="BindingGroup" />
+    <xs:attribute name="ToolTip" />
+    <xs:attribute name="ContextMenu" />
+    <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+  </xs:complexType>
+  <xs:element name="TableRowDataDyn" type="vbr:TableRowDataDyn" />
+  <xs:complexType name="TableRowDataDynHeader">
+    <xs:sequence>
+      <xs:group ref="vbr:VBReportItems" />
+      <xs:element name="TableRowDataDynHeader.DictKey" />
+      <xs:element name="TableRowDataDynHeader.VBSource" />
+      <xs:element name="TableRowDataDynHeader.ColumnWidthInfos" />
+      <xs:element name="TableRowDataDynHeader.StringFormat" />
+      <xs:element name="TableRowDataDynHeader.MaxLength" type="dInt32Container" />
+      <xs:element name="TableRowDataDynHeader.CultureInfo" />
+      <xs:element name="TableRowDataDynHeader.BreakPageBeforeNextRow" />
+      <xs:element name="TableRowDataDynHeader.FontFamily" type="dFontFamilyContainer" />
+      <xs:element name="TableRowDataDynHeader.FontStyle" type="dFontStyleContainer" />
+      <xs:element name="TableRowDataDynHeader.FontWeight" type="dFontWeightContainer" />
+      <xs:element name="TableRowDataDynHeader.FontStretch" type="dFontStretchContainer" />
+      <xs:element name="TableRowDataDynHeader.FontSize" type="dDoubleContainer" />
+      <xs:element name="TableRowDataDynHeader.Foreground" type="dBrushContainer" />
+      <xs:element name="TableRowDataDynHeader.Background" type="dBrushContainer" />
+      <xs:element name="TableRowDataDynHeader.TextEffects" />
+      <xs:element name="TableRowDataDynHeader.Style" type="dStyleContainer" />
+      <xs:element name="TableRowDataDynHeader.OverridesDefaultStyle" />
+      <xs:element name="TableRowDataDynHeader.Resources" />
+      <xs:element name="TableRowDataDynHeader.Name" />
+      <xs:element name="TableRowDataDynHeader.Tag" type="dObjectContainer" />
+      <xs:element name="TableRowDataDynHeader.Language" type="dXmlLanguageContainer" />
+      <xs:element name="TableRowDataDynHeader.FocusVisualStyle" type="dStyleContainer" />
+      <xs:element name="TableRowDataDynHeader.Cursor" type="dCursorContainer" />
+      <xs:element name="TableRowDataDynHeader.ForceCursor" />
+      <xs:element name="TableRowDataDynHeader.InputScope" type="dInputScopeContainer" />
+      <xs:element name="TableRowDataDynHeader.DataContext" type="dObjectContainer" />
+      <xs:element name="TableRowDataDynHeader.BindingGroup" />
+      <xs:element name="TableRowDataDynHeader.ToolTip" type="dObjectContainer" />
+      <xs:element name="TableRowDataDynHeader.ContextMenu" type="dContextMenuContainer" />
+      <xs:element name="TableRowDataDynHeader.IsEnabled" />
+      <xs:element name="TableRowDataDynHeader.Focusable" />
+      <xs:element name="TableRowDataDynHeader.AllowDrop" />
+    </xs:sequence>
+    <xs:attribute name="DictKey" />
+    <xs:attribute name="VBSource" />
+    <xs:attribute name="ColumnWidthInfos" />
+    <xs:attribute name="StringFormat" />
+    <xs:attribute name="MaxLength" />
+    <xs:attribute name="CultureInfo" />
+    <xs:attribute name="BreakPageBeforeNextRow" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="FontFamily" />
+    <xs:attribute name="FontStyle" />
+    <xs:attribute name="FontWeight" />
+    <xs:attribute name="FontStretch" />
+    <xs:attribute name="FontSize" />
+    <xs:attribute name="Foreground" />
+    <xs:attribute name="Background" />
+    <xs:attribute name="TextEffects" />
+    <xs:attribute name="Style" />
+    <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Resources" />
+    <xs:attribute name="Name" />
+    <xs:attribute name="Tag" />
+    <xs:attribute name="Language" />
+    <xs:attribute name="FocusVisualStyle" />
+    <xs:attribute name="Cursor" />
+    <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="InputScope" />
+    <xs:attribute name="DataContext" />
+    <xs:attribute name="BindingGroup" />
+    <xs:attribute name="ToolTip" />
+    <xs:attribute name="ContextMenu" />
+    <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+  </xs:complexType>
+  <xs:element name="TableRowDataDynHeader" type="vbr:TableRowDataDynHeader" />
+  <xs:complexType name="InlineValueBase">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dRun">
+        <xs:sequence>
+          <xs:group ref="vbr:VBReportItems" />
+          <xs:element name="InlineValueBase.StringFormat" />
+          <xs:element name="InlineValueBase.CultureInfo" />
+          <xs:element name="InlineValueBase.MaxLength" type="dInt32Container" />
+          <xs:element name="InlineValueBase.Value" type="dObjectContainer" />
+          <xs:element name="InlineValueBase.Text" />
+          <xs:element name="InlineValueBase.BaselineAlignment" />
+          <xs:element name="InlineValueBase.TextDecorations" />
+          <xs:element name="InlineValueBase.FlowDirection" />
+          <xs:element name="InlineValueBase.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="InlineValueBase.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="InlineValueBase.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="InlineValueBase.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="InlineValueBase.FontSize" type="dDoubleContainer" />
+          <xs:element name="InlineValueBase.Foreground" type="dBrushContainer" />
+          <xs:element name="InlineValueBase.Background" type="dBrushContainer" />
+          <xs:element name="InlineValueBase.TextEffects" />
+          <xs:element name="InlineValueBase.Style" type="dStyleContainer" />
+          <xs:element name="InlineValueBase.OverridesDefaultStyle" />
+          <xs:element name="InlineValueBase.Resources" />
+          <xs:element name="InlineValueBase.Name" />
+          <xs:element name="InlineValueBase.Tag" type="dObjectContainer" />
+          <xs:element name="InlineValueBase.Language" type="dXmlLanguageContainer" />
+          <xs:element name="InlineValueBase.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="InlineValueBase.Cursor" type="dCursorContainer" />
+          <xs:element name="InlineValueBase.ForceCursor" />
+          <xs:element name="InlineValueBase.InputScope" type="dInputScopeContainer" />
+          <xs:element name="InlineValueBase.DataContext" type="dObjectContainer" />
+          <xs:element name="InlineValueBase.BindingGroup" />
+          <xs:element name="InlineValueBase.ToolTip" type="dObjectContainer" />
+          <xs:element name="InlineValueBase.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="InlineValueBase.IsEnabled" />
+          <xs:element name="InlineValueBase.Focusable" />
+          <xs:element name="InlineValueBase.AllowDrop" />
+        </xs:sequence>
+        <xs:attribute name="StringFormat" />
+        <xs:attribute name="CultureInfo" />
+        <xs:attribute name="MaxLength" />
+        <xs:attribute name="Value" />
+        <xs:attribute name="Text" />
+        <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
+        <xs:attribute name="TextDecorations" />
+        <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="TextEffects" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="InlineValueBase" type="vbr:InlineValueBase" />
+  <xs:complexType name="InlinePropertyValueBase">
+    <xs:sequence>
+      <xs:group ref="vbr:VBReportItems" />
+      <xs:element name="InlinePropertyValueBase.DictKey" />
+      <xs:element name="InlinePropertyValueBase.VBContent" />
+      <xs:element name="InlinePropertyValueBase.AggregateGroup" />
+      <xs:element name="InlinePropertyValueBase.StringFormat" />
+      <xs:element name="InlinePropertyValueBase.CultureInfo" />
+      <xs:element name="InlinePropertyValueBase.MaxLength" type="dInt32Container" />
+      <xs:element name="InlinePropertyValueBase.Value" type="dObjectContainer" />
+      <xs:element name="InlinePropertyValueBase.Text" />
+      <xs:element name="InlinePropertyValueBase.BaselineAlignment" />
+      <xs:element name="InlinePropertyValueBase.TextDecorations" />
+      <xs:element name="InlinePropertyValueBase.FlowDirection" />
+      <xs:element name="InlinePropertyValueBase.FontFamily" type="dFontFamilyContainer" />
+      <xs:element name="InlinePropertyValueBase.FontStyle" type="dFontStyleContainer" />
+      <xs:element name="InlinePropertyValueBase.FontWeight" type="dFontWeightContainer" />
+      <xs:element name="InlinePropertyValueBase.FontStretch" type="dFontStretchContainer" />
+      <xs:element name="InlinePropertyValueBase.FontSize" type="dDoubleContainer" />
+      <xs:element name="InlinePropertyValueBase.Foreground" type="dBrushContainer" />
+      <xs:element name="InlinePropertyValueBase.Background" type="dBrushContainer" />
+      <xs:element name="InlinePropertyValueBase.TextEffects" />
+      <xs:element name="InlinePropertyValueBase.Style" type="dStyleContainer" />
+      <xs:element name="InlinePropertyValueBase.OverridesDefaultStyle" />
+      <xs:element name="InlinePropertyValueBase.Resources" />
+      <xs:element name="InlinePropertyValueBase.Name" />
+      <xs:element name="InlinePropertyValueBase.Tag" type="dObjectContainer" />
+      <xs:element name="InlinePropertyValueBase.Language" type="dXmlLanguageContainer" />
+      <xs:element name="InlinePropertyValueBase.FocusVisualStyle" type="dStyleContainer" />
+      <xs:element name="InlinePropertyValueBase.Cursor" type="dCursorContainer" />
+      <xs:element name="InlinePropertyValueBase.ForceCursor" />
+      <xs:element name="InlinePropertyValueBase.InputScope" type="dInputScopeContainer" />
+      <xs:element name="InlinePropertyValueBase.DataContext" type="dObjectContainer" />
+      <xs:element name="InlinePropertyValueBase.BindingGroup" />
+      <xs:element name="InlinePropertyValueBase.ToolTip" type="dObjectContainer" />
+      <xs:element name="InlinePropertyValueBase.ContextMenu" type="dContextMenuContainer" />
+      <xs:element name="InlinePropertyValueBase.IsEnabled" />
+      <xs:element name="InlinePropertyValueBase.Focusable" />
+      <xs:element name="InlinePropertyValueBase.AllowDrop" />
+    </xs:sequence>
+    <xs:attribute name="DictKey" />
+    <xs:attribute name="VBContent" />
+    <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="StringFormat" />
+    <xs:attribute name="CultureInfo" />
+    <xs:attribute name="MaxLength" />
+    <xs:attribute name="Value" />
+    <xs:attribute name="Text" />
+    <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
+    <xs:attribute name="TextDecorations" />
+    <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+    <xs:attribute name="FontFamily" />
+    <xs:attribute name="FontStyle" />
+    <xs:attribute name="FontWeight" />
+    <xs:attribute name="FontStretch" />
+    <xs:attribute name="FontSize" />
+    <xs:attribute name="Foreground" />
+    <xs:attribute name="Background" />
+    <xs:attribute name="TextEffects" />
+    <xs:attribute name="Style" />
+    <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Resources" />
+    <xs:attribute name="Name" />
+    <xs:attribute name="Tag" />
+    <xs:attribute name="Language" />
+    <xs:attribute name="FocusVisualStyle" />
+    <xs:attribute name="Cursor" />
+    <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="InputScope" />
+    <xs:attribute name="DataContext" />
+    <xs:attribute name="BindingGroup" />
+    <xs:attribute name="ToolTip" />
+    <xs:attribute name="ContextMenu" />
+    <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+  </xs:complexType>
+  <xs:element name="InlinePropertyValueBase" type="vbr:InlinePropertyValueBase" />
+  <xs:simpleType name="enumStretch">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Fill" />
+      <xs:enumeration value="Uniform" />
+      <xs:enumeration value="UniformToFill" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumStretchDirection">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UpOnly" />
+      <xs:enumeration value="DownOnly" />
+      <xs:enumeration value="Both" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumHorizontalAlignment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Left" />
+      <xs:enumeration value="Center" />
+      <xs:enumeration value="Right" />
+      <xs:enumeration value="Stretch" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumVerticalAlignment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Top" />
+      <xs:enumeration value="Center" />
+      <xs:enumeration value="Bottom" />
+      <xs:enumeration value="Stretch" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumVisibility">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Visible" />
+      <xs:enumeration value="Hidden" />
+      <xs:enumeration value="Collapsed" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="InlineBoolValue">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dImage">
+        <xs:sequence>
+          <xs:group ref="vbr:VBReportItems" />
+          <xs:element name="InlineBoolValue.VBContent" />
+          <xs:element name="InlineBoolValue.StringFormat" />
+          <xs:element name="InlineBoolValue.Value" type="dObjectContainer" />
+          <xs:element name="InlineBoolValue.MaxLength" type="dInt32Container" />
+          <xs:element name="InlineBoolValue.DictKey" />
+          <xs:element name="InlineBoolValue.Source" type="dImageSourceContainer" />
+          <xs:element name="InlineBoolValue.Stretch" />
+          <xs:element name="InlineBoolValue.StretchDirection" />
+          <xs:element name="InlineBoolValue.Style" type="dStyleContainer" />
+          <xs:element name="InlineBoolValue.OverridesDefaultStyle" />
+          <xs:element name="InlineBoolValue.UseLayoutRounding" />
+          <xs:element name="InlineBoolValue.Resources" />
+          <xs:element name="InlineBoolValue.DataContext" type="dObjectContainer" />
+          <xs:element name="InlineBoolValue.BindingGroup" />
+          <xs:element name="InlineBoolValue.Language" type="dXmlLanguageContainer" />
+          <xs:element name="InlineBoolValue.Name" />
+          <xs:element name="InlineBoolValue.Tag" type="dObjectContainer" />
+          <xs:element name="InlineBoolValue.InputScope" type="dInputScopeContainer" />
+          <xs:element name="InlineBoolValue.LayoutTransform" type="dTransformContainer" />
+          <xs:element name="InlineBoolValue.Width" type="dDoubleContainer" />
+          <xs:element name="InlineBoolValue.MinWidth" type="dDoubleContainer" />
+          <xs:element name="InlineBoolValue.MaxWidth" type="dDoubleContainer" />
+          <xs:element name="InlineBoolValue.Height" type="dDoubleContainer" />
+          <xs:element name="InlineBoolValue.MinHeight" type="dDoubleContainer" />
+          <xs:element name="InlineBoolValue.MaxHeight" type="dDoubleContainer" />
+          <xs:element name="InlineBoolValue.FlowDirection" />
+          <xs:element name="InlineBoolValue.Margin" type="dThicknessContainer" />
+          <xs:element name="InlineBoolValue.HorizontalAlignment" />
+          <xs:element name="InlineBoolValue.VerticalAlignment" />
+          <xs:element name="InlineBoolValue.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="InlineBoolValue.Cursor" type="dCursorContainer" />
+          <xs:element name="InlineBoolValue.ForceCursor" />
+          <xs:element name="InlineBoolValue.ToolTip" type="dObjectContainer" />
+          <xs:element name="InlineBoolValue.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="InlineBoolValue.AllowDrop" />
+          <xs:element name="InlineBoolValue.RenderSize" type="dSizeContainer" />
+          <xs:element name="InlineBoolValue.RenderTransform" type="dTransformContainer" />
+          <xs:element name="InlineBoolValue.RenderTransformOrigin" type="dPointContainer" />
+          <xs:element name="InlineBoolValue.Opacity" type="dDoubleContainer" />
+          <xs:element name="InlineBoolValue.OpacityMask" type="dBrushContainer" />
+          <xs:element name="InlineBoolValue.BitmapEffect" type="dBitmapEffectContainer" />
+          <xs:element name="InlineBoolValue.Effect" />
+          <xs:element name="InlineBoolValue.BitmapEffectInput" type="dBitmapEffectInputContainer" />
+          <xs:element name="InlineBoolValue.CacheMode" />
+          <xs:element name="InlineBoolValue.Uid" />
+          <xs:element name="InlineBoolValue.Visibility" />
+          <xs:element name="InlineBoolValue.ClipToBounds" />
+          <xs:element name="InlineBoolValue.Clip" type="dGeometryContainer" />
+          <xs:element name="InlineBoolValue.SnapsToDevicePixels" />
+          <xs:element name="InlineBoolValue.IsEnabled" />
+          <xs:element name="InlineBoolValue.IsHitTestVisible" />
+          <xs:element name="InlineBoolValue.Focusable" />
+          <xs:element name="InlineBoolValue.IsManipulationEnabled" />
+        </xs:sequence>
+        <xs:attribute name="VBContent" />
+        <xs:attribute name="StringFormat" />
+        <xs:attribute name="Value" />
+        <xs:attribute name="MaxLength" />
+        <xs:attribute name="DictKey" />
+        <xs:attribute name="Source" />
+        <xs:attribute name="Stretch" type="vbr:enumStretch" />
+        <xs:attribute name="StretchDirection" type="vbr:enumStretchDirection" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UseLayoutRounding" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="LayoutTransform" />
+        <xs:attribute name="Width" />
+        <xs:attribute name="MinWidth" />
+        <xs:attribute name="MaxWidth" />
+        <xs:attribute name="Height" />
+        <xs:attribute name="MinHeight" />
+        <xs:attribute name="MaxHeight" />
+        <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="HorizontalAlignment" type="vbr:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalAlignment" type="vbr:enumVerticalAlignment" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="RenderSize" />
+        <xs:attribute name="RenderTransform" />
+        <xs:attribute name="RenderTransformOrigin" />
+        <xs:attribute name="Opacity" />
+        <xs:attribute name="OpacityMask" />
+        <xs:attribute name="BitmapEffect" />
+        <xs:attribute name="Effect" />
+        <xs:attribute name="BitmapEffectInput" />
+        <xs:attribute name="CacheMode" />
+        <xs:attribute name="Uid" />
+        <xs:attribute name="Visibility" type="vbr:enumVisibility" />
+        <xs:attribute name="ClipToBounds" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Clip" />
+        <xs:attribute name="SnapsToDevicePixels" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHitTestVisible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsManipulationEnabled" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="InlineBoolValue" type="vbr:InlineBoolValue" />
+  <xs:group name="VBReportItems">
+    <xs:choice>
+      <xs:element ref="vbr:InlineACMethodValue" />
+      <xs:element ref="vbr:InlineTableCellConfigurationValue" />
+      <xs:element ref="vbr:TableRowDataBase" />
+      <xs:element ref="vbr:InlineAggregateValue" />
+      <xs:element ref="vbr:InlineContextValue" />
+      <xs:element ref="vbr:InlineDocumentValue" />
+      <xs:element ref="vbr:InlineTableCellValue" />
+      <xs:element ref="vbr:ReportProperties" />
+      <xs:element ref="vbr:SectionDataGroup" />
+      <xs:element ref="vbr:SectionReportFooter" />
+      <xs:element ref="vbr:SectionReportHeader" />
+      <xs:element ref="vbr:TableRowData" />
+      <xs:element ref="vbr:TableRowDataDyn" />
+      <xs:element ref="vbr:TableRowDataDynHeader" />
+      <xs:element ref="vbr:InlineValueBase" />
+      <xs:element ref="vbr:InlinePropertyValueBase" />
+      <xs:element ref="vbr:InlineBoolValue" />
+    </xs:choice>
+  </xs:group>
+</xs:schema>

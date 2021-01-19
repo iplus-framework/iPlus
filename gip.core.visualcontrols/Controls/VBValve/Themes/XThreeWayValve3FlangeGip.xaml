@@ -1,0 +1,683 @@
+<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols">
+
+    <ControlTemplate x:Key="ThreeWayValve3FlangeGip" TargetType="{x:Type local:VBValve}">
+        <Viewbox Stretch="Fill">
+            <Canvas Width="70" Height="58">
+                <Path x:Name="OpModeBack" Width="70" Height="58" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" 
+                      StrokeThickness="1" StrokeLineJoin="Round" 
+                      Stroke="{TemplateBinding BorderBrushAuto}" 
+                      Fill="{TemplateBinding BorderBrushAuto}" 
+                      Data="M 12,0L 58,0L 45,25L 70,12L 70,58L 35,41L 0,58L 0,13L 25,25L 12,0 Z "/>
+                <Viewbox x:Name="ValveT" Width="33" Height="33" Canvas.Left="18.5" Canvas.Top="4">
+                    <Canvas Width="33" Height="33">
+                        <Path x:Name="PolyTop" Width="33" Height="33" Canvas.Left="0" Canvas.Top="-3.8147e-006" Stretch="Fill" 
+                              StrokeThickness="3" StrokeLineJoin="Round" 
+                              Stroke="#FF000000" 
+                              Fill="{TemplateBinding FillBrushIdle}" 
+                              Data="F1 M 16.5,31.5L 31.5,1.5L 1.5,1.5L 16.5,31.5 Z "/>
+                        <Viewbox x:Name="GlassT" Width="30" Height="26" Canvas.Left="1.49998" Canvas.Top="1" Visibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+                            <Canvas Width="30" Height="26">
+                                <Path x:Name="Path_316" Width="30" Height="26" Canvas.Left="3.8147e-006" Canvas.Top="0" Stretch="Fill" Data="F1 M 30,0L 3.8147e-006,0L 13,26L 17,26L 30,0 Z " StrokeThickness="1" StrokeLineJoin="Bevel">
+                                    <Path.Stroke>
+                                        <RadialGradientBrush RadiusX="0.3" RadiusY="0.980769" Center="0.5,-0.00167245" GradientOrigin="0.5,-0.00167245">
+                                            <RadialGradientBrush.GradientStops>
+                                                <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                                <GradientStop Color="#00000000" Offset="0.253275"/>
+                                                <GradientStop Color="#00000000" Offset="0.741525"/>
+                                                <GradientStop Color="#B3000000" Offset="1"/>
+                                            </RadialGradientBrush.GradientStops>
+                                            <RadialGradientBrush.RelativeTransform>
+                                                <TransformGroup/>
+                                            </RadialGradientBrush.RelativeTransform>
+                                        </RadialGradientBrush>
+                                    </Path.Stroke>
+                                    <Path.Fill>
+                                        <RadialGradientBrush RadiusX="0.3" RadiusY="0.980769" Center="0.5,-0.00167245" GradientOrigin="0.5,-0.00167245">
+                                            <RadialGradientBrush.GradientStops>
+                                                <GradientStop Color="#00000000" Offset="0"/>
+                                                <GradientStop Color="#40000000" Offset="0.660634"/>
+                                                <GradientStop Color="#7F000000" Offset="1"/>
+                                            </RadialGradientBrush.GradientStops>
+                                            <RadialGradientBrush.RelativeTransform>
+                                                <TransformGroup/>
+                                            </RadialGradientBrush.RelativeTransform>
+                                        </RadialGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                                <Path x:Name="Path_317" Width="5.99999" Height="1.5" Canvas.Left="12" Canvas.Top="24.5" Stretch="Fill" Data="F1 M 14.8529,24.5L 15.1526,24.5C 16.3968,24.5 17.9535,25.1681 18,26L 12,26C 12.0466,25.1681 13.6087,24.5 14.8529,24.5 Z ">
+                                    <Path.Fill>
+                                        <LinearGradientBrush StartPoint="1,0.499999" EndPoint="0,0.499999">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                                <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                                <Path x:Name="Path_318" Width="30" Height="4" Canvas.Left="3.8147e-006" Canvas.Top="3.8147e-006" Stretch="Fill" Data="F1 M 14.2643,4L 15.7633,4C 21.9842,4 29.7678,2.21832 30,3.8147e-006L 3.8147e-006,3.8147e-006C 0.233028,2.21832 8.04341,4 14.2643,4 Z ">
+                                    <Path.Fill>
+                                        <LinearGradientBrush StartPoint="1,0.5" EndPoint="-2.22045e-016,0.5">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                                <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                            </Canvas>
+                        </Viewbox>
+                    </Canvas>
+                </Viewbox>
+                <Viewbox x:Name="ValveL" Width="33" Height="33" Canvas.Left="3.50001" Canvas.Top="19">
+                    <Canvas Width="33" Height="33">
+                        <Path x:Name="PolyLeft" Width="33" Height="33" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" 
+                              StrokeThickness="3" StrokeLineJoin="Round" 
+                              Stroke="#FF000000" 
+                              Fill="{TemplateBinding FillBrushIdle}" 
+                              Data="F1 M 31.5,16.5L 1.5,1.5L 1.5,31.5L 31.5,16.5 Z "/>
+                        <Viewbox x:Name="GlassL" Width="26" Height="30" Canvas.Left="1.50001" Canvas.Top="1.49999" Visibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+                            <Canvas Width="26" Height="30">
+                                <Path x:Name="Path_319" Width="26" Height="30" Canvas.Left="1.90735e-006" Canvas.Top="3.8147e-006" Stretch="Fill" Data="F1 M 1.90735e-006,3.8147e-006L 1.90735e-006,30L 26,17L 26,13L 1.90735e-006,3.8147e-006 Z " StrokeThickness="1" StrokeLineJoin="Bevel">
+                                    <Path.Stroke>
+                                        <RadialGradientBrush RadiusX="0.3" RadiusY="0.980769" Center="-0.00167238,0.5" GradientOrigin="-0.00167238,0.5">
+                                            <RadialGradientBrush.GradientStops>
+                                                <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                                <GradientStop Color="#00000000" Offset="0.253275"/>
+                                                <GradientStop Color="#00000000" Offset="0.741525"/>
+                                                <GradientStop Color="#B3000000" Offset="1"/>
+                                            </RadialGradientBrush.GradientStops>
+                                            <RadialGradientBrush.RelativeTransform>
+                                                <TransformGroup>
+                                                    <RotateTransform CenterX="-0.00167238" CenterY="0.5" Angle="-90"/>
+                                                </TransformGroup>
+                                            </RadialGradientBrush.RelativeTransform>
+                                        </RadialGradientBrush>
+                                    </Path.Stroke>
+                                    <Path.Fill>
+                                        <RadialGradientBrush RadiusX="0.3" RadiusY="0.980769" Center="-0.00167238,0.5" GradientOrigin="-0.00167238,0.5">
+                                            <RadialGradientBrush.GradientStops>
+                                                <GradientStop Color="#00000000" Offset="0"/>
+                                                <GradientStop Color="#40000000" Offset="0.660634"/>
+                                                <GradientStop Color="#7F000000" Offset="1"/>
+                                            </RadialGradientBrush.GradientStops>
+                                            <RadialGradientBrush.RelativeTransform>
+                                                <TransformGroup>
+                                                    <RotateTransform CenterX="-0.00167238" CenterY="0.5" Angle="-90"/>
+                                                </TransformGroup>
+                                            </RadialGradientBrush.RelativeTransform>
+                                        </RadialGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                                <Path x:Name="Path_320" Width="1.49999" Height="5.99999" Canvas.Left="24.5" Canvas.Top="12" Stretch="Fill" Data="F1 M 24.5,15.1471L 24.5,14.8474C 24.5,13.6032 25.1681,12.0465 26,12L 26,18C 25.1681,17.9534 24.5,16.3913 24.5,15.1471 Z ">
+                                    <Path.Fill>
+                                        <LinearGradientBrush StartPoint="0.500003,0" EndPoint="0.500003,1">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                                <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                                <Path x:Name="Path_321" Width="3.99999" Height="30" Canvas.Left="1.90735e-006" Canvas.Top="0" Stretch="Fill" Data="F1 M 3.99999,15.7357L 3.99999,14.2367C 3.99999,8.01582 2.21831,0.232216 1.90735e-006,0L 1.90735e-006,30C 2.21831,29.767 3.99999,21.9566 3.99999,15.7357 Z ">
+                                    <Path.Fill>
+                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                                <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                            </Canvas>
+                        </Viewbox>
+                    </Canvas>
+                </Viewbox>
+                <Viewbox x:Name="ValveR" Width="33" Height="33" Canvas.Left="33.5" Canvas.Top="19">
+                    <Canvas Width="33" Height="33">
+                        <Path x:Name="PolyRight" Width="33" Height="33" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" 
+                              StrokeThickness="3" StrokeLineJoin="Round" 
+                              Stroke="#FF000000" 
+                              Fill="{TemplateBinding FillBrushIdle}" 
+                              Data="F1 M 1.5,16.5L 31.5,31.5L 31.5,1.5L 1.5,16.5 Z "/>
+                        <Viewbox x:Name="GlassR" Width="26" Height="30" Canvas.Left="5.5" Canvas.Top="1.5" Visibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+                            <Canvas Width="26" Height="30">
+                                <Path x:Name="Path_322" Width="26" Height="30" Canvas.Left="3.8147e-006" Canvas.Top="-7.62939e-006" Stretch="Fill" Data="F1 M 26,-7.62939e-006L 26,30L 3.8147e-006,17L 3.8147e-006,13L 26,-7.62939e-006 Z " StrokeThickness="1" StrokeLineJoin="Bevel">
+                                    <Path.Stroke>
+                                        <RadialGradientBrush RadiusX="0.3" RadiusY="0.980769" Center="1.00167,0.5" GradientOrigin="1.00167,0.5">
+                                            <RadialGradientBrush.GradientStops>
+                                                <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                                <GradientStop Color="#00000000" Offset="0.253275"/>
+                                                <GradientStop Color="#00000000" Offset="0.741525"/>
+                                                <GradientStop Color="#B3000000" Offset="1"/>
+                                            </RadialGradientBrush.GradientStops>
+                                            <RadialGradientBrush.RelativeTransform>
+                                                <TransformGroup>
+                                                    <RotateTransform CenterX="1.00167" CenterY="0.5" Angle="-90"/>
+                                                </TransformGroup>
+                                            </RadialGradientBrush.RelativeTransform>
+                                        </RadialGradientBrush>
+                                    </Path.Stroke>
+                                    <Path.Fill>
+                                        <RadialGradientBrush RadiusX="0.3" RadiusY="0.980769" Center="1.00167,0.5" GradientOrigin="1.00167,0.5">
+                                            <RadialGradientBrush.GradientStops>
+                                                <GradientStop Color="#00000000" Offset="0"/>
+                                                <GradientStop Color="#40000000" Offset="0.660634"/>
+                                                <GradientStop Color="#7F000000" Offset="1"/>
+                                            </RadialGradientBrush.GradientStops>
+                                            <RadialGradientBrush.RelativeTransform>
+                                                <TransformGroup>
+                                                    <RotateTransform CenterX="1.00167" CenterY="0.5" Angle="-90"/>
+                                                </TransformGroup>
+                                            </RadialGradientBrush.RelativeTransform>
+                                        </RadialGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                                <Path x:Name="Path_323" Width="1.49999" Height="5.99999" Canvas.Left="3.8147e-006" Canvas.Top="12" Stretch="Fill" Data="F1 M 1.5,15.1472L 1.5,14.8474C 1.5,13.6032 0.831867,12.0465 3.8147e-006,12L 3.8147e-006,18C 0.831867,17.9534 1.5,16.3913 1.5,15.1472 Z ">
+                                    <Path.Fill>
+                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                                <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                                <Path x:Name="Path_324" Width="3.99999" Height="30" Canvas.Left="22" Canvas.Top="1.90735e-005" Stretch="Fill" Data="F1 M 22,15.7357L 22,14.2368C 22,8.01584 23.7817,0.232239 26,1.90735e-005L 26,30C 23.7817,29.767 22,21.9566 22,15.7357 Z ">
+                                    <Path.Fill>
+                                        <LinearGradientBrush StartPoint="0.500001,0" EndPoint="0.500001,1">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                                <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                            </Canvas>
+                        </Viewbox>
+                    </Canvas>
+                </Viewbox>
+            </Canvas>
+        </Viewbox>
+        <ControlTemplate.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos1" Value="True"/>
+                    <Condition Property="ReqPos2" Value="False"/>
+                    <Condition Property="ReqPos3" Value="False"/>
+                    <Condition Property="Pos1" Value="False"/>
+                    <Condition Property="IsTriggered" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyTop" Property="StrokeDashArray" Value="4 4" />
+                <Setter TargetName="PolyLeft" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyLeft" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartLeft">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyTop"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyLeft"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartLeft" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos1" Value="True"/>
+                    <Condition Property="Pos1" Value="False"/>
+                    <Condition Property="IsTriggered" Value="True"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyTop" Property="StrokeDashArray" Value="4 4" />
+                <Setter TargetName="PolyLeft" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyLeft" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartLeft2">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyTop"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyLeft"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartLeft2" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="True"/>
+                    <Condition Property="IsTriggered" Value="True"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyTop" Property="StrokeDashArray" Value="4 4" />
+                <Setter TargetName="PolyLeft" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyLeft" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartLeft3">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyTop"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyLeft"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartLeft3" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos1" Value="False"/>
+                    <Condition Property="ReqPos2" Value="True"/>
+                    <Condition Property="ReqPos3" Value="False"/>
+                    <Condition Property="Pos2" Value="False"/>
+                    <Condition Property="IsTriggered" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyTop" Property="StrokeDashArray" Value="4 4" />
+                <Setter TargetName="PolyRight" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyRight" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartRight">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyTop"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyRight"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartRight" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos2" Value="True"/>
+                    <Condition Property="Pos2" Value="False"/>
+                    <Condition Property="IsTriggered" Value="True"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyTop" Property="StrokeDashArray" Value="4 4" />
+                <Setter TargetName="PolyRight" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyRight" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartRight2">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyTop"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyRight"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartRight2" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos2" Value="True"/>
+                    <Condition Property="IsTriggered" Value="True"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyTop" Property="StrokeDashArray" Value="4 4" />
+                <Setter TargetName="PolyRight" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyRight" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartRight3">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyTop"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyRight"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartRight3" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos1" Value="False"/>
+                    <Condition Property="ReqPos2" Value="False"/>
+                    <Condition Property="ReqPos3" Value="True"/>
+                    <Condition Property="Pos3" Value="False"/>
+                    <Condition Property="IsTriggered" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyLeft" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyLeft" Property="StrokeDashArray" Value="4 4" />
+                <Setter TargetName="PolyRight" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyRight" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartBottom">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyLeft"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyRight"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartBottom" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos3" Value="True"/>
+                    <Condition Property="Pos3" Value="False"/>
+                    <Condition Property="IsTriggered" Value="True"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyLeft" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyLeft" Property="StrokeDashArray" Value="4 4" />
+                <Setter TargetName="PolyRight" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyRight" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartBottom2">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyLeft"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyRight"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartBottom2" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos3" Value="True"/>
+                    <Condition Property="IsTriggered" Value="True"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyLeft" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyLeft" Property="StrokeDashArray" Value="4 4" />
+                <Setter TargetName="PolyRight" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyRight" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartBottom3">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyLeft"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyRight"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartBottom3" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos1" Value="False"/>
+                    <Condition Property="ReqPos2" Value="False"/>
+                    <Condition Property="ReqPos3" Value="False"/>
+                    <Condition Property="Pos1" Value="False"/>
+                    <Condition Property="Pos2" Value="False"/>
+                    <Condition Property="Pos3" Value="False"/>
+                    <Condition Property="IsTriggered" Value="True"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyTop" Property="StrokeDashArray" Value="4 4" />
+                <Setter TargetName="PolyLeft" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyLeft" Property="StrokeDashArray" Value="4 4" />
+                <Setter TargetName="PolyRight" Property="StrokeThickness" Value="6" />
+                <Setter TargetName="PolyRight" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartAll">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyTop"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyLeft"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="PolyRight"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartAll" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <Trigger Property="OperatingMode" Value="Manual">
+                <Setter TargetName="OpModeBack" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderBrushManual}" />
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="Maintenance">
+                <Setter TargetName="OpModeBack" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderBrushMaint}" />
+            </Trigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="True"/>
+                    <Condition Property="Pos2" Value="False"/>
+                    <Condition Property="Pos3" Value="False"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="False"/>
+                    <Condition Property="Pos2" Value="True"/>
+                    <Condition Property="Pos3" Value="False"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="False"/>
+                    <Condition Property="Pos2" Value="False"/>
+                    <Condition Property="Pos3" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="True"/>
+                    <Condition Property="Pos2" Value="True"/>
+                    <Condition Property="Pos3" Value="False"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="True"/>
+                    <Condition Property="Pos2" Value="False"/>
+                    <Condition Property="Pos3" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="False"/>
+                    <Condition Property="Pos2" Value="True"/>
+                    <Condition Property="Pos3" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="True"/>
+                    <Condition Property="Pos2" Value="True"/>
+                    <Condition Property="Pos3" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsInterlocked" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PolyTop" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushInterlocked}" />
+                <Setter TargetName="PolyLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushInterlocked}" />
+                <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushInterlocked}" />
+            </MultiTrigger>
+            <Trigger Property="FaultState" Value="AlarmOrFault">
+                <Setter TargetName="PolyTop" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushFault}" />
+                <Setter TargetName="PolyLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushFault}" />
+                <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushFault}" />
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="InActive">
+                <Setter TargetName="PolyTop" Property="Fill" Value="Black" />
+                <Setter TargetName="PolyRight" Property="Fill" Value="Black" />
+                <Setter TargetName="PolyLeft" Property="Fill" Value="Black" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+</ResourceDictionary>

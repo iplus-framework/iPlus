@@ -1,0 +1,35 @@
+﻿DBSyncer how to use
+====================================
+
+1. Create your update
+------------------------------------
+Name shema for version files
+dbsync_{yyyy-MM-dd}_{HH:mm}_{author}.sql
+
+{yyyy-MM-dd} datepart replace with curent date
+{HH:mm} time part replace with current time when file is created
+{author} replace with your developer short name for example aagincic
+
+Example for created file:
+dbsync_2018-08-23_10-08-aagincic.sql
+
+Create file into project "gip.core.dbsyncer"
+into folder DbScripts/contextfolder
+
+There is two context folders
+varioiplus
+variobatch
+
+In SQL file is possible to use command GO.
+This is useful in case when you in first step create table and in second you wish insert some rows in this new created table.
+This can't be done as one single sql query.
+Syncer will break this sql file into so many parts as GO statement appers in file and execute each one in order.
+
+
+2. Make file availabile for application
+------------------------------------
+Right click on new created file and for option
+	Copy to Output Directory
+set value:
+	Copy always
+Save project and solution.

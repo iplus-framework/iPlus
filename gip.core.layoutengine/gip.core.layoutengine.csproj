@@ -1,0 +1,1843 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A294786A-0921-4773-A0BF-F98F5AFCAE0D}</ProjectGuid>
+    <OutputType>library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>gip.core.layoutengine</RootNamespace>
+    <AssemblyName>gip.core.layoutengine</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>..\bin\Debug\gip.core.layoutengine.xml</DocumentationFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>
+    </DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ICSharpCode.AvalonEdit, Version=5.0.3.0, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\RoslynPad\ICSharpCode.AvalonEdit.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Build" />
+    <Reference Include="Microsoft.Build.Engine" />
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.CodeAnalysis, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\RoslynPad\Microsoft.CodeAnalysis.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.Workspaces, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\RoslynPad\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Maps.MapControl.WPF">
+      <HintPath>Controls\VBBingMap\Microsoft.Maps.MapControl.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="QuickGraph, Version=3.2.40122.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\QuickGraph\QuickGraph.dll</HintPath>
+    </Reference>
+    <Reference Include="ReachFramework" />
+    <Reference Include="RoslynPad.Editor.Windows, Version=1.0.6.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\RoslynPad\RoslynPad.Editor.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="RoslynPad.Roslyn, Version=2.7.0.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\RoslynPad\RoslynPad.Roslyn.dll</HintPath>
+    </Reference>
+    <Reference Include="RoslynPad.Roslyn.Windows, Version=2.7.0.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\RoslynPad\RoslynPad.Roslyn.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\RoslynPad\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.Entity">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Printing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="UIAutomationTypes" />
+    <Reference Include="WindowsBase">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="PresentationCore">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="PresentationFramework">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attached properties\ItemSynchronizers\ItemsSynchronizer.cs" />
+    <Compile Include="Attached properties\ItemSynchronizers\CollectionItemsSynchronizer.cs" />
+    <Compile Include="Attached properties\ItemSynchronizers\ListItemsSynchronizer.cs" />
+    <Compile Include="Attached properties\Synchronization.cs" />
+    <Compile Include="Controls\VBAdornerDecoraterIACObject\VBAdornerDecoraterIACObject.cs" />
+    <Compile Include="Controls\VBAppViewer\VBAppViewer.xaml.cs">
+      <DependentUpon>VBAppViewer.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Controls\VBAutoCompleteBox\Themes\AutoCompleteBoxStyleAero.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="Controls\VBAutoCompleteBox\VBAutoCompleteBox.cs" />
+    <Compile Include="Controls\VBAutoCompleteBox\VBAutoCompleteBoxHelper.cs" />
+    <Compile Include="Controls\VBBingMap\VBBingMap.cs" />
+    <Compile Include="Controls\VBBingMap\VBMapPushpin.cs" />
+    <Compile Include="Controls\VBBorder\VBBorder.cs" />
+    <Compile Include="Controls\VBButton\VBFileDialogButton.cs" />
+    <Compile Include="Controls\VBCarousel\VBCarouselControl.cs" />
+    <Compile Include="Controls\VBCarousel\VBCarousel.cs" />
+    <Compile Include="Controls\VBChartPlotter\ChartItem.cs" />
+    <Compile Include="Controls\VBChartPlotter\PropertyLogChartItem.cs" />
+    <Compile Include="Controls\VBChartPlotter\VBChartItem.cs" />
+    <Compile Include="Controls\VBClock\VBClock.xaml.cs">
+      <DependentUpon>VBClock.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBClock\VBClockDisplay.xaml.cs">
+      <DependentUpon>VBClockDisplay.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBClock\VBClockTimeInfo.cs" />
+    <Compile Include="Controls\VBContentControl\VBContentControl.cs" />
+    <Compile Include="Controls\VBDataGrid\DataGridHelper.cs" />
+    <Compile Include="Controls\VBDataGrid\DataGridRowHeaderCommand.cs" />
+    <Compile Include="Controls\VBDataGrid\HorizontalMouseScrollHelper.cs" />
+    <Compile Include="Controls\VBDataGrid\VBDataGridColumnHeader.cs" />
+    <Compile Include="Controls\VBDataGrid\VBDataGridACValueColumn.cs" />
+    <Compile Include="Controls\VBDataGrid\VBDataGridCheckBoxColumn.cs" />
+    <Compile Include="Controls\VBDataGrid\VBDataGridColumnHeadersPresenter.cs" />
+    <Compile Include="Controls\VBDataGrid\VBDataGridComboBoxColumn.cs" />
+    <Compile Include="Controls\VBDataGrid\VBDataGridDateTimeColumn.cs" />
+    <Compile Include="Controls\VBDataGrid\VBDataGridTemplateColumn.cs" />
+    <Compile Include="Controls\VBDataGrid\VBDataGridTextColumn.cs" />
+    <Compile Include="Controls\VBDesignEditor\Editors\TransformOutlineNode.cs" />
+    <Compile Include="Controls\VBDesignEditor\Editors\VBBindingEditorPopup.xaml.cs">
+      <DependentUpon>VBBindingEditorPopup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Editors\VBBindingTypeEditor.xaml.cs">
+      <DependentUpon>VBBindingTypeEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Editors\VBComboBoxEditor.xaml.cs">
+      <DependentUpon>VBComboBoxEditor.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Editors\VBConverterEditorPopup.xaml.cs">
+      <DependentUpon>VBConverterEditorPopup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Editors\VBConverterEditorView.xaml.cs">
+      <DependentUpon>VBConverterEditorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Editors\VBConverterTypeEditor.xaml.cs">
+      <DependentUpon>VBConverterTypeEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Editors\VBTransformEditorGroupView.xaml.cs">
+      <DependentUpon>VBTransformEditorGroupView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Editors\VBTransformEditorPopup.xaml.cs">
+      <DependentUpon>VBTransformEditorPopup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Editors\VBTransformEditorSingleView.xaml.cs">
+      <DependentUpon>VBTransformEditorSingleView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Editors\VBTransformEditorView.xaml.cs">
+      <DependentUpon>VBTransformEditorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Editors\VBTransformTypeEditor.xaml.cs">
+      <DependentUpon>VBTransformTypeEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Extensions\VBQuickOperationMenuExtension.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBDesignItemTreeView.cs" />
+    <Compile Include="Controls\VBDesignEditor\TriggerOutlineNodes.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBActionCollectionEditor.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBBindingEditor.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBBindingWrapper.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBConditionEditor.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBConditionWrapper.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBDataTriggerEditor.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBEventTriggerEditor.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBMultiBindingEditor.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBMultiTriggerEditor.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBPropertyTriggerEditor.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBSettersCollectionEditor.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBStyleSetterWindow.xaml.cs">
+      <DependentUpon>VBStyleSetterWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\VBStyleTriggerWindow.xaml.cs">
+      <DependentUpon>VBStyleTriggerWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\VBTriggersCollectionEditor.cs" />
+    <Compile Include="Controls\VBDesign\AdornerVBControlManager.cs" />
+    <Compile Include="Controls\VBDesign\VBDesignSelectionAdorner.cs" />
+    <Compile Include="Controls\VBDocking\VBWindow\VBWindowDialogMsgViewModel.cs" />
+    <Compile Include="Controls\VBDynamic\VBDynamicContent.cs" />
+    <Compile Include="Controls\VBExpander\VBExpander.cs" />
+    <Compile Include="Controls\VBFlipView\FlipViewPanel.cs" />
+    <Compile Include="Controls\VBFlipView\VBFlipView.cs" />
+    <Compile Include="Controls\VBFlipView\AnimationFactory.cs" />
+    <Compile Include="Controls\VBGanttChart\Connection\Connection.cs" />
+    <Compile Include="Controls\VBGanttChart\Connection\ConnectionsPresenter.cs" />
+    <Compile Include="Controls\VBGanttChart\Connection\Connector.cs" />
+    <Compile Include="Controls\VBGanttChart\Timeline\TimelineCompactPanel.cs" />
+    <Compile Include="Controls\VBGanttChart\VBGanttChart.cs" />
+    <Compile Include="Controls\VBGanttChart\Timeline\TimelineGanttPanel.cs" />
+    <Compile Include="Controls\VBGanttChart\Timeline\TimelineGanttItem.cs" />
+    <Compile Include="Controls\VBGanttChart\Timeline\TimelineGanttItemsPresenter.cs" />
+    <Compile Include="Controls\VBGanttChart\VBGanttChartView.cs" />
+    <Compile Include="Controls\VBGraph\VBGraphEdge.cs" />
+    <Compile Include="Controls\VBGraph\VBGraphItemDataTemplateSelector.cs" />
+    <Compile Include="Controls\VBGraph\VBGraphItem.cs" />
+    <Compile Include="Controls\VBGraph\VBGraphSurface.xaml.cs">
+      <DependentUpon>VBGraphSurface.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBNumericUpDown\VBNumericUpDown.cs" />
+    <Compile Include="Controls\VBScriptEditor\ClassificationHighlightColorsGip.cs" />
+    <Compile Include="Controls\VBScriptEditor\VBScriptEditorBraceFoldingStrategy.cs" />
+    <Compile Include="Controls\VBTextEditor\AutoCompleteTypeHelper.cs" />
+    <Compile Include="Controls\VBTextEditor\VBTextEditor.cs" />
+    <Compile Include="Controls\VBTextEditor\VBTextEditorCompletionData.cs" />
+    <Compile Include="Controls\VBTileGrid\VBTile.cs" />
+    <Compile Include="Controls\VBTileGrid\VBTileGrid.cs" />
+    <Compile Include="Controls\VBMultiSelectComboBox\VBMultiSelectComboBoxItem.cs" />
+    <Compile Include="Controls\VBMultiSelectComboBox\VBMultiSelectComboBox.cs" />
+    <Compile Include="Controls\VBProgramLogView\VBProgramLogView.cs" />
+    <Compile Include="Controls\VBProgramLogView\VBProgramLogViewItem.cs" />
+    <Compile Include="Controls\VBRatingControl\RatingItem.cs" />
+    <Compile Include="Controls\VBRatingControl\VBRatingControl.xaml.cs">
+      <DependentUpon>VBRatingControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBTextBox\VBTextBox3.cs" />
+    <Compile Include="Controls\VBTimeline\Base\TimelineItemBase.cs" />
+    <Compile Include="Controls\VBTimeline\Base\VBTimelineChartBase.cs" />
+    <Compile Include="Controls\VBTimeline\Base\VBTimelineViewBase.cs" />
+    <Compile Include="Controls\VBTimeline\Helper\FrictionScrollViewer.cs" />
+    <Compile Include="Controls\VBTimeline\Helper\AddDoubleConverter.cs" />
+    <Compile Include="Controls\VBTimeline\Helper\AsyncVirtualizingCollection.cs" />
+    <Compile Include="Controls\VBTimeline\Helper\IItemsProvider.cs" />
+    <Compile Include="Controls\VBTimeline\Helper\MathUtil.cs" />
+    <Compile Include="Controls\VBTimeline\Helper\ScrollViewerSyncer.cs" />
+    <Compile Include="Controls\VBTimeline\Helper\StyleSelectorByItemType.cs" />
+    <Compile Include="Controls\VBTimeline\Helper\VirtualizingCollection.cs" />
+    <Compile Include="Controls\VBTimeline\Helper\WpfUtility.cs" />
+    <Compile Include="Controls\VBTimeline\AxesPanel\DateTimeAxis.cs" />
+    <Compile Include="Controls\VBTimeline\AxesPanel\DateTimeAxesPanel.cs" />
+    <Compile Include="Controls\VBTimeline\AxesPanel\RulerBlockItem.cs" />
+    <Compile Include="Controls\VBTimeline\AxesPanel\RulerLine.cs" />
+    <Compile Include="Controls\VBTimeline\AxesPanel\TimelineRulerControl.cs" />
+    <Compile Include="Controls\VBTimeline\Timeline\Timeline.cs" />
+    <Compile Include="Controls\VBTimeline\Timeline\TimelineItem.cs" />
+    <Compile Include="Controls\VBTimeline\Timeline\TimelineItemPanel.cs" />
+    <Compile Include="Controls\VBTimeline\Timeline\TimelineItemsPresenter.cs" />
+    <Compile Include="Controls\VBTimeline\Base\TimelinePanel.cs" />
+    <Compile Include="Controls\VBTimeline\VBTimelineChart.cs" />
+    <Compile Include="Controls\VBTimeline\VBTimelineView.cs" />
+    <Compile Include="Controls\VBTranslationText\VBTranslationText.cs" />
+    <Compile Include="Controls\VBTreeListView\LevelToIndentConverter.cs" />
+    <Compile Include="Controls\VBTreeListView\VBGridViewColumn.cs" />
+    <Compile Include="Controls\VBTreeListView\VBTreeGridViewRowPresenter.cs" />
+    <Compile Include="Controls\VBTreeListView\VBTreeListView.cs" />
+    <Compile Include="Controls\VBTreeListView\VBTreeListViewItem.cs" />
+    <Compile Include="Controls\VBImage\VBImage.cs" />
+    <Compile Include="Controls\VBProgressBar\VBProgressBarSegmentedViewModel.cs" />
+    <Compile Include="Controls\VBProgressBar\VBPiePiece.cs" />
+    <Compile Include="Controls\VBProgressBar\VBProgressBarCircularViewModel.cs" />
+    <Compile Include="Controls\VBStatusBarItem\VBStatusBarItem.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controls\VBValueEditor\VBValueEditor.cs" />
+    <Compile Include="Controls\VBWebBrowser\VBWebBrowser.xaml.cs">
+      <DependentUpon>VBWebBrowser.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBXMLEditor\CodeCompletion\CodeCompletionXsdGenerator.cs" />
+    <Compile Include="Controls\VBXMLEditor\CodeCompletion\XmlCompletionData.cs" />
+    <Compile Include="Controls\VBXMLEditor\CodeCompletion\XmlCompletionDataCollection.cs" />
+    <Compile Include="Controls\VBXMLEditor\CodeCompletion\XmlCompletionProvider.cs" />
+    <Compile Include="Controls\VBXMLEditor\CodeCompletion\XmlParser.cs" />
+    <Compile Include="Controls\VBXMLEditor\CodeCompletion\XmlSchemaCompletionData.cs" />
+    <Compile Include="Controls\VBXMLEditor\VBXMLEditor.cs" />
+    <Compile Include="Controls\VBXMLViewer\VBXMLViewer.xaml.cs">
+      <DependentUpon>VBXMLViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBXpsViewer\VBXpsViewer.cs" />
+    <Compile Include="Converter\ConverterComparable.cs" />
+    <Compile Include="Converter\ConverterDataType.cs" />
+    <Compile Include="Converter\ConverterDoubleOffset.cs" />
+    <Compile Include="Converter\ConverterAbbreviateNum.cs" />
+    <Compile Include="Converter\ConverterIsNotEqual.cs" />
+    <Compile Include="Converter\ConverterTimelineStatus.cs" />
+    <Compile Include="Converter\ConverterVisibilityInverseBool.cs" />
+    <Compile Include="Converter\VisibilityNullConverter.cs" />
+    <Compile Include="Converter\FormattedMultiTextConverter.cs" />
+    <Compile Include="Converter\ProgramLogViewItemMarginConverter.cs" />
+    <Compile Include="Converter\ProxyACRefConverter.cs" />
+    <Compile Include="Designer\ConnectTool.cs" />
+    <Compile Include="Designer\ConnectToolDrawingHandler.cs" />
+    <Compile Include="Designer\DesignManagerControlTool.cs" />
+    <Compile Include="Designer\DesignManagerToolItem.cs" />
+    <Compile Include="Designer\IACComponentDesignManagerWithTool.cs" />
+    <Compile Include="Helperclasses\AccentColors.cs" />
+    <Compile Include="Helperclasses\DragMode.cs" />
+    <Compile Include="Helperclasses\FindAndReplaceHandler.cs" />
+    <Compile Include="Helperclasses\GridUtils.cs" />
+    <Compile Include="Helperclasses\Utils.cs" />
+    <Compile Include="Helperclasses\LinqToVisualTree.cs" />
+    <Compile Include="Helperclasses\VBWorkflowAdorner.cs" />
+    <Compile Include="Helperclasses\WindowStateHandle.cs" />
+    <Compile Include="Helperclasses\WindowStateHandleSettings.cs" />
+    <Compile Include="Interfaces\IClearVBContent.cs" />
+    <Compile Include="Interfaces\IBindingDropHandler.cs" />
+    <Compile Include="Interfaces\IEdge.cs" />
+    <Compile Include="Interfaces\IVBChart.cs" />
+    <Compile Include="LayoutAlgorithms\EfficientSugiyama\AlternatingLayer.cs" />
+    <Compile Include="LayoutAlgorithms\EfficientSugiyama\GraphHelper.cs" />
+    <Compile Include="LayoutAlgorithms\EfficientSugiyama\HorizontalAssignment.cs" />
+    <Compile Include="LayoutAlgorithms\EfficientSugiyama\LayeredTopologicalSortAlgorithm.cs" />
+    <Compile Include="LayoutAlgorithms\EfficientSugiyama\SugiElements.cs" />
+    <Compile Include="LayoutAlgorithms\EfficientSugiyama\SugiLayoutAlgorithm.cs" />
+    <Compile Include="LayoutAlgorithms\EfficientSugiyama\SugiMinimization.cs" />
+    <Compile Include="LayoutAlgorithms\EfficientSugiyama\SugiNormalize.cs" />
+    <Compile Include="LayoutAlgorithms\EfficientSugiyama\SugiPrepair.cs" />
+    <Compile Include="LayoutAlgorithms\VBRoutingLogic\VBRoutingHelper.cs" />
+    <Compile Include="LayoutAlgorithms\VBRoutingLogic\VBRoutingLogic.cs" />
+    <Compile Include="Layoutengine\AsyncMessageBox.cs" />
+    <Compile Include="Layoutengine\BamlReader.cs" />
+    <Compile Include="Layoutengine\Logger.cs" />
+    <Compile Include="MarkupExtensions\VBDelegateExtension.cs" />
+    <Compile Include="MarkupExtensions\VBEventSetter.cs" />
+    <Compile Include="ValidationRule\VBValidationRule.cs" />
+    <EmbeddedResource Include="VBXMLEditorSchemas\VBSchema.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VBXMLEditorSchemas\wpfe.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VBXMLEditorSchemas\xaml2006.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VBXMLEditorSchemas\XamlPresentation2006.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Page Include="Controls\SharedAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBAppViewer\VBAppViewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBAutoCompleteBox\Themes\AutoCompleteBoxStyleGip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBButton\Themes\ToggleButtonStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBButton\Themes\ToggleButtonStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBCarousel\Themes\CarouselStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBCarousel\Themes\CarouselStyleGip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBClock\VBClock.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBClock\VBClockDisplay.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBBindingEditorPopup.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBBindingsEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBBindingTypeEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBBoolEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBComboBoxEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBConverterEditorPopup.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBConverterEditorView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBConverterTypeEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBTextBoxEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBTransformEditorGroupView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBTransformEditorPopup.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBTransformEditorSingleView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBTransformEditorView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Editors\VBTransformTypeEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\DesignItemTreeViewStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\ActionCollectionEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\ActionCollectionEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\BindingEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\BindingEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\ConditionEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\ConditionEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\DataTriggerEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\DataTriggerEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\EventTriggerEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\EventTriggerEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\DesignItemTreeViewStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\MultiBindingEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\MultiBindingEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\MultiTriggerEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\MultiTriggerEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\PropertyGridViewStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\PropertyGridViewStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\PropertyTriggerEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\PropertyTriggerEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\SettersCollectionEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\SettersCollectionEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\TriggersCollectionEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\Themes\TriggersCollectionEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\VBDesignEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBButtonChrome\Themes\ButtonChromeStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBButtonChrome\Themes\ButtonChromeStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBButtonSpinner\Themes\ButtonSpinnerStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBButtonSpinner\Themes\ButtonSpinnerStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBButton\Themes\ButtonStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBButton\Themes\SharedResourceTest.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBContentControl\Themes\ContentControlStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBContentControl\Themes\ContentControlStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDateTimeUpDown\Themes\DateTimeUpDownStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDateTimeUpDown\Themes\DateTimeUpDownStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDateTimePicker\Themes\DateTimePickerStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDateTimePicker\Themes\DateTimePickerStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBChartPlotter\Themes\ChartPlotterStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBChartPlotter\Themes\ChartPlotterStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBChartPlotter\VBPropertyLogChart.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\VBStyleSetterWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesignEditor\VBStyleTriggerWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesign\Themes\VBDesignStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDesign\Themes\VBDesignStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\Themes\DockingManagerStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\Themes\DockingManagerStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBExpander\Themes\ExpanderStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBExpander\Themes\ExpanderStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBFrame\Themes\FrameStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBFrame\Themes\FrameStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBControlSelectionIcon\Themes\VBControlSelectionIconStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBControlSelectionIcon\Themes\VBControlSelectionIconStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBConnectionState\Themes\ConnectionStateStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBConnectionState\Themes\ConnectionStateStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\Themes\DockingWindowStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\Themes\DockingWindowStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\Themes\VBDockingLibraryResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\VBDockingContainer\VBDockingContainerToolWindowVB.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\VBDockingPanels\VBDockingPanelToolWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBDocking\VBDockingPanels\VBDockingPanelTabbedDoc.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\VBDockingGrid.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBDocking\VBWindow\VBDockingOverlayWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\ConnectionsPresenterStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\ConnectionStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\ConnectionsPresenterStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\ConnectionStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\GanttChartStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\GanttChartStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\ConnectorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\ConnectorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\GanttChartViewStyleAero.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\GanttChartViewStyleGip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\TimelineGanttItemsPresenterStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\TimelineGanttItemStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\TimelineGanttItemStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGanttChart\Themes\TimelineGanttItemsPresenterStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGraph\Themes\VBGraphItemStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGraph\Themes\VBGraphSurfaceStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGraph\Themes\VBGraphSurfaceStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBGraph\VBGraphSurface.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBHeader\Themes\HeaderStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBHeader\Themes\HeaderStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBListBoxItem\Themes\ListBoxItemStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBListBoxItem\Themes\ListBoxItemStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBListBox\Themes\ListBoxStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBListBox\Themes\ListBoxStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBNumericUpDown\Themes\NumericUpDownStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBNumericUpDown\Themes\NumericUpDownStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBProgressBar\Themes\CircularUnlimited.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Restore.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBScriptEditor\Themes\ScriptEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBScriptEditor\Themes\ScriptEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTileGrid\Themes\TileStyleAero.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBTileGrid\Themes\TileStyleGip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBMultiSelectComboBox\Themes\VBMultiSelectComboBoxItemStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBMultiSelectComboBox\Themes\VBMultiSelectComboBoxStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBProgramLogView\Themes\ProgramLogViewItemStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBProgramLogView\Themes\ProgramLogViewStyleGip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBProgressBar\Themes\XPBStopWatch.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBProgressBar\Themes\XPBCircularPoints.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBProgressBar\Themes\XPBCircularSegmented.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBProgressBar\Themes\XPBCircular.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBProgressBar\Themes\XPBGlassyPie.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBProgressBar\Themes\XPBNormalPie.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRadioButton\Themes\RadioButtonGroupStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRadioButton\Themes\RadioButtonGroupStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRatingControl\VBRatingControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DataExport.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Design.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Find.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DesignPointer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DesignLine.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DesignRect.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DesignEllipse.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DesignConnector.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DesignRotate.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DesignMirrorHorz.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DesignMirrorVert.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DesignTransfReset.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DesignPolyline.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DesignPolygon.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\DesignEditPoints.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\TimeTo.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\TimeFrom.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Pause.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Stop.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Play.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Plug.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Themes\RibbonTrayBorderStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Themes\RibbonBarStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Themes\RibbonTrayStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Themes\RibbonTrayStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Themes\RibbonBarStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBStatusBarItem\Themes\StatusBarItemStyleAero.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBStatusBarItem\Themes\StatusBarItemStyleGip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBTimeline\Themes\TimelineChartStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTimeline\Themes\TimelineChartStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTimeline\Themes\RulerBlockItemStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTimeline\Themes\RulerBlockItemStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTimeline\Themes\TimelineItemsPresenterStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTimeline\Themes\TimelineItemsPresenterStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTimeline\Themes\TimelineItemStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTimeline\Themes\TimelineItemStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTimeline\Themes\TimelineRulerControlStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTimeline\Themes\TimelineRulerControlStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTimeline\Themes\TimelineViewStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTimeline\Themes\TimelineViewStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTranslationText\Themes\TranslationTextStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTranslationText\Themes\TranslationTextStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTreeListView\Themes\TreeListViewItemStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTreeListView\Themes\TreeListViewItemStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTreeListView\Themes\TreeListViewStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTreeListView\Themes\TreeListViewStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBVisualGroup\Themes\VBVisualGroupStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\VBWindow\Themes\DialogStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\VBWindow\Themes\DialogStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\VBWindow\Icons\MsgInfo.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\VBWindow\Icons\MsgQuestion.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\VBWindow\Icons\MsgStop.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\VBWindow\Icons\MsgExclamation.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Preview.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Print.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Delete.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Filesaveundo.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Filesave.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\LoadRefresh.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\AddNew.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Redo.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Undo.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Editpaste.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Editcopy.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\Editcut.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\NavLast.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\NavFirst.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\NavNext.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Icons\NavPrev.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBScrollViewer\Themes\ScrollViewerStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBScrollViewer\Themes\ScrollViewerStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBPasswordBox\Themes\PasswordBoxStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBPasswordBox\Themes\PasswordBoxStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBPasswordBox\VBPasswordBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBSlider\Themes\SliderStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBSlider\Themes\SliderStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <EmbeddedResource Include="Controls\VBButton\Themes\buttontestxaml.xaml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Page Include="Controls\VBButton\Themes\ButtonStyleGip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBCheckBox\Themes\CheckBoxStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBCheckBox\Themes\CheckBoxStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBComboBoxItem\Themes\ComboBoxItemStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBComboBoxItem\Themes\ComboBoxItemStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBComboBox\Themes\ComboBoxStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBComboBox\Themes\ComboBoxStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBContextMenu\Themes\ContextMenuStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBContextMenu\Themes\ContextMenuStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDatePicker\Themes\DatePickerStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDatePicker\Themes\DatePickerStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDockPanel\Themes\DockPanelStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDockPanel\Themes\DockPanelStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBFlipView\Themes\FlipViewStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBFlipView\Themes\FlipViewStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBMenuItem\Themes\MenuItemStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBMenuItem\Themes\MenuItemStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBMenuSeparator\Themes\MenuSeparatorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBMenuSeparator\Themes\MenuSeparatorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBMenu\Themes\MenuStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBMenu\Themes\MenuStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBProgressBar\Themes\ProgressBarStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBProgressBar\Themes\ProgressBarStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRadioButton\Themes\RadioButtonStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRadioButton\Themes\RadioButtonStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Themes\RibbonButtonStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Themes\RibbonButtonStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBStatusBar\Themes\StatusBarStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBStatusBar\Themes\StatusBarStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTabControl\Themes\TabControlStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTabControl\Themes\TabControlStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTabItem\Themes\TabItemStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTabItem\Themes\TabItemStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTextBlock\Themes\TextBlockStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTextBlock\Themes\TextBlockStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDataGrid\Themes\DataGridStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDataGrid\Themes\DataGridStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTextBox\Themes\TextBoxStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTextBox\Themes\TextBoxStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTextEditor\Themes\TextAreaStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTextEditor\Themes\TextAreaStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTreeViewItem\Themes\TreeViewItemStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTreeViewItem\Themes\TreeViewItemStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTreeView\Themes\TreeViewStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTreeView\Themes\TreeViewStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBUpdateInfo\VBUpdateInfo.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\Shared.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTextEditor\Themes\TextEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBTextEditor\Themes\TextEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\VBWindow\Themes\DialogRootStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\VBWindow\Themes\DialogRootStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBDocking\VBWindow\VBWindowDialogMsg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBWebBrowser\VBWebBrowser.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBXMLEditor\Themes\XMLEditorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBXMLEditor\Themes\XMLEditorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBXMLViewer\VBXMLViewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\AeroStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\WpfDesignStyles.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBCanvas\VBSelectedThumb\Themes\SelectedThumbStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBCanvas\VBSelectedThumb\Themes\SelectedThumbStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBConnector\Themes\VBConnectorStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBConnector\Themes\VBConnectorStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\VBRibbon.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBVisual\Themes\VBVisualStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBVisual\Themes\VBVisualStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="Controls\VBChartPlotter\VBPropertyLogPlacementSupport.cs" />
+    <Compile Include="Controls\VBDesign\VBInstanceInfo.cs" />
+    <Compile Include="Controls\VBDesign\VBDesignBase.cs" />
+    <Compile Include="Controls\VBDesignEditor\Editors\VBBindingsEditor.xaml.cs">
+      <DependentUpon>VBBindingsEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Editors\VBBoolEditor.xaml.cs">
+      <DependentUpon>VBBoolEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\Editors\VBTextBoxEditor.xaml.cs">
+      <DependentUpon>VBTextBoxEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDesignEditor\VBPropertyGrid.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBPropertyGridView.cs" />
+    <Compile Include="Controls\VBDesignEditor\VBDesignEditor.xaml.cs">
+      <DependentUpon>VBDesignEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBComboBox\VBComboBox2.cs" />
+    <Compile Include="Controls\VBDynamic\VBDynamic.cs" />
+    <Compile Include="Controls\VBButtonChrome\VBButtonChrome.cs" />
+    <Compile Include="Controls\VBButtonSpinner\VBButtonSpinner.cs" />
+    <Compile Include="Controls\VBButtonSpinner\SpinDirection.cs" />
+    <Compile Include="Controls\VBButtonSpinner\SpinEventArgs.cs" />
+    <Compile Include="Controls\VBButtonSpinner\Spinner.cs" />
+    <Compile Include="Controls\VBButtonSpinner\ValidSpinDirections.cs" />
+    <Compile Include="Controls\VBChartPlotter\VBPropertyLogChartItem.cs" />
+    <Compile Include="Controls\VBContentControl\VBContentControlIcon.cs" />
+    <Compile Include="Controls\VBDateTimeUpDown\DateTimeFormat.cs" />
+    <Compile Include="Controls\VBDateTimeUpDown\DateTimeInfo.cs" />
+    <Compile Include="Controls\VBDateTimeUpDown\DateTimePart.cs" />
+    <Compile Include="Controls\VBDateTimeUpDown\VBDateTimeUpDown.cs" />
+    <Compile Include="Controls\VBDateTimePicker\VBDateTimePicker.cs" />
+    <Compile Include="Controls\VBChartPlotter\VBChartPlotter.cs" />
+    <Compile Include="Controls\VBChartPlotter\VBPropertyLogChart.xaml.cs">
+      <DependentUpon>VBPropertyLogChart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDocking\VBDockingManager.cs" />
+    <Compile Include="Controls\VBFrame\VBFrame.cs" />
+    <Compile Include="Controls\VBControlSelectionIcon\VBControlSelectionIcon.cs" />
+    <Compile Include="Controls\VBConnectionState\VBConnectionState.cs" />
+    <Compile Include="Controls\VBDocking\IVBDockDropSurface.cs" />
+    <Compile Include="Controls\VBDocking\IVBDockLayoutSerializable.cs" />
+    <Compile Include="Controls\VBDocking\VBDockingButton\VBDockingButton.cs" />
+    <Compile Include="Controls\VBDocking\VBDockingButton\VBDockingButtonGroup.cs" />
+    <Compile Include="Controls\VBDocking\VBDockingContainer\VBDockingContainerToolWindowVB.xaml.cs">
+      <DependentUpon>VBDockingContainerToolWindowVB.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDocking\VBDockingContainer\VBDockingContainerToolWindow.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controls\VBDocking\VBDockingPanels\VBDockingPanelToolWindow.xaml.cs">
+      <DependentUpon>VBDockingPanelToolWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controls\VBDocking\VBDockingGroup.cs" />
+    <Compile Include="Controls\VBDocking\VBDockingContainer\VBDockingContainerTabbedDoc.cs" />
+    <Compile Include="Controls\VBDocking\VBDockingPanels\VBDockingPanelTabbedDoc.xaml.cs">
+      <DependentUpon>VBDockingPanelTabbedDoc.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDocking\VBDockDragPaneServices.cs" />
+    <Compile Include="Controls\VBDocking\VBDockingPanels\VBDockingPanelToolWindowUndocked.cs" />
+    <Compile Include="Controls\VBDocking\VBDockingGrid.xaml.cs">
+      <DependentUpon>VBDockingGrid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDocking\VBDockingContainer\VBDockingContainerBase.cs" />
+    <Compile Include="Controls\VBDocking\VBDockingPanels\VBDockingPanelToolWindowOverlay.cs" />
+    <Compile Include="Controls\VBDocking\VBWindow\VBDockingOverlayWindow.xaml.cs">
+      <DependentUpon>VBDockingOverlayWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBDocking\VBDockingPanels\VBDockingPanelBase.cs" />
+    <Compile Include="Controls\VBDocking\VBDockingSplitter.cs" />
+    <Compile Include="Controls\VBDocking\VBWindow\VBWindowDockingUndocked.cs" />
+    <Compile Include="Controls\VBGrid\VBGrid.cs" />
+    <Compile Include="Controls\VBHeader\VBHeader.cs" />
+    <Compile Include="Controls\VBListBoxItem\VBListBoxItem.cs" />
+    <Compile Include="Controls\VBPasswordBox\VBPasswordBox.xaml.cs">
+      <DependentUpon>VBPasswordBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBRadioButton\VBRadioButtonGroup.cs" />
+    <Compile Include="Controls\VBRibbon\VBRibbonTray.cs" />
+    <Compile Include="Controls\VBRibbon\VBRibbonBar.cs" />
+    <Compile Include="Controls\VBRibbon\Icons\IDynamicIcon.cs" />
+    <Compile Include="Controls\VBScrollViewer\VBScrollBarSizeConverter.cs" />
+    <Compile Include="Controls\VBSlider\VBSlider.cs" />
+    <Compile Include="Controls\VBCustomControl.cs" />
+    <Compile Include="Controls\VBButton\VBButton.cs" />
+    <Compile Include="Controls\VBCheckBox\VBCheckBox.cs" />
+    <Compile Include="Controls\VBComboBoxItem\VBComboBoxItem.cs" />
+    <Compile Include="Controls\VBComboBox\VBComboBox.cs" />
+    <Compile Include="Controls\VBContextMenu\VBContextMenu.cs" />
+    <Compile Include="Controls\VBDataGrid\VBDataGrid.cs" />
+    <Compile Include="Controls\VBDatePicker\VBDatePicker.cs" />
+    <Compile Include="Controls\VBDockPanel\VBDockPanel.cs" />
+    <Compile Include="Controls\VBListBox\VBListBox.cs" />
+    <Compile Include="Controls\VBMenuItem\VBMenuItem.cs" />
+    <Compile Include="Controls\VBMenuSeparator\VBMenuSeparator.cs" />
+    <Compile Include="Controls\VBMenu\VBMenu.cs" />
+    <Compile Include="Controls\VBProgressBar\VBProgressBar.cs" />
+    <Compile Include="Controls\VBRadioButton\VBRadioButton.cs" />
+    <Compile Include="Controls\VBRibbon\VBRibbonButton.cs" />
+    <Compile Include="Controls\VBStackPanel\VBStackPanel.cs" />
+    <Compile Include="Controls\VBStatusBar\VBStatusBar.cs" />
+    <Compile Include="Controls\VBTabControl\VBTabControl.cs" />
+    <Compile Include="Controls\VBTextBlock\VBTextBlock.cs" />
+    <Compile Include="Controls\VBTextBox\VBTextBox.cs" />
+    <Compile Include="Controls\VBTextBox\VBTextBox2.cs" />
+    <Compile Include="Controls\VBTextEditor\VBTextArea.cs" />
+    <Compile Include="Controls\VBTreeView\VBTreeView.cs" />
+    <Compile Include="Controls\VBTreeViewItem\VBTreeViewItem.cs" />
+    <Compile Include="Controls\VBUpdateInfo\VBUpdateInfo.xaml.cs">
+      <DependentUpon>VBUpdateInfo.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\VBDesign\VBDesign.cs" />
+    <Compile Include="Controls\VBScriptEditor\VBScriptEditor.cs" />
+    <Compile Include="Controls\VBConnector\VBConnectorDrawingBehavior.cs" />
+    <Compile Include="Controls\VBConnector\VBConnectorAdorner.cs" />
+    <Compile Include="Controls\VBViewbox\VBViewbox.cs" />
+    <Compile Include="Controls\VBVisualControlBase\VBVisualControlBase.cs" />
+    <Compile Include="Controls\VBVisualGroup\VBVisualGroup.cs" />
+    <Compile Include="Controls\VBConnector\VBConnectorRelocationBehavior.cs" />
+    <Compile Include="Controls\VBDocking\VBWindow\VBWindow.cs" />
+    <Compile Include="Controls\VBDocking\VBWindow\VBWindowDialog.cs" />
+    <Compile Include="Converter\InverseBoolConverter.cs" />
+    <Compile Include="Controls\VBDateTimeUpDown\InputBase.cs" />
+    <Compile Include="Controls\VBDateTimeUpDown\UpDownBase.cs" />
+    <Compile Include="Helperclasses\VBDragDrop.cs" />
+    <Compile Include="Helperclasses\VBVisualTreeHelper.cs" />
+    <Compile Include="Images\FractalImageCompletedEventArgs.cs" />
+    <Compile Include="Images\FractalImageGenerator.cs" />
+    <Compile Include="Images\FractalImagePresenter.cs" />
+    <Compile Include="MarkupExtensions\VBResourceFinder.cs" />
+    <Compile Include="MarkupExtensions\VBResourceKey.cs" />
+    <Compile Include="MarkupExtensions\VBBinding.cs" />
+    <Compile Include="MarkupExtensions\VBStaticResource.cs" />
+    <Compile Include="Controls\VBDocking\VBWindow\VBWindowDialogRoot.cs" />
+    <Compile Include="Controls\VBDocking\VBWindow\VBWindowDialogMsg.xaml.cs">
+      <DependentUpon>VBWindowDialogMsg.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helperclasses\ExpressionCalculator.cs" />
+    <Compile Include="Interfaces\ICalculate.cs" />
+    <Compile Include="Converter\ConverterBase.cs" />
+    <Compile Include="Converter\ConverterBaseTypes.cs" />
+    <Compile Include="Converter\ConverterIEnumerableDirect.cs" />
+    <Compile Include="Converter\ConverterThickness.cs" />
+    <Compile Include="Converter\ConverterVisibilityBool.cs" />
+    <Compile Include="Converter\ConverterControlModesVisibility.cs" />
+    <Compile Include="Converter\ConverterVisibility.cs" />
+    <Compile Include="Converter\ConverterBrush.cs" />
+    <Compile Include="Converter\ConverterFontFamiliy.cs" />
+    <Compile Include="Converter\ConverterFontStyle.cs" />
+    <Compile Include="Converter\ConverterFontWeight.cs" />
+    <Compile Include="Converter\ConverterHorizontalAlignment.cs" />
+    <Compile Include="Converter\ConverterVerticalAlignment.cs" />
+    <Compile Include="Converter\ConverterStringContains.cs" />
+    <Compile Include="Converter\ConverterStringSubstring.cs" />
+    <Compile Include="Controls\VBCanvas\VBSelectedThumb\VBSelectedThumb.cs" />
+    <Compile Include="Controls\VBVisual\VBVisual.cs" />
+    <Compile Include="Controls\AppCommands.cs" />
+    <Compile Include="Controls\VBRibbon\VBRibbon.xaml.cs">
+      <DependentUpon>VBRibbon.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VBEdge\VBEdge.cs" />
+    <Compile Include="Controls\VBConnector\VBConnector.cs" />
+    <Compile Include="Controls\VBEdge\DrawVBEdgeAdorner.cs" />
+    <Compile Include="Controls\VBConnector\PathFinder.cs" />
+    <Compile Include="Controls\VBCanvas\VBCanvas.cs" />
+    <Compile Include="Controls\VBTabItem\VBTabItem.cs" />
+    <Compile Include="Helperclasses\VBLogicalTreeHelper.cs" />
+    <Compile Include="Helperclasses\RoutedEventHelper.cs" />
+    <Compile Include="Layoutengine\ControlManager.cs" />
+    <Compile Include="Layoutengine\Layoutgenerator.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\VBXMLEditor\Highlighting\XML-ModeStyleGip.xshd" />
+    <EmbeddedResource Include="Controls\VBXMLEditor\Highlighting\XML-ModeStyleAero.xshd" />
+    <None Include="..\..\GIP-SNKey.snk">
+      <Link>GIP-SNKey.snk</Link>
+    </None>
+    <None Include="app.config" />
+    <EmbeddedResource Include="Controls\VBDesignEditor\Editors\Highlighting\CSharp-ModeStyleAero.xshd" />
+    <EmbeddedResource Include="Controls\VBDesignEditor\Editors\Highlighting\CSharp-ModeStyleGip.xshd" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+    <None Include="VBXMLEditorSchemas\XamlPresentation2006.xsx">
+      <DependentUpon>XamlPresentation2006.xsd</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj">
+      <Project>{16FB4111-5110-46E5-851D-38A4D7522F85}</Project>
+      <Name>gip.core.datamodel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gip.ext.chart\gip.ext.chart.csproj">
+      <Project>{25779059-D15F-48CD-88BD-7DEA111A2036}</Project>
+      <Name>gip.ext.chart</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gip.ext.designer\project\gip.ext.designer.csproj">
+      <Project>{78cc29ac-cc79-4355-b1f2-97936df198ac}</Project>
+      <Name>gip.ext.designer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gip.ext.design\project\gip.ext.design.csproj">
+      <Project>{66a378a1-e9f4-4ad5-8946-d0ec06c2902f}</Project>
+      <Name>gip.ext.design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gip.ext.graphics\gip.ext.graphics.csproj">
+      <Project>{889DAD2E-8E03-4A47-9A24-8EE759B37A70}</Project>
+      <Name>gip.ext.graphics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gip.ext.xamldom\Project\gip.ext.xamldom.csproj">
+      <Project>{88da149f-21b2-48ab-82c4-28fb6bdfd783}</Project>
+      <Name>gip.ext.xamldom</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.VisualBasic.PowerPacks.10.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft Visual Basic PowerPacks 10.0</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\unpinned.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\pinned.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Controls\VBDocking\Icons\DockBottom.PNG" />
+    <Resource Include="Controls\VBDocking\Icons\DockLeft.PNG" />
+    <Resource Include="Controls\VBDocking\Icons\DockPane.PNG" />
+    <Resource Include="Controls\VBDocking\Icons\DockRight.PNG" />
+    <Resource Include="Controls\VBDocking\Icons\DockTop.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Controls\VBVisualGroup\Themes\VBVisualGroupStyleGip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\QuestionMark.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\gip.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Controls\VBDocking\VBWindow\Icons\gip.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\questionMark2.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\icon_alarm.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\noduration.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\questionMarkHelp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\alarmChild.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\false.png" />
+    <Resource Include="Images\true.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\gipTick.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\pointer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeCompletionXsdGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CodeCompletionXsdGenerator.txt</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="CodeCompletionXsdGenerator.txt">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CodeCompletionXsdGenerator.tt</DependentUpon>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="VBControlScripts\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="\Controls\VBXMLEditor\CodeCompletion\Schemas\VBSchema.xsd" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="\Controls\VBXMLEditor\CodeCompletion\Schemas\XamlPresentation2006.xsd" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+  </Target>
+  -->
+</Project>

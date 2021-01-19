@@ -1,0 +1,58 @@
+﻿<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:Controls="clr-namespace:gip.ext.designer.Controls"
+    xmlns:PropertyGrid="clr-namespace:gip.ext.designer.PropertyGrid" 
+    xmlns:OutlineView="clr-namespace:gip.ext.designer.OutlineView">
+
+    <Style TargetType="{x:Type OutlineView:ActionCollectionEditor}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type OutlineView:ActionCollectionEditor}">
+                    <Grid x:Name="PART_OutlineNodesContext">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Height="70" VerticalAlignment="Center" Margin="0,10,0,0">
+                            <Button Content="Add ->" Height="23"  Margin="0,5,0,0" Name="PART_AddItem" VerticalAlignment="Top" />
+                            <Button Content="Remove" Height="23" Margin="0,5,0,0" Name="PART_RemoveItem" VerticalAlignment="Top" />
+                        </StackPanel>
+                        <Border Grid.Column="1" BorderBrush="Black" BorderThickness="0.75" Margin="10" SnapsToDevicePixels="True">
+                            <ListBox x:Name="PART_OutlineList" ItemsSource="{Binding }" IsSynchronizedWithCurrentItem="True">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="2*" />
+                                                    <ColumnDefinition Width="1*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Description}"
+							                    TextTrimming="CharacterEllipsis"
+							                    VerticalAlignment="Center"
+							                    Margin="7 0 0 0"
+							                    ToolTip="{Binding Description}"
+                                                Grid.Column="0"
+                                                />
+                                                <Border BorderThickness="1 0 0 0"
+						                        BorderBrush="{x:Static SystemColors.ControlBrush}"
+                                                Grid.Column="1"
+                                                HorizontalAlignment="Right">
+                                                    <ContentPresenter x:Name="editorContainer"
+								                    Content="{Binding Editor}"
+								                    VerticalAlignment="Center"
+								                    Margin="3 0" />
+                                                </Border>
+                                            </Grid>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

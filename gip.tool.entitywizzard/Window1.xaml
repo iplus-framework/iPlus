@@ -1,0 +1,19 @@
+﻿<Window x:Class="EntityWizzard.Window1"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Entity Wizard Tool - .edmx transformation" Height="300" Width="700">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition   Height="Auto" />
+            <RowDefinition />
+            <RowDefinition   Height="Auto" />
+            <RowDefinition   Height="40" />
+        </Grid.RowDefinitions>
+        <TextBlock Background="Red" Foreground="Wheat" FontSize="15" Padding="3">Select already choosen .edmx file and update:</TextBlock>
+        <ListView Grid.Row="1" x:Name="btnList">
+            
+        </ListView>
+        <TextBlock Grid.Row="2"  Background="Red" Foreground="Wheat" FontSize="15" Padding="3">Or select new one:</TextBlock>
+        <Button Grid.Row="3" Name="updateEntityModell" Click="updateEntityModell_Click">Open Explorer for selection</Button>
+    </Grid>
+</Window>

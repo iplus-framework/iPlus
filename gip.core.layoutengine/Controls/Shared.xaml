@@ -1,0 +1,183 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine">
+
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorCtrlTxtDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" B="#B0" G="#B0" R="#B0"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=CtrlTxtDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorCtrlTxtDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+    
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorCtrlTxtEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" B="#FF" G="#FF" R="#FF"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=CtrlTxtEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorCtrlTxtEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorCtrlTxtWrong, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" B="#FF" G="#FF" R="#FF"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=CtrlTxtWrong, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorCtrlTxtWrong, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorCtrlTxtRequired, TypeInTargetAssembly={x:Type local:VBCustomControl}}"  
+           A="#FF" B="#FF" G="#FF" R="#FF"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=CtrlTxtRequired, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorCtrlTxtRequired, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+
+    
+    
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorCtrlBackDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" R="#33" G="#33" B="#33"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=CtrlBackDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorCtrlBackDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorCtrlBackEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" R="#33" G="#33" B="#33"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=CtrlBackEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorCtrlBackEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" />
+    
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorCtrlBackWrong, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" R="#33" G="#33" B="#33"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=CtrlBackWrong, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorCtrlBackWrong, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" />
+
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorCtrlBackRequired, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" R="#33" G="#33" B="#33"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=CtrlBackRequired, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorCtrlBackRequired, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" />
+
+    
+    
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorCtrlFrmDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" B="#33" G="#33" R="#33"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=CtrlFrmDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorCtrlFrmDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" />
+
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorCtrlFrmEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" B="#FF" G="#FF" R="#FF"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=CtrlFrmEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorCtrlFrmEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" />
+
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorCtrlFrmWrong, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" B="#7D" G="#5F" R="50"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=CtrlFrmWrong, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorCtrlFrmWrong, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" />
+
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorCtrlFrmRequired, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" B="0" G="0" R="#FF"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=CtrlFrmRequired, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorCtrlFrmRequired, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" />
+
+      
+    
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorFrmDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" R="#33" G="#33" B="#33"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=FrmDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorFrmDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" />
+
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorFrmLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" R="#AD" G="#AD" B="#AD"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=FrmLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorFrmLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" />
+
+    
+
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorAppBack, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" R="#33" G="#33" B="#33"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=AppBack, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppBack, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" />
+
+    
+    
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorAppDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" R="#33" G="#33" B="#33"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=AppDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" />
+
+    <Color x:Key="{ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}" 
+           A="#FF" R="#82" G="#82" B="#82"/>
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=AppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}"
+                     Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" />
+
+
+    <SolidColorBrush x:Key="{ComponentResourceKey ResourceId=TabItemSelectedBorderBrushGip, TypeInTargetAssembly={x:Type local:VBCustomControl}}" Color="#B2B2B2"/>
+
+    <!--<LinearGradientBrush x:Key="ComboBoxItemSelectionFillGip" EndPoint="0,1" StartPoint="0,0">
+        <GradientStop Color="#4CFF6565" Offset="0"/>
+        <GradientStop Color="#7FFF0018" Offset="1"/>
+    </LinearGradientBrush>
+    <Border x:Key="ComboBoxSelectedItemTemplate" CornerRadius="2" Background="{StaticResource ComboBoxItemSelectionFillGip}" BorderBrush="#FF0000">
+        <StackPanel x:Name="ComboBoxSelectedItemPanel" Orientation="Horizontal"></StackPanel>
+    </Border>-->
+
+    <DrawingBrush x:Key="ConverterErrorBrush" Viewport="0,0,0.25,0.25" TileMode="Tile">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing>
+                    <GeometryDrawing.Brush>
+                        <SolidColorBrush Color="#88FFFFFF"/>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,20,20" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+
+                <GeometryDrawing>
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <RectangleGeometry Rect="0,0,10,10" />
+                            <RectangleGeometry Rect="10,10,10,10" />
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                    <GeometryDrawing.Brush>
+                        <SolidColorBrush Color="#88FF0000"/>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+    
+    <!-- Timeline item brushes-->
+    <LinearGradientBrush x:Key="GreenBrush" StartPoint="0.5,3.27778" EndPoint="0.5,-2.27778">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#FF5B5749" Offset="0"/>
+            <GradientStop Color="#FF849F50" Offset="0.370726"/>
+            <GradientStop Color="#FFAEE757" Offset="0.49569"/>
+            <GradientStop Color="#FF849F50" Offset="0.660818"/>
+            <GradientStop Color="#FF5B5749" Offset="1"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="OrangeBrush" StartPoint="0.5,3.27778" EndPoint="0.5,-2.27778">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#967706" Offset="0"/>
+            <GradientStop Color="#F1BF09" Offset="0.370726"/>
+            <GradientStop Color="#F1D77A" Offset="0.49569"/>
+            <GradientStop Color="#F1BF09" Offset="0.660818"/>
+            <GradientStop Color="#967706" Offset="1"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="BlueBrush" StartPoint="0.5,-2" EndPoint="0.5,3">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#FF41A9FF" Offset="0"/>
+            <GradientStop Color="#FF62B7FF" Offset="0.422414"/>
+            <GradientStop Color="#FF83C5FF" Offset="0.5"/>
+            <GradientStop Color="#FF66B5F8" Offset="0.594828"/>
+            <GradientStop Color="#FF49A5F1" Offset="0.99569"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="RedBrush"  StartPoint="0.5,3.27778" EndPoint="0.5,-2.27778">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#FF5B4A49" Offset="0"/>
+            <GradientStop Color="#FFE66457" Offset="0.335"/>
+            <GradientStop Color="Red" Offset="0.49569"/>
+            <GradientStop Color="#FFCD6960" Offset="0.660818"/>
+            <GradientStop Color="#FF5B4949" Offset="1"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="DarkGreenBrush" EndPoint="0.5,1" StartPoint="0.5,0">
+        <GradientStop Color="#FF115B00" Offset="0.059"/>
+        <GradientStop Color="#FF115B00" Offset="0.933"/>
+        <GradientStop Color="#FF29E400" Offset="0.494"/>
+    </LinearGradientBrush>
+
+</ResourceDictionary>
+
+

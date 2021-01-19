@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="GIPLicenseModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="CustomerID" />
+          </Key>
+          <Property Name="CustomerID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="CustomerNo" Type="int" Nullable="false" />
+          <Property Name="CustomerName" Type="varchar" MaxLength="60" Nullable="false" />
+          <Property Name="Address" Type="varchar(max)" />
+        </EntityType>
+        <EntityType Name="License">
+          <Key>
+            <PropertyRef Name="LicenseID" />
+          </Key>
+          <Property Name="LicenseID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="LicenseNo" Type="int" Nullable="false" />
+          <Property Name="ProjectNo" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="CustomerID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PackagePrivateKey" Type="varchar(max)" Nullable="false" />
+          <Property Name="RemotePrivateKey" Type="varchar(max)" Nullable="false" />
+          <Property Name="DongleKey" Type="varbinary" MaxLength="60" Nullable="false" />
+          <Property Name="VBSystemKey" Type="varchar(max)" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Licence_Customer">
+          <End Role="Customer" Type="Self.Customer" Multiplicity="1" />
+          <End Role="License" Type="Self.License" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="CustomerID" />
+            </Principal>
+            <Dependent Role="License">
+              <PropertyRef Name="CustomerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="GIPLicenseModelStoreContainer">
+          <EntitySet Name="Customer" EntityType="Self.Customer" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="License" EntityType="Self.License" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Licence_Customer" Association="Self.FK_Licence_Customer">
+            <End Role="Customer" EntitySet="Customer" />
+            <End Role="License" EntitySet="License" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="GIPLicenseModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="CustomerID" />
+          </Key>
+          <Property Name="CustomerID" Type="Guid" Nullable="false" />
+          <Property Name="CustomerNo" Type="Int32" Nullable="false" />
+          <Property Name="CustomerName" Type="String" MaxLength="60" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Address" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="License" Relationship="GIPLicenseModel.FK_Licence_Customer" FromRole="Customer" ToRole="License" />
+        </EntityType>
+        <EntityContainer Name="GIPLicenseEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Customer" EntityType="Self.Customer" />
+          <EntitySet Name="License" EntityType="GIPLicenseModel.License" />
+          <AssociationSet Name="FK_Licence_Customer" Association="GIPLicenseModel.FK_Licence_Customer">
+            <End Role="Customer" EntitySet="Customer" />
+            <End Role="License" EntitySet="License" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="License">
+          <Key>
+            <PropertyRef Name="LicenseID" />
+          </Key>
+          <Property Name="LicenseID" Type="Guid" Nullable="false" />
+          <Property Name="LicenseNo" Type="Int32" Nullable="false" />
+          <Property Name="ProjectNo" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="CustomerID" Type="Guid" Nullable="false" />
+          <Property Name="PackagePrivateKey" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="RemotePrivateKey" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="DongleKey" Type="Binary" Nullable="false" MaxLength="60" FixedLength="false" />
+          <Property Name="VBSystemKey" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Customer" Relationship="GIPLicenseModel.FK_Licence_Customer" FromRole="License" ToRole="Customer" />
+        </EntityType>
+        <Association Name="FK_Licence_Customer">
+          <End Type="GIPLicenseModel.Customer" Role="Customer" Multiplicity="1" />
+          <End Type="GIPLicenseModel.License" Role="License" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="CustomerID" />
+            </Principal>
+            <Dependent Role="License">
+              <PropertyRef Name="CustomerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="GIPLicenseModelStoreContainer" CdmEntityContainer="GIPLicenseEntities">
+          <EntitySetMapping Name="Customer">
+            <EntityTypeMapping TypeName="GIPLicenseModel.Customer">
+              <MappingFragment StoreEntitySet="Customer">
+                <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
+                <ScalarProperty Name="CustomerNo" ColumnName="CustomerNo" />
+                <ScalarProperty Name="CustomerName" ColumnName="CustomerName" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="License">
+            <EntityTypeMapping TypeName="GIPLicenseModel.License">
+              <MappingFragment StoreEntitySet="License">
+                <ScalarProperty Name="VBSystemKey" ColumnName="VBSystemKey" />
+                <ScalarProperty Name="DongleKey" ColumnName="DongleKey" />
+                <ScalarProperty Name="RemotePrivateKey" ColumnName="RemotePrivateKey" />
+                <ScalarProperty Name="PackagePrivateKey" ColumnName="PackagePrivateKey" />
+                <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
+                <ScalarProperty Name="ProjectNo" ColumnName="ProjectNo" />
+                <ScalarProperty Name="LicenseNo" ColumnName="LicenseNo" />
+                <ScalarProperty Name="LicenseID" ColumnName="LicenseID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

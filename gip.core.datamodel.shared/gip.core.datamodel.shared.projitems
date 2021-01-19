@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>fe279fba-181f-4d15-bbe8-8820caf186b2</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>gip.core.datamodel.shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\EntityBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Translator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMessages\eMessageButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMessages\eMsgLevel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMessages\MsgList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMessages\Msg.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMessages\MsgResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMessages\MsgWithDetails.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Const.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Global.cs" />
+  </ItemGroup>
+</Project>

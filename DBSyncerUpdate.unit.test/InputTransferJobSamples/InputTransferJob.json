@@ -1,0 +1,8 @@
+﻿{
+  "IsRunMode": true,
+  "IsDevelopmentMode": false,
+  "ExternalRunContextFolders": {
+    "variobatch": "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\branches\\testnewDBSync\\trunk\\iPlusMES\\bin\\Debug\\DbScripts\\iPlusMES\\",
+    "varioiplus": "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\branches\\testnewDBSync\\trunk\\iPlusMES\\bin\\Debug\\DbScripts\\iPlus\\"
+  }
+}

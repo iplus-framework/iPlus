@@ -1,0 +1,76 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine">
+    <Style x:Key="IconAddNewStyleGip" TargetType="{x:Type ContentControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ContentControl}">
+                    <Viewbox Stretch="Uniform">
+                        <Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Ebene_1_50" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                            <Path x:Name="Path_Doc" Width="19" Height="21" Canvas.Left="1.49999" Canvas.Top="1.25" Stretch="Fill" StrokeLineJoin="Round" 
+                                  Stroke="#FFB2B2B2" Data="F1 M 6.90909,1.75L 20,1.75L 20,21.75L 2,21.75L 1.99999,6.36538L 6.90909,1.75 Z ">
+                                <Path.Fill>
+                                    <LinearGradientBrush StartPoint="0.5,0.0467032" EndPoint="0.5,0.953297">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStop Color="#FF464646" Offset="0"/>
+                                            <GradientStop Color="#FF727272" Offset="0.146552"/>
+                                            <GradientStop Color="#FF9E9E9E" Offset="0.344828"/>
+                                            <GradientStop Color="#FF2E2E2E" Offset="1"/>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Path.Fill>
+                            </Path>
+                            <Path x:Name="Path_52" Width="5.6923" Height="4.69231" Canvas.Left="1.8077" Canvas.Top="1.80769" Stretch="Fill" StrokeLineJoin="Round" 
+                                  Stroke="#FFB4B4B4" Fill="#FFB4B4B4" Data="F1 M 6.99999,2.30769L 7,6L 2.3077,6L 6.99999,2.30769 Z "/>
+                            <Path x:Name="Path_Harddisk" Width="15" Height="8" Canvas.Left="7.5" Canvas.Top="15.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                                  Stroke="#FF000000" Data="F1 M 8,16C 10.3333,16.7778 12.6667,17.5556 15,17.5556C 17.3333,17.5556 19.6667,16.7778 22,16L 22,21.4444C 19.6667,22.2222 17.3333,23 15,23C 12.6667,23 10.3333,22.2222 8,21.4444L 8,16 Z ">
+                                <Path.Fill>
+                                    <LinearGradientBrush StartPoint="-0.0357143,0.555556" EndPoint="1.03571,0.555556">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStop Color="#FF464646" Offset="0"/>
+                                            <GradientStop Color="#FF727272" Offset="0.146552"/>
+                                            <GradientStop Color="#FF9E9E9E" Offset="0.344828"/>
+                                            <GradientStop Color="#FF2E2E2E" Offset="1"/>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Path.Fill>
+                            </Path>
+                            <Ellipse x:Name="Ellipse_54" Width="15" Height="5.66667" Canvas.Left="7.5" Canvas.Top="12.8333" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                                     Stroke="#FF000000" 
+                                     Fill="#FFB4B4B4"/>
+                            <Path x:Name="Line_55" Width="5.60425" Height="1" Canvas.Left="8.5" Canvas.Top="3.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                                  Stroke="#FF000000" 
+                                  Data="F1 M 9,4L 13.6043,4"/>
+                            <Path x:Name="Line_56" Width="11" Height="1" Canvas.Left="3.5" Canvas.Top="8.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                                  Stroke="#FF000000" 
+                                  Data="F1 M 4,9L 14,9"/>
+                            <Path x:Name="Line_57" Width="11" Height="1" Canvas.Left="3.52083" Canvas.Top="10.7708" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                                  Stroke="#FF000000" 
+                                  Data="F1 M 4.02083,11.2708L 14.0208,11.2708"/>
+                            <Path x:Name="Path_Add" Width="15" Height="15" Canvas.Left="8.5" Canvas.Top="0.499998" Stretch="Fill" StrokeLineJoin="Round" 
+				                    Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
+				                    Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
+                                  Data="F1 M 14.25,0.999998L 17.75,0.999998L 17.75,6.25L 23,6.25L 23,9.75L 17.75,9.75L 17.75,15L 14.25,15L 14.25,9.75L 9,9.75L 9,6.25L 14.25,6.25L 14.25,0.999998 Z "/>
+                        </Canvas>
+                    </Viewbox>
+                    <!--<ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsMouseOver}" Value="True">
+                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsPressed}" Value="True">
+                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsEnabled}" Value="True">
+                            <Setter TargetName="Part1" Property="Fill" Value="Black"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>-->
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="IconAddNewStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconAddNewStyleGip}">
+    </Style>
+</ResourceDictionary>
+
+

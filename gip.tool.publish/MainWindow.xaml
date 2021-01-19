@@ -1,0 +1,469 @@
+﻿<Window x:Class="gip.tool.publish.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="iPlus publish" Height="370" Width="525" Background="#FF333333" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <TabControl x:Name="mainTabControl" Grid.Row="1" Grid.ColumnSpan="2" Background="{Binding RelativeSource={RelativeSource TemplatedParent}}" BorderBrush="Transparent">
+            <TabControl.ItemContainerStyle>
+                <Style TargetType="{x:Type TabItem}">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Style>
+            </TabControl.ItemContainerStyle>
+            <TabItem Header="Start">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="5"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.ColumnSpan="5" BorderBrush="Red" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="20"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Start" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
+                            <Image Grid.Column="1" Source="/gip.tool.publish;component/gip.ico" HorizontalAlignment="Right" />
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="1" Grid.ColumnSpan="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="9*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="20" />
+                            <RowDefinition Height="10" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="5" />
+                            <RowDefinition Height="55" />
+                            <RowDefinition Height="10" />
+                            <RowDefinition Height="55" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Column="1" Grid.Row="1" Text="Rules" Foreground="Red" VerticalAlignment="Bottom" />
+                        <TextBlock Grid.Column="1" Grid.Row="2" Text="1) Compile MES or iplus." Foreground="White"  />
+                        <TextBlock Grid.Column="1" Grid.Row="3" Text="2) Control load on database for publish." Foreground="White"  />
+
+                        <TextBlock Grid.Column="1" Grid.Row="5" Text="Choose iPlus version for publish" Foreground="Red" FontSize="14" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" Grid.Row="5" BorderBrush="Black" Width="200" Height="25" x:Name="cbiPlusVersion" IsEditable="False" Margin="210,0,0,0" 
+                                  DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" ItemsSource="{Binding UserDataList}"
+                                  SelectedItem="{Binding SelectedUserData}" DisplayMemberPath="UserDataName">
+                        </ComboBox>
+
+                        <GroupBox Grid.Row="7" Grid.Column="1" Background="Transparent" BorderBrush="White" BorderThickness="0.3" >
+                            <GroupBox.Header>
+                                <TextBlock Text="Choose path of bin folder for publish" Foreground="Red"/>
+                            </GroupBox.Header>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="5"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding BinFolderPath}" Height="22" Grid.Column="1" Foreground="White" Background="Black" />
+                                <Button x:Name="btnBrowse" Height="22" Grid.Column="3" Content="..." Click="btnBrowse_Click"  />
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Grid.Row="9" Grid.Column="1" Background="Transparent" BorderBrush="White" BorderThickness="0.3" >
+                            <GroupBox.Header>
+                                <TextBlock Text="Select SQL script(database backup) for publish (*.sql)" Foreground="Red"/>
+                            </GroupBox.Header>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="5"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding SqlScriptFilePath}" Height="22" Grid.Column="1" Foreground="White" Background="Black" />
+                                <Button x:Name="btnBrowseSql" Height="22" Grid.Column="3" Content="..." Click="btnBrowseSql_Click"  />
+                            </Grid>
+                        </GroupBox>
+
+                    </Grid>
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gip mbH - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
+                    <Button x:Name="btnStartNext" Grid.Column="3" Grid.Row="2" Height="25" Click="btnStartNext_Click" Content="Next"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="FtpServer">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="5"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.ColumnSpan="5" BorderBrush="Red" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="20"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="FTP server" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
+                            <Image Grid.Column="1" Source="/gip.tool.publish;component/gip.ico" HorizontalAlignment="Right" />
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="1" Grid.ColumnSpan="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="10*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10" />
+                            <RowDefinition Height="105" />
+                            <RowDefinition Height="10" />
+                            <RowDefinition Height="105" />
+                            <RowDefinition Height="10" />
+                        </Grid.RowDefinitions>
+
+                        <GroupBox Grid.Row="1" Grid.Column="1" Background="Transparent" BorderBrush="White" BorderThickness="0.3" >
+                            <GroupBox.Header>
+                                <TextBlock Text="Ftp connect info" Foreground="Red"/>
+                            </GroupBox.Header>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="5"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30" />
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="25" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Column="1" Foreground="White" Background="Transparent" Text="Ftp host" VerticalAlignment="Center" />
+                                <TextBox Height="20" Grid.Column="1" Foreground="White" Background="Black" Margin="100,0,0,0" VerticalAlignment="Center" Text="{Binding FtpServerHost}" />
+                                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="White" Background="Transparent" Text="Ftp Username" />
+                                <TextBox Height="20" Grid.Column="1" Grid.Row="1" Foreground="White" Background="Black" Margin="100,0,0,0" Text="{Binding FtpUserName}" />
+                                <TextBlock Grid.Column="1" Grid.Row="2" Foreground="White" Background="Transparent" Text="Ftp Password" />
+                                <TextBox Height="20" Grid.Column="1" Grid.Row="2" Foreground="White" Background="Black" Margin="100,0,0,0" Text="{Binding FtpPassword}" />
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Grid.Row="3" Grid.Column="1" Background="Transparent" BorderBrush="White" BorderThickness="0.3" >
+                            <GroupBox.Header>
+                                <TextBlock Text="Server files info" Foreground="Red"/>
+                            </GroupBox.Header>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="5"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30" />
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="25" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Column="1" Foreground="White" Background="Transparent" Text="Publish server dir path" VerticalAlignment="Center" />
+                                <TextBox Height="20" Grid.Column="1" Foreground="White" Background="Black" Margin="125,0,0,0" VerticalAlignment="Center" Text="{Binding FtpPublishPath}" />
+                                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="White" Background="Transparent" Text="App file name" VerticalAlignment="Center"  />
+                                <TextBox Height="20" Grid.Column="1" Grid.Row="1" Foreground="White" Background="Black" Margin="125,0,0,0" Text="{Binding ApplicationFileName}" />
+                                <TextBlock Grid.Column="1" Grid.Row="2" Foreground="White" Background="Transparent" Text="Database file name" VerticalAlignment="Center"  />
+                                <TextBox Height="20" Grid.Column="1" Grid.Row="2" Foreground="White" Background="Black" Margin="125,0,0,0" Text="{Binding DatabaseFileName}" />
+                            </Grid>
+                        </GroupBox>
+
+                    </Grid>
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gip mbH - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
+                    <Button x:Name="btnFTPServerNext" Grid.Column="3" Grid.Row="2" Height="25" Click="btnFTPServerNext_Click" Content="Next"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Version control">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="5"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.ColumnSpan="5" BorderBrush="Red" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="20"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Version control" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
+                            <Image Grid.Column="1" Source="/gip.tool.publish;component/gip.ico" HorizontalAlignment="Right" />
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="1" Grid.ColumnSpan="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="9*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20" />
+                            <RowDefinition />
+                            <RowDefinition Height="15" />
+                        </Grid.RowDefinitions>
+
+                        <GroupBox Grid.Row="1" Grid.Column="1" Background="Transparent" BorderBrush="White" BorderThickness="0.3" >
+                            <GroupBox.Header>
+                                <TextBlock Text="Version control information" Foreground="Red"/>
+                            </GroupBox.Header>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="5"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="5" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="15" />
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="25" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="White" Background="Transparent" Text="Version control" VerticalAlignment="Center" />
+                                <ComboBox Height="23" Grid.Row="1" Grid.Column="1" Margin="100,0,0,0" Width="50" HorizontalAlignment="Left" SelectedIndex="{Binding VersionControl}">
+                                    <ComboBoxItem Content="SVN" IsSelected="True" />
+                                    <ComboBoxItem Content="GIT" IsEnabled="False" />
+                                    <ComboBoxItem Content="TFS" IsEnabled="False" />
+                                </ComboBox>
+                                <TextBlock Grid.Column="1" Grid.Row="2" Foreground="White" Background="Transparent" Text="Version control server URL" />
+                                <TextBox Height="22" Grid.Column="1" Grid.Row="3" Foreground="White" Background="Black" Margin="10,0,0,0" Text="{Binding VersionControlServer}" />
+
+                                <TextBlock Grid.Column="1" Grid.Row="5" Foreground="White" Background="Transparent" Text="Deploy file path for commit" />
+                                <TextBox Height="22" Grid.Column="1" Grid.Row="6" Foreground="White" Background="Black" Margin="10,0,40,0" Text="{Binding VersionControlDeployFilePath}" />
+                                <Button Name="btnVCBrowse" Height="22" Width="25" Grid.Column="1" Grid.Row="6" HorizontalAlignment="Right" Content="..." Click="btnVCBrowse_Click" />
+                                
+                                <!--<CheckBox Grid.Column="1" Grid.Row="5" Foreground="White" Content="With commit?????" />-->
+
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gip mbH - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
+                    <Button x:Name="btnVCNext"  Grid.Column="3" Grid.Row="2" Height="25" Click="btnVCNext_Click" Content="Next"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="ChangeLog">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="5"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.ColumnSpan="5" BorderBrush="Red" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="20"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Publish change log - English" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
+                            <Image Grid.Column="1" Source="/gip.tool.publish;component/gip.ico" HorizontalAlignment="Right" />
+                        </Grid>
+                    </Border>
+                    <Grid Grid.Row="1" Grid.ColumnSpan="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="8*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20" />
+                            <RowDefinition Height="18" />
+                            <RowDefinition Height="5" />
+                            <RowDefinition />
+                            <RowDefinition Height="20" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="1" Grid.Row="1" Foreground="White" Background="Transparent" Text="Write changelog message" />
+                        <TextBox Grid.Column="1" Grid.Row="3" Background="Black" Foreground="White" Text="{Binding ChangeLogMessage}" TextWrapping="Wrap" 
+                                 VerticalScrollBarVisibility="Auto" AcceptsReturn="True" />
+                    </Grid>
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gip mbH - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
+                    <Button x:Name="btnChangeLogNext" Grid.Column="3" Grid.Row="2" Height="25" Click="btnChangeLogNext_Click" Content="Next"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="ChangeLogDE">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="5"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.ColumnSpan="5" BorderBrush="Red" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="20"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Publish change log - German" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
+                            <Image Grid.Column="1" Source="/gip.tool.publish;component/gip.ico" HorizontalAlignment="Right" />
+                        </Grid>
+                    </Border>
+                    <Grid Grid.Row="1" Grid.ColumnSpan="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="8*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20" />
+                            <RowDefinition Height="18" />
+                            <RowDefinition Height="5" />
+                            <RowDefinition />
+                            <RowDefinition Height="20" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="1" Grid.Row="1" Foreground="White" Background="Transparent" Text="Write changelog message" />
+                        <TextBox Grid.Column="1" Grid.Row="3" Background="Black" Foreground="White" Text="{Binding ChangeLogMessageDE}" TextWrapping="Wrap" 
+                                 VerticalScrollBarVisibility="Auto" AcceptsReturn="True" />
+                    </Grid>
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gip mbH - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
+                    <Button x:Name="btnPublish" Grid.Column="3" Grid.Row="2" Height="25"  Content="Publish" Click="btnPublish_Click" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Progress">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="5"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.ColumnSpan="5" BorderBrush="Red" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="20"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Publishing progress" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
+                            <Image Grid.Column="1" Source="/gip.tool.publish;component/gip.ico" HorizontalAlignment="Right" />
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="1" Grid.ColumnSpan="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="8*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="5" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="5" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition />
+                            <RowDefinition Height="5" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="1" Grid.Row="1" Text="Publishing run" Foreground="White" VerticalAlignment="Bottom" />
+                        <ProgressBar Grid.Row="2" Grid.Column="1" Height="23" Minimum="0" Maximum="100" IsIndeterminate="{Binding IsIndeterminate}" 
+                                         Background="Black" BorderBrush="Black" x:Name="pbProgress">
+                            <ProgressBar.Style>
+                                <Style TargetType="{x:Type ProgressBar}">
+                                    <Setter Property="Foreground">
+                                        <Setter.Value>
+                                            <LinearGradientBrush StartPoint="0.5,-0.240642" EndPoint="0.5,1.24064">
+                                                <LinearGradientBrush.GradientStops>
+                                                    <GradientStop Color="#FFFC1300" Offset="0.00465116"/>
+                                                    <GradientStop Color="#FFFD3D2E" Offset="0.418605"/>
+                                                    <GradientStop Color="#FFFF685C" Offset="0.5"/>
+                                                    <GradientStop Color="#FFFD3D2E" Offset="0.590698"/>
+                                                    <GradientStop Color="#FFFC1300" Offset="1"/>
+                                                </LinearGradientBrush.GradientStops>
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsIndeterminate" Value="False">
+                                            <Setter Property="Value" Value="100"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ProgressBar.Style>
+                        </ProgressBar>
+                        <TextBlock Grid.Column="1" Grid.Row="4" Text="Operation info" Foreground="Red" VerticalAlignment="Bottom" />
+                        <ScrollViewer Grid.Row="5" Grid.Column="1" Background="Transparent" VerticalScrollBarVisibility="Hidden">
+                            <ItemsControl  Background="Transparent" ItemsSource="{Binding PublishOperationInfo}" 
+                                      DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" Foreground="White" Background="Transparent" Padding="5,2,0,0"/>
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ItemsControl.ItemContainerStyle>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gip mbH - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
+                    <Button x:Name="btnExit" Grid.Column="3" Grid.Row="2" Height="25" Click="btnExit_Click" Content="Exit" IsEnabled="{Binding IsPublishFinished}"
+                            DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

@@ -1,0 +1,403 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+
+namespace gip.core.datamodel
+{
+    /// <summary>
+    ///   <para>ACProperyLog is used to store changes of properties of ACComponents.</para>
+    /// </summary>
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPropertyLog'}de{'ACPropertyLog'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true, "", "")]
+    [ACPropertyEntity(1, "EventTime", "en{'Event time'}de{'Ereigniszeit'}")]
+    [ACPropertyEntity(2, "Value","en{'Value'}de{'Wert'}")]
+    [ACPropertyEntity(3, ACClass.ClassName, "en{'ACClass'}de{'ACClass'}", Database.ClassName + "\\" + ACClass.ClassName)]
+    [ACPropertyEntity(4, ACClassProperty.ClassName, "en{'ACClassProperty'}de{'ACClassProperty'}", Database.ClassName + "\\" + ACClassProperty.ClassName)]
+    [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACPropertyLog.ClassName, "en{'ACPropertyLog'}de{'ACPropertyLog'}", typeof(ACPropertyLog), ACPropertyLog.ClassName, "", "EventTime")]
+    public partial class ACPropertyLog
+    {
+        public const string ClassName = "ACPropertyLog";
+
+        /// <summary>
+        /// Creates a new object of the ACPropertyLog.
+        /// </summary>
+        /// <param name="db">The database context.</param>
+        /// <param name="acClass">The ACClass reference.</param>
+        /// <returns>The created object.</returns>
+        public static ACPropertyLog NewACObject(Database db, ACClass acClass)
+        {
+            ACPropertyLog entity = new ACPropertyLog();
+            entity.ACPropertyLogID = Guid.NewGuid();
+            entity.ACClassID = acClass.ACClassID;
+            return entity;
+        }
+
+        /// <summary>
+        /// Aggregates the duration of property logs by value(state).
+        /// </summary>
+        /// <param name="from">Aggregates from this date time point.</param>
+        /// <param name="to">Aggregates to this date time point.</param>
+        /// <param name="acClassID">The ID of ACClass related to the property log.</param>
+        /// <param name="acClassPropertyID">The ID of ACClassProperty related to the log.</param>
+        /// <returns>Aggregate values of property logs.</returns>
+        public static IEnumerable<ACPropertyLogSum> AggregateDurationOfPropertyValues(DateTime from, DateTime to, Guid acClassID, Guid acClassPropertyID)
+        {
+            List<ACPropertyLogInfo> result = null;
+
+            using(Database db = new Database())
+            {
+                var propertyLogs = db.ACPropertyLog.Where(c => c.ACClassID == acClassID && c.ACClassPropertyID == acClassPropertyID &&
+                                                               c.EventTime >= from && c.EventTime <= to).OrderBy(p => p.EventTime).ToArray();
+
+                result = BuildACPropertyLogInfo(from, to, acClassID, db, propertyLogs);
+            }
+
+            return AggregateDurationOfPropertyValues(null, null, result);
+        }
+
+        /// <summary>
+        /// Aggregates the duration of property logs by value(state).
+        /// </summary>
+        /// <param name="from">Aggregates from this date time point.</param>
+        /// <param name="to">Aggregates to this date time point.</param>
+        /// <param name="acClassID">The ID of ACClass related to the property log.</param>
+        /// <param name="acClassPropertyACIdentifier">The ACIdentifier of ACClassProperty related to the log.</param>
+        /// <returns>Aggregate values of property logs.</returns>
+        public static IEnumerable<ACPropertyLogSum> AggregateDurationOfPropertyValues(DateTime from, DateTime to, Guid acClassID, string acClassPropertyACIdentifier)
+        {
+            List<ACPropertyLogInfo> result = null;
+
+            using (Database db = new Database())
+            {
+                var propertyLogs = db.ACPropertyLog.Include("ACClassProperty").Where(c => c.ACClassID == acClassID && c.ACClassProperty.ACIdentifier == acClassPropertyACIdentifier &&
+                                                                                          c.EventTime >= from && c.EventTime <= to).OrderBy(p => p.EventTime).ToArray();
+
+                result = BuildACPropertyLogInfo(from, to, acClassID, db, propertyLogs);
+            }
+
+            return AggregateDurationOfPropertyValues(null, null, result);
+        }
+
+        private static List<ACPropertyLogInfo> BuildACPropertyLogInfo(DateTime from, DateTime to, Guid acClassID, Database db, ACPropertyLog[] propertyLogs)
+        {
+            List<ACPropertyLogInfo> result = new List<ACPropertyLogInfo>();
+
+            if (!propertyLogs.Any())
+                return null;
+
+            ACPropertyLog tempLog = propertyLogs.FirstOrDefault();
+            if (tempLog.EventTime != from)
+            {
+                DateTime dateTime = tempLog.EventTime.AddMilliseconds(-2);
+                ACPropertyLog previousLog = db.ACPropertyLog.Where(c => c.ACClassID == acClassID && c.ACClassPropertyID == tempLog.ACClassPropertyID && c.EventTime < dateTime)
+                                                            .OrderByDescending(p => p.EventTime).FirstOrDefault();
+                if (previousLog != null)
+                {
+                    previousLog.EventTime = from;
+                    tempLog = previousLog;
+                }
+            }
+
+            Type valueType = tempLog.ACClassProperty.ObjectType;
+            string acCaption = tempLog.ACClassProperty.ACCaption;
+            string acUrl = tempLog.ACClass.ACUrlComponent;
+
+            foreach (ACPropertyLog propLog in propertyLogs)
+            {
+                object logValue = ACConvert.XMLToObject(valueType, tempLog.Value, true, db);
+                ACPropertyLogInfo logInfo = new ACPropertyLogInfo(tempLog.EventTime, propLog.EventTime, logValue, acCaption) { ACUrl = acUrl };
+                result.Add(logInfo);
+                tempLog = propLog;
+            }
+
+            if (tempLog.EventTime != to)
+            {
+                object logValue = ACConvert.XMLToObject(valueType, tempLog.Value, true, db);
+                ACPropertyLogInfo logInfo = new ACPropertyLogInfo(tempLog.EventTime, to, logValue, acCaption) { ACUrl = acUrl };
+                result.Add(logInfo);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Aggregates the duration of property logs by value(state) from given propertyLogs.
+        /// </summary>
+        /// <param name="from">Aggregates from this date time point. If this parameter is null then function skips from to check and aggregates over all given property logs.</param>
+        /// <param name="to">Aggregates to this date time point. If this parameter is null then function skips from to check and aggregates over all given property logs.</param>
+        /// <param name="propertyLogs">The list of property logs from which function aggregate result.</param>
+        /// <returns>Aggregate values of property logs.</returns>
+        public static IEnumerable<ACPropertyLogSum> AggregateDurationOfPropertyValues(DateTime? from, DateTime? to, IEnumerable<ACPropertyLogInfo> propertyLogs)
+        {
+            if (propertyLogs == null || !propertyLogs.Any())
+                return null;
+
+            if (from != null && to != null)
+            {
+                List<ACPropertyLogInfo> queryList = propertyLogs.Where(c => ((c.StartDate <= from && c.EndDate > from)
+                                                        || (c.StartDate >= from && c.EndDate > from))
+                                                       && (c.StartDate < to && c.EndDate <= to)
+                                                        || (c.StartDate < to && c.EndDate >= to)).OrderBy(p => p.StartDate).ToList();
+
+                if (!queryList.Any())
+                    return null;
+
+                if (queryList.Count() == 1)
+                {
+                    ACPropertyLogInfo tempLogInfo = queryList.FirstOrDefault();
+                    ACPropertyLogInfo adjustedLog = new ACPropertyLogInfo(tempLogInfo.StartDate, tempLogInfo.EndDate, tempLogInfo.PropertyValue, tempLogInfo.ACCaption)
+                                                                         { ACUrl = tempLogInfo.ACUrl };
+                    if (tempLogInfo.StartDate < from)
+                        adjustedLog.StartDate = from;
+
+                    if (tempLogInfo.EndDate > to)
+                        adjustedLog.EndDate = to;
+
+                    queryList.Remove(tempLogInfo);
+                    queryList.Add(adjustedLog);
+                }
+                else
+                {
+                    var query = queryList.Where(c => c.StartDate < from).ToArray();
+
+                    foreach(ACPropertyLogInfo logInfo in query)
+                    {
+                        ACPropertyLogInfo adjustedLog = new ACPropertyLogInfo(from, logInfo.EndDate, logInfo.PropertyValue, logInfo.ACCaption)
+                                                                             { ACUrl = logInfo.ACUrl };
+                        queryList.Remove(logInfo);
+                        queryList.Insert(0, adjustedLog);
+                    }
+
+                    query = queryList.Where(c => c.EndDate > to).ToArray();
+
+                    foreach (ACPropertyLogInfo logInfo in query)
+                    {
+                        ACPropertyLogInfo adjustedLog = new ACPropertyLogInfo(logInfo.StartDate, to, logInfo.PropertyValue, logInfo.ACCaption)
+                                                                             { ACUrl = logInfo.ACUrl };
+                        queryList.Remove(logInfo);
+                        queryList.Add(adjustedLog);
+                    }
+                }
+                propertyLogs = queryList;
+            }
+            else
+            {
+                propertyLogs = propertyLogs.OrderBy(c => c.StartDate).ToArray();
+            }
+
+            return propertyLogs.GroupBy(c => c.PropertyValue)
+                               .Select(c => new ACPropertyLogSum(c.Key, TimeSpan.FromSeconds(c.Where(x => x.StartDate.HasValue && x.EndDate.HasValue)
+                                                                                              .Sum(d => (d.EndDate - d.StartDate).Value.TotalSeconds)),
+                                                                 c.FirstOrDefault()?.ACCaption, c.FirstOrDefault()?.ACUrl));
+        }
+    }
+
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PropertyLog Info'}de{'PropertyLog Info'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, true)]
+    public class ACPropertyLogInfo : INotifyPropertyChanged, IACObject
+    {
+        public ACPropertyLogInfo()
+        {
+
+        }
+
+        public ACPropertyLogInfo(DateTime? start, DateTime? end, object value, string acCaption)
+        {
+            StartDate = start;
+            EndDate = end;
+            PropertyValue = value;
+            _ACCaption = acCaption;
+        }
+
+        /// <summary>
+        /// Gets or sets the StartDate.
+        /// </summary>
+        [ACPropertyInfo(101, "", "en{'Start date'}de{'Startzeitpunkt'}")]
+        public DateTime? StartDate
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the EndDate.
+        /// </summary>
+        [ACPropertyInfo(102, "", "en{'End date'}de{'Endzeitpunkt'}")]
+        public DateTime? EndDate
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets the Duration. (EndDate - StartDate)
+        /// </summary>
+        [ACPropertyInfo(103, "", "en{'Duration'}de{'Dauer'}")]
+        public virtual TimeSpan Duration
+        {
+            get
+            {
+                if (StartDate.HasValue && EndDate.HasValue)
+                    return EndDate.Value - StartDate.Value;
+                return new TimeSpan();
+            }
+            set 
+            {
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the property value.
+        /// </summary>
+        [ACPropertyInfo(103, "", "en{'State value'}de{'State value'}")]
+        public object PropertyValue
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// The PropertyChanged event.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Invokes the OnPropertyChanged event.
+        /// </summary>
+        /// <param name="propertyName">The property name parameter.</param>
+        public void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #region IACObject members
+
+        /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
+        /// <value>The Unique Identifier as string</value>
+        public string ACIdentifier { get; set; }
+
+        public string _ACCaption;
+
+        /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
+        /// <value>  Translated description</value>
+        [ACPropertyInfo(108)]
+        public string ACCaption
+        {
+            get => _ACCaption;
+        }
+
+        [ACPropertyInfo(109)]
+        public string ACUrl
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
+        /// </summary>
+        /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
+        public IACType ACType => this.ReflectACType();
+
+        /// <summary>
+        /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
+        /// </summary>
+        /// <value> A nullable list ob IACObjects.</value>
+        public IEnumerable<IACObject> ACContentList
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Returns the parent object
+        /// </summary>
+        /// <value>Reference to the parent object</value>
+        public IACObject ParentACObject
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Method that returns a source and path for WPF-Bindings by passing a ACUrl.
+        /// </summary>
+        /// <param name="acUrl">ACUrl of the Component, Property or Method</param>
+        /// <param name="acTypeInfo">Reference to the iPlus-Type (ACClass)</param>
+        /// <param name="source">The Source for WPF-Databinding</param>
+        /// <param name="path">Relative path from the returned source for WPF-Databinding</param>
+        /// <param name="rightControlMode">Information about access rights for the requested object</param>
+        /// <returns><c>true</c> if binding could resolved for the passed ACUrl<c>false</c> otherwise</returns>
+        public bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode)
+        {
+            return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
+        }
+
+        /// <summary>
+        /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
+        /// 1. get references to components,
+        /// 2. query property values,
+        /// 3. execute method calls,
+        /// 4. start and stop Components,
+        /// 5. and send messages to other components.
+        /// </summary>
+        /// <param name="acUrl">String that adresses a command</param>
+        /// <param name="acParameter">Parameters if a method should be invoked</param>
+        /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
+        public object ACUrlCommand(string acUrl, params object[] acParameter)
+        {
+            return this.ReflectACUrlCommand(acUrl, acParameter);
+        }
+
+        /// <summary>
+        /// Determins is enabled ACUrlCommand.
+        /// </summary>
+        /// <param name="acUrl">The acUrl.</param>
+        /// <param name="acParameter">The acParameter.</param>
+        /// <returns>True if is enabled, otherwise returns false.</returns>
+        public bool IsEnabledACUrlCommand(string acUrl, params object[] acParameter)
+        {
+            return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
+        }
+
+        /// <summary>
+        /// Returns a ACUrl relatively to the passed object.
+        /// If the passed object is null then the absolute path is returned
+        /// </summary>
+        /// <param name="rootACObject">Object for creating a realtive path to it</param>
+        /// <returns>ACUrl as string</returns>
+        public string GetACUrl(IACObject rootACObject = null)
+        {
+            return ACIdentifier;
+        }
+        #endregion
+
+    }
+
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PropertyLog Sum'}de{'PropertyLog Sum'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, true)]
+    public class ACPropertyLogSum : ACPropertyLogInfo
+    {
+        public ACPropertyLogSum() : base()
+        {
+
+        }
+
+        public ACPropertyLogSum(object propertyValue, TimeSpan duration, string acCaption, string acUrl) : base(null, null, propertyValue, acCaption)
+        {
+            Duration = duration;
+            ACUrl = acUrl;
+        }
+
+        /// <summary>
+        /// Gets or sets the Duration.
+        /// </summary>
+        [ACPropertyInfo(103, "", "en{'Duration'}de{'Dauer'}")]
+        public override TimeSpan Duration
+        {
+            get;
+            set;
+        }
+    }
+}

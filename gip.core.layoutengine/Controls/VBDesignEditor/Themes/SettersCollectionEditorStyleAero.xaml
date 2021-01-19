@@ -1,0 +1,16 @@
+<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine"
+   xmlns:OutlineView="clr-namespace:gip.ext.designer.OutlineView;assembly=gip.ext.designer"
+   xmlns:PropertyGrid="clr-namespace:gip.ext.designer.PropertyGrid;assembly=gip.ext.designer"
+   xmlns:Controls="clr-namespace:gip.ext.designer.Controls;assembly=gip.ext.designer">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBDesignEditor/Themes/SettersCollectionEditorStyleGip.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <Style x:Key="SettersCollectionEditorStyleAero" 
+           TargetType="{x:Type local:VBSettersCollectionEditor}" 
+           BasedOn="{StaticResource SettersCollectionEditorStyleGip}">
+    </Style>
+</ResourceDictionary>
