@@ -64,6 +64,27 @@ namespace gip.core.autocomponent
         private ACRoutingService _ACRoutingService;
         private string _DiagnosticData = "";
 
+        private class LoopItem
+        {
+            public LoopItem(PAEdge e)
+            {
+                Edge = e;
+                LoopCounter = 1;
+            }
+
+            public PAEdge Edge
+            {
+                get;
+                set;
+            }
+
+            public int LoopCounter
+            {
+                get;
+                set;
+            }
+        }
+
         #endregion
 
         #region Properties
@@ -84,7 +105,7 @@ namespace gip.core.autocomponent
 
         #region Methods
 
-        public Tuple<List<ACRoutingVertex>,PriorityQueue<ST_Node>> BuildRoutes(ACRoutingVertex startVertex, ACRoutingVertex endVertex, int maxRouteAlternatives,
+        public Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>> BuildRoutes(ACRoutingVertex startVertex, ACRoutingVertex endVertex, int maxRouteAlternatives,
                                                                                bool includeReserved, bool includeAllocated, bool isForEditor = false)
         {
             BuildAvailableRoutes(startVertex, endVertex, maxRouteAlternatives, includeReserved, includeAllocated, isForEditor);
@@ -98,7 +119,7 @@ namespace gip.core.autocomponent
             if (direction == RouteDirections.Backwards)
             {
                 Target = startVertex;
-                 return FindComponents(includeReserved, includeAllocated, direction);
+                return FindComponents(includeReserved, includeAllocated, direction);
             }
             else
             {
@@ -107,7 +128,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        public RoutingResult FindRoute(IEnumerable<ACRoutingVertex> startVertices, IEnumerable<ACRoutingVertex> endVertices, string selectionRuleID, object[] selectionRuleParams, 
+        public RoutingResult FindRoute(IEnumerable<ACRoutingVertex> startVertices, IEnumerable<ACRoutingVertex> endVertices, string selectionRuleID, object[] selectionRuleParams,
                                        int maxRouteAlternatives, bool includeReserved, bool includeAllocated)
         {
             RoutingPaths.Clear();
@@ -147,7 +168,7 @@ namespace gip.core.autocomponent
             else if (RoutingPaths.Any())
             {
                 Msg msg = null;
-                if(!string.IsNullOrEmpty(_DiagnosticData))
+                if (!string.IsNullOrEmpty(_DiagnosticData))
                 {
                     msg = new Msg(_DiagnosticData, _ACRoutingService, eMsgLevel.Warning, "ACRoutingSession", "FindRoute(10)", 152);
                 }
@@ -164,7 +185,7 @@ namespace gip.core.autocomponent
                 message += System.Environment.NewLine + _DiagnosticData;
             }
 
-            return new RoutingResult(null, false, new Msg(message, _ACRoutingService, eMsgLevel.Error, "ACRoutingSession","FindRoute(20)", 161));
+            return new RoutingResult(null, false, new Msg(message, _ACRoutingService, eMsgLevel.Error, "ACRoutingSession", "FindRoute(20)", 161));
         }
 
         public RoutingResult FindSuccessors(ACRoutingVertex startVertex, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams, int maxRouteAlternatives,
@@ -190,12 +211,12 @@ namespace gip.core.autocomponent
 
             if (direction == RouteDirections.Backwards)
             {
-                routingResult = FindRoute(foundSuccessors, new ACRoutingVertex[] { startVertex }, selectionRuleID, selectionRuleParams, maxRouteAlternatives, 
+                routingResult = FindRoute(foundSuccessors, new ACRoutingVertex[] { startVertex }, selectionRuleID, selectionRuleParams, maxRouteAlternatives,
                                                         includeReserved, includeAllocated);
             }
             else
             {
-                routingResult = FindRoute(new ACRoutingVertex[] { startVertex }, foundSuccessors, selectionRuleID, selectionRuleParams, maxRouteAlternatives, 
+                routingResult = FindRoute(new ACRoutingVertex[] { startVertex }, foundSuccessors, selectionRuleID, selectionRuleParams, maxRouteAlternatives,
                                                         includeReserved, includeAllocated);
             }
 
@@ -220,11 +241,11 @@ namespace gip.core.autocomponent
         {
             var result = new List<ACRoutingPath>();
 
-            foreach(var route in RoutingPaths)
+            foreach (var route in RoutingPaths)
             {
                 var searchableRoutes = RoutingPaths.Where(c => c.Start.ParentACComponent != route.Start.ParentACComponent || c.End.ParentACComponent != route.End.ParentACComponent);
 
-                if(searchableRoutes.Any(r => r.AllPoints.Select(x => x.ParentACComponent).Intersect(route.AllPoints.Select(c => c.ParentACComponent)).Any()))
+                if (searchableRoutes.Any(r => r.AllPoints.Select(x => x.ParentACComponent).Intersect(route.AllPoints.Select(c => c.ParentACComponent)).Any()))
                 {
                     if (!result.Contains(route))
                         result.Add(route);
@@ -248,7 +269,7 @@ namespace gip.core.autocomponent
                 currentPath = routingPaths.OrderBy(c => c.DeltaWeight).FirstOrDefault();
 
             List<RouteItem> tempList = new List<RouteItem>();
-            foreach(var item in currentPath)
+            foreach (var item in currentPath)
                 tempList.Add(new RouteItem(item.Relation));
 
             return new Route(tempList);
@@ -258,7 +279,7 @@ namespace gip.core.autocomponent
         {
             var groups = routingPaths.GroupBy(x => new { start = x.Start.ParentACComponent, end = x.End.ParentACComponent });
             List<Route> routes = new List<Route>();
-            string msgHeader = "Routing group is empty in multiple start or/and end components mode:"+System.Environment.NewLine;
+            string msgHeader = "Routing group is empty in multiple start or/and end components mode:" + System.Environment.NewLine;
             string message = null;
             eMsgLevel messageLevel = eMsgLevel.Warning;
 
@@ -275,7 +296,7 @@ namespace gip.core.autocomponent
             if (!string.IsNullOrEmpty(message))
                 messageLevel = eMsgLevel.Error;
 
-            if (!string.IsNullOrEmpty(_DiagnosticData))           
+            if (!string.IsNullOrEmpty(_DiagnosticData))
                 message += messageLevel == eMsgLevel.Error ? System.Environment.NewLine : "" + "Excluded by deselector :" + _DiagnosticData;
 
             if (!string.IsNullOrEmpty(message))
@@ -362,7 +383,7 @@ namespace gip.core.autocomponent
             bool isSourceAndTargetSame = this.Source.Component.ValueT == this.Target.Component.ValueT;
 
             ACRoutingVertex tempSource; // = RoutingVertexList[Source.Component.ValueT];
-            if(RoutingVertexList.TryGetValue(Source.Component.ValueT, out tempSource))
+            if (RoutingVertexList.TryGetValue(Source.Component.ValueT, out tempSource))
             {
                 RoutingVertexList.Remove(Source.Component.ValueT);
                 //RoutingVertexList.Remove(tempSource);
@@ -392,7 +413,7 @@ namespace gip.core.autocomponent
                         if (!ValidateRouteRelation(edge, includeReserved, includeAllocated, isForEditor))
                             continue;
 
-                        ACRoutingVertex currentVertex; 
+                        ACRoutingVertex currentVertex;
                         if (!RoutingVertexList.TryGetValue(edge.TargetParentComponent, out currentVertex))
                         {
                             if (edge.TargetParentComponent == Target.Component.ValueT)
@@ -428,8 +449,8 @@ namespace gip.core.autocomponent
                         distance = e.Weight + tempVertex.Distance;
                 }
 
-                if ((routingTargetVertex.Distance == int.MinValue || (distance > 0 && distance < routingTargetVertex.Distance) 
-                      || VerifySourceTargetLoop(routingTargetVertex, distance, isSourceAndTargetSame)) 
+                if ((routingTargetVertex.Distance == int.MinValue || (distance > 0 && distance < routingTargetVertex.Distance)
+                      || VerifySourceTargetLoop(routingTargetVertex, distance, isSourceAndTargetSame))
                       && VerifyDeselector(selectionRule, routingTargetVertex, diagnosticData)) // Vertex distance to endpoint not calculated yet
                 {
                     ACRoutingVertex tempVertex = RoutingVertexList[e.TargetParentComponent];
@@ -456,10 +477,10 @@ namespace gip.core.autocomponent
 
         private bool VerifyDeselector(SelectionRule selectionRule, ACRoutingVertex routingTargetVertex, string diagnosticData = null)
         {
-            bool result = selectionRule == null || selectionRule.DeSelector == null 
+            bool result = selectionRule == null || selectionRule.DeSelector == null
                           || !(this.Source.Component.ValueT != routingTargetVertex.Component.ValueT && selectionRule.DeSelector(routingTargetVertex, _SelectionRuleParams));
 
-            if(!result && diagnosticData != null)
+            if (!result && diagnosticData != null)
             {
                 diagnosticData += routingTargetVertex.Component.ACUrl + "; ";
             }
@@ -506,9 +527,9 @@ namespace gip.core.autocomponent
                 if (!RoutingVertexList.TryGetValue(edge.TargetParentComponent, out targetVertex))
                     continue;
 
-                if (edge.IsSidetrackOf(routingVertex) 
-                    && (targetVertex.EdgeToPath != null || edge.Target.ParentACComponent == this.Target.Component.ValueT) 
-                    && edge.Source.ParentACComponent != this.Target.Component.ValueT )
+                if (edge.IsSidetrackOf(routingVertex)
+                    && (targetVertex.EdgeToPath != null || edge.Target.ParentACComponent == this.Target.Component.ValueT)
+                    && edge.Source.ParentACComponent != this.Target.Component.ValueT)
                 {
                     ACRoutingPath p = new ACRoutingPath();
                     p.AddRange(_p);
@@ -530,14 +551,14 @@ namespace gip.core.autocomponent
         private IEnumerable<PAEdge> OrderEdges(IEnumerable<PAEdge> edges)
         {
             Dictionary<PAEdge, int> result = new Dictionary<PAEdge, int>();
-            foreach(var edge in edges)
+            foreach (var edge in edges)
             {
                 if (!result.ContainsKey(edge))
                 {
                     ACRoutingVertex v;
                     if (RoutingVertexList.TryGetValue(edge.TargetParentComponent, out v))
                     {
-                        if(v.Distance == int.MinValue)
+                        if (v.Distance == int.MinValue)
                             result.Add(edge, int.MaxValue);
                         else
                             result.Add(edge, v.Distance);
@@ -618,7 +639,7 @@ namespace gip.core.autocomponent
                 routingTargetVertex = Target;
 
             if (routingTargetVertex == null)
-                return new RoutingResult(null, false, new Msg() { Source="ACRoutingSession", Message = String.Format("Routing target component not exist!") });
+                return new RoutingResult(null, false, new Msg() { Source = "ACRoutingSession", Message = String.Format("Routing target component not exist!") });
 
             if (RoutingVertexList.Any(c => c.Key == routingTargetVertex.Component.ValueT))
                 RoutingVertexList.Remove(routingTargetVertex.Component.ValueT);
@@ -626,7 +647,7 @@ namespace gip.core.autocomponent
             RoutingVertexList.Add(routingTargetVertex.Component.ValueT, routingTargetVertex);
 
             PriorityQueue<SP_Node> fringe = new PriorityQueue<SP_Node>();
-            int loopCounter = 0;
+            List<LoopItem> loopCounter = new List<LoopItem>();
 
             string excludedByDeselector = "", excludedByLoop = "";
 
@@ -672,13 +693,21 @@ namespace gip.core.autocomponent
                 }
                 else
                 {
-                    //TODO Ivan: Improve this
-                    loopCounter++;
-                    if (loopCounter > 20)
+                    var currentLoopEdge = loopCounter.FirstOrDefault(c => c.Edge == e);
+                    if (currentLoopEdge != null)
+                    {
+                        currentLoopEdge.LoopCounter++;
+                    }
+                    else
+                    {
+                        currentLoopEdge = new LoopItem(e);
+                        loopCounter.Add(currentLoopEdge);
+                    }
+
+                    if (currentLoopEdge.LoopCounter > 15)
                     {
                         excludedByLoop += routingTargetVertex.Component.ACUrl + "; ";
                         routingTargetVertex = null;
-                        loopCounter = 0;
                         continue;
                     }
                 }
