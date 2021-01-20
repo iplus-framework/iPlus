@@ -11,6 +11,7 @@ using System.Threading;
 using System.Xml;
 using SharpSvn;
 using System.Runtime.Serialization;
+using System.Management.Automation;
 
 namespace gip.tool.publish
 {
@@ -24,7 +25,7 @@ namespace gip.tool.publish
             set;
         }
 
-        public int LastRevisionNumber
+        public string LastRevisionNumber
         {
             get;
             set;
@@ -74,7 +75,7 @@ namespace gip.tool.publish
                         progress.Report("Can't deserialize version!!!");
                         break;
                     case DownloadVersionState.SameVersionExist:
-                        progress.Report(string.Format("Version with revision number {0} already exist!!!", LastRevisionNumber));
+                        progress.Report(string.Format("Version with revision ID {0} already exist!!!", LastRevisionNumber));
                         break;
                 }
                 return;
@@ -202,10 +203,10 @@ namespace gip.tool.publish
                 progress.Report("8) Commit on svn in progress");
                 if (VersionList.Any(c => c.SvnRevision == "-rev-"))
                 {
-                    int revision = CommitOnSvnServer(userData.VersionControlServer, userData.VersionControlDeployFilePath, userData.UserDataName, LastRevisionNumber,
-                                                     userData.ChangeLogMessage);
+                    string revision = CommitOnSvnServer(userData.VersionControlServer, userData.VersionControlDeployFilePath, userData.UserDataName, LastRevisionNumber,
+                                                        userData.ChangeLogMessage, userData.VersionControl);
 
-                    if (revision == 0)
+                    if (revision == "0")
                     {
                         progress.Report("Error with commit!!!");
                         return;
@@ -250,52 +251,111 @@ namespace gip.tool.publish
             return true;
         }
 
-        internal bool TryGetLastRevisonNumber(string svnServerPath, out int lastRevisionNo)
+        internal bool TryGetLastRevisonNumber(string vcServerPath, string deployFilePath, int versionControl)
         {
-            lastRevisionNo = 0;
-            using (SvnClient svn = new SvnClient())
+            if (versionControl == 0)
             {
                 try
                 {
-                    Uri path = new Uri(svnServerPath);
-                    SvnInfoEventArgs args;
-                    svn.GetInfo(path, out args);
-                    LastRevisionNumber = (int)args.LastChangeRevision;
-                    lastRevisionNo = LastRevisionNumber;
+                    FileInfo fileInfo = new FileInfo(deployFilePath);
+
+                    using (PowerShell shell = PowerShell.Create())
+                    {
+                        shell.AddScript(@"cd '" + fileInfo.Directory.FullName+"'");
+                        shell.Invoke();
+
+                        shell.AddScript(@"git show |out-string");
+                        LastRevisionNumber = shell.Invoke().FirstOrDefault()?.ToString().Split(new string[] { System.Environment.NewLine }, StringSplitOptions.None).FirstOrDefault();
+                    }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                     return false;
                 }
             }
+
+            else if(versionControl == 1)
+            {
+                using (SvnClient svn = new SvnClient())
+                {
+                    try
+                    {
+                        Uri path = new Uri(vcServerPath);
+                        SvnInfoEventArgs args;
+                        svn.GetInfo(path, out args);
+                        LastRevisionNumber = args.LastChangeRevision.ToString();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        return false;
+                    }
+                }
+            }
+
             return true;
         }
 
-        private int CommitOnSvnServer(string svnServerPath, string deployFilePath, string iPlusVersion, int lastRevisionNo, string changelogMessage)
+        private string CommitOnSvnServer(string serverPath, string deployFilePath, string iPlusVersion, string lastRevisionNo, string changelogMessage, int versionControl)
         {
             PrepareDeployFile(deployFilePath, lastRevisionNo);
 
-            string svnDeployFilePath = string.Format("{0}\\{1}Deploy.txt", svnServerPath, iPlusVersion);
-            SvnCommitResult commitResult;
-            using (SvnClient svn = new SvnClient())
+            if (versionControl == 0)
             {
                 try
                 {
-                    SvnCommitArgs commitArgs = new SvnCommitArgs();
-                    commitArgs.LogMessage = "GIP Deploy: "+ Environment.NewLine + changelogMessage;
-                    svn.Commit(deployFilePath, commitArgs, out commitResult);
+                    FileInfo fileInfo = new FileInfo(deployFilePath);
+                    using (PowerShell shell = PowerShell.Create())
+                    {
+                        shell.AddScript(@"cd '" + fileInfo.Directory.FullName + "'");
+                        shell.Invoke();
+
+                        shell.AddScript("git add '" + fileInfo.Name + "' |out-null");
+                        shell.Invoke();
+
+                        shell.AddScript("git commit -m \"" + changelogMessage + "\" |out-null");
+                        shell.Invoke();
+
+                        shell.AddScript("git push " + serverPath + " |out-null");
+                        shell.Invoke();
+
+                        shell.AddScript(@"git show |out-string");
+                        var result = shell.Invoke().FirstOrDefault()?.ToString().Split(new string[] { System.Environment.NewLine }, StringSplitOptions.None).FirstOrDefault();
+                        return result;
+                    }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
-                    return 0;
+                    return "0";
                 }
+
             }
-            return (int)commitResult.Revision;
+            else if (versionControl == 1)
+            {
+                string svnDeployFilePath = string.Format("{0}\\{1}Deploy.txt", serverPath, iPlusVersion);
+                SvnCommitResult commitResult;
+                using (SvnClient svn = new SvnClient())
+                {
+                    try
+                    {
+                        SvnCommitArgs commitArgs = new SvnCommitArgs();
+                        commitArgs.LogMessage = "GIP Deploy: " + Environment.NewLine + changelogMessage;
+                        svn.Commit(deployFilePath, commitArgs, out commitResult);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        return "0";
+                    }
+                }
+                return commitResult.Revision.ToString();
+            }
+            return "0";
         }
 
-        private void PrepareDeployFile(string deployFilePath, int lastRevisionNumber)
+        private void PrepareDeployFile(string deployFilePath, string lastRevisionNumber)
         {
             List<string> list = new List<string>();
             list.Add(string.Format("Last Revision: {0} ==> {1}", lastRevisionNumber, DateTime.Now));

@@ -259,8 +259,8 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Column="1" Grid.Row="1" Foreground="White" Background="Transparent" Text="Version control" VerticalAlignment="Center" />
                                 <ComboBox Height="23" Grid.Row="1" Grid.Column="1" Margin="100,0,0,0" Width="50" HorizontalAlignment="Left" SelectedIndex="{Binding VersionControl}">
-                                    <ComboBoxItem Content="SVN" IsSelected="True" />
-                                    <ComboBoxItem Content="GIT" IsEnabled="False" />
+                                    <ComboBoxItem Content="GIT" IsSelected="True" />
+                                    <ComboBoxItem Content="SVN" IsEnabled="False" />
                                     <ComboBoxItem Content="TFS" IsEnabled="False" />
                                 </ComboBox>
                                 <TextBlock Grid.Column="1" Grid.Row="2" Foreground="White" Background="Transparent" Text="Version control server URL" />

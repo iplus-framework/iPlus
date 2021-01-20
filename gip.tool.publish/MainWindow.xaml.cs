@@ -213,8 +213,7 @@ namespace gip.tool.publish
 
         private void btnVCNext_Click(object sender, RoutedEventArgs e)
         {
-            int revNo = 0;
-            if (!Manager.TryGetLastRevisonNumber(SelectedUserData.VersionControlServer, out revNo))
+            if (!Manager.TryGetLastRevisonNumber(SelectedUserData.VersionControlServer, SelectedUserData.VersionControlDeployFilePath, SelectedUserData.VersionControl))
             {
                 MessageBox.Show("Can't connect to version control sever!!! Check version control server url.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
