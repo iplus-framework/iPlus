@@ -35,9 +35,9 @@ namespace gip.tool.publish
 
         #region Methods
 
-        internal void PublishApplication(UserData currentUserdata, IProgress<string> progress)
+        internal void PublishApplication(UserData currentUserdata, IProgress<string> progress, string passToClear)
         {
-            Task.Run( async () => await Publish(currentUserdata, progress));
+            Task.Run( async () => await Publish(currentUserdata, progress, passToClear));
         }
 
         private void ZipDatabaseScript(string sqlScriptPath)
@@ -60,7 +60,30 @@ namespace gip.tool.publish
             }
         }
 
-        private async Task Publish(UserData currentUserdata, IProgress<string> progress)
+        private void ClearPasswords(string binDirPath, string passToClear)
+        {
+            try
+            {
+                DirectoryInfo dirInfo = new DirectoryInfo(binDirPath);
+                var configs = dirInfo.EnumerateFiles("*.config", SearchOption.AllDirectories);
+
+                foreach (var config in configs)
+                {
+                    string fileContent = File.ReadAllText(config.FullName);
+                    if (fileContent.Contains(passToClear))
+                    {
+                        fileContent = fileContent.Replace(passToClear, "password");
+                        File.WriteAllText(config.FullName, fileContent);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        private async Task Publish(UserData currentUserdata, IProgress<string> progress, string passToClear)
         {
             progress.Report("1) Downloading and preparing version...");
             var versionResult = await DownloadVersion(currentUserdata);
@@ -83,6 +106,9 @@ namespace gip.tool.publish
 
             progress.Report("2) Checking maximum versions on server...");
             CheckMaxVersionsOnServer(currentUserdata);
+
+            if(!string.IsNullOrEmpty(passToClear))
+                ClearPasswords(currentUserdata.BinFolderPath, passToClear);
 
             progress.Report("3) Archiving bin folder...");
             ZipBinFolder(AppDomain.CurrentDomain.BaseDirectory+"\\"+currentUserdata.ApplicationFileName, currentUserdata.BinFolderPath);
@@ -200,7 +226,7 @@ namespace gip.tool.publish
                     return;
                 }
 
-                progress.Report("8) Commit on svn in progress");
+                progress.Report("8) Commit on version control in progress");
                 if (VersionList.Any(c => c.SvnRevision == "-rev-"))
                 {
                     string revision = CommitOnSvnServer(userData.VersionControlServer, userData.VersionControlDeployFilePath, userData.UserDataName, LastRevisionNumber,

@@ -795,7 +795,7 @@
                         <TextBlock Grid.Row="1" Foreground="LightGreen" Text="{Binding CompletedInstallationText}" FontSize="20" HorizontalAlignment="Center" />
                         <Image Grid.Row="2" Source="/gip.tool.installerAndUpdater;component/Images/gipTick.png" HorizontalAlignment="Center" />
                         <TextBlock Grid.Row="3" VerticalAlignment="Bottom" Foreground="White" Margin="0,0,40,0" HorizontalAlignment="Right">
-                            <Hyperlink NavigateUri="https://www.gip-automation.de/en/documentation/Home" RequestNavigate="Hyperlink_RequestNavigate">
+                            <Hyperlink NavigateUri="https://iplus-framework.com/en/documentation/Home" RequestNavigate="Hyperlink_RequestNavigate">
                                 <Hyperlink.Style>
                                     <Style TargetType="{x:Type Hyperlink}">
                                         <Setter Property="Foreground" Value="White" />

@@ -188,6 +188,13 @@ namespace gip.tool.publish
                     MessageBox.Show("Please select sql database script", "Sql script missing");
                     return;
                 }
+
+                if(!File.Exists(SelectedUserData.SqlScriptFilePath))
+                {
+                    MessageBox.Show("The database script file not exist " + SelectedUserData.SqlScriptFilePath, "Sql script missing");
+                    return;
+                }
+
                 if (!CheckSqlScript())
                 {
                     MessageBox.Show("The database script is not valid. Change the USE command to USE [-dbName-] in database script.", "Invalid script");
@@ -275,10 +282,12 @@ namespace gip.tool.publish
 
             mainTabControl.SelectedIndex = 5;
 
+            string passToClear = new ClearPass().ShowPassClearDialog();
+
             PublishOperationInfo.Clear();
             Progress<string> progress = new Progress<string>();
             progress.ProgressChanged += progress_ProgressChanged;
-            Manager.PublishApplication(SelectedUserData, progress);
+            Manager.PublishApplication(SelectedUserData, progress, passToClear);
 
             SaveUserData();
         }

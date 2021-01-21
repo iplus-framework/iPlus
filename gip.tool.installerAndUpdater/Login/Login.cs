@@ -14,8 +14,8 @@ namespace gip.tool.installerAndUpdater
     {
         public bool IsUserLogged = false;
         internal static string UserStatusUrl = "";
-        internal static string RemoteServer = @"https://gip-automation.de";
-        internal static string ControllerName = @"VarioBatchDeploy";
+        internal static string RemoteServer = @"https://iplus-framework.com";
+        internal static string ControllerName = @"Deploy";
 
         internal static string Username;
         internal static string Password;
