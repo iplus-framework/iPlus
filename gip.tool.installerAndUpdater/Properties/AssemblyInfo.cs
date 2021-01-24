@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("iPlus installation and update program")]
 [assembly: AssemblyDescription("Tool for install update rollback and uinstall")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("gip mbH")]
+[assembly: AssemblyCompany("gipSoft d.o.o.")]
 [assembly: AssemblyProduct("gip.tool.installerAndUpdater")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

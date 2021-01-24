@@ -1771,12 +1771,6 @@
     <Resource Include="Images\QuestionMark.JPG" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\gip.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Controls\VBDocking\VBWindow\Icons\gip.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\questionMark2.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
@@ -1821,6 +1815,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="VBControlScripts\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\iPlusIconDesktop.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -61,7 +61,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Images\gip.ico</ApplicationIcon>
+    <ApplicationIcon>iPlusIconDesktop.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
@@ -225,12 +225,14 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\gip.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Login.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\iPlusIconDesktop.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="iPlusIconDesktop.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

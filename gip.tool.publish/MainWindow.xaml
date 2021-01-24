@@ -1,6 +1,7 @@
-﻿<Window x:Class="gip.tool.publish.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="gip.tool.publish.MainWindow"
         Title="iPlus publish" Height="370" Width="700" Background="#FF333333" WindowStartupLocation="CenterScreen"
         >
     <Grid>
@@ -33,7 +34,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Start" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Height="20" Width="20" Source="/iPlusIcon.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" Stretch="None" />
                         </Grid>
                     </Border>
 
@@ -62,9 +63,8 @@
 
                         <TextBlock Grid.Column="1" Grid.Row="5" Text="Choose iPlus version for publish" Foreground="Red" FontSize="14" VerticalAlignment="Center"/>
                         <ComboBox Grid.Column="1" Grid.Row="5" BorderBrush="Black" Width="200" Height="25" x:Name="cbiPlusVersion" IsEditable="False" Margin="210,0,0,0" 
-                                  DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" ItemsSource="{Binding UserDataList}"
-                                  SelectedItem="{Binding SelectedUserData}" DisplayMemberPath="UserDataName">
-                        </ComboBox>
+                                  DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}" ItemsSource="{Binding UserDataList}"
+                                  SelectedItem="{Binding SelectedUserData}" DisplayMemberPath="UserDataName"/>
 
                         <GroupBox Grid.Row="7" Grid.Column="1" Background="Transparent" BorderBrush="White" BorderThickness="0.3" >
                             <GroupBox.Header>
@@ -128,7 +128,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="FTP server" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/iPlusIcon.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -195,7 +195,7 @@
                         </GroupBox>
 
                     </Grid>
-                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gip mbH - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gipSoft d.o.o. - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
                     <Button x:Name="btnFTPServerNext" Grid.Column="3" Grid.Row="2" Height="25" Click="btnFTPServerNext_Click" Content="Next"/>
                 </Grid>
             </TabItem>
@@ -222,7 +222,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Version control" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/iPlusIcon.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -269,14 +269,14 @@
 
                                 <TextBlock Grid.Column="1" Grid.Row="5" Foreground="White" Background="Transparent" Text="Deploy file path for commit" />
                                 <TextBox Height="22" Grid.Column="1" Grid.Row="6" Foreground="White" Background="Black" Margin="10,0,40,0" Text="{Binding VersionControlDeployFilePath}" />
-                                <Button Name="btnVCBrowse" Height="22" Width="25" Grid.Column="1" Grid.Row="6" HorizontalAlignment="Right" Content="..." Click="btnVCBrowse_Click" />
-                                
+                                <Button x:Name="btnVCBrowse" Height="22" Width="25" Grid.Column="1" Grid.Row="6" HorizontalAlignment="Right" Content="..." Click="btnVCBrowse_Click" />
+
                                 <!--<CheckBox Grid.Column="1" Grid.Row="5" Foreground="White" Content="With commit?????" />-->
 
                             </Grid>
                         </GroupBox>
                     </Grid>
-                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gip mbH - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gipSoft d.o.o. - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
                     <Button x:Name="btnVCNext"  Grid.Column="3" Grid.Row="2" Height="25" Click="btnVCNext_Click" Content="Next"/>
                 </Grid>
             </TabItem>
@@ -303,7 +303,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Publish change log - English" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/iPlusIcon.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
                     <Grid Grid.Row="1" Grid.ColumnSpan="5">
@@ -323,7 +323,7 @@
                         <TextBox Grid.Column="1" Grid.Row="3" Background="Black" Foreground="White" Text="{Binding ChangeLogMessage}" TextWrapping="Wrap" 
                                  VerticalScrollBarVisibility="Auto" AcceptsReturn="True" />
                     </Grid>
-                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gip mbH - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gipSoft d.o.o. - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
                     <Button x:Name="btnChangeLogNext" Grid.Column="3" Grid.Row="2" Height="25" Click="btnChangeLogNext_Click" Content="Next"/>
                 </Grid>
             </TabItem>
@@ -350,7 +350,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Publish change log - German" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/iPlusIcon.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
                     <Grid Grid.Row="1" Grid.ColumnSpan="5">
@@ -370,7 +370,7 @@
                         <TextBox Grid.Column="1" Grid.Row="3" Background="Black" Foreground="White" Text="{Binding ChangeLogMessageDE}" TextWrapping="Wrap" 
                                  VerticalScrollBarVisibility="Auto" AcceptsReturn="True" />
                     </Grid>
-                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gip mbH - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gipSoft d.o.o. - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
                     <Button x:Name="btnPublish" Grid.Column="3" Grid.Row="2" Height="25"  Content="Publish" Click="btnPublish_Click" />
                 </Grid>
             </TabItem>
@@ -397,7 +397,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Publishing progress" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/iPlusIcon.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -424,13 +424,11 @@
                                     <Setter Property="Foreground">
                                         <Setter.Value>
                                             <LinearGradientBrush StartPoint="0.5,-0.240642" EndPoint="0.5,1.24064">
-                                                <LinearGradientBrush.GradientStops>
-                                                    <GradientStop Color="#FFFC1300" Offset="0.00465116"/>
-                                                    <GradientStop Color="#FFFD3D2E" Offset="0.418605"/>
-                                                    <GradientStop Color="#FFFF685C" Offset="0.5"/>
-                                                    <GradientStop Color="#FFFD3D2E" Offset="0.590698"/>
-                                                    <GradientStop Color="#FFFC1300" Offset="1"/>
-                                                </LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#FFFC1300" Offset="0.00465116"/>
+                                                <GradientStop Color="#FFFD3D2E" Offset="0.418605"/>
+                                                <GradientStop Color="#FFFF685C" Offset="0.5"/>
+                                                <GradientStop Color="#FFFD3D2E" Offset="0.590698"/>
+                                                <GradientStop Color="#FFFC1300" Offset="1"/>
                                             </LinearGradientBrush>
                                         </Setter.Value>
                                     </Setter>
@@ -445,9 +443,9 @@
                         <TextBlock Grid.Column="1" Grid.Row="4" Text="Operation info" Foreground="Red" VerticalAlignment="Bottom" />
                         <ScrollViewer Grid.Row="5" Grid.Column="1" Background="Transparent" VerticalScrollBarVisibility="Hidden">
                             <ItemsControl  Background="Transparent" ItemsSource="{Binding PublishOperationInfo}" 
-                                      DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
+                                      DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}">
                                 <ItemsControl.ItemContainerStyle>
-                                    <Style TargetType="ContentPresenter">
+                                    <Style TargetType="{x:Type ContentPresenter}">
                                         <Setter Property="ContentTemplate">
                                             <Setter.Value>
                                                 <DataTemplate>
@@ -460,9 +458,9 @@
                             </ItemsControl>
                         </ScrollViewer>
                     </Grid>
-                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gip mbH - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="gipSoft d.o.o. - All rights reserved." Foreground="Red" VerticalAlignment="Bottom" />
                     <Button x:Name="btnExit" Grid.Column="3" Grid.Row="2" Height="25" Click="btnExit_Click" Content="Exit" IsEnabled="{Binding IsPublishFinished}"
-                            DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}"/>
                 </Grid>
             </TabItem>
         </TabControl>

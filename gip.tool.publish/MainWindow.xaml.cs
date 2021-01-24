@@ -337,6 +337,9 @@ namespace gip.tool.publish
             if (SelectedUserData == null)
                 return false;
 
+            if (string.IsNullOrEmpty(binFolderPath))
+                return false;
+
             var files = Directory.GetFiles(binFolderPath, "*.exe");
             if (SelectedUserData.UserDataName == "IPlusMES" && files.Any(c => c.Contains("gip.mes.client.exe")))
                 return true;
@@ -376,5 +379,9 @@ namespace gip.tool.publish
 
         #endregion
 
+        private void mainTabControl_SelectionChanged()
+        {
+
+        }
     }
 }

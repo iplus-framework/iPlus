@@ -231,7 +231,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="PLC\OPC\OPCUA\OPCUAClient.Config.xml" />
+    <None Include="PLC\OPC\OPCUA\OPCUAClient.Config.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="VBControlScripts\" />

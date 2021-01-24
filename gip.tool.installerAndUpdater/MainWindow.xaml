@@ -5,7 +5,7 @@
         xmlns:tr="clr-namespace:gip.tool.installerAndUpdater.TextResources"
         x:Class="gip.tool.installerAndUpdater.MainWindow"
         Title="{x:Static tr:TextResource.TbProgramMaintHeader}" Height="400" Width="550" MaxHeight="450" MaxWidth="600" MinHeight="400" MinWidth="550"
-        Icon="/gip.tool.installerAndUpdater;component/Images/gip.ico" 
+        Icon="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktop.ico" 
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterScreen"
         Background="#FF333333">
@@ -49,7 +49,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbLicenseAgreement}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -123,7 +123,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Login" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -184,7 +184,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbInstallHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -275,7 +275,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbInstallProgressHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -419,7 +419,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbSqlCheckHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -593,7 +593,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbDBHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -689,7 +689,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbDBHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -780,7 +780,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbFinishHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -860,7 +860,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbProgramMaintHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -936,7 +936,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Login" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -992,7 +992,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbCheckForUpdateHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -1122,7 +1122,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbUpdateRollbackDBHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -1212,7 +1212,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbUpdateRollbackOptionsHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -1363,7 +1363,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbUpdateChangeLogHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -1415,7 +1415,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbUpdateProgressHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -1555,7 +1555,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Login" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -1611,7 +1611,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbRollbackDisabledHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -1721,7 +1721,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbRollbackDBHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -1811,7 +1811,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbRollbackManualHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -1969,7 +1969,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbRollbackProgressHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -2088,7 +2088,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbUninstallHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
@@ -2163,7 +2163,7 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{x:Static tr:TextResource.TbUninstallProgressHeader}" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
-                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/gip.ico" HorizontalAlignment="Right" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 

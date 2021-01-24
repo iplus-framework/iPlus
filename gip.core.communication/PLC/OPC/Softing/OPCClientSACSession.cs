@@ -80,16 +80,23 @@ namespace gip.core.communication
         {
             if (_DaSession != null)
                 return true;
-            Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.InitSession()", "Start InitSession");
+
+            if (_ReconnectTries <= 0)
+                Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.InitSession()", "Start InitSession");
+
             if (String.IsNullOrEmpty(OPCUrl))
                 return false;
 
             // 1. Instanz der Session erzeugen
-            Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.InitSession()", "New Session");
+            if (_ReconnectTries <= 0)
+                Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.InitSession()", "New Session");
+
             _DaSession = new OPCClientSoftingDaSession(OPCUrl);
             _DaSession.StateChangeCompleted += OnStateChanged;
 
-            Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.InitSession()", "Init Subscriptions");
+            if (_ReconnectTries <= 0)
+                Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.InitSession()", "Init Subscriptions");
+
             foreach (IACObject child in this.ACComponentChilds)
             {
                 if (child is OPCClientACSubscr)
@@ -99,7 +106,8 @@ namespace gip.core.communication
                 }
             }
 
-            Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.InitSession()", "Init Completed");
+            if (_ReconnectTries <= 0)
+                Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.InitSession()", "Init Completed");
             return true;
         }
 
@@ -153,6 +161,7 @@ namespace gip.core.communication
         {
         }
 
+        private int _ReconnectTries = 0;
         public override bool Connect()
         {
             if (ACOperationMode != ACOperationModes.Live)
@@ -161,16 +170,23 @@ namespace gip.core.communication
                 return false;
 
             if (!IsEnabledConnect())
+            {
+                _ReconnectTries++;
                 return false;
-            Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.Connect()", "Start Connect");
+            }
+
+            if (_ReconnectTries <= 0)
+                Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.Connect()", "Start Connect");
 
             int res = _DaSession.Connect(true, true, new ExecutionOptions(EnumExecutionType.ASYNCHRONOUS,0));
             //int res = _DaSession.Connect(true, true, new ExecutionOptions(EnumExecutionType.SYNCHRONOUS, 0));
             if (!ResultCode.SUCCEEDED(res))
             {
-                Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.Connect()", "Not Connected");
+                if (_ReconnectTries <= 0)
+                    Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.Connect()", "Not Connected");
                 return false;
             }
+            _ReconnectTries = 0;
             Messages.LogDebug(this.GetACUrl(), "OPCClientSACSession.Connect()", "Connected");
             return true;
         }

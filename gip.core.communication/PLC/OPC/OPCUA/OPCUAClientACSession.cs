@@ -255,7 +255,7 @@ namespace gip.core.communication
 
         private bool _StopReconnectInitiated = false;
 
-        private ACMonitorObject _ReconnectActiveLock = new ACMonitorObject(10000);
+        //private ACMonitorObject _ReconnectActiveLock = new ACMonitorObject(10000);
 
         private SessionReconnectHandler _ReconnectHandler;
 
@@ -285,7 +285,9 @@ namespace gip.core.communication
             //else
             //    DeInitSession();
 
-            Messages.LogDebug(this.GetACUrl(), ClassName + ".InitSession()", "Start InitSession");
+            if (_ReconnectTries <= 0)
+                Messages.LogDebug(this.GetACUrl(), ClassName + ".InitSession()", "Start InitSession");
+
             if (String.IsNullOrEmpty(EndpointURL))
                 return false;
 
@@ -298,19 +300,22 @@ namespace gip.core.communication
                 EndpointConfiguration endpointConfiguration = EndpointConfiguration.Create(AppInstance.ApplicationConfiguration);
                 ConfiguredEndpoint endpoint = new ConfiguredEndpoint(null, selectedEndpoint, endpointConfiguration);
 
-                Messages.LogDebug(this.GetACUrl(), ClassName + ".InitSession()", "New Session");
+                if (_ReconnectTries <= 0)
+                    Messages.LogDebug(this.GetACUrl(), ClassName + ".InitSession()", "New Session");
                 _UASession = CreateSession(AppInstance.ApplicationConfiguration, endpoint, false, false);
             }
             catch (Exception e)
             {
                 _UASession = null;
-                Messages.LogException(this.GetACUrl(), ".InitSession()", e);
+                if (_ReconnectTries <= 0)
+                    Messages.LogException(this.GetACUrl(), ".InitSession()", e);
                 return false;
             }
 
-            _UASession.KeepAlive += _UASession_KeepAlive;
+            _UASession.KeepAlive += UASession_KeepAlive;
 
-            Messages.LogDebug(this.GetACUrl(), ClassName + ".InitSession()", "Init Subscriptions");
+            if (_ReconnectTries <= 0)
+                Messages.LogDebug(this.GetACUrl(), ClassName + ".InitSession()", "Init Subscriptions");
 
             foreach (IACObject child in this.ACComponentChilds)
             {
@@ -321,7 +326,8 @@ namespace gip.core.communication
                 }
             }
 
-            Messages.LogDebug(this.GetACUrl(), ClassName + ".InitSession()", "Init Completed");
+            if (_ReconnectTries <= 0)
+                Messages.LogDebug(this.GetACUrl(), ClassName + ".InitSession()", "Init Completed");
             return true;
         }
 
@@ -340,7 +346,7 @@ namespace gip.core.communication
             if (UASession == null)
                 return true;
 
-            UASession.KeepAlive -= _UASession_KeepAlive;
+            UASession.KeepAlive -= UASession_KeepAlive;
 
             DisConnect();
 
@@ -378,6 +384,7 @@ namespace gip.core.communication
             return true;
         }
 
+        private int _ReconnectTries = 0;
         public override bool Connect()
         {
             if (ACOperationMode != ACOperationModes.Live)
@@ -387,8 +394,13 @@ namespace gip.core.communication
                 return false;
 
             if (!IsEnabledConnect())
+            {
+                _ReconnectTries++;
                 return false;
-            Messages.LogDebug(this.GetACUrl(), ClassName + ".Connect()", "Start Connect");
+            }
+
+            if (_ReconnectTries <= 0)
+                Messages.LogDebug(this.GetACUrl(), ClassName + ".Connect()", "Start Connect");
 
             try
             {
@@ -413,10 +425,11 @@ namespace gip.core.communication
             catch (ServiceResultException exc)
             {
                 //BadIdentityTokenRejected         BadUserAccessDenied
-                if (exc.StatusCode == 2149646336 || exc.StatusCode == 2149515264)
+                if (IsAlarmActive(IsUASessionAlarm, exc.Message) == null && (exc.StatusCode == 2149646336 || exc.StatusCode == 2149515264))
                     AddAlarm(new Msg(exc.Message, this, eMsgLevel.Error, ClassName, "Connect()", 377));
 
-                Messages.LogException(this.GetACUrl(), ClassName + ".Connect(10)", exc);
+                if (_ReconnectTries <= 0)
+                    Messages.LogException(this.GetACUrl(), ClassName + ".Connect(10)", exc);
                 return false;
             }
             catch (Exception e)
@@ -428,6 +441,7 @@ namespace gip.core.communication
             foreach (OPCClientACSubscr subscr in ACComponentChilds)
                 subscr.Connect();
 
+            _ReconnectTries = 0;
             Messages.LogDebug(this.GetACUrl(), ClassName + ".Connect()", "Connected");
             IsConnected.ValueT = true;
             _IsSettingsChanged = false;
@@ -454,7 +468,7 @@ namespace gip.core.communication
             if (!IsEnabledDisConnect())
                 return false;
 
-            _UASession.KeepAlive -= _UASession_KeepAlive;
+            _UASession.KeepAlive -= UASession_KeepAlive;
             UASession.Close();
             IsConnected.ValueT = false;
             return true;
@@ -464,7 +478,7 @@ namespace gip.core.communication
 
         #region Methods => Reconnect
 
-        private void _UASession_KeepAlive(Session session, KeepAliveEventArgs e)
+        private void UASession_KeepAlive(Session session, KeepAliveEventArgs e)
         {
             if (e.Status != null && ServiceResult.IsNotGood(e.Status))
             {
@@ -494,12 +508,14 @@ namespace gip.core.communication
             }
             catch(Exception exc)
             {
-                Messages.LogException(this.GetACUrl(), "Client_ReconnectComplete(10)", exc);
+                if (_ReconnectTries <= 0)
+                    Messages.LogException(this.GetACUrl(), "Client_ReconnectComplete(10)", exc);
                 AddAlarm(new Msg(exc.Message, this, eMsgLevel.Error, ClassName, "Client_ReconnectComplete(10)", 498));
             }
 
             _ReconnectHandler.Dispose();
             _ReconnectHandler = null;
+            _ReconnectTries = 0;
             IsConnected.ValueT = true;
         }
 
