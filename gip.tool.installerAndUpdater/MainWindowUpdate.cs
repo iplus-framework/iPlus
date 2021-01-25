@@ -535,7 +535,8 @@ namespace gip.tool.installerAndUpdater
 
         private void btnStartVB_Click(object sender, RoutedEventArgs e)
         {
-            string pathToApp = string.Format("{0}\\gip.{1}.client.exe",InstallationFolder, _UpdateiPlusVersion);
+            string ver = _UpdateiPlusVersion == InstallerAndUpdaterManager.IPlusMES ? "mes" : _UpdateiPlusVersion;
+            string pathToApp = string.Format("{0}\\gip.{1}.client.exe",InstallationFolder, ver);
             string param = "-controlLoad=True";
             Process vb = new Process() { StartInfo = new ProcessStartInfo(pathToApp, param) { WorkingDirectory = InstallationFolder } };
             vb.Start();

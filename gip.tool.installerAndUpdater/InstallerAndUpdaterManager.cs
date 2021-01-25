@@ -37,6 +37,8 @@ namespace gip.tool.installerAndUpdater
 
         private MainWindow _mainWindow;
 
+        public const string IPlusMES = "IPlusMES";
+
         private LoginManager _LoginManager;
 
         public gip.tool.publish.Version AppVersion
@@ -114,8 +116,9 @@ namespace gip.tool.installerAndUpdater
                 if (desktopShortcut)
                 {
                     _mainWindow.ReportCurrentOperation(5);
+                    string ver = iPlusVersion == IPlusMES ? "mes" : iPlusVersion;
                     CreateShortcut(iPlusVersion, System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonDesktopDirectory), 
-                                   installationPath, string.Format("\\gip.{0}.client.exe", iPlusVersion.ToLower()));
+                                   installationPath, string.Format("\\gip.{0}.client.exe", ver.ToLower()));
                     int i = 0;
                     while (i != 100)
                         currentOperationProgress.Report(i++);
@@ -338,7 +341,7 @@ namespace gip.tool.installerAndUpdater
             string shortcutLocation = System.IO.Path.Combine(shortcutPath, shortcutName + ".lnk");
             rl.WshShell shell = new rl.WshShell();
             rl.IWshShortcut shortcut = (rl.IWshShortcut)shell.CreateShortcut(shortcutLocation);
-            shortcut.Description = "VB shortcut";
+            shortcut.Description = "iPlus shortcut";
             //shortcut.IconLocation = @"c:\myicon.ico";           
             shortcut.TargetPath = installationPath + targetFileLocation;
             shortcut.WorkingDirectory = installationPath;
@@ -724,8 +727,10 @@ namespace gip.tool.installerAndUpdater
 
         private bool PrepareAppConfig(SqlConnectionInfo connectionInfo, string path, string iPlusVersion, string dbName)
         {
-            string configPath = string.Format("{0}\\gip.{1}.client.exe.config",path, iPlusVersion.ToLower());
-            string exePath = string.Format("{0}\\gip.{1}.client.exe", path, iPlusVersion.ToLower()); ;
+            string ver = iPlusVersion == IPlusMES ? "mes" : iPlusVersion;
+
+            string configPath = string.Format("{0}\\gip.{1}.client.exe.config",path, ver.ToLower());
+            string exePath = string.Format("{0}\\gip.{1}.client.exe", path, ver.ToLower());
 
             if (File.Exists(configPath))
             {
@@ -733,34 +738,65 @@ namespace gip.tool.installerAndUpdater
                 configuration.ConnectionStrings.ConnectionStrings.Remove("iPlusV4_Entities");
                 configuration.ConnectionStrings.ConnectionStrings.Remove("iPlusMESV4_Entities");
 
-                string iplusConnString = string.Format(@"metadata=res://*/iPlusV4.csdl|res://*/iPlusV4.ssdl|res://*/iPlusV4.msl;provider=System.Data.SqlClient;"+
-                                                       "provider connection string='Integrated Security=SSPI;data source={0};initial catalog={1};"+
-                                                       "persist security info=True;multipleactiveresultsets=True;application name=EntityFramework'",connectionInfo.ServerName, dbName);
+                string iplusConnString = string.Format(@"metadata=res://*/iPlusV4.csdl|res://*/iPlusV4.ssdl|res://*/iPlusV4.msl;provider=System.Data.SqlClient;provider connection string='{2}" +
+                                                       "    Integrated Security=SSPI;{2}" +
+                                                       "    data source={0};{2}"+
+                                                       "    initial catalog={1};{2}"+
+                                                       "    persist security info=True;{2}"+
+                                                       "    multipleactiveresultsets=True;{2}"+
+                                                       "    application name=iPlus_db'",connectionInfo.ServerName, dbName, System.Environment.NewLine);
 
                 if (connectionInfo.AuthMode == 1)
-                    iplusConnString = string.Format(@"metadata=res://*/iPlusV4.csdl|res://*/iPlusV4.ssdl|res://*/iPlusV4.msl;provider=System.Data.SqlClient;" +
-                                      "provider connection string='data source={0};initial catalog={3};persist security info=True;user id={1};" +
-                                      "password={2};multipleactiveresultsets=True;application name=EntityFramework'", connectionInfo.ServerName, connectionInfo.Username,
-                                                                                                                         connectionInfo.Password, dbName);
+                    iplusConnString = string.Format(@"metadata=res://*/iPlusV4.csdl|res://*/iPlusV4.ssdl|res://*/iPlusV4.msl;provider=System.Data.SqlClient;provider connection string='{4}" +
+                                                    "   data source={0};{4}" +
+                                                    "   initial catalog={3};{4}"+
+                                                    "   persist security info=True;{4}"+
+                                                    "   user id={1};{4}" +
+                                                    "   password={2};{4}"+
+                                                    "   multipleactiveresultsets=True;{4}"+
+                                                    "   application name=iPlus_db'", connectionInfo.ServerName, connectionInfo.Username, connectionInfo.Password, dbName, System.Environment.NewLine);
                 
                 sc.ConnectionStringSettings varioIplusSettings = new sc.ConnectionStringSettings("iPlusV4_Entities", iplusConnString, "System.Data.EntityClient");
                 configuration.ConnectionStrings.ConnectionStrings.Add(varioIplusSettings);
 
-                if (iPlusVersion == "iPlusMES")
+                if (iPlusVersion == IPlusMES)
                 {
-                    string varioConnString = string.Format(@"metadata=.\iPlusMESV4.csdl|.\iPlusMESV4.ssdl|.\iPlusMESV4.msl;provider=System.Data.SqlClient;" +
-                                                           "provider connection string='Integrated Security=SSPI;data source={0};initial catalog={1};" +
-                                                           "persist security info=True;MultipleActiveResultSets=True;App=EntityFramework'", connectionInfo.ServerName, dbName);
+                    string varioConnString = string.Format(@"metadata=.\iPlusMESV4.csdl|.\iPlusMESV4.ssdl|.\iPlusMESV4.msl;provider=System.Data.SqlClient;provider connection string='{2}" +
+                                                           "    Integrated Security=SSPI;{2}"+
+                                                           "    data source={0};{2}"+
+                                                           "    initial catalog={1};{2}" +
+                                                           "    persist security info=True;{2}"+
+                                                           "    MultipleActiveResultSets=True;{2}"+
+                                                           "    App=iPlus_dbApp'", connectionInfo.ServerName, dbName, System.Environment.NewLine);
 
                     if (connectionInfo.AuthMode == 1)
-                        varioConnString = string.Format(@"metadata=.\iPlusMESV4.csdl|.\iPlusMESV4.ssdl|.\iPlusMESV4.msl;provider=System.Data.SqlClient;provider connection string='" +
-                                          "data source={0};initial catalog={3};persist security info=True;user id={1};password={2};" +
-                                          "MultipleActiveResultSets=True;App=EntityFramework'", connectionInfo.ServerName, connectionInfo.Username, connectionInfo.Password, dbName);
+                        varioConnString = string.Format(@"metadata=.\iPlusMESV4.csdl|.\iPlusMESV4.ssdl|.\iPlusMESV4.msl;provider=System.Data.SqlClient;provider connection string='{4}" +
+                                                        "   data source={0};{4}"+
+                                                        "   initial catalog={3};{4}"+
+                                                        "   persist security info=True;{4}"+
+                                                        "   user id={1};{4}"+
+                                                        "   password={2};{4}" +
+                                                        "   MultipleActiveResultSets=True;{4}"+
+                                                        "   App=iPlus_dbApp'", connectionInfo.ServerName, connectionInfo.Username, connectionInfo.Password, dbName, System.Environment.NewLine);
 
                     sc.ConnectionStringSettings variobatchSettings = new sc.ConnectionStringSettings("iPlusMESV4_Entities", varioConnString, "System.Data.EntityClient");
                     configuration.ConnectionStrings.ConnectionStrings.Add(variobatchSettings);
                 }
                 configuration.Save();
+
+                string connStringPath = string.Format("{0}\\ConnectionStrings.config",path);
+                if(File.Exists(connStringPath))
+                {
+                    try
+                    {
+                        string content = File.ReadAllText(connStringPath);
+                        content = content.Replace("&#xD;&#xA;", System.Environment.NewLine);
+                        File.WriteAllText(connStringPath, content);
+                    }
+                    catch
+                    {
+                    }
+                }
             }
             return true;
         }
@@ -973,7 +1009,8 @@ namespace gip.tool.installerAndUpdater
             sc.Configuration config = null;
             try
             {
-                config = sc.ConfigurationManager.OpenExeConfiguration(string.Format("{0}\\gip.{1}.client.exe", _mainWindow.InstallationFolder, iPlusVersion.ToLower()));
+                string ver = iPlusVersion == IPlusMES ? "mes" : iPlusVersion;
+                config = sc.ConfigurationManager.OpenExeConfiguration(string.Format("{0}\\gip.{1}.client.exe", _mainWindow.InstallationFolder, ver.ToLower()));
             }
             catch (Exception e)
             {
@@ -982,7 +1019,7 @@ namespace gip.tool.installerAndUpdater
             }
             if (config == null || config.ConnectionStrings == null)
                 return null;
-            string connStringName = string.Format("{0}V3_devEntities", iPlusVersion);
+            string connStringName = string.Format("{0}V4_Entities", iPlusVersion);
             string connString =config.ConnectionStrings.ConnectionStrings[connStringName].ConnectionString;
             return ReadConnectionStrings(connString);
         }
@@ -1095,7 +1132,8 @@ namespace gip.tool.installerAndUpdater
             string rollbackPath = GenerateUpdateBackupPath(installationPath);
             CopyUserFilesRecursive(installationPath, rollbackPath);
 
-            string appConfigPath = string.Format("gip.{0}.client.exe.config", iPlusVersion.ToLower());
+            string ver = iPlusVersion == IPlusMES ? "mes" : iPlusVersion;
+            string appConfigPath = string.Format("gip.{0}.client.exe.config", ver.ToLower());
             string connectionStringsPath = "ConnectionStrings.config";
 
             if (File.Exists(rollbackPath + "\\" + appConfigPath))
