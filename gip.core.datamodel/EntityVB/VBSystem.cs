@@ -40,6 +40,18 @@ namespace gip.core.datamodel
             }
         }
 
+        public override string ACIdentifier
+        {
+            get
+            {
+                return SystemName;
+            }
+            set
+            {
+                _ = value;
+            }
+        }
+
         #endregion
 
         #region IACObjectEntity Members
