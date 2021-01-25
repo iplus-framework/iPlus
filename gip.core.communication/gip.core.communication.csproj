@@ -231,7 +231,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="PLC\OPC\OPCUA\OPCUAClient.Config.xml">
+    <None Include="OPCUAClient.Config.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
