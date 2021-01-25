@@ -21,7 +21,7 @@ using gip.core.processapplication;
 using gip.core.autocomponent;
 namespace gip.core.visualcontrols
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'VBTransportBody'}de{'VBTransportBody'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTransportBody'}de{'VBTransportBody'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBTransportBody : VBVisualControlBase
     {
         #region c'tors

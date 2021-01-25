@@ -23,7 +23,7 @@ namespace gip.bso.iplus
     /// <summary>
     /// Class BSOProgramWizard
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Programwizard'}de{'Programmwizard'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, false, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Programwizard'}de{'Programmwizard'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, false, false)]
     public class BSOProgramWizard : ACBSOWizard
     {
         #region c´tors

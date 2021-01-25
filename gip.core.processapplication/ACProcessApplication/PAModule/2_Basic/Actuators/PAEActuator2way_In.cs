@@ -12,7 +12,7 @@ namespace gip.core.processapplication
     /// Two-Way-Actuator without basic position
     /// Zwei-Wege-Stellglied ohne Grundstellung
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'2-Way Actuator'}de{'2-Wege Stellglied'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'2-Way Actuator'}de{'2-Wege Stellglied'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActuator2way_In : PAEActuatorBase
     {
         #region c'tors

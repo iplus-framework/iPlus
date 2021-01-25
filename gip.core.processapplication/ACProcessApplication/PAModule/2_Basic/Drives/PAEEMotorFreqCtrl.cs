@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Frequency controlled Motors
     /// Frequenzgeregelte Motoren
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Motor frequency controlled'}de{'Frequenzgeregelter Motor'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Motor frequency controlled'}de{'Frequenzgeregelter Motor'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public abstract class PAEEMotorFreqCtrl : PAEEMotorBase
     {
         #region c'tors

@@ -373,7 +373,7 @@ namespace gip.core.datamodel.Licensing
 #if DEBUG
             return ComponentLicense.True;
 #else
-            if ((_VarioSystemID.HasValue && _VarioSystemID == packageID) || (_SystemID.HasValue && _SystemID == packageID))
+            if ((VarioSystemID.HasValue && VarioSystemID == packageID) || (_SystemID.HasValue && _SystemID == packageID))
                 return ComponentLicense.True;
 
             lock (_LPLock)

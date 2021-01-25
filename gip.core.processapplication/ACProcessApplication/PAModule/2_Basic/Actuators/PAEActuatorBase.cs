@@ -25,7 +25,7 @@ namespace gip.core.processapplication
     /// Base-Class for Actuators (Valves, Flaps, Slider...)
     /// Basisklasse für Stellglieder (Ventile, Klappen, Schieber...)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Actuator'}de{'Stellglied'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Actuator'}de{'Stellglied'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public abstract class PAEActuatorBase : PAEControlModuleBase
     {
         #region c'tors

@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Hygrometer (maesures celsius)
     /// Hygrometer (misst Celsisus)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Hygrometer'}de{'Hygrometer)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Hygrometer'}de{'Hygrometer)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEHygrometer : PAESensorAnalog
     {
         #region c'tors

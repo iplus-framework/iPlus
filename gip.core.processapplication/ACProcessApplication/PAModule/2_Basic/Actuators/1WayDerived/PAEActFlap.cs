@@ -11,7 +11,7 @@ namespace gip.core.processapplication
     /// <summary>
     /// Klappe
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Flap'}de{'Klappe'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Flap'}de{'Klappe'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActFlap : PAEActuator1way
     {
         #region c'tors

@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Motors with one direction of rotation and 2 Poles (Speed)
     /// Motoren mit einer Drehrichtung und 2 Polen (Geschwindigkeiten)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Motor 2 dir., 2 poles'}de{'Motor 2 Dreh., 2 Pole'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Motor 2 dir., 2 poles'}de{'Motor 2 Dreh., 2 Pole'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEEMotor2D2P : PAEEMotorStartCtrl
     {
         #region c'tors

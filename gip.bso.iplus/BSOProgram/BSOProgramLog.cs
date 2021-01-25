@@ -9,7 +9,7 @@ using gip.core.manager;
 
 namespace gip.bso.iplus
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Program log'}de{'Program log'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true, Const.QueryPrefix + ACProgram.ClassName)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Program log'}de{'Program log'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true, Const.QueryPrefix + ACProgram.ClassName)]
     public class BSOProgramLog : ACBSO
     {
         #region c'tors

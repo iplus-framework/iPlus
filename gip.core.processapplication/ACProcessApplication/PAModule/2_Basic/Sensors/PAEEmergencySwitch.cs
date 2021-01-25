@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Emergency-switch
     /// Not-Aus
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Emergency-Switch'}de{'Not-Aus'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Emergency-Switch'}de{'Not-Aus'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEEmergencySwitch : PAESensorDigital
     {
         #region c'tors

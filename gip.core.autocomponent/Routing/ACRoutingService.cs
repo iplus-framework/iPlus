@@ -98,7 +98,7 @@ namespace gip.core.autocomponent
         }
     }
 
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Routing Service'}de{'Routing Service'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Routing Service'}de{'Routing Service'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, true)]
     public class ACRoutingService : PAJobScheduler
     {
         #region c'tors

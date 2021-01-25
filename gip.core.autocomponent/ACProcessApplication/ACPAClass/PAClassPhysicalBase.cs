@@ -11,7 +11,7 @@ namespace gip.core.autocomponent
     /// Baseclass for modules/elements/components which exists in the real word (physical)
     /// </summary>
     /// <seealso cref="gip.core.autocomponent.PAClassAlarmingBase" />
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'PAClassPhysicalBase'}de{'PAClassPhysicalBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PAClassPhysicalBase'}de{'PAClassPhysicalBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.Required, false, true)]
     public abstract class PAClassPhysicalBase : PAClassAlarmingBase
     {
         #region c'tors

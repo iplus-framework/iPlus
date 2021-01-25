@@ -10,7 +10,7 @@ using gip.core.autocomponent;
 
 namespace gip.core.processapplication
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Scanner'}de{'Scanner'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Scanner'}de{'Scanner'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEScanner : PAModule
     {
         private static Dictionary<string, ACEventArgs> _SVirtualEventArgs;

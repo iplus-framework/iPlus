@@ -23,7 +23,7 @@ using gip.core.layoutengine.Helperclasses;
 
 namespace gip.core.visualcontrols
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'VBMotor'}de{'VBMotor'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'VBMotor'}de{'VBMotor'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBMotor : VBPAControlBase
     {
         #region c'tors

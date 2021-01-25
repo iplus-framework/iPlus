@@ -11,7 +11,7 @@ namespace gip.core.processapplication
     /// <summary>
     /// Zwei-Wege-Weiche
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Diverter'}de{'Weiche'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Diverter'}de{'Weiche'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActDiverter : PAEActuator2way_In
     {
         #region c'tors

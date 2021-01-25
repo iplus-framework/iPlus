@@ -39,7 +39,7 @@ namespace gip.core.processapplication
     }
 
 
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Scannerdecoder'}de{'Scannerdecoder'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Scannerdecoder'}de{'Scannerdecoder'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEScannerDecoder : PAModule
     {
 

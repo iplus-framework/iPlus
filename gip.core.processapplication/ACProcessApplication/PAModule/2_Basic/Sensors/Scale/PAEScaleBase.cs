@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// General scale 
     /// Waage allgemein
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Scale general'}de{'Waage allgemein)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Scale general'}de{'Waage allgemein)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public abstract class PAEScaleBase : PAESensorAnalog
     {
         #region c'tors

@@ -12,7 +12,7 @@ namespace gip.core.processapplication
     /// Three-Way-Actuator without basic position
     /// Three-Wege-Stellglied ohne Grundstellung
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'3-Way Actuator'}de{'3-Wege Stellglied'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'3-Way Actuator'}de{'3-Wege Stellglied'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActuator3way : PAEActuator2way
     {
         #region c'tors

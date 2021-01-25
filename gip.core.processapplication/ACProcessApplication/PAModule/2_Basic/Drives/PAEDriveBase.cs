@@ -12,7 +12,7 @@ namespace gip.core.processapplication
     /// Baseclass for electrical drives generally
     /// Basisklasse für Antriebe generell
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Baseclass Drives'}de{'Basisklasse Antriebe'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass Drives'}de{'Basisklasse Antriebe'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public abstract class PAEDriveBase : PAEControlModuleBase
     {
         #region c'tors

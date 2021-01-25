@@ -15,7 +15,7 @@ namespace gip.core.autocomponent
     /// </summary>
     /// <seealso cref="gip.core.autocomponent.PAClassPhysicalBase" />
     /// <seealso cref="gip.core.autocomponent.IACComponentTaskExec" />
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'PAProcessModule'}de{'PAProcessModule'}", Global.ACKinds.TPAProcessModule, Global.ACStorableTypes.Required, false, PWGroup.PWClassName, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PAProcessModule'}de{'PAProcessModule'}", Global.ACKinds.TPAProcessModule, Global.ACStorableTypes.Required, false, PWGroup.PWClassName, true)]
     public abstract class PAProcessModule : PAClassPhysicalBase, IACComponentTaskExec
     {
         #region c'tors

@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Frequency controlled motors with two directions of rotation
     /// Frequenzgeregelte Motoren mit zwei Drehrichtungen
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Motor freq. 2 direction'}de{'Frequenzgeregelter M. 2 Drehrichtungen'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Motor freq. 2 direction'}de{'Frequenzgeregelter M. 2 Drehrichtungen'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEEMotorFreq2D : PAEEMotorFreqCtrl
     {
         #region c'tors

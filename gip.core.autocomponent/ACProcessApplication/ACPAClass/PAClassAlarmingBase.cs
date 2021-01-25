@@ -34,7 +34,7 @@ namespace gip.core.autocomponent
     /// Baseclass for ACComponents, which has an alarming behaviour
     /// </summary>
     /// <seealso cref="gip.core.autocomponent.ACComponent" />
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'PAClassAlarmingBase'}de{'PAClassAlarmingBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PAClassAlarmingBase'}de{'PAClassAlarmingBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.Required, false, true)]
     public abstract class PAClassAlarmingBase : ACComponent
     {
 

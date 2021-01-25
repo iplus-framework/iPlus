@@ -12,7 +12,7 @@ namespace gip.core.processapplication
     /// Two-Way-Actuator with both positions simultaneous
     /// Two-Wege-Stellglied mit 2 Positionen gleichzeitig
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'2-Way Actuator simultaneous'}de{'2-Wege Stellglied gleichzeitig'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'2-Way Actuator simultaneous'}de{'2-Wege Stellglied gleichzeitig'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActuator2way_1plus2 : PAEActuator2way
     {
         #region c'tors

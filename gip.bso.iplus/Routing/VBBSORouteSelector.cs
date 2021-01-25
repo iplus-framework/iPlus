@@ -13,7 +13,7 @@ using System.Windows.Threading;
 
 namespace gip.bso.iplus
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Route selection'}de{'Routenauswahl'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Route selection'}de{'Routenauswahl'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, false, true)]
     public class VBBSORouteSelector : ACBSO, IACVBBSORouteSelector
     {
         #region c'tors

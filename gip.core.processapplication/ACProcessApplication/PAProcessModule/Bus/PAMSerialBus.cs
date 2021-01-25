@@ -10,7 +10,7 @@ using gip.core.autocomponent;
 
 namespace gip.core.processapplication
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Serial Bus'}de{'Serieller Bus'}", Global.ACKinds.TPAProcessModule, Global.ACStorableTypes.Required, false, PWGroup.PWClassName, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Serial Bus'}de{'Serieller Bus'}", Global.ACKinds.TPAProcessModule, Global.ACStorableTypes.Required, false, PWGroup.PWClassName, true)]
     public class PAMSerialBus : PAMBus, IACPAESerialPort
     {
         public PAMSerialBus(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")

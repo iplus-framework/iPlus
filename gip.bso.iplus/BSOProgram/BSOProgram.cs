@@ -31,7 +31,7 @@ namespace gip.bso.iplus
             new object[] {"PWMethodType", Global.ParamOption.Optional, typeof(String) }
         }
     )]
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Programmanagement'}de{'Programmverwaltung'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true, Const.QueryPrefix + ACProgram.ClassName)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Programmanagement'}de{'Programmverwaltung'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true, Const.QueryPrefix + ACProgram.ClassName)]
     public class BSOProgram : ACBSONav
     {
         #region c´tors

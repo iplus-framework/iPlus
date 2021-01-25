@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Safety relay
     /// Schutzkreis/relais
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Safety relay'}de{'Schutzkreis/relais'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Safety relay'}de{'Schutzkreis/relais'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAESafetyRelay : PAESensorDigital
     {
         #region c'tors

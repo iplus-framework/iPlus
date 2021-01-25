@@ -21,7 +21,7 @@ namespace gip.core.processapplication
     /// Baseclass for sensors
     /// Basisklasse für Sensoren
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Baseclass sensors'}de{'Basisklasse Sensoren'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass sensors'}de{'Basisklasse Sensoren'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public abstract class PAESensorBase : PAModule
     {
         #region c'tors

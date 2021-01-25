@@ -17,7 +17,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace gip.bso.iplus
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Program selector'}de{'Programmauswahl'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Program selector'}de{'Programmauswahl'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, false, true)]
     public class BSOProgramSelector : ACBSO
     {
         #region c'tors

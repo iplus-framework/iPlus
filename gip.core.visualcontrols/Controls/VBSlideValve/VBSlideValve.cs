@@ -20,7 +20,7 @@ using gip.core.layoutengine;
 namespace gip.core.visualcontrols
 {
     [TemplatePart(Name = "PART_TickBar", Type = typeof(FrameworkElement))]
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'VBSlideValve'}de{'VBSlideValve'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'VBSlideValve'}de{'VBSlideValve'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBSlideValve : Control
     {
         #region c'tors

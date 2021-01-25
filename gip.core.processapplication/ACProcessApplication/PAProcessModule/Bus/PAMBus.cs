@@ -10,7 +10,7 @@ using gip.core.autocomponent;
 
 namespace gip.core.processapplication
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Bus'}de{'Allgemeiner Bus'}", Global.ACKinds.TPAProcessModule, Global.ACStorableTypes.Required, false, PWGroup.PWClassName, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Bus'}de{'Allgemeiner Bus'}", Global.ACKinds.TPAProcessModule, Global.ACStorableTypes.Required, false, PWGroup.PWClassName, true)]
     public class PAMBus : PAClassAlarmingBase
     {
 

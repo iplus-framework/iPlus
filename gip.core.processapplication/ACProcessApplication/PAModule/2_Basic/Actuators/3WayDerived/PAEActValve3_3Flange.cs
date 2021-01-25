@@ -12,7 +12,7 @@ namespace gip.core.processapplication
     /// Three-Way-Valve with three flange
     /// Drei-Wege-Ventil mit drei Flanschen
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Valve 3-way 3-flange'}de{'Ventil 3 Wege, 3 Flansche'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Valve 3-way 3-flange'}de{'Ventil 3 Wege, 3 Flansche'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActValve3_3Flange : PAEActuator3way
     {
         #region c'tors

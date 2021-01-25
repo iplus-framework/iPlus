@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Thermometer (maesures celsius)
     /// Thermometer (misst Celsisus)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Thermometer'}de{'Thermometer)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Thermometer'}de{'Thermometer)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEThermometer : PAESensorAnalog
     {
         #region c'tors

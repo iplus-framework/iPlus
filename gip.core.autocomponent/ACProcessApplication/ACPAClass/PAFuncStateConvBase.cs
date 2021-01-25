@@ -10,7 +10,7 @@ namespace gip.core.autocomponent
     /// <summary>
     /// Baseclass for converting State and Types between Standard-Model-Components and DataAccess-/Vendor Model
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'PAStateConverterBase'}de{'PAStateConverterBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PAStateConverterBase'}de{'PAStateConverterBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, false, true)]
     public abstract class PAFuncStateConvBase : PAStateConverterBase
     {
         #region c'tors

@@ -24,7 +24,7 @@ namespace gip.bso.iplus
     /// <summary>
     /// Class BSOProcessControl
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Processcontrol'}de{'Prozesssteuerung'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true, Const.QueryPrefix + ACProgram.ClassName)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Processcontrol'}de{'Prozesssteuerung'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true, Const.QueryPrefix + ACProgram.ClassName)]
     public class BSOProcessControl : ACBSO, ITaskPreviewCall, IACBSOAlarmPresenter
     {
         public const string BSOClassName = "BSOProcessControl";

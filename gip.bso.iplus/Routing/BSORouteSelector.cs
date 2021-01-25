@@ -13,7 +13,7 @@ namespace gip.bso.iplus
     /// <summary>
     /// BSO for the route test
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Route selector'}de{'Route selector'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Route selector'}de{'Route selector'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, false, true)]
     public class BSORouteSelector : ACBSO
     {
         #region c'tors

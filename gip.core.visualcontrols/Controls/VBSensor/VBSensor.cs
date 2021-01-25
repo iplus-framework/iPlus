@@ -22,7 +22,7 @@ using gip.core.autocomponent;
 
 namespace gip.core.visualcontrols
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'VBSensor'}de{'VBSensor'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'VBSensor'}de{'VBSensor'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBSensor : VBPAControlBase
     {
         #region c'tors

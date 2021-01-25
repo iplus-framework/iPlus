@@ -13,7 +13,7 @@ using gip.ext.design;
 
 namespace gip.core.manager
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Process-Workflow Desginer'}de{'Prozess-Workflow Desginer'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, false, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Process-Workflow Desginer'}de{'Prozess-Workflow Desginer'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, false, false)]
     public partial class VBDesignerWorkflowMethod : VBDesignerWorkflow
     {
         #region c´tors

@@ -14,7 +14,7 @@ namespace gip.core.processapplication
             new object[] {ACProgramLog.ClassName, Global.ParamOption.Optional, typeof(Guid)}
         }
     )]
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Program'}de{'Programm'}", Global.ACKinds.TPWMethod, Global.ACStorableTypes.Optional, true, true, "", "PWBSOMethod/ACProgram", 1000)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Program'}de{'Programm'}", Global.ACKinds.TPWMethod, Global.ACStorableTypes.Optional, true, true, "", "PWBSOMethod/ACProgram", 1000)]
     public class PWMethod : PWProcessFunction 
     {
         new public const string PWClassName = Const.ACClassIdentifierOfPWMethod;

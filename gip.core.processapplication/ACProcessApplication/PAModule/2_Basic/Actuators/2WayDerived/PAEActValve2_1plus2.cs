@@ -12,7 +12,7 @@ namespace gip.core.processapplication
     /// Two-Way-Valve with both positions simultaneous
     /// Two-Wege-Ventil mit 2 Positionen gleichzeitig
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Valve 2-way simultaneous'}de{'Ventil 2 Wege gleichzeitig'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Valve 2-way simultaneous'}de{'Ventil 2 Wege gleichzeitig'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActValve2_1plus2 : PAEActuator2way_1plus2
     {
         #region c'tors

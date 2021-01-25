@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Motors with start controller (Star-delta start-up, Softstarter)
     /// Motoren mit Anlaufschaltung (Stern-Dreieck, Softstarter)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Motor with starter control'}de{'Motor mit Anlaufschaltung'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Motor with starter control'}de{'Motor mit Anlaufschaltung'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public abstract class PAEEMotorStartCtrl : PAEEMotorBase
     {
         #region c'tors

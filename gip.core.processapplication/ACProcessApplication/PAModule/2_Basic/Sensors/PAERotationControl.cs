@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Rotation control
     /// Drehwächter
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Rotation control'}de{'Drehwächter'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Rotation control'}de{'Drehwächter'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAERotationControl : PAESensorDigital
     {
         #region c'tors

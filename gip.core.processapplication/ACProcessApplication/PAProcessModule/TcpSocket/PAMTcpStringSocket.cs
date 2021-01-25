@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace gip.core.processapplication
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'TCP String Socket'}de{'TCP String Socket'}", Global.ACKinds.TPAProcessModule, Global.ACStorableTypes.Required, false, "", true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'TCP String Socket'}de{'TCP String Socket'}", Global.ACKinds.TPAProcessModule, Global.ACStorableTypes.Required, false, "", true)]
     public class PAMTcpStringSocket : PAProcessModule
     {
         #region c´tors

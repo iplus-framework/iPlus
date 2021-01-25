@@ -12,7 +12,7 @@ namespace gip.core.processapplication
     /// One-Way-Actuator
     /// Ein-Wege-Stellglied: Ein-Wege-Ventil, Klappe, Schieber
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'1-Way Actuator'}de{'1-Wege Stellglied'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'1-Way Actuator'}de{'1-Wege Stellglied'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActuator1way : PAEActuatorBase
     {
         #region c'tors

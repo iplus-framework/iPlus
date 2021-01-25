@@ -9,7 +9,7 @@ using gip.core.autocomponent;
 
 namespace gip.core.processapplication
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Waiting'}de{'Warten'}", Global.ACKinds.TPAProcessFunction, Global.ACStorableTypes.Required, false, PWWaiting.PWClassName, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Waiting'}de{'Warten'}", Global.ACKinds.TPAProcessFunction, Global.ACStorableTypes.Required, false, PWWaiting.PWClassName, true)]
     public class PAFWaiting : PAProcessFunction
     {
         #region Constructors

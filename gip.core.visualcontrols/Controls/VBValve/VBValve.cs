@@ -24,7 +24,7 @@ using gip.core.autocomponent;
 namespace gip.core.visualcontrols
 {
     [TemplatePart(Name = "PART_TickBar", Type = typeof(FrameworkElement))]
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'VBValve'}de{'VBValve'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'VBValve'}de{'VBValve'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBValve : VBPAControlBase
     {
         #region c'tors

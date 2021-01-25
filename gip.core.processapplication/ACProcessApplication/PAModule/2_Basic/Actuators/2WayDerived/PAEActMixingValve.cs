@@ -11,7 +11,7 @@ namespace gip.core.processapplication
     /// <summary>
     /// Mischventil
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Mixingvalve'}de{'Mischventil'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Mixingvalve'}de{'Mischventil'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActMixingValve : PAEActuator2way_Analog
     {
         #region c'tors

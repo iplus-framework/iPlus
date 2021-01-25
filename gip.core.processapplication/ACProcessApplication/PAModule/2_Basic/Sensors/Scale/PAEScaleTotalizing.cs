@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Totalizing gravimaterically Scale
     /// Totalisierende Waage
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Scale totalizing'}de{'Waage totalisierend (SWT))'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Scale totalizing'}de{'Waage totalisierend (SWT))'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEScaleTotalizing : PAEScaleGravimetric
     {
         #region c'tors

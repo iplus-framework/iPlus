@@ -10,7 +10,7 @@ namespace gip.core.autocomponent
 {
     [DataContract]
     [ACSerializeableInfo]
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'BitAccess AllocatedByWay'}de{'Bitzugriff AllocatedByWay'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'BitAccess AllocatedByWay'}de{'Bitzugriff AllocatedByWay'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     [ACPropertyEntity(100, "Bit00", "en{'Reserved (Bit00/)'}de{'Reserviert (Bit00/)'}")]
     [ACPropertyEntity(110, "Bit01", "en{'Allocated by way (Bit01/)'}de{'Belegt durch Wegesteuerung (Bit01/)'}")]
     public class BitAccessForAllocatedByWay : BitAccessForByte

@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Turn-head-distributor
     /// Drehrohverteiler
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Turn-Head Distributor'}de{'Drehrohrverteiler'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Turn-Head Distributor'}de{'Drehrohrverteiler'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAETurnHeadDist : PAEEMotor2D
     {
         #region c'tors

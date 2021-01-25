@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Material-Sensor Sensor
     /// Materialmelder
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Material sensor'}de{'Materialmelder'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Material sensor'}de{'Materialmelder'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEMaterialSensor : PAESensorDigital
     {
         #region c'tors

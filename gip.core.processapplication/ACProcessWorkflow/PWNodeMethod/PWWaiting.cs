@@ -7,7 +7,7 @@ using gip.core.autocomponent;
 
 namespace gip.core.processapplication
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'PWWaiting'}de{'PWWaiting'}", Global.ACKinds.TPWNodeMethod, Global.ACStorableTypes.Optional, false, PWProcessFunction.PWClassName, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PWWaiting'}de{'PWWaiting'}", Global.ACKinds.TPWNodeMethod, Global.ACStorableTypes.Optional, false, PWProcessFunction.PWClassName, true)]
     public class PWWaiting : PWNodeProcessMethod
     {   
         public const string PWClassName = "PWWaiting";

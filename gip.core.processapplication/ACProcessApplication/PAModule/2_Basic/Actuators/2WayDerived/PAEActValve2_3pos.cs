@@ -12,7 +12,7 @@ namespace gip.core.processapplication
     /// Two-Way-Valve with basic position
     /// Zwei-Wege-Ventil mit Grundstellung
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Valve 2-way with basic position'}de{'Ventil 2 Wege mit Grundstellung'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Valve 2-way with basic position'}de{'Ventil 2 Wege mit Grundstellung'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActValve2_3pos : PAEActuator2way_3pos
     {
         #region c'tors

@@ -15,7 +15,7 @@ namespace gip.core.autocomponent
     /// </summary>
     /// <seealso cref="gip.core.autocomponent.PAClassAlarmingBase" />
     /// <seealso cref="gip.core.autocomponent.IACWorkCycleWithACState" />
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'PABase'}de{'PABase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.Optional, false, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PABase'}de{'PABase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.Optional, false, false)]
     public abstract class PABase : PAClassAlarmingBase, IACWorkCycleWithACState
     {
         #region c´tors

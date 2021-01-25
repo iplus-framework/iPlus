@@ -8,7 +8,7 @@ using System.Xml;
 
 namespace gip.core.manager
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'PWOfflineNodeMethod '}de{'PWOfflineNodeMethod '}", Global.ACKinds.TACObject, Global.ACStorableTypes.NotStorable, true, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PWOfflineNodeMethod '}de{'PWOfflineNodeMethod '}", Global.ACKinds.TACObject, Global.ACStorableTypes.NotStorable, true, true)]
     [ACClassConstructorInfo(
         new object[]
         {

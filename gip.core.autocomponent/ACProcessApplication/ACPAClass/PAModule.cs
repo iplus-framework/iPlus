@@ -10,7 +10,7 @@ namespace gip.core.autocomponent
     /// Baseclass for simple Equipments (basic parts)
     /// Basisklasse für einfache Geräte (elemetare Bauteile)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'PAModule'}de{'PAModule'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PAModule'}de{'PAModule'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public abstract class PAModule : PAClassPhysicalBase
     {
         static PAModule()

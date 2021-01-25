@@ -11,7 +11,7 @@ namespace gip.core.processapplication
     /// <summary>
     /// Zwei-Wege-Klappe
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Flap 2-way'}de{'Klappe 2 Wege'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Flap 2-way'}de{'Klappe 2 Wege'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActFlap2 : PAEActuator2way
     {
         #region c'tors

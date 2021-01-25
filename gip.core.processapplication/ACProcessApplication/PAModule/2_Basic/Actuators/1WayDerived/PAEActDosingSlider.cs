@@ -11,7 +11,7 @@ namespace gip.core.processapplication
     /// <summary>
     /// dosierschieber
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Dosing-slider'}de{'Dosierschieber'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Dosing-slider'}de{'Dosierschieber'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActDosingSlider : PAEActuator1way_3pos
     {
         #region c'tors

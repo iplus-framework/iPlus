@@ -11,7 +11,7 @@ namespace gip.core.processapplication
     /// <summary>
     /// Ein-Wege-Ventil
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Valve'}de{'Ventil'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Valve'}de{'Ventil'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActValve : PAEActuator1way
     {
         #region c'tors

@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Motors with two directions of rotation
     /// Motoren mit zwei Drehrichtungen
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Motor 2 direction'}de{'Motor 2 Drehrichtung'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Motor 2 direction'}de{'Motor 2 Drehrichtung'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEEMotor2D : PAEEMotorStartCtrl
     {
         #region c'tors

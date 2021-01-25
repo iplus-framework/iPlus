@@ -11,7 +11,7 @@ namespace gip.core.processapplication
     /// <summary>
     /// Schieber
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Slider'}de{'Schieber'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Slider'}de{'Schieber'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActSlider : PAEActuator1way
     {
         #region c'tors

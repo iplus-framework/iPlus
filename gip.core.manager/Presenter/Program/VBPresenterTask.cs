@@ -7,7 +7,7 @@ using gip.core.autocomponent;
 
 namespace gip.core.manager
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'VBPresenterTask'}de{'VBPresenterTask'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, true, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'VBPresenterTask'}de{'VBPresenterTask'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, true, true)]
     public class VBPresenterTask : VBPresenter 
     {
         #region c´tors

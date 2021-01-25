@@ -27,7 +27,7 @@ namespace gip.core.autocomponent
     /// <br /> -Reset()            Reset brings the process back to the Idle-State
     /// </para>
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'PAProcessFunction'}de{'PAProcessFunction'}", Global.ACKinds.TPAProcessFunction, Global.ACStorableTypes.Optional, false, "", true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PAProcessFunction'}de{'PAProcessFunction'}", Global.ACKinds.TPAProcessFunction, Global.ACStorableTypes.Optional, false, "", true)]
     public abstract class PAProcessFunction : PABase, IACComponentProcessFunction
     {
         ///   ACState       | Auto-Next-State  |                |                                               TRANSITION-METHODS

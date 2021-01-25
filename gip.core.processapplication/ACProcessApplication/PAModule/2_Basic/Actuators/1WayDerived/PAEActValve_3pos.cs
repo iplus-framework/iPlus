@@ -12,7 +12,7 @@ namespace gip.core.processapplication
     /// Dosing-Valve Rough/Fine
     /// Dosierventil Grob/Fein
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Dosing-Valve Rough/Fine'}de{'Dosierventil Grob/Fein'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Dosing-Valve Rough/Fine'}de{'Dosierventil Grob/Fein'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActValve_3pos : PAEActuator1way_3pos
     {
         #region c'tors

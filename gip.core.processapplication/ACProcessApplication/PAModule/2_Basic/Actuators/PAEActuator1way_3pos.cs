@@ -12,7 +12,7 @@ namespace gip.core.processapplication
     /// One-Way-Actuator with 3 Positions (Closed, Mid, Open)
     /// Ein-Wege-Stellglied mit drei Stellungen (Dosierschieber)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'1-Way Actuator 3 pos.'}de{'1-Wege Stellglied mit 3 Pos.'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'1-Way Actuator 3 pos.'}de{'1-Wege Stellglied mit 3 Pos.'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActuator1way_3pos : PAEActuatorBase
     {
         #region c'tors

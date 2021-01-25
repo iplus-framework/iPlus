@@ -9,7 +9,7 @@ using System;
 
 namespace gip.core.manager
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'VBPresenterMethod'}de{'VBPresenterMethod'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, true, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'VBPresenterMethod'}de{'VBPresenterMethod'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, true, true)]
     public class VBPresenterMethod : VBPresenter 
     {
         #region c´tors

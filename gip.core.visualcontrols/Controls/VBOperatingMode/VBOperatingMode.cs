@@ -20,7 +20,7 @@ using gip.core.layoutengine;
 
 namespace gip.core.visualcontrols
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'VBOperatingMode'}de{'VBOperatingMode'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'VBOperatingMode'}de{'VBOperatingMode'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBOperatingMode : VBVisualControlBase
     {
         #region c'tors

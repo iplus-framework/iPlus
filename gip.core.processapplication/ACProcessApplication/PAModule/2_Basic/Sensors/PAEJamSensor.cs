@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Jam-Sensor
     /// Staumelder
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Jam-sensor'}de{'Staumelder'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Jam-sensor'}de{'Staumelder'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEJamSensor : PAESensorDigital
     {
         #region c'tors

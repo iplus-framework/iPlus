@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Misalignment Sensor
     /// Schieflaufwächter
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Misalignment Sensor'}de{'Schieflaufwächter'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Misalignment Sensor'}de{'Schieflaufwächter'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEMisalignment : PAESensorDigital
     {
         #region c'tors

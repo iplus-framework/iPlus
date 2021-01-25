@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Frequency controlled motors with one direction of rotation
     /// Frequenzgeregelte Motoren mit einer Drehrichtung
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Motor freq. 1 direction'}de{'Frequenzgeregelter M. 1 Drehrichtung'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Motor freq. 1 direction'}de{'Frequenzgeregelter M. 1 Drehrichtung'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEEMotorFreq1D : PAEEMotorFreqCtrl
     {
         #region c'tors

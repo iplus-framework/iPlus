@@ -86,7 +86,7 @@ namespace gip.core.processapplication
     }
 
 
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'DK800'}de{'DK800'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'DK800'}de{'DK800'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEScaleDK800 : PAModule
     {
         #region c'tors/Init

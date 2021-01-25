@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'PAShowDlgManagerBase'}de{'PAShowDlgManagerBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, false, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PAShowDlgManagerBase'}de{'PAShowDlgManagerBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, false, false)]
     public abstract class PAShowDlgManagerBase : PARole
     {
         #region c´tors

@@ -23,7 +23,7 @@ namespace gip.core.processapplication
     /// Baseclass for AC-, DC- and Inductionmotors
     /// Basisklasse für Wechselstrom-, Gleichstrom- und Drehstrommotoren
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'electric motor'}de{'Elektromotor'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'electric motor'}de{'Elektromotor'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public abstract class PAEEMotorBase : PAEDriveBase
     {
         #region c'tors

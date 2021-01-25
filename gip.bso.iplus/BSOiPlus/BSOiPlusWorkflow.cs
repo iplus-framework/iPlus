@@ -33,7 +33,7 @@ namespace gip.bso.iplus
     /// Hiermit arbeitet der Anwender um "Steuerrezepte" zu erstellen.
     /// Die entsprechenden Workflows können auch im Rahmen der BSOiPlusStudio bearbeitet werden.
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Workflow'}de{'Workflow'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true, Const.QueryPrefix + ACProject.ClassName)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Workflow'}de{'Workflow'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true, Const.QueryPrefix + ACProject.ClassName)]
     public class BSOiPlusWorkflow : BSOiPlusBase, IACBSOConfigStoreSelection
     {
         #region c´tors

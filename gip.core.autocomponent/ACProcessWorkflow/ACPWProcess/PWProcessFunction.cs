@@ -15,7 +15,7 @@ namespace gip.core.autocomponent
     /// <seealso cref="gip.core.autocomponent.PWBase" />
     /// <seealso cref="gip.core.datamodel.IACComponentPWGroup" />
     /// <seealso cref="gip.core.datamodel.IACComponentProcessFunction" />
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Root of a Workflow'}de{'Wurzel eines Workflows'}", Global.ACKinds.TPAProcessFunction, Global.ACStorableTypes.Optional, true, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Root of a Workflow'}de{'Wurzel eines Workflows'}", Global.ACKinds.TPAProcessFunction, Global.ACStorableTypes.Optional, true, true)]
     [ACClassConstructorInfo(
         new object[]
         {

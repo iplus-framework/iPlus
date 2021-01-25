@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Ammeter (maesures ampere)
     /// Strommessgerät (misst Ampere)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Ammeter'}de{'Strommessgerät)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Ammeter'}de{'Strommessgerät)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEAmmeter : PAESensorAnalog
     {
         #region c'tors

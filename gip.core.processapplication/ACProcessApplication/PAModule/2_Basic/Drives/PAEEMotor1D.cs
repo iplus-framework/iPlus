@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Motors with one direction of rotation
     /// Motoren mit einer Drehrichtung
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Motor 1 direction'}de{'Motor 1 Drehrichtung'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Motor 1 direction'}de{'Motor 1 Drehrichtung'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEEMotor1D : PAEEMotorStartCtrl
     {
         #region c'tors

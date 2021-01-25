@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Klasse for digital sensors
     /// klasse für digitale Sensoren
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Digital sensor'}de{'Digitaler Sensor'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Digital sensor'}de{'Digitaler Sensor'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAESensorDigital : PAESensorBase
     {
         #region c'tors

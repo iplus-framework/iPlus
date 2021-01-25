@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Thermal relay (Thermistor-Switch, depends on temperature)
     /// Themischer Motorschutz (Temperaturabhängig, Kaltleiter, PTC)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Thermistor Relay(PTC)'}de{'Thermischer Motorschutz(PTC)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Thermistor Relay(PTC)'}de{'Thermischer Motorschutz(PTC)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEThermistor : PAESensorDigital
     {
         #region c'tors

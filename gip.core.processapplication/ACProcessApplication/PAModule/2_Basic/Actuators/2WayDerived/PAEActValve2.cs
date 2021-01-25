@@ -11,7 +11,7 @@ namespace gip.core.processapplication
     /// <summary>
     /// Zwei-Wege-Ventil
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Valve 2-way'}de{'Ventil 2 Wege'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Valve 2-way'}de{'Ventil 2 Wege'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActValve2 : PAEActuator2way
     {
         #region c'tors

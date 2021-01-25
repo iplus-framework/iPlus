@@ -13,7 +13,7 @@ namespace gip.core.autocomponent
     /// Enum for describing the current state of an PAPase-Instance according to the ISA-S88-State
     /// </summary>
     [ACSerializeableInfo]
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'State of a process object'}de{'Zustand eines Prozessobjekts'}", Global.ACKinds.TACEnum)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'State of a process object'}de{'Zustand eines Prozessobjekts'}", Global.ACKinds.TACEnum)]
     public enum ACStateEnum : short
     {
         SMIdle = 0,

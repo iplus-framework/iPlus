@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Volumetrically Scale (Count of Impulse is PAESensorAnalog.ActualValue)
     /// Volumetrische Waage(Anzahl der Impulse ist PAESensorAnalog.ActualValue)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Scale volumetric'}de{'Waage volumetrisch)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Scale volumetric'}de{'Waage volumetrisch)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEScaleVolumetric : PAEScaleBase
     {
         #region c'tors

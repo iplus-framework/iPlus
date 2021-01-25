@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Gravimetrically Scale (Gross-weight is PAESensorAnalog.ActualValue)
     /// Gravimetrische Waage (Bruttogewicht ist PAESensorAnalog.ActualValue)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Scale gravimetric'}de{'Waage gravimetrisch)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Scale gravimetric'}de{'Waage gravimetrisch)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEScaleGravimetric : PAEScaleBase
     {
         #region c'tors

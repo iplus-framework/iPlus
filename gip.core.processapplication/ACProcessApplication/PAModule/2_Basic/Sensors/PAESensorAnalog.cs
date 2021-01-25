@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Class for analog sensors
     /// Klasse für analoge Sensoren
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Analogue sensor'}de{'Analoger Sensor'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Analogue sensor'}de{'Analoger Sensor'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAESensorAnalog : PAESensorBase
     {
         #region c'tors

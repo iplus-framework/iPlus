@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Contactor (electro-magnetic switch, depends on actual current value)
     /// Motorschutzschalter (Stromaufnahmeabhängig)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Contactor'}de{'Motorschutzschalter'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Contactor'}de{'Motorschutzschalter'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEContactor : PAESensorDigital
     {
         #region c'tors

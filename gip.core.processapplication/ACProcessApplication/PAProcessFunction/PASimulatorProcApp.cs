@@ -9,7 +9,7 @@ using gip.core.autocomponent;
 
 namespace gip.core.processapplication
 {
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Simulator processapplication'}de{'Simulator Prozessanwendung'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Simulator processapplication'}de{'Simulator Prozessanwendung'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, true)]
     public class PASimulatorProcApp : PAClassSimulator
     {
         #region Constructors

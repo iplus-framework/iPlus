@@ -12,7 +12,7 @@ namespace gip.core.processapplication
     /// One-Way-Actuator analog
     /// Ein-Wege-Stellglied analog
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'1-Way Actuator analog'}de{'1-Wege Stellglied Analog'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'1-Way Actuator analog'}de{'1-Wege Stellglied Analog'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public class PAEActuator1way_Analog : PAEActuator1way
     {
         #region c'tors

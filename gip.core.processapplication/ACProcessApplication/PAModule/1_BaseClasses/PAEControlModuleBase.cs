@@ -13,7 +13,7 @@ namespace gip.core.processapplication
     /// Baseclass for controllable modules/elements/components
     /// Basisklasse für steuerbare Bauteile/Elemente
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioAutomation, "en{'Baseclass Controlmodules'}de{'Basisklasse Steuerungsmodule'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass Controlmodules'}de{'Basisklasse Steuerungsmodule'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
     public abstract class PAEControlModuleBase : PAModule
     {
         public const string ClassName = "PAEControlModuleBase";
