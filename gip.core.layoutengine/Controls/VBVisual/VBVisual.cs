@@ -1350,7 +1350,7 @@ namespace gip.core.layoutengine
             UIElement uiElement = null;
             //var x = ACClassDesign.ValueTypeACClass.ACIdentifier;
 
-            if (ACClassDesign.BAMLDesign != null && ACClassDesign.IsDesignCompiled)
+            if (ACClassDesign != null && ACClassDesign.BAMLDesign != null && ACClassDesign.IsDesignCompiled)
                 uiElement = Layoutgenerator.LoadLayout(ACClassDesign, ContextACObject == null ? ContentACObject : ContextACObject, BSOACComponent, ACClassDesign.ACIdentifier);
             else if (ACClassDesign != null && !string.IsNullOrEmpty(ACClassDesign.XMLDesign) && !ACClassDesign.IsResourceStyle)
                 uiElement = Layoutgenerator.LoadLayout(ACClassDesign.XMLDesign, ContextACObject == null ? ContentACObject : ContextACObject, BSOACComponent, ACClassDesign.ACIdentifier);

@@ -128,11 +128,14 @@ namespace gip.core.communication
 
         private void InitOPCUAApp()
         {
+            string configPath = ClientApplicationConfigrationPath.EndsWith(".Config.xml") ? ClientApplicationConfigrationPath.Replace(".Config.xml", "") 
+                                                                                          : ClientApplicationConfigrationPath;
+
             _AppInstance = new ApplicationInstance()
             {
                 ApplicationName = this.ACIdentifier,
                 ApplicationType = Opc.Ua.ApplicationType.Client,
-                ConfigSectionName = ClientApplicationConfigrationPath
+                ConfigSectionName = configPath
             };
 
             try

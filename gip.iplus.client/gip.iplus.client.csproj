@@ -61,7 +61,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>iPlusIconDesktop.ico</ApplicationIcon>
+    <ApplicationIcon>Images\iPlusIconDesktop.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
@@ -229,9 +229,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\iPlusIconDesktop.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="iPlusIconDesktop.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
