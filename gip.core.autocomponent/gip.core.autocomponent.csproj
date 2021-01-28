@@ -362,7 +362,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ACPoint\Implementations\5_Task\Task%28Srv%29\Interface\" />
-    <Folder Include="VBControlScripts\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\gip.core.ControlScriptSync\gip.core.ControlScriptSync.csproj">
@@ -392,6 +391,9 @@
     </None>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="VBControlScripts\2021-01-28 09-09_ihrastinski.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="..\gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
