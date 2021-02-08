@@ -147,7 +147,7 @@ namespace gip.core.autocomponent
                 {
                     ruleValue.RuleObjectValue.Add(item);
                 }
-                else
+                else if (item != null)
                 {
                     var acClassURL = @"ValueType\" + item.GetType().FullName;
                     ruleValue.ACClassACUrl.Add(acClassURL);

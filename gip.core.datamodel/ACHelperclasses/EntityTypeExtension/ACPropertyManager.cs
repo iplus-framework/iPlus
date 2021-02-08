@@ -190,7 +190,7 @@ namespace gip.core.datamodel
 
             bool removed = false;
             bool attached = false;
-            foreach (var acPropertyExt in propertyList)
+            foreach (var acPropertyExt in propertyList.ToArray())
             {
                 if (acPropertyExt == null)
                     continue;
