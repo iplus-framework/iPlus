@@ -334,10 +334,8 @@ namespace gip.bso.iplus
                 {
                     _presenter = this.ACUrlCommand("VBPresenterTask(CurrentDesign)") as VBPresenterTask;
                     if (_presenter == null && !_PresenterRightsChecked)
-                    {
                         Messages.Error(this, "This user has no rights for viewing workflows. Assign rights for VBPresenterTask in the group management!", true);
-                        _PresenterRightsChecked = true;
-                    }
+                    _PresenterRightsChecked = true;
                 }
                 return _presenter;
             }
