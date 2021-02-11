@@ -162,6 +162,8 @@ namespace gip.core.datamodel
 
         bool InFullscreen { get; }
 
+        void SwitchFullScreen();
+
         FocusBSOResult FocusBSO(IACBSO bso);
     }
 }
