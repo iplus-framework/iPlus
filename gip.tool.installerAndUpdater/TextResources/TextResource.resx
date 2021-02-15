@@ -850,4 +850,7 @@ When the SQL server installation is complete, please proceed with this installat
   <data name="TbSqlServerDownload" xml:space="preserve">
     <value>SQL-Server download page</value>
   </data>
+  <data name="iPlusDocumentationPage" xml:space="preserve">
+    <value>https://iplus-framework.com/en/documentation/Home</value>
+  </data>
 </root>

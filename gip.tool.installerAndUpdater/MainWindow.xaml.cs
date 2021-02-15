@@ -857,7 +857,7 @@ namespace gip.tool.installerAndUpdater
         {
             if (Directory.Exists(InstallationFolder))
                 AddInstallFlagToUserAppData();
-            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+            Process.Start(new ProcessStartInfo(TextResources.TextResource.iPlusDocumentationPage));
             e.Handled = true;
             _closeState = CloseState.WithoutMessageFinish;
             if (Directory.Exists(InstallationFolder))

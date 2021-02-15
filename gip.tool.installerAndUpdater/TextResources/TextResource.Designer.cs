@@ -349,6 +349,15 @@ namespace gip.tool.installerAndUpdater.TextResources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to https://iplus-framework.com/en/documentation/Home.
+        /// </summary>
+        public static string iPlusDocumentationPage {
+            get {
+                return ResourceManager.GetString("iPlusDocumentationPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Rollback disabled.
         /// </summary>
         public static string ListRollbackOptionDisabled {
