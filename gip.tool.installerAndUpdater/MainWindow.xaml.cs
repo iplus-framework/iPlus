@@ -295,12 +295,31 @@ namespace gip.tool.installerAndUpdater
 
         #endregion
 
+        #region SqlServer Installation
+
+        private void btnNextSQLServerInfo_Click(object sender, RoutedEventArgs e)
+        {
+            mainTabControl.SelectedIndex = 2;
+        }
+
+        private void btnCancelSQLServerInfo_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void Hyperlink_RequestNavigate_SqlServer(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(TextResources.TextResource.SqlServerDownloadPage));
+        }
+
+        #endregion
+
         #region Login
 
         private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
             if (InstallerAndUpdaterManager.Login(tbEmail.Text, pbPassword.Password))
-                mainTabControl.SelectedIndex = 2;
+                mainTabControl.SelectedIndex = 3;
             else
             {
                 MsgBox.Show(TextResources.TextResource.MsgLoginWrongCred, TextResources.TextResource.MsgLoginWrongCredHeader, MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.OK);
@@ -315,7 +334,7 @@ namespace gip.tool.installerAndUpdater
 
         private void btnBackLogin_Click(object sender, RoutedEventArgs e)
         {
-            mainTabControl.SelectedIndex = 0;
+            mainTabControl.SelectedIndex = 1;
         }
 
         #endregion
@@ -324,7 +343,7 @@ namespace gip.tool.installerAndUpdater
 
         private CancellationTokenSource _cancelTokenSource;
 
-        string _InstallationFolder = @"C:\Program Files\gip\iPlus";
+        string _InstallationFolder = @"C:\Program Files\gipSoft\iPlus";
         public string InstallationFolder
         {
             get
@@ -475,7 +494,7 @@ namespace gip.tool.installerAndUpdater
 
         private void btnInstall_Click(object sender, RoutedEventArgs e)
         {
-            mainTabControl.SelectedIndex = 3;
+            mainTabControl.SelectedIndex = 4;
             Progress<double> progress = new Progress<double>(ReportCurrentOperationProgress);
             _cancelTokenSource = new CancellationTokenSource();
             InstallerAndUpdaterManager.InstallVB(InstallationFolder, ChbDesktopShortcut.IsChecked.Value, cbiPlusVersion.Text, progress, _cancelTokenSource.Token);
@@ -501,7 +520,7 @@ namespace gip.tool.installerAndUpdater
 
         private void btnBackInstall_Click(object sender, RoutedEventArgs e)
         {
-            mainTabControl.SelectedIndex = 1;
+            mainTabControl.SelectedIndex = 2;
         }
 
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
@@ -520,7 +539,7 @@ namespace gip.tool.installerAndUpdater
         private void btnNextInstallProgress_Click(object sender, RoutedEventArgs e)
         {
             SqlBrowserServiceState = InstallerAndUpdaterManager.CheckSqlBrowserService();
-            mainTabControl.SelectedIndex = 4;
+            mainTabControl.SelectedIndex = 5;
 
             if (SqlBrowserServiceState == SqlBrowserServiceState.ServiceRunning)
                 Task.Run(async () => await InstallerAndUpdaterManager.FindSqlServersAsync());
@@ -645,7 +664,7 @@ namespace gip.tool.installerAndUpdater
 
         private void btnNextSql_Click(object sender, RoutedEventArgs e)
         {
-            mainTabControl.SelectedIndex = 5;
+            mainTabControl.SelectedIndex = 6;
         }
 
         private void btnCancelSql1_Click(object sender, RoutedEventArgs e)
@@ -704,7 +723,7 @@ namespace gip.tool.installerAndUpdater
         private void btnNextSqlProgress_Click(object sender, RoutedEventArgs e)
         {
             _closeState = CloseState.WithoutMessageFinish;
-            mainTabControl.SelectedIndex = 7;
+            mainTabControl.SelectedIndex = 8;
         }
 
         private bool _IsEnabledbtnNextSqlProgress_Click = false;
@@ -779,7 +798,7 @@ namespace gip.tool.installerAndUpdater
 
             if (task.Result.ConnectionState == SqlConfigurationState.AllOk)
             {
-                mainTabControl.SelectedIndex = 6;
+                mainTabControl.SelectedIndex = 7;
                 string version = cbiPlusVersion.Text.ToString();
                 if (!string.IsNullOrEmpty(_UpdateiPlusVersion))
                     version = _UpdateiPlusVersion;
@@ -802,7 +821,7 @@ namespace gip.tool.installerAndUpdater
 
         private void btnSkipDB_Click(object sender, RoutedEventArgs e)
         {
-            mainTabControl.SelectedIndex = 7;
+            mainTabControl.SelectedIndex = 8;
         }
 
         public void ReportProgress(double value)
@@ -1154,7 +1173,7 @@ namespace gip.tool.installerAndUpdater
                 InitInstallation();
                 ApplicationMode = AppMode.Install;
                 InstallerAndUpdaterManager.SaveAppVersion(InstallationFolder, SelectedRollbackVersion);
-                mainTabControl.SelectedIndex = 3;
+                mainTabControl.SelectedIndex = 4;
                 Progress<double> progress = new Progress<double>(ReportCurrentOperationProgress);
                 _cancelTokenSource = new CancellationTokenSource();
                 InstallerAndUpdaterManager.InstallVB(InstallationFolder, ChbDesktopShortcut.IsChecked.Value, _UpdateiPlusVersion, progress, _cancelTokenSource.Token, SelectedRollbackVersion);
@@ -1314,6 +1333,7 @@ namespace gip.tool.installerAndUpdater
             if (handler != null)
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
+
 
         #endregion
     }

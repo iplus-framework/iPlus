@@ -839,4 +839,15 @@ THIS WARRANTY GIVES YOU SPECIFIC LEGAL RIGHTS, AND YOU MAY ALSO HAVE OTHER RIGHT
   <data name="TbMicrosoftTrademark" xml:space="preserve">
     <value>SQL-Server® is a registred trademark of the Microsoft Corporation.</value>
   </data>
+  <data name="SqlServerInfoInstall" xml:space="preserve">
+    <value>iPlus requires Microsoft's SQL server database software.
+If you do not have a SQL server available on your network or are installed on your local machine, please download the free Express or Developer version from the Microsoft page.
+When the SQL server installation is complete, please proceed with this installation.</value>
+  </data>
+  <data name="SqlServerDownloadPage" xml:space="preserve">
+    <value>https://www.microsoft.com/en-us/sql-server/sql-server-downloads</value>
+  </data>
+  <data name="TbSqlServerDownload" xml:space="preserve">
+    <value>SQL-Server download page</value>
+  </data>
 </root>

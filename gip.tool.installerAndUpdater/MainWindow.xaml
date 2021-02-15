@@ -97,6 +97,78 @@
                 </Grid>
             </TabItem>
 
+            <TabItem Header="Sql server info">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="5"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="40"/>
+
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.ColumnSpan="6" BorderBrush="Red" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="20"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="SQL-Server" Padding="10,0,0,0" Height="25" FontSize="18" Foreground="Red" />
+                            <Image Grid.Column="1" Source="/gip.tool.installerAndUpdater;component/Images/iPlusIconDesktopMid_32.png" HorizontalAlignment="Right" />
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="1" Grid.ColumnSpan="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"></ColumnDefinition>
+                            <ColumnDefinition Width="2*"></ColumnDefinition>
+                            <ColumnDefinition Width="10"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40" ></RowDefinition>
+                            <RowDefinition ></RowDefinition>
+                            <RowDefinition ></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Image  Grid.RowSpan="3"  Source="/gip.tool.installerAndUpdater;Component/Images/sqlserver.png" Height="150" Width="150" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock Grid.RowSpan="3" Height="45" VerticalAlignment="Bottom" Foreground="Gray" FontSize="10" Text="{x:Static tr:TextResource.TbMicrosoftTrademark}" 
+                                   TextWrapping="Wrap" Margin="5,0,5,-15"/>
+
+                        <TextBlock Grid.Column="1" Text="{x:Static tr:TextResource.SqlServerInfoInstall}" FontSize="13" TextWrapping="WrapWithOverflow" Foreground="White"
+                                   Grid.Row="1"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" FontSize="15" Foreground="White" HorizontalAlignment="Center">
+                            <Hyperlink NavigateUri="https://www.microsoft.com/en-us/sql-server/sql-server-downloads" RequestNavigate="Hyperlink_RequestNavigate_SqlServer">
+                                <Hyperlink.Style>
+                                    <Style TargetType="{x:Type Hyperlink}">
+                                        <Setter Property="Foreground" Value="White" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Foreground" Value="Red" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Hyperlink.Style>
+                                <TextBlock Text="{x:Static tr:TextResource.TbSqlServerDownload}"  />
+                            </Hyperlink>
+                        </TextBlock>
+
+                    </Grid>
+
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="{x:Static tr:TextResource.TbAllRightsReserved}" Foreground="Red" VerticalAlignment="Bottom" />
+                    <Button x:Name="btnNextSQLServerInfo" Grid.Column="3" Grid.Row="2" Height="25" Click="btnNextSQLServerInfo_Click" Content="{x:Static tr:TextResource.BtnNext}"/>
+                    <Button x:Name="btnCancelSQLServerInfo" Grid.Column="5" Grid.Row="2" Height="25" Click="btnCancelSQLServerInfo_Click" Content="{x:Static tr:TextResource.BtnCancel}"/>
+                </Grid>
+            </TabItem>
+
             <TabItem Header="Login">
                 <Grid>
                     <Grid.ColumnDefinitions>
