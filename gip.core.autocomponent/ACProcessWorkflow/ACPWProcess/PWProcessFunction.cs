@@ -887,7 +887,8 @@ namespace gip.core.autocomponent
             //    return;
 
             RecalcTimeInfo();
-            if (CreateNewProgramLog(CurrentACMethod.ValueT) <= CreateNewProgramLogResult.ErrorNoProgramFound)
+            var alreadyCreated = GetCurrentProgramLog(false);
+            if (CreateNewProgramLog(CurrentACMethod.ValueT, alreadyCreated == null) <= CreateNewProgramLogResult.ErrorNoProgramFound)
                 return;
 
             // Entkoppelung der Aufrufe bze. Reduktion des Callstack, damit nicht Funktionen beliebig Unterfunktionen im selen Thread aufrufen

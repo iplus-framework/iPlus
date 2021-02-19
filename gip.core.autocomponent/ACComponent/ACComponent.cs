@@ -2657,6 +2657,8 @@ namespace gip.core.autocomponent
                     else
                     {
                         Messages.LogError(this.GetACUrl(), "ACComponent.ExecuteMethod(2)", String.Format("TPAProcessFunction for {0} doesn't exist!", acMethodName));
+                        if (invocationMode == AsyncMethodInvocationMode.Asynchronous)
+                            return false;
                     }
                     return null;
                 default:
