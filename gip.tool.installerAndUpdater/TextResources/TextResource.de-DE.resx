@@ -823,4 +823,18 @@ Diese Garantie gewährt Ihnen bestimmte Rechte; möglicherweise stehen Ihnen je 
   <data name="TbMicrosoftTrademark" xml:space="preserve">
     <value>SQL-Server® ist ein eingetragenes Markenzeichen der Microsoft Corporation.</value>
   </data>
+  <data name="SqlServerInfoInstall" xml:space="preserve">
+    <value>iPlus erfordert die Datenbank-Software SQL-Server von Microsoft.
+Falls kein SQL-Server in Ihrem Netzwerk verfügbar oder auf Ihrem lokalen Rechner installiert ist, laden Sie bitte die kostenlose Express- oder Developer-Version von der Microsoft-Seite herunter.
+Wenn die SQL-Server-Installation abgeschlossen ist fahren Sie bitte mit dieser Installation fort.</value>
+  </data>
+  <data name="SqlServerDownloadPage" xml:space="preserve">
+    <value>https://www.microsoft.com/de-de/sql-server/sql-server-downloads</value>
+  </data>
+  <data name="TbSqlServerDownload" xml:space="preserve">
+    <value>SQL-Server Download-Seite</value>
+  </data>
+  <data name="iPlusDocumentationPage" xml:space="preserve">
+    <value>https://iplus-framework.com/de/documentation/Home</value>
+  </data>
 </root>

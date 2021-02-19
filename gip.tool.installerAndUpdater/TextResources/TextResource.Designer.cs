@@ -19,7 +19,7 @@ namespace gip.tool.installerAndUpdater.TextResources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class TextResource {
@@ -345,6 +345,15 @@ namespace gip.tool.installerAndUpdater.TextResources {
         public static string DBProgress75 {
             get {
                 return ResourceManager.GetString("DBProgress75", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to https://iplus-framework.com/en/documentation/Home.
+        /// </summary>
+        public static string iPlusDocumentationPage {
+            get {
+                return ResourceManager.GetString("iPlusDocumentationPage", resourceCulture);
             }
         }
         
@@ -880,6 +889,26 @@ namespace gip.tool.installerAndUpdater.TextResources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to https://www.microsoft.com/en-us/sql-server/sql-server-downloads.
+        /// </summary>
+        public static string SqlServerDownloadPage {
+            get {
+                return ResourceManager.GetString("SqlServerDownloadPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to iPlus requires Microsoft&apos;s SQL server database software.
+        ///If you do not have a SQL server available on your network or are installed on your local machine, please download the free Express or Developer version from the Microsoft page.
+        ///When the SQL server installation is complete, please proceed with this installation..
+        /// </summary>
+        public static string SqlServerInfoInstall {
+            get {
+                return ResourceManager.GetString("SqlServerInfoInstall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to gipSoft d.o.o. - All rights reserved..
         /// </summary>
         public static string TbAllRightsReserved {
@@ -1137,7 +1166,7 @@ namespace gip.tool.installerAndUpdater.TextResources {
         ///IPLUS, IPLUS.MES
         ///
         ///These license terms are an agreement between you and GIPSOFT D.O.O.. They apply to the software named above. The terms also apply to any GIPSOFT services and updates for the software, except to the extent those have different terms. 
-        ///BY INSTALLING, HAVING INSTALLED, SUBSCRIBING TO, OR USING THE SOFTWARE, YOU ACCEPT THIS AGREEMENT (INCLUDING ANY MODIFICATIONS MADE TO IT FROM TIME TO TIME).  IF YOU DO NOT ACCEPT THIS AGREEMENT, DO  [rest of string was truncated]&quot;;.
+        ///BY INSTALLING, HAVING INSTALLED, SUBSCRIBING TO, OR USING THE SOFTWARE, YOU ACCEPT THIS AGREEMENT (INCLUDING ANY MODIFICATIONS MADE TO IT FROM TIME TO TIME).  IF YOU DO NOT ACCEPT THIS AGREEMENT, DO NOT INSTALL, HAVE [rest of string was truncated]&quot;;.
         /// </summary>
         public static string TbLicenseText {
             get {
@@ -1520,6 +1549,15 @@ namespace gip.tool.installerAndUpdater.TextResources {
         public static string TbSqlCheckWarningServiceNotRunningInfo {
             get {
                 return ResourceManager.GetString("TbSqlCheckWarningServiceNotRunningInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SQL-Server download page.
+        /// </summary>
+        public static string TbSqlServerDownload {
+            get {
+                return ResourceManager.GetString("TbSqlServerDownload", resourceCulture);
             }
         }
         
