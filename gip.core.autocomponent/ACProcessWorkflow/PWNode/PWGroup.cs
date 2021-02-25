@@ -42,6 +42,8 @@ namespace gip.core.autocomponent
             paramTranslation.Add("WithoutPM", "en{'Ignore Processmodule-Mapping'}de{'Ohne Prozessmodul-Belegung'}");
             method.ParameterValueList.Add(new ACValue("OccupationByScan", typeof(bool), false, Global.ParamOption.Required));
             paramTranslation.Add("OccupationByScan", "en{'Processmodule-Mapping manually by user'}de{'Prozessmodulbelegung manuell vom Anwender'}");
+            method.ParameterValueList.Add(new ACValue("Priority", typeof(ushort), 0, Global.ParamOption.Required));
+            paramTranslation.Add("Priority", "en{'Priorization'}de{'Priorisierung'}");
             var wrapper = new ACMethodWrapper(method, "en{'Configuration'}de{'Konfiguration'}", typeof(PWGroup), paramTranslation, null);
             ACMethod.RegisterVirtualMethod(typeof(PWGroup), ACStateConst.SMStarting, wrapper);
             RegisterExecuteHandler(typeof(PWGroup), HandleExecuteACMethod_PWGroup);
@@ -71,6 +73,7 @@ namespace gip.core.autocomponent
                 _PossibleModuleList = null;
                 _LastRuleValueList = null;
                 _LastSelectedClasses = null;
+                _Priority = null;
             }
 
             ClearMyConfiguration();
@@ -99,6 +102,7 @@ namespace gip.core.autocomponent
                 _LastSelectedClasses = null;
                 _WaitsOnAvailableProcessModule = false;
                 _HasHighestPriorityForMapping = null;
+                _Priority = null;
             }
 
             if (TrySemaphore != null && TrySemaphore.ConnectionListCount > 0)
@@ -155,10 +159,10 @@ namespace gip.core.autocomponent
 
         public virtual void ClearMyConfiguration()
         {
-
             using (ACMonitor.Lock(_20015_LockValue))
             {
                 _MyConfiguration = null;
+                _Priority = null;
             }
             this.HasRules.ValueT = 0;
         }
@@ -267,6 +271,76 @@ namespace gip.core.autocomponent
                 return false;
             }
         }
+
+
+        public const ushort C_DefaultLowestPriority = 9999;
+        /// <summary>
+        /// Configuration-Property: 
+        /// Sort order for priorizing. Value is between 0 and 9999.
+        /// Default is 9999 if nothing is set.
+        /// </summary>
+        public ushort ConfiguredPriority
+        {
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("Priority");
+                    if (acValue != null)
+                    {
+                        ushort priority = acValue.ParamAsUInt16;
+                        if (priority == 0)
+                            return C_DefaultLowestPriority;
+                        return priority;
+                    }
+                }
+                return 9999;
+            }
+        }
+
+        private ushort? _Priority;
+        public ushort Priority
+        {
+            get
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    if (_Priority.HasValue)
+                        return _Priority.Value;
+                }
+                return ConfiguredPriority;
+            }
+            set
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    _Priority = value;
+                }
+            }
+        }
+
+        public enum PriorityMode
+        {
+            ToConfigurationValue,
+            ToLowestDefault,
+            ToHighest,
+        }
+
+        public void SetPriority(PriorityMode mode)
+        {
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                if (mode == PriorityMode.ToConfigurationValue)
+                    _Priority = null;
+                else if (mode == PriorityMode.ToLowestDefault)
+                    _Priority = C_DefaultLowestPriority;
+                else
+                    _Priority = 1;
+            }
+        }
+
+        //protected PAProcessModule[] _PossibleModuleList = null;
 
         #endregion
 
@@ -611,7 +685,8 @@ namespace gip.core.autocomponent
                                                             && c.RootPW.TimeInfo.ValueT.ActualTimes != null
                                                             && c.RootPW.CurrentACProgram != null
                                                             && c.RootPW.CurrentACState != ACStateEnum.SMIdle)
-                                                            .OrderBy(c => c.RootPW.TimeInfo.ValueT.ActualTimes.StartTime) // Sortierung nur nach Startdatum des Root-Knotens. Der Batch der zuerst gestartet wurde muss auch zuerst durchlaufen
+                                                            .OrderBy(c => c.Priority)
+                                                            .ThenBy(c => c.RootPW.TimeInfo.ValueT.ActualTimes.StartTime) // Sortierung nur nach Startdatum des Root-Knotens. Der Batch der zuerst gestartet wurde muss auch zuerst durchlaufen
                                                                                                                           // Falsch:
                                                                                                                           //.OrderBy(c => c.RootPW.CurrentACProgram.InsertDate) // 1. Sortierung nach gestarteten Programmen
                                                                                                                           //.ThenBy(c => c.RootPW.TimeInfo.ValueT.ActualTimes.StartTime) // 2. Sortierung nach Startdatum innerhalb eines Programmes
@@ -641,16 +716,31 @@ namespace gip.core.autocomponent
                 var queryWaitingNodes = PriorizedCompetingWFNodes;
                 if (queryWaitingNodes != null && queryWaitingNodes.Any())
                 {
-                    PWGroup priorGroup = queryWaitingNodes.FirstOrDefault();
-                    // Falls dieser Knoten nicht selbst die höchste Prio hat, dann prüfe ob es sich nur um paralleliserte Knoten aus dem selben Workflow handelt 
-                    if (priorGroup != null && priorGroup != this)
+                    //PWGroup priorGroup = queryWaitingNodes.FirstOrDefault();
+                    //// Falls dieser Knoten nicht selbst die höchste Prio hat, dann prüfe ob es sich nur um paralleliserte Knoten aus dem selben Workflow handelt 
+                    //if (priorGroup != null && priorGroup != this)
+                    //{
+                    //    // Falls es andere Gruppe aus anderen Workflows gibt, dann warte
+                    //    if (queryWaitingNodes.Where(c => c.RootPW != this.RootPW).Any())
+                    //        return false;
+                    //}
+
+                    foreach (PWGroup priorGroup in queryWaitingNodes)
                     {
-                        // Falls es andere Gruppe aus anderen Workflows gibt, dann warte
-                        if (queryWaitingNodes.Where(c => c.RootPW != this.RootPW).Any())
-                            return false;
+                        if (priorGroup == null)
+                            continue;
+                        if (priorGroup == this)
+                            return true;
+                        if (priorGroup != this)
+                        {
+                            // Falls es andere Gruppen aus anderen Workflows gibt, dann warte
+                            if (priorGroup.RootPW != this.RootPW)
+                                return false;
+                        }
                     }
                 }
                 return true;
+
             }
         }
 
@@ -799,6 +889,7 @@ namespace gip.core.autocomponent
                 _HasHighestPriorityForMapping = null;
                 _LastRuleValueList = null;
                 _LastSelectedClasses = null;
+                _Priority = null;
             }
 
             // Damit nachfolge-Workflow gemappt werden kann wenn Resetted wird
@@ -917,6 +1008,7 @@ namespace gip.core.autocomponent
                     {
                         module.LastOccupation.ValueT = DateTime.Now;
                         module.RefreshOrderInfo();
+                        OnProcessModuleOccupied(module);
                     }
 
                 }
@@ -1015,6 +1107,10 @@ namespace gip.core.autocomponent
             return false;
         }
 
+        protected virtual void OnProcessModuleOccupied(PAProcessModule processModule)
+        {
+        }
+
 
         /// <summary>
         /// Occupies the passed procesmodule if the Configuration-Property "OccupationByScan" was set to true.
@@ -1098,7 +1194,11 @@ namespace gip.core.autocomponent
         {
             if (!IsEnabledSetHighestPriority())
                 return;
-            _HasHighestPriorityForMapping = true;
+            using(ACMonitor.Lock(_20015_LockValue))
+            {
+                _HasHighestPriorityForMapping = true;
+            }
+            SetPriority(PriorityMode.ToHighest);
         }
 
         public virtual bool IsEnabledSetHighestPriority()
@@ -1112,7 +1212,11 @@ namespace gip.core.autocomponent
         {
             if (!IsEnabledResetHighestPriority())
                 return;
-            _HasHighestPriorityForMapping = null;
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                _HasHighestPriorityForMapping = null;
+            }
+            SetPriority(PriorityMode.ToConfigurationValue);
         }
 
         public virtual bool IsEnabledResetHighestPriority()
@@ -1251,6 +1355,23 @@ namespace gip.core.autocomponent
                 xmlACPropertyList.AppendChild(xmlProperty);
             }
 
+            xmlProperty = xmlACPropertyList["ConfiguredPriority"];
+            if (xmlProperty == null)
+            {
+                xmlProperty = doc.CreateElement("ConfiguredPriority");
+                if (xmlProperty != null)
+                    xmlProperty.InnerText = ConfiguredPriority.ToString();
+                xmlACPropertyList.AppendChild(xmlProperty);
+            }
+
+            xmlProperty = xmlACPropertyList["Priority"];
+            if (xmlProperty == null)
+            {
+                xmlProperty = doc.CreateElement("Priority");
+                if (xmlProperty != null)
+                    xmlProperty.InnerText = Priority.ToString();
+                xmlACPropertyList.AppendChild(xmlProperty);
+            }
         }
         #endregion
 
