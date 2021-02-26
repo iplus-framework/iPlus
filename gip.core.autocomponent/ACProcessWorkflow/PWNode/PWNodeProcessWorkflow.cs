@@ -316,9 +316,16 @@ namespace gip.core.autocomponent
             return false;
         }
 
-#endregion
+        public virtual Guid[] GetCachedDestinations(bool refreshCache, out short errorCode, out string errorMsg)
+        {
+            errorCode = -1;
+            errorMsg = null;
+            return new Guid[] { };
+        }
 
-#region Planning and Testing
+        #endregion
+
+        #region Planning and Testing
         protected override TimeSpan GetPlannedDuration()
         {
             //TODO Damir: Dieser Aufruf sollte eigentlich nie stattfinden, da durch Callback von PAProcessfunction 
