@@ -88,8 +88,10 @@ namespace Fluent
 
         private void OnWindowStateChanged(object sender, EventArgs e)
         {
-            if ((ownerWindow.ResizeMode==ResizeMode.CanResizeWithGrip) && (ownerWindow.WindowState == WindowState.Maximized)) IsWindowMaximized = true;
-            else IsWindowMaximized = false;
+            if (ownerWindow != null && (ownerWindow.ResizeMode==ResizeMode.CanResizeWithGrip) && (ownerWindow.WindowState == WindowState.Maximized)) 
+                IsWindowMaximized = true;
+            else 
+                IsWindowMaximized = false;
         }
 
         #endregion

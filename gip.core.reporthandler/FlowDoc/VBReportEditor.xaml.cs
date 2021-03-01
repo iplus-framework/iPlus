@@ -417,6 +417,23 @@ namespace gip.core.reporthandler.Flowdoc
             }
         }
 
+        /// <summary>
+        /// Determines is the configuration tab visible or not.
+        /// </summary>
+        public bool HideConfigurationTab
+        {
+            get { return (bool)GetValue(HideConfigurationTabProperty); }
+            set { SetValue(HideConfigurationTabProperty, value); }
+        }
+
+        /// <summary>
+        /// Represents the dependency property for HideConfigurationTab.
+        /// </summary>
+        public static readonly DependencyProperty HideConfigurationTabProperty =
+            DependencyProperty.Register("HideConfigurationTab", typeof(bool), typeof(VBReportEditor), new PropertyMetadata(false));
+
+
+
         //public static readonly DependencyProperty RefreshDesignerProperty
         //    = DependencyProperty.Register("RefreshDesigner", typeof(int), typeof(VBReportEditor));
 

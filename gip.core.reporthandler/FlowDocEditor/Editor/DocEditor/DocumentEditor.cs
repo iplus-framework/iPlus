@@ -512,7 +512,7 @@ namespace Document.Editor
                     }
                     else
                     {
-                        if (X <= content.Length)
+                        if (X <= content.Length && X > 0)
                         {
                             CharValue = System.Convert.ToChar(content.Substring(X - 1, 1));
                             if (CharValue > 64 && CharValue < 91 || CharValue > 96 && CharValue < 123 || CharValue > 47 && CharValue < 58)
