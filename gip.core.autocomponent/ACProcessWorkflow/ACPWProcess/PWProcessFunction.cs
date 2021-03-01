@@ -696,13 +696,19 @@ namespace gip.core.autocomponent
                         invoker = CurrentTask.ValueT as IACComponentPWNode;
                         if (invoker != null && invoker.ContentACClassWF != null)
                         {
-                            acClassMethod = null;
-
-                            using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                            PWProcessFunction pwFunction = invoker.ParentRootWFNode as PWProcessFunction;
+                            if (pwFunction != null)
                             {
-                                acClassMethod = invoker.ContentACClassWF.ACClassMethod;
+                                var parentHierarchy = pwFunction.ACConfigMethodHierarchy;
+                                if (parentHierarchy != null && parentHierarchy.Any())
+                                    methods.AddRange(parentHierarchy);
                             }
-                            methods.Add(acClassMethod);
+                            //acClassMethod = null;
+                            //using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                            //{
+                            //    acClassMethod = invoker.ContentACClassWF.ACClassMethod;
+                            //}
+                            //methods.Add(acClassMethod);
                         }
                     }
                 }
