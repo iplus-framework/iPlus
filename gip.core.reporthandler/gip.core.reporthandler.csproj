@@ -123,11 +123,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <Compile Include="CodeCompletionXsdGenerator.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>CodeCompletionXsdGenerator.tt</DependentUpon>
-    </Compile>
     <Compile Include="CodeCompletionXsdGeneratorVBR.cs" />
     <Compile Include="Configuration\ReportConfigurationWrapper.cs" />
     <Compile Include="FlowDocEditor\EditLib\DocRuler.cs" />
@@ -217,7 +212,9 @@
       <DependentUpon>SymbolPanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="Flowdoc\Document\Barcode\InlineBarcode.cs" />
+    <Compile Include="Flowdoc\Document\InlineFlowDocContentValue.cs" />
     <Compile Include="Flowdoc\Document\InlineUIValueBase.cs" />
+    <Compile Include="Flowdoc\Document\TableRowDataHeader.cs" />
     <Compile Include="Flowdoc\ReportConfiguration\ConfigurationMethod.cs" />
     <Compile Include="Flowdoc\ReportConfiguration\ConfigurationParameter.cs" />
     <Compile Include="Flowdoc\ReportConfiguration\ReportConfiguration.cs" />
@@ -889,7 +886,7 @@
   <ItemGroup>
     <Content Include="CodeCompletionXsdGenerator.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>CodeCompletionXsdGenerator.cs</LastGenOutput>
+      <LastGenOutput>CodeCompletionXsdGenerator.txt</LastGenOutput>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -24,5 +24,18 @@ namespace gip.core.reporthandler.Flowdoc
         // Using a DependencyProperty as the backing store for PageHeaderHeight.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PageHeaderHeightProperty =
             DependencyProperty.Register("PageHeaderHeight", typeof(double), typeof(ReportProperties), new UIPropertyMetadata(2.0d));
+
+
+        public bool ShowHeaderOnFirstPage
+        {
+            get { return (bool)GetValue(ShowHeaderOnFirstPageProperty); }
+            set { SetValue(ShowHeaderOnFirstPageProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ShowHeaderOnFirstPage.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ShowHeaderOnFirstPageProperty =
+            DependencyProperty.Register("ShowHeaderOnFirstPage", typeof(bool), typeof(ReportProperties), new PropertyMetadata(true));
+
+
     }
 }

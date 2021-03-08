@@ -1236,6 +1236,8 @@
           <xs:element name="VBFileDialogButton.RightControlMode" />
           <xs:element name="VBFileDialogButton.DisabledModes" />
           <xs:element name="VBFileDialogButton.VBContent" />
+          <xs:element name="VBFileDialogButton.BindToBSO" />
+          <xs:element name="VBFileDialogButton.BindOnLoadEvent" />
           <xs:element name="VBFileDialogButton.BSOACComponent" />
           <xs:element name="VBFileDialogButton.ACCommand" />
           <xs:element name="VBFileDialogButton.ACCaption" />
@@ -1357,6 +1359,8 @@
         <xs:attribute name="RightControlMode" type="vb:enumControlModes" />
         <xs:attribute name="DisabledModes" />
         <xs:attribute name="VBContent" />
+        <xs:attribute name="BindToBSO" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="BindOnLoadEvent" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="BSOACComponent" />
         <xs:attribute name="ACCommand" />
         <xs:attribute name="ACCaption" />
@@ -2902,6 +2906,7 @@
           <xs:group ref="vb:VBControls" />
           <xs:element name="VBDataGridComboBoxColumn.VBContent" />
           <xs:element name="VBDataGridComboBoxColumn.VBIsReadOnly" />
+          <xs:element name="VBDataGridComboBoxColumn.IsEditable" />
           <xs:element name="VBDataGridComboBoxColumn.VBShowColumns" />
           <xs:element name="VBDataGridComboBoxColumn.SelectedValueBinding" type="dBindingBaseContainer" />
           <xs:element name="VBDataGridComboBoxColumn.SelectedItemBinding" type="dBindingBaseContainer" />
@@ -2943,6 +2948,7 @@
             <xs:documentation>Determines is column is read only or not. The true value is for readonly.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="IsEditable" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="VBShowColumns">
           <xs:annotation>
             <xs:documentation>Gets or sets the VBShow columns.</xs:documentation>
@@ -6139,6 +6145,8 @@
           <xs:element name="VBGanttChart.Zoom" />
           <xs:element name="VBGanttChart.ACCompInitState" />
           <xs:element name="VBGanttChart.TimelineItemTemplate" type="dDataTemplateContainer" />
+          <xs:element name="VBGanttChart.TimeFrameFrom" />
+          <xs:element name="VBGanttChart.TimeFrameTo" />
           <xs:element name="VBGanttChart.VBContent" />
           <xs:element name="VBGanttChart.BSOACComponent" />
           <xs:element name="VBGanttChart.VBSource" />
@@ -6228,6 +6236,8 @@
         <xs:attribute name="Zoom" />
         <xs:attribute name="ACCompInitState" type="vb:enumACInitState" />
         <xs:attribute name="TimelineItemTemplate" />
+        <xs:attribute name="TimeFrameFrom" />
+        <xs:attribute name="TimeFrameTo" />
         <xs:attribute name="VBContent" />
         <xs:attribute name="BSOACComponent" />
         <xs:attribute name="VBSource" />
@@ -6320,7 +6330,13 @@
           <xs:element name="VBGanttChartView.ACUrlCmdMessage" />
           <xs:element name="VBGanttChartView.BSOACComponent" />
           <xs:element name="VBGanttChartView.TimelineItemTemplate" type="dDataTemplateContainer" />
+          <xs:element name="VBGanttChartView.TimelineItemHeight" type="dDoubleContainer" />
+          <xs:element name="VBGanttChartView.TimelineItemVerticalMargin" type="dDoubleContainer" />
+          <xs:element name="VBGanttChartView.TreeListViewWidth" type="dGridLengthContainer" />
+          <xs:element name="VBGanttChartView.TimelineViewWidth" type="dGridLengthContainer" />
           <xs:element name="VBGanttChartView.BSOUpdateDisplayOrderMethodName" />
+          <xs:element name="VBGanttChartView.TimeFrameFrom" />
+          <xs:element name="VBGanttChartView.TimeFrameTo" />
           <xs:element name="VBGanttChartView.VBContent" />
           <xs:element name="VBGanttChartView.VBSource" />
           <xs:element name="VBGanttChartView.VBShowColumns" />
@@ -6399,7 +6415,13 @@
         <xs:attribute name="ACUrlCmdMessage" />
         <xs:attribute name="BSOACComponent" />
         <xs:attribute name="TimelineItemTemplate" />
+        <xs:attribute name="TimelineItemHeight" />
+        <xs:attribute name="TimelineItemVerticalMargin" />
+        <xs:attribute name="TreeListViewWidth" />
+        <xs:attribute name="TimelineViewWidth" />
         <xs:attribute name="BSOUpdateDisplayOrderMethodName" />
+        <xs:attribute name="TimeFrameFrom" />
+        <xs:attribute name="TimeFrameTo" />
         <xs:attribute name="VBContent" />
         <xs:attribute name="VBSource" />
         <xs:attribute name="VBShowColumns" />
@@ -8973,6 +8995,8 @@
           <xs:element name="VBTimelineChart.Zoom" />
           <xs:element name="VBTimelineChart.ACCompInitState" />
           <xs:element name="VBTimelineChart.TimelineItemTemplate" type="dDataTemplateContainer" />
+          <xs:element name="VBTimelineChart.TimeFrameFrom" />
+          <xs:element name="VBTimelineChart.TimeFrameTo" />
           <xs:element name="VBTimelineChart.VBContent" />
           <xs:element name="VBTimelineChart.BSOACComponent" />
           <xs:element name="VBTimelineChart.VBSource" />
@@ -9062,6 +9086,8 @@
         <xs:attribute name="Zoom" />
         <xs:attribute name="ACCompInitState" type="vb:enumACInitState" />
         <xs:attribute name="TimelineItemTemplate" />
+        <xs:attribute name="TimeFrameFrom" />
+        <xs:attribute name="TimeFrameTo" />
         <xs:attribute name="VBContent" />
         <xs:attribute name="BSOACComponent" />
         <xs:attribute name="VBSource" />
@@ -9149,7 +9175,13 @@
           <xs:element name="VBTimelineView.ACUrlCmdMessage" />
           <xs:element name="VBTimelineView.BSOACComponent" />
           <xs:element name="VBTimelineView.TimelineItemTemplate" type="dDataTemplateContainer" />
+          <xs:element name="VBTimelineView.TimelineItemHeight" type="dDoubleContainer" />
+          <xs:element name="VBTimelineView.TimelineItemVerticalMargin" type="dDoubleContainer" />
+          <xs:element name="VBTimelineView.TreeListViewWidth" type="dGridLengthContainer" />
+          <xs:element name="VBTimelineView.TimelineViewWidth" type="dGridLengthContainer" />
           <xs:element name="VBTimelineView.BSOUpdateDisplayOrderMethodName" />
+          <xs:element name="VBTimelineView.TimeFrameFrom" />
+          <xs:element name="VBTimelineView.TimeFrameTo" />
           <xs:element name="VBTimelineView.VBContent" />
           <xs:element name="VBTimelineView.VBSource" />
           <xs:element name="VBTimelineView.VBShowColumns" />
@@ -9228,7 +9260,13 @@
         <xs:attribute name="ACUrlCmdMessage" />
         <xs:attribute name="BSOACComponent" />
         <xs:attribute name="TimelineItemTemplate" />
+        <xs:attribute name="TimelineItemHeight" />
+        <xs:attribute name="TimelineItemVerticalMargin" />
+        <xs:attribute name="TreeListViewWidth" />
+        <xs:attribute name="TimelineViewWidth" />
         <xs:attribute name="BSOUpdateDisplayOrderMethodName" />
+        <xs:attribute name="TimeFrameFrom" />
+        <xs:attribute name="TimeFrameTo" />
         <xs:attribute name="VBContent" />
         <xs:attribute name="VBSource" />
         <xs:attribute name="VBShowColumns" />
@@ -14429,6 +14467,7 @@
         <xs:sequence>
           <xs:group ref="vb:VBControls" />
           <xs:element name="VBDockingManager.IsBSOManager" />
+          <xs:element name="VBDockingManager.FocusView" />
           <xs:element name="VBDockingManager.VBContent" />
           <xs:element name="VBDockingManager.Content" type="dObjectContainer" />
           <xs:element name="VBDockingManager.ContentTemplate" type="dDataTemplateContainer" />
@@ -14496,6 +14535,7 @@
           <xs:element name="VBDockingManager.IsManipulationEnabled" />
         </xs:sequence>
         <xs:attribute name="IsBSOManager" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="FocusView" />
         <xs:attribute name="VBContent">
           <xs:annotation>
             <xs:documentation>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
@@ -15066,6 +15106,8 @@
           <xs:element name="VBDockingButton.RightControlMode" />
           <xs:element name="VBDockingButton.DisabledModes" />
           <xs:element name="VBDockingButton.VBContent" />
+          <xs:element name="VBDockingButton.BindToBSO" />
+          <xs:element name="VBDockingButton.BindOnLoadEvent" />
           <xs:element name="VBDockingButton.BSOACComponent" />
           <xs:element name="VBDockingButton.ACCommand" />
           <xs:element name="VBDockingButton.ACCaption" />
@@ -15157,6 +15199,8 @@
         <xs:attribute name="RightControlMode" type="vb:enumControlModes" />
         <xs:attribute name="DisabledModes" />
         <xs:attribute name="VBContent" />
+        <xs:attribute name="BindToBSO" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="BindOnLoadEvent" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="BSOACComponent" />
         <xs:attribute name="ACCommand" />
         <xs:attribute name="ACCaption" />
@@ -19469,6 +19513,8 @@
           <xs:element name="VBButton.RightControlMode" />
           <xs:element name="VBButton.DisabledModes" />
           <xs:element name="VBButton.VBContent" />
+          <xs:element name="VBButton.BindToBSO" />
+          <xs:element name="VBButton.BindOnLoadEvent" />
           <xs:element name="VBButton.VBContentMouseDown" />
           <xs:element name="VBButton.VBContentMouseUp" />
           <xs:element name="VBButton.IsDefault" />
@@ -19600,6 +19646,8 @@
             ACUrl's can be either absolute or relative to the DataContext of the parent WPFControl (or the ContextACObject of the parent IACInteractiveObject)</xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="BindToBSO" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="BindOnLoadEvent" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="VBContentMouseDown">
           <xs:annotation>
             <xs:documentation>Gets or sets VBContent for mouse down.</xs:documentation>
@@ -20102,6 +20150,8 @@
           <xs:element name="VBComboBox.DisableContextMenu" />
           <xs:element name="VBComboBox.VBContent" />
           <xs:element name="VBComboBox.VBSource" />
+          <xs:element name="VBComboBox.VBShowColumns" />
+          <xs:element name="VBComboBox.VBDisabledColumns" />
           <xs:element name="VBComboBox.DisabledModes" />
           <xs:element name="VBComboBox.RightControlMode" />
           <xs:element name="VBComboBox.MaxDropDownHeight" type="dDoubleContainer" />
@@ -20256,6 +20306,16 @@
           <xs:annotation>
             <xs:documentation>Represents the property in which you enter the name of BSO's list property marked with [ACPropertyList(...)] attribute. In usage with ACPropertySelected with same ACGroup,
             this property is not necessary to be setted. Only if you want to use different list instead, you must set this property to name of that list which must be marked with ACPropertyList attribute.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="VBShowColumns">
+          <xs:annotation>
+            <xs:documentation>Determines which properties of bounded object will be shown in VBComboBox. XAML sample: VBShowColumns="PropName1,PropName2,PropName3"</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="VBDisabledColumns">
+          <xs:annotation>
+            <xs:documentation>Determines which columns will be disabled in VBComboBox.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="DisabledModes">
@@ -20619,6 +20679,7 @@
           <xs:element name="VBDataGrid.ACCaption" />
           <xs:element name="VBDataGrid.VBShowColumns" />
           <xs:element name="VBDataGrid.VBDisabledColumns" />
+          <xs:element name="VBDataGrid.SimpleCellElements" />
           <xs:element name="VBDataGrid.AutoLoad" />
           <xs:element name="VBDataGrid.DblClick" />
           <xs:element name="VBDataGrid.VBOnDrag" />
@@ -20626,6 +20687,7 @@
           <xs:element name="VBDataGrid.DisableContextMenu" />
           <xs:element name="VBDataGrid.AutoFocus" />
           <xs:element name="VBDataGrid.DisabledModes" />
+          <xs:element name="VBDataGrid.SumVisibility" />
           <xs:element name="VBDataGrid.CanUserResizeColumns" />
           <xs:element name="VBDataGrid.ColumnWidth" />
           <xs:element name="VBDataGrid.MinColumnWidth" type="dDoubleContainer" />
@@ -20810,6 +20872,7 @@
             <xs:documentation xml:lang="de">Legt fest, welche Spalten im VBDataGrid deaktiviert werden.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="SimpleCellElements" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="AutoLoad" type="frlrfSystemBooleanClassTopic">
           <xs:annotation>
             <xs:documentation>Determines is enabled auto load or not.</xs:documentation>
@@ -20849,6 +20912,11 @@
           <xs:annotation>
             <xs:documentation>Gets or sets the ACCaption translation.</xs:documentation>
             <xs:documentation xml:lang="de">Liest oder setzt die ACCaption-Übersetzung.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="SumVisibility" type="vb:enumVisibility">
+          <xs:annotation>
+            <xs:documentation>Gets or sets the SumVisility.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="CanUserResizeColumns" type="frlrfSystemBooleanClassTopic" />
@@ -23137,6 +23205,7 @@
           <xs:group ref="vb:VBControls" />
           <xs:element name="VBTabControl.VBContent" />
           <xs:element name="VBTabControl.ACCaption" />
+          <xs:element name="VBTabControl.FocusView" />
           <xs:element name="VBTabControl.TabStripPlacement" />
           <xs:element name="VBTabControl.SelectedContent" type="dObjectContainer" />
           <xs:element name="VBTabControl.SelectedContentTemplate" type="dDataTemplateContainer" />
@@ -23236,6 +23305,7 @@
             <xs:documentation>Translated Label/Description of this instance (depends on the current logon)</xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="FocusView" />
         <xs:attribute name="TabStripPlacement" type="vb:enumDock" />
         <xs:attribute name="SelectedContent" />
         <xs:attribute name="SelectedContentTemplate" />
@@ -24258,6 +24328,7 @@
           <xs:element name="VBTreeView.VBSource" />
           <xs:element name="VBTreeView.VBShowColumns" />
           <xs:element name="VBTreeView.AutoFocus" />
+          <xs:element name="VBTreeView.DragEnabled" />
           <xs:element name="VBTreeView.DisabledModes" />
           <xs:element name="VBTreeView.AutoLoad" />
           <xs:element name="VBTreeView.RightControlMode" />
@@ -24406,6 +24477,11 @@
           <xs:annotation>
             <xs:documentation>Enables or disables auto focus.</xs:documentation>
             <xs:documentation xml:lang="de">Aktiviert oder deaktiviert den Autofokus.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="DragEnabled" type="vb:enumDragMode">
+          <xs:annotation>
+            <xs:documentation>Gets or sets DragEnabled.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="DisabledModes">
@@ -24879,6 +24955,7 @@
           <xs:group ref="vb:VBControls" />
           <xs:element name="VBDesign.ShowCaption" />
           <xs:element name="VBDesign.ACCaption" />
+          <xs:element name="VBDesign.FocusNames" />
           <xs:element name="VBDesign.InstanceInfoList" />
           <xs:element name="VBDesign.BSOACComponent" />
           <xs:element name="VBDesign.ACUrlCmdMessage" />
@@ -24972,6 +25049,7 @@
             <xs:documentation>Translated Label/Description of this instance (depends on the current logon)</xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="FocusNames" />
         <xs:attribute name="InstanceInfoList" />
         <xs:attribute name="BSOACComponent" />
         <xs:attribute name="ACUrlCmdMessage" />
@@ -25073,6 +25151,7 @@
       <xs:element name="VBScriptEditor.VBContent" />
       <xs:element name="VBScriptEditor.ACCaption" />
       <xs:element name="VBScriptEditor.VBValidation" />
+      <xs:element name="VBScriptEditor.IsBraceCompletionEnabled" />
       <xs:element name="VBScriptEditor.ContextActionsIcon" type="dImageSourceContainer" />
       <xs:element name="VBScriptEditor.CompletionBackground" type="dBrushContainer" />
       <xs:element name="VBScriptEditor.AsyncToolTipRequest" />
@@ -25172,6 +25251,7 @@
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="VBValidation" />
+    <xs:attribute name="IsBraceCompletionEnabled" type="frlrfSystemBooleanClassTopic" />
     <xs:attribute name="ContextActionsIcon" />
     <xs:attribute name="CompletionBackground" />
     <xs:attribute name="AsyncToolTipRequest" />
@@ -27847,6 +27927,7 @@
           <xs:element name="VBTabItem.Parameter" />
           <xs:element name="VBTabItem.RightControlMode" />
           <xs:element name="VBTabItem.DisabledModes" />
+          <xs:element name="VBTabItem.FocusNames" />
           <xs:element name="VBTabItem.IsSelected" />
           <xs:element name="VBTabItem.Header" type="dObjectContainer" />
           <xs:element name="VBTabItem.HeaderTemplate" type="dDataTemplateContainer" />
@@ -27977,6 +28058,7 @@
             <xs:documentation xml:lang="de">Deaktiviert die Steuerung. XAML-Probe: DisabledModes="Disabled"</xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="FocusNames" />
         <xs:attribute name="IsSelected" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="Header" />
         <xs:attribute name="HeaderTemplate" />
