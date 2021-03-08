@@ -120,6 +120,8 @@
     <Compile Include="Alarm\BSOAlarmMessengerConfig.cs" />
     <Compile Include="Alarm\BSOAlarmExplorer.cs" />
     <Compile Include="Manager\ACProjectManager.cs" />
+    <Compile Include="Manager\InsertInMarksSQL.cs" />
+    <Compile Include="Manager\IPlusDefSQLExportManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Manager\ACUserManager.cs" />
     <Compile Include="Routing\BSORouteSelector.cs" />
