@@ -939,7 +939,7 @@ namespace gip.bso.iplus
                 return;
 
             var query = Db.MsgAlarmLog.Where(c => c.TimeStampOccurred >= FromDate && c.TimeStampOccurred <= ToDate).AsQueryable();
-            string acUrl = SelectedPropertyLog.ACCaption;
+            string acUrl = SelectedPropertyLog.ACUrl;
 
             (query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
             AlarmsSubAlarmsList = query.ToList().Where(c => (c.ACClass != null && c.ACClass.ACUrlComponent.StartsWith(acUrl)) ||
