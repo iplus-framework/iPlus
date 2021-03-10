@@ -209,6 +209,9 @@ namespace gip.core.reporthandler.Flowdoc
             List<InlineBarcode> blockBarcodeValues = _rootCache.GetObjectsOfType<InlineBarcode>(null, true);
             blockBarcodeValues.AddRange(walker.TraverseBlockCollection<InlineBarcode>(blocks, 0));
 
+            List<InlineFlowDocContentValue> blockFlowDocContentValues = _rootCache.GetObjectsOfType<InlineFlowDocContentValue>(null, true);
+            blockFlowDocContentValues.AddRange(walker.TraverseBlockCollection<InlineFlowDocContentValue>(blocks, 0));
+
             //ArrayList charts = _dynamicCache.GetFlowDocumentVisualListByInterface(typeof(IChart)); // walker.Walk<IChart>(_flowDocument);
             //FillCharts(charts);
             //gip.core.layoutengine.Layoutgenerator.CurrentDataContext = _data.ReportDocumentValues.Values.Where(c => c is IACComponent).FirstOrDefault() as IACComponent;
@@ -218,6 +221,7 @@ namespace gip.core.reporthandler.Flowdoc
             blockBoolValues.ForEach(c => SetIPropertyValue(c, aggregateValues, null));
             blockACMethodValues.ForEach(c => SetIPropertyValue(c, aggregateValues, null));
             blockBarcodeValues.ForEach(c => SetIPropertyValue(c, aggregateValues, null));
+            blockFlowDocContentValues.ForEach(c => SetIPropertyValue(c, aggregateValues, null));
 
             // 2. fill tables
             List<RPDynCacheEntry> rootEntries = _rootCache.GetEntriesOfType<TableRowDataDyn>(null, true);
@@ -1125,10 +1129,21 @@ namespace gip.core.reporthandler.Flowdoc
                         object obj = dataRow[dv.VBContent];
                         if (obj == DBNull.Value)
                             obj = null;
+
+                        if(dv is InlineFlowDocContentValue)
+                        {
+                            SetInlineFlowDocContentValue(dv as InlineFlowDocContentValue, null, parentDataRow, obj);
+                        }
+
                         OnSetFlowDocObjValue(dv, aggregateValues, parentDataRow, obj);
                     }
                     else
                     {
+                        if (dv is InlineFlowDocContentValue)
+                        {
+                            SetInlineFlowDocContentValue(dv as InlineFlowDocContentValue, null, parentDataRow, parentDataRow.GetValue(dv.VBContent));
+                        }
+
                         OnSetFlowDocObjValue(dv, aggregateValues, parentDataRow, parentDataRow.GetValue(dv.VBContent));
                     }
                     if (av != null)
@@ -1161,9 +1176,16 @@ namespace gip.core.reporthandler.Flowdoc
 
                 if (obj != null)
                 {
+                    InlineFlowDocContentValue docValue = dv as InlineFlowDocContentValue;
+
                     if (dv is InlineACMethodValue)
                     {
                         if (!SetACMethodConfigValue(dv, aggregateValues, parentDataRow, obj))
+                            return;
+                    }
+                    else if (docValue != null)
+                    {
+                        if (!SetInlineFlowDocContentValue(docValue, aggregateValues, parentDataRow, obj.GetValue(dv.VBContent)))
                             return;
                     }
                     else
@@ -1261,6 +1283,72 @@ namespace gip.core.reporthandler.Flowdoc
                 return true;
             }
             return false;
+        }
+
+        protected bool SetInlineFlowDocContentValue(InlineFlowDocContentValue dv, Dictionary<string, List<object>> aggregateValues, object parentDataRow, object objValue)
+        {
+            if (dv == null || objValue == null)
+                return false;
+
+            SectionDataGroup sdg = (dv.Parent as Block)?.Parent as SectionDataGroup;
+            TableCell tc = null;
+            if(sdg == null)
+            {
+                if (parentDataRow == null)
+                    return false;
+
+                tc = (dv.Parent as Block)?.Parent as TableCell;
+
+                if (tc == null)
+                {
+                    string error = "The parent object of the InlineFlowDocValue must be Paragraph in a SectionDataGroup or TableCell!";
+                    MessageBox.Show(error);
+                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+                        datamodel.Database.Root.Messages.LogError("ReportPaginator", "SetInlineFlowDocContentValue(10)", error);
+                    return false;
+                }
+            }
+
+            try
+            {
+                List<Block> blocks = null;
+                try
+                {
+
+                    FlowDocument fd = XamlHelper.LoadXamlFromString(objValue.ToString()) as FlowDocument;
+                    blocks = fd.Blocks.ToList();
+                }
+                catch (Exception ex)
+                {
+                    string error = "Set InlineFlowDocContenValue error: " + ex.Message;
+                    MessageBox.Show(error);
+                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+                        datamodel.Database.Root.Messages.LogError("ReportPaginator", "SetInlineFlowDocContentValue(15s)", error);
+                }
+
+                if (sdg != null)
+                {
+                    sdg.Blocks.Clear();
+                    if (blocks != null)
+                        sdg.Blocks.AddRange(blocks);
+                }
+                else if (tc != null)
+                {
+                    tc.Blocks.Clear();
+                    if (blocks != null)
+                        tc.Blocks.AddRange(blocks);
+                }
+            }
+            catch (Exception e)
+            {
+                string error = "Set InlineFlowDocContenValue error: " + e.Message;
+                MessageBox.Show(error);
+                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+                    datamodel.Database.Root.Messages.LogError("ReportPaginator", "SetInlineFlowDocContentValue(20)", error);
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -1601,6 +1689,8 @@ namespace gip.core.reporthandler.Flowdoc
             }
         }
 
+        Tuple<ContainerVisual, TableRowDataHeader> currentHeader = null;
+
         /// <summary>
         /// This is most important method, modifies the original 
         /// </summary>
@@ -1641,9 +1731,13 @@ namespace gip.core.reporthandler.Flowdoc
 
             if (_blockPageHeader != null)
             {
-                ContainerVisual v = CloneVisualBlock(_blockPageHeader, pageNumber + 1, _blockPageHeaderXAML);
-                v.Offset = new Vector(0, marginTop);
-                newPage.Children.Add(v);
+                SectionReportHeader header = _blockPageHeader as SectionReportHeader;
+                if (header == null || ((header != null && header.ShowHeaderOnFirstPage && pageNumber == 0) || pageNumber != 0))
+                {
+                    ContainerVisual v = CloneVisualBlock(_blockPageHeader, pageNumber + 1, _blockPageHeaderXAML);
+                    v.Offset = new Vector(0, marginTop);
+                    newPage.Children.Add(v);
+                }
             }
 
             // TODO: process ReportContextValues
@@ -1670,13 +1764,200 @@ namespace gip.core.reporthandler.Flowdoc
             Rect contentBox = new Rect(page.ContentBox.Left, page.ContentBox.Top, page.ContentBox.Width,
                 _report.PageHeight - (page.Size.Height - page.ContentBox.Size.Height));
 
+
+            ContainerVisual table;
+            if (PageStartsWithTable(smallerPage, out table) && currentHeader != null && currentHeader.Item2.RepeatTableHeader)
+            {
+                // The page starts with a table and a table header was
+                // found on the previous page. Presumably this table 
+                // was started on the previous page, so we'll repeat the
+                // table header.
+                Rect headerBounds = VisualTreeHelper.GetDescendantBounds(currentHeader.Item1);
+                Vector offset = VisualTreeHelper.GetOffset(currentHeader.Item1);
+                DrawingVisual tableHeaderVisual = new DrawingVisual();
+
+                // Translate the header to be at the top of the page
+                // instead of its previous position
+                tableHeaderVisual.Transform = new TranslateTransform(
+                    bleedBox.X,
+                    bleedBox.Y - headerBounds.Top
+                );
+
+                // Since we've placed the repeated table header on top of the
+                // content area, we'll need to scale down the rest of the content
+                // to accomodate this. Since the table header is relatively small,
+                // this probably is barely noticeable.
+                double yScale = (contentBox.Height - headerBounds.Height) / contentBox.Height;
+                TransformGroup group = new TransformGroup();
+                group.Children.Add(new ScaleTransform(1.0, yScale));
+                group.Children.Add(new TranslateTransform(
+                    bleedBox.X,
+                    bleedBox.Y + headerBounds.Height
+                ));
+                smallerPage.Transform = group;
+
+                ContainerVisual cp = VisualTreeHelper.GetParent(currentHeader.Item1) as ContainerVisual;
+                if (cp != null)
+                {
+                    cp.Children.Remove(currentHeader.Item1);
+
+                    
+                }
+                tableHeaderVisual.Children.Add(currentHeader.Item1);
+
+                //Drawing table header background
+                if (currentHeader.Item2 != null)
+                {
+                    Brush backgroundBrush = (Brush)currentHeader.Item2.GetValue(TextElement.BackgroundProperty);
+                    using (DrawingContext drawingContext = tableHeaderVisual.RenderOpen())
+                    {
+                        if (backgroundBrush != null)
+                        {
+                            Rect bounds = headerBounds;
+                            if (cp != null)
+                            {
+                                Rect parentBounds = VisualTreeHelper.GetDescendantBounds(cp);
+                                if (parentBounds != null)
+                                {
+                                    bounds.Width = parentBounds.Width;
+                                }
+                            }
+
+                            drawingContext.DrawRectangle(backgroundBrush, null, bounds);
+                        }
+                    }
+                }
+
+                smallerPage.Children.Add(tableHeaderVisual);
+            }
+
+            // Check if there is a table on the bottom of the page.
+            // If it's there, its header should be repeated
+            ContainerVisual newTable, newHeader;
+            if (PageEndsWithTable(smallerPage, out newTable, out newHeader))
+            {
+                if (newTable == table)
+                {
+                    // Still the same table so don't change the repeating header
+                }
+                else
+                {
+                    // We've found a new table. Repeat the header on the next page
+                    TableRowDataHeader dataHeader = GetTableRow(newHeader);
+                    if(dataHeader != null)
+                        currentHeader = new Tuple<ContainerVisual, TableRowDataHeader>(newHeader, dataHeader);
+                }
+            }
+            else
+            {
+                // There was no table at the end of the page
+                currentHeader = null;
+            }
+
+
             DocumentPage dp = new DocumentPage(newPage, new Size(_report.PageWidth, _report.PageHeight), bleedBox, contentBox);
             _report.FireEventGetPageCompleted(new GetPageCompletedEventArgs(page, pageNumber, null, false, null));
             return dp;
         }
 
-#endregion
+        public override void ComputePageCount()
+        {
+            base.ComputePageCount();
+        }
 
-#endregion
+        protected override void OnPagesChanged(PagesChangedEventArgs e)
+        {
+            base.OnPagesChanged(e);
+        }
+
+        /// <summary>
+		/// Checks if the page ends with a table.
+		/// </summary>
+		/// <remarks>
+		/// There is no such thing as a 'TableVisual'. There is a RowVisual, which
+		/// is contained in a ParagraphVisual if it's part of a table. For our
+		/// purposes, we'll consider this the table Visual
+		/// 
+		/// You'd think that if the last element on the page was a table row, 
+		/// this would also be the last element in the visual tree, but this is not true
+		/// The page ends with a ContainerVisual which is aparrently  empty.
+		/// Therefore, this method will only check the last child of an element
+		/// unless this is a ContainerVisual
+		/// </remarks>
+		/// <param name="originalPage"></param>
+		/// <returns></returns>
+		private bool PageEndsWithTable(DependencyObject element, out ContainerVisual tableVisual, out ContainerVisual headerVisual)
+        {
+            tableVisual = null;
+            headerVisual = null;
+            if (element.GetType().Name == "RowVisual")
+            {
+                tableVisual = (ContainerVisual)VisualTreeHelper.GetParent(element);
+                headerVisual = (ContainerVisual)VisualTreeHelper.GetChild(tableVisual, 0);
+                return true;
+            }
+            int children = VisualTreeHelper.GetChildrenCount(element);
+            if (element.GetType() == typeof(ContainerVisual))
+            {
+                for (int c = children - 1; c >= 0; c--)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(element, c);
+                    if (PageEndsWithTable(child, out tableVisual, out headerVisual))
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (children > 0)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(element, children - 1);
+                if (PageEndsWithTable(child, out tableVisual, out headerVisual))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// Checks if the page starts with a table which presumably has wrapped
+        /// from the previous page.
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="tableVisual"></param>
+        /// <param name="headerVisual"></param>
+        /// <returns></returns>
+        private bool PageStartsWithTable(DependencyObject element, out ContainerVisual tableVisual)
+        {
+            tableVisual = null;
+            if (element.GetType().Name == "RowVisual")
+            {
+                tableVisual = (ContainerVisual)VisualTreeHelper.GetParent(element);
+                return true;
+            }
+            if (VisualTreeHelper.GetChildrenCount(element) > 0)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(element, 0);
+                if (PageStartsWithTable(child, out tableVisual))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private TableRowDataHeader GetTableRow(ContainerVisual rowVisual)
+        {
+            if (rowVisual == null)
+                return null;
+            
+            PropertyInfo propInfo = rowVisual.GetType().GetProperty("Row", BindingFlags.NonPublic|BindingFlags.Instance);
+            return propInfo?.GetValue(rowVisual) as TableRowDataHeader;
+        }
+
+        #endregion
+
+        #endregion
     }
 }

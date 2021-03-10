@@ -626,11 +626,15 @@ namespace gip.core.reporthandler.Flowdoc
             XamlDesignerSerializationManager dsm = new XamlDesignerSerializationManager(XmlWriter.Create(sb, settings));
             dsm.XamlWriterMode = XamlWriterMode.Expression;
 
-            XamlWriter.Save(changedFlowDoc, dsm);
-            string newXAML = sb.ToString();
+            string newXAML = "";
 
             try
             {
+
+                XamlWriter.Save(changedFlowDoc, dsm);
+                newXAML = sb.ToString();
+
+
                 XDocument newXDoc = XDocument.Parse(newXAML);
                 var queryImages = newXDoc.Descendants("{http://schemas.microsoft.com/winfx/2006/xaml/presentation}Image");
                 foreach (XElement xElImage in queryImages)
