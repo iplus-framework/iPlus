@@ -587,16 +587,16 @@ namespace gip.core.layoutengine
         #endregion
 
         #region Drag and Drop
-        private DragMode _DragEnabled = DragMode.Enabled;
-
         /// <summary>
-        /// Gets or sets DragEnabled.
+        /// Property to Enable Drag and Drop Behaviour.
         /// </summary>
+        public static readonly DependencyProperty DragEnabledProperty = ContentPropertyHandler.DragEnabledProperty.AddOwner(typeof(VBVisual), new FrameworkPropertyMetadata(DragMode.Disabled, FrameworkPropertyMetadataOptions.Inherits));
         public DragMode DragEnabled
         {
-            get { return _DragEnabled; }
-            set { _DragEnabled = value; }
+            get { return (DragMode)GetValue(DragEnabledProperty); }
+            set { SetValue(DragEnabledProperty, value); }
         }
+
 
         /// <summary>
         /// Invokes OnDragOver event.

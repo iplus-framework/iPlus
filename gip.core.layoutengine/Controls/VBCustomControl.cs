@@ -50,6 +50,14 @@ namespace gip.core.layoutengine
             return (Boolean)element.GetValue(DisableContextMenuProperty);
         }
 
+
+        /// <summary>
+        /// Property to Enable Drag and Drop Behaviour.
+        /// </summary>
+        public static readonly DependencyProperty DragEnabledProperty
+            = DependencyProperty.RegisterAttached("DragEnabled", typeof(DragMode), typeof(ContentPropertyHandler), new FrameworkPropertyMetadata(DragMode.Disabled, FrameworkPropertyMetadataOptions.Inherits));
+
+
         //private static DependencyProperty _BSOACComponentProperty;
         //public static DependencyProperty BSOACComponentProperty
         //{

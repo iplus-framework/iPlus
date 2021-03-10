@@ -572,6 +572,17 @@ namespace gip.core.layoutengine
 
 
         /// <summary>
+        /// Property to Enable Drag and Drop Behaviour.
+        /// </summary>
+        public static readonly DependencyProperty DragEnabledProperty = ContentPropertyHandler.DragEnabledProperty.AddOwner(typeof(VBDesignBase), new FrameworkPropertyMetadata(DragMode.Disabled, FrameworkPropertyMetadataOptions.Inherits));
+        public DragMode DragEnabled
+        {
+            get { return (DragMode)GetValue(DragEnabledProperty); }
+            set { SetValue(DragEnabledProperty, value); }
+        }
+
+
+        /// <summary>
         /// Represents the dependency property for StringFormat.
         /// </summary>
         public static readonly DependencyProperty StringFormatProperty;

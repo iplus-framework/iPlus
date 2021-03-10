@@ -44,6 +44,8 @@ namespace gip.core.autocomponent
             paramTranslation.Add("OccupationByScan", "en{'Processmodule-Mapping manually by user'}de{'Prozessmodulbelegung manuell vom Anwender'}");
             method.ParameterValueList.Add(new ACValue("Priority", typeof(ushort), 0, Global.ParamOption.Required));
             paramTranslation.Add("Priority", "en{'Priorization'}de{'Priorisierung'}");
+            method.ParameterValueList.Add(new ACValue("FIFOCheckFirstPM", typeof(bool), false, Global.ParamOption.Required));
+            paramTranslation.Add("FIFOCheckFirstPM", "en{'FIFO check only for WF-Groups which competes for the same process module'}de{'FIFO-Prüfung nur bei WF-Gruppen die das selbe Prozessmodul konkurrieren.'}");
             var wrapper = new ACMethodWrapper(method, "en{'Configuration'}de{'Konfiguration'}", typeof(PWGroup), paramTranslation, null);
             ACMethod.RegisterVirtualMethod(typeof(PWGroup), ACStateConst.SMStarting, wrapper);
             RegisterExecuteHandler(typeof(PWGroup), HandleExecuteACMethod_PWGroup);
@@ -272,7 +274,6 @@ namespace gip.core.autocomponent
             }
         }
 
-
         public const ushort C_DefaultLowestPriority = 9999;
         /// <summary>
         /// Configuration-Property: 
@@ -341,6 +342,22 @@ namespace gip.core.autocomponent
         }
 
         //protected PAProcessModule[] _PossibleModuleList = null;
+        public bool FIFOCheckFirstPM
+        {
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("FIFOCheckFirstPM");
+                    if (acValue != null)
+                    {
+                        return acValue.ParamAsBoolean;
+                    }
+                }
+                return false;
+            }
+        }
 
         #endregion
 
@@ -709,39 +726,52 @@ namespace gip.core.autocomponent
         {
             get
             {
-                if (_HasHighestPriorityForMapping.HasValue)
-                    return _HasHighestPriorityForMapping.Value;
-                if (IgnoreFIFO)
-                    return true;
-                var queryWaitingNodes = PriorizedCompetingWFNodes;
-                if (queryWaitingNodes != null && queryWaitingNodes.Any())
-                {
-                    //PWGroup priorGroup = queryWaitingNodes.FirstOrDefault();
-                    //// Falls dieser Knoten nicht selbst die höchste Prio hat, dann prüfe ob es sich nur um paralleliserte Knoten aus dem selben Workflow handelt 
-                    //if (priorGroup != null && priorGroup != this)
-                    //{
-                    //    // Falls es andere Gruppe aus anderen Workflows gibt, dann warte
-                    //    if (queryWaitingNodes.Where(c => c.RootPW != this.RootPW).Any())
-                    //        return false;
-                    //}
+                return OnHasHighestPriorityForMapping(FirstAvailableProcessModule);
+            }
+        }
 
-                    foreach (PWGroup priorGroup in queryWaitingNodes)
+        protected virtual bool OnHasHighestPriorityForMapping(PAProcessModule firstModule)
+        {
+            if (_HasHighestPriorityForMapping.HasValue)
+                return _HasHighestPriorityForMapping.Value;
+            if (IgnoreFIFO)
+                return true;
+            var queryWaitingNodes = PriorizedCompetingWFNodes;
+            if (queryWaitingNodes != null && queryWaitingNodes.Any())
+            {
+                //PWGroup priorGroup = queryWaitingNodes.FirstOrDefault();
+                //// Falls dieser Knoten nicht selbst die höchste Prio hat, dann prüfe ob es sich nur um paralleliserte Knoten aus dem selben Workflow handelt 
+                //if (priorGroup != null && priorGroup != this)
+                //{
+                //    // Falls es andere Gruppe aus anderen Workflows gibt, dann warte
+                //    if (queryWaitingNodes.Where(c => c.RootPW != this.RootPW).Any())
+                //        return false;
+                //}
+
+                foreach (PWGroup priorGroup in queryWaitingNodes)
+                {
+                    if (priorGroup == null)
+                        continue;
+                    if (priorGroup == this)
+                        return true;
+                    if (priorGroup != this)
                     {
-                        if (priorGroup == null)
-                            continue;
-                        if (priorGroup == this)
-                            return true;
-                        if (priorGroup != this)
+                        // Falls es andere Gruppen aus anderen Workflows gibt, dann warte
+                        if (priorGroup.RootPW != this.RootPW)
                         {
-                            // Falls es andere Gruppen aus anderen Workflows gibt, dann warte
-                            if (priorGroup.RootPW != this.RootPW)
-                                return false;
+                            if (firstModule != null 
+                                && FIFOCheckFirstPM 
+                                && priorGroup.FIFOCheckFirstPM)
+                            {
+                                if (priorGroup.FirstAvailableProcessModule != firstModule)
+                                    continue;
+                            }
+                            return false;
                         }
                     }
                 }
-                return true;
-
             }
+            return true;
         }
 
 
@@ -970,7 +1000,7 @@ namespace gip.core.autocomponent
                 }
                 else
                 {
-                    if (!HasHighestPriorityForMapping)
+                    if (!OnHasHighestPriorityForMapping(module))
                     {
                         if (!_WaitsOnAvailableProcessModule)
                         {
@@ -1370,6 +1400,15 @@ namespace gip.core.autocomponent
                 xmlProperty = doc.CreateElement("Priority");
                 if (xmlProperty != null)
                     xmlProperty.InnerText = Priority.ToString();
+                xmlACPropertyList.AppendChild(xmlProperty);
+            }
+
+            xmlProperty = xmlACPropertyList["FIFOCheckFirstPM"];
+            if (xmlProperty == null)
+            {
+                xmlProperty = doc.CreateElement("FIFOCheckFirstPM");
+                if (xmlProperty != null)
+                    xmlProperty.InnerText = FIFOCheckFirstPM.ToString();
                 xmlACPropertyList.AppendChild(xmlProperty);
             }
         }
