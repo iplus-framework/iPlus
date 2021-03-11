@@ -97,6 +97,10 @@ namespace gip.core.dbsyncer.helper
 
                 return _ConfigCurrentDir;
             }
+            set
+            {
+                _ConfigCurrentDir = value;
+            }
         }
 
         /// <summary>
