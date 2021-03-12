@@ -36,6 +36,7 @@ namespace gip.core.autocomponent
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
             _RouteItemID = new ACPropertyConfigValue<string>(this, "RouteItemID", "0");
+            _AllocationExternal = new ACPropertyConfigValue<bool>(this, "AllocationExternal", false);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -50,6 +51,7 @@ namespace gip.core.autocomponent
             if (IsDisplayingOrderInfo)
                 _OrderInfoManager = PAShowDlgManagerBase.ACRefToServiceInstance(this);
 
+            _ = AllocationExternal;
             return true;
         }
 
@@ -181,6 +183,20 @@ namespace gip.core.autocomponent
                     }
                 }
                 return _RouteItemIDAsNum.Value;
+            }
+        }
+
+        private ACPropertyConfigValue<bool> _AllocationExternal;
+        [ACPropertyConfig("en{'Allocation from external System'}de{'Belegung von externem System'}")]
+        public bool AllocationExternal
+        {
+            get
+            {
+                return _AllocationExternal.ValueT;
+            }
+            set
+            {
+                _AllocationExternal.ValueT = value;
             }
         }
 
@@ -367,7 +383,9 @@ namespace gip.core.autocomponent
                 string[] accessArr = SemaphoreAccessedFrom();
                 this.OrderInfo.ValueT = accessArr != null && accessArr.Any() ? String.Join(System.Environment.NewLine, accessArr) : "";
             }
-            Allocated.ValueT = !String.IsNullOrEmpty(this.OrderInfo.ValueT);
+            IACPropertyNetTarget allocTarget = Allocated as IACPropertyNetTarget;
+            if (!(allocTarget != null && allocTarget.Source != null && AllocationExternal))
+                Allocated.ValueT = !String.IsNullOrEmpty(this.OrderInfo.ValueT);
             RefreshPWNodeInfo();
         }
 

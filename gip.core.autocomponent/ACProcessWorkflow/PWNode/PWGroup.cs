@@ -511,27 +511,7 @@ namespace gip.core.autocomponent
                     ruleValueList = serviceInstance.GetRuleValueList(MandatoryConfigStores, PreValueACUrl, ConfigACUrl + @"\Rules\" + ACClassWFRuleTypes.Allowed_instances.ToString());
                     if (ruleValueList != null)
                     {
-                        IEnumerable<ACClass> selectedClasses = null;
-                        var lastRuleValueList = LastRuleValueList;
-                        var lastSelectedClasses = LastSelectedClasses;
-                        if (lastRuleValueList != null && lastSelectedClasses != null && lastRuleValueList.Equals(ruleValueList))
-                        {
-                            selectedClasses = lastSelectedClasses;
-                        }
-                        else
-                        {
-                            using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
-                            {
-                                selectedClasses = ruleValueList.GetSelectedClasses(ACClassWFRuleTypes.Allowed_instances, gip.core.datamodel.Database.GlobalDatabase);
-                                LastSelectedClasses = selectedClasses;
-                            }
-                        }
-                        if (selectedClasses != null && selectedClasses.Any())
-                        {
-                            var allowedComponents = selectedClasses.Select(c => c.GetACUrlComponent());
-                            modulesInAutomaticMode = modulesInAutomaticMode.Where(c => allowedComponents.Contains(c.GetACUrl())).ToList();
-                        }
-                        LastRuleValueList = ruleValueList;
+                        modulesInAutomaticMode = OnApplyRoutingRules(ruleValueList, modulesInAutomaticMode);
                     }
                 }
                 if (!modulesInAutomaticMode.Any())
@@ -574,6 +554,38 @@ namespace gip.core.autocomponent
                 }
                 return modulesInAutomaticMode;
             }
+        }
+
+        /// <summary>
+        /// Returns a list of processmodules that is filtered by the passed rules.
+        /// </summary>
+        /// <param name="ruleValueList">List with routing rules</param>
+        /// <param name="modulesInAutomaticMode">Unnfiltered modules list</param>
+        /// <returns></returns>
+        protected virtual List<PAProcessModule> OnApplyRoutingRules(RuleValueList ruleValueList, List<PAProcessModule> modulesInAutomaticMode)
+        {
+            IEnumerable<ACClass> selectedClasses = null;
+            var lastRuleValueList = LastRuleValueList;
+            var lastSelectedClasses = LastSelectedClasses;
+            if (lastRuleValueList != null && lastSelectedClasses != null && lastRuleValueList.Equals(ruleValueList))
+            {
+                selectedClasses = lastSelectedClasses;
+            }
+            else
+            {
+                using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
+                {
+                    selectedClasses = ruleValueList.GetSelectedClasses(ACClassWFRuleTypes.Allowed_instances, gip.core.datamodel.Database.GlobalDatabase);
+                    LastSelectedClasses = selectedClasses;
+                }
+            }
+            if (selectedClasses != null && selectedClasses.Any())
+            {
+                var allowedComponents = selectedClasses.Select(c => c.GetACUrlComponent());
+                modulesInAutomaticMode = modulesInAutomaticMode.Where(c => allowedComponents.Contains(c.GetACUrl())).ToList();
+            }
+            LastRuleValueList = ruleValueList;
+            return modulesInAutomaticMode;
         }
 
 
