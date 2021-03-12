@@ -1836,7 +1836,7 @@ namespace gip.core.reporthandler.Flowdoc
             ContainerVisual newTable, newHeader;
             if (PageEndsWithTable(smallerPage, out newTable, out newHeader))
             {
-                if (newTable == table)
+                if (newTable == table && currentHeader != null)
                 {
                     // Still the same table so don't change the repeating header
                 }
