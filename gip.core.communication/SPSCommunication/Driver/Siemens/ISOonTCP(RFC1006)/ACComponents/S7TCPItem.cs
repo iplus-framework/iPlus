@@ -297,7 +297,7 @@ namespace gip.core.communication
                     }
                     catch (OverflowException oex)
                     {
-                        string message = String.Format("_ItemAddr: {0}, _ACProperty: {1}, Message: {2}", _ItemAddr, _ACProperty, oex.Message);
+                        string message = String.Format("_ItemAddr: {0}, _ACProperty: {1}, Message: {2}", _ItemAddr, _ACProperty.GetACUrl(), oex.Message);
                         _ParentSubscription.Messages.LogException(_ParentSubscription.GetACUrl(), "S7TCPItem.OnSetValueFromPLC(1)", message);
                     }
                     catch (Exception e)
@@ -307,7 +307,7 @@ namespace gip.core.communication
                             msg += " Inner:" + e.InnerException.Message;
 
                         if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
-                            datamodel.Database.Root.Messages.LogException("S7TCPItem", "OnSetValueFromPLC", msg);
+                            datamodel.Database.Root.Messages.LogException("S7TCPItem", "OnSetValueFromPLC", String.Format("_ItemAddr: {0}, _ACProperty: {1}, Message: {2}", _ItemAddr, _ACProperty.GetACUrl(), msg));
                     }
                     finally
                     {
