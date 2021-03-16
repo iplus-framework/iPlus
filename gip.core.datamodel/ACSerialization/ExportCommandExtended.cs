@@ -15,6 +15,7 @@ namespace gip.core.datamodel
             }
             foreach (var acClassDesign in acClass.ACSelect(qryACClassDesign))
             {
+                OnExportReportProgress(0, string.Format(@"Export ACClassDesign: {0}", (acClassDesign as ACClassDesign).ACIdentifier));
                 ACClassDesign dbDesing = acClassDesign as ACClassDesign;
                 database.ACClassDesign.Detach(dbDesing);
                 string xmlDesign = dbDesing.XMLDesign;
