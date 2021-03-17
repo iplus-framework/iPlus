@@ -146,12 +146,9 @@ namespace gip.core.visualcontrols
                         }
                     }
                 }
-                if (FunctionList == null || (FunctionList != null && functionList.Except(FunctionList).Any()))
+                if (FunctionList == null || (FunctionList != null && (functionList.Except(FunctionList).Any() || FunctionList.Except(functionList).Any())))
                 {
                     FunctionList = functionList;
-                    var bindingEx = GetBindingExpression(VBFlipView.ItemsSourceProperty);
-                    if (bindingEx != null)
-                        bindingEx.UpdateTarget();
                 }
             }
             else

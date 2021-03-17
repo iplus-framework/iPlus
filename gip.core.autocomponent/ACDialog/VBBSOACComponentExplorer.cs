@@ -352,7 +352,7 @@ namespace gip.core.autocomponent
         private void UpdateInstanceInfoList(string searchPropertyName = "")
         {
             searchDepth = int.Parse(SearchDepth);
-            var root = _RootACComponent.ParentACComponent.GetChildInstanceInfo(1, new ChildInstanceInfoSearchParam() { ACIdentifier = _RootACComponent.ACIdentifier, 
+            var root = _RootACComponent.ParentACComponent?.GetChildInstanceInfo(1, new ChildInstanceInfoSearchParam() { ACIdentifier = _RootACComponent.ACIdentifier, 
                                                                                                                         ContainsPropertyName = searchPropertyName, WithWorkflows = WorkflowNodesShow });
             tempList = _RootACComponent.GetChildInstanceInfo(searchDepth, new ChildInstanceInfoSearchParam() { ReturnAsFlatList = true, ContainsPropertyName = searchPropertyName,
                                                                                                                 WithWorkflows = WorkflowNodesShow}).ToList();
