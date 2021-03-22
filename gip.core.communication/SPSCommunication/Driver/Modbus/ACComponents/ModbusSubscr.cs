@@ -568,18 +568,17 @@ namespace gip.core.communication
             }
         }
 
-
         public override void AcknowledgeAlarms()
         {
             if (!IsEnabledAcknowledgeAlarms())
                 return;
-            if (ReadAlarm.ValueT == PANotifyState.AlarmOrFault)
+            if (ReadAlarm.ValueT == PANotifyState.AlarmOrFault || IsAlarmActive(ReadAlarm) != null)
             {
                 base.AcknowledgeAlarms();
                 ReadAlarm.ValueT = PANotifyState.Off;
                 OnAlarmDisappeared(ReadAlarm);
             }
-            if (WriteAlarm.ValueT == PANotifyState.AlarmOrFault)
+            if (WriteAlarm.ValueT == PANotifyState.AlarmOrFault || IsAlarmActive(WriteAlarm) != null)
             {
                 base.AcknowledgeAlarms();
                 WriteAlarm.ValueT = PANotifyState.Off;
