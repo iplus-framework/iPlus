@@ -1329,14 +1329,44 @@ namespace gip.core.reporthandler.Flowdoc
                 if (sdg != null)
                 {
                     sdg.Blocks.Clear();
-                    if (blocks != null)
+                    if (blocks != null && blocks.Any())
                         sdg.Blocks.AddRange(blocks);
                 }
                 else if (tc != null)
                 {
                     tc.Blocks.Clear();
-                    if (blocks != null)
+
+                    bool addBlocks = true;
+                    if(!blocks.Any())
+                    {
+                        addBlocks = false;
+                    }
+                    else if(blocks.Count == 1)
+                    {
+                        Paragraph paragraph = blocks.FirstOrDefault() as Paragraph;
+                        if(paragraph != null)
+                        {
+                            if (!paragraph.Inlines.Any())
+                                addBlocks = false;
+                        }
+                    }
+
+
+                    if (blocks != null && addBlocks)
                         tc.Blocks.AddRange(blocks);
+                    else
+                    {
+                        TableRow tr = tc.Parent as TableRow;
+                        if(tr != null)
+                        {
+                            tr.Cells.Clear();
+                            TableRowGroup trg = tr.Parent as TableRowGroup;
+                            if(trg != null)
+                            {
+                                trg.Rows.Remove(tr);
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception e)

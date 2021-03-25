@@ -42,7 +42,7 @@
                                    VerticalAlignment="Center"
                                    d:LayoutOverrides="Width"
                                    HorizontalAlignment="Center"
-                                   Text="{Binding Path=Title,RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                                   Text="{Binding Path=Title,RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Fluent:Ribbon}}}"
                                    Foreground="Black"
                                    TextWrapping="NoWrap"
                                    TextTrimming="CharacterEllipsis" />

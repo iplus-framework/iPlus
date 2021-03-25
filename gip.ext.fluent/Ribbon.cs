@@ -1446,12 +1446,15 @@ namespace Fluent
                 this.ownerWindow.SizeChanged += this.OnSizeChanged;
                 this.ownerWindow.KeyDown += this.OnKeyDown;
 
-                var binding = new Binding("Title")
+                if (this.ownerWindow.Owner != null)
+                {
+                    var binding = new Binding("Title")
                     {
                         Mode = BindingMode.OneWay,
                         Source = this.ownerWindow
                     };
-                this.SetBinding(TitleProperty, binding);
+                    this.SetBinding(TitleProperty, binding);
+                }
             }
         }
 
