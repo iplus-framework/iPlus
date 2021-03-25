@@ -67,16 +67,16 @@ namespace gip.core.processapplication
         #endregion
 
         #region Configuration
-        [ACPropertyBindingTarget(420, "Configuration", "en{'turn-on delay'}de{'Einschaltverzögerung'}", "", true, true, RemotePropID=18)]
+        [ACPropertyBindingTarget(420, "Configuration", "en{'turn-on delay'}de{'Einschaltverzögerung'}", "", true, true, RemotePropID = 18)]
         public IACContainerTNet<TimeSpan> TurnOnDelay { get; set; }
 
-        [ACPropertyBindingTarget(421, "Configuration", "en{'turn-off delay'}de{'Ausschaltverzögerung'}", "", true, true, RemotePropID=19)]
+        [ACPropertyBindingTarget(421, "Configuration", "en{'turn-off delay'}de{'Ausschaltverzögerung'}", "", true, true, RemotePropID = 19)]
         public IACContainerTNet<TimeSpan> TurnOffDelay { get; set; }
 
-        [ACPropertyBindingTarget(422, "Configuration", "en{'Fault delaytime'}de{'Störzeit'}", "", true, true, RemotePropID=20)]
+        [ACPropertyBindingTarget(422, "Configuration", "en{'Fault delaytime'}de{'Störzeit'}", "", true, true, RemotePropID = 20)]
         public IACContainerTNet<TimeSpan> FaultDelayTime { get; set; }
 
-        [ACPropertyBindingTarget(423, "Configuration", "en{'turn-on interlock delay'}de{'Wiedereinschaltsperrzeit'}", "", true, true, RemotePropID=21)]
+        [ACPropertyBindingTarget(423, "Configuration", "en{'turn-on interlock delay'}de{'Wiedereinschaltsperrzeit'}", "", true, true, RemotePropID = 21)]
         public IACContainerTNet<TimeSpan> TurnOnInterlockDelay { get; set; }
 
         [ACPropertyBindingTarget(424, "Configuration", "en{'Depleting time'}de{'Leerfahrzeit'}", "", false, false, RemotePropID = 22)]
@@ -84,7 +84,7 @@ namespace gip.core.processapplication
         #endregion
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(440, "Read from PLC", "en{'General Fault'}de{'Allgemeine Störung'}", "", false, false, RemotePropID=23)]
+        [ACPropertyBindingTarget(440, "Read from PLC", "en{'General Fault'}de{'Allgemeine Störung'}", "", false, false, RemotePropID = 23)]
         public IACContainerTNet<PANotifyState> FaultState { get; set; }
 
         public void OnSetFaultState(IACPropertyNetValueEvent valueEvent)
@@ -115,19 +115,19 @@ namespace gip.core.processapplication
         }
 
 
-        [ACPropertyBindingTarget(441, "Read from PLC", "en{'Allocated by Way'}de{'Belegt von Wegesteuerung'}", "", false, false, RemotePropID=24)]
+        [ACPropertyBindingTarget(441, "Read from PLC", "en{'Allocated by Way'}de{'Belegt von Wegesteuerung'}", "", false, false)] //, RemotePropID = 24)]
         public IACContainerTNet<BitAccessForAllocatedByWay> AllocatedByWay { get; set; }
 
-        [ACPropertyBindingTarget(442, "Read from PLC", "en{'on site turned on'}de{'Vorort eingeschaltet'}", "", false, false, RemotePropID=25)]
+        [ACPropertyBindingTarget(442, "Read from PLC", "en{'on site turned on'}de{'Vorort eingeschaltet'}", "", false, false, RemotePropID = 25)]
         public IACContainerTNet<Boolean> OnSiteTurnedOn { get; set; }
 
-        [ACPropertyBindingTarget(443, "Read from PLC", "en{'turn-on interlock'}de{'Einschaltverriegelung'}", "", false, false, RemotePropID=26)]
+        [ACPropertyBindingTarget(443, "Read from PLC", "en{'turn-on interlock'}de{'Einschaltverriegelung'}", "", false, false, RemotePropID = 26)]
         public IACContainerTNet<Boolean> TurnOnInterlock { get; set; }
 
-        [ACPropertyBindingTarget(444, "Read from PLC", "en{'running time'}de{'Laufzeit'}", "", false, false, RemotePropID=27)]
+        [ACPropertyBindingTarget(444, "Read from PLC", "en{'running time'}de{'Laufzeit'}", "", false, false, RemotePropID = 27)]
         public IACContainerTNet<TimeSpan> RunningTime { get; set; }
 
-        [ACPropertyBindingTarget(445, "Read from PLC", "en{'is triggered'}de{'Angesteuert'}", "", false, false, RemotePropID=28)]
+        [ACPropertyBindingTarget(445, "Read from PLC", "en{'is triggered'}de{'Angesteuert'}", "", false, false, RemotePropID = 28)]
         public IACContainerTNet<Boolean> IsTriggered { get; set; }
 
         // TODO: Grund der Verriegelung (GIP-Spezifisch)
@@ -135,7 +135,7 @@ namespace gip.core.processapplication
         #endregion
 
         #region Write-Value to PLC
-        [ACPropertyBindingTarget(450, "Write to PLC", "en{'Fault acknowledge'}de{'Störungsquittung'}", "", true, false, RemotePropID=29)]
+        [ACPropertyBindingTarget(450, "Write to PLC", "en{'Fault acknowledge'}de{'Störungsquittung'}", "", true, false, RemotePropID = 29)]
         public IACContainerTNet<bool> FaultStateACK { get; set; }
         #endregion
 

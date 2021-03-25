@@ -46,34 +46,34 @@ namespace gip.core.processapplication
         #region Properties, Range: 500
 
         #region Configuration
-        [ACPropertyBindingTarget(500, "Configuration", "en{'Delaytime signal comes'}de{'Verzögerungszeit Signal kommt'}", "", true, true, RemotePropID=23)]
+        [ACPropertyBindingTarget(500, "Configuration", "en{'Delaytime signal comes'}de{'Verzögerungszeit Signal kommt'}", "", true, true, RemotePropID = 23)]
         public IACContainerTNet<TimeSpan> DelayTimeSignalOn { get; set; }
 
-        [ACPropertyBindingTarget(501, "Configuration", "en{'Delaytime signal goes'}de{'Verzögerungszeit Signal geht'}", "", true, true, RemotePropID=24)]
+        [ACPropertyBindingTarget(501, "Configuration", "en{'Delaytime signal goes'}de{'Verzögerungszeit Signal geht'}", "", true, true, RemotePropID = 24)]
         public IACContainerTNet<TimeSpan> DelayTimeSignalOff { get; set; }
 
-        [ACPropertyBindingTarget(502, "Configuration", "en{'Delaytime for Fault'}de{'Verzögerungszeit Störmeldung'}", "", true, true, RemotePropID=25)]
+        [ACPropertyBindingTarget(502, "Configuration", "en{'Delaytime for Fault'}de{'Verzögerungszeit Störmeldung'}", "", true, true, RemotePropID = 25)]
         public IACContainerTNet<TimeSpan> FaultDelayTime { get; set; }
 
-        [ACPropertyBindingTarget(503, "Configuration", "en{'Signal is active low'}de{'Signal ist 0-Aktiv'}", "", true, true, RemotePropID=26)]
+        [ACPropertyBindingTarget(503, "Configuration", "en{'Signal is active low'}de{'Signal ist 0-Aktiv'}", "", true, true, RemotePropID = 26)]
         public IACContainerTNet<bool> ActiveLow { get; set; }
 
-        [ACPropertyBindingTarget(504, "Configuration", "en{'Role of Sensor'}de{'Sensorfunktion'}", "", true, true, DefaultValue = PAESensorRole.Indicator, RemotePropID=27)]
+        [ACPropertyBindingTarget(504, "Configuration", "en{'Role of Sensor'}de{'Sensorfunktion'}", "", true, true, DefaultValue = PAESensorRole.Indicator, RemotePropID = 27)]
         public IACContainerTNet<PAESensorRole> SensorRole { get; set; }
 
-        [ACPropertyBindingTarget(505, "Configuration", "en{'Force signal'}de{'Erzwinge Signal'}", "", true, true, RemotePropID=28)]
+        [ACPropertyBindingTarget(505, "Configuration", "en{'Force signal'}de{'Erzwinge Signal'}", "", true, true, RemotePropID = 28)]
         public IACContainerTNet<bool> ForceSensorSignal { get; set; }
 
-        [ACPropertyBindingTarget(506, "Configuration", "en{'Collective Acknowledgement'}de{'Über Sammelquittung quittierbar'}", "", true, true, RemotePropID=29)]
+        [ACPropertyBindingTarget(506, "Configuration", "en{'Collective Acknowledgement'}de{'Über Sammelquittung quittierbar'}", "", true, true, RemotePropID = 29)]
         public IACContainerTNet<bool> CollectiveAck { get; set; }
 
-        [ACPropertyBindingTarget(507, "Configuration", "en{'Ignore delay times'}de{'Verzögerungszeiten ignorieren'}", "", true, true, RemotePropID=30)]
+        [ACPropertyBindingTarget(507, "Configuration", "en{'Ignore delay times'}de{'Verzögerungszeiten ignorieren'}", "", true, true, RemotePropID = 30)]
         public IACContainerTNet<bool> IgnoreDelayTimes { get; set; }
 
         #endregion
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(530, "Read from PLC", "en{'State of Sensor'}de{'Sensorstatus'}", "", false, false, RemotePropID=31)]
+        [ACPropertyBindingTarget(530, "Read from PLC", "en{'State of Sensor'}de{'Sensorstatus'}", "", false, false, RemotePropID = 31)]
         [ACPointStateInfo("SensorState", PANotifyState.Off, "en{'State'}de{'Status'}", "", Global.Operators.none)]
         public IACContainerTNet<PANotifyState> SensorState { get; set; }
 
@@ -114,7 +114,7 @@ namespace gip.core.processapplication
         #endregion
 
         #region Write-Value to PLC
-        [ACPropertyBindingTarget(550, "Write to PLC", "en{'Fault acknowledge'}de{'Störungsquittung'}", "", true, false, RemotePropID=32)]
+        [ACPropertyBindingTarget(550, "Write to PLC", "en{'Fault acknowledge'}de{'Störungsquittung'}", "", true, false, RemotePropID = 32)]
         public IACContainerTNet<bool> FaultACK { get; set; }
         #endregion
 

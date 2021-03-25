@@ -130,7 +130,7 @@ namespace gip.core.processapplication
         #endregion
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(630, "Read from PLC", "en{'is running'}de{'Läuft/Eingeschaltet'}", "", false, false, RemotePropID=37)]
+        [ACPropertyBindingTarget(630, "Read from PLC", "en{'is running'}de{'Läuft/Eingeschaltet'}", "", false, false, RemotePropID = 37)]
         public IACContainerTNet<Boolean> RunState { get; set; }
         public void OnSetRunState(IACPropertyNetValueEvent valueEvent)
         {
@@ -147,7 +147,7 @@ namespace gip.core.processapplication
         #endregion
 
         #region Write-Value to PLC
-        [ACPropertyBindingTarget(650, "Write to PLC", "en{'request to run'}de{'Anforderung ein'}", "", false, false, RemotePropID=38)]
+        [ACPropertyBindingTarget(650, "Write to PLC", "en{'request to run'}de{'Anforderung ein'}", "", false, false, RemotePropID = 38)]
         public IACContainerTNet<Boolean> ReqRunState { get; set; }
         #endregion
 

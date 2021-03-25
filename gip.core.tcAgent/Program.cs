@@ -14,11 +14,14 @@ namespace gip.core.tcAgent
         /// The main entry point for the application.
         /// </summary>
         static void Main()
-        {
+        {            
+            //var manager = new AdsVariobatchAgent();
+            //Console.ReadLine();
+
             ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[] 
-            { 
-                new ServiceController() 
+            ServicesToRun = new ServiceBase[]
+            {
+                new ServiceController()
             };
             ServiceBase.Run(ServicesToRun);
         }

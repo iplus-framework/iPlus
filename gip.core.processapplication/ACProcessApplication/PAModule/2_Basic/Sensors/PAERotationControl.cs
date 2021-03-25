@@ -34,7 +34,7 @@ namespace gip.core.processapplication
 
         #region Configuration
         // Methods, Range: 600
-        [ACPropertyBindingTarget(605, "Configuration", "en{'Signal is impulse'}de{'Sensor-Signal ist Impuls'}", "", true, true, RemotePropID=36)]
+        [ACPropertyBindingTarget(605, "Configuration", "en{'Signal is impulse'}de{'Sensor-Signal ist Impuls'}", "", true, true, RemotePropID = 36)]
         public IACContainerTNet<bool> SignalIsImpulse { get; set; }
         #endregion
 

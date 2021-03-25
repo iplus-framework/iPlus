@@ -46,13 +46,13 @@ namespace gip.core.processapplication
         #region Properties, Range: 700
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(730, "Read from PLC", "en{'current speed'}de{'aktuelle Geschwindigkeit'}", "", false, false, RemotePropID=42)]
+        [ACPropertyBindingTarget(730, "Read from PLC", "en{'current speed'}de{'aktuelle Geschwindigkeit'}", "", false, false, RemotePropID = 42)]
         public IACContainerTNet<Double> Speed { get; set; }
 
-        [ACPropertyBindingTarget(732, "Read from PLC", "en{'desired speed'}de{'Soll Geschwindigkeit'}", "", false, false, RemotePropID=43)]
+        [ACPropertyBindingTarget(732, "Read from PLC", "en{'desired speed'}de{'Soll Geschwindigkeit'}", "", false, false, RemotePropID = 43)]
         public IACContainerTNet<Double> DesiredSpeed { get; set; }
 
-        [ACPropertyBindingTarget(731, "Read from PLC", "en{'State of VFD'}de{'FU-Status'}", "", false, false, RemotePropID=44)]
+        [ACPropertyBindingTarget(731, "Read from PLC", "en{'State of VFD'}de{'FU-Status'}", "", false, false, RemotePropID = 44)]
         public IACContainerTNet<PANotifyState> VFDState { get; set; }
 
         public void OnSetVFDState(IACPropertyNetValueEvent valueEvent)
@@ -85,10 +85,10 @@ namespace gip.core.processapplication
         #endregion
 
         #region Write-Values to PLC
-        [ACPropertyBindingTarget(750, "Write to PLC", "en{'requested speed'}de{'angeforderte Geschwindigkeit'}", "", false, false, RemotePropID=45)]
+        [ACPropertyBindingTarget(750, "Write to PLC", "en{'requested speed'}de{'angeforderte Geschwindigkeit'}", "", false, false, RemotePropID = 45)]
         public IACContainerTNet<Double> ReqSpeed { get; set; }
 
-        [ACPropertyBindingTarget(751, "Write to PLC", "en{'Fault acknowledge VFD'}de{'Störungsquittung FU'}", "", true, false, RemotePropID=46)]
+        [ACPropertyBindingTarget(751, "Write to PLC", "en{'Fault acknowledge VFD'}de{'Störungsquittung FU'}", "", true, false, RemotePropID = 46)]
         public IACContainerTNet<bool> VFDStateACK { get; set; }
 
         #endregion

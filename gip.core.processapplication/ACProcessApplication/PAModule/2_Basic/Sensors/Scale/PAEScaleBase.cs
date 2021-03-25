@@ -57,20 +57,20 @@ namespace gip.core.processapplication
 
         #region Properties Range 600
         #region Configuration
-        [ACPropertyBindingTarget(600, "Configuration", "en{'Max. dosingtime'}de{'Maximale Dosierzeit'}", "", true, true, RemotePropID=52)]
+        [ACPropertyBindingTarget(600, "Configuration", "en{'Max. dosingtime'}de{'Maximale Dosierzeit'}", "", true, true, RemotePropID = 52)]
         public IACContainerTNet<TimeSpan> MaxDosingTime { get; set; }
 
-        [ACPropertyBindingTarget(601, "Configuration", "en{'Min. dosing weight [kg]'}de{'Minimale Dosiermenge [kg]'}", "", true, true, RemotePropID=53)]
+        [ACPropertyBindingTarget(601, "Configuration", "en{'Min. dosing weight [kg]'}de{'Minimale Dosiermenge [kg]'}", "", true, true, RemotePropID = 53)]
         public IACContainerTNet<Double> MinDosingWeight { get; set; }
 
         //TODO:Beckhoff TwinCat - add RemotePropID
         [ACPropertyBindingTarget(601, "Configuration", "en{'Max. scale weight [kg]'}de{'Max. Waagengewicht [kg]'}", "", true, true)]
         public IACContainerTNet<Double> MaxScaleWeight { get; set; }
 
-        [ACPropertyBindingTarget(602, "Configuration", "en{'Registrationtime'}de{'Registrierzeit'}", "", true, true, RemotePropID=54)]
+        [ACPropertyBindingTarget(602, "Configuration", "en{'Registrationtime'}de{'Registrierzeit'}", "", true, true, RemotePropID = 54)]
         public IACContainerTNet<TimeSpan> RegistrationTime { get; set; }
 
-        [ACPropertyBindingTarget(603, "Configuration", "en{'follow-on dosing impulse time'}de{'Nachdosierimpulszeit'}", "", true, true, RemotePropID=55)]
+        [ACPropertyBindingTarget(603, "Configuration", "en{'follow-on dosing impulse time'}de{'Nachdosierimpulszeit'}", "", true, true, RemotePropID = 55)]
         public IACContainerTNet<TimeSpan> FollowOnDosingImpulsTime { get; set; }
 
         [ACPropertyBindingTarget(604, "Configuration", "en{'Digit/Precision [g]'}de{'Teilung/Ziffernschritt [g]'}", "", true, true)]
@@ -80,14 +80,14 @@ namespace gip.core.processapplication
         #endregion
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(630, "Read from PLC", "en{'Desired weight [kg]'}de{'Sollgewicht [kg]'}", "", false, false, RemotePropID=56)]
+        [ACPropertyBindingTarget(630, "Read from PLC", "en{'Desired weight [kg]'}de{'Sollgewicht [kg]'}", "", false, false, RemotePropID = 56)]
         public IACContainerTNet<Double> DesiredWeight { get; set; }
         private void DesiredWeight_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             DifferenceWeight.ValueT = DesiredWeight.ValueT <= 0.00000001 ? 0.0 : ActualWeight.ValueT - DesiredWeight.ValueT;
         }
 
-        [ACPropertyBindingTarget(631, "Read from PLC", "en{'Actual-/Netweight [kg]'}de{'Ist-/Nettogewicht [kg]'}", "", false, false, RemotePropID=57)]
+        [ACPropertyBindingTarget(631, "Read from PLC", "en{'Actual-/Netweight [kg]'}de{'Ist-/Nettogewicht [kg]'}", "", false, false, RemotePropID = 57)]
         public IACContainerTNet<Double> ActualWeight { get; set; }
         private void ActualWeight_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -95,7 +95,7 @@ namespace gip.core.processapplication
         }
 
         #region Scale State
-        [ACPropertyBindingTarget(634, "Read from PLC", "en{'State of Scale'}de{'Status Waage'}", "", false, false, RemotePropID=58)]
+        [ACPropertyBindingTarget(634, "Read from PLC", "en{'State of Scale'}de{'Status Waage'}", "", false, false, RemotePropID = 58)]
         public IACContainerTNet<PANotifyState> StateScale { get; set; }
         public void OnSetStateScale(IACPropertyNetValueEvent valueEvent)
         {
@@ -124,12 +124,12 @@ namespace gip.core.processapplication
                 _StateScaleAlarmChanged = PAAlarmChangeState.NoChange;
             }
         }
-        [ACPropertyBindingTarget(653, "Write to PLC", "en{'Fault acknowledge Scale'}de{'Störungsquittung Waage'}", "", true, false, RemotePropID=59)]
+        [ACPropertyBindingTarget(653, "Write to PLC", "en{'Fault acknowledge Scale'}de{'Störungsquittung Waage'}", "", true, false, RemotePropID = 59)]
         public IACContainerTNet<bool> FaultAckScale { get; set; }
         #endregion
 
         #region Tolerance State
-        [ACPropertyBindingTarget(635, "Read from PLC", "en{'State of Tolerance'}de{'Status Toleranz'}", "", false, false, RemotePropID=60)]
+        [ACPropertyBindingTarget(635, "Read from PLC", "en{'State of Tolerance'}de{'Status Toleranz'}", "", false, false, RemotePropID = 60)]
         public IACContainerTNet<PANotifyState> StateTolerance { get; set; }
         public void OnSetStateTolerance(IACPropertyNetValueEvent valueEvent)
         {
@@ -163,7 +163,7 @@ namespace gip.core.processapplication
         #endregion
 
         #region LackOfMaterial State
-        [ACPropertyBindingTarget(636, "Read from PLC", "en{'State of lack of material'}de{'Status Materialmangel'}", "", false, false, RemotePropID=62)]
+        [ACPropertyBindingTarget(636, "Read from PLC", "en{'State of lack of material'}de{'Status Materialmangel'}", "", false, false, RemotePropID = 62)]
         public IACContainerTNet<PANotifyState> StateLackOfMaterial { get; set; }
         public void OnSetStateLackOfMaterial(IACPropertyNetValueEvent valueEvent)
         {
@@ -192,12 +192,12 @@ namespace gip.core.processapplication
                 _StateLackOfMaterialAlarmChanged = PAAlarmChangeState.NoChange;
             }
         }
-        [ACPropertyBindingTarget(655, "Write to PLC", "en{'Fault acknowledge lack of material'}de{'Materialmangelquittung'}", "", true, false, RemotePropID=63)]
+        [ACPropertyBindingTarget(655, "Write to PLC", "en{'Fault acknowledge lack of material'}de{'Materialmangelquittung'}", "", true, false, RemotePropID = 63)]
         public IACContainerTNet<bool> FaultAckLackOfMaterial { get; set; }
         #endregion
 
         #region DosingTime State
-        [ACPropertyBindingTarget(637, "Read from PLC", "en{'State of dosingtime-fault'}de{'Status Dosierzeitfehler'}", "", false, false, RemotePropID=64)]
+        [ACPropertyBindingTarget(637, "Read from PLC", "en{'State of dosingtime-fault'}de{'Status Dosierzeitfehler'}", "", false, false, RemotePropID = 64)]
         public IACContainerTNet<PANotifyState> StateDosingTime { get; set; }
         public void OnSetStateDosingTime(IACPropertyNetValueEvent valueEvent)
         {
@@ -226,17 +226,17 @@ namespace gip.core.processapplication
                 _StateDosingTimeAlarmChanged = PAAlarmChangeState.NoChange;
             }
         }
-        [ACPropertyBindingTarget(656, "Write to PLC", "en{'Fault acknowledge dosingtime-fault'}de{'Dosierzeitfehlerquittung'}", "", true, false, RemotePropID=65)]
+        [ACPropertyBindingTarget(656, "Write to PLC", "en{'Fault acknowledge dosingtime-fault'}de{'Dosierzeitfehlerquittung'}", "", true, false, RemotePropID = 65)]
         public IACContainerTNet<bool> FaultAckDosingTime { get; set; }
         #endregion
 
-        [ACPropertyBindingTarget(638, "Read from PLC", "en{'is dosing'}de{'Dosiert'}", "", false, false, RemotePropID=66)]
+        [ACPropertyBindingTarget(638, "Read from PLC", "en{'is dosing'}de{'Dosiert'}", "", false, false, RemotePropID = 66)]
         public IACContainerTNet<Boolean> IsDosing { get; set; }
 
-        [ACPropertyBindingTarget(639, "Read from PLC", "en{'in rough dosing'}de{'In Grobdosierung'}", "", false, false, RemotePropID=67)]
+        [ACPropertyBindingTarget(639, "Read from PLC", "en{'in rough dosing'}de{'In Grobdosierung'}", "", false, false, RemotePropID = 67)]
         public IACContainerTNet<Boolean> IsRough { get; set; }
 
-        [ACPropertyBindingTarget(640, "Read from PLC", "en{'in finde dosing'}de{'In Feindosierung'}", "", false, false, RemotePropID=68)]
+        [ACPropertyBindingTarget(640, "Read from PLC", "en{'in finde dosing'}de{'In Feindosierung'}", "", false, false, RemotePropID = 68)]
         public IACContainerTNet<Boolean> IsFine { get; set; }
 
         [ACPropertyBindingTarget]

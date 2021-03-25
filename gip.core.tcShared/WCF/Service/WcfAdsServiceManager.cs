@@ -107,8 +107,13 @@ namespace gip.core.tcShared.WCF
                 //    authority = this.Root.Environment.UserInstance.ServerIPV6;
                 //else if (_nameResolutionOn)
                 //    authority = this.Root.Environment.UserInstance.Hostname;
+                IPHostEntry host = Dns.GetHostEntry(IPAddress.Parse("127.0.0.1"));
+                string hostname = Dns.GetHostName();
+                if (String.IsNullOrEmpty(hostname))
+                    hostname = host.HostName; // FQDN
 
-                authority += ":" + "8020";
+                authority = hostname + ":" + "8020";
+                //authority += ":" + "8020";
 
                 // Address
                 _endpointUri = new Uri(String.Format("{0}://{1}/", scheme, authority));

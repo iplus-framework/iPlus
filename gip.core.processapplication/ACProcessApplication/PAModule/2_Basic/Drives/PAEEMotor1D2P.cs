@@ -69,17 +69,17 @@ namespace gip.core.processapplication
         #region Properties, Range 800
 
         #region Configuration
-        [ACPropertyBindingTarget(801, "Configuration", "en{'transit time slow/fast'}de{'Umschaltzeit im Langsam/Schnell'}", "", true, true, RemotePropID=50)]
+        [ACPropertyBindingTarget(801, "Configuration", "en{'transit time slow/fast'}de{'Umschaltzeit im Langsam/Schnell'}", "", true, true, RemotePropID = 50)]
         public IACContainerTNet<TimeSpan> TransitTimeSlowFast { get; set; }
         #endregion
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(832, "Read from PLC", "en{'fast speed'}de{'Schnelle drehzahl'}", "", false, false, RemotePropID=51)]
+        [ACPropertyBindingTarget(832, "Read from PLC", "en{'fast speed'}de{'Schnelle drehzahl'}", "", false, false, RemotePropID = 51)]
         public IACContainerTNet<Boolean> SpeedFast { get; set; }
         #endregion
 
         #region Write-Value to PLC
-        [ACPropertyBindingTarget(852, "Write to PLC", "en{'Request fast speed'}de{'Anforderung schnell'}", "", false, false, RemotePropID=52)]
+        [ACPropertyBindingTarget(852, "Write to PLC", "en{'Request fast speed'}de{'Anforderung schnell'}", "", false, false, RemotePropID = 52)]
         public IACContainerTNet<Boolean> ReqSpeedFast { get; set; }
         #endregion
 

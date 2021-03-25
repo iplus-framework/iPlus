@@ -81,12 +81,12 @@ namespace gip.core.processapplication
         #endregion
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(831, "Read from PLC", "en{'left direction'}de{'Laufrichtung links'}", "", false, false, RemotePropID=50)]
+        [ACPropertyBindingTarget(831, "Read from PLC", "en{'left direction'}de{'Laufrichtung links'}", "", false, false, RemotePropID = 50)]
         public IACContainerTNet<Boolean> DirectionLeft { get; set; }
         #endregion
 
         #region Write-Value to PLC
-        [ACPropertyBindingTarget(851, "Write to PLC", "en{'request left direction'}de{'Anforderung links'}", "", false, false, RemotePropID=51)]
+        [ACPropertyBindingTarget(851, "Write to PLC", "en{'request left direction'}de{'Anforderung links'}", "", false, false, RemotePropID = 51)]
         public IACContainerTNet<Boolean> ReqDirectionLeft { get; set; }
         #endregion
 

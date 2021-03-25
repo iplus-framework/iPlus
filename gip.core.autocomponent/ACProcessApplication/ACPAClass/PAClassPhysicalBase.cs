@@ -49,7 +49,7 @@ namespace gip.core.autocomponent
         /// <value>
         /// The operating mode.
         /// </value>
-        [ACPropertyBindingTarget(230, "Read from PLC", "en{'Operating mode'}de{'Betriebsart'}", "", false, false, RemotePropID=11)]
+        [ACPropertyBindingTarget(230, "Read from PLC", "en{'Operating mode'}de{'Betriebsart'}", "", false, false, RemotePropID = 10)]
         public IACContainerTNet<Global.OperatingMode> OperatingMode { get; set; }
         #endregion
 
@@ -60,7 +60,7 @@ namespace gip.core.autocomponent
         /// <value>
         /// The request operating mode.
         /// </value>
-        [ACPropertyBindingTarget(250, "Write to PLC", "en{'Operating mode request'}de{'Betriebsart Anforderung'}", "", false, false, RemotePropID=12)]
+        [ACPropertyBindingTarget(250, "Write to PLC", "en{'Operating mode request'}de{'Betriebsart Anforderung'}", "", false, false, RemotePropID = 11)]
         public IACContainerTNet<Global.OperatingMode> ReqOperatingMode { get; set; }
         #endregion
 

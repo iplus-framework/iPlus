@@ -445,6 +445,7 @@ namespace gip.bso.tcStudio
                     _VisualStudioList.AddEntry(new ACValueItem("Visual Studio 13", "VisualStudio.DTE.12.0", null));
                     _VisualStudioList.AddEntry(new ACValueItem("Visual Studio 15", "VisualStudio.DTE.14.0", null));
                     _VisualStudioList.AddEntry(new ACValueItem("Visual Studio 17", "VisualStudio.DTE.15.0", null));
+                    _VisualStudioList.AddEntry(new ACValueItem("Visual Studio 19", "VisualStudio.DTE.16.0", null));
                 }
                 return _VisualStudioList;
             }
@@ -1288,7 +1289,11 @@ namespace gip.bso.tcStudio
                     }
                     else
                     {
-                        _mainDecl = declVB.Substring("//VBRegionStart".Length, declVB.IndexOf(_VBRegionEnd));
+                        int endIndexVB = declVB.IndexOf(_VBRegionEnd);
+                        if (endIndexVB < 0)
+                            _mainDecl = declVB.Substring("//VBRegionStart".Length);
+                        else
+                            _mainDecl = declVB.Substring("//VBRegionStart".Length, endIndexVB);
                     }
                 }
             }

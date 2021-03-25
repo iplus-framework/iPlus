@@ -43,7 +43,7 @@ namespace gip.core.processapplication
         #region Properties, Range: 500
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(500, "Read from PLC", "en{'Maintenance switch'}de{'Wartungsschalter'}", "", false, false, RemotePropID=33)]
+        [ACPropertyBindingTarget(500, "Read from PLC", "en{'Maintenance switch'}de{'Wartungsschalter'}", "", false, false, RemotePropID = 33)]
         public IACContainerTNet<Boolean> MaintenanceSwitch { get; set; }
         #endregion
 

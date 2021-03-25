@@ -34,16 +34,16 @@ namespace gip.core.processapplication
         #region Properties Range 800
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(830, "Read from PLC", "en{'Total desired weight'}de{'Gesamtsollgewicht'}", "", false, false, RemotePropID=85)]
+        [ACPropertyBindingTarget(830, "Read from PLC", "en{'Total desired weight'}de{'Gesamtsollgewicht'}", "", false, false, RemotePropID = 86)]
         public IACContainerTNet<Double> TotalDesiredWeight { get; set; }
 
-        [ACPropertyBindingTarget(831, "Read from PLC", "en{'Total actual weight'}de{'Gesamtistgewichtt'}", "", false, false, RemotePropID=86)]
+        [ACPropertyBindingTarget(831, "Read from PLC", "en{'Total actual weight'}de{'Gesamtistgewichtt'}", "", false, false, RemotePropID = 87)]
         public IACContainerTNet<Double> TotalActualWeight { get; set; }
 
-        [ACPropertyBindingTarget(832, "Read from PLC", "en{'presignal'}de{'Vorsignal'}", "", false, false, RemotePropID=87)]
+        [ACPropertyBindingTarget(832, "Read from PLC", "en{'presignal'}de{'Vorsignal'}", "", false, false, RemotePropID = 88)]
         public IACContainerTNet<Boolean> IsPresignal { get; set; }
 
-        [ACPropertyBindingTarget(833, "Read from PLC", "en{'in flow mode'}de{'In Durchflussmodus'}", "", false, false,RemotePropID=88)]
+        [ACPropertyBindingTarget(833, "Read from PLC", "en{'in flow mode'}de{'In Durchflussmodus'}", "", false, false,RemotePropID = 89)]
         public IACContainerTNet<Boolean> IsFlow { get; set; }
         #endregion
 

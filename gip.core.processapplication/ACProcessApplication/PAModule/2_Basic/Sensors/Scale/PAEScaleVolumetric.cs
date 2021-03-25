@@ -32,15 +32,15 @@ namespace gip.core.processapplication
 
         #region Properties Range 700
         #region Configuration
-        [ACPropertyBindingTarget(700, "Configuration", "en{'Pulse pro Liter'}de{'Maximale Dosierzeit'}", "", true, true, RemotePropID=72)]
+        [ACPropertyBindingTarget(700, "Configuration", "en{'Pulse pro Liter'}de{'Maximale Dosierzeit'}", "", true, true, RemotePropID = 72)]
         public IACContainerTNet<Double> PulsePerLiter { get; set; }
         #endregion
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(750, "Read from PLC", "en{'Desired rate of flow'}de{'Solldosierleistung'}", "", false, false, RemotePropID=73)]
+        [ACPropertyBindingTarget(750, "Read from PLC", "en{'Desired rate of flow'}de{'Solldosierleistung'}", "", false, false, RemotePropID = 73)]
         public IACContainerTNet<Double> DesiredRateOfFlow { get; set; }
 
-        [ACPropertyBindingTarget(731, "Read from PLC", "en{'Actual rate of flow'}de{'Istdosierleistung'}", "", false, false, RemotePropID=74)]
+        [ACPropertyBindingTarget(731, "Read from PLC", "en{'Actual rate of flow'}de{'Istdosierleistung'}", "", false, false, RemotePropID = 74)]
         public IACContainerTNet<Double> ActualRateOfFlow { get; set; }
         #endregion
 

@@ -55,65 +55,65 @@ namespace gip.core.processapplication
 
         #region Configuration
 
-        [ACPropertyBindingTarget(500, "Configuration", "en{'Upper limit 1'}de{'Oberer Grenzwert 1'}", "", true, true, RemotePropID=23)]
+        [ACPropertyBindingTarget(500, "Configuration", "en{'Upper limit 1'}de{'Oberer Grenzwert 1'}", "", true, true, RemotePropID = 23)]
         public IACContainerTNet<Double> UpperLimit1 { get; set; }
 
-        [ACPropertyBindingTarget(501, "Configuration", "en{'Role of UL1'}de{'Funktion OG1'}", "", true, true, DefaultValue = PAESensorRole.Indicator, RemotePropID=24)]
+        [ACPropertyBindingTarget(501, "Configuration", "en{'Role of UL1'}de{'Funktion OG1'}", "", true, true, DefaultValue = PAESensorRole.Indicator, RemotePropID = 24)]
         public IACContainerTNet<PAESensorRole> UpperLimit1Role { get; set; }
 
-        [ACPropertyBindingTarget(502, "Configuration", "en{'Faulttime UL1'}de{'Störzeit OG1'}", "", true, true, RemotePropID=25)]
+        [ACPropertyBindingTarget(502, "Configuration", "en{'Faulttime UL1'}de{'Störzeit OG1'}", "", true, true, RemotePropID = 25)]
         public IACContainerTNet<TimeSpan> FaultDelayTimeUL1 { get; set; }
 
-        [ACPropertyBindingTarget(503, "Configuration", "en{'Upper limit 2'}de{'Oberer Grenzwert 2'}", "", true, true, RemotePropID=26)]
+        [ACPropertyBindingTarget(503, "Configuration", "en{'Upper limit 2'}de{'Oberer Grenzwert 2'}", "", true, true, RemotePropID = 26)]
         public IACContainerTNet<Double> UpperLimit2 { get; set; }
 
-        [ACPropertyBindingTarget(504, "Configuration", "en{'Role of UL2'}de{'Funktion OG2'}", "", true, true, DefaultValue = PAESensorRole.FaultSensor, RemotePropID=27)]
+        [ACPropertyBindingTarget(504, "Configuration", "en{'Role of UL2'}de{'Funktion OG2'}", "", true, true, DefaultValue = PAESensorRole.FaultSensor, RemotePropID = 27)]
         public IACContainerTNet<PAESensorRole> UpperLimit2Role { get; set; }
 
-        [ACPropertyBindingTarget(505, "Configuration", "en{'Faulttime UL2'}de{'Störzeit OG2'}", "", true, true, RemotePropID=28)]
+        [ACPropertyBindingTarget(505, "Configuration", "en{'Faulttime UL2'}de{'Störzeit OG2'}", "", true, true, RemotePropID = 28)]
         public IACContainerTNet<TimeSpan> FaultDelayTimeUL2 { get; set; }
         
 
-        [ACPropertyBindingTarget(506, "Configuration", "en{'Lower limit 1'}de{'Unterer Grenzwert 1'}", "", true, true, RemotePropID=29)]
+        [ACPropertyBindingTarget(506, "Configuration", "en{'Lower limit 1'}de{'Unterer Grenzwert 1'}", "", true, true, RemotePropID = 29)]
         public IACContainerTNet<Double> LowerLimit1 { get; set; }
 
-        [ACPropertyBindingTarget(507, "Configuration", "en{'Role of LL1'}de{'Funktion UG1'}", "", true, true, DefaultValue = PAESensorRole.Indicator, RemotePropID=30)]
+        [ACPropertyBindingTarget(507, "Configuration", "en{'Role of LL1'}de{'Funktion UG1'}", "", true, true, DefaultValue = PAESensorRole.Indicator, RemotePropID = 30)]
         public IACContainerTNet<PAESensorRole> LowerLimit1Role { get; set; }
 
-        [ACPropertyBindingTarget(508, "Configuration", "en{'Faulttime LL1'}de{'Störzeit UG1'}", "", true, true, RemotePropID=31)]
+        [ACPropertyBindingTarget(508, "Configuration", "en{'Faulttime LL1'}de{'Störzeit UG1'}", "", true, true, RemotePropID = 31)]
         public IACContainerTNet<TimeSpan> FaultDelayTimeLL1 { get; set; }
 
 
-        [ACPropertyBindingTarget(509, "Configuration", "en{'Lower limit 2'}de{'Unterer Grenzwert 2'}", "", true, true, RemotePropID=32)]
+        [ACPropertyBindingTarget(509, "Configuration", "en{'Lower limit 2'}de{'Unterer Grenzwert 2'}", "", true, true, RemotePropID = 32)]
         public IACContainerTNet<Double> LowerLimit2 { get; set; }
 
-        [ACPropertyBindingTarget(510, "Configuration", "en{'Role of LL2'}de{'Funktion UG2'}", "", true, true, DefaultValue = PAESensorRole.FaultSensor, RemotePropID=33)]
+        [ACPropertyBindingTarget(510, "Configuration", "en{'Role of LL2'}de{'Funktion UG2'}", "", true, true, DefaultValue = PAESensorRole.FaultSensor, RemotePropID = 33)]
         public IACContainerTNet<PAESensorRole> LowerLimit2Role { get; set; }
 
-        [ACPropertyBindingTarget(511, "Configuration", "en{'Faulttime LL2'}de{'Störzeit UG2'}", "", true, true, RemotePropID=34)]
+        [ACPropertyBindingTarget(511, "Configuration", "en{'Faulttime LL2'}de{'Störzeit UG2'}", "", true, true, RemotePropID = 34)]
         public IACContainerTNet<TimeSpan> FaultDelayTimeLL2 { get; set; }
 
 
-        [ACPropertyBindingTarget(512, "Configuration", "en{'Upper value'}de{'Oberer Messwert'}", "", true, true, RemotePropID=35)]
+        [ACPropertyBindingTarget(512, "Configuration", "en{'Upper value'}de{'Oberer Messwert'}", "", true, true, RemotePropID = 35)]
         public IACContainerTNet<Double> UpperScaleValue { get; set; }
 
-        [ACPropertyBindingTarget(513, "Configuration", "en{'Lower value'}de{'Unterer Messwert'}", "", true, true, RemotePropID=36)]
+        [ACPropertyBindingTarget(513, "Configuration", "en{'Lower value'}de{'Unterer Messwert'}", "", true, true, RemotePropID = 36)]
         public IACContainerTNet<Double> LowerScaleValue { get; set; }
 
-        [ACPropertyBindingTarget(514, "Configuration", "en{'Offset actual value'}de{'Offset auf Istwert'}", "", true, true, RemotePropID=37)]
+        [ACPropertyBindingTarget(514, "Configuration", "en{'Offset actual value'}de{'Offset auf Istwert'}", "", true, true, RemotePropID = 37)]
         public IACContainerTNet<Double> ValueOffset { get; set; }
 
 
-        [ACPropertyBindingTarget(520, "Configuration", "en{'Force signal'}de{'Erzwinge Signal'}", "", true, true, RemotePropID=38)]
+        [ACPropertyBindingTarget(520, "Configuration", "en{'Force signal'}de{'Erzwinge Signal'}", "", true, true, RemotePropID = 38)]
         public IACContainerTNet<bool> ForceSensorValue { get; set; }
 
-        [ACPropertyBindingTarget(521, "Configuration", "en{'Simulated value'}de{'Simulierter wert'}", "", true, true, RemotePropID=39)]
+        [ACPropertyBindingTarget(521, "Configuration", "en{'Simulated value'}de{'Simulierter wert'}", "", true, true, RemotePropID = 39)]
         public IACContainerTNet<Double> ForcedSensorValue { get; set; }
 
         #endregion
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(500, "Read from PLC", "en{'Actual value'}de{'Istwert'}", "", false, false, RemotePropID=40)]
+        [ACPropertyBindingTarget(500, "Read from PLC", "en{'Actual value'}de{'Istwert'}", "", false, false, RemotePropID = 40)]
         public IACContainerTNet<Double> ActualValue { get; set; }
         protected virtual void ActualValue_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -171,7 +171,7 @@ namespace gip.core.processapplication
             }
         }
 
-        [ACPropertyBindingTarget(501, "Read from PLC", "en{'State of UL1'}de{'Status OG1'}", "", false, false, RemotePropID=41)]
+        [ACPropertyBindingTarget(501, "Read from PLC", "en{'State of UL1'}de{'Status OG1'}", "", false, false, RemotePropID = 41)]
         public IACContainerTNet<PANotifyState> StateUL1 { get; set; }
         public void OnSetStateUL1(IACPropertyNetValueEvent valueEvent)
         {
@@ -201,7 +201,7 @@ namespace gip.core.processapplication
         }
 
 
-        [ACPropertyBindingTarget(502, "Read from PLC", "en{'State of UL2'}de{'Status OG2'}", "", false, false, RemotePropID=42)]
+        [ACPropertyBindingTarget(502, "Read from PLC", "en{'State of UL2'}de{'Status OG2'}", "", false, false, RemotePropID = 42)]
         public IACContainerTNet<PANotifyState> StateUL2 { get; set; }
         public void OnSetStateUL2(IACPropertyNetValueEvent valueEvent)
         {
@@ -230,7 +230,7 @@ namespace gip.core.processapplication
             }
         }
 
-        [ACPropertyBindingTarget(203, "Read from PLC", "en{'State of LL1'}de{'Status UG1'}", "", false, false, RemotePropID=43)]
+        [ACPropertyBindingTarget(203, "Read from PLC", "en{'State of LL1'}de{'Status UG1'}", "", false, false, RemotePropID = 43)]
         public IACContainerTNet<PANotifyState> StateLL1 { get; set; }
         public void OnSetStateLL1(IACPropertyNetValueEvent valueEvent)
         {
@@ -259,7 +259,7 @@ namespace gip.core.processapplication
             }
         }
 
-        [ACPropertyBindingTarget(504, "Read from PLC", "en{'State of LL2'}de{'Status UG2'}", "", false, false, RemotePropID=44)]
+        [ACPropertyBindingTarget(504, "Read from PLC", "en{'State of LL2'}de{'Status UG2'}", "", false, false, RemotePropID = 44)]
         public IACContainerTNet<PANotifyState> StateLL2 { get; set; }
         public void OnSetStateLL2(IACPropertyNetValueEvent valueEvent)
         {
@@ -292,16 +292,16 @@ namespace gip.core.processapplication
         #endregion
 
         #region Write-Value to PLC
-        [ACPropertyBindingTarget(550, "Write to PLC", "en{'Fault acknowledge UL1'}de{'Störungsquittung OG1'}", "", true, false, RemotePropID=45)]
+        [ACPropertyBindingTarget(550, "Write to PLC", "en{'Fault acknowledge UL1'}de{'Störungsquittung OG1'}", "", true, false, RemotePropID = 45)]
         public IACContainerTNet<bool> FaultAckUL1 { get; set; }
 
-        [ACPropertyBindingTarget(551, "Write to PLC", "en{'Fault acknowledge UL2'}de{'Störungsquittung OG2'}", "", true, false, RemotePropID=46)]
+        [ACPropertyBindingTarget(551, "Write to PLC", "en{'Fault acknowledge UL2'}de{'Störungsquittung OG2'}", "", true, false, RemotePropID = 46)]
         public IACContainerTNet<bool> FaultAckUL2 { get; set; }
 
-        [ACPropertyBindingTarget(552, "Write to PLC", "en{'Fault acknowledge LL1'}de{'Störungsquittung UG1'}", "", true, false, RemotePropID=47)]
+        [ACPropertyBindingTarget(552, "Write to PLC", "en{'Fault acknowledge LL1'}de{'Störungsquittung UG1'}", "", true, false, RemotePropID = 47)]
         public IACContainerTNet<bool> FaultAckLL1 { get; set; }
 
-        [ACPropertyBindingTarget(553, "Write to PLC", "en{'Fault acknowledge LL2'}de{'Störungsquittung UG2'}", "", true, false, RemotePropID=48)]
+        [ACPropertyBindingTarget(553, "Write to PLC", "en{'Fault acknowledge LL2'}de{'Störungsquittung UG2'}", "", true, false, RemotePropID = 48)]
         public IACContainerTNet<bool> FaultAckLL2 { get; set; }
         #endregion
 

@@ -145,7 +145,7 @@ namespace gip.core.autocomponent
             set;
         }
 
-        [ACPropertyBindingTarget(403, "Read from PLC", "en{'Allocated'}de{'Belegt'}", "", false, false, RemotePropID=16)]
+        [ACPropertyBindingTarget(403, "Read from PLC", "en{'Allocated'}de{'Belegt'}", "", false, false, RemotePropID = 16)]
         public IACContainerTNet<Boolean> Allocated { get; set; }
 
         protected ACPropertyConfigValue<string> _RouteItemID;

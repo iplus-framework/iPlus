@@ -52,7 +52,7 @@ namespace gip.core.processapplication
         #region Properties, Range: 400
 
         #region Configuration
-        [ACPropertyBindingTarget(400,"Configuration","en{'Address of Input'}de{'Eingangsadresse'}", "", true, true, RemotePropID=19)]
+        [ACPropertyBindingTarget(400,"Configuration","en{'Address of Input'}de{'Eingangsadresse'}", "", true, true, RemotePropID = 19)]
         public IACContainerTNet<String> InputAddress { get; set; }
         #endregion
 

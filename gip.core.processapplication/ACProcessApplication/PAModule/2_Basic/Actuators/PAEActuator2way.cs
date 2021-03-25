@@ -80,18 +80,18 @@ namespace gip.core.processapplication
 
         #region Properties, Range: 600
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(630, "Read from PLC", "en{'Position 1'}de{'Position 1'}", "", false, false, RemotePropID=36)]
+        [ACPropertyBindingTarget(630, "Read from PLC", "en{'Position 1'}de{'Position 1'}", "", false, false, RemotePropID = 36)]
         public IACContainerTNet<Boolean> Pos1 { get; set; }
 
-        [ACPropertyBindingTarget(631, "Read from PLC", "en{'Position 2'}de{'Position 2'}", "", false, false, RemotePropID=37)]
+        [ACPropertyBindingTarget(631, "Read from PLC", "en{'Position 2'}de{'Position 2'}", "", false, false, RemotePropID = 37)]
         public IACContainerTNet<Boolean> Pos2 { get; set; }
         #endregion
 
         #region Write-Values to PLC
-        [ACPropertyBindingTarget(650, "Write to PLC", "en{'Position 1 request'}de{'Position 1 Anforderung'}", "", false, false, RemotePropID=38)]
+        [ACPropertyBindingTarget(650, "Write to PLC", "en{'Position 1 request'}de{'Position 1 Anforderung'}", "", false, false, RemotePropID = 38)]
         public IACContainerTNet<Boolean> ReqPos1 { get; set; }
 
-        [ACPropertyBindingTarget(652, "Write to PLC", "en{'Position 2 request'}de{'Position 2 Anforderung'}", "", false, false, RemotePropID=39)]
+        [ACPropertyBindingTarget(652, "Write to PLC", "en{'Position 2 request'}de{'Position 2 Anforderung'}", "", false, false, RemotePropID = 39)]
         public IACContainerTNet<Boolean> ReqPos2 { get; set; }
         #endregion
         #endregion

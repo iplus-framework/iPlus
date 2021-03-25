@@ -301,7 +301,7 @@ namespace gip.core.autocomponent
         /// <value>
         /// The is session connected.
         /// </value>
-        [ACPropertyBindingTarget(101, "Values", "en{'Is session connected'}", "", false, false, RemotePropID=1)]
+        [ACPropertyBindingTarget(101, "Values", "en{'Is session connected'}", "", false, false, RemotePropID = 1)]
         public IACContainerTNet<bool> IsSessionConnected { get; set; }
 
 

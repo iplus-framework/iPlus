@@ -97,7 +97,7 @@ namespace gip.core.autocomponent
         /// <summary>
         /// The state of a function or workflownode
         /// </summary>
-        [ACPropertyBindingSource(200, "", "en{'State general'}de{'Zustand Allgemein'}", "", true, true, DefaultValue = ACStateEnum.SMIdle, RemotePropID=13)]
+        [ACPropertyBindingSource(200, "", "en{'State general'}de{'Zustand Allgemein'}", "", true, true, DefaultValue = ACStateEnum.SMIdle, RemotePropID = 13)]
         public IACContainerTNet<ACStateEnum> ACState { get; set; }
 
         /// <summary>

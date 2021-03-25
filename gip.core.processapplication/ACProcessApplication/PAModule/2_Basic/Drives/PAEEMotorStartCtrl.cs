@@ -44,15 +44,15 @@ namespace gip.core.processapplication
         #region Properties, Range: 700
 
         #region Configuration
-        [ACPropertyBindingTarget(700, "Configuration", "en{'transit time in star'}de{'Laufzeit im Stern'}", "", true, true, RemotePropID=42)]
+        [ACPropertyBindingTarget(700, "Configuration", "en{'transit time in star'}de{'Laufzeit im Stern'}", "", true, true, RemotePropID = 42)]
         public IACContainerTNet<TimeSpan> TransitTimeStar { get; set; }
 
-        [ACPropertyBindingTarget(701, "Configuration", "en{'changeover delaytime to delta'}de{'Umschaltverzögerungszeit auf Dreieck'}", "", true, true, RemotePropID=43)]
+        [ACPropertyBindingTarget(701, "Configuration", "en{'changeover delaytime to delta'}de{'Umschaltverzögerungszeit auf Dreieck'}", "", true, true, RemotePropID = 43)]
         public IACContainerTNet<TimeSpan> ChangeoverDelay { get; set; }
         #endregion
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(731, "Read from PLC", "en{'State of Starter'}de{'FU-Status'}", "", false, false, RemotePropID=44)]
+        [ACPropertyBindingTarget(731, "Read from PLC", "en{'State of Starter'}de{'FU-Status'}", "", false, false, RemotePropID = 44)]
         public IACContainerTNet<PANotifyState> StarterState { get; set; }
 
         public void OnSetStarterState(IACPropertyNetValueEvent valueEvent)
@@ -85,10 +85,10 @@ namespace gip.core.processapplication
         #endregion
 
         #region Write-Values to PLC
-        [ACPropertyBindingTarget(750, "Write to PLC", "en{'requested speed'}de{'angeforderte Geschwindigkeit'}", "", false, false, RemotePropID=45)]
+        [ACPropertyBindingTarget(750, "Write to PLC", "en{'requested speed'}de{'angeforderte Geschwindigkeit'}", "", false, false, RemotePropID = 45)]
         public IACContainerTNet<Double> ReqSpeed { get; set; }
 
-        [ACPropertyBindingTarget(751, "Write to PLC", "en{'Fault acknowledge Starter'}de{'Störungsquittung FU'}", "", true, false, RemotePropID=46)]
+        [ACPropertyBindingTarget(751, "Write to PLC", "en{'Fault acknowledge Starter'}de{'Störungsquittung FU'}", "", true, false, RemotePropID = 46)]
         public IACContainerTNet<bool> StarterStateACK { get; set; }
 
         #endregion

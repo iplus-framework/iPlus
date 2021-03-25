@@ -78,7 +78,7 @@ namespace gip.core.processapplication
         //    get;
         //    set;
         //}
-        [ACPropertyBindingTarget(801, "Configuration", "en{'transit time slow/fast'}de{'Umschaltzeit im Langsam/Schnell'}", "", true, true, RemotePropID=50)]
+        [ACPropertyBindingTarget(801, "Configuration", "en{'transit time slow/fast'}de{'Umschaltzeit im Langsam/Schnell'}", "", true, true, RemotePropID = 50)]
         public IACContainerTNet<TimeSpan> TransitTimeSlowFast { get; set; }
 
         [ACPropertyInfo(801, "Configuration", "en{'direct toggle allowed'}de{'Direktes umschalten erlaubt'}", "", true)]
@@ -89,18 +89,18 @@ namespace gip.core.processapplication
         }
 
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(831, "Read from PLC", "en{'left direction'}de{'Laufrichtung links'}", "", false, false, RemotePropID=51)]
+        [ACPropertyBindingTarget(831, "Read from PLC", "en{'left direction'}de{'Laufrichtung links'}", "", false, false, RemotePropID = 51)]
         public IACContainerTNet<Boolean> DirectionLeft { get; set; }
 
-        [ACPropertyBindingTarget(832, "Read from PLC", "en{'fast speed'}de{'Schnelle drehzahl'}", "", false, false, RemotePropID=52)]
+        [ACPropertyBindingTarget(832, "Read from PLC", "en{'fast speed'}de{'Schnelle drehzahl'}", "", false, false, RemotePropID = 52)]
         public IACContainerTNet<Boolean> SpeedFast { get; set; }
         #endregion
 
         #region Write-Value to PLC
-        [ACPropertyBindingTarget(851, "Write to PLC", "en{'request left direction'}de{'Anforderung links'}", "", false, false, RemotePropID=53)]
+        [ACPropertyBindingTarget(851, "Write to PLC", "en{'request left direction'}de{'Anforderung links'}", "", false, false, RemotePropID = 53)]
         public IACContainerTNet<Boolean> ReqDirectionLeft { get; set; }
 
-        [ACPropertyBindingTarget(852, "Write to PLC", "en{'Request fast speed'}de{'Anforderung schnell'}", "", false, false, RemotePropID=54)]
+        [ACPropertyBindingTarget(852, "Write to PLC", "en{'Request fast speed'}de{'Anforderung schnell'}", "", false, false, RemotePropID = 54)]
         public IACContainerTNet<Boolean> ReqSpeedFast { get; set; }
         #endregion
 

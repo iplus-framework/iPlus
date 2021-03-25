@@ -72,7 +72,7 @@ namespace gip.core.processapplication
 
         #region Properties, Range: 600
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(630, "Read from PLC", "en{'Open'}de{'Offen'}", "", false, false, RemotePropID=36)]
+        [ACPropertyBindingTarget(630, "Read from PLC", "en{'Open'}de{'Offen'}", "", false, false, RemotePropID = 36)]
         public IACContainerTNet<Boolean> Pos1Open { get; set; }
         public void OnSetPos1Open(IACPropertyNetValueEvent valueEvent)
         {
@@ -89,7 +89,7 @@ namespace gip.core.processapplication
         #endregion
 
         #region Write-Values to PLC
-        [ACPropertyBindingTarget(650, "Write to PLC", "en{'open request'}de{'Öffnen Anforderung'}", "", false, false, RemotePropID=37)]
+        [ACPropertyBindingTarget(650, "Write to PLC", "en{'open request'}de{'Öffnen Anforderung'}", "", false, false, RemotePropID = 37)]
         public IACContainerTNet<Boolean> ReqPos1Open { get; set; }
         #endregion
         #endregion

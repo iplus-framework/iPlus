@@ -58,12 +58,12 @@ namespace gip.core.processapplication
 
         #region Properties, Range: 700
         #region Read-Values from PLC
-        [ACPropertyBindingTarget(730, "Read from PLC", "en{'Position 3'}de{'Position 3'}", "", false, false, RemotePropID=43)]
+        [ACPropertyBindingTarget(730, "Read from PLC", "en{'Position 3'}de{'Position 3'}", "", false, false, RemotePropID = 43)]
         public IACContainerTNet<Boolean> Pos3 { get; set; }
         #endregion
 
         #region Write-Values to PLC
-        [ACPropertyBindingTarget(750, "Write to PLC", "en{'Position 3 request'}de{'Position 3 Anforderung'}", "", false, false, RemotePropID=44)]
+        [ACPropertyBindingTarget(750, "Write to PLC", "en{'Position 3 request'}de{'Position 3 Anforderung'}", "", false, false, RemotePropID = 44)]
         public IACContainerTNet<Boolean> ReqPos3 { get; set; }
         #endregion
         #endregion
