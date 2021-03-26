@@ -41,6 +41,7 @@ namespace gip.core.tcAgent
 
         #region Private members -> VariableHandle
 
+        bool _HandlesRead = false;
         int _metadataVariableHandle;
         int _memoryVariableHandle;
         int _MemReadCycleHandle;
@@ -73,12 +74,15 @@ namespace gip.core.tcAgent
 
         public AdsVariobatchAgent()
         {
+            if (_logger == null)
+                _logger = new Logger();
+
             manager = new WcfAdsServiceManager(this);
 
             _agentThread = new Thread(InitManager);
             _agentThread.Name = "ADSAgentThread";
             _agentThread.Start();
-            
+
             _syncReadEvents = new SyncQueueEvents();
             _readEventsThread = new Thread(ReadEvents);
             _readEventsThread.Name = "ADSAgent:ReadEventsThread";
@@ -87,7 +91,7 @@ namespace gip.core.tcAgent
         #region Properties
 
         private TcAdsClient _adsClient;
-        public TcAdsClient adsClient
+        public TcAdsClient AdsClient
         {
             get
             {
@@ -106,12 +110,9 @@ namespace gip.core.tcAgent
             if (!Connect())
                 return;
 
-            adsClient.AmsRouterNotification += adsClient_AmsRouterNotification;
+            AdsClient.AmsRouterNotification += adsClient_AmsRouterNotification;
             WaitForDeviceReady();
-            adsClient.AdsStateChanged += adsClient_AdsStateChanged;
-
-            if (_logger == null)
-                _logger = new Logger();
+            AdsClient.AdsStateChanged += adsClient_AdsStateChanged;
         }
 
         void adsClient_AmsRouterNotification(object sender, AmsRouterNotificationEventArgs e)
@@ -126,7 +127,7 @@ namespace gip.core.tcAgent
         {
             try
             {
-                adsClient.ReadDeviceInfo();
+                AdsClient.ReadDeviceInfo();
                 return true;
             }
             catch (Exception e)
@@ -140,7 +141,7 @@ namespace gip.core.tcAgent
         {
             try
             {
-                adsClient.ReadDeviceInfo();
+                AdsClient.ReadDeviceInfo();
                 return;
             }
             catch (Exception e)
@@ -156,13 +157,22 @@ namespace gip.core.tcAgent
         {
             WcfAdsServiceManager._Self.BroadcastConnectionStateToChannels(ConnectionState.DisconnectPLC);
             _syncReadEvents.NewItemEvent.Reset();
-            adsClient.AdsStateChanged -= adsClient_AdsStateChanged;
-            adsClient.AmsRouterNotification -= adsClient_AmsRouterNotification;
-            //DeleteVariableHandles();
-            adsClient.Dispose();
-            adsClient.Disconnect();
+            if (_adsClient != null)
+            {
+                try
+                {
+                    _adsClient.AdsStateChanged -= adsClient_AdsStateChanged;
+                    _adsClient.AmsRouterNotification -= adsClient_AmsRouterNotification;
+                    //DeleteVariableHandles();
+                    _adsClient.Disconnect();
+                    _adsClient.Dispose();
+                }
+                catch (Exception)
+                {
+                }
+            }
             _adsClient = null;
-            if(withReinit)
+            if (withReinit)
                 InitManager();
         }
 
@@ -174,30 +184,30 @@ namespace gip.core.tcAgent
 
         private bool Connect()
         {
-            if (adsClient.IsConnected)
-                return adsClient.IsConnected;
+            if (AdsClient.IsConnected)
+                return AdsClient.IsConnected;
 
             string netID = ConfigurationManager.AppSettings["ADSNetID"];
             int port = Convert.ToInt32(ConfigurationManager.AppSettings["ADSPort"]);
 
             try
             {
-                adsClient.Connect(port);
-                adsClient.Synchronize = false;
+                AdsClient.Connect(port);
+                AdsClient.Synchronize = false;
             }
             catch (Exception e)
             {
                 _logger.Log("Method:Connect  Exception:" + e.Message);
             }
 
-            return adsClient.IsConnected;
+            return AdsClient.IsConnected;
         }
 
         private void ReadMemoryMetaObj()
         {
             try
             {
-                ACVariobatch.Meta = (ACRMemoryMetaObj[])adsClient.ReadAny(_metadataVariableHandle, typeof(ACRMemoryMetaObj[]), new int[] { GCL.cMetaObjMAX });
+                ACVariobatch.Meta = (ACRMemoryMetaObj[])AdsClient.ReadAny(_metadataVariableHandle, typeof(ACRMemoryMetaObj[]), new int[] { GCL.cMetaObjMAX });
             }
             catch (Exception e)
             {
@@ -209,7 +219,7 @@ namespace gip.core.tcAgent
         {
             try
             {
-                ACVariobatch.Memory = (byte[])adsClient.ReadAny(_memoryVariableHandle, typeof(byte[]), new int[] { GCL.cMemorySizeMAX });
+                ACVariobatch.Memory = (byte[])AdsClient.ReadAny(_memoryVariableHandle, typeof(byte[]), new int[] { GCL.cMemorySizeMAX });
             }
             catch (Exception e)
             {
@@ -219,38 +229,43 @@ namespace gip.core.tcAgent
 
         private void CreateVariableHandles()
         {
-            _metadataVariableHandle = adsClient.CreateVariableHandle(GCL.cPathMemoryMetaObj);
-            _memoryVariableHandle = adsClient.CreateVariableHandle(GCL.cPathMemory);
-            _MemReadCycleHandle = adsClient.CreateVariableHandle(GCL.cPathVB + "._EventCycleInfo._MemReadCycle");
-            _EventCycleInfoHandle = adsClient.CreateVariableHandle(GCL.cPathVB + "._EventCycleInfo");
-            _ByteEventHandle = adsClient.CreateVariableHandle(GCL.cPathVB + "._EventsByte");
-            _UIntEventHandle = adsClient.CreateVariableHandle(GCL.cPathVB + "._EventsUInt");
-            _IntEventHandle = adsClient.CreateVariableHandle(GCL.cPathVB + "._EventsInt");
-            _UDIntEventHandle = adsClient.CreateVariableHandle(GCL.cPathVB + "._EventsUDInt");
-            _DIntEventHandle = adsClient.CreateVariableHandle(GCL.cPathVB + "._EventsDInt");
-            _RealEventHandle = adsClient.CreateVariableHandle(GCL.cPathVB + "._EventsReal");
-            _LRealEventHandle = adsClient.CreateVariableHandle(GCL.cPathVB + "._EventsLReal");
-            _StringEventHandle = adsClient.CreateVariableHandle(GCL.cPathVB + "._EventsString");
-            _TimeEventHandle = adsClient.CreateVariableHandle(GCL.cPathVB + "._EventsTime");
-            _DTEventHandle = adsClient.CreateVariableHandle(GCL.cPathVB + "._EventsDT");
+            _metadataVariableHandle = AdsClient.CreateVariableHandle(GCL.cPathMemoryMetaObj);
+            _memoryVariableHandle = AdsClient.CreateVariableHandle(GCL.cPathMemory);
+            _MemReadCycleHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventCycleInfo._MemReadCycle");
+            _EventCycleInfoHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventCycleInfo");
+            _ByteEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsByte");
+            _UIntEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsUInt");
+            _IntEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsInt");
+            _UDIntEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsUDInt");
+            _DIntEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsDInt");
+            _RealEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsReal");
+            _LRealEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsLReal");
+            _StringEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsString");
+            _TimeEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsTime");
+            _DTEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsDT");
+            _HandlesRead = true;
         }
 
         private void DeleteVariableHandles()
         {
-            adsClient.DeleteVariableHandle(_metadataVariableHandle);
-            adsClient.DeleteVariableHandle(_memoryVariableHandle);
-            adsClient.DeleteVariableHandle(_MemReadCycleHandle);
-            adsClient.DeleteVariableHandle(_EventCycleInfoHandle);
-            adsClient.DeleteVariableHandle(_ByteEventHandle);
-            adsClient.DeleteVariableHandle(_UIntEventHandle);
-            adsClient.DeleteVariableHandle(_IntEventHandle);
-            adsClient.DeleteVariableHandle(_UDIntEventHandle);
-            adsClient.DeleteVariableHandle(_DIntEventHandle);
-            adsClient.DeleteVariableHandle(_RealEventHandle);
-            adsClient.DeleteVariableHandle(_LRealEventHandle);
-            adsClient.DeleteVariableHandle(_StringEventHandle);
-            adsClient.DeleteVariableHandle(_TimeEventHandle);
-            adsClient.DeleteVariableHandle(_DTEventHandle);
+            if (_HandlesRead)
+            {
+                AdsClient.DeleteVariableHandle(_metadataVariableHandle);
+                AdsClient.DeleteVariableHandle(_memoryVariableHandle);
+                AdsClient.DeleteVariableHandle(_MemReadCycleHandle);
+                AdsClient.DeleteVariableHandle(_EventCycleInfoHandle);
+                AdsClient.DeleteVariableHandle(_ByteEventHandle);
+                AdsClient.DeleteVariableHandle(_UIntEventHandle);
+                AdsClient.DeleteVariableHandle(_IntEventHandle);
+                AdsClient.DeleteVariableHandle(_UDIntEventHandle);
+                AdsClient.DeleteVariableHandle(_DIntEventHandle);
+                AdsClient.DeleteVariableHandle(_RealEventHandle);
+                AdsClient.DeleteVariableHandle(_LRealEventHandle);
+                AdsClient.DeleteVariableHandle(_StringEventHandle);
+                AdsClient.DeleteVariableHandle(_TimeEventHandle);
+                AdsClient.DeleteVariableHandle(_DTEventHandle);
+                _HandlesRead = false;
+            }
         }
 
         private void ReadEvents()
@@ -259,7 +274,7 @@ namespace gip.core.tcAgent
             {
                 try
                 {
-                    ACREventCycleInfo cycleInfo = (ACREventCycleInfo)adsClient.ReadAny(_EventCycleInfoHandle, typeof(ACREventCycleInfo));
+                    ACREventCycleInfo cycleInfo = (ACREventCycleInfo)AdsClient.ReadAny(_EventCycleInfoHandle, typeof(ACREventCycleInfo));
                     if (cycleInfo.MemWriteCycle == 1 && cycleInfo.MemReadCycle == 0)
                     {
                         ReadMemoryMetaObj();
@@ -269,65 +284,65 @@ namespace gip.core.tcAgent
                     {
                         if (currentByteEventIndex != cycleInfo.NextByteEventIndex)
                         {
-                            ACRMemoryByteEvents byteEvents = (ACRMemoryByteEvents)adsClient.ReadAny(_ByteEventHandle, _typeByteEvents);
+                            ACRMemoryByteEvents byteEvents = (ACRMemoryByteEvents)AdsClient.ReadAny(_ByteEventHandle, _typeByteEvents);
                             manager.BroadcastEventsToChannels(currentByteEventIndex, cycleInfo.NextByteEventIndex, byteEvents.Values);
                             currentByteEventIndex = cycleInfo.NextByteEventIndex;
                         }
                         if (currentUIntEventIndex != cycleInfo.NextUIntEventIndex)
                         {
-                            ACRMemoryUIntEvents uIntEvents = (ACRMemoryUIntEvents)adsClient.ReadAny(_UIntEventHandle, _typeUIntEvents);
+                            ACRMemoryUIntEvents uIntEvents = (ACRMemoryUIntEvents)AdsClient.ReadAny(_UIntEventHandle, _typeUIntEvents);
                             manager.BroadcastEventsToChannels(currentUIntEventIndex, cycleInfo.NextUIntEventIndex, uIntEvents.Values);
                             currentUIntEventIndex = cycleInfo.NextUIntEventIndex;
                         }
                         if (currentIntEventIndex != cycleInfo.NextIntEventIndex)
                         {
-                            ACRMemoryIntEvents intEvents = (ACRMemoryIntEvents)adsClient.ReadAny(_IntEventHandle, _typeIntEvents);
+                            ACRMemoryIntEvents intEvents = (ACRMemoryIntEvents)AdsClient.ReadAny(_IntEventHandle, _typeIntEvents);
                             manager.BroadcastEventsToChannels(currentIntEventIndex, cycleInfo.NextIntEventIndex, intEvents.Values);
                             currentIntEventIndex = cycleInfo.NextIntEventIndex;
                         }
                         if (currentDIntEventIndex != cycleInfo.NextDIntEventIndex)
                         {
-                            ACRMemoryDIntEvents dIntEvents = (ACRMemoryDIntEvents)adsClient.ReadAny(_DIntEventHandle, _typeDIntEvents);
+                            ACRMemoryDIntEvents dIntEvents = (ACRMemoryDIntEvents)AdsClient.ReadAny(_DIntEventHandle, _typeDIntEvents);
                             manager.BroadcastEventsToChannels(currentDIntEventIndex, cycleInfo.NextDIntEventIndex, dIntEvents.Values);
                             currentDIntEventIndex = cycleInfo.NextDIntEventIndex;
                         }
                         if (currentUDIntEventIndex != cycleInfo.NextUDIntEventIndex)
                         {
-                            ACRMemoryUDIntEvents uDIntEvents = (ACRMemoryUDIntEvents)adsClient.ReadAny(_UDIntEventHandle, _typeUDIntEvents);
+                            ACRMemoryUDIntEvents uDIntEvents = (ACRMemoryUDIntEvents)AdsClient.ReadAny(_UDIntEventHandle, _typeUDIntEvents);
                             manager.BroadcastEventsToChannels(currentUDIntEventIndex, cycleInfo.NextUDIntEventIndex, uDIntEvents.Values);
                             currentUDIntEventIndex = cycleInfo.NextUDIntEventIndex;
                         }
                         if (currentRealEventIndex != cycleInfo.NextRealEventIndex)
                         {
-                            ACRMemoryRealEvents realEvents = (ACRMemoryRealEvents)adsClient.ReadAny(_RealEventHandle, _typeRealEvents);
+                            ACRMemoryRealEvents realEvents = (ACRMemoryRealEvents)AdsClient.ReadAny(_RealEventHandle, _typeRealEvents);
                             manager.BroadcastEventsToChannels(currentRealEventIndex, cycleInfo.NextRealEventIndex, realEvents.Values);
                             currentRealEventIndex = cycleInfo.NextRealEventIndex;
                         }
                         if (currentLRealEventIndex != cycleInfo.NextLRealEventIndex)
                         {
-                            ACRMemoryLRealEvents lRealEvents = (ACRMemoryLRealEvents)adsClient.ReadAny(_LRealEventHandle, _typeLRealEvents);
+                            ACRMemoryLRealEvents lRealEvents = (ACRMemoryLRealEvents)AdsClient.ReadAny(_LRealEventHandle, _typeLRealEvents);
                             manager.BroadcastEventsToChannels(currentLRealEventIndex, cycleInfo.NextLRealEventIndex, lRealEvents.Values);
                             currentLRealEventIndex = cycleInfo.NextLRealEventIndex;
                         }
                         if (currentStringEventIndex != cycleInfo.NextStringEventIndex)
                         {
-                            ACRMemoryStringEvents stringEvents = (ACRMemoryStringEvents)adsClient.ReadAny(_StringEventHandle, _typeStringEvents);
+                            ACRMemoryStringEvents stringEvents = (ACRMemoryStringEvents)AdsClient.ReadAny(_StringEventHandle, _typeStringEvents);
                             manager.BroadcastEventsToChannels(currentStringEventIndex, cycleInfo.NextStringEventIndex, stringEvents.Values);
                             currentStringEventIndex = cycleInfo.NextStringEventIndex;
                         }
                         if (currentTimeEventIndex != cycleInfo.NextTimeEventIndex)
                         {
-                            ACRMemoryTimeEvents timeEvents = (ACRMemoryTimeEvents)adsClient.ReadAny(_TimeEventHandle, _typeTimeEvents);
+                            ACRMemoryTimeEvents timeEvents = (ACRMemoryTimeEvents)AdsClient.ReadAny(_TimeEventHandle, _typeTimeEvents);
                             manager.BroadcastEventsToChannels(currentTimeEventIndex, cycleInfo.NextTimeEventIndex, timeEvents.Values);
                             currentTimeEventIndex = cycleInfo.NextTimeEventIndex;
                         }
                         if (currentDIntEventIndex != cycleInfo.NextDTEventIndex)
                         {
-                            ACRMemoryDTEvents dtEvents = (ACRMemoryDTEvents)adsClient.ReadAny(_DTEventHandle, _typeDTEvents);
+                            ACRMemoryDTEvents dtEvents = (ACRMemoryDTEvents)AdsClient.ReadAny(_DTEventHandle, _typeDTEvents);
                             manager.BroadcastEventsToChannels(currentDTEventIndex, cycleInfo.NextDTEventIndex, dtEvents.Values);
                             currentDTEventIndex = cycleInfo.NextDTEventIndex;
                         }
-                        adsClient.WriteAny(_MemReadCycleHandle, cycleInfo.MemWriteCycle);
+                        AdsClient.WriteAny(_MemReadCycleHandle, cycleInfo.MemWriteCycle);
                     }
                 }
                 catch (Exception e)
@@ -384,10 +399,10 @@ namespace gip.core.tcAgent
 
             try
             {
-                int handle = adsClient.CreateVariableHandle(acurl);
+                int handle = AdsClient.CreateVariableHandle(acurl);
                 AdsStream stream = new AdsStream(paramPart);
-                adsClient.Write(handle, stream);
-                adsClient.DeleteVariableHandle(handle);
+                AdsClient.Write(handle, stream);
+                AdsClient.DeleteVariableHandle(handle);
             }
             catch (Exception e)
             {
@@ -412,9 +427,9 @@ namespace gip.core.tcAgent
 
             try
             {
-                int handle = adsClient.CreateVariableHandle(acUrl);
+                int handle = AdsClient.CreateVariableHandle(acUrl);
                 AdsStream stream = new AdsStream(arrayLength);
-                adsClient.Read(handle, stream);
+                AdsClient.Read(handle, stream);
 
                 byte[] sendArray = new byte[9 + stream.Length];
                 Array.Copy(info, 13, sendArray, 0, 2); //acMethodIndex short
@@ -423,7 +438,7 @@ namespace gip.core.tcAgent
                 Array.Copy(stream.ToArray(), 0, sendArray, 7, stream.Length);
 
                 manager.BroadcastResultToChannels(sendArray);
-                adsClient.DeleteVariableHandle(handle);
+                AdsClient.DeleteVariableHandle(handle);
             }
             catch (Exception e)
             {
@@ -446,23 +461,49 @@ namespace gip.core.tcAgent
 
             try
             {
-                ITcAdsSymbol smb = adsClient.ReadSymbolInfo(acUrl);
-                ITcAdsSymbol smbP = adsClient.ReadSymbolInfo(acUrlProp);
+                ITcAdsSymbol smb = AdsClient.ReadSymbolInfo(acUrl);
+                ITcAdsSymbol smbP = AdsClient.ReadSymbolInfo(acUrlProp);
                 if (smbP == null)
                     return;
 
                 ITcAdsSymbol5 smb5 = smbP as ITcAdsSymbol5;
                 if (smb5.Category == DataTypeCategory.Enum)
-                    adsClient.InvokeRpcMethod(smb, "SetEnumPropertyValue", new object[] { vbEvent.PropertyID, (short)vbEvent.PropertyValue });
-
+                    AdsClient.InvokeRpcMethod(smb, "InvokeSetterEnum", new object[] { vbEvent.PropertyID, (short)vbEvent.PropertyValue });
                 else if (smb5.DataType.Name == "TIME")
-                    adsClient.InvokeRpcMethod(smb, "SetTimePropertyValue", new object[] { vbEvent.PropertyID, (int)vbEvent.PropertyValue });
-
+                    AdsClient.InvokeRpcMethod(smb, "InvokeSetterTime", new object[] { vbEvent.PropertyID, (int)vbEvent.PropertyValue });
                 else if (smb5.DataType.Name == "DATE_AND_TIME")
-                    adsClient.InvokeRpcMethod(smb, "SetDTPropertyValue", new object[] { vbEvent.PropertyID, (int)vbEvent.PropertyValue });
-
+                    AdsClient.InvokeRpcMethod(smb, "InvokeSetterDT", new object[] { vbEvent.PropertyID, (int)vbEvent.PropertyValue });
                 else
-                    adsClient.InvokeRpcMethod(smb, "__set" + vbEvent.PropertyACIdentifier, new object[] { vbEvent.PropertyValue });
+                {
+                    switch (smb5.DataTypeId)
+                    {
+                        case AdsDatatypeId.ADST_BIT:
+                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterBool", new object[] { vbEvent.PropertyID, (bool)vbEvent.PropertyValue });
+                            break;
+                        case AdsDatatypeId.ADST_INT8:
+                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterByte", new object[] { vbEvent.PropertyID, (byte)vbEvent.PropertyValue });
+                            break;
+                        case AdsDatatypeId.ADST_INT16:
+                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterInt", new object[] { vbEvent.PropertyID, (short)vbEvent.PropertyValue });
+                            break;
+                        case AdsDatatypeId.ADST_INT32:
+                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterDInt", new object[] { vbEvent.PropertyID, (int)vbEvent.PropertyValue });
+                            break;
+                        case AdsDatatypeId.ADST_UINT16:
+                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterUInt", new object[] { vbEvent.PropertyID, (ushort)vbEvent.PropertyValue });
+                            break;
+                        case AdsDatatypeId.ADST_UINT32:
+                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterUDInt", new object[] { vbEvent.PropertyID, (uint)vbEvent.PropertyValue });
+                            break;
+                        case AdsDatatypeId.ADST_REAL32:
+                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterReal", new object[] { vbEvent.PropertyID, (float)vbEvent.PropertyValue });
+                            break;
+                        case AdsDatatypeId.ADST_REAL64:
+                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterLReal", new object[] { vbEvent.PropertyID, (double)vbEvent.PropertyValue });
+                            break;
+                    }
+                    //AdsClient.InvokeRpcMethod(smb, "__set" + vbEvent.PropertyACIdentifier, new object[] { vbEvent.PropertyValue });
+                }
             }
             catch (Exception e)
             {
