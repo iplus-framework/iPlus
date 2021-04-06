@@ -9,10 +9,11 @@ using gip.core.tcShared.ACVariobatch;
 using gip.core.communication;
 using System.IO;
 using gip.core.tcShared.WCF;
+using gip.core.tcShared;
 
 namespace gip.core.tcClient
 {
-    [ACClassInfo(Const.PackName_TwinCAT, "en{'TCSession'}de{'TCSession'}", Global.ACKinds.TACDAClass, Global.ACStorableTypes.NotStorable, false, false)]
+    [ACClassInfo(Const.PackName_TwinCAT, "en{'TwinCAT Session'}de{'TwinCAT Session'}", Global.ACKinds.TACDAClass, Global.ACStorableTypes.Required, false, false)]
     public class TCSession : ACSession
     {
         #region c'tors 
@@ -189,9 +190,16 @@ namespace gip.core.tcClient
             }
         }
 
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
+
+        public static string ResolveACUrlToTwinCATUrl(string acUrl)
+        {
+            acUrl = acUrl.Replace(ACUrlHelper.Delimiter_DirSeperator.ToString(), GCL.Delimiter_DirSeperator);
+            acUrl = acUrl.Substring(2);
+            return acUrl;
+        }
 
         /// <summary>
         /// Map properties from Variobatch to TwinCAT metadata.
@@ -229,7 +237,7 @@ namespace gip.core.tcClient
         {
             foreach(var item in manager.ACCompUrlDict)
             {
-                string acUrl = item.Key.Replace("\\", "_I_").Substring(2);
+                string acUrl = item.Key.Replace(ACUrlHelper.Delimiter_DirSeperator.ToString(), GCL.Delimiter_DirSeperator).Substring(2);
                 ACRMemoryMetaObj metaobj = Metadata.FirstOrDefault(c => c._ACUrl == acUrl);
                 if (metaobj != null)
                 {
@@ -251,7 +259,7 @@ namespace gip.core.tcClient
             TCEdgesDict.Clear();
             foreach(ACRMemoryMetaObj metaObj in Metadata.Where(c => c._TypeOfACObject == TypeOfACObject.Edge))
             {
-                string processedACUrl = metaObj._ACUrl.Replace("_VB", "").Replace("_","").Replace(".","\\");
+                string processedACUrl = metaObj._ACUrl.Replace(GCL.cRootACIdentifier , "").Replace("_","").Replace(".","\\");
                 TCEdgesDict.Add(processedACUrl, (uint)Array.IndexOf(Metadata, metaObj)+1);
             }
         }
@@ -517,8 +525,7 @@ namespace gip.core.tcClient
                 if (string.IsNullOrEmpty(acUrl) || Metadata == null || _Channel == null)
                     return;
 
-                string tcACUrl = "_VB" + acUrl.Replace("\\", "._");
-
+                string tcACUrl = TCSession.ResolveACUrlToTwinCATUrl(acUrl);
                 ACRMemoryMetaObj metadataInstance = Metadata.FirstOrDefault(c => c._ACUrl == tcACUrl);
                 if (metadataInstance != null)
                 {

@@ -1682,6 +1682,7 @@ namespace gip.bso.iplus
         public void Search()
         {
             AccessPrimary.NavSearch(Database.ContextIPlus);
+            OnPropertyChanged("ACProjectList");
         }
 
         /// <summary>

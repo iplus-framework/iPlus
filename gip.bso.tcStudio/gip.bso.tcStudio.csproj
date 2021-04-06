@@ -70,6 +70,10 @@
       <Project>{763ea3dc-3fb4-4d74-a252-a6a8811f0461}</Project>
       <Name>gip.bso.iplus</Name>
     </ProjectReference>
+    <ProjectReference Include="..\gip.core.tcShared\gip.core.tcShared.csproj">
+      <Project>{0a7d75c1-eafc-495c-b172-97fa094561fd}</Project>
+      <Name>gip.core.tcShared</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="TCatSysManagerLib">

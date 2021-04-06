@@ -18,6 +18,8 @@ namespace gip.core.autocomponent
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Relationship between two Connectionpoints'}de{'Beziehung zwischen zwei Verbindungspunkten'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class PAEdge : IACObject, IACEdge, INotifyPropertyChanged
     {
+        public const string ClassName = "PAEdge";
+
         public PAEdge(PAPoint target, PAPoint source, ACClassPropertyRelation relation)
         {
             _Target = target;

@@ -132,7 +132,6 @@
     <Compile Include="SPSCommunication\BaseACComponents\ACSession.cs" />
     <Compile Include="SPSCommunication\BaseACComponents\ACSessionObjSerializer.cs" />
     <Compile Include="SPSCommunication\BaseACComponents\ACSubscription.cs" />
-    <Compile Include="SPSCommunication\Driver\Beckhoff\ADSSession.cs" />
     <Compile Include="SPSCommunication\Driver\Endianess.cs" />
     <Compile Include="SPSCommunication\Driver\Modbus\ACComponents\ModbusItem.cs" />
     <Compile Include="SPSCommunication\Driver\Modbus\ACComponents\ModbusService.cs" />

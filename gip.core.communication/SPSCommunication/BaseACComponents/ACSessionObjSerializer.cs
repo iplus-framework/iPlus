@@ -8,7 +8,7 @@ using gip.core.autocomponent;
 
 namespace gip.core.communication
 {
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Converter for complex objects'}de{'Konverter für komplexe objekte'}", Global.ACKinds.TACDAClass, Global.ACStorableTypes.Required, false, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Converter for complex objects'}de{'Konverter für komplexe objekte'}", Global.ACKinds.TACDAClass, Global.ACStorableTypes.NotStorable, false, false)]
     public abstract class ACSessionObjSerializer : ACComponent
     {
         #region c´tors

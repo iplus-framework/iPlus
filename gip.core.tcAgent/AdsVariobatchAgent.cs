@@ -231,18 +231,18 @@ namespace gip.core.tcAgent
         {
             _metadataVariableHandle = AdsClient.CreateVariableHandle(GCL.cPathMemoryMetaObj);
             _memoryVariableHandle = AdsClient.CreateVariableHandle(GCL.cPathMemory);
-            _MemReadCycleHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventCycleInfo._MemReadCycle");
-            _EventCycleInfoHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventCycleInfo");
-            _ByteEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsByte");
-            _UIntEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsUInt");
-            _IntEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsInt");
-            _UDIntEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsUDInt");
-            _DIntEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsDInt");
-            _RealEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsReal");
-            _LRealEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsLReal");
-            _StringEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsString");
-            _TimeEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsTime");
-            _DTEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + "._EventsDT");
+            _MemReadCycleHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + GCL.cEventCycleInfo + GCL.cMemReadCycle);
+            _EventCycleInfoHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + GCL.cEventCycleInfo);
+            _ByteEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + GCL.cEventsByte);
+            _UIntEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + GCL.cEventsUInt);
+            _IntEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + GCL.cEventsInt);
+            _UDIntEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + GCL.cEventsUDInt);
+            _DIntEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + GCL.cEventsDInt);
+            _RealEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + GCL.cEventsReal);
+            _LRealEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + GCL.cEventsLReal);
+            _StringEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + GCL.cEventsString);
+            _TimeEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + GCL.cEventsTime);
+            _DTEventHandle = AdsClient.CreateVariableHandle(GCL.cPathVB + GCL.cEventsDT);
             _HandlesRead = true;
         }
 
@@ -395,7 +395,7 @@ namespace gip.core.tcAgent
 
             byte[] paramPart = new byte[parameters.Length - 4];
             Array.Copy(parameters, 4, paramPart, 0, parameters.Length - 4);
-            string acurl = "MAIN." + metaInstance._ACUrl + "._ACMethod._Parameter";
+            string acurl = GCL.cMainIdentifier + GCL.cADSPathSeparator  + metaInstance._ACUrl + GCL.cACMethod + GCL.cMethodParameter;
 
             try
             {
@@ -419,11 +419,11 @@ namespace gip.core.tcAgent
             short acMethodIndex = BitConverter.ToInt16(info, 13);
             ACRMemoryMetaObj metaInstance = ACVariobatch.Meta[instanceIndex];
 
-            string acMethodValue = "_Result";
+            string acMethodValue = GCL.cMethodResult;
             if (readParameters)
-                acMethodValue = "_Parameter";
+                acMethodValue = GCL.cMethodParameter;
 
-            string acUrl = "MAIN." + metaInstance._ACUrl + "._ACMethod." + acMethodValue;
+            string acUrl = GCL.cMainIdentifier + GCL.cADSPathSeparator + metaInstance._ACUrl + GCL.cACMethod + acMethodValue;
 
             try
             {
@@ -456,8 +456,8 @@ namespace gip.core.tcAgent
             if (instance == null)
                 return;
 
-            string acUrl = "MAIN." + instance._ACUrl;
-            string acUrlProp = acUrl + "._" + vbEvent.PropertyACIdentifier;
+            string acUrl = GCL.cMainIdentifier + GCL.cADSPathSeparator + instance._ACUrl;
+            string acUrlProp = acUrl + GCL.cADSChildSeparator + vbEvent.PropertyACIdentifier;
 
             try
             {
@@ -468,38 +468,38 @@ namespace gip.core.tcAgent
 
                 ITcAdsSymbol5 smb5 = smbP as ITcAdsSymbol5;
                 if (smb5.Category == DataTypeCategory.Enum)
-                    AdsClient.InvokeRpcMethod(smb, "InvokeSetterEnum", new object[] { vbEvent.PropertyID, (short)vbEvent.PropertyValue });
-                else if (smb5.DataType.Name == "TIME")
-                    AdsClient.InvokeRpcMethod(smb, "InvokeSetterTime", new object[] { vbEvent.PropertyID, (int)vbEvent.PropertyValue });
-                else if (smb5.DataType.Name == "DATE_AND_TIME")
-                    AdsClient.InvokeRpcMethod(smb, "InvokeSetterDT", new object[] { vbEvent.PropertyID, (int)vbEvent.PropertyValue });
+                    AdsClient.InvokeRpcMethod(smb, GCL.cRPC_InvokeSetterEnum, new object[] { vbEvent.PropertyID, (short)vbEvent.PropertyValue });
+                else if (smb5.DataType.Name == GCL.cADSType_TimeSpan)
+                    AdsClient.InvokeRpcMethod(smb, GCL.cRPC_InvokeSetterTime, new object[] { vbEvent.PropertyID, (int)vbEvent.PropertyValue });
+                else if (smb5.DataType.Name == GCL.cADSType_DateTime)
+                    AdsClient.InvokeRpcMethod(smb, GCL.cRPC_InvokeSetterDT, new object[] { vbEvent.PropertyID, (int)vbEvent.PropertyValue });
                 else
                 {
                     switch (smb5.DataTypeId)
                     {
                         case AdsDatatypeId.ADST_BIT:
-                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterBool", new object[] { vbEvent.PropertyID, (bool)vbEvent.PropertyValue });
+                            AdsClient.InvokeRpcMethod(smb, GCL.cRPC_InvokeSetterBool, new object[] { vbEvent.PropertyID, (bool)vbEvent.PropertyValue });
                             break;
                         case AdsDatatypeId.ADST_INT8:
-                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterByte", new object[] { vbEvent.PropertyID, (byte)vbEvent.PropertyValue });
+                            AdsClient.InvokeRpcMethod(smb, GCL.cRPC_InvokeSetterByte, new object[] { vbEvent.PropertyID, (byte)vbEvent.PropertyValue });
                             break;
                         case AdsDatatypeId.ADST_INT16:
-                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterInt", new object[] { vbEvent.PropertyID, (short)vbEvent.PropertyValue });
+                            AdsClient.InvokeRpcMethod(smb, GCL.cRPC_InvokeSetterInt, new object[] { vbEvent.PropertyID, (short)vbEvent.PropertyValue });
                             break;
                         case AdsDatatypeId.ADST_INT32:
-                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterDInt", new object[] { vbEvent.PropertyID, (int)vbEvent.PropertyValue });
+                            AdsClient.InvokeRpcMethod(smb, GCL.cRPC_InvokeSetterDInt, new object[] { vbEvent.PropertyID, (int)vbEvent.PropertyValue });
                             break;
                         case AdsDatatypeId.ADST_UINT16:
-                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterUInt", new object[] { vbEvent.PropertyID, (ushort)vbEvent.PropertyValue });
+                            AdsClient.InvokeRpcMethod(smb, GCL.cRPC_InvokeSetterUInt, new object[] { vbEvent.PropertyID, (ushort)vbEvent.PropertyValue });
                             break;
                         case AdsDatatypeId.ADST_UINT32:
-                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterUDInt", new object[] { vbEvent.PropertyID, (uint)vbEvent.PropertyValue });
+                            AdsClient.InvokeRpcMethod(smb, GCL.cRPC_InvokeSetterUDInt, new object[] { vbEvent.PropertyID, (uint)vbEvent.PropertyValue });
                             break;
                         case AdsDatatypeId.ADST_REAL32:
-                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterReal", new object[] { vbEvent.PropertyID, (float)vbEvent.PropertyValue });
+                            AdsClient.InvokeRpcMethod(smb, GCL.cRPC_InvokeSetterReal, new object[] { vbEvent.PropertyID, (float)vbEvent.PropertyValue });
                             break;
                         case AdsDatatypeId.ADST_REAL64:
-                            AdsClient.InvokeRpcMethod(smb, "InvokeSetterLReal", new object[] { vbEvent.PropertyID, (double)vbEvent.PropertyValue });
+                            AdsClient.InvokeRpcMethod(smb, GCL.cRPC_InvokeSetterLReal, new object[] { vbEvent.PropertyID, (double)vbEvent.PropertyValue });
                             break;
                     }
                     //AdsClient.InvokeRpcMethod(smb, "__set" + vbEvent.PropertyACIdentifier, new object[] { vbEvent.PropertyValue });
