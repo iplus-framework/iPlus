@@ -189,16 +189,16 @@ namespace gip.core.layoutengine.CodeCompletion
 
                 return data.ToArray();
             }
-            else if(targetSchema.Includes.Count > 0)
+            else if (targetSchema.Includes.Count > 0)
             {
-                foreach(XmlSchemaExternal import in targetSchema.Includes)
+                foreach (XmlSchemaExternal import in targetSchema.Includes)
                 {
-                    if(import != null && import.Schema != null)
+                    if (import != null && import.Schema != null)
                     {
                         var result = GetElementCompletionData(namespacePrefix, import.Schema);
                         if (result == null)
                             continue;
-                        if(result.Any())
+                        if (result.Any())
                             return result;
                     }
                 }
@@ -214,8 +214,8 @@ namespace gip.core.layoutengine.CodeCompletion
             if (parentPath == null)
                 return GetElementCompletionData(namespacePrefix, targetSchema);
 
-           XmlSchemaElement el = FindElement(parentPath);
-            if(el == null)
+            XmlSchemaElement el = FindElement(parentPath);
+            if (el == null)
                 return GetElementCompletionData(namespacePrefix, targetSchema);
 
             var subGroupName = GetElementAsComplexType(el);
@@ -285,7 +285,7 @@ namespace gip.core.layoutengine.CodeCompletion
         /// Gets the child element completion data for the xml element that exists
         /// at the end of the specified path.
         /// </summary>
-        public ICompletionData[] GetChildElementCompletionData(XmlElementPath path, Dictionary<string,string> declNs)
+        public ICompletionData[] GetChildElementCompletionData(XmlElementPath path, Dictionary<string, string> declNs)
         {
             declaredNamespaces = declNs;
 
@@ -305,7 +305,7 @@ namespace gip.core.layoutengine.CodeCompletion
 
             foreach (string ns in declNs.Values.Where(c => !string.IsNullOrEmpty(c)))
             {
-                if(path.Elements.LastPrefix != ns)
+                if (path.Elements.LastPrefix != ns)
                     data.Add(new XmlCompletionData(ns + ":"));
             }
 
@@ -391,9 +391,9 @@ namespace gip.core.layoutengine.CodeCompletion
                 //    return element;
                 //}
             }
-            if(targetSchema.Includes.Count > 0)
+            if (targetSchema.Includes.Count > 0)
             {
-                foreach(XmlSchemaExternal sch in targetSchema.Includes)
+                foreach (XmlSchemaExternal sch in targetSchema.Includes)
                 {
                     if (sch.Schema == null)
                     {
@@ -491,7 +491,7 @@ namespace gip.core.layoutengine.CodeCompletion
             {
                 foreach (XmlSchemaExternal import in targetSchema.Includes)
                 {
-                    if(import.Schema != null)
+                    if (import.Schema != null)
                     {
                         var grp = FindGroup(name, import.Schema);
                         if (grp != null)
@@ -593,7 +593,7 @@ namespace gip.core.layoutengine.CodeCompletion
                         XmlSchemaCache.TryGetValue(incSchema.SchemaLocation, out cachedSchema);
                     }
 
-                    if(cachedSchema != null)
+                    if (cachedSchema != null)
                         incSchema.Schema = cachedSchema;
                     else
                     {
@@ -606,7 +606,8 @@ namespace gip.core.layoutengine.CodeCompletion
                             incSchema.Schema = ReadSchema1(xmlReader);
                             lock (XmlSchemaCacheLock)
                             {
-                                XmlSchemaCache.Add(incSchema.SchemaLocation, incSchema.Schema);
+                                if (!XmlSchemaCache.Keys.Contains(incSchema.SchemaLocation))
+                                    XmlSchemaCache.Add(incSchema.SchemaLocation, incSchema.Schema);
                             }
                         }
                     }
@@ -728,11 +729,11 @@ namespace gip.core.layoutengine.CodeCompletion
                     }
                 }
             }
-            else if(targetSchema.Includes.Count > 0)
+            else if (targetSchema.Includes.Count > 0)
             {
-                foreach(XmlSchemaExternal import in targetSchema.Includes)
+                foreach (XmlSchemaExternal import in targetSchema.Includes)
                 {
-                    if(import != null && import.Schema != null)
+                    if (import != null && import.Schema != null)
                     {
                         var result = FindElement(name, import.Schema);
                         if (result != null)
@@ -807,7 +808,7 @@ namespace gip.core.layoutengine.CodeCompletion
                 if (childElement != null)
                 {
                     string name = childElement.Name;
-                    
+
                     if (name == null)
                     {
                         name = childElement.RefName.Name;
@@ -838,7 +839,7 @@ namespace gip.core.layoutengine.CodeCompletion
                     }
                     else
                     {
-                        if(childElement.QualifiedName != null && !string.IsNullOrEmpty(childElement.QualifiedName.Namespace))
+                        if (childElement.QualifiedName != null && !string.IsNullOrEmpty(childElement.QualifiedName.Namespace))
                         {
                             string elementPrefix;
                             if (declaredNamespaces.TryGetValue(childElement.QualifiedName.Namespace, out elementPrefix))
@@ -1040,7 +1041,7 @@ namespace gip.core.layoutengine.CodeCompletion
                 {
                     schemaDocumentation = annotation.Items.OfType<XmlSchemaDocumentation>().FirstOrDefault(x => x.Language == null);
                 }
-                
+
                 if (schemaDocumentation != null)
                 {
                     foreach (XmlNode node in schemaDocumentation.Markup)
@@ -1057,7 +1058,7 @@ namespace gip.core.layoutengine.CodeCompletion
                             }
                         }
                     }
-                    
+
                 }
                 documentation = documentationBuilder.ToString();
             }
@@ -1700,7 +1701,7 @@ namespace gip.core.layoutengine.CodeCompletion
             XmlSchemaAttribute matchedAttribute = null;
 
             XmlSchemaObjectCollection attributes = complexType.Attributes;
-            if(complexType.ContentModel != null && complexType.ContentModel.Content != null)
+            if (complexType.ContentModel != null && complexType.ContentModel.Content != null)
             {
                 FindAttributesInBase(complexType, attributes);
                 //XmlSchemaComplexContentExtension ext = complexType.ContentModel.Content as XmlSchemaComplexContentExtension;
@@ -1726,7 +1727,7 @@ namespace gip.core.layoutengine.CodeCompletion
                 //}
             }
 
-                matchedAttribute = FindAttribute(attributes, name);
+            matchedAttribute = FindAttribute(attributes, name);
 
             if (matchedAttribute == null)
             {
@@ -1755,11 +1756,11 @@ namespace gip.core.layoutengine.CodeCompletion
                         XmlSchemaComplexType cmplType = bType.ElementSchemaType as XmlSchemaComplexType;
                         if (cmplType != null)
                         {
-                            foreach(var item in cmplType.Attributes)
+                            foreach (var item in cmplType.Attributes)
                                 attributes.Add(item);
                         }
 
-                        if(cmplType.ContentModel != null && cmplType.ContentModel.Content != null)
+                        if (cmplType.ContentModel != null && cmplType.ContentModel.Content != null)
                             FindAttributesInBase(cmplType, attributes);
                     }
                 }
@@ -1925,26 +1926,26 @@ namespace gip.core.layoutengine.CodeCompletion
 
             //if(group.Namespace == targetSchema.TargetNamespace)
             //{
-                foreach (XmlSchemaElement element in targetSchema.Elements.Values)
+            foreach (XmlSchemaElement element in targetSchema.Elements.Values)
+            {
+                if (element.SubstitutionGroup == group)
                 {
-                    if (element.SubstitutionGroup == group)
+                    if (element.Name != null)
                     {
-                        if (element.Name != null)
+                        if (element.Name == name.Name)
                         {
-                            if (element.Name == name.Name)
-                            {
-                                matchedElement = element;
-                                break;
-                            }
+                            matchedElement = element;
+                            break;
                         }
                     }
                 }
+            }
             //}
             if (targetSchema.Includes.Count > 0)
             {
-                foreach(XmlSchemaExternal import in targetSchema.Includes)
+                foreach (XmlSchemaExternal import in targetSchema.Includes)
                 {
-                    if(import != null && import.Schema != null)
+                    if (import != null && import.Schema != null)
                     {
                         var result = FindSubstitutionGroupElement(group, name, import.Schema);
                         if (result != null)
@@ -1982,7 +1983,8 @@ namespace gip.core.layoutengine.CodeCompletion
 
             lock (XmlSchemaCompletionData.XmlSchemaCacheLock)
             {
-                XmlSchemaCompletionData.XmlSchemaCache.Add(absoluteUri.AbsoluteUri, schema);
+                if (!XmlSchemaCompletionData.XmlSchemaCache.Keys.Contains(absoluteUri.AbsoluteUri))
+                    XmlSchemaCompletionData.XmlSchemaCache.Add(absoluteUri.AbsoluteUri, schema);
             }
 
             return schema;
