@@ -40,6 +40,16 @@ namespace gip.bso.iplus
         {
             if (!base.ACInit(startChildMode))
                 return false;
+            ACClass bsoCompanyACClass = Database.ContextIPlus.ACClass.FirstOrDefault(c => c.ACIdentifier == "BSOCompany");
+            var test = FindChildComponents(bsoCompanyACClass);
+            var queryChilds = FindChildComponents(bsoCompanyACClass);
+            ACComponent childBSO = null;
+            if(queryChilds != null && queryChilds.Any())
+                childBSO = queryChilds[0] as ACComponent;
+            if (childBSO == null)
+                childBSO = StartComponent("BSOCompany_Child", null, new object[] { }) as ACComponent;
+            if (childBSO != null)
+                childBSO.ACUrlCommand("!" + "SetCurrentVBUser", Root.Environment.User);
             return true;
         }
 
