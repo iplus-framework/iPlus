@@ -40,7 +40,8 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public static List<IACConfig> GetStoreConfigurationList(IEnumerable<IACConfig> configItemsSource, string preConfigACUrl, List<string> localConfigACUrlList, Guid? vbiACClassID)
         {
-            if (!configItemsSource.Any()) return null;
+            if (!configItemsSource.Any()) 
+                return null;
             return
                 ACConfigQuery<IACConfig>.QueryConfigSource(configItemsSource, preConfigACUrl, localConfigACUrlList, vbiACClassID)
                 .Where(x =>  (x as EntityObject).EntityState != EntityState.Deleted && (x as EntityObject).EntityState != EntityState.Detached)
@@ -49,7 +50,8 @@ namespace gip.core.datamodel
 
         public static List<IACConfig> GetStoreConfigurationList(IEnumerable<IACConfig> configItemsSource, string preConfigACUrl, string startsWithLocalConfigACUrl, Guid? vbiACClassID)
         {
-            if (!configItemsSource.Any()) return null;
+            if (!configItemsSource.Any()) 
+                return null;
             return
                 ACConfigQuery<IACConfig>.QueryConfigSourceStart(configItemsSource, preConfigACUrl, startsWithLocalConfigACUrl, vbiACClassID)
                 .Where(x => (x as EntityObject).EntityState != EntityState.Deleted && (x as EntityObject).EntityState != EntityState.Detached)

@@ -73,6 +73,7 @@ namespace gip.core.autocomponent
             using (ACMonitor.Lock(_20015_LockValue))
             {
                 _PossibleModuleList = null;
+                _RoutableModuleList = null;
                 _LastRuleValueList = null;
                 _LastSelectedClasses = null;
                 _Priority = null;
@@ -100,6 +101,7 @@ namespace gip.core.autocomponent
             using (ACMonitor.Lock(_20015_LockValue))
             {
                 _PossibleModuleList = null;
+                _RoutableModuleList = null;
                 _LastRuleValueList = null;
                 _LastSelectedClasses = null;
                 _WaitsOnAvailableProcessModule = false;
@@ -165,6 +167,7 @@ namespace gip.core.autocomponent
             {
                 _MyConfiguration = null;
                 _Priority = null;
+                _RoutableModuleList = null;
             }
             this.HasRules.ValueT = 0;
         }
@@ -341,7 +344,6 @@ namespace gip.core.autocomponent
             }
         }
 
-        //protected PAProcessModule[] _PossibleModuleList = null;
         public bool FIFOCheckFirstPM
         {
             get
@@ -482,6 +484,78 @@ namespace gip.core.autocomponent
             }
         }
 
+        public void ResetCacheOfRoutableModuleList()
+        {
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                _RoutableModuleList = null;
+            }
+        }
+
+        protected PAProcessModule[] _RoutableModuleList = null;
+        /// <summary>
+        /// Returns all processmodules that can be occupied from this group according to the routing rules. 
+        /// It calls PossibleModuleList an removes all processmodules that are not in Global.OperatingMode.Automatic
+        /// and excluded via Routing rules.
+        /// </summary>
+        public virtual PAProcessModule[] GetRoutableModuleList(bool forceRebuildCache = false)
+        {
+            try
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    if (forceRebuildCache)
+                        _RoutableModuleList = null;
+                    if (_RoutableModuleList != null)
+                        return _RoutableModuleList;
+                }
+
+                if (!PossibleModuleList.Any())
+                {
+                    using (ACMonitor.Lock(_20015_LockValue))
+                    {
+                        _RoutableModuleList = new PAProcessModule[] { };
+                        return _RoutableModuleList;
+                    }
+                }
+
+                List<PAProcessModule> modulesInAutomaticMode = PossibleModuleList.Where(c => c.OperatingMode.ValueT == Global.OperatingMode.Automatic).ToList();
+
+                // Apply rules
+                if (modulesInAutomaticMode.Any())
+                {
+                    RuleValueList ruleValueList = null;
+                    ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
+                    ruleValueList = serviceInstance.GetRuleValueList(MandatoryConfigStores, PreValueACUrl, ConfigACUrl + @"\Rules\" + ACClassWFRuleTypes.Allowed_instances.ToString());
+                    if (ruleValueList != null)
+                    {
+                        modulesInAutomaticMode = OnApplyRoutingRules(ruleValueList, modulesInAutomaticMode);
+                    }
+                }
+
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    if (_RoutableModuleList == null)
+                    {
+                        if (modulesInAutomaticMode != null && modulesInAutomaticMode.Any())
+                            _RoutableModuleList = modulesInAutomaticMode.ToArray();
+                        else
+                            _RoutableModuleList = new PAProcessModule[] { };
+                    }
+                    return _RoutableModuleList;
+                }
+            }
+            catch (Exception e)
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    if (_RoutableModuleList == null)
+                        _RoutableModuleList = new PAProcessModule[] { };
+                    return _RoutableModuleList;
+                }
+            }
+        }
+
 
         /// <summary>
         /// ProcessModuleList removes all entries from PossibleModuleList that aren't in automatic mode and doesn't match the routing rules. 
@@ -501,19 +575,8 @@ namespace gip.core.autocomponent
                 if (!PossibleModuleList.Any())
                     return null;
 
-                List<PAProcessModule> modulesInAutomaticMode = PossibleModuleList.Where(c => c.OperatingMode.ValueT == Global.OperatingMode.Automatic).ToList();
+                List<PAProcessModule> modulesInAutomaticMode = GetRoutableModuleList(true).ToList();
 
-                // Apply rules
-                if (modulesInAutomaticMode.Any())
-                {
-                    RuleValueList ruleValueList = null;
-                    ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
-                    ruleValueList = serviceInstance.GetRuleValueList(MandatoryConfigStores, PreValueACUrl, ConfigACUrl + @"\Rules\" + ACClassWFRuleTypes.Allowed_instances.ToString());
-                    if (ruleValueList != null)
-                    {
-                        modulesInAutomaticMode = OnApplyRoutingRules(ruleValueList, modulesInAutomaticMode);
-                    }
-                }
                 if (!modulesInAutomaticMode.Any())
                 {
                     using (ACMonitor.Lock(_20015_LockValue))
@@ -927,6 +990,7 @@ namespace gip.core.autocomponent
             using (ACMonitor.Lock(_20015_LockValue))
             {
                 _PossibleModuleList = null;
+                _RoutableModuleList = null;
                 _WaitsOnAvailableProcessModule = false;
                 _HasHighestPriorityForMapping = null;
                 _LastRuleValueList = null;

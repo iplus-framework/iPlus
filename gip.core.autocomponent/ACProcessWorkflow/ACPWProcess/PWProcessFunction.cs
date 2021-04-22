@@ -779,12 +779,25 @@ namespace gip.core.autocomponent
         #endregion
 
         #region Mapping
+        /// <summary>
+        /// Returns a list of all Modules that could be theoretically be used during the execution of this Workflow.
+        /// It goes through all PWGroup's and reads their PossibleModuleList-Property and merges all results together to a distincted list.
+        /// </summary>
         public IEnumerable<PAProcessModule> AllPossibleModules
         {
             get
             {
                 return FindChildComponents<PWGroup>(c => c is PWGroup).SelectMany(c => c.PossibleModuleList).Distinct();
             }
+        }
+
+        /// <summary>
+        /// Returns a list of all Modules that can be used (according to the routing rules) during the execution of this Workflow.
+        /// It goes through all PWGroup's and reads their RoutableModuleList-Property and merges all results together to a distincted list.
+        /// </summary>
+        public IEnumerable<PAProcessModule> GetAllRoutableModules(bool forceRebuildCache = false)
+        {
+            return FindChildComponents<PWGroup>(c => c is PWGroup).SelectMany(c => c.GetRoutableModuleList(forceRebuildCache)).Distinct();
         }
         #endregion
 

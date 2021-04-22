@@ -689,11 +689,15 @@ namespace gip.core.datamodel
             if (IsAcknowledged)
                 return;
             if (acknowledgedBy == null)
+            {
+                _TimeStampAcknowledged = DateTime.Now;
                 return;
-            if (AcknowledgedBy != null)
-                return;
-            _AcknowledgedBy = acknowledgedBy.Initials;
-            OnPropertyChanged("AcknowledgedBy");
+            }
+            if (AcknowledgedBy == null)
+            {
+                _AcknowledgedBy = acknowledgedBy.Initials;
+                OnPropertyChanged("AcknowledgedBy");
+            }
             _TimeStampAcknowledged = DateTime.Now;
         }
 
