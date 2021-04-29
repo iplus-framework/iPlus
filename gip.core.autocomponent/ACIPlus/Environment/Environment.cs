@@ -159,7 +159,7 @@ namespace gip.core.autocomponent
             }
             var result2 = acClassMessage.GetTranslation(VBLanguageCode);
             string result = result2;
-            if (parameter != null)
+            if (parameter != null && parameter.Any())
             {
                 try
                 {
