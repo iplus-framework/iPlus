@@ -166,6 +166,8 @@ namespace gip.core.autocomponent
                 _ExpectedConfigStoresCount = 0;
                 _RecalcExpectedConfigStoresCount = false;
                 _MandatoryConfigStores = null;
+                _IsConfigStoresCountInvalid = false;
+                _IgnoreConfigStoreValidation = false;
             }
 
             return baseResult;
@@ -178,6 +180,8 @@ namespace gip.core.autocomponent
                 _ExpectedConfigStoresCount = 0;
                 _RecalcExpectedConfigStoresCount = false;
                 _MandatoryConfigStores = null;
+                _IsConfigStoresCountInvalid = false;
+                _IgnoreConfigStoreValidation = false;
             }
             base.Recycle(content, parentACObject, parameter, acIdentifier);
         }
@@ -751,6 +755,9 @@ namespace gip.core.autocomponent
 
         protected int _ExpectedConfigStoresCount = 0;
         protected bool _RecalcExpectedConfigStoresCount = false;
+        protected bool _IsConfigStoresCountInvalid = false;
+        protected bool _IgnoreConfigStoreValidation = false;
+
         public readonly ACMonitorObject _20015_LockStoreList = new ACMonitorObject(20015);
         protected List<IACConfigStore> _MandatoryConfigStores;
         public override List<IACConfigStore> MandatoryConfigStores
@@ -812,14 +819,17 @@ namespace gip.core.autocomponent
             int expectedConfigStores = 0;
             using (ACMonitor.Lock(_20015_LockStoreList))
             {
-                if (_RecalcExpectedConfigStoresCount)
-                    isValid = true;
+                if (  _IgnoreConfigStoreValidation
+                   || _RecalcExpectedConfigStoresCount)
+                    return true;
                 expectedConfigStores = _ExpectedConfigStoresCount;
                 if (_MandatoryConfigStores == null)
                     isValid = false;
-                countConfigStores = _MandatoryConfigStores.Count;
+                else
+                    countConfigStores = _MandatoryConfigStores.Count;
                 if (countConfigStores < _ExpectedConfigStoresCount)
                     isValid = false;
+                _IsConfigStoresCountInvalid = !isValid;
             }
 
             if (!isValid)
@@ -833,7 +843,6 @@ namespace gip.core.autocomponent
                 if (autoReloadConfig)
                     ReloadConfig();
             }
-
             return isValid;
         }
 
@@ -851,6 +860,26 @@ namespace gip.core.autocomponent
             MandatoryConfigStores.ToArray();
             this.HasRules.ValueT = 0;
             FindChildComponents<IACMyConfigCache>(c => c is IACMyConfigCache).ForEach(c => c.ClearMyConfiguration());
+        }
+
+        [ACMethodInteraction("Process", "en{'Ignore Configuration-Validation'}de{'Ignoriere Konfigurationsüberprüfung'}", 311, true)]
+        public virtual void IgnoreConfigStoreValidation()
+        {
+            if (!IsEnabledIgnoreConfigStoreValidation())
+                return;
+            using (ACMonitor.Lock(_20015_LockStoreList))
+            {
+                _IgnoreConfigStoreValidation = true;
+            }
+            AcknowledgeAlarms();
+        }
+
+        public virtual bool IsEnabledIgnoreConfigStoreValidation()
+        {
+            using (ACMonitor.Lock(_20015_LockStoreList))
+            {
+                return _IsConfigStoresCountInvalid && !_IgnoreConfigStoreValidation;
+            }
         }
 
         #endregion
@@ -928,6 +957,12 @@ namespace gip.core.autocomponent
                 case "ResetSubState":
                     ResetSubState();
                     return true;
+                case "ReloadConfig":
+                    ReloadConfig();
+                    return true;
+                case "IgnoreConfigStoreValidation":
+                    IgnoreConfigStoreValidation();
+                    return true;
                 case Const.IsEnabledPrefix + ACStateConst.TMReset:
                     result = IsEnabledReset();
                     return true;
@@ -945,6 +980,9 @@ namespace gip.core.autocomponent
                     return true;
                 case Const.IsEnabledPrefix + "ResetSubState":
                     result = IsEnabledResetSubState();
+                    return true;
+                case Const.IsEnabledPrefix + "IgnoreConfigStoreValidation":
+                    result = IsEnabledIgnoreConfigStoreValidation();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -1459,6 +1497,49 @@ namespace gip.core.autocomponent
             return result;
         }
 
+        #endregion
+
+        #region Diagnostics and Dump
+        protected override void DumpPropertyList(XmlDocument doc, XmlElement xmlACPropertyList)
+        {
+            base.DumpPropertyList(doc, xmlACPropertyList);
+
+            XmlElement xmlNode = xmlACPropertyList["_ExpectedConfigStoresCount"];
+            if (xmlNode == null)
+            {
+                xmlNode = doc.CreateElement("_ExpectedConfigStoresCount");
+                if (xmlNode != null)
+                    xmlNode.InnerText = _ExpectedConfigStoresCount.ToString();
+                xmlACPropertyList.AppendChild(xmlNode);
+            }
+
+            xmlNode = xmlACPropertyList["_RecalcExpectedConfigStoresCount"];
+            if (xmlNode == null)
+            {
+                xmlNode = doc.CreateElement("_RecalcExpectedConfigStoresCount");
+                if (xmlNode != null)
+                    xmlNode.InnerText = _RecalcExpectedConfigStoresCount.ToString();
+                xmlACPropertyList.AppendChild(xmlNode);
+            }
+
+            xmlNode = xmlACPropertyList["_IsConfigStoresCountInvalid"];
+            if (xmlNode == null)
+            {
+                xmlNode = doc.CreateElement("_IsConfigStoresCountInvalid");
+                if (xmlNode != null)
+                    xmlNode.InnerText = _IsConfigStoresCountInvalid.ToString();
+                xmlACPropertyList.AppendChild(xmlNode);
+            }
+
+            xmlNode = xmlACPropertyList["_IgnoreConfigStoreValidation"];
+            if (xmlNode == null)
+            {
+                xmlNode = doc.CreateElement("_IgnoreConfigStoreValidation");
+                if (xmlNode != null)
+                    xmlNode.InnerText = _IgnoreConfigStoreValidation.ToString();
+                xmlACPropertyList.AppendChild(xmlNode);
+            }
+        }
         #endregion
 
         #endregion
