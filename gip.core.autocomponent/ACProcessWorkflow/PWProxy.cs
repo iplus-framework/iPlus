@@ -313,10 +313,9 @@ namespace gip.core.autocomponent
         {
             get
             {
-
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
-                    if (_MandatoryConfigStores != null)
+                    if (_MandatoryConfigStores != null && _MandatoryConfigStores.Any())
                         return _MandatoryConfigStores;
                 }
 
@@ -335,15 +334,13 @@ namespace gip.core.autocomponent
                 }
                 if (rootPWProxy == this)
                 {
-                    List<ACConfigStoreInfo> rmiResult = RMInvoker.ExecuteMethod("GetSerializedMandatoryConfigStores", new Object[] { }) as List<ACConfigStoreInfo>;
+                    List<ACConfigStoreInfo> rmiResult = RMInvoker.ExecuteMethod("GetACConfigStoreInfo", new Object[] { }) as List<ACConfigStoreInfo>;
                     ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
-
 
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                     {
-                        mandatoryConfigStores = serviceInstance.DeserializeMandatoryConfigStores(this.Database, rmiResult);
+                        mandatoryConfigStores = serviceInstance.AttachConfigStoresToDatabase(this.Database, rmiResult);
                     }
-
 
                     using (ACMonitor.Lock(_20015_LockValue))
                     {

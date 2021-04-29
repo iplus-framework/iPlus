@@ -163,6 +163,8 @@ namespace gip.core.autocomponent
 
             using (ACMonitor.Lock(_20015_LockStoreList))
             {
+                _ExpectedConfigStoresCount = 0;
+                _RecalcExpectedConfigStoresCount = false;
                 _MandatoryConfigStores = null;
             }
 
@@ -173,6 +175,8 @@ namespace gip.core.autocomponent
         {
             using (ACMonitor.Lock(_20015_LockStoreList))
             {
+                _ExpectedConfigStoresCount = 0;
+                _RecalcExpectedConfigStoresCount = false;
                 _MandatoryConfigStores = null;
             }
             base.Recycle(content, parentACObject, parameter, acIdentifier);
@@ -682,6 +686,11 @@ namespace gip.core.autocomponent
             {
                 List<ACClassMethod> methods = new List<ACClassMethod>();
                 IACComponentPWNode invoker = null;
+                using (ACMonitor.Lock(_20015_LockStoreList))
+                {
+                    if (_RecalcExpectedConfigStoresCount)
+                        _ExpectedConfigStoresCount++;
+                }
                 if (this.ContentACClassWF != null)
                 {
                     ACClassMethod acClassMethod = null;
@@ -699,9 +708,24 @@ namespace gip.core.autocomponent
                             PWProcessFunction pwFunction = invoker.ParentRootWFNode as PWProcessFunction;
                             if (pwFunction != null)
                             {
+                                using (ACMonitor.Lock(_20015_LockStoreList))
+                                {
+                                    if (_RecalcExpectedConfigStoresCount)
+                                        _ExpectedConfigStoresCount++;
+                                }
                                 var parentHierarchy = pwFunction.ACConfigMethodHierarchy;
                                 if (parentHierarchy != null && parentHierarchy.Any())
+                                {
                                     methods.AddRange(parentHierarchy);
+                                    using (ACMonitor.Lock(_20015_LockStoreList))
+                                    {
+                                        if (_RecalcExpectedConfigStoresCount)
+                                        {
+                                            _ExpectedConfigStoresCount--;
+                                            _ExpectedConfigStoresCount += parentHierarchy.Count;
+                                        }
+                                    }
+                                }
                             }
                             //acClassMethod = null;
                             //using (ACMonitor.Lock(this.ContextLockForACClassWF))
@@ -725,39 +749,92 @@ namespace gip.core.autocomponent
 
         #region IACConfigStoreSelection
 
+        protected int _ExpectedConfigStoresCount = 0;
+        protected bool _RecalcExpectedConfigStoresCount = false;
         public readonly ACMonitorObject _20015_LockStoreList = new ACMonitorObject(20015);
         protected List<IACConfigStore> _MandatoryConfigStores;
         public override List<IACConfigStore> MandatoryConfigStores
         {
             get
             {
-                using (ACMonitor.Lock(_20015_LockStoreList))
+                try
                 {
-                    if (_MandatoryConfigStores != null)
-                        return _MandatoryConfigStores.ToList();
-                }
-                var mandatoryConfigStores = new List<IACConfigStore>();
-
-                mandatoryConfigStores.AddRange(ACConfigMethodHierarchy.Select(x => x as IACConfigStore));
-
-                IACComponentPWNode invoker = null;
-                if (this.ContentACClassWF != null)
-                {
-                    if (RootPW != null && CurrentTask != null && CurrentTask.ValueT != null)
+                    using (ACMonitor.Lock(_20015_LockStoreList))
                     {
-                        invoker = CurrentTask.ValueT as IACComponentPWNode;
+                        if (_MandatoryConfigStores != null
+                            && _MandatoryConfigStores.Any()
+                            && _ExpectedConfigStoresCount >= 1)
+                            return _MandatoryConfigStores.ToList();
+                        _ExpectedConfigStoresCount = 0;
+                        _RecalcExpectedConfigStoresCount = true;
+                    }
+                    var mandatoryConfigStores = new List<IACConfigStore>();
+
+                    mandatoryConfigStores.AddRange(ACConfigMethodHierarchy.Select(x => x as IACConfigStore));
+
+                    IACComponentPWNode invoker = null;
+                    if (this.ContentACClassWF != null)
+                    {
+                        if (RootPW != null && CurrentTask != null && CurrentTask.ValueT != null)
+                        {
+                            invoker = CurrentTask.ValueT as IACComponentPWNode;
+                        }
+                    }
+
+                    using (ACMonitor.Lock(_20015_LockStoreList))
+                    {
+                        if (_RecalcExpectedConfigStoresCount)
+                            _ExpectedConfigStoresCount++;
+                    }
+                    if (CurrentACProgram != null)
+                        mandatoryConfigStores.Add(CurrentACProgram);
+
+                    using (ACMonitor.Lock(_20015_LockStoreList))
+                    {
+                        _MandatoryConfigStores = mandatoryConfigStores;
+                        return _MandatoryConfigStores.ToList();
                     }
                 }
-
-                if (CurrentACProgram != null)
-                    mandatoryConfigStores.Add(CurrentACProgram);
-
-                using (ACMonitor.Lock(_20015_LockStoreList))
+                finally
                 {
-                    _MandatoryConfigStores = mandatoryConfigStores;
-                    return _MandatoryConfigStores.ToList();
+                    using (ACMonitor.Lock(_20015_LockStoreList))
+                    {
+                        _RecalcExpectedConfigStoresCount = false;
+                    }
                 }
             }
+        }
+
+        public override bool ValidateExpectedConfigStores(bool autoReloadConfig = true)
+        {
+            bool isValid = true;
+            int countConfigStores = 0;
+            int expectedConfigStores = 0;
+            using (ACMonitor.Lock(_20015_LockStoreList))
+            {
+                if (_RecalcExpectedConfigStoresCount)
+                    isValid = true;
+                expectedConfigStores = _ExpectedConfigStoresCount;
+                if (_MandatoryConfigStores == null)
+                    isValid = false;
+                countConfigStores = _MandatoryConfigStores.Count;
+                if (countConfigStores < _ExpectedConfigStoresCount)
+                    isValid = false;
+            }
+
+            if (!isValid)
+            {
+                //Error50404: Wrong count of config stores! {0} entries are expected. But {1} entries are read.
+                Msg msg = new Msg(this, eMsgLevel.Error, PWClassName, "ValidateExpectedConfigStores(1)", 1000, "Error50404", expectedConfigStores, countConfigStores);
+
+                if (IsAlarmActive(ProcessAlarm, msg.Message) == null)
+                    Messages.LogError(this.GetACUrl(), "ValidateExpectedConfigStores(1)", String.Format("{0} : {1}", msg.Message, DumpMandatoryConfigStores()));
+                OnNewAlarmOccurred(ProcessAlarm, msg, true);
+                if (autoReloadConfig)
+                    ReloadConfig();
+            }
+
+            return isValid;
         }
 
         [ACMethodInteraction("Process", "en{'Reload Configuration'}de{'Aktualisiere Konfiguration'}", 310, true)]

@@ -93,7 +93,12 @@ namespace gip.core.autocomponent
                     //{
                         ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
                         if (serviceInstance != null)
-                            ruleValueList = serviceInstance.GetRuleValueList(MandatoryConfigStores, PreValueACUrl, ConfigACUrl + @"\Rules\" + ACClassWFRuleTypes.Allowed_instances.ToString());
+                        {
+                            var mandantoryConfigStores = MandatoryConfigStores;
+                            if (!ValidateExpectedConfigStores())
+                                return new List<ACComponent>();
+                            ruleValueList = serviceInstance.GetRuleValueList(mandantoryConfigStores, PreValueACUrl, ConfigACUrl + @"\Rules\" + ACClassWFRuleTypes.Allowed_instances.ToString());
+                        }
                     //}
                     if (ruleValueList != null)
                     {

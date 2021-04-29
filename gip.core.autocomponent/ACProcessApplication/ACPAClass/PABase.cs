@@ -430,14 +430,6 @@ namespace gip.core.autocomponent
         public abstract ACProgramLog PreviousParentProgramLog { get; }
 #endregion
 
-#region other
-
-        public virtual List<ACConfigStoreInfo> GetSerializedMandatoryConfigStores()
-        {
-            throw  new NotImplementedException();
-        }
-#endregion
-
 #endregion
 
 #region Methods

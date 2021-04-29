@@ -101,7 +101,7 @@ namespace gip.core.datamodel
         /// <param name="db"></param>
         /// <param name="rmiResult"></param>
         /// <returns></returns>
-        List<IACConfigStore> DeserializeMandatoryConfigStores(IACEntityObjectContext db, List<ACConfigStoreInfo> rmiResult);
+        List<IACConfigStore> AttachConfigStoresToDatabase(IACEntityObjectContext db, List<ACConfigStoreInfo> rmiResult);
 
         #endregion
 

@@ -615,6 +615,14 @@ namespace gip.core.autocomponent
             }
         }
 
+        public virtual bool ValidateExpectedConfigStores(bool autoReloadConfig = true)
+        {
+            var rootPW = RootPW;
+            if (rootPW == null)
+                return false;
+            return rootPW.ValidateExpectedConfigStores(autoReloadConfig);
+        }
+
         public virtual IACConfigStore CurrentConfigStore
         {
             get { return null; }
@@ -646,9 +654,6 @@ namespace gip.core.autocomponent
                     return true;
                 case "GetACConfigStoreInfo":
                     result = GetACConfigStoreInfo();
-                    return true;
-                case "GetSerializedMandatoryConfigStores":
-                    result = GetSerializedMandatoryConfigStores();
                     return true;
                 case "AreChildsOfTypeCompleted":
                     result = AreChildsOfTypeCompleted(acParameter[0] as ACRef<ACClass>);
@@ -822,14 +827,6 @@ namespace gip.core.autocomponent
                         .Select(c => new ACConfigStoreInfo((c as EntityObject).EntityKey, c.OverridingOrder)).ToList();
             }
             return new List<ACConfigStoreInfo>();
-        }
-
-
-        [ACMethodInfo("ACComponent", "en{'GetSerializedMandatoryConfigStores'}de{'GetSerializedMandatoryConfigStores'}", 9999)]
-        public override List<ACConfigStoreInfo> GetSerializedMandatoryConfigStores()
-        {
-            if (MandatoryConfigStores == null) return null;
-            return MandatoryConfigStores.Select(x => new ACConfigStoreInfo((x as EntityObject).EntityKey, x.OverridingOrder)).ToList();
         }
         #endregion
 
@@ -1013,7 +1010,30 @@ namespace gip.core.autocomponent
                 xmlACPropertyList.AppendChild(xmlNode);
             }
 
+            xmlNode = xmlACPropertyList["MandatoryConfigStores"];
+            if (xmlNode == null)
+            {
+                xmlNode = doc.CreateElement("MandatoryConfigStores");
+                if (xmlNode != null)
+                    xmlNode.InnerText = DumpMandatoryConfigStores();
+                xmlACPropertyList.AppendChild(xmlNode);
+            }
         }
+
+        public string DumpMandatoryConfigStores()
+        {
+            StringBuilder sb = new StringBuilder();
+            List<ACConfigStoreInfo> storeInfoList = GetACConfigStoreInfo();
+            if (storeInfoList != null && storeInfoList.Any())
+            {
+                foreach (ACConfigStoreInfo storeInfo in storeInfoList)
+                {
+                    sb.AppendLine(storeInfo.ToString());
+                }
+            }
+            return sb.ToString();
+        }
+
         #endregion
 
         #endregion

@@ -64,5 +64,18 @@ namespace gip.core.datamodel
                 return _Priority;
             }
         }
+
+        public override string ToString()
+        {
+            if (ConfigStoreEntity != null)
+            {
+                string keyValueString = "";
+                var firstMember = ConfigStoreEntity.EntityKeyValues.FirstOrDefault();
+                if (firstMember != null && firstMember.Value != null)
+                    keyValueString = String.Format("{0}:{1}", firstMember.Key, firstMember.Value.ToString());
+                return String.Format("CSE:{0},P:{1},V:{2}", ConfigStoreEntity.EntitySetName, Priority, keyValueString);
+            }
+            return base.ToString();
+        }
     }
 }

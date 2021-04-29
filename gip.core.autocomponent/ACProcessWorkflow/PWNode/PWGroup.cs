@@ -526,7 +526,10 @@ namespace gip.core.autocomponent
                 {
                     RuleValueList ruleValueList = null;
                     ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
-                    ruleValueList = serviceInstance.GetRuleValueList(MandatoryConfigStores, PreValueACUrl, ConfigACUrl + @"\Rules\" + ACClassWFRuleTypes.Allowed_instances.ToString());
+                    var mandantoryConfigStores = MandatoryConfigStores;
+                    if (!ValidateExpectedConfigStores())
+                        return new PAProcessModule[] { };
+                    ruleValueList = serviceInstance.GetRuleValueList(mandantoryConfigStores, PreValueACUrl, ConfigACUrl + @"\Rules\" + ACClassWFRuleTypes.Allowed_instances.ToString());
                     if (ruleValueList != null)
                     {
                         modulesInAutomaticMode = OnApplyRoutingRules(ruleValueList, modulesInAutomaticMode);

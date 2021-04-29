@@ -255,7 +255,7 @@ namespace gip.core.autocomponent
             return count;
         }
 
-        public virtual List<IACConfigStore> DeserializeMandatoryConfigStores(IACEntityObjectContext db, List<ACConfigStoreInfo> rmiResult)
+        public virtual List<IACConfigStore> AttachConfigStoresToDatabase(IACEntityObjectContext db, List<ACConfigStoreInfo> rmiResult)
         {
             List<IACConfigStore> mandatoryConfigStore = new List<IACConfigStore>();
             if (rmiResult != null)
