@@ -168,6 +168,7 @@ namespace gip.core.autocomponent
                 _MandatoryConfigStores = null;
                 _IsConfigStoresCountInvalid = false;
                 _IgnoreConfigStoreValidation = false;
+                _AreConfigurationEntriesValid = false;
             }
 
             return baseResult;
@@ -182,6 +183,7 @@ namespace gip.core.autocomponent
                 _MandatoryConfigStores = null;
                 _IsConfigStoresCountInvalid = false;
                 _IgnoreConfigStoreValidation = false;
+                _AreConfigurationEntriesValid = false;
             }
             base.Recycle(content, parentACObject, parameter, acIdentifier);
         }
@@ -760,6 +762,25 @@ namespace gip.core.autocomponent
         private bool _RecalcExpectedConfigStoresCount = false;
         private bool _IsConfigStoresCountInvalid = false;
         protected bool _IgnoreConfigStoreValidation = false;
+        private bool _AreConfigurationEntriesValid = false;
+
+        protected bool AreConfigurationEntriesValid
+        {
+            get
+            {
+                using (ACMonitor.Lock(_20015_LockStoreList))
+                {
+                    return _AreConfigurationEntriesValid;
+                }
+            }
+            set
+            {
+                using (ACMonitor.Lock(_20015_LockStoreList))
+                {
+                    _AreConfigurationEntriesValid = value;
+                }
+            }
+        }
 
         public readonly ACMonitorObject _20015_LockStoreList = new ACMonitorObject(20015);
         protected List<IACConfigStore> _MandatoryConfigStores;
@@ -841,7 +862,7 @@ namespace gip.core.autocomponent
                     {
                         using (ACMonitor.Lock(_20015_LockStoreList))
                         {
-                            _ExpectedConfigStoresCount++;
+                            //_ExpectedConfigStoresCount++;
                         }
                     }
                     if (CurrentACProgram != null)
@@ -879,7 +900,7 @@ namespace gip.core.autocomponent
             int expectedConfigStores = 0;
             using (ACMonitor.Lock(_20015_LockStoreList))
             {
-                if (  _IgnoreConfigStoreValidation
+                if (_IgnoreConfigStoreValidation
                    || _RecalcExpectedConfigStoresCount)
                     return true;
                 expectedConfigStores = _ExpectedConfigStoresCount;
@@ -887,29 +908,44 @@ namespace gip.core.autocomponent
                     isValid = false;
                 else
                     countConfigStores = _MandatoryConfigStores.Count;
-                if (   countConfigStores < _ExpectedConfigStoresCount
+                if (countConfigStores < _ExpectedConfigStoresCount
                     || _ExpectedConfigStoresCount < 1)
                     isValid = false;
                 _IsConfigStoresCountInvalid = !isValid;
             }
 
+            Msg msg = null;
+
             if (!isValid)
             {
                 //Error50404: Wrong count of config stores! {0} entries are expected. But {1} entries are read.
-                Msg msg = new Msg(this, eMsgLevel.Error, PWClassName, "ValidateExpectedConfigStores(1)", 1000, "Error50404", expectedConfigStores, countConfigStores);
+                msg = new Msg(this, eMsgLevel.Error, PWClassName, "ValidateExpectedConfigStores(10)", 901, "Error50404", expectedConfigStores, countConfigStores);
+            }
+            else if (!AreConfigurationEntriesValid)
+            {
+                ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
+                ValidateConfigStoreModel validationModel = serviceInstance.ValidateConfigStores(MandatoryConfigStores);
+                AreConfigurationEntriesValid = validationModel.IsValid;
+                if (!validationModel.IsValid)
+                {
+                    isValid = false;
+                    string[] notValidConfigStores = validationModel.NotValidConfigStores.Select(c => c.ToString()).ToArray();
+                    msg = new Msg(this, eMsgLevel.Error, PWClassName, "ValidateExpectedConfigStores(20)", 911, "Error50405", string.Join(",", notValidConfigStores));
+                }
+            }
 
+            if (msg != null)
+            {
                 if (IsAlarmActive(ProcessAlarm, msg.Message) == null)
-                    Messages.LogError(this.GetACUrl(), "ValidateExpectedConfigStores(1)", String.Format("{0} : {1}", msg.Message, DumpMandatoryConfigStores()));
+                    Messages.LogError(this.GetACUrl(), msg.ACIdentifier, String.Format("{0} : {1}", msg.Message, DumpMandatoryConfigStores()));
                 OnNewAlarmOccurred(ProcessAlarm, msg, true);
                 if (autoReloadConfig)
                     ReloadConfig();
             }
-            else
-            {
-                // TODO: Validate if there are some entries in IACConfig
-            }
+
             return isValid;
         }
+
 
         [ACMethodInteraction("Process", "en{'Reload Configuration'}de{'Aktualisiere Konfiguration'}", 310, true)]
         public virtual void ReloadConfig()
@@ -943,7 +979,8 @@ namespace gip.core.autocomponent
         {
             using (ACMonitor.Lock(_20015_LockStoreList))
             {
-                return _IsConfigStoresCountInvalid && !_IgnoreConfigStoreValidation;
+                return     !_IgnoreConfigStoreValidation
+                        && (_IsConfigStoresCountInvalid || !_AreConfigurationEntriesValid);
             }
         }
 
@@ -1602,6 +1639,15 @@ namespace gip.core.autocomponent
                 xmlNode = doc.CreateElement("_IgnoreConfigStoreValidation");
                 if (xmlNode != null)
                     xmlNode.InnerText = _IgnoreConfigStoreValidation.ToString();
+                xmlACPropertyList.AppendChild(xmlNode);
+            }
+
+            xmlNode = xmlACPropertyList["_AreConfigurationEntriesValid"];
+            if (xmlNode == null)
+            {
+                xmlNode = doc.CreateElement("_AreConfigurationEntriesValid");
+                if (xmlNode != null)
+                    xmlNode.InnerText = AreConfigurationEntriesValid.ToString();
                 xmlACPropertyList.AppendChild(xmlNode);
             }
         }

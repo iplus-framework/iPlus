@@ -15,7 +15,7 @@ namespace gip.core.datamodel
             return configItemsSource.Where(x =>
                        x.LocalConfigACUrl != null
                     && x.LocalConfigACUrl == localConfigACUrl
-                    && (   ((x.PreConfigACUrl ?? "") == "") || (x.PreConfigACUrl ?? "") == (preConfigACUrl ?? "")) 
+                    && ( ((x.PreConfigACUrl ?? "") == "") || (x.PreConfigACUrl ?? "") == (preConfigACUrl ?? "")) 
                         && (vbiACClassID == null || (x.VBiACClassID == null || x.VBiACClassID == vbiACClassID))
                 ).OrderByDescending(x => x.PreConfigACUrl)
                 .ThenByDescending(x => x.VBACClass == null ? "" : x.VBACClass.ACIdentifier);
@@ -25,7 +25,7 @@ namespace gip.core.datamodel
         {
             return configItemsSource.Where(x =>
                     localConfigACUrlList.Contains(x.LocalConfigACUrl) 
-                    && (   ((x.PreConfigACUrl ?? "") == "") || (x.PreConfigACUrl ?? "") == (preConfigACUrl ?? "")) 
+                    && ( ((x.PreConfigACUrl ?? "") == "") || (x.PreConfigACUrl ?? "") == (preConfigACUrl ?? "")) 
                         && (vbiACClassID == null || (x.VBiACClassID == null || x.VBiACClassID == vbiACClassID))
                 ).OrderByDescending(x => x.PreConfigACUrl)
                 .ThenBy(c => c.LocalConfigACUrl)

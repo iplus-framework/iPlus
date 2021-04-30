@@ -108,6 +108,7 @@
     <Compile Include="ACConfiguration\ACConfigTransferTaskModel.cs" />
     <Compile Include="ACConfiguration\RulesCommand.cs" />
     <Compile Include="ACConfiguration\ConfigManagerIPlus.cs" />
+    <Compile Include="ACConfiguration\ValidateConfigStoreModel.cs" />
     <Compile Include="ACConfiguration\VBBSOConfigTransfer.cs" />
     <Compile Include="ACDialog\ControlDialogDetails\ComponentPWNodeConfigModel.cs" />
     <Compile Include="ACDialog\ControlDialogDetails\VBBSOControlPAM.cs" />
@@ -398,6 +399,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="VBControlScripts\2021-04-29 16-59_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="VBControlScripts\2021-04-30 14-25_aaginic.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

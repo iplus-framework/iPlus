@@ -453,21 +453,21 @@ namespace gip.core.autocomponent
             switch (sameConfigStore.GetType().Name)
             {
                 case "ACClass":
-                    result = 
+                    result =
                         ACConfigQuery<ACClassConfig>.QueryConfigSource(db.ContextIPlus.ACClassConfig, preConfigACUrl, localConfigACUrl, vbiACClassID)
                        .ToList()
                        .Select(c => (IACConfig)c)
                        .ToList();
                     break;
                 case "ACClassMethod":
-                    result = 
+                    result =
                         ACConfigQuery<ACClassMethodConfig>.QueryConfigSource(db.ContextIPlus.ACClassMethodConfig, preConfigACUrl, localConfigACUrl, vbiACClassID)
                         .ToList()
                         .Select(c => (IACConfig)c)
                         .ToList();
                     break;
                 case "ACProgram":
-                    result = 
+                    result =
                         ACConfigQuery<ACClassMethodConfig>.QueryConfigSource(db.ContextIPlus.ACClassMethodConfig, preConfigACUrl, localConfigACUrl, vbiACClassID)
                        .ToList()
                        .Select(c => (IACConfig)c)
@@ -475,6 +475,76 @@ namespace gip.core.autocomponent
                     break;
             }
             return result;
+        }
+        #endregion
+
+        #region Additional 
+
+        public virtual ValidateConfigStoreModel ValidateConfigStores(List<IACConfigStore> mandatoryConfigStores)
+        {
+            ValidateConfigStoreModel model = new ValidateConfigStoreModel();
+            model.IsValid = true;
+            model.NotValidConfigStores = new List<IACConfigStore>();
+            try
+            {
+                foreach (IACConfigStore configStore in mandatoryConfigStores)
+                {
+                    if (!configStore.ConfigurationEntries.Any())
+                    {
+                        if (configStore is ACClassMethod)
+                        {
+                            ACClassMethod aCClassMethod = configStore as ACClassMethod;
+                            using (Database database = new Database())
+                            {
+                                int configCount = database.ACClassMethodConfig.Where(c => c.ACClassMethodID == aCClassMethod.ACClassMethodID).Count();
+                                if (configCount != 0)
+                                {
+                                    model.IsValid = model.IsValid && false;
+                                    model.NotValidConfigStores.Add(configStore);
+                                }
+                            }
+                        }
+                        else if (configStore is ACClass)
+                        {
+                            ACClass aCClass = configStore as ACClass;
+                            using (Database database = new Database())
+                            {
+                                int configCount = database.ACClassConfig.Where(c => c.ACClassID == aCClass.ACClassID).Count();
+                                if (configCount != 0)
+                                {
+                                    model.IsValid = model.IsValid && false;
+                                    model.NotValidConfigStores.Add(configStore);
+                                }
+                            }
+                        }
+                        else if (configStore is ACProgram)
+                        {
+                            ACProgram aCProgram = configStore as ACProgram;
+                            using (Database database = new Database())
+                            {
+                                int configCount = database.ACProgramConfig.Where(c => c.ACProgramID == aCProgram.ACProgramID).Count();
+                                if (configCount != 0)
+                                {
+                                    model.IsValid = model.IsValid && false;
+                                    model.NotValidConfigStores.Add(configStore);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                model.IsValid = false;
+                string msg = e.Message;
+                if (e.InnerException != null && e.InnerException.Message != null)
+                    msg += " Inner:" + e.InnerException.Message;
+
+                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                    datamodel.Database.Root.Messages.LogException("ConfigManagerIPlus", "ValidateConfigStoreModel", msg);
+            }
+
+            return model;
         }
         #endregion
 
