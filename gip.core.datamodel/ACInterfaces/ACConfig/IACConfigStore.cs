@@ -16,6 +16,27 @@ using System.Collections.Generic;
 namespace gip.core.datamodel
 {
     /// <summary>
+    /// Mode for ValidateConfigurationEntriesWithDB
+    /// </summary>
+    public enum ConfigEntriesValidationMode
+    {
+        /// <summary>
+        /// If ConfigurationEntries (cache) has not any entries, then check if there are any in database
+        /// </summary>
+        AnyCheck,
+        
+        /// <summary>
+        /// Compare the count in ConfigurationEntries (cache) with database
+        /// </summary>
+        CompareCount,
+        
+        /// <summary>
+        /// Compare the content of the cache with database
+        /// </summary>
+        CompareContent
+    }
+
+    /// <summary>
     /// The IACConfigStore interface allows you to store and read any data (even complex ones) for objects that are related to each other. (see summary of IACConfig for more informations)
     /// IACConfigStore implements EF-Classes that represent a application context (e.g. for production orders, BOMs, purchase orders...).
     /// The Entity-Class that represents the "main table" in group of semantically related tables must implement the interface IACConfigStore. 
@@ -88,5 +109,10 @@ namespace gip.core.datamodel
         /// Re-accessing the ConfigurationEntries property rereads all configuration entries from the database.
         /// </summary>
         void ClearCacheOfConfigurationEntries();
+
+        /// <summary>
+        /// Checks if cached configuration entries are loaded from database successfully
+        /// </summary>
+        bool ValidateConfigurationEntriesWithDB(ConfigEntriesValidationMode mode = ConfigEntriesValidationMode.AnyCheck);
     }
 }

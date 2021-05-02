@@ -2006,6 +2006,31 @@ namespace gip.core.datamodel
             }
         }
 
+        /// <summary>
+        /// Checks if cached configuration entries are loaded from database successfully
+        /// </summary>
+        public bool ValidateConfigurationEntriesWithDB(ConfigEntriesValidationMode mode = ConfigEntriesValidationMode.AnyCheck)
+        {
+            if (mode == ConfigEntriesValidationMode.AnyCheck)
+            {
+                if (ConfigurationEntries.Any())
+                    return true;
+            }
+            using (Database database = new Database())
+            {
+                var query = database.ACClassMethodConfig.Where(c => c.ACClassMethodID == ACClassMethodID);
+                if (mode == ConfigEntriesValidationMode.AnyCheck)
+                {
+                    if (query.Any())
+                        return false;
+                }
+                else if (mode == ConfigEntriesValidationMode.CompareCount
+                         || mode == ConfigEntriesValidationMode.CompareContent)
+                    return query.Count() == ConfigurationEntries.Count();
+            }
+            return true;
+        }
+
         #endregion
 
     }

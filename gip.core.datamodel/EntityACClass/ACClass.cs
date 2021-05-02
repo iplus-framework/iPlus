@@ -3321,6 +3321,28 @@ namespace gip.core.datamodel
             }
         }
 
+        public bool ValidateConfigurationEntriesWithDB(ConfigEntriesValidationMode mode = ConfigEntriesValidationMode.AnyCheck)
+        {
+            if (mode == ConfigEntriesValidationMode.AnyCheck)
+            {
+                if (ConfigurationEntries.Any())
+                    return true;
+            }
+            using (Database database = new Database())
+            {
+                var query = database.ACClassConfig.Where(c => c.ACClassID == this.ACClassID && c.KeyACUrl == ACConfigKeyACUrl);
+                if (mode == ConfigEntriesValidationMode.AnyCheck)
+                {
+                    if (query.Any())
+                        return false;
+                }
+                else if (   mode == ConfigEntriesValidationMode.CompareCount
+                         || mode == ConfigEntriesValidationMode.CompareContent)
+                    return query.Count() == ConfigurationEntries.Count();
+            }
+            return true;
+        }
+
         #endregion
     }
 }

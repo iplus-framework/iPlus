@@ -489,59 +489,17 @@ namespace gip.core.autocomponent
             {
                 foreach (IACConfigStore configStore in mandatoryConfigStores)
                 {
-                    if (!configStore.ConfigurationEntries.Any())
+                    if (!configStore.ValidateConfigurationEntriesWithDB())
                     {
-                        if (configStore is ACClassMethod)
-                        {
-                            ACClassMethod aCClassMethod = configStore as ACClassMethod;
-                            using (Database database = new Database())
-                            {
-                                int configCount = database.ACClassMethodConfig.Where(c => c.ACClassMethodID == aCClassMethod.ACClassMethodID).Count();
-                                if (configCount != 0)
-                                {
-                                    model.IsValid = model.IsValid && false;
-                                    model.NotValidConfigStores.Add(configStore);
-                                }
-                            }
-                        }
-                        else if (configStore is ACClass)
-                        {
-                            ACClass aCClass = configStore as ACClass;
-                            using (Database database = new Database())
-                            {
-                                int configCount = database.ACClassConfig.Where(c => c.ACClassID == aCClass.ACClassID).Count();
-                                if (configCount != 0)
-                                {
-                                    model.IsValid = model.IsValid && false;
-                                    model.NotValidConfigStores.Add(configStore);
-                                }
-                            }
-                        }
-                        else if (configStore is ACProgram)
-                        {
-                            ACProgram aCProgram = configStore as ACProgram;
-                            using (Database database = new Database())
-                            {
-                                int configCount = database.ACProgramConfig.Where(c => c.ACProgramID == aCProgram.ACProgramID).Count();
-                                if (configCount != 0)
-                                {
-                                    model.IsValid = model.IsValid && false;
-                                    model.NotValidConfigStores.Add(configStore);
-                                }
-                            }
-                        }
+                        model.IsValid = false;
+                        model.NotValidConfigStores.Add(configStore);
                     }
                 }
             }
             catch (Exception e)
             {
                 model.IsValid = false;
-                string msg = e.Message;
-                if (e.InnerException != null && e.InnerException.Message != null)
-                    msg += " Inner:" + e.InnerException.Message;
-
-                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
-                    datamodel.Database.Root.Messages.LogException("ConfigManagerIPlus", "ValidateConfigStoreModel", msg);
+                Messages.LogException(GetACUrl(), "ValidateConfigStores(10)", e);
             }
 
             return model;
