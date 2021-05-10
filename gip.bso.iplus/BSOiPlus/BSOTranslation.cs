@@ -18,7 +18,7 @@ namespace gip.bso.iplus
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
-           
+
             return base.ACInit(startChildMode);
         }
 
@@ -31,9 +31,9 @@ namespace gip.bso.iplus
 
         #region Filter Data
 
-        private bool _FilterOnlyACClassTables;
+        private bool? _FilterOnlyACClassTables;
         [ACPropertyInfo(405, "FilterOnlyACClassTables", "en{'Only ACClass tables'}de{'Nur ACClass Tabellen'}")]
-        public bool FilterOnlyACClassTables
+        public bool? FilterOnlyACClassTables
         {
             get
             {
@@ -49,9 +49,9 @@ namespace gip.bso.iplus
             }
         }
 
-        private bool _FilterOnlyMDTables;
+        private bool? _FilterOnlyMDTables;
         [ACPropertyInfo(405, "FilterOnlyMDTables", "en{'Only MD Tables'}de{'Nur MD Tabellen'}")]
-        public bool FilterOnlyMDTables
+        public bool? FilterOnlyMDTables
         {
             get
             {
@@ -96,7 +96,7 @@ namespace gip.bso.iplus
             }
             set
             {
-                if(_FilterACIdentifier != value)
+                if (_FilterACIdentifier != value)
                 {
                     _FilterACIdentifier = value;
                     OnPropertyChanged("FilterACIdentifier");
@@ -189,10 +189,67 @@ namespace gip.bso.iplus
 
         public bool IsEnabledSearch()
         {
-            return !string.IsNullOrEmpty(FilterClassACIdentifier) 
+            return !string.IsNullOrEmpty(FilterClassACIdentifier)
                 || !string.IsNullOrEmpty(FilterACIdentifier)
                 || !string.IsNullOrEmpty(FilterTranslation);
         }
+
+        #endregion
+
+        #region Lang
+
+
+        #region VBLanguage
+        private VBLanguage _SelectedVBLanguage;
+        /// <summary>
+        /// Selected property for VBLanguage
+        /// </summary>
+        /// <value>The selected VBLanguage</value>
+        [ACPropertySelected(9999, "VBLanguage", "en{'TODO: VBLanguage'}de{'TODO: VBLanguage'}")]
+        public VBLanguage SelectedVBLanguage
+        {
+            get
+            {
+                return _SelectedVBLanguage;
+            }
+            set
+            {
+                if (_SelectedVBLanguage != value)
+                {
+                    _SelectedVBLanguage = value;
+                    OnPropertyChanged("SelectedVBLanguage");
+                }
+            }
+        }
+
+
+        private List<VBLanguage> _VBLanguageList;
+        /// <summary>
+        /// List property for VBLanguage
+        /// </summary>
+        /// <value>The VBLanguage list</value>
+        [ACPropertyList(9999, "VBLanguage")]
+        public List<VBLanguage> VBLanguageList
+        {
+            get
+            {
+                if (_VBLanguageList == null)
+                    _VBLanguageList = LoadVBLanguageList();
+                return _VBLanguageList;
+            }
+        }
+
+        private List<VBLanguage> LoadVBLanguageList()
+        {
+            List<VBLanguage> vBLanguages = new List<VBLanguage>();
+            using (Database db = new core.datamodel.Database())
+            {
+                vBLanguages = db.VBLanguage.Where(c => c.IsTranslation).OrderBy(c => c.SortIndex).ToList();
+            }
+            return vBLanguages;
+        }
+        #endregion
+
 
         #endregion
 
@@ -237,25 +294,36 @@ namespace gip.bso.iplus
         private List<TranslationPair> LoadEditTranslationList()
         {
             if (SelectedTranslation == null) return null;
-            return (new List<string>() { "en", "de" })
-                .Select(c => new TranslationPair() { LangCode = c, Translation = Translator.GetTranslation("", SelectedTranslation.TranslationValue, c) }).ToList();
+
+            List<TranslationPair> list = new List<TranslationPair>();
+            foreach (var vBLanguage in VBLanguageList)
+            {
+                if (SelectedTranslation.TranslationValue.Contains(vBLanguage.VBLanguageCode + "{"))
+                {
+                    TranslationPair translationPair = new TranslationPair()
+                    {
+                        LangCode = vBLanguage.VBLanguageCode,
+                        Translation = Translator.GetTranslation("", SelectedTranslation.TranslationValue, vBLanguage.VBLanguageCode)
+                    };
+                    list.Add(translationPair);
+                }
+            }
+            return list;
         }
 
 
-        [ACMethodInfo("EditTranslation", "en{'Save'}de{'Speichern'}", (short)MISort.Save, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("EditTranslation", "en{'Save'}de{'Speichern'}", 999)]
         public void Save()
         {
             if (!IsEnabledSave()) return;
             // setup previewed object
             string curentTransValue = string.Join("", EditTranslationList.Select(c => c.GetTranslationTuple()));
-            VBTranslationView newSelectedEditTranslation = new VBTranslationView()
-            {
-                TableName = SelectedTranslation.TableName,
-                ID = SelectedTranslation.ID,
-                TranslationValue = curentTransValue
-            };
-            SelectedTranslation = newSelectedEditTranslation;
-            object item = (Database as iPlusV4_Entities).GetObjectByKey(new System.Data.EntityKey(SelectedTranslation.TableName, SelectedTranslation.TableName + "ID", SelectedTranslation.ID));
+            SelectedTranslation.TranslationValue = curentTransValue;
+            OnPropertyChanged("TranslationList");
+            System.Data.EntityKey entityKey = new System.Data.EntityKey((Database as iPlusV4_Entities).DefaultContainerName + "." + SelectedTranslation.TableName, SelectedTranslation.TableName + "ID", SelectedTranslation.ID);
+            object item = (Database as iPlusV4_Entities).GetObjectByKey(entityKey);
+
+
             if (item is IACObjectEntityWithCheckTrans)
             {
                 (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation = curentTransValue;
@@ -271,6 +339,38 @@ namespace gip.bso.iplus
         {
             return SelectedTranslation != null;
         }
+
+        [ACMethodInfo("AddLanguage", "en{'Add language'}de{'Sprache hinzufügen'}", 999)]
+        public void AddLanguage()
+        {
+            TranslationPair translationPair = new TranslationPair();
+            translationPair.LangCode = SelectedVBLanguage.VBLanguageCode;
+            EditTranslationList.Add(translationPair);
+            OnPropertyChanged("EditTranslationList");
+            SelectedEditTranslation = translationPair;
+        }
+
+        public bool IsEnabledAddLanguage()
+        {
+            return
+                SelectedVBLanguage != null
+                && EditTranslationList != null
+                && EditTranslationList.Any()
+                && !EditTranslationList.Any(x => x.LangCode == SelectedVBLanguage.VBLanguageCode);
+        }
+
+        [ACMethodInfo("RemoveLanguage", "en{'Remove language'}de{'Sprache entfernen'}", 999)]
+        public void RemoveLanguage()
+        {
+            TranslationList.Remove(SelectedTranslation);
+            SelectedTranslation = TranslationList.FirstOrDefault();
+        }
+
+        public bool IsEnabledRemoveLanguage()
+        {
+            return SelectedEditTranslation != null;
+        }
+
         #endregion
 
     }

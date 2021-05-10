@@ -67,6 +67,8 @@
     <None Include="Programmability\udp\udpACClassClone.sql" />
     <None Include="Programmability\udp\udpACClassDelete.sql" />
     <None Include="linq\SplitSQL.linq" />
+    <None Include="Query\udpTranslation-build.sql" />
+    <None Include="Query\udpTranslation-Call.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Programmability\udw\VBTranslationView.sql" />

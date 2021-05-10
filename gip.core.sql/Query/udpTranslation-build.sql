@@ -1,18 +1,12 @@
-﻿IF EXISTS (SELECT * FROM sysobjects WHERE type = 'P' AND name = 'udpTranslation')
-	BEGIN
-		DROP  procedure  dbo.[udpTranslation]
-	END
-GO
-CREATE PROCEDURE [dbo].[udpTranslation]
-	@onlyClassTables bit,
-	@onlyMDTables bit,
-	@searchClassACIdentifier varchar(150),
-	@searchACIdentifier varchar(150),
-	@searchTranslation varchar(150)
-AS
-begin
-	begin tran
--- begin code
+﻿declare	@onlyClassTables bit;
+declare	@onlyMDTables bit;
+declare	@searchClassACIdentifier varchar(150);
+declare	@searchACIdentifier varchar(150);
+declare	@searchTranslation varchar(150);
+
+set @searchClassACIdentifier = 'BSOTest';
+
+		-- begin code
 
 		-- # ACClass Tables
 		if @onlyClassTables is null or @onlyClassTables = 1
@@ -1406,5 +1400,3 @@ begin
 			end
 
 			-- end code
-	commit tran;
-end

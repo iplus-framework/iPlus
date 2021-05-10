@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace gip.core.datamodel
+﻿namespace gip.core.datamodel
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'TranslationPair}de{'TranslationPair'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class TranslationPair
