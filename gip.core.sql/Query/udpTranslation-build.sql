@@ -4,7 +4,7 @@ declare	@searchClassACIdentifier varchar(150);
 declare	@searchACIdentifier varchar(150);
 declare	@searchTranslation varchar(150);
 
-set @searchClassACIdentifier = 'BSOTest';
+set @searchACIdentifier = 'BSOMaterial';
 
 		-- begin code
 
@@ -164,11 +164,7 @@ set @searchClassACIdentifier = 'BSOTest';
 		if  @onlyMDTables is null or @onlyMDTables = 1
 		begin
 
-			if(@searchClassACIdentifier is null or @searchClassACIdentifier = 'tableName')
-			begin
-				select 1;
-			end
-				-- MDBalancingMode
+			-- MDBalancingMode
 			if(@searchClassACIdentifier is null or @searchClassACIdentifier = 'MDBalancingMode')
 			begin
 				insert into #translationViewResults(JobID, ACProjectName, TableName, MandatoryID, MandatoryACIdentifier, ID, ACIdentifier, TranslationValue, UpdateName, UpdateDate)

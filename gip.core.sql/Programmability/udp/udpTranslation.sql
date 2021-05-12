@@ -170,11 +170,7 @@ begin
 		if  @onlyMDTables is null or @onlyMDTables = 1
 		begin
 
-			if(@searchClassACIdentifier is null or @searchClassACIdentifier = 'tableName')
-			begin
-				select 1;
-			end
-				-- MDBalancingMode
+			-- MDBalancingMode
 			if(@searchClassACIdentifier is null or @searchClassACIdentifier = 'MDBalancingMode')
 			begin
 				insert into #translationViewResults(JobID, ACProjectName, TableName, MandatoryID, MandatoryACIdentifier, ID, ACIdentifier, TranslationValue, UpdateName, UpdateDate)
