@@ -719,6 +719,7 @@ namespace gip.bso.iplus
             duplDesign.ACUsageIndex = CurrentACClassDesign.ACUsageIndex;
             duplDesign.ACCaptionTranslation = CurrentACClassDesign.ACCaptionTranslation;
             duplDesign.XMLDesign = CurrentACClassDesign.XMLDesign;
+            duplDesign.ValueTypeACClassID = CurrentACClassDesign.ValueTypeACClassID;
             duplDesign.ACIdentifier = GetDuplicatedDesignACIdentifier();
 
             CurrentACClassDesign = duplDesign;
