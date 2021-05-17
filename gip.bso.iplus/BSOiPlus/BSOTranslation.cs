@@ -312,7 +312,7 @@ namespace gip.bso.iplus
         }
 
 
-        [ACMethodInfo("EditTranslation", "en{'Save'}de{'Speichern'}", 999)]
+        [ACMethodCommand("EditTranslation", "en{'Save'}de{'Speichern'}", (short)MISort.Save, false, Global.ACKinds.MSMethodPrePost)]
         public void Save()
         {
             if (!IsEnabledSave()) return;
