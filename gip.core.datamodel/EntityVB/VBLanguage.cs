@@ -4,7 +4,7 @@ using System.Linq;
 namespace gip.core.datamodel
 {
     /// <summary>Table for declaring languages. For each language, translations in ACClassMessage and ACClassText can be maintained.</summary>
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Language'}de{'Sprache'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true, "", "BSOLanguage")]
+    [ACClassInfo(Const.PackName_VarioSystem, Const.VBLanguage, Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true, "", "BSOLanguage")]
     [ACPropertyEntity(9999, "VBNameTrans", Const.EntityNameTrans,  "", "", true, MinLength = 1)]
     [ACPropertyEntity(5, "VBKey", "en{'Key'}de{'Schlüssel'}",  "", "", true, MinLength = 1)]
     [ACPropertyEntity(1, "VBLanguageCode", "en{'Language Code'}de{'Sprachcode'}","", "", true)]

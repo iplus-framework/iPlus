@@ -337,6 +337,8 @@
         public const int EF_HResult_EntityException = unchecked((int)0x80131501); //-2146233087; // EntityException
         public const int EF_HResult_InvalidOperationException = unchecked((int)0x80131509); // -2146233079 InvalidOperationException
         public const int EF_HResult_SqlException = unchecked((int)0x80131904); // -2146232060 System.Data.SqlClient.SqlException
+
+        public const string VBLanguage = "en{'Language'}de{'Sprache'}";
     }
 
 

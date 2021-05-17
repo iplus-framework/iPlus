@@ -179,7 +179,7 @@ namespace gip.bso.iplus
         #endregion
 
         #region command
-        [ACMethodInfo("Translation", "en{'Analyse'}de{'Analysieren'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("Translation", "en{'Search'}de{'Suche'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void Search()
         {
             if (!IsEnabledSearch()) return;
@@ -205,7 +205,7 @@ namespace gip.bso.iplus
         /// Selected property for VBLanguage
         /// </summary>
         /// <value>The selected VBLanguage</value>
-        [ACPropertySelected(9999, "VBLanguage", "en{'TODO: VBLanguage'}de{'TODO: VBLanguage'}")]
+        [ACPropertySelected(9999, "VBLanguage", Const.VBLanguage)]
         public VBLanguage SelectedVBLanguage
         {
             get
