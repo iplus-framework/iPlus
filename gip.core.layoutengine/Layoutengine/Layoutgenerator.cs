@@ -40,8 +40,13 @@ namespace gip.core.layoutengine
             }
 
             int pos1 = xmlLayout.IndexOf(">");
-            string part1 = xmlLayout.Substring(0, pos1);
-            string part2 = xmlLayout.Substring(pos1);
+            string part1 = "";
+            string part2 = "";
+            if (pos1 > 0)
+            {
+                part1 = xmlLayout.Substring(0, pos1);
+                part2 = xmlLayout.Substring(pos1);
+            }
             // Falls keine Namespace-Deklaration im Root-Element vorhanden, dann füge ein
             if (part1.IndexOf("xmlns") < 0)
             {
