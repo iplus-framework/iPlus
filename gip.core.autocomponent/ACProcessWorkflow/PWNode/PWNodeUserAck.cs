@@ -196,7 +196,7 @@ namespace gip.core.autocomponent
             base.SMCompleted();
         }
 
-        private void RefreshNodeInfoOnModule(bool detach = false)
+        protected void RefreshNodeInfoOnModule(bool detach = false)
         {
             if (ACOperationMode == ACOperationModes.Live)
             {
