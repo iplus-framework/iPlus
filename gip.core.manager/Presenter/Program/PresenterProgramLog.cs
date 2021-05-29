@@ -749,8 +749,9 @@ namespace gip.core.manager
         {
             get
             {
-                if(CurrentProgramLogWrapper != null)
-                    return CurrentProgramLogWrapper.ACProgramLog.MsgAlarmLog_ACProgramLog;
+                if (   CurrentProgramLogWrapper != null 
+                    && CurrentProgramLogWrapper.ACProgramLog != null)
+                    return CurrentProgramLogWrapper.ACProgramLog.MsgAlarmLog_ACProgramLog.OrderBy(c => c.InsertDate);
                 return null;
             }
         }
