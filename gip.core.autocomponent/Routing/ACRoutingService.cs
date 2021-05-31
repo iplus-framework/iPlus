@@ -1366,6 +1366,9 @@ namespace gip.core.autocomponent
             List<ACComponent> components = new List<ACComponent>();
             foreach (string acUrl in componentsACUrl)
             {
+                if (string.IsNullOrEmpty(acUrl))
+                    continue;
+
                 ACComponent component = ACUrlCommand(acUrl) as ACComponent;
                 if (component != null)
                     components.Add(component);
@@ -1403,7 +1406,7 @@ namespace gip.core.autocomponent
             return new Tuple<ACRoutingVertex[], ACRoutingVertex[]>(startVertices, endVertices);
         }
 
-        private static Msg CheckRoutingService(IEnumerable<string> startComponentsACUrl, IEnumerable<string> endComponentsACUrl)
+        private static Msg CheckRoutingService(string[] startComponentsACUrl, string[] endComponentsACUrl)
         {
             Msg msg = null;
             ACComponent routingService = null;
@@ -1413,7 +1416,26 @@ namespace gip.core.autocomponent
             {
                 ACComponent tempService = GetRoutingService(startCompACUrl, out msg) as ACComponent;
                 if (msg != null)
+                {
+                    if (tempService == null)
+                    {
+                        try
+                        {
+                            int index = Array.IndexOf(startComponentsACUrl, startCompACUrl);
+                            if (index >= 0)
+                            {
+                                startComponentsACUrl[index] = null;
+                                return null;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            msg.Message += e.Message;
+                        }
+                    }
+
                     return msg;
+                }
 
                 if (tempService == null)
                     return new Msg() { Message = string.Format("RoutingService for {0} not found!", startCompACUrl) };
@@ -1428,8 +1450,26 @@ namespace gip.core.autocomponent
             {
                 ACComponent tempService = GetRoutingService(endCompACUrl, out msg) as ACComponent;
                 if (msg != null)
-                    return msg;
+                {
+                    if (tempService == null)
+                    {
+                        try
+                        {
+                            int index = Array.IndexOf(endComponentsACUrl, endCompACUrl);
+                            if (index >= 0)
+                            {
+                                endComponentsACUrl[index] = null;
+                                return null;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            msg.Message += e.Message;
+                        }
+                    }
 
+                    return msg;
+                }
                 if (tempService == null)
                     return new Msg() { Message = string.Format("RoutingService for {0} not found!", endCompACUrl) };
 
