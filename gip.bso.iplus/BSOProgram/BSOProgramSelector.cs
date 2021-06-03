@@ -315,10 +315,13 @@ namespace gip.bso.iplus
         {
             get
             {
-                if (CurrentACProgram != null)
-                    _ExcelFileName = CurrentACProgram.ProgramNo;
-                if (!_ExcelFileName.EndsWith(".xlsx"))
-                    _ExcelFileName = _ExcelFileName + ".xlsx";
+                if (string.IsNullOrEmpty(_ExcelFileName))
+                {
+                    if (CurrentACProgram != null)
+                        _ExcelFileName = CurrentACProgram.ProgramNo;
+                    if (!_ExcelFileName.EndsWith(".xlsx"))
+                        _ExcelFileName = _ExcelFileName + ".xlsx";
+                }
                 return _ExcelFileName;
             }
             set
@@ -346,6 +349,7 @@ namespace gip.bso.iplus
         [ACMethodInfo("", "en{'Export to excel'}de{'Exportieren nach Excel'}", 410,true)]
         public void ExportToExcel()
         {
+            _ExcelFileName = "";
             ShowDialog(this, "ExcelExportDialog");
         }
 

@@ -580,10 +580,14 @@ namespace gip.bso.iplus
 
         private void CreateTimelineModel()
         {
+            ACProject project = SelectedACProject;
+            if (project == null && CurrentComponentClass != null)
+                project = CurrentComponentClass.ACProject;
+
             _IsCompactFilterAvailable = false;
             if ((PresenterViewMode)SelectedPresenterViewMode.Value == PresenterViewMode.Compact)
             {
-                ACPropertyLogs = new ObservableCollection<ACPropertyLogModel>(CreateTimelineModelCompact(FromDate, ToDate, SelectedACProject,
+                ACPropertyLogs = new ObservableCollection<ACPropertyLogModel>(CreateTimelineModelCompact(FromDate, ToDate, project,
                                                                                                             CurrentComponentClass != null ? CurrentComponentClass.ACClassID : Guid.Empty));
 
                 _TreeViewList = ACPropertyLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.Property && c.ParentACObject == null).ToList();
@@ -594,7 +598,7 @@ namespace gip.bso.iplus
             }
             else if ((PresenterViewMode)SelectedPresenterViewMode.Value == PresenterViewMode.Grouped)
             {
-                ACPropertyLogs = new ObservableCollection<ACPropertyLogModel>(CreateTimelineModelGrouped(FromDate, ToDate, SelectedACProject,
+                ACPropertyLogs = new ObservableCollection<ACPropertyLogModel>(CreateTimelineModelGrouped(FromDate, ToDate, project,
                                                                                                         CurrentComponentClass != null ? CurrentComponentClass.ACClassID : Guid.Empty));
                 _DisplayOrder = 0;
                 UpdateDisplayOrder(_TreeViewList);
@@ -608,7 +612,7 @@ namespace gip.bso.iplus
             }
             else if ((PresenterViewMode)SelectedPresenterViewMode.Value == PresenterViewMode.CompactOEEAll)
             {
-                ACPropertyLogs = new ObservableCollection<ACPropertyLogModel>(CreateTimelineModelCompact(FromDate, ToDate, SelectedACProject,
+                ACPropertyLogs = new ObservableCollection<ACPropertyLogModel>(CreateTimelineModelCompact(FromDate, ToDate, project,
                                                                                                          CurrentComponentClass != null ? CurrentComponentClass.ACClassID : Guid.Empty, OEEMode.All));
 
                 _TreeViewList = ACPropertyLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.Property && c.ParentACObject == null).ToList();
@@ -620,7 +624,7 @@ namespace gip.bso.iplus
             }
             else if ((PresenterViewMode)SelectedPresenterViewMode.Value == PresenterViewMode.CompactOEEPAM)
             {
-                ACPropertyLogs = new ObservableCollection<ACPropertyLogModel>(CreateTimelineModelCompact(FromDate, ToDate, SelectedACProject,
+                ACPropertyLogs = new ObservableCollection<ACPropertyLogModel>(CreateTimelineModelCompact(FromDate, ToDate, project,
                                                                                                          CurrentComponentClass != null ? CurrentComponentClass.ACClassID : Guid.Empty, OEEMode.PAM));
 
                 _TreeViewList = ACPropertyLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.Property && c.ParentACObject == null).ToList();
@@ -960,7 +964,7 @@ namespace gip.bso.iplus
         [ACMethodInfo("", "", 404)]
         public void ShowPropertyLogsDialog(ACClass componentClass)
         {
-            CurrentComponentClass = componentClass;
+            CurrentComponentClass = componentClass.FromIPlusContext<ACClass>(Db);
             ShowDialog(this, "PropertyLogPresenterDialog");
             CurrentComponentClass = null;
         }
@@ -1110,7 +1114,9 @@ namespace gip.bso.iplus
             {
                 ACClass compClass = db.ACClass.FirstOrDefault(c => c.ACClassID == componentClassID.Value);
                 if (compClass != null)
-                    relevantLogs = relevantLogs.Where(c => c.ACClassID == componentClassID || c.ACClass.ACUrlComponent.StartsWith(compClass.ACUrlComponent, StringComparison.Ordinal));
+                    relevantLogs = relevantLogs.Where(c => c.ACClassID == componentClassID || c.ACClass?.ParentACClassID == componentClassID  // Show logs of child components
+                                                                                           || c.ACClass?.ACClass1_ParentACClass?.ParentACClassID == componentClassID
+                                                                                           || c.ACClass?.ACClass1_ParentACClass?.ACClass1_ParentACClass?.ParentACClassID == componentClassID);
             }
 
             if (!String.IsNullOrEmpty(SearchText))
