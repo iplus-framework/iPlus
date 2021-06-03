@@ -788,21 +788,29 @@ namespace gip.core.autocomponent
         {
             get
             {
+                bool isRebuildingCache = false;
+                bool rebuildStartedHere = false;
+                bool exceptionOccured = false;
                 try
                 {
-                    bool isRebuildingCache = false;
                     using (ACMonitor.Lock(_20015_LockStoreList))
                     {
-                        if (_MandatoryConfigStores != null
-                            && _MandatoryConfigStores.Any()
-                            && _ExpectedConfigStoresCount >= 1)
+                        isRebuildingCache = _RecalcExpectedConfigStoresCount;
+
+                        if (!isRebuildingCache)
+                        {
+                            if  (  _MandatoryConfigStores != null
+                                && _MandatoryConfigStores.Any()
+                                && _ExpectedConfigStoresCount >= 1)
                             return _MandatoryConfigStores.ToList();
 
-                        isRebuildingCache = _RecalcExpectedConfigStoresCount;
-                        _ExpectedConfigStoresCount = 0;
-                        _RecalcExpectedConfigStoresCount = true;
+                            _ExpectedConfigStoresCount = 0;
+                            _RecalcExpectedConfigStoresCount = true;
+                            rebuildStartedHere = true;
+                        }
                     }
 
+                    // If a parallel invokes this getter, than wait until he has completed the filling of _MandatoryConfigStores
                     if (isRebuildingCache)
                     {
                         for (int i = 0; i < 50; i++)
@@ -810,6 +818,7 @@ namespace gip.core.autocomponent
                             Thread.Sleep(100);
                             using (ACMonitor.Lock(_20015_LockStoreList))
                             {
+                                // If _RecalcExpectedConfigStoresCount was reset, than the other thread has completed the filling
                                 if (!_RecalcExpectedConfigStoresCount)
                                 {
                                     isRebuildingCache = false;
@@ -821,13 +830,15 @@ namespace gip.core.autocomponent
                         {
                             using (ACMonitor.Lock(_20015_LockStoreList))
                             {
-                                if (_MandatoryConfigStores != null
-                                    && _MandatoryConfigStores.Any())
+                                if (   _MandatoryConfigStores != null
+                                    && _MandatoryConfigStores.Any()
+                                    && _ExpectedConfigStoresCount >= 1)
                                     return _MandatoryConfigStores.ToList();
                                 else
                                 {
                                     _ExpectedConfigStoresCount = 0;
                                     _RecalcExpectedConfigStoresCount = true;
+                                    rebuildStartedHere = true;
                                 }
                             }
                         }
@@ -862,7 +873,7 @@ namespace gip.core.autocomponent
                     {
                         using (ACMonitor.Lock(_20015_LockStoreList))
                         {
-                            //_ExpectedConfigStoresCount++;
+                            _ExpectedConfigStoresCount++;
                         }
                     }
                     if (CurrentACProgram != null)
@@ -876,14 +887,24 @@ namespace gip.core.autocomponent
                 }
                 catch (Exception e)
                 {
+                    exceptionOccured = true;
                     Messages.LogException(this.GetACUrl(), "PWProcessFunction.MandatoryConfigStores.get(10)", e);
+                    Messages.LogException(this.GetACUrl(), "PWProcessFunction.MandatoryConfigStores.get(11)", e.StackTrace);
                     return new List<IACConfigStore>();
                 }
                 finally
                 {
                     using (ACMonitor.Lock(_20015_LockStoreList))
                     {
-                        _RecalcExpectedConfigStoresCount = false;
+                        if (rebuildStartedHere)
+                        {
+                            _RecalcExpectedConfigStoresCount = false;
+                            if (exceptionOccured)
+                            {
+                                // Rebuild again
+                                _MandatoryConfigStores = null;
+                            }
+                        }
                     }
                 }
             }
@@ -908,7 +929,7 @@ namespace gip.core.autocomponent
                     isValid = false;
                 else
                     countConfigStores = _MandatoryConfigStores.Count;
-                if (countConfigStores < _ExpectedConfigStoresCount
+                if (countConfigStores != _ExpectedConfigStoresCount
                     || _ExpectedConfigStoresCount < 1)
                     isValid = false;
                 _IsConfigStoresCountInvalid = !isValid;
@@ -950,13 +971,24 @@ namespace gip.core.autocomponent
         [ACMethodInteraction("Process", "en{'Reload Configuration'}de{'Aktualisiere Konfiguration'}", 310, true)]
         public virtual void ReloadConfig()
         {
+            bool mustResetCache = false;
             using (ACMonitor.Lock(_20015_LockStoreList))
+            {
+                if (   _MandatoryConfigStores != null
+                    && _MandatoryConfigStores.Any())
+                    mustResetCache = true;
+            }
+            if (mustResetCache)
             {
                 var configStores = MandatoryConfigStores;
                 if (configStores != null)
                     configStores.ForEach(c => c.ClearCacheOfConfigurationEntries());
+            }
+            using (ACMonitor.Lock(_20015_LockStoreList))
+            {
                 _MandatoryConfigStores = null;
             }
+
             // Read cache again
             MandatoryConfigStores.ToArray();
             this.HasRules.ValueT = 0;
