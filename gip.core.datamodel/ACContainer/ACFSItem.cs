@@ -93,7 +93,8 @@ namespace gip.core.datamodel
             {
                 foreach (IACObject item in Items)
                 {
-                    (item as ACFSItem).IsChecked = value;
+                    if (item != null && item is ACFSItem)
+                        (item as ACFSItem).IsChecked = value;
                 }
             }
         }
@@ -591,7 +592,7 @@ namespace gip.core.datamodel
                     (item as ACFSItem).CallAction(action, args);
         }
 
-        public bool UpdateDateFail { get; set; }       
+        public bool UpdateDateFail { get; set; }
 
         public void DeatachAll()
         {
@@ -710,7 +711,7 @@ namespace gip.core.datamodel
             if (XNode != null)
             {
                 XElement xProperty = XNode.Element(propertyInfo.Name);
-                if (xProperty == null) 
+                if (xProperty == null)
                     return new KeyValuePair<bool, string>(false, null);
                 propertyValue = ACObjectSerialHelper.ReplaceLegacyNames(xProperty.Value);
             }
