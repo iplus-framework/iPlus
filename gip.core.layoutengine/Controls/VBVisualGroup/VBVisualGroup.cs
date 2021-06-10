@@ -902,13 +902,21 @@ namespace gip.core.layoutengine
             }
             VBDesign vbDesign = this.GetVBDesign();
 
-            if (vbDesign != null && vbDesign.IsDesignerActive && (vbDesign.GetDesignManager() == null || !vbDesign.GetDesignManager().ACIdentifier.StartsWith("VBDesignerWorkflowMethod")))
+            if (vbDesign != null
+                && vbDesign.IsDesignerActive
+                && (vbDesign.GetDesignManager() == null
+                    || (!vbDesign.GetDesignManager().ACIdentifier.StartsWith("VBDesignerWorkflowMethod")
+                        && !vbDesign.GetDesignManager().ACIdentifier.StartsWith("VBDesignerMaterialWF")
+                       )
+                   )
+               )
             {
                 return;
             }
             Point point = e.GetPosition(this);
             ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
-            BSOACComponent.ParentACComponent.ACAction(actionArgs);
+            //BSOACComponent.ParentACComponent.ACAction(actionArgs);
+            BSOACComponent.ACAction(actionArgs);
             if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
             {
                 VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);

@@ -1403,18 +1403,24 @@ namespace gip.core.layoutengine
             }
             VBDesign vbDesign = this.GetVBDesign();
 
-            if (vbDesign != null && vbDesign.IsDesignerActive && (vbDesign.GetDesignManager() == null || !vbDesign.GetDesignManager().ACIdentifier.StartsWith("VBDesignerWorkflowMethod")
-                && !vbDesign.GetDesignManager().ACIdentifier.StartsWith("VBDesignerMaterialWF")))
+            if (   vbDesign != null 
+                && vbDesign.IsDesignerActive 
+                && (   vbDesign.GetDesignManager() == null 
+                    || (   !vbDesign.GetDesignManager().ACIdentifier.StartsWith("VBDesignerWorkflowMethod")
+                        && !vbDesign.GetDesignManager().ACIdentifier.StartsWith("VBDesignerMaterialWF")
+                       )
+                   )
+               )
             {
                 return;
             }
             Point point = e.GetPosition(this);
-            ACActionMenuArgs actionArgs = new ACActionMenuArgs(this as IACInteractiveObject, point.X, point.Y, Global.ElementActionType.ContextMenu);
+            ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
             //BSOACComponent.ParentACComponent.ACAction(actionArgs);
             BSOACComponent.ACAction(actionArgs);
             if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
             {
-                VBContextMenu vbContextMenu = new VBContextMenu(this as IACInteractiveObject, actionArgs.ACMenuItemList);
+                VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
                 this.ContextMenu = vbContextMenu;
                 //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
                 if (vbContextMenu.PlacementTarget == null)
