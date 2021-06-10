@@ -22,13 +22,14 @@ namespace gip.core.datamodel
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Workflow'}de{'Workflow'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
     [ACPropertyEntity(2, Const.ACIdentifierPrefix, "en{'Identifier'}de{'Identifizierer'}","", "", true)]
-    [ACPropertyEntity(3, "ACInstanceNo", "en{'Instance No'}de{'Instanznr'}","", "", true)]
-    [ACPropertyEntity(4, "ACClassMethod", "Method'}de{'Methode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName, "", true)]
-    [ACPropertyEntity(5, "PWACClass", "en{'Workflowclass'}de{'Workflowklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
-    [ACPropertyEntity(6, "RefPAACClass", "en{'Application Class'}de{'Anwendungsklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
-    [ACPropertyEntity(7, "RefPAACClassMethod", "en{'Application Method'}de{'Anwendungsmethode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName, "", true)]
-    [ACPropertyEntity(8, "PhaseIdentifier", "en{'Phase'}de{'Phase'}","", "", true)]
-    [ACPropertyEntity(9, "Comment", "en{'Comment'}de{'Bemerkung'}","", "", true)]
+    [ACPropertyEntity(3, "XName", "en{'XName'}de{'XName'}","", "", true)]
+    [ACPropertyEntity(4, "ACInstanceNo", "en{'Instance No'}de{'Instanznr'}","", "", true)]
+    [ACPropertyEntity(5, "ACClassMethod", "Method'}de{'Methode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName, "", true)]
+    [ACPropertyEntity(6, "PWACClass", "en{'Workflowclass'}de{'Workflowklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(7, "RefPAACClass", "en{'Application Class'}de{'Anwendungsklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(8, "RefPAACClassMethod", "en{'Application Method'}de{'Anwendungsmethode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName, "", true)]
+    [ACPropertyEntity(9, "PhaseIdentifier", "en{'Phase'}de{'Phase'}","", "", true)]
+    [ACPropertyEntity(10, "Comment", "en{'Comment'}de{'Bemerkung'}","", "", true)]
     [ACPropertyEntity(9999, "ParentACClassWF", "en{'Parent Workflow'}de{'Elternworkflow'}", Const.ContextDatabaseIPlus + "\\" + ACClassWF.ClassName, "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassWF.ClassName, "en{'Workflow'}de{'Workflow'}", typeof(ACClassWF), ACClassWF.ClassName, Const.ACCaptionPrefix, Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassWF>) })]
@@ -660,6 +661,39 @@ namespace gip.core.datamodel
             throw new NotImplementedException();
         }
 
+        public IEnumerable<ACClassWF> GetPWGroups()
+        {
+            List<ACClassWF> subworkflows = new List<ACClassWF>();
+            GetSubWorkflows(this, subworkflows, 0);
 
+            return subworkflows.SelectMany(x => x.RefPAACClassMethod.ACClassWF_ACClassMethod).Where(c => c.PWACClass != null && c.PWACClass.ACKindIndex == (short)Global.ACKinds.TPWGroup);
+
+        }
+
+        private void GetSubWorkflows(ACClassWF acClassWF, List<ACClassWF> subworkflows, int depth, int maxDepth = 4)
+        {
+            var items = acClassWF.ACClassWF_ParentACClassWF.Where(c => c.PWACClass != null && c.PWACClass.ACKindIndex == (short)Global.ACKinds.TPWNodeWorkflow);
+            if (items == null || !items.Any())
+            {
+                if (acClassWF.RefPAACClassMethod != null)
+                {
+                    items = acClassWF.RefPAACClassMethod.ACClassWF_ACClassMethod.Where(c => c.PWACClass != null && c.PWACClass.ACKindIndex == (short)Global.ACKinds.TPWNodeWorkflow);
+                }
+            }
+
+            if (items == null || !items.Any())
+                return;
+
+            if (depth >= maxDepth)
+                return;
+            depth++;
+
+            subworkflows.AddRange(items);
+
+            foreach (var subworkflow in items)
+            {
+                GetSubWorkflows(subworkflow, subworkflows, depth, maxDepth);
+            }
+        }
     }
 }
