@@ -975,7 +975,7 @@ namespace gip.core.layoutengine
         private void SetSelectionAtManager(IVBContent controlToSelect)
         {
             _LastClickedControl = controlToSelect;
-            if ((controlToSelect is VBVisual || controlToSelect is VBGraphItem) && _SelectionManager == null)
+            if ((controlToSelect is VBVisual || controlToSelect is VBVisualGroup || controlToSelect is VBGraphItem) && _SelectionManager == null)
                 InstanceSelectionManager();
             if (_SelectionManager != null)
                 _SelectionManager.ACUrlCommand("!OnVBControlClicked", _LastClickedControl, Keyboard.IsKeyDown(Key.LeftCtrl));

@@ -160,6 +160,7 @@ namespace gip.core.autocomponent
 
             _CurrentTask = null;
             _DelegateStartingToWorkCycle = false;
+            IsStartingProcessFunction = false;
 
             using (ACMonitor.Lock(_20015_LockStoreList))
             {
@@ -185,6 +186,7 @@ namespace gip.core.autocomponent
                 _IgnoreConfigStoreValidation = false;
                 _AreConfigurationEntriesValid = false;
             }
+            IsStartingProcessFunction = false;
             base.Recycle(content, parentACObject, parameter, acIdentifier);
         }
 
@@ -383,6 +385,25 @@ namespace gip.core.autocomponent
         #endregion
 
         #region Private members
+
+        protected bool _IsStartingProcessFunction = false;
+        protected bool IsStartingProcessFunction
+        {
+            get
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    return _IsStartingProcessFunction;
+                }
+            }
+            private set
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    _IsStartingProcessFunction = value;
+                }
+            }
+        }
 
         private class NewPWInstance
         {
@@ -757,7 +778,6 @@ namespace gip.core.autocomponent
         #endregion
 
         #region IACConfigStoreSelection
-
         protected int _ExpectedConfigStoresCount = 0;
         private bool _RecalcExpectedConfigStoresCount = false;
         private bool _IsConfigStoresCountInvalid = false;
@@ -788,6 +808,12 @@ namespace gip.core.autocomponent
         {
             get
             {
+                if (InitState != ACInitState.Initialized)
+                {
+                    Messages.LogError(this.GetACUrl(), "PWProcessFunction.MandatoryConfigStores(10)", "Access to early: InitState ist not Initialized");
+                    Messages.LogError(this.GetACUrl(), "WProcessFunction.MandatoryConfigStores(11)", System.Environment.StackTrace);
+                    return new List<IACConfigStore>();
+                }
                 bool isRebuildingCache = false;
                 bool rebuildStartedHere = false;
                 bool exceptionOccured = false;
@@ -844,7 +870,7 @@ namespace gip.core.autocomponent
                         }
                         else
                         {
-                            Messages.LogError(this.GetACUrl(), "PWProcessFunction.MandatoryConfigStores(0)", "Rebuilding MandatoryConfigStores takes to long.");
+                            Messages.LogError(this.GetACUrl(), "PWProcessFunction.MandatoryConfigStores(20)", "Rebuilding MandatoryConfigStores takes to long.");
                             return new List<IACConfigStore>();
                         }
                     }
@@ -1387,6 +1413,7 @@ namespace gip.core.autocomponent
 
             try
             {
+                IsStartingProcessFunction = true;
                 if (ParentTaskExecComp != null)
                 {
                     ACPointAsyncRMIWrap<ACComponent> taskEntry = ParentTaskExecComp.GetTaskOfACMethod(acMethod) as ACPointAsyncRMIWrap<ACComponent>;
@@ -1449,6 +1476,10 @@ namespace gip.core.autocomponent
                 OnNewAlarmOccurred(ProcessAlarm, msg, true);
                 Messages.LogException(this.GetACUrl(), "Start(0)", msg.Message);
                 throw e;
+            }
+            finally
+            {
+                IsStartingProcessFunction = false;
             }
             return CreateNewMethodEventArgs(acMethod, Global.ACMethodResultState.InProcess);
         }

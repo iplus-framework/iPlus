@@ -237,5 +237,7 @@ namespace gip.core.datamodel
         [DataMember]
         public bool WithWorkflows { get; set; }
 
+        [DataMember]
+        public bool ReturnLocalProperties { get; set; }
     }
 }

@@ -91,6 +91,7 @@ namespace gip.core.datamodel
     /// Recycle from Pool:              ...DisposedToPool - RecyclingFromPool - RecycledFromPool - Initialized...<para />
     /// Reload from Definition:         ...Initialized - Reloading - Reloaded - Initialized...<para />
     /// </summary>
+    [ACSerializeableInfo]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACInitState'}de{'ACInitState'}", Global.ACKinds.TACEnum)]
     public enum ACInitState
     {
