@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
              xmlns:p="clr-namespace:Document.Editor"
+             xmlns:vb="http://www.iplus-framework.com/xaml"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="600">
     <Grid>
@@ -1327,14 +1328,27 @@
                 </TabControl>
                 <Fluent:StatusBar Name="StatusBar" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" MouseDoubleClick="StatusbarInfo_MouseDoubleClick">
                     <Fluent:StatusBarItem Title="Lines" HorizontalAlignment="Left">
-                        <TextBlock Name="LinesTextBlock" Text="Lines" />
+                        <StackPanel Orientation="Horizontal">
+                            <vb:VBTextBlock Name="LinesTextBlock" ACCaption="en{'Line: '}de{'Zeile: '}"/>
+                            <TextBlock Name="LinesTextBlock1" Text="{Binding SelectedDocument.Editor.SelectedLineNumber, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type p:FlowDocEditor}}}" />
+                            <vb:VBTextBlock Name="LinesTextBlock2" ACCaption="en{' of '}de{' von '}"/>
+                            <TextBlock Name="LinesTextBlock3" Text="{Binding SelectedDocument.Editor.LineCount, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type p:FlowDocEditor}}}" />
+                        </StackPanel>
                     </Fluent:StatusBarItem>
                     <Fluent:StatusBarItem Title="Columns" HorizontalAlignment="Left">
-                        <TextBlock Name="ColumnsTextBlock" Text="Columns" />
+                        <StackPanel Orientation="Horizontal">
+                            <vb:VBTextBlock Name="ColumnsTextBlock" ACCaption="en{'Column: '}de{'Spalte: '}"/>
+                            <TextBlock Name="ColumnsTextBlock1"  Text="{Binding SelectedDocument.Editor.SelectedColumnNumber, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type p:FlowDocEditor}}}" />
+                            <vb:VBTextBlock Name="ColumnsTextBlock2"  ACCaption="en{' of '}de{' von '}"/>
+                            <TextBlock Name="ColumnsTextBlock3"  Text="{Binding SelectedDocument.Editor.ColumnCount, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type p:FlowDocEditor}}}" />
+                        </StackPanel>
                     </Fluent:StatusBarItem>
                     <Separator HorizontalAlignment="Left" />
                     <Fluent:StatusBarItem Title="Word Count" HorizontalAlignment="Left">
-                        <TextBlock Name="WordCountTextBlock" Text="Word Count" />
+                        <StackPanel Orientation="Horizontal">
+                            <vb:VBTextBlock Name="WordCountTextBlock" ACCaption="en{'Word count: '}de{'Wortzahl: '}"/>
+                            <TextBlock Name="WordCountTextBlock1" Text="{Binding SelectedDocument.Editor.WordCount, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type p:FlowDocEditor}}}" />
+                        </StackPanel>
                     </Fluent:StatusBarItem>
                     <Separator HorizontalAlignment="Left" />
                     <Fluent:StatusBarItem Title="File Size" HorizontalAlignment="Left">

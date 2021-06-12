@@ -25,13 +25,14 @@ using System.Windows.Xps.Packaging;
 using System.Xml;
 using gip.core.datamodel;
 using gip.core.layoutengine;
+using System.ComponentModel;
 
 namespace Document.Editor
 {
     /// <summary>
     /// Interaktionslogik für FlowDocEditor.xaml
     /// </summary>
-    public partial class FlowDocEditor : UserControl
+    public partial class FlowDocEditor : UserControl, INotifyPropertyChanged
     {
         public FlowDocEditor()
         {
@@ -41,7 +42,17 @@ namespace Document.Editor
             KeyDown += MainWindow_KeyDown;
             withEventsField_DocPreviewScrollViewer.Loaded += DocPreviewScrollViewer_Loaded;
         }
-        private DocumentTab SelectedDocument = null;
+
+        public DocumentTab _SelectedDocument;
+        public DocumentTab SelectedDocument
+        {
+            get => _SelectedDocument;
+            set
+            {
+                _SelectedDocument = value;
+                OnPropertyChanged("SelectedDocument");
+            }
+        }
         private SpeechSynthesizer Speech = new SpeechSynthesizer();
         private JumpList myJumpList = new JumpList();
 
@@ -208,9 +219,9 @@ namespace Document.Editor
             {
                 FileSizeTextBlock.Text = "Size: " + "0 KB";
             }
-            LinesTextBlock.Text = "Line: " + SelectedDocument.Editor.SelectedLineNumber.ToString() + " of " + SelectedDocument.Editor.LineCount.ToString();
-            ColumnsTextBlock.Text = "Column: " + SelectedDocument.Editor.SelectedColumnNumber.ToString() + " of " + SelectedDocument.Editor.ColumnCount.ToString();
-            WordCountTextBlock.Text = "Word Count: " + SelectedDocument.Editor.WordCount.ToString();
+            //LinesTextBlock.Text = "Line: " + SelectedDocument.Editor.SelectedLineNumber.ToString() + " of " + SelectedDocument.Editor.LineCount.ToString();
+            //ColumnsTextBlock.Text = "Column: " + SelectedDocument.Editor.SelectedColumnNumber.ToString() + " of " + SelectedDocument.Editor.ColumnCount.ToString();
+            //WordCountTextBlock.Text = "Word Count: " + SelectedDocument.Editor.WordCount.ToString();
             if (SelectedDocument.Editor.CanUndo)
             {
                 UndoButton.IsEnabled = true;
@@ -986,8 +997,15 @@ namespace Document.Editor
             if (ControlManager.WpfTheme == eWpfTheme.Gip)
             {
                 LinesTextBlock.Foreground = Brushes.LightGray;
+                LinesTextBlock1.Foreground = Brushes.LightGray;
+                LinesTextBlock2.Foreground = Brushes.LightGray;
+                LinesTextBlock3.Foreground = Brushes.LightGray;
                 ColumnsTextBlock.Foreground = Brushes.LightGray;
+                ColumnsTextBlock1.Foreground = Brushes.LightGray;
+                ColumnsTextBlock2.Foreground = Brushes.LightGray;
+                ColumnsTextBlock3.Foreground = Brushes.LightGray;
                 WordCountTextBlock.Foreground = Brushes.LightGray;
+                WordCountTextBlock1.Foreground = Brushes.LightGray;
                 FileSizeTextBlock.Foreground = Brushes.LightGray;
                 ZoomTextBlock.Foreground = Brushes.LightGray;
             }
@@ -4358,6 +4376,13 @@ namespace Document.Editor
         }
 
         #endregion
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         private void CommonViewGroup_LauncherClick()
         {

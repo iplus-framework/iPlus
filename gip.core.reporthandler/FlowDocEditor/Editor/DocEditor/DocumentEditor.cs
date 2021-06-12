@@ -17,10 +17,11 @@ using System.Text;
 using gip.core.datamodel;
 using gip.core.layoutengine;
 using gip.core.reporthandler;
+using System.Threading.Tasks;
 
 namespace Document.Editor
 {
-    public class DocumentEditor : RichTextBox
+    public class DocumentEditor : RichTextBox, INotifyPropertyChanged
     {
         public bool FileChanged = false;
         public string DocumentName = null;
@@ -32,12 +33,10 @@ namespace Document.Editor
         public Shape SelectedShape = null;
 
         public UIElement SelectedObject = null;
-        public int SelectedLineNumber = 0;
-        public int LineCount = 0;
-        public int SelectedColumnNumber = 0;
-        public int ColumnCount = 0;
-        public int WordCount = 0;
+
         private bool _EventsSubscr = false;
+
+        private gip.core.reporthandler.Flowdoc.VBReportEditor _ReportEditor;
 
         public DocumentEditor()
         {
@@ -335,7 +334,17 @@ namespace Document.Editor
             TextChanged += DocumentEditor_TextChanged;
             SelectionChanged += DocumentEditor_SelectionChanged;
             LayoutUpdated += DocumentEditor_LayoutUpdated;
+            Loaded += DocumentEditor_Loaded;
+
             _EventsSubscr = true;
+        }
+
+        private void DocumentEditor_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (_ReportEditor == null)
+            {
+                _ReportEditor = gip.core.layoutengine.Helperclasses.VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(gip.core.reporthandler.Flowdoc.VBReportEditor)) as gip.core.reporthandler.Flowdoc.VBReportEditor;
+            }
         }
 
         public void UnSubscribeEvents()
@@ -344,7 +353,9 @@ namespace Document.Editor
                 return;
             TextChanged -= DocumentEditor_TextChanged;
             SelectionChanged -= DocumentEditor_SelectionChanged;
-            LayoutUpdated -= DocumentEditor_LayoutUpdated;
+            LayoutUpdated -= DocumentEditor_LayoutUpdated; 
+            Loaded -= DocumentEditor_Loaded;
+            _ReportEditor = null;
             _EventsSubscr = false;
         }
 
@@ -407,10 +418,35 @@ namespace Document.Editor
             {
                 FileChanged = true;
             }
+
+            var latestTimeOfTyping = DateTime.Now;
+            Task.Run(() => DelayedCheck(latestTimeOfTyping));
+            s_lastTimeOfTyping = latestTimeOfTyping;
+        }
+
+        private const int millisecondsToWait = 800;
+        private DateTime s_lastTimeOfTyping;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private async Task DelayedCheck(DateTime latestTimeOfTyping)
+        {
+            await Task.Delay(millisecondsToWait);
+            if (latestTimeOfTyping.Equals(s_lastTimeOfTyping))
+                Dispatcher.Invoke(() => OnTextChangedDelayed());
+        }
+
+        private void OnTextChangedDelayed()
+        {
             Semagsoft.HyperlinkHelper helper = new Semagsoft.HyperlinkHelper();
             helper.SubscribeToAllHyperlinks(Document);
             WordCount = GetWordCount();
+            _ReportEditor?.SaveToXAML();
+
+            (Parent as UIElement)?.Focus();  //Hack, when enter one character or delete one, the ReportEditor BSO won't recognize changes.
+            this.Focus();
         }
+
         #endregion
 
         #region "Find"
@@ -562,6 +598,70 @@ namespace Document.Editor
         }
 
         #endregion
+
+        #region Status properties
+
+        private int _SelectedLineNumber;
+        public int SelectedLineNumber
+        {
+            get => _SelectedLineNumber;
+            set
+            {
+                _SelectedLineNumber = value;
+                OnPropertyChanged("SelectedLineNumber");
+            }
+        }
+
+        private int _LineCount;
+        public int LineCount
+        {
+            get => _LineCount;
+            set
+            {
+                _LineCount = value;
+                OnPropertyChanged("LineCount");
+            }
+        }
+
+        private int _SelectedColumnNumber;
+        public int SelectedColumnNumber
+        {
+            get => _SelectedColumnNumber;
+            set
+            {
+                _SelectedColumnNumber = value;
+                OnPropertyChanged("SelectedColumnNumber");
+            }
+        }
+
+        private int _ColumnCount;
+        public int ColumnCount
+        {
+            get => _ColumnCount;
+            set
+            {
+                _ColumnCount = value;
+                OnPropertyChanged("ColumnCount");
+            }
+        }
+
+        private int _WordCount;
+        public int WordCount
+        {
+            get => _WordCount;
+            set
+            {
+                _WordCount = value;
+                OnPropertyChanged("WordCount");
+            }
+        }
+
+        #endregion
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
     }
 }
