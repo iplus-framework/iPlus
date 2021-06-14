@@ -56,7 +56,10 @@ namespace gip.core.reporthandler.Flowdoc
         protected void VBReportEditor_Loaded(object sender, RoutedEventArgs e)
         {
             if (_Loaded)
+            {
+                RefreshDesignEditor();
                 return;
+            }
 
             if (!(ContextACObject is IACComponent) || String.IsNullOrEmpty(VBContent))
                 return;

@@ -424,7 +424,7 @@ namespace Document.Editor
             s_lastTimeOfTyping = latestTimeOfTyping;
         }
 
-        private const int millisecondsToWait = 800;
+        private const int millisecondsToWait = 500;
         private DateTime s_lastTimeOfTyping;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -443,8 +443,11 @@ namespace Document.Editor
             WordCount = GetWordCount();
             _ReportEditor?.SaveToXAML();
 
-            (Parent as UIElement)?.Focus();  //Hack, when enter one character or delete one, the ReportEditor BSO won't recognize changes.
-            this.Focus();
+            //if (this.IsFocused)
+            //{
+            //    (Parent as UIElement)?.Focus();  //Hack, when enter one character or delete one, the ReportEditor BSO won't recognize changes.
+            //    this.Focus();
+            //}
         }
 
         #endregion
