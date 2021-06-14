@@ -663,37 +663,7 @@ namespace gip.core.datamodel
 
         public IEnumerable<ACClassWF> GetPWGroups()
         {
-            List<ACClassWF> subworkflows = new List<ACClassWF>();
-            GetSubWorkflows(this, subworkflows, 0);
-
-            return subworkflows.SelectMany(x => x.RefPAACClassMethod.ACClassWF_ACClassMethod).Where(c => c.PWACClass != null && c.PWACClass.ACKindIndex == (short)Global.ACKinds.TPWGroup);
-
-        }
-
-        private void GetSubWorkflows(ACClassWF acClassWF, List<ACClassWF> subworkflows, int depth, int maxDepth = 4)
-        {
-            var items = acClassWF.ACClassWF_ParentACClassWF.Where(c => c.PWACClass != null && c.PWACClass.ACKindIndex == (short)Global.ACKinds.TPWNodeWorkflow);
-            if (items == null || !items.Any())
-            {
-                if (acClassWF.RefPAACClassMethod != null)
-                {
-                    items = acClassWF.RefPAACClassMethod.ACClassWF_ACClassMethod.Where(c => c.PWACClass != null && c.PWACClass.ACKindIndex == (short)Global.ACKinds.TPWNodeWorkflow);
-                }
-            }
-
-            if (items == null || !items.Any())
-                return;
-
-            if (depth >= maxDepth)
-                return;
-            depth++;
-
-            subworkflows.AddRange(items);
-
-            foreach (var subworkflow in items)
-            {
-                GetSubWorkflows(subworkflow, subworkflows, depth, maxDepth);
-            }
+            return RefPAACClassMethod.ACClassWF_ACClassMethod.Where(c => c.PWACClass != null && c.PWACClass.ACKindIndex == (short)Global.ACKinds.TPWGroup);
         }
     }
 }

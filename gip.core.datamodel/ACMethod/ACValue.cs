@@ -1126,7 +1126,7 @@ namespace gip.core.datamodel
     [DataContract]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACValueWithCaption", "en{'ACValueWithCaption'}de{'ACValueWithCaption'}", typeof(ACValueWithCaption), "ACValueWithCaption", Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValueWithCaption'}de{'ACValueWithCaption'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
-    public class ACValueWithCaption : ACValue
+    public class ACValueWithCaption : ACValue, ICloneable
     {
         public ACValueWithCaption() : base()
         {
@@ -1161,5 +1161,12 @@ namespace gip.core.datamodel
             }
         }
 
+        public override object Clone()
+        {
+            ACValueWithCaption clone = new ACValueWithCaption();
+            clone.CloneValue(this);
+            clone.ACCaptionTranslation = this.ACCaptionTranslation;
+            return clone;
+        }
     }
 }

@@ -99,6 +99,7 @@ namespace gip.core.autocomponent
                 ProcessAlarm.ValueT = PANotifyState.Off;
             if (HasRules != null)
                 this.HasRules.ValueT = 0;
+            UnSubscribeToProjectWorkCycle();
             return true;
         }
 

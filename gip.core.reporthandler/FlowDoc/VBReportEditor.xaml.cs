@@ -56,7 +56,10 @@ namespace gip.core.reporthandler.Flowdoc
         protected void VBReportEditor_Loaded(object sender, RoutedEventArgs e)
         {
             if (_Loaded)
+            {
+                RefreshDesignEditor();
                 return;
+            }
 
             if (!(ContextACObject is IACComponent) || String.IsNullOrEmpty(VBContent))
                 return;
@@ -516,7 +519,11 @@ namespace gip.core.reporthandler.Flowdoc
             if ((UCDesigner == null) || (UCDesigner.Document == null))
                 return;
             if (_ReportDocument != null && !_WrongXAML)
-                XMLText = _ReportDocument.UpdateXAMLDataFromChangedFlowDoc(UCDesigner.Document);
+            {
+                string newXaml = _ReportDocument.UpdateXAMLDataFromChangedFlowDoc(UCDesigner.Document);
+                if (newXaml != XMLText)
+                    XMLText = newXaml;
+            }
             _WrongXAML = false;
         }
 

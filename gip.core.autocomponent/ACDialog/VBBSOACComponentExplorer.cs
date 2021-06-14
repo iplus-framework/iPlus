@@ -38,6 +38,8 @@ namespace gip.core.autocomponent
             _InstanceInfoList = null;
 
             _CurrentACPropertyLive = null;
+            _ShowLocalProp = false;
+            _WorkflowNodesShow = false;
 
             if (_AccessOnlineValue != null)
                 _AccessOnlineValue.ACDeInit();
@@ -151,6 +153,24 @@ namespace gip.core.autocomponent
                 if (string.IsNullOrEmpty(PropertyNameSearch))
                     return false;
                 return true;
+            }
+        }
+
+        private bool _ShowLocalProp = false;
+        [ACPropertyInfo(999, "", "en{'Show local properties'}de{'Lokale Eigenschaften anzeigen'}")]
+        public bool ShowLocalProp
+        {
+            get
+            {
+                return _ShowLocalProp;
+            }
+            set
+            {
+                if (_ShowLocalProp != value)
+                {
+                    _ShowLocalProp = value;
+                    OnPropertyChanged("ShowLocalProp");
+                }
             }
         }
 
@@ -282,13 +302,13 @@ namespace gip.core.autocomponent
                 // Abfrage erst später auf Liste, damit es zu keinem Deadlock kommt.
                 //return copiedList.AsParallel().Where(c => !string.IsNullOrEmpty(c.ACCaption)
                 return copiedList.Where(c => !string.IsNullOrEmpty(c.ACCaption)
-                                                                        && c.ACIdentifier != "ACDiagnoseInfo"
-                                                                        && c.ACIdentifier != "ACDiagnoseXMLDoc"
-                                                                        && c is IACPropertyNetBase
-                                                                        && ((c.Value != null && (c.Value is IConvertible || c.Value.GetType().IsEnum || c.Value is IFormattable))
-                                                                            || (c.Value == null && (typeof(IConvertible).IsAssignableFrom(c.ACType.ObjectType) || c.ACType.ObjectType.IsEnum || typeof(IFormattable).IsAssignableFrom(c.ACType.ObjectType)))
-                                                                            )
-                                                                        ).OrderBy(c => c.ACCaption).ToList();
+                                                && c.ACIdentifier != "ACDiagnoseInfo"
+                                                && c.ACIdentifier != "ACDiagnoseXMLDoc"
+                                                && ((ShowLocalProp && c is IACPropertyBase) || (!ShowLocalProp && c is IACPropertyNetBase))
+                                                && ((c.Value != null && (c.Value is IConvertible || c.Value.GetType().IsEnum || c.Value is IFormattable))
+                                                    || (c.Value == null && (typeof(IConvertible).IsAssignableFrom(c.ACType.ObjectType) || c.ACType.ObjectType.IsEnum || typeof(IFormattable).IsAssignableFrom(c.ACType.ObjectType)))
+                                                    )
+                                                ).OrderBy(c => c.ACCaption).ToList();
             }
         }
 
@@ -309,7 +329,7 @@ namespace gip.core.autocomponent
         [ACMethodInfo("","en{'Search'}de{'Suchen'}",999)]
         public void Search()
         {
-            if(searchDepth != int.Parse(SearchDepth) || _UpdateInstanceInfoList)
+            if (searchDepth != int.Parse(SearchDepth) || _UpdateInstanceInfoList)
             {
                 searchDepth = int.Parse(SearchDepth);
                 UpdateInstanceInfoList();
@@ -353,9 +373,15 @@ namespace gip.core.autocomponent
         {
             searchDepth = int.Parse(SearchDepth);
             var root = _RootACComponent.ParentACComponent?.GetChildInstanceInfo(1, new ChildInstanceInfoSearchParam() { ACIdentifier = _RootACComponent.ACIdentifier, 
-                                                                                                                        ContainsPropertyName = searchPropertyName, WithWorkflows = WorkflowNodesShow });
-            tempList = _RootACComponent.GetChildInstanceInfo(searchDepth, new ChildInstanceInfoSearchParam() { ReturnAsFlatList = true, ContainsPropertyName = searchPropertyName,
-                                                                                                                WithWorkflows = WorkflowNodesShow}).ToList();
+                                                                                                                        ContainsPropertyName = searchPropertyName, 
+                                                                                                                        WithWorkflows = WorkflowNodesShow,
+                                                                                                                        ReturnLocalProperties = ShowLocalProp
+            });
+            tempList = _RootACComponent.GetChildInstanceInfo(searchDepth, new ChildInstanceInfoSearchParam() { ReturnAsFlatList = true, 
+                                                                                                                ContainsPropertyName = searchPropertyName,
+                                                                                                                WithWorkflows = WorkflowNodesShow,
+                                                                                                                ReturnLocalProperties = ShowLocalProp
+            }).ToList();
             if (root != null && root.Any())
                 tempList.Insert(0, root.FirstOrDefault());
         }
@@ -381,11 +407,12 @@ namespace gip.core.autocomponent
                     _CurrentACMember = value;
                     if (_CurrentACMember != null)
                     {
-                        ACComponent component = ACUrlCommand(_CurrentACMember.ACUrl) as ACComponent;
-                        if (component != null)
-                        {
-                            PropertyValue = component.ACMemberList.FirstOrDefault(c => c.ACIdentifier == _CurrentACMember.ACMember.ACIdentifier);
-                        }
+                        PropertyValue = _CurrentACMember.Clone() as ACMemberWrapper;
+                        //ACComponent component = ACUrlCommand(_CurrentACMember.ACUrl) as ACComponent;
+                        //if (component != null)
+                        //{
+                        //    PropertyValue = component.ACMemberList.FirstOrDefault(c => c.ACIdentifier == _CurrentACMember.ACMember.ACIdentifier);
+                        //}
                     }
                     OnPropertyChanged("CurrentACMember");
                 }
@@ -418,9 +445,15 @@ namespace gip.core.autocomponent
                 UpdateInstanceInfoList(PropertyNameSearch);
                 acMemberList.Clear();
                 foreach (ACChildInstanceInfo instanceInfo in tempList)
+                {
                     if (instanceInfo.MemberValues != null && instanceInfo.MemberValues.Any())
+                    {
                         foreach (ACValueWithCaption property in instanceInfo.MemberValues)
-                            acMemberList.Add(new ACMemberWrapper() { ChildInstanceInfo = instanceInfo, ACMember = property});
+                        {
+                            acMemberList.Add(new ACMemberWrapper() { ChildInstanceInfo = instanceInfo, ACMember = property });
+                        }
+                    }
+                }
                 
                 ACMemberLiveList = acMemberList.ToList();
             }
@@ -433,9 +466,9 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        private IACMember _PropertyValue;
+        private ACMemberWrapper _PropertyValue;
         [ACPropertyInfo(999,"","en{'Value'}de{'Wert'}")]
-        public IACMember PropertyValue
+        public ACMemberWrapper PropertyValue
         { 
             get
             {
@@ -448,18 +481,52 @@ namespace gip.core.autocomponent
             }
         }
 
-        [ACMethodInfo("","en{'Update'}de{'Aktualisieren'}",999)]
+        [ACMethodInfo("", "en{'Update'}de{'Ändern'}", 999)]
         public void UpdatePropertyValue()
         {
-             CurrentACMember.ACMember.Value = PropertyValue.Value;
+            CurrentACMember.ACMember.Value = PropertyValue.ACMember.Value;
+            IACComponent component = ACUrlCommand(CurrentACMember.ACUrl) as IACComponent;
+            if (component != null)
+            {
+                var property = component.GetProperty(CurrentACMember.ACMember.ACIdentifier);
+                if (property != null)
+                    property.Value = PropertyValue.ACMember.Value;
+            }
         }
 
         public bool IsEnabledUpdatePropertyValue()
         {
-            if (CurrentACMember != null && CurrentACMember.ACMember != null && PropertyValue != null)
-                return true;
-            return false;
+            if (   CurrentACMember == null
+                || CurrentACMember.ACMember == null
+                || PropertyValue == null)
+                return false;
+            return true;
         }
+
+        [ACMethodInfo("", "en{'Update on serverside'}de{'Ändern auf Serverseite'}", 999)]
+        public void UpdateOnServer()
+        {
+            if (!IsEnabledUpdateOnServer())
+                return;
+            ACComponentProxy component = ACUrlCommand(CurrentACMember.ACUrl) as ACComponentProxy;
+            if (component != null)
+            {
+                if (!ACKnownTypes.IsTypeBroadcastable(CurrentACMember.ACMember.ObjectType))
+                    return;
+                component.InvokeACUrlCommand(CurrentACMember.ACUrl + ACUrlHelper.Delimiter_DirSeperator + CurrentACMember.ACMember.ACIdentifier, PropertyValue.ACMember.Value);
+            }
+        }
+
+        public bool IsEnabledUpdateOnServer()
+        {
+            if (!IsEnabledUpdatePropertyValue())
+                return false;
+            ACComponentProxy component = ACUrlCommand(CurrentACMember.ACUrl) as ACComponentProxy;
+            if (component == null)
+                return false;
+            return true;
+        }
+
 
         [ACMethodInfo("", "en{'Mass update'}de{'Massenaktualisierung'}", 999)]
         public void MassUpdatePropertyValue()
@@ -469,8 +536,10 @@ namespace gip.core.autocomponent
                 IACComponent component = ACUrlCommand(wrapper.ACUrl) as IACComponent;
                 if (component != null)
                 {
-                    component.ACMemberList.FirstOrDefault(c => c.ACIdentifier == wrapper.ACMember.ACIdentifier).Value = PropertyValue.Value;
-                    wrapper.ACMember.Value = PropertyValue.Value;
+                    var property = component.GetProperty(wrapper.ACMember.ACIdentifier);
+                    if (property != null)
+                        property.Value = PropertyValue.ACMember.Value;
+                    wrapper.ACMember.Value = PropertyValue.ACMember.Value;
                     wrapper.IsForUpdate = false;
                 }
             }
@@ -494,7 +563,9 @@ namespace gip.core.autocomponent
         public void CheckAllProp()
         {
             foreach (ACMemberWrapper wrapper in ACMemberLiveList.Where(c => !c.IsForUpdate))
+            {
                 wrapper.IsForUpdate = true;
+            }
         }
 
         public bool IsEnabledCheckAllProp()
@@ -508,7 +579,9 @@ namespace gip.core.autocomponent
         public void UnCheckAllProp()
         {
             foreach (ACMemberWrapper wrapper in ACMemberLiveList.Where(c => c.IsForUpdate))
+            {
                 wrapper.IsForUpdate = false;
+            }
         }
 
         public bool IsEnabledUnCheckAllProp()
@@ -544,6 +617,9 @@ namespace gip.core.autocomponent
                 case "UnCheckAllProp":
                     UnCheckAllProp();
                     return true;
+                case "UpdateOnServer":
+                    UpdateOnServer();
+                    return true;
                 case Const.IsEnabledPrefix + "Search":
                     result = IsEnabledSearch();
                     return true;
@@ -562,6 +638,9 @@ namespace gip.core.autocomponent
                 case Const.IsEnabledPrefix + "UnCheckAllProp":
                     result = IsEnabledUnCheckAllProp();
                     return true;
+                case Const.IsEnabledPrefix + "IsEnabledUpdateOnServer":
+                    result = IsEnabledUpdateOnServer();
+                    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
@@ -570,7 +649,7 @@ namespace gip.core.autocomponent
     }
 
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACMember wrapper'}de{'ACMember Wrapper'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, false, false)]
-    public class ACMemberWrapper : INotifyPropertyChanged
+    public class ACMemberWrapper : INotifyPropertyChanged, ICloneable
     {
         public ACMemberWrapper()
         {
@@ -605,7 +684,7 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return ChildInstanceInfo.ACUrlParent+"\\"+ChildInstanceInfo.ACIdentifier;
+                return ChildInstanceInfo.ACUrlParent + "\\" + ChildInstanceInfo.ACIdentifier;
             }
             set
             {
@@ -635,6 +714,14 @@ namespace gip.core.autocomponent
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
                 handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public object Clone()
+        {
+            ACMemberWrapper newObj = new ACMemberWrapper();
+            newObj.ACMember = (ACValueWithCaption) this.ACMember.Clone();
+            newObj.ChildInstanceInfo = this.ChildInstanceInfo;
+            return newObj;
         }
     }
 }

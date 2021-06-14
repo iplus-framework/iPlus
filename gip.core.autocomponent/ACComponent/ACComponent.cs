@@ -1425,15 +1425,13 @@ namespace gip.core.autocomponent
         {
             get
             {
-
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
                     return _InitState;
                 }
             }
-            internal set
+            set
             {
-
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
                     _InitState = value;
@@ -1820,14 +1818,17 @@ namespace gip.core.autocomponent
 
                 ACChildInstanceInfo childInfo = new ACChildInstanceInfo(child);
                 if (searchParam != null && !string.IsNullOrEmpty(searchParam.ContainsPropertyName))
+                {
                     childInfo.MemberValues = new ACValueWithCaptionList(child.ACPropertyList
-                        .Where(c => (c is IACPropertyNetBase || (c.PropertyInfo != null && ACKnownTypes.IsKnownType(c.PropertyInfo.ObjectType)))
-                                    && (CultureInfo.InvariantCulture.CompareInfo.IndexOf(c.ACIdentifier, searchParam.ContainsPropertyName, CompareOptions.IgnoreCase) >= 0
-                                        || (c.PropertyInfo.ACCaptionTranslation != null
-                                            && CultureInfo.InvariantCulture.CompareInfo.IndexOf(c.PropertyInfo.ACCaptionTranslation, searchParam.ContainsPropertyName, CompareOptions.IgnoreCase) >= 0))
+                        .Where(c =>     (     c is IACPropertyNetBase
+                                          || (searchParam.ReturnLocalProperties && c.PropertyInfo != null && ACKnownTypes.IsKnownType(c.PropertyInfo.ObjectType)))
+                                    && (      CultureInfo.InvariantCulture.CompareInfo.IndexOf(c.ACIdentifier, searchParam.ContainsPropertyName, CompareOptions.IgnoreCase) >= 0
+                                          || (   c.PropertyInfo.ACCaptionTranslation != null
+                                              && CultureInfo.InvariantCulture.CompareInfo.IndexOf(c.PropertyInfo.ACCaptionTranslation, searchParam.ContainsPropertyName, CompareOptions.IgnoreCase) >= 0))
                                        )
                                     .Select(c => new ACValueWithCaption(c.ACIdentifier, c.ACType.ValueTypeACClass, c.PropertyInfo.ACCaptionTranslation, c.Value))
                                     .ToArray());
+                }
                 if (!searchParam.ReturnAsFlatList)
                 {
                     child.FillChildInstanceInfo(childInfo, maxChildDepth, 1, searchParam.OnlyWorkflows, searchParam);
@@ -1859,9 +1860,10 @@ namespace gip.core.autocomponent
 
                 if (searchParam != null && !string.IsNullOrEmpty(searchParam.ContainsPropertyName))
                     childInfo.MemberValues = new ACValueWithCaptionList(child.ACPropertyList
-                        .Where(c => (c is IACPropertyNetBase || (c.PropertyInfo != null && ACKnownTypes.IsKnownType(c.PropertyInfo.ObjectType)))
-                                    && (CultureInfo.InvariantCulture.CompareInfo.IndexOf(c.ACIdentifier, searchParam.ContainsPropertyName, CompareOptions.IgnoreCase) >= 0
-                                        || (c.PropertyInfo.ACCaptionTranslation != null
+                        .Where(c => (      c is IACPropertyNetBase 
+                                        || (searchParam.ReturnLocalProperties && c.PropertyInfo != null && ACKnownTypes.IsKnownType(c.PropertyInfo.ObjectType)))
+                                    && (   CultureInfo.InvariantCulture.CompareInfo.IndexOf(c.ACIdentifier, searchParam.ContainsPropertyName, CompareOptions.IgnoreCase) >= 0
+                                        || (   c.PropertyInfo.ACCaptionTranslation != null
                                             && CultureInfo.InvariantCulture.CompareInfo.IndexOf(c.PropertyInfo.ACCaptionTranslation, searchParam.ContainsPropertyName, CompareOptions.IgnoreCase) >= 0))
                                        )
                                     .Select(c => new ACValueWithCaption(c.ACIdentifier, c.ACType.ValueTypeACClass, c.PropertyInfo.ACCaptionTranslation, c.Value))
