@@ -80,8 +80,7 @@ namespace gip.core.datamodel
                 if (_IsChecked != value)
                 {
                     _IsChecked = value;
-                    // @aagincic@ is disabled for a reason of VBTreeView handling this part via x:Name="VBCheckBox"
-                    // IsCheckedChildrenProcess(value);
+                    IsCheckedChildrenProcess(value);
                     OnPropertyChanged("IsChecked");
                 }
             }
