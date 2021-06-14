@@ -524,7 +524,11 @@ namespace gip.core.autocomponent
         {
             using (ACMonitor.Lock(_20015_LockValue))
             {
-                if (_SubscribedToWorkCycle || ApplicationManager == null)
+                if (   _SubscribedToWorkCycle 
+                    || InitState != ACInitState.Initialized)
+                    return false;
+                // Access to ApplicationManager not in OR-Condition above to avoid Attachment to ACRef of ParentComponent!
+                if (ApplicationManager == null)
                     return false;
                 return true;
             }
@@ -541,8 +545,14 @@ namespace gip.core.autocomponent
             {
                 if (!IsEnabledUnSubscribeToProjectWorkCycle())
                     return;
-                ApplicationManager.ProjectWorkCycleR1sec -= objectManager_ProjectWorkCycle;
+                if (this.ACRef == null)
+                    return;
+                bool wasDetached = !this.ACRef.IsAttached;
+                if (ApplicationManager != null)
+                    ApplicationManager.ProjectWorkCycleR1sec -= objectManager_ProjectWorkCycle;
                 _SubscribedToWorkCycle = false;
+                if (wasDetached)
+                    this.ACRef.Detach();
             }
         }
 
@@ -550,7 +560,7 @@ namespace gip.core.autocomponent
         {
             using (ACMonitor.Lock(_20015_LockValue))
             {
-                if (!_SubscribedToWorkCycle || ApplicationManager == null)
+                if (!_SubscribedToWorkCycle)
                     return false;
                 return true;
             }
