@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace gip.core.datamodel
 {
@@ -18,5 +19,75 @@ namespace gip.core.datamodel
     {
 
         public const string ClassName = "VBTranslationView";
+
+
+        #region EditTranslation
+        private TranslationPair _SelectedEditTranslation;
+        /// <summary>
+        /// Selected property for TranslationPair
+        /// </summary>
+        /// <value>The selected Translation</value>
+        [ACPropertySelected(9999, "EditTranslation", "en{'TODO: Translation'}de{'TODO: Translation'}")]
+        public TranslationPair SelectedEditTranslation
+        {
+            get
+            {
+                return _SelectedEditTranslation;
+            }
+            set
+            {
+                if (_SelectedEditTranslation != value)
+                {
+                    _SelectedEditTranslation = value;
+                    OnPropertyChanged("SelectedEditTranslation");
+                }
+            }
+        }
+
+
+        private List<TranslationPair> _EditTranslationList;
+        /// <summary>
+        /// List property for TranslationPair
+        /// </summary>
+        /// <value>The Translation list</value>
+        [ACPropertyList(9999, "EditTranslation")]
+        public List<TranslationPair> EditTranslationList
+        {
+            get
+            {
+                return _EditTranslationList;
+            }
+        }
+       
+        private List<TranslationPair> LoadEditTranslationList(List<VBLanguage> vbLanguageList)
+        {
+            List<TranslationPair> list = new List<TranslationPair>();
+            foreach (var vBLanguage in vbLanguageList)
+            {
+                if (TranslationValue.Contains(vBLanguage.VBLanguageCode + "{"))
+                {
+                    TranslationPair translationPair = new TranslationPair()
+                    {
+                        LangCode = vBLanguage.VBLanguageCode,
+                        Translation = Translator.GetTranslation("", TranslationValue, vBLanguage.VBLanguageCode)
+                    };
+                    list.Add(translationPair);
+                }
+            }
+            return list;
+        }
+
+        public void SetTranslationList(List<VBLanguage> vbLanguageList)
+        {
+            _EditTranslationList  = LoadEditTranslationList(vbLanguageList);
+            OnPropertyChanged("EditTranslationList");
+        }
+        #endregion
+
+
+        public override string ToString()
+        {
+            return string.Format(@"[{0}] {1}", TableName, ACIdentifier);
+        }
     }
 }
