@@ -743,16 +743,16 @@ namespace gip.core.autocomponent
                     invoker = CurrentTask.ValueT as IACComponentPWNode;
                     if (invoker != null && invoker.ContentACClassWF != null)
                     {
+                        if (recalcExpectedConfigStoresCount)
+                        {
+                            using (ACMonitor.Lock(_20015_LockStoreList))
+                            {
+                                _ExpectedConfigStoresCount++;
+                            }
+                        }
                         PWProcessFunction pwFunction = invoker.ParentRootWFNode as PWProcessFunction;
                         if (pwFunction != null)
                         {
-                            if (recalcExpectedConfigStoresCount)
-                            {
-                                using (ACMonitor.Lock(_20015_LockStoreList))
-                                {
-                                    _ExpectedConfigStoresCount++;
-                                }
-                            }
                             var parentHierarchy = pwFunction.ACConfigMethodHierarchy;
                             if (parentHierarchy != null && parentHierarchy.Any())
                             {
@@ -766,6 +766,48 @@ namespace gip.core.autocomponent
                                     }
                                 }
                             }
+                        }
+                        else
+                        {
+                            Messages.LogError(this.GetACUrl(), "PWProcessFunction.GetACConfigMethodHierarchy(30)", "pwFunction is null");
+                        }
+                    }
+                    else if (acClassMethod != null && acClassMethod.IsSubMethod)
+                    {
+                        short taskIsNull = 0;
+                        if (invoker != null)
+                        {
+                            taskIsNull++;
+                            if (invoker.ContentACClassWF == null)
+                                taskIsNull++;
+                        }
+                        Messages.LogError(this.GetACUrl(), "PWProcessFunction.GetACConfigMethodHierarchy(20)", String.Format("invoker is null: {0}", taskIsNull));
+
+                        if (recalcExpectedConfigStoresCount)
+                        {
+                            using (ACMonitor.Lock(_20015_LockStoreList))
+                            {
+                                _ExpectedConfigStoresCount++;
+                            }
+                        }
+                    }
+                }
+                else if (acClassMethod != null && acClassMethod.IsSubMethod)
+                {
+                    short taskIsNull = 0;
+                    if (CurrentTask != null)
+                    {
+                        taskIsNull++;
+                        if (CurrentTask.ValueT == null)
+                            taskIsNull++;
+                    }
+                    Messages.LogError(this.GetACUrl(), "PWProcessFunction.GetACConfigMethodHierarchy(10)", String.Format("CurrentTask is null: {0}", taskIsNull));
+                    
+                    if (recalcExpectedConfigStoresCount)
+                    {
+                        using (ACMonitor.Lock(_20015_LockStoreList))
+                        {
+                            _ExpectedConfigStoresCount++;
                         }
                     }
                 }
