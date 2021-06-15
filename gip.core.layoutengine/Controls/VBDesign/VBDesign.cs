@@ -1289,8 +1289,11 @@ namespace gip.core.layoutengine
             IsDesignerActive = false;
             LoadDesign();
             adornVBControlManagerList = null;
-            designManager.ParentACComponent.ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.DesignModeOff));
-            designManager.ParentACComponent.StopComponent(designManager);
+            if (designManager.ParentACComponent != null)
+            {
+                designManager.ParentACComponent.ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.DesignModeOff));
+                designManager.ParentACComponent.StopComponent(designManager);
+            }
             _DesignManager = null;
         }
 

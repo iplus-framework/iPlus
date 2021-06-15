@@ -172,6 +172,9 @@ namespace gip.core.autocomponent
                 _AreConfigurationEntriesValid = false;
             }
 
+            if (ACRef != null && ACRef.IsAttached)
+                ACRef.Detach();
+
             return baseResult;
         }
 

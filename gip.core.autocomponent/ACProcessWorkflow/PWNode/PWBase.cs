@@ -114,6 +114,10 @@ namespace gip.core.autocomponent
             _ContentACClassWF = null;
 
             SetCurrentProgramLog(null, deleteACClassTask);
+
+            if (ACRef != null && ACRef.IsAttached)
+                ACRef.Detach();
+
             return baseResult;
         }
 
