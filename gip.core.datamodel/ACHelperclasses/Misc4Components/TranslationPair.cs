@@ -12,5 +12,10 @@
         {
             return string.Format(@"{0}{{'{1}'}}", LangCode, Translation);
         }
+
+        public override string ToString()
+        {
+            return GetTranslationTuple();
+        }
     }
 }
