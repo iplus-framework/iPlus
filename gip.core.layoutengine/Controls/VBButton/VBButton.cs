@@ -594,7 +594,6 @@ namespace gip.core.layoutengine
 
         #endregion
 
-
         #region IVBContent Member
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
@@ -815,7 +814,6 @@ namespace gip.core.layoutengine
 
         #endregion
 
-
         #region IACInteractiveObject Member
         /// <summary>
         /// Represents the dependency property for VBContent.
@@ -950,7 +948,6 @@ namespace gip.core.layoutengine
             return acComponent.IsEnabledACAction(actionArgs);
         }
         #endregion
-
 
         #region IACObject Member
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
