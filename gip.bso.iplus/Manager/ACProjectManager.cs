@@ -2037,7 +2037,8 @@ namespace gip.bso.iplus
             return acClassMethod.ACKind != Global.ACKinds.MSMethod
                 && acClassMethod.ACKind != Global.ACKinds.MSMethodPrePost
                 && acClassMethod.ACKind != Global.ACKinds.MSMethodClient
-                && acClassMethod.ACKind != Global.ACKinds.MSMethodFunction;
+                && (   acClassMethod.ACKind != Global.ACKinds.MSMethodFunction
+                    || (acClassMethod.ACKind == Global.ACKinds.MSMethodFunction && acClassMethod.AttachedFromACClassID.HasValue && acClassMethod.ParentACClassMethodID.HasValue));
         }
 
         /// <summary>
