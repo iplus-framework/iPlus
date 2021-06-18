@@ -462,7 +462,7 @@ namespace gip.core.reporthandler.Flowdoc
         private ReportDocument _ReportDocument = null;
         public void RefreshDesignerFromXAML()
         {
-            if (String.IsNullOrEmpty(this.XMLText) || !IsLoaded)
+            if (!IsLoaded)
                 return;
 
             string newXMLText = Layoutgenerator.CheckOrUpdateNamespaceInLayout(this.XMLText);
