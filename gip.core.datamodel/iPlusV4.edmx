@@ -789,7 +789,7 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
             <PropertyRef Name="ACIdentifier" />
           </Key>
           <Property Name="ACProjectName" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="TableName" Type="varchar" MaxLength="7" Nullable="false" />
+          <Property Name="TableName" Type="varchar" MaxLength="250" Nullable="false" />
           <Property Name="MandatoryID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="MandatoryACIdentifier" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="ID" Type="uniqueidentifier" Nullable="false" />
@@ -4035,7 +4035,7 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
             <PropertyRef Name="ACIdentifier" />
           </Key>
           <Property Name="ACProjectName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="TableName" Type="String" Nullable="false" MaxLength="7" FixedLength="false" Unicode="false" />
+          <Property Name="TableName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="MandatoryID" Type="Guid" Nullable="false" />
           <Property Name="MandatoryACIdentifier" Type="String" MaxLength="100" Nullable="false" Unicode="false" FixedLength="false" />
           <Property Name="ID" Type="Guid" Nullable="false" />

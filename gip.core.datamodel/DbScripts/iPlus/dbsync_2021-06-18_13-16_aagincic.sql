@@ -1,4 +1,4 @@
-﻿IF EXISTS (SELECT * FROM sysobjects WHERE type = 'V' AND name = 'VBTranslationView')
+IF EXISTS (SELECT * FROM sysobjects WHERE type = 'V' AND name = 'VBTranslationView')
 	BEGIN
 		DROP  View dbo.[VBTranslationView]
 	END

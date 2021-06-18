@@ -859,6 +859,7 @@ namespace gip.bso.iplus
                 List<VBTranslationView> list = e.Result as List<VBTranslationView>;
                 _TranslationViewList = list;
                 OnPropertyChanged("TranslationViewList");
+                _SelectedTranslationView = null;
                 if (_TranslationViewList != null)
                     SelectedTranslationView = _TranslationViewList.FirstOrDefault();
                 else
@@ -874,13 +875,19 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "Start fetching data... ";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
-            List<VBTranslationView> list = (Database as iPlusV4_Entities)
-                .udpTranslation(FilterOnlyACClassTables,
-                FilterOnlyMDTables,
-                FilterClassACIdentifier,
-                FilterACIdentifier,
-                FilterTranslation)
-                .ToList();
+            List<VBTranslationView> list = new List<VBTranslationView>();
+
+            using (Database database = new core.datamodel.Database())
+            {
+                list = database
+                   .udpTranslation(FilterOnlyACClassTables,
+                   FilterOnlyMDTables,
+                   FilterClassACIdentifier,
+                   FilterACIdentifier,
+                   FilterTranslation)
+                   .ToList();
+            }
+
             worker.ProgressInfo.TotalProgress.ProgressCurrent = halfRange;
             int itemsCount = list.Count();
             worker.ProgressInfo.TotalProgress.ProgressText = string.Format("Fetched {0} translations! prepare translation pairs...", itemsCount);
@@ -926,7 +933,7 @@ namespace gip.bso.iplus
                 int progressValue = (itemIndex / itemsCount) * progressDiff;
                 worker.ProgressInfo.TotalProgress.ProgressCurrent = progressValue;
             }
-            Database.ACSaveChanges();
+            var testResult = Database.ACSaveChanges();
             return list;
         }
 
@@ -1027,7 +1034,7 @@ namespace gip.bso.iplus
             foreach (var item in list)
             {
                 TranslationPair pair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == targetLanguageCode);
-                if (pair != null)
+                if (pair != null && pair.Translation.StartsWith(AutoGeneratePrefix))
                     item.EditTranslationList.Remove(pair);
             }
             list = DoSaveTranslation(worker, e, list, rangeFrom + half, rangeTo);
@@ -1111,13 +1118,18 @@ namespace gip.bso.iplus
 
         private List<VBTranslationView> GetAllTranslations()
         {
-            List<VBTranslationView> list = (Database as iPlusV4_Entities)
-              .udpTranslation(FilterOnlyACClassTables,
-              FilterOnlyMDTables,
-              null,
-              null,
-              null)
-              .ToList();
+            List<VBTranslationView> list = new List<VBTranslationView>();
+
+            using (Database database = new core.datamodel.Database())
+            {
+                list = database
+                   .udpTranslation(FilterOnlyACClassTables,
+                      FilterOnlyMDTables,
+                      null,
+                      null,
+                      null)
+                      .ToList();
+            }
 
             if (list != null && list.Any())
                 foreach (var translationItem in list)
