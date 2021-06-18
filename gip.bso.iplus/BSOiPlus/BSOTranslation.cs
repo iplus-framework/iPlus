@@ -336,14 +336,8 @@ namespace gip.bso.iplus
                 if (_SelectedTranslationView != value)
                 {
                     _SelectedTranslationView = value;
-                    _TranslationPairList = LoadTranslationPairList();
                     OnPropertyChanged("SelectedTranslationView");
-                    OnPropertyChanged("TranslationPairList");
-
-                    if (_TranslationPairList != null)
-                        SelectedTranslationPair = _TranslationPairList.FirstOrDefault();
-                    else
-                        SelectedTranslationPair = null;
+                    SetTranslationPairList();
                 }
             }
         }
@@ -517,6 +511,23 @@ namespace gip.bso.iplus
                     SelectedTranslationView.EditTranslationList.Add(translationPair);
             }
             return SelectedTranslationView.EditTranslationList;
+        }
+
+        private void SetTranslationPairList()
+        {
+            _TranslationPairList = LoadTranslationPairList();
+            OnPropertyChanged("TranslationPairList");
+            if (_TranslationPairList != null)
+            {
+                string langCode = "en";
+                if (SelectedVBLanguage != null)
+                    langCode = SelectedVBLanguage.VBLanguageCode;
+                SelectedTranslationPair = _TranslationPairList.FirstOrDefault(c => c.LangCode == langCode);
+                if (SelectedTranslationPair == null)
+                    SelectedTranslationPair = _TranslationPairList.FirstOrDefault();
+            }
+            else
+                SelectedTranslationPair = null;
         }
 
 
@@ -1026,8 +1037,6 @@ namespace gip.bso.iplus
         #endregion
 
         #region BackgroundWorker -> DoWork -> Generate All
-
-
 
         private List<VBTranslationView> DoGenerateEmptyTranslationAll(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode)
         {
