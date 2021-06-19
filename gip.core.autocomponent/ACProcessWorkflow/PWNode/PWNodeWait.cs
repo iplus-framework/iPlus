@@ -153,10 +153,16 @@ namespace gip.core.autocomponent
             return HandleExecuteACMethod_PWBaseNodeProcess(out result, acComponent, acMethodName, acClassMethod, acParameter);
         }
 
+        public override void Reset()
+        {
+            UnSubscribeToTimerCycle();
+            base.Reset();
+        }
 
         public override void SMIdle()
         {
             base.SMIdle();
+            UnSubscribeToTimerCycle();
             WaitingTime.ValueT = TimeSpan.Zero;
             LastPauseTime.ValueT = DateTime.MinValue;
             ElapsedTime.ValueT = TimeSpan.Zero;
@@ -258,22 +264,53 @@ namespace gip.core.autocomponent
 
         protected virtual void SubscribeToTimerCycle()
         {
-            if (_SubscribedToTimerCycle || ApplicationManager == null)
-                return;
-            ApplicationManager.ProjectWorkCycleR200ms += objectManager_ProjectTimerCycle200ms;
-            _SubscribedToTimerCycle = true;
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                if (_SubscribedToTimerCycle
+                    || InitState != ACInitState.Initialized)
+                    return;
+
+                // Access to ApplicationManager not in OR-Condition above to avoid Attachment to ACRef of ParentComponent!
+                if (ApplicationManager == null)
+                    return;
+
+                ApplicationManager.ProjectWorkCycleR200ms += objectManager_ProjectTimerCycle200ms;
+                _SubscribedToTimerCycle = true;
+            }
         }
 
         protected virtual void UnSubscribeToTimerCycle()
         {
-            if (!_SubscribedToTimerCycle || ApplicationManager == null)
-                return;
-            ApplicationManager.ProjectWorkCycleR200ms -= objectManager_ProjectTimerCycle200ms;
-            _SubscribedToTimerCycle = false;
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                if (!_SubscribedToTimerCycle)
+                    return;
+                if (this.ACRef == null)
+                    return;
+
+                bool wasDetached = !this.ACRef.IsAttached;
+                if (ApplicationManager != null)
+                    ApplicationManager.ProjectWorkCycleR200ms -= objectManager_ProjectTimerCycle200ms;
+                _SubscribedToTimerCycle = false;
+                if (wasDetached)
+                    this.ACRef.Detach();
+            }
         }
 
         protected virtual void objectManager_ProjectTimerCycle200ms(object sender, EventArgs e)
         {
+            if (this.InitState == ACInitState.Destructed || this.InitState == ACInitState.DisposingToPool || this.InitState == ACInitState.DisposedToPool)
+            {
+                gip.core.datamodel.Database.Root.Messages.LogError("PWNodeWait", "objectManager_ProjectTimerCycle200ms(1)", String.Format("Unsubcribed from Workcycle. Init-State is {0}, _SubscribedToTimerCycle is {1}, at Type {2}. Ensure that you unsubscribe from Work-Cycle in ACDeinit().", this.InitState, _SubscribedToTimerCycle, this.GetType().AssemblyQualifiedName));
+
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    (sender as ApplicationManager).ProjectWorkCycleR1sec -= objectManager_ProjectTimerCycle200ms;
+                    _SubscribedToTimerCycle = false;
+                }
+                return;
+            }
+
             if (CurrentACState == ACStateEnum.SMPaused && LastPauseTime.ValueT != null && LastPauseTime.ValueT > DateTime.MinValue)
             {
                 RemainingTime.ValueT = EndTime.ValueT - LastPauseTime.ValueT;
@@ -282,7 +319,7 @@ namespace gip.core.autocomponent
                 else
                     ElapsedTime.ValueT = LastPauseTime.ValueT - StartTime.ValueT;
             }
-            else
+            else if (CurrentACState >= ACStateEnum.SMRunning && CurrentACState <= ACStateEnum.SMCompleted)
             {
                 RemainingTime.ValueT = EndTime.ValueT - DateTime.Now;
                 if (SumPausingTimes.ValueT != null && SumPausingTimes.ValueT > TimeSpan.Zero)
@@ -291,7 +328,9 @@ namespace gip.core.autocomponent
                     ElapsedTime.ValueT = DateTime.Now - StartTime.ValueT;
             }
 
-            if (RemainingTime.ValueT < TimeSpan.Zero)
+            if (   RemainingTime.ValueT < TimeSpan.Zero
+                 && CurrentACState >= ACStateEnum.SMStarting
+                 && CurrentACState <= ACStateEnum.SMCompleted)
             {
                 CurrentACState = ACStateEnum.SMCompleted;
             }

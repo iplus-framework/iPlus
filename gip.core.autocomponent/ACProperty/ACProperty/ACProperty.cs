@@ -260,6 +260,14 @@ namespace gip.core.autocomponent
             this._ValueT = default(T);
         }
 
+        /// <summary>
+        /// Resets the Value-Property to a default value.
+        /// </summary>
+        public void ResetToDefaultValue()
+        {
+            ValueT = default(T);
+        }
+
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
         [ACPropertyInfo(9999)]
@@ -1662,13 +1670,5 @@ namespace gip.core.autocomponent
 
         #endregion
 
-
-        /// <summary>
-        /// Resets the Value-Property to a default value.
-        /// </summary>
-        public void ResetToDefaultValue()
-        {
-            ValueT = default(T);
-        }
     }
 }

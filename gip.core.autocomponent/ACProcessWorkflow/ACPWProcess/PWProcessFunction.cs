@@ -160,7 +160,7 @@ namespace gip.core.autocomponent
 
             _CurrentTask = null;
             _DelegateStartingToWorkCycle = false;
-            IsStartingProcessFunction = false;
+            ResetStartingProcessFunction();
 
             using (ACMonitor.Lock(_20015_LockStoreList))
             {
@@ -189,7 +189,7 @@ namespace gip.core.autocomponent
                 _IgnoreConfigStoreValidation = false;
                 _AreConfigurationEntriesValid = false;
             }
-            IsStartingProcessFunction = false;
+            ResetStartingProcessFunction();
             base.Recycle(content, parentACObject, parameter, acIdentifier);
         }
 
@@ -389,21 +389,40 @@ namespace gip.core.autocomponent
 
         #region Private members
 
-        protected bool _IsStartingProcessFunction = false;
-        protected bool IsStartingProcessFunction
+        private int _IsStartingProcessFunction = 0;
+        protected void EnteringStartMethod()
+        {
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                _IsStartingProcessFunction++;
+            }
+        }
+
+        protected void LeavingStartMethod()
+        {
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                if (_IsStartingProcessFunction <= 0)
+                    return;
+                _IsStartingProcessFunction--;
+            }
+        }
+
+        protected void ResetStartingProcessFunction()
+        {
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                _IsStartingProcessFunction = 0;
+            }
+        }
+
+        public bool IsStartingProcessFunction
         {
             get
             {
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
-                    return _IsStartingProcessFunction;
-                }
-            }
-            private set
-            {
-                using (ACMonitor.Lock(_20015_LockValue))
-                {
-                    _IsStartingProcessFunction = value;
+                    return _IsStartingProcessFunction > 0;
                 }
             }
         }
@@ -1071,15 +1090,22 @@ namespace gip.core.autocomponent
         {
             if (!IsEnabledIgnoreConfigStoreValidation())
                 return;
-            using (ACMonitor.Lock(_20015_LockStoreList))
+            if (IsStartingProcessFunction)
+                ResetStartingProcessFunction();
+            else
             {
-                _IgnoreConfigStoreValidation = true;
+                using (ACMonitor.Lock(_20015_LockStoreList))
+                {
+                    _IgnoreConfigStoreValidation = true;
+                }
             }
             AcknowledgeAlarms();
         }
 
         public virtual bool IsEnabledIgnoreConfigStoreValidation()
         {
+            if (IsStartingProcessFunction)
+                return true;
             using (ACMonitor.Lock(_20015_LockStoreList))
             {
                 return     !_IgnoreConfigStoreValidation
@@ -1458,60 +1484,11 @@ namespace gip.core.autocomponent
 
             try
             {
-                IsStartingProcessFunction = true;
-                if (ParentTaskExecComp != null)
-                {
-                    ACPointAsyncRMIWrap<ACComponent> taskEntry = ParentTaskExecComp.GetTaskOfACMethod(acMethod) as ACPointAsyncRMIWrap<ACComponent>;
-                    if (taskEntry != null)
-                    {
-                        CurrentTask = taskEntry;
-                        taskEntry.SetExecutingInstance(this);
-                    }
-                    else
-                    {
-                        CurrentTask = null;
-                        CurrentACMethod.ValueT = acMethod;
-                    }
-                }
-                else
-                {
-                    CurrentTask = null;
-                    CurrentACMethod.ValueT = acMethod;
-                }
+                EnteringStartMethod();
+                OnEnterStart(acMethod);
 
-                // Hole ACProgram vom ACClassTask-Datenbankkontext
-                ACValue acValue = acMethod.ParameterValueList.GetACValue(ACProgram.ClassName);
-                if (acValue != null && acValue.Value != null)
-                {
-                    Guid acProgramID = (Guid)acValue.Value;
-                    if (acProgramID != Guid.Empty)
-                    {
-                        ACClassTaskQueue.TaskQueue.ProcessAction(
-                                () => { _CurrentACProgram = ACClassTaskQueue.s_cQry_ACProgram(ACClassTaskQueue.TaskQueue.Context, acProgramID); }
-                            );
-                    }
-                }
-
-                acValue = CurrentACMethod.ValueT.ParameterValueList.GetACValue(ACProgramLog.ClassName);
-                if (acValue != null && acValue.Value != null)
-                {
-                    Guid acProgramLogID = (Guid)acValue.Value;
-                    if (acProgramLogID != Guid.Empty)
-                    {
-                        ACClassTaskQueue.TaskQueue.ProcessAction(
-                                () => { _ParentProgramLog = ACClassTaskQueue.s_cQry_ACProgramLog(ACClassTaskQueue.TaskQueue.Context, acProgramLogID); }
-                            );
-                    }
-                }
-
-                OnPropertyChanged("CurrentACMethod");
-                OnPropertyChanged("CurrentACProgram");
-
-                _DelegateStartingToWorkCycle = true;
-                ReloadConfig();
-                FindChildComponents<PWBaseExecutable>(c => c is PWBaseExecutable).ForEach(c => c.OnRootPWStarted());
-                CurrentACState = ACStateEnum.SMStarting;
-                _DelegateStartingToWorkCycle = false;
+                LeavingStartMethod();
+                OnLeaveStart(acMethod);
             }
             catch (Exception e)
             {
@@ -1524,9 +1501,69 @@ namespace gip.core.autocomponent
             }
             finally
             {
-                IsStartingProcessFunction = false;
+                ResetStartingProcessFunction();
             }
             return CreateNewMethodEventArgs(acMethod, Global.ACMethodResultState.InProcess);
+        }
+
+        protected virtual void OnEnterStart(ACMethod acMethod)
+        {
+            if (ParentTaskExecComp != null)
+            {
+                ACPointAsyncRMIWrap<ACComponent> taskEntry = ParentTaskExecComp.GetTaskOfACMethod(acMethod) as ACPointAsyncRMIWrap<ACComponent>;
+                if (taskEntry != null)
+                {
+                    CurrentTask = taskEntry;
+                    taskEntry.SetExecutingInstance(this);
+                }
+                else
+                {
+                    CurrentTask = null;
+                    CurrentACMethod.ValueT = acMethod;
+                }
+            }
+            else
+            {
+                CurrentTask = null;
+                CurrentACMethod.ValueT = acMethod;
+            }
+
+            // Hole ACProgram vom ACClassTask-Datenbankkontext
+            ACValue acValue = acMethod.ParameterValueList.GetACValue(ACProgram.ClassName);
+            if (acValue != null && acValue.Value != null)
+            {
+                Guid acProgramID = (Guid)acValue.Value;
+                if (acProgramID != Guid.Empty)
+                {
+                    ACClassTaskQueue.TaskQueue.ProcessAction(
+                            () => { _CurrentACProgram = ACClassTaskQueue.s_cQry_ACProgram(ACClassTaskQueue.TaskQueue.Context, acProgramID); }
+                        );
+                }
+            }
+
+            acValue = CurrentACMethod.ValueT.ParameterValueList.GetACValue(ACProgramLog.ClassName);
+            if (acValue != null && acValue.Value != null)
+            {
+                Guid acProgramLogID = (Guid)acValue.Value;
+                if (acProgramLogID != Guid.Empty)
+                {
+                    ACClassTaskQueue.TaskQueue.ProcessAction(
+                            () => { _ParentProgramLog = ACClassTaskQueue.s_cQry_ACProgramLog(ACClassTaskQueue.TaskQueue.Context, acProgramLogID); }
+                        );
+                }
+            }
+
+            OnPropertyChanged("CurrentACMethod");
+            OnPropertyChanged("CurrentACProgram");
+        }
+
+        protected virtual void OnLeaveStart(ACMethod acMethod)
+        {
+            _DelegateStartingToWorkCycle = true;
+            ReloadConfig();
+            FindChildComponents<PWBaseExecutable>(c => c is PWBaseExecutable).ForEach(c => c.OnRootPWStarted());
+            CurrentACState = ACStateEnum.SMStarting;
+            _DelegateStartingToWorkCycle = false;
         }
 
         public virtual bool IsEnabledStart(ACMethod acMethod)
@@ -1756,6 +1793,20 @@ namespace gip.core.autocomponent
                 xmlNode = doc.CreateElement("_AreConfigurationEntriesValid");
                 if (xmlNode != null)
                     xmlNode.InnerText = AreConfigurationEntriesValid.ToString();
+                xmlACPropertyList.AppendChild(xmlNode);
+            }
+
+            xmlNode = xmlACPropertyList["_IsStartingProcessFunction"];
+            if (xmlNode == null)
+            {
+                int value = 0;
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    value = _IsStartingProcessFunction;
+                }
+                xmlNode = doc.CreateElement("_IsStartingProcessFunction");
+                if (xmlNode != null)
+                    xmlNode.InnerText = value.ToString();
                 xmlACPropertyList.AppendChild(xmlNode);
             }
         }

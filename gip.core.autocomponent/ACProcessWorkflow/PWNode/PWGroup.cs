@@ -1148,6 +1148,8 @@ namespace gip.core.autocomponent
         [ACMethodState("en{'Completed'}de{'Beendet'}", 40, true)]
         public virtual void SMCompleted()
         {
+            UnSubscribeToProjectWorkCycle();
+
             PAProcessModule module = AccessedProcessModule;
             RecalcTimeInfo();
             FinishProgramLog(ExecutingACMethod, module != null ? module.ComponentClass.ACClassID : (Guid?)null);

@@ -130,6 +130,9 @@ namespace gip.core.autocomponent
             }
 
             base.Recycle(content, parentACObject, parameter, acIdentifier);
+
+            if (CurrentACState != ACStateEnum.SMIdle)
+                CurrentACState = ACStateEnum.SMIdle;
         }
 
         private static bool? _PoolWFComponents;
