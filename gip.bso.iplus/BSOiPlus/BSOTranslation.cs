@@ -1,9 +1,12 @@
 ﻿using gip.core.autocomponent;
 using gip.core.datamodel;
+using Google.Api.Gax.ResourceNames;
+using Google.Cloud.Translate.V3;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Windows.Input;
 
@@ -16,6 +19,12 @@ namespace gip.bso.iplus
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Translation'}de{'Translation'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true, Const.QueryPrefix + ACPackage.ClassName)]
     public class BSOTranslation : ACBSO
     {
+
+        #region DI
+        public TranslationServiceClient GoogleTranslationServiceClient { get; private set; }
+
+        public string GoogleProjectID { get; private set; }
+        #endregion
 
         #region c'tors
 
@@ -35,7 +44,8 @@ namespace gip.bso.iplus
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
-
+            GoogleTranslationServiceClient = TranslationServiceClient.Create();
+            GoogleProjectID = "api-project-38160810658";
             return base.ACInit(startChildMode);
         }
 
@@ -150,7 +160,7 @@ namespace gip.bso.iplus
         /// AUtogenerate for all in the list
         /// </summary>
         /// <value>The selected </value>
-        [ACPropertyInfo(999, "AutoGenerateByNavigation", "en{'Generate pair by navigation'}de{'Paar durch Navigation generieren'}")]
+        [ACPropertyInfo(999, "AutoGenerateByNavigation", "en{'Activate translation mode'}de{'Übersetzungsmodus aktivieren'}")]
         public bool AutoGenerateByNavigation
         {
             get
@@ -163,28 +173,6 @@ namespace gip.bso.iplus
                 {
                     _AutoGenerateByNavigation = value;
                     OnPropertyChanged("AutoGenerateByNavigation");
-                }
-            }
-        }
-
-        private bool _AutoGenerateForAll;
-        /// <summary>
-        /// AUtogenerate for all in the list
-        /// </summary>
-        /// <value>The selected </value>
-        [ACPropertyInfo(999, "AutoGenerateForAll", "en{'Generate for all (not only current list)'}de{'Für alle generieren (nicht nur aktuelle Liste)'}")]
-        public bool AutoGenerateForAll
-        {
-            get
-            {
-                return _AutoGenerateForAll;
-            }
-            set
-            {
-                if (_AutoGenerateForAll != value)
-                {
-                    _AutoGenerateForAll = value;
-                    OnPropertyChanged("AutoGenerateForAll");
                 }
             }
         }
@@ -231,7 +219,7 @@ namespace gip.bso.iplus
         {
             ACValueItemList aCValueItems = new ACValueItemList("AutoGenerateOptionList");
             aCValueItems.AddEntry((short)TranslationAutogenerateOption.GenerateEmptyTranslation, "en{'Generate empty translation'}de{'Leere Übersetzung generieren'}");
-            aCValueItems.AddEntry((short)TranslationAutogenerateOption.GeneratePairFromEnglish, "en{'Copy from english'}de{'Kopie aus dem Englischen'}");
+            aCValueItems.AddEntry((short)TranslationAutogenerateOption.GeneratePairFromSourceLanguage, "en{'Copy from english'}de{'Kopie aus dem Englischen'}");
             aCValueItems.AddEntry((short)TranslationAutogenerateOption.GeneratePairUsingGoogleApi, "en{'Use google translator'}de{'Benutze den Google Übersetzer'}");
             return aCValueItems;
         }
@@ -387,46 +375,43 @@ namespace gip.bso.iplus
 
         #endregion
 
-        #region Properties -> Lang
+        #region Properties -> SourceLanguage
 
-
-        #region VBLanguage
-        private VBLanguage _SelectedVBLanguage;
+        private VBLanguage _SelectedSourceLanguage;
         /// <summary>
         /// Selected property for VBLanguage
         /// </summary>
         /// <value>The selected VBLanguage</value>
-        [ACPropertySelected(9999, "VBLanguage", Const.VBLanguage)]
-        public VBLanguage SelectedVBLanguage
+        [ACPropertySelected(9999, "SourceLanguage", "en{'Source language'}de{'Quellsprache'}")]
+        public VBLanguage SelectedSourceLanguage
         {
             get
             {
-                return _SelectedVBLanguage;
+                return _SelectedSourceLanguage;
             }
             set
             {
-                if (_SelectedVBLanguage != value)
+                if (_SelectedSourceLanguage != value)
                 {
-                    _SelectedVBLanguage = value;
-                    OnPropertyChanged("SelectedVBLanguage");
+                    _SelectedSourceLanguage = value;
+                    OnPropertyChanged("SelectedSourceLanguage");
                 }
             }
         }
 
-
-        private List<VBLanguage> _VBLanguageList;
+        private List<VBLanguage> _SourceLanguageList;
         /// <summary>
         /// List property for VBLanguage
         /// </summary>
         /// <value>The VBLanguage list</value>
-        [ACPropertyList(9999, "VBLanguage")]
-        public List<VBLanguage> VBLanguageList
+        [ACPropertyList(9999, "SourceLanguage")]
+        public List<VBLanguage> SourceLanguageList
         {
             get
             {
-                if (_VBLanguageList == null)
-                    _VBLanguageList = LoadVBLanguageList();
-                return _VBLanguageList;
+                if (_SourceLanguageList == null)
+                    _SourceLanguageList = LoadVBLanguageList();
+                return _SourceLanguageList;
             }
         }
 
@@ -439,9 +424,46 @@ namespace gip.bso.iplus
             }
             return vBLanguages;
         }
+
         #endregion
 
+        #region TargetLanguage
 
+        private VBLanguage _SelectedTargetLanguage;
+        /// <summary>
+        /// Selected property for VBLanguage
+        /// </summary>
+        /// <value>The selected TargetLanguage</value>
+        [ACPropertySelected(9999, "TargetLanguage", "en{'Target language'}de{'Zielsprache'}")]
+        public VBLanguage SelectedTargetLanguage
+        {
+            get
+            {
+                return _SelectedTargetLanguage;
+            }
+            set
+            {
+                _SelectedTargetLanguage = value;
+                OnPropertyChanged("SelectedTargetLanguage");
+            }
+        }
+
+
+        private List<VBLanguage> _TargetLanguageList;
+        /// <summary>
+        /// List property for VBLanguage
+        /// </summary>
+        /// <value>The TargetLanguage list</value>
+        [ACPropertyList(9999, "TargetLanguage")]
+        public List<VBLanguage> TargetLanguageList
+        {
+            get
+            {
+                if (_TargetLanguageList == null)
+                    _TargetLanguageList = LoadVBLanguageList();
+                return _TargetLanguageList;
+            }
+        }
         #endregion
 
         #region Properties -> TranslationPair
@@ -487,24 +509,29 @@ namespace gip.bso.iplus
             if (SelectedTranslationView == null) return null;
             if (AutoGenerateByNavigation
                 && SelectedTranslationView.EditTranslationList != null
-                && SelectedVBLanguage != null
+                && SelectedTargetLanguage != null
+                && SelectedSourceLanguage != null
                 && SelectedAutoGenerateOption != null
-                && !SelectedTranslationView.EditTranslationList.Any(c => c.LangCode == SelectedVBLanguage.VBLanguageCode))
+                && !SelectedTranslationView.EditTranslationList.Any(c => c.LangCode == SelectedTargetLanguage.VBLanguageCode))
             {
                 TranslationPair translationPair = null;
-                TranslationPair enPair = SelectedTranslationView.EditTranslationList.FirstOrDefault(c => c.LangCode == "en");
+                TranslationPair sourcePair = SelectedTranslationView.EditTranslationList.FirstOrDefault(c => c.LangCode == SelectedSourceLanguage.VBLanguageCode);
                 switch (SelectedAutoGenerateOptionEnumVal.Value)
                 {
                     case TranslationAutogenerateOption.GenerateEmptyTranslation:
-                        translationPair = new TranslationPair() { LangCode = SelectedVBLanguage.VBLanguageCode, Translation = AutoGeneratePrefix };
+                        translationPair = new TranslationPair() { LangCode = SelectedTargetLanguage.VBLanguageCode, Translation = AutoGeneratePrefix };
                         break;
-                    case TranslationAutogenerateOption.GeneratePairFromEnglish:
-                        if (enPair != null)
-                            translationPair = new TranslationPair() { LangCode = SelectedVBLanguage.VBLanguageCode, Translation = AutoGeneratePrefix + enPair.Translation };
+                    case TranslationAutogenerateOption.GeneratePairFromSourceLanguage:
+                        if (sourcePair != null)
+                            translationPair = new TranslationPair() { LangCode = SelectedTargetLanguage.VBLanguageCode, Translation = AutoGeneratePrefix + sourcePair.Translation };
                         break;
                     case TranslationAutogenerateOption.GeneratePairUsingGoogleApi:
-                        if (enPair != null)
-                            translationPair = new TranslationPair() { LangCode = SelectedVBLanguage.VBLanguageCode, Translation = AutoGeneratePrefix + GetTranslationPairFromGoogleApi(SelectedVBLanguage.VBLanguageCode, enPair.Translation) };
+                        if (sourcePair != null)
+                        {
+                            var translations = GetTranslationPairFromGoogleApi(SelectedSourceLanguage.VBLanguageCode, SelectedTargetLanguage.VBLanguageCode, new string[] { sourcePair.Translation });
+                            if (translations.Any())
+                                translationPair = translations.FirstOrDefault();
+                        }
                         break;
                 }
                 if (translationPair != null)
@@ -520,8 +547,8 @@ namespace gip.bso.iplus
             if (_TranslationPairList != null)
             {
                 string langCode = "en";
-                if (SelectedVBLanguage != null)
-                    langCode = SelectedVBLanguage.VBLanguageCode;
+                if (SelectedTargetLanguage != null)
+                    langCode = SelectedTargetLanguage.VBLanguageCode;
                 SelectedTranslationPair = _TranslationPairList.FirstOrDefault(c => c.LangCode == langCode);
                 if (SelectedTranslationPair == null)
                     SelectedTranslationPair = _TranslationPairList.FirstOrDefault();
@@ -559,6 +586,88 @@ namespace gip.bso.iplus
                 return TranslationPairList.Count();
             }
         }
+
+        #endregion
+
+        #region Properties -> Import
+
+        /// <summary>
+        /// The _ current import folder
+        /// </summary>
+        string _ImportSourcePath;
+        /// <summary>
+        /// Gets or sets the current import folder.
+        /// </summary>
+        /// <value>The current import folder.</value>
+        [ACPropertyInfo(403, "ImportSourcePath", "en{'ImportSourcePath'}de{'ImportSourcePath'}")]
+        public string ImportSourcePath
+        {
+            get
+            {
+                return _ImportSourcePath;
+            }
+            set
+            {
+                if (_ImportSourcePath != value)
+                {
+                    _ImportSourcePath = value;
+                    OnPropertyChanged("ImportSourcePath");
+                }
+            }
+        }
+
+        #endregion
+
+        #region Properties -> Export
+
+        /// <summary>
+        /// The _ current export folder
+        /// </summary>
+        string _CurrentExportFolder;
+        /// <summary>
+        /// Gets or sets the current export folder.
+        /// </summary>
+        /// <value>The current export folder.</value>
+        [ACPropertyCurrent(406, "ExportFolder", "en{'ExportFolder'}de{'Exportordner'}")]
+        public string CurrentExportFolder
+        {
+            get
+            {
+                return _CurrentExportFolder;
+            }
+            set
+            {
+                if (_CurrentExportFolder != value)
+                {
+                    _CurrentExportFolder = value;
+                    OnPropertyChanged("CurrentExportFolder");
+                }
+            }
+        }
+
+
+        private string _CurrentExportFileName;
+        /// <summary>
+        /// Doc  CurrentExportFileName
+        /// </summary>
+        /// <value>The selected </value>
+        [ACPropertyInfo(999, "CurrentExportFileName", "en{'CurrentExportFileName'}de{'CurrentExportFileName'}")]
+        public string CurrentExportFileName
+        {
+            get
+            {
+                return _CurrentExportFileName;
+            }
+            set
+            {
+                if (_CurrentExportFileName != value)
+                {
+                    _CurrentExportFileName = value;
+                    OnPropertyChanged("CurrentExportFileName");
+                }
+            }
+        }
+
 
         #endregion
 
@@ -665,83 +774,158 @@ namespace gip.bso.iplus
 
         #region Methods -> GenerateTranslation
 
-        [ACMethodInfo("GenerateTranslation", "en{'Execute'}de{'Ausführen'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("GenerateTranslation", "en{'Translate displayed list'}de{'Übersetze angezeigte Liste'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void GenerateTranslation()
         {
             if (!IsEnabledGenerateTranslation())
                 return;
             TranslationAutogenerateOption selectedAutoGenerateOption = SelectedAutoGenerateOptionEnumVal.Value;
-
-            if (AutoGenerateForAll)
-            {
-                switch (selectedAutoGenerateOption)
-                {
-                    case TranslationAutogenerateOption.GenerateEmptyTranslation:
-                        selectedAutoGenerateOption = TranslationAutogenerateOption.GenerateEmptyTranslationAll;
-                        break;
-                    case TranslationAutogenerateOption.GeneratePairFromEnglish:
-                        selectedAutoGenerateOption = TranslationAutogenerateOption.GeneratePairFromEnglishAll;
-                        break;
-                    case TranslationAutogenerateOption.GeneratePairUsingGoogleApi:
-                        selectedAutoGenerateOption = TranslationAutogenerateOption.GeneratePairUsingGoogleApiAll;
-                        break;
-                    case TranslationAutogenerateOption.RemoveAutoGenerated:
-                        selectedAutoGenerateOption = TranslationAutogenerateOption.RemoveAutoGeneratedAll;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             BackgroundWorker.RunWorkerAsync(selectedAutoGenerateOption);
             ShowDialog(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledGenerateTranslation()
         {
-            return
-                 IsEnabledAutogeneratedListReady()
-                 && IsEnabledAutogeneratedListReady()
-                 && SelectedAutoGenerateOption != null;
+            return SelectedSourceLanguage != null
+                && IsEnabledRemoveGeneratedTranslation();
         }
 
-        [ACMethodInfo("GenerateTranslation", "en{'Remove generated translation (# prefix)'}de{'Generierte Übersetzung entfernen (# prefix)'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("GenerateTranslation", "en{'Remove translations from list'}de{'Entferne Übersetzungen in Liste'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void RemoveGeneratedTranslation()
         {
             if (!IsEnabledRemoveGeneratedTranslation())
                 return;
             TranslationAutogenerateOption removeOption = TranslationAutogenerateOption.RemoveAutoGenerated;
-
-            if (AutoGenerateForAll)
-                removeOption = TranslationAutogenerateOption.RemoveAutoGeneratedAll;
-
             BackgroundWorker.RunWorkerAsync(removeOption);
             ShowDialog(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledRemoveGeneratedTranslation()
         {
-            return IsEnabledAutogeneratedListReady() && IsEnabledAutogeneratedListReady();
+            return TranslationViewList != null
+                && TranslationViewList.Any()
+                && SelectedTargetLanguage != null
+                && SelectedTargetLanguage.VBLanguageCode != "en";
         }
 
-        #region Methods -> GenerateTranslation -> Enable common
 
-        public bool IsEnabledAutogeneratedListReady()
+
+        #endregion
+
+        #region Methods -> GenerateTranslationAll
+
+        [ACMethodInfo("GenerateTranslationAll", "en{'Translate entire system'}de{'Übersetze gesamtes System'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        public void GenerateTranslationAll()
+        {
+            if (!IsEnabledGenerateTranslationAll())
+                return;
+            TranslationAutogenerateOption option = TranslationAutogenerateOption.GenerateEmptyTranslationAll;
+            TranslationAutogenerateOption selectedAutoGenerateOption = SelectedAutoGenerateOptionEnumVal.Value;
+            switch (selectedAutoGenerateOption)
+            {
+                case TranslationAutogenerateOption.GenerateEmptyTranslation:
+                    option = TranslationAutogenerateOption.GenerateEmptyTranslationAll;
+                    break;
+                case TranslationAutogenerateOption.GeneratePairFromSourceLanguage:
+                    option = TranslationAutogenerateOption.GeneratePairFromSourceLanguageAll;
+                    break;
+                case TranslationAutogenerateOption.GeneratePairUsingGoogleApi:
+                    option = TranslationAutogenerateOption.GeneratePairUsingGoogleApiAll;
+                    break;
+            }
+
+            BackgroundWorker.RunWorkerAsync(option);
+            ShowDialog(this, DesignNameProgressBar);
+        }
+
+        public bool IsEnabledGenerateTranslationAll()
+        {
+            return IsEnabledRemoveGeneratedTranslation();
+        }
+
+        [ACMethodInfo("GenerateTranslationAll", "en{'Remove translations from the entire system'}de{'Entferne Übersetzungen aus gesamten System'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        public void RemoveGeneratedTranslationAll()
+        {
+            if (!IsEnabledRemoveGeneratedTranslation())
+                return;
+            TranslationAutogenerateOption removeOption = TranslationAutogenerateOption.RemoveAutoGeneratedAll;
+            BackgroundWorker.RunWorkerAsync(removeOption);
+            ShowDialog(this, DesignNameProgressBar);
+        }
+
+        public bool IsEnalbedRemoveGeneratedTranslationAll()
         {
             return
-                AutoGenerateForAll
-                || (
-                    TranslationViewList != null
-                    && TranslationViewList.Any()
-                );
+                SelectedTargetLanguage != null
+                && SelectedTargetLanguage.VBLanguageCode != "en";
         }
 
-        public bool IsEnabledAutogeneratedLanguageReady()
+
+
+        #endregion
+
+        #region Export
+
+        [ACMethodInfo("ExportTranslations", "en{'Export translations from list'}de{'Exportiere Übersetzungen aus Liste'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        public void ExportTranslations()
         {
-            return SelectedVBLanguage != null && SelectedVBLanguage.VBLanguageCode != "en";
+            if (!IsEnabledExportTranslations())
+                return;
+            TranslationAutogenerateOption selectedAutoGenerateOption = TranslationAutogenerateOption.Export;
+            BackgroundWorker.RunWorkerAsync(selectedAutoGenerateOption);
+            ShowDialog(this, DesignNameProgressBar);
+        }
+
+        public bool IsEnabledExportTranslations()
+        {
+            return
+                TranslationViewList != null
+                && TranslationViewList.Any()
+                && !string.IsNullOrEmpty(CurrentExportFolder)
+                && Directory.Exists(CurrentExportFolder)
+                && !string.IsNullOrEmpty(CurrentExportFileName)
+                && CurrentExportFileName.IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
+        }
+
+        [ACMethodInfo("ExportTranslations", "en{'Export translations from the entire system'}de{'Exportiere Übersetzungen aus gesamten System'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        public void ExportTranslationsAll()
+        {
+            if (!IsEnableExportTranslationsAll())
+                return;
+            TranslationAutogenerateOption selectedAutoGenerateOption = TranslationAutogenerateOption.ExportAll;
+            BackgroundWorker.RunWorkerAsync(selectedAutoGenerateOption);
+            ShowDialog(this, DesignNameProgressBar);
+        }
+
+        public bool IsEnableExportTranslationsAll()
+        {
+            return
+                !string.IsNullOrEmpty(CurrentExportFolder)
+                && Directory.Exists(CurrentExportFolder)
+                && !string.IsNullOrEmpty(CurrentExportFileName)
+                && CurrentExportFileName.IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
         }
 
         #endregion
+
+        #region Import
+
+        [ACMethodInfo("ImportTranslations", "en{'Import translations'}de{'Übersetzungen importieren'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        public void ImportTranslations()
+        {
+            if (!IsEnabledImportTranslations())
+                return;
+            TranslationAutogenerateOption selectedAutoGenerateOption = TranslationAutogenerateOption.Import;
+            BackgroundWorker.RunWorkerAsync(selectedAutoGenerateOption);
+            ShowDialog(this, DesignNameProgressBar);
+        }
+
+        public bool IsEnabledImportTranslations()
+        {
+            return
+                !string.IsNullOrEmpty(ImportSourcePath)
+                && File.Exists(ImportSourcePath);
+        }
 
         #endregion
 
@@ -762,7 +946,7 @@ namespace gip.bso.iplus
         public void AddTranslationPair()
         {
             TranslationPair translationPair = new TranslationPair();
-            translationPair.LangCode = SelectedVBLanguage.VBLanguageCode;
+            translationPair.LangCode = SelectedTargetLanguage.VBLanguageCode;
             TranslationPairList.Add(translationPair);
             OnPropertyChanged("TranslationPairList");
             SelectedTranslationPair = translationPair;
@@ -771,9 +955,9 @@ namespace gip.bso.iplus
         public bool IsEnabledAddTranslationPair()
         {
             return
-                SelectedVBLanguage != null
+                SelectedTargetLanguage != null
                 && SelectedTranslationView != null
-                && !TranslationPairList.Any(x => x.LangCode == SelectedVBLanguage.VBLanguageCode);
+                && !TranslationPairList.Any(x => x.LangCode == SelectedTargetLanguage.VBLanguageCode);
         }
 
         [ACMethodInfo("TranslationPair", "en{'Delete'}de{'Löschen'}", 999)]
@@ -813,28 +997,28 @@ namespace gip.bso.iplus
                     e.Result = DoSaveTranslation(worker, e, TranslationViewList, 0, 100);
                     break;
                 case TranslationAutogenerateOption.GenerateEmptyTranslation:
-                    e.Result = DoGenerateEmptyTranslation(worker, e, SelectedVBLanguage.VBLanguageCode, TranslationViewList, 0, 100);
+                    e.Result = DoGenerateEmptyTranslation(worker, e, SelectedTargetLanguage.VBLanguageCode, TranslationViewList, 0, 100);
                     break;
-                case TranslationAutogenerateOption.GeneratePairFromEnglish:
-                    e.Result = DoGeneratePairFromEnglish(worker, e, SelectedVBLanguage.VBLanguageCode, TranslationViewList, 0, 100);
+                case TranslationAutogenerateOption.GeneratePairFromSourceLanguage:
+                    e.Result = GeneratePairFromSourceLanguage(worker, e, SelectedSourceLanguage.VBLanguageCode, SelectedTargetLanguage.VBLanguageCode, TranslationViewList, 0, 100);
                     break;
                 case TranslationAutogenerateOption.GeneratePairUsingGoogleApi:
-                    e.Result = DoGeneratePairUsingGoogleApi(worker, e, SelectedVBLanguage.VBLanguageCode, TranslationViewList, 0, 100);
+                    e.Result = DoGeneratePairUsingGoogleApi(worker, e, SelectedSourceLanguage.VBLanguageCode, SelectedTargetLanguage.VBLanguageCode, TranslationViewList, 0, 100);
                     break;
                 case TranslationAutogenerateOption.RemoveAutoGenerated:
-                    e.Result = DoRemoveAutoGenerated(worker, e, SelectedVBLanguage.VBLanguageCode, TranslationViewList, 0, 100);
+                    e.Result = DoRemoveAutoGenerated(worker, e, SelectedTargetLanguage.VBLanguageCode, TranslationViewList, 0, 100);
                     break;
                 case TranslationAutogenerateOption.GenerateEmptyTranslationAll:
-                    e.Result = DoGenerateEmptyTranslationAll(worker, e, SelectedVBLanguage.VBLanguageCode);
+                    e.Result = DoGenerateEmptyTranslationAll(worker, e, SelectedTargetLanguage.VBLanguageCode);
                     break;
-                case TranslationAutogenerateOption.GeneratePairFromEnglishAll:
-                    e.Result = DoGeneratePairFromEnglishAll(worker, e, SelectedVBLanguage.VBLanguageCode);
+                case TranslationAutogenerateOption.GeneratePairFromSourceLanguageAll:
+                    e.Result = GeneratePairFromSourceLanguageAll(worker, e, SelectedSourceLanguage.VBLanguageCode, SelectedTargetLanguage.VBLanguageCode);
                     break;
                 case TranslationAutogenerateOption.GeneratePairUsingGoogleApiAll:
-                    e.Result = DoGeneratePairUsingGoogleApiAll(worker, e, SelectedVBLanguage.VBLanguageCode);
+                    e.Result = DoGeneratePairUsingGoogleApiAll(worker, e, SelectedSourceLanguage.VBLanguageCode, SelectedTargetLanguage.VBLanguageCode);
                     break;
                 case TranslationAutogenerateOption.RemoveAutoGeneratedAll:
-                    e.Result = DoRemoveAutoGeneratedAll(worker, e, SelectedVBLanguage.VBLanguageCode);
+                    e.Result = DoRemoveAutoGeneratedAll(worker, e, SelectedTargetLanguage.VBLanguageCode);
                     break;
             }
         }
@@ -894,7 +1078,7 @@ namespace gip.bso.iplus
             if (list != null && list.Any())
                 foreach (var translationItem in list)
                 {
-                    translationItem.SetTranslationList(VBLanguageList);
+                    translationItem.SetTranslationList(TargetLanguageList);
 
                     int itemIndex = list.IndexOf(translationItem);
                     int addToProgress = (itemIndex / itemsCount) * halfRange;
@@ -966,7 +1150,7 @@ namespace gip.bso.iplus
             return list;
         }
 
-        private List<VBTranslationView> DoGeneratePairFromEnglish(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode, List<VBTranslationView> list, int rangeFrom, int rangeTo)
+        private List<VBTranslationView> GeneratePairFromSourceLanguage(ACBackgroundWorker worker, DoWorkEventArgs e, string sourceLangaugeCode, string targetLanguageCode, List<VBTranslationView> list, int rangeFrom, int rangeTo)
         {
             worker.ProgressInfo.TotalProgress.ProgressText = "Start generate translation from english... ";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
@@ -978,10 +1162,10 @@ namespace gip.bso.iplus
             {
                 if (!item.EditTranslationList.Any(x => x.LangCode == targetLanguageCode))
                 {
-                    TranslationPair engPair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == "en");
-                    if (engPair != null)
+                    TranslationPair sourcePair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == sourceLangaugeCode);
+                    if (sourcePair != null)
                     {
-                        TranslationPair translationPair = new TranslationPair() { LangCode = targetLanguageCode, Translation = AutoGeneratePrefix + engPair.Translation };
+                        TranslationPair translationPair = new TranslationPair() { LangCode = targetLanguageCode, Translation = AutoGeneratePrefix + sourcePair.Translation };
                         item.EditTranslationList.Add(translationPair);
                     }
                 }
@@ -995,31 +1179,31 @@ namespace gip.bso.iplus
             return list;
         }
 
-        private List<VBTranslationView> DoGeneratePairUsingGoogleApi(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode, List<VBTranslationView> list, int rangeFrom, int rangeTo)
+        private List<VBTranslationView> DoGeneratePairUsingGoogleApi(ACBackgroundWorker worker, DoWorkEventArgs e, string sourceLanguageCode, string targetLanguageCode, List<VBTranslationView> list, int rangeFrom, int rangeTo)
         {
             worker.ProgressInfo.TotalProgress.ProgressText = "Start generate translation from Google API... ";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
 
-            int half = (rangeFrom - rangeTo) / 2;
-            int itemsCount = list.Count();
-            foreach (var item in list)
-            {
-                if (!item.EditTranslationList.Any(x => x.LangCode == targetLanguageCode))
-                {
-                    TranslationPair engPair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == "en");
-                    if (engPair != null)
-                    {
-                        TranslationPair translationPair = GetTranslationPairFromGoogleApi(targetLanguageCode, engPair.Translation);
-                        item.EditTranslationList.Add(translationPair);
-                    }
-                }
+            List<VBTranslationView> itemsWithoutSource = list.Where(c => c.EditTranslationList == null || !c.EditTranslationList.Any(x => x.LangCode == sourceLanguageCode)).ToList();
+            Guid[] itemsWithoutSourceIDs = itemsWithoutSource.Select(c => c.ID).ToArray();
+            List<VBTranslationView> itemsWithSource = list.Where(c => !itemsWithoutSourceIDs.Contains(c.ID)).ToList();
 
-                int itemIndex = list.IndexOf(item);
-                int progressValue = (itemIndex / itemsCount) * half;
-                worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom + progressValue;
+            int half = (rangeFrom - rangeTo) / 2;
+
+            string[] searchedTranslations = itemsWithSource.Select(c => c.EditTranslationList.FirstOrDefault(x => x.LangCode == sourceLanguageCode)).Select(c => c.Translation).ToArray();
+            List<TranslationPair> translationPairs = GetTranslationPairFromGoogleApi(sourceLanguageCode, targetLanguageCode, searchedTranslations);
+
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = half + rangeFrom;
+            int count = searchedTranslations.Length;
+
+            for (int i = 0; i < count; i++)
+            {
+                TranslationPair translationPair = translationPairs[i];
+                itemsWithSource[i].EditTranslationList.Add(translationPair);
             }
-            list = DoSaveTranslation(worker, e, list, rangeFrom + half, rangeTo);
+
+            list = DoSaveTranslation(worker, e, list,  half + rangeFrom, rangeTo);
             return list;
         }
 
@@ -1058,7 +1242,7 @@ namespace gip.bso.iplus
             DoGenerateEmptyTranslation(worker, e, targetLanguageCode, allTranslations, 20, 80);
             return DoFetchTranslation(worker, e, 80, 100); // Return only preselected by filter
         }
-        private List<VBTranslationView> DoGeneratePairFromEnglishAll(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode)
+        private List<VBTranslationView> GeneratePairFromSourceLanguageAll(ACBackgroundWorker worker, DoWorkEventArgs e, string sourceLanguageCode, string targetLanguageCode)
         {
             worker.ProgressInfo.TotalProgress.ProgressText = "Start generate english copy of translations for all items! Fetch all items...";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
@@ -1068,11 +1252,11 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "All items fetched";
             worker.ProgressInfo.TotalProgress.ProgressCurrent = 20;
 
-            DoGeneratePairFromEnglish(worker, e, targetLanguageCode, allTranslations, 20, 80);
+            GeneratePairFromSourceLanguage(worker, e, sourceLanguageCode, targetLanguageCode, allTranslations, 20, 80);
             return DoFetchTranslation(worker, e, 80, 100); // Return only preselected by filter
         }
 
-        private List<VBTranslationView> DoGeneratePairUsingGoogleApiAll(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode)
+        private List<VBTranslationView> DoGeneratePairUsingGoogleApiAll(ACBackgroundWorker worker, DoWorkEventArgs e, string sourceLanguageCode, string targetLanguageCode)
         {
             worker.ProgressInfo.TotalProgress.ProgressText = "Start generate Google API translations for all items! Fetch all items ...";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
@@ -1082,7 +1266,7 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "All items fetched";
             worker.ProgressInfo.TotalProgress.ProgressCurrent = 20;
 
-            DoGeneratePairUsingGoogleApi(worker, e, targetLanguageCode, allTranslations, 20, 80);
+            DoGeneratePairUsingGoogleApi(worker, e, sourceLanguageCode, targetLanguageCode, allTranslations, 20, 80);
             return DoFetchTranslation(worker, e, 80, 100); // Return only preselected by filter
         }
 
@@ -1110,10 +1294,26 @@ namespace gip.bso.iplus
         /// <param name="targetLanguageCode"></param>
         /// <param name="translation"></param>
         /// <returns></returns>
-        private TranslationPair GetTranslationPairFromGoogleApi(string targetLanguageCode, string translation)
+        private List<TranslationPair> GetTranslationPairFromGoogleApi(string sourceLanguageCode, string targetLanguageCode, string[] pharses)
         {
-            string fakeTranslatedValue = AutoGeneratePrefix + "-" + targetLanguageCode + "-" + translation;
-            return new TranslationPair() { LangCode = targetLanguageCode, Translation = fakeTranslatedValue };
+            List<TranslationPair> result = new List<TranslationPair>();
+            TranslateTextRequest request = new TranslateTextRequest
+            {
+                SourceLanguageCode = sourceLanguageCode.ToLower() + "-" + sourceLanguageCode.ToUpper(),
+                TargetLanguageCode = targetLanguageCode.ToLower() + "-" + targetLanguageCode.ToUpper(),
+                Parent = new ProjectName(GoogleProjectID).ToString()
+            };
+            request.Contents.Add(pharses);
+            TranslateTextResponse response = GoogleTranslationServiceClient.TranslateText(request);
+            if (response.Translations != null && response.Translations.Any())
+            {
+                foreach (Translation translation in response.Translations)
+                {
+                    TranslationPair translationPair = new TranslationPair() { LangCode = targetLanguageCode, Translation = translation.TranslatedText };
+                    result.Add(translationPair);
+                }
+            }
+            return result;
         }
 
         private List<VBTranslationView> GetAllTranslations()
@@ -1133,7 +1333,7 @@ namespace gip.bso.iplus
 
             if (list != null && list.Any())
                 foreach (var translationItem in list)
-                    translationItem.SetTranslationList(VBLanguageList);
+                    translationItem.SetTranslationList(TargetLanguageList);
 
             return list;
         }
@@ -1150,15 +1350,19 @@ namespace gip.bso.iplus
             SaveTranslation,
 
             GenerateEmptyTranslation,
-            GeneratePairFromEnglish,
+            GeneratePairFromSourceLanguage,
             GeneratePairUsingGoogleApi,
 
             GenerateEmptyTranslationAll,
-            GeneratePairFromEnglishAll,
+            GeneratePairFromSourceLanguageAll,
             GeneratePairUsingGoogleApiAll,
 
             RemoveAutoGenerated,
-            RemoveAutoGeneratedAll
+            RemoveAutoGeneratedAll,
+
+            Import,
+            Export,
+            ExportAll
         }
     }
 }
