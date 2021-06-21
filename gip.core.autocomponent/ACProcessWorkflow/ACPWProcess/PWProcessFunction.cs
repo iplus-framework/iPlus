@@ -821,7 +821,8 @@ namespace gip.core.autocomponent
                             taskIsNull++;
                     }
                     Messages.LogError(this.GetACUrl(), "PWProcessFunction.GetACConfigMethodHierarchy(10)", String.Format("CurrentTask is null: {0}", taskIsNull));
-                    
+                    Messages.LogError(this.GetACUrl(), "PWProcessFunction.GetACConfigMethodHierarchy(10)", System.Environment.StackTrace);
+
                     if (recalcExpectedConfigStoresCount)
                     {
                         using (ACMonitor.Lock(_20015_LockStoreList))
@@ -874,8 +875,8 @@ namespace gip.core.autocomponent
             {
                 if (InitState != ACInitState.Initialized)
                 {
-                    Messages.LogError(this.GetACUrl(), "PWProcessFunction.MandatoryConfigStores(10)", "Access to early: InitState ist not Initialized");
-                    Messages.LogError(this.GetACUrl(), "WProcessFunction.MandatoryConfigStores(11)", System.Environment.StackTrace);
+                    Messages.LogError(this.GetACUrl(), "PWProcessFunction.MandatoryConfigStores(10)", "Access to early: InitState is not Initialized");
+                    Messages.LogError(this.GetACUrl(), "PWProcessFunction.MandatoryConfigStores(11)", System.Environment.StackTrace);
                     return new List<IACConfigStore>();
                 }
                 bool isRebuildingCache = false;
