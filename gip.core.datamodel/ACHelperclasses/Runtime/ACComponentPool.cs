@@ -49,7 +49,7 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(_10015_LockPool))
             {
-                _Pool = new Dictionary<Guid, Stack<PoolReference>>();
+                _Pool = new Dictionary<Guid, Queue<PoolReference>>();
             }
         }
 
@@ -65,14 +65,17 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(_10015_LockPool))
             {
-                Stack<PoolReference> poolList;
+                Queue<PoolReference> poolList;
                 if (_Pool.TryGetValue(acClass.ACClassID, out poolList))
                 {
                     if (poolList.Count <= 0)
                         return null;
                     while (poolList.Count > 0)
                     {
-                        PoolReference weakRef = poolList.Pop();
+                        PoolReference weakRef = poolList.Peek();
+                        if (!weakRef.IsAgedAndCanBeUsed)
+                            return null;
+                        weakRef = poolList.Dequeue();
                         IACComponent component = null;
                         if (weakRef.TryGetTarget(out component))
                             return component;
@@ -110,13 +113,13 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(_10015_LockPool))
             {
-                Stack<PoolReference> poolList;
+                Queue<PoolReference> poolList;
                 if (!_Pool.TryGetValue(acClass.ACClassID, out poolList))
                 {
-                    poolList = new Stack<PoolReference>();
+                    poolList = new Queue<PoolReference>();
                     _Pool.Add(acClass.ACClassID, poolList);
                 }
-                poolList.Push(new PoolReference(component));
+                poolList.Enqueue(new PoolReference(component));
                 return true;
             }
         }
@@ -125,13 +128,14 @@ namespace gip.core.datamodel
         /// The _ pool
         /// </summary>
         private readonly ACMonitorObject _10015_LockPool = new ACMonitorObject(10015);
-        private Dictionary<Guid, Stack<PoolReference>> _Pool = new Dictionary<Guid, Stack<PoolReference>>();
+        private Dictionary<Guid, Queue<PoolReference>> _Pool = new Dictionary<Guid, Queue<PoolReference>>();
     }
 
     internal class PoolReference
     {
         internal PoolReference(IACComponent component)
         {
+            _Time = DateTime.Now;
             if (UseWeekRef || component.IsProxy)
                 _WeekReference = new WeakReference<IACComponent>(component);
             else
@@ -140,6 +144,21 @@ namespace gip.core.datamodel
 
         WeakReference<IACComponent> _WeekReference = null;
         IACComponent _StrongReference = null;
+        private DateTime _Time;
+        private bool _IsAged = false;
+        public bool IsAgedAndCanBeUsed
+        {
+            get
+            {
+                if (_IsAged)
+                    return _IsAged;
+                _IsAged = (DateTime.Now - _Time).TotalSeconds >= MinAgingSeconds;
+                return _IsAged;
+            }
+        }
+
+        // Length of MinAgingSeconds is 5 seconds, because the WorkCycleThreads could take longer than some seconds to finsh their code.
+        private const int MinAgingSeconds = 5;
 
         private static bool? _UseWeekRef;
         public static bool UseWeekRef
