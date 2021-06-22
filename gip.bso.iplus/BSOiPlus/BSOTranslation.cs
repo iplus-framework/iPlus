@@ -2,6 +2,7 @@
 using gip.core.datamodel;
 using Google.Api.Gax.ResourceNames;
 using Google.Cloud.Translate.V3;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,6 +20,8 @@ namespace gip.bso.iplus
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Translation'}de{'Translation'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true, Const.QueryPrefix + ACPackage.ClassName)]
     public class BSOTranslation : ACBSO
     {
+
+        public const string Const_ExportFileTemplate = @"Translation_{0}.json";
 
         #region DI
         public TranslationServiceClient GoogleTranslationServiceClient { get; private set; }
@@ -57,6 +60,312 @@ namespace gip.bso.iplus
         #endregion
 
         #region Properties
+
+        #region Properties -> ProjectManager
+        ACProjectManager _ACProjectManager;
+        public ACProjectManager ProjectManager
+        {
+            get
+            {
+                if (_ACProjectManager != null)
+                    return _ACProjectManager;
+                _ACProjectManager = new ACProjectManager(Database, Root);
+                _ACProjectManager.PropertyChanged += _ACProjectManager_PropertyChanged;
+                return _ACProjectManager;
+            }
+        }
+
+        private void _ACProjectManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == ACProjectManager.CurrentProjectItemRootPropName)
+                OnPropertyChanged("CurrentProjectItemRoot");
+        }
+
+        #endregion
+
+        #region Properties -> Tree
+
+        private ACClassDesign _CurrentMenu;
+        [ACPropertyCurrent(525, "BSOMenuOrganization", "en{'Menu'}de{'Menü'}")]
+        public ACClassDesign CurrentMenu
+        {
+            get
+            {
+                return _CurrentMenu;
+            }
+            set
+            {
+                if (_CurrentMenu != value)
+                {
+                    _CurrentMenuRootItem = null;
+                    _CurrentMenu = value;
+                    if (CurrentACProject == null || (CurrentACProject != null && CurrentACProject.ACProjectType != Global.ACProjectTypes.Root))
+                        CurrentACProject = ACProjectList.FirstOrDefault(c => c.ACProjectType == Global.ACProjectTypes.Root);
+                    else
+                        RefreshProjectTree(true);
+                }
+                OnPropertyChanged("CurrentMenu");
+            }
+        }
+
+        private ACMenuItem _CurrentMenuRootItem = null;
+        public ACMenuItem CurrentMenuRootItem
+        {
+            get
+            {
+                if (_CurrentMenuRootItem != null)
+                    return _CurrentMenuRootItem;
+                if (CurrentMenu == null)
+                    return null;
+                _CurrentMenuRootItem = CurrentMenu.MenuEntry;
+                return _CurrentMenuRootItem;
+            }
+        }
+
+        [ACPropertyList(526, "BSOMenuOrganization")]
+        public IEnumerable<ACClassDesign> MenuList
+        {
+            get
+            {
+                return Database.ContextIPlus.ACClassDesign.Where(c => c.ACKindIndex == (short)Global.ACKinds.DSDesignMenu);
+            }
+        }
+        /// <summary>
+        /// Root-Item
+        /// </summary>
+        /// <value>The current project item root.</value>
+        [ACPropertyCurrent(516, "ProjectItemRoot")]
+        public ACClassInfoWithItems CurrentProjectItemRoot
+        {
+            get
+            {
+                return ProjectManager.CurrentProjectItemRoot;
+            }
+        }
+
+        ACClassInfoWithItems _CurrentProjectItem = null;
+        /// <summary>
+        /// Selected Item
+        /// </summary>
+        /// <value>The current project item.</value>
+        [ACPropertyCurrent(517, "ProjectItem")]
+        public ACClassInfoWithItems CurrentProjectItem
+        {
+            get
+            {
+                return _CurrentProjectItem;
+            }
+            set
+            {
+                if (_CurrentProjectItem != value)
+                {
+                    _CurrentProjectItem = value;
+                    OnPropertyChanged("CurrentProjectItem");
+                }
+            }
+        }
+
+
+        private ACClassInfoWithItems.CheckHandler _ProjectTreeCheckHandler;
+        protected ACClassInfoWithItems.CheckHandler ProjectTreeCheckHandler
+        {
+            get
+            {
+                if (_ProjectTreeCheckHandler == null)
+                {
+                    _ProjectTreeCheckHandler = new ACClassInfoWithItems.CheckHandler()
+                    {
+                        QueryRightsFromDB = true,
+                        IsCheckboxVisible = true,
+                        CheckedSetter = InfoItemIsCheckedSetter,
+                        CheckedGetter = InfoItemIsCheckedGetter,
+                        CheckIsEnabledGetter = InfoItemIsCheckEnabledGetter,
+                    };
+                }
+                return _ProjectTreeCheckHandler;
+            }
+        }
+
+        protected ACClassInfoWithItems.VisibilityFilters ProjectTreeVisibilityFilter
+        {
+            get
+            {
+                ACClassInfoWithItems.VisibilityFilters filter
+                    = new ACClassInfoWithItems.VisibilityFilters()
+                    {
+                        SearchText = this.SearchClassText,
+                        IncludeLibraryClasses = CurrentACProject != null && CurrentACProject.ACProjectType == Global.ACProjectTypes.ClassLibrary
+                    };
+                return filter;
+            }
+        }
+
+        protected ACProjectManager.PresentationMode ProjectTreePresentationMode
+        {
+            get
+            {
+                ACProjectManager.PresentationMode mode
+                    = new ACProjectManager.PresentationMode()
+                    {
+                        ShowCaptionInTree = this.WithCaption,
+                        DisplayGroupedTree = this.ShowGroup,
+                        DisplayTreeAsMenu = this.CurrentMenuRootItem
+                    };
+                return mode;
+            }
+        }
+
+
+        /// <summary>
+        /// The _ show group
+        /// </summary>
+        bool _ShowGroup = true;
+        /// <summary>
+        /// Gets or sets a value indicating whether [show group].
+        /// </summary>
+        /// <value><c>true</c> if [show group]; otherwise, <c>false</c>.</value>
+        [ACPropertyInfo(518, "TreeConfig", "en{'Grouped'}de{'Gruppiert'}")]
+        public bool ShowGroup
+        {
+            get
+            {
+                return _ShowGroup;
+            }
+            set
+            {
+                _ShowGroup = value;
+                OnPropertyChanged("ShowGroup");
+                RefreshProjectTree(true);
+            }
+        }
+
+        /// <summary>
+        /// The _ search class text
+        /// </summary>
+        string _SearchClassText = "";
+        /// <summary>
+        /// Gets or sets the search class text.
+        /// </summary>
+        /// <value>The search class text.</value>
+        [ACPropertyInfo(519, "TreeConfig", "en{'Search Class'}de{'Suche Klasse'}")]
+        public string SearchClassText
+        {
+            get
+            {
+                return _SearchClassText;
+            }
+            set
+            {
+                if (_SearchClassText != value)
+                {
+                    _SearchClassText = value;
+                    OnPropertyChanged("SearchClassText");
+                    RefreshProjectTree(true);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// The _ with caption
+        /// </summary>
+        bool _WithCaption = false;
+        /// <summary>
+        /// Gets or sets a value indicating whether [with caption].
+        /// </summary>
+        /// <value><c>true</c> if [with caption]; otherwise, <c>false</c>.</value>
+        [ACPropertyInfo(520, "TreeConfig", "en{'With Caption'}de{'Mit Bezeichnung'}")]
+        public bool WithCaption
+        {
+            get
+            {
+                return _WithCaption;
+            }
+            set
+            {
+                if (_WithCaption != value)
+                {
+                    _WithCaption = value;
+                    OnPropertyChanged("WithCaption");
+                    RefreshProjectTree();
+                }
+            }
+        }
+
+
+        #endregion
+
+        #region Properties -> ACProject
+        /// <summary>
+        /// The _ selected AC project
+        /// </summary>
+        ACProject _SelectedACProject;
+        /// <summary>
+        /// Gets or sets the selected AC project.
+        /// </summary>
+        /// <value>The selected AC project.</value>
+        [ACPropertySelected(513, "ACProject")]
+        public ACProject SelectedACProject
+        {
+            get
+            {
+                return _SelectedACProject;
+            }
+            set
+            {
+                _SelectedACProject = value;
+                OnPropertyChanged("SelectedACProject");
+            }
+        }
+
+        /// <summary>
+        /// The _ current AC project
+        /// </summary>
+        ACProject _CurrentACProject;
+        /// <summary>
+        /// Gets or sets the current AC project.
+        /// </summary>
+        /// <value>The current AC project.</value>
+        [ACPropertyCurrent(514, "ACProject", "en{'Project'}de{'Projekt'}")]
+        public ACProject CurrentACProject
+        {
+            get
+            {
+                return _CurrentACProject;
+            }
+            set
+            {
+                if (value != null)
+                {
+                    if (_CurrentACProject != value)
+                    {
+                        _CurrentACProject = value;
+                        ProjectManager.LoadACProject(CurrentACProject, ProjectTreePresentationMode, ProjectTreeVisibilityFilter, ProjectTreeCheckHandler);
+                    }
+                }
+                else
+                {
+                    _CurrentACProject = null;
+                    ProjectManager.EliminateProjectTree();
+                }
+                OnPropertyChanged("CurrentACProject");
+            }
+        }
+
+        /// <summary>
+        /// Gets the AC project list.
+        /// </summary>
+        /// <value>The AC project list.</value>
+        [ACPropertyList(515, "ACProject")]
+        public IEnumerable<ACProject> ACProjectList
+        {
+            get
+            {
+                return Database.ContextIPlus.ACProject.OrderBy(c => c.ACProjectTypeIndex).ThenBy(c => c.ACProjectName);
+            }
+        }
+
+        #endregion
 
         #region Properties -> Filter
 
@@ -599,7 +908,7 @@ namespace gip.bso.iplus
         /// Gets or sets the current import folder.
         /// </summary>
         /// <value>The current import folder.</value>
-        [ACPropertyInfo(403, "ImportSourcePath", "en{'ImportSourcePath'}de{'ImportSourcePath'}")]
+        [ACPropertyInfo(403, "ImportSourcePath", "en{'Import File Path'}de{'Pfad der Importdatei'}")]
         public string ImportSourcePath
         {
             get
@@ -620,6 +929,30 @@ namespace gip.bso.iplus
 
         #region Properties -> Export
 
+
+        private bool _ExportOnlyForSelectedTargetLanguage;
+        /// <summary>
+        /// Doc  ExportOnlyForSelectedTargetLanguage
+        /// </summary>
+        /// <value>The selected </value>
+        [ACPropertyInfo(999, "ExportOnlyForSelectedTargetLanguage", "en{'Export only for selected target language'}de{'Exportiere Übersetzungen nur für Zielsprache'}")]
+        public bool ExportOnlyForSelectedTargetLanguage
+        {
+            get
+            {
+                return _ExportOnlyForSelectedTargetLanguage;
+            }
+            set
+            {
+                if (_ExportOnlyForSelectedTargetLanguage != value)
+                {
+                    _ExportOnlyForSelectedTargetLanguage = value;
+                    OnPropertyChanged("ExportOnlyForSelectedTargetLanguage");
+                }
+            }
+        }
+
+
         /// <summary>
         /// The _ current export folder
         /// </summary>
@@ -628,7 +961,7 @@ namespace gip.bso.iplus
         /// Gets or sets the current export folder.
         /// </summary>
         /// <value>The current export folder.</value>
-        [ACPropertyCurrent(406, "ExportFolder", "en{'ExportFolder'}de{'Exportordner'}")]
+        [ACPropertyCurrent(406, "ExportFolder", "en{'Export folder'}de{'Exportordner'}")]
         public string CurrentExportFolder
         {
             get
@@ -640,18 +973,25 @@ namespace gip.bso.iplus
                 if (_CurrentExportFolder != value)
                 {
                     _CurrentExportFolder = value;
+                    if (_CurrentExportFolder != null && _CurrentExportFolder.IndexOfAny(Path.GetInvalidFileNameChars()) < 0)
+                    {
+                        if (Directory.Exists(_CurrentExportFolder))
+                            if (string.IsNullOrEmpty(CurrentExportFileName))
+                                CurrentExportFileName = string.Format(Const_ExportFileTemplate, DateTime.Now.ToString("yyyy-MM-dd_HH-mm"));
+                            else
+                                _CurrentExportFolder = null;
+                    }
                     OnPropertyChanged("CurrentExportFolder");
                 }
             }
         }
-
 
         private string _CurrentExportFileName;
         /// <summary>
         /// Doc  CurrentExportFileName
         /// </summary>
         /// <value>The selected </value>
-        [ACPropertyInfo(999, "CurrentExportFileName", "en{'CurrentExportFileName'}de{'CurrentExportFileName'}")]
+        [ACPropertyInfo(999, "CurrentExportFileName", "en{'Export file name'}de{'Dateiname für den Export'}")]
         public string CurrentExportFileName
         {
             get
@@ -667,7 +1007,6 @@ namespace gip.bso.iplus
                 }
             }
         }
-
 
         #endregion
 
@@ -790,7 +1129,7 @@ namespace gip.bso.iplus
                 && IsEnabledRemoveGeneratedTranslation();
         }
 
-        [ACMethodInfo("GenerateTranslation", "en{'Remove translations from list'}de{'Entferne Übersetzungen in Liste'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("RemoveGeneratedTranslation", "en{'Remove translations from list'}de{'Entferne Übersetzungen in Liste'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void RemoveGeneratedTranslation()
         {
             if (!IsEnabledRemoveGeneratedTranslation())
@@ -864,7 +1203,28 @@ namespace gip.bso.iplus
 
         #endregion
 
-        #region Export
+        #region Methods -> Export
+
+        /// <summary>
+        /// Exports the folder.
+        /// </summary>
+        [ACMethodInfo("Export", "en{'...'}de{'...'}", 402, false, false, true)]
+        public void ExportFolder()
+        {
+            using (var dialog = new CommonOpenFileDialog())
+            {
+                if (Directory.Exists(CurrentExportFolder))
+                    dialog.InitialDirectory = CurrentExportFolder;
+                dialog.IsFolderPicker = true;
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    if (Directory.Exists(dialog.FileName))
+                    {
+                        CurrentExportFolder = dialog.FileName;
+                    }
+                }
+            }
+        }
 
         [ACMethodInfo("ExportTranslations", "en{'Export translations from list'}de{'Exportiere Übersetzungen aus Liste'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void ExportTranslations()
@@ -881,23 +1241,25 @@ namespace gip.bso.iplus
             return
                 TranslationViewList != null
                 && TranslationViewList.Any()
-                && !string.IsNullOrEmpty(CurrentExportFolder)
-                && Directory.Exists(CurrentExportFolder)
-                && !string.IsNullOrEmpty(CurrentExportFileName)
-                && CurrentExportFileName.IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
+                && IsExportFileAvailable();
         }
 
         [ACMethodInfo("ExportTranslations", "en{'Export translations from the entire system'}de{'Exportiere Übersetzungen aus gesamten System'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void ExportTranslationsAll()
         {
-            if (!IsEnableExportTranslationsAll())
+            if (!IsEnabledExportTranslationsAll())
                 return;
             TranslationAutogenerateOption selectedAutoGenerateOption = TranslationAutogenerateOption.ExportAll;
             BackgroundWorker.RunWorkerAsync(selectedAutoGenerateOption);
             ShowDialog(this, DesignNameProgressBar);
         }
 
-        public bool IsEnableExportTranslationsAll()
+        public bool IsEnabledExportTranslationsAll()
+        {
+            return IsExportFileAvailable();
+        }
+
+        private bool IsExportFileAvailable()
         {
             return
                 !string.IsNullOrEmpty(CurrentExportFolder)
@@ -908,7 +1270,22 @@ namespace gip.bso.iplus
 
         #endregion
 
-        #region Import
+        #region Methods -> Import
+
+        /// <summary>
+        /// Imports the folder.
+        /// </summary>
+        [ACMethodInfo("Import", "en{'...'}de{'...'}", 406, false, false, true)]
+        public void ImportSource()
+        {
+            if (!IsEnabledImportSource()) return;
+            ImportSourcePath = (string)Root.Businessobjects.ACUrlCommand("BSOiPlusResourceSelect!ResourceDlg", new object[] { ImportSourcePath });
+        }
+
+        public bool IsEnabledImportSource()
+        {
+            return !BackgroundWorker.IsBusy;
+        }
 
         [ACMethodInfo("ImportTranslations", "en{'Import translations'}de{'Übersetzungen importieren'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void ImportTranslations()
@@ -974,6 +1351,31 @@ namespace gip.bso.iplus
 
         #endregion
 
+        #region Methods -> ProjectTree
+        private void RefreshProjectTree(bool forceRebuildTree = false)
+        {
+            if (ProjectManager != null)
+            {
+                ProjectManager.RefreshProjectTree(ProjectTreePresentationMode, ProjectTreeVisibilityFilter, ProjectTreeCheckHandler, forceRebuildTree);
+            }
+        }
+
+        private void InfoItemIsCheckedSetter(ACClassInfoWithItems infoItem, bool isChecked)
+        {
+        }
+
+
+        private bool InfoItemIsCheckedGetter(ACClassInfoWithItems riInfoClass)
+        {
+            return false;
+        }
+
+        private bool InfoItemIsCheckEnabledGetter(ACClassInfoWithItems riInfoClass)
+        {
+            return false;
+        }
+        #endregion
+
         #region Methods ->  BackgroundWorker
 
         #region Methods ->  BackgroundWorker -> Methods
@@ -1020,6 +1422,15 @@ namespace gip.bso.iplus
                 case TranslationAutogenerateOption.RemoveAutoGeneratedAll:
                     e.Result = DoRemoveAutoGeneratedAll(worker, e, SelectedTargetLanguage.VBLanguageCode);
                     break;
+                case TranslationAutogenerateOption.Export:
+                    DoExport(worker, e, CurrentExportFolder, CurrentExportFileName, ExportOnlyForSelectedTargetLanguage);
+                    break;
+                case TranslationAutogenerateOption.ExportAll:
+                    DoExportAll(worker, e, CurrentExportFolder, CurrentExportFileName, ExportOnlyForSelectedTargetLanguage);
+                    break;
+                case TranslationAutogenerateOption.Import:
+                    DoImport(worker, e, ImportSourcePath);
+                    break;
             }
         }
 
@@ -1040,19 +1451,22 @@ namespace gip.bso.iplus
             }
             else
             {
-                List<VBTranslationView> list = e.Result as List<VBTranslationView>;
-                _TranslationViewList = list;
-                OnPropertyChanged("TranslationViewList");
-                _SelectedTranslationView = null;
-                if (_TranslationViewList != null)
-                    SelectedTranslationView = _TranslationViewList.FirstOrDefault();
-                else
-                    SelectedTranslationView = null;
+                if (e.Result != null)
+                {
+                    List<VBTranslationView> list = e.Result as List<VBTranslationView>;
+                    _TranslationViewList = list;
+                    OnPropertyChanged("TranslationViewList");
+                    _SelectedTranslationView = null;
+                    if (_TranslationViewList != null)
+                        SelectedTranslationView = _TranslationViewList.FirstOrDefault();
+                    else
+                        SelectedTranslationView = null;
+                }
             }
         }
         #endregion
 
-        #region BackgroundWorker -> DoWork -> Select & Save
+        #region Methods -> BackgroundWorker -> DoWork -> Select & Save
         private List<VBTranslationView> DoFetchTranslation(ACBackgroundWorker worker, DoWorkEventArgs e, int rangeFrom, int rangeTo)
         {
             int halfRange = (rangeFrom + rangeTo) / 2;
@@ -1123,7 +1537,7 @@ namespace gip.bso.iplus
 
         #endregion
 
-        #region BackgroundWorker -> DoWork -> Generate List
+        #region Methods -> BackgroundWorker -> DoWork -> Generate List
 
         private List<VBTranslationView> DoGenerateEmptyTranslation(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode, List<VBTranslationView> list, int rangeFrom, int rangeTo)
         {
@@ -1203,7 +1617,7 @@ namespace gip.bso.iplus
                 itemsWithSource[i].EditTranslationList.Add(translationPair);
             }
 
-            list = DoSaveTranslation(worker, e, list,  half + rangeFrom, rangeTo);
+            list = DoSaveTranslation(worker, e, list, half + rangeFrom, rangeTo);
             return list;
         }
 
@@ -1227,7 +1641,7 @@ namespace gip.bso.iplus
 
         #endregion
 
-        #region BackgroundWorker -> DoWork -> Generate All
+        #region Methods -> BackgroundWorker -> DoWork -> Generate All
 
         private List<VBTranslationView> DoGenerateEmptyTranslationAll(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode)
         {
@@ -1286,7 +1700,26 @@ namespace gip.bso.iplus
 
         #endregion
 
-        #region BackgroundWorker -> DoWork -> Common
+        #region Methods -> BackgroudWorker -> DoWork -> Export and import
+
+        private void DoImport(ACBackgroundWorker worker, DoWorkEventArgs e, string importSourcePath)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoExportAll(ACBackgroundWorker worker, DoWorkEventArgs e, string currentExportFolder, string currentExportFileName, bool exportOnlyForSelectedTargetLanguage)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoExport(ACBackgroundWorker worker, DoWorkEventArgs e, string currentExportFolder, string currentExportFileName, bool exportOnlyForSelectedTargetLanguage)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Methods -> BackgroundWorker -> DoWork -> Common
 
         /// <summary>
         /// Fetch translation from google api
