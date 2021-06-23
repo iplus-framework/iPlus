@@ -46,14 +46,13 @@ namespace gip.core.datamodel
             }
         }
 
-
         private List<TranslationPair> _EditTranslationList;
         /// <summary>
         /// List property for TranslationPair
         /// </summary>
         /// <value>The Translation list</value>
         [ACPropertyList(9999, "EditTranslation")]
-        [JsonProperty("EditTranslationList")]
+        [DataMemberAttribute()]
         public List<TranslationPair> EditTranslationList
         {
             get
@@ -65,7 +64,7 @@ namespace gip.core.datamodel
                 _EditTranslationList = value;
             }
         }
-       
+
         private List<TranslationPair> LoadEditTranslationList(List<VBLanguage> vbLanguageList)
         {
             List<TranslationPair> list = new List<TranslationPair>();
@@ -86,7 +85,7 @@ namespace gip.core.datamodel
 
         public void SetTranslationList(List<VBLanguage> vbLanguageList)
         {
-            _EditTranslationList  = LoadEditTranslationList(vbLanguageList);
+            _EditTranslationList = LoadEditTranslationList(vbLanguageList);
             OnPropertyChanged("EditTranslationList");
         }
         #endregion
