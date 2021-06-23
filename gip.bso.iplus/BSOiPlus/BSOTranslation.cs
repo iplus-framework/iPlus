@@ -3,6 +3,7 @@ using gip.core.datamodel;
 using Google.Api.Gax.ResourceNames;
 using Google.Cloud.Translate.V3;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,11 +23,38 @@ namespace gip.bso.iplus
     {
 
         public const string Const_ExportFileTemplate = @"Translation_{0}.json";
+        public const string Const_CustomerDataPath = "CustomerDataPath";
+        public const string Const_GoogleProjectID = "GoogleProjectID";
 
         #region DI
         public TranslationServiceClient GoogleTranslationServiceClient { get; private set; }
 
-        public string GoogleProjectID { get; private set; }
+        // public string GoogleProjectID { get; private set; }
+
+        string _GoogleProjectID;
+        /// <summary>
+        /// Gets or sets the current export folder.
+        /// </summary>
+        /// <value>The current export folder.</value>
+        [ACPropertyCurrent(606, "GoogleProjectID", "en{'GoogleProjectID'}de{'GoogleProjectID'}")]
+        public string GoogleProjectID
+        {
+            get
+            {
+                return _GoogleProjectID;
+            }
+            set
+            {
+                if (_GoogleProjectID != value)
+                {
+                    this[Const_GoogleProjectID] = value;
+                    _GoogleProjectID = value;
+                    OnPropertyChanged("GoogleProjectID");
+                }
+            }
+        }
+
+        public bool GoogleAPIAvailable { get; private set; }
         #endregion
 
         #region c'tors
@@ -47,14 +75,44 @@ namespace gip.bso.iplus
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
-            GoogleTranslationServiceClient = TranslationServiceClient.Create();
-            GoogleProjectID = "api-project-38160810658";
+
+            GoogleAPIAvailable = StartGoogleApi();
+            if (this[Const_CustomerDataPath] != null && Directory.Exists(this[Const_CustomerDataPath].ToString()))
+            {
+                CurrentExportFolder = this[Const_CustomerDataPath].ToString();
+            }
+            else
+            {
+                CurrentExportFolder = Root.Environment.Datapath;
+            }
+
             return base.ACInit(startChildMode);
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
             return base.ACDeInit(deleteACClassTask);
+        }
+
+
+        private bool StartGoogleApi()
+        {
+            bool startAPISuccess = false;
+            try
+            {
+                if (this[Const_GoogleProjectID] != null)
+                    GoogleProjectID = this[Const_GoogleProjectID].ToString();
+                else
+                    GoogleProjectID = "api-project-38160810658";
+                GoogleTranslationServiceClient = TranslationServiceClient.Create();
+                startAPISuccess = true;
+            }
+            catch (Exception ec)
+            {
+                Msg msg = new Msg() { MessageLevel = eMsgLevel.Exception, Message = "Error creating TranslationServiceClient! Message: " + ec.Message };
+                SendMessage(msg);
+            }
+            return startAPISuccess;
         }
 
         #endregion
@@ -85,51 +143,6 @@ namespace gip.bso.iplus
 
         #region Properties -> Tree
 
-        private ACClassDesign _CurrentMenu;
-        [ACPropertyCurrent(525, "BSOMenuOrganization", "en{'Menu'}de{'Menü'}")]
-        public ACClassDesign CurrentMenu
-        {
-            get
-            {
-                return _CurrentMenu;
-            }
-            set
-            {
-                if (_CurrentMenu != value)
-                {
-                    _CurrentMenuRootItem = null;
-                    _CurrentMenu = value;
-                    if (CurrentACProject == null || (CurrentACProject != null && CurrentACProject.ACProjectType != Global.ACProjectTypes.Root))
-                        CurrentACProject = ACProjectList.FirstOrDefault(c => c.ACProjectType == Global.ACProjectTypes.Root);
-                    else
-                        RefreshProjectTree(true);
-                }
-                OnPropertyChanged("CurrentMenu");
-            }
-        }
-
-        private ACMenuItem _CurrentMenuRootItem = null;
-        public ACMenuItem CurrentMenuRootItem
-        {
-            get
-            {
-                if (_CurrentMenuRootItem != null)
-                    return _CurrentMenuRootItem;
-                if (CurrentMenu == null)
-                    return null;
-                _CurrentMenuRootItem = CurrentMenu.MenuEntry;
-                return _CurrentMenuRootItem;
-            }
-        }
-
-        [ACPropertyList(526, "BSOMenuOrganization")]
-        public IEnumerable<ACClassDesign> MenuList
-        {
-            get
-            {
-                return Database.ContextIPlus.ACClassDesign.Where(c => c.ACKindIndex == (short)Global.ACKinds.DSDesignMenu);
-            }
-        }
         /// <summary>
         /// Root-Item
         /// </summary>
@@ -160,6 +173,8 @@ namespace gip.bso.iplus
                 if (_CurrentProjectItem != value)
                 {
                     _CurrentProjectItem = value;
+                    if (value != null)
+                        FilterClassACIdentifier = value.ACIdentifier;
                     OnPropertyChanged("CurrentProjectItem");
                 }
             }
@@ -209,7 +224,7 @@ namespace gip.bso.iplus
                     {
                         ShowCaptionInTree = this.WithCaption,
                         DisplayGroupedTree = this.ShowGroup,
-                        DisplayTreeAsMenu = this.CurrentMenuRootItem
+                        DisplayTreeAsMenu = null
                     };
                 return mode;
             }
@@ -972,14 +987,15 @@ namespace gip.bso.iplus
             {
                 if (_CurrentExportFolder != value)
                 {
-                    _CurrentExportFolder = value;
-                    if (_CurrentExportFolder != null && _CurrentExportFolder.IndexOfAny(Path.GetInvalidFileNameChars()) < 0)
+                    if (value != null)
                     {
-                        if (Directory.Exists(_CurrentExportFolder))
+                        if (Directory.Exists(value))
+                        {
                             if (string.IsNullOrEmpty(CurrentExportFileName))
                                 CurrentExportFileName = string.Format(Const_ExportFileTemplate, DateTime.Now.ToString("yyyy-MM-dd_HH-mm"));
-                            else
-                                _CurrentExportFolder = null;
+                            this[Const_CustomerDataPath] = value;
+                            _CurrentExportFolder = value;
+                        }
                     }
                     OnPropertyChanged("CurrentExportFolder");
                 }
@@ -1125,8 +1141,18 @@ namespace gip.bso.iplus
 
         public bool IsEnabledGenerateTranslation()
         {
-            return SelectedSourceLanguage != null
-                && IsEnabledRemoveGeneratedTranslation();
+            return
+                SelectedSourceLanguage != null
+                && SelectedAutoGenerateOption != null
+                && IsEnabledRemoveGeneratedTranslation()
+                && SelectedTargetLanguage.VBLanguageCode != SelectedSourceLanguage.VBLanguageCode
+                && IsEnabledGoogleApi();
+        }
+
+        public bool IsEnabledGoogleApi()
+        {
+            TranslationAutogenerateOption[] googleApis = new TranslationAutogenerateOption[] { TranslationAutogenerateOption.GeneratePairUsingGoogleApi, TranslationAutogenerateOption.GeneratePairUsingGoogleApiAll };
+            return !googleApis.Contains(SelectedAutoGenerateOptionEnumVal.Value) || GoogleAPIAvailable;
         }
 
         [ACMethodInfo("RemoveGeneratedTranslation", "en{'Remove translations from list'}de{'Entferne Übersetzungen in Liste'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
@@ -1143,11 +1169,8 @@ namespace gip.bso.iplus
         {
             return TranslationViewList != null
                 && TranslationViewList.Any()
-                && SelectedTargetLanguage != null
-                && SelectedTargetLanguage.VBLanguageCode != "en";
+                && SelectedTargetLanguage != null;
         }
-
-
 
         #endregion
 
@@ -1179,7 +1202,10 @@ namespace gip.bso.iplus
 
         public bool IsEnabledGenerateTranslationAll()
         {
-            return IsEnabledRemoveGeneratedTranslation();
+            return
+                SelectedTargetLanguage != null
+                && SelectedAutoGenerateOption != null
+                && IsEnabledGoogleApi();
         }
 
         [ACMethodInfo("GenerateTranslationAll", "en{'Remove translations from the entire system'}de{'Entferne Übersetzungen aus gesamten System'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
@@ -1195,11 +1221,8 @@ namespace gip.bso.iplus
         public bool IsEnalbedRemoveGeneratedTranslationAll()
         {
             return
-                SelectedTargetLanguage != null
-                && SelectedTargetLanguage.VBLanguageCode != "en";
+                SelectedTargetLanguage != null;
         }
-
-
 
         #endregion
 
@@ -1241,7 +1264,8 @@ namespace gip.bso.iplus
             return
                 TranslationViewList != null
                 && TranslationViewList.Any()
-                && IsExportFileAvailable();
+                && IsExportFileAvailable()
+                && (!ExportOnlyForSelectedTargetLanguage || SelectedTargetLanguage != null);
         }
 
         [ACMethodInfo("ExportTranslations", "en{'Export translations from the entire system'}de{'Exportiere Übersetzungen aus gesamten System'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
@@ -1256,7 +1280,8 @@ namespace gip.bso.iplus
 
         public bool IsEnabledExportTranslationsAll()
         {
-            return IsExportFileAvailable();
+            return IsExportFileAvailable()
+                && (!ExportOnlyForSelectedTargetLanguage || SelectedTargetLanguage != null);
         }
 
         private bool IsExportFileAvailable()
@@ -1278,8 +1303,21 @@ namespace gip.bso.iplus
         [ACMethodInfo("Import", "en{'...'}de{'...'}", 406, false, false, true)]
         public void ImportSource()
         {
-            if (!IsEnabledImportSource()) return;
-            ImportSourcePath = (string)Root.Businessobjects.ACUrlCommand("BSOiPlusResourceSelect!ResourceDlg", new object[] { ImportSourcePath });
+            if (!IsEnabledImportSource())
+                return;
+            using (var dialog = new CommonOpenFileDialog())
+            {
+                if (Directory.Exists(CurrentExportFolder))
+                    dialog.InitialDirectory = CurrentExportFolder;
+                dialog.IsFolderPicker = false;
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    if (File.Exists(dialog.FileName))
+                    {
+                        ImportSourcePath = dialog.FileName;
+                    }
+                }
+            }
         }
 
         public bool IsEnabledImportSource()
@@ -1308,6 +1346,11 @@ namespace gip.bso.iplus
 
         #region Methods -> Messages
 
+
+        public void ClearMessages()
+        {
+            MsgList.Clear();
+        }
 
         public void SendMessage(Msg msg)
         {
@@ -1423,13 +1466,13 @@ namespace gip.bso.iplus
                     e.Result = DoRemoveAutoGeneratedAll(worker, e, SelectedTargetLanguage.VBLanguageCode);
                     break;
                 case TranslationAutogenerateOption.Export:
-                    DoExport(worker, e, CurrentExportFolder, CurrentExportFileName, ExportOnlyForSelectedTargetLanguage);
+                    DoExport(worker, e, CurrentExportFolder, CurrentExportFileName, ExportOnlyForSelectedTargetLanguage, SelectedTargetLanguage?.VBLanguageCode, TranslationViewList, 0, 100);
                     break;
                 case TranslationAutogenerateOption.ExportAll:
-                    DoExportAll(worker, e, CurrentExportFolder, CurrentExportFileName, ExportOnlyForSelectedTargetLanguage);
+                    DoExportAll(worker, e, CurrentExportFolder, CurrentExportFileName, ExportOnlyForSelectedTargetLanguage, SelectedTargetLanguage?.VBLanguageCode, 0, 100);
                     break;
                 case TranslationAutogenerateOption.Import:
-                    DoImport(worker, e, ImportSourcePath);
+                    DoImport(worker, e, ImportSourcePath, 0, 100);
                     break;
             }
         }
@@ -1440,6 +1483,7 @@ namespace gip.bso.iplus
             ACBackgroundWorker worker = sender as ACBackgroundWorker;
             worker.ProgressInfo.TotalProgress.EndTime = DateTime.Now;
             CloseWindow(this, DesignNameProgressBar);
+            ClearMessages();
             string command = worker.EventArgs.Argument.ToString();
             if (e.Cancelled)
             {
@@ -1702,19 +1746,71 @@ namespace gip.bso.iplus
 
         #region Methods -> BackgroudWorker -> DoWork -> Export and import
 
-        private void DoImport(ACBackgroundWorker worker, DoWorkEventArgs e, string importSourcePath)
+        private void DoExport(ACBackgroundWorker worker, DoWorkEventArgs e, string currentExportFolder, string currentExportFileName, bool exportOnlyForSelectedTargetLanguage, string targetLanguageCode, List<VBTranslationView> list, int rangeFrom, int rangeTo)
         {
-            throw new NotImplementedException();
+            string file = Path.Combine(currentExportFolder, currentExportFileName);
+            List<VBTranslationView> localList = list.ToList();
+            if (exportOnlyForSelectedTargetLanguage)
+            {
+                foreach (var item in localList)
+                {
+                    item.EditTranslationList.RemoveAll(x => x.LangCode != targetLanguageCode);
+                }
+            }
+
+            var queryLocalList =
+                localList
+                .Select(c => new
+                {
+                    c.ACProjectName,
+                    c.TableName,
+                    c.MandatoryID,
+                    c.MandatoryACIdentifier,
+                    c.ID,
+                    c.ACIdentifier,
+                    c.UpdateName,
+                    c.UpdateDate,
+                    c.EditTranslationList
+                });
+            using (StreamWriter writer = new StreamWriter(file))
+            using (JsonTextWriter jsonWriter = new JsonTextWriter(writer))
+            {
+                JsonSerializer ser = new JsonSerializer();
+                ser.Serialize(jsonWriter, queryLocalList);
+                jsonWriter.Flush();
+            }
         }
 
-        private void DoExportAll(ACBackgroundWorker worker, DoWorkEventArgs e, string currentExportFolder, string currentExportFileName, bool exportOnlyForSelectedTargetLanguage)
+        private void DoExportAll(ACBackgroundWorker worker, DoWorkEventArgs e, string currentExportFolder, string currentExportFileName, bool exportOnlyForSelectedTargetLanguage, string targetLanguageCode, int rangeFrom, int rangeTo)
         {
-            throw new NotImplementedException();
+            worker.ProgressInfo.TotalProgress.ProgressText = "Start export all translations";
+            worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
+            worker.ProgressInfo.TotalProgress.ProgressRangeTo = 100;
+
+            List<VBTranslationView> allTranslations = GetAllTranslations();
+            worker.ProgressInfo.TotalProgress.ProgressText = "All items fetched";
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = 20;
+
+            DoExport(worker, e, currentExportFolder, currentExportFileName, exportOnlyForSelectedTargetLanguage, targetLanguageCode, allTranslations, 20, rangeTo);
         }
 
-        private void DoExport(ACBackgroundWorker worker, DoWorkEventArgs e, string currentExportFolder, string currentExportFileName, bool exportOnlyForSelectedTargetLanguage)
+        private void DoImport(ACBackgroundWorker worker, DoWorkEventArgs e, string importSourcePath, int rangeFrom, int rangeTo)
         {
-            throw new NotImplementedException();
+            worker.ProgressInfo.TotalProgress.ProgressText = "Start saving translation data... ";
+            worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
+            worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
+
+            int half = (rangeTo - rangeFrom) / 2;
+            List<VBTranslationView> list = new List<VBTranslationView>();
+            using (StreamReader streamReader = new StreamReader(importSourcePath))
+            using (JsonTextReader jsonTextReader = new JsonTextReader(streamReader))
+            {
+                JsonSerializer ser = new JsonSerializer();
+                list = ser.Deserialize<List<VBTranslationView>>(jsonTextReader);
+            }
+
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = half;
+            DoSaveTranslation(worker, e, list, half, rangeTo);
         }
 
         #endregion
@@ -1742,7 +1838,7 @@ namespace gip.bso.iplus
             {
                 foreach (Translation translation in response.Translations)
                 {
-                    TranslationPair translationPair = new TranslationPair() { LangCode = targetLanguageCode, Translation = translation.TranslatedText };
+                    TranslationPair translationPair = new TranslationPair() { LangCode = targetLanguageCode, Translation = AutoGeneratePrefix + translation.TranslatedText };
                     result.Add(translationPair);
                 }
             }

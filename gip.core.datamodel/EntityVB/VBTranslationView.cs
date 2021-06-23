@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace gip.core.datamodel
 {
@@ -51,11 +53,16 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The Translation list</value>
         [ACPropertyList(9999, "EditTranslation")]
+        [JsonProperty("EditTranslationList")]
         public List<TranslationPair> EditTranslationList
         {
             get
             {
                 return _EditTranslationList;
+            }
+            set
+            {
+                _EditTranslationList = value;
             }
         }
        
