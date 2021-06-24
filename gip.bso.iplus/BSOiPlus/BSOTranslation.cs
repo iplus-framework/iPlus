@@ -173,8 +173,13 @@ namespace gip.bso.iplus
                 if (_CurrentProjectItem != value)
                 {
                     _CurrentProjectItem = value;
-                    if (value != null)
-                        FilterClassACIdentifier = value.ACIdentifier;
+                    if (value != null && value.ValueT != null)
+                    {
+                        FilterMandatoryClassID = value.ValueT.ACClassID;
+                        FilterMandatoryClassACIdentifier = value.ACIdentifier;
+                    }
+                    else
+                        RemoveMandatory();
                     OnPropertyChanged("CurrentProjectItem");
                 }
             }
@@ -384,6 +389,76 @@ namespace gip.bso.iplus
 
         #region Properties -> Filter
 
+        private Guid? _FilterMandatoryClassID;
+        /// <summary>
+        /// Doc  FilterMandatoryClassID
+        /// </summary>
+        /// <value>The selected </value>
+        [ACPropertyInfo(999, "FilterMandatoryClassID", "en{'FilterMandatoryClassID'}de{'FilterMandatoryClassID'}")]
+        public Guid? FilterMandatoryClassID
+        {
+            get
+            {
+                return _FilterMandatoryClassID;
+            }
+            set
+            {
+                if (_FilterMandatoryClassID != value)
+                {
+                    _FilterMandatoryClassID = value;
+                    OnPropertyChanged("FilterMandatoryClassID");
+                }
+            }
+        }
+
+
+        private string _FilterMandatoryClassACIdentifier;
+        /// <summary>
+        /// Doc  FilterMandatoryClassACIdentifier
+        /// </summary>
+        /// <value>The selected </value>
+        [ACPropertyInfo(999, "FilterMandatoryClassACIdentifier", "en{'Mandatory class'}de{'Verpflichtende Klasse'}")]
+        public string FilterMandatoryClassACIdentifier
+        {
+            get
+            {
+                return _FilterMandatoryClassACIdentifier;
+            }
+            set
+            {
+                if (_FilterMandatoryClassACIdentifier != value)
+                {
+                    _FilterMandatoryClassACIdentifier = value;
+                    OnPropertyChanged("FilterMandatoryClassACIdentifier");
+                }
+            }
+        }
+
+
+        private string _FilterNotHaveInTranslation;
+        /// <summary>
+        /// Doc  FilterNotHaveInTranslation
+        /// </summary>
+        /// <value>The selected </value>
+        [ACPropertyInfo(999, "FilterNotHaveInTranslation", "en{'Translation not contains'}de{'Übersetzung enthält nicht'}")]
+        public string FilterNotHaveInTranslation
+        {
+            get
+            {
+                return _FilterNotHaveInTranslation;
+            }
+            set
+            {
+                if (_FilterNotHaveInTranslation != value)
+                {
+                    _FilterNotHaveInTranslation = value;
+                    OnPropertyChanged("FilterNotHaveInTranslation");
+                }
+            }
+        }
+
+
+
         private bool? _FilterOnlyACClassTables;
         [ACPropertyInfo(405, "FilterOnlyACClassTables", "en{'Only ACClass tables'}de{'Nur ACClass Tabellen'}")]
         public bool? FilterOnlyACClassTables
@@ -474,6 +549,34 @@ namespace gip.bso.iplus
                 }
             }
         }
+
+        #endregion
+
+        #region Replace
+
+
+        private string _ReplaceText;
+        /// <summary>
+        /// Doc  ReplaceText
+        /// </summary>
+        /// <value>The selected </value>
+        [ACPropertyInfo(999, "ReplaceText", "en{'Replace with word'}de{'Durch Wort ersetzen'}")]
+        public string ReplaceText
+        {
+            get
+            {
+                return _ReplaceText;
+            }
+            set
+            {
+                if (_ReplaceText != value)
+                {
+                    _ReplaceText = value;
+                    OnPropertyChanged("ReplaceText");
+                }
+            }
+        }
+
 
         #endregion
 
@@ -1048,7 +1151,32 @@ namespace gip.bso.iplus
             ShowDialog(this, DesignNameProgressBar);
         }
 
-        public bool IsEnabledSearch() => !string.IsNullOrEmpty(FilterClassACIdentifier) || !string.IsNullOrEmpty(FilterACIdentifier) || !string.IsNullOrEmpty(FilterTranslation);
+        public bool IsEnabledSearch()
+        {
+
+            return
+                FilterMandatoryClassID != null
+                || !string.IsNullOrEmpty(FilterClassACIdentifier)
+                || !string.IsNullOrEmpty(FilterACIdentifier)
+                || !string.IsNullOrEmpty(FilterTranslation)
+                || !string.IsNullOrEmpty(FilterNotHaveInTranslation);
+        }
+
+        [ACMethodInfo("RemoveMandatory", "en{'Remove'}de{'Entfernen'}", 500)]
+        public void RemoveMandatory()
+        {
+            if (!IsEnabledRemoveMandatory())
+                return;
+
+            FilterMandatoryClassID = null;
+            FilterMandatoryClassACIdentifier = null;
+        }
+
+        public bool IsEnabledRemoveMandatory()
+        {
+            return FilterMandatoryClassID != null;
+        }
+
 
         #endregion
 
@@ -1223,6 +1351,52 @@ namespace gip.bso.iplus
             return
                 SelectedTargetLanguage != null;
         }
+
+        #endregion
+
+        #region Methods -> Replace
+
+        /// <summary>
+        /// Method Replace
+        /// </summary>
+        [ACMethodInfo("Replace", "en{'Replace in list'}de{'In Liste ersetzen'}", 9999, false, false, true)]
+        public void Replace()
+        {
+            if (!IsEnabledReplace())
+                return;
+            BackgroundWorker.RunWorkerAsync(TranslationAutogenerateOption.Replace);
+            ShowDialog(this, DesignNameProgressBar);
+        }
+
+        public bool IsEnabledReplace()
+        {
+            return
+                IsEnabledReplaceAll()
+                && TranslationViewList != null
+                && TranslationViewList.Any();
+        }
+
+
+        /// <summary>
+        /// Method ReplaceAll
+        /// </summary>
+        [ACMethodInfo("ReplaceAll", "en{'Replace in entire system'}de{'Aus gesamten System ersetzen'}", 9999, false, false, true)]
+        public void ReplaceAll()
+        {
+            if (!IsEnabledReplaceAll())
+                return;
+            BackgroundWorker.RunWorkerAsync(TranslationAutogenerateOption.ReplaceAll);
+            ShowDialog(this, DesignNameProgressBar);
+        }
+
+        public bool IsEnabledReplaceAll()
+        {
+            return
+                !string.IsNullOrEmpty(FilterTranslation)
+                && !string.IsNullOrEmpty(ReplaceText)
+                && SelectedTargetLanguage != null;
+        }
+
 
         #endregion
 
@@ -1522,11 +1696,14 @@ namespace gip.bso.iplus
             using (Database database = new core.datamodel.Database())
             {
                 list = database
-                   .udpTranslation(FilterOnlyACClassTables,
-                   FilterOnlyMDTables,
-                   FilterClassACIdentifier,
-                   FilterACIdentifier,
-                   FilterTranslation)
+                   .udpTranslation(
+                        FilterMandatoryClassID,
+                        FilterOnlyACClassTables,
+                       FilterOnlyMDTables,
+                       FilterClassACIdentifier,
+                       FilterACIdentifier,
+                       FilterTranslation,
+                       FilterNotHaveInTranslation)
                    .ToList();
             }
 
@@ -1794,9 +1971,9 @@ namespace gip.bso.iplus
             sql = string.Format(sql, translationItem.ACIdentifier);
 
             var result = database.ExecuteStoreQuery<object>(sql);
-            if(result != null)
+            if (result != null)
                 resultItem = result.FirstOrDefault();
-            
+
             return resultItem;
         }
 
@@ -1994,6 +2171,7 @@ namespace gip.bso.iplus
                     c.TableName,
                     c.MandatoryID,
                     c.MandatoryACIdentifier,
+                    c.MandatoryACURLCached,
                     c.ID,
                     c.ACIdentifier,
                     c.UpdateName,
@@ -2056,8 +2234,8 @@ namespace gip.bso.iplus
             List<TranslationPair> result = new List<TranslationPair>();
             TranslateTextRequest request = new TranslateTextRequest
             {
-                SourceLanguageCode = sourceLanguageCode.ToLower() + "-" + sourceLanguageCode.ToUpper(),
-                TargetLanguageCode = targetLanguageCode.ToLower() + "-" + targetLanguageCode.ToUpper(),
+                SourceLanguageCode = GetGoogleLanguageCode(sourceLanguageCode),
+                TargetLanguageCode = GetGoogleLanguageCode(targetLanguageCode),
                 Parent = new ProjectName(GoogleProjectID).ToString()
             };
             request.Contents.Add(pharses);
@@ -2073,6 +2251,16 @@ namespace gip.bso.iplus
             return result;
         }
 
+        public string GetGoogleLanguageCode(string langCode)
+        {
+            string resultLangCode = "en-US";
+            if (langCode == "de")
+                resultLangCode = "de-DE";
+            else if (langCode == "hr")
+                resultLangCode = "hr-HR";
+            return resultLangCode;
+        }
+
         private List<VBTranslationView> GetAllTranslations()
         {
             List<VBTranslationView> list = new List<VBTranslationView>();
@@ -2080,11 +2268,14 @@ namespace gip.bso.iplus
             using (Database database = new core.datamodel.Database())
             {
                 list = database
-                   .udpTranslation(FilterOnlyACClassTables,
-                      FilterOnlyMDTables,
-                      null,
-                      null,
-                      null)
+                   .udpTranslation(
+                        null,
+                        FilterOnlyACClassTables,
+                          FilterOnlyMDTables,
+                          null,
+                          null,
+                          null,
+                          null)
                       .ToList();
             }
 
@@ -2119,7 +2310,10 @@ namespace gip.bso.iplus
 
             Import,
             Export,
-            ExportAll
+            ExportAll,
+
+            Replace,
+            ReplaceAll
         }
     }
 }
