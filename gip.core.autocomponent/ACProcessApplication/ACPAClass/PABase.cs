@@ -520,12 +520,13 @@ namespace gip.core.autocomponent
             }
         }
 
-        public bool IsEnabledSubscribeToProjectWorkCycle()
+        public virtual bool IsEnabledSubscribeToProjectWorkCycle()
         {
             using (ACMonitor.Lock(_20015_LockValue))
             {
                 if (   _SubscribedToWorkCycle 
-                    || InitState != ACInitState.Initialized)
+                    || InitState < ACInitState.Reloading
+                    || InitState >= ACInitState.Destructing)
                     return false;
                 // Access to ApplicationManager not in OR-Condition above to avoid Attachment to ACRef of ParentComponent!
                 if (ApplicationManager == null)

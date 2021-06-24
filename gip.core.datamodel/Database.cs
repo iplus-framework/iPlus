@@ -1034,7 +1034,20 @@ namespace gip.core.datamodel
                             && c.ACIdentifier == acIdentifier).FirstOrDefault()
             );
 
-    
+        private ConcurrentDictionary<string, ACClass> _TypesACUrlComp = new ConcurrentDictionary<string, ACClass>();
+        static readonly Func<Database, string, ACClass> s_cQry_TypesACUrlComp =
+    CompiledQuery.Compile<Database, string, ACClass>(
+        (db, acUrl) =>
+            db.ACClass.Include("ACClass1_BasedOnACClass")
+                    .Include("ACClass1_ParentACClass")
+                    .Include("ACClass1_PWACClass")
+                    .Include("ACClass1_PWMethodACClass")
+                    .Include("ACClass_BasedOnACClass")
+                    .Include("ACClass_ParentACClass")
+        .Where(c => c.ACURLComponentCached == acUrl).FirstOrDefault()
+    );
+
+
         private ConcurrentDictionary<Guid, ACClass> _TypesGuid = new ConcurrentDictionary<Guid, ACClass>(5, 1000);
         static readonly Func<Database, Guid, ACClass> s_cQry_TypesGuid =
             CompiledQuery.Compile<Database, Guid, ACClass>(
@@ -1251,7 +1264,31 @@ namespace gip.core.datamodel
             return acClass;
         }
 
-#endregion
+        /// <summary>
+        /// Get Type by ACUrlComponent
+        /// </summary>
+        /// <param name="acUrlComponent">ACUrl</param>
+        /// <returns></returns>
+        public ACClass GetACTypeByACUrlComp(string acUrlComponent)
+        {
+            if (String.IsNullOrEmpty(acUrlComponent))
+                return null;
+
+            ACClass acClass = null;
+            if (_TypesACUrlComp.TryGetValue(acUrlComponent, out acClass))
+                return acClass;
+
+            using (ACMonitor.Lock(QueryLock_1X000))
+            {
+                acClass = s_cQry_TypesACUrlComp(this, acUrlComponent);
+            }
+            if (acClass != null)
+                _TypesACUrlComp.TryAdd(acUrlComponent, acClass);
+            return acClass;
+        }
+
+
+        #endregion
 
         /// <summary>
         /// UNSAFE. Use QueryLock_1X000 outside

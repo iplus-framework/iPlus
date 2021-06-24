@@ -171,6 +171,8 @@ namespace gip.core.autocomponent
                 _IgnoreConfigStoreValidation = false;
                 _AreConfigurationEntriesValid = false;
             }
+            UnloadCounter = 0;
+            RetryUnloadCountDown = C_MaxRetryUnloadCountDown;
 
             if (ACRef != null && ACRef.IsAttached)
                 ACRef.Detach();
@@ -180,6 +182,8 @@ namespace gip.core.autocomponent
 
         public override void Recycle(IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
         {
+            UnloadCounter = 0;
+            RetryUnloadCountDown = C_MaxRetryUnloadCountDown;
             using (ACMonitor.Lock(_20015_LockStoreList))
             {
                 _ExpectedConfigStoresCount = 0;
@@ -875,8 +879,11 @@ namespace gip.core.autocomponent
             {
                 if (InitState != ACInitState.Initialized)
                 {
-                    Messages.LogError(this.GetACUrl(), "PWProcessFunction.MandatoryConfigStores(10)", "Access to early: InitState is not Initialized");
-                    Messages.LogError(this.GetACUrl(), "PWProcessFunction.MandatoryConfigStores(11)", System.Environment.StackTrace);
+                    if (Root != null && Root.Initialized)
+                    {
+                        Messages.LogError(this.GetACUrl(), "PWProcessFunction.MandatoryConfigStores(10)", "Access to early: InitState is not Initialized");
+                        Messages.LogError(this.GetACUrl(), "PWProcessFunction.MandatoryConfigStores(11)", System.Environment.StackTrace);
+                    }
                     return new List<IACConfigStore>();
                 }
                 bool isRebuildingCache = false;
@@ -1668,47 +1675,122 @@ namespace gip.core.autocomponent
 
         #region UnloadWorkflow
 
+        public bool IsUnloadingWorkflow
+        {
+            get
+            {
+                return UnloadCounter > 0;
+            }
+        }
+
+        private const int C_MaxUnloadCycles = 10;
+        private int _UnloadCounter = 0;
+        private int UnloadCounter
+        {
+            get
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    return _UnloadCounter;
+                }
+            }
+            set
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    _UnloadCounter = value;
+                }
+            }
+        }
+
+        private const int C_MaxRetryUnloadCountDown = 3;
+        private int _RetryUnloadCountDown = C_MaxRetryUnloadCountDown;
+        private int RetryUnloadCountDown
+        {
+            get
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    return _RetryUnloadCountDown;
+                }
+            }
+            set
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    _RetryUnloadCountDown = value;
+                }
+            }
+        }
+
+
         public virtual void UnloadWorkflow()
         {
 #if DEBUG
             Messages.LogDebug(this.GetACUrl(), "UnloadWorkflow(0)", "Starting unloading workflow");
 #endif
-            if (_UnloadCounter > 0)
+            if (UnloadCounter > 0)
                 return;
             if (ApplicationManager == null)
                 return;
-            _UnloadCounter++;
+            UnloadCounter++;
             ApplicationManager.ProjectWorkCycleR1sec += new EventHandler(ProjectWorkCycleR1sec_TryUnloadWF);
         }
 
-        private int _UnloadCounter = 0;
-        private int _RetryUnloadCountDown = 3;
         void ProjectWorkCycleR1sec_TryUnloadWF(object sender, EventArgs e)
         {
-            if (_UnloadCounter < 10)
+            if (UnloadCounter <= C_MaxUnloadCycles)
             {
-                if (FindChildComponents<PWBase>(c => c is PWBase).Where(c => c.CurrentACState != ACStateEnum.SMIdle).Any())
+                var activeNodes = FindChildComponents<PWBase>(c => c is PWBase).Where(c => c.CurrentACState != ACStateEnum.SMIdle);
+                if (activeNodes != null && activeNodes.Any())
                 {
-                    _UnloadCounter++;
-                    return;
+                    if (UnloadCounter == C_MaxUnloadCycles)
+                    {
+                        foreach (PWBase node in activeNodes)
+                        {
+                            Messages.LogWarning(this.GetACUrl(), "ProjectWorkCycleR1sec_TryUnloadWF",
+                                                String.Format("WF-Node {0} of type {1} is in state {2} and not Idle. A shutdown will be forced now. Please ensure that all instances are in ACStateEnum.SMIdle before the workflow will be unloaded!",
+                                                                node.GetACUrl(), node.GetType().Name, node.CurrentACState));
+                        }
+                    }
+                    else
+                    {
+                        // After 5 seconds unsbscribe from workcycle and wait until Work()-Method is completed.
+                        // (Maybe the parallel thread is currently executing the Work()-Method.)
+                        if (UnloadCounter >= (C_MaxUnloadCycles / 2))
+                        {
+                            foreach (PWBase node in activeNodes)
+                            {
+                                node.UnSubscribeToProjectWorkCycle();
+                            }
+                        }
+                        UnloadCounter++;
+                        return;
+                    }
                 }
             }
 
-            _UnloadCounter = 0;
-            ApplicationManager objectManager = sender as ApplicationManager;
-            if (objectManager != null)
+            try
             {
-                if (!OnWorkflowUnloading(_RetryUnloadCountDown))
+                ApplicationManager objectManager = sender as ApplicationManager;
+                if (objectManager != null)
                 {
-                    _RetryUnloadCountDown--;
-                    if (_RetryUnloadCountDown > 0)
-                        return;
-                }
+                    if (!OnWorkflowUnloading(RetryUnloadCountDown))
+                    {
+                        RetryUnloadCountDown--;
+                        if (RetryUnloadCountDown > 0)
+                            return;
+                    }
 #if DEBUG
-                Messages.LogDebug(this.GetACUrl(), "UnloadWorkflow(1)", "Started Stopping workflow components");
+                    Messages.LogDebug(this.GetACUrl(), "UnloadWorkflow(1)", "Started Stopping workflow components");
 #endif
-                ParentACComponent.StopComponent(this, true);
-                objectManager.ProjectWorkCycleR1sec -= ProjectWorkCycleR1sec_TryUnloadWF;
+                    ParentACComponent.StopComponent(this, true);
+                    objectManager.ProjectWorkCycleR1sec -= ProjectWorkCycleR1sec_TryUnloadWF;
+                }
+            }
+            finally
+            {
+                UnloadCounter = 0;
             }
         }
 
@@ -1808,6 +1890,24 @@ namespace gip.core.autocomponent
                 xmlNode = doc.CreateElement("_IsStartingProcessFunction");
                 if (xmlNode != null)
                     xmlNode.InnerText = value.ToString();
+                xmlACPropertyList.AppendChild(xmlNode);
+            }
+
+            xmlNode = xmlACPropertyList["_UnloadCounter"];
+            if (xmlNode == null)
+            {
+                xmlNode = doc.CreateElement("_UnloadCounter");
+                if (xmlNode != null)
+                    xmlNode.InnerText = UnloadCounter.ToString();
+                xmlACPropertyList.AppendChild(xmlNode);
+            }
+
+            xmlNode = xmlACPropertyList["_RetryUnloadCountDown"];
+            if (xmlNode == null)
+            {
+                xmlNode = doc.CreateElement("_RetryUnloadCountDown");
+                if (xmlNode != null)
+                    xmlNode.InnerText = RetryUnloadCountDown.ToString();
                 xmlACPropertyList.AppendChild(xmlNode);
             }
         }
