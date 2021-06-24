@@ -714,6 +714,17 @@ namespace gip.core.autocomponent
 
         #region State-Methods
 
+        public override bool IsEnabledSubscribeToProjectWorkCycle()
+        {
+            bool isEnabled = base.IsEnabledSubscribeToProjectWorkCycle();
+            if (isEnabled)
+            {
+                if (RootPW != null && RootPW.IsUnloadingWorkflow)
+                    isEnabled = false;
+            }
+            return isEnabled;
+        }
+
         [ACMethodInteraction("Process", "en{'Reset'}de{'Reset'}", 302, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands)]
         public virtual void Reset()
         {
