@@ -4,6 +4,7 @@
 	END
 GO
 CREATE PROCEDURE [dbo].[udpTranslation]
+	@acProjectID uniqueidentifier,
 	@mandatoryID uniqueidentifier,
 	@onlyClassTables bit,
 	@onlyMDTables bit,
@@ -61,6 +62,7 @@ begin
 				from ACClass cl
 				inner join ACProject pr on pr.ACProjectID = cl.ACProjectID
 					where 
+						(@acProjectID is null or cl.ACProjectID = @acProjectID) and
 						(@mandatoryID is null or cl.ACClassID = @mandatoryID) and
 						(@searchClassACIdentifier is null or lower(cl.ACIdentifier) like '%' + @searchClassACIdentifier + '%') and
 						(@searchACIdentifier is null or lower(cl.ACIdentifier) like '%' + @searchACIdentifier + '%') and
@@ -85,6 +87,7 @@ begin
 				from ACClassMessage msg
 				inner join ACClass cl on cl.ACClassID = msg.ACClassID
 					where 
+						(@acProjectID is null or cl.ACProjectID = @acProjectID) and
 						(@mandatoryID is null or cl.ACClassID = @mandatoryID) and
 						(@searchClassACIdentifier is null or lower(cl.ACIdentifier) like '%' + @searchClassACIdentifier + '%') and
 						(@searchACIdentifier is null or lower(msg.ACIdentifier) like '%' + @searchACIdentifier + '%') and
@@ -109,6 +112,7 @@ begin
 				from ACClassMethod mth
 				inner join ACClass cl on cl.ACClassID = mth.ACClassID
 					where 
+						(@acProjectID is null or cl.ACProjectID = @acProjectID) and
 						(@mandatoryID is null or cl.ACClassID = @mandatoryID) and
 						(@searchClassACIdentifier is null or lower(cl.ACIdentifier) like '%' + @searchClassACIdentifier + '%') and
 						(@searchACIdentifier is null or lower(mth.ACIdentifier) like '%' + @searchACIdentifier + '%') and
@@ -133,6 +137,7 @@ begin
 				from ACClassProperty prop
 				inner join ACClass cl on cl.ACClassID = prop.ACClassID
 					where 
+						(@acProjectID is null or cl.ACProjectID = @acProjectID) and
 						(@mandatoryID is null or cl.ACClassID = @mandatoryID) and
 						(@searchClassACIdentifier is null or lower(cl.ACIdentifier) like '%' + @searchClassACIdentifier + '%') and
 						(@searchACIdentifier is null or lower(prop.ACIdentifier) like '%' + @searchACIdentifier + '%') and
@@ -157,6 +162,7 @@ begin
 				from ACClassText txt
 				inner join ACClass cl on cl.ACClassID = txt.ACClassID
 					where 
+						(@acProjectID is null or cl.ACProjectID = @acProjectID) and
 						(@mandatoryID is null or cl.ACClassID = @mandatoryID) and
 						(@searchClassACIdentifier is null or lower(cl.ACIdentifier) like '%' + @searchClassACIdentifier + '%') and
 						(@searchACIdentifier is null or lower(txt.ACIdentifier) like '%' + @searchACIdentifier + '%') and
@@ -181,6 +187,7 @@ begin
 				from ACClassDesign de
 				inner join ACClass cl on cl.ACClassID = de.ACClassID
 					where 
+						(@acProjectID is null or cl.ACProjectID = @acProjectID) and
 						(@mandatoryID is null or cl.ACClassID = @mandatoryID) and
 						(@searchClassACIdentifier is null or lower(cl.ACIdentifier) like '%' + @searchClassACIdentifier + '%') and
 						(@searchACIdentifier is null or lower(de.ACIdentifier) like '%' + @searchACIdentifier + '%') and

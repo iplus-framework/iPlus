@@ -1247,6 +1247,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="acProjectID"></param>
         /// <param name="mandatoryID"></param>
         /// <param name="onlyClassTables"></param>
         /// <param name="onlyMDTables"></param>
@@ -1254,8 +1255,18 @@ namespace gip.core.datamodel
         /// <param name="searchACIdentifier"></param>
         /// <param name="searchTranslation"></param>
         /// <param name="notHaveInTranslation"></param>
-        public ObjectResult<VBTranslationView> udpTranslation(Nullable<global::System.Guid> mandatoryID, Nullable<global::System.Boolean> onlyClassTables, Nullable<global::System.Boolean> onlyMDTables, global::System.String searchClassACIdentifier, global::System.String searchACIdentifier, global::System.String searchTranslation, global::System.String notHaveInTranslation)
+        public ObjectResult<VBTranslationView> udpTranslation(Nullable<global::System.Guid> acProjectID, Nullable<global::System.Guid> mandatoryID, Nullable<global::System.Boolean> onlyClassTables, Nullable<global::System.Boolean> onlyMDTables, global::System.String searchClassACIdentifier, global::System.String searchACIdentifier, global::System.String searchTranslation, global::System.String notHaveInTranslation)
         {
+            ObjectParameter acProjectIDParameter;
+            if (acProjectID.HasValue)
+            {
+                acProjectIDParameter = new ObjectParameter("acProjectID", acProjectID);
+            }
+            else
+            {
+                acProjectIDParameter = new ObjectParameter("acProjectID", typeof(global::System.Guid));
+            }
+    
             ObjectParameter mandatoryIDParameter;
             if (mandatoryID.HasValue)
             {
@@ -1326,12 +1337,13 @@ namespace gip.core.datamodel
                 notHaveInTranslationParameter = new ObjectParameter("notHaveInTranslation", typeof(global::System.String));
             }
     
-            return base.ExecuteFunction<VBTranslationView>("udpTranslation", mandatoryIDParameter, onlyClassTablesParameter, onlyMDTablesParameter, searchClassACIdentifierParameter, searchACIdentifierParameter, searchTranslationParameter, notHaveInTranslationParameter);
+            return base.ExecuteFunction<VBTranslationView>("udpTranslation", acProjectIDParameter, mandatoryIDParameter, onlyClassTablesParameter, onlyMDTablesParameter, searchClassACIdentifierParameter, searchACIdentifierParameter, searchTranslationParameter, notHaveInTranslationParameter);
         }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="mergeOption"></param>
+        /// <param name="acProjectID"></param>
         /// <param name="mandatoryID"></param>
         /// <param name="onlyClassTables"></param>
         /// <param name="onlyMDTables"></param>
@@ -1339,8 +1351,18 @@ namespace gip.core.datamodel
         /// <param name="searchACIdentifier"></param>
         /// <param name="searchTranslation"></param>
         /// <param name="notHaveInTranslation"></param>
-        public ObjectResult<VBTranslationView> udpTranslation(Nullable<global::System.Guid> mandatoryID, Nullable<global::System.Boolean> onlyClassTables, Nullable<global::System.Boolean> onlyMDTables, global::System.String searchClassACIdentifier, global::System.String searchACIdentifier, global::System.String searchTranslation, global::System.String notHaveInTranslation, MergeOption mergeOption)
+        public ObjectResult<VBTranslationView> udpTranslation(Nullable<global::System.Guid> acProjectID, Nullable<global::System.Guid> mandatoryID, Nullable<global::System.Boolean> onlyClassTables, Nullable<global::System.Boolean> onlyMDTables, global::System.String searchClassACIdentifier, global::System.String searchACIdentifier, global::System.String searchTranslation, global::System.String notHaveInTranslation, MergeOption mergeOption)
         {
+            ObjectParameter acProjectIDParameter;
+            if (acProjectID.HasValue)
+            {
+                acProjectIDParameter = new ObjectParameter("acProjectID", acProjectID);
+            }
+            else
+            {
+                acProjectIDParameter = new ObjectParameter("acProjectID", typeof(global::System.Guid));
+            }
+    
             ObjectParameter mandatoryIDParameter;
             if (mandatoryID.HasValue)
             {
@@ -1411,7 +1433,7 @@ namespace gip.core.datamodel
                 notHaveInTranslationParameter = new ObjectParameter("notHaveInTranslation", typeof(global::System.String));
             }
     
-            return base.ExecuteFunction<VBTranslationView>("udpTranslation", mergeOption, mandatoryIDParameter, onlyClassTablesParameter, onlyMDTablesParameter, searchClassACIdentifierParameter, searchACIdentifierParameter, searchTranslationParameter, notHaveInTranslationParameter);
+            return base.ExecuteFunction<VBTranslationView>("udpTranslation", mergeOption, acProjectIDParameter, mandatoryIDParameter, onlyClassTablesParameter, onlyMDTablesParameter, searchClassACIdentifierParameter, searchACIdentifierParameter, searchTranslationParameter, notHaveInTranslationParameter);
         }
 
         #endregion

@@ -1979,6 +1979,7 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
           <Parameter Name="DifferenceDays" Type="int" Mode="In" />
         </Function>
         <Function Name="udpTranslation" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="acProjectID" Type="uniqueidentifier" Mode="In" />
           <Parameter Name="mandatoryID" Type="uniqueidentifier" Mode="In" />
           <Parameter Name="onlyClassTables" Type="bit" Mode="In" />
           <Parameter Name="onlyMDTables" Type="bit" Mode="In" />
@@ -2615,6 +2616,7 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
             <End Role="VBGroupRight" EntitySet="VBGroupRight" />
           </AssociationSet>
           <FunctionImport Name="udpTranslation" EntitySet="VBTranslationView" ReturnType="Collection(VarioiplusV3_devModel.VBTranslationView)">
+            <Parameter Name="acProjectID" Mode="In" Type="Guid" />
             <Parameter Name="mandatoryID" Mode="In" Type="Guid" />
             <Parameter Name="onlyClassTables" Mode="In" Type="Boolean" />
             <Parameter Name="onlyMDTables" Mode="In" Type="Boolean" />

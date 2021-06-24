@@ -360,7 +360,14 @@ namespace gip.bso.iplus
                     if (_CurrentACProject != value)
                     {
                         _CurrentACProject = value;
-                        ProjectManager.LoadACProject(CurrentACProject, ProjectTreePresentationMode, ProjectTreeVisibilityFilter, ProjectTreeCheckHandler);
+
+                        if (!BackgroundWorker.IsBusy && SelectedTargetLanguage != null)
+                        {
+                            BackgroundWorker.RunWorkerAsync(TranslationAutogenerateOption.GetACClassTranslationStatus);
+                            ShowDialog(this, DesignNameProgressBar);
+                        }
+                        else
+                            ProjectManager.LoadACProject(CurrentACProject, ProjectTreePresentationMode, ProjectTreeVisibilityFilter, ProjectTreeCheckHandler);
                     }
                 }
                 else
@@ -1569,6 +1576,8 @@ namespace gip.bso.iplus
         #endregion
 
         #region Methods -> ProjectTree
+
+        public List<Guid> ACClassNotHaveTranslation { get; private set; }
         private void RefreshProjectTree(bool forceRebuildTree = false)
         {
             if (ProjectManager != null)
@@ -1579,12 +1588,15 @@ namespace gip.bso.iplus
 
         private void InfoItemIsCheckedSetter(ACClassInfoWithItems infoItem, bool isChecked)
         {
+
         }
 
 
         private bool InfoItemIsCheckedGetter(ACClassInfoWithItems riInfoClass)
         {
-            return false;
+            if (ACClassNotHaveTranslation == null || !ACClassNotHaveTranslation.Any() || riInfoClass.ValueT == null)
+                return false;
+            return !ACClassNotHaveTranslation.Contains(riInfoClass.ValueT.ACClassID);
         }
 
         private bool InfoItemIsCheckEnabledGetter(ACClassInfoWithItems riInfoClass)
@@ -1648,8 +1660,19 @@ namespace gip.bso.iplus
                 case TranslationAutogenerateOption.Import:
                     DoImport(worker, e, ImportSourcePath, 0, 100);
                     break;
+                case TranslationAutogenerateOption.Replace:
+                    e.Result = DoRename(worker, e, SelectedTargetLanguage.VBLanguageCode, FilterTranslation, ReplaceText, TranslationViewList, 0, 100);
+                    break;
+                case TranslationAutogenerateOption.ReplaceAll:
+                    DoRenameAll(worker, e, SelectedTargetLanguage.VBLanguageCode, FilterTranslation, ReplaceText);
+                    break;
+                case TranslationAutogenerateOption.GetACClassTranslationStatus:
+                    e.Result = DoGetACClassTranslationStatus(worker, e, SelectedTargetLanguage.VBLanguageCode, CurrentACProject.ACProjectID);
+                    break;
             }
         }
+
+
 
         public override void BgWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -1658,7 +1681,8 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.EndTime = DateTime.Now;
             CloseWindow(this, DesignNameProgressBar);
             ClearMessages();
-            string command = worker.EventArgs.Argument.ToString();
+            TranslationAutogenerateOption command = (TranslationAutogenerateOption)worker.EventArgs.Argument;
+
             if (e.Cancelled)
             {
                 SendMessage(new Msg() { MessageLevel = eMsgLevel.Info, Message = string.Format(@"Operation {0} canceled by user!", command) });
@@ -1669,16 +1693,25 @@ namespace gip.bso.iplus
             }
             else
             {
-                if (e.Result != null)
+                if (command == TranslationAutogenerateOption.GetACClassTranslationStatus)
                 {
-                    List<VBTranslationView> list = e.Result as List<VBTranslationView>;
-                    _TranslationViewList = list;
-                    OnPropertyChanged("TranslationViewList");
-                    _SelectedTranslationView = null;
-                    if (_TranslationViewList != null)
-                        SelectedTranslationView = _TranslationViewList.FirstOrDefault();
-                    else
-                        SelectedTranslationView = null;
+                    ACClassNotHaveTranslation = e.Result as List<Guid>;
+                    ProjectManager.LoadACProject(CurrentACProject, ProjectTreePresentationMode, ProjectTreeVisibilityFilter, ProjectTreeCheckHandler);
+
+                }
+                else
+                {
+                    if (e.Result != null)
+                    {
+                        List<VBTranslationView> list = e.Result as List<VBTranslationView>;
+                        _TranslationViewList = list;
+                        OnPropertyChanged("TranslationViewList");
+                        _SelectedTranslationView = null;
+                        if (_TranslationViewList != null)
+                            SelectedTranslationView = _TranslationViewList.FirstOrDefault();
+                        else
+                            SelectedTranslationView = null;
+                    }
                 }
             }
         }
@@ -1693,17 +1726,21 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
             List<VBTranslationView> list = new List<VBTranslationView>();
 
+            Guid? acProjectID = null;
+            if (CurrentACProject != null)
+                acProjectID = CurrentACProject.ACProjectID;
             using (Database database = new core.datamodel.Database())
             {
                 list = database
                    .udpTranslation(
+                        acProjectID,
                         FilterMandatoryClassID,
                         FilterOnlyACClassTables,
-                       FilterOnlyMDTables,
-                       FilterClassACIdentifier,
-                       FilterACIdentifier,
-                       FilterTranslation,
-                       FilterNotHaveInTranslation)
+                        FilterOnlyMDTables,
+                        FilterClassACIdentifier,
+                        FilterACIdentifier,
+                        FilterTranslation,
+                        FilterNotHaveInTranslation)
                    .ToList();
             }
 
@@ -2088,6 +2125,43 @@ namespace gip.bso.iplus
             return list;
         }
 
+
+        private List<VBTranslationView> DoRename(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode, string searchWord, string replaceWord, List<VBTranslationView> list, int rangeFrom, int rangeTo)
+        {
+            int half = (rangeTo - rangeFrom) / 2;
+            worker.ProgressInfo.TotalProgress.ProgressText = string.Format("Start replace translations {0} => {1} for entire list...", searchWord, replaceWord);
+            worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
+            worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
+
+            int itemsCount = list.Count;
+
+            foreach (VBTranslationView item in list)
+            {
+                TranslationPair translationPair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == targetLanguageCode);
+                if (translationPair != null)
+                    translationPair.Translation = translationPair.Translation.Replace(searchWord, replaceWord);
+
+                int itemIndex = list.IndexOf(item);
+                int progressValue = (itemIndex / itemsCount) * half;
+                worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom + progressValue;
+            }
+
+
+            return DoSaveTranslation(worker, e, list, 0, rangeTo);
+        }
+
+        private void DoRenameAll(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode, string searchWord, string replaceWord)
+        {
+            worker.ProgressInfo.TotalProgress.ProgressText = string.Format("Start replace translations {0} => {1} for entire list...", searchWord, replaceWord);
+            worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
+            worker.ProgressInfo.TotalProgress.ProgressRangeTo = 100;
+
+            List<VBTranslationView> allTranslations = GetAllTranslations();
+            worker.ProgressInfo.TotalProgress.ProgressText = "All items fetched";
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = 20;
+
+            DoRename(worker, e, targetLanguageCode, searchWord, replaceWord, allTranslations, 20, 80);
+        }
         #endregion
 
         #region Methods -> BackgroundWorker -> DoWork -> Generate All
@@ -2221,6 +2295,22 @@ namespace gip.bso.iplus
 
         #endregion
 
+        #region Methods -> BackgroundWorkser -> DoWork ->
+
+        private List<Guid> DoGetACClassTranslationStatus(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode, Guid aCProjectID)
+        {
+            List<Guid> classNotNaveTranslation = null;
+            string notHaveInTranslation = targetLanguageCode + "{";
+            List<VBTranslationView> list = GetAllTranslations(notHaveInTranslation);
+
+            if (list != null)
+                classNotNaveTranslation = list.Select(c => c.MandatoryID).Distinct().ToList();
+
+            return classNotNaveTranslation;
+        }
+
+        #endregion
+
         #region Methods -> BackgroundWorker -> DoWork -> Common
 
         /// <summary>
@@ -2261,21 +2351,37 @@ namespace gip.bso.iplus
             return resultLangCode;
         }
 
-        private List<VBTranslationView> GetAllTranslations()
+        private List<VBTranslationView> GetAllTranslations(string notHaveInTranslation = null)
         {
             List<VBTranslationView> list = new List<VBTranslationView>();
+            Guid? acProjectID = null;
+            if (CurrentACProject != null)
+                acProjectID = CurrentACProject.ACProjectID;
 
+            bool? filterOnlyACClassTables = null;
+            bool? filterOnlyMDTables = null;
+            if (acProjectID != null)
+            {
+                filterOnlyACClassTables = true;
+                filterOnlyMDTables = false;
+            }
+            else
+            {
+                filterOnlyACClassTables = FilterOnlyACClassTables;
+                filterOnlyMDTables = FilterOnlyMDTables;
+            }
             using (Database database = new core.datamodel.Database())
             {
                 list = database
                    .udpTranslation(
+                        acProjectID,
                         null,
-                        FilterOnlyACClassTables,
-                          FilterOnlyMDTables,
+                          filterOnlyACClassTables,
+                          filterOnlyMDTables,
                           null,
                           null,
                           null,
-                          null)
+                          notHaveInTranslation)
                       .ToList();
             }
 
@@ -2313,7 +2419,8 @@ namespace gip.bso.iplus
             ExportAll,
 
             Replace,
-            ReplaceAll
+            ReplaceAll,
+            GetACClassTranslationStatus
         }
     }
 }
