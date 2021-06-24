@@ -13,10 +13,11 @@ pr.ACProjectName as							ACProjectName,
 											TableName,
 cl.ACClassID as								MandatoryID,
 cl.ACIdentifier as							MandatoryACIdentifier,
+cl.ACURLCached as							MandatoryACURLCached,
 cl.ACClassID as								ID,
 cl.ACIdentifier as							ACIdentifier,
 cl.ACCaptionTranslation as					TranslationValue,
-isnull(cl.UpdateName, '') as					UpdateName,
+isnull(cl.UpdateName, '') as				UpdateName,
 isnull(cl.UpdateDate, getdate()) as			UpdateDate
 from ACClass cl
 inner join ACProject pr on pr.ACProjectID = cl.ACProjectID

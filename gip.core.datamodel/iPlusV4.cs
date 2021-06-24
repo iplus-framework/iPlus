@@ -20675,6 +20675,30 @@ namespace gip.core.datamodel
         /// <summary>
         /// 
         /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public  global::System.String MandatoryACURLCached
+        {
+            get
+            {
+                return _MandatoryACURLCached;
+            }
+            set
+            {
+                OnMandatoryACURLCachedChanging(value);
+                ReportPropertyChanging("MandatoryACURLCached");
+                _MandatoryACURLCached = StructuralObject.SetValidValue(value, true);
+                ReportPropertyChanged("MandatoryACURLCached");
+                OnMandatoryACURLCachedChanged();
+            }
+        }
+        private global::System.String _MandatoryACURLCached;
+        partial void OnMandatoryACURLCachedChanging(global::System.String value);
+        partial void OnMandatoryACURLCachedChanged();
+    
+        /// <summary>
+        /// 
+        /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
         [DataMemberAttribute()]
         public  global::System.Guid ID

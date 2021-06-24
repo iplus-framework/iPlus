@@ -1560,8 +1560,15 @@ namespace gip.bso.iplus
             {
                 string curentTransValue = string.Join("", translationItem.EditTranslationList.Select(c => c.GetTranslationTuple()));
                 translationItem.TranslationValue = curentTransValue;
-                System.Data.EntityKey entityKey = new System.Data.EntityKey((Database as iPlusV4_Entities).DefaultContainerName + "." + translationItem.TableName, translationItem.TableName + "ID", translationItem.ID);
-                object item = (Database as iPlusV4_Entities).GetObjectByKey(entityKey);
+                object item = null;
+                if (translationItem.TableName.StartsWith("AC"))
+                    item = GetACClassObjectItem(Database as gip.core.datamodel.Database, translationItem);
+                else
+                    item = GetMDObjectItem(Database as gip.core.datamodel.Database, translationItem);
+
+                if (item == null)
+                    item = GetOtherObjectItem(Database as gip.core.datamodel.Database, translationItem);
+
                 if (item is IACObjectEntityWithCheckTrans)
                 {
                     (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation = curentTransValue;
@@ -1577,6 +1584,227 @@ namespace gip.bso.iplus
             }
             var testResult = Database.ACSaveChanges();
             return list;
+        }
+
+        private object GetACClassObjectItem(Database database, VBTranslationView translationItem)
+        {
+            object result = null;
+            ACClass aCClass = database.ACClass.FirstOrDefault(c => c.ACURLCached == translationItem.MandatoryACURLCached);
+            if (aCClass == null)
+                aCClass = database.ACClass.FirstOrDefault(c => c.ACClassID == translationItem.MandatoryID);
+            switch (translationItem.TableName)
+            {
+                case "ACClass":
+                    result = aCClass;
+                    break;
+                case "ACClassMessage":
+                    ACClassMessage aCClassMessage = aCClass.ACClassMessage_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
+                    result = aCClassMessage;
+                    break;
+                case "ACClassMethod":
+                    ACClassMethod aCClassMethod = aCClass.ACClassMethod_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
+                    result = aCClassMethod;
+                    break;
+                case "ACClassProperty":
+                    ACClassProperty aCClassProperty = aCClass.ACClassProperty_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
+                    result = aCClassProperty;
+                    break;
+                case "ACClassText":
+                    ACClassText aCClassText = aCClass.ACClassText_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
+                    result = aCClassText;
+                    break;
+                case "ACClassDesign":
+                    ACClassDesign aCClassDesign = aCClass.ACClassDesign_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
+                    result = aCClassDesign;
+                    break;
+            }
+
+            return result;
+        }
+
+        private object GetMDObjectItem(Database database, VBTranslationView translationItem)
+        {
+            object resultItem = null;
+            string sql = "";
+            switch (translationItem.TableName)
+            {
+                case "MDBalancingMode":
+                    sql = "select * from MDBalancingMode where MDKey='{0}'";
+                    break;
+                case "MDBookingNotAvailableMode":
+                    sql = "select * from MDBookingNotAvailableMode where MDKey='{0}'";
+                    break;
+                case "MDCostCenter":
+                    sql = "select * from MDCostCenter where MDKey='{0}'";
+                    break;
+                case "MDCountry":
+                    sql = "select * from MDCountry where MDKey='{0}'";
+                    break;
+                case "MDCountryLand":
+                    sql = "select * from MDCountryLand where MDKey='{0}'";
+                    break;
+                case "MDCountrySalesTax":
+                    sql = "select * from MDCountrySalesTax where MDKey='{0}'";
+                    break;
+                case "MDCurrency":
+                    sql = "select * from MDCurrency where MDKey='{0}'";
+                    break;
+                case "MDDelivNoteState":
+                    sql = "select * from MDDelivNoteState where MDKey='{0}'";
+                    break;
+                case "MDDelivPosLoadState":
+                    sql = "select * from MDDelivPosLoadState where MDKey='{0}'";
+                    break;
+                case "MDDelivPosState":
+                    sql = "select * from MDDelivPosState where MDKey='{0}'";
+                    break;
+                case "MDDelivType":
+                    sql = "select * from MDDelivType where MDKey='{0}'";
+                    break;
+                case "MDDemandOrderState":
+                    sql = "select * from MDDemandOrderState where MDKey='{0}'";
+                    break;
+                case "MDFacilityInventoryPosState":
+                    sql = "select * from MDFacilityInventoryPosState where MDKey='{0}'";
+                    break;
+                case "MDFacilityInventoryState":
+                    sql = "select * from MDFacilityInventoryState where MDKey='{0}'";
+                    break;
+                case "MDFacilityManagementType":
+                    sql = "select * from MDFacilityManagementType where MDKey='{0}'";
+                    break;
+                case "MDFacilityType":
+                    sql = "select * from MDFacilityType where MDKey='{0}'";
+                    break;
+                case "MDFacilityVehicleType":
+                    sql = "select * from MDFacilityVehicleType where MDKey='{0}'";
+                    break;
+                case "MDGMPAdditive":
+                    sql = "select * from MDGMPAdditive where MDKey='{0}'";
+                    break;
+                case "MDGMPMaterialGroup":
+                    sql = "select * from MDGMPMaterialGroup where MDKey='{0}'";
+                    break;
+                case "MDInOrderPosState":
+                    sql = "select * from MDInOrderPosState where MDKey='{0}'";
+                    break;
+                case "MDInOrderState":
+                    sql = "select * from MDInOrderState where MDKey='{0}'";
+                    break;
+                case "MDInOrderType":
+                    sql = "select * from MDInOrderType where MDKey='{0}'";
+                    break;
+                case "MDInRequestState":
+                    sql = "select * from MDInRequestState where MDKey='{0}'";
+                    break;
+                case "MDInventoryManagementType":
+                    sql = "select * from MDInventoryManagementType where MDKey='{0}'";
+                    break;
+                case "MDLabOrderPosState":
+                    sql = "select * from MDLabOrderPosState where MDKey='{0}'";
+                    break;
+                case "MDLabOrderState":
+                    sql = "select * from MDLabOrderState where MDKey='{0}'";
+                    break;
+                case "MDLabTag":
+                    sql = "select * from MDLabTag where MDKey='{0}'";
+                    break;
+                case "MDMaintMode":
+                    sql = "select * from MDMaintMode where MDKey='{0}'";
+                    break;
+                case "MDMaintOrderPropertyState":
+                    sql = "select * from MDMaintOrderPropertyState where MDKey='{0}'";
+                    break;
+                case "MDMaintOrderState":
+                    sql = "select * from MDMaintOrderState where MDKey='{0}'";
+                    break;
+                case "MDMaterialGroup":
+                    sql = "select * from MDMaterialGroup where MDKey='{0}'";
+                    break;
+                case "MDMaterialType":
+                    sql = "select * from MDMaterialType where MDKey='{0}'";
+                    break;
+                case "MDMovementReason":
+                    sql = "select * from MDMovementReason where MDKey='{0}'";
+                    break;
+                case "MDOutOfferState":
+                    sql = "select * from MDOutOfferState where MDKey='{0}'";
+                    break;
+                case "MDOutOrderPlanState":
+                    sql = "select * from MDOutOrderPlanState where MDKey='{0}'";
+                    break;
+                case "MDOutOrderPosState":
+                    sql = "select * from MDOutOrderPosState where MDKey='{0}'";
+                    break;
+                case "MDOutOrderState":
+                    sql = "select * from MDOutOrderState where MDKey='{0}'";
+                    break;
+                case "MDOutOrderType":
+                    sql = "select * from MDOutOrderType where MDKey='{0}'";
+                    break;
+                case "MDProcessErrorAction":
+                    sql = "select * from MDProcessErrorAction where MDKey='{0}'";
+                    break;
+                case "MDProdOrderPartslistPosState":
+                    sql = "select * from MDProdOrderPartslistPosState where MDKey='{0}'";
+                    break;
+                case "MDProdOrderState":
+                    sql = "select * from MDProdOrderState where MDKey='{0}'";
+                    break;
+                case "MDRatingComplaintType":
+                    sql = "select * from MDRatingComplaintType where MDKey='{0}'";
+                    break;
+                case "MDReleaseState":
+                    sql = "select * from MDReleaseState where MDKey='{0}'";
+                    break;
+                case "MDReservationMode":
+                    sql = "select * from MDReservationMode where MDKey='{0}'";
+                    break;
+                case "MDTermOfPayment":
+                    sql = "select * from MDTermOfPayment where MDKey='{0}'";
+                    break;
+                case "MDTimeRange":
+                    sql = "select * from MDTimeRange where MDKey='{0}'";
+                    break;
+                case "MDToleranceState":
+                    sql = "select * from MDToleranceState where MDKey='{0}'";
+                    break;
+                case "MDTour":
+                    sql = "select * from MDTour where MDKey='{0}'";
+                    break;
+                case "MDTourplanPosState":
+                    sql = "select * from MDTourplanPosState where MDKey='{0}'";
+                    break;
+                case "MDTourplanState":
+                    sql = "select * from MDTourplanState where MDKey='{0}'";
+                    break;
+                case "MDTransportMode":
+                    sql = "select * from MDTransportMode where MDKey='{0}'";
+                    break;
+                case "MDVisitorCardState":
+                    sql = "select * from MDVisitorCardState where MDKey='{0}'";
+                    break;
+                case "MDVisitorVoucherState":
+                    sql = "select * from MDVisitorVoucherState where MDKey='{0}'";
+                    break;
+                case "MDZeroStockState":
+                    sql = "select * from MDZeroStockState where MDKey='{0}'";
+                    break;
+            }
+            sql = string.Format(sql, translationItem.ACIdentifier);
+
+            var result = database.ExecuteStoreQuery<object>(sql);
+            if(result != null)
+                resultItem = result.FirstOrDefault();
+            
+            return resultItem;
+        }
+
+        private object GetOtherObjectItem(Database database, VBTranslationView translationItem)
+        {
+            System.Data.EntityKey entityKey = new System.Data.EntityKey(database.DefaultContainerName + "." + translationItem.TableName, translationItem.TableName + "ID", translationItem.ID);
+            object item = database.GetObjectByKey(entityKey);
+            return item;
         }
 
         #endregion

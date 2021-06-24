@@ -792,6 +792,7 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
           <Property Name="TableName" Type="varchar" MaxLength="250" Nullable="false" />
           <Property Name="MandatoryID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="MandatoryACIdentifier" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="MandatoryACURLCached" Type="varchar(max)" Nullable="true" />
           <Property Name="ID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="ACIdentifier" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="TranslationValue" Type="varchar(max)" />
@@ -2032,17 +2033,19 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
     FROM [dbo].[VBSystemColumns] AS [VBSystemColumns]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="VBTranslationView" EntityType="Self.VBTranslationView" store:Type="Views" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [VBTranslationView].[ACProjectName] AS [ACProjectName], 
-    [VBTranslationView].[TableName] AS [TableName], 
-    [VBTranslationView].[MandatoryID] AS [MandatoryID], 
-    [VBTranslationView].[MandatoryACIdentifier] AS [MandatoryACIdentifier], 
-    [VBTranslationView].[ID] AS [ID], 
-    [VBTranslationView].[ACIdentifier] AS [ACIdentifier], 
-    [VBTranslationView].[TranslationValue] AS [TranslationValue], 
-    [VBTranslationView].[UpdateName] AS [UpdateName], 
-    [VBTranslationView].[UpdateDate] AS [UpdateDate]
-    FROM [dbo].[VBTranslationView] AS [VBTranslationView]</DefiningQuery>
+            <DefiningQuery>
+              SELECT
+              [VBTranslationView].[ACProjectName] AS [ACProjectName],
+              [VBTranslationView].[TableName] AS [TableName],
+              [VBTranslationView].[MandatoryID] AS [MandatoryID],
+              [VBTranslationView].[MandatoryACIdentifier] AS [MandatoryACIdentifier],
+              [VBTranslationView].[MandatoryACURLCached] AS [MandatoryACURLCached],
+              [VBTranslationView].[ID] AS [ID],
+              [VBTranslationView].[ACIdentifier] AS [ACIdentifier],
+              [VBTranslationView].[TranslationValue] AS [TranslationValue],
+              [VBTranslationView].[UpdateName] AS [UpdateName],
+              [VBTranslationView].[UpdateDate] AS [UpdateDate]
+              FROM [dbo].[VBTranslationView] AS [VBTranslationView]</DefiningQuery>
           </EntitySet>
           <AssociationSet Name="FK_ACChangeLog_ACClass" Association="Self.FK_ACChangeLog_ACClass">
             <End Role="ACClass" EntitySet="ACClass" />
@@ -4038,6 +4041,7 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
           <Property Name="TableName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="MandatoryID" Type="Guid" Nullable="false" />
           <Property Name="MandatoryACIdentifier" Type="String" MaxLength="100" Nullable="false" Unicode="false" FixedLength="false" />
+          <Property Name="MandatoryACURLCached" Type="String" MaxLength="Max" Nullable="true" Unicode="false" FixedLength="false" />
           <Property Name="ID" Type="Guid" Nullable="false" />
           <Property Name="ACIdentifier" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="TranslationValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
@@ -5638,6 +5642,7 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
                 <ScalarProperty Name="ACProjectName" ColumnName="ACProjectName" />
                 <ScalarProperty Name="MandatoryID" ColumnName="MandatoryID" />
                 <ScalarProperty Name="MandatoryACIdentifier" ColumnName="MandatoryACIdentifier" />
+                <ScalarProperty Name="MandatoryACURLCached" ColumnName="MandatoryACURLCached" />
                 <ScalarProperty Name="UpdateName" ColumnName="UpdateName" />
                 <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
               </MappingFragment>
