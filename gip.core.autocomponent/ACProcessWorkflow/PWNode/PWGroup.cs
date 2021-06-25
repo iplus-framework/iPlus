@@ -771,6 +771,7 @@ namespace gip.core.autocomponent
                 if (allNodes == null || !allNodes.Any())
                     return allNodes;
                 var queryWaitingNodes = allNodes.Where(c => c.IterationCount.ValueT <= 0
+                                                            && c.InitState == ACInitState.Initialized
                                                             //&& c.AccessedProcessModule == null
                                                             && c.IsConsiderableInFIFOQueue
                                                             && (c.CurrentACState == ACStateEnum.SMIdle || c.CurrentACState == ACStateEnum.SMBreakPoint || c.CurrentACState == ACStateEnum.SMBreakPointStart || c.CurrentACState == ACStateEnum.SMStarting) // Noch nicht gemappt auf AccessedProcessModule
@@ -863,6 +864,8 @@ namespace gip.core.autocomponent
         {
             get
             {
+                if (this.InitState != ACInitState.Initialized)
+                    return false;
                 if (WithoutPM)
                     return false;
                 return !IgnoreFIFO;

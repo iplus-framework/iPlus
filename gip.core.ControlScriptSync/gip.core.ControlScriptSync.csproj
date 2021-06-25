@@ -77,7 +77,6 @@
       <Link>GIP-SNKey.snk</Link>
     </None>
     <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="sql\creation.sql" />

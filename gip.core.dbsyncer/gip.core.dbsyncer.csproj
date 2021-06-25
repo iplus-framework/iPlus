@@ -84,7 +84,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
     <Compile Include="Updates.cs" />
   </ItemGroup>
   <ItemGroup />
