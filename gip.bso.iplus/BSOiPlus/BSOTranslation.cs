@@ -359,6 +359,7 @@ namespace gip.bso.iplus
                 {
                     if (_CurrentACProject != value)
                     {
+                        ACClassNotHaveTranslation = null;
                         _CurrentACProject = value;
 
                         if (!BackgroundWorker.IsBusy && SelectedTargetLanguage != null)
@@ -1581,9 +1582,7 @@ namespace gip.bso.iplus
         private void RefreshProjectTree(bool forceRebuildTree = false)
         {
             if (ProjectManager != null)
-            {
                 ProjectManager.RefreshProjectTree(ProjectTreePresentationMode, ProjectTreeVisibilityFilter, ProjectTreeCheckHandler, forceRebuildTree);
-            }
         }
 
         private void InfoItemIsCheckedSetter(ACClassInfoWithItems infoItem, bool isChecked)
@@ -1672,8 +1671,6 @@ namespace gip.bso.iplus
             }
         }
 
-
-
         public override void BgWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             base.BgWorkerCompleted(sender, e);
@@ -1715,6 +1712,7 @@ namespace gip.bso.iplus
                 }
             }
         }
+
         #endregion
 
         #region Methods -> BackgroundWorker -> DoWork -> Select & Save
@@ -1724,6 +1722,8 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "Start fetching data... ";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom;
+
             List<VBTranslationView> list = new List<VBTranslationView>();
 
             Guid? acProjectID = null;
@@ -1765,6 +1765,8 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "Start saving translation data... ";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom;
+
             int progressDiff = rangeTo - rangeFrom;
             int itemsCount = 0;
             if (list != null)
@@ -2031,6 +2033,7 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "Start generate empty translation... ";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom;
 
             int half = (rangeFrom - rangeTo) / 2;
             int itemsCount = list.Count();
@@ -2055,6 +2058,7 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "Start generate translation from english... ";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom;
 
             int half = (rangeFrom - rangeTo) / 2;
             int itemsCount = list.Count();
@@ -2084,6 +2088,7 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "Start generate translation from Google API... ";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom;
 
             List<VBTranslationView> itemsWithoutSource = list.Where(c => c.EditTranslationList == null || !c.EditTranslationList.Any(x => x.LangCode == sourceLanguageCode)).ToList();
             Guid[] itemsWithoutSourceIDs = itemsWithoutSource.Select(c => c.ID).ToArray();
@@ -2112,7 +2117,7 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "Start remove generated translations... ";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
-
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom;
 
             int half = (rangeFrom - rangeTo) / 2;
             foreach (var item in list)
@@ -2125,13 +2130,13 @@ namespace gip.bso.iplus
             return list;
         }
 
-
         private List<VBTranslationView> DoRename(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode, string searchWord, string replaceWord, List<VBTranslationView> list, int rangeFrom, int rangeTo)
         {
             int half = (rangeTo - rangeFrom) / 2;
             worker.ProgressInfo.TotalProgress.ProgressText = string.Format("Start replace translations {0} => {1} for entire list...", searchWord, replaceWord);
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom;
 
             int itemsCount = list.Count;
 
@@ -2146,8 +2151,7 @@ namespace gip.bso.iplus
                 worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom + progressValue;
             }
 
-
-            return DoSaveTranslation(worker, e, list, 0, rangeTo);
+            return DoSaveTranslation(worker, e, list, half, rangeTo);
         }
 
         private void DoRenameAll(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode, string searchWord, string replaceWord)
@@ -2155,6 +2159,7 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = string.Format("Start replace translations {0} => {1} for entire list...", searchWord, replaceWord);
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = 100;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = 0;
 
             List<VBTranslationView> allTranslations = GetAllTranslations();
             worker.ProgressInfo.TotalProgress.ProgressText = "All items fetched";
@@ -2162,6 +2167,7 @@ namespace gip.bso.iplus
 
             DoRename(worker, e, targetLanguageCode, searchWord, replaceWord, allTranslations, 20, 80);
         }
+
         #endregion
 
         #region Methods -> BackgroundWorker -> DoWork -> Generate All
@@ -2171,6 +2177,7 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "Start generate emtpy translations for all items! Fetch all items...";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = 100;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = 0;
 
             List<VBTranslationView> allTranslations = GetAllTranslations();
             worker.ProgressInfo.TotalProgress.ProgressText = "All items fetched";
@@ -2179,11 +2186,13 @@ namespace gip.bso.iplus
             DoGenerateEmptyTranslation(worker, e, targetLanguageCode, allTranslations, 20, 80);
             return DoFetchTranslation(worker, e, 80, 100); // Return only preselected by filter
         }
+        
         private List<VBTranslationView> GeneratePairFromSourceLanguageAll(ACBackgroundWorker worker, DoWorkEventArgs e, string sourceLanguageCode, string targetLanguageCode)
         {
             worker.ProgressInfo.TotalProgress.ProgressText = "Start generate english copy of translations for all items! Fetch all items...";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = 100;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = 0;
 
             List<VBTranslationView> allTranslations = GetAllTranslations();
             worker.ProgressInfo.TotalProgress.ProgressText = "All items fetched";
@@ -2198,6 +2207,7 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "Start generate Google API translations for all items! Fetch all items ...";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = 100;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = 0;
 
             List<VBTranslationView> allTranslations = GetAllTranslations();
             worker.ProgressInfo.TotalProgress.ProgressText = "All items fetched";
@@ -2212,6 +2222,7 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "Remove autogenerated translations for all items! Fetch all items...";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = 100;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = 0;
 
             List<VBTranslationView> allTranslations = GetAllTranslations();
             worker.ProgressInfo.TotalProgress.ProgressText = "All items fetched";
@@ -2227,6 +2238,11 @@ namespace gip.bso.iplus
 
         private void DoExport(ACBackgroundWorker worker, DoWorkEventArgs e, string currentExportFolder, string currentExportFileName, bool exportOnlyForSelectedTargetLanguage, string targetLanguageCode, List<VBTranslationView> list, int rangeFrom, int rangeTo)
         {
+            worker.ProgressInfo.TotalProgress.ProgressText = "Start export to file: " + currentExportFileName;
+            worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
+            worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom;
+
             string file = Path.Combine(currentExportFolder, currentExportFileName);
             List<VBTranslationView> localList = list.ToList();
             if (exportOnlyForSelectedTargetLanguage)
@@ -2266,6 +2282,7 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "Start export all translations";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = 100;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = 0;
 
             List<VBTranslationView> allTranslations = GetAllTranslations();
             worker.ProgressInfo.TotalProgress.ProgressText = "All items fetched";
@@ -2279,6 +2296,7 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "Start saving translation data... ";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom;
 
             int half = (rangeTo - rangeFrom) / 2;
             List<VBTranslationView> list = new List<VBTranslationView>();
@@ -2295,10 +2313,15 @@ namespace gip.bso.iplus
 
         #endregion
 
-        #region Methods -> BackgroundWorkser -> DoWork ->
+        #region Methods -> BackgroundWorkser -> DoWork -> DoGetACClassTranslationStatus
 
         private List<Guid> DoGetACClassTranslationStatus(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode, Guid aCProjectID)
         {
+            worker.ProgressInfo.TotalProgress.ProgressText = "Load project tree translation status...";
+            worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
+            worker.ProgressInfo.TotalProgress.ProgressRangeTo = 100;
+            worker.ProgressInfo.TotalProgress.ProgressCurrent = 0;
+
             List<Guid> classNotNaveTranslation = null;
             string notHaveInTranslation = targetLanguageCode + "{";
             List<VBTranslationView> list = GetAllTranslations(notHaveInTranslation);
@@ -2334,7 +2357,10 @@ namespace gip.bso.iplus
             {
                 foreach (Translation translation in response.Translations)
                 {
-                    TranslationPair translationPair = new TranslationPair() { LangCode = targetLanguageCode, Translation = AutoGeneratePrefix + translation.TranslatedText };
+                    string translatedText = translation.TranslatedText;
+                    if (!string.IsNullOrEmpty(translatedText))
+                        translatedText = translatedText[0].ToString().ToUpper() + translatedText.Substring(1, translatedText.Length - 1);
+                    TranslationPair translationPair = new TranslationPair() { LangCode = targetLanguageCode, Translation = AutoGeneratePrefix + translatedText };
                     result.Add(translationPair);
                 }
             }
