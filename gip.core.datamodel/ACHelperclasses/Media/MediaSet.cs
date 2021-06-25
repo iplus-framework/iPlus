@@ -83,8 +83,10 @@ namespace gip.core.datamodel
                 di
                 .EnumerateFiles("*.*", SearchOption.TopDirectoryOnly)
                 .Where(c =>
-                        ExtensionQuery.Contains(c.Extension) &&
-                        !Path.GetFileNameWithoutExtension(c.Name).EndsWith(MediaController.MediaSettings.DefaultThumbSuffix)
+                        ExtensionQuery.Contains(c.Extension) 
+                        && Path.GetFileNameWithoutExtension(c.Name) != "default"
+                        && Path.GetFileNameWithoutExtension(c.Name) != "default_thumb"
+                        && !Path.GetFileNameWithoutExtension(c.Name).EndsWith(MediaController.MediaSettings.DefaultThumbSuffix)
                 );
         }
 

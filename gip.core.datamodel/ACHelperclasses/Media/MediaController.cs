@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace gip.core.datamodel
 {
@@ -41,9 +43,6 @@ namespace gip.core.datamodel
 
         #region public methods
 
-
-       
-
         public void UploadFile(string localFileName)
         {
             string recomendedFileName = Path.GetFileName(localFileName);
@@ -67,6 +66,7 @@ namespace gip.core.datamodel
         {
             string extension = Path.GetExtension(fileName);
             MediaSet mediaSet = Items[MediaItemTypeEnum.Image];
+
             string newFileName = "";
             string newThumbFileName = "";
             if (isDefault)
@@ -79,9 +79,18 @@ namespace gip.core.datamodel
                 newFileName = Path.GetFileNameWithoutExtension(fileName) + extension;
                 newThumbFileName = Path.GetFileNameWithoutExtension(fileName) + MediaSettings.DefaultThumbSuffix + extension;
             }
+
+            string thumbFullPath = Path.Combine(mediaSet.ItemRootFolder, newThumbFileName);
+
+            if (File.Exists(newFileName))
+                DeleteWithRetry(newFileName);
             UploadFile(fileName, newFileName);
-            if(!string.IsNullOrEmpty(thumbFileName) && File.Exists(thumbFileName))
+            if (!string.IsNullOrEmpty(thumbFileName) && File.Exists(thumbFileName))
+            {
+                if (File.Exists(newThumbFileName))
+                    DeleteWithRetry(newThumbFileName);
                 UploadFile(thumbFileName, newThumbFileName);
+            }
             else if (string.IsNullOrEmpty(thumbFileName) && generateThumb)
             {
                 using (Image image = Image.FromFile(fileName))
@@ -102,7 +111,8 @@ namespace gip.core.datamodel
 
                     using (Image resizedImage = ImageResize.ResizeImage(image, thumbWidth, thumbHeight))
                     {
-                        string thumbFullPath = Path.Combine(mediaSet.ItemRootFolder, newThumbFileName);
+                        if (File.Exists(newThumbFileName))
+                            DeleteWithRetry(thumbFullPath);
                         resizedImage.Save(thumbFullPath);
                         resizedImage.Dispose();
                     }
@@ -117,6 +127,28 @@ namespace gip.core.datamodel
             string path = Path.Combine(mediaSet.ItemRootFolder, fileName);
             if (File.Exists(path))
                 File.Delete(path);
+        }
+
+        public bool DeleteWithRetry(string file)
+        {
+            bool isDeleted = false;
+            int cntTry = 0;
+            while (!isDeleted && cntTry < 3)
+            {
+                cntTry++;
+                try
+                {
+                    Thread.Sleep(100 * 5);
+                    if (File.Exists(file))
+                        File.Delete(file);
+                    isDeleted = true;
+                }
+                catch (Exception ec)
+                {
+
+                }
+            }
+            return isDeleted;
         }
 
         public string GetIconFilePath(string extension)
