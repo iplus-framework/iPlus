@@ -93,7 +93,6 @@
     <None Include="GIP-SNKey.snk" />
     <EmbeddedResource Include="InputTransferJob.json" />
     <None Include="InputTransferJobSamples\InputTransferJob.json" />
-    <None Include="packages.config" />
     <EmbeddedResource Include="TransferJob.json" />
   </ItemGroup>
   <ItemGroup>

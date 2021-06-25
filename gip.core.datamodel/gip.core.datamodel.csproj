@@ -396,9 +396,6 @@
     <None Include="App.Config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
     <EntityDeploy Include="iPlusV4.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>iPlusV4.Designer.cs</LastGenOutput>

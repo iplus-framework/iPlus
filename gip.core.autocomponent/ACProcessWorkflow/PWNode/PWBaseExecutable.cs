@@ -158,6 +158,13 @@ namespace gip.core.autocomponent
         /// <returns></returns>
         public virtual ACMethod NewACMethodWithConfiguration()
         {
+            if (   InitState < ACInitState.Reloading
+                || InitState >= ACInitState.Destructing)
+            {
+                Messages.LogError(this.GetACUrl(), "NewACMethodWithConfiguration(10)", "Access to early: InitState is not Initialized");
+                Messages.LogError(this.GetACUrl(), "NewACMethodWithConfiguration(11)", System.Environment.StackTrace);
+                return null;
+            }
             ACMethod acMethod = NewACMethod();
             if (acMethod != null)
             {
