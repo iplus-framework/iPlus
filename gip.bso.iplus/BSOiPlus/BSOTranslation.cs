@@ -21,10 +21,13 @@ namespace gip.bso.iplus
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Translation'}de{'Translation'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true, Const.QueryPrefix + ACPackage.ClassName)]
     public class BSOTranslation : ACBSO
     {
-
+        #region const
         public const string Const_ExportFileTemplate = @"Translation_{0}.json";
         public const string Const_CustomerDataPath = "CustomerDataPath";
         public const string Const_GoogleProjectID = "GoogleProjectID";
+        public const int Const_GoogleAPIBytesLimit = 204800;
+        public const int Const_GoogleAPILengthLimit = 250;
+        #endregion
 
         #region DI
         public TranslationServiceClient GoogleTranslationServiceClient { get; private set; }
@@ -1815,7 +1818,7 @@ namespace gip.bso.iplus
 
             foreach (var translationItem in list)
             {
-                string curentTransValue = string.Join("", translationItem.EditTranslationList.Select(c => c.GetTranslationTuple()));
+                string curentTransValue = string.Join("", translationItem.EditTranslationList.Where(c => !string.IsNullOrEmpty(c.Translation)).Select(c => c.GetTranslationTuple()));
                 translationItem.TranslationValue = curentTransValue;
                 object item = null;
                 if (translationItem.TableName.StartsWith("AC"))
@@ -2131,14 +2134,29 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
             worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom;
 
-            List<VBTranslationView> itemsWithoutSource = list.Where(c => c.EditTranslationList == null || !c.EditTranslationList.Any(x => x.LangCode == sourceLanguageCode)).ToList();
+            List<VBTranslationView> itemsWithoutSource =
+                list
+                .Where(c =>
+                            c.EditTranslationList == null
+                            || !c.EditTranslationList.Any(x => x.LangCode == sourceLanguageCode)
+                            || !c.EditTranslationList.Any(x => x.LangCode == sourceLanguageCode && !string.IsNullOrEmpty(x.Translation))
+                       )
+                .ToList();
             Guid[] itemsWithoutSourceIDs = itemsWithoutSource.Select(c => c.ID).ToArray();
             List<VBTranslationView> itemsWithSource = list.Where(c => !itemsWithoutSourceIDs.Contains(c.ID)).ToList();
 
             int half = (rangeFrom - rangeTo) / 2;
 
             string[] searchedTranslations = itemsWithSource.Select(c => c.EditTranslationList.FirstOrDefault(x => x.LangCode == sourceLanguageCode)).Select(c => c.Translation).ToArray();
-            List<TranslationPair> translationPairs = GetTranslationPairFromGoogleApi(sourceLanguageCode, targetLanguageCode, searchedTranslations);
+
+            List<TranslationPair> translationPairs = new List<TranslationPair>();
+            Dictionary<int, string[]> searchedTranslationPages = GetTranslationPagesForGoogleApi(searchedTranslations);
+            foreach (KeyValuePair<int, string[]> page in searchedTranslationPages)
+            {
+                List<TranslationPair> tempTranslationPair = GetTranslationPairFromGoogleApi(sourceLanguageCode, targetLanguageCode, page.Value);
+                translationPairs.AddRange(tempTranslationPair);
+            }
+
 
             worker.ProgressInfo.TotalProgress.ProgressCurrent = half + rangeFrom;
             int count = searchedTranslations.Length;
@@ -2327,7 +2345,11 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = 100;
             worker.ProgressInfo.TotalProgress.ProgressCurrent = 0;
 
-            List<VBTranslationView> allTranslations = GetAllTranslations();
+            string haveIntranslation = null;
+            if (SelectedTargetLanguage != null && ExportOnlyForSelectedTargetLanguage)
+                haveIntranslation = string.Format(@"{0}{{", SelectedTargetLanguage.VBLanguageCode);
+
+            List<VBTranslationView> allTranslations = GetAllTranslations(haveIntranslation);
             worker.ProgressInfo.TotalProgress.ProgressText = "All items fetched";
             worker.ProgressInfo.TotalProgress.ProgressCurrent = 20;
 
@@ -2367,7 +2389,7 @@ namespace gip.bso.iplus
 
             List<Guid> classNotNaveTranslation = null;
             string notHaveInTranslation = targetLanguageCode + "{";
-            List<VBTranslationView> list = GetAllTranslations(notHaveInTranslation);
+            List<VBTranslationView> list = GetAllTranslations(null, notHaveInTranslation);
 
             if (list != null)
                 classNotNaveTranslation = list.Select(c => c.MandatoryID).Distinct().ToList();
@@ -2378,6 +2400,51 @@ namespace gip.bso.iplus
         #endregion
 
         #region Methods -> BackgroundWorker -> DoWork -> Common
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="searchedTranslations"></param>
+        /// <returns></returns>
+        private Dictionary<int, string[]> GetTranslationPagesForGoogleApi(string[] searchedTranslations)
+        {
+            Dictionary<int, string[]> pages = new Dictionary<int, string[]>();
+            int tempCountBytes = 0;
+            int translationCount = searchedTranslations.Count();
+            List<string> pageItems = new List<string>();
+            int currentPage = 0;
+            int currentPageLength = 0;
+            int currentStringLength = 0;
+
+            for (int i = 0; i < translationCount; i++)
+            {
+                currentStringLength = searchedTranslations[i].Length * sizeof(Char);
+                bool isLenthOwerflow = 
+                    ((tempCountBytes + currentStringLength) >= Const_GoogleAPIBytesLimit)
+                    ||
+                    (currentPageLength + 1 >= Const_GoogleAPILengthLimit);
+                if (isLenthOwerflow)
+                {
+                    pages.Add(currentPage, pageItems.ToArray());
+                    currentPage++;
+
+                    tempCountBytes = 0;
+                    currentPageLength = 0;
+                    pageItems = new List<string>();
+                }
+
+                currentPageLength ++;
+                pageItems.Add(searchedTranslations[i]);
+                tempCountBytes += currentStringLength;
+            }
+
+            if (pageItems.Any())
+            {
+                currentPage++;
+                pages.Add(currentPage, pageItems.ToArray());
+            }
+            return pages;
+        }
 
         /// <summary>
         /// Fetch translation from google api
@@ -2412,15 +2479,19 @@ namespace gip.bso.iplus
 
         public string GetGoogleLanguageCode(string langCode)
         {
-            string resultLangCode = "en-US";
-            if (langCode == "de")
+            string resultLangCode = null;
+            if (langCode == "en")
+                resultLangCode = "en-US";
+            else if (langCode == "de")
                 resultLangCode = "de-DE";
             else if (langCode == "hr")
                 resultLangCode = "hr-HR";
+            else
+                throw new NotSupportedException(string.Format(@"Not prepared code for language: {0}", langCode));
             return resultLangCode;
         }
 
-        private List<VBTranslationView> GetAllTranslations(string notHaveInTranslation = null)
+        private List<VBTranslationView> GetAllTranslations(string haveInTranslation = null, string notHaveInTranslation = null)
         {
             List<VBTranslationView> list = new List<VBTranslationView>();
             Guid? acProjectID = null;
@@ -2449,7 +2520,7 @@ namespace gip.bso.iplus
                           filterOnlyMDTables,
                           null,
                           null,
-                          null,
+                          haveInTranslation,
                           notHaveInTranslation)
                       .ToList();
             }
