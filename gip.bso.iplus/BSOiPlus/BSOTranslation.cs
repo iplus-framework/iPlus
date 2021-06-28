@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Input;
 
 namespace gip.bso.iplus
@@ -26,6 +27,7 @@ namespace gip.bso.iplus
         public const string Const_CustomerDataPath = "CustomerDataPath";
         public const string Const_GoogleProjectID = "GoogleProjectID";
         public const int Const_GoogleAPIBytesLimit = 204800;
+        // @aagincic: Google limit is 1024 but recive service exception: "grpc_message":"Text is too long.","grpc_status":3} - without any other explanation
         public const int Const_GoogleAPILengthLimit = 250;
         #endregion
 
@@ -1829,13 +1831,16 @@ namespace gip.bso.iplus
                 if (item == null)
                     item = GetOtherObjectItem(Database as gip.core.datamodel.Database, translationItem);
 
-                if (item is IACObjectEntityWithCheckTrans)
+                if (item != null)
                 {
-                    (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation = curentTransValue;
-                }
-                if (item is IMDTrans)
-                {
-                    (item as IMDTrans).MDNameTrans = curentTransValue;
+                    if (item is IACObjectEntityWithCheckTrans)
+                    {
+                        (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation = curentTransValue;
+                    }
+                    else if (item is IMDTrans)
+                    {
+                        (item as IMDTrans).MDNameTrans = curentTransValue;
+                    }
                 }
 
                 int itemIndex = list.IndexOf(translationItem);
@@ -1852,32 +1857,33 @@ namespace gip.bso.iplus
             ACClass aCClass = database.ACClass.FirstOrDefault(c => c.ACURLCached == translationItem.MandatoryACURLCached);
             if (aCClass == null)
                 aCClass = database.ACClass.FirstOrDefault(c => c.ACClassID == translationItem.MandatoryID);
-            switch (translationItem.TableName)
-            {
-                case "ACClass":
-                    result = aCClass;
-                    break;
-                case "ACClassMessage":
-                    ACClassMessage aCClassMessage = aCClass.ACClassMessage_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
-                    result = aCClassMessage;
-                    break;
-                case "ACClassMethod":
-                    ACClassMethod aCClassMethod = aCClass.ACClassMethod_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
-                    result = aCClassMethod;
-                    break;
-                case "ACClassProperty":
-                    ACClassProperty aCClassProperty = aCClass.ACClassProperty_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
-                    result = aCClassProperty;
-                    break;
-                case "ACClassText":
-                    ACClassText aCClassText = aCClass.ACClassText_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
-                    result = aCClassText;
-                    break;
-                case "ACClassDesign":
-                    ACClassDesign aCClassDesign = aCClass.ACClassDesign_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
-                    result = aCClassDesign;
-                    break;
-            }
+            if (aCClass != null)
+                switch (translationItem.TableName)
+                {
+                    case "ACClass":
+                        result = aCClass;
+                        break;
+                    case "ACClassMessage":
+                        ACClassMessage aCClassMessage = aCClass.ACClassMessage_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
+                        result = aCClassMessage;
+                        break;
+                    case "ACClassMethod":
+                        ACClassMethod aCClassMethod = aCClass.ACClassMethod_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
+                        result = aCClassMethod;
+                        break;
+                    case "ACClassProperty":
+                        ACClassProperty aCClassProperty = aCClass.ACClassProperty_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
+                        result = aCClassProperty;
+                        break;
+                    case "ACClassText":
+                        ACClassText aCClassText = aCClass.ACClassText_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
+                        result = aCClassText;
+                        break;
+                    case "ACClassDesign":
+                        ACClassDesign aCClassDesign = aCClass.ACClassDesign_ACClass.FirstOrDefault(c => c.ACIdentifier == translationItem.ACIdentifier);
+                        result = aCClassDesign;
+                        break;
+                }
 
             return result;
         }
@@ -2062,8 +2068,16 @@ namespace gip.bso.iplus
 
         private object GetOtherObjectItem(Database database, VBTranslationView translationItem)
         {
+            object item = null;
             System.Data.EntityKey entityKey = new System.Data.EntityKey(database.DefaultContainerName + "." + translationItem.TableName, translationItem.TableName + "ID", translationItem.ID);
-            object item = database.GetObjectByKey(entityKey);
+            try
+            {
+                item = database.GetObjectByKey(entityKey);
+            }
+            catch (Exception ec)
+            {
+                Console.WriteLine(string.Format(@"Unable to find object of type: {0} with id: {1}! Error message: {2}.", translationItem.TableName, translationItem.ID, ec.Message));
+            }
             return item;
         }
 
@@ -2155,6 +2169,7 @@ namespace gip.bso.iplus
             {
                 List<TranslationPair> tempTranslationPair = GetTranslationPairFromGoogleApi(sourceLanguageCode, targetLanguageCode, page.Value);
                 translationPairs.AddRange(tempTranslationPair);
+                Thread.Sleep(1000);
             }
 
 
@@ -2419,7 +2434,7 @@ namespace gip.bso.iplus
             for (int i = 0; i < translationCount; i++)
             {
                 currentStringLength = searchedTranslations[i].Length * sizeof(Char);
-                bool isLenthOwerflow = 
+                bool isLenthOwerflow =
                     ((tempCountBytes + currentStringLength) >= Const_GoogleAPIBytesLimit)
                     ||
                     (currentPageLength + 1 >= Const_GoogleAPILengthLimit);
@@ -2433,7 +2448,7 @@ namespace gip.bso.iplus
                     pageItems = new List<string>();
                 }
 
-                currentPageLength ++;
+                currentPageLength++;
                 pageItems.Add(searchedTranslations[i]);
                 tempCountBytes += currentStringLength;
             }
