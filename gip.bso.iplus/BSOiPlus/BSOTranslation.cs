@@ -1135,6 +1135,24 @@ namespace gip.bso.iplus
             }
         }
 
+        private bool _IsJsonPrettyPrint;
+        [ACPropertyInfo(610, "IsJsonPrettyPrint", "en{'Pretty print JSON'}de{'Hübscher Druck JSON'}")]
+        public bool IsJsonPrettyPrint
+        {
+            get
+            {
+                return _IsJsonPrettyPrint;
+            }
+            set
+            {
+                if (_IsJsonPrettyPrint != value)
+                {
+                    _IsJsonPrettyPrint = value;
+                    OnPropertyChanged("_IsJsonPrettyPrint");
+                }
+            }
+        }
+
         #endregion
 
         #endregion
@@ -1475,6 +1493,19 @@ namespace gip.bso.iplus
                 && CurrentExportFileName.IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
         }
 
+        [ACMethodInfo("RefreshExportFileTime", "en{'Refresh'}de{'Aktualisierung'}", 611)]
+        public void RefreshExportFileTime()
+        {
+            if (!IsEnabledRefreshExportFileTime())
+                return;
+            CurrentExportFileName = string.Format(Const_ExportFileTemplate, DateTime.Now.ToString("yyyy-MM-dd_HH-mm"));
+        }
+
+        public bool IsEnabledRefreshExportFileTime()
+        {
+            return !string.IsNullOrEmpty(CurrentExportFolder) && Directory.Exists(CurrentExportFolder);
+        }
+
         #endregion
 
         #region Methods -> Import
@@ -1696,20 +1727,30 @@ namespace gip.bso.iplus
                     ProjectManager.LoadACProject(CurrentACProject, ProjectTreePresentationMode, ProjectTreeVisibilityFilter, ProjectTreeCheckHandler);
 
                 }
+                else if (command == TranslationAutogenerateOption.Replace)
+                {
+                    ReplaceText = null;
+                    SetListFromBGWorker(e);
+                }
                 else
                 {
-                    if (e.Result != null)
-                    {
-                        List<VBTranslationView> list = e.Result as List<VBTranslationView>;
-                        _TranslationViewList = list;
-                        OnPropertyChanged("TranslationViewList");
-                        _SelectedTranslationView = null;
-                        if (_TranslationViewList != null)
-                            SelectedTranslationView = _TranslationViewList.FirstOrDefault();
-                        else
-                            SelectedTranslationView = null;
-                    }
+                    SetListFromBGWorker(e);
                 }
+            }
+        }
+
+        private void SetListFromBGWorker(RunWorkerCompletedEventArgs e)
+        {
+            if (e.Result != null)
+            {
+                List<VBTranslationView> list = e.Result as List<VBTranslationView>;
+                _TranslationViewList = list;
+                OnPropertyChanged("TranslationViewList");
+                _SelectedTranslationView = null;
+                if (_TranslationViewList != null)
+                    SelectedTranslationView = _TranslationViewList.FirstOrDefault();
+                else
+                    SelectedTranslationView = null;
             }
         }
 
@@ -2186,7 +2227,7 @@ namespace gip.bso.iplus
             DoGenerateEmptyTranslation(worker, e, targetLanguageCode, allTranslations, 20, 80);
             return DoFetchTranslation(worker, e, 80, 100); // Return only preselected by filter
         }
-        
+
         private List<VBTranslationView> GeneratePairFromSourceLanguageAll(ACBackgroundWorker worker, DoWorkEventArgs e, string sourceLanguageCode, string targetLanguageCode)
         {
             worker.ProgressInfo.TotalProgress.ProgressText = "Start generate english copy of translations for all items! Fetch all items...";
@@ -2272,6 +2313,8 @@ namespace gip.bso.iplus
             using (JsonTextWriter jsonWriter = new JsonTextWriter(writer))
             {
                 JsonSerializer ser = new JsonSerializer();
+                if (IsJsonPrettyPrint)
+                    ser.Formatting = Formatting.Indented;
                 ser.Serialize(jsonWriter, queryLocalList);
                 jsonWriter.Flush();
             }
