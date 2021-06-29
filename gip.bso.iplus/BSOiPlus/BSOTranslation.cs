@@ -1808,7 +1808,7 @@ namespace gip.bso.iplus
             return list;
         }
 
-        private List<VBTranslationView> DoSaveTranslation(ACBackgroundWorker worker, DoWorkEventArgs e, List<VBTranslationView> list, int rangeFrom, int rangeTo)
+        private List<VBTranslationView> DoSaveTranslation(ACBackgroundWorker worker, DoWorkEventArgs e, List<VBTranslationView> list, int rangeFrom, int rangeTo, bool updateOnly = false)
         {
             worker.ProgressInfo.TotalProgress.ProgressText = "Start saving translation data... ";
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
@@ -1835,6 +1835,29 @@ namespace gip.bso.iplus
 
                 if (item != null)
                 {
+                    if (updateOnly)
+                    {
+                        VBTranslationView tmpTranslationView = new VBTranslationView();
+                        if (item is IACObjectEntityWithCheckTrans)
+                        {
+                            tmpTranslationView.TranslationValue = (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation;
+                        }
+                        else if (item is IMDTrans)
+                        {
+                            tmpTranslationView.TranslationValue = (item as IMDTrans).MDNameTrans;
+                        }
+                        // update add to translation item missing TranslationPair elements
+                        tmpTranslationView.SetTranslationList(TargetLanguageList);
+                        List<TranslationPair> missing = tmpTranslationView.EditTranslationList.Where(c => !translationItem.EditTranslationList.Select(x => x.LangCode).Contains(c.LangCode)).ToList();
+
+                        if (missing.Any())
+                        {
+                            translationItem.EditTranslationList.AddRange(missing);
+                            curentTransValue = string.Join("", translationItem.EditTranslationList.Where(c => !string.IsNullOrEmpty(c.Translation)).Select(c => c.GetTranslationTuple()));
+                            translationItem.TranslationValue = curentTransValue;
+                        }
+                    }
+
                     if (item is IACObjectEntityWithCheckTrans)
                     {
                         (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation = curentTransValue;
@@ -2390,7 +2413,7 @@ namespace gip.bso.iplus
             }
 
             worker.ProgressInfo.TotalProgress.ProgressCurrent = half;
-            DoSaveTranslation(worker, e, list, half, rangeTo);
+            DoSaveTranslation(worker, e, list, half, rangeTo, true);
         }
 
         #endregion
