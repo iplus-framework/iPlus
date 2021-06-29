@@ -3039,9 +3039,11 @@ namespace gip.core.layoutengine
                             {
                                 DictionarySumProperties[columnName] = "";
                             }
-                            else if (((DataGridColumn)column).Header.ToString() == columnName)
+                            else
                             {
-                                DictionarySumProperties[((DataGridColumn)column).Header.ToString()] = "";
+                                string header = ((DataGridColumn)column).Header?.ToString();
+                                if (header == columnName)
+                                    DictionarySumProperties[header] = "";
                             }
                         }
                     }
