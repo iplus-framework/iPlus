@@ -56,14 +56,12 @@ namespace gip.core.datamodel
                     MediaItemPresentation presentationItem = new MediaItemPresentation();
                     presentationItem.FilePath = file;
                     presentationItem.Name = Path.GetFileName(file);
+                    presentationItem.IsDefault = presentationItem.Name == MediaController.MediaSettings.DefaultImageName;
 
                     string thumbNamePattern = Path.GetFileNameWithoutExtension(file) + MediaController.MediaSettings.DefaultThumbSuffix;
                     FileInfo thumbFileInfo = new DirectoryInfo(Path.GetDirectoryName(file)).GetFiles().Where(c=>c.Name.Contains(thumbNamePattern)).FirstOrDefault();
                     if (thumbFileInfo != null)
-                    {
                         presentationItem.ThumbPath = thumbFileInfo.FullName;
-                        presentationItem.HaveOwnThumb = true;
-                    }
                     if (string.IsNullOrEmpty(presentationItem.ThumbPath))
                         if (MediaTypeSettings.MediaType == MediaItemTypeEnum.Image)
                             presentationItem.ThumbPath = file;
