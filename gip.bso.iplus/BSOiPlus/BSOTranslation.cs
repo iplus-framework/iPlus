@@ -2431,6 +2431,13 @@ namespace gip.bso.iplus
             string notHaveInTranslation = targetLanguageCode + "{";
             List<VBTranslationView> list = GetAllTranslations(null, notHaveInTranslation);
 
+            list = 
+                list
+                .Where(c => 
+                        c.TranslationValue != null 
+                        && !string.IsNullOrEmpty(c.TranslationValue.Trim())
+                ).ToList();
+
             if (list != null)
                 classNotNaveTranslation = list.Select(c => c.MandatoryID).Distinct().ToList();
 
