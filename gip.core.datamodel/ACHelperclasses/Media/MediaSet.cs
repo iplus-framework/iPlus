@@ -56,10 +56,10 @@ namespace gip.core.datamodel
                     MediaItemPresentation presentationItem = new MediaItemPresentation();
                     presentationItem.FilePath = file;
                     presentationItem.Name = Path.GetFileName(file);
-                    presentationItem.IsDefault = presentationItem.Name == MediaController.MediaSettings.DefaultImageName;
+                    presentationItem.IsDefault = presentationItem.Name.StartsWith(MediaController.MediaSettings.DefaultImageName + ".");
 
                     string thumbNamePattern = Path.GetFileNameWithoutExtension(file) + MediaController.MediaSettings.DefaultThumbSuffix;
-                    FileInfo thumbFileInfo = new DirectoryInfo(Path.GetDirectoryName(file)).GetFiles().Where(c=>c.Name.Contains(thumbNamePattern)).FirstOrDefault();
+                    FileInfo thumbFileInfo = new DirectoryInfo(Path.GetDirectoryName(file)).GetFiles().Where(c => c.Name.Contains(thumbNamePattern)).FirstOrDefault();
                     if (thumbFileInfo != null)
                         presentationItem.ThumbPath = thumbFileInfo.FullName;
                     if (string.IsNullOrEmpty(presentationItem.ThumbPath))
@@ -67,6 +67,7 @@ namespace gip.core.datamodel
                             presentationItem.ThumbPath = file;
                         else
                             presentationItem.ThumbPath = MediaController.GetIconFilePath(Path.GetExtension(file));
+
                     result.Add(presentationItem);
                 }
                 return result;
@@ -81,9 +82,7 @@ namespace gip.core.datamodel
                 di
                 .EnumerateFiles("*.*", SearchOption.TopDirectoryOnly)
                 .Where(c =>
-                        ExtensionQuery.Contains(c.Extension) 
-                        && Path.GetFileNameWithoutExtension(c.Name) != "default"
-                        && Path.GetFileNameWithoutExtension(c.Name) != "default_thumb"
+                        ExtensionQuery.Contains(c.Extension)
                         && !Path.GetFileNameWithoutExtension(c.Name).EndsWith(MediaController.MediaSettings.DefaultThumbSuffix)
                 );
         }

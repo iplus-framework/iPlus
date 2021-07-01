@@ -10,25 +10,26 @@ namespace gip.core.datamodel
     public class MediaItemPresentation
     {
 
-        #region path
+        #region File Path
 
-        [ACPropertyInfo(999, "ThumbPath", "en{'ThumbPath'}de{'ThumbPath'}")]
+        [ACPropertyInfo(999, "ThumbPath", "en{'Thumb Image path'}de{'Standard-Daumenbildpfad'}")]
         public string ThumbPath { get; set; }
 
-        [ACPropertyInfo(999, "FilePath", "en{'FilePath'}de{'FilePath'}")]
+        [ACPropertyInfo(999, "FilePath", "en{'File path'}de{'Dateipfad'}")]
         public string FilePath { get; set; }
 
         #endregion
 
-        #region image - dump
+        #region Edit File Path
 
-        [ACPropertyInfo(999, "Thumb", "en{'ThumbPath'}de{'ThumbPath'}")]
-        public byte[] Thumb { get; set; }
+        [ACPropertyInfo(999, "ThumbPath", "en{'Thumb Image path'}de{'Standard-Daumenbildpfad'}")]
+        public string EditThumbPath { get; set; }
 
-        [ACPropertyInfo(999, "File", "en{'FilePath'}de{'FilePath'}")]
-        public byte[] File { get; set; }
+        [ACPropertyInfo(999, "FilePath", "en{'File path'}de{'Dateipfad'}")]
+        public string EditFilePath { get; set; }
 
         #endregion
+
 
         #region presentation
 
@@ -38,7 +39,7 @@ namespace gip.core.datamodel
         [ACPropertyInfo(999, "IsDefault", "en{'Is default'}de{'Ist Standard'}")]
         public bool IsDefault { get; set; }
 
-        [ACPropertyInfo(999, "IsGenerateThumb", "en{'Is default'}de{'Ist Standard'}")]
+        [ACPropertyInfo(999, "IsGenerateThumb", "en{'Generate Thumb Image'}de{'Standard-Daumenbild generieren'}")]
         public bool IsGenerateThumb { get; set; }
 
         #endregion
