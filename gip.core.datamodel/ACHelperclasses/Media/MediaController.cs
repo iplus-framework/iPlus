@@ -47,23 +47,15 @@ namespace gip.core.datamodel
 
         public MediaItemPresentation Upload(MediaItemPresentation item)
         {
-            Msg msg = null;
             if (string.IsNullOrEmpty(item.EditFilePath) || !File.Exists(item.EditFilePath))
                 return item;
-            try
-            {
 
-                string extension = Path.GetExtension(item.EditFilePath);
-                MediaSet mediaSet = Items.Where(c => c.Value.MediaTypeSettings.Extensions.Contains(extension)).Select(c => c.Value).FirstOrDefault();
-                if (mediaSet.MediaTypeSettings.MediaType == MediaItemTypeEnum.Image)
-                    UploadImage(mediaSet, item);
-                else
-                    UploadDocument(mediaSet, item);
-            }
-            catch (Exception ec)
-            {
-
-            }
+            string extension = Path.GetExtension(item.EditFilePath);
+            MediaSet mediaSet = Items.Where(c => c.Value.MediaTypeSettings.Extensions.Contains(extension)).Select(c => c.Value).FirstOrDefault();
+            if (mediaSet.MediaTypeSettings.MediaType == MediaItemTypeEnum.Image)
+                UploadImage(mediaSet, item);
+            else
+                UploadDocument(mediaSet, item);
             return item;
         }
 
@@ -73,21 +65,36 @@ namespace gip.core.datamodel
             string extension = Path.GetExtension(item.EditFilePath);
             string thumbFileName = MediaSettings.FullDefaultThumbImageName;
             if (item.IsDefault)
-                item.FilePath = Path.Combine(mediaSet.ItemRootFolder, MediaSettings.DefaultImageName);
+            {
+                item.FilePath = Path.Combine(mediaSet.ItemRootFolder, MediaSettings.FullDefaultImageName);
+                item.Name= MediaSettings.FullDefaultImageName;
+            }
             else
             {
                 item.FilePath = Path.Combine(mediaSet.ItemRootFolder, Path.GetFileName(item.EditFilePath));
                 thumbFileName = Path.GetFileNameWithoutExtension(item.EditFilePath) + MediaSettings.DefaultThumbSuffix + extension;
+                item.Name = Path.GetFileName(item.EditFilePath);
             }
 
+            CheckDirectory(item.FilePath);
             UpladFile(item.EditFilePath, item.FilePath);
-            item.EditFilePath = "";
 
+            string fullThumbFileName = Path.Combine(mediaSet.ItemRootFolder, thumbFileName);
             if (item.IsGenerateThumb)
-                RenderThumbImage(item.EditFilePath, thumbFileName);
+            {
+                RenderThumbImage(item.EditFilePath, fullThumbFileName);
+                item.ThumbPath = fullThumbFileName;
+                item.IsGenerateThumb = false;
+            }
             else if (!string.IsNullOrEmpty(item.EditThumbPath) && File.Exists(item.EditThumbPath))
-                UpladFile(item.EditThumbPath, thumbFileName);
+            {
+                UpladFile(item.EditThumbPath, fullThumbFileName);
+                item.ThumbPath = fullThumbFileName;
+            }
 
+            item.EditFilePath = null;
+            item.EditThumbPath = null;
+            item.LoadImage(true);
             return item;
         }
 
@@ -95,35 +102,45 @@ namespace gip.core.datamodel
         {
             string extension = Path.GetExtension(item.EditFilePath);
             item.FilePath = Path.Combine(mediaSet.ItemRootFolder, Path.GetFileName(item.EditFilePath));
+            CheckDirectory(item.FilePath);
             UpladFile(item.EditFilePath, item.FilePath);
-            item.EditFilePath = "";
+            item.Name = Path.GetFileName(item.EditFilePath);
 
             if (!string.IsNullOrEmpty(item.EditThumbPath) && File.Exists(item.EditThumbPath))
             {
                 item.ThumbPath =
                             Path.GetFileNameWithoutExtension(item.FilePath)
                             + MediaSettings.DefaultThumbSuffix
-                            + extension;
+                            + Path.GetExtension(item.EditThumbPath);
+                item.ThumbPath = Path.Combine(mediaSet.ItemRootFolder, item.ThumbPath);
                 UpladFile(item.EditThumbPath, item.ThumbPath);
-                item.EditThumbPath = "";
             }
             else
                 item.ThumbPath = GetIconFilePath(extension);
-
+            item.EditFilePath = null;
+            item.EditThumbPath = null;
+            item.LoadImage(false);
             return item;
+        }
+
+        public void CheckDirectory(string path)
+        {
+            string dir = Path.GetDirectoryName(path);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
         }
 
         private void UpladFile(string sourcePath, string targetPath)
         {
-            if (File.Exists(sourcePath))
-                File.Delete(sourcePath);
+            if (File.Exists(targetPath))
+                File.Delete(targetPath);
 
             File.Copy(sourcePath, targetPath);
         }
 
-        private void RenderThumbImage(string soourceFile, string savePath)
+        private void RenderThumbImage(string sourceFile, string targetFile)
         {
-            using (Image image = Image.FromFile(soourceFile))
+            using (Image image = Image.FromFile(sourceFile))
             {
                 double thumbWidth = 0;
                 double thumbHeight = 0;
@@ -141,9 +158,9 @@ namespace gip.core.datamodel
 
                 using (Image resizedImage = ImageResize.ResizeImage(image, thumbWidth, thumbHeight))
                 {
-                    if (File.Exists(savePath))
-                        DeleteWithRetry(savePath);
-                    resizedImage.Save(savePath);
+                    if (File.Exists(targetFile))
+                        DeleteWithRetry(targetFile);
+                    resizedImage.Save(targetFile);
                     resizedImage.Dispose();
                 }
                 image.Dispose();
