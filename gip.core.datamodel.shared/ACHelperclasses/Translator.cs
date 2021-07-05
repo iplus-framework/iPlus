@@ -214,7 +214,7 @@ namespace gip.core.datamodel
         /// LanguageCode:        de
         /// TranslatedText       Gruppe
         /// </summary>
-        class TranslationTupleHelper : Dictionary<string, string>
+        public class TranslationTupleHelper : Dictionary<string, string>
         {
             /// <summary>
             /// The string separators
