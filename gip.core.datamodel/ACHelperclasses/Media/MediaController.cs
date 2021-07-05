@@ -63,22 +63,24 @@ namespace gip.core.datamodel
         private MediaItemPresentation UploadImage(MediaSet mediaSet, MediaItemPresentation item)
         {
             string extension = Path.GetExtension(item.EditFilePath);
-            string thumbFileName = MediaSettings.FullDefaultThumbImageName;
+
             if (item.IsDefault)
             {
                 item.FilePath = Path.Combine(mediaSet.ItemRootFolder, MediaSettings.FullDefaultImageName);
-                item.Name= MediaSettings.FullDefaultImageName;
+                item.Name = MediaSettings.FullDefaultImageName;
             }
-            else
+            else if (item.IsNew)
             {
                 item.FilePath = Path.Combine(mediaSet.ItemRootFolder, Path.GetFileName(item.EditFilePath));
-                thumbFileName = Path.GetFileNameWithoutExtension(item.EditFilePath) + MediaSettings.DefaultThumbSuffix + extension;
                 item.Name = Path.GetFileName(item.EditFilePath);
             }
 
             CheckDirectory(item.FilePath);
             UpladFile(item.EditFilePath, item.FilePath);
 
+            string thumbFileName = MediaSettings.FullDefaultThumbImageName;
+            if (!item.IsDefault)
+                thumbFileName = Path.GetFileNameWithoutExtension(item.FilePath) + MediaSettings.DefaultThumbSuffix + extension;
             string fullThumbFileName = Path.Combine(mediaSet.ItemRootFolder, thumbFileName);
             if (item.IsGenerateThumb)
             {
@@ -95,19 +97,23 @@ namespace gip.core.datamodel
             item.EditFilePath = null;
             item.EditThumbPath = null;
             item.LoadImage(true);
+            item.IsNew = false;
             return item;
         }
 
         private MediaItemPresentation UploadDocument(MediaSet mediaSet, MediaItemPresentation item)
         {
             string extension = Path.GetExtension(item.EditFilePath);
-            item.FilePath = Path.Combine(mediaSet.ItemRootFolder, Path.GetFileName(item.EditFilePath));
+            if (item.IsNew)
+                item.FilePath = Path.Combine(mediaSet.ItemRootFolder, Path.GetFileName(item.EditFilePath));
             CheckDirectory(item.FilePath);
             UpladFile(item.EditFilePath, item.FilePath);
             item.Name = Path.GetFileName(item.EditFilePath);
 
             if (!string.IsNullOrEmpty(item.EditThumbPath) && File.Exists(item.EditThumbPath))
             {
+                if(item.ThumbExistAndIsNotGeneric())
+                    DeleteWithRetry(item.ThumbPath);
                 item.ThumbPath =
                             Path.GetFileNameWithoutExtension(item.FilePath)
                             + MediaSettings.DefaultThumbSuffix
@@ -120,6 +126,7 @@ namespace gip.core.datamodel
             item.EditFilePath = null;
             item.EditThumbPath = null;
             item.LoadImage(false);
+            item.IsNew = false;
             return item;
         }
 
@@ -133,8 +140,7 @@ namespace gip.core.datamodel
         private void UpladFile(string sourcePath, string targetPath)
         {
             if (File.Exists(targetPath))
-                File.Delete(targetPath);
-
+                DeleteWithRetry(targetPath);
             File.Copy(sourcePath, targetPath);
         }
 

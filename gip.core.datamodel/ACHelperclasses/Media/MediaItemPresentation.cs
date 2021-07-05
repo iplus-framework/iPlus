@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,9 +11,12 @@ using System.Windows.Media.Imaging;
 namespace gip.core.datamodel
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'MediaItemPresentations'}de{'MediaItemPresentation'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
-    public class MediaItemPresentation
+    public class MediaItemPresentation : INotifyPropertyChanged
     {
-
+        public MediaItemPresentation()
+        {
+            IsNew = true;
+        }
         #region File Path
 
         [ACPropertyInfo(1, "ThumbPath", "en{'Thumb Image path'}de{'Standard-Daumenbildpfad'}")]
@@ -34,8 +39,33 @@ namespace gip.core.datamodel
 
         #region BitMap
 
-        public ImageSource Image { get; set; }
-        public ImageSource ImageThumb { get; set; }
+        private ImageSource _Image;
+        public ImageSource Image
+        {
+            get
+            {
+                return _Image;
+            }
+            set
+            {
+                _Image = value;
+                OnPropertyChanged("Image");
+            }
+        }
+
+        private ImageSource _ImageThumb;
+        public ImageSource ImageThumb
+        {
+            get
+            {
+                return _ImageThumb;
+            }
+            set
+            {
+                _ImageThumb = value;
+                OnPropertyChanged("ImageThumb");
+            }
+        }
 
         #endregion
 
@@ -49,6 +79,10 @@ namespace gip.core.datamodel
 
         [ACPropertyInfo(7, "IsGenerateThumb", "en{'Generate Thumb Image'}de{'Standard-Daumenbild generieren'}")]
         public bool IsGenerateThumb { get; set; }
+
+        public bool IsNew { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
 
@@ -73,6 +107,18 @@ namespace gip.core.datamodel
                 image.EndInit();
                 Image = image;
             }
+        }
+
+        public bool ThumbExistAndIsNotGeneric()
+        {
+            string fileName = Path.GetFileNameWithoutExtension(FilePath);
+            return !string.IsNullOrEmpty(ThumbPath) && ThumbPath.Contains(fileName);
+        }
+
+        public void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
 

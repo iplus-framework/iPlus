@@ -69,6 +69,7 @@ namespace gip.core.datamodel
                             presentationItem.ThumbPath = MediaController.GetIconFilePath(Path.GetExtension(file));
 
                     presentationItem.LoadImage(MediaTypeSettings.MediaType == MediaItemTypeEnum.Image);
+                    presentationItem.IsNew = false;
                     result.Add(presentationItem);
                 }
                 return result;
