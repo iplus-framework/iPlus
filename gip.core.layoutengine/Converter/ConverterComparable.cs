@@ -41,16 +41,19 @@ namespace gip.core.layoutengine
         }
     }
 
+
     public class ObjectEqualsConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value == parameter;
+            if (value == null && parameter == null) return true;
+            if (value == null || parameter == null) return false;
+            return value.Equals(parameter);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            return parameter;
         }
     }
 
@@ -59,7 +62,7 @@ namespace gip.core.layoutengine
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null) return Visibility.Collapsed;
-            return value.Equals(parameter) ? Visibility.Visible: Visibility.Collapsed;
+            return value.Equals(parameter) ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
