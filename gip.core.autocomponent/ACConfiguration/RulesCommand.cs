@@ -300,48 +300,62 @@ namespace gip.core.autocomponent
                                                                                    c.IsDerivedClassFrom(item.RefPAACClassMethod.AttachedFromACClass));
                         ACClassProperty paPointMatIn1 = instanceFunc?.GetProperty(Const.PAPointMatIn1);
 
-                        if (paPointMatIn1 != null)
+                        try
                         {
-                            var sourcePoint = ACRoutingService.DbSelectRoutesFromPoint(db, instanceFunc, paPointMatIn1,
-                                                                                        (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule, null, RouteDirections.Backwards, true);
-
-                            RouteItem routeSource = sourcePoint?.FirstOrDefault()?.GetRouteSource();
-
-                            if (routeSource != null)
+                            if (paPointMatIn1 != null)
                             {
-                                RoutingResult routeResult = ACRoutingService.FindSuccessorsFromPoint(null, db, true,
-                                                                                            instance, routeSource.SourceProperty, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, new object[] { },
-                                                                                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
-                                                                                            null,
-                                                                                            0, true, true, false, false, 3);
+                                var sourcePoint = ACRoutingService.DbSelectRoutesFromPoint(db, instanceFunc, paPointMatIn1,
+                                                                                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule, null, RouteDirections.Backwards, true);
+
+                                RouteItem routeSource = sourcePoint?.FirstOrDefault()?.GetRouteSource();
+
+                                if (routeSource != null)
+                                {
+                                    RoutingResult routeResult = ACRoutingService.FindSuccessorsFromPoint(null, db, true,
+                                                                                                instance, routeSource.SourceProperty, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, new object[] { },
+                                                                                                (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
+                                                                                                null,
+                                                                                                0, true, true, false, false, 3);
+                                    if (routeResult.Routes != null && routeResult.Routes.Any())
+                                        routes.AddRange(routeResult.Routes);
+                                }
+                            }
+                            else
+                            {
+                                RoutingResult routeResult = ACRoutingService.FindSuccessors(null, db, true,
+                                                                                                instance, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, new object[] { },
+                                                                                                (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
+                                                                                                null,
+                                                                                                0, true, true, false, false, 3);
                                 if (routeResult.Routes != null && routeResult.Routes.Any())
                                     routes.AddRange(routeResult.Routes);
                             }
                         }
-                        else
+                        catch (Exception)
                         {
-                            RoutingResult routeResult = ACRoutingService.FindSuccessors(null, db, true,
-                                                                                            instance, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, new object[] { },
-                                                                                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
-                                                                                            null,
-                                                                                            0, true, true, false, false, 3);
-                            if (routeResult.Routes != null && routeResult.Routes.Any())
-                                routes.AddRange(routeResult.Routes);
+                            // Class with not connected Points
                         }
                     }
                 }
                 // Discharging type
                 else if (materialTransportType != null && typeof(IPWNodeDeliverMaterial).IsAssignableFrom(materialTransportType))
                 {
-                    foreach (ACClass instance in item.ParentACClass.DerivedClassesInProjects)
+                    try 
+                    { 
+                        foreach (ACClass instance in item.ParentACClass.DerivedClassesInProjects)
+                        {
+                            RoutingResult routeResult = ACRoutingService.FindSuccessors(null, db, true,
+                                                                instance, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, new object[] { },
+                                                                (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
+                                                                null,
+                                                                0, true, true, false, false, 3);
+                            if (routeResult.Routes != null && routeResult.Routes.Any())
+                                routes.AddRange(routeResult.Routes);
+                        }
+                    }
+                            catch (Exception)
                     {
-                        RoutingResult routeResult = ACRoutingService.FindSuccessors(null, db, true,
-                                                            instance, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, new object[] { },
-                                                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
-                                                            null,
-                                                            0, true, true, false, false, 3);
-                        if (routeResult.Routes != null && routeResult.Routes.Any())
-                            routes.AddRange(routeResult.Routes);
+                        // Class with not connected Points
                     }
                 }
 
@@ -396,33 +410,39 @@ namespace gip.core.autocomponent
                                                                                    c.IsDerivedClassFrom(item.RefPAACClassMethod.AttachedFromACClass));
                         ACClassProperty paPointMatIn1 = instanceFunc?.GetProperty(Const.PAPointMatIn1);
 
-                        if (paPointMatIn1 != null)
+                        try
                         {
-                            var sourcePoint = ACRoutingService.DbSelectRoutesFromPoint(db, instanceFunc, paPointMatIn1,
-                                                                                        (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule, null, RouteDirections.Backwards, true);
-
-                            RouteItem routeSource = sourcePoint?.FirstOrDefault()?.GetRouteSource();
-
-                            if (routeSource != null)
+                            if (paPointMatIn1 != null)
                             {
-                                RoutingResult routeResult = ACRoutingService.FindSuccessorsFromPoint(null, db, true,
-                                                                                            instance, routeSource.SourceProperty, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, new object[] { },
-                                                                                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
-                                                                                            null,
-                                                                                            0, true, true, false, false, 3);
+                                var sourcePoint = ACRoutingService.DbSelectRoutesFromPoint(db, instanceFunc, paPointMatIn1,
+                                                                                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule, null, RouteDirections.Backwards, true);
+
+                                RouteItem routeSource = sourcePoint?.FirstOrDefault()?.GetRouteSource();
+
+                                if (routeSource != null)
+                                {
+                                    RoutingResult routeResult = ACRoutingService.FindSuccessorsFromPoint(null, db, true,
+                                                                                                instance, routeSource.SourceProperty, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, new object[] { },
+                                                                                                (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
+                                                                                                null,
+                                                                                                0, true, true, false, false, 3);
+                                    if (routeResult.Routes != null && routeResult.Routes.Any())
+                                        routes.AddRange(routeResult.Routes);
+                                }
+                            }
+                            else
+                            {
+                                RoutingResult routeResult = ACRoutingService.FindSuccessors(null, db, true,
+                                                                                                instance, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, new object[] { },
+                                                                                                (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
+                                                                                                null,
+                                                                                                0, true, true, false, false, 3);
                                 if (routeResult.Routes != null && routeResult.Routes.Any())
                                     routes.AddRange(routeResult.Routes);
                             }
                         }
-                        else
+                        catch (Exception)
                         {
-                            RoutingResult routeResult = ACRoutingService.FindSuccessors(null, db, true,
-                                                                                            instance, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, new object[] { },
-                                                                                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
-                                                                                            null,
-                                                                                            0, true, true, false, false, 3);
-                            if (routeResult.Routes != null && routeResult.Routes.Any())
-                                routes.AddRange(routeResult.Routes);
                         }
                     }
 
@@ -436,15 +456,21 @@ namespace gip.core.autocomponent
                 // Discharging type
                 else if (materialTransportType != null && typeof(IPWNodeDeliverMaterial).IsAssignableFrom(materialTransportType))
                 {
-                    foreach (ACClass instance in myInstances)
+                    try
                     {
-                        RoutingResult routeResult = ACRoutingService.FindSuccessors(null, db, true,
-                                                            instance, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, new object[] { },
-                                                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
-                                                            null,
-                                                            0, true, true, false, false, 3);
-                        if (routeResult.Routes != null && routeResult.Routes.Any())
-                            routes.AddRange(routeResult.Routes);
+                        foreach (ACClass instance in myInstances)
+                        {
+                            RoutingResult routeResult = ACRoutingService.FindSuccessors(null, db, true,
+                                                                instance, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, new object[] { },
+                                                                (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
+                                                                null,
+                                                                0, true, true, false, false, 3);
+                            if (routeResult.Routes != null && routeResult.Routes.Any())
+                                routes.AddRange(routeResult.Routes);
+                        }
+                    }
+                    catch (Exception)
+                    {
                     }
 
                     for (int i = 0; i < routes.Count; i++)
