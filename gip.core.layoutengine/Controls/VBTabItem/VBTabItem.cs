@@ -490,8 +490,9 @@ namespace gip.core.layoutengine
                     (ContextACObject as IACComponent).ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.TabItemActivated));
             }
             this.Focus();
-            //if (this.Parent != null)
-            //    (Parent as UIElement).Focus();
+            UIElement parentUIElement = Parent as UIElement;
+            if (parentUIElement != null)
+                parentUIElement.Focus();
         }
 
         public static readonly DependencyProperty WithVisibleCloseButtonProperty
