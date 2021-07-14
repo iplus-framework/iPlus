@@ -38,6 +38,8 @@ namespace gip.core.layoutengine
         {
             if (DockingContainerToolWindow != null)
             {
+                if (VBDockingManager.GetDisableDockingOnClick(DockingContainerToolWindow.VBDesignContent))
+                    return;
                 DockingContainerToolWindow.AutoHide();
             }
         }

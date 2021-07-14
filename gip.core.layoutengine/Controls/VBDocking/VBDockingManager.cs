@@ -255,6 +255,13 @@ namespace gip.core.layoutengine
                                                                     new FrameworkPropertyMetadata(false,
                                                                                                   FrameworkPropertyMetadataOptions.None));
 
+        public static readonly DependencyProperty DisableDockingOnClickProperty =
+                               DependencyProperty.RegisterAttached("DisableDockingOnClick",
+                                                                    typeof(bool),
+                                                                    typeof(VBDockingManager),
+                                                                    new FrameworkPropertyMetadata(false,
+                                                                                                  FrameworkPropertyMetadataOptions.None));
+
         public static readonly DependencyProperty WindowSizeProperty =
                                DependencyProperty.RegisterAttached("WindowSize",
                                                                     typeof(Size),
@@ -558,7 +565,6 @@ namespace gip.core.layoutengine
             return (Global.VBDesignDockState)element.GetValue(VBDockingManager.DockStateProperty);
         }
 
-
         [AttachedPropertyBrowsableForChildren]
         public static void SetDockPosition(UIElement element, Global.VBDesignDockPosition value)
         {
@@ -608,6 +614,23 @@ namespace gip.core.layoutengine
                 throw new ArgumentNullException("element");
             return (bool)element.GetValue(VBDockingManager.IsCloseableBSORootProperty);
         }
+
+        [AttachedPropertyBrowsableForChildren]
+        public static void SetDisableDockingOnClick(UIElement element, bool value)
+        {
+            if (element == null)
+                throw new ArgumentNullException("element");
+            element.SetValue(VBDockingManager.DisableDockingOnClickProperty, value);
+        }
+
+        [AttachedPropertyBrowsableForChildren]
+        public static bool GetDisableDockingOnClick(UIElement element)
+        {
+            if (element == null)
+                throw new ArgumentNullException("element");
+            return (bool)element.GetValue(VBDockingManager.DisableDockingOnClickProperty);
+        }
+
 
         [AttachedPropertyBrowsableForChildren]
         public static void SetWindowSize(UIElement element, Size value)

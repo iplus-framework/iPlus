@@ -222,8 +222,8 @@ namespace gip.core.datamodel
                     if ((Database.Root != null) && (Database.Root.Messages != null))
                         Database.Root.Messages.LogError(acClass.GetACUrl(), "ACActivator.CreateInstance()", message);
                     currentThreadInACInit.InstanceDepth--;
-                    currentThreadInACInit = null;
                     RunPostInit(currentThreadInACInit, acClass);
+                    currentThreadInACInit = null;
                     if (propagateException)
                         throw new ACCreateException(newACObject, message);
                     else
