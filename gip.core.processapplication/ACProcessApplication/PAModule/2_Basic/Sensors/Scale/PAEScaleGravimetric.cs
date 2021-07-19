@@ -27,6 +27,8 @@ namespace gip.core.processapplication
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
             _TareInternal = new ACPropertyConfigValue<bool>(this, "TareInternal", false);
+            _TolerancePlus = new ACPropertyConfigValue<double>(this, "TolerancePlus", 0.0);
+            _ToleranceMinus = new ACPropertyConfigValue<double>(this, "ToleranceMinus", 0.0);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -34,6 +36,10 @@ namespace gip.core.processapplication
             if (!base.ACInit(startChildMode))
                 return false;
             bool tare = _TareInternal.ValueT;
+            double tol = _TolerancePlus.ValueT;
+            tol = _ToleranceMinus.ValueT;
+
+
             return true;
         }
 
@@ -60,6 +66,34 @@ namespace gip.core.processapplication
             set
             {
                 _TareInternal.ValueT = value;
+            }
+        }
+
+        private ACPropertyConfigValue<double> _TolerancePlus;
+        [ACPropertyConfig("en{'Tolerance + [+=kg/-=%]l'}de{'Toleranz + [+=kg/-=%]'}")]
+        public double TolerancePlus
+        {
+            get
+            {
+                return _TolerancePlus.ValueT;
+            }
+            set
+            {
+                _TolerancePlus.ValueT = value;
+            }
+        }
+
+        private ACPropertyConfigValue<double> _ToleranceMinus;
+        [ACPropertyConfig("en{'Tolerance - [+=kg/-=%]'}de{'Tolerance - [+=kg/-=%]'}")]
+        public double ToleranceMinus
+        {
+            get
+            {
+                return _ToleranceMinus.ValueT;
+            }
+            set
+            {
+                _ToleranceMinus.ValueT = value;
             }
         }
 
