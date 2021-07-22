@@ -283,6 +283,21 @@ namespace gip.bso.iplus
             }
         }
 
+        string _SearchText;
+        [ACPropertyInfo(9999, "", "en{'Search text'}de{'Suchtext'}")]
+        public string SearchText
+        {
+            get
+            {
+                return _SearchText;
+            }
+            set
+            {
+                _SearchText = value;
+                OnPropertyChanged("SearchText");
+            }
+        }
+
         private List<MsgAlarmLog> _MsgAlarmLogList = new List<MsgAlarmLog>();
         [ACPropertyList(9999, "MsgAlarmLog")]
         public IEnumerable<MsgAlarmLog> MsgAlarmLogList
@@ -497,6 +512,9 @@ namespace gip.bso.iplus
 
             if (SelectedMessageLevel != null)
                 query = query.Where(c => c.MessageLevelIndex == (short)SelectedMessageLevel.Value).AsQueryable();
+
+            if (!String.IsNullOrEmpty(SearchText))
+                query = query.Where(c => c.Message.Contains(SearchText)).AsQueryable();
 
             (query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
 
