@@ -24,7 +24,7 @@ namespace gip.core.autocomponent
     {
         public const string PWClassName = "PWNodeWait";
 
-        private bool _SubscribedToTimerCycle = false;
+        protected bool _SubscribedToTimerCycle = false;
 
 
 #region Properties
@@ -113,7 +113,7 @@ namespace gip.core.autocomponent
             this.HasRules.ValueT = 0;
         }
 
-        protected TimeSpan Duration
+        public TimeSpan Duration
         {
             get
             {
