@@ -106,7 +106,7 @@ namespace gip.core.autocomponent
                     {
                         ACIdentifier = x.ACIdentifier,
                         ACCaption = acMethod.GetACCaptionForACIdentifier(x.ACIdentifier),
-                        ValueTypeACClassID = x.ValueTypeACClass.ACClassID
+                        ValueTypeACClassID = x.ValueTypeACClass != null ? x.ValueTypeACClass.ACClassID : Guid.Empty
                     }).ToList();
             List<IACConfig> configList = GetConfigurationList(mandatoryConfigStores, preACUrl, listOfProperies, null, false, reloadParams);
             // Add machine-specific config elements in list if exist
