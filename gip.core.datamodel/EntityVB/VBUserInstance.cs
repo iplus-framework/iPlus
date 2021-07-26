@@ -40,6 +40,7 @@ namespace gip.core.datamodel
     public partial class VBUserInstance : IACObjectEntity
     {
         public const string ClassName = "VBUserInstance";
+        private const int C_SessionTimeOutDays = 5;
 
         #region New/Delete
         public static VBUserInstance NewACObject(Database database, IACObject parentACObject)
@@ -188,7 +189,7 @@ namespace gip.core.datamodel
                     session = new VBUserSessionInfo(computer, sessionID);
                     sessions.Add(session);
                 }
-                RemoveExpiredSessions(14);
+                RemoveExpiredSessions(C_SessionTimeOutDays);
                 SerializeSessions(sessions);
                 OnPropertyChanged("Sessions");
             }
@@ -202,7 +203,7 @@ namespace gip.core.datamodel
                 VBUserSessionInfo session = sessions.Where(c => c.Computer == computer && c.SessionID == sessionID).FirstOrDefault();
                 if (session != null)
                     session.LogoutTime = DateTime.Now;
-                RemoveExpiredSessions(14);
+                RemoveExpiredSessions(C_SessionTimeOutDays);
                 SerializeSessions(sessions);
                 OnPropertyChanged("Sessions");
             }

@@ -983,8 +983,14 @@ namespace gip.core.manager
 
             // Löschen nur möglich, wenn Vorgänger und Nachfolger existieren
             // Ansonsten ist es ein Start- oder Endknoten
-            if (vbVisualWF.GetIncomingWFEdges(vbWorkflow).Count() > 1 && vbVisualWF.GetOutgoingWFEdges(vbWorkflow).Count() > 1)
-                return false;
+            if (vbVisualWF.PWACClass != null)
+            {
+                if (vbVisualWF.PWACClass.ACKind == Global.ACKinds.TPWNodeStart
+                    || vbVisualWF.PWACClass.ACKind == Global.ACKinds.TPWNodeEnd)
+                    return false;
+            }
+            //if (vbVisualWF.GetIncomingWFEdges(vbWorkflow).Count() > 1 && vbVisualWF.GetOutgoingWFEdges(vbWorkflow).Count() > 1)
+            //    return false;
 
             if (vbVisualWF.IsRootWFNode(vbWorkflow) || vbWorkflow.AllWFNodes.Count() <= 3)
                 return false;
