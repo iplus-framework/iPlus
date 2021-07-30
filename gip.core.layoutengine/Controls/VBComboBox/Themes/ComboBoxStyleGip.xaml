@@ -271,10 +271,11 @@
 							    Content="{TemplateBinding SelectionBoxItem}" 
 							    ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" 
 							    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-							    IsHitTestVisible="True" 
+							    IsHitTestVisible="False" 
 							    Margin="{TemplateBinding Padding}" 
 							    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
-							    VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+							    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                Grid.ColumnSpan="2" >
                     </ContentPresenter>
                 </Grid>
             </Border>
@@ -669,10 +670,11 @@
 							    Content="{TemplateBinding SelectionBoxItem}" 
 							    ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" 
 							    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-							    IsHitTestVisible="True" 
+							    IsHitTestVisible="False" 
 							    Margin="{TemplateBinding Padding}" 
 							    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
-							    VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+							    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                Grid.ColumnSpan="2">
                     </ContentPresenter>
                 </Grid>
             </Border>
