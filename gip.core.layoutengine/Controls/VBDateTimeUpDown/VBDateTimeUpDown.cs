@@ -188,6 +188,29 @@ namespace gip.core.layoutengine
 
         #endregion //FormatString
 
+        #region controlmode
+        /// <summary>
+        /// Represents the dependency property for control mode.
+        /// </summary>
+        public static readonly DependencyProperty ControlModeProperty
+            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBDateTimeUpDown));
+
+        /// <summary>
+        /// Gets or sets the Control mode.
+        /// </summary>
+        public Global.ControlModes ControlMode
+        {
+            get
+            {
+                return (Global.ControlModes)GetValue(ControlModeProperty);
+            }
+            set
+            {
+                SetValue(ControlModeProperty, value);
+            }
+        }
+        #endregion
+
         #endregion //Properties
 
         #region Base Class Overrides
