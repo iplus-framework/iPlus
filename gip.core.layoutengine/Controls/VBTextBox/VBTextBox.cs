@@ -416,7 +416,7 @@ namespace gip.core.layoutengine
         /// Represents the dependency property for control mode.
         /// </summary>
         public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBTextBox));
+            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBTextBox), new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
 
         /// <summary>
         /// Gets or sets the Control mode.
@@ -427,8 +427,6 @@ namespace gip.core.layoutengine
             set 
             { 
                 SetValue(ControlModeProperty, value);
-                if (String.IsNullOrEmpty(VBContent))
-                    UpdateControlMode();
             }
         }
         #endregion
@@ -802,6 +800,11 @@ namespace gip.core.layoutengine
                         thisControl.DeInitVBControl(bso);
                 }
             }
+            else if (args.Property == ControlModeProperty)
+            {
+                if (String.IsNullOrEmpty(thisControl.VBContent) && thisControl.ContextACObject == null)
+                    thisControl.UpdateControlMode();
+            }
         }
 
         #endregion
@@ -889,7 +892,7 @@ namespace gip.core.layoutengine
             IACComponent elementACComponent = ContextACObject as IACComponent;
             if (elementACComponent == null)
             {
-                if (ReadLocalValue(ControlModeProperty) != DependencyProperty.UnsetValue)
+                if (ReadLocalValue(IsReadOnlyProperty) == DependencyProperty.UnsetValue)
                 {
                     if (ControlMode == Global.ControlModes.Disabled)
                     {
