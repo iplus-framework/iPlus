@@ -138,6 +138,7 @@ namespace gip.core.layoutengine
                     //ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
                     ACCaptionTrans = Translator.GetTranslation(ACIdentifier, ACCaption, this.Root().Environment.VBLanguageCode);
                 }
+                UpdateControlMode();
                 return;
             }
             else if (ContextACObject == null)
@@ -147,6 +148,7 @@ namespace gip.core.layoutengine
                 binding.NotifyOnSourceUpdated = true;
                 binding.NotifyOnTargetUpdated = true;
                 SetBinding(TextBox.TextProperty, binding);
+                UpdateControlMode();
                 return;
             }
 
@@ -422,7 +424,12 @@ namespace gip.core.layoutengine
         public Global.ControlModes ControlMode
         {
             get { return (Global.ControlModes)GetValue(ControlModeProperty); }
-            set { SetValue(ControlModeProperty, value); }
+            set 
+            { 
+                SetValue(ControlModeProperty, value);
+                if (String.IsNullOrEmpty(VBContent))
+                    UpdateControlMode();
+            }
         }
         #endregion
 
@@ -881,7 +888,22 @@ namespace gip.core.layoutengine
         {
             IACComponent elementACComponent = ContextACObject as IACComponent;
             if (elementACComponent == null)
+            {
+                if (ReadLocalValue(ControlModeProperty) != DependencyProperty.UnsetValue)
+                {
+                    if (ControlMode == Global.ControlModes.Disabled)
+                    {
+                        if (!IsReadOnly)
+                            IsReadOnly = true;
+                    }
+                    else if (ControlMode == Global.ControlModes.Enabled)
+                    {
+                        if (IsReadOnly)
+                            IsReadOnly = false;
+                    }
+                }
                 return;
+            }
             Global.ControlModesInfo controlModeInfo = elementACComponent.GetControlModes(this);
             Global.ControlModes controlMode = controlModeInfo.Mode;
             if (controlMode != ControlMode)
