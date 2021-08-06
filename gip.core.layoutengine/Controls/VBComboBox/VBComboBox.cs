@@ -689,6 +689,8 @@ namespace gip.core.layoutengine
                     }
 
                     string textPath = "";
+                    string selectedValuePath = null;
+                    bool isACValueItem = false;
                     if (ItemTemplate == null)
                     {
                         DataTemplate dataTemplate = new DataTemplate();
@@ -710,6 +712,20 @@ namespace gip.core.layoutengine
                             }
                             else if (!dsACTypeInfo.ACType.ACUrlBinding(dataShowColumn.PropertyName, ref dsColACTypeInfo, ref dsColSource, ref dsColPath, ref dsColRightControlMode))
                             {
+                                if (dsColACTypeInfo.ObjectType == typeof(ACValueItem))
+                                {
+                                    isACValueItem = true;
+                                    FrameworkElementFactory factoryTextBlock = new FrameworkElementFactory(typeof(TextBlock));
+                                    Binding binding1 = new Binding();
+                                    binding1.Path = new PropertyPath(dataShowColumn.ACIdentifier);
+                                    binding1.Mode = BindingMode.OneWay;
+                                    factoryTextBlock.SetBinding(TextBlock.TextProperty, binding1);
+                                    factoryTextBlock.SetValue(TextBlock.WidthProperty, vbShowColumns.Count() < 2 ? 400.0 : 120.0);
+                                    factorySP.AppendChild(factoryTextBlock);
+                                    selectedValuePath = Const.Value;
+                                    textPath = dataShowColumn.ACIdentifier;
+                                    break;
+                                }
                                 continue;
                             }
                             else
@@ -782,7 +798,7 @@ namespace gip.core.layoutengine
                         SetValue(TextSearch.TextPathProperty, textPath);
 
                     // Sonderbehandlung enum, da hier immer eine IEnumerable<ACValueItem> als Datasource generiert wird
-                    if (dcACTypeInfo.ObjectType.IsEnum)
+                    if (dcACTypeInfo.ObjectType.IsEnum || isACValueItem)
                     {
                         SetValue(ComboBox.SelectedValuePathProperty, Const.Value);
 
@@ -797,6 +813,9 @@ namespace gip.core.layoutengine
                     }
                     else
                     {
+                        if (!String.IsNullOrEmpty(selectedValuePath))
+                            SetValue(ComboBox.SelectedValuePathProperty, selectedValuePath);
+
                         Binding binding2 = new Binding();
                         binding2.Source = dcSource;
                         binding2.Path = new PropertyPath(dcPath);

@@ -280,65 +280,103 @@ namespace gip.core.layoutengine
                                     vbContentUrl += "\\Value";
 
                             string controlName = design.ValueTypeACClass.ACIdentifier;
-                            switch (acValue.ValueTypeACClass.ACKind)
+                            if (String.IsNullOrWhiteSpace(design.XMLDesign))
                             {
-                                case Global.ACKinds.TACLRBaseTypes:
-                                case Global.ACKinds.TACEnum:
-                                    {
-                                        object newContext = DetermineBindableDataContextForVBControl(vbContentUrl);
-                                        if (newContext != null)
-                                            SetBindingToDataContext(newContext, this);
-
-                                        double height = design.VisualHeight;
-                                        if (height < 0.00001 
-                                            && (controlName.Contains("TextBlock")
-                                                || controlName.Contains("TextBox")
-                                                || controlName.Contains("DatePicker")
-                                                || controlName.Contains("DateTimePicker")
-                                                || controlName.Contains("ComboBox")))
-                                            height = 30;
-
-                                        if (!ShowCaption && typeof(IVBContent).IsAssignableFrom(design.ValueTypeACClass.ObjectType))
+                                switch (acValue.ValueTypeACClass.ACKind)
+                                {
+                                    case Global.ACKinds.TACLRBaseTypes:
+                                    case Global.ACKinds.TACEnum:
                                         {
-                                            if (height > 0.00001)
-                                                xaml = string.Format("<vb:VBGrid VerticalAlignment=\"Top\" Height=\"{2}\"><vb:{0} ShowCaption=\"False\" VBContent=\"{1}\"></vb:{0}></vb:VBGrid>", controlName, vbContentUrl, height);
-                                            else
-                                                xaml = string.Format("<vb:VBGrid VerticalAlignment=\"Top\"><vb:{0} ShowCaption=\"False\" VBContent=\"{1}\"></vb:{0}></vb:VBGrid>", controlName, vbContentUrl);
-                                        }
-                                        else
-                                        {
-                                            if (height > 0.00001)
-                                                xaml = string.Format("<vb:VBGrid VerticalAlignment=\"Top\" Height=\"{2}\"><vb:{0} VBContent=\"{1}\"></vb:{0}></vb:VBGrid>", controlName, vbContentUrl, height);
-                                            else
-                                                xaml = string.Format("<vb:VBGrid VerticalAlignment=\"Top\"><vb:{0} VBContent=\"{1}\"></vb:{0}></vb:VBGrid>", controlName, vbContentUrl);
-                                        }
-                                        
-                                    }
-                                    break;
-                                case Global.ACKinds.TACDBA:
-                                    {
-                                        object newContext = DetermineBindableDataContextForVBControl(vbContentUrl);
-                                        if (newContext != null)
-                                            SetBindingToDataContext(newContext, this);
-
-                                        xaml += string.Format("<vb:{0} ACCaption=\"Value\" VBContent=\"{1}\" VBSource=\"" + Const.ContextDatabase + "\\{2}\"></vb:{0}>", controlName, vbContentUrl, acValue.ValueTypeACClass.ACIdentifier);
-                                    }
-                                    break;
-                                default:
-                                    {
-                                        if (newDataContextForChild == null)
-                                        {
-                                            object newContext = GetObjectForVBContent(vbContentUrl);
+                                            object newContext = DetermineBindableDataContextForVBControl(vbContentUrl);
                                             if (newContext != null)
                                                 SetBindingToDataContext(newContext, this);
+
+                                            double height = design.VisualHeight;
+                                            if (height < 0.00001
+                                                && (controlName.Contains("TextBlock")
+                                                    || controlName.Contains("TextBox")
+                                                    || controlName.Contains("DatePicker")
+                                                    || controlName.Contains("DateTimePicker")
+                                                    || controlName.Contains("ComboBox")))
+                                                height = 30;
+
+                                            Array enumArray = null;
+                                            string vbSource = null;
+                                            if (   acValue.ValueTypeACClass.ACKind == Global.ACKinds.TACEnum 
+                                                && acValue.ValueTypeACClass.ObjectType != null)
+                                            {
+                                                enumArray = Enum.GetValues(acValue.ValueTypeACClass.ObjectType);
+                                                vbSource = String.Format("\\!{0}(#{1}\\{1}#)", Const.MN_GetEnumList, acValue.ValueTypeACClass.ObjectType.AssemblyQualifiedName);
+                                                if (controlName.Contains("TextBox"))
+                                                    controlName = typeof(VBComboBox).Name;
+                                            }
+
+                                            if (!ShowCaption && typeof(IVBContent).IsAssignableFrom(design.ValueTypeACClass.ObjectType))
+                                            {
+                                                if (height > 0.00001)
+                                                    xaml = string.Format("<vb:VBGrid VerticalAlignment=\"Top\" Height=\"{2}\"><vb:{0} ShowCaption=\"False\" VBContent=\"{1}\"></vb:{0}></vb:VBGrid>", controlName, vbContentUrl, height);
+                                                else
+                                                    xaml = string.Format("<vb:VBGrid VerticalAlignment=\"Top\"><vb:{0} ShowCaption=\"False\" VBContent=\"{1}\"></vb:{0}></vb:VBGrid>", controlName, vbContentUrl);
+                                            }
+                                            else
+                                            {
+                                                if (height > 0.00001)
+                                                {
+                                                    if (!String.IsNullOrEmpty(vbSource) && controlName.Contains("ComboBox"))
+                                                        xaml = string.Format("<vb:VBGrid VerticalAlignment=\"Top\" Height=\"{3}\"><vb:{0} VBContent=\"{1}\" VBSource=\"{2}\"></vb:{0}></vb:VBGrid>", controlName, vbContentUrl, vbSource, height);
+                                                    else
+                                                        xaml = string.Format("<vb:VBGrid VerticalAlignment=\"Top\" Height=\"{2}\"><vb:{0} VBContent=\"{1}\"></vb:{0}></vb:VBGrid>", controlName, vbContentUrl, height);
+                                                }
+                                                else
+                                                {
+                                                    if (!String.IsNullOrEmpty(vbSource) && controlName.Contains("ComboBox"))
+                                                        xaml = string.Format("<vb:VBGrid VerticalAlignment=\"Top\"><vb:{0} VBContent=\"{1}\" VBSource=\"{2}\"></vb:{0}></vb:VBGrid>", controlName, vbContentUrl, vbSource);
+                                                    else
+                                                        xaml = string.Format("<vb:VBGrid VerticalAlignment=\"Top\"><vb:{0} VBContent=\"{1}\"></vb:{0}></vb:VBGrid>", controlName, vbContentUrl);
+                                                }
+                                            }
+
                                         }
-                                        else
+                                        break;
+                                    case Global.ACKinds.TACDBA:
                                         {
-                                            newDataContextForChild = newDataContextForChild.GetValue(Const.Value);
+                                            object newContext = DetermineBindableDataContextForVBControl(vbContentUrl);
+                                            if (newContext != null)
+                                                SetBindingToDataContext(newContext, this);
+
+                                            xaml += string.Format("<vb:{0} ACCaption=\"Value\" VBContent=\"{1}\" VBSource=\"" + Const.ContextDatabase + "\\{2}\"></vb:{0}>", controlName, vbContentUrl, acValue.ValueTypeACClass.ACIdentifier);
                                         }
-                                        xaml = design.XMLDesign;
-                                    }
-                                    break;
+                                        break;
+                                    default:
+                                        {
+                                            if (newDataContextForChild == null)
+                                            {
+                                                object newContext = GetObjectForVBContent(vbContentUrl);
+                                                if (newContext != null)
+                                                    SetBindingToDataContext(newContext, this);
+                                            }
+                                            else
+                                            {
+                                                newDataContextForChild = newDataContextForChild.GetValue(Const.Value);
+                                            }
+                                            xaml = design.XMLDesign;
+                                        }
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                if (newDataContextForChild == null)
+                                {
+                                    object newContext = GetObjectForVBContent(vbContentUrl);
+                                    if (newContext != null)
+                                        SetBindingToDataContext(newContext, this);
+                                }
+                                else
+                                {
+                                    newDataContextForChild = newDataContextForChild.GetValue(Const.Value);
+                                }
+                                xaml = design.XMLDesign;
                             }
                         }
                     }

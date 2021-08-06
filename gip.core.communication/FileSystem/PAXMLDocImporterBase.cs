@@ -170,10 +170,9 @@ namespace gip.core.communication
                     parseSucc = ParseWithXDocument(CurrentFileName);
                     break;
             }
+
             if (!String.IsNullOrWhiteSpace(ForwardDir))
-            {
                 ForwardFile(CurrentFileName, ForwardDir);
-            }
 
             // Archiviere falls nötig
             if (parseSucc)
@@ -524,38 +523,23 @@ namespace gip.core.communication
         }
 
 
-        public bool ForwardFile(string file, string destinationPath)
+        public bool ForwardFile(string file, string destinationDirPath)
         {
-            DirectoryInfo targetDir = new DirectoryInfo(ForwardDir);
-            if (!targetDir.Exists)
-                return false;
-
-            return true;
-            //if (moveElseDelete)
-            //{
-            //    if (!String.IsNullOrEmpty(movePath))
-            //    {
-            //        try
-            //        {
-            //            if (File.Exists(movePath))
-            //                File.Delete(movePath);
-            //            File.Move(fromPath, movePath);
-            //            return;
-            //        }
-            //        catch (Exception e)
-            //        {
-            //            Messages.LogException(this.GetACUrl(), "PAXMLDocImporterBase.MoveOrDeleteFile(0)", e.Message);
-            //        }
-            //    }
-            //}
-            //try
-            //{
-            //    File.Delete(fromPath);
-            //}
-            //catch (Exception e)
-            //{
-            //    Messages.LogException(this.GetACUrl(), "PAXMLDocImporterBase.MoveOrDeleteFile(1)", e.Message);
-            //}
+            try
+            {
+                DirectoryInfo targetDir = new DirectoryInfo(ForwardDir);
+                if (!targetDir.Exists)
+                    return false;
+                FileInfo fileInfo = new FileInfo(file);
+                string destinationFilePath = Path.Combine(ForwardDir, fileInfo.Name);
+                File.Copy(file, destinationFilePath);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Messages.LogException(this.GetACUrl(), "PAXMLDocImporterBase.MoveOrDeleteFile(0)", e);
+            }
+            return false;
         }
 
         #endregion
