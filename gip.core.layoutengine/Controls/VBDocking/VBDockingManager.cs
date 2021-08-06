@@ -619,7 +619,10 @@ namespace gip.core.layoutengine
         public static void SetDisableDockingOnClick(UIElement element, bool value)
         {
             if (element == null)
-                throw new ArgumentNullException("element");
+            {
+                return;
+                //throw new ArgumentNullException("element");
+            }
             element.SetValue(VBDockingManager.DisableDockingOnClickProperty, value);
         }
 
@@ -627,7 +630,10 @@ namespace gip.core.layoutengine
         public static bool GetDisableDockingOnClick(UIElement element)
         {
             if (element == null)
-                throw new ArgumentNullException("element");
+            {
+                return false;
+                //throw new ArgumentNullException("element");
+            }
             return (bool)element.GetValue(VBDockingManager.DisableDockingOnClickProperty);
         }
 

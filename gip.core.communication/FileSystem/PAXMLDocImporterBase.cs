@@ -95,6 +95,14 @@ namespace gip.core.communication
             set;
         }
 
+        [ACPropertyInfo(true, 207, "Configuration", "en{'Forward to directory'}de{'Weiterleiten in Verzeichnis'}", "", true)]
+        public string ForwardDir
+        {
+            get;
+            set;
+        }
+
+
         #endregion
 
         #region abstract/virtual
@@ -162,6 +170,11 @@ namespace gip.core.communication
                     parseSucc = ParseWithXDocument(CurrentFileName);
                     break;
             }
+            if (!String.IsNullOrWhiteSpace(ForwardDir))
+            {
+                ForwardFile(CurrentFileName, ForwardDir);
+            }
+
             // Archiviere falls nötig
             if (parseSucc)
             {
@@ -509,6 +522,42 @@ namespace gip.core.communication
             //    fileNameWithoutPath = fileNameWithoutPath.Substring(indexOfBackSlash + 1);
             //return fileNameWithoutPath;
         }
+
+
+        public bool ForwardFile(string file, string destinationPath)
+        {
+            DirectoryInfo targetDir = new DirectoryInfo(ForwardDir);
+            if (!targetDir.Exists)
+                return false;
+
+            return true;
+            //if (moveElseDelete)
+            //{
+            //    if (!String.IsNullOrEmpty(movePath))
+            //    {
+            //        try
+            //        {
+            //            if (File.Exists(movePath))
+            //                File.Delete(movePath);
+            //            File.Move(fromPath, movePath);
+            //            return;
+            //        }
+            //        catch (Exception e)
+            //        {
+            //            Messages.LogException(this.GetACUrl(), "PAXMLDocImporterBase.MoveOrDeleteFile(0)", e.Message);
+            //        }
+            //    }
+            //}
+            //try
+            //{
+            //    File.Delete(fromPath);
+            //}
+            //catch (Exception e)
+            //{
+            //    Messages.LogException(this.GetACUrl(), "PAXMLDocImporterBase.MoveOrDeleteFile(1)", e.Message);
+            //}
+        }
+
         #endregion
 
         #endregion
