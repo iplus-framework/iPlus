@@ -590,7 +590,6 @@ namespace gip.core.datamodel
                             if (acTypeInfo == null)
                                 acTypeInfo = reflectedObject.ACType;
 
-
                             if (path == Const.Value && reflectedObject is IACContainer)
                             {
                                 var acEntityProperty = reflectedObject as IACContainer;
@@ -688,6 +687,8 @@ namespace gip.core.datamodel
                         }
                         ACClassProperty cp = acTypeInfo as ACClassProperty;
                         rightControlMode = cp.Safe_ACClass.RightManager.GetControlMode(cp);
+                        if (path == Const.Value && acUrl == Const.Value && parts.Count() == 1 && reflectedObject is IACContainer)
+                            acTypeInfo = (reflectedObject as IACContainer).ValueTypeACClass;
                         return true;
                     }
                 case ACUrlHelper.UrlKeys.Parent:

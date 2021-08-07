@@ -509,11 +509,11 @@ namespace gip.core.layoutengine
                     {
                         if (dsACTypeInfo != null)
                         {
-                            string temp = VBContentPropertyInfo != null ? VBContentPropertyInfo.GetACSource(VBSource, out acAccess, out sourceProperty) : VBSource;
+                            _ = VBContentPropertyInfo != null ? VBContentPropertyInfo.GetACSource(VBSource, out acAccess, out sourceProperty) : VBSource;
                         }
                         if (string.IsNullOrEmpty(acAccess))
                         {
-                            if (dsACTypeInfo.ValueTypeACClass != null)
+                            if (dsACTypeInfo != null && dsACTypeInfo.ValueTypeACClass != null)
                             {
                                 ACClass queryType = dsACTypeInfo.ValueTypeACClass.PrimaryNavigationquery();
                                 if (queryType != null)
@@ -534,6 +534,31 @@ namespace gip.core.layoutengine
                                     }
                                 }
                             }
+                            else if (ContextACObject is IACContainer && String.IsNullOrEmpty(VBSource))
+                            {
+                                IACContainer container = ContextACObject as IACContainer;
+                                if (container != null)
+                                {
+                                    if (container.ValueTypeACClass.ACKind == Global.ACKinds.TACEnum
+                                        && container.ValueTypeACClass.ObjectType != null)
+                                    {
+                                        if (container.ValueTypeACClass.ACValueListForEnum == null)
+                                        {
+                                            VBSource = String.Format("\\!{0}(#{1}\\{1}#)", Const.MN_GetEnumList, container.ValueTypeACClass.ObjectType.AssemblyQualifiedName);
+                                            if (!BSOACComponent.ACUrlBinding(VBSource, ref dsACTypeInfo, ref dsSource, ref dsPath, ref dsRightControlMode))
+                                                return;
+                                        }
+                                        else
+                                        {
+                                            dsSource = container.ValueTypeACClass.ACValueListForEnum;
+                                            if (String.IsNullOrEmpty(dcPath))
+                                                dcPath = Const.Value;
+                                            if (String.IsNullOrEmpty(VBShowColumns))
+                                                VBShowColumns = Const.ACCaptionPrefix;
+                                        }
+                                    }
+                                }
+                            }
                         }
                         else
                         {
@@ -550,6 +575,8 @@ namespace gip.core.layoutengine
                     List<ACColumnItem> vbShowColumns = null;
                     if (ACQueryDefinition != null)
                         vbShowColumns = ACQueryDefinition.GetACColumns(this.VBShowColumns);
+                    else
+                        vbShowColumns = ACQueryDefinition.BuildACColumnsFromVBSource(this.VBShowColumns);
 
                     if (vbShowColumns == null || !vbShowColumns.Any())
                     {
@@ -738,7 +765,7 @@ namespace gip.core.layoutengine
                             }
                             if (columnCount == 0)
                                 textPath = dsColPath;
-                            if (dsColACTypeInfo.ObjectType == typeof(bool))
+                            if (dsColACTypeInfo != null && dsColACTypeInfo.ObjectType == typeof(bool))
                             {
                                 FrameworkElementFactory factoryTextBlock = new FrameworkElementFactory(typeof(CheckBox));
 

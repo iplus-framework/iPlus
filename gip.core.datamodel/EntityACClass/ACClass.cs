@@ -2509,12 +2509,20 @@ namespace gip.core.datamodel
 
 
         #region ACClassComposition
+
+        private bool _PrimaryNavigationqueryChecked = false;
+        private ACClass _PrimaryNavigationquery = null;
         /// <summary>
         /// PrimaryNavigationquery
         /// </summary>
         /// <returns>ACClass.</returns>
         public ACClass PrimaryNavigationquery()
         {
+            if (_PrimaryNavigationquery != null)
+                return _PrimaryNavigationquery;
+            if (_PrimaryNavigationqueryChecked)
+                return null;
+            _PrimaryNavigationqueryChecked = true;
             if (!ObjectType.IsEnum)
             {
                 var query = ConfigurationEntries.Where(c => c.KeyACUrl == Const.KeyACUrl_NavigationqueryList).ToArray();
@@ -2522,7 +2530,10 @@ namespace gip.core.datamodel
                 {
                     var baseClass = BaseClass;
                     if (baseClass != null)
-                        return baseClass.PrimaryNavigationquery();
+                    {
+                        _PrimaryNavigationquery = baseClass.PrimaryNavigationquery();
+                        return _PrimaryNavigationquery;
+                    }
                     return null;
                 }
 
@@ -2533,13 +2544,21 @@ namespace gip.core.datamodel
                 {
                     var baseClass = BaseClass;
                     if (baseClass != null)
-                        return baseClass.PrimaryNavigationquery();
+                    {
+                        _PrimaryNavigationquery =  baseClass.PrimaryNavigationquery();
+                        return _PrimaryNavigationquery;
+                    }
                 }
-                return queryClass;
+                _PrimaryNavigationquery = queryClass;
+                return _PrimaryNavigationquery;
             }
-            return this.Database.GetACType(Const.QueryPrefix + typeof(ACValueItem).Name);
+            _PrimaryNavigationquery = this.Database.GetACType(Const.QueryPrefix + typeof(ACValueItem).Name);
+            return _PrimaryNavigationquery;
         }
 
+
+        private bool _ManagingBSOChecked = false;
+        private ACClass _ManagingBSO = null;
         /// <summary>
         /// Gets my AC class BSO.
         /// </summary>
@@ -2548,19 +2567,80 @@ namespace gip.core.datamodel
         {
             get
             {
+                if (_ManagingBSO != null)
+                    return _ManagingBSO;
+                if (_ManagingBSOChecked)
+                    return null;
+                _ManagingBSOChecked = true;
                 if (ObjectType.IsEnum)
                     return null;
 
                 if (!BussinessobjectList.Any())
-                {
                     return null;
-                }
 
                 var acConfig = BussinessobjectList.First();
                 ACComposition acComposition = acConfig[Const.Value] as ACComposition;
-                return acComposition.GetComposition(this.Database) as ACClass;
+                _ManagingBSO = acComposition.GetComposition(this.Database) as ACClass;
+                return _ManagingBSO;
             }
         }
+
+
+        private bool _ACClassForEnumListChecked = false;
+        private ACClass _ACClassForEnumList = null;
+        /// <summary>
+        /// Gets my AC class BSO.
+        /// </summary>
+        /// <value>My AC class BSO.</value>
+        public ACClass ACClassForEnumList
+        {
+            get
+            {
+                if (_ACClassForEnumList != null)
+                    return _ACClassForEnumList;
+                if (_ACClassForEnumListChecked)
+                    return null;
+                _ACClassForEnumListChecked = true;
+                if (!ObjectType.IsEnum)
+                    return null;
+
+                var acConfig = ConfigurationEntries.Where(c => c.KeyACUrl == Const.KeyACUrl_EnumACValueList).FirstOrDefault();
+                if (acConfig == null)
+                    return null;
+                ACComposition acComposition = acConfig[Const.Value] as ACComposition;
+                _ACClassForEnumList = acComposition.GetComposition(this.Database) as ACClass;
+                return _ACClassForEnumList;
+            }
+        }
+
+        private bool _ACValueListForEnumChecked = false;
+        private ACValueItemList _ACValueListForEnum = null;
+        public ACValueItemList ACValueListForEnum
+        {
+            get
+            {
+                if (_ACValueListForEnum != null)
+                    return _ACValueListForEnum;
+                if (_ACValueListForEnumChecked)
+                    return null;
+                _ACValueListForEnumChecked = true;
+                ACClass classForEnumList = ACClassForEnumList;
+                if (classForEnumList == null)
+                    return null;
+                try
+                {
+                    _ACValueListForEnum = Activator.CreateInstance(classForEnumList.ObjectType, false) as ACValueItemList;
+                    return _ACValueListForEnum;
+                }
+                catch (Exception e)
+                {
+                    if (Database.Root != null && Database.Root.Messages != null)
+                        Database.Root.Messages.LogException("ACClass", "ACValueListForEnum", e);
+                }
+                return null;
+            }
+        }
+
         #endregion
 
 

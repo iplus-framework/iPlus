@@ -62,6 +62,8 @@
         public const string LocalConfigACUrl_BusinessobjectList = "Bussinessobject";
         public const string KeyACUrl_NavigationqueryList = ".\\ACClassProperty(NavigationqueryList)";
         public const string LocalConfigACUrl_NavigationqueryList = "Navigationquery";
+        public const string KeyACUrl_EnumACValueList = ".\\ACClassProperty(EnumACValueList)";
+        public const string LocalConfigACUrl_EnumACValueList = "EnumACValue";
 
         public const string ACQueryExportFileType = ".gip";
         public const string InitState = "InitState";

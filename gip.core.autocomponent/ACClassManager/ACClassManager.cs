@@ -2828,13 +2828,23 @@ namespace gip.core.autocomponent
         {
             foreach (var acClassItem in acClassItemList)
             {
-                ACClass acClass = _Database.ACClass.Where(c => c.AssemblyQualifiedName == acClassItem.ParentType.AssemblyQualifiedName).First();
+                ACClass acClass = _Database.ACClass.Where(c => c.AssemblyQualifiedName == acClassItem.ParentType.AssemblyQualifiedName).FirstOrDefault();
+                if (acClass == null)
+                    continue;
                 if (!string.IsNullOrEmpty(acClassItem.ACClassInfo.QRYConfig))
                 {
-                    // QRY-Klasse ermitteln
-                    ACClass qryACClass = ACClassQryManager.ACClass_ParentACClass.Where(c => c.ACIdentifier == acClassItem.ACClassInfo.QRYConfig).FirstOrDefault();
-                    if (qryACClass != null)
-                        InsertOrUpdateACClassComposition(acClass, qryACClass, Const.KeyACUrl_NavigationqueryList, Const.LocalConfigACUrl_NavigationqueryList, null, true);
+                    if (acClass.ACKind == Global.ACKinds.TACEnum/* || acClass.ACKind == Global.ACKinds.TACEnumACValueList*/)
+                    {
+                        ACClass relatedClass = _Database.ACClass.Where(c => c.AssemblyQualifiedName.Contains(acClassItem.ACClassInfo.QRYConfig)).FirstOrDefault();
+                        InsertOrUpdateACClassComposition(acClass, relatedClass, Const.KeyACUrl_EnumACValueList, Const.LocalConfigACUrl_EnumACValueList, null, false);
+                    }
+                    else
+                    {
+                        // QRY-Klasse ermitteln
+                        ACClass qryACClass = ACClassQryManager.ACClass_ParentACClass.Where(c => c.ACIdentifier == acClassItem.ACClassInfo.QRYConfig).FirstOrDefault();
+                        if (qryACClass != null)
+                            InsertOrUpdateACClassComposition(acClass, qryACClass, Const.KeyACUrl_NavigationqueryList, Const.LocalConfigACUrl_NavigationqueryList, null, true);
+                    }
                 }
                 if (!string.IsNullOrEmpty(acClassItem.ACClassInfo.BSOConfig))
                 {

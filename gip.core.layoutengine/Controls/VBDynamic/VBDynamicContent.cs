@@ -276,8 +276,8 @@ namespace gip.core.layoutengine
                                 vbContentUrl = Const.Value;
                             }
                             // Else VBContent was set
-                            else if (!vbContentUrl.Contains("\\Value"))
-                                    vbContentUrl += "\\Value";
+                            else if (!vbContentUrl.Contains(ACUrlHelper.Delimiter_DirSeperator + Const.Value))
+                                    vbContentUrl += ACUrlHelper.Delimiter_DirSeperator + Const.Value;
 
                             string controlName = design.ValueTypeACClass.ACIdentifier;
                             if (String.IsNullOrWhiteSpace(design.XMLDesign))
@@ -300,13 +300,19 @@ namespace gip.core.layoutengine
                                                     || controlName.Contains("ComboBox")))
                                                 height = 30;
 
-                                            Array enumArray = null;
+                                            //Array enumArray = null;
                                             string vbSource = null;
                                             if (   acValue.ValueTypeACClass.ACKind == Global.ACKinds.TACEnum 
                                                 && acValue.ValueTypeACClass.ObjectType != null)
                                             {
-                                                enumArray = Enum.GetValues(acValue.ValueTypeACClass.ObjectType);
-                                                vbSource = String.Format("\\!{0}(#{1}\\{1}#)", Const.MN_GetEnumList, acValue.ValueTypeACClass.ObjectType.AssemblyQualifiedName);
+                                                //enumArray = Enum.GetValues(acValue.ValueTypeACClass.ObjectType);
+                                                if (acValue.ValueTypeACClass.ACValueListForEnum == null)
+                                                    vbSource = String.Format("\\!{0}(#{1}\\{1}#)", Const.MN_GetEnumList, acValue.ValueTypeACClass.ObjectType.AssemblyQualifiedName);
+                                                else
+                                                {
+                                                    newDataContextForChild = DesignVBContent;
+                                                    vbContentUrl = Const.Value;
+                                                }
                                                 if (controlName.Contains("TextBox"))
                                                     controlName = typeof(VBComboBox).Name;
                                             }

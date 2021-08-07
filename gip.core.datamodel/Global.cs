@@ -82,6 +82,11 @@ namespace gip.core.datamodel
             TACEnum = 0080,
 
             /// <summary>
+            /// Translations for enumarations
+            /// </summary>
+            TACEnumACValueList = 0081,
+
+            /// <summary>
             /// .NET-Classes, which have a abstract-keyword in the class-declaration and 
             /// should be known in the iPlus-Runtime to be able to define Designs, Configurations, Translations etc. for it
             /// </summary>
@@ -376,6 +381,7 @@ namespace gip.core.datamodel
                     Global._ACKindList.AddEntry((short)ACKinds.TACSimpleClass, "en{'Primitive class'}de{'Primitive Klasse'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TACInterface, "en{'Interface'}de{'Schnittstelle'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TACEnum, "en{'Enumeration'}de{'Enumeration'}");
+                    Global._ACKindList.AddEntry((short)ACKinds.TACEnumACValueList, "en{'Translation of Enumeration'}de{'Enumerationsübersetzung'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TACCommand, "en{'Command'}de{'Befehl'}");
 
                     #region Root
@@ -466,7 +472,7 @@ namespace gip.core.datamodel
                     _KindInfoList.Add(new KindInfo { ACCaption = "VB Simple Type", RangeFrom = ACKinds.TACLRBaseTypes, RangeTo = ACKinds.TACLRBaseTypes });
                     _KindInfoList.Add(new KindInfo { ACCaption = "VB Simple Class", RangeFrom = ACKinds.TACSimpleClass, RangeTo = ACKinds.TACSimpleClass });
                     _KindInfoList.Add(new KindInfo { ACCaption = "VB Interface", RangeFrom = ACKinds.TACInterface, RangeTo = ACKinds.TACInterface });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "VB Enum", RangeFrom = ACKinds.TACEnum, RangeTo = ACKinds.TACEnum });
+                    _KindInfoList.Add(new KindInfo { ACCaption = "VB Enum", RangeFrom = ACKinds.TACEnum, RangeTo = ACKinds.TACEnumACValueList });
                     _KindInfoList.Add(new KindInfo { ACCaption = "VB Class (Abstract)", RangeFrom = ACKinds.TACAbstractClass, RangeTo = ACKinds.TACAbstractClass });
                     _KindInfoList.Add(new KindInfo { ACCaption = "AC Objects", RangeFrom = ACKinds.TACDAClass, RangeTo = ACKinds.TACObject });
                     _KindInfoList.Add(new KindInfo { ACCaption = "VB Query", RangeFrom = ACKinds.TACQueries, RangeTo = ACKinds.TACQRY });
