@@ -1112,6 +1112,55 @@ namespace gip.core.layoutengine
         //    contextMenu.IsOpen = true;
         //}
 
+        bool _ReinitAtStartupDone = false;
+        public void InitBusinessobjectsAtStartup()
+        {
+            if (_ReinitAtStartupDone || vbDockingPanelTabbedDoc == null)
+                return;
+            _ReinitAtStartupDone = true;
+
+            foreach (VBDockingContainerToolWindow toolWin in ToolWindowContainerList)
+            {
+                VBDesign vbDesign = toolWin.VBDesignContent as VBDesign;
+                if (vbDesign != null)
+                    vbDesign.InitVBControl();
+                toolWin.ReInitDataContext();
+            }
+            foreach (VBDockingContainerTabbedDoc tabbedDoc in TabbedDocContainerList)
+            {
+                VBDesign vbDesign = tabbedDoc.VBDesignContent as VBDesign;
+                if (vbDesign != null)
+                    vbDesign.InitVBControl();
+                tabbedDoc.ReInitDataContext();
+            }
+
+            if (_dockingBtnGroups != null)
+            {
+                foreach (var dockgrps in this._dockingBtnGroups)
+                {
+                    if (dockgrps.Buttons == null)
+                        continue;
+                    foreach (var button in dockgrps.Buttons)
+                    {
+                        button.RefreshTitle();
+                    }
+                }
+            }
+
+            //foreach (var tab in vbDockingPanelTabbedDoc.Documents.ToList())
+            //{
+            //    VBDockingContainerToolWindowVB tabbedDoc = tab as VBDockingContainerToolWindowVB;
+            //    if (tabbedDoc != null)
+            //    {
+            //        VBDesign vbDesign = tabbedDoc.VBDesignContent as VBDesign;
+            //        if (vbDesign != null)
+            //            vbDesign.InitVBControl();
+            //        tabbedDoc.ReInitDataContext();
+            //    }
+            //}
+
+        }
+
         private void FillContextMenu(ItemsControl itemsControl, IACInteractiveObject acElement, IEnumerable<ACMenuItem> acMenuItemList)
         {
             foreach (var acMenuItem in acMenuItemList)

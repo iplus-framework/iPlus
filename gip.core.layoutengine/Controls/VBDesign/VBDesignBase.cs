@@ -69,7 +69,7 @@ namespace gip.core.layoutengine
         /// <summary>
         /// Initializes the VB control.
         /// </summary>
-        protected virtual void InitVBControl()
+        internal virtual void InitVBControl()
         {
             if (!_LoadedBase && BSOACComponent != null)
             {

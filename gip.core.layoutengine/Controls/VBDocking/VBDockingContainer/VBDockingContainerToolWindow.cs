@@ -37,6 +37,13 @@ namespace gip.core.layoutengine
         #endregion
 
         #region Methods Docking-Framework
+        public override void ReInitDataContext()
+        {
+            if (VBDockingPanel != null)
+                VBDockingPanel.Show(this);
+            RefreshTitle();
+        }
+
         public override bool OnCloseWindow()
         {
             //ReleaseACObjectRef();

@@ -50,7 +50,7 @@ namespace gip.core.layoutengine
         /// <summary>
         /// Initializes the VBControl.
         /// </summary>
-        protected override void InitVBControl()
+        internal override void InitVBControl()
         {
             base.InitVBControl();
             if (_Loaded)

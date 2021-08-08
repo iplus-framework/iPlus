@@ -102,12 +102,12 @@ namespace gip.core.layoutengine
             ContainerToolWindowsList.Remove(content);
         }
 
-        public virtual void Show(VBDockingContainerBase content)
+        public virtual void Show(VBDockingContainerBase container)
         {
             //System.Diagnostics.Debug.Assert(ContainerToolWindowsList.Contains(content));
         }
 
-        public virtual void Hide(VBDockingContainerBase content)
+        public virtual void Hide(VBDockingContainerBase container)
         { 
         
         }

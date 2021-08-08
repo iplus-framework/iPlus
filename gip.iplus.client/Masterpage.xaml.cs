@@ -315,6 +315,7 @@ namespace gip.iplus.client
                 DockingManager.Name = "mainDockingManager";
             }
             DockingManager.IsBSOManager = true;
+            DockingManager.InitBusinessobjectsAtStartup();
         }
 
         IACComponent _CurrentACComponent = null;

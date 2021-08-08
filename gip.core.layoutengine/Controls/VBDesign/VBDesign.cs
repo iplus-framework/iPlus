@@ -105,7 +105,12 @@ namespace gip.core.layoutengine
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
-            InitBinding();
+            //// Businessobjects-Root must me bound later, because at this time this first VBDesign is not loaded in the logical tree.
+            //// Therefore the Datacontext could not be determinde from child VBDesigns, when the application starts
+            //if (this.ContextACObject == null 
+            //    || this.ContextACObject.ACType == null 
+            //    || this.ContextACObject.ACType.ACKind != Global.ACKinds.TACBusinessobjects)
+                InitBinding();
             //this.MouseDown += new MouseButtonEventHandler(VBDesign_MouseDown);
             //this.AddHandler(VBDesign.MouseDownEvent, new MouseButtonEventHandler(VBDesign_MouseDown), true);
         }
@@ -162,7 +167,7 @@ namespace gip.core.layoutengine
         /// <summary>
         /// Initializes a VBControl.
         /// </summary>
-        protected override void InitVBControl()
+        internal override void InitVBControl()
         {
             base.InitVBControl();
             InitBinding();

@@ -178,48 +178,7 @@ namespace gip.core.layoutengine
         protected virtual void AddDockingContainer(VBDockingContainerBase container)
         {
             VBTabItem vbTabItem = new VBTabItem();
-
-            if (container.VBDesignContent is VBDesign)
-            {
-                vbTabItem.ShowCaption = (container.VBDesignContent as VBDesign).ShowCaption;
-                vbTabItem.VBContent = (container.VBDesignContent as VBDesign).VBContent;
-                vbTabItem.FocusNames = (container.VBDesignContent as VBDesign).FocusNames;
-            }
-
-            if (container is VBDockingContainerToolWindow)
-                vbTabItem.IsDragable = true;
-            if (container.VBDesignContent != null)
-            {
-                vbTabItem.TabVisibilityACUrl = VBDockingManager.GetTabVisibilityACUrl(container.VBDesignContent);
-                if (VBDockingManager.GetIsCloseableBSORoot(container.VBDesignContent))
-                    vbTabItem.WithVisibleCloseButton = true;
-                if (VBDockingManager.GetRibbonBarVisibility(container.VBDesignContent) != datamodel.Global.ControlModes.Hidden)
-                    vbTabItem.ShowRibbonBar = true;
-                if (vbTabItem.WithVisibleCloseButton == true)
-                    VBDockingManager.SetCloseButtonVisibility(container.VBDesignContent, Global.ControlModes.Enabled);
-            }
-
-            vbTabItem.Loaded += new RoutedEventHandler(OnTabItemLoaded);
-            vbTabItem.Unloaded += new RoutedEventHandler(OnTabItemUnLoaded);
-            if (container.OnAddedToPanelTabbedDoc(vbTabItem, this))
-            {
-                DockPanel tabPanel = new DockPanel();
-                vbTabItem.Content = new ContentPresenter();
-                (vbTabItem.Content as ContentPresenter).Content = container.Content;
-            }
-
-            vbTabItem.Header = container.Title;
-            container.VBDesignLoaded += new RoutedEventHandler(container_VBDesignLoaded);
-
-            tbcDocuments.Items.Add(vbTabItem);
-            if ((container.VBDesignContent != null) && VBDockingManager.GetIsCloseableBSORoot(container.VBDesignContent))
-                tbcDocuments.SelectedItem = vbTabItem;
-
-            if (tbcDocuments.Items.Count == 1)
-                tbcDocuments.Visibility = Visibility.Visible;
-
-            if(tbcDocuments.Items.Count > 1)
-                ((VBTabItem)tbcDocuments.Items[0]).ShowCaption = true;
+            InitDesignContentOfTabItem(container, vbTabItem, true);
         }
 
         void container_VBDesignLoaded(object sender, RoutedEventArgs e)
@@ -254,12 +213,84 @@ namespace gip.core.layoutengine
 
         #endregion
 
-        public override void Show(VBDockingContainerBase content)
+        public override void Show(VBDockingContainerBase container)
         {
-            if (!ContainerToolWindowsList.Contains(content))
-                AddDockingContainerToolWindow(content);
+            if (!ContainerToolWindowsList.Contains(container))
+                AddDockingContainerToolWindow(container);
+            else
+            {
+                VBTabItem vbTabItem = tbcDocuments.Items[Documents.IndexOf(container)] as VBTabItem;
+                if (vbTabItem != null)
+                    InitDesignContentOfTabItem(container, vbTabItem, false);
+            }
 
-            base.Show(content);
+            base.Show(container);
+        }
+
+        public void InitDesignContentOfTabItem(VBDockingContainerBase container, VBTabItem vbTabItem, bool isNewTabItem)
+        {
+            if (container == null || vbTabItem == null)
+                return;
+            VBDesign designContent = container.VBDesignContent as VBDesign;
+            if (designContent != null)
+            {
+                if (vbTabItem.ShowCaption != designContent.ShowCaption)
+                    vbTabItem.ShowCaption = designContent.ShowCaption;
+                if (vbTabItem.VBContent != designContent.VBContent)
+                    vbTabItem.VBContent = designContent.VBContent;
+                if (vbTabItem.FocusNames != designContent.FocusNames)
+                    vbTabItem.FocusNames = designContent.FocusNames;
+            }
+
+            if (container is VBDockingContainerToolWindow)
+                vbTabItem.IsDragable = true;
+            if (container.VBDesignContent != null)
+            {
+                vbTabItem.TabVisibilityACUrl = VBDockingManager.GetTabVisibilityACUrl(container.VBDesignContent);
+                if (VBDockingManager.GetIsCloseableBSORoot(container.VBDesignContent))
+                    vbTabItem.WithVisibleCloseButton = true;
+                if (VBDockingManager.GetRibbonBarVisibility(container.VBDesignContent) != datamodel.Global.ControlModes.Hidden)
+                    vbTabItem.ShowRibbonBar = true;
+                if (vbTabItem.WithVisibleCloseButton == true)
+                    VBDockingManager.SetCloseButtonVisibility(container.VBDesignContent, Global.ControlModes.Enabled);
+            }
+
+            if (isNewTabItem)
+            {
+                vbTabItem.Loaded += new RoutedEventHandler(OnTabItemLoaded);
+                vbTabItem.Unloaded += new RoutedEventHandler(OnTabItemUnLoaded);
+                if (   container.OnAddedToPanelTabbedDoc(vbTabItem, this)
+                    || vbTabItem.Content == null)
+                {
+                    DockPanel tabPanel = new DockPanel();
+                    vbTabItem.Content = new ContentPresenter();
+                    (vbTabItem.Content as ContentPresenter).Content = container.Content;
+                }
+            }
+            else if (vbTabItem.Content is ContentPresenter)
+            {
+                if ((vbTabItem.Content as ContentPresenter).Content != container.Content)
+                    (vbTabItem.Content as ContentPresenter).Content = container.Content;
+            }
+
+            string title = null;
+            if (vbTabItem.Header != null && vbTabItem.Header is String)
+                title = (vbTabItem.Header as String);
+            if (title != container.Title)
+                vbTabItem.Header = container.Title;
+            if (isNewTabItem)
+            {
+                container.VBDesignLoaded += new RoutedEventHandler(container_VBDesignLoaded);
+                tbcDocuments.Items.Add(vbTabItem);
+                if ((container.VBDesignContent != null) && VBDockingManager.GetIsCloseableBSORoot(container.VBDesignContent))
+                    tbcDocuments.SelectedItem = vbTabItem;
+
+                if (tbcDocuments.Items.Count == 1)
+                    tbcDocuments.Visibility = Visibility.Visible;
+
+                if (tbcDocuments.Items.Count > 1)
+                    ((VBTabItem)tbcDocuments.Items[0]).ShowCaption = true;
+            }
         }
 
 

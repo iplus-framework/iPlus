@@ -16,6 +16,7 @@ using System.Windows.Markup;
 using gip.core.layoutengine.Helperclasses;
 using gip.core.datamodel;
 using gip.core.layoutengine.VisualControlAnalyser;
+using System.Linq;
 
 namespace gip.core.layoutengine
 {
@@ -91,6 +92,19 @@ namespace gip.core.layoutengine
             {
                 base.RefreshTitle();
             }
+        }
+
+        public override void ReInitDataContext()
+        {
+            if (VBDockingPanel != null)
+                VBDockingPanel.Show(this);
+            if (_RootPanelDialog.Children != null && _RootPanelDialog.Children.Count > 0)
+            {
+                VBDockPanel dockPanel = _RootPanelDialog.Children[0] as VBDockPanel;
+                if (dockPanel != null)
+                    dockPanel.DataContext = ContextACObject;
+            }
+            RefreshTitle();
         }
 
         void VBDockingContainerToolWindowVB_PropertyChanged(object sender, PropertyChangedEventArgs e)

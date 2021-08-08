@@ -62,6 +62,15 @@ namespace gip.core.layoutengine
             }
         }
 
+        public void RefreshTitle()
+        {
+            var toolwindow = DockingContainerToolWindow;
+            if (toolwindow != null)
+            {
+                Content = toolwindow.Title;
+            }
+        }
+
         public static DependencyProperty DockingButtonGroupProperty;
 
         public VBDockingButtonGroup DockingButtonGroup

@@ -451,6 +451,10 @@ namespace gip.core.layoutengine
             Title = ACCaption;
         }
 
+        public virtual void ReInitDataContext()
+        {
+        }
+
         bool _ReferenceAdded = false;
         protected void AddToComponentReference()
         {
