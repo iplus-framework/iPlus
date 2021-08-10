@@ -701,7 +701,7 @@ namespace gip.core.communication
             X509Certificate2 serverCertificate = new X509Certificate2(endpoint.Description.ServerCertificate);
 
             // check the certificate domains.
-            IList<string> domains = Utils.GetDomainsFromCertficate(serverCertificate);
+            IList<string> domains = X509Utils.GetDomainsFromCertficate(serverCertificate);
 
             if (domains != null)
             {

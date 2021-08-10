@@ -5,20 +5,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Opc.Ua;
-using Opc.Ua.Client;
+using Opc.Ua.Server;
 using Opc.Ua.Configuration;
 using gip.core.autocomponent;
+using System.IO;
 
 namespace gip.core.communication
 {
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'OPCUAClientACService'}de{'OPCUAClientACService'}", Global.ACKinds.TACDAClass, Global.ACStorableTypes.Required, false, false)]
-    public class OPCUAClientACService : OPCClientACService
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'iplus OPC UA Server'}de{'iplus OPC UA Server'}", Global.ACKinds.TACDAClass, Global.ACStorableTypes.Required, false, false)]
+    public class OPCUASrvACService : OPCClientACService
     {
         #region c'tors
 
-        public const string ClassName = "OPCUAClientACService";
+        public const string ClassName = "OPCUASrvACService";
+        public const string Namespace_UA = "http://iplus-framework.com/UA/";
+        public const string Namespace_UA_App = "http://iplus-framework.com/UA/Root";
 
-        public OPCUAClientACService(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
+        public OPCUASrvACService(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
 
@@ -29,12 +32,17 @@ namespace gip.core.communication
             if (!base.ACInit(startChildMode))
                 return false;
 
-            _OPCUASyncQueque = new SyncQueueEvents();
-            _OPCUAThread = new ACThread(ManageLifeOfOPCUAClient);
-            _OPCUAThread.Name = "ACUrl:" + this.GetACUrl() + ";ManageLifeOfOPCUAClient();";
-            _OPCUAThread.Start();
-
             return true;
+        }
+
+        public override bool ACPostInit()
+        {
+            bool result = base.ACPostInit();
+            _OPCUASyncQueque = new SyncQueueEvents();
+            _OPCUAThread = new ACThread(ManageLifeOfOPCUAServer);
+            _OPCUAThread.Name = "ACUrl:" + this.GetACUrl() + ";ManageLifeOfOPCUAServer();";
+            _OPCUAThread.Start();
+            return result;
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
@@ -75,19 +83,33 @@ namespace gip.core.communication
             }
         }
 
-        //example => config file name: OPCUAClient.Config.xml
-        //ClientApplicationConfigurationPath: C:\Temp\OPCUAClient
-        private string _ClientApplicationConfigurationPath;
-        [ACPropertyInfo(999, "", "en{'Path of client application configuration'}de{'Pfad der Konfiguration der Client-Anwendung'}", "", true)]
-        public string ClientApplicationConfigrationPath
+        private OPCUASrvServer _OPCUASrvServer = null;
+
+        //example => config file name: OPCUAServer.Config.xml
+        //ServerAppConfigPath: C:\Temp\OPCUAClient
+        private string _ServerAppConfigPath;
+        [ACPropertyInfo(999, "", "en{'Path of server application configuration'}de{'Pfad zur Konfiguration der Server-Anwendung'}", "", true)]
+        public string ServerAppConfigPath
         {
             get
             {
-                return _ClientApplicationConfigurationPath;
+                return _ServerAppConfigPath;
             }
             set
             {
-                _ClientApplicationConfigurationPath = value;
+                _ServerAppConfigPath = value;
+            }
+        }
+
+        public string MyServerAppConfigPath
+        {
+            get
+            {
+                string configPath = ServerAppConfigPath;
+                if (String.IsNullOrEmpty(ServerAppConfigPath))
+                    configPath = Path.Combine(Root.Environment.Rootpath, "OPCUAServer");
+                configPath = configPath.EndsWith(".Config.xml") ? configPath.Replace(".Config.xml", "") : configPath;
+                return configPath;
             }
         }
 
@@ -118,7 +140,7 @@ namespace gip.core.communication
 
         #region Methods
 
-        private void ManageLifeOfOPCUAClient()
+        private void ManageLifeOfOPCUAServer()
         {
             InitOPCUAApp();
             _OPCUASyncQueque.ExitThreadEvent.WaitOne();
@@ -128,14 +150,11 @@ namespace gip.core.communication
 
         private void InitOPCUAApp()
         {
-            string configPath = ClientApplicationConfigrationPath.EndsWith(".Config.xml") ? ClientApplicationConfigrationPath.Replace(".Config.xml", "") 
-                                                                                          : ClientApplicationConfigrationPath;
-
             _AppInstance = new ApplicationInstance()
             {
-                ApplicationName = this.ACIdentifier,
-                ApplicationType = Opc.Ua.ApplicationType.Client,
-                ConfigSectionName = configPath
+                ApplicationName = "iplus OPC UA Server",
+                ApplicationType = Opc.Ua.ApplicationType.Server,
+                ConfigSectionName = MyServerAppConfigPath
             };
 
             try
@@ -177,6 +196,45 @@ namespace gip.core.communication
                 else
                     Messages.LogError(this.GetACUrl(), ClassName, "Check application instance certificate error!!!");
             }
+            else
+                _AutoAccept = true;
+
+            // start the server.
+            _OPCUASrvServer = new OPCUASrvServer(this);
+            _AppInstance.Start(_OPCUASrvServer).Wait();
+
+            //if (ReverseConnectUrl != null)
+            //{
+            //    Server.AddReverseConnection(ReverseConnectUrl);
+            //}
+
+            //var reverseConnections = _OPCUASrvServer.GetReverseConnections();
+            //if (reverseConnections?.Count > 0)
+            //{
+            //    // print reverse connect info
+            //    Console.WriteLine("Reverse Connect Clients:");
+            //    foreach (var connection in reverseConnections)
+            //    {
+            //        Console.WriteLine(connection.Key);
+            //    }
+            //}
+
+            // print endpoint info
+            //Console.WriteLine("Server Endpoints:");
+            //var endpoints = Server.GetEndpoints().Select(e => e.EndpointUrl).Distinct();
+            //foreach (var endpoint in endpoints)
+            //{
+            //    Console.WriteLine(endpoint);
+            //}
+
+            //// start the status thread
+            //Status = Task.Run(new Action(StatusThread));
+
+            //// print notification on session events
+            //Server.CurrentInstance.SessionManager.SessionActivated += EventStatus;
+            //Server.CurrentInstance.SessionManager.SessionClosing += EventStatus;
+            //Server.CurrentInstance.SessionManager.SessionCreated += EventStatus;
+
         }
 
         private void CertificateValidator_CertificateValidation(CertificateValidator validator, CertificateValidationEventArgs e)
@@ -194,18 +252,12 @@ namespace gip.core.communication
 
         private void DeInitOPCUAApp()
         {
+            if (_OPCUASrvServer != null)
+                _OPCUASrvServer.ACDeInit();
+            _OPCUASrvServer = null;
             _AppInstance = null;
         }
 
         #endregion
-    }
-
-    [ACSerializeableInfo]
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'OPCUserAuthenticationMode'}de{'OPCUserAuthenticationMode'}", Global.ACKinds.TACEnum)]
-    public enum OPCUserAuthenticationMode : short
-    {
-        Anonymous = 0,
-        Username = 10,
-        Certificate = 20
     }
 }

@@ -63,30 +63,60 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.8.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Portable.BouncyCastle.1.8.8\lib\net40\BouncyCastle.Crypto.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\Portable.BouncyCastle.1.8.10\lib\net40\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="NModbus4, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\NModbus4.2.1.0\lib\net40\NModbus4.dll</HintPath>
     </Reference>
     <Reference Include="Opc.Ua.Client, Version=1.4.363.0, Culture=neutral, PublicKeyToken=bfa7a73c5cf4b6e8, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Client.1.4.363.107\lib\net462\Opc.Ua.Client.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Client.1.4.366.38\lib\net462\Opc.Ua.Client.dll</HintPath>
     </Reference>
     <Reference Include="Opc.Ua.Configuration, Version=1.4.363.0, Culture=neutral, PublicKeyToken=bfa7a73c5cf4b6e8, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Configuration.1.4.363.107\lib\net462\Opc.Ua.Configuration.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Configuration.1.4.366.38\lib\net462\Opc.Ua.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="Opc.Ua.Core, Version=1.4.363.0, Culture=neutral, PublicKeyToken=bfa7a73c5cf4b6e8, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Core.1.4.363.107\lib\net462\Opc.Ua.Core.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Core.1.4.366.38\lib\net462\Opc.Ua.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Opc.Ua.Security.Certificates">
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Security.Certificates.1.4.366.38\lib\net462\Opc.Ua.Security.Certificates.dll</HintPath>
+    </Reference>
+    <Reference Include="Opc.Ua.Server">
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Server.1.4.366.38\lib\net462\Opc.Ua.Server.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\System.Buffers.4.5.1\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data.Entity">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Formats.Asn1">
+      <HintPath>..\..\..\packages\System.Formats.Asn1.5.0.0\lib\netstandard2.0\System.Formats.Asn1.dll</HintPath>
+    </Reference>
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.IdentityModel.Selectors" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\System.Memory.4.5.4\lib\netstandard2.0\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\System.Numerics.Vectors.4.5.0\lib\netstandard2.0\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ValueTuple" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -115,6 +145,10 @@
     <Compile Include="PLC\OPC\OPCUA\OPCUAClientMonitoredItem.cs" />
     <Compile Include="PLC\OPC\OPCUA\OPCUAClientSession.cs" />
     <Compile Include="PLC\OPC\OPCUA\OPCUAClientSubscr.cs" />
+    <Compile Include="PLC\OPC\OPCUA\OPCUANodeManager.cs" />
+    <Compile Include="PLC\OPC\OPCUA\OPCUASrvACService.cs" />
+    <Compile Include="PLC\OPC\OPCUA\OPCUAUserIdentity.cs" />
+    <Compile Include="PLC\OPC\OPCUA\OPCUASrvServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Smtp\ACSmtpClient.cs" />
     <Compile Include="Smtp\PAAlarmMessengerSmtp.cs" />
@@ -235,6 +269,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="VBControlScripts\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="OPCUAServer.Config.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
