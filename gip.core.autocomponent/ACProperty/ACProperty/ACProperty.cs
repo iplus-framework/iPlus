@@ -498,6 +498,31 @@ namespace gip.core.autocomponent
             }
         }
 
+        public bool IsValueType
+        {
+            get
+            {
+                Type typeT = typeof(T);
+                if (typeT == null)
+                    return false;
+                if (!typeT.IsValueType)
+                    return false;
+                if (typeT == typeof(Byte)
+                    || typeT == typeof(SByte)
+                    || typeT == typeof(Int16)
+                    || typeT == typeof(UInt16)
+                    || typeT == typeof(Int32)
+                    || typeT == typeof(UInt32)
+                    || typeT == typeof(Int64)
+                    || typeT == typeof(UInt64)
+                    || typeT == typeof(Single)
+                    || typeT == typeof(Double)
+                    || typeT == typeof(Decimal))
+                    return true;
+                return false;
+            }
+        }
+
 
         /// <summary>Returns the Value-Property of this insntance as a serialized string (XML).</summary>
         /// <param name="xmlIndented">if set to <c>true</c> the XML is indented.</param>

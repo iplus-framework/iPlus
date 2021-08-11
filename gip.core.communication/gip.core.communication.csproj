@@ -149,6 +149,7 @@
     <Compile Include="PLC\OPC\OPCUA\OPCUASrvACService.cs" />
     <Compile Include="PLC\OPC\OPCUA\OPCUAUserIdentity.cs" />
     <Compile Include="PLC\OPC\OPCUA\OPCUASrvServer.cs" />
+    <Compile Include="PLC\OPC\OPCUA\SrvModel\UATypeACComponent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Smtp\ACSmtpClient.cs" />
     <Compile Include="Smtp\PAAlarmMessengerSmtp.cs" />

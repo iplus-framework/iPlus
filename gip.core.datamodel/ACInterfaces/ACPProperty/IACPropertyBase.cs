@@ -60,6 +60,7 @@ namespace gip.core.datamodel
         /// <summary>.NET-Type of the Value of this property.</summary>
         Type PropertyType { get; }
 
+        bool IsValueType { get; }
 
         /// <summary>
         /// Checks if Property is in valid Range

@@ -33,6 +33,7 @@ namespace gip.core.autocomponent
         /// <value>The boxed value.</value>
         object Value { get; set; }
         void CloneCustomProperties(ACCustomTypeBase Target);
+        Type UnderlyingType { get; }
     }
 
     [DataContract]
@@ -137,6 +138,14 @@ namespace gip.core.autocomponent
                 return GetUnderlyingTypeOfBitAccess(bitAccessType.BaseType);
             }
             return "";
+        }
+
+        public Type UnderlyingType 
+        {
+            get
+            {
+                return typeof(T);
+            }
         }
         #endregion
 

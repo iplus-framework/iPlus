@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using gip.core.autocomponent;
 using gip.core.datamodel;
 using Opc.Ua;
 using Opc.Ua.Server;
+using System.Linq;
 
 namespace gip.core.communication
 {
@@ -19,6 +22,7 @@ namespace gip.core.communication
         {
             _ParentUAServer = parentUAServer;
             _InternalServer = server;
+            _SystemContext = _InternalServer.DefaultSystemContext.Copy();
             _NamespaceIndex = server.NamespaceUris.GetIndexOrAppend(_NamespaceUris[1]);
         }
         #endregion
@@ -38,7 +42,23 @@ namespace gip.core.communication
             }
         }
 
+        public OPCUASrvACService ParentACService
+        {
+            get
+            {
+                return ParentUAServer.ACService;
+            }
+        }
+
         private IServerInternal _InternalServer;
+        private ServerSystemContext _SystemContext;
+        protected ServerSystemContext SystemContext
+        {
+            get { return _SystemContext; }
+        }
+
+        private ConcurrentDictionary<NodeId, NodeState> _MapNodeID2Member = new ConcurrentDictionary<NodeId, NodeState>();
+        private ConcurrentDictionary<IACMember, NodeState> _MapMemberToNodeState = new ConcurrentDictionary<IACMember, NodeState>();
         #endregion
 
 
@@ -56,12 +76,223 @@ namespace gip.core.communication
 
         public void AddReferences(IDictionary<NodeId, IList<IReference>> references)
         {
-            throw new NotImplementedException();
+            foreach (KeyValuePair<NodeId, IList<IReference>> current in references)
+            {
+                // check for valid handle.
+                NodeState source = GetManagerHandle(current.Key) as NodeState;
+                if (source == null)
+                    continue;
+
+                using (ACMonitor.Lock(_30209_LockValue))
+                {
+                    // add reference to external target.
+                    foreach (IReference reference in current.Value)
+                    {
+                        source.AddReference(reference.ReferenceTypeId, reference.IsInverse, reference.TargetId);
+                    }
+                }
+            }
         }
+
+        public void CreateAddressSpace(IDictionary<NodeId, IList<IReference>> externalReferences)
+        {
+            // 0. Beim Starten vom Server
+            using (ACMonitor.Lock(_30209_LockValue))
+            {
+                // add the uris to the server's namespace table and cache the indexes.
+                for (int i = 0; i < _CountNamespaces; i++)
+                {
+                    _NamespaceIndexes[i] = _InternalServer.NamespaceUris.GetIndexOrAppend(_NamespaceUris[i]);
+                }
+
+                NodeState rootNodeState = null;
+                if (!_MapMemberToNodeState.TryGetValue(ParentACService.Root, out rootNodeState))
+                {
+                    rootNodeState = new UAStateACComponent(ParentACService.Root as ACComponent, null);
+                    _MapMemberToNodeState.TryAdd(ParentACService.Root, rootNodeState);
+                    _MapNodeID2Member.TryAdd(rootNodeState.NodeId, rootNodeState);
+
+                    IList<IReference> references = new List<IReference>();
+                    rootNodeState.GetReferences(SystemContext, references);
+                    IReference refInCoreNodeManager = references.FirstOrDefault();
+                    if (refInCoreNodeManager != null)
+                    {
+                        NodeId nodeIdInCoreManager = (NodeId)refInCoreNodeManager.TargetId;
+                        IList<IReference> referencesToAdd = null;
+                        if (!externalReferences.TryGetValue(nodeIdInCoreManager, out referencesToAdd))
+                        {
+                            externalReferences[nodeIdInCoreManager] = referencesToAdd = new List<IReference>();
+                        }
+
+                        // add reserve reference from external node.
+                        ReferenceNode referenceToAdd = new ReferenceNode();
+                        referenceToAdd.ReferenceTypeId = refInCoreNodeManager.ReferenceTypeId;
+                        referenceToAdd.IsInverse = !refInCoreNodeManager.IsInverse;
+                        referenceToAdd.TargetId = rootNodeState.NodeId;
+                        referencesToAdd.Add(referenceToAdd);
+                    }
+                }
+            }
+        }
+
+        public object GetManagerHandle(NodeId nodeId)
+        {
+            // 1. Bei Connect von Client
+            // Rückgabe eines NodeState-Objektes
+            NodeState node;
+            if (_MapNodeID2Member.TryGetValue(nodeId, out node))
+                return node;
+            return null;
+        }
+
+        public NodeMetadata GetNodeMetadata(OperationContext context, object targetHandle, BrowseResultMask resultMask)
+        {
+            // 2. Das zurückegebene NodeState-Objekt wird dann als targetHandle wrder hier übergeben
+            // Rückgabe der Metadaten
+            NodeState targetNode = targetHandle as NodeState;
+            if (targetNode == null)
+                return null;
+            if (!(targetNode is IUAStateIACMember))
+                return null;
+
+            ServerSystemContext systemContext = _SystemContext.Copy(context);
+
+            using (ACMonitor.Lock(_30209_LockValue))
+            {
+                List<object> values = targetNode.ReadAttributes(
+                systemContext,
+                Attributes.WriteMask,
+                Attributes.UserWriteMask,
+                Attributes.DataType,
+                Attributes.ValueRank,
+                Attributes.ArrayDimensions,
+                Attributes.AccessLevel,
+                Attributes.UserAccessLevel,
+                Attributes.EventNotifier,
+                Attributes.Executable,
+                Attributes.UserExecutable);
+
+                // construct the metadata object.
+
+                NodeMetadata metadata = new NodeMetadata(targetNode, targetNode.NodeId);
+
+                metadata.NodeClass = targetNode.NodeClass;
+                metadata.BrowseName = targetNode.BrowseName;
+                metadata.DisplayName = targetNode.DisplayName;
+
+                if (values[0] != null && values[1] != null)
+                {
+                    metadata.WriteMask = (AttributeWriteMask)(((uint)values[0]) & ((uint)values[1]));
+                }
+
+                metadata.DataType = (NodeId)values[2];
+
+                if (values[3] != null)
+                {
+                    metadata.ValueRank = (int)values[3];
+                }
+
+                metadata.ArrayDimensions = (IList<uint>)values[4];
+
+                if (values[5] != null && values[6] != null)
+                {
+                    metadata.AccessLevel = (byte)(((byte)values[5]) & ((byte)values[6]));
+                }
+
+                if (values[7] != null)
+                {
+                    metadata.EventNotifier = (byte)values[7];
+                }
+
+                if (values[8] != null && values[9] != null)
+                {
+                    metadata.Executable = (((bool)values[8]) && ((bool)values[9]));
+                }
+
+                // get instance references.
+                BaseInstanceState instance = targetNode as BaseInstanceState;
+                if (instance != null)
+                {
+                    metadata.TypeDefinition = instance.TypeDefinitionId;
+                    metadata.ModellingRule = instance.ModellingRuleId;
+                }
+
+                // fill in the common attributes.
+                return metadata;
+            }
+        }
+
 
         public void Browse(OperationContext context, ref ContinuationPoint continuationPoint, IList<ReferenceDescription> references)
         {
-            throw new NotImplementedException();
+            // 3. Browse wird aufgerufen, nachdem der Client den Baum aufklappt
+            // hier muss dann die references-Liste gefüllt werden
+            if (continuationPoint == null) throw new ArgumentNullException("continuationPoint");
+            if (references == null) throw new ArgumentNullException("references");
+
+            // check for view.
+            if (!ViewDescription.IsDefault(continuationPoint.View))
+            {
+                throw new ServiceResultException(StatusCodes.BadViewIdUnknown);
+            }
+
+            if (!(continuationPoint.NodeToBrowse is IUAStateIACMember))
+            {
+                throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
+            }
+
+            UAStateACComponent componentState2Browse = continuationPoint.NodeToBrowse as UAStateACComponent;
+            if (componentState2Browse != null)
+            {
+                //ServerSystemContext systemContext = _SystemContext.Copy(context);
+
+                IEnumerable<IACComponent> childs = null;
+                IEnumerable<IACPropertyBase> properties = null;
+                if (componentState2Browse.ACComponent is IRoot)
+                    childs = componentState2Browse.ACComponent.FindChildComponents<ApplicationManager>(c => c is ApplicationManager, null, 1);
+                else
+                {
+                    childs = componentState2Browse.ACComponent.ACComponentChilds.Where(c => !(c is IACComponentPWNode)
+                                                                                    && !c.ACIdentifier.Contains(ACUrlHelper.Delimiter_InstanceNoOpen)
+                                                                                    /*&& !c.ComponentClass.IsMultiInstanceInherited*/);
+                    properties = componentState2Browse.ACComponent.ACPropertyList.Where(c => c.IsValueType
+                                                                                            || c.PropertyType.IsEnum
+                                                                                            || UAStateACProperty.BitAccessType.IsAssignableFrom(c.PropertyType));
+                }
+
+                using (ACMonitor.Lock(_30209_LockValue))
+                {
+                    if (childs != null)
+                    {
+                        foreach (IACComponent iACComponent in childs)
+                        {
+                            IReference reference = CreateNewReference(iACComponent as ACComponent, componentState2Browse);
+                            if (reference != null)
+                            {
+                                ReferenceDescription refDesc = GetReferenceDescription(context, reference, continuationPoint);
+                                if (refDesc != null)
+                                    references.Add(refDesc);
+                            }
+                        }
+                    }
+                    if (properties != null)
+                    {
+                        foreach (IACPropertyBase iACProp in properties)
+                        {
+                            IReference reference = CreateNewReference(iACProp, componentState2Browse);
+                            if (reference != null)
+                            {
+                                ReferenceDescription refDesc = GetReferenceDescription(context, reference, continuationPoint);
+                                if (refDesc != null)
+                                    references.Add(refDesc);
+                            }
+                        }
+                    }
+                }
+            }
+
+            continuationPoint.Dispose();
+            continuationPoint = null;
         }
 
         public void Call(OperationContext context, IList<CallMethodRequest> methodsToCall, IList<CallMethodResult> results, IList<ServiceResult> errors)
@@ -74,19 +305,6 @@ namespace gip.core.communication
             throw new NotImplementedException();
         }
 
-        public void CreateAddressSpace(IDictionary<NodeId, IList<IReference>> externalReferences)
-        {
-            using (ACMonitor.Lock(_30209_LockValue))
-            {
-                // add the uris to the server's namespace table and cache the indexes.
-                for (int i = 0; i < _CountNamespaces; i++)
-                {
-                    _NamespaceIndexes[i] = _InternalServer.NamespaceUris.GetIndexOrAppend(_NamespaceUris[i]);
-                }
-
-                //LoadPredefinedNodes(m_systemContext, externalReferences);
-            }
-        }
 
         public void CreateMonitoredItems(OperationContext context, uint subscriptionId, double publishingInterval, TimestampsToReturn timestampsToReturn, IList<MonitoredItemCreateRequest> itemsToCreate, IList<ServiceResult> errors, IList<MonitoringFilterResult> filterErrors, IList<IMonitoredItem> monitoredItems, ref long globalIdCounter)
         {
@@ -104,16 +322,6 @@ namespace gip.core.communication
         }
 
         public ServiceResult DeleteReference(object sourceHandle, NodeId referenceTypeId, bool isInverse, ExpandedNodeId targetId, bool deleteBidirectional)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object GetManagerHandle(NodeId nodeId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public NodeMetadata GetNodeMetadata(OperationContext context, object targetHandle, BrowseResultMask resultMask)
         {
             throw new NotImplementedException();
         }
@@ -165,24 +373,131 @@ namespace gip.core.communication
         #endregion
 
         #region Helper-Methods
-        protected virtual bool IsNodeIdInNamespace(NodeId nodeId)
+        //protected virtual bool IsNodeIdInNamespace(NodeId nodeId)
+        //{
+        //    if (NodeId.IsNull(nodeId))
+        //    {
+        //        return false;
+        //    }
+
+        //    // quickly exclude nodes that not in the namespace.
+        //    for (int ii = 0; ii < _NamespaceIndexes.Length; ii++)
+        //    {
+        //        if (nodeId.NamespaceIndex == _NamespaceIndexes[ii])
+        //        {
+        //            return true;
+        //        }
+        //    }
+
+        //    return false;
+        //}
+
+        private IReference CreateNewReference(IACPropertyBase property, UAStateACComponent parent)
         {
-            if (NodeId.IsNull(nodeId))
+            NodeState checkIfExists = null;
+            if (_MapMemberToNodeState.TryGetValue(property, out checkIfExists))
             {
-                return false;
+                return null;
             }
 
-            // quickly exclude nodes that not in the namespace.
-            for (int ii = 0; ii < _NamespaceIndexes.Length; ii++)
-            {
-                if (nodeId.NamespaceIndex == _NamespaceIndexes[ii])
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            UAStateACProperty newStateObj = new UAStateACProperty(property, parent);
+            _MapMemberToNodeState.TryAdd(property, newStateObj);
+            _MapNodeID2Member.TryAdd(newStateObj.NodeId, newStateObj);
+            return new NodeStateReference(ReferenceTypeIds.HasComponent, false, newStateObj);
         }
+
+
+        private IReference CreateNewReference(ACComponent component, UAStateACComponent parent)
+        {
+            NodeState checkIfExists = null;
+            if (_MapMemberToNodeState.TryGetValue(component, out checkIfExists))
+            {
+                return null;
+            }
+
+            UAStateACComponent newStateObj = new UAStateACComponent(component, parent);
+            _MapMemberToNodeState.TryAdd(component, newStateObj);
+            _MapNodeID2Member.TryAdd(newStateObj.NodeId, newStateObj);
+            return new NodeStateReference(ReferenceTypeIds.Organizes, false, newStateObj);
+        }
+
+        private ReferenceDescription GetReferenceDescription(
+            OperationContext context,
+            IReference reference,
+            ContinuationPoint continuationPoint)
+        {
+            // create the type definition reference.        
+            ReferenceDescription description = new ReferenceDescription();
+
+            description.NodeId = reference.TargetId;
+            description.SetReferenceType(continuationPoint.ResultMask, reference.ReferenceTypeId, !reference.IsInverse);
+
+            // do not cache target parameters for remote nodes.
+            if (reference.TargetId.IsAbsolute)
+            {
+                // only return remote references if no node class filter is specified.
+                if (continuationPoint.NodeClassMask != 0)
+                {
+                    return null;
+                }
+
+                return description;
+            }
+
+            NodeState target = null;
+
+            // check for local reference.
+            NodeStateReference referenceInfo = reference as NodeStateReference;
+
+            if (referenceInfo != null)
+            {
+                target = referenceInfo.Target;
+            }
+
+            // check for internal reference.
+            if (target == null)
+            {
+                NodeId targetId = (NodeId)reference.TargetId;
+                NodeState node;
+                if (!_MapNodeID2Member.TryGetValue(targetId, out node))
+                    target = null;
+            }
+
+            // the target may be a reference to a node in another node manager. In these cases
+            // the target attributes must be fetched by the caller. The Unfiltered flag tells the
+            // caller to do that.
+            if (target == null)
+            {
+                description.Unfiltered = true;
+                return description;
+            }
+
+            // apply node class filter.
+            if (continuationPoint.NodeClassMask != 0 && ((continuationPoint.NodeClassMask & (uint)target.NodeClass) == 0))
+            {
+                return null;
+            }
+
+            NodeId typeDefinition = null;
+
+            BaseInstanceState instance = target as BaseInstanceState;
+
+            if (instance != null)
+            {
+                typeDefinition = instance.TypeDefinitionId;
+            }
+
+            // set target attributes.
+            description.SetTargetAttributes(
+                continuationPoint.ResultMask,
+                target.NodeClass,
+                target.BrowseName,
+                target.DisplayName,
+                typeDefinition);
+
+            return description;
+        }
+
         #endregion
     }
 }

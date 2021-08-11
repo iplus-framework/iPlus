@@ -164,7 +164,6 @@ namespace gip.core.autocomponent
         {
             get
             {
-
                 using (ACMonitor.Lock(LockMemberList_20020))
                 {
                     return ACMemberList.Where(c => c is IACPropertyBase).Select(c => c as IACPropertyBase).ToList();

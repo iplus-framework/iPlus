@@ -114,7 +114,7 @@ namespace gip.core.communication
         }
 
         private bool _UseCertificate;
-        [ACPropertyInfo(999,"", "en{'Use certificate authentication'}de{'Zertifikatauthentifizierung verwenden'}", "",true)]
+        [ACPropertyInfo(999,"", "en{'Use certificate authentication'}de{'Zertifikatauthentifizierung verwenden'}", "", false)]
         public bool UseCertificate
         {
             get
@@ -170,7 +170,7 @@ namespace gip.core.communication
                 Messages.LogException(this.GetACUrl(), "InitOPCUAApp(10)", e);
             }
 
-            if(_AppConfiguration == null)
+            if (_AppConfiguration == null)
             {
                 return;
             }
