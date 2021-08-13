@@ -4184,13 +4184,13 @@ namespace gip.core.autocomponent
 
         #region IACMenuBuilder Member
 
-        private Dictionary<Guid, ClassRightManager> _RemoteUserRights = null;
-        protected Dictionary<Guid, ClassRightManager> RemoteUserRights
+        private ConcurrentDictionary<Guid, ClassRightManager> _RemoteUserRights = null;
+        protected ConcurrentDictionary<Guid, ClassRightManager> RemoteUserRights
         {
             get
             {
                 if (_RemoteUserRights == null)
-                    _RemoteUserRights = new Dictionary<Guid, ClassRightManager>();
+                    _RemoteUserRights = new ConcurrentDictionary<Guid, ClassRightManager>();
                 return _RemoteUserRights;
             }
         }
@@ -4201,12 +4201,7 @@ namespace gip.core.autocomponent
             {
                 if (this.Root.CurrentInvokingUser != null)
                 {
-                    ClassRightManager classRightManager;
-                    if (!RemoteUserRights.TryGetValue(Root.CurrentInvokingUser.VBUserID, out classRightManager))
-                    {
-                        classRightManager = new ClassRightManager(ComponentClass, Root.CurrentInvokingUser);
-                        RemoteUserRights[Root.CurrentInvokingUser.VBUserID] = classRightManager;
-                    }
+                    ClassRightManager classRightManager = GetRightsForUser(Root.CurrentInvokingUser);
                     return classRightManager;
                 }
                 else
@@ -4214,6 +4209,19 @@ namespace gip.core.autocomponent
                     return ComponentClass.RightManager;
                 }
             }
+        }
+
+        public ClassRightManager GetRightsForUser(VBUser user)
+        {
+            if (user == null)
+                return null;
+            ClassRightManager classRightManager;
+            if (!RemoteUserRights.TryGetValue(user.VBUserID, out classRightManager))
+            {
+                classRightManager = new ClassRightManager(ComponentClass, user);
+                RemoteUserRights.TryAdd(user.VBUserID, classRightManager);
+            }
+            return classRightManager;
         }
 
         /// <summary>

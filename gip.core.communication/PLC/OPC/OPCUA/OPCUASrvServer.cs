@@ -293,7 +293,26 @@ namespace gip.core.communication
                     OPCUASrvACService.Namespace_UA_App,
                     new LocalizedText(info)));
             }
+            AddLoggedOnUser(vbUser);
             return vbUser;
+        }
+
+        private List<VBUser> _LoggedOnUsers = new List<VBUser>();
+        public VBUser GetLoggedOnUser(string user)
+        {
+            using (ACMonitor.Lock(_30210_LockValue))
+            {
+                return _LoggedOnUsers.Where(c => c.VBUserName == user).FirstOrDefault();
+            }
+        }
+
+        private void AddLoggedOnUser(VBUser vbUser)
+        {
+            using (ACMonitor.Lock(_30210_LockValue))
+            {
+                if (!_LoggedOnUsers.Contains(vbUser))
+                    _LoggedOnUsers.Add(vbUser);
+            }
         }
 
         /// <summary>

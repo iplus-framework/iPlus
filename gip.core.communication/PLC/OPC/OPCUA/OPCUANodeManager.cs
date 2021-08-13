@@ -51,13 +51,21 @@ namespace gip.core.communication
         }
 
         private IServerInternal _InternalServer;
+        public IServerInternal InternalServer
+        {
+            get
+            {
+                return _InternalServer;
+            }
+        }
+
         private ServerSystemContext _SystemContext;
         protected ServerSystemContext SystemContext
         {
             get { return _SystemContext; }
         }
 
-        private class NodeStateInfos
+        public class NodeStateInfo
         {
             public NodeState Node { get; set; }
             public NodeStateReference Reference { get; set; }
@@ -78,15 +86,26 @@ namespace gip.core.communication
                     return Node as UAStateACProperty;
                 }
             }
+
+            public UAStateACMethod NodeMethod
+            {
+                get
+                {
+                    return Node as UAStateACMethod;
+                }
+            }
         }
 
-        private ConcurrentDictionary<NodeId, NodeState> _MapNodeID2Member = new ConcurrentDictionary<NodeId, NodeState>();
-        private ConcurrentDictionary<IACMember, NodeState> _MapMemberToNodeState = new ConcurrentDictionary<IACMember, NodeState>();
+        private ConcurrentDictionary<NodeId, NodeStateInfo> _MapNodeID2Member = new ConcurrentDictionary<NodeId, NodeStateInfo>();
+        private ConcurrentDictionary<IACObject, NodeStateInfo> _MapMemberToNodeState = new ConcurrentDictionary<IACObject, NodeStateInfo>();
         #endregion
 
 
         #region Implementation INodeManager
         private readonly string[] _NamespaceUris = new string[] { OPCUASrvACService.Namespace_UA_App, OPCUASrvACService.Namespace_UA_App + "/Instance" };
+        /// <summary>
+        /// 1. Call from UA-Server
+        /// </summary>
         public IEnumerable<string> NamespaceUris
         {
             get
@@ -102,8 +121,8 @@ namespace gip.core.communication
             foreach (KeyValuePair<NodeId, IList<IReference>> current in references)
             {
                 // check for valid handle.
-                NodeState source = GetManagerHandle(current.Key) as NodeState;
-                if (source == null)
+                NodeStateInfo sourceInfo = GetManagerHandleInfo(current.Key, true, null) as NodeStateInfo;
+                if (sourceInfo == null)
                     continue;
 
                 using (ACMonitor.Lock(_30209_LockValue))
@@ -111,12 +130,16 @@ namespace gip.core.communication
                     // add reference to external target.
                     foreach (IReference reference in current.Value)
                     {
-                        source.AddReference(reference.ReferenceTypeId, reference.IsInverse, reference.TargetId);
+                        sourceInfo.Node.AddReference(reference.ReferenceTypeId, reference.IsInverse, reference.TargetId);
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// 2. Call from UA-Server
+        /// </summary>
+        /// <param name="externalReferences"></param>
         public void CreateAddressSpace(IDictionary<NodeId, IList<IReference>> externalReferences)
         {
             // 0. Beim Starten vom Server
@@ -128,12 +151,10 @@ namespace gip.core.communication
                     _NamespaceIndexes[i] = _InternalServer.NamespaceUris.GetIndexOrAppend(_NamespaceUris[i]);
                 }
 
-                NodeState rootNodeState = null;
-                if (!_MapMemberToNodeState.TryGetValue(ParentACService.Root, out rootNodeState))
+                NodeStateInfo rootNodeStateInfo = null;
+                if (!_MapMemberToNodeState.TryGetValue(ParentACService.Root, out rootNodeStateInfo))
                 {
-                    rootNodeState = new UAStateACComponent(ParentACService.Root as ACComponent, null, _NamespaceIndexes[1]);
-                    _MapMemberToNodeState.TryAdd(ParentACService.Root, rootNodeState);
-                    _MapNodeID2Member.TryAdd(rootNodeState.NodeId, rootNodeState);
+                    NodeState rootNodeState = new UAStateACComponent(ParentACService.Root as ACComponent, null, _NamespaceIndexes[1]);
 
                     IList<IReference> references = new List<IReference>();
                     rootNodeState.GetReferences(SystemContext, references);
@@ -154,20 +175,36 @@ namespace gip.core.communication
                         referenceToAdd.TargetId = rootNodeState.NodeId;
                         referencesToAdd.Add(referenceToAdd);
                     }
+
+                    rootNodeStateInfo = new NodeStateInfo() { Node = rootNodeState };
+                    _MapMemberToNodeState.TryAdd(ParentACService.Root, rootNodeStateInfo);
+                    _MapNodeID2Member.TryAdd(rootNodeState.NodeId, rootNodeStateInfo);
                 }
             }
         }
 
+
+        /// <summary>
+        ///  3. Call from UA-Server an clients to get a NodaeState-Instances throut the NodeId
+        ///  The NodeId he has whether retrieved via Browsing and GetNodeMetadata
+        ///  or the client has a persisted list of Urls's NodeId's) on it's side
+        /// </summary>
+        /// <param name="nodeId"></param>
+        /// <returns></returns>
         public object GetManagerHandle(NodeId nodeId)
         {
-            // 1. Bei Connect von Client
-            // Rückgabe eines NodeState-Objektes
-            NodeState node;
-            if (_MapNodeID2Member.TryGetValue(nodeId, out node))
-                return node;
-            return null;
+            NodeStateInfo node = GetManagerHandleInfo(nodeId, true, null);
+            return node != null ? node.Node : null;
         }
 
+
+        /// <summary>
+        /// 4. Call from UA-Server when Client has establisehd a connection an needs informations about a node
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="targetHandle"></param>
+        /// <param name="resultMask"></param>
+        /// <returns></returns>
         public NodeMetadata GetNodeMetadata(OperationContext context, object targetHandle, BrowseResultMask resultMask)
         {
             // 2. Das zurückegebene NodeState-Objekt wird dann als targetHandle wrder hier übergeben
@@ -175,13 +212,22 @@ namespace gip.core.communication
             NodeState targetNode = targetHandle as NodeState;
             if (targetNode == null)
                 return null;
-            if (!(targetNode is IUAStateIACMember))
+            IUAStateIACMember acNode = targetNode as IUAStateIACMember;
+            if (acNode == null)
                 return null;
-
-            ServerSystemContext systemContext = _SystemContext.Copy(context);
 
             using (ACMonitor.Lock(_30209_LockValue))
             {
+                ServerSystemContext systemContext = _SystemContext.Copy(context);
+                ACComponent component = acNode.ACComponent;
+                ClassRightManager rightManager = GetRightManager(component, systemContext);
+                if (rightManager == null)
+                    return null;
+                Global.ControlModes controlModes = rightManager.GetControlMode(acNode.ACMember.ACType);
+                if (   (acNode.ACMember is IACPropertyBase && controlModes <= Global.ControlModes.Hidden)
+                    || (!(acNode.ACMember is IACPropertyBase) && controlModes <= Global.ControlModes.Disabled))
+                    return null;
+
                 List<object> values = targetNode.ReadAttributes(
                 systemContext,
                 Attributes.WriteMask,
@@ -217,10 +263,11 @@ namespace gip.core.communication
 
                 metadata.ArrayDimensions = (IList<uint>)values[4];
 
-                if (values[5] != null && values[6] != null)
-                {
-                    metadata.AccessLevel = (byte)(((byte)values[5]) & ((byte)values[6]));
-                }
+                metadata.AccessLevel = Convert2UARights(controlModes);
+                //if (values[5] != null && values[6] != null)
+                //{
+                //    metadata.AccessLevel = (byte)(((byte)values[5]) & ((byte)values[6]));
+                //}
 
                 if (values[7] != null)
                 {
@@ -246,6 +293,12 @@ namespace gip.core.communication
         }
 
 
+        /// <summary>
+        /// 5. client browses inside the tree 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="continuationPoint"></param>
+        /// <param name="references"></param>
         public void Browse(OperationContext context, ref ContinuationPoint continuationPoint, IList<ReferenceDescription> references)
         {
             // 3. Browse wird aufgerufen, nachdem der Client den Baum aufklappt
@@ -269,10 +322,9 @@ namespace gip.core.communication
             UAStateACComponent componentState2Browse = continuationPoint.NodeToBrowse as UAStateACComponent;
             if (componentState2Browse != null)
             {
-                //ServerSystemContext systemContext = _SystemContext.Copy(context);
-
                 IEnumerable<IACComponent> childs = null;
                 IEnumerable<IACPropertyBase> properties = null;
+                IEnumerable<ACClassMethod> methods = null;
                 if (componentState2Browse.ACComponent is IRoot)
                     childs = componentState2Browse.ACComponent.FindChildComponents<ApplicationManager>(c => c is ApplicationManager, null, 1);
                 else
@@ -283,33 +335,58 @@ namespace gip.core.communication
                     properties = componentState2Browse.ACComponent.ACPropertyList.Where(c => c.IsValueType
                                                                                             || c.PropertyType.IsEnum
                                                                                             || UAStateACProperty.BitAccessType.IsAssignableFrom(c.PropertyType));
+                    methods = componentState2Browse.ACComponent.ACClassMethods.Where(c => c.IsCommand || c.IsInteraction);
                 }
 
                 using (ACMonitor.Lock(_30209_LockValue))
                 {
-                    if (childs != null)
+                    ServerSystemContext systemContext = _SystemContext.Copy(context);
+                    ClassRightManager rightManager = GetRightManager(componentState2Browse.ACComponent, systemContext);
+                    if (rightManager != null)
                     {
-                        foreach (IACComponent iACComponent in childs)
+                        if (childs != null)
                         {
-                            IReference reference = CreateNewReference(iACComponent as ACComponent, componentState2Browse);
-                            if (reference != null)
+                            foreach (IACComponent iACComponent in childs)
                             {
-                                ReferenceDescription refDesc = GetReferenceDescription(context, reference, continuationPoint);
-                                if (refDesc != null)
-                                    references.Add(refDesc);
+                                Global.ControlModes controlModes = rightManager.GetControlMode(iACComponent.ACType);
+                                if (controlModes <= Global.ControlModes.Disabled)
+                                    continue;
+
+                                NodeStateInfo nodeStateInfo = GetOrCreateNewNodeState(iACComponent as ACComponent, componentState2Browse);
+                                if (nodeStateInfo.ReferencesDesc == null || nodeStateInfo.Reference != null)
+                                    nodeStateInfo.ReferencesDesc = GetReferenceDescription(context, nodeStateInfo.Reference, continuationPoint);
+                                if (nodeStateInfo.ReferencesDesc != null)
+                                    references.Add(nodeStateInfo.ReferencesDesc);
                             }
                         }
-                    }
-                    if (properties != null)
-                    {
-                        foreach (IACPropertyBase iACProp in properties)
+                        if (properties != null)
                         {
-                            IReference reference = CreateNewReference(iACProp, componentState2Browse);
-                            if (reference != null)
+                            foreach (IACPropertyBase iACProp in properties)
                             {
-                                ReferenceDescription refDesc = GetReferenceDescription(context, reference, continuationPoint);
-                                if (refDesc != null)
-                                    references.Add(refDesc);
+                                Global.ControlModes controlModes = rightManager.GetControlMode(iACProp.ACType);
+                                if (controlModes <= Global.ControlModes.Hidden)
+                                    continue;
+
+                                NodeStateInfo nodeStateInfo = GetOrCreateNewNodeState(iACProp, componentState2Browse);
+                                if (nodeStateInfo.ReferencesDesc == null || nodeStateInfo.Reference != null)
+                                    nodeStateInfo.ReferencesDesc = GetReferenceDescription(context, nodeStateInfo.Reference, continuationPoint);
+                                if (nodeStateInfo.ReferencesDesc != null)
+                                    references.Add(nodeStateInfo.ReferencesDesc);
+                            }
+                        }
+                        if (methods != null)
+                        {
+                            foreach (ACClassMethod method in methods)
+                            {
+                                Global.ControlModes controlModes = rightManager.GetControlMode(method.ACType);
+                                if (controlModes <= Global.ControlModes.Disabled)
+                                    continue;
+
+                                NodeStateInfo nodeStateInfo = GetOrCreateNewNodeState(method, componentState2Browse);
+                                if (nodeStateInfo.ReferencesDesc == null || nodeStateInfo.Reference != null)
+                                    nodeStateInfo.ReferencesDesc = GetReferenceDescription(context, nodeStateInfo.Reference, continuationPoint);
+                                if (nodeStateInfo.ReferencesDesc != null)
+                                    references.Add(nodeStateInfo.ReferencesDesc);
                             }
                         }
                     }
@@ -320,58 +397,21 @@ namespace gip.core.communication
             continuationPoint = null;
         }
 
-        public void Call(OperationContext context, IList<CallMethodRequest> methodsToCall, IList<CallMethodResult> results, IList<ServiceResult> errors)
-        {
-            throw new NotImplementedException();
-        }
 
-        public ServiceResult ConditionRefresh(OperationContext context, IList<IEventMonitoredItem> monitoredItems)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public void CreateMonitoredItems(OperationContext context, uint subscriptionId, double publishingInterval, TimestampsToReturn timestampsToReturn, IList<MonitoredItemCreateRequest> itemsToCreate, IList<ServiceResult> errors, IList<MonitoringFilterResult> filterErrors, IList<IMonitoredItem> monitoredItems, ref long globalIdCounter)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DeleteAddressSpace()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DeleteMonitoredItems(OperationContext context, IList<IMonitoredItem> monitoredItems, IList<bool> processedItems, IList<ServiceResult> errors)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ServiceResult DeleteReference(object sourceHandle, NodeId referenceTypeId, bool isInverse, ExpandedNodeId targetId, bool deleteBidirectional)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void HistoryRead(OperationContext context, HistoryReadDetails details, TimestampsToReturn timestampsToReturn, bool releaseContinuationPoints, IList<HistoryReadValueId> nodesToRead, IList<HistoryReadResult> results, IList<ServiceResult> errors)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void HistoryUpdate(OperationContext context, Type detailsType, IList<HistoryUpdateDetails> nodesToUpdate, IList<HistoryUpdateResult> results, IList<ServiceResult> errors)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ModifyMonitoredItems(OperationContext context, TimestampsToReturn timestampsToReturn, IList<IMonitoredItem> monitoredItems, IList<MonitoredItemModifyRequest> itemsToModify, IList<ServiceResult> errors, IList<MonitoringFilterResult> filterErrors)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// 6. Reading Property Values
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="maxAge"></param>
+        /// <param name="nodesToRead"></param>
+        /// <param name="values"></param>
+        /// <param name="errors"></param>
         public void Read(OperationContext context, double maxAge, IList<ReadValueId> nodesToRead, IList<DataValue> values, IList<ServiceResult> errors)
         {
-            ServerSystemContext systemContext = _SystemContext.Copy(context);
             IDictionary<NodeId, NodeState> operationCache = new NodeIdDictionary<NodeState>();
             List<ReadWriteOperationState> nodesToValidate = new List<ReadWriteOperationState>();
 
+            ServerSystemContext systemContext = _SystemContext.Copy(context);
             for (int ii = 0; ii < nodesToRead.Count; ii++)
             {
                 ReadValueId nodeToRead = nodesToRead[ii];
@@ -383,21 +423,22 @@ namespace gip.core.communication
                 }
 
                 // check for valid handle.
-                UAStateACProperty source = GetManagerHandle(nodeToRead.NodeId) as UAStateACProperty;
-                if (source == null)
-                {
+                NodeStateInfo sourceInfo = GetManagerHandleInfo(nodeToRead.NodeId, true, systemContext) as NodeStateInfo;
+                if (sourceInfo == null)
                     continue;
-                }
+                UAStateACProperty source = sourceInfo.Node as UAStateACProperty;
+                if (source == null)
+                    continue;
 
                 // owned by this node manager.
                 nodeToRead.Processed = true;
 
                 // create an initial value.
-                DataValue value = values[ii] = new DataValue();
-
-                value.Value = source.ACProperty.Value;
+                if (source.WrappedValue != source.ACValueAsVariant)
+                    source.WrappedValue = source.ACValueAsVariant;
+                DataValue value = values[ii] = new DataValue(source.ACValueAsVariant);
                 value.ServerTimestamp = DateTime.UtcNow;
-                value.SourceTimestamp = DateTime.Now;
+                value.SourceTimestamp = DateTime.MinValue;
                 value.StatusCode = StatusCodes.Good;
 
                 // check if the node is ready for reading.
@@ -416,7 +457,7 @@ namespace gip.core.communication
                     continue;
                 }
 
-                // read the attribute value.
+                //read the attribute value.
                 errors[ii] = source.ReadAttribute(
                     systemContext,
                     nodeToRead.AttributeId,
@@ -451,7 +492,335 @@ namespace gip.core.communication
                     nodeToRead.ParsedIndexRange,
                     nodeToRead.DataEncoding,
                     value);
+                //errors[ii] = ServiceResult.Good;
             }
+        }
+
+        /// <summary>
+        /// 7. writing property values
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="nodesToWrite"></param>
+        /// <param name="errors"></param>
+        public void Write(OperationContext context, IList<WriteValue> nodesToWrite, IList<ServiceResult> errors)
+        {
+            ServerSystemContext systemContext = _SystemContext.Copy(context);
+            IDictionary<NodeId, NodeState> operationCache = new NodeIdDictionary<NodeState>();
+            List<ReadWriteOperationState> nodesToValidate = new List<ReadWriteOperationState>();
+
+            for (int ii = 0; ii < nodesToWrite.Count; ii++)
+            {
+                WriteValue nodeToWrite = nodesToWrite[ii];
+
+                // skip items that have already been processed.
+                if (nodeToWrite.Processed)
+                    continue;
+
+                // check for valid handle.
+                NodeStateInfo sourceInfo = GetManagerHandleInfo(nodeToWrite.NodeId, true, systemContext) as NodeStateInfo;
+                if (sourceInfo == null)
+                    continue;
+                UAStateACProperty source = sourceInfo.Node as UAStateACProperty;
+                if (source == null)
+                    continue;
+
+                // owned by this node manager.
+                nodeToWrite.Processed = true;
+
+                // index range is not supported.
+                if (!String.IsNullOrEmpty(nodeToWrite.IndexRange))
+                {
+                    errors[ii] = StatusCodes.BadWriteNotSupported;
+                    continue;
+                }
+
+                // check if the node is ready for reading.
+                if (source.ValidationRequired)
+                {
+                    errors[ii] = StatusCodes.BadNodeIdUnknown;
+
+                    // must validate node in a seperate operation.
+                    ReadWriteOperationState operation = new ReadWriteOperationState();
+
+                    operation.Source = source;
+                    operation.Index = ii;
+
+                    nodesToValidate.Add(operation);
+
+                    continue;
+                }
+
+                // write the attribute value.
+                //errors[ii] = source.WriteAttribute(
+                //    systemContext,
+                //    nodeToWrite.AttributeId,
+                //    nodeToWrite.ParsedIndexRange,
+                //    nodeToWrite.Value);
+                errors[ii] = ServiceResult.Good;
+                if (nodeToWrite.Value != null && nodeToWrite.Value.Value != null)
+                    source.ACValue = nodeToWrite.Value.Value;
+
+                // updates to source finished - report changes to monitored items.
+                source.ClearChangeMasks(systemContext, false);
+            }
+
+            // check for nothing to do.
+            if (nodesToValidate.Count == 0)
+            {
+                return;
+            }
+
+            // validates the nodes (reads values from the underlying data source if required).
+            for (int ii = 0; ii < nodesToValidate.Count; ii++)
+            {
+                ReadWriteOperationState operation = nodesToValidate[ii];
+
+                if (!ValidateNode(systemContext, operation.Source))
+                    continue;
+
+                WriteValue nodeToWrite = nodesToWrite[operation.Index];
+
+                NodeStateInfo sourceInfo = GetManagerHandleInfo(nodeToWrite.NodeId, true, systemContext) as NodeStateInfo;
+                if (sourceInfo == null)
+                    continue;
+                UAStateACProperty source = sourceInfo.Node as UAStateACProperty;
+                if (source == null)
+                    continue;
+
+                // write the attribute value.
+                //errors[operation.Index] = operation.Source.WriteAttribute(
+                //    systemContext,
+                //    nodeToWrite.AttributeId,
+                //    nodeToWrite.ParsedIndexRange,
+                //    nodeToWrite.Value);
+                errors[ii] = ServiceResult.Good;
+                source.Value = nodeToWrite.Value;
+
+                // updates to source finished - report changes to monitored items.
+                operation.Source.ClearChangeMasks(systemContext, false);
+            }
+        }
+
+
+
+        public void Call(OperationContext context, IList<CallMethodRequest> methodsToCall, IList<CallMethodResult> results, IList<ServiceResult> errors)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public ServiceResult ConditionRefresh(OperationContext context, IList<IEventMonitoredItem> monitoredItems)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public void CreateMonitoredItems(OperationContext context, uint subscriptionId, double publishingInterval, TimestampsToReturn timestampsToReturn, IList<MonitoredItemCreateRequest> itemsToCreate, IList<ServiceResult> errors, IList<MonitoringFilterResult> filterErrors, IList<IMonitoredItem> monitoredItems, ref long globalIdCounter)
+        {
+            ServerSystemContext systemContext = _SystemContext.Copy(context);
+            IDictionary<NodeId, NodeState> operationCache = new NodeIdDictionary<NodeState>();
+            List<ReadWriteOperationState> nodesToValidate = new List<ReadWriteOperationState>();
+            List<IMonitoredItem> createdItems = new List<IMonitoredItem>();
+
+            using (ACMonitor.Lock(_30209_LockValue))
+            {
+                for (int ii = 0; ii < itemsToCreate.Count; ii++)
+                {
+                    MonitoredItemCreateRequest itemToCreate = itemsToCreate[ii];
+
+                    // skip items that have already been processed.
+                    if (itemToCreate.Processed)
+                    {
+                        continue;
+                    }
+
+                    ReadValueId itemToMonitor = itemToCreate.ItemToMonitor;
+
+                    NodeStateInfo sourceInfo = GetManagerHandleInfo(itemToMonitor.NodeId, true, systemContext) as NodeStateInfo;
+                    if (sourceInfo == null)
+                        continue;
+                    UAStateACProperty source = sourceInfo.Node as UAStateACProperty;
+                    if (source == null)
+                        continue;
+
+                    // owned by this node manager.
+                    itemToCreate.Processed = true;
+
+                    // check if the node is ready for reading.
+                    if (source.ValidationRequired)
+                    {
+                        errors[ii] = StatusCodes.BadNodeIdUnknown;
+
+                        // must validate node in a seperate operation.
+                        ReadWriteOperationState operation = new ReadWriteOperationState();
+
+                        operation.Source = source;
+                        operation.Index = ii;
+
+                        nodesToValidate.Add(operation);
+
+                        continue;
+                    }
+
+                    MonitoringFilterResult filterError = null;
+                    IMonitoredItem monitoredItem = null;
+
+                    errors[ii] = CreateMonitoredItem(
+                        systemContext,
+                        source,
+                        subscriptionId,
+                        publishingInterval,
+                        context.DiagnosticsMask,
+                        timestampsToReturn,
+                        itemToCreate,
+                        ref globalIdCounter,
+                        out filterError,
+                        out monitoredItem);
+
+                    // save any filter error details.
+                    filterErrors[ii] = filterError;
+
+                    if (ServiceResult.IsBad(errors[ii]))
+                    {
+                        continue;
+                    }
+
+                    // save the monitored item.
+                    monitoredItems[ii] = monitoredItem;
+                }
+
+                // check for nothing to do.
+                if (nodesToValidate.Count == 0)
+                {
+                    return;
+                }
+
+                // validates the nodes (reads values from the underlying data source if required).
+                for (int ii = 0; ii < nodesToValidate.Count; ii++)
+                {
+                    ReadWriteOperationState operation = nodesToValidate[ii];
+
+                    // validate the object.
+                    if (!ValidateNode(systemContext, operation.Source))
+                    {
+                        continue;
+                    }
+
+                    MonitoredItemCreateRequest itemToCreate = itemsToCreate[operation.Index];
+
+                    MonitoringFilterResult filterError = null;
+                    IMonitoredItem monitoredItem = null;
+
+                    errors[operation.Index] = CreateMonitoredItem(
+                        systemContext,
+                        operation.Source,
+                        subscriptionId,
+                        publishingInterval,
+                        context.DiagnosticsMask,
+                        timestampsToReturn,
+                        itemToCreate,
+                        ref globalIdCounter,
+                        out filterError,
+                        out monitoredItem);
+
+                    // save any filter error details.
+                    filterErrors[operation.Index] = filterError;
+
+                    if (ServiceResult.IsBad(errors[operation.Index]))
+                    {
+                        continue;
+                    }
+
+                    // save the monitored item.
+                    monitoredItems[operation.Index] = monitoredItem;
+                }
+
+            }
+
+            // do any post processing.
+            //OnCreateMonitoredItemsComplete(systemContext, createdItems);
+        }
+
+
+        public void ModifyMonitoredItems(OperationContext context, TimestampsToReturn timestampsToReturn, IList<IMonitoredItem> monitoredItems, IList<MonitoredItemModifyRequest> itemsToModify, IList<ServiceResult> errors, IList<MonitoringFilterResult> filterErrors)
+        {
+            ServerSystemContext systemContext = _SystemContext.Copy(context);
+
+            using (ACMonitor.Lock(_30209_LockValue))
+            {
+                for (int ii = 0; ii < monitoredItems.Count; ii++)
+                {
+                    MonitoredItemModifyRequest itemToModify = itemsToModify[ii];
+
+                    // skip items that have already been processed.
+                    if (itemToModify.Processed)
+                    {
+                        continue;
+                    }
+
+                    // modify the monitored item.
+                    MonitoringFilterResult filterError = null;
+
+                    errors[ii] = ModifyMonitoredItem(
+                        systemContext,
+                        context.DiagnosticsMask,
+                        timestampsToReturn,
+                        monitoredItems[ii],
+                        itemToModify,
+                        out filterError);
+
+                    // save any filter error details.
+                    filterErrors[ii] = filterError;
+                }
+            }
+        }
+
+        public void DeleteMonitoredItems(OperationContext context, IList<IMonitoredItem> monitoredItems, IList<bool> processedItems, IList<ServiceResult> errors)
+        {
+            ServerSystemContext systemContext = _SystemContext.Copy(context);
+
+            using (ACMonitor.Lock(_30209_LockValue))
+            {
+                for (int ii = 0; ii < monitoredItems.Count; ii++)
+                {
+                    // skip items that have already been processed.
+                    if (processedItems[ii])
+                    {
+                        continue;
+                    }
+
+                    // delete the monitored item.
+                    bool processed = false;
+
+                    errors[ii] = DeleteMonitoredItem(
+                        systemContext,
+                        monitoredItems[ii],
+                        out processed);
+
+                    // indicate whether it was processed or not.
+                    processedItems[ii] = processed;
+                }
+            }
+        }
+
+        public void DeleteAddressSpace()
+        {
+            //throw new NotImplementedException();
+        }
+
+        public ServiceResult DeleteReference(object sourceHandle, NodeId referenceTypeId, bool isInverse, ExpandedNodeId targetId, bool deleteBidirectional)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HistoryRead(OperationContext context, HistoryReadDetails details, TimestampsToReturn timestampsToReturn, bool releaseContinuationPoints, IList<HistoryReadValueId> nodesToRead, IList<HistoryReadResult> results, IList<ServiceResult> errors)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HistoryUpdate(OperationContext context, Type detailsType, IList<HistoryUpdateDetails> nodesToUpdate, IList<HistoryUpdateResult> results, IList<ServiceResult> errors)
+        {
+            throw new NotImplementedException();
         }
 
         public void SetMonitoringMode(OperationContext context, MonitoringMode monitoringMode, IList<IMonitoredItem> monitoredItems, IList<bool> processedItems, IList<ServiceResult> errors)
@@ -473,14 +842,104 @@ namespace gip.core.communication
         {
             throw new NotImplementedException();
         }
-
-        public void Write(OperationContext context, IList<WriteValue> nodesToWrite, IList<ServiceResult> errors)
-        {
-            throw new NotImplementedException();
-        }
         #endregion
 
         #region Helper-Methods
+
+        private NodeStateInfo GetManagerHandleInfo(NodeId nodeId, bool createIfNotExist, ServerSystemContext systemContext)
+        {
+            // 1. Bei Connect von Client
+            // Rückgabe eines NodeState-Objektes
+            NodeStateInfo node;
+            if (_MapNodeID2Member.TryGetValue(nodeId, out node))
+                return node;
+            if (createIfNotExist)
+            {
+                using (ACMonitor.Lock(_30209_LockValue))
+                {
+                    try
+                    {
+                        if (nodeId.Identifier == null)
+                            return null;
+                        string acURL = nodeId.Identifier as string;
+                        if (String.IsNullOrEmpty(acURL))
+                            return null;
+                        if (!acURL.ContainsACUrlDelimiters())
+                            return null;
+                        string methodName = null;
+                        string propertyName = null;
+                        ACComponent component = null;
+                        IACPropertyBase property = null;
+                        int indexOfMethod = acURL.IndexOf(ACUrlHelper.Delimiter_InvokeMethod);
+                        if (indexOfMethod > 0)
+                        {
+                            methodName = acURL.Substring(indexOfMethod + 1);
+                            acURL = acURL.Substring(0, indexOfMethod);
+                            component = this.ParentACService.ACUrlCommand(acURL) as ACComponent;
+                            if (component == null)
+                                return null;
+                        }
+                        component = this.ParentACService.ACUrlCommand(acURL) as ACComponent;
+                        if (component == null)
+                        {
+                            int indexOfLastSegment = acURL.LastIndexOf(ACUrlHelper.Delimiter_DirSeperator);
+                            if (indexOfLastSegment > 0)
+                            {
+                                propertyName = acURL.Substring(indexOfLastSegment + 1);
+                                acURL = acURL.Substring(0, indexOfLastSegment);
+                                component = this.ParentACService.ACUrlCommand(acURL) as ACComponent;
+                                if (component != null)
+                                    property = component.GetProperty(propertyName);
+                            }
+                            if (property == null)
+                                return null;
+                        }
+
+                        NodeStateInfo stateInfoOfComp = null;
+                        if (!_MapMemberToNodeState.TryGetValue(component, out stateInfoOfComp))
+                            stateInfoOfComp = GetOrCreateNewNodeState(component, null);
+                        if (stateInfoOfComp == null)
+                            return null;
+                        UAStateACComponent stateACComp = stateInfoOfComp.NodeComp;
+                        if (stateACComp == null)
+                            return null;
+
+                        //ClassRightManager rightManager = GetRightManager(component, systemContext);
+                        //if (rightManager == null)
+                        //    return null;
+
+                        //Global.ControlModes controlModes = Global.ControlModes.Enabled;
+                        string normalizedMethodName = null;
+                        if (property != null)
+                        {
+                            //controlModes = rightManager.GetControlMode(property.ACType);
+                            //if (controlModes < Global.ControlModes.Enabled)
+                            //    return null;
+                            node = GetOrCreateNewNodeState(property, stateACComp);
+                            return node;
+                        }
+                        else if (!String.IsNullOrEmpty(methodName))
+                        {
+                            ACClassMethod acClassMethod = component.GetACClassMethod(methodName, out normalizedMethodName);
+                            if (acClassMethod == null)
+                                return null;
+                            //controlModes = rightManager.GetControlMode(acClassMethod.ACType);
+                            //if (controlModes < Global.ControlModes.Enabled)
+                            //    return null;
+                            node = GetOrCreateNewNodeState(acClassMethod, stateACComp);
+                            return node;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        this.ParentACService.Messages.LogException(this.ParentACService.GetACUrl(), "OPCUANodeManager.GetManagerHandleInfo(10)", e);
+                    }
+                }
+            }
+            return null;
+        }
+
+
         //protected virtual bool IsNodeIdInNamespace(NodeId nodeId)
         //{
         //    if (NodeId.IsNull(nodeId))
@@ -500,33 +959,76 @@ namespace gip.core.communication
         //    return false;
         //}
 
-        private IReference CreateNewReference(IACPropertyBase property, UAStateACComponent parent)
+        private byte Convert2UARights(Global.ControlModes controlMode)
         {
-            NodeState checkIfExists = null;
+            if (controlMode == Global.ControlModes.Disabled)
+                return AccessLevels.CurrentRead;
+            //else if (controlMode >= Global.ControlModes.Enabled)
+            return AccessLevels.CurrentReadOrWrite;
+        }
+
+        private NodeStateInfo GetOrCreateNewNodeState(IACPropertyBase property, UAStateACComponent parent)
+        {
+            NodeStateInfo checkIfExists = null;
             if (_MapMemberToNodeState.TryGetValue(property, out checkIfExists))
             {
-                return new NodeStateReference(ReferenceTypeIds.HasComponent, false, checkIfExists);
+                return checkIfExists;
             }
 
             UAStateACProperty newStateObj = new UAStateACProperty(property, parent, _NamespaceIndexes[1]);
-            _MapMemberToNodeState.TryAdd(property, newStateObj);
-            _MapNodeID2Member.TryAdd(newStateObj.NodeId, newStateObj);
-            return new NodeStateReference(ReferenceTypeIds.HasComponent, false, newStateObj);
+            checkIfExists = new NodeStateInfo() { Node = newStateObj };
+            checkIfExists.Reference = new NodeStateReference(ReferenceTypeIds.HasComponent, false, newStateObj);
+            _MapMemberToNodeState.TryAdd(property, checkIfExists);
+            _MapNodeID2Member.TryAdd(newStateObj.NodeId, checkIfExists);
+            return checkIfExists;
         }
 
-
-        private IReference CreateNewReference(ACComponent component, UAStateACComponent parent)
+        private NodeStateInfo GetOrCreateNewNodeState(ACComponent component, UAStateACComponent parent)
         {
-            NodeState checkIfExists = null;
+            if (component == null)
+                return null;
+            NodeStateInfo checkIfExists = null;
             if (_MapMemberToNodeState.TryGetValue(component, out checkIfExists))
             {
-                return new NodeStateReference(ReferenceTypeIds.Organizes, false, checkIfExists);
+                return checkIfExists;
+            }
+
+            if (parent == null)
+            {
+                ACComponent parentACComponent = component.ParentACComponent as ACComponent;
+                if (parentACComponent == null)
+                    return null;
+                if (!_MapMemberToNodeState.TryGetValue(parentACComponent, out checkIfExists))
+                {
+                    checkIfExists = GetOrCreateNewNodeState(parentACComponent, null);
+                }
+                if (checkIfExists == null)
+                    return null;
+                parent = checkIfExists.NodeComp;
             }
 
             UAStateACComponent newStateObj = new UAStateACComponent(component, parent, _NamespaceIndexes[1]);
-            _MapMemberToNodeState.TryAdd(component, newStateObj);
-            _MapNodeID2Member.TryAdd(newStateObj.NodeId, newStateObj);
-            return new NodeStateReference(ReferenceTypeIds.Organizes, false, newStateObj);
+            checkIfExists = new NodeStateInfo() { Node = newStateObj };
+            checkIfExists.Reference = new NodeStateReference(ReferenceTypeIds.Organizes, false, newStateObj);
+            _MapMemberToNodeState.TryAdd(component, checkIfExists);
+            _MapNodeID2Member.TryAdd(newStateObj.NodeId, checkIfExists);
+            return checkIfExists;
+        }
+
+        private NodeStateInfo GetOrCreateNewNodeState(ACClassMethod method, UAStateACComponent parent)
+        {
+            NodeStateInfo checkIfExists = null;
+            if (_MapMemberToNodeState.TryGetValue(method, out checkIfExists))
+            {
+                return checkIfExists;
+            }
+
+            UAStateACMethod newStateObj = new UAStateACMethod(parent.ACComponent, method, parent, _NamespaceIndexes[1]);
+            checkIfExists = new NodeStateInfo() { Node = newStateObj };
+            checkIfExists.Reference = new NodeStateReference(ReferenceTypeIds.HasComponent, false, newStateObj);
+            _MapMemberToNodeState.TryAdd(method, checkIfExists);
+            _MapNodeID2Member.TryAdd(newStateObj.NodeId, checkIfExists);
+            return checkIfExists;
         }
 
         private ReferenceDescription GetReferenceDescription(
@@ -566,7 +1068,7 @@ namespace gip.core.communication
             if (target == null)
             {
                 NodeId targetId = (NodeId)reference.TargetId;
-                NodeState node;
+                NodeStateInfo node;
                 if (!_MapNodeID2Member.TryGetValue(targetId, out node))
                     target = null;
             }
@@ -611,7 +1113,7 @@ namespace gip.core.communication
         /// </summary>
         private struct ReadWriteOperationState
         {
-            public NodeState Source;
+            public UAStateACProperty Source;
             public int Index;
         }
 
@@ -627,6 +1129,286 @@ namespace gip.core.communication
             return true;
         }
 
+        protected ServiceResult CreateMonitoredItem(
+            ServerSystemContext context,
+            UAStateACProperty source,
+            uint subscriptionId,
+            double publishingInterval,
+            DiagnosticsMasks diagnosticsMasks,
+            TimestampsToReturn timestampsToReturn,
+            MonitoredItemCreateRequest itemToCreate,
+            ref long globalIdCounter,
+            out MonitoringFilterResult filterError,
+            out IMonitoredItem monitoredItem)
+        {
+            filterError = null;
+            monitoredItem = null;
+
+            // validate parameters.
+            MonitoringParameters parameters = itemToCreate.RequestedParameters;
+
+            // no filters supported at this time.
+            MonitoringFilter filter = (MonitoringFilter)ExtensionObject.ToEncodeable(parameters.Filter);
+
+            if (filter != null)
+            {
+                return StatusCodes.BadFilterNotAllowed;
+            }
+
+            // index range not supported.
+            if (itemToCreate.ItemToMonitor.ParsedIndexRange != NumericRange.Empty)
+            {
+                return StatusCodes.BadIndexRangeInvalid;
+            }
+
+            // data encoding not supported.
+            if (!QualifiedName.IsNull(itemToCreate.ItemToMonitor.DataEncoding))
+            {
+                return StatusCodes.BadDataEncodingInvalid;
+            }
+
+            // read initial value.
+            if (source.WrappedValue != source.ACValueAsVariant)
+                source.WrappedValue = source.ACValueAsVariant;
+            DataValue initialValue = new DataValue(source.ACValueAsVariant);
+            initialValue.ServerTimestamp = DateTime.UtcNow;
+            initialValue.SourceTimestamp = DateTime.MinValue;
+            initialValue.StatusCode = StatusCodes.Good;
+
+            ServiceResult error = source.ReadAttribute(
+                context,
+                itemToCreate.ItemToMonitor.AttributeId,
+                itemToCreate.ItemToMonitor.ParsedIndexRange,
+                itemToCreate.ItemToMonitor.DataEncoding,
+                initialValue);
+
+            initialValue.WrappedValue = source.ACValueAsVariant;
+
+            if (ServiceResult.IsBad(error))
+            {
+                return error;
+            }
+
+            // create a globally unique identifier.
+            uint monitoredItemId = Utils.IncrementIdentifier(ref globalIdCounter);
+
+            // determine the sampling interval.
+            double samplingInterval = itemToCreate.RequestedParameters.SamplingInterval;
+
+            if (samplingInterval < 0)
+            {
+                samplingInterval = publishingInterval;
+            }
+
+            // create the item.
+            OPCUAServerMonitoredItem datachangeItem = new OPCUAServerMonitoredItem(
+                    _InternalServer,
+                    this,
+                    source,
+                    subscriptionId,
+                    monitoredItemId,
+                    context.OperationContext.Session,
+                    itemToCreate.ItemToMonitor,
+                    diagnosticsMasks,
+                    timestampsToReturn,
+                    itemToCreate.MonitoringMode,
+                    itemToCreate.RequestedParameters.ClientHandle,
+                    null,
+                    null,
+                    null,
+                    samplingInterval,
+                    0,
+                    false,
+                    0);
+
+            // report the initial value.
+            datachangeItem.QueueValue(initialValue, null);
+
+            // update monitored item list.
+            monitoredItem = datachangeItem;
+
+            return ServiceResult.Good;
+        }
+
+
+        protected ServiceResult ModifyMonitoredItem(
+            ISystemContext context,
+            DiagnosticsMasks diagnosticsMasks,
+            TimestampsToReturn timestampsToReturn,
+            IMonitoredItem monitoredItem,
+            MonitoredItemModifyRequest itemToModify,
+            out MonitoringFilterResult filterError)
+        {
+            filterError = null;
+
+
+            // owned by this node manager.
+            itemToModify.Processed = true;
+
+            // check for valid monitored item.
+            OPCUAServerMonitoredItem datachangeItem = monitoredItem as OPCUAServerMonitoredItem;
+            if (datachangeItem == null)
+            {
+                return StatusCodes.BadMonitoredItemIdInvalid;
+            }
+            // check for valid handle.
+            UAStateACProperty monitoredNode = monitoredItem.ManagerHandle as UAStateACProperty;
+            if (monitoredNode == null)
+            {
+                return StatusCodes.BadMonitoredItemIdInvalid;
+            }
+
+            // validate parameters.
+            MonitoringParameters parameters = itemToModify.RequestedParameters;
+
+            // no filters supported at this time.
+            MonitoringFilter filter = (MonitoringFilter)ExtensionObject.ToEncodeable(parameters.Filter);
+
+            if (filter != null)
+            {
+                return StatusCodes.BadFilterNotAllowed;
+            }
+
+            // modify the monitored item parameters.
+            ServiceResult error = datachangeItem.Modify(
+                diagnosticsMasks,
+                timestampsToReturn,
+                itemToModify.RequestedParameters.ClientHandle,
+                itemToModify.RequestedParameters.SamplingInterval);
+
+            return ServiceResult.Good;
+        }
+
+
+        protected ServiceResult DeleteMonitoredItem(
+            ISystemContext context,
+            IMonitoredItem monitoredItem,
+            out bool processed)
+        {
+            processed = false;
+
+            // owned by this node manager.
+            processed = true;
+
+            // get the monitored item.
+            OPCUAServerMonitoredItem datachangeItem = monitoredItem as OPCUAServerMonitoredItem;
+            if (datachangeItem == null)
+            {
+                return StatusCodes.BadMonitoredItemIdInvalid;
+            }
+            // check for valid handle. 
+            UAStateACProperty monitoredNode = monitoredItem.ManagerHandle as UAStateACProperty;
+            if (monitoredNode == null)
+            {
+                return StatusCodes.BadMonitoredItemIdInvalid;
+            }
+
+            datachangeItem.UnSubscribe();
+
+            return ServiceResult.Good;
+        }
+
+
+        /// <summary>
+        /// Validates a data change filter provided by the client.
+        /// </summary>
+        /// <param name="context">The system context.</param>
+        /// <param name="source">The node being monitored.</param>
+        /// <param name="attributeId">The attribute being monitored.</param>
+        /// <param name="requestedFilter">The requested monitoring filter.</param>
+        /// <param name="filter">The validated data change filter.</param>
+        /// <param name="range">The EU range associated with the value if required by the filter.</param>
+        /// <returns>Any error condition. Good if no errors occurred.</returns>
+        protected ServiceResult ValidateDataChangeFilter(
+            ISystemContext context,
+            NodeState source,
+            uint attributeId,
+            ExtensionObject requestedFilter,
+            out DataChangeFilter filter,
+            out Range range)
+        {
+            filter = null;
+            range = null;
+
+            // check for valid filter type.
+            filter = requestedFilter.Body as DataChangeFilter;
+
+            if (filter == null)
+            {
+                return StatusCodes.BadMonitoredItemFilterUnsupported;
+            }
+
+            // only supported for value attributes.
+            if (attributeId != Attributes.Value)
+            {
+                return StatusCodes.BadMonitoredItemFilterUnsupported;
+            }
+
+            // only supported for variables.
+            BaseVariableState variable = source as BaseVariableState;
+
+            if (variable == null)
+            {
+                return StatusCodes.BadMonitoredItemFilterUnsupported;
+            }
+
+            // check the datatype.
+            if (filter.DeadbandType != (uint)DeadbandType.None)
+            {
+                BuiltInType builtInType = TypeInfo.GetBuiltInType(variable.DataType, this._InternalServer.TypeTree);
+
+                if (!TypeInfo.IsNumericType(builtInType))
+                {
+                    return StatusCodes.BadMonitoredItemFilterUnsupported;
+                }
+            }
+
+            // validate filter.
+            ServiceResult error = filter.Validate();
+
+            if (ServiceResult.IsBad(error))
+            {
+                return error;
+            }
+
+            if (filter.DeadbandType == (uint)DeadbandType.Percent)
+            {
+                BaseVariableState euRange = variable.FindChild(context, BrowseNames.EURange) as BaseVariableState;
+
+                if (euRange == null)
+                {
+                    return StatusCodes.BadMonitoredItemFilterUnsupported;
+                }
+
+                range = euRange.Value as Range;
+
+                if (range == null)
+                {
+                    return StatusCodes.BadMonitoredItemFilterUnsupported;
+                }
+            }
+
+            // all good.
+            return ServiceResult.Good;
+        }
+
+
+        private ClassRightManager GetRightManager(ACComponent component, ServerSystemContext systemContext)
+        {
+            ClassRightManager rightManager = null;
+            if (systemContext.UserIdentity != null)
+            {
+                VBUser user = null;
+                OPCUAUserIdentity vbIdentity = systemContext.UserIdentity as OPCUAUserIdentity;
+                if (vbIdentity != null)
+                    user = vbIdentity.VBUser;
+                else
+                    user = this.ParentUAServer.GetLoggedOnUser(systemContext.UserIdentity.DisplayName);
+                if (user != null)
+                    rightManager = component.GetRightsForUser(user);
+            }
+            return rightManager;
+        }
 
         #endregion
     }
