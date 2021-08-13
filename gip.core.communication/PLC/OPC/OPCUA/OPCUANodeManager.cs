@@ -57,6 +57,29 @@ namespace gip.core.communication
             get { return _SystemContext; }
         }
 
+        private class NodeStateInfos
+        {
+            public NodeState Node { get; set; }
+            public NodeStateReference Reference { get; set; }
+            public ReferenceDescription ReferencesDesc { get; set; }
+
+            public UAStateACComponent NodeComp
+            {
+                get
+                {
+                    return Node as UAStateACComponent;
+                }
+            }
+
+            public UAStateACProperty NodeProp
+            {
+                get
+                {
+                    return Node as UAStateACProperty;
+                }
+            }
+        }
+
         private ConcurrentDictionary<NodeId, NodeState> _MapNodeID2Member = new ConcurrentDictionary<NodeId, NodeState>();
         private ConcurrentDictionary<IACMember, NodeState> _MapMemberToNodeState = new ConcurrentDictionary<IACMember, NodeState>();
         #endregion
@@ -108,7 +131,7 @@ namespace gip.core.communication
                 NodeState rootNodeState = null;
                 if (!_MapMemberToNodeState.TryGetValue(ParentACService.Root, out rootNodeState))
                 {
-                    rootNodeState = new UAStateACComponent(ParentACService.Root as ACComponent, null);
+                    rootNodeState = new UAStateACComponent(ParentACService.Root as ACComponent, null, _NamespaceIndexes[1]);
                     _MapMemberToNodeState.TryAdd(ParentACService.Root, rootNodeState);
                     _MapNodeID2Member.TryAdd(rootNodeState.NodeId, rootNodeState);
 
@@ -227,8 +250,10 @@ namespace gip.core.communication
         {
             // 3. Browse wird aufgerufen, nachdem der Client den Baum aufklappt
             // hier muss dann die references-Liste gefüllt werden
-            if (continuationPoint == null) throw new ArgumentNullException("continuationPoint");
-            if (references == null) throw new ArgumentNullException("references");
+            if (continuationPoint == null) 
+                throw new ArgumentNullException("continuationPoint");
+            if (references == null) 
+                throw new ArgumentNullException("references");
 
             // check for view.
             if (!ViewDescription.IsDefault(continuationPoint.View))
@@ -343,7 +368,90 @@ namespace gip.core.communication
 
         public void Read(OperationContext context, double maxAge, IList<ReadValueId> nodesToRead, IList<DataValue> values, IList<ServiceResult> errors)
         {
-            throw new NotImplementedException();
+            ServerSystemContext systemContext = _SystemContext.Copy(context);
+            IDictionary<NodeId, NodeState> operationCache = new NodeIdDictionary<NodeState>();
+            List<ReadWriteOperationState> nodesToValidate = new List<ReadWriteOperationState>();
+
+            for (int ii = 0; ii < nodesToRead.Count; ii++)
+            {
+                ReadValueId nodeToRead = nodesToRead[ii];
+
+                // skip items that have already been processed.
+                if (nodeToRead.Processed)
+                {
+                    continue;
+                }
+
+                // check for valid handle.
+                UAStateACProperty source = GetManagerHandle(nodeToRead.NodeId) as UAStateACProperty;
+                if (source == null)
+                {
+                    continue;
+                }
+
+                // owned by this node manager.
+                nodeToRead.Processed = true;
+
+                // create an initial value.
+                DataValue value = values[ii] = new DataValue();
+
+                value.Value = source.ACProperty.Value;
+                value.ServerTimestamp = DateTime.UtcNow;
+                value.SourceTimestamp = DateTime.Now;
+                value.StatusCode = StatusCodes.Good;
+
+                // check if the node is ready for reading.
+                if (source.ValidationRequired)
+                {
+                    errors[ii] = StatusCodes.BadNodeIdUnknown;
+
+                    // must validate node in a seperate operation.
+                    ReadWriteOperationState operation = new ReadWriteOperationState();
+
+                    operation.Source = source;
+                    operation.Index = ii;
+
+                    nodesToValidate.Add(operation);
+
+                    continue;
+                }
+
+                // read the attribute value.
+                errors[ii] = source.ReadAttribute(
+                    systemContext,
+                    nodeToRead.AttributeId,
+                    nodeToRead.ParsedIndexRange,
+                    nodeToRead.DataEncoding,
+                    value);
+            }
+
+            // check for nothing to do.
+            if (nodesToValidate.Count == 0)
+            {
+                return;
+            }
+
+            // validates the nodes (reads values from the underlying data source if required).
+            for (int ii = 0; ii < nodesToValidate.Count; ii++)
+            {
+                ReadWriteOperationState operation = nodesToValidate[ii];
+
+                if (!ValidateNode(systemContext, operation.Source))
+                {
+                    continue;
+                }
+
+                ReadValueId nodeToRead = nodesToRead[operation.Index];
+                DataValue value = values[operation.Index];
+
+                // update the attribute value.
+                errors[operation.Index] = operation.Source.ReadAttribute(
+                    systemContext,
+                    nodeToRead.AttributeId,
+                    nodeToRead.ParsedIndexRange,
+                    nodeToRead.DataEncoding,
+                    value);
+            }
         }
 
         public void SetMonitoringMode(OperationContext context, MonitoringMode monitoringMode, IList<IMonitoredItem> monitoredItems, IList<bool> processedItems, IList<ServiceResult> errors)
@@ -397,10 +505,10 @@ namespace gip.core.communication
             NodeState checkIfExists = null;
             if (_MapMemberToNodeState.TryGetValue(property, out checkIfExists))
             {
-                return null;
+                return new NodeStateReference(ReferenceTypeIds.HasComponent, false, checkIfExists);
             }
 
-            UAStateACProperty newStateObj = new UAStateACProperty(property, parent);
+            UAStateACProperty newStateObj = new UAStateACProperty(property, parent, _NamespaceIndexes[1]);
             _MapMemberToNodeState.TryAdd(property, newStateObj);
             _MapNodeID2Member.TryAdd(newStateObj.NodeId, newStateObj);
             return new NodeStateReference(ReferenceTypeIds.HasComponent, false, newStateObj);
@@ -412,10 +520,10 @@ namespace gip.core.communication
             NodeState checkIfExists = null;
             if (_MapMemberToNodeState.TryGetValue(component, out checkIfExists))
             {
-                return null;
+                return new NodeStateReference(ReferenceTypeIds.Organizes, false, checkIfExists);
             }
 
-            UAStateACComponent newStateObj = new UAStateACComponent(component, parent);
+            UAStateACComponent newStateObj = new UAStateACComponent(component, parent, _NamespaceIndexes[1]);
             _MapMemberToNodeState.TryAdd(component, newStateObj);
             _MapNodeID2Member.TryAdd(newStateObj.NodeId, newStateObj);
             return new NodeStateReference(ReferenceTypeIds.Organizes, false, newStateObj);
@@ -497,6 +605,28 @@ namespace gip.core.communication
 
             return description;
         }
+
+        /// <summary>
+        /// Stores the state of a call method operation.
+        /// </summary>
+        private struct ReadWriteOperationState
+        {
+            public NodeState Source;
+            public int Index;
+        }
+
+
+        protected virtual bool ValidateNode(ServerSystemContext context, NodeState node)
+        {
+            // validate node only if required.
+            if (node.ValidationRequired)
+            {
+                return node.Validate(context);
+            }
+
+            return true;
+        }
+
 
         #endregion
     }

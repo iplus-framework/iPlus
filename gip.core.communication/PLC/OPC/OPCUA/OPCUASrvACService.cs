@@ -175,8 +175,9 @@ namespace gip.core.communication
                 return;
             }
 
-            if (UseCertificate)
-            {
+            if (!UseCertificate)
+                _AutoAccept = true;
+            //{
                 Task<bool> taskCert = _AppInstance.CheckApplicationInstanceCertificate(true, 0);
                 if (taskCert != null)
                 {
@@ -195,9 +196,9 @@ namespace gip.core.communication
                 }
                 else
                     Messages.LogError(this.GetACUrl(), ClassName, "Check application instance certificate error!!!");
-            }
-            else
-                _AutoAccept = true;
+            //}
+            //else
+            //    _AutoAccept = true;
 
             // start the server.
             _OPCUASrvServer = new OPCUASrvServer(this);
