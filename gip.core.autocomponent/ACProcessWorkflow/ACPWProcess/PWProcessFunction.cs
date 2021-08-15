@@ -128,6 +128,7 @@ namespace gip.core.autocomponent
         public override bool ACPostInit()
         {
             RemoveMeFromNewInstances();
+            RefreshAccessedProcessModules();
             return base.ACPostInit();
         }
 
@@ -213,6 +214,7 @@ namespace gip.core.autocomponent
                 _ConsistencyCheckWF = value;
             }
         }
+
         #endregion
 
         #region ConfigPoint
@@ -1144,6 +1146,23 @@ namespace gip.core.autocomponent
         {
             return FindChildComponents<PWGroup>(c => c is PWGroup).SelectMany(c => c.GetRoutableModuleList(forceRebuildCache)).Distinct();
         }
+
+        [ACPropertyBindingSource]
+        public IACContainerTNet<bool> AlarmsInPhysicalModel
+        {
+            get;
+            set;
+        }
+
+        public const string PN_AccessedProcessModules = "AccessedProcessModules";
+
+        [ACPropertyBindingTarget]
+        public IACContainerTNet<List<ACChildInstanceInfo>> AccessedProcessModules
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #endregion
@@ -1798,6 +1817,41 @@ namespace gip.core.autocomponent
         {
             return true;
         }
+        #endregion
+
+        #region Mapping
+
+        private ACMonitorObject _50100_LockAcessedPMs = new ACMonitorObject(50100);
+
+        public void OnPWGroupRun(PWGroup pwGroup)
+        {
+            if (pwGroup == null || pwGroup.AccessedProcessModule == null)
+                return;
+
+            using (ACMonitor.Lock(_50100_LockAcessedPMs))
+            {
+                if (AccessedProcessModules.ValueT.Any(c => (c.ACUrlParent + "\\" + c.ACIdentifier) == pwGroup.AccessedProcessModule.ACUrl))
+                    return;
+
+                RefreshAccessedProcessModules();
+            }
+        }
+
+        public void OnPWGroupIdle(PWGroup pwGroup)
+        {
+            using (ACMonitor.Lock(_50100_LockAcessedPMs))
+            {
+                RefreshAccessedProcessModules();
+            }
+        }
+
+        private void RefreshAccessedProcessModules()
+        {
+            AccessedProcessModules.ValueT = FindChildComponents<PWGroup>(c => c is PWGroup).Where(x => x.AccessedProcessModule != null)
+                                                                                           .Select(p => new ACChildInstanceInfo(p.AccessedProcessModule))
+                                                                                           .ToList();
+        }
+
         #endregion
 
         #region Planning and Testing

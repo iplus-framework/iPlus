@@ -1141,6 +1141,7 @@ namespace gip.core.autocomponent
         [ACMethodState("en{'Running'}de{'Läuft'}", 30, true)]
         public virtual void SMRunning()
         {
+            RootPW?.OnPWGroupRun(this);
         }
 
 
@@ -1170,6 +1171,12 @@ namespace gip.core.autocomponent
             }
         }
 
+        public override void SMIdle()
+        {
+            RootPW?.OnPWGroupIdle(this);
+            base.SMIdle();
+            
+        }
 
         /// <summary>
         /// Removes this workflow-group from all occupied process modules
