@@ -40,6 +40,20 @@ namespace gip.core.visualcontrols
             base.InitVBControl();
         }
 
+
+
+        [Category("VBControl")]
+        public bool ShowWFNodes
+        {
+            get { return (bool)GetValue(ShowWFNodesProperty); }
+            set { SetValue(ShowWFNodesProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ShowWFNodes.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ShowWFNodesProperty =
+            DependencyProperty.Register("ShowWFNodes", typeof(bool), typeof(VBFunctionFlipView), new PropertyMetadata(true));
+
+
         /// <summary>
         /// DeInitVBControl is used to remove all References which a WPF-Control refers to.
         /// It's needed that the Garbage-Collerctor can delete the object when it's removed from the Logical-Tree.
@@ -96,7 +110,7 @@ namespace gip.core.visualcontrols
             object dcSource = null;
             string dcPath = "";
             Global.ControlModes dcRightControlMode = Global.ControlModes.Hidden;
-            if (processModule.ACUrlBinding("WFNodes", ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcRightControlMode))
+            if (ShowWFNodes && processModule.ACUrlBinding("WFNodes", ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcRightControlMode))
             {
                 Binding bindingNodes = new Binding();
                 bindingNodes.Source = dcSource;
