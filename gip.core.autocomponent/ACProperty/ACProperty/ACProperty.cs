@@ -523,6 +523,19 @@ namespace gip.core.autocomponent
             }
         }
 
+        public int ContainsAssignableTypeT(IEnumerable<Type> types, bool checkAssignability)
+        {
+            Type typeT = typeof(T);
+            if (typeT == null)
+                return -1;
+            int i = types.IndexWhere<Type>(c => c == typeT);
+            if (i >= 0)
+                return i;
+            if (!checkAssignability)
+                return -1;
+            return types.IndexWhere(c => c.IsAssignableFrom(typeT));
+        }
+
 
         /// <summary>Returns the Value-Property of this insntance as a serialized string (XML).</summary>
         /// <param name="xmlIndented">if set to <c>true</c> the XML is indented.</param>

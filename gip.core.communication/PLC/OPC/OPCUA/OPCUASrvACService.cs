@@ -163,42 +163,41 @@ namespace gip.core.communication
                 if (taskConfig != null)
                     _AppConfiguration = taskConfig.Result;
                 else
-                    Messages.LogError(this.GetACUrl(), ClassName, "Load application configuration error!!!");
+                {
+                    Messages.LogError(this.GetACUrl(), ClassName, "UA-Server Configuration file not found!");
+                    return;
+                }
             }
             catch (Exception e)
             {
                 Messages.LogException(this.GetACUrl(), "InitOPCUAApp(10)", e);
-            }
-
-            if (_AppConfiguration == null)
-            {
                 return;
             }
 
+            if (_AppConfiguration == null)
+                return;
+
+            Task<bool> taskCert = _AppInstance.CheckApplicationInstanceCertificate(true, 0);
+            if (taskCert != null)
+            {
+                _HasAppCertificate = taskCert.Result;
+                if (!HasAppCertificate)
+                {
+                    Messages.LogError(this.GetACUrl(), ClassName, "Application instance certificate invalid!");
+                    return;
+                }
+            }
+            else
+            {
+                Messages.LogError(this.GetACUrl(), ClassName, "Application instance certificate invalid!");
+                return;
+            }
+
+            if (!_AppConfiguration.SecurityConfiguration.AutoAcceptUntrustedCertificates)
+                _AppConfiguration.CertificateValidator.CertificateValidation += new CertificateValidationEventHandler(CertificateValidator_CertificateValidation);
+
             if (!UseCertificate)
                 _AutoAccept = true;
-            //{
-                Task<bool> taskCert = _AppInstance.CheckApplicationInstanceCertificate(true, 0);
-                if (taskCert != null)
-                {
-                    _HasAppCertificate = taskCert.Result;
-                    if (HasAppCertificate)
-                    {
-                        AppConfiguration.ApplicationUri = X509Utils.GetApplicationUriFromCertificate(AppConfiguration.SecurityConfiguration.ApplicationCertificate.Certificate);
-                        if (AppConfiguration.SecurityConfiguration.AutoAcceptUntrustedCertificates)
-                            _AutoAccept = true;
-
-                        AppConfiguration.CertificateValidator.CertificateValidation += new CertificateValidationEventHandler(CertificateValidator_CertificateValidation);
-                    }
-                    else
-                        Messages.LogError(this.GetACUrl(), ClassName, "Application certificate is missing!!!");
-
-                }
-                else
-                    Messages.LogError(this.GetACUrl(), ClassName, "Check application instance certificate error!!!");
-            //}
-            //else
-            //    _AutoAccept = true;
 
             // start the server.
             _OPCUASrvServer = new OPCUASrvServer(this);
@@ -245,7 +244,6 @@ namespace gip.core.communication
                 e.Accept = _AutoAccept;
                 if (_AutoAccept)
                     Messages.LogInfo(this.GetACUrl(), ClassName, string.Format("The certificate {0} is untrusted, but it is accepted.", e.Certificate.Subject));
-
                 else
                     Messages.LogInfo(this.GetACUrl(), ClassName, string.Format("The certificate {0} is untrusted and it is rejected.", e.Certificate.Subject));
             }

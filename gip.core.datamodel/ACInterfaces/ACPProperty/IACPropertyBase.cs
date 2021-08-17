@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace gip.core.datamodel
 {
@@ -61,6 +62,8 @@ namespace gip.core.datamodel
         Type PropertyType { get; }
 
         bool IsValueType { get; }
+
+        int ContainsAssignableTypeT(IEnumerable<Type> types, bool checkAssignability);
 
         /// <summary>
         /// Checks if Property is in valid Range

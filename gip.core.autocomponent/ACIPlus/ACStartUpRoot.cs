@@ -210,10 +210,9 @@ namespace gip.core.autocomponent
                     VBUser vbUser = null;
                     using (ACMonitor.Lock(Database.QueryLock_1X000))
                     {
-                        var query = from currentuser in Database.VBUser
-                                    where currentuser.VBUserName.ToLower() == user.ToLower()
-                                    select currentuser;
-                        vbUser = query.FirstOrDefault();
+                        vbUser = this.Database.VBUser.Include(c => c.VBUserGroup_VBUser)
+                                                    .Where(c => c.VBUserName.ToLower() == user.ToLower())
+                                                    .FirstOrDefault();
                     }
                     if (vbUser != null)
                     {
@@ -226,10 +225,9 @@ namespace gip.core.autocomponent
                     VBUser vbUser = null;
                     using (ACMonitor.Lock(Database.QueryLock_1X000))
                     {
-                        var query = from currentuser in Database.VBUser
-                                    where currentuser.VBUserName.ToLower() == user.ToLower()
-                                    select currentuser;
-                        vbUser = query.FirstOrDefault();
+                        vbUser = this.Database.VBUser.Include(c => c.VBUserGroup_VBUser)
+                                                    .Where(c => c.VBUserName.ToLower() == user.ToLower())
+                                                    .FirstOrDefault();
                     }
                     if (vbUser == null)
                     {

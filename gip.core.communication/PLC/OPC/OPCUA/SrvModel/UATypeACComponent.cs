@@ -42,6 +42,38 @@ namespace gip.core.communication
                 return ACComponent;
             }
         }
+
+        private ConcurrentDictionary<ACClassMethod, OPCUANodeManager.NodeStateInfo> _MapMemberToNodeState = new ConcurrentDictionary<ACClassMethod, OPCUANodeManager.NodeStateInfo>();
+
+        public OPCUANodeManager.NodeStateInfo GetOrCreateNewNodeState(ACClassMethod method, UAStateACComponent parent, OPCUANodeManager nodeManager, uint? sortOrder)
+        {
+            OPCUANodeManager.NodeStateInfo checkIfExists = null;
+            if (_MapMemberToNodeState.TryGetValue(method, out checkIfExists))
+            {
+                return checkIfExists;
+            }
+
+            UAStateACMethod newStateObj = new UAStateACMethod(parent.ACComponent, method, parent, nodeManager._NamespaceIndexes[1], sortOrder);
+            newStateObj.OnCallMethod = new GenericMethodCalledEventHandler(OnVoidCall);
+            checkIfExists = new OPCUANodeManager.NodeStateInfo() { Node = newStateObj };
+            checkIfExists.Reference = new NodeStateReference(ReferenceTypeIds.HasComponent, false, newStateObj);
+            _MapMemberToNodeState.TryAdd(method, checkIfExists);
+            nodeManager._MapNodeID2Member.TryAdd(newStateObj.NodeId, checkIfExists);
+            return checkIfExists;
+        }
+
+        private ServiceResult OnVoidCall(ISystemContext context,
+                                    MethodState method,
+                                    IList<object> inputArguments,
+                                    IList<object> outputArguments)
+        {
+            UAStateACMethod stateMethod = method as UAStateACMethod;
+            if (stateMethod != null)
+            {
+                stateMethod.ACComponent.ExecuteMethod(stateMethod.ACMethod.ACIdentifier);
+            }
+            return ServiceResult.Good;
+        }
     }
 
     //public const uint HasComponent = 47;

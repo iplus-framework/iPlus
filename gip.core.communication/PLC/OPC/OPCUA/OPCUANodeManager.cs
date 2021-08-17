@@ -96,8 +96,8 @@ namespace gip.core.communication
             }
         }
 
-        private ConcurrentDictionary<NodeId, NodeStateInfo> _MapNodeID2Member = new ConcurrentDictionary<NodeId, NodeStateInfo>();
-        private ConcurrentDictionary<IACObject, NodeStateInfo> _MapMemberToNodeState = new ConcurrentDictionary<IACObject, NodeStateInfo>();
+        internal ConcurrentDictionary<NodeId, NodeStateInfo> _MapNodeID2Member = new ConcurrentDictionary<NodeId, NodeStateInfo>();
+        internal ConcurrentDictionary<IACObject, NodeStateInfo> _MapMemberToNodeState = new ConcurrentDictionary<IACObject, NodeStateInfo>();
         #endregion
 
 
@@ -114,7 +114,7 @@ namespace gip.core.communication
             }
         }
         private ushort _NamespaceIndex;
-        private ushort[] _NamespaceIndexes = new ushort[_CountNamespaces];
+        internal ushort[] _NamespaceIndexes = new ushort[_CountNamespaces];
 
         public void AddReferences(IDictionary<NodeId, IList<IReference>> references)
         {
@@ -223,7 +223,7 @@ namespace gip.core.communication
                 ClassRightManager rightManager = GetRightManager(component, systemContext);
                 if (rightManager == null)
                     return null;
-                Global.ControlModes controlModes = rightManager.GetControlMode(acNode.ACMember.ACType);
+                Global.ControlModes controlModes = acNode.ACMember.ACType.IsRightmanagement ? rightManager.GetControlMode(acNode.ACMember is ACClassMethod ? acNode.ACMember as ACClassMethod : acNode.ACMember.ACType) : rightManager.GetControlMode(component.ACType);
                 if (   (acNode.ACMember is IACPropertyBase && controlModes <= Global.ControlModes.Hidden)
                     || (!(acNode.ACMember is IACPropertyBase) && controlModes <= Global.ControlModes.Disabled))
                     return null;
@@ -262,6 +262,9 @@ namespace gip.core.communication
                 }
 
                 metadata.ArrayDimensions = (IList<uint>)values[4];
+
+                //metadata.RolePermissions = GetPermissions(controlModes);
+                //metadata.UserRolePermissions = GetPermissions(controlModes);
 
                 metadata.AccessLevel = Convert2UARights(controlModes);
                 //if (values[5] != null && values[6] != null)
@@ -334,9 +337,7 @@ namespace gip.core.communication
                                                                                     && !c.ACIdentifier.Contains(ACUrlHelper.Delimiter_InstanceNoOpen)
                                                                                     /*&& !c.ComponentClass.IsMultiInstanceInherited*/)
                                                                                     .OrderBy(c => c.ACIdentifier);
-                    properties = componentState2Browse.ACComponent.ACPropertyList.Where(c => c.IsValueType
-                                                                                            || c.PropertyType.IsEnum
-                                                                                            || UAStateACProperty.BitAccessType.IsAssignableFrom(c.PropertyType))
+                    properties = componentState2Browse.ACComponent.ACPropertyList.Where(c => UAStateACProperty.IsUAType(c))
                                                                                     .OrderBy(c => c.ACIdentifier);
                     methods = componentState2Browse.ACComponent.ACClassMethods.Where(c => c.IsCommand || c.IsInteraction);
                 }
@@ -353,16 +354,20 @@ namespace gip.core.communication
                             i = 0;
                             foreach (IACComponent iACComponent in childs)
                             {
-                                Global.ControlModes controlModes = rightManager.GetControlMode(iACComponent.ACType);
-                                if (controlModes <= Global.ControlModes.Disabled)
-                                    continue;
+                                ClassRightManager rightManagerChild = GetRightManager(iACComponent as ACComponent, systemContext);
+                                if (rightManagerChild != null)
+                                {
+                                    Global.ControlModes controlModes = rightManagerChild.GetControlMode(iACComponent.ACType);
+                                    if (controlModes <= Global.ControlModes.Disabled)
+                                        continue;
 
-                                NodeStateInfo nodeStateInfo = GetOrCreateNewNodeState(iACComponent as ACComponent, componentState2Browse, i);
-                                i++;
-                                if (nodeStateInfo.ReferencesDesc == null || nodeStateInfo.Reference != null)
-                                    nodeStateInfo.ReferencesDesc = GetReferenceDescription(context, nodeStateInfo.Reference, continuationPoint);
-                                if (nodeStateInfo.ReferencesDesc != null)
-                                    references.Add(nodeStateInfo.ReferencesDesc);
+                                    NodeStateInfo nodeStateInfo = GetOrCreateNewNodeState(iACComponent as ACComponent, componentState2Browse, i);
+                                    i++;
+                                    if (nodeStateInfo.ReferencesDesc == null || nodeStateInfo.Reference != null)
+                                        nodeStateInfo.ReferencesDesc = GetReferenceDescription(context, nodeStateInfo.Reference, continuationPoint);
+                                    if (nodeStateInfo.ReferencesDesc != null)
+                                        references.Add(nodeStateInfo.ReferencesDesc);
+                                }
                             }
                         }
                         if (properties != null)
@@ -370,7 +375,7 @@ namespace gip.core.communication
                             i = 0;
                             foreach (IACPropertyBase iACProp in properties)
                             {
-                                Global.ControlModes controlModes = rightManager.GetControlMode(iACProp.ACType);
+                                Global.ControlModes controlModes = iACProp.ACType.IsRightmanagement ? rightManager.GetControlMode(iACProp.ACType) : rightManager.GetControlMode(componentState2Browse.ACComponent.ACType);
                                 if (controlModes <= Global.ControlModes.Hidden)
                                     continue;
 
@@ -387,7 +392,8 @@ namespace gip.core.communication
                             i = 0;
                             foreach (ACClassMethod method in methods)
                             {
-                                Global.ControlModes controlModes = rightManager.GetControlMode(method.ACType);
+                                Global.ControlModes controlModes = rightManager.GetControlMode(method);
+                                //Global.ControlModes controlModes = method.ACType.IsRightmanagement ? rightManager.GetControlMode(method.ACType) : rightManager.GetControlMode(componentState2Browse.ACComponent.ACType);
                                 if (controlModes <= Global.ControlModes.Disabled)
                                     continue;
 
@@ -436,7 +442,7 @@ namespace gip.core.communication
                 NodeStateInfo sourceInfo = GetManagerHandleInfo(nodeToRead.NodeId, true, systemContext) as NodeStateInfo;
                 if (sourceInfo == null)
                     continue;
-                UAStateACProperty source = sourceInfo.Node as UAStateACProperty;
+                IUAStateIACMember source = sourceInfo.Node as IUAStateIACMember;
                 if (source == null)
                     continue;
 
@@ -444,22 +450,32 @@ namespace gip.core.communication
                 nodeToRead.Processed = true;
 
                 // create an initial value.
-                if (source.WrappedValue != source.ACValueAsVariant)
-                    source.WrappedValue = source.ACValueAsVariant;
-                DataValue value = values[ii] = new DataValue(source.ACValueAsVariant);
+                UAStateACProperty uaProperty = source as UAStateACProperty;
+                UAStateACMethod uaMethod = source as UAStateACMethod;
+
+                DataValue value = null;
+                if (uaProperty != null)
+                {
+                    if (uaProperty.WrappedValue != uaProperty.ACValueAsVariant)
+                        uaProperty.WrappedValue = uaProperty.ACValueAsVariant;
+                    value = new DataValue(uaProperty.ACValueAsVariant);
+                }
+                else //if (uaMethod != null)
+                    value = new DataValue();
+                values[ii] = value;
                 value.ServerTimestamp = DateTime.UtcNow;
                 value.SourceTimestamp = DateTime.MinValue;
                 value.StatusCode = StatusCodes.Good;
 
                 // check if the node is ready for reading.
-                if (source.ValidationRequired)
+                if (uaProperty != null && uaProperty.ValidationRequired)
                 {
                     errors[ii] = StatusCodes.BadNodeIdUnknown;
 
                     // must validate node in a seperate operation.
                     ReadWriteOperationState operation = new ReadWriteOperationState();
 
-                    operation.Source = source;
+                    operation.Source = uaProperty;
                     operation.Index = ii;
 
                     nodesToValidate.Add(operation);
@@ -468,7 +484,7 @@ namespace gip.core.communication
                 }
 
                 //read the attribute value.
-                errors[ii] = source.ReadAttribute(
+                errors[ii] = sourceInfo.Node.ReadAttribute(
                     systemContext,
                     nodeToRead.AttributeId,
                     nodeToRead.ParsedIndexRange,
@@ -615,9 +631,86 @@ namespace gip.core.communication
 
         public void Call(OperationContext context, IList<CallMethodRequest> methodsToCall, IList<CallMethodResult> results, IList<ServiceResult> errors)
         {
-            throw new NotImplementedException();
-        }
+            ServerSystemContext systemContext = _SystemContext.Copy(context);
+            IDictionary<NodeId, NodeState> operationCache = new NodeIdDictionary<NodeState>();
+            List<CallOperationState> nodesToValidate = new List<CallOperationState>();
 
+            for (int ii = 0; ii < methodsToCall.Count; ii++)
+            {
+                CallMethodRequest methodToCall = methodsToCall[ii];
+
+                // skip items that have already been processed.
+                if (methodToCall.Processed)
+                {
+                    continue;
+                }
+
+                // check for valid handle.
+                NodeStateInfo sourceInfo = GetManagerHandleInfo(methodToCall.MethodId, true, systemContext) as NodeStateInfo;
+                if (sourceInfo == null)
+                    continue;
+                UAStateACMethod method = sourceInfo.Node as UAStateACMethod;
+                // owned by this node manager.
+                methodToCall.Processed = true;
+                if (method == null)
+                {
+                    errors[ii] = StatusCodes.BadMethodInvalid;
+                    continue;
+                }
+
+                CallMethodResult result = results[ii] = new CallMethodResult();
+
+                // check if the node is ready for reading.
+                if (method.ValidationRequired)
+                {
+                    errors[ii] = StatusCodes.BadNodeIdUnknown;
+
+                    // must validate node in a seperate operation.
+                    CallOperationState operation = new CallOperationState();
+
+                    operation.Method = method;
+                    operation.Index = ii;
+
+                    nodesToValidate.Add(operation);
+
+                    continue;
+                }
+
+                // call the method.
+                errors[ii] = Call(
+                    systemContext,
+                    methodToCall,
+                    method,
+                    result);
+            }
+
+            // check for nothing to do.
+            if (nodesToValidate.Count == 0)
+            {
+                return;
+            }
+
+            // validates the nodes (reads values from the underlying data source if required).
+            for (int ii = 0; ii < nodesToValidate.Count; ii++)
+            {
+                CallOperationState operation = nodesToValidate[ii];
+
+                // validate the object.
+                if (!ValidateNode(systemContext, operation.Method))
+                {
+                    continue;
+                }
+
+                // call the method.
+                CallMethodResult result = results[operation.Index];
+
+                errors[operation.Index] = Call(
+                    systemContext,
+                    methodsToCall[operation.Index],
+                    operation.Method,
+                    result);
+            }
+        }
 
         public ServiceResult ConditionRefresh(OperationContext context, IList<IEventMonitoredItem> monitoredItems)
         {
@@ -856,6 +949,7 @@ namespace gip.core.communication
 
         #region Helper-Methods
 
+        #region NodeID-Building
         private NodeStateInfo GetManagerHandleInfo(NodeId nodeId, bool createIfNotExist, ServerSystemContext systemContext)
         {
             // 1. Bei Connect von Client
@@ -880,6 +974,7 @@ namespace gip.core.communication
                         string propertyName = null;
                         ACComponent component = null;
                         IACPropertyBase property = null;
+                        //int indexOfMethod = acURL.IndexOf(ACUrlHelper.AttachedMethodIDConcatenator);
                         int indexOfMethod = acURL.IndexOf(ACUrlHelper.Delimiter_InvokeMethod);
                         if (indexOfMethod > 0)
                         {
@@ -949,32 +1044,38 @@ namespace gip.core.communication
             return null;
         }
 
-
-        //protected virtual bool IsNodeIdInNamespace(NodeId nodeId)
-        //{
-        //    if (NodeId.IsNull(nodeId))
-        //    {
-        //        return false;
-        //    }
-
-        //    // quickly exclude nodes that not in the namespace.
-        //    for (int ii = 0; ii < _NamespaceIndexes.Length; ii++)
-        //    {
-        //        if (nodeId.NamespaceIndex == _NamespaceIndexes[ii])
-        //        {
-        //            return true;
-        //        }
-        //    }
-
-        //    return false;
-        //}
-
         private byte Convert2UARights(Global.ControlModes controlMode)
         {
             if (controlMode == Global.ControlModes.Disabled)
                 return AccessLevels.CurrentRead;
             //else if (controlMode >= Global.ControlModes.Enabled)
             return AccessLevels.CurrentReadOrWrite;
+        }
+
+        private RolePermissionTypeCollection GetPermissions(Global.ControlModes controlMode)
+        {
+            if (controlMode == Global.ControlModes.Disabled)
+            {
+                return new RolePermissionTypeCollection()
+                    {
+                        new RolePermissionType()
+                        {
+                            RoleId = ObjectIds.WellKnownRole_AuthenticatedUser,
+                            Permissions = (uint)(PermissionType.Browse |PermissionType.Read |PermissionType.ReadRolePermissions | PermissionType.Write)
+                        },
+                    };
+            }
+            else
+            {
+                return new RolePermissionTypeCollection()
+                    {
+                        new RolePermissionType()
+                        {
+                            RoleId = ObjectIds.WellKnownRole_AuthenticatedUser,
+                            Permissions = (uint)(PermissionType.Browse |PermissionType.Read |PermissionType.ReadRolePermissions)
+                        },
+                    };
+            }
         }
 
         private NodeStateInfo GetOrCreateNewNodeState(IACPropertyBase property, UAStateACComponent parent, uint? sortOrder)
@@ -1027,18 +1128,7 @@ namespace gip.core.communication
 
         private NodeStateInfo GetOrCreateNewNodeState(ACClassMethod method, UAStateACComponent parent, uint? sortOrder)
         {
-            NodeStateInfo checkIfExists = null;
-            if (_MapMemberToNodeState.TryGetValue(method, out checkIfExists))
-            {
-                return checkIfExists;
-            }
-
-            UAStateACMethod newStateObj = new UAStateACMethod(parent.ACComponent, method, parent, _NamespaceIndexes[1], sortOrder);
-            checkIfExists = new NodeStateInfo() { Node = newStateObj };
-            checkIfExists.Reference = new NodeStateReference(ReferenceTypeIds.HasComponent, false, newStateObj);
-            _MapMemberToNodeState.TryAdd(method, checkIfExists);
-            _MapNodeID2Member.TryAdd(newStateObj.NodeId, checkIfExists);
-            return checkIfExists;
+            return parent.GetOrCreateNewNodeState(method, parent, this, sortOrder);
         }
 
         private ReferenceDescription GetReferenceDescription(
@@ -1117,17 +1207,10 @@ namespace gip.core.communication
 
             return description;
         }
-
-        /// <summary>
-        /// Stores the state of a call method operation.
-        /// </summary>
-        private struct ReadWriteOperationState
-        {
-            public UAStateACProperty Source;
-            public int Index;
-        }
+        #endregion
 
 
+        #region Validation
         protected virtual bool ValidateNode(ServerSystemContext context, NodeState node)
         {
             // validate node only if required.
@@ -1137,6 +1220,103 @@ namespace gip.core.communication
             }
 
             return true;
+        }
+        #endregion
+
+
+        #region Method Invocation
+
+        private struct CallOperationState
+        {
+            public UAStateACMethod Method;
+            public int Index;
+        }
+
+        protected ServiceResult IsStartExecutable(ISystemContext context, NodeState node, ref bool value)
+        {
+            return ServiceResult.Good;
+        }
+
+        protected virtual ServiceResult Call(ISystemContext context, CallMethodRequest methodToCall, /*NodeState source, */ MethodState method, CallMethodResult result)
+        {
+            ServerSystemContext systemContext = context as ServerSystemContext;
+            List<ServiceResult> argumentErrors = new List<ServiceResult>();
+            VariantCollection outputArguments = new VariantCollection();
+
+            ServiceResult error = method.Call(
+                context,
+                methodToCall.ObjectId,
+                methodToCall.InputArguments,
+                argumentErrors,
+                outputArguments);
+
+            if (ServiceResult.IsBad(error))
+            {
+                return error;
+            }
+
+            // check for argument errors.
+            bool argumentsValid = true;
+
+            for (int jj = 0; jj < argumentErrors.Count; jj++)
+            {
+                ServiceResult argumentError = argumentErrors[jj];
+
+                if (argumentError != null)
+                {
+                    result.InputArgumentResults.Add(argumentError.StatusCode);
+
+                    if (ServiceResult.IsBad(argumentError))
+                    {
+                        argumentsValid = false;
+                    }
+                }
+                else
+                {
+                    result.InputArgumentResults.Add(StatusCodes.Good);
+                }
+
+                // only fill in diagnostic info if it is requested.
+                if ((systemContext.OperationContext.DiagnosticsMask & DiagnosticsMasks.OperationAll) != 0)
+                {
+                    if (ServiceResult.IsBad(argumentError))
+                    {
+                        argumentsValid = false;
+                        result.InputArgumentDiagnosticInfos.Add(new DiagnosticInfo(argumentError, systemContext.OperationContext.DiagnosticsMask, false, systemContext.OperationContext.StringTable));
+                    }
+                    else
+                    {
+                        result.InputArgumentDiagnosticInfos.Add(null);
+                    }
+                }
+            }
+
+            // check for validation errors.
+            if (!argumentsValid)
+            {
+                result.StatusCode = StatusCodes.BadInvalidArgument;
+                return result.StatusCode;
+            }
+
+            // do not return diagnostics if there are no errors.
+            result.InputArgumentDiagnosticInfos.Clear();
+
+            // return output arguments.
+            result.OutputArguments = outputArguments;
+
+            return ServiceResult.Good;
+        }
+        #endregion
+
+
+        #region Monitored Items
+        /// <summary>
+        /// Stores the state of a call method operation.
+        /// </summary>
+        private struct ReadWriteOperationState
+        {
+            public UAStateACProperty Source;
+            public int Index;
         }
 
         protected ServiceResult CreateMonitoredItem(
@@ -1401,7 +1581,7 @@ namespace gip.core.communication
             // all good.
             return ServiceResult.Good;
         }
-
+        #endregion
 
         private ClassRightManager GetRightManager(ACComponent component, ServerSystemContext systemContext)
         {

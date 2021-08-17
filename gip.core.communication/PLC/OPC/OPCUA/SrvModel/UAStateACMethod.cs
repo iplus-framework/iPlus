@@ -17,18 +17,20 @@ namespace gip.core.communication
             ACComponent = instance;
             ACMethod = acClassMethod;
             this.NodeId = new NodeId(instance.GetACUrl() + ACUrlHelper.Delimiter_InvokeMethod + acClassMethod.ACIdentifier, namespaceIndex);
-            //this.NodeId = new NodeId(acClassMethod.ACClassMethodID, namespaceIndex);
             BrowseName = new QualifiedName(ACUrlHelper.Delimiter_InvokeMethod + acClassMethod.ACIdentifier, namespaceIndex);
             DisplayName = acClassMethod.ACIdentifier;
             Description = acClassMethod.ACCaption;
             WriteMask = AttributeWriteMask.None;
             UserWriteMask = AttributeWriteMask.None;
             ReferenceTypeId = Opc.Ua.ReferenceTypeIds.HasComponent; // HasComponent = 47;
-            //TypeDefinitionId = ObjectTypeIds.FolderType; // FolderType = 61;
+            MethodDeclarationId = MethodIds.FileType_Close;
+            TypeDefinitionId = MethodIds.FileType_Close; // FolderType = 61;
             ModellingRuleId = Objects.ModellingRule_Mandatory;
             Executable = true;
             UserExecutable = true;
             NumericId = sortOrder.HasValue ? sortOrder.Value + 2000 : Convert.ToUInt32(instance.ACClassMethods.IndexWhere(c => c == acClassMethod)) + 2000;
+            if (parentNode != null)
+                parentNode.AddChild(this);
         }
 
         public ACComponent ACComponent

@@ -37,14 +37,17 @@ namespace gip.core.datamodel
         {
             if (!User.IsSuperuser)
             {
-                List<VBGroupRight> vbGroupRightList = new List<VBGroupRight>();                
+                List<VBGroupRight> vbGroupRightList = new List<VBGroupRight>();
 
-                foreach (VBUserGroup vbUserGroup in User.VBUserGroup_VBUser)
+                using (ACMonitor.Lock(acClass.Database.QueryLock_1X000))
                 {
-                    var query = acClass.VBGroupRight_ACClass.Where(c => c.VBGroupID == vbUserGroup.VBGroupID);
-                    foreach (VBGroupRight vbGroupRight in query)
+                    foreach (VBUserGroup vbUserGroup in User.VBUserGroup_VBUser)
                     {
-                        vbGroupRightList.Add(vbGroupRight);
+                        var query = acClass.VBGroupRight_ACClass.Where(c => c.VBGroupID == vbUserGroup.VBGroupID);
+                        foreach (VBGroupRight vbGroupRight in query)
+                        {
+                            vbGroupRightList.Add(vbGroupRight);
+                        }
                     }
                 }
                 var query1 = vbGroupRightList.Where(c => c.ACClassDesignID == null && c.ACClassMethodID == null && c.ACClassPropertyID == null);
