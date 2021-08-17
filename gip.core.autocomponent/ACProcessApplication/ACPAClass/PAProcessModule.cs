@@ -419,6 +419,20 @@ namespace gip.core.autocomponent
         {
         }
 
+        public override void RefreshHasAlarms(bool? childHasAlarms = null, bool resetIfNoUnackAlarms = false)
+        {
+            base.RefreshHasAlarms(childHasAlarms, resetIfNoUnackAlarms);
+
+            if (!String.IsNullOrEmpty(this.OrderInfo.ValueT) && Semaphore.ConnectionList.Any())
+            {
+                PWGroup pwGroup = Semaphore.ConnectionList.FirstOrDefault().ValueT as PWGroup;
+                if (pwGroup != null && pwGroup.RootPW != null)
+                {
+                    pwGroup.RootPW.OnHasAlarmChagnedInPhysicalModel(this);
+                }
+            }
+        }
+
         #region IACComponentTaskExec
         public virtual bool ActivateTask(ACMethod acMethod, bool executeMethod, IACComponent executingInstance)
         {

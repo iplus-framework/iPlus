@@ -1155,6 +1155,9 @@ namespace gip.core.autocomponent
         }
 
         public const string PN_AccessedProcessModules = "AccessedProcessModules";
+        public const string PN_AlarmsInPhysicalModel = "AlarmsInPhysicalModel";
+
+        private IEnumerable<PAProcessModule> _AccessedProcessModules;
 
         [ACPropertyBindingTarget]
         public IACContainerTNet<List<ACChildInstanceInfo>> AccessedProcessModules
@@ -1845,11 +1848,38 @@ namespace gip.core.autocomponent
             }
         }
 
+        public void OnHasAlarmChagnedInPhysicalModel(PAProcessModule module)
+        {
+            if (module.HasAlarms.ValueT)
+            {
+                AlarmsInPhysicalModel.ValueT = true;
+            }
+            else
+            {
+                IEnumerable<PAProcessModule> modules = null;
+                using(ACMonitor.Lock(_50100_LockAcessedPMs))
+                {
+                    modules = _AccessedProcessModules.ToArray();
+                }
+
+                if (modules != null)
+                {
+                    bool anyAlarm = modules.Any(c => c.HasAlarms.ValueT);
+                    AlarmsInPhysicalModel.ValueT = anyAlarm;
+                }
+                else
+                {
+                    AlarmsInPhysicalModel.ValueT = false;
+                }
+            }
+        }
+
         private void RefreshAccessedProcessModules()
         {
-            AccessedProcessModules.ValueT = FindChildComponents<PWGroup>(c => c is PWGroup).Where(x => x.AccessedProcessModule != null)
-                                                                                           .Select(p => new ACChildInstanceInfo(p.AccessedProcessModule))
-                                                                                           .ToList();
+            _AccessedProcessModules = FindChildComponents<PWGroup>(c => c is PWGroup).Where(x => x.AccessedProcessModule != null)
+                                                                                     .Select(p => p.AccessedProcessModule);
+
+            AccessedProcessModules.ValueT = _AccessedProcessModules?.Select(x => new ACChildInstanceInfo(x)).ToList();
         }
 
         #endregion
