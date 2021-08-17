@@ -12,7 +12,7 @@ namespace gip.core.communication
 {
     public class UAStateACComponent : FolderState, IUAStateIACMember
     {
-        public UAStateACComponent(ACComponent instance, NodeState parentNode, ushort namespaceIndex) : base(parentNode)
+        public UAStateACComponent(ACComponent instance, NodeState parentNode, ushort namespaceIndex, uint? sortOrder) : base(parentNode)
         {
             ACComponent = instance;
             this.NodeId = new NodeId(instance.GetACUrl(), namespaceIndex);
@@ -26,7 +26,7 @@ namespace gip.core.communication
             ReferenceTypeId = Opc.Ua.ReferenceTypeIds.HasComponent; // HasComponent = 47;
             TypeDefinitionId = ObjectTypeIds.FolderType; // FolderType = 61;
             ModellingRuleId = null;
-            NumericId = System.Convert.ToUInt32(instance.ParentACComponent == null ? 0 : instance.ParentACComponent.ACMemberList.IndexOf(instance));
+            NumericId = sortOrder.HasValue ? sortOrder.Value : System.Convert.ToUInt32(instance.ParentACComponent == null ? 0 : instance.ParentACComponent.ACMemberList.IndexOf(instance));
         }
 
         public ACComponent ACComponent

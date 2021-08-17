@@ -154,7 +154,7 @@ namespace gip.core.communication
                 NodeStateInfo rootNodeStateInfo = null;
                 if (!_MapMemberToNodeState.TryGetValue(ParentACService.Root, out rootNodeStateInfo))
                 {
-                    NodeState rootNodeState = new UAStateACComponent(ParentACService.Root as ACComponent, null, _NamespaceIndexes[1]);
+                    NodeState rootNodeState = new UAStateACComponent(ParentACService.Root as ACComponent, null, _NamespaceIndexes[1], 0);
 
                     IList<IReference> references = new List<IReference>();
                     rootNodeState.GetReferences(SystemContext, references);
@@ -326,15 +326,18 @@ namespace gip.core.communication
                 IEnumerable<IACPropertyBase> properties = null;
                 IEnumerable<ACClassMethod> methods = null;
                 if (componentState2Browse.ACComponent is IRoot)
-                    childs = componentState2Browse.ACComponent.FindChildComponents<ApplicationManager>(c => c is ApplicationManager, null, 1);
+                    childs = componentState2Browse.ACComponent.FindChildComponents<ApplicationManager>(c => c is ApplicationManager, null, 1)
+                                                                                                    .OrderBy(c => c.ACIdentifier);
                 else
                 {
                     childs = componentState2Browse.ACComponent.ACComponentChilds.Where(c => !(c is IACComponentPWNode)
                                                                                     && !c.ACIdentifier.Contains(ACUrlHelper.Delimiter_InstanceNoOpen)
-                                                                                    /*&& !c.ComponentClass.IsMultiInstanceInherited*/);
+                                                                                    /*&& !c.ComponentClass.IsMultiInstanceInherited*/)
+                                                                                    .OrderBy(c => c.ACIdentifier);
                     properties = componentState2Browse.ACComponent.ACPropertyList.Where(c => c.IsValueType
                                                                                             || c.PropertyType.IsEnum
-                                                                                            || UAStateACProperty.BitAccessType.IsAssignableFrom(c.PropertyType));
+                                                                                            || UAStateACProperty.BitAccessType.IsAssignableFrom(c.PropertyType))
+                                                                                    .OrderBy(c => c.ACIdentifier);
                     methods = componentState2Browse.ACComponent.ACClassMethods.Where(c => c.IsCommand || c.IsInteraction);
                 }
 
@@ -344,15 +347,18 @@ namespace gip.core.communication
                     ClassRightManager rightManager = GetRightManager(componentState2Browse.ACComponent, systemContext);
                     if (rightManager != null)
                     {
+                        uint i = 0;
                         if (childs != null)
                         {
+                            i = 0;
                             foreach (IACComponent iACComponent in childs)
                             {
                                 Global.ControlModes controlModes = rightManager.GetControlMode(iACComponent.ACType);
                                 if (controlModes <= Global.ControlModes.Disabled)
                                     continue;
 
-                                NodeStateInfo nodeStateInfo = GetOrCreateNewNodeState(iACComponent as ACComponent, componentState2Browse);
+                                NodeStateInfo nodeStateInfo = GetOrCreateNewNodeState(iACComponent as ACComponent, componentState2Browse, i);
+                                i++;
                                 if (nodeStateInfo.ReferencesDesc == null || nodeStateInfo.Reference != null)
                                     nodeStateInfo.ReferencesDesc = GetReferenceDescription(context, nodeStateInfo.Reference, continuationPoint);
                                 if (nodeStateInfo.ReferencesDesc != null)
@@ -361,13 +367,15 @@ namespace gip.core.communication
                         }
                         if (properties != null)
                         {
+                            i = 0;
                             foreach (IACPropertyBase iACProp in properties)
                             {
                                 Global.ControlModes controlModes = rightManager.GetControlMode(iACProp.ACType);
                                 if (controlModes <= Global.ControlModes.Hidden)
                                     continue;
 
-                                NodeStateInfo nodeStateInfo = GetOrCreateNewNodeState(iACProp, componentState2Browse);
+                                NodeStateInfo nodeStateInfo = GetOrCreateNewNodeState(iACProp, componentState2Browse, i);
+                                i++;
                                 if (nodeStateInfo.ReferencesDesc == null || nodeStateInfo.Reference != null)
                                     nodeStateInfo.ReferencesDesc = GetReferenceDescription(context, nodeStateInfo.Reference, continuationPoint);
                                 if (nodeStateInfo.ReferencesDesc != null)
@@ -376,13 +384,15 @@ namespace gip.core.communication
                         }
                         if (methods != null)
                         {
+                            i = 0;
                             foreach (ACClassMethod method in methods)
                             {
                                 Global.ControlModes controlModes = rightManager.GetControlMode(method.ACType);
                                 if (controlModes <= Global.ControlModes.Disabled)
                                     continue;
 
-                                NodeStateInfo nodeStateInfo = GetOrCreateNewNodeState(method, componentState2Browse);
+                                NodeStateInfo nodeStateInfo = GetOrCreateNewNodeState(method, componentState2Browse, i);
+                                i++;
                                 if (nodeStateInfo.ReferencesDesc == null || nodeStateInfo.Reference != null)
                                     nodeStateInfo.ReferencesDesc = GetReferenceDescription(context, nodeStateInfo.Reference, continuationPoint);
                                 if (nodeStateInfo.ReferencesDesc != null)
@@ -897,7 +907,7 @@ namespace gip.core.communication
 
                         NodeStateInfo stateInfoOfComp = null;
                         if (!_MapMemberToNodeState.TryGetValue(component, out stateInfoOfComp))
-                            stateInfoOfComp = GetOrCreateNewNodeState(component, null);
+                            stateInfoOfComp = GetOrCreateNewNodeState(component, null, null);
                         if (stateInfoOfComp == null)
                             return null;
                         UAStateACComponent stateACComp = stateInfoOfComp.NodeComp;
@@ -915,7 +925,7 @@ namespace gip.core.communication
                             //controlModes = rightManager.GetControlMode(property.ACType);
                             //if (controlModes < Global.ControlModes.Enabled)
                             //    return null;
-                            node = GetOrCreateNewNodeState(property, stateACComp);
+                            node = GetOrCreateNewNodeState(property, stateACComp, null);
                             return node;
                         }
                         else if (!String.IsNullOrEmpty(methodName))
@@ -926,7 +936,7 @@ namespace gip.core.communication
                             //controlModes = rightManager.GetControlMode(acClassMethod.ACType);
                             //if (controlModes < Global.ControlModes.Enabled)
                             //    return null;
-                            node = GetOrCreateNewNodeState(acClassMethod, stateACComp);
+                            node = GetOrCreateNewNodeState(acClassMethod, stateACComp, null);
                             return node;
                         }
                     }
@@ -967,7 +977,7 @@ namespace gip.core.communication
             return AccessLevels.CurrentReadOrWrite;
         }
 
-        private NodeStateInfo GetOrCreateNewNodeState(IACPropertyBase property, UAStateACComponent parent)
+        private NodeStateInfo GetOrCreateNewNodeState(IACPropertyBase property, UAStateACComponent parent, uint? sortOrder)
         {
             NodeStateInfo checkIfExists = null;
             if (_MapMemberToNodeState.TryGetValue(property, out checkIfExists))
@@ -975,7 +985,7 @@ namespace gip.core.communication
                 return checkIfExists;
             }
 
-            UAStateACProperty newStateObj = new UAStateACProperty(property, parent, _NamespaceIndexes[1]);
+            UAStateACProperty newStateObj = new UAStateACProperty(property, parent, _NamespaceIndexes[1], sortOrder);
             checkIfExists = new NodeStateInfo() { Node = newStateObj };
             checkIfExists.Reference = new NodeStateReference(ReferenceTypeIds.HasComponent, false, newStateObj);
             _MapMemberToNodeState.TryAdd(property, checkIfExists);
@@ -983,7 +993,7 @@ namespace gip.core.communication
             return checkIfExists;
         }
 
-        private NodeStateInfo GetOrCreateNewNodeState(ACComponent component, UAStateACComponent parent)
+        private NodeStateInfo GetOrCreateNewNodeState(ACComponent component, UAStateACComponent parent, uint? sortOrder)
         {
             if (component == null)
                 return null;
@@ -1000,14 +1010,14 @@ namespace gip.core.communication
                     return null;
                 if (!_MapMemberToNodeState.TryGetValue(parentACComponent, out checkIfExists))
                 {
-                    checkIfExists = GetOrCreateNewNodeState(parentACComponent, null);
+                    checkIfExists = GetOrCreateNewNodeState(parentACComponent, null, null);
                 }
                 if (checkIfExists == null)
                     return null;
                 parent = checkIfExists.NodeComp;
             }
 
-            UAStateACComponent newStateObj = new UAStateACComponent(component, parent, _NamespaceIndexes[1]);
+            UAStateACComponent newStateObj = new UAStateACComponent(component, parent, _NamespaceIndexes[1], sortOrder);
             checkIfExists = new NodeStateInfo() { Node = newStateObj };
             checkIfExists.Reference = new NodeStateReference(ReferenceTypeIds.Organizes, false, newStateObj);
             _MapMemberToNodeState.TryAdd(component, checkIfExists);
@@ -1015,7 +1025,7 @@ namespace gip.core.communication
             return checkIfExists;
         }
 
-        private NodeStateInfo GetOrCreateNewNodeState(ACClassMethod method, UAStateACComponent parent)
+        private NodeStateInfo GetOrCreateNewNodeState(ACClassMethod method, UAStateACComponent parent, uint? sortOrder)
         {
             NodeStateInfo checkIfExists = null;
             if (_MapMemberToNodeState.TryGetValue(method, out checkIfExists))
@@ -1023,7 +1033,7 @@ namespace gip.core.communication
                 return checkIfExists;
             }
 
-            UAStateACMethod newStateObj = new UAStateACMethod(parent.ACComponent, method, parent, _NamespaceIndexes[1]);
+            UAStateACMethod newStateObj = new UAStateACMethod(parent.ACComponent, method, parent, _NamespaceIndexes[1], sortOrder);
             checkIfExists = new NodeStateInfo() { Node = newStateObj };
             checkIfExists.Reference = new NodeStateReference(ReferenceTypeIds.HasComponent, false, newStateObj);
             _MapMemberToNodeState.TryAdd(method, checkIfExists);

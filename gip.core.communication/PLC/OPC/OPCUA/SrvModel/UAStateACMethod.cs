@@ -12,7 +12,7 @@ namespace gip.core.communication
 {
     public class UAStateACMethod : MethodState, IUAStateIACMember
     {
-        public UAStateACMethod(ACComponent instance, ACClassMethod acClassMethod, NodeState parentNode, ushort namespaceIndex) : base(parentNode)
+        public UAStateACMethod(ACComponent instance, ACClassMethod acClassMethod, NodeState parentNode, ushort namespaceIndex, uint? sortOrder) : base(parentNode)
         {
             ACComponent = instance;
             ACMethod = acClassMethod;
@@ -28,7 +28,7 @@ namespace gip.core.communication
             ModellingRuleId = Objects.ModellingRule_Mandatory;
             Executable = true;
             UserExecutable = true;
-            NumericId = Convert.ToUInt32(instance.ACClassMethods.IndexWhere(c => c == acClassMethod));
+            NumericId = sortOrder.HasValue ? sortOrder.Value + 2000 : Convert.ToUInt32(instance.ACClassMethods.IndexWhere(c => c == acClassMethod)) + 2000;
         }
 
         public ACComponent ACComponent

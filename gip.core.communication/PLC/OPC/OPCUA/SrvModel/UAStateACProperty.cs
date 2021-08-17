@@ -21,7 +21,7 @@ namespace gip.core.communication
             }
         }
 
-        public UAStateACProperty(IACPropertyBase instance, NodeState parentNode, ushort namespaceIndex) : base(parentNode)
+        public UAStateACProperty(IACPropertyBase instance, NodeState parentNode, ushort namespaceIndex, uint? sortOrder) : base(parentNode)
         {
             if (   !instance.IsValueType 
                 && !instance.PropertyType.IsEnum 
@@ -40,7 +40,7 @@ namespace gip.core.communication
             ReferenceTypeId = Opc.Ua.ReferenceTypeIds.HasComponent; // HasComponent = 47;
             TypeDefinitionId = VariableTypeIds.BaseVariableType;
             ModellingRuleId = null;
-            NumericId = System.Convert.ToUInt32(instance.ParentACComponent.ACMemberList.IndexOf(instance));
+            NumericId = sortOrder.HasValue ? sortOrder.Value + 1000 : System.Convert.ToUInt32(instance.ParentACComponent.ACMemberList.IndexOf(instance)) + 1000;
             Type type = instance.PropertyType;
             _InnerPropertyType = InnerPropetyTypeEnum.ValueType;
             if (instance.PropertyType.IsEnum)
