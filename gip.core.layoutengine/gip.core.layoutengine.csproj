@@ -258,6 +258,7 @@
     <Compile Include="Controls\VBFlipView\FlipViewPanel.cs" />
     <Compile Include="Controls\VBFlipView\VBFlipView.cs" />
     <Compile Include="Controls\VBFlipView\AnimationFactory.cs" />
+    <Compile Include="Controls\VBFlowDocumentScrollViewer\VBFlowDocumentScrollViewer.cs" />
     <Compile Include="Controls\VBGanttChart\Connection\Connection.cs" />
     <Compile Include="Controls\VBGanttChart\Connection\ConnectionsPresenter.cs" />
     <Compile Include="Controls\VBGanttChart\Connection\Connector.cs" />
