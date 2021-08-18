@@ -1833,7 +1833,7 @@ namespace gip.core.autocomponent
 
             using (ACMonitor.Lock(_50100_LockAcessedPMs))
             {
-                if (AccessedProcessModules.ValueT.Any(c => (c.ACUrlParent + "\\" + c.ACIdentifier) == pwGroup.AccessedProcessModule.ACUrl))
+                if (AccessedProcessModules.ValueT != null && AccessedProcessModules.ValueT.Any(c => (c.ACUrlParent + "\\" + c.ACIdentifier) == pwGroup.AccessedProcessModule.ACUrl))
                     return;
 
                 RefreshAccessedProcessModules();
