@@ -1825,6 +1825,7 @@ namespace gip.core.autocomponent
         #region Mapping
 
         private ACMonitorObject _50100_LockAcessedPMs = new ACMonitorObject(50100);
+        private ACMonitorObject _50200_LockAlarmsInPhysicalModel = new ACMonitorObject(50200);
 
         public void OnPWGroupRun(PWGroup pwGroup)
         {
@@ -1852,7 +1853,10 @@ namespace gip.core.autocomponent
         {
             if (module.HasAlarms.ValueT)
             {
-                AlarmsInPhysicalModel.ValueT = true;
+                using (ACMonitor.Lock(_50200_LockAlarmsInPhysicalModel))
+                {
+                    AlarmsInPhysicalModel.ValueT = true;
+                }
             }
             else
             {
@@ -1862,14 +1866,14 @@ namespace gip.core.autocomponent
                     modules = _AccessedProcessModules.ToArray();
                 }
 
+                bool anyAlarm = false;
+
                 if (modules != null)
+                    anyAlarm = modules.Any(c => c.HasAlarms.ValueT);
+
+                using (ACMonitor.Lock(_50200_LockAlarmsInPhysicalModel))
                 {
-                    bool anyAlarm = modules.Any(c => c.HasAlarms.ValueT);
                     AlarmsInPhysicalModel.ValueT = anyAlarm;
-                }
-                else
-                {
-                    AlarmsInPhysicalModel.ValueT = false;
                 }
             }
         }
