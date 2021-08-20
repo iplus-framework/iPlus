@@ -1159,7 +1159,7 @@ namespace gip.core.autocomponent
 
         private IEnumerable<PAProcessModule> _AccessedProcessModules;
 
-        [ACPropertyBindingTarget]
+        [ACPropertyBindingSource]
         public IACContainerTNet<List<ACChildInstanceInfo>> AccessedProcessModules
         {
             get;
@@ -1881,9 +1881,17 @@ namespace gip.core.autocomponent
         private void RefreshAccessedProcessModules()
         {
             _AccessedProcessModules = FindChildComponents<PWGroup>(c => c is PWGroup).Where(x => x.AccessedProcessModule != null)
-                                                                                     .Select(p => p.AccessedProcessModule);
+                                                                                     .Select(p => p.AccessedProcessModule).ToArray();
 
-            AccessedProcessModules.ValueT = _AccessedProcessModules?.Select(x => new ACChildInstanceInfo(x)).ToList();
+            if (_AccessedProcessModules != null)
+            {
+                AccessedProcessModules.ValueT = _AccessedProcessModules.Select(x => new ACChildInstanceInfo(x)).ToList();
+            }
+            else
+            {
+                AccessedProcessModules.ValueT = new List<ACChildInstanceInfo>();
+            }
+            
         }
 
         #endregion
