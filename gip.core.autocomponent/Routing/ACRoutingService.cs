@@ -612,7 +612,7 @@ namespace gip.core.autocomponent
                 selectionRuleParams = new object[] { };
 
             var routeResult = routingService.ExecuteMethod(MN_FindSuccessors, startComponentACUrl, selectionRuleID, direction, selectionRuleParams, maxRouteAlternatives, includeReserved, includeAllocated) as RoutingResult;
-            if (routeResult != null && routeResult.Message != null)
+            if (routeResult != null && routeResult.Message != null && routeResult.Message.MessageLevel > eMsgLevel.Warning)
                 return routeResult;
 
             if (routeResult == null || !routeResult.Routes.Any())
@@ -638,7 +638,7 @@ namespace gip.core.autocomponent
 
             var routeResult = routingService.ExecuteMethod(MN_FindSuccessorsFromPoint, startComponentACUrl, fromPointACClassPropID, selectionRuleID, direction, selectionRuleParams, 
                                                            maxRouteAlternatives, includeReserved, includeAllocated) as RoutingResult;
-            if (routeResult != null && routeResult.Message != null)
+            if (routeResult != null && routeResult.Message != null && routeResult.Message.MessageLevel > eMsgLevel.Warning)
                 return routeResult;
 
             if (routeResult == null || !routeResult.Routes.Any())
