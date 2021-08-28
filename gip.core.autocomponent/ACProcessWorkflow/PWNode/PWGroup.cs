@@ -85,7 +85,6 @@ namespace gip.core.autocomponent
             using (ACMonitor.Lock(_20015_LockValue))
             {
                 _WaitsOnAvailableProcessModule = false;
-                _HasHighestPriorityForMapping = null;
             }
 
             if (deleteACClassTask)
@@ -105,7 +104,6 @@ namespace gip.core.autocomponent
                 _LastRuleValueList = null;
                 _LastSelectedClasses = null;
                 _WaitsOnAvailableProcessModule = false;
-                _HasHighestPriorityForMapping = null;
                 _Priority = null;
             }
 
@@ -166,7 +164,10 @@ namespace gip.core.autocomponent
             using (ACMonitor.Lock(_20015_LockValue))
             {
                 _MyConfiguration = null;
-                _Priority = null;
+                // Priority mustn't be reset! 
+                // If _Priority was changed through SetPriority(PriorityMode mode) by a individual logic,
+                // then the expected behaviour would not take place because the _Priority has been resetted when a change in the workflow-rules are done on client-side.
+                //_Priority = null;
                 _RoutableModuleList = null;
             }
             this.HasRules.ValueT = 0;
@@ -303,7 +304,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        private ushort? _Priority;
+        protected ushort? _Priority;
         public ushort Priority
         {
             get
@@ -329,6 +330,7 @@ namespace gip.core.autocomponent
             ToConfigurationValue,
             ToLowestDefault,
             ToHighest,
+            OccupyImmediately
         }
 
         public void SetPriority(PriorityMode mode)
@@ -339,8 +341,10 @@ namespace gip.core.autocomponent
                     _Priority = null;
                 else if (mode == PriorityMode.ToLowestDefault)
                     _Priority = C_DefaultLowestPriority;
-                else
+                else if (mode == PriorityMode.ToHighest)
                     _Priority = 1;
+                else //if (mode == PriorityMode.OccupyImmediately)
+                    _Priority = 0;
             }
         }
 
@@ -792,7 +796,6 @@ namespace gip.core.autocomponent
         }
 
 
-        protected bool? _HasHighestPriorityForMapping = null;
         /// <summary>
         /// This property returns true if this workflow group has the highest priority to occupy a process module first. 
         /// To do this, all competing workflow group instances with the same ContentACClassWF.RefPAACClass are entered in a list sorted by the start date of their root workflow node (PWProcessFunction) 
@@ -811,8 +814,11 @@ namespace gip.core.autocomponent
 
         protected virtual bool OnHasHighestPriorityForMapping(PAProcessModule firstModule)
         {
-            if (_HasHighestPriorityForMapping.HasValue)
-                return _HasHighestPriorityForMapping.Value;
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                if (_Priority.HasValue && _Priority.Value == 0)
+                    return true;
+            }
             if (IgnoreFIFO)
                 return true;
             var queryWaitingNodes = PriorizedCompetingWFNodes;
@@ -934,11 +940,8 @@ namespace gip.core.autocomponent
                 case "ResetSubState":
                     ResetSubState();
                     return true;
-                case "SetHighestPriority":
-                    SetHighestPriority();
-                    return true;
-                case "ResetHighestPriority":
-                    ResetHighestPriority();
+                case "ChangePriority":
+                    ChangePriority((short)acParameter[0]);
                     return true;
                 case "OccupyWithPModuleOnScan":
                     result = OccupyWithPModuleOnScan(acParameter[0] as string);
@@ -949,18 +952,22 @@ namespace gip.core.autocomponent
                 case Const.IsEnabledPrefix + "ResetSubState":
                     result = IsEnabledResetSubState();
                     return true;
-                case Const.IsEnabledPrefix + "SetHighestPriority":
-                    result = IsEnabledSetHighestPriority();
-                    return true;
-                case Const.IsEnabledPrefix + "ResetHighestPriority":
-                    result = IsEnabledResetHighestPriority();
-                    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
         public static bool HandleExecuteACMethod_PWGroup(out object result, IACComponent acComponent, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
+            result = null;
+            switch (acMethodName)
+            {
+                case "SetPriorityClient":
+                    SetPriorityClient(acComponent);
+                    return true;
+                case Const.IsEnabledPrefix + "SetPriorityClient":
+                    result = IsEnabledSetPriorityClient(acComponent);
+                    return true;
+            }
             return HandleExecuteACMethod_PWBaseExecutable(out result, acComponent, acMethodName, acClassMethod, acParameter);
         }
         #endregion
@@ -998,7 +1005,6 @@ namespace gip.core.autocomponent
                 _PossibleModuleList = null;
                 _RoutableModuleList = null;
                 _WaitsOnAvailableProcessModule = false;
-                _HasHighestPriorityForMapping = null;
                 _LastRuleValueList = null;
                 _LastSelectedClasses = null;
                 _Priority = null;
@@ -1309,42 +1315,55 @@ namespace gip.core.autocomponent
             return CurrentACSubState != 0;
         }
 
-
-        [ACMethodInteraction("", "en{'Set highest priority'}de{'Höchste Priorität setzen'}", 298, true)]
-        public virtual void SetHighestPriority()
+        [ACMethodInfo("", "en{'Change Priority'}de{'Priorität ändern'}", 400)]
+        public void ChangePriority(short priority)
         {
-            if (!IsEnabledSetHighestPriority())
-                return;
-            using(ACMonitor.Lock(_20015_LockValue))
+            if (priority < 0)
+                SetPriority(PriorityMode.ToConfigurationValue);
+            else if (priority == 0)
+                SetPriority(PriorityMode.OccupyImmediately);
+            else if (priority == 1)
+                SetPriority(PriorityMode.ToHighest);
+            else if (priority >= C_DefaultLowestPriority)
+                SetPriority(PriorityMode.ToLowestDefault);
+            else
             {
-                _HasHighestPriorityForMapping = true;
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    _Priority = Convert.ToUInt16(priority);
+                }
             }
-            SetPriority(PriorityMode.ToHighest);
         }
 
-        public virtual bool IsEnabledSetHighestPriority()
+        [ACMethodInteractionClient("", "en{'Change Priority'}de{'Priorität ändern'}", 298, true)]
+        public static void SetPriorityClient(IACComponent acComponent)
         {
-            return !_HasHighestPriorityForMapping.HasValue;
-        }
-
-
-        [ACMethodInteraction("", "en{'Reset highest priority'}de{'Höchste Priorität zurücksetzen'}", 298, true)]
-        public virtual void ResetHighestPriority()
-        {
-            if (!IsEnabledResetHighestPriority())
+            if (acComponent == null)
                 return;
-            using (ACMonitor.Lock(_20015_LockValue))
+
+            ACComponent _this = acComponent as ACComponent;
+
+            string questionID = "Question50064";
+            string header = acComponent.Root.Environment.TranslateMessage(acComponent, questionID);
+            short priority = -1;
+            string sPriority = acComponent.Messages.InputBox(header, "");
+            if (String.IsNullOrWhiteSpace(sPriority))
+                priority = -1;
+            else
             {
-                _HasHighestPriorityForMapping = null;
+                if (!short.TryParse(sPriority, out priority))
+                    return;
+                if (priority > C_DefaultLowestPriority)
+                    priority = Convert.ToInt16(C_DefaultLowestPriority);
             }
-            SetPriority(PriorityMode.ToConfigurationValue);
+
+            _this.ACUrlCommand("!ChangePriority", priority);
         }
 
-        public virtual bool IsEnabledResetHighestPriority()
+        public static bool IsEnabledSetPriorityClient(IACComponent acComponent)
         {
-            return _HasHighestPriorityForMapping.HasValue;
+            return true;
         }
-
 
         /// <summary>
         /// Completes this node by setting the CurrentACState-Property to ACStateEnum.SMCompleted.
