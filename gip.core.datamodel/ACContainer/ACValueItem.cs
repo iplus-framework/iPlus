@@ -44,7 +44,7 @@ namespace gip.core.datamodel
         /// <param name="acCaption">The ac caption.</param>
         /// <param name="value">The value.</param>
         /// <param name="acType">Type of the ac.</param>
-        public ACValueItem(string acCaption, object value, IACType acType )
+        public ACValueItem(string acCaption, object value, IACType acType)
         {
             _ACCaptionTranslation = acCaption;
             _Value = value;
@@ -111,7 +111,7 @@ namespace gip.core.datamodel
         ACClass _ValueTypeACClass;
         /// <summary>Metadata (iPlus-Type) of the Value-Property. ATTENTION: ACClass is a EF-Object. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!</summary>
         /// <value>Metadata (iPlus-Type) of the Value-Property as ACClass</value>
-        public ACClass ValueTypeACClass 
+        public ACClass ValueTypeACClass
         {
             get
             {
@@ -147,7 +147,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="rootACObject">Object for creating a realtive path to it</param>
         /// <returns>ACUrl as string</returns>
-        [ACMethodInfo("","", 9999)]
+        [ACMethodInfo("", "", 9999)]
         public string GetACUrl(IACObject rootACObject = null)
         {
             //throw new NotImplementedException();
@@ -165,9 +165,9 @@ namespace gip.core.datamodel
         [ACPropertyInfo(1)]
         public string ACCaption
         {
-            get 
+            get
             {
-                return Translator.GetTranslation(ACCaptionTranslation,ACCaptionTranslation);
+                return Translator.GetTranslation(ACCaptionTranslation, ACCaptionTranslation);
             }
         }
 
@@ -178,7 +178,15 @@ namespace gip.core.datamodel
         [ACPropertyInfo(9999)]
         public string ACCaptionTranslation
         {
-            get { return _ACCaptionTranslation; }
+            get
+            { 
+                return _ACCaptionTranslation; 
+            }
+            set
+            {
+                _ACCaptionTranslation = value;
+                OnPropertyChanged("ACCaptionTranslation");
+            }
         }
 
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
@@ -241,7 +249,7 @@ namespace gip.core.datamodel
             }
         }
 
-        public short SortIndex { get;set; }
+        public short SortIndex { get; set; }
 
         #endregion
 
@@ -266,7 +274,7 @@ namespace gip.core.datamodel
         /// <value>Reference to the parent object</value>
         public IACObject ParentACObject
         {
-            get;set;
+            get; set;
         }
 
         /// <summary>
@@ -308,8 +316,8 @@ namespace gip.core.datamodel
             }
             if (ParentACObject is INotifyPropertyChanged)
             {
-                if(OnPropertyChangedNameWithACIdentifier)
-                    ParentACObject.ACUrlCommand("!OnPropertyChanged", "ACValueItem("+ACIdentifier+")\\" + name);
+                if (OnPropertyChangedNameWithACIdentifier)
+                    ParentACObject.ACUrlCommand("!OnPropertyChanged", "ACValueItem(" + ACIdentifier + ")\\" + name);
                 else
                     ParentACObject.ACUrlCommand("!OnPropertyChanged", "ACValueItem\\" + name);
             }

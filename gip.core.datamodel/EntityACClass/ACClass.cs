@@ -2630,6 +2630,12 @@ namespace gip.core.datamodel
                 try
                 {
                     _ACValueListForEnum = Activator.CreateInstance(classForEnumList.ObjectType, false) as ACValueItemList;
+                    foreach(ACClassText aCClassText in classForEnumList.ACClassText_ACClass.ToArray())
+                    {
+                        ACValueItem aCValueItem = _ACValueListForEnum.FirstOrDefault(c=>c.Value.ToString() == aCClassText.ACIdentifier);
+                        if(aCValueItem != null)
+                            aCValueItem.ACCaptionTranslation = aCClassText.ACCaptionTranslation;
+                    }
                     return _ACValueListForEnum;
                 }
                 catch (Exception e)

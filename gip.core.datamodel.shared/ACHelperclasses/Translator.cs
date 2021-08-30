@@ -176,6 +176,27 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
+        /// For classes extends ACValueItemList write in-code (ACValueItem) defined translations into ACClassText
+        /// </summary>
+        /// <param name="acClass"></param>
+        public static void UpdateTranslationACValueItemList(ACClass acClass)
+        {
+            ACValueItemList aCValueItems = Activator.CreateInstance(acClass.ObjectType, false) as ACValueItemList;
+            foreach (ACValueItem aCValueItem in aCValueItems)
+            {
+                string acIdentifier = aCValueItem.Value.ToString();
+                ACClassText aCClassText = acClass.ACClassText_ACClass.FirstOrDefault(c => c.ACIdentifier == acIdentifier);
+                if (aCClassText == null)
+                {
+                    aCClassText = ACClassText.NewACObject(acClass.GetObjectContext<Database>(), acClass);
+                    aCClassText.ACIdentifier = acIdentifier;
+                    acClass.ACClassText_ACClass.Add(aCClassText);
+                }
+                aCClassText.ACCaptionTranslation = aCValueItem.ACCaptionTranslation;
+            }
+        }
+
+        /// <summary>
         /// Get's a translated ACCaption of a Property of a given "Live"-ACUrl
         /// </summary>
         /// <param name="acUrlComponent">The ac URL component.</param>

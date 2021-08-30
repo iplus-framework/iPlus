@@ -751,6 +751,9 @@ namespace gip.core.autocomponent
             UpdatePackage(acClass, acClassInfo);
 
             Translator.UpdateTranslation(acClass, acClassInfo.ACCaptionTranslation);
+            if (typeof(ACValueItemList) != acClass.ObjectType && typeof(ACValueItemList).IsAssignableFrom(acClass.ObjectType))
+                Translator.UpdateTranslationACValueItemList(acClass);
+
             if (dotNETType.BaseType != null && dotNETType.BaseType != typeof(System.Object)
                 && acClass.ACKind != Global.ACKinds.TACUndefined)
             {
@@ -1862,14 +1865,14 @@ namespace gip.core.autocomponent
         {
             Messages.ConsoleMsg("System", "Updating ACURLCached and ACURLComponentCached...");
 
-            IEnumerable<ACClass> acClassToUpdate = db.ACClass.Where(    c => c.ACURLCached == null 
-                                                                    || (     c.ACURLComponentCached == null 
-                                                                        &&  (   c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application 
-                                                                             || c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Service)));
+            IEnumerable<ACClass> acClassToUpdate = db.ACClass.Where(c => c.ACURLCached == null
+                                                                || (c.ACURLComponentCached == null
+                                                                    && (c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application
+                                                                         || c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Service)));
             foreach (ACClass acClass in acClassToUpdate)
             {
-                if (   string.IsNullOrEmpty(acClass.ACURLComponentCached)
-                    && (   acClass.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application 
+                if (string.IsNullOrEmpty(acClass.ACURLComponentCached)
+                    && (acClass.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application
                         || acClass.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Service))
                 {
                     acClass.ACURLComponentCached = acClass.ACUrlComponent;
@@ -2605,6 +2608,8 @@ namespace gip.core.autocomponent
                     acClass.IsAssembly = true;
 
                 Translator.UpdateTranslation(acClass, acClassChild.ACCaptionTranslation);
+                if (typeof(ACValueItemList) != acClass.ObjectType && typeof(ACValueItemList).IsAssignableFrom(acClass.ObjectType))
+                    Translator.UpdateTranslationACValueItemList(acClass);
             }
 
             if (acClassChild.ACClassChilds != null)
