@@ -20,8 +20,8 @@ namespace gip.core.autocomponent
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Root of iPlus'}de{'Root of iPlus'}", gip.core.datamodel.Global.ACKinds.TACRoot, Global.ACStorableTypes.Required, false, false)]
     [ACClassConstructorInfo(
-        new object[] 
-        { 
+        new object[]
+        {
             new object[] {"User",                   Global.ParamOption.Optional, typeof(VBUser)  },
             new object[] {"IsRegisterACObjects",    Global.ParamOption.Optional, typeof(Boolean) },
             new object[] {"IsPropPersistenceOff",   Global.ParamOption.Optional, typeof(Boolean) },
@@ -241,7 +241,8 @@ namespace gip.core.autocomponent
                     // Task-Daten kommen aus anderen Datenbankkontext, wegen Multithreading und Dynamischen Laden von Workflows
                     ACClassTask acClassTaskProject = null;
 
-                    ACClassTaskQueue.TaskQueue.ProcessAction(() => {
+                    ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                    {
                         acClassTaskProject = ACClassTaskQueue.TaskQueue.Context.ACClassTask
                              .Include(c => c.ContentACClassWF)
                              .Where(c => c.TaskTypeACClassID == userACProject.ACProject.RootClass.ACClassID && c.IsTestmode == false)
@@ -477,8 +478,8 @@ namespace gip.core.autocomponent
                 _IPlusDocsServerURL.ValueT = value;
             }
         }
-        
-        
+
+
         #endregion
 
         #region IRoot
@@ -784,10 +785,19 @@ namespace gip.core.autocomponent
         public IEnumerable<ACValueItem> GetEnumList(string enumType)
         {
             var enums = enumType.Split('\\');
+
             Type t1 = Type.GetType(enums[0]);
             Type t2 = null;
             if (enums.Length > 1)
                 t2 = Type.GetType(enums[1]);
+
+            if(t2 == null || t2 == t1)
+            {
+                ACClass enumACClass = Database.ContextIPlus.ACClass.FirstOrDefault(c => c.AssemblyQualifiedName.Contains(t1.FullName));
+                if (enumACClass != null && enumACClass.ACValueListForEnum != null)
+                    return enumACClass.ACValueListForEnum;
+            }
+
             return new ACValueItemList(t1, t2);
         }
 
@@ -845,7 +855,7 @@ namespace gip.core.autocomponent
         private ACRef<RuntimeDump> _Dump;
         public IRuntimeDump VBDump
         {
-            get 
+            get
             {
                 if (!this.Initialized || this.InitState != ACInitState.Initialized)
                     return null;
@@ -884,7 +894,7 @@ namespace gip.core.autocomponent
                     ClearComponentPool();
                     return true;
             }
-                return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
         #endregion
