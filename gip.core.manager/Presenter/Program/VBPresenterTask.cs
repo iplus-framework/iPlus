@@ -97,7 +97,18 @@ namespace gip.core.manager
             LoadWFInstance(wfInstance);
         }
 
-        public void LoadWFInstance(IACComponentPWNode wfInstance)
+        public void Load(IACComponentPWNode wfInstance)
+        {
+            if (wfInstance == null)
+                return;
+            if (wfInstance != null && wfInstance is ACComponentProxy)
+            {
+                (wfInstance as ACComponentProxy).ReloadChildsOverServerInstanceInfo(null);
+            }
+            LoadWFInstance(wfInstance);
+        }
+
+        protected void LoadWFInstance(IACComponentPWNode wfInstance)
         {
             if (wfInstance == null)
                 return;

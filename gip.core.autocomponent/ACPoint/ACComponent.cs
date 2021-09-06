@@ -150,7 +150,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        private void ACPostInitACPoints()
+        protected virtual void ACPostInitACPoints()
         {
             try
             {

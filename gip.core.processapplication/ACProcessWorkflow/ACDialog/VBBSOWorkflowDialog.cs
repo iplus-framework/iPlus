@@ -154,9 +154,7 @@ namespace gip.core.processapplication
                                 VBPresenterTask vbPresenterTask = this.ACUrlCommand("VBPresenterTask(CurrentDesign)") as VBPresenterTask;
                                 if (vbPresenterTask != null)
                                 {
-                                    if (pwNode.ParentRootWFNode is ACComponentProxy)
-                                        (pwNode.ParentRootWFNode as ACComponentProxy).ReloadChildsOverServerInstanceInfo(null);
-                                    vbPresenterTask.LoadWFInstance(pwNode.ParentRootWFNode);
+                                    vbPresenterTask.Load(pwNode.ParentRootWFNode);
                                     _CurrentPWRootNode = pwNode.ParentRootWFNode;
                                 }
                             }

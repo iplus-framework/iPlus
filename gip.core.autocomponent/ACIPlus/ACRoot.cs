@@ -526,11 +526,11 @@ namespace gip.core.autocomponent
                     return null;
                 if (_EventAbsorber == null)
                 {
-                    //Database.ACClass.Where(c => c.ACIdentifier == "ACPointEventAbsorber");
-                    var query = Database.ContextIPlus.ACClass.Where(c => c.AssemblyQualifiedName == typeof(ACPointEventAbsorber).AssemblyQualifiedName);
-                    if (query.Any())
+                    gip.core.datamodel.Database db = Database as gip.core.datamodel.Database;
+                    ACClass acClass = db.GetACType(typeof(ACPointEventAbsorber));
+                    if (acClass != null)
                     {
-                        _EventAbsorber = StartComponent(query.First(), null, new ACValueList(), Global.ACStartTypes.Automatic) as ACPointEventAbsorber;
+                        _EventAbsorber = StartComponent(acClass, null, new ACValueList(), Global.ACStartTypes.Automatic) as ACPointEventAbsorber;
                     }
                 }
                 return _EventAbsorber;
@@ -791,9 +791,14 @@ namespace gip.core.autocomponent
             if (enums.Length > 1)
                 t2 = Type.GetType(enums[1]);
 
-            if(t2 == null || t2 == t1)
+            if (t2 == null || t2 == t1)
             {
-                ACClass enumACClass = Database.ContextIPlus.ACClass.FirstOrDefault(c => c.AssemblyQualifiedName.Contains(t1.FullName));
+                gip.core.datamodel.Database db = Database as gip.core.datamodel.Database;
+                ACClass enumACClass = db.GetACType(t1);
+                //using (ACMonitor.Lock(db.QueryLock_1X000))
+                //{
+                //    enumACClass = db.ACClass.FirstOrDefault(c => c.AssemblyQualifiedName.Contains(t1.FullName));
+                //}
                 if (enumACClass != null && enumACClass.ACValueListForEnum != null)
                     return enumACClass.ACValueListForEnum;
             }

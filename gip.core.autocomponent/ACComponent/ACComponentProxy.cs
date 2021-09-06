@@ -31,8 +31,7 @@ namespace gip.core.autocomponent
 
         public override void Recycle(IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
         {
-
-                using (ACMonitor.Lock(_20015_LockValue))
+            using (ACMonitor.Lock(_20015_LockValue))
             {
                 _IsEnabledCache = new ConcurrentDictionary<string, LastIsEnabledResult>(2, 20);
                 _SubscriptionState = ProxySubscriptionState.Unsubscribed;
@@ -75,6 +74,12 @@ namespace gip.core.autocomponent
             }
             if (instanceInfo == null)
                 return;
+            else
+            {
+                PWNodeProxy pwProxy = this as PWNodeProxy;
+                if (pwProxy != null)
+                    pwProxy.CheckAndReplaceContent(instanceInfo);
+            }
             foreach (ACChildInstanceInfo child in instanceInfo.Childs)
             {
                 ACComponentProxy compAsProxy = StartComponent(child, startChildMode, true) as ACComponentProxy;
@@ -83,6 +88,11 @@ namespace gip.core.autocomponent
                     compAsProxy.ReloadChildsOverServerInstanceInfo(child, startChildMode, maxChildDepth);
                 }
             }
+        }
+
+        protected override void ACPostInitACPoints()
+        {
+            //base.ACPostInitACPoints();
         }
         #endregion
 

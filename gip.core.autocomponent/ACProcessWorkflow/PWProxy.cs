@@ -37,6 +37,23 @@ namespace gip.core.autocomponent
             }
         }
 
+        internal virtual void CheckAndReplaceContent(ACChildInstanceInfo instanceInfo)
+        {
+            if (instanceInfo == null || instanceInfo.Content == null || instanceInfo.Content.ValueT == null)
+                return;
+            ACClassWF acClassWF = null;
+            ACClassTask acClassTask = instanceInfo.Content.ValueT as ACClassTask;
+            if (acClassTask == null)
+                acClassWF = instanceInfo.Content.ValueT as ACClassWF;
+            else
+                acClassWF = acClassTask.ContentACClassWF;
+            if (acClassWF != null && ContentACClassWF != acClassWF)
+            {
+                Content = instanceInfo.Content.ValueT;
+                //_ContentACClassWF = acClassWF;
+            }
+        }
+
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
             if (!base.ACInit(startChildMode))
@@ -90,7 +107,8 @@ namespace gip.core.autocomponent
             }
             set
             {
-                if (_Content != value)
+                bool changed = _Content != value;
+                if (changed)
                 {
                     if (value == null)
                         _ContentACClassWF = null;
@@ -106,6 +124,14 @@ namespace gip.core.autocomponent
                 }
                 _Content = value;
                 OnPropertyChanged("Content");
+                OnPropertyChanged("ContentTask");
+
+                if (changed)
+                {
+                    OnPropertyChanged("ContentACClassWF");
+                    OnPropertyChanged("XMLDesign");
+                    OnPropertyChanged("WFContext");
+                }
             }
         }
 

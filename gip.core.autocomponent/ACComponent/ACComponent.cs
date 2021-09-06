@@ -1155,7 +1155,14 @@ namespace gip.core.autocomponent
                 return null;
             IACComponent child = ACComponentChilds.Where(c => c.ACIdentifier == instanceInfo.ACIdentifier).FirstOrDefault();
             if (child != null)
+            {
+                PWNodeProxy pWNodeProxy = child as PWNodeProxy;
+                if (pWNodeProxy != null)
+                {
+                    pWNodeProxy.CheckAndReplaceContent(instanceInfo);
+                }
                 return child;
+            }
             ACValueList acParameterList = new ACValueList();
             acParameterList.Add(new ACValue("ACChildInstanceInfo", instanceInfo));
             ACClass classOnServerSide = instanceInfo.ACType.ValueT as ACClass;
