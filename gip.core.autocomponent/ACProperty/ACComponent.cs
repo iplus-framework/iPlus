@@ -44,7 +44,6 @@ namespace gip.core.autocomponent
         {
             get
             {
-
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
                     return _PropertiesReceived;
@@ -64,6 +63,11 @@ namespace gip.core.autocomponent
                 if (changed)
                     OnPropertyChanged("ConnectionState");
             }
+        }
+
+        internal virtual void OnValueEventReceivedRemote(IACPropertyNetBase property, IACPropertyNetValueEvent eventArgs)
+        {
+            PropertiesReceived = true;
         }
 
         /// <summary>

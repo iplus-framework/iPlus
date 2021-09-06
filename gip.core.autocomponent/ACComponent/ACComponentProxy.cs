@@ -92,7 +92,8 @@ namespace gip.core.autocomponent
 
         protected override void ACPostInitACPoints()
         {
-            //base.ACPostInitACPoints();
+            if (Root != null && Root.HasACModelServer)
+                base.ACPostInitACPoints();
         }
         #endregion
 
@@ -219,6 +220,16 @@ namespace gip.core.autocomponent
                 {
                     _SubscriptionState = value;
                 }
+            }
+        }
+
+        public ApplicationManagerProxy ApplicationManager
+        {
+            get
+            {
+                if (this is ApplicationManagerProxy)
+                    return this as ApplicationManagerProxy;
+                return FindParentComponent<ApplicationManagerProxy>(c => c is ApplicationManagerProxy);
             }
         }
 

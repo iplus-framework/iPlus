@@ -197,7 +197,6 @@ namespace gip.core.autocomponent
         {
             get
             {
-
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
                     return _ApplicationQueue;

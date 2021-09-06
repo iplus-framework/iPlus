@@ -283,14 +283,14 @@ namespace gip.core.autocomponent
                 using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
                 {
                     _UserInstance = _VBUser.VBUserInstance_VBUser.FirstOrDefault();
-                    if (_UserInstance != null)
+                }
+                if (_UserInstance != null)
+                {
+                    int? sessionid = SessionID;
+                    if (sessionid.HasValue)
                     {
-                        int? sessionid = SessionID;
-                        if (sessionid.HasValue)
-                        {
-                            _UserInstance.LogIn(ComputerName, sessionid.Value);
-                            gip.core.datamodel.Database.GlobalDatabase.ACSaveChanges();
-                        }
+                        _UserInstance.LogIn(ComputerName, sessionid.Value);
+                        gip.core.datamodel.Database.GlobalDatabase.ACSaveChanges();
                     }
                 }
             }
@@ -305,8 +305,11 @@ namespace gip.core.autocomponent
                 using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
                 {
                     _UserInstance.AutoRefresh(gip.core.datamodel.Database.GlobalDatabase);
-                    _UserInstance.ReloadSessions();
-                    _UserInstance.LogOut(ComputerName, sessionid.Value);
+                }
+                _UserInstance.ReloadSessions();
+                _UserInstance.LogOut(ComputerName, sessionid.Value);
+                using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
+                {
                     gip.core.datamodel.Database.GlobalDatabase.ACSaveChanges();
                 }
             }

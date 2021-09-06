@@ -25,6 +25,10 @@ namespace gip.core.autocomponent
 
         protected override void Construct(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
         {
+            //using (ACMonitor.Lock(_20015_LockValue))
+            //{
+            //    _IsPWProcessFunction = null;
+            //}
             base.Construct(acType, content, parentACObject, parameter, acIdentifier);
             if (content is ACClassWF)
             {
@@ -46,11 +50,15 @@ namespace gip.core.autocomponent
             if (acClassTask == null)
                 acClassWF = instanceInfo.Content.ValueT as ACClassWF;
             else
-                acClassWF = acClassTask.ContentACClassWF;
+            {
+                using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                {
+                    acClassWF = acClassTask.ContentACClassWF;
+                }
+            }
             if (acClassWF != null && ContentACClassWF != acClassWF)
             {
                 Content = instanceInfo.Content.ValueT;
-                //_ContentACClassWF = acClassWF;
             }
         }
 
@@ -94,6 +102,39 @@ namespace gip.core.autocomponent
         {
             base.FinalizeComponent();
         }
+
+        internal override void OnValueEventReceivedRemote(IACPropertyNetBase property, IACPropertyNetValueEvent eventArgs)
+        {
+            base.OnValueEventReceivedRemote(property, eventArgs);
+            if (   property != null 
+                && property.ACIdentifier == Const.ACState 
+                && IsPWProcessFunction)
+            {
+                IACContainerTNet<ACStateEnum> propertyT = property as IACContainerTNet<ACStateEnum>;
+                if (propertyT != null)
+                {
+                    ACStateEnum newValue = (ACStateEnum)eventArgs.ChangedValue;
+                    if (propertyT.ValueT != ACStateEnum.SMIdle && newValue == ACStateEnum.SMIdle)
+                    {
+                        CheckContent = true;
+                    }
+                    else if (propertyT.ValueT == ACStateEnum.SMIdle 
+                        && newValue != ACStateEnum.SMIdle 
+                        && CheckContent
+                        && InitState == ACInitState.Initialized                        )
+                    {
+                        var appManager = ApplicationManager;
+                        if (appManager != null)
+                        {
+                            appManager.ApplicationQueue.Add(() =>
+                            {
+                                ReloadChildsOverServerInstanceInfo(null);
+                            });
+                        }
+                    }
+                }
+            }
+        }
         #endregion
 
         #region IACComponentWorkflow
@@ -103,26 +144,36 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return _Content;
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    return _Content;
+                }
             }
             set
             {
-                bool changed = _Content != value;
-                if (changed)
+                bool changed = false;
+                using (ACMonitor.Lock(_20015_LockValue))
                 {
-                    if (value == null)
-                        _ContentACClassWF = null;
-                    else if (value is ACClassWF)
+                    changed = _Content != value;
+                    if (changed)
                     {
-                        _ContentACClassWF = value as ACClassWF;
+                        if (value == null)
+                            _ContentACClassWF = null;
+                        else if (value is ACClassWF)
+                        {
+                            _ContentACClassWF = value as ACClassWF;
+                        }
+                        else if (value is ACClassTask)
+                        {
+                            ACClassTask acClassTask = value as ACClassTask;
+                            using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                            {
+                                _ContentACClassWF = acClassTask.ContentACClassWF;
+                            }
+                        }
                     }
-                    else if (value is ACClassTask)
-                    {
-                        ACClassTask acClassTask = value as ACClassTask;
-                        _ContentACClassWF = acClassTask.ContentACClassWF;
-                    }
+                    _Content = value;
                 }
-                _Content = value;
                 OnPropertyChanged("Content");
                 OnPropertyChanged("ContentTask");
 
@@ -149,7 +200,10 @@ namespace gip.core.autocomponent
                     else if (Content is ACClassTask)
                     {
                         ACClassTask acClassTask = Content as ACClassTask;
-                        _ContentACClassWF = acClassTask.ContentACClassWF;
+                        using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                        {
+                            _ContentACClassWF = acClassTask.ContentACClassWF;
+                        }
                     }
                 }
                 return _ContentACClassWF;
@@ -241,14 +295,57 @@ namespace gip.core.autocomponent
         {
             get
             {
-                Type typeMethodBase = typeof(PWProcessFunction);
-                ACClass acTypeMethodBase = ComponentClass.Database.GetACType(typeMethodBase);
-                if (acTypeMethodBase == null)
-                    return null;
-                if (ComponentClass.IsDerivedClassFrom(acTypeMethodBase))
+                if (IsPWProcessFunction)
                     return this;
                 return ParentRootWFNode;
             }
+        }
+
+        bool _CheckContent = false;
+        bool CheckContent
+        {
+            get
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    return _CheckContent;
+                }
+            }
+            set
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    _CheckContent = value;
+                }
+            }
+        }
+
+        bool? _IsPWProcessFunction = null;
+        private bool IsPWProcessFunction
+        {
+            get
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    if (_IsPWProcessFunction.HasValue)
+                        return _IsPWProcessFunction.Value;
+                }
+                bool isProcessFunc = CheckIsPWProcessFunction();
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    _IsPWProcessFunction = isProcessFunc;
+                    return isProcessFunc;
+                }
+            }
+        }
+
+        private bool CheckIsPWProcessFunction()
+        {
+            Type typeMethodBase = typeof(PWProcessFunction);
+            ACClass acTypeMethodBase = ComponentClass.Database.GetACType(typeMethodBase);
+            if (acTypeMethodBase == null)
+                return false;
+            return ComponentClass.IsDerivedClassFrom(acTypeMethodBase);
         }
 
         public IACWorkflowContext WFContext
@@ -351,7 +448,7 @@ namespace gip.core.autocomponent
                 {
                     mandatoryConfigStores = new List<IACConfigStore>();
 
-                using (ACMonitor.Lock(_20015_LockValue))
+                    using (ACMonitor.Lock(_20015_LockValue))
                     {
                         if (_MandatoryConfigStores == null && mandatoryConfigStores != null)
                             _MandatoryConfigStores = mandatoryConfigStores;

@@ -13,6 +13,11 @@ namespace gip.core.datamodel
             get;
         }
 
+        ACDelegateQueue ApplicationQueue
+        {
+            get;
+        }
+
         string[] FindMatchingUrls(FindMatchingUrlsParam queryParam);
 
         Dictionary<string, object> GetACComponentACMemberValues(Dictionary<string, string> acUrl_AcMemberIdentifiers);

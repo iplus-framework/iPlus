@@ -25,7 +25,28 @@ namespace gip.core.autocomponent
         {
             if (!base.ACInit(startChildMode))
                 return false;
+
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                _ApplicationQueue = new ACDelegateQueue(this.GetACUrl() + ";AppQueue");
+                _ApplicationQueue.StartWorkerThread();
+            }
+
             return true;
+        }
+
+        public override bool ACDeInit(bool deleteACClassTask = false)
+        {
+            bool result = base.ACDeInit(deleteACClassTask);
+            if (_ApplicationQueue != null)
+            {
+                _ApplicationQueue.StopWorkerThread();
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    _ApplicationQueue = null;
+                }
+            }
+            return result;
         }
         #endregion
 
@@ -48,6 +69,18 @@ namespace gip.core.autocomponent
             get
             {
                 return false;
+            }
+        }
+
+        private ACDelegateQueue _ApplicationQueue;
+        public ACDelegateQueue ApplicationQueue
+        {
+            get
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    return _ApplicationQueue;
+                }
             }
         }
 
@@ -75,10 +108,10 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case ApplicationManager.MN_FindMatchingUrls:
+                case gip.core.autocomponent.ApplicationManager.MN_FindMatchingUrls:
                     result = FindMatchingUrls(acParameter[0] as FindMatchingUrlsParam);
                     return true;
-                case ApplicationManager.MN_GetACComponentACMemberValues:
+                case gip.core.autocomponent.ApplicationManager.MN_GetACComponentACMemberValues:
                     result = GetACComponentACMemberValues(acParameter[0] as Dictionary<string, string>);
                     return true;
             }
@@ -97,12 +130,12 @@ namespace gip.core.autocomponent
                 stream.Flush();
                 data = stream.ToArray();
             }
-            return RMInvoker.ExecuteMethod(ApplicationManager.MN_FindMatchingUrlsSerial, new Object[] { data }) as string[];
+            return RMInvoker.ExecuteMethod(gip.core.autocomponent.ApplicationManager.MN_FindMatchingUrlsSerial, new Object[] { data }) as string[];
         }
 
         public Dictionary<string, object> GetACComponentACMemberValues(Dictionary<string, string> acUrl_AcMemberIdentifiers)
         {
-            return RMInvoker.ExecuteMethod(ApplicationManager.MN_GetACComponentACMemberValues, new Object[] { acUrl_AcMemberIdentifiers }) as Dictionary<string, object>;
+            return RMInvoker.ExecuteMethod(gip.core.autocomponent.ApplicationManager.MN_GetACComponentACMemberValues, new Object[] { acUrl_AcMemberIdentifiers }) as Dictionary<string, object>;
         }
 
         #endregion

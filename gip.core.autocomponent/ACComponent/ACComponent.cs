@@ -4044,11 +4044,17 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return _Content;
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    return _Content;
+                }
             }
             set
             {
-                _Content = value;
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    _Content = value;
+                }
                 OnPropertyChanged("Content");
             }
         }
@@ -4061,7 +4067,10 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return _Content as ACClassTask;
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    return _Content as ACClassTask;
+                }
             }
         }
 

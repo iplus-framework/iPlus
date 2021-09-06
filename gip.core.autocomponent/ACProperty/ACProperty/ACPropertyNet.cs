@@ -294,7 +294,7 @@ namespace gip.core.autocomponent
             ACComponent acComponent = ACRef.ValueT as ACComponent;
             if (acComponent.InitState == ACInitState.DisposingToPool || acComponent.InitState == ACInitState.DisposedToPool)
                 return;
-            (ACRef.ValueT as ACComponent).PropertiesReceived = true;
+            (ACRef.ValueT as ACComponent).OnValueEventReceivedRemote(this, eventArgs);
             ACPropertyValueEvent<T> eventArgsT = eventArgs as ACPropertyValueEvent<T>;
             if (eventArgsT != null && eventArgsT.Value is IACContainerRef)
                 (eventArgsT.Value as IACContainerRef).AttachTo(ACRef.ValueT);
