@@ -404,7 +404,6 @@ namespace gip.core.datamodel
         {
             get
             {
-
                 using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                 {
                     if (ACPackage == null)
@@ -2918,14 +2917,22 @@ namespace gip.core.datamodel
         {
             get
             {
-                if (_ObjectType == null)
+                using (ACMonitor.Lock(_10020_LockValue))
                 {
-                    ACClass myAssemblyClass = BaseClassWithASQN;
-                    if (myAssemblyClass == null)
-                        return null;
-                    _ObjectType = Type.GetType(myAssemblyClass.AssemblyQualifiedName);
+                    if (_ObjectType != null)
+                        return _ObjectType;
                 }
-                return _ObjectType;
+                
+                ACClass myAssemblyClass = BaseClassWithASQN;
+                if (myAssemblyClass == null)
+                    return null;
+
+                Type type = Type.GetType(myAssemblyClass.AssemblyQualifiedName);
+                using (ACMonitor.Lock(_10020_LockValue))
+                {
+                    _ObjectType = type;
+                    return _ObjectType;
+                }
             }
         }
 
