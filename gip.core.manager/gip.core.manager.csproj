@@ -105,14 +105,6 @@
     <Compile Include="Presenter\Method\VBPresenterMethod.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj">
-      <Project>{893d3b1b-dc55-4684-8b5d-941f1049151b}</Project>
-      <Name>gip.core.autocomponent</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj">
-      <Project>{16FB4111-5110-46E5-851D-38A4D7522F85}</Project>
-      <Name>gip.core.datamodel</Name>
-    </ProjectReference>
     <ProjectReference Include="..\gip.core.layoutengine\gip.core.layoutengine.csproj">
       <Project>{A294786A-0921-4773-A0BF-F98F5AFCAE0D}</Project>
       <Name>gip.core.layoutengine</Name>

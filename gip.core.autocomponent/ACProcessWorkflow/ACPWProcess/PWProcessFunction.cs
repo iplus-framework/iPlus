@@ -1305,6 +1305,7 @@ namespace gip.core.autocomponent
             if (IsACStateMethodConsistent(ACStateEnum.SMStarting) < ACStateCompare.WrongACStateMethod) // Vergleich notwendig, da durch Callbacks im selben Callstack, der Status evtl. schon weitergesetzt worden ist
             {
                 CurrentACState = ACStateEnum.SMRunning;
+                OnPropertyChanged(Const.VBPresenter_SelectedRootWFNode);
                 //PostExecute(PABaseState.SMStarting);
             }
 

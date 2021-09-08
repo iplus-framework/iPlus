@@ -31,6 +31,8 @@ namespace gip.core.manager
             }
         }
 
+        private bool _LoadedByTask = false;
+
         #endregion
 
 
@@ -71,10 +73,12 @@ namespace gip.core.manager
             if (childInfo == null)
                 return;
             Load(appManager, childInfo);
+            _LoadedByTask = true;
         }
 
         public void Load(IACComponent applicationManager, ACChildInstanceInfo acChildInstanceInfo)
         {
+            _LoadedByTask = false;
             IACComponentPWNode wfInstance = null;
             if (applicationManager.IsProxy)
             {
@@ -99,6 +103,7 @@ namespace gip.core.manager
 
         public void Load(IACComponentPWNode wfInstance)
         {
+            _LoadedByTask = false;
             if (wfInstance == null)
                 return;
             if (wfInstance != null && wfInstance is ACComponentProxy)
@@ -125,6 +130,18 @@ namespace gip.core.manager
             PresenterACWorkflowNode = null;
             SelectedRootWFNode = null;
             ReferencePoint?.CheckWPFRefsAndDetachUnusedProxies();
+        }
+
+        protected override void OnSelectedRootWFNodeContextChanged()
+        {
+            // If Loaded by Task, then don't automatically reload workflow on gui because use must selct another task first.
+            if (_LoadedByTask)
+                return;
+            //if (SelectedRootWFNode != null)
+            //{
+            //    Load(SelectedRootWFNode);
+            //}
+            base.OnSelectedRootWFNodeContextChanged();
         }
 
         #endregion

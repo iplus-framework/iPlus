@@ -376,7 +376,7 @@ namespace gip.core.layoutengine
         /// Represents the dependency property for ContentACObject.
         /// </summary>
         public static readonly DependencyProperty ContentACObjectProperty
-            = DependencyProperty.Register("ContentACObject", typeof(IACObjectDesign), typeof(VBDesign), new PropertyMetadata(new PropertyChangedCallback(ContentACObjectChanged)));
+            = DependencyProperty.Register("ContentACObject", typeof(IACObjectDesign), typeof(VBDesign), new PropertyMetadata(null, new PropertyChangedCallback(ContentACObjectChanged), new CoerceValueCallback(ContentACObjectChangedCoerce)));
 
         private static void ContentACObjectChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -388,6 +388,26 @@ namespace gip.core.layoutengine
                 vbContentControl.LoadDesign();
             }
         }
+
+        private static object ContentACObjectChangedCoerce(DependencyObject d, object baseValue)
+        {
+            if (d is VBDesign)
+            {
+                VBDesign vbContentControl = d as VBDesign;
+                if (vbContentControl._LoadDesignLocked || !vbContentControl.CoerceRefreshDesign)
+                    return baseValue;
+                if (baseValue == vbContentControl.ContentACObject)
+                    vbContentControl.LoadDesign();
+            }
+            return baseValue;
+        }
+
+        public bool CoerceRefreshDesign
+        {
+            get;
+            set;
+        }
+
 
         /// <summary>
         /// Initializes a design info.

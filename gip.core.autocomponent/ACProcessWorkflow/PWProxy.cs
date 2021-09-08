@@ -121,7 +121,7 @@ namespace gip.core.autocomponent
                     else if (propertyT.ValueT == ACStateEnum.SMIdle 
                         && newValue != ACStateEnum.SMIdle 
                         && CheckContent
-                        && InitState == ACInitState.Initialized                        )
+                        && InitState == ACInitState.Initialized)
                     {
                         var appManager = ApplicationManager;
                         if (appManager != null)
@@ -129,6 +129,7 @@ namespace gip.core.autocomponent
                             appManager.ApplicationQueue.Add(() =>
                             {
                                 ReloadChildsOverServerInstanceInfo(null);
+                                OnPropertyChanged(Const.VBPresenter_SelectedRootWFNode);
                             });
                         }
                     }

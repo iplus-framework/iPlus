@@ -39,6 +39,8 @@ namespace gip.core.manager
             {
                 this.VBBSOSelectionManager.PropertyChanged -= SelectionManagerPropertyChangedHandler;
             }
+            if (_SelectedRootWFNode != null)
+                _SelectedRootWFNode.PropertyChanged -= _SelectedRootWFNode_PropertyChanged;
 
             return base.ACDeInit(deleteACClassTask);
         }
@@ -118,9 +120,26 @@ namespace gip.core.manager
             }
             set
             {
+                if (_SelectedRootWFNode != null)
+                    _SelectedRootWFNode.PropertyChanged -= _SelectedRootWFNode_PropertyChanged;
                 _SelectedRootWFNode = value;
+                if (_SelectedRootWFNode != null)
+                    _SelectedRootWFNode.PropertyChanged += _SelectedRootWFNode_PropertyChanged;
                 OnPropertyChanged(Const.VBPresenter_SelectedRootWFNode);
             }
+        }
+
+        private void _SelectedRootWFNode_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e != null && e.PropertyName == Const.VBPresenter_SelectedRootWFNode)
+            {
+                OnSelectedRootWFNodeContextChanged();
+            }
+        }
+
+        protected virtual void OnSelectedRootWFNodeContextChanged()
+        {
+            OnPropertyChanged(Const.VBPresenter_SelectedRootWFNode);
         }
 
         /// <summary>
