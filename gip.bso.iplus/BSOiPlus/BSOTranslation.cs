@@ -219,7 +219,7 @@ namespace gip.bso.iplus
                     = new ACClassInfoWithItems.VisibilityFilters()
                     {
                         SearchText = this.SearchClassText,
-                        IncludeLibraryClasses = CurrentACProject != null && CurrentACProject.ACProjectType == Global.ACProjectTypes.ClassLibrary
+                        IncludeLibraryClasses = false
                     };
                 return filter;
             }
