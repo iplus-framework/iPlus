@@ -461,14 +461,14 @@ namespace gip.core.autocomponent
             if (childsOnServer == null)
                 return null;
 
-            using (ACMonitor.Lock(Root.Database.ContextIPlus.QueryLock_1X000))
-                using (ACMonitor.Lock(ACClassTaskQueue.TaskQueue.Context.QueryLock_1X000))
-                {
+            //using (ACMonitor.Lock(Root.Database.ContextIPlus.QueryLock_1X000))
+            //    using (ACMonitor.Lock(ACClassTaskQueue.TaskQueue.Context.QueryLock_1X000))
+            //    {
                     foreach (ACChildInstanceInfo childInfo in childsOnServer)
                     {
                         childInfo.AttachTo(Root.Database.ContextIPlus, ACClassTaskQueue.TaskQueue.Context);
                     }
-                }
+            //}
             return childsOnServer;
         }
 
@@ -478,14 +478,14 @@ namespace gip.core.autocomponent
             if (childsOnServer == null)
                 return null;
 
-            using (ACMonitor.Lock(Root.Database.ContextIPlus.QueryLock_1X000))
-                using (ACMonitor.Lock(ACClassTaskQueue.TaskQueue.Context.QueryLock_1X000)) 
-                {
+            //using (ACMonitor.Lock(Root.Database.ContextIPlus.QueryLock_1X000))
+            //    using (ACMonitor.Lock(ACClassTaskQueue.TaskQueue.Context.QueryLock_1X000)) 
+            //    {
                     foreach (ACChildInstanceInfo childInfo in childsOnServer)
                     {
                         childInfo.AttachTo(Root.Database.ContextIPlus, ACClassTaskQueue.TaskQueue.Context);
                     }
-                }
+            //}
             return childsOnServer;
         }
 
