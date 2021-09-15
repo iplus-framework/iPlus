@@ -1856,7 +1856,7 @@ namespace gip.bso.iplus
                     }
 
                     if (item is IACObjectEntityWithCheckTrans)
-                        (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation = translationItem.ToString();
+                        (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation = translationItem.TranslationValue;
                     else
                         UpdateMDObject(Database as Database, SourceLanguageList, translationItem);
                 }
