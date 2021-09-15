@@ -83,7 +83,7 @@ namespace gip.core.layoutengine
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBXpsViewer), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBFlowDocumentScrollViewer), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
@@ -98,7 +98,7 @@ namespace gip.core.layoutengine
         /// </summary>
         public static readonly DependencyProperty ACUrlCmdMessageProperty =
             DependencyProperty.Register("ACUrlCmdMessage",
-                typeof(ACUrlCmdMessage), typeof(VBXpsViewer),
+                typeof(ACUrlCmdMessage), typeof(VBFlowDocumentScrollViewer),
                 new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace gip.core.layoutengine
         /// </summary>
         public static readonly DependencyProperty ACCompInitStateProperty =
             DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBXpsViewer),
+                typeof(ACInitState), typeof(VBFlowDocumentScrollViewer),
                 new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
 
         /// <summary>
