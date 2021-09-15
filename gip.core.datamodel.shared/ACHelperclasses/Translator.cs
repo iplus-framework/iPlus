@@ -83,6 +83,25 @@ namespace gip.core.datamodel
             return translatedText;
         }
 
+        public static List<TranslationPair> LoadEditTranslationList(List<VBLanguage> vbLanguageList, string translationValue)
+        {
+            List<TranslationPair> list = new List<TranslationPair>();
+            if (!string.IsNullOrEmpty(translationValue))
+                foreach (var vBLanguage in vbLanguageList)
+                {
+                    if (translationValue.Contains(vBLanguage.VBLanguageCode + "{"))
+                    {
+                        TranslationPair translationPair = new TranslationPair()
+                        {
+                            LangCode = vBLanguage.VBLanguageCode,
+                            Translation = Translator.GetTranslation("", translationValue, vBLanguage.VBLanguageCode)
+                        };
+                        list.Add(translationPair);
+                    }
+                }
+            return list;
+        }
+
         /// <summary>
         /// Sets the translation.
         /// </summary>

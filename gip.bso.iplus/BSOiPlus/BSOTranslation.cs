@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Input;
 
@@ -1821,16 +1822,12 @@ namespace gip.bso.iplus
                 itemsCount = list.Count();
             foreach (var translationItem in list)
             {
-                string curentTransValue = string.Join("", translationItem.EditTranslationList.Where(c => !string.IsNullOrEmpty(c.Translation)).Select(c => c.GetTranslationTuple()));
-                translationItem.TranslationValue = curentTransValue;
+                translationItem.TranslationValue = string.Join("", translationItem.EditTranslationList.Where(c => !string.IsNullOrEmpty(c.Translation)).Select(c => c.GetTranslationTuple()));
                 object item = null;
                 if (translationItem.TableName.StartsWith("AC"))
-                    item = GetACClassObjectItem(Database as gip.core.datamodel.Database, translationItem);
+                    item = GetACClassObjectItem(Database as Database, translationItem);
                 else
-                    item = GetMDObjectItem(Database as gip.core.datamodel.Database, translationItem);
-
-                if (item == null)
-                    item = GetOtherObjectItem(Database as gip.core.datamodel.Database, translationItem);
+                    item = GetMDObjectItem(Database as Database, translationItem);
 
                 if (item != null)
                 {
@@ -1838,33 +1835,30 @@ namespace gip.bso.iplus
                     {
                         VBTranslationView tmpTranslationView = new VBTranslationView();
                         if (item is IACObjectEntityWithCheckTrans)
-                        {
                             tmpTranslationView.TranslationValue = (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation;
-                        }
                         else if (item is IMDTrans)
-                        {
                             tmpTranslationView.TranslationValue = (item as IMDTrans).MDNameTrans;
-                        }
-                        // update add to translation item missing TranslationPair elements
-                        tmpTranslationView.SetTranslationList(TargetLanguageList);
-                        List<TranslationPair> missing = tmpTranslationView.EditTranslationList.Where(c => !translationItem.EditTranslationList.Select(x => x.LangCode).Contains(c.LangCode)).ToList();
+                        if (!string.IsNullOrEmpty(tmpTranslationView.TranslationValue))
+                            tmpTranslationView.EditTranslationList = Translator.LoadEditTranslationList(SourceLanguageList, tmpTranslationView.TranslationValue);
+                        else
+                            tmpTranslationView.EditTranslationList = new List<TranslationPair>();
 
-                        if (missing.Any())
+                        foreach (TranslationPair newTranslation in translationItem.EditTranslationList)
                         {
-                            translationItem.EditTranslationList.AddRange(missing);
-                            curentTransValue = string.Join("", translationItem.EditTranslationList.Where(c => !string.IsNullOrEmpty(c.Translation)).Select(c => c.GetTranslationTuple()));
-                            translationItem.TranslationValue = curentTransValue;
+                            TranslationPair oldTranslation = tmpTranslationView.EditTranslationList.FirstOrDefault(c => c.LangCode == newTranslation.LangCode);
+                            if (oldTranslation != null)
+                                oldTranslation.Translation = newTranslation.Translation;
+                            else
+                                tmpTranslationView.EditTranslationList.Add(newTranslation);
                         }
+                        tmpTranslationView.TranslationValue = string.Join("", tmpTranslationView.EditTranslationList.Where(c => !string.IsNullOrEmpty(c.Translation)).Select(c => c.GetTranslationTuple()));
+                        translationItem.TranslationValue = tmpTranslationView.TranslationValue;
                     }
 
                     if (item is IACObjectEntityWithCheckTrans)
-                    {
-                        (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation = curentTransValue;
-                    }
+                        (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation = translationItem.ToString();
                     else
-                    {
-                        UpdateMDObject(Database as gip.core.datamodel.Database, translationItem, curentTransValue);
-                    }
+                        UpdateMDObject(Database as Database, SourceLanguageList, translationItem);
                 }
 
                 int itemIndex = list.IndexOf(translationItem);
@@ -1912,206 +1906,26 @@ namespace gip.bso.iplus
             return result;
         }
 
-        private object GetMDObjectItem(Database database, VBTranslationView translationItem)
+        private IMDTrans GetMDObjectItem(Database database, VBTranslationView translationItem)
         {
-            object resultItem = null;
-            string sql = "select * from {0} where MDKey='{{0}}'";
+            MDTrans resultItem = null;
+            string sql = "select MDKey, MDNameTrans from {0} where MDKey='{{0}}'";
             sql = string.Format(sql, translationItem.TableName);
-            //switch (translationItem.TableName)
-            //{
-            //    case "MDBalancingMode":
-            //        sql = "select * from MDBalancingMode where MDKey='{0}'";
-            //        break;
-            //    case "MDBookingNotAvailableMode":
-            //        sql = "select * from MDBookingNotAvailableMode where MDKey='{0}'";
-            //        break;
-            //    case "MDCostCenter":
-            //        sql = "select * from MDCostCenter where MDKey='{0}'";
-            //        break;
-            //    case "MDCountry":
-            //        sql = "select * from MDCountry where MDKey='{0}'";
-            //        break;
-            //    case "MDCountryLand":
-            //        sql = "select * from MDCountryLand where MDKey='{0}'";
-            //        break;
-            //    case "MDCountrySalesTax":
-            //        sql = "select * from MDCountrySalesTax where MDKey='{0}'";
-            //        break;
-            //    case "MDCurrency":
-            //        sql = "select * from MDCurrency where MDKey='{0}'";
-            //        break;
-            //    case "MDDelivNoteState":
-            //        sql = "select * from MDDelivNoteState where MDKey='{0}'";
-            //        break;
-            //    case "MDDelivPosLoadState":
-            //        sql = "select * from MDDelivPosLoadState where MDKey='{0}'";
-            //        break;
-            //    case "MDDelivPosState":
-            //        sql = "select * from MDDelivPosState where MDKey='{0}'";
-            //        break;
-            //    case "MDDelivType":
-            //        sql = "select * from MDDelivType where MDKey='{0}'";
-            //        break;
-            //    case "MDDemandOrderState":
-            //        sql = "select * from MDDemandOrderState where MDKey='{0}'";
-            //        break;
-            //    case "MDFacilityInventoryPosState":
-            //        sql = "select * from MDFacilityInventoryPosState where MDKey='{0}'";
-            //        break;
-            //    case "MDFacilityInventoryState":
-            //        sql = "select * from MDFacilityInventoryState where MDKey='{0}'";
-            //        break;
-            //    case "MDFacilityManagementType":
-            //        sql = "select * from MDFacilityManagementType where MDKey='{0}'";
-            //        break;
-            //    case "MDFacilityType":
-            //        sql = "select * from MDFacilityType where MDKey='{0}'";
-            //        break;
-            //    case "MDFacilityVehicleType":
-            //        sql = "select * from MDFacilityVehicleType where MDKey='{0}'";
-            //        break;
-            //    case "MDGMPAdditive":
-            //        sql = "select * from MDGMPAdditive where MDKey='{0}'";
-            //        break;
-            //    case "MDGMPMaterialGroup":
-            //        sql = "select * from MDGMPMaterialGroup where MDKey='{0}'";
-            //        break;
-            //    case "MDInOrderPosState":
-            //        sql = "select * from MDInOrderPosState where MDKey='{0}'";
-            //        break;
-            //    case "MDInOrderState":
-            //        sql = "select * from MDInOrderState where MDKey='{0}'";
-            //        break;
-            //    case "MDInOrderType":
-            //        sql = "select * from MDInOrderType where MDKey='{0}'";
-            //        break;
-            //    case "MDInRequestState":
-            //        sql = "select * from MDInRequestState where MDKey='{0}'";
-            //        break;
-            //    case "MDInventoryManagementType":
-            //        sql = "select * from MDInventoryManagementType where MDKey='{0}'";
-            //        break;
-            //    case "MDLabOrderPosState":
-            //        sql = "select * from MDLabOrderPosState where MDKey='{0}'";
-            //        break;
-            //    case "MDLabOrderState":
-            //        sql = "select * from MDLabOrderState where MDKey='{0}'";
-            //        break;
-            //    case "MDLabTag":
-            //        sql = "select * from MDLabTag where MDKey='{0}'";
-            //        break;
-            //    case "MDMaintMode":
-            //        sql = "select * from MDMaintMode where MDKey='{0}'";
-            //        break;
-            //    case "MDMaintOrderPropertyState":
-            //        sql = "select * from MDMaintOrderPropertyState where MDKey='{0}'";
-            //        break;
-            //    case "MDMaintOrderState":
-            //        sql = "select * from MDMaintOrderState where MDKey='{0}'";
-            //        break;
-            //    case "MDMaterialGroup":
-            //        sql = "select * from MDMaterialGroup where MDKey='{0}'";
-            //        break;
-            //    case "MDMaterialType":
-            //        sql = "select * from MDMaterialType where MDKey='{0}'";
-            //        break;
-            //    case "MDMovementReason":
-            //        sql = "select * from MDMovementReason where MDKey='{0}'";
-            //        break;
-            //    case "MDOutOfferState":
-            //        sql = "select * from MDOutOfferState where MDKey='{0}'";
-            //        break;
-            //    case "MDOutOrderPlanState":
-            //        sql = "select * from MDOutOrderPlanState where MDKey='{0}'";
-            //        break;
-            //    case "MDOutOrderPosState":
-            //        sql = "select * from MDOutOrderPosState where MDKey='{0}'";
-            //        break;
-            //    case "MDOutOrderState":
-            //        sql = "select * from MDOutOrderState where MDKey='{0}'";
-            //        break;
-            //    case "MDOutOrderType":
-            //        sql = "select * from MDOutOrderType where MDKey='{0}'";
-            //        break;
-            //    case "MDProcessErrorAction":
-            //        sql = "select * from MDProcessErrorAction where MDKey='{0}'";
-            //        break;
-            //    case "MDProdOrderPartslistPosState":
-            //        sql = "select * from MDProdOrderPartslistPosState where MDKey='{0}'";
-            //        break;
-            //    case "MDProdOrderState":
-            //        sql = "select * from MDProdOrderState where MDKey='{0}'";
-            //        break;
-            //    case "MDRatingComplaintType":
-            //        sql = "select * from MDRatingComplaintType where MDKey='{0}'";
-            //        break;
-            //    case "MDReleaseState":
-            //        sql = "select * from MDReleaseState where MDKey='{0}'";
-            //        break;
-            //    case "MDReservationMode":
-            //        sql = "select * from MDReservationMode where MDKey='{0}'";
-            //        break;
-            //    case "MDTermOfPayment":
-            //        sql = "select * from MDTermOfPayment where MDKey='{0}'";
-            //        break;
-            //    case "MDTimeRange":
-            //        sql = "select * from MDTimeRange where MDKey='{0}'";
-            //        break;
-            //    case "MDToleranceState":
-            //        sql = "select * from MDToleranceState where MDKey='{0}'";
-            //        break;
-            //    case "MDTour":
-            //        sql = "select * from MDTour where MDKey='{0}'";
-            //        break;
-            //    case "MDTourplanPosState":
-            //        sql = "select * from MDTourplanPosState where MDKey='{0}'";
-            //        break;
-            //    case "MDTourplanState":
-            //        sql = "select * from MDTourplanState where MDKey='{0}'";
-            //        break;
-            //    case "MDTransportMode":
-            //        sql = "select * from MDTransportMode where MDKey='{0}'";
-            //        break;
-            //    case "MDVisitorCardState":
-            //        sql = "select * from MDVisitorCardState where MDKey='{0}'";
-            //        break;
-            //    case "MDVisitorVoucherState":
-            //        sql = "select * from MDVisitorVoucherState where MDKey='{0}'";
-            //        break;
-            //    case "MDZeroStockState":
-            //        sql = "select * from MDZeroStockState where MDKey='{0}'";
-            //        break;
-            //}
             sql = string.Format(sql, translationItem.ACIdentifier);
 
-            var result = database.ExecuteStoreQuery<object>(sql);
+            var result = database.ExecuteStoreQuery<MDTrans>(sql);
             if (result != null)
                 resultItem = result.FirstOrDefault();
 
             return resultItem;
         }
 
-        private void UpdateMDObject(Database database, VBTranslationView translationItem, string translation)
+        private void UpdateMDObject(Database database, List<VBLanguage> vbLanguageList, VBTranslationView translationItem)
         {
             string sql = "update {0} set MDNameTrans='{1}' where MDKey='{2}'";
-            translation = translation.Replace("'", "''");
+            string translation = translationItem.TranslationValue.Replace("'", "''");
             sql = string.Format(sql, translationItem.TableName, translation, translationItem.ACIdentifier);
             database.ExecuteStoreCommand(sql);
-        }
-
-        private object GetOtherObjectItem(Database database, VBTranslationView translationItem)
-        {
-            object item = null;
-            System.Data.EntityKey entityKey = new System.Data.EntityKey(database.DefaultContainerName + "." + translationItem.TableName, translationItem.TableName + "ID", translationItem.ID);
-            try
-            {
-                item = database.GetObjectByKey(entityKey);
-            }
-            catch (Exception ec)
-            {
-                Console.WriteLine(string.Format(@"Unable to find object of type: {0} with id: {1}! Error message: {2}.", translationItem.TableName, translationItem.ID, ec.Message));
-            }
-            return item;
         }
 
         #endregion
