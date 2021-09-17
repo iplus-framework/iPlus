@@ -122,6 +122,7 @@
     <Compile Include="ACInterfaces\ACEntity\IImageInfo.cs" />
     <Compile Include="ACInterfaces\ACEntity\MDTrans.cs" />
     <Compile Include="ACInterfaces\ACIPlus\IACVBNoManager.cs" />
+    <Compile Include="ACPrint\PrinterInfo.cs" />
     <Compile Include="ACSerialization\ACObjectSerialHelper.cs" />
     <Compile Include="ACHelperclasses\Runtime\ACMemberIndexer.cs" />
     <Compile Include="ACHelperclasses\ACLicense\License.cs" />

@@ -1839,7 +1839,7 @@ namespace gip.bso.iplus
                         else if (item is IMDTrans)
                             tmpTranslationView.TranslationValue = (item as IMDTrans).MDNameTrans;
                         if (!string.IsNullOrEmpty(tmpTranslationView.TranslationValue))
-                            tmpTranslationView.EditTranslationList = Translator.LoadEditTranslationList(SourceLanguageList, tmpTranslationView.TranslationValue);
+                            tmpTranslationView.EditTranslationList = VBTranslationView.LoadEditTranslationList(SourceLanguageList, tmpTranslationView.TranslationValue);
                         else
                             tmpTranslationView.EditTranslationList = new List<TranslationPair>();
 

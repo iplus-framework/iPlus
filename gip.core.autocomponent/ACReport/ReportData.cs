@@ -101,7 +101,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        public static ReportData BuildReportData(out bool cloneInstantiated, Global.CurrentOrList selectMode, IACComponent acComponent, ACQueryDefinition acQueryDefinition, ACClassDesign acClassDesign)
+        public static ReportData BuildReportData(out bool cloneInstantiated, Global.CurrentOrList selectMode, IACComponent acComponent, ACQueryDefinition acQueryDefinition, ACClassDesign acClassDesign, bool preventClone = false)
         {
             ReportData reportData = new ReportData();
             reportData._ACClassDesign = acClassDesign;
@@ -110,7 +110,7 @@ namespace gip.core.autocomponent
             {
                 IACComponent clonedComponent = null;
                 ACBSO bso = acComponent as ACBSO;
-                if (bso != null)
+                if (bso != null && !preventClone)
                 {
                     clonedComponent = bso.Clone() as IACComponent;
                     SynchronizeCurrentProp(clonedComponent as ACBSO, bso, Global.CurrentOrList.Current);

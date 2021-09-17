@@ -68,7 +68,7 @@ namespace gip.core.datamodel
 
         public void SetTranslationList(List<VBLanguage> vbLanguageList)
         {
-            _EditTranslationList = Translator.LoadEditTranslationList(vbLanguageList, TranslationValue);
+            _EditTranslationList = LoadEditTranslationList(vbLanguageList, TranslationValue);
             OnPropertyChanged("EditTranslationList");
         }
         #endregion
@@ -78,5 +78,25 @@ namespace gip.core.datamodel
         {
             return string.Format(@"[{0}] {1}", TableName, ACIdentifier);
         }
+
+        public static List<TranslationPair> LoadEditTranslationList(List<VBLanguage> vbLanguageList, string translationValue)
+        {
+            List<TranslationPair> list = new List<TranslationPair>();
+            if (!string.IsNullOrEmpty(translationValue))
+                foreach (var vBLanguage in vbLanguageList)
+                {
+                    if (translationValue.Contains(vBLanguage.VBLanguageCode + "{"))
+                    {
+                        TranslationPair translationPair = new TranslationPair()
+                        {
+                            LangCode = vBLanguage.VBLanguageCode,
+                            Translation = Translator.GetTranslation("", translationValue, vBLanguage.VBLanguageCode)
+                        };
+                        list.Add(translationPair);
+                    }
+                }
+            return list;
+        }
+
     }
 }
