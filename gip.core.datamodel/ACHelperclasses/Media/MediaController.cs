@@ -197,7 +197,10 @@ namespace gip.core.datamodel
                 }
                 catch (Exception ec)
                 {
-
+                    if (gip.core.datamodel.Database.Root != null)
+                    {
+                        gip.core.datamodel.Database.Root.Messages.LogException("MediaController", "DeleteWithRetry", ec);
+                    }
                 }
             }
             return isDeleted;
