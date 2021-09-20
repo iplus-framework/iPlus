@@ -680,7 +680,7 @@ namespace gip.core.autocomponent
         /// <param name="numberOfCopies">The number of copies.</param>
         /// <param name="wfOrderInfo">The wf order information.</param>
         /// <returns></returns>
-        public virtual Msg PrintFromWorkflowNode(string designName, string printerName, short numberOfCopies, PAOrderInfo wfOrderInfo)
+        public virtual Msg PrintViaOrderInfo(string designName, string printerName, short numberOfCopies, PAOrderInfo wfOrderInfo)
         {
             if (string.IsNullOrEmpty(designName))
                 return new Msg(); //TODO: error

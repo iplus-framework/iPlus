@@ -171,7 +171,7 @@ namespace gip.core.autocomponent
                 return;
             }
 
-            Msg msg = acBSO.PrintFromWorkflowNode(ReportDesignName, PrinterName, NumberOfCopies, OrderInfo); //todo: ask - delagate to acdelagatequeue
+            Msg msg = acBSO.PrintViaOrderInfo(ReportDesignName, PrinterName, NumberOfCopies, OrderInfo); //todo: ask - delagate to acdelagatequeue
             if (msg != null)
             {
                 acBSO.Stop();

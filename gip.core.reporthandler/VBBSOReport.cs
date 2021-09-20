@@ -175,14 +175,7 @@ namespace gip.core.reporthandler
             PrinterName = printerName;
             if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
             {
-                if (Thread.CurrentThread.ApartmentState == ApartmentState.STA)
-                    ReportDocument.FlowPrint(acClassDesign.XMLDesign, withDialog, printerName, data, copies);
-                else
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        ReportDocument.FlowPrintAsync(acClassDesign.XMLDesign, false, printerName, data, copies);
-                    });
-
+                ReportDocument.FlowPrint(acClassDesign.XMLDesign, withDialog, printerName, data, copies);
             }
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
             {

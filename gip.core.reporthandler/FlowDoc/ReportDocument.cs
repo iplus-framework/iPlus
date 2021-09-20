@@ -737,24 +737,11 @@ namespace gip.core.reporthandler.Flowdoc
             return res;
         }
 
-        public static void FlowPrintAsync(string xmlDesign, bool withDialog, string printerName, ReportData data, int copies)
-        {
-            Thread thread = new Thread(() =>
-            {
-                FlowPrint(xmlDesign, withDialog, printerName, data,copies);
-            });
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-        }
-
 
         public static void FlowPrint(string xmlDesign, bool withDialog, string printerName, ReportData data, int copies)
         {
             if (string.IsNullOrEmpty(xmlDesign))
                 return;
-
-            //Task<ReportDocument> taskReport = ReportDocument.FetchReportDocAync(CurrentACClassDesign.XMLDesign);
-            //ReportDocument reportDoc = taskReport.Result;
 
             ReportDocument reportDoc = new ReportDocument(xmlDesign);
 
