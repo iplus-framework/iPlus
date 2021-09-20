@@ -955,7 +955,7 @@ namespace gip.core.reporthandler
 
                 if (cloneInstantiated)
                     reportData.StopACComponents();
-
+                
                 StopComponent(acReportQuery);
             }
             catch (Exception e)

@@ -16,6 +16,10 @@ using System.Xml.Linq;
 using System.Xml;
 using System.Globalization;
 using System.Printing;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Windows.Threading;
+using System.Windows.Xps;
 
 namespace gip.core.reporthandler.Flowdoc
 {
@@ -24,10 +28,16 @@ namespace gip.core.reporthandler.Flowdoc
     /// </summary>
     public class ReportDocument
     {
+
+        #region DI
+        public FlowDocument FlowDocument { get; private set;}
+        #endregion
+
         #region c'tors
         public ReportDocument(string xaml)
         {
             _xamlData = xaml;
+            FlowDocument = GetFlowDocument(xaml);
         }
         #endregion
 
@@ -240,6 +250,8 @@ namespace gip.core.reporthandler.Flowdoc
 
         #region methods
 
+
+
         #region public
         /// <summary>
         /// Creates a flow document of the report data
@@ -248,31 +260,22 @@ namespace gip.core.reporthandler.Flowdoc
         /// <exception cref="ArgumentException">Flow document must have a specified page height</exception>
         /// <exception cref="ArgumentException">Flow document must have a specified page width</exception>
         /// <exception cref="ArgumentException">"Flow document must have only one ReportProperties section, but it has {0}"</exception>
-        public FlowDocument CreateFlowDocument(bool usageInDesigner = false)
+        public void SetupFlowDocument(bool usageInDesigner = false)
         {
-            MemoryStream memoryStream = gip.core.layoutengine.Layoutgenerator.GetEncodedStream(_xamlData);
-            if (memoryStream == null)
-                return null;
 
-            //MemoryStream mem = new MemoryStream();
-            //byte[] buf = Encoding.UTF8.GetBytes(_xamlData);
-            //mem.Write(buf, 0, buf.Length);
-            //mem.Position = 0;
-            FlowDocument res = XamlReader.Load(memoryStream) as FlowDocument;
-
-            if (res.PageHeight == double.NaN)
+            if (FlowDocument.PageHeight == double.NaN)
                 throw new ArgumentException("Flow document must have a specified page height");
-            if (res.PageWidth == double.NaN)
+            if (FlowDocument.PageWidth == double.NaN)
                 throw new ArgumentException("Flow document must have a specified page width");
 
             // remember original values
-            _pageHeight = res.PageHeight;
-            _pageWidth = res.PageWidth;
-            if (!String.IsNullOrEmpty(res.Name))
+            _pageHeight = FlowDocument.PageHeight;
+            _pageWidth = FlowDocument.PageWidth;
+            if (!String.IsNullOrEmpty(FlowDocument.Name))
             {
                 try
                 {
-                    PageMediaSizeName sizeName = (PageMediaSizeName)Enum.Parse(typeof(PageMediaSizeName), res.Name);
+                    PageMediaSizeName sizeName = (PageMediaSizeName)Enum.Parse(typeof(PageMediaSizeName), FlowDocument.Name);
                     this.AutoPageMediaSize = new PageMediaSize(sizeName);
                 }
                 catch (Exception e)
@@ -293,9 +296,9 @@ namespace gip.core.reporthandler.Flowdoc
 
             // search report properties
             DocumentWalker walker = new DocumentWalker();
-            List<SectionReportHeader> headers = walker.Walk<SectionReportHeader>(res);
-            List<SectionReportFooter> footers = walker.Walk<SectionReportFooter>(res);
-            List<ReportProperties> properties = walker.Walk<ReportProperties>(res);
+            List<SectionReportHeader> headers = walker.Walk<SectionReportHeader>(FlowDocument);
+            List<SectionReportFooter> footers = walker.Walk<SectionReportFooter>(FlowDocument);
+            List<ReportProperties> properties = walker.Walk<ReportProperties>(FlowDocument);
             if (properties.Count > 0)
             {
                 if (properties.Count > 1)
@@ -328,7 +331,7 @@ namespace gip.core.reporthandler.Flowdoc
                         {
                             this.AutoPageMediaSize = new PageMediaSize(Double.Parse(sizes[0]), Double.Parse(sizes[1]));
                         }
-                        catch(Exception exp)
+                        catch (Exception exp)
                         {
                             if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
                                 datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateFlowDocument(AutoPageMediaSize)", exp.Message);
@@ -367,7 +370,7 @@ namespace gip.core.reporthandler.Flowdoc
             List<Image> images = new List<Image>();
             walker.Tag = images;
             walker.VisualVisited += new DocumentVisitedEventHandler(walker_VisualVisited);
-            walker.Walk(res);
+            walker.Walk(FlowDocument);
             walker.VisualVisited -= walker_VisualVisited;
 
             // load all images
@@ -417,7 +420,7 @@ namespace gip.core.reporthandler.Flowdoc
                 // TODO: find a better way to specify file names
             }
 
-            return res;
+//            return res;
         }
 
         /// <summary>
@@ -436,7 +439,7 @@ namespace gip.core.reporthandler.Flowdoc
             XpsDocument doc = new XpsDocument(pkg, CompressionOption.NotCompressed, pack);
             XpsSerializationManager rsm = new XpsSerializationManager(new XpsPackagingPolicy(doc), false);
             //DocumentPaginator paginator = ((IDocumentPaginatorSource)CreateFlowDocument()).DocumentPaginator;
-
+            
             data.InformComponents(this, datamodel.ACPrintingPhase.Started);
             ReportPaginator rp = new ReportPaginator(this, data);
             try
@@ -498,7 +501,7 @@ namespace gip.core.reporthandler.Flowdoc
                 data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Started);
             MultipleReportPaginator rp = new MultipleReportPaginator(this, data);
             try
-            { 
+            {
                 rsm.SaveAsXaml(rp);
             }
             catch (Exception e)
@@ -537,7 +540,7 @@ namespace gip.core.reporthandler.Flowdoc
             data.InformComponents(this, datamodel.ACPrintingPhase.Started);
             ReportPaginator rp = new ReportPaginator(this, data);
             try
-            { 
+            {
                 rsm.SaveAsXaml(rp);
             }
             catch (Exception e)
@@ -593,7 +596,7 @@ namespace gip.core.reporthandler.Flowdoc
                 data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Started);
             MultipleReportPaginator rp = new MultipleReportPaginator(this, data);
             try
-            { 
+            {
                 rsm.SaveAsXaml(rp);
             }
             catch (Exception e)
@@ -720,6 +723,187 @@ namespace gip.core.reporthandler.Flowdoc
             list.Add((Image)e.VisitedObject);
         }
         #endregion
+
+        #endregion
+
+        #region Factory Method
+
+        public static FlowDocument GetFlowDocument(string xaml)
+        {
+            MemoryStream memoryStream = gip.core.layoutengine.Layoutgenerator.GetEncodedStream(xaml);
+            if (memoryStream == null)
+                return null;
+            FlowDocument res = XamlReader.Load(memoryStream) as FlowDocument;
+            return res;
+        }
+
+        public static void FlowPrintAsync(string xmlDesign, bool withDialog, string printerName, ReportData data, int copies)
+        {
+            Thread thread = new Thread(() =>
+            {
+                FlowPrint(xmlDesign, withDialog, printerName, data,copies);
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+        }
+
+
+        public static void FlowPrint(string xmlDesign, bool withDialog, string printerName, ReportData data, int copies)
+        {
+            if (string.IsNullOrEmpty(xmlDesign))
+                return;
+
+            //Task<ReportDocument> taskReport = ReportDocument.FetchReportDocAync(CurrentACClassDesign.XMLDesign);
+            //ReportDocument reportDoc = taskReport.Result;
+
+            ReportDocument reportDoc = new ReportDocument(xmlDesign);
+
+            if (reportDoc == null)
+                return;
+            XpsDocument xps;
+            if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://"))
+            {
+                string fileName = printerName.Substring(7);
+                xps = reportDoc.CreateXpsDocument(data, fileName);
+                return;
+            }
+            else
+                xps = reportDoc.CreateXpsDocument(data);
+            if (xps == null)
+                return;
+            FixedDocumentSequence fDocSeq = xps.GetFixedDocumentSequence();
+            if (fDocSeq == null)
+                return;
+
+            if (copies <= 0)
+                copies = 1;
+
+            if (withDialog)
+            {
+                try
+                {
+                    var printDialog = new System.Windows.Controls.PrintDialog();
+                    if (printDialog.ShowDialog() == true)
+                    {
+                        PrintQueue pQ = printDialog.PrintQueue;
+                        XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
+                        if (writer != null)
+                        {
+                            PrintTicket pt = new PrintTicket();
+                            pt.CopyCount = printDialog.PrintTicket != null && printDialog.PrintTicket.CopyCount.HasValue ? printDialog.PrintTicket.CopyCount : copies;
+                            if (reportDoc.AutoSelectPageOrientation.HasValue)
+                            {
+                                pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
+                            }
+                            else
+                            {
+                                if (reportDoc.PageWidth > reportDoc.PageHeight)
+                                    pt.PageOrientation = PageOrientation.Landscape;
+                                else
+                                    pt.PageOrientation = PageOrientation.Portrait;
+                            }
+
+                            if (reportDoc.AutoPageMediaSize != null)
+                                pt.PageMediaSize = reportDoc.AutoPageMediaSize;
+
+                            // example of calling above code
+                            if (reportDoc.AutoSelectTray.HasValue)
+                            {
+                                string nameSpaceURI = string.Empty;
+                                string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
+                                pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
+                            }
+
+                            writer.Write(fDocSeq, pt);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    //this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10)", e.Message);
+                    PrintDocumentImageableArea area = null;
+                    XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
+                    if (writer != null)
+                        writer.Write(fDocSeq);
+                }
+            }
+            else
+            {
+                PrintQueue pQ = null;
+                if (!String.IsNullOrEmpty(reportDoc.AutoSelectPrinterName))
+                    printerName = reportDoc.AutoSelectPrinterName;
+                if (String.IsNullOrEmpty(printerName))
+                {
+                    pQ = LocalPrintServer.GetDefaultPrintQueue();
+                }
+                else
+                {
+                    if (printerName.StartsWith("\\\\"))
+                    {
+                        int index = printerName.LastIndexOf("\\");
+                        if (index > 0)
+                        {
+                            string server = printerName.Substring(0, index);
+                            string printerName2 = printerName.Substring(index + 1);
+                            PrintServer pServer = new PrintServer(printerName);
+                            if (pServer != null)
+                            {
+                                pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName2).FirstOrDefault();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        PrintServer pServer = new LocalPrintServer();
+                        if (pServer != null)
+                        {
+                            pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName).FirstOrDefault();
+                        }
+                        if (pQ == null)
+                        {
+                            pServer = new PrintServer();
+                            PrintQueueCollection printQueues = pServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local, EnumeratedPrintQueueTypes.Connections, EnumeratedPrintQueueTypes.Shared });
+                            pQ = printQueues.Where(c => c.Name == printerName).FirstOrDefault();
+                        }
+                    }
+                }
+                if (pQ == null)
+                    return;
+                XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
+                if (writer != null)
+                {
+                    PrintTicket pt = new PrintTicket();
+                    pt.CopyCount = copies;
+                    if (reportDoc.AutoSelectPageOrientation.HasValue)
+                    {
+                        pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
+                    }
+                    else
+                    {
+                        if (reportDoc.PageWidth > reportDoc.PageHeight)
+                            pt.PageOrientation = PageOrientation.Landscape;
+                        else
+                            pt.PageOrientation = PageOrientation.Portrait;
+                    }
+
+                    if (reportDoc.AutoPageMediaSize != null)
+                        pt.PageMediaSize = reportDoc.AutoPageMediaSize;
+
+                    // example of calling above code
+                    if (reportDoc.AutoSelectTray.HasValue)
+                    {
+                        string nameSpaceURI = string.Empty;
+                        string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
+                        pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
+                    }
+
+                    //for (int i = 0; i < copies; i++)
+                    //{
+                    writer.Write(fDocSeq, pt);
+                    //}
+                }
+            }
+        }
 
         #endregion
 

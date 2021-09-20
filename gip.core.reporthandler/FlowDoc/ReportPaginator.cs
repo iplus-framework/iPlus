@@ -39,8 +39,9 @@ namespace gip.core.reporthandler.Flowdoc
             _data = data;
 
             layoutengine.Layoutgenerator.CurrentDataContext = _data?.ReportDocumentValues.Values.Where(c => c is IACComponent).FirstOrDefault() as IACComponent;
-
-            _flowDocument = report.CreateFlowDocument();
+            
+            report.SetupFlowDocument();
+            _flowDocument = report.FlowDocument;
             // make height smaller to have enough space for page header and page footer
             _flowDocument.PageHeight = report.PageHeight - report.PageHeight * (report.PageHeaderHeight + report.PageFooterHeight) / 100d;
             _pageSize = new Size(_flowDocument.PageWidth, _flowDocument.PageHeight);

@@ -474,7 +474,8 @@ namespace gip.core.reporthandler.Flowdoc
                 _ReportDocument = new ReportDocument(this.XMLText);
                 if (_ReportDocument != null)
                 {
-                    UCDesigner.Document = _ReportDocument.CreateFlowDocument(true);
+                    _ReportDocument.SetupFlowDocument(true);
+                    UCDesigner.Document = _ReportDocument.FlowDocument;
                 }
             }
             catch (Exception e)

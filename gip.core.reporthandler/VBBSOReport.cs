@@ -19,6 +19,8 @@ using System.Windows.Documents;
 using System.Windows.Xps;
 using System.Xml;
 using System.Xml.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace gip.core.reporthandler
 {
@@ -173,7 +175,14 @@ namespace gip.core.reporthandler
             PrinterName = printerName;
             if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
             {
-                FlowPrint(acClassDesign, withDialog, printerName, data, copies);
+                if (Thread.CurrentThread.ApartmentState == ApartmentState.STA)
+                    ReportDocument.FlowPrint(acClassDesign.XMLDesign, withDialog, printerName, data, copies);
+                else
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        ReportDocument.FlowPrintAsync(acClassDesign.XMLDesign, false, printerName, data, copies);
+                    });
+
             }
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
             {
@@ -764,159 +773,6 @@ namespace gip.core.reporthandler
             }
         }
 
-        public void FlowPrint(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies)
-        {
-            if (acClassDesign == null || data == null)
-                return;
-
-            ReportDocument reportDoc = new ReportDocument(CurrentACClassDesign.XMLDesign);
-            if (reportDoc == null)
-                return;
-            XpsDocument xps;
-            if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://"))
-            {
-                string fileName = printerName.Substring(7);
-                xps = reportDoc.CreateXpsDocument(data, fileName);
-                return;
-            }
-            else
-                xps = reportDoc.CreateXpsDocument(data);
-            if (xps == null)
-                return;
-            FixedDocumentSequence fDocSeq = xps.GetFixedDocumentSequence();
-            if (fDocSeq == null)
-                return;
-
-            if (copies <= 0)
-                copies = 1;
-
-            if (withDialog)
-            {
-                try
-                {
-                    var printDialog = new System.Windows.Controls.PrintDialog();
-                    if (printDialog.ShowDialog() == true)
-                    {
-                        PrintQueue pQ = printDialog.PrintQueue;
-                        XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
-                        if (writer != null)
-                        {
-                            PrintTicket pt = new PrintTicket();
-                            pt.CopyCount = printDialog.PrintTicket != null && printDialog.PrintTicket.CopyCount.HasValue ? printDialog.PrintTicket.CopyCount : copies;
-                            if (reportDoc.AutoSelectPageOrientation.HasValue)
-                            {
-                                pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
-                            }
-                            else
-                            {
-                                if (reportDoc.PageWidth > reportDoc.PageHeight)
-                                    pt.PageOrientation = PageOrientation.Landscape;
-                                else
-                                    pt.PageOrientation = PageOrientation.Portrait;
-                            }
-
-                            if (reportDoc.AutoPageMediaSize != null)
-                                pt.PageMediaSize = reportDoc.AutoPageMediaSize;
-
-                            // example of calling above code
-                            if (reportDoc.AutoSelectTray.HasValue)
-                            {
-                                string nameSpaceURI = string.Empty;
-                                string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
-                                pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
-                            }
-
-                            writer.Write(fDocSeq, pt);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10)", e.Message);
-                    PrintDocumentImageableArea area = null;
-                    XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
-                    if (writer != null)
-                        writer.Write(fDocSeq);
-                }
-            }
-            else
-            {
-                PrintQueue pQ = null;
-                if (!String.IsNullOrEmpty(reportDoc.AutoSelectPrinterName))
-                    printerName = reportDoc.AutoSelectPrinterName;
-                if (String.IsNullOrEmpty(printerName))
-                {
-                    pQ = LocalPrintServer.GetDefaultPrintQueue();
-                }
-                else
-                {
-                    if (printerName.StartsWith("\\\\"))
-                    {
-                        int index = printerName.LastIndexOf("\\");
-                        if (index > 0)
-                        {
-                            string server = printerName.Substring(0, index);
-                            string printerName2 = printerName.Substring(index + 1);
-                            PrintServer pServer = new PrintServer(printerName);
-                            if (pServer != null)
-                            {
-                                pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName2).FirstOrDefault();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        PrintServer pServer = new LocalPrintServer();
-                        if (pServer != null)
-                        {
-                            pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName).FirstOrDefault();
-                        }
-                        if (pQ == null)
-                        {
-                            pServer = new PrintServer();
-                            PrintQueueCollection printQueues = pServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local, EnumeratedPrintQueueTypes.Connections, EnumeratedPrintQueueTypes.Shared });
-                            pQ = printQueues.Where(c => c.Name == printerName).FirstOrDefault();
-                        }
-                    }
-                }
-                if (pQ == null)
-                    return;
-                XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
-                if (writer != null)
-                {
-                    PrintTicket pt = new PrintTicket();
-                    pt.CopyCount = copies;
-                    if (reportDoc.AutoSelectPageOrientation.HasValue)
-                    {
-                        pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
-                    }
-                    else
-                    {
-                        if (reportDoc.PageWidth > reportDoc.PageHeight)
-                            pt.PageOrientation = PageOrientation.Landscape;
-                        else
-                            pt.PageOrientation = PageOrientation.Portrait;
-                    }
-
-                    if (reportDoc.AutoPageMediaSize != null)
-                        pt.PageMediaSize = reportDoc.AutoPageMediaSize;
-
-                    // example of calling above code
-                    if (reportDoc.AutoSelectTray.HasValue)
-                    {
-                        string nameSpaceURI = string.Empty;
-                        string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
-                        pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
-                    }
-
-                    //for (int i = 0; i < copies; i++)
-                    //{
-                    writer.Write(fDocSeq, pt);
-                    //}
-                }
-            }
-        }
-
         #endregion
 
         #region ACMethodConfiguration
@@ -924,7 +780,7 @@ namespace gip.core.reporthandler
         private string _ACUrl;
 
         private bool _LocalConfig = true;
-        [ACPropertyInfo(999, "","en{'Local configuration'}de{'Local configuration'}")]
+        [ACPropertyInfo(999, "", "en{'Local configuration'}de{'Local configuration'}")]
         public bool LocalConfig
         {
             get
@@ -940,7 +796,7 @@ namespace gip.core.reporthandler
         }
 
         private ACClassInfoWithItems _CurrentConfigurationSource;
-        [ACPropertyCurrent(999,"ConfigSource")]
+        [ACPropertyCurrent(999, "ConfigSource")]
         public ACClassInfoWithItems CurrentConfigurationSource
         {
             get
@@ -950,7 +806,7 @@ namespace gip.core.reporthandler
             set
             {
                 _CurrentConfigurationSource = value;
-                if(_CurrentConfigurationSource.Value != null && _CurrentConfigurationSource.Value is ACClass)
+                if (_CurrentConfigurationSource.Value != null && _CurrentConfigurationSource.Value is ACClass)
                 {
                     var method = ((ACClass)_CurrentConfigurationSource.Value).ACClassMethod_ACClass.FirstOrDefault(c => c.ACIdentifier == ACStateConst.SMStarting);
                     if (method != null && method.ACMethod != null)
@@ -968,14 +824,14 @@ namespace gip.core.reporthandler
                     _ACUrl = acClassMethod.GetACUrl();
                     CurrentACMethod = ACConvert.XMLToObject<ACMethod>(acClassMethod.XMLACMethod, true, Database);
                 }
-                else if(_CurrentConfigurationSource.Value != null && _CurrentConfigurationSource.Value.ToString() == "Rules" && _CurrentConfigurationSource.ACCaption == "Rules")
+                else if (_CurrentConfigurationSource.Value != null && _CurrentConfigurationSource.Value.ToString() == "Rules" && _CurrentConfigurationSource.ACCaption == "Rules")
                 {
                     CurrentACMethod = null;
                     List<ACMethodReportConfigWrapper> rulesWrapperList = new List<ACMethodReportConfigWrapper>();
                     ConfigurationMethod acMethodConfigInfo = null;
                     if (CurrentReportConfiguration != null)
                         acMethodConfigInfo = CurrentReportConfiguration.Items.Cast<ConfigurationMethod>().FirstOrDefault(c => c.VBContent == "Rules");
-                    foreach(var item in RulesCommand.ListOfRuleInfoPatterns)
+                    foreach (var item in RulesCommand.ListOfRuleInfoPatterns)
                     {
                         if (acMethodConfigInfo != null)
                         {
@@ -1007,7 +863,7 @@ namespace gip.core.reporthandler
                 if (_ConfigurationSource == null)
                 {
                     _ConfigurationSource = new List<ACClassInfoWithItems>();
-                    
+
                 }
                 return _ConfigurationSource;
             }
@@ -1016,34 +872,34 @@ namespace gip.core.reporthandler
         public void FillConfigurationSource()
         {
             ConfigurationSource.Clear();
-            
+
             //Configuration
             ACClassInfoWithItems configCategory = new ACClassInfoWithItems() { ACCaption = "Configuration" };
-            var mainACClassesPW = Database.ContextIPlus.ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TPWNodeMethod 
-                                                                        || c.ACKindIndex == (short)Global.ACKinds.TPWGroup 
+            var mainACClassesPW = Database.ContextIPlus.ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TPWNodeMethod
+                                                                        || c.ACKindIndex == (short)Global.ACKinds.TPWGroup
                                                                         || c.ACKindIndex == (short)Global.ACKinds.TPWNodeWorkflow
                                                                         || c.ACKindIndex == (short)Global.ACKinds.TPWNodeStatic)
                                                                .GroupBy(x => x.ACIdentifier).Select(q => q.FirstOrDefault());
-            foreach(ACClass acclass in mainACClassesPW.Where(c => c.ACClassMethod_ACClass.Any(x => x.ACIdentifier == "SMStarting")))
+            foreach (ACClass acclass in mainACClassesPW.Where(c => c.ACClassMethod_ACClass.Any(x => x.ACIdentifier == "SMStarting")))
             {
                 ACClassInfoWithItems info = new ACClassInfoWithItems() { ACCaption = acclass.ACCaption, ValueT = acclass };
                 configCategory.Add(info);
             }
-            
+
             _ConfigurationSource.Add(configCategory);
 
             //ACMethod
             ACClassInfoWithItems acMethodCategory = new ACClassInfoWithItems() { ACCaption = "Method" };
-            var mainACClasses = Database.ContextIPlus.ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TPAProcessFunction).GroupBy(x => x.ACIdentifier).Select(q => q.FirstOrDefault());  
-            foreach(ACClass acClass in mainACClasses)
+            var mainACClasses = Database.ContextIPlus.ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TPAProcessFunction).GroupBy(x => x.ACIdentifier).Select(q => q.FirstOrDefault());
+            foreach (ACClass acClass in mainACClasses)
             {
-                ACClassInfoWithItems info = new ACClassInfoWithItems() {ACCaption = acClass.ACCaption, ValueT = acClass };
-                foreach(var method in acClass.Methods.Where(c => c.IsParameterACMethod && c.ACIdentifier != "Start"))
+                ACClassInfoWithItems info = new ACClassInfoWithItems() { ACCaption = acClass.ACCaption, ValueT = acClass };
+                foreach (var method in acClass.Methods.Where(c => c.IsParameterACMethod && c.ACIdentifier != "Start"))
                 {
                     var methodInfo = new ACClassInfoWithItems() { ACCaption = method.ACIdentifier };
                     info.Add(methodInfo);
                 }
-                if(info.Items.Any())
+                if (info.Items.Any())
                     acMethodCategory.Add(info);
             }
             _ConfigurationSource.Add(acMethodCategory);
@@ -1088,18 +944,18 @@ namespace gip.core.reporthandler
                 _ACMethodParamList = value;
                 var list = new List<ACMethodReportConfigWrapper>();
                 string acurl = CurrentConfigurationSource.GetACUrl();
-                if(string.IsNullOrEmpty(acurl) && CurrentConfigurationSource.ValueT == null)
+                if (string.IsNullOrEmpty(acurl) && CurrentConfigurationSource.ValueT == null)
                 {
                     var method = CurrentConfigurationSource.ParentContainerT.ValueT.Methods.FirstOrDefault(c => c.ACIdentifier == CurrentConfigurationSource.ACCaption);
                     acurl = method.GetACUrl();
                 }
 
                 ConfigurationMethod acMethodConfigInfo = null;
-                if(CurrentReportConfiguration != null)
+                if (CurrentReportConfiguration != null)
                     acMethodConfigInfo = CurrentReportConfiguration.Items.Cast<ConfigurationMethod>().FirstOrDefault(c => c.VBContent == _ACUrl);
                 foreach (var item in _ACMethodParamList)
                 {
-                    if(acMethodConfigInfo != null)
+                    if (acMethodConfigInfo != null)
                     {
                         ConfigurationParameter acMethodParamInfo = acMethodConfigInfo.Items.Cast<ConfigurationParameter>().FirstOrDefault(c => c.ParameterName == item.ACIdentifier);
                         if (acMethodParamInfo != null)
@@ -1190,7 +1046,7 @@ namespace gip.core.reporthandler
                         CurrentReportConfiguration.Items.Add(config);
                     }
                 }
-                else if(_SelectedACMetodReportConfigWrapper.IsInReport)
+                else if (_SelectedACMetodReportConfigWrapper.IsInReport)
                 {
                     CurrentReportConfiguration = new ReportConfiguration();
                     ConfigurationMethod config = new ConfigurationMethod() { VBContent = CheckConfigUrl() };
@@ -1205,10 +1061,10 @@ namespace gip.core.reporthandler
         {
             if (_SelectedACMetodReportConfigWrapper.ConfigSource.ACIdentifier == "Rules")
                 return "Rules";
-            
+
             string url = _SelectedACMetodReportConfigWrapper.GetACUrl();
             if (!url.Contains(ACClassMethod.ClassName + "("))
-                url += "\\" + ACClassMethod.ClassName + "(" + ACStateEnum.SMStarting + ")";    
+                url += "\\" + ACClassMethod.ClassName + "(" + ACStateEnum.SMStarting + ")";
             return url;
         }
 
@@ -1218,7 +1074,7 @@ namespace gip.core.reporthandler
             set;
         }
 
-        public  void LoadConfig()
+        public void LoadConfig()
         {
             if (LocalConfig)
             {
@@ -1242,14 +1098,14 @@ namespace gip.core.reporthandler
             }
         }
 
-        [ACMethodInfo("","en",999)]
+        [ACMethodInfo("", "en", 999)]
         public void ApplyConfig()
         {
             CreateOrUpdateConfigs();
             CurrentReportConfiguration.Items.Cast<ConfigurationMethod>().Where(c => c.Items.Count == 0).ToList().ForEach(x => CurrentReportConfiguration.Items.Remove(x));
-            if(LocalConfig)
+            if (LocalConfig)
                 BroadcastToVBControls(Const.CmdApplyConfig, "CurrentACClassDesign\\XMLDesign", this);
-            else if(GlobalReportConfig != null)
+            else if (GlobalReportConfig != null)
             {
                 ResourceDictionary rd = new ResourceDictionary();
                 rd.Add("Config", CurrentReportConfiguration);
@@ -1267,26 +1123,26 @@ namespace gip.core.reporthandler
             result = null;
             switch (acMethodName)
             {
-                case"Print":
+                case "Print":
                     Print((ACClassDesign)acParameter[0], (Boolean)acParameter[1], (String)acParameter[2], (ReportData)acParameter[3], acParameter.Count() == 5 ? (Int32)acParameter[4] : 1);
                     return true;
-                case"Preview":
+                case "Preview":
                     Preview((ACClassDesign)acParameter[0], (Boolean)acParameter[1], (String)acParameter[2], (ReportData)acParameter[3]);
                     return true;
-                case"Design":
+                case "Design":
                     Design((ACClassDesign)acParameter[0], (Boolean)acParameter[1], (String)acParameter[2], (ReportData)acParameter[3]);
                     return true;
-                case"FlowDialogCancel":
+                case "FlowDialogCancel":
                     FlowDialogCancel();
                     return true;
-                case"FlowDialogOk":
+                case "FlowDialogOk":
                     FlowDialogOk();
                     return true;
-                case"ApplyConfig":
+                case "ApplyConfig":
                     ApplyConfig();
                     return true;
             }
-                return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
         #endregion
@@ -1320,7 +1176,7 @@ namespace gip.core.reporthandler
         public string GetACUrl()
         {
             string result = "";
-            if(ConfigSource != null && ConfigSource.ParentContainerT != null && ConfigSource.ParentContainerT.ValueT != null)
+            if (ConfigSource != null && ConfigSource.ParentContainerT != null && ConfigSource.ParentContainerT.ValueT != null)
             {
                 var method = ConfigSource.ParentContainerT.ValueT.Methods.FirstOrDefault(c => c.ACIdentifier == ConfigSource.ACIdentifier);
                 if (method != null)
