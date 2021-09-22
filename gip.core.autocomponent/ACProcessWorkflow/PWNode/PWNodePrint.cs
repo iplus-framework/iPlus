@@ -16,15 +16,6 @@ namespace gip.core.autocomponent
             method = new ACMethod(ACStateConst.SMStarting);
             Dictionary<string, string> paramTranslation = new Dictionary<string, string>();
 
-            method.ParameterValueList.Add(new ACValue("PrintBSO", typeof(string), "", Global.ParamOption.Optional));
-            paramTranslation.Add("PrintBSO", "en{'Printing BSO'}de{'Printing BSO'}");
-
-            method.ParameterValueList.Add(new ACValue("ReportDesignName", typeof(string), "", Global.ParamOption.Optional));
-            paramTranslation.Add("ReportDesignName", "en{'ReportDesignName'}de{'ReportDesignName'}");
-
-            method.ParameterValueList.Add(new ACValue("PrinterName", typeof(string), "", Global.ParamOption.Optional));
-            paramTranslation.Add("PrinterName", "en{'Printer Name'}de{'Printer Name'}");
-
             method.ParameterValueList.Add(new ACValue("NumberOfCopies", typeof(short), 1, Global.ParamOption.Optional));
             paramTranslation.Add("NumberOfCopies", "en{'Number Of Copies}de{'Number Of Copies'}");
 
@@ -42,23 +33,6 @@ namespace gip.core.autocomponent
 
         #region Properties
 
-        public string PrintBSO
-        {
-            get;
-            set;
-        }
-
-        public string ReportDesignName
-        {
-            get;
-            set;
-        }
-
-        public string PrinterName
-        {
-            get;
-            set;
-        }
 
         public short NumberOfCopies
         {
@@ -80,9 +54,6 @@ namespace gip.core.autocomponent
             base.SMIdle();
             using (ACMonitor.Lock(_20015_LockValue))
             {
-                PrintBSO = null;
-                ReportDesignName = null;
-                PrinterName = null;
                 NumberOfCopies = 0;
                 OrderInfo = null;
             }
@@ -118,9 +89,7 @@ namespace gip.core.autocomponent
 
             UnSubscribeToProjectWorkCycle();
 
-            if (string.IsNullOrEmpty(PrintBSO) || string.IsNullOrEmpty(ReportDesignName)
-                                              || string.IsNullOrEmpty(PrinterName) || NumberOfCopies == 0
-                                              || OrderInfo == null)
+            if (NumberOfCopies == 0 || OrderInfo == null)
             {
                 var newMethod = NewACMethodWithConfiguration();
                 Msg error = ReadParameters(newMethod);
@@ -135,46 +104,17 @@ namespace gip.core.autocomponent
                 }
             }
 
-            ACBSO acBSO = this.GetChildComponent(PrintBSO) as ACBSO;
-            if (acBSO == null)
-            {
-                using (Database db = new datamodel.Database())
-                {
-                    ACClass bsoACClass = db.ACClass.FirstOrDefault(c => c.ACIdentifier == PrintBSO);
-                    if (bsoACClass == null)
-                    {
-                        // Can not find the PrintBSO definition according configured parameter {0}
-                        Msg bsoError = new Msg(this, eMsgLevel.Error, PWClassName, "SMRunning(10)", 147, "");
+            Msg msg = null;
 
-                        OnNewAlarmOccurred(ProcessAlarm, bsoError, true);
-                        if (IsAlarmActive(ProcessAlarm, bsoError.Message) != null)
-                            Messages.LogMessageMsg(bsoError);
+            IPrintManager printManager = HelperPrintManager.GetServiceInstance(this) as IPrintManager;
+            if (printManager == null)
+                OnNewAlarmOccurred(ProcessAlarm, "PrintManager is not configured!", true);
+            else
+                msg = printManager.Print(OrderInfo, NumberOfCopies);
 
-                        ProcessAlarm.ValueT = PANotifyState.AlarmOrFault;
-                        return;
-                    }
 
-                    acBSO = this.StartComponent(bsoACClass, null, null) as ACBSO;
-                }
-            }
-
-            if (acBSO == null)
-            {
-                // Can not start the PrintBSO component according configured parameter PrintBSO
-                Msg bsoError = new Msg(this, eMsgLevel.Error, PWClassName, "SMRunning(20)", 164, "");
-
-                OnNewAlarmOccurred(ProcessAlarm, bsoError, true);
-                if (IsAlarmActive(ProcessAlarm, bsoError.Message) != null)
-                    Messages.LogMessageMsg(bsoError);
-
-                ProcessAlarm.ValueT = PANotifyState.AlarmOrFault;
-                return;
-            }
-
-            Msg msg = acBSO.PrintViaOrderInfo(ReportDesignName, PrinterName, NumberOfCopies, OrderInfo); //todo: ask - delagate to acdelagatequeue
             if (msg != null)
             {
-                acBSO.Stop();
                 OnNewAlarmOccurred(ProcessAlarm, msg, true);
                 if (IsAlarmActive(ProcessAlarm, msg.Message) != null)
                     Messages.LogMessageMsg(msg);
@@ -182,8 +122,6 @@ namespace gip.core.autocomponent
                 ProcessAlarm.ValueT = PANotifyState.AlarmOrFault;
                 return;
             }
-
-            acBSO.Stop();
 
             CurrentACState = ACStateEnum.SMCompleted;
         }
@@ -259,9 +197,6 @@ namespace gip.core.autocomponent
 
             using (ACMonitor.Lock(_20015_LockValue))
             {
-                PrintBSO = bsoName;
-                ReportDesignName = reportDesignName;
-                PrinterName = printerName;
                 NumberOfCopies = numberOfCopies;
                 OrderInfo = orderInfo;
             }

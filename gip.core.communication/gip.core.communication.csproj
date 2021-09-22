@@ -154,6 +154,7 @@
     <Compile Include="PLC\OPC\OPCUA\SrvModel\UAStateACProperty.cs" />
     <Compile Include="PLC\OPC\OPCUA\SrvModel\IUAStateIACMember.cs" />
     <Compile Include="PLC\OPC\OPCUA\SrvModel\UATypeACComponent.cs" />
+    <Compile Include="Print\ESCPosPrinter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Smtp\ACSmtpClient.cs" />
     <Compile Include="Smtp\PAAlarmMessengerSmtp.cs" />
