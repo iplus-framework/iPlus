@@ -2947,7 +2947,7 @@ namespace gip.core.layoutengine
             public IGriColumn _Column;
         }
 
-        [ACMethodInteraction("", "en{'Export to excel file'}de{'In Excel-Datei exportieren'}", (short)103, false)]
+        [ACMethodInteraction("", "en{'Export to excel file'}de{'In Excel-Datei exportieren'}", (short)103, true)]
         public virtual void Export2Excel()
         {
             try
@@ -3002,7 +3002,9 @@ namespace gip.core.layoutengine
                 if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     XLWorkbook workBook = new XLWorkbook();
-                    workBook.Worksheets.Add(dt, BSOACComponent.ACCaption);
+                    var worksheet = workBook.Worksheets.Add(dt, BSOACComponent.ACCaption);
+                    if (worksheet != null)
+                        worksheet.Columns().AdjustToContents();
                     workBook.SaveAs(dlg.FileName);
                 }
             }
