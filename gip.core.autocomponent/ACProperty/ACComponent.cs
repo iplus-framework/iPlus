@@ -1,20 +1,20 @@
+using gip.core.datamodel;
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Data;
-using System.Reflection;
-using System.ComponentModel;
 using System.Collections.ObjectModel;
-using System.Xml;
-using System.IO;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
-using System.Collections;
-using gip.core.datamodel;
+using System.Text;
+using System.Windows;
+using System.Windows.Data;
+using System.Xml;
 
 namespace gip.core.autocomponent
 {
@@ -213,10 +213,10 @@ namespace gip.core.autocomponent
             if (InitState == ACInitState.RecycledFromPool)
             {
                 _LateBindingNeedAtACPostInit = false;
-                foreach (var member in ACMemberList)
-                {
-                    member.RecycleMemberAndAttachTo(this);
-                }
+                //foreach (var member in ACMemberList)
+                //{
+                //    member.RecycleMemberAndAttachTo(this);
+                //}
 
                 foreach (IACPropertyBase acProperty in ACPropertyList)
                 {
