@@ -82,6 +82,10 @@ namespace gip.core.autocomponent
             if (InitState != ACInitState.DisposedToPool)
                 return;
             InitState = ACInitState.RecyclingFromPool;
+            foreach (var member in ACMemberList)
+            {
+                member.RecycleMemberAndAttachTo(this);
+            }
             Construct(this.ComponentClass, content, parentACObject, parameter, acIdentifier);
             InitState = ACInitState.RecycledFromPool;
         }
