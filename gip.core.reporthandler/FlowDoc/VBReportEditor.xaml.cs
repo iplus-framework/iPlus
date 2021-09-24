@@ -224,7 +224,7 @@ namespace gip.core.reporthandler.Flowdoc
         void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             //if (sender != this)
-                //return;
+            //return;
             if (e.AddedItems.Count > 0)
             {
                 VBTabItem vbTabitemAdded = e.AddedItems[0] as VBTabItem;
@@ -240,9 +240,9 @@ namespace gip.core.reporthandler.Flowdoc
                         SaveToXAML();
                     RefreshViewerFromXAML();
                 }
-                else if(vbTabitemAdded == ConfigurationTab)
+                else if (vbTabitemAdded == ConfigurationTab)
                 {
-                    if(ConfigurationTab.BSOACComponent != null && BSOACComponent is VBBSOReport)
+                    if (ConfigurationTab.BSOACComponent != null && BSOACComponent is VBBSOReport)
                     {
 
                         using (ACMonitor.Lock(Database.GlobalDatabase.QueryLock_1X000))
@@ -259,7 +259,7 @@ namespace gip.core.reporthandler.Flowdoc
                     {
                         if (ucDesigner.Document.Resources.Contains("Config"))
                             ucDesigner.Document.Resources["Config"] = ((VBBSOReport)BSOACComponent).CurrentReportConfiguration;
-                        else     
+                        else
                             ucDesigner.Document.Resources.Add("Config", ((VBBSOReport)BSOACComponent).CurrentReportConfiguration);
                         SaveToXAML();
                     }
@@ -267,7 +267,7 @@ namespace gip.core.reporthandler.Flowdoc
                 _LastActiveTab = vbTabitemAdded;
             }
             //else
-                //_LastActiveTab = null;
+            //_LastActiveTab = null;
         }
 
         bool _BSOPropertyChangedSubscr = false;
@@ -290,7 +290,7 @@ namespace gip.core.reporthandler.Flowdoc
             DeInitVBControl();
         }
 
-        internal virtual void DeInitVBControl(bool force = false, IACComponent bso=null)
+        internal virtual void DeInitVBControl(bool force = false, IACComponent bso = null)
         {
             if (!_Loaded)
                 return;
@@ -323,7 +323,7 @@ namespace gip.core.reporthandler.Flowdoc
                 _LastElementACComponent.ReferencePoint.Remove(this);
             _LastElementACComponent = null;
             _VBContentPropertyInfo = null;
-            
+
             _Loaded = false;
         }
 
@@ -344,7 +344,7 @@ namespace gip.core.reporthandler.Flowdoc
         }
 
         //VBXMLEditor _VBXMLEditor = null;
-        VBXMLEditor VBXMLEditor 
+        VBXMLEditor VBXMLEditor
         {
             get
             {
@@ -474,8 +474,7 @@ namespace gip.core.reporthandler.Flowdoc
                 _ReportDocument = new ReportDocument(this.XMLText);
                 if (_ReportDocument != null)
                 {
-                    _ReportDocument.SetupFlowDocument(true);
-                    UCDesigner.Document = _ReportDocument.FlowDocument;
+                    UCDesigner.Document = _ReportDocument.CreateFlowDocument(true);
                 }
             }
             catch (Exception e)
@@ -511,7 +510,7 @@ namespace gip.core.reporthandler.Flowdoc
             {
                 this.UCDocumentViewer.Document = null;
                 _WrongXAML = true;
-                MessageBox.Show(e.Message,"Report Exception", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(e.Message, "Report Exception", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -528,7 +527,7 @@ namespace gip.core.reporthandler.Flowdoc
             _WrongXAML = false;
         }
 
-#region IDataField Members
+        #region IDataField Members
 
         public static readonly DependencyProperty VBContentProperty
             = DependencyProperty.Register("VBContent", typeof(string), typeof(VBReportEditor));
@@ -572,7 +571,7 @@ namespace gip.core.reporthandler.Flowdoc
         /// <value>  Translated description</value>
         public string ACCaption
         {
-            get;set;
+            get; set;
         }
         #endregion
 
@@ -668,7 +667,7 @@ namespace gip.core.reporthandler.Flowdoc
         //        ucAvalonTextEditor.ToolTip = value;
         //    }
         //}
-        
+
         private bool Visible
         {
             get
@@ -691,7 +690,7 @@ namespace gip.core.reporthandler.Flowdoc
             }
         }
 
-        private bool Enabled 
+        private bool Enabled
         {
             get
             {
@@ -699,7 +698,7 @@ namespace gip.core.reporthandler.Flowdoc
             }
             set
             {
-                if ( value == true )
+                if (value == true)
                 {
                     if (ContextACObject == null)
                     {
@@ -828,9 +827,9 @@ namespace gip.core.reporthandler.Flowdoc
                 return null;
             return vbDesign.GetDesignManager(create);
         }
-#endregion
+        #endregion
 
-#region IVBContent
+        #region IVBContent
 
         public static readonly DependencyProperty ACUrlCmdMessageProperty =
                                    DependencyProperty.Register("ACUrlCmdMessage",
@@ -873,9 +872,9 @@ namespace gip.core.reporthandler.Flowdoc
             }
         }
 
-#endregion
+        #endregion
 
-#region ControlMode
+        #region ControlMode
         public Global.ControlModes RightControlMode
         {
             get;

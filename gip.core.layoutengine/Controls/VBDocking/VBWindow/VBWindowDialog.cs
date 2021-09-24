@@ -68,7 +68,15 @@ namespace gip.core.layoutengine
                 owner = (Database.Root.RootPageWPF.WPFApplication as Application).MainWindow;
             if (owner != null)
             {
-                this.Owner = owner;
+                try
+                {
+                    if (owner.Owner == null && Database.Root.RootPageWPF != null && owner != Database.Root.RootPageWPF)
+                        owner.Owner = (Database.Root.RootPageWPF.WPFApplication as Application).MainWindow;
+                    this.Owner = owner;
+                }
+                catch (Exception)
+                {
+                }
                 this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             }
         }

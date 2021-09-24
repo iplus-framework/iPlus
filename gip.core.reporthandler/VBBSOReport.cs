@@ -19,8 +19,6 @@ using System.Windows.Documents;
 using System.Windows.Xps;
 using System.Xml;
 using System.Xml.Linq;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace gip.core.reporthandler
 {
@@ -175,7 +173,7 @@ namespace gip.core.reporthandler
             PrinterName = printerName;
             if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
             {
-                ReportDocument.FlowPrint(acClassDesign.XMLDesign, withDialog, printerName, data, copies);
+                FlowPrint(acClassDesign, withDialog, printerName, data, copies);
             }
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
             {
@@ -763,6 +761,159 @@ namespace gip.core.reporthandler
                 ACUndoChanges();
                 if (Database.ContextIPlus != null)
                     Database.ContextIPlus.ACUndoChanges();
+            }
+        }
+
+        public void FlowPrint(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies)
+        {
+            if (acClassDesign == null || data == null)
+                return;
+
+            ReportDocument reportDoc = new ReportDocument(CurrentACClassDesign.XMLDesign);
+            if (reportDoc == null)
+                return;
+            XpsDocument xps;
+            if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://"))
+            {
+                string fileName = printerName.Substring(7);
+                xps = reportDoc.CreateXpsDocument(data, fileName);
+                return;
+            }
+            else
+                xps = reportDoc.CreateXpsDocument(data);
+            if (xps == null)
+                return;
+            FixedDocumentSequence fDocSeq = xps.GetFixedDocumentSequence();
+            if (fDocSeq == null)
+                return;
+
+            if (copies <= 0)
+                copies = 1;
+
+            if (withDialog)
+            {
+                try
+                {
+                    var printDialog = new System.Windows.Controls.PrintDialog();
+                    if (printDialog.ShowDialog() == true)
+                    {
+                        PrintQueue pQ = printDialog.PrintQueue;
+                        XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
+                        if (writer != null)
+                        {
+                            PrintTicket pt = new PrintTicket();
+                            pt.CopyCount = printDialog.PrintTicket != null && printDialog.PrintTicket.CopyCount.HasValue ? printDialog.PrintTicket.CopyCount : copies;
+                            if (reportDoc.AutoSelectPageOrientation.HasValue)
+                            {
+                                pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
+                            }
+                            else
+                            {
+                                if (reportDoc.PageWidth > reportDoc.PageHeight)
+                                    pt.PageOrientation = PageOrientation.Landscape;
+                                else
+                                    pt.PageOrientation = PageOrientation.Portrait;
+                            }
+
+                            if (reportDoc.AutoPageMediaSize != null)
+                                pt.PageMediaSize = reportDoc.AutoPageMediaSize;
+
+                            // example of calling above code
+                            if (reportDoc.AutoSelectTray.HasValue)
+                            {
+                                string nameSpaceURI = string.Empty;
+                                string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
+                                pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
+                            }
+
+                            writer.Write(fDocSeq, pt);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10)", e.Message);
+                    PrintDocumentImageableArea area = null;
+                    XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
+                    if (writer != null)
+                        writer.Write(fDocSeq);
+                }
+            }
+            else
+            {
+                PrintQueue pQ = null;
+                if (!String.IsNullOrEmpty(reportDoc.AutoSelectPrinterName))
+                    printerName = reportDoc.AutoSelectPrinterName;
+                if (String.IsNullOrEmpty(printerName))
+                {
+                    pQ = LocalPrintServer.GetDefaultPrintQueue();
+                }
+                else
+                {
+                    if (printerName.StartsWith("\\\\"))
+                    {
+                        int index = printerName.LastIndexOf("\\");
+                        if (index > 0)
+                        {
+                            string server = printerName.Substring(0, index);
+                            string printerName2 = printerName.Substring(index + 1);
+                            PrintServer pServer = new PrintServer(printerName);
+                            if (pServer != null)
+                            {
+                                pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName2).FirstOrDefault();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        PrintServer pServer = new LocalPrintServer();
+                        if (pServer != null)
+                        {
+                            pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName).FirstOrDefault();
+                        }
+                        if (pQ == null)
+                        {
+                            pServer = new PrintServer();
+                            PrintQueueCollection printQueues = pServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local, EnumeratedPrintQueueTypes.Connections, EnumeratedPrintQueueTypes.Shared });
+                            pQ = printQueues.Where(c => c.Name == printerName).FirstOrDefault();
+                        }
+                    }
+                }
+                if (pQ == null)
+                    return;
+                XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
+                if (writer != null)
+                {
+                    PrintTicket pt = new PrintTicket();
+                    pt.CopyCount = copies;
+                    if (reportDoc.AutoSelectPageOrientation.HasValue)
+                    {
+                        pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
+                    }
+                    else
+                    {
+                        if (reportDoc.PageWidth > reportDoc.PageHeight)
+                            pt.PageOrientation = PageOrientation.Landscape;
+                        else
+                            pt.PageOrientation = PageOrientation.Portrait;
+                    }
+
+                    if (reportDoc.AutoPageMediaSize != null)
+                        pt.PageMediaSize = reportDoc.AutoPageMediaSize;
+
+                    // example of calling above code
+                    if (reportDoc.AutoSelectTray.HasValue)
+                    {
+                        string nameSpaceURI = string.Empty;
+                        string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
+                        pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
+                    }
+
+                    //for (int i = 0; i < copies; i++)
+                    //{
+                    writer.Write(fDocSeq, pt);
+                    //}
+                }
             }
         }
 

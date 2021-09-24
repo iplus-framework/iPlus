@@ -39,9 +39,8 @@ namespace gip.core.reporthandler.Flowdoc
             _data = data;
 
             layoutengine.Layoutgenerator.CurrentDataContext = _data?.ReportDocumentValues.Values.Where(c => c is IACComponent).FirstOrDefault() as IACComponent;
-            
-            report.SetupFlowDocument();
-            _flowDocument = report.FlowDocument;
+
+            _flowDocument = report.CreateFlowDocument();
             // make height smaller to have enough space for page header and page footer
             _flowDocument.PageHeight = report.PageHeight - report.PageHeight * (report.PageHeaderHeight + report.PageFooterHeight) / 100d;
             _pageSize = new Size(_flowDocument.PageWidth, _flowDocument.PageHeight);
@@ -333,7 +332,7 @@ namespace gip.core.reporthandler.Flowdoc
                     }
                     FillTableRowData(entry, enumerableObj, parentDataContext, rootDataContext, childACQueryDef, propertyType);
                 }
-                
+
             }
 
             if (parentDataRow != null && cellToFillWithData != null)
@@ -361,11 +360,11 @@ namespace gip.core.reporthandler.Flowdoc
                 return null;
             IEnumerable<ReportConfigurationWrapper> configs = null;
 
-            if(enumerableObj is IEnumerable<Configuration.ReportConfigurationWrapper>)
+            if (enumerableObj is IEnumerable<Configuration.ReportConfigurationWrapper>)
             {
                 configs = enumerableObj as IEnumerable<ReportConfigurationWrapper>;
 
-                foreach(var config in configs)
+                foreach (var config in configs)
                 {
                     CheckPW(ReportConfig.Items.Cast<ConfigurationMethod>(), config);
                     CheckPAF(ReportConfig.Items.Cast<ConfigurationMethod>(), config);
@@ -374,7 +373,7 @@ namespace gip.core.reporthandler.Flowdoc
                 }
                 configs = configs.Where(c => (c.Rules || c.Method || c.Configuration) && c.ConfigItems.Any());
             }
-            else if(enumerableObj is ACProgramLog)
+            else if (enumerableObj is ACProgramLog)
             {
                 ACProgramLog log = enumerableObj as ACProgramLog;
                 ACMethod method = ACConvert.XMLToObject(typeof(ACMethod), log.XMLConfig, true, Database.GlobalDatabase) as ACMethod;
@@ -391,18 +390,18 @@ namespace gip.core.reporthandler.Flowdoc
 
                     var item = acClass.ACClassMethod_PWACClass.Select(c => c.ACUrl).Intersect(ReportConfig.Items.Cast<ConfigurationMethod>().Select(x => x.VBContent));
                     if (item.Count() == 1)
-                        configMethod = ReportConfig.Items.Cast<ConfigurationMethod>().FirstOrDefault(c => c.VBContent == item.FirstOrDefault()); 
+                        configMethod = ReportConfig.Items.Cast<ConfigurationMethod>().FirstOrDefault(c => c.VBContent == item.FirstOrDefault());
 
-                    if(configMethod != null)
+                    if (configMethod != null)
                         enumerableObj = method.ParameterValueList.Where(c => configMethod.Items.Cast<ConfigurationParameter>().Any(x => x.ParameterName == c.ACIdentifier));
                 }
             }
-            else if(enumerableObj is IEnumerable<ACProgramLog>)
+            else if (enumerableObj is IEnumerable<ACProgramLog>)
             {
                 List<ACProgramLog> tempLogs = new List<ACProgramLog>();
                 IEnumerable<ACProgramLog> logs = enumerableObj as IEnumerable<ACProgramLog>;
                 ACClass acClass = null;
-                foreach(var log in logs)
+                foreach (var log in logs)
                 {
 
                     using (ACMonitor.Lock(Database.GlobalDatabase.QueryLock_1X000))
@@ -431,7 +430,7 @@ namespace gip.core.reporthandler.Flowdoc
                 {
                     if (_flowDocument.Resources.Contains("Config"))
                         _ReportConfig = _flowDocument.Resources["Config"] as ReportConfiguration;
-                    if(_ReportConfig == null || _ReportConfig.Items.Count == 0)
+                    if (_ReportConfig == null || _ReportConfig.Items.Count == 0)
                     {
                         ACClassDesign globalReportConfig = null;
 
@@ -469,8 +468,8 @@ namespace gip.core.reporthandler.Flowdoc
 
             var urls = configuration.ConfigACClassWF.PWACClass.ACClassMethod_PWACClass.Select(c => c.ACUrl).Intersect(defConfig.Select(x => x.VBContent));
             if (urls.Count() == 1)
-                configInfo = defConfig.FirstOrDefault(c => c.VBContent == urls.FirstOrDefault()); 
-            
+                configInfo = defConfig.FirstOrDefault(c => c.VBContent == urls.FirstOrDefault());
+
             if (configInfo != null)
             {
                 configuration.Method = true;
@@ -495,7 +494,7 @@ namespace gip.core.reporthandler.Flowdoc
         private void CheckPW(IEnumerable<ConfigurationMethod> defConfig, ReportConfigurationWrapper configuration)
         {
             ACClassMethod method = null;
-            if(configuration.ConfigACClassWF.PWACClass.ACClassMethod_ACClass.Any())
+            if (configuration.ConfigACClassWF.PWACClass.ACClassMethod_ACClass.Any())
             {
                 method = configuration.ConfigACClassWF.PWACClass.ACClassMethod_ACClass.FirstOrDefault(c => c.ACIdentifier == "SMStarting");
                 if (method == null)
@@ -554,9 +553,9 @@ namespace gip.core.reporthandler.Flowdoc
             }
         }
 
-#endregion
+        #endregion
 
-#region Filling methods
+        #region Filling methods
 
         /// <summary>
         /// FillTableRowDataDyn
@@ -1094,9 +1093,9 @@ namespace gip.core.reporthandler.Flowdoc
             if (window != null) window.Close();
         }
 
-#endregion
+        #endregion
 
-#region protected methods
+        #region protected methods
 
         /// <summary>
         /// SetIPropertyValue
@@ -1114,7 +1113,7 @@ namespace gip.core.reporthandler.Flowdoc
             {
                 if (String.IsNullOrEmpty(dv.VBContent))
                 {
-                    if(dv is InlineTableCellConfigurationValue)
+                    if (dv is InlineTableCellConfigurationValue)
                         if (SetConfigurationValue(dv, aggregateValues, parentDataRow))
                             return;
 
@@ -1131,7 +1130,7 @@ namespace gip.core.reporthandler.Flowdoc
                         if (obj == DBNull.Value)
                             obj = null;
 
-                        if(dv is InlineFlowDocContentValue)
+                        if (dv is InlineFlowDocContentValue)
                         {
                             SetInlineFlowDocContentValue(dv as InlineFlowDocContentValue, null, parentDataRow, obj);
                         }
@@ -1293,7 +1292,7 @@ namespace gip.core.reporthandler.Flowdoc
 
             SectionDataGroup sdg = (dv.Parent as Block)?.Parent as SectionDataGroup;
             TableCell tc = null;
-            if(sdg == null)
+            if (sdg == null)
             {
                 if (parentDataRow == null)
                     return false;
@@ -1338,14 +1337,14 @@ namespace gip.core.reporthandler.Flowdoc
                     tc.Blocks.Clear();
 
                     bool addBlocks = true;
-                    if(!blocks.Any())
+                    if (!blocks.Any())
                     {
                         addBlocks = false;
                     }
-                    else if(blocks.Count == 1)
+                    else if (blocks.Count == 1)
                     {
                         Paragraph paragraph = blocks.FirstOrDefault() as Paragraph;
-                        if(paragraph != null)
+                        if (paragraph != null)
                         {
                             if (!paragraph.Inlines.Any())
                                 addBlocks = false;
@@ -1358,11 +1357,11 @@ namespace gip.core.reporthandler.Flowdoc
                     else
                     {
                         TableRow tr = tc.Parent as TableRow;
-                        if(tr != null)
+                        if (tr != null)
                         {
                             tr.Cells.Clear();
                             TableRowGroup trg = tr.Parent as TableRowGroup;
-                            if(trg != null)
+                            if (trg != null)
                             {
                                 trg.Rows.Remove(tr);
                             }
@@ -1832,7 +1831,7 @@ namespace gip.core.reporthandler.Flowdoc
                 {
                     cp.Children.Remove(currentHeader.Item1);
 
-                    
+
                 }
                 tableHeaderVisual.Children.Add(currentHeader.Item1);
 
@@ -1875,7 +1874,7 @@ namespace gip.core.reporthandler.Flowdoc
                 {
                     // We've found a new table. Repeat the header on the next page
                     TableRowDataHeader dataHeader = GetTableRow(newHeader);
-                    if(dataHeader != null)
+                    if (dataHeader != null)
                         currentHeader = new Tuple<ContainerVisual, TableRowDataHeader>(newHeader, dataHeader);
                 }
             }
@@ -1982,8 +1981,8 @@ namespace gip.core.reporthandler.Flowdoc
         {
             if (rowVisual == null)
                 return null;
-            
-            PropertyInfo propInfo = rowVisual.GetType().GetProperty("Row", BindingFlags.NonPublic|BindingFlags.Instance);
+
+            PropertyInfo propInfo = rowVisual.GetType().GetProperty("Row", BindingFlags.NonPublic | BindingFlags.Instance);
             return propInfo?.GetValue(rowVisual) as TableRowDataHeader;
         }
 
