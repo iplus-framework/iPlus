@@ -23,6 +23,8 @@ using System.IO;
 using System.Xml;
 using System.Data.Objects.DataClasses;
 using System.Reflection;
+using System.Data;
+using ClosedXML.Excel;
 
 namespace gip.core.layoutengine
 {
@@ -2936,6 +2938,89 @@ namespace gip.core.layoutengine
                     datamodel.Database.Root.Messages.LogException("VBDataGrid", "CopyToClipboard", msg);
             }
             _CopyToClipboard = false;
+        }
+
+        private class ExportColumn
+        {
+            public Type _Type;
+            public string _VBContent;
+            public IGriColumn _Column;
+        }
+
+        [ACMethodInteraction("", "en{'Export to excel file'}de{'In Excel-Datei exportieren'}", (short)103, false)]
+        public virtual void Export2Excel()
+        {
+            try
+            {
+                CollectionView collectionView = (CollectionView)CollectionViewSource.GetDefaultView(ItemsSource);
+                if (collectionView == null)
+                    return;
+
+                List<ExportColumn> exportColumns = new List<ExportColumn>();
+                DataTable dt = new DataTable();
+                var exportableCols = Columns.Where(c => ((IGriColumn)c).ColACType != null);
+                int i = 0;
+                foreach (IGriColumn column in exportableCols)
+                {
+                    ExportColumn exportColumn = new ExportColumn() { _Column = column, _Type = column.ColACType.ObjectType, _VBContent = column.VBContent };
+                    if (exportColumn._Type == null)
+                        continue;
+                    if (!IsExcelType(exportColumn._Type))
+                    {
+                        DataGridComboBoxColumn dcb = column as DataGridComboBoxColumn;
+                        if (dcb == null || String.IsNullOrEmpty(dcb.DisplayMemberPath))
+                            continue;
+                        IACType subACType = column.ColACType.GetMember(dcb.DisplayMemberPath);
+                        if (subACType == null)
+                            continue;
+                        Type subType = subACType.ObjectType;
+                        if (!IsExcelType(subType))
+                            continue;
+                        exportColumn._Type = subType;
+                        exportColumn._VBContent = exportColumn._VBContent + "\\" + dcb.DisplayMemberPath;
+                    }
+                    dt.Columns.Add(i.ToString() + " " + column.ColACType.ACCaption, exportColumn._Type);
+                    exportColumns.Add(exportColumn);
+                    i++;
+                }
+                foreach (var colViewEntry in collectionView)
+                {
+                    var row = dt.NewRow();
+                    i = 0;
+                    foreach (ExportColumn column in exportColumns)
+                    {
+                        object value = colViewEntry.GetValue(column._VBContent);
+                        row[i] = value == null ? DBNull.Value : value;
+                        i++;
+                    }
+                    dt.Rows.Add(row);
+                }
+
+                System.Windows.Forms.SaveFileDialog dlg = new System.Windows.Forms.SaveFileDialog();
+                dlg.Filter = "Excel Files (*.xlsx)|*.xlsx";
+                dlg.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    XLWorkbook workBook = new XLWorkbook();
+                    workBook.Worksheets.Add(dt, BSOACComponent.ACCaption);
+                    workBook.SaveAs(dlg.FileName);
+                }
+            }
+            catch (Exception e)
+            {
+                this.Root().Messages.LogException("VBDataGrid", "Export2Excel()", e);
+                this.Root().Messages.Exception(this, e.Message, true);
+            }
+        }
+
+        private static Type[] _ExcelTypes = new Type[] { typeof(string), typeof(DateTime), typeof(TimeSpan) };
+        public bool IsExcelType(Type type)
+        {
+            if (type == null)
+                return false;
+            if (type.IsPrimitive)
+                return true;
+            return _ExcelTypes.Where(c => c.IsAssignableFrom(type)).Any();
         }
 
         #endregion

@@ -1,8 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Reflection;
+using System.Data.Objects.DataClasses;
 using gip.core.datamodel;
 using gip.core.autocomponent;
+using gip.core.reporthandler.Flowdoc;
+using System.Windows.Documents;
+using System.Windows.Controls;
+using System.Windows.Xps.Packaging;
 
 namespace gip.core.reporthandler
 {
@@ -56,7 +63,7 @@ namespace gip.core.reporthandler
                         parentACClass = parentACClass.FromIPlusContext<ACClass>(Database.ContextIPlus);
                     if (parentACClass != null)
                         _ACClassDesignList.AddRange(parentACClass.Designs.Where(c => c.ACKind == Global.ACKinds.DSDesignReport));
-                }            
+                }
             }
 
 
@@ -182,10 +189,10 @@ namespace gip.core.reporthandler
             }
             set
             {
-                if(_SelectedACClassDesign != value)
+                if (_SelectedACClassDesign != value)
                 {
                     _SelectedACClassDesign = value;
-                        CurrentACClassDesign = _SelectedACClassDesign;
+                    CurrentACClassDesign = _SelectedACClassDesign;
                     OnPropertyChanged("SelectedACClassDesign");
                 }
             }
@@ -422,21 +429,6 @@ namespace gip.core.reporthandler
             {
                 _PrinterName = value;
                 OnPropertyChanged("PrinterName");
-            }
-        }
-       
-        private bool _PreventClone = false;
-        [ACPropertyInfo(9999)]
-        public bool PreventClone
-        {
-            get
-            {
-                return _PreventClone;
-            }
-            set
-            {
-                _PreventClone = value;
-                OnPropertyChanged("PreventClone");
             }
         }
 
@@ -814,7 +806,7 @@ namespace gip.core.reporthandler
         {
             try
             {
-                if(SelectedACClassDesign == null)
+                if (SelectedACClassDesign == null)
                 {
                     ACClassDesign defaultDesign = _ACClassDesignList.Where(c => c.IsDefault).FirstOrDefault();
                     if (defaultDesign == null)
@@ -947,7 +939,7 @@ namespace gip.core.reporthandler
                     return;
 
                 bool cloneInstantiated = false;
-                ReportData reportData = ReportData.BuildReportData(out cloneInstantiated, CurrentCurrentOrList, ParentACComponent, CurrentACQueryDefinition, CurrentACClassDesign, PreventClone);
+                ReportData reportData = ReportData.BuildReportData(out cloneInstantiated, CurrentCurrentOrList, ParentACComponent, CurrentACQueryDefinition, CurrentACClassDesign);
                 if (reportData == null)
                     return;
 
@@ -955,7 +947,7 @@ namespace gip.core.reporthandler
 
                 if (cloneInstantiated)
                     reportData.StopACComponents();
-                
+
                 StopComponent(acReportQuery);
             }
             catch (Exception e)
