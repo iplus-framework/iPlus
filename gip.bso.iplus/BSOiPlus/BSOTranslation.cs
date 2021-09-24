@@ -571,29 +571,123 @@ namespace gip.bso.iplus
 
         #region Replace
 
-
-        private string _ReplaceText;
+        private bool _IsReplaceTranslationExact;
         /// <summary>
-        /// Doc  ReplaceText
+        /// Selected property for 
         /// </summary>
         /// <value>The selected </value>
-        [ACPropertyInfo(999, "ReplaceText", "en{'Replace with word'}de{'Durch Wort ersetzen'}")]
-        public string ReplaceText
+        [ACPropertyInfo(999, "IsReplaceTranslationExact", "en{'Match complete text'}de{'Vollständigen Text abgleichen'}")]
+        public bool IsReplaceTranslationExact
         {
             get
             {
-                return _ReplaceText;
+                return _IsReplaceTranslationExact;
             }
             set
             {
-                if (_ReplaceText != value)
+                if (_IsReplaceTranslationExact != value)
                 {
-                    _ReplaceText = value;
-                    OnPropertyChanged("ReplaceText");
+                    _IsReplaceTranslationExact = value;
+                    OnPropertyChanged("IsReplaceTranslationExact");
                 }
             }
         }
 
+        #region IsReplaceSearchInSourceLanguage
+        private bool _IsReplaceSearchInSourceLanguage;
+        /// <summary>
+        /// Selected property for 
+        /// </summary>
+        /// <value>The selected </value>
+        [ACPropertyInfo(999, "IsReplaceSearchInSourceLanguage", "en{'Search text in source language'}de{'Text in Quellsprache suchen'}")]
+        public bool IsReplaceSearchInSourceLanguage
+        {
+            get
+            {
+                return _IsReplaceSearchInSourceLanguage;
+            }
+            set
+            {
+                if (_IsReplaceSearchInSourceLanguage != value)
+                {
+                    _IsReplaceSearchInSourceLanguage = value;
+                    OnPropertyChanged("IsReplaceSearchInSourceLanguage");
+                }
+            }
+        }
+
+        #endregion
+
+        private string _ReplaceACIdentifier;
+        /// <summary>
+        /// Selected property for 
+        /// </summary>
+        /// <value>The selected </value>
+        [ACPropertyInfo(999, "ReplaceACIdentifier", "en{'With ACIdentifier override'}de{'Mit ACIdentifier überschreibe'}")]
+        public string ReplaceACIdentifier
+        {
+            get
+            {
+                return _ReplaceACIdentifier;
+            }
+            set
+            {
+                if (_ReplaceACIdentifier != value)
+                {
+                    _ReplaceACIdentifier = value;
+                    if (!string.IsNullOrEmpty(_ReplaceACIdentifier))
+                        FromText = null;
+                    OnPropertyChanged("ReplaceACIdentifier");
+                }
+            }
+        }
+
+        private string _FromText;
+        /// <summary>
+        /// Selected property for 
+        /// </summary>
+        /// <value>The selected </value>
+        [ACPropertyInfo(999, "FromText", "en{'From text'}de{'Aus Text'}")]
+        public string FromText
+        {
+            get
+            {
+                return _FromText;
+            }
+            set
+            {
+                if (_FromText != value)
+                {
+                    _FromText = value;
+                    _ReplaceACIdentifier = value;
+                    if (!string.IsNullOrEmpty(_FromText))
+                        ReplaceACIdentifier = null;
+                    OnPropertyChanged("FromText");
+                }
+            }
+        }
+
+        private string _ToText;
+        /// <summary>
+        /// Selected property for 
+        /// </summary>
+        /// <value>The selected </value>
+        [ACPropertyInfo(999, "ToText", "en{'with text replace'}de{'mit Text ersetzen'}")]
+        public string ToText
+        {
+            get
+            {
+                return _ToText;
+            }
+            set
+            {
+                if (_ToText != value)
+                {
+                    _ToText = value;
+                    OnPropertyChanged("ToText");
+                }
+            }
+        }
 
         #endregion
 
@@ -1426,8 +1520,8 @@ namespace gip.bso.iplus
         public bool IsEnabledReplaceAll()
         {
             return
-                !string.IsNullOrEmpty(FilterTranslation)
-                && !string.IsNullOrEmpty(ReplaceText)
+                (!string.IsNullOrEmpty(FromText) || !string.IsNullOrEmpty(ReplaceACIdentifier))
+                && SelectedSourceLanguage != null
                 && SelectedTargetLanguage != null;
         }
 
@@ -1699,10 +1793,11 @@ namespace gip.bso.iplus
                     DoImport(worker, e, ImportSourcePath, 0, 100);
                     break;
                 case TranslationAutogenerateOption.Replace:
-                    e.Result = DoRename(worker, e, SelectedTargetLanguage.VBLanguageCode, FilterTranslation, ReplaceText, TranslationViewList, 0, 100);
+                    e.Result = DoRename(worker, e, SelectedSourceLanguage.VBLanguageCode, SelectedTargetLanguage.VBLanguageCode,
+                        FromText, ToText, TranslationViewList, 0, 100);
                     break;
                 case TranslationAutogenerateOption.ReplaceAll:
-                    DoRenameAll(worker, e, SelectedTargetLanguage.VBLanguageCode, FilterTranslation, ReplaceText);
+                    DoRenameAll(worker, e, SelectedSourceLanguage.VBLanguageCode, SelectedTargetLanguage.VBLanguageCode, FromText, ToText);
                     break;
                 case TranslationAutogenerateOption.GetACClassTranslationStatus:
                     e.Result = DoGetACClassTranslationStatus(worker, e, SelectedTargetLanguage.VBLanguageCode, CurrentACProject.ACProjectID);
@@ -1737,7 +1832,9 @@ namespace gip.bso.iplus
                 }
                 else if (command == TranslationAutogenerateOption.Replace)
                 {
-                    ReplaceText = null;
+                    FromText = null;
+                    ToText = null;
+                    ReplaceACIdentifier = null;
                     SetListFromBGWorker(e);
                 }
                 else
@@ -2051,10 +2148,11 @@ namespace gip.bso.iplus
             return list;
         }
 
-        private List<VBTranslationView> DoRename(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode, string searchWord, string replaceWord, List<VBTranslationView> list, int rangeFrom, int rangeTo)
+        private List<VBTranslationView> DoRename(ACBackgroundWorker worker, DoWorkEventArgs e, string sourceLanguageCode, string targetLanguageCode,
+            string fromText, string toText, List<VBTranslationView> list, int rangeFrom, int rangeTo)
         {
             int half = (rangeTo - rangeFrom) / 2;
-            worker.ProgressInfo.TotalProgress.ProgressText = string.Format("Start replace translations {0} => {1} for entire list...", searchWord, replaceWord);
+            worker.ProgressInfo.TotalProgress.ProgressText = string.Format("Start replace translations {0} => {1} for entire list...", fromText, toText);
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = rangeFrom;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = rangeTo;
             worker.ProgressInfo.TotalProgress.ProgressCurrent = rangeFrom;
@@ -2063,9 +2161,40 @@ namespace gip.bso.iplus
 
             foreach (VBTranslationView item in list)
             {
-                TranslationPair translationPair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == targetLanguageCode);
-                if (translationPair != null)
-                    translationPair.Translation = translationPair.Translation.Replace(searchWord, replaceWord);
+                TranslationPair sourceTranslationPair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == sourceLanguageCode);
+                TranslationPair targetTranslationPair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == targetLanguageCode);
+                if (sourceTranslationPair != null)
+                {
+                    bool isMatch =
+                   !string.IsNullOrEmpty(ReplaceACIdentifier)
+                   && item.ACIdentifier == ReplaceACIdentifier;
+
+                    if (!isMatch && !string.IsNullOrEmpty(fromText))
+                    {
+                        isMatch = IsReplaceSearchInSourceLanguage ?
+                                (sourceTranslationPair != null
+                                && (IsReplaceTranslationExact ? sourceTranslationPair.Translation == fromText : sourceTranslationPair.Translation.Contains(fromText)))
+                                :
+                                (targetTranslationPair != null
+                                && (IsReplaceTranslationExact ? targetTranslationPair.Translation == fromText : targetTranslationPair.Translation.Contains(fromText)));
+                    }
+
+                    if (isMatch)
+                    {
+                        if (!string.IsNullOrEmpty(ReplaceACIdentifier) || IsReplaceTranslationExact || IsReplaceSearchInSourceLanguage)
+                        {
+                            if (targetTranslationPair == null)
+                            {
+                                targetTranslationPair = new TranslationPair() { LangCode = targetLanguageCode };
+                                item.EditTranslationList.Add(targetTranslationPair);
+                            }
+                            targetTranslationPair.Translation = toText;
+                        }
+                        else
+                            targetTranslationPair.Translation = targetTranslationPair.Translation.Replace(fromText, toText);
+                    }
+                }
+
 
                 int itemIndex = list.IndexOf(item);
                 int progressValue = (itemIndex / itemsCount) * half;
@@ -2075,9 +2204,9 @@ namespace gip.bso.iplus
             return DoSaveTranslation(worker, e, list, half, rangeTo);
         }
 
-        private void DoRenameAll(ACBackgroundWorker worker, DoWorkEventArgs e, string targetLanguageCode, string searchWord, string replaceWord)
+        private void DoRenameAll(ACBackgroundWorker worker, DoWorkEventArgs e, string sourceLangaugeCode, string targetLanguageCode, string fromText, string toText)
         {
-            worker.ProgressInfo.TotalProgress.ProgressText = string.Format("Start replace translations {0} => {1} for entire list...", searchWord, replaceWord);
+            worker.ProgressInfo.TotalProgress.ProgressText = string.Format("Start replace translations {0} => {1} for entire list...", fromText, toText);
             worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
             worker.ProgressInfo.TotalProgress.ProgressRangeTo = 100;
             worker.ProgressInfo.TotalProgress.ProgressCurrent = 0;
@@ -2086,7 +2215,7 @@ namespace gip.bso.iplus
             worker.ProgressInfo.TotalProgress.ProgressText = "All items fetched";
             worker.ProgressInfo.TotalProgress.ProgressCurrent = 20;
 
-            DoRename(worker, e, targetLanguageCode, searchWord, replaceWord, allTranslations, 20, 80);
+            DoRename(worker, e, sourceLangaugeCode, targetLanguageCode, fromText, toText, allTranslations, 20, 80);
         }
 
         #endregion
