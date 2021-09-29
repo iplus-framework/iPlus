@@ -3128,7 +3128,7 @@ namespace gip.core.layoutengine
                             }
                             else
                             {
-                                string header = ((DataGridColumn)column).Header?.ToString();
+                                string header = ((DataGridColumn)column)?.Header?.ToString();
                                 if (header == columnName)
                                     DictionarySumProperties[header] = "";
                             }
@@ -3155,7 +3155,7 @@ namespace gip.core.layoutengine
                             {
                                 SumAndCheckType(column, collectionView);
                             }
-                            else if (((DataGridColumn)column).Header.ToString() == columnName)
+                            else if (((DataGridColumn)column)?.Header as string == columnName)
                             {
                                 DictionarySumProperties[((DataGridColumn)column).Header.ToString()] = collectionView.Count.ToString();
                             }
