@@ -3164,46 +3164,66 @@ namespace gip.core.layoutengine
 
         private void SumAndCheckType(IGriColumn column, CollectionView collectionView)
         {
+            if (column == null || collectionView == null)
+                return;
+
             string stringFormat = "";
-            if (column.VBContent != null)
+            if (column.VBContent != null && column.ColACType != null)
             {
                 if (DictionarySumProperties == null)
                     return;
                 if (column is VBDataGridTextColumn)
                     stringFormat = ((VBDataGridTextColumn)column).StringFormat;
+
                 if (column.ColACType.ObjectType == typeof(double))
                 {
                     double _Total = 0;
                     foreach (var item in collectionView)
-                        if (item.GetValue(column.VBContent) != null && column.ColACType.ObjectType == typeof(double))
-                            _Total += (double)item.GetValue(column.VBContent);
-                    DictionarySumProperties[column.VBContent] = _Total.ToString(stringFormat);
+                    {
+                        object itemValue = item.GetValue(column.VBContent);
+                        if (itemValue != null && itemValue is double)
+                            _Total += (double)itemValue;
+                    }
+                    if (DictionarySumProperties.ContainsKey(column.VBContent))
+                        DictionarySumProperties[column.VBContent] = _Total.ToString(stringFormat);
                 }
                 else if (column.ColACType.ObjectType == typeof(float))
                 {
                     float _Total = 0;
                     foreach (var item in collectionView)
-                        if (item.GetValue(column.VBContent) != null && column.ColACType.ObjectType == typeof(float))
-                            _Total += (float)item.GetValue(column.VBContent);
-                    DictionarySumProperties[column.VBContent] = _Total.ToString(stringFormat);
+                    {
+                        object itemValue = item.GetValue(column.VBContent);
+                        if (itemValue != null && itemValue is float)
+                            _Total += (float)itemValue;
+                    }
+                    if (DictionarySumProperties.ContainsKey(column.VBContent))
+                        DictionarySumProperties[column.VBContent] = _Total.ToString(stringFormat);
                 }
                 else if (column.ColACType.ObjectType == typeof(decimal))
                 {
                     decimal _Total = 0;
                     foreach (var item in collectionView)
-                        if (item.GetValue(column.VBContent) != null && column.ColACType.ObjectType == typeof(decimal))
-                            _Total += (decimal)item.GetValue(column.VBContent);
-                    DictionarySumProperties[column.VBContent] = _Total.ToString(stringFormat);
+                    {
+                        object itemValue = item.GetValue(column.VBContent);
+                        if (itemValue != null && itemValue is decimal)
+                            _Total += (decimal)itemValue;
+                        if (DictionarySumProperties.ContainsKey(column.VBContent))
+                            DictionarySumProperties[column.VBContent] = _Total.ToString(stringFormat);
+                    }
                 }
                 else if (column.ColACType.ObjectType == typeof(int))
                 {
                     int _Total = 0;
                     foreach (var item in collectionView)
-                        if (item.GetValue(column.VBContent) != null && column.ColACType.ObjectType == typeof(int))
-                            _Total += (int)item.GetValue(column.VBContent);
-                    DictionarySumProperties[column.VBContent] = _Total.ToString(stringFormat);
+                    {
+                        object itemValue = item.GetValue(column.VBContent);
+                        if (itemValue != null && itemValue is int)
+                            _Total += (int)itemValue;
+                    }
+                    if (DictionarySumProperties.ContainsKey(column.VBContent))
+                        DictionarySumProperties[column.VBContent] = _Total.ToString(stringFormat);
                 }
-                else
+                else if (DictionarySumProperties.ContainsKey(column.VBContent))
                     DictionarySumProperties[column.VBContent] = "";
             }
         }
