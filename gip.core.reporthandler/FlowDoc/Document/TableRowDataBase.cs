@@ -89,6 +89,13 @@ namespace gip.core.reporthandler.Flowdoc
         }
         public static readonly DependencyProperty MaxLengthProperty = ReportDocument.MaxLengthProperty.AddOwner(typeof(TableRowDataBase));
 
+        public virtual int Truncate
+        {
+            get { return (int)GetValue(TruncateProperty); }
+            set { SetValue(TruncateProperty, value); }
+        }
+        public static readonly DependencyProperty TruncateProperty = ReportDocument.TruncateProperty.AddOwner(typeof(TableRowDataBase));
+
         public virtual string CultureInfo
         {
             get { return (string)GetValue(CultureInfoProperty); }

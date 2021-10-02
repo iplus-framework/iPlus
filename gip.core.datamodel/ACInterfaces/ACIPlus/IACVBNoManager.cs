@@ -18,4 +18,10 @@ namespace gip.core.datamodel
         /// <seealso cref="gip.bso.BSONoConfiguration" />
         string GetNewNo(IACEntityObjectContext context, Type type, string entityNoFieldName, string formatNewNo, IACComponent invoker = null);
     }
+
+    public interface IACVBNoProvider : IACComponent
+    {
+        string GetNewNo(IACVBNoManager parentManager, Database iplusContext, IACEntityObjectContext appContext, Type type, string entityNoFieldName, string formatNewNo, VBNoConfiguration vbNoConfiguration, IACComponent invoker = null);
+        bool IsHandlerForType(Type type, string entityNoFieldName);
+    }
 }

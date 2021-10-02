@@ -32,6 +32,13 @@ namespace gip.core.reporthandler.Flowdoc
         }
         public static readonly DependencyProperty MaxLengthProperty = ReportDocument.MaxLengthProperty.AddOwner(typeof(InlineValueBase));
 
+        public virtual int Truncate
+        {
+            get { return (int)GetValue(TruncateProperty); }
+            set { SetValue(TruncateProperty, value); }
+        }
+        public static readonly DependencyProperty TruncateProperty = ReportDocument.TruncateProperty.AddOwner(typeof(InlineValueBase));
+
 
         /// <summary>
         /// Gets or sets the object value
@@ -45,7 +52,7 @@ namespace gip.core.reporthandler.Flowdoc
                 if (value is InlineUIContainer && this.Parent is Paragraph)
                     ((Paragraph)this.Parent).Inlines.Add(value as InlineUIContainer);
                 else
-                    Text = FormatValue(value, StringFormat, CultureInfo, MaxLength);
+                    Text = FormatValue(value, StringFormat, CultureInfo, MaxLength, Truncate);
             }
         }
 
@@ -75,7 +82,7 @@ namespace gip.core.reporthandler.Flowdoc
         /// <param name="value">value</param>
         /// <param name="format">format</param>
         /// <returns></returns>
-        public static string FormatValue(object value, string format, string cultureInfoString, int maxLength)
+        public static string FormatValue(object value, string format, string cultureInfoString, int maxLength, int truncate)
         {
             if (value == null)
                 return "";
@@ -83,8 +90,29 @@ namespace gip.core.reporthandler.Flowdoc
             if (String.IsNullOrEmpty(format))
             {
                 result = value.ToString();
-                if (maxLength > 0 && result.Length > maxLength)
-                    return result.Substring(0, maxLength);
+                if (truncate > 0)
+                {
+                    if (result.Length > truncate)
+                        result = result.Substring(truncate);
+                }
+                else if (truncate < 0)
+                {
+                    truncate = Math.Abs(truncate);
+                    if (result.Length > truncate)
+                        result = result.Substring(0, result.Length - truncate);
+                }
+
+                if (maxLength > 0)
+                {
+                    if (result.Length > maxLength)
+                        result = result.Substring(0, maxLength);
+                }
+                else if (maxLength < 0)
+                {
+                    maxLength = Math.Abs(maxLength);
+                    if (result.Length > maxLength)
+                        result = result.Substring(result.Length - maxLength, maxLength);
+                }
                 return result;
             }
             System.Globalization.CultureInfo cultureInfo = null;
@@ -187,8 +215,29 @@ namespace gip.core.reporthandler.Flowdoc
             else
                 result = value.ToString();
 
-            if (maxLength > 0 && result.Length > maxLength)
-                return result.Substring(0, maxLength);
+            if (truncate > 0)
+            {
+                if (result.Length > truncate)
+                    result = result.Substring(truncate);
+            }
+            else if (truncate < 0)
+            {
+                truncate = Math.Abs(truncate);
+                if (result.Length > truncate)
+                    result = result.Substring(0, result.Length - truncate);
+            }
+
+            if (maxLength > 0)
+            {
+                if (result.Length > maxLength)
+                    return result.Substring(0, maxLength);
+            }
+            else if (maxLength < 0)
+            {
+                maxLength = Math.Abs(maxLength);
+                if (result.Length > maxLength)
+                    return result.Substring(result.Length - maxLength, maxLength);
+            }
             return result;
         }
     }

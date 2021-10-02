@@ -1582,7 +1582,7 @@ namespace gip.core.reporthandler.Flowdoc
                 try
                 {
                     if (tableRowDataTemplate != null && !String.IsNullOrEmpty(tableRowDataTemplate.StringFormat))
-                        valueAsString = InlineValueBase.FormatValue(fieldValue, tableRowDataTemplate.StringFormat, tableRowDataTemplate.CultureInfo, tableRowDataTemplate.MaxLength);
+                        valueAsString = InlineValueBase.FormatValue(fieldValue, tableRowDataTemplate.StringFormat, tableRowDataTemplate.CultureInfo, tableRowDataTemplate.MaxLength, tableRowDataTemplate.Truncate);
                     else
                         valueAsString = fieldValue.ToString();
                 }

@@ -149,6 +149,9 @@ namespace gip.core.reporthandler.Flowdoc
         public static readonly DependencyProperty MaxLengthProperty
             = DependencyProperty.Register("MaxLength", typeof(int), typeof(TextElement), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.Inherits));
 
+        public static readonly DependencyProperty TruncateProperty
+            = DependencyProperty.Register("Truncate", typeof(int), typeof(TextElement), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.Inherits));
+
         public static readonly DependencyProperty CultureInfoProperty
             = DependencyProperty.Register("CultureInfo", typeof(string), typeof(TextElement), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
 
