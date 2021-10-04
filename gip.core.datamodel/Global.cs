@@ -584,6 +584,11 @@ namespace gip.core.datamodel
             /// Report as XAML and Flowdocument
             /// </summary>
             DUReport = 6400,
+
+            /// <summary>
+            /// Report as XAML and Flowdocument
+            /// </summary>
+            DUReportPrintServer = 6450,
         }
 
         static ACValueItemList _ACUsageList = null;
@@ -612,6 +617,7 @@ namespace gip.core.datamodel
                     Global._ACUsageList.AddEntry((short)ACUsages.DUMainmenu, "en{'Main menu'}de{'Hauptmenü'}");
 
                     Global._ACUsageList.AddEntry((short)ACUsages.DUReport, "en{'XAML Report'}de{'XAML Bericht'}");
+                    Global._ACUsageList.AddEntry((short)ACUsages.DUReportPrintServer, "en{'XML print server report'}de{'XML-Druckserverbericht'}");
                     Global._ACUsageList.AddEntry((short)ACUsages.DULLReport, "en{'L&L Report'}de{'L&L Bericht'}");
                     Global._ACUsageList.AddEntry((short)ACUsages.DULLOverview, "en{'L&L Overview'}de{'L&L Überblick'}");
                     Global._ACUsageList.AddEntry((short)ACUsages.DULLList, "en{'L&L List'}de{'L&L Liste'}");

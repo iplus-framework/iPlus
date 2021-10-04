@@ -1,12 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Reflection;
-using System.Collections;
 using System.Data.Objects.DataClasses;
 using gip.core.datamodel;
-using System.Transactions;
 using gip.core.autocomponent;
 using combit.ListLabel17;
 using System.IO;
@@ -17,8 +13,7 @@ using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Documents;
 using System.Windows.Xps;
-using System.Xml;
-using System.Xml.Linq;
+using Newtonsoft.Json;
 
 namespace gip.core.reporthandler
 {
@@ -41,6 +36,16 @@ namespace gip.core.reporthandler
                 return false;
 
             ACInitScriptEngineContent();
+
+            var iPrintManagerQuery = Root.FindChildComponents<IPrintManager>();
+            if (iPrintManagerQuery != null && iPrintManagerQuery.Any())
+            {
+                IPrintManager printManager = iPrintManagerQuery[0] as IPrintManager;
+                _PrinterComponentList = new List<PrinterInfo>();
+                if (printManager != null && !string.IsNullOrEmpty(printManager.PrintServers))
+                    _PrinterComponentList = JsonConvert.DeserializeObject<List<PrinterInfo>>(printManager.PrintServers);
+            }
+
             return true;
         }
 
@@ -161,7 +166,8 @@ namespace gip.core.reporthandler
         }
         #endregion
 
-        #region public Methods
+        #region Public Methods
+
         [ACMethodInfo("Report", "en{'Print'}de{'Drucken'}", 9999, false)]
         public void Print(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies = 1)
         {
@@ -178,6 +184,10 @@ namespace gip.core.reporthandler
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
             {
                 RunLL(false, LlPrintMode.Export);
+            }
+            else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
+            {
+                DoPrintComponent(acClassDesign, withDialog, data, copies);
             }
         }
 
@@ -196,6 +206,10 @@ namespace gip.core.reporthandler
             {
                 RunLL(false, LlPrintMode.Preview);
             }
+            else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
+            {
+                ShowDialog(this, "PreviewXMLDoc");
+            }
         }
 
         [ACMethodInfo("Report", "en{'Design'}de{'Entwurf'}", 9999, false)]
@@ -213,9 +227,60 @@ namespace gip.core.reporthandler
             {
                 RunLL(true);
             }
+            else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
+            {
+                ShowDialog(this, "DesignXMLDoc");
+            }
         }
 
         #endregion
+
+        #endregion
+
+        #region PrinterComponent
+
+        private PrinterInfo _SelectedPrinterComponent;
+        /// <summary>
+        /// Selected property for PrinterInfo
+        /// </summary>
+        /// <value>The selected ESCPosPrinter</value>
+        [ACPropertySelected(9999, "PrinterComponent", "en{'TODO: ESCPosPrinter'}de{'TODO: ESCPosPrinter'}")]
+        public PrinterInfo SelectedPrinterComponent
+        {
+            get
+            {
+                return _SelectedPrinterComponent;
+            }
+            set
+            {
+                if (_SelectedPrinterComponent != value)
+                {
+                    _SelectedPrinterComponent = value;
+                    if (value != null)
+                    {
+                        PrinterName = value.PrinterACUrl;
+                    }
+                    OnPropertyChanged("SelectedPrinterComponent");
+                }
+            }
+        }
+
+
+        private List<PrinterInfo> _PrinterComponentList;
+        /// <summary>
+        /// List property for PrinterInfo
+        /// </summary>
+        /// <value>The ESCPosPrinter list</value>
+        [ACPropertyList(9999, "PrinterComponent")]
+        public List<PrinterInfo> PrinterComponentList
+        {
+            get
+            {
+                if (_PrinterComponentList == null)
+                    _PrinterComponentList = new List<PrinterInfo>();
+                return _PrinterComponentList;
+            }
+        }
 
         #endregion
 
@@ -726,6 +791,7 @@ namespace gip.core.reporthandler
         #endregion
 
         #region FlowDoc
+
         [ACMethodCommand("Report", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
         public void FlowDialogCancel()
         {
@@ -914,6 +980,78 @@ namespace gip.core.reporthandler
                     writer.Write(fDocSeq, pt);
                     //}
                 }
+            }
+        }
+
+        #endregion
+
+        #region ACPrintServer component
+
+        [ACMethodCommand("Report", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        public void PrintComponentDialogOk()
+        {
+            ACSaveChanges();
+            if (Database.ContextIPlus != null)
+                Database.ContextIPlus.ACSaveChanges();
+            CloseTopDialog();
+        }
+
+        [ACMethodInfo("PrintComponent", "en{'Print'}de{'Drucken'}", 9999, false)]
+        public void PrintComponent()
+        {
+            CloseTopDialog();
+            ShowDialog(this, "PrintXMLDoc");
+        }
+
+        [ACMethodInfo("PrintComponentOk", "en{'Print'}de{'Drucken'}", 9999, false)]
+        public void PrintComponentOk()
+        {
+            if (!IsEnabledPrintComponent())
+                return;
+            DoPrintComponent(CurrentACClassDesign, SelectedPrinterComponent.PrinterACUrl, CurrentReportData, 1);
+            CloseTopDialog();
+        }
+
+        private bool IsEnabledPrintComponent()
+        {
+            return SelectedPrinterComponent != null;
+        }
+
+        private void DoPrintComponent(ACClassDesign acClassDesign, bool withDialog, ReportData data, int copies)
+        {
+            if (withDialog)
+                PrintComponent();
+            else
+            {
+                string acPrintServerACUrl = PrinterComponentList.Where(c => c.IsDefault).Select(c => c.PrinterACUrl).FirstOrDefault();
+                DoPrintComponent(acClassDesign, acPrintServerACUrl, data, copies);
+            }
+        }
+
+        private void DoPrintComponent(ACClassDesign acClassDesign, string acPrintServerACUrl, ReportData data, int copies)
+        {
+            ACPrintServerBase printServer = null;
+            IACComponent printServerObject = Root.ACUrlCommand(acPrintServerACUrl) as IACComponent;
+            if(printServerObject is ACComponentProxy)
+            {
+                ACComponentProxy proxyComp = printServerObject as ACComponentProxy;
+                if(proxyComp != null)
+                    proxyComp.ACUrlCommand("Print", acClassDesign, data, copies);
+            }
+        }
+
+        int _CopyCount = 1;
+        [ACPropertyInfo(101, "", "en{'Number of copies'}de{'Anzahl Kopien'}")]
+        public int CopyCount
+        {
+            get
+            {
+                return _CopyCount;
+            }
+            set
+            {
+                _CopyCount = value;
+                OnPropertyChanged("CopyCount");
             }
         }
 
@@ -1290,7 +1428,6 @@ namespace gip.core.reporthandler
         }
 
         #endregion
-
 
     }
 

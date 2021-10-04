@@ -32,5 +32,9 @@ namespace gip.core.datamodel
         [DataMember]
         [ACPropertyInfo(5, "", "en{'Default'}de{'Standard'}")]
         public bool IsDefault { get; set; }
+
+        [DataMember]
+        [ACPropertyInfo(6, "", "en{'Name'}de{'Name'}")]
+        public string Name { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using gip.core.datamodel;
+using System;
 
 namespace gip.core.autocomponent
 {
@@ -43,6 +44,16 @@ namespace gip.core.autocomponent
                 return _CommonManagerContext;
             }
         }
+        #endregion
+
+        #region Test
+
+        [ACMethodInfo("", "en{'Print on server'}de{'Auf Server drucken'}", 9999, true, Global.ACKinds.MSMethodPrePost)]
+        public virtual void Print(ACClassDesign acClassDesign, ReportData data, int copies)
+        {
+            
+        }
+
         #endregion
     }
 }

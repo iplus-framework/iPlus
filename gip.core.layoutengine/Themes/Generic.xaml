@@ -103,6 +103,9 @@
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBTileGrid/Themes/TileStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBGraph/Themes/VBGraphItemStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBAutoCompleteBox/Themes/AutoCompleteBoxStyleGip.xaml"/>
+
+        <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBXMLEditor/Themes/XMLEditorStyleGip.xaml"/>
+
     </ResourceDictionary.MergedDictionaries>
 
     <Style TargetType="{x:Type local:VBContentControlIcon}" BasedOn="{StaticResource ContentControlStyleGip}" />
@@ -209,4 +212,6 @@
     <Style TargetType="{x:Type local:VBTile}" BasedOn="{StaticResource TileStyleGip}" />
     <Style TargetType="{x:Type local:VBGraphItem}" BasedOn="{StaticResource VBGraphItemStyleGip}" />
     <Style TargetType="{x:Type local:VBAutoCompleteBox}" BasedOn="{StaticResource AutoCompleteBoxStyleGip}" />
+
+    <Style TargetType="{x:Type local:VBXMLEditor}" BasedOn="{StaticResource XMLEditorStyleGip}" />
 </ResourceDictionary>

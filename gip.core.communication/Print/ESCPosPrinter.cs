@@ -31,5 +31,15 @@ namespace gip.core.communication.Print
             return base.ACDeInit(deleteACClassTask);
         }
         #endregion
+
+        #region Implementation
+
+        [ACMethodInfo("", "en{'Print on server'}de{'Auf Server drucken'}", 9999, true, Global.ACKinds.MSMethodPrePost)]
+        public override void Print(ACClassDesign acClassDesign, ReportData data, int copies)
+        {
+            Console.WriteLine("Print");
+        }
+        #endregion
+
     }
 }
