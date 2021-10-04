@@ -78,7 +78,7 @@ namespace gip.core.autocomponent
             {
                 for (int tries = 0; tries < 3; tries++)
                 {
-                    string newNo = GetNewNo(db, type, entityNoFieldName, formatNewNo, invoker);
+                    string newNo = GetNewNo(db, context, type, entityNoFieldName, formatNewNo, invoker);
                     if (!String.IsNullOrEmpty(newNo))
                         return newNo;
                 }
@@ -87,20 +87,22 @@ namespace gip.core.autocomponent
 
         }
 
-        private string GetNewNo(Database db, Type type, string entityNoFieldName, string formatNewNo, IACComponent invoker = null)
+        private string GetNewNo(Database iplusContext, IACEntityObjectContext appContext, Type type, string entityNoFieldName, string formatNewNo, IACComponent invoker = null)
         {
-            VBNoConfiguration vbNoConfiguration = GetVBNoConfiguration(db, entityNoFieldName);
-            string nextNo = GetNextNo(vbNoConfiguration, formatNewNo);
-            if (db.ACSaveChanges(true, SaveOptions.AcceptAllChangesAfterSave, true) == null)
+            VBNoConfiguration vbNoConfiguration = GetVBNoConfiguration(iplusContext, entityNoFieldName);
+            IACVBNoProvider child = FindChildComponents<IACVBNoProvider>(c => c is IACVBNoProvider && (c as IACVBNoProvider).IsHandlerForType(type, entityNoFieldName)).FirstOrDefault();
+
+            string nextNo = child == null ? GetNextNo(vbNoConfiguration, formatNewNo) : child.GetNewNo(this, iplusContext, appContext, type, entityNoFieldName, formatNewNo, vbNoConfiguration, invoker);
+            if (iplusContext.ACSaveChanges(true, SaveOptions.AcceptAllChangesAfterSave, true) == null)
                 return nextNo;
             else
             {
-                db.ACUndoChanges();
+                iplusContext.ACUndoChanges();
                 return null;
             }
         }
 
-        private string GetNextNo(VBNoConfiguration vbNoConfiguration, string formatNewNo)
+        public string GetNextNo(VBNoConfiguration vbNoConfiguration, string formatNewNo)
         {
             string nextNo;
             string format = "";

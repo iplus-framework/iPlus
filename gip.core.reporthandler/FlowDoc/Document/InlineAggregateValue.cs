@@ -120,7 +120,7 @@ namespace gip.core.reporthandler.Flowdoc
 
             if (isTimeSpan) return TimeSpan.FromTicks(Convert.ToInt64(result)).ToString();  //for timespans
 
-            return InlineValueBase.FormatValue(result, StringFormat, CultureInfo, MaxLength);
+            return InlineValueBase.FormatValue(result, StringFormat, CultureInfo, MaxLength, Truncate);
         }
     }
 
