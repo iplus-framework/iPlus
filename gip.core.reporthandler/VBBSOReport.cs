@@ -13,7 +13,6 @@ using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Documents;
 using System.Windows.Xps;
-using Newtonsoft.Json;
 
 namespace gip.core.reporthandler
 {
@@ -42,8 +41,8 @@ namespace gip.core.reporthandler
             {
                 IPrintManager printManager = iPrintManagerQuery[0] as IPrintManager;
                 _PrinterComponentList = new List<PrinterInfo>();
-                if (printManager != null && !string.IsNullOrEmpty(printManager.PrintServers))
-                    _PrinterComponentList = JsonConvert.DeserializeObject<List<PrinterInfo>>(printManager.PrintServers);
+                if (printManager != null)
+                    _PrinterComponentList = printManager.GetPrintServers();
             }
 
             return true;
@@ -1030,14 +1029,9 @@ namespace gip.core.reporthandler
 
         private void DoPrintComponent(ACClassDesign acClassDesign, string acPrintServerACUrl, ReportData data, int copies)
         {
-            ACPrintServerBase printServer = null;
-            IACComponent printServerObject = Root.ACUrlCommand(acPrintServerACUrl) as IACComponent;
-            if(printServerObject is ACComponentProxy)
-            {
-                ACComponentProxy proxyComp = printServerObject as ACComponentProxy;
-                if(proxyComp != null)
-                    proxyComp.ACUrlCommand("Print", acClassDesign, data, copies);
-            }
+            IACComponent printServer = Root.ACUrlCommand(acPrintServerACUrl) as IACComponent;
+            if (printServer != null)
+                printServer.ACUrlCommand("Print", acClassDesign, data, copies);
         }
 
         int _CopyCount = 1;

@@ -1,10 +1,6 @@
 ﻿using gip.core.autocomponent;
 using gip.core.datamodel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace gip.core.communication.Print
 {
@@ -34,7 +30,7 @@ namespace gip.core.communication.Print
 
         #region Implementation
 
-        [ACMethodInfo("", "en{'Print on server'}de{'Auf Server drucken'}", 9999, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 9999, true, Global.ACKinds.MSMethodPrePost)]
         public override void Print(ACClassDesign acClassDesign, ReportData data, int copies)
         {
             Console.WriteLine("Print");

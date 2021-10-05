@@ -1,4 +1,5 @@
 ﻿using gip.core.datamodel;
+using System.Collections.Generic;
 
 namespace gip.core.autocomponent
 {
@@ -8,7 +9,7 @@ namespace gip.core.autocomponent
 
         PrinterInfo GetPrinterInfo(PAOrderInfo pAOrderInfo);
 
-        string PrintServers { get;set; }
+        List<PrinterInfo> GetPrintServers();
 
     }
 }

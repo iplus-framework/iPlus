@@ -313,7 +313,7 @@
     <EmbeddedResource Include="VBXMLEditorSchemas\VBRSchema.xsd">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <None Include="VBControlScripts\2021-10-04 13-14_aaginic.zip">
+    <None Include="VBControlScripts\2021-10-05 15-20_aaginic.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -48,7 +48,7 @@ namespace gip.core.autocomponent
 
         #region Test
 
-        [ACMethodInfo("", "en{'Print on server'}de{'Auf Server drucken'}", 9999, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 9999, true, Global.ACKinds.MSMethodPrePost)]
         public virtual void Print(ACClassDesign acClassDesign, ReportData data, int copies)
         {
             

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace gip.core.datamodel.ACContainer
+namespace gip.core.datamodel
 {
     [Serializable]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'ACItem'}de{'ACItem'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACItem
     {
         #region private members
@@ -48,17 +47,19 @@ namespace gip.core.datamodel.ACContainer
 
         #region Properties
 
-
         #region Properties -> Export part
 
         public string ID { get; set; }
 
         public string ParentID { get; set; }
 
+        [ACPropertyInfo(9999, "ACIdentifier", "en{'Key'}de{'Schlüssel'}")]
         public string ACIdentifier { get; set; }
 
+        [ACPropertyInfo(9999, "ACUrl", "en{'ACUrl'}de{'ACUrl'}")]
         public string ACUrl { get; set; }
 
+        [ACPropertyInfo(9999, "ACUrlComponent", "en{'ACUrlComponent'}de{'ACUrlComponent'}")]
         public string ACUrlComponent { get; set; }
 
         public bool IsAbstract { get; set; }
@@ -69,8 +70,10 @@ namespace gip.core.datamodel.ACContainer
 
         public string ACTypeACIdentifier { get; set; }
 
+        [ACPropertyInfo(9999, "IsChecked", "en{'Translation'}de{'Übersetzung'}")]
         public string ACCaptionTranslation { get; set; }
 
+        [ACPropertyInfo(9999, "Comment", "en{'Comment'}de{'Bemerkung'}")]
         public string Comment { get; set; }
 
         #endregion

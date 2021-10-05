@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.Serialization;
 
 namespace gip.core.datamodel
 {
@@ -11,7 +6,7 @@ namespace gip.core.datamodel
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PrinterInfo'}de{'PrinterInfo'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
 
-    public class PrinterInfo
+    public class PrinterInfo 
     {
         [DataMember]
         [ACPropertyInfo(1, "", "en{'Printer ACUrl'}de{'Printer ACUrl'}")]
@@ -36,5 +31,6 @@ namespace gip.core.datamodel
         [DataMember]
         [ACPropertyInfo(6, "", "en{'Name'}de{'Name'}")]
         public string Name { get; set; }
+
     }
 }
