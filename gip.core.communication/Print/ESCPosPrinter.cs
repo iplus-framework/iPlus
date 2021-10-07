@@ -31,7 +31,7 @@ namespace gip.core.communication.Print
         #region Implementation
 
         [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 9999, true, Global.ACKinds.MSMethodPrePost)]
-        public override void Print(ACClassDesign acClassDesign, ReportData data, int copies)
+        public override void Print(string componetACUrl, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
         {
             Console.WriteLine("Print");
         }

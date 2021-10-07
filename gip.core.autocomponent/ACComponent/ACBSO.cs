@@ -669,6 +669,38 @@ namespace gip.core.autocomponent
             }
         }
 
+        // ACPrintServer Step10 - divide steps for printing into prepare data (SetDataFromPAOrderInfo) and printing
+
+        /// <summary>
+        /// Setup selected data from PAOrderInfo
+        /// </summary>
+        /// <param name="wfOrderInfo"></param>
+        /// <returns></returns>
+        public virtual Msg SetDataFromPAOrderInfo(PAOrderInfo wfOrderInfo)
+        {
+            if (wfOrderInfo == null)
+                return new Msg();
+            return null;
+        }
+
+
+        /// <summary>
+        /// Override this method if you want to enable background-printing on server-side via class PWNodePrint.
+        /// Read the the data in PAOrderInfo and navigate to the Entity-Object that you want to print.
+        /// At least call ACComponent.PrintDesign() to print the report.
+        /// </summary>
+        /// <param name="designName">Name of the design.</param>
+        /// <param name="printerName">Name of the printer.</param>
+        /// <param name="numberOfCopies">The number of copies.</param>
+        /// <returns></returns>
+        public virtual Msg PrintViaOrderInfo(string designName, string printerName, short numberOfCopies)
+        {
+            if (string.IsNullOrEmpty(designName))
+                return new Msg(); //TODO: error
+
+            return null;
+        }
+
 
         /// <summary>
         /// Override this method if you want to enable background-printing on server-side via class PWNodePrint.
@@ -682,12 +714,11 @@ namespace gip.core.autocomponent
         /// <returns></returns>
         public virtual Msg PrintViaOrderInfo(string designName, string printerName, short numberOfCopies, PAOrderInfo wfOrderInfo)
         {
+            Msg prepareDataMsg = SetDataFromPAOrderInfo(wfOrderInfo);
+            if(prepareDataMsg != null)
+                return prepareDataMsg;
             if (string.IsNullOrEmpty(designName))
                 return new Msg(); //TODO: error
-
-            if (wfOrderInfo == null)
-                return new Msg();
-
 
             return null;
         }

@@ -186,7 +186,7 @@ namespace gip.core.reporthandler
             }
             else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
             {
-                DoPrintComponent(acClassDesign, withDialog, data, copies);
+                DoPrintComponent(acClassDesign, withDialog, copies);
             }
         }
 
@@ -207,7 +207,7 @@ namespace gip.core.reporthandler
             }
             else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
             {
-                ShowDialog(this, "PreviewXMLDoc");
+                ShowDialog(this, "PreviewFlowDoc");
             }
         }
 
@@ -228,7 +228,7 @@ namespace gip.core.reporthandler
             }
             else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
             {
-                ShowDialog(this, "DesignXMLDoc");
+                ShowDialog(this, "DesignFlowDoc");
             }
         }
 
@@ -1007,7 +1007,7 @@ namespace gip.core.reporthandler
         {
             if (!IsEnabledPrintComponent())
                 return;
-            DoPrintComponent(CurrentACClassDesign, SelectedPrinterComponent.PrinterACUrl, CurrentReportData, 1);
+            DoPrintComponent(CurrentACClassDesign, SelectedPrinterComponent.PrinterACUrl, 1);
             CloseTopDialog();
         }
 
@@ -1016,22 +1016,36 @@ namespace gip.core.reporthandler
             return SelectedPrinterComponent != null;
         }
 
-        private void DoPrintComponent(ACClassDesign acClassDesign, bool withDialog, ReportData data, int copies)
+        private void DoPrintComponent(ACClassDesign acClassDesign, bool withDialog, int copies)
         {
             if (withDialog)
                 PrintComponent();
             else
             {
                 string acPrintServerACUrl = PrinterComponentList.Where(c => c.IsDefault).Select(c => c.PrinterACUrl).FirstOrDefault();
-                DoPrintComponent(acClassDesign, acPrintServerACUrl, data, copies);
+                DoPrintComponent(acClassDesign, acPrintServerACUrl, copies);
             }
         }
 
-        private void DoPrintComponent(ACClassDesign acClassDesign, string acPrintServerACUrl, ReportData data, int copies)
+        private void DoPrintComponent(ACClassDesign acClassDesign, string acPrintServerACUrl, int copies)
         {
             IACComponent printServer = Root.ACUrlCommand(acPrintServerACUrl) as IACComponent;
-            if (printServer != null)
-                printServer.ACUrlCommand("Print", acClassDesign, data, copies);
+            // ACPrintServer Step01 - In selected report and state of BSO provide PAOrderInfo
+            VBBSOReportDialog vBBSOReportDialog = ParentACComponent as VBBSOReportDialog;
+            if (vBBSOReportDialog != null && vBBSOReportDialog.ParentBSO != null)
+            {
+                IPAOrderInfoProvider pAOrderInfoProvider = vBBSOReportDialog.ParentBSO as IPAOrderInfoProvider;
+                if (pAOrderInfoProvider == null)
+                    Root.Messages.Msg(new Msg() { MessageLevel = eMsgLevel.Error, Message = string.Format(@"ACBSO successor ACUrl: {0} not implement interface IPAOrderInfoProvider!", ParentACComponent.GetACUrl()) });
+                else
+                {
+                    // ACPrintServer Step02 - ACBSO provide current order info (as interface IPAOrderInfoProvider or as ACBSO (virtual base method))
+                    PAOrderInfo pAOrderInfo = pAOrderInfoProvider.GetOrderInfo();
+                    if (printServer != null)
+                        // ACPrintServer Step03 - In selected report and state of BSO provide PAOrderInfo
+                        printServer.ACUrlCommand("Print", pAOrderInfoProvider.GetACUrl(), acClassDesign.GetACUrl(), pAOrderInfo, copies);
+                }
+            }
         }
 
         int _CopyCount = 1;

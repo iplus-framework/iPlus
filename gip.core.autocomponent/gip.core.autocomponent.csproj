@@ -141,6 +141,7 @@
     <Compile Include="ACPoint\Interfaces\IACComponentTaskExec.cs" />
     <Compile Include="ACPrint\ACPrintServerBase.cs" />
     <Compile Include="ACPrint\HelperPrintManager.cs" />
+    <Compile Include="ACPrint\IPAOrderInfoProvider.cs" />
     <Compile Include="ACPrint\IPrintManager.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PAAlarmMessengerBase.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\ACStateEnum.cs" />
