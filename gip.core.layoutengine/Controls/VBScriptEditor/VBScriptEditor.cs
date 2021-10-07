@@ -191,7 +191,7 @@ namespace gip.core.layoutengine
                     var assemblyPath = Directory.GetFiles(AppContext.BaseDirectory, "*.dll", SearchOption.TopDirectoryOnly);
                     try
                     {
-                        _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.DesktopDefault); 
+                        _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault); 
                     }
                     catch (Exception e)
                     {
@@ -204,7 +204,7 @@ namespace gip.core.layoutengine
                         }
                         try
                         {
-                            _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.DesktopDefault);
+                            _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault);
                         }
                         catch (Exception ec)
                         {

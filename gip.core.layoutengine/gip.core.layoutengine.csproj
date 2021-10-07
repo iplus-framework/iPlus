@@ -107,15 +107,15 @@
       <HintPath>..\..\..\packages\QuickGraph\QuickGraph.dll</HintPath>
     </Reference>
     <Reference Include="ReachFramework" />
-    <Reference Include="RoslynPad.Editor.Windows, Version=1.0.6.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
+    <Reference Include="RoslynPad.Editor.Windows, Version=1.1.0.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\packages\RoslynPad\RoslynPad.Editor.Windows.dll</HintPath>
     </Reference>
-    <Reference Include="RoslynPad.Roslyn, Version=2.7.0.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
+    <Reference Include="RoslynPad.Roslyn, Version=3.0.0.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\packages\RoslynPad\RoslynPad.Roslyn.dll</HintPath>
     </Reference>
-    <Reference Include="RoslynPad.Roslyn.Windows, Version=2.7.0.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
+    <Reference Include="RoslynPad.Roslyn.Windows, Version=3.0.0.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\packages\RoslynPad\RoslynPad.Roslyn.Windows.dll</HintPath>
     </Reference>
