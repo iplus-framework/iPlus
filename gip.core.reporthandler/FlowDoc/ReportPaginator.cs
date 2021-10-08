@@ -123,6 +123,13 @@ namespace gip.core.reporthandler.Flowdoc
         protected DocumentPaginator _paginator = null;
 
         protected FlowDocument _flowDocument = null;
+        public FlowDocument FlowDoc
+        {
+            get
+            {
+                return _flowDocument;
+            }
+        }
         protected ReportDocument _report = null;
         protected ReportData _data = null;
         protected Block _blockPageHeader = null;

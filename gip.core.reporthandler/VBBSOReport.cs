@@ -36,14 +36,15 @@ namespace gip.core.reporthandler
 
             ACInitScriptEngineContent();
 
-            var iPrintManagerQuery = Root.FindChildComponents<IPrintManager>();
-            if (iPrintManagerQuery != null && iPrintManagerQuery.Any())
-            {
-                IPrintManager printManager = iPrintManagerQuery[0] as IPrintManager;
-                _PrinterComponentList = new List<PrinterInfo>();
-                if (printManager != null)
-                    _PrinterComponentList = printManager.GetPrintServers();
-            }
+            // TODO: Proxy-Object
+            //var iPrintManagerQuery = Root.FindChildComponents<IPrintManager>();
+            //if (iPrintManagerQuery != null && iPrintManagerQuery.Any())
+            //{
+            //    IPrintManager printManager = iPrintManagerQuery[0] as IPrintManager;
+            //    _PrinterComponentList = new List<PrinterInfo>();
+            //    if (printManager != null)
+            //        _PrinterComponentList = printManager.GetPrintServers();
+            //}
 
             return true;
         }
@@ -1007,7 +1008,7 @@ namespace gip.core.reporthandler
         {
             if (!IsEnabledPrintComponent())
                 return;
-            DoPrintComponent(CurrentACClassDesign, SelectedPrinterComponent.PrinterACUrl, 1);
+            PrintOnServer(CurrentACClassDesign, SelectedPrinterComponent.PrinterACUrl, 1);
             CloseTopDialog();
         }
 
@@ -1023,13 +1024,26 @@ namespace gip.core.reporthandler
             else
             {
                 string acPrintServerACUrl = PrinterComponentList.Where(c => c.IsDefault).Select(c => c.PrinterACUrl).FirstOrDefault();
-                DoPrintComponent(acClassDesign, acPrintServerACUrl, copies);
+                PrintOnServer(acClassDesign, acPrintServerACUrl, copies);
             }
         }
 
-        private void DoPrintComponent(ACClassDesign acClassDesign, string acPrintServerACUrl, int copies)
+        private void PrintOnServer(ACClassDesign acClassDesign, string acPrintServerACUrl, int copies)
         {
             IACComponent printServer = Root.ACUrlCommand(acPrintServerACUrl) as IACComponent;
+            if (printServer == null)
+            {
+                // TODO SASA:
+                //Messages.Error("Printserver {0} is not configured or you don't have access-rights");
+                return;
+            }
+            if (printServer.ConnectionState == ACObjectConnectionState.DisConnected)
+            {
+                // TODO SASA:
+                //Messages.Error("Printserver is not available via network");
+                return;
+            }
+
             // ACPrintServer Step01 - In selected report and state of BSO provide PAOrderInfo
             VBBSOReportDialog vBBSOReportDialog = ParentACComponent as VBBSOReportDialog;
             if (vBBSOReportDialog != null && vBBSOReportDialog.ParentBSO != null)
@@ -1041,9 +1055,9 @@ namespace gip.core.reporthandler
                 {
                     // ACPrintServer Step02 - ACBSO provide current order info (as interface IPAOrderInfoProvider or as ACBSO (virtual base method))
                     PAOrderInfo pAOrderInfo = pAOrderInfoProvider.GetOrderInfo();
-                    if (printServer != null)
+                    if (pAOrderInfo != null)
                         // ACPrintServer Step03 - In selected report and state of BSO provide PAOrderInfo
-                        printServer.ACUrlCommand("Print", pAOrderInfoProvider.GetACUrl(), acClassDesign.GetACUrl(), pAOrderInfo, copies);
+                        printServer.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + ACPrintServerBase.MN_Print, pAOrderInfoProvider.ACType.ACTypeID, acClassDesign.GetACUrl(), pAOrderInfo, copies);
                 }
             }
         }

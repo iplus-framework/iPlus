@@ -1,11 +1,11 @@
-﻿using System.Runtime.Serialization;
+﻿using gip.core.datamodel;
+using System.Runtime.Serialization;
 
-namespace gip.core.datamodel
+namespace gip.core.reporthandler
 {
     [ACSerializeableInfo]
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PrinterInfo'}de{'PrinterInfo'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
-
     public class PrinterInfo 
     {
         [DataMember]

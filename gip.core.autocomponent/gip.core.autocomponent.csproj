@@ -139,10 +139,7 @@
     <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI%28Srv%29\Interface\ACPointAsyncRMIHelper.cs" />
     <Compile Include="ACPoint\Interfaces\IACComponentTaskSubscr.cs" />
     <Compile Include="ACPoint\Interfaces\IACComponentTaskExec.cs" />
-    <Compile Include="ACPrint\ACPrintServerBase.cs" />
-    <Compile Include="ACPrint\HelperPrintManager.cs" />
     <Compile Include="ACPrint\IPAOrderInfoProvider.cs" />
-    <Compile Include="ACPrint\IPrintManager.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PAAlarmMessengerBase.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\ACStateEnum.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PABase.cs" />
@@ -236,7 +233,6 @@
     <Compile Include="ACProcessWorkflow\PWNode\IPWNodeReceiveMaterial.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWBaseInOut.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeExAnd.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWNodePrint.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeProcessWorkflow.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeUserAck.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeWait.cs" />

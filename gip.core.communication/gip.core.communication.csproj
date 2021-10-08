@@ -238,6 +238,10 @@
       <Project>{16FB4111-5110-46E5-851D-38A4D7522F85}</Project>
       <Name>gip.core.datamodel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\gip.core.reporthandler\gip.core.reporthandler.csproj">
+      <Project>{6ad88caf-a168-4bc2-9ece-f62e7b216465}</Project>
+      <Name>gip.core.reporthandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\gip.ext.opctoolbox\gip.ext.opctoolbox.csproj">
       <Project>{BB162D04-7C12-4700-AB7D-9D1A5B823E2E}</Project>
       <Name>gip.ext.opctoolbox</Name>

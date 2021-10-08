@@ -723,6 +723,11 @@ namespace gip.core.autocomponent
             return null;
         }
 
+        public virtual PAOrderInfo GetOrderInfo()
+        {
+            return null;
+        }
+
         #endregion
 
         #region DataExport

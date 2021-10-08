@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using gip.core.autocomponent;
 using gip.core.datamodel;
 
-namespace gip.core.autocomponent
+namespace gip.core.reporthandler
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Print'}de{'Drucken'}", Global.ACKinds.TPWNodeStatic, Global.ACStorableTypes.Optional, false, PWProcessFunction.PWClassName, true)]
     public class PWNodePrint : PWBaseNodeProcess
@@ -106,11 +107,11 @@ namespace gip.core.autocomponent
 
             Msg msg = null;
 
-            IPrintManager printManager = HelperPrintManager.GetServiceInstance(this) as IPrintManager;
+            ACComponent printManager = ACPrintManager.GetServiceInstance(this) as ACComponent;
             if (printManager == null)
                 OnNewAlarmOccurred(ProcessAlarm, "PrintManager is not configured!", true);
             else
-                msg = printManager.Print(OrderInfo, NumberOfCopies);
+                msg = printManager.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + ACPrintManager.MN_Print, OrderInfo, NumberOfCopies) as Msg;
 
 
             if (msg != null)

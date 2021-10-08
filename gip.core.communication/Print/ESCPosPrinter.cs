@@ -1,8 +1,9 @@
 ﻿using gip.core.autocomponent;
 using gip.core.datamodel;
 using System;
+using gip.core.reporthandler;
 
-namespace gip.core.communication.Print
+namespace gip.core.communication
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ESCPosPrinter'}de{'ESCPosPrinter'}", Global.ACKinds.TACDAClass, Global.ACStorableTypes.Required, false, false)]
     public class ESCPosPrinter : ACPrintServerBase
@@ -28,14 +29,14 @@ namespace gip.core.communication.Print
         }
         #endregion
 
-        #region Implementation
+        //#region Implementation
 
-        [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 9999, true, Global.ACKinds.MSMethodPrePost)]
-        public override void Print(string componetACUrl, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
-        {
-            Console.WriteLine("Print");
-        }
-        #endregion
+        //[ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 9999, true, Global.ACKinds.MSMethodPrePost)]
+        //public override void Print(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        //{
+        //    Console.WriteLine("Print");
+        //}
+        //#endregion
 
     }
 }

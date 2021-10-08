@@ -1,16 +1,20 @@
 ﻿using gip.core.datamodel;
+using gip.core.autocomponent;
 using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using gip.core.reporthandler.Flowdoc;
+using System.Windows.Documents;
 
-namespace gip.core.autocomponent
+namespace gip.core.reporthandler
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPrintServerBase'}de{'ACPrintServerBase'}", Global.ACKinds.TACApplicationManager, Global.ACStorableTypes.Required, false, "", false)]
-    public class  ACPrintServerBase : PAClassAlarmingBase
+    public class ACPrintServerBase : PAClassAlarmingBase
     {
 
         #region c´tors
+        public const string MN_Print = "Print";
 
         public ACPrintServerBase(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
@@ -22,11 +26,23 @@ namespace gip.core.autocomponent
             if (!base.ACInit(startChildMode))
                 return false;
 
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                _DelegateQueue = new ACDelegateQueue(ACIdentifier);
+            }
+            _DelegateQueue.StartWorkerThread();
+
             return true;
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
+            _DelegateQueue.StopWorkerThread();
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                _DelegateQueue = null;
+            }
+
             return base.ACDeInit(deleteACClassTask);
         }
 
@@ -79,24 +95,61 @@ namespace gip.core.autocomponent
             get;
             set;
         }
+
+        private ACDelegateQueue _DelegateQueue = null;
+        public ACDelegateQueue DelegateQueue
+        {
+            get
+            {
+
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    return _DelegateQueue;
+                }
+            }
+        }
+
         #endregion
 
         #region Methods
 
-        [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 9999, true, Global.ACKinds.MSMethodPrePost)]
-        public virtual void Print(string componetACUrl, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 200, true)]
+        public virtual void Print(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
         {
             // Use Queue
-            ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+            DelegateQueue.Add(() =>
             {
-                // PAOrderInfo => 
-                // ACPrintServer Step04 - Get server instance BSO and mandatory report design
-                ACBSO aCBSO = GetaCBSO(componetACUrl, pAOrderInfo);
-                ACClassDesign aCClassDesign = aCBSO.GetDesign(designACIdentifier);
-                // ACPrintServer Step05 - Prepare ReportData
-                ReportData reportData = GetReportData(aCBSO, aCClassDesign);
-                // ACPrintServer Step06 - Write to stream
-                SendDataToPrinter(reportData);
+                ACBSO acBSO = null;
+                try
+                {
+                    // PAOrderInfo => 
+                    // ACPrintServer Step04 - Get server instance BSO and mandatory report design
+                    acBSO = GetACBSO(bsoClassID, pAOrderInfo);
+                    ACClassDesign aCClassDesign = acBSO.GetDesign(designACIdentifier);
+                    // ACPrintServer Step05 - Prepare ReportData
+                    ReportData reportData = GetReportData(acBSO, aCClassDesign);
+                    // ACPrintServer Step06 - Write to stream
+                    SendDataToPrinter(reportData);
+                }
+                catch (Exception e)
+                {
+                    // TODO: Alarm
+                    Messages.LogException(this.GetACUrl(), "Print(10)", e);
+                }
+                finally
+                {
+                    try
+                    {
+                        // BSO must be stopped!
+                        if (acBSO != null)
+                            acBSO.Stop();
+                    }
+                    catch (Exception e)
+                    {
+                        // TODO: Alarm
+                        Messages.LogException(this.GetACUrl(), "Print(20)", e);
+                    }
+                }
             });
         }
 
@@ -106,12 +159,14 @@ namespace gip.core.autocomponent
         /// <param name="componetACUrl"></param>
         /// <param name="pAOrderInfo"></param>
         /// <returns></returns>
-        public virtual ACBSO GetaCBSO(string componetACUrl, PAOrderInfo pAOrderInfo)
+        public virtual ACBSO GetACBSO(Guid bsoClassID, PAOrderInfo pAOrderInfo)
         {
-            IACComponent component = Root.ACUrlCommand(componetACUrl) as IACComponent;
-            ACBSO aCBSO = component as ACBSO;
-            aCBSO.SetDataFromPAOrderInfo(pAOrderInfo);
-            return aCBSO;
+            ACClass bsoACClass = Root.Database.ContextIPlus.GetACType(bsoClassID);
+            ACBSO acBSO = StartComponent(bsoACClass, bsoACClass, new ACValueList()) as ACBSO;
+            if (acBSO == null)
+                return null;
+            acBSO.SetDataFromPAOrderInfo(pAOrderInfo);
+            return acBSO;
         }
 
         /// <summary>
@@ -135,7 +190,7 @@ namespace gip.core.autocomponent
         /// <exception cref="NotImplementedException"></exception>
         public virtual void SendDataToPrinter(ReportData reportData)
         {
-            using(TcpClient tcpClient = new TcpClient(IPAddress, Port))
+            using (TcpClient tcpClient = new TcpClient(IPAddress, Port))
             {
                 NetworkStream clientStream = tcpClient.GetStream();
                 ASCIIEncoding encoder = new ASCIIEncoding();
@@ -152,8 +207,23 @@ namespace gip.core.autocomponent
         /// <exception cref="NotImplementedException"></exception>
         public virtual void WriteToStream(NetworkStream clientStream, ReportData reportData)
         {
-            throw new NotImplementedException();
+            // Need BSO
+            // TODO: Create FlowDocument and Loop through model
+            ReportDocument reportDocument = new ReportDocument("sasa xaml");
+            FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
+            
+            // Recursive method
+            //foreach (var block in flowDoc.Blocks)
+            //{
+            //    if (block is InlineValueBase)
+            //    {
+            //        InlineValueBase valueBase = block as InlineValueBase;
+            //        OnRenderValue(valueBase);
+            //    }
+            //}
         }
+
+
 
         #endregion
     }

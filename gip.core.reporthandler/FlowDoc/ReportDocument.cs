@@ -461,6 +461,39 @@ namespace gip.core.reporthandler.Flowdoc
             return doc;
         }
 
+        public FlowDocument CreateFlowDocument(ReportData data)
+        {
+            _ReportData = new List<ReportData>() { data };
+            MemoryStream ms = new MemoryStream();
+            Package pkg = Package.Open(ms, FileMode.Create, FileAccess.ReadWrite);
+            string pack = "pack://report.xps";
+            PackageStore.RemovePackage(new Uri(pack));
+            PackageStore.AddPackage(new Uri(pack), pkg);
+            XpsDocument doc = new XpsDocument(pkg, CompressionOption.NotCompressed, pack);
+            XpsSerializationManager rsm = new XpsSerializationManager(new XpsPackagingPolicy(doc), false);
+            //DocumentPaginator paginator = ((IDocumentPaginatorSource)CreateFlowDocument()).DocumentPaginator;
+
+            data.InformComponents(this, datamodel.ACPrintingPhase.Started);
+            ReportPaginator rp = new ReportPaginator(this, data);
+            try
+            {
+                rsm.SaveAsXaml(rp);
+            }
+            catch (Exception e)
+            {
+                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+                {
+                    datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
+                    if (e.InnerException != null)
+                        datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
+                    datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
+                }
+            }
+            data.InformComponents(this, datamodel.ACPrintingPhase.Completed);
+            _ReportData = null;
+            return rp.FlowDoc;
+        }
+
         /// <summary>
         /// Helper method to create page header or footer from flow document template
         /// </summary>
