@@ -676,7 +676,7 @@ namespace gip.core.autocomponent
         /// </summary>
         /// <param name="wfOrderInfo"></param>
         /// <returns></returns>
-        public virtual Msg SetDataFromPAOrderInfo(PAOrderInfo wfOrderInfo)
+        public virtual Msg SetOrderInfo(PAOrderInfo wfOrderInfo)
         {
             if (wfOrderInfo == null)
                 return new Msg();
@@ -714,7 +714,7 @@ namespace gip.core.autocomponent
         /// <returns></returns>
         public virtual Msg PrintViaOrderInfo(string designName, string printerName, short numberOfCopies, PAOrderInfo wfOrderInfo)
         {
-            Msg prepareDataMsg = SetDataFromPAOrderInfo(wfOrderInfo);
+            Msg prepareDataMsg = SetOrderInfo(wfOrderInfo);
             if(prepareDataMsg != null)
                 return prepareDataMsg;
             if (string.IsNullOrEmpty(designName))

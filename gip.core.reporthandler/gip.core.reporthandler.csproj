@@ -76,6 +76,9 @@
     <Reference Include="DocumentFormat.OpenXml, Version=2.11.3.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\DocumentFormat.OpenXml.2.11.3\lib\netstandard2.0\DocumentFormat.OpenXml.dll</HintPath>
     </Reference>
+    <Reference Include="ESCPOS">
+      <HintPath>..\..\..\packages\escpos.1.2.2\lib\netstandard2.0\ESCPOS.dll</HintPath>
+    </Reference>
     <Reference Include="ExcelNumberFormat, Version=1.0.10.0, Culture=neutral, PublicKeyToken=23c6f5d73be07eca, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\ExcelNumberFormat.1.0.10\lib\net20\ExcelNumberFormat.dll</HintPath>
     </Reference>
@@ -138,6 +141,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Manager\BlockDocumentPosition.cs" />
+    <Compile Include="Manager\ESCPosPrinter.cs" />
+    <Compile Include="Manager\PAOrderInfoDestination.cs" />
+    <Compile Include="Manager\PAOrderInfoManagerBase.cs" />
+    <Compile Include="Manager\PrintContext.cs" />
     <Compile Include="Workflow\PWNodePrint.cs" />
     <None Include="app.config" />
     <Compile Include="CodeCompletionXsdGeneratorVBR.cs" />
@@ -319,6 +327,9 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="VBControlScripts\2021-10-05 15-20_aaginic.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="VBControlScripts\2021-10-12 15-08_aaginic.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

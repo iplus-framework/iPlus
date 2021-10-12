@@ -1,0 +1,200 @@
+﻿using gip.core.datamodel;
+using gip.core.reporthandler.Flowdoc;
+using System.Windows.Documents;
+using ESCPOS;
+using ESCPOS.Utils;
+using System.Text;
+using System;
+using System.Threading;
+
+namespace gip.core.reporthandler
+{
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'ESCPosPrinter'}de{'ESCPosPrinter'}", Global.ACKinds.TACDAClass, Global.ACStorableTypes.Required, false, false)]
+    public class ESCPosPrinter : ACPrintServerBase
+    {
+
+        #region ctor's
+        public ESCPosPrinter(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
+           : base(acType, content, parentACObject, parameter, acIdentifier)
+        {
+        }
+
+        public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
+        {
+            if (!base.ACInit(startChildMode))
+                return false;
+
+            return true;
+        }
+
+        public override bool ACDeInit(bool deleteACClassTask = false)
+        {
+            return base.ACDeInit(deleteACClassTask);
+        }
+        #endregion
+
+        #region Methods (ACPrintServerBase)
+
+        #region Methods -> Render
+
+        /// <summary>
+        /// Convert report data to stream
+        /// </summary>
+        /// <param name="reportData"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public override void SendDataToPrinter(FlowDocument flowDoc)
+        {
+            ASCIIEncoding encoder = new ASCIIEncoding();
+
+            PrintContext printContext = new PrintContext();
+            printContext.FlowDocument = flowDoc;
+            printContext.Encoding = encoder;
+
+            WriteToStream(printContext);
+
+            int tries = 0;
+            while (tries < PrintTries)
+            {
+                try
+                {
+                    printContext.Main.Print(string.Format("{0}:{1}", IPAddress, Port));
+                    return;
+                }
+                catch (Exception e)
+                {
+                    Root.Messages.LogMessage(eMsgLevel.Exception, GetACUrl(), "SendDataToPrinter", "Exception: " +  e.Message);
+                    Thread.Sleep(5000);
+                }
+                tries++;
+            }
+        }
+
+        #region Methods -> Render -> Block
+
+
+
+        public override void RenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position)
+        {
+        }
+
+        public override void RenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position)
+        {
+        }
+
+
+        public override void RenderSectionReportHeaderHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
+        {
+            //
+        }
+
+        public override void RenderSectionReportHeaderFooter(PrintContext printContext, SectionReportHeader sectionReportHeader)
+        {
+            //
+        }
+
+
+
+        public override void RenderSectionReportFooterHeader(PrintContext printContext, SectionReportFooter sectionReportFooter)
+        {
+
+        }
+
+        public override void RenderSectionReportFooterFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
+        {
+            // 
+        }
+
+
+        public override void RenderSectionDataGroupHeader(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        {
+            //
+        }
+
+        public override void RenderSectionDataGroupFooter(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        {
+            // 
+        }
+        #endregion
+
+        #region Methods -> Render -> Table
+
+
+        public override void RenderSectionTableHeader(PrintContext printContext, Table table)
+        {
+            //
+        }
+
+        public override void RenderSectionTableFooter(PrintContext printContext, Table table)
+        {
+            //
+        }
+
+
+        public override void RenderTableColumn(PrintContext printContext, TableColumn tableColumn)
+        {
+
+        }
+
+        public override void RenderTableRowGroupHeader(PrintContext printContext, TableRowGroup tableRowGroup)
+        {
+            //
+        }
+
+        public override void RenderTableRowGroupFooter(PrintContext printContext, TableRowGroup tableRowGroup)
+        {
+            //
+        }
+
+
+        public override void RenderTableRowHeader(PrintContext printContext, TableRow tableRow)
+        {
+            //
+        }
+
+        public override void RenderTableRowFooter(PrintContext printContext, TableRow tableRow)
+        {
+            //
+        }
+
+        #endregion
+
+        #region Methods -> Render -> Inlines
+
+
+        public override void RenderInlineContextValue(PrintContext printContext, InlineContextValue inlineContextValue)
+        {
+            // inline.Text
+        }
+
+        public override void RenderInlineDocumentValue(PrintContext printContext, InlineDocumentValue inlineDocumentValue)
+        {
+            printContext.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Left), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineDocumentValue.Text));
+        }
+
+        public override void RenderInlineACMethodValue(PrintContext printContext, InlineACMethodValue inlineACMethodValue)
+        {
+            // inline.Text
+        }
+
+        public override void RenderInlineTableCellValue(PrintContext printContext, InlineTableCellValue inlineTableCellValue)
+        {
+            // inline.Text
+        }
+
+        public override void RenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode)
+        {
+            //
+        }
+
+        public override void RenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue)
+        {
+            //
+        }
+        #endregion
+
+        #endregion
+
+        #endregion
+
+    }
+}

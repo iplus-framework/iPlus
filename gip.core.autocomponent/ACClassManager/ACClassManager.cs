@@ -1,18 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using System.Reflection;
 using System.Data.Objects.DataClasses;
-using System.ComponentModel;
 using gip.core.datamodel;
 using System.Windows.Markup;
-using System.Xml.Linq;
 using System.Collections.ObjectModel;
 using System.Data.Metadata.Edm;
-using System.Runtime.Serialization;
-using System.Xml;
 using System.Data.Objects;
 using gip.core.ControlScriptSync;
 
@@ -20,6 +15,8 @@ namespace gip.core.autocomponent
 {
     public class ACClassManager : IMsgObserver
     {
+
+        #region Structs
         struct ACQueryItem
         {
             public Type ParentType { get; set; }
@@ -86,7 +83,11 @@ namespace gip.core.autocomponent
             }
         }
 
+        #endregion
+
         #region PrecompiledQueries
+
+
         static readonly Func<Database, String, IQueryable<ACClass>> s_compiledQueryACClass_AssemblyName =
         CompiledQuery.Compile<Database, String, IQueryable<ACClass>>(
             (ctx, assemblyQualifiedName) => from c in ctx.ACClass where c.AssemblyQualifiedName == assemblyQualifiedName select c
@@ -101,17 +102,52 @@ namespace gip.core.autocomponent
         CompiledQuery.Compile<Database, IQueryable<ACClass>>(
             (ctx) => from c in ctx.ACClass where !string.IsNullOrEmpty(c.AssemblyQualifiedName) && !c.AssemblyQualifiedName.StartsWith("System.") select c
         );
+
+
+        public static readonly Func<Database, string, gip.core.datamodel.ACClass> s_cQry_ACClassIdentifier =
+       CompiledQuery.Compile<Database, string, gip.core.datamodel.ACClass>(
+           (ctx, acIdentifier) => ctx.ACClass.Where(c => c.ACIdentifier == acIdentifier).FirstOrDefault()
+       );
+
+        public static readonly Func<Database, string, IQueryable<gip.core.datamodel.ACClass>> s_cQry_GetAvailableModulesAsACClass =
+        CompiledQuery.Compile<Database, string, IQueryable<gip.core.datamodel.ACClass>>(
+            (ctx, acIdentifier) => ctx.ACClass.Where(c => (c.BasedOnACClassID.HasValue
+                                                            && (c.ACClass1_BasedOnACClass.ACIdentifier == acIdentifier // 1. Ableitungsstufe
+                                                                || (c.ACClass1_BasedOnACClass.BasedOnACClassID.HasValue
+                                                                        && (c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACIdentifier == acIdentifier // 2. Ableitungsstufe
+                                                                            || (c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.BasedOnACClassID.HasValue
+                                                                                        && (c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACIdentifier == acIdentifier // 3. Ableitungsstufe
+                                                                                            || (c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.BasedOnACClassID.HasValue
+                                                                                                && c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACIdentifier == acIdentifier) // 4. Ableitungsstufe
+                                                                                            )
+                                                                                )
+                                                                            )
+                                                                    )
+                                                                )
+                                                            )
+                                                            && c.ACProject != null && c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application)
+                                                            .OrderBy(c => c.ACIdentifier)
+        );
+
         #endregion
+
+
+        #region Database
 
         Database _Database;
         ACFileItemList ACFileItems;
         List<IACEntityObjectContext> _ObjectContexts = new List<IACEntityObjectContext>();
 
+        #endregion
+
+        #region ctor's
         public ACClassManager()
         {
             _Database = gip.core.datamodel.Database.GlobalDatabase;
             _ObjectContexts.Add(_Database);
         }
+
+        #endregion
 
         public void RegisterAndUpdateACObjects(bool bUpdateInDB)
         {
@@ -414,18 +450,7 @@ namespace gip.core.autocomponent
             #endregion end designs update
         }
 
-        void controlSync_OnMessage(SyncMessage msg)
-        {
-            string source = "ControlSync";
-            if (!string.IsNullOrEmpty(msg.Source))
-                source = msg.Source;
-            if (msg.MessageLevel == MessageLevel.Error)
-                Database.Root.Messages.LogError(source, "Sync", msg.Message);
-            else if (msg.MessageLevel == MessageLevel.Warning)
-                Database.Root.Messages.LogWarning(source, "Sync", msg.Message);
 
-            Messages.ConsoleMsg("ControlSync", msg.Message);
-        }
 
         #region ClassManager
 
@@ -3146,8 +3171,21 @@ namespace gip.core.autocomponent
             return acParameterDefinition;
         }
 
+        #region Messages
 
-        #region 
+        void controlSync_OnMessage(SyncMessage msg)
+        {
+            string source = "ControlSync";
+            if (!string.IsNullOrEmpty(msg.Source))
+                source = msg.Source;
+            if (msg.MessageLevel == MessageLevel.Error)
+                Database.Root.Messages.LogError(source, "Sync", msg.Message);
+            else if (msg.MessageLevel == MessageLevel.Warning)
+                Database.Root.Messages.LogWarning(source, "Sync", msg.Message);
+
+            Messages.ConsoleMsg("ControlSync", msg.Message);
+        }
+
         public void SendMessage(Msg msg)
         {
             Messages.GlobalMsg.AddDetailMessage(msg);
