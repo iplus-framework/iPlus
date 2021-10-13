@@ -96,7 +96,7 @@ namespace gip.core.reporthandler
         public void ReloadConfig()
         {
 
-            
+
         }
 
         [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 200, true)]
@@ -189,7 +189,7 @@ namespace gip.core.reporthandler
                     IACComponent printServer = Root.ACUrlCommand(printerInfo.PrinterACUrl) as IACComponent;
                     if (printServer == null)
                     {
-                        msg = new Msg() { MessageLevel = eMsgLevel.Error, Message = String.Format("Print(190) Printserver {0} is not configured or you don't have access-rights!", GetACUrl())};
+                        msg = new Msg() { MessageLevel = eMsgLevel.Error, Message = String.Format("Print(190) Printserver {0} is not configured or you don't have access-rights!", GetACUrl()) };
                         Messages.LogMessageMsg(msg);
                         return msg;
                     }
@@ -199,7 +199,7 @@ namespace gip.core.reporthandler
                         Messages.LogMessageMsg(msg);
                         return msg;
                     }
-                    
+
                     printServer.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + ACPrintServerBase.MN_Print, bso.ACType.ValueTypeACClass.ACClassID, pAOrderInfoDestination.ReportACIdentifier, pAOrderInfo, copyCount);
                 }
             }
@@ -230,28 +230,30 @@ namespace gip.core.reporthandler
             return printServers;
         }
 
-        public static List<PrinterInfo> GetConfiguredPrinters(Database database, Guid acClassID)
+        public static List<PrinterInfo> GetConfiguredPrinters(Database database, Guid acClassID, bool onlyMachines)
         {
+
             List<ACClassConfig> configs =
                 database
                 .ACClass
                 .Where(c => c.ACClassID == acClassID)
-                .SelectMany(c=>c.ACClassConfig_ACClass)
+                .SelectMany(c => c.ACClassConfig_ACClass)
                 .Where(c => c.KeyACUrl == Const_KeyACUrl_ConfiguredPrintersConfig)
                 .ToList();
-            List < PrinterInfo > printerInfos = new List<PrinterInfo>();
-            foreach(ACClassConfig cClassConfig in configs)
+            List<PrinterInfo> printerInfos = new List<PrinterInfo>();
+            foreach (ACClassConfig cClassConfig in configs)
             {
-                PrinterInfo printerInfo = cClassConfig.Value as PrinterInfo;;
+                PrinterInfo printerInfo = cClassConfig.Value as PrinterInfo;
                 printerInfo.ACClassConfigID = cClassConfig.ACClassConfigID;
-                printerInfos.Add(printerInfo);
+                if (!onlyMachines || printerInfo.FacilityID == Guid.Empty)
+                    printerInfos.Add(printerInfo);
             }
             return printerInfos;
         }
 
         #endregion
 
-       
+
 
         #endregion
     }

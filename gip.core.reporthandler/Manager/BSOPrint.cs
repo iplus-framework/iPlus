@@ -258,9 +258,12 @@ namespace gip.core.reporthandler
         {
             get
             {
-                if (_ConfiguredPrinterList == null)
-                    _ConfiguredPrinterList = ACPrintManager.GetConfiguredPrinters(Database as gip.core.datamodel.Database, PrintManager.ComponentClass.ACClassID);
                 return _ConfiguredPrinterList;
+            }
+            set
+            {
+                _ConfiguredPrinterList = value;
+                OnPropertyChanged("ConfiguredPrinterList");
             }
         }
 
@@ -444,8 +447,11 @@ namespace gip.core.reporthandler
         {
             if (!IsEnabledAddPrinter())
                 return;
-            ACClass aCClass= (Database as gip.core.datamodel.Database).ACClass.FirstOrDefault(c=>c.ACClassID == PrintManager.ComponentClass.ACClassID);
+            ACClass aCClass = (Database as gip.core.datamodel.Database).ACClass.FirstOrDefault(c => c.ACClassID == PrintManager.ComponentClass.ACClassID);
+            ACClass propertyInfoType = (Database as gip.core.datamodel.Database).ACClass.FirstOrDefault(c => c.ACIdentifier == "PrinterInfo");
+
             ACClassConfig aCClassConfig = ACClassConfig.NewACObject(Database as gip.core.datamodel.Database, aCClass);
+            aCClassConfig.ValueTypeACClassID = propertyInfoType.ACClassID;
             PrinterInfo newConfiguredPrinter = new PrinterInfo();
             newConfiguredPrinter.ACClassConfigID = aCClassConfig.ACClassConfigID;
             SetPrinterTarget(newConfiguredPrinter);
@@ -454,7 +460,9 @@ namespace gip.core.reporthandler
             else if (SelectedPrintServer != null)
                 newConfiguredPrinter.PrinterACUrl = SelectedPrintServer.PrinterACUrl;
 
+            aCClassConfig.KeyACUrl = ACPrintManager.Const_KeyACUrl_ConfiguredPrintersConfig;
             aCClassConfig.Value = newConfiguredPrinter;
+            var test = aCClassConfig.ACProperties.Properties.FirstOrDefault().Value;
             (Database as gip.core.datamodel.Database).ACClassConfig.AddObject(aCClassConfig);
             MsgWithDetails msg = (Database as gip.core.datamodel.Database).ACSaveChanges();
             if (msg == null)
@@ -484,6 +492,11 @@ namespace gip.core.reporthandler
                 );
         }
 
+        public virtual void LoadConfiguredPrinters()
+        {
+            ConfiguredPrinterList = ACPrintManager.GetConfiguredPrinters(Database as gip.core.datamodel.Database, PrintManager.ComponentClass.ACClassID, true);
+        }
+
         #endregion
 
 
@@ -505,10 +518,8 @@ namespace gip.core.reporthandler
                 }
             }
             _MachineList = machines;
-            _ConfiguredPrinterList = ACPrintManager.GetConfiguredPrinters(Database as gip.core.datamodel.Database, PrintManager.ComponentClass.ACClassID);
-
+            LoadConfiguredPrinters();
             OnPropertyChanged("MachineList");
-            OnPropertyChanged("ConfiguredPrinterList");
         }
 
     }

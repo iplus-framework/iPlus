@@ -22,7 +22,7 @@ namespace gip.core.reporthandler
         public Guid FacilityID { get; set; }
 
         [DataMember]
-        [ACPropertyInfo(4, "", "en{'Facility ID'}de{'Lagerplatz ID'}")]
+        [ACPropertyInfo(4, "", "en{'Facility No.'}de{'Lagerplatz Nr'}")]
         public string FacilityNo { get; set; }
 
         [DataMember]
@@ -37,6 +37,7 @@ namespace gip.core.reporthandler
         [ACPropertyInfo(7, "", "en{'Name'}de{'Name'}")]
         public string Name { get; set; }
 
+        [IgnoreDataMember]
         public Guid? ACClassConfigID { get; set; }
 
     }
