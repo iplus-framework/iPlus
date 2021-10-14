@@ -15,5 +15,8 @@ namespace gip.core.reporthandler
 
         public Encoding Encoding { get; set; }
 
+        public int ColumnMultiplier { get; set; }
+        public int ColumnDivisor { get; set; }
+
     }
 }

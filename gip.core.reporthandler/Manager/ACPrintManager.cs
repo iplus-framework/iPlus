@@ -105,7 +105,7 @@ namespace gip.core.reporthandler
             Msg msg = null;
             try
             {
-                PAOrderInfoManagerBase orderInfoManager = FindChildComponents<PAOrderInfoManagerBase>(c => c is PAOrderInfoManagerBase && (c as PAOrderInfoManagerBase).IsResponsibleFor(pAOrderInfo)).FirstOrDefault();
+                PAOrderInfoManagerBase orderInfoManager = Root.FindChildComponents<PAOrderInfoManagerBase>(c => c is PAOrderInfoManagerBase && (c as PAOrderInfoManagerBase).IsResponsibleFor(pAOrderInfo)).FirstOrDefault();
                 if (orderInfoManager == null)
                 {
                     msg = new Msg() { MessageLevel = eMsgLevel.Error, Message = "Print(108) PAOrderInfoManager is null !" };
@@ -151,8 +151,13 @@ namespace gip.core.reporthandler
                             if (msg == null)
                             {
                                 msg = bso.PrintViaOrderInfo(pAOrderInfoDestination.ReportACIdentifier, printerInfo.PrinterName, (short)copyCount);
-                                Messages.LogMessageMsg(msg);
-                                return msg;
+                                if (msg != null)
+                                {
+                                    Messages.LogMessageMsg(msg);
+                                    return msg;
+                                }
+                                else
+                                    return new Msg() { MessageLevel = eMsgLevel.Info, Message = "Successfuly printed on: " + printerInfo.PrinterName };
                             }
                         }
 

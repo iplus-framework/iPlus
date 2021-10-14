@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using gip.core.reporthandler.Flowdoc;
 using System.Windows.Documents;
+using System.Windows;
 
 namespace gip.core.reporthandler
 {
@@ -18,6 +19,11 @@ namespace gip.core.reporthandler
         public ACPrintServerBase(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
+            _IPAddress = new ACPropertyConfigValue<string>(this, "IPAddress", null);
+            _Port = new ACPropertyConfigValue<int>(this, "Port", 0);
+            _SendTimeout = new ACPropertyConfigValue<int>(this, "SendTimeout", 0);
+            _ReceiveTimeout = new ACPropertyConfigValue<int>(this, "ReceiveTimeout", 0);
+            _PrintTries = new ACPropertyConfigValue<int>(this, "PrintTries", 0);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -45,6 +51,17 @@ namespace gip.core.reporthandler
             return base.ACDeInit(deleteACClassTask);
         }
 
+        public override bool ACPostInit()
+        {
+            bool baseReturn = base.ACPostInit();
+            string tempIpAddress = IPAddress;
+            int temp = Port;
+            temp = SendTimeout;
+            temp = ReceiveTimeout;
+            temp = PrintTries;
+            return baseReturn;
+        }
+
         protected static IACEntityObjectContext _CommonManagerContext;
         /// <summary>
         /// Returns a seperate and shared Database-Context "StaticACComponentManager".
@@ -66,40 +83,47 @@ namespace gip.core.reporthandler
 
         #region Properties
 
-        [ACPropertyInfo(9999, DefaultValue = "localhost")]
+        private ACPropertyConfigValue<string> _IPAddress;
+        [ACPropertyConfig("en{'IP Address'}de{'IP Addresse'}")]
         public string IPAddress
         {
-            get;
-            set;
+            get => _IPAddress.ValueT;
+            set => _IPAddress.ValueT = value;
         }
 
-        [ACPropertyInfo(9999, DefaultValue = (Int16)502)]
-        public Int16 Port
+        private ACPropertyConfigValue<int> _Port;
+        [ACPropertyConfig("en{'Port'}de{'Port'}")]
+        public int Port
         {
-            get;
-            set;
+            get => _Port.ValueT;
+            set => _Port.ValueT = value;
         }
 
-        [ACPropertyInfo(9999)]
-        public Int32 SendTimeout
+
+        private ACPropertyConfigValue<int> _SendTimeout;
+        [ACPropertyConfig("en{'SendTimeout'}de{'SendTimeout'}")]
+        public int SendTimeout
         {
-            get;
-            set;
+            get => _SendTimeout.ValueT;
+            set => _SendTimeout.ValueT = value;
         }
 
 
-        [ACPropertyInfo(9999)]
-        public Int32 ReceiveTimeout
+        private ACPropertyConfigValue<int> _ReceiveTimeout;
+        [ACPropertyConfig("en{'ReceiveTimeout'}de{'ReceiveTimeout'}")]
+        public int ReceiveTimeout
         {
-            get;
-            set;
+            get => _ReceiveTimeout.ValueT;
+            set => _ReceiveTimeout.ValueT = value;
         }
 
-        [ACPropertyInfo(9999)]
+
+        private ACPropertyConfigValue<int> _PrintTries;
+        [ACPropertyConfig("en{'Print Tries'}de{'Print Tries'}")]
         public int PrintTries
         {
-            get;
-            set;
+            get => _PrintTries.ValueT;
+            set => _PrintTries.ValueT = value;
         }
 
         private ACDelegateQueue _DelegateQueue = null;
@@ -124,43 +148,55 @@ namespace gip.core.reporthandler
         [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 200, true)]
         public virtual void Print(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
         {
-            // Use Queue
-            DelegateQueue.Add(() =>
+            // suggestion: Use Queue
+            //DelegateQueue.Add(() =>
+            //{
+            //    DoPrint(bsoClassID, designACIdentifier,pAOrderInfo,copies);
+            //});
+
+            // @aagincic comment: this used while code above causes exception:
+            //      -> The calling thread must be STA, because many UI components require this.
+            Application.Current.Dispatcher.Invoke((Action)delegate
             {
-                ACBSO acBSO = null;
+                DoPrint(bsoClassID, designACIdentifier, pAOrderInfo, copies);
+            });
+        }
+
+        private void DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        {
+            ACBSO acBSO = null;
+            try
+            {
+                // PAOrderInfo => 
+                // ACPrintServer Step04 - Get server instance BSO and mandatory report design
+                acBSO = GetACBSO(bsoClassID, pAOrderInfo);
+                ACClassDesign aCClassDesign = acBSO.GetDesign(designACIdentifier);
+                // ACPrintServer Step05 - Prepare ReportData
+                ReportData reportData = GetReportData(acBSO, aCClassDesign);
+                ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
+                FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
+                // ACPrintServer Step06 - Write to stream
+                SendDataToPrinter(flowDoc);
+            }
+            catch (Exception e)
+            {
+                // TODO: Alarm
+                Messages.LogException(this.GetACUrl(), "Print(10)", e);
+            }
+            finally
+            {
                 try
                 {
-                    // PAOrderInfo => 
-                    // ACPrintServer Step04 - Get server instance BSO and mandatory report design
-                    acBSO = GetACBSO(bsoClassID, pAOrderInfo);
-                    ACClassDesign aCClassDesign = acBSO.GetDesign(designACIdentifier);
-                    // ACPrintServer Step05 - Prepare ReportData
-                    ReportData reportData = GetReportData(acBSO, aCClassDesign);
-                    ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
-                    FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
-                    // ACPrintServer Step06 - Write to stream
-                    SendDataToPrinter(flowDoc);
+                    // BSO must be stopped!
+                    if (acBSO != null)
+                        acBSO.Stop();
                 }
                 catch (Exception e)
                 {
                     // TODO: Alarm
-                    Messages.LogException(this.GetACUrl(), "Print(10)", e);
+                    Messages.LogException(this.GetACUrl(), "Print(20)", e);
                 }
-                finally
-                {
-                    try
-                    {
-                        // BSO must be stopped!
-                        if (acBSO != null)
-                            acBSO.Stop();
-                    }
-                    catch (Exception e)
-                    {
-                        // TODO: Alarm
-                        Messages.LogException(this.GetACUrl(), "Print(20)", e);
-                    }
-                }
-            });
+            }
         }
 
         /// <summary>
@@ -210,10 +246,12 @@ namespace gip.core.reporthandler
                 printContext.NetworkStream = clientStream;
                 printContext.FlowDocument = flowDoc;
                 printContext.Encoding = encoder;
+                printContext.ColumnMultiplier = 1;
+                printContext.ColumnDivisor = 1;
 
                 WriteToStream(printContext);
 
-                clientStream.Write(printContext.Main,0, printContext.Main.Length);
+                clientStream.Write(printContext.Main, 0, printContext.Main.Length);
 
                 clientStream.Flush();
             }
@@ -265,6 +303,7 @@ namespace gip.core.reporthandler
 
         public virtual void RenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position)
         {
+
         }
 
         public virtual void RenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position)
@@ -277,7 +316,6 @@ namespace gip.core.reporthandler
             RenderBlocks(printContext, sectionReportHeader.Blocks, BlockDocumentPosition.General);
             RenderSectionReportHeaderFooter(printContext, sectionReportHeader);
         }
-
 
         public virtual void RenderSectionReportHeaderHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
         {
@@ -322,6 +360,7 @@ namespace gip.core.reporthandler
         {
             // 
         }
+
         #endregion
 
         #region Methods -> Render -> Table
@@ -329,12 +368,19 @@ namespace gip.core.reporthandler
         public virtual void RenderSectionTable(PrintContext printContext, Table table)
         {
             RenderSectionTableHeader(printContext, table);
+
+            printContext.ColumnMultiplier = 1;
+            printContext.ColumnDivisor = table.Columns.Count;
+
             foreach (TableColumn tableColumn in table.Columns)
                 RenderTableColumn(printContext, tableColumn);
 
             foreach (TableRowGroup tableRowGroup in table.RowGroups)
                 RenderTableRowGroup(printContext, tableRowGroup);
             RenderSectionTableFooter(printContext, table);
+
+            printContext.ColumnMultiplier = 1;
+            printContext.ColumnDivisor = 1;
         }
 
         public virtual void RenderSectionTableHeader(PrintContext printContext, Table table)
@@ -346,7 +392,6 @@ namespace gip.core.reporthandler
         {
             //
         }
-
 
         public virtual void RenderTableColumn(PrintContext printContext, TableColumn tableColumn)
         {
@@ -371,12 +416,14 @@ namespace gip.core.reporthandler
             //
         }
 
-
         public virtual void RenderTableRow(PrintContext printContext, TableRow tableRow)
         {
             RenderTableRowHeader(printContext, tableRow);
             foreach (TableCell tableCell in tableRow.Cells)
+            {
+                printContext.ColumnMultiplier = tableRow.Cells.IndexOf(tableCell);
                 RenderTableCell(printContext, tableCell);
+            }
             RenderTableRowFooter(printContext, tableRow);
         }
         public virtual void RenderTableRowHeader(PrintContext printContext, TableRow tableRow)
@@ -398,6 +445,7 @@ namespace gip.core.reporthandler
         #endregion
 
         #region Methods -> Render -> Inlines
+
         public virtual void RenderParagraph(PrintContext printContext, Paragraph paragraph)
         {
             foreach (Inline inline in paragraph.Inlines)

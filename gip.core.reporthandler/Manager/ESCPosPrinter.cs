@@ -46,11 +46,13 @@ namespace gip.core.reporthandler
         /// <exception cref="NotImplementedException"></exception>
         public override void SendDataToPrinter(FlowDocument flowDoc)
         {
-            ASCIIEncoding encoder = new ASCIIEncoding();
+            UTF8Encoding encoder = new UTF8Encoding();
 
             PrintContext printContext = new PrintContext();
             printContext.FlowDocument = flowDoc;
             printContext.Encoding = encoder;
+            printContext.ColumnMultiplier = 1;
+            printContext.ColumnDivisor = 1;
 
             WriteToStream(printContext);
 
@@ -73,10 +75,15 @@ namespace gip.core.reporthandler
 
         #region Methods -> Render -> Block
 
-
+        public override void RenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
+        {
+            base.RenderFlowDocment(printContext, flowDoc);
+            printContext.Main = printContext.Main.Add(Commands.FullPaperCut);
+        }
 
         public override void RenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position)
         {
+            printContext.Main = printContext.Main.Add(Commands.LF);
         }
 
         public override void RenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position)
@@ -116,6 +123,8 @@ namespace gip.core.reporthandler
         {
             // 
         }
+
+
         #endregion
 
         #region Methods -> Render -> Table
@@ -123,7 +132,7 @@ namespace gip.core.reporthandler
 
         public override void RenderSectionTableHeader(PrintContext printContext, Table table)
         {
-            //
+            printContext.Main = printContext.Main.Add(Commands.LF);
         }
 
         public override void RenderSectionTableFooter(PrintContext printContext, Table table)
@@ -150,12 +159,17 @@ namespace gip.core.reporthandler
 
         public override void RenderTableRowHeader(PrintContext printContext, TableRow tableRow)
         {
-            //
+            printContext.Main = printContext.Main.Add(Commands.LF);
         }
 
         public override void RenderTableRowFooter(PrintContext printContext, TableRow tableRow)
         {
             //
+        }
+
+        public override void RenderTableCell(PrintContext printContext, TableCell tableCell)
+        {
+            base.RenderTableCell(printContext, tableCell);
         }
 
         #endregion
@@ -165,12 +179,12 @@ namespace gip.core.reporthandler
 
         public override void RenderInlineContextValue(PrintContext printContext, InlineContextValue inlineContextValue)
         {
-            // inline.Text
+            printContext.Main = printContext.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Left), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineContextValue.Text));
         }
 
         public override void RenderInlineDocumentValue(PrintContext printContext, InlineDocumentValue inlineDocumentValue)
         {
-            printContext.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Left), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineDocumentValue.Text));
+            printContext.Main = printContext.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Left), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineDocumentValue.Text));
         }
 
         public override void RenderInlineACMethodValue(PrintContext printContext, InlineACMethodValue inlineACMethodValue)
@@ -180,25 +194,26 @@ namespace gip.core.reporthandler
 
         public override void RenderInlineTableCellValue(PrintContext printContext, InlineTableCellValue inlineTableCellValue)
         {
-            // inline.Text
+
         }
 
         public override void RenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode)
         {
             string barcodeValue = inlineBarcode.Value.ToString();
             if (inlineBarcode.BarcodeType == BarcodeType.QRCODE)
-                printContext.Main.Add(Commands.LF, PrintQRCode(barcodeValue));
+                printContext.Main = printContext.Main.Add(Commands.LF, PrintQRCode(barcodeValue));
             else
             {
                 BarCodeType barCodeType = BarCodeType.EAN8;
                 if (Enum.TryParse(inlineBarcode.BarcodeType.ToString(), out barCodeType))
-                    printContext.Main.Add(Commands.LF, PrintBarCode(barCodeType, barcodeValue));
+                    printContext.Main = printContext.Main.Add(Commands.LF, PrintBarCode(barCodeType, barcodeValue));
             }
         }
 
         public override void RenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue)
         {
-            //
+            printContext.Main = printContext.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Left), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineBoolValue.Value.ToString()));
+
         }
         #endregion
 
