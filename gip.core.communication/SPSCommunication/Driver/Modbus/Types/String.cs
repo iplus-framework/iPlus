@@ -17,6 +17,10 @@ namespace gip.core.communication.modbus.Types
         {
             if (itemLen < 2)
                 return null;
+
+            if (value == null)
+                value = "";
+
             byte[] bytes = new byte[itemLen];
             bytes[0] = stringLen;
             if (asBase64)

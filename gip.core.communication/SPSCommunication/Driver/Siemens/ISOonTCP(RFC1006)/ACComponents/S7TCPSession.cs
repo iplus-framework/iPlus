@@ -185,6 +185,20 @@ namespace gip.core.communication
             set;
         }
 
+        [ACPropertyInfo(9999, DefaultValue = (int)1000)]
+        public int ReceiveTimeout
+        {
+            get;
+            set;
+        }
+
+        [ACPropertyInfo(9999, DefaultValue = (int)1000)]
+        public int SendTimeout
+        {
+            get;
+            set;
+        }
+
         private bool WriteInChronolgicalOrder
         {
             get
@@ -316,6 +330,10 @@ namespace gip.core.communication
             if (_ReconnectTries <= 0)
                 Messages.LogDebug(this.GetACUrl(), "S7TCPSession.InitSession()", "New Session");
             _PLCConn = new gip.core.communication.ISOonTCP.PLC(CPU, IPAddress, Rack, Slot, Endianess, UsePingForConnectTest);
+            if (SendTimeout > 0)
+                _PLCConn.SendTimeout = SendTimeout;
+            if (ReceiveTimeout > 0)
+                _PLCConn.ReceiveTimeout = ReceiveTimeout;
             _PLCConn.PropertyChanged += OnPLCConn_PropertyChanged;
 
             if (_ReconnectTries <= 0)
@@ -399,7 +417,7 @@ namespace gip.core.communication
 
             ErrorCode res = ErrorCode.NoError;
 
-            using (ACMonitor.Lock(_PLCConn._11900_SocketLockObj))
+            //using (ACMonitor.Lock(_PLCConn._11900_SocketLockObj))
             {
                 if (_PLCConn.IsConnected)
                     return true;
@@ -477,7 +495,7 @@ namespace gip.core.communication
 
 
 
-            using (ACMonitor.Lock(_PLCConn._11900_SocketLockObj))
+            //using (ACMonitor.Lock(_PLCConn._11900_SocketLockObj))
             {
                 if (_PLCConn.IsConnected)
                 {

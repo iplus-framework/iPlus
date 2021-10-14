@@ -46,6 +46,33 @@ namespace gip.core.communication.ISOonTCP
             get;set;
         }
 
+        int _ReceiveTimeout = 1000;
+        public int ReceiveTimeout
+        { 
+            get 
+            { 
+                return _ReceiveTimeout; 
+            } 
+            set 
+            { 
+                _ReceiveTimeout = value; 
+            } 
+        }
+
+        int _SendTimeout = 1000;
+        public int SendTimeout
+        { 
+            get 
+            { 
+                return _SendTimeout; 
+            } 
+            set 
+            { 
+                _SendTimeout = value; 
+            } 
+        }
+
+
         private EndianessEnum _Endianess = EndianessEnum.BigEndian;
         public EndianessEnum Endianess
         {
@@ -230,8 +257,8 @@ namespace gip.core.communication.ISOonTCP
                 {
                     mSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-                    mSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 1000);
-                    mSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendTimeout, 1000);
+                    mSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, ReceiveTimeout);
+                    mSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendTimeout, SendTimeout);
 
                     IPEndPoint _server = new IPEndPoint(new IPAddress(IPToByteArray(IP)), RFC1006Port);
                     IPEndPoint _local = new IPEndPoint(LocalhostIP, RFC1006Port);
