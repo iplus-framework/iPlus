@@ -1,4 +1,4 @@
-using System;
+    using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -660,7 +660,7 @@ namespace gip.core.autocomponent
                         else
                         {
                             _IsRouteServiceActive = true;
-                            SetRoute(sources.Routes.Select(c => c.FirstOrDefault().Source), new ACClass[] { CurrentACComponent.ACType as ACClass });
+                            SetRoute(sources.Routes.Select(c => c.FirstOrDefault().Source)?.Distinct(), new ACClass[] { CurrentACComponent.ACType as ACClass });
                         }
                         _IsRouteServiceActive = false;
                         return;
