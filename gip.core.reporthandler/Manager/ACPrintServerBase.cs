@@ -188,7 +188,7 @@ namespace gip.core.reporthandler
         public virtual ReportData GetReportData(ACBSO aCBSO, ACClassDesign aCClassDesign)
         {
             bool cloneInstantiated = false;
-            ACQueryDefinition aCQueryDefinition = Root.Queries.CreateQueryByClass(null, aCClassDesign.ACClass, "");
+            ACQueryDefinition aCQueryDefinition = null;
             ReportData reportData = ReportData.BuildReportData(out cloneInstantiated, Global.CurrentOrList.Current, aCBSO, aCQueryDefinition, aCClassDesign);
             return reportData;
         }

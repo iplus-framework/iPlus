@@ -1,11 +1,13 @@
 ﻿using gip.core.datamodel;
 using gip.core.reporthandler.Flowdoc;
 using System.Windows.Documents;
-using ESCPOS;
-using ESCPOS.Utils;
 using System.Text;
 using System;
 using System.Threading;
+
+using static ESCPOS.Commands;
+using ESCPOS;
+using ESCPOS.Utils;
 
 namespace gip.core.reporthandler
 {
@@ -62,7 +64,7 @@ namespace gip.core.reporthandler
                 }
                 catch (Exception e)
                 {
-                    Root.Messages.LogMessage(eMsgLevel.Exception, GetACUrl(), "SendDataToPrinter", "Exception: " +  e.Message);
+                    Root.Messages.LogMessage(eMsgLevel.Exception, GetACUrl(), "SendDataToPrinter", "Exception: " + e.Message);
                     Thread.Sleep(5000);
                 }
                 tries++;
@@ -183,7 +185,15 @@ namespace gip.core.reporthandler
 
         public override void RenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode)
         {
-            //
+            string barcodeValue = inlineBarcode.Value.ToString();
+            if (inlineBarcode.BarcodeType == BarcodeType.QRCODE)
+                printContext.Main.Add(Commands.LF, PrintQRCode(barcodeValue));
+            else
+            {
+                BarCodeType barCodeType = BarCodeType.EAN8;
+                if (Enum.TryParse(inlineBarcode.BarcodeType.ToString(), out barCodeType))
+                    printContext.Main.Add(Commands.LF, PrintBarCode(barCodeType, barcodeValue));
+            }
         }
 
         public override void RenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue)
