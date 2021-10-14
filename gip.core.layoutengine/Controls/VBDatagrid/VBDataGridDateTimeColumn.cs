@@ -341,7 +341,10 @@ namespace gip.core.layoutengine
             if ((valueSource != null) && (valueSource.BaseValueSource == BaseValueSource.Local || valueSource.BaseValueSource == BaseValueSource.Style))
                 dateTimePicker.Format = this.FormatDTPicker;
             if (!String.IsNullOrEmpty(this.StringFormat))
+            {
                 dateTimePicker.FormatString = this.StringFormat;
+                dateTimePicker.Format = DateTimeFormat.Custom;
+            }
             ApplyStyle(true, false, dateTimePicker);
             ApplyBinding(dateTimePicker, VBDateTimePicker.SelectedDateProperty);
             if (_UpdateSourceIfIndexer)

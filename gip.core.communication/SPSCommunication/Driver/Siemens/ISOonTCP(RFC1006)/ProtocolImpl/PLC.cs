@@ -931,7 +931,7 @@ namespace gip.core.communication.ISOonTCP
                 // first create the header
                 int packageSize = 35 + value.Length;
                 ByteArray package = new ByteArray(packageSize);
-
+                    
                 package.Add(new byte[] { 3, 0, 0 });
                 package.Add((byte)packageSize);
                 package.Add(new byte[] { 2, 0xf0, 0x80, 0x32, 1, 0, 0 });
@@ -942,7 +942,7 @@ namespace gip.core.communication.ISOonTCP
                 package.Add(Types.Word.ToByteArray((ushort)varCount, EndianessEnum.BigEndian));
                 package.Add(Types.Word.ToByteArray((ushort)(dbNo), EndianessEnum.BigEndian));
                 package.Add((byte)DataType);
-                package.Add((byte)0);
+                package.Add((byte)((startByteAddr * 8) / 0x10000));
                 package.Add(Types.Word.ToByteArray((ushort)(startByteAddr * 8), EndianessEnum.BigEndian));
                 package.Add(new byte[] { 0, 4 });
                 package.Add(Types.Word.ToByteArray((ushort)(varCount * 8), EndianessEnum.BigEndian));

@@ -169,6 +169,8 @@ namespace gip.core.layoutengine
         {
             foreach (var item in connectors)
             {
+                if (item == null)
+                    continue;
                 item.InvalidateArrange();
                 item.InvalidateVisual();
             }
