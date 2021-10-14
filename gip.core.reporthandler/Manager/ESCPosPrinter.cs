@@ -83,7 +83,7 @@ namespace gip.core.reporthandler
 
         public override void RenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position)
         {
-            printContext.Main = printContext.Main.Add(Commands.LF);
+            //printContext.Main = printContext.Main.Add(Commands.LF);
         }
 
         public override void RenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position)
@@ -132,7 +132,7 @@ namespace gip.core.reporthandler
 
         public override void RenderSectionTableHeader(PrintContext printContext, Table table)
         {
-            printContext.Main = printContext.Main.Add(Commands.LF);
+            //printContext.Main = printContext.Main.Add(Commands.LF);
         }
 
         public override void RenderSectionTableFooter(PrintContext printContext, Table table)
@@ -159,7 +159,7 @@ namespace gip.core.reporthandler
 
         public override void RenderTableRowHeader(PrintContext printContext, TableRow tableRow)
         {
-            printContext.Main = printContext.Main.Add(Commands.LF);
+            //printContext.Main = printContext.Main.Add(Commands.LF);
         }
 
         public override void RenderTableRowFooter(PrintContext printContext, TableRow tableRow)
@@ -201,13 +201,14 @@ namespace gip.core.reporthandler
         {
             string barcodeValue = inlineBarcode.Value.ToString();
             if (inlineBarcode.BarcodeType == BarcodeType.QRCODE)
-                printContext.Main = printContext.Main.Add(Commands.LF, PrintQRCode(barcodeValue));
+                printContext.Main = printContext.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Center), Commands.SelectPrintMode(PrintMode.Reset), PrintQRCode(barcodeValue, QRCodeModel.Model1, QRCodeCorrection.Percent30, QRCodeSize.Large));
             else
             {
                 BarCodeType barCodeType = BarCodeType.EAN8;
                 if (Enum.TryParse(inlineBarcode.BarcodeType.ToString(), out barCodeType))
                     printContext.Main = printContext.Main.Add(Commands.LF, PrintBarCode(barCodeType, barcodeValue));
             }
+            printContext.Main = printContext.Main.Add(Commands.LF, Commands.LF, Commands.LF, Commands.LF, Commands.LF);
         }
 
         public override void RenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue)
