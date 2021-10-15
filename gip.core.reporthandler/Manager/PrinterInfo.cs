@@ -40,5 +40,10 @@ namespace gip.core.reporthandler
         [IgnoreDataMember]
         public Guid? ACClassConfigID { get; set; }
 
+        public override string ToString()
+        {
+            return PrinterACUrl ?? "" + PrinterName ?? "";
+        }
+
     }
 }

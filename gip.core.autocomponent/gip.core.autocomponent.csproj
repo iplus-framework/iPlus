@@ -139,7 +139,6 @@
     <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI%28Srv%29\Interface\ACPointAsyncRMIHelper.cs" />
     <Compile Include="ACPoint\Interfaces\IACComponentTaskSubscr.cs" />
     <Compile Include="ACPoint\Interfaces\IACComponentTaskExec.cs" />
-    <Compile Include="ACPrint\IPAOrderInfoProvider.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PAAlarmMessengerBase.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\ACStateEnum.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PABase.cs" />

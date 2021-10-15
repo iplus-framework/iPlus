@@ -265,7 +265,7 @@ namespace gip.core.reporthandler
         /// <exception cref="NotImplementedException"></exception>
         public virtual void WriteToStream(PrintContext printContext)
         {
-            RenderFlowDocment(printContext, printContext.FlowDocument);
+            OnRenderFlowDocment(printContext, printContext.FlowDocument);
         }
 
         #endregion
@@ -274,89 +274,89 @@ namespace gip.core.reporthandler
 
         #region Methods -> Render -> Block
 
-        public virtual void RenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
+        public virtual void OnRenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
         {
-            RenderBlocks(printContext, flowDoc.Blocks, BlockDocumentPosition.General);
+            OnRenderBlocks(printContext, flowDoc.Blocks, BlockDocumentPosition.General);
         }
 
-        public virtual void RenderBlocks(PrintContext printContext, BlockCollection blocks, BlockDocumentPosition position)
+        public virtual void OnRenderBlocks(PrintContext printContext, BlockCollection blocks, BlockDocumentPosition position)
         {
             foreach (Block block in blocks)
-                RenderBlock(printContext, block, position);
+                OnRenderBlock(printContext, block, position);
         }
 
-        public virtual void RenderBlock(PrintContext printContext, Block block, BlockDocumentPosition position)
+        public virtual void OnRenderBlock(PrintContext printContext, Block block, BlockDocumentPosition position)
         {
-            RenderBlockHeader(printContext, block, position);
+            OnRenderBlockHeader(printContext, block, position);
             if (block is SectionReportHeader)
-                RenderSectionReportHeader(printContext, (SectionReportHeader)block);
+                OnRenderSectionReportHeader(printContext, (SectionReportHeader)block);
             else if (block is SectionReportFooter)
-                RenderSectionReportFooter(printContext, (SectionReportFooter)block);
+                OnRenderSectionReportFooter(printContext, (SectionReportFooter)block);
             else if (block is SectionDataGroup)
-                RenderSectionDataGroup(printContext, (SectionDataGroup)block);
+                OnRenderSectionDataGroup(printContext, (SectionDataGroup)block);
             else if (block is Table)
-                RenderSectionTable(printContext, (Table)block);
+                OnRenderSectionTable(printContext, (Table)block);
             else if (block is Paragraph)
-                RenderParagraph(printContext, (Paragraph)block);
-            RenderBlockFooter(printContext, block, position);
+                OnRenderParagraph(printContext, (Paragraph)block);
+            OnRenderBlockFooter(printContext, block, position);
         }
 
-        public virtual void RenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position)
+        public virtual void OnRenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position)
         {
 
         }
 
-        public virtual void RenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position)
+        public virtual void OnRenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position)
         {
         }
 
-        public virtual void RenderSectionReportHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
+        public virtual void OnRenderSectionReportHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
         {
-            RenderSectionReportHeaderHeader(printContext, sectionReportHeader);
-            RenderBlocks(printContext, sectionReportHeader.Blocks, BlockDocumentPosition.General);
-            RenderSectionReportHeaderFooter(printContext, sectionReportHeader);
+            OnRenderSectionReportHeaderHeader(printContext, sectionReportHeader);
+            OnRenderBlocks(printContext, sectionReportHeader.Blocks, BlockDocumentPosition.General);
+            OnRenderSectionReportHeaderFooter(printContext, sectionReportHeader);
         }
 
-        public virtual void RenderSectionReportHeaderHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
-        {
-            //
-        }
-
-        public virtual void RenderSectionReportHeaderFooter(PrintContext printContext, SectionReportHeader sectionReportHeader)
+        public virtual void OnRenderSectionReportHeaderHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
         {
             //
         }
 
-        public virtual void RenderSectionReportFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
+        public virtual void OnRenderSectionReportHeaderFooter(PrintContext printContext, SectionReportHeader sectionReportHeader)
         {
-            RenderSectionReportFooterHeader(printContext, sectionReportFooter);
-            RenderBlocks(printContext, sectionReportFooter.Blocks, BlockDocumentPosition.General);
-            RenderSectionReportFooterFooter(printContext, sectionReportFooter);
+            //
         }
 
-        public virtual void RenderSectionReportFooterHeader(PrintContext printContext, SectionReportFooter sectionReportFooter)
+        public virtual void OnRenderSectionReportFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
+        {
+            OnRenderSectionReportFooterHeader(printContext, sectionReportFooter);
+            OnRenderBlocks(printContext, sectionReportFooter.Blocks, BlockDocumentPosition.General);
+            OnRenderSectionReportFooterFooter(printContext, sectionReportFooter);
+        }
+
+        public virtual void OnRenderSectionReportFooterHeader(PrintContext printContext, SectionReportFooter sectionReportFooter)
         {
 
         }
 
-        public virtual void RenderSectionReportFooterFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
+        public virtual void OnRenderSectionReportFooterFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
         {
             // 
         }
 
-        public virtual void RenderSectionDataGroup(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        public virtual void OnRenderSectionDataGroup(PrintContext printContext, SectionDataGroup sectionDataGroup)
         {
-            RenderSectionDataGroupHeader(printContext, sectionDataGroup);
-            RenderBlocks(printContext, sectionDataGroup.Blocks, BlockDocumentPosition.General);
-            RenderSectionDataGroupFooter(printContext, sectionDataGroup);
+            OnRenderSectionDataGroupHeader(printContext, sectionDataGroup);
+            OnRenderBlocks(printContext, sectionDataGroup.Blocks, BlockDocumentPosition.General);
+            OnRenderSectionDataGroupFooter(printContext, sectionDataGroup);
         }
 
-        public virtual void RenderSectionDataGroupHeader(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        public virtual void OnRenderSectionDataGroupHeader(PrintContext printContext, SectionDataGroup sectionDataGroup)
         {
             //
         }
 
-        public virtual void RenderSectionDataGroupFooter(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        public virtual void OnRenderSectionDataGroupFooter(PrintContext printContext, SectionDataGroup sectionDataGroup)
         {
             // 
         }
@@ -365,132 +365,132 @@ namespace gip.core.reporthandler
 
         #region Methods -> Render -> Table
 
-        public virtual void RenderSectionTable(PrintContext printContext, Table table)
+        public virtual void OnRenderSectionTable(PrintContext printContext, Table table)
         {
-            RenderSectionTableHeader(printContext, table);
+            OnRenderSectionTableHeader(printContext, table);
 
             printContext.ColumnMultiplier = 1;
             printContext.ColumnDivisor = table.Columns.Count;
 
             foreach (TableColumn tableColumn in table.Columns)
-                RenderTableColumn(printContext, tableColumn);
+                OnRenderTableColumn(printContext, tableColumn);
 
             foreach (TableRowGroup tableRowGroup in table.RowGroups)
-                RenderTableRowGroup(printContext, tableRowGroup);
-            RenderSectionTableFooter(printContext, table);
+                OnRenderTableRowGroup(printContext, tableRowGroup);
+            OnRenderSectionTableFooter(printContext, table);
 
             printContext.ColumnMultiplier = 1;
             printContext.ColumnDivisor = 1;
         }
 
-        public virtual void RenderSectionTableHeader(PrintContext printContext, Table table)
+        public virtual void OnRenderSectionTableHeader(PrintContext printContext, Table table)
         {
             //
         }
 
-        public virtual void RenderSectionTableFooter(PrintContext printContext, Table table)
+        public virtual void OnRenderSectionTableFooter(PrintContext printContext, Table table)
         {
             //
         }
 
-        public virtual void RenderTableColumn(PrintContext printContext, TableColumn tableColumn)
+        public virtual void OnRenderTableColumn(PrintContext printContext, TableColumn tableColumn)
         {
 
         }
 
-        public virtual void RenderTableRowGroup(PrintContext printContext, TableRowGroup tableRowGroup)
+        public virtual void OnRenderTableRowGroup(PrintContext printContext, TableRowGroup tableRowGroup)
         {
-            RenderTableRowGroupHeader(printContext, tableRowGroup);
+            OnRenderTableRowGroupHeader(printContext, tableRowGroup);
             foreach (TableRow tableRow in tableRowGroup.Rows)
-                RenderTableRow(printContext, tableRow);
-            RenderTableRowGroupFooter(printContext, tableRowGroup);
+                OnRenderTableRow(printContext, tableRow);
+            OnRenderTableRowGroupFooter(printContext, tableRowGroup);
         }
 
-        public virtual void RenderTableRowGroupHeader(PrintContext printContext, TableRowGroup tableRowGroup)
+        public virtual void OnRenderTableRowGroupHeader(PrintContext printContext, TableRowGroup tableRowGroup)
         {
             //
         }
 
-        public virtual void RenderTableRowGroupFooter(PrintContext printContext, TableRowGroup tableRowGroup)
+        public virtual void OnRenderTableRowGroupFooter(PrintContext printContext, TableRowGroup tableRowGroup)
         {
             //
         }
 
-        public virtual void RenderTableRow(PrintContext printContext, TableRow tableRow)
+        public virtual void OnRenderTableRow(PrintContext printContext, TableRow tableRow)
         {
-            RenderTableRowHeader(printContext, tableRow);
+            OnRenderTableRowHeader(printContext, tableRow);
             foreach (TableCell tableCell in tableRow.Cells)
             {
                 printContext.ColumnMultiplier = tableRow.Cells.IndexOf(tableCell);
-                RenderTableCell(printContext, tableCell);
+                OnRenderTableCell(printContext, tableCell);
             }
-            RenderTableRowFooter(printContext, tableRow);
+            OnRenderTableRowFooter(printContext, tableRow);
         }
-        public virtual void RenderTableRowHeader(PrintContext printContext, TableRow tableRow)
+        public virtual void OnRenderTableRowHeader(PrintContext printContext, TableRow tableRow)
         {
             //
         }
 
-        public virtual void RenderTableRowFooter(PrintContext printContext, TableRow tableRow)
+        public virtual void OnRenderTableRowFooter(PrintContext printContext, TableRow tableRow)
         {
             //
         }
 
-        public virtual void RenderTableCell(PrintContext printContext, TableCell tableCell)
+        public virtual void OnRenderTableCell(PrintContext printContext, TableCell tableCell)
         {
             foreach (Block block in tableCell.Blocks)
-                RenderBlock(printContext, block, BlockDocumentPosition.InTable);
+                OnRenderBlock(printContext, block, BlockDocumentPosition.InTable);
         }
 
         #endregion
 
         #region Methods -> Render -> Inlines
 
-        public virtual void RenderParagraph(PrintContext printContext, Paragraph paragraph)
+        public virtual void OnRenderParagraph(PrintContext printContext, Paragraph paragraph)
         {
             foreach (Inline inline in paragraph.Inlines)
             {
                 if (inline is InlineContextValue)
-                    RenderInlineContextValue(printContext, (InlineContextValue)inline);
+                    OnRenderInlineContextValue(printContext, (InlineContextValue)inline);
                 else if (inline is InlineDocumentValue)
-                    RenderInlineDocumentValue(printContext, (InlineDocumentValue)inline);
+                    OnRenderInlineDocumentValue(printContext, (InlineDocumentValue)inline);
                 else if (inline is InlineACMethodValue)
-                    RenderInlineACMethodValue(printContext, (InlineACMethodValue)inline);
+                    OnRenderInlineACMethodValue(printContext, (InlineACMethodValue)inline);
                 else if (inline is InlineTableCellValue)
-                    RenderInlineTableCellValue(printContext, (InlineTableCellValue)inline);
+                    OnRenderInlineTableCellValue(printContext, (InlineTableCellValue)inline);
                 else if (inline is InlineBarcode)
-                    RenderInlineBarcode(printContext, (InlineBarcode)inline);
+                    OnRenderInlineBarcode(printContext, (InlineBarcode)inline);
                 else if (inline is InlineBoolValue)
-                    RenderInlineBoolValue(printContext, (InlineBoolValue)inline);
+                    OnRenderInlineBoolValue(printContext, (InlineBoolValue)inline);
             }
         }
 
-        public virtual void RenderInlineContextValue(PrintContext printContext, InlineContextValue inlineContextValue)
+        public virtual void OnRenderInlineContextValue(PrintContext printContext, InlineContextValue inlineContextValue)
         {
             // inline.Text
         }
 
-        public virtual void RenderInlineDocumentValue(PrintContext printContext, InlineDocumentValue inlineDocumentValue)
+        public virtual void OnRenderInlineDocumentValue(PrintContext printContext, InlineDocumentValue inlineDocumentValue)
         {
             // inline.Text
         }
 
-        public virtual void RenderInlineACMethodValue(PrintContext printContext, InlineACMethodValue inlineACMethodValue)
+        public virtual void OnRenderInlineACMethodValue(PrintContext printContext, InlineACMethodValue inlineACMethodValue)
         {
             // inline.Text
         }
 
-        public virtual void RenderInlineTableCellValue(PrintContext printContext, InlineTableCellValue inlineTableCellValue)
+        public virtual void OnRenderInlineTableCellValue(PrintContext printContext, InlineTableCellValue inlineTableCellValue)
         {
             // inline.Text
         }
 
-        public virtual void RenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode)
+        public virtual void OnRenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode)
         {
             //
         }
 
-        public virtual void RenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue)
+        public virtual void OnRenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue)
         {
             //
         }

@@ -75,51 +75,51 @@ namespace gip.core.reporthandler
 
         #region Methods -> Render -> Block
 
-        public override void RenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
+        public override void OnRenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
         {
-            base.RenderFlowDocment(printContext, flowDoc);
+            base.OnRenderFlowDocment(printContext, flowDoc);
             printContext.Main = printContext.Main.Add(Commands.FullPaperCut);
         }
 
-        public override void RenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position)
+        public override void OnRenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position)
         {
             //printContext.Main = printContext.Main.Add(Commands.LF);
         }
 
-        public override void RenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position)
+        public override void OnRenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position)
         {
         }
 
 
-        public override void RenderSectionReportHeaderHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
-        {
-            //
-        }
-
-        public override void RenderSectionReportHeaderFooter(PrintContext printContext, SectionReportHeader sectionReportHeader)
+        public override void OnRenderSectionReportHeaderHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
         {
             //
         }
 
+        public override void OnRenderSectionReportHeaderFooter(PrintContext printContext, SectionReportHeader sectionReportHeader)
+        {
+            //
+        }
 
 
-        public override void RenderSectionReportFooterHeader(PrintContext printContext, SectionReportFooter sectionReportFooter)
+
+        public override void OnRenderSectionReportFooterHeader(PrintContext printContext, SectionReportFooter sectionReportFooter)
         {
 
         }
 
-        public override void RenderSectionReportFooterFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
+        public override void OnRenderSectionReportFooterFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
         {
             // 
         }
 
 
-        public override void RenderSectionDataGroupHeader(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        public override void OnRenderSectionDataGroupHeader(PrintContext printContext, SectionDataGroup sectionDataGroup)
         {
             //
         }
 
-        public override void RenderSectionDataGroupFooter(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        public override void OnRenderSectionDataGroupFooter(PrintContext printContext, SectionDataGroup sectionDataGroup)
         {
             // 
         }
@@ -130,46 +130,46 @@ namespace gip.core.reporthandler
         #region Methods -> Render -> Table
 
 
-        public override void RenderSectionTableHeader(PrintContext printContext, Table table)
+        public override void OnRenderSectionTableHeader(PrintContext printContext, Table table)
         {
             //printContext.Main = printContext.Main.Add(Commands.LF);
         }
 
-        public override void RenderSectionTableFooter(PrintContext printContext, Table table)
+        public override void OnRenderSectionTableFooter(PrintContext printContext, Table table)
         {
             //
         }
 
 
-        public override void RenderTableColumn(PrintContext printContext, TableColumn tableColumn)
+        public override void OnRenderTableColumn(PrintContext printContext, TableColumn tableColumn)
         {
 
         }
 
-        public override void RenderTableRowGroupHeader(PrintContext printContext, TableRowGroup tableRowGroup)
-        {
-            //
-        }
-
-        public override void RenderTableRowGroupFooter(PrintContext printContext, TableRowGroup tableRowGroup)
+        public override void OnRenderTableRowGroupHeader(PrintContext printContext, TableRowGroup tableRowGroup)
         {
             //
         }
 
+        public override void OnRenderTableRowGroupFooter(PrintContext printContext, TableRowGroup tableRowGroup)
+        {
+            //
+        }
 
-        public override void RenderTableRowHeader(PrintContext printContext, TableRow tableRow)
+
+        public override void OnRenderTableRowHeader(PrintContext printContext, TableRow tableRow)
         {
             //printContext.Main = printContext.Main.Add(Commands.LF);
         }
 
-        public override void RenderTableRowFooter(PrintContext printContext, TableRow tableRow)
+        public override void OnRenderTableRowFooter(PrintContext printContext, TableRow tableRow)
         {
             //
         }
 
-        public override void RenderTableCell(PrintContext printContext, TableCell tableCell)
+        public override void OnRenderTableCell(PrintContext printContext, TableCell tableCell)
         {
-            base.RenderTableCell(printContext, tableCell);
+            base.OnRenderTableCell(printContext, tableCell);
         }
 
         #endregion
@@ -177,27 +177,27 @@ namespace gip.core.reporthandler
         #region Methods -> Render -> Inlines
 
 
-        public override void RenderInlineContextValue(PrintContext printContext, InlineContextValue inlineContextValue)
+        public override void OnRenderInlineContextValue(PrintContext printContext, InlineContextValue inlineContextValue)
         {
             printContext.Main = printContext.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Left), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineContextValue.Text));
         }
 
-        public override void RenderInlineDocumentValue(PrintContext printContext, InlineDocumentValue inlineDocumentValue)
+        public override void OnRenderInlineDocumentValue(PrintContext printContext, InlineDocumentValue inlineDocumentValue)
         {
             printContext.Main = printContext.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Left), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineDocumentValue.Text));
         }
 
-        public override void RenderInlineACMethodValue(PrintContext printContext, InlineACMethodValue inlineACMethodValue)
+        public override void OnRenderInlineACMethodValue(PrintContext printContext, InlineACMethodValue inlineACMethodValue)
         {
             // inline.Text
         }
 
-        public override void RenderInlineTableCellValue(PrintContext printContext, InlineTableCellValue inlineTableCellValue)
+        public override void OnRenderInlineTableCellValue(PrintContext printContext, InlineTableCellValue inlineTableCellValue)
         {
 
         }
 
-        public override void RenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode)
+        public override void OnRenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode)
         {
             string barcodeValue = inlineBarcode.Value.ToString();
             if (inlineBarcode.BarcodeType == BarcodeType.QRCODE)
@@ -211,7 +211,7 @@ namespace gip.core.reporthandler
             printContext.Main = printContext.Main.Add(Commands.LF, Commands.LF, Commands.LF, Commands.LF, Commands.LF);
         }
 
-        public override void RenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue)
+        public override void OnRenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue)
         {
             printContext.Main = printContext.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Left), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineBoolValue.Value.ToString()));
 
