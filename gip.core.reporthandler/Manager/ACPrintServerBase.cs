@@ -10,7 +10,7 @@ using System.Windows;
 namespace gip.core.reporthandler
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPrintServerBase'}de{'ACPrintServerBase'}", Global.ACKinds.TACApplicationManager, Global.ACStorableTypes.Required, false, "", false)]
-    public class ACPrintServerBase : PAClassAlarmingBase
+    public abstract class ACPrintServerBase : PAClassAlarmingBase
     {
 
         #region c´tors
@@ -51,16 +51,16 @@ namespace gip.core.reporthandler
             return base.ACDeInit(deleteACClassTask);
         }
 
-        public override bool ACPostInit()
-        {
-            bool baseReturn = base.ACPostInit();
-            string tempIpAddress = IPAddress;
-            int temp = Port;
-            temp = SendTimeout;
-            temp = ReceiveTimeout;
-            temp = PrintTries;
-            return baseReturn;
-        }
+        //public override bool ACPostInit()
+        //{
+        //    bool baseReturn = base.ACPostInit();
+        //    string tempIpAddress = IPAddress;
+        //    int temp = Port;
+        //    temp = SendTimeout;
+        //    temp = ReceiveTimeout;
+        //    temp = PrintTries;
+        //    return baseReturn;
+        //}
 
         protected static IACEntityObjectContext _CommonManagerContext;
         /// <summary>
