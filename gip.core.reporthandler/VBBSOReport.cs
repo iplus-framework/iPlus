@@ -1041,7 +1041,7 @@ namespace gip.core.reporthandler
             {
                 ACBSO parentACBSO = vBBSOReportDialog.ParentBSO as ACBSO;
                 PAOrderInfo pAOrderInfo = null;
-                if (parentACBSO == null)
+                if (parentACBSO != null)
                 {
                     pAOrderInfo = parentACBSO.GetOrderInfo();
                     if (pAOrderInfo != null)
