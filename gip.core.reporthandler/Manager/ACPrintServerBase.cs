@@ -6,6 +6,7 @@ using System.Text;
 using gip.core.reporthandler.Flowdoc;
 using System.Windows.Documents;
 using System.Windows;
+using System.Threading.Tasks;
 
 namespace gip.core.reporthandler
 {
@@ -149,20 +150,20 @@ namespace gip.core.reporthandler
         public virtual void Print(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
         {
             // suggestion: Use Queue
-            //DelegateQueue.Add(() =>
-            //{
-            //    DoPrint(bsoClassID, designACIdentifier,pAOrderInfo,copies);
-            //});
+            DelegateQueue.Add(() =>
+            {
+                DoPrint(bsoClassID, designACIdentifier,pAOrderInfo,copies);
+            });
 
             // @aagincic comment: this used while code above causes exception:
             //      -> The calling thread must be STA, because many UI components require this.
-            Application.Current.Dispatcher.Invoke((Action)delegate
-            {
-                DoPrint(bsoClassID, designACIdentifier, pAOrderInfo, copies);
-            });
+            //Application.Current.Dispatcher.Invoke((Action)delegate
+            //{
+            //    DoPrint(bsoClassID, designACIdentifier, pAOrderInfo, copies);
+            //});
         }
 
-        private void DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        private async Task DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
         {
             ACBSO acBSO = null;
             try
@@ -173,8 +174,13 @@ namespace gip.core.reporthandler
                 ACClassDesign aCClassDesign = acBSO.GetDesign(designACIdentifier);
                 // ACPrintServer Step05 - Prepare ReportData
                 ReportData reportData = GetReportData(acBSO, aCClassDesign);
-                ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
-                FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
+                ReportDocument reportDocument = null;
+                FlowDocument flowDoc = null;
+                await Application.Current.Dispatcher.InvokeAsync((Action)delegate
+                {
+                    reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
+                    flowDoc = reportDocument.CreateFlowDocument(reportData);
+                });
                 // ACPrintServer Step06 - Write to stream
                 SendDataToPrinter(flowDoc);
             }
