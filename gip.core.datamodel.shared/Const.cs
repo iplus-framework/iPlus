@@ -298,6 +298,7 @@
         public const string ParamAutoLoad = "AutoLoad";
         public const string ParamAutoFilter = "AutoFilter";
         public const string ParamInheritedMember = "InheritedM";
+        public const string ParamSeperateContext = "SeperateContext";
 
         public const string TaskSubscriptionPoint = "TaskSubscriptionPoint";
         public const string TaskInvocationPoint = "TaskInvocationPoint";

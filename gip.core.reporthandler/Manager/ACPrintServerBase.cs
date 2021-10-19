@@ -208,7 +208,7 @@ namespace gip.core.reporthandler
         public virtual ACBSO GetACBSO(Guid bsoClassID, PAOrderInfo pAOrderInfo)
         {
             ACClass bsoACClass = Root.Database.ContextIPlus.GetACType(bsoClassID);
-            ACBSO acBSO = StartComponent(bsoACClass, bsoACClass, new ACValueList()) as ACBSO;
+            ACBSO acBSO = StartComponent(bsoACClass, bsoACClass, new ACValueList() { new ACValue(Const.ParamSeperateContext, typeof(bool), true) }) as ACBSO;
             if (acBSO == null)
                 return null;
             acBSO.SetOrderInfo(pAOrderInfo);
