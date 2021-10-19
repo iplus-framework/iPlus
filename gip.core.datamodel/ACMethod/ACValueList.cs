@@ -139,10 +139,7 @@ namespace gip.core.datamodel
         /// <returns>ACValue.</returns>
         public ACValue GetACValue(string propertyName)
         {
-            var query = this.Where(c => c.ACIdentifier == propertyName);
-            if (query == null)
-                return null;
-            return query.FirstOrDefault();
+            return this.Where(c => c.ACIdentifier == propertyName).FirstOrDefault();
         }
         #endregion
 

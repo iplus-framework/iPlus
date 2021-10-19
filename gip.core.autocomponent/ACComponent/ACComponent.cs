@@ -1419,13 +1419,22 @@ namespace gip.core.autocomponent
             {
                 if (_Database == null)
                 {
-                    if (ParentACComponent != null)
+                    if (!IsSeperateDBContextForced && ParentACComponent != null)
                         return ParentACComponent.Database;
                     _Database = ACObjectContextManager.GetOrCreateContext<Database>(GetACUrl());
                 }
                 return _Database;
             }
         }
+
+        public bool IsSeperateDBContextForced
+        {
+            get
+            {
+                return ParameterValueT<bool>(Const.ParamSeperateContext);
+            }
+        }
+
 
         private ACInitState _InitState = ACInitState.Destructed;
         /// <summary>
@@ -1548,10 +1557,26 @@ namespace gip.core.autocomponent
         /// <returns></returns>
         public object ParameterValue(string propertyName)
         {
-            if (Parameters == null)
+            if (Parameters == null || !Parameters.Any())
                 return null;
 
-            return Parameters[propertyName];
+            ACValue acValue = Parameters.GetACValue(propertyName);
+            if (acValue == null)
+                return null;
+
+            return acValue.Value;
+        }
+
+        public T ParameterValueT<T>(string propertyName)
+        {
+            if (Parameters == null || !Parameters.Any())
+                return default(T);
+
+            ACValue acValue = Parameters.GetACValue(propertyName);
+            if (acValue == null)
+                return default(T);
+
+            return acValue.ValueT<T>();
         }
         #endregion
 
