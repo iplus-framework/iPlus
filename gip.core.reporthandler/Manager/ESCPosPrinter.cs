@@ -84,18 +84,18 @@ namespace gip.core.reporthandler
 
         public override void OnRenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position)
         {
-            SetFormatTextElement(printContext, block);
+
         }
 
         public override void OnRenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position)
         {
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+
         }
 
 
         public override void OnRenderSectionReportHeaderHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
         {
-            SetFormatTextElement(printContext, sectionReportHeader);
+            SetPrintFormat(printContext, sectionReportHeader, sectionReportHeader.TextAlignment);
         }
 
         public override void OnRenderSectionReportHeaderFooter(PrintContext printContext, SectionReportHeader sectionReportHeader)
@@ -106,7 +106,7 @@ namespace gip.core.reporthandler
 
         public override void OnRenderSectionReportFooterHeader(PrintContext printContext, SectionReportFooter sectionReportFooter)
         {
-            SetFormatTextElement(printContext, sectionReportFooter);
+            SetPrintFormat(printContext, sectionReportFooter, sectionReportFooter.TextAlignment);
         }
 
         public override void OnRenderSectionReportFooterFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
@@ -117,7 +117,7 @@ namespace gip.core.reporthandler
 
         public override void OnRenderSectionDataGroupHeader(PrintContext printContext, SectionDataGroup sectionDataGroup)
         {
-            SetFormatTextElement(printContext, sectionDataGroup);
+            SetPrintFormat(printContext, sectionDataGroup, sectionDataGroup.TextAlignment);
         }
 
         public override void OnRenderSectionDataGroupFooter(PrintContext printContext, SectionDataGroup sectionDataGroup)
@@ -153,7 +153,7 @@ namespace gip.core.reporthandler
 
         public override void OnRenderTableRowGroupHeader(PrintContext printContext, TableRowGroup tableRowGroup)
         {
-            SetFormatTextElement(printContext, tableRowGroup);
+            SetPrintFormat(printContext, tableRowGroup, null);
         }
 
         public override void OnRenderTableRowGroupFooter(PrintContext printContext, TableRowGroup tableRowGroup)
@@ -163,7 +163,7 @@ namespace gip.core.reporthandler
 
         public override void OnRenderTableRowHeader(PrintContext printContext, TableRow tableRow)
         {
-            SetFormatTextElement(printContext, tableRow);
+            SetPrintFormat(printContext, tableRow, null);
         }
 
         public override void OnRenderTableRowFooter(PrintContext printContext, TableRow tableRow)
@@ -177,7 +177,7 @@ namespace gip.core.reporthandler
 
         public override void OnRenderParagraphHeader(PrintContext printContext, Paragraph paragraph)
         {
-            SetFormatTextElement(printContext, paragraph);
+            SetPrintFormat(printContext, paragraph, paragraph.TextAlignment);
         }
 
         public override void OnRenderParagraphFooter(PrintContext printContext, Paragraph paragraph)
@@ -187,43 +187,33 @@ namespace gip.core.reporthandler
 
         public override void OnRenderInlineContextValue(PrintContext printContext, InlineContextValue inlineContextValue)
         {
-            SetFormatTextElement(printContext, inlineContextValue);
-
+            SetPrintFormat(printContext, inlineContextValue, null);
             PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
-            printContext.Main = printContext.Main.Add(Commands.LF, SetFormat(printContext, defaultPrintFormat), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineContextValue.Text));
-
+            PrintFormattedText(printContext, defaultPrintFormat, inlineContextValue.Text);
             printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
         }
 
         public override void OnRenderInlineDocumentValue(PrintContext printContext, InlineDocumentValue inlineDocumentValue)
         {
-            SetFormatTextElement(printContext, inlineDocumentValue);
-
+            SetPrintFormat(printContext, inlineDocumentValue, null);
             PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
-            printContext.Main = printContext.Main.Add(Commands.LF, SetFormat(printContext, defaultPrintFormat), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineDocumentValue.Text));
-
+            PrintFormattedText(printContext, defaultPrintFormat, inlineDocumentValue.Text);
             printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
         }
 
         public override void OnRenderInlineACMethodValue(PrintContext printContext, InlineACMethodValue inlineACMethodValue)
         {
-            SetFormatTextElement(printContext, inlineACMethodValue);
-
+            SetPrintFormat(printContext, inlineACMethodValue, null);
             PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
-            printContext.Main = printContext.Main.Add(Commands.LF, SetFormat(printContext, defaultPrintFormat), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineACMethodValue.Text));
-
-
+            PrintFormattedText(printContext, defaultPrintFormat, inlineACMethodValue.Text);
             printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
-
         }
 
         public override void OnRenderInlineTableCellValue(PrintContext printContext, InlineTableCellValue inlineTableCellValue)
         {
-            SetFormatTextElement(printContext, inlineTableCellValue);
-
+            SetPrintFormat(printContext, inlineTableCellValue, null);
             PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
-            printContext.Main = printContext.Main.Add(Commands.LF, SetFormat(printContext, defaultPrintFormat), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineTableCellValue.Text));
-
+            PrintFormattedText(printContext, defaultPrintFormat, inlineTableCellValue.Text);
             printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
         }
 
@@ -249,11 +239,17 @@ namespace gip.core.reporthandler
 
         public override void OnRenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue)
         {
-            SetFormatTextElement(printContext, inlineBoolValue);
-
+            SetPrintFormat(printContext, inlineBoolValue, null);
             PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
-            printContext.Main = printContext.Main.Add(Commands.LF, SetFormat(printContext, defaultPrintFormat), Commands.SelectPrintMode(PrintMode.Reset), printContext.Encoding.GetBytes(inlineBoolValue.Value.ToString()));
+            PrintFormattedText(printContext, defaultPrintFormat, inlineBoolValue.Value.ToString());
+            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+        }
 
+        public override void OnRednerRun(PrintContext printContext, Run run)
+        {
+            SetPrintFormat(printContext, run, null);
+            PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
+            PrintFormattedText(printContext, defaultPrintFormat, run.Text);
             printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
         }
         #endregion
@@ -261,15 +257,16 @@ namespace gip.core.reporthandler
 
         #region Methods -> Render-> Common
 
-        private void SetFormatTextElement(PrintContext printContext, TextElement textElement)
+        private void SetPrintFormat(PrintContext printContext, TextElement textElement, TextAlignment? textAlignment)
         {
             PrintFormat printFormat = new PrintFormat();
             printFormat.FontSize = textElement.FontSize;
             printFormat.FontWeight = textElement.FontWeight;
+            printFormat.TextAlignment = textAlignment;
             printContext.PrintFormats.Add(printFormat);
         }
 
-        protected byte[] SetFormat(PrintContext printContext, PrintFormat defaultPrintFormat)
+        protected Tuple<Justification, CharSizeWidth, CharSizeHeight> GetESCFormat(PrintFormat defaultPrintFormat)
         {
             Justification justification = Justification.Left;
             if (defaultPrintFormat.TextAlignment != null && defaultPrintFormat.TextAlignment != TextAlignment.Left)
@@ -286,24 +283,32 @@ namespace gip.core.reporthandler
 
             if (defaultPrintFormat.FontSize != null)
             {
-                if (defaultPrintFormat.FontSize >= 14)
+                if (defaultPrintFormat.FontSize >= 18)
                 {
-                    charSizeWidth = CharSizeWidth.Double;
-                    charSizeHeight = CharSizeHeight.Double;
+                    charSizeWidth = CharSizeWidth.Quadruple;
+                    charSizeHeight = CharSizeHeight.Quadruple;
                 }
                 else if (defaultPrintFormat.FontSize >= 16)
                 {
                     charSizeWidth = CharSizeWidth.Triple;
                     charSizeHeight = CharSizeHeight.Triple;
                 }
-                else if (defaultPrintFormat.FontSize >= 18)
+                else if (defaultPrintFormat.FontSize >= 14)
                 {
-                    charSizeWidth = CharSizeWidth.Quadruple;
-                    charSizeHeight = CharSizeHeight.Quadruple;
+                    charSizeWidth = CharSizeWidth.Double;
+                    charSizeHeight = CharSizeHeight.Double;
                 }
             }
 
-            return Commands.SelectJustification(justification).Add(SelectCharSize(charSizeWidth, charSizeHeight));
+            return new Tuple<Justification, CharSizeWidth, CharSizeHeight>(justification, charSizeWidth, charSizeHeight);
+        }
+
+        protected void PrintFormattedText(PrintContext printContext, PrintFormat defaultPrintFormat, string text)
+        {
+            Tuple<Justification, CharSizeWidth, CharSizeHeight> format = GetESCFormat(defaultPrintFormat);
+            printContext.Main = printContext.Main.Add(Commands.SelectPrintMode(PrintMode.Reset));
+            printContext.Main = printContext.Main.Add(SelectCharSize(format.Item2, format.Item3));
+            printContext.Main = printContext.Main.Add(Commands.LF, SelectJustification(format.Item1), printContext.Encoding.GetBytes(text));
         }
 
         #endregion

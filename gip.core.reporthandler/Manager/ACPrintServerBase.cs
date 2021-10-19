@@ -415,6 +415,8 @@ namespace gip.core.reporthandler
                     OnRenderInlineBarcode(printContext, (InlineBarcode)inline);
                 else if (inline is InlineBoolValue)
                     OnRenderInlineBoolValue(printContext, (InlineBoolValue)inline);
+                else if (inline is Run)
+                    OnRednerRun(printContext, (Run)inline);
             }
             OnRenderParagraphFooter(printContext, paragraph);
         }
@@ -434,6 +436,8 @@ namespace gip.core.reporthandler
         public abstract void OnRenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode);
 
         public abstract void OnRenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue);
+
+        public abstract void OnRednerRun(PrintContext printContext, Run run);
 
         #endregion
 

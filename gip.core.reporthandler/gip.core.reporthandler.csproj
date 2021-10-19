@@ -145,8 +145,10 @@
     <Compile Include="Manager\ESCPosPrinter.cs" />
     <Compile Include="Manager\PAOrderInfoDestination.cs" />
     <Compile Include="Manager\PAOrderInfoManagerBase.cs" />
+    <Compile Include="Print\ESCPosExt.cs" />
     <Compile Include="Print\PrintContext.cs" />
     <Compile Include="Print\PrintFormat.cs" />
+    <Compile Include="Print\QRCodeSizeExt.cs" />
     <Compile Include="Workflow\PWNodePrint.cs" />
     <None Include="app.config" />
     <Compile Include="CodeCompletionXsdGeneratorVBR.cs" />
