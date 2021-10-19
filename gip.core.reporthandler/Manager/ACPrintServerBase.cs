@@ -151,20 +151,20 @@ namespace gip.core.reporthandler
         public virtual void Print(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
         {
             // suggestion: Use Queue
-            //DelegateQueue.Add(() =>
-            //{
-            //    DoPrint(bsoClassID, designACIdentifier,pAOrderInfo,copies);
-            //});
-
-            // @aagincic comment: this used while code above causes exception:
-            //      -> The calling thread must be STA, because many UI components require this.
-            Application.Current.Dispatcher.Invoke((Action)delegate
+            DelegateQueue.Add(() =>
             {
                 DoPrint(bsoClassID, designACIdentifier, pAOrderInfo, copies);
             });
+
+            // @aagincic comment: this used while code above causes exception:
+            //      -> The calling thread must be STA, because many UI components require this.
+            //Application.Current.Dispatcher.Invoke((Action)delegate
+            //{
+            //    DoPrint(bsoClassID, designACIdentifier, pAOrderInfo, copies);
+            //});
         }
 
-        public void DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        public async void DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
         {
             ACBSO acBSO = null;
             try
@@ -172,14 +172,15 @@ namespace gip.core.reporthandler
                 acBSO = GetACBSO(bsoClassID, pAOrderInfo);
                 ACClassDesign aCClassDesign = acBSO.GetDesign(designACIdentifier);
                 ReportData reportData = GetReportData(acBSO, aCClassDesign);
-                ReportDocument reportDocument = null;
-                FlowDocument flowDoc = null;
-                //await Application.Current.Dispatcher.InvokeAsync((Action)delegate
-                //{
-                reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
-                flowDoc = reportDocument.CreateFlowDocument(reportData);
-                //}, DispatcherPriority.ContextIdle);
-                SendDataToPrinter(flowDoc);
+                byte[] bytes = null;
+                await Application.Current.Dispatcher.InvokeAsync((Action)delegate
+                {
+                    ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
+                    FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
+                    PrintContext printContext = GetPrintContext(flowDoc);
+                    bytes = printContext.Main;
+                }, DispatcherPriority.ContextIdle);
+                SendDataToPrinter(bytes);
             }
             catch (Exception e)
             {
@@ -234,21 +235,12 @@ namespace gip.core.reporthandler
         /// </summary>
         /// <param name="reportData"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public virtual void SendDataToPrinter(FlowDocument flowDoc)
+        public virtual void SendDataToPrinter(byte[] bytes)
         {
             using (TcpClient tcpClient = new TcpClient(IPAddress, Port))
             {
                 NetworkStream clientStream = tcpClient.GetStream();
-                ASCIIEncoding encoder = new ASCIIEncoding();
-                PrintContext printContext = new PrintContext();
-                printContext.TcpClient = tcpClient;
-                printContext.NetworkStream = clientStream;
-                printContext.FlowDocument = flowDoc;
-                printContext.Encoding = encoder;
-                printContext.ColumnMultiplier = 1;
-                printContext.ColumnDivisor = 1;
-                WriteToStream(printContext);
-                clientStream.Write(printContext.Main, 0, printContext.Main.Length);
+                clientStream.Write(bytes, 0, bytes.Length);
                 clientStream.Flush();
             }
         }
@@ -259,9 +251,16 @@ namespace gip.core.reporthandler
         /// <param name="clientStream"></param>
         /// <param name="reportData"></param>
         /// <exception cref="NotImplementedException"></exception>
-        protected void WriteToStream(PrintContext printContext)
+        protected PrintContext GetPrintContext(FlowDocument flowDocument)
         {
+            ASCIIEncoding encoder = new ASCIIEncoding();
+            PrintContext printContext = new PrintContext();
+            printContext.FlowDocument = flowDocument;
+            printContext.Encoding = encoder;
+            printContext.ColumnMultiplier = 1;
+            printContext.ColumnDivisor = 1;
             OnRenderFlowDocment(printContext, printContext.FlowDocument);
+            return printContext;
         }
 
         #endregion

@@ -48,26 +48,15 @@ namespace gip.core.reporthandler
         /// </summary>
         /// <param name="reportData"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public override void SendDataToPrinter(FlowDocument flowDoc)
+        public override void SendDataToPrinter(byte[] bytes)
         {
-            UTF8Encoding encoder = new UTF8Encoding();
-
-            PrintContext printContext = new PrintContext();
-            printContext.PrintFormats = new List<PrintFormat>();
-            printContext.FlowDocument = flowDoc;
-            printContext.Encoding = encoder;
-            printContext.ColumnMultiplier = 1;
-            printContext.ColumnDivisor = 1;
-
-            WriteToStream(printContext);
-
             int tries = 0;
             while (tries < PrintTries)
             {
                 try
                 {
-                    printContext.Main = printContext.Main.Add(Commands.FullPaperCut);
-                    printContext.Main.Print(string.Format("{0}:{1}", IPAddress, Port));
+                    bytes = bytes.Add(Commands.FullPaperCut);
+                    bytes.Print(string.Format("{0}:{1}", IPAddress, Port));
                     return;
                 }
                 catch (Exception e)

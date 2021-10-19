@@ -7,6 +7,14 @@ namespace gip.core.reporthandler
 {
     public class PrintContext
     {
+
+        #region ctor's
+        public PrintContext()
+        {
+            PrintFormats = new List<PrintFormat>();
+        }
+        #endregion
+
         public byte[] Main { get; set; }
 
         public FlowDocument FlowDocument { get; set; }
