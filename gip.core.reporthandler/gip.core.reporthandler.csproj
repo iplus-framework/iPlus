@@ -145,7 +145,8 @@
     <Compile Include="Manager\ESCPosPrinter.cs" />
     <Compile Include="Manager\PAOrderInfoDestination.cs" />
     <Compile Include="Manager\PAOrderInfoManagerBase.cs" />
-    <Compile Include="Manager\PrintContext.cs" />
+    <Compile Include="Print\PrintContext.cs" />
+    <Compile Include="Print\PrintFormat.cs" />
     <Compile Include="Workflow\PWNodePrint.cs" />
     <None Include="app.config" />
     <Compile Include="CodeCompletionXsdGeneratorVBR.cs" />
@@ -305,7 +306,7 @@
     <Compile Include="Manager\ACPrintManager.cs" />
     <Compile Include="Manager\ACPrintServerBase.cs" />
     <Compile Include="Manager\BSOPrint.cs" />
-    <Compile Include="Manager\PrinterInfo.cs" />
+    <Compile Include="Print\PrinterInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
