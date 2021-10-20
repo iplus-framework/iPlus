@@ -155,13 +155,6 @@ namespace gip.core.reporthandler
             {
                 DoPrint(bsoClassID, designACIdentifier, pAOrderInfo, copies);
             });
-
-            // @aagincic comment: this used while code above causes exception:
-            //      -> The calling thread must be STA, because many UI components require this.
-            //Application.Current.Dispatcher.Invoke((Action)delegate
-            //{
-            //    DoPrint(bsoClassID, designACIdentifier, pAOrderInfo, copies);
-            //});
         }
 
         public async void DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
@@ -175,6 +168,7 @@ namespace gip.core.reporthandler
                 byte[] bytes = null;
                 await Application.Current.Dispatcher.InvokeAsync((Action)delegate
                 {
+                    // FlowDocument generate (separate thread)
                     ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
                     FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
                     PrintContext printContext = GetPrintContext(flowDoc);
@@ -190,8 +184,12 @@ namespace gip.core.reporthandler
             {
                 try
                 {
-                    if (acBSO != null)
-                        acBSO.Stop();
+                    // @aagincic: is this reqiered by IsPoolable = true?
+                    // with this database context is disposed
+                    // by many concurent request is exception thrown:
+                    // ObjectContext instance has been disposed and can no longer be used for operations that require a connection.
+                    //if (acBSO != null)
+                    //    acBSO.Stop();
                 }
                 catch (Exception e)
                 {
