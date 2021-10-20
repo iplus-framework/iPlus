@@ -19,7 +19,7 @@ namespace gip.core.autocomponent
     /// <typeparam name="T">T is wrapped content. The synonym of T is "refObject". T can be Types of Instances of IACUrl, ACObject, IACObjectEntity.</typeparam>
 
     [DataContract]
-    public class ACPointNetWrapObject<T> : ACRef<T>, IComparable 
+    public class ACPointNetWrapObject<T> : ACRef<T>, IACPointEntry, IComparable
         where T : IACObject 
     {
         #region c'tors

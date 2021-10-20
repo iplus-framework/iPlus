@@ -118,6 +118,16 @@ namespace gip.core.autocomponent
                 return _RepeatAfterCompleted;
             }
         }
+
+        public bool IsTaskStarted(IACPointEntry acPointEntry)
+        {
+            if (acPointEntry == null)
+                return false;
+            if (acPointEntry.State == PointProcessingState.Rejected)
+                return false;
+            return true;
+        }
+
         #endregion
 
         #endregion

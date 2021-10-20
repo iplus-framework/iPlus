@@ -147,16 +147,25 @@ namespace gip.core.autocomponent
                 if (wAsyncRMI == null)
                     return null;
                 wAsyncRMISubscr.State = wAsyncRMI.State;
-                if (!AddToList(wAsyncRMISubscr))
-                    return null;
-
-                if (_base.WaitOnRequestIfSynchronousMode(iAsyncRMI))
+                if (wAsyncRMISubscr.State < PointProcessingState.Rejected)
                 {
-                    if (!iAsyncRMI.Contains(wAsyncRMI))
-                        return null;
-                }
+                    if (!AddToList(wAsyncRMISubscr))
+                    {
+                        wAsyncRMISubscr.State = PointProcessingState.Rejected;
+                        return wAsyncRMISubscr;
+                    }
 
-                OnLocalStorageListChanged();
+                    if (_base.WaitOnRequestIfSynchronousMode(iAsyncRMI))
+                    {
+                        if (!iAsyncRMI.Contains(wAsyncRMI))
+                        {
+                            wAsyncRMISubscr.State = PointProcessingState.Rejected;
+                            return wAsyncRMISubscr;
+                        }
+                    }
+
+                    OnLocalStorageListChanged();
+                }
             }
             finally
             {

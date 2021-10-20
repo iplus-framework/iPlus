@@ -703,7 +703,7 @@ namespace gip.core.autocomponent
                         || eventArgs.ResultState == Global.ACMethodResultState.Notpossible 
                         || eventArgs.ResultState == Global.ACMethodResultState.FailedAndRepeat)
                         wrapObject.State = PointProcessingState.Rejected;
-                    else if (eventArgs.ResultState == Global.ACMethodResultState.InProcess)
+                    else if (eventArgs.ResultState == Global.ACMethodResultState.InProcess && wrapObject.State < PointProcessingState.Accepted)
                         wrapObject.State = PointProcessingState.Accepted;
                     else if (eventArgs.ResultState == Global.ACMethodResultState.Succeeded)
                         wrapObject.State = PointProcessingState.Deleted;
@@ -738,7 +738,6 @@ namespace gip.core.autocomponent
             // Falls Aufrufer lokales ACObjekt war
             if (invokerOfAsyncOrder != null)
             {
-
                 using (ACMonitor.Lock(LockLocalStorage_20033))
                 {
                     RemoveAllRejected(false);
