@@ -7,6 +7,7 @@ using gip.core.reporthandler.Flowdoc;
 using System.Windows.Documents;
 using System.Windows;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace gip.core.reporthandler
 {
@@ -152,55 +153,47 @@ namespace gip.core.reporthandler
             // suggestion: Use Queue
             DelegateQueue.Add(() =>
             {
-                DoPrint(bsoClassID, designACIdentifier,pAOrderInfo,copies);
+                DoPrint(bsoClassID, designACIdentifier, pAOrderInfo, copies);
             });
-
-            // @aagincic comment: this used while code above causes exception:
-            //      -> The calling thread must be STA, because many UI components require this.
-            //Application.Current.Dispatcher.Invoke((Action)delegate
-            //{
-            //    DoPrint(bsoClassID, designACIdentifier, pAOrderInfo, copies);
-            //});
         }
 
-        private async Task DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        public async void DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
         {
             ACBSO acBSO = null;
             try
             {
-                // PAOrderInfo => 
-                // ACPrintServer Step04 - Get server instance BSO and mandatory report design
                 acBSO = GetACBSO(bsoClassID, pAOrderInfo);
                 ACClassDesign aCClassDesign = acBSO.GetDesign(designACIdentifier);
-                // ACPrintServer Step05 - Prepare ReportData
                 ReportData reportData = GetReportData(acBSO, aCClassDesign);
-                ReportDocument reportDocument = null;
-                FlowDocument flowDoc = null;
+                byte[] bytes = null;
                 await Application.Current.Dispatcher.InvokeAsync((Action)delegate
                 {
-                    reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
-                    flowDoc = reportDocument.CreateFlowDocument(reportData);
-                });
-                // ACPrintServer Step06 - Write to stream
-                SendDataToPrinter(flowDoc);
+                    // FlowDocument generate (separate thread)
+                    ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
+                    FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
+                    PrintContext printContext = GetPrintContext(flowDoc);
+                    bytes = printContext.Main;
+                }, DispatcherPriority.ContextIdle);
+                SendDataToPrinter(bytes);
             }
             catch (Exception e)
             {
-                // TODO: Alarm
-                Messages.LogException(this.GetACUrl(), "Print(10)", e);
+                Messages.LogException(this.GetACUrl(), "Print(185)", e);
             }
             finally
             {
                 try
                 {
-                    // BSO must be stopped!
-                    if (acBSO != null)
-                        acBSO.Stop();
+                    // @aagincic: is this reqiered by IsPoolable = true?
+                    // with this database context is disposed
+                    // by many concurent request is exception thrown:
+                    // ObjectContext instance has been disposed and can no longer be used for operations that require a connection.
+                    //if (acBSO != null)
+                    //    acBSO.Stop();
                 }
                 catch (Exception e)
                 {
-                    // TODO: Alarm
-                    Messages.LogException(this.GetACUrl(), "Print(20)", e);
+                    Messages.LogException(this.GetACUrl(), "Print(196)", e);
                 }
             }
         }
@@ -240,25 +233,12 @@ namespace gip.core.reporthandler
         /// </summary>
         /// <param name="reportData"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public virtual void SendDataToPrinter(FlowDocument flowDoc)
+        public virtual void SendDataToPrinter(byte[] bytes)
         {
             using (TcpClient tcpClient = new TcpClient(IPAddress, Port))
             {
                 NetworkStream clientStream = tcpClient.GetStream();
-                ASCIIEncoding encoder = new ASCIIEncoding();
-
-                PrintContext printContext = new PrintContext();
-                printContext.TcpClient = tcpClient;
-                printContext.NetworkStream = clientStream;
-                printContext.FlowDocument = flowDoc;
-                printContext.Encoding = encoder;
-                printContext.ColumnMultiplier = 1;
-                printContext.ColumnDivisor = 1;
-
-                WriteToStream(printContext);
-
-                clientStream.Write(printContext.Main, 0, printContext.Main.Length);
-
+                clientStream.Write(bytes, 0, bytes.Length);
                 clientStream.Flush();
             }
         }
@@ -269,9 +249,16 @@ namespace gip.core.reporthandler
         /// <param name="clientStream"></param>
         /// <param name="reportData"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public virtual void WriteToStream(PrintContext printContext)
+        protected PrintContext GetPrintContext(FlowDocument flowDocument)
         {
+            ASCIIEncoding encoder = new ASCIIEncoding();
+            PrintContext printContext = new PrintContext();
+            printContext.FlowDocument = flowDocument;
+            printContext.Encoding = encoder;
+            printContext.ColumnMultiplier = 1;
+            printContext.ColumnDivisor = 1;
             OnRenderFlowDocment(printContext, printContext.FlowDocument);
+            return printContext;
         }
 
         #endregion
@@ -280,18 +267,18 @@ namespace gip.core.reporthandler
 
         #region Methods -> Render -> Block
 
-        public virtual void OnRenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
+        protected void OnRenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
         {
             OnRenderBlocks(printContext, flowDoc.Blocks, BlockDocumentPosition.General);
         }
 
-        public virtual void OnRenderBlocks(PrintContext printContext, BlockCollection blocks, BlockDocumentPosition position)
+        protected void OnRenderBlocks(PrintContext printContext, BlockCollection blocks, BlockDocumentPosition position)
         {
             foreach (Block block in blocks)
                 OnRenderBlock(printContext, block, position);
         }
 
-        public virtual void OnRenderBlock(PrintContext printContext, Block block, BlockDocumentPosition position)
+        protected void OnRenderBlock(PrintContext printContext, Block block, BlockDocumentPosition position)
         {
             OnRenderBlockHeader(printContext, block, position);
             if (block is SectionReportHeader)
@@ -307,71 +294,48 @@ namespace gip.core.reporthandler
             OnRenderBlockFooter(printContext, block, position);
         }
 
-        public virtual void OnRenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position)
-        {
+        public abstract void OnRenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position);
 
-        }
+        public abstract void OnRenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position);
 
-        public virtual void OnRenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position)
-        {
-        }
-
-        public virtual void OnRenderSectionReportHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
+        protected void OnRenderSectionReportHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
         {
             OnRenderSectionReportHeaderHeader(printContext, sectionReportHeader);
             OnRenderBlocks(printContext, sectionReportHeader.Blocks, BlockDocumentPosition.General);
             OnRenderSectionReportHeaderFooter(printContext, sectionReportHeader);
         }
 
-        public virtual void OnRenderSectionReportHeaderHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
-        {
-            //
-        }
+        public abstract void OnRenderSectionReportHeaderHeader(PrintContext printContext, SectionReportHeader sectionReportHeader);
 
-        public virtual void OnRenderSectionReportHeaderFooter(PrintContext printContext, SectionReportHeader sectionReportHeader)
-        {
-            //
-        }
+        public abstract void OnRenderSectionReportHeaderFooter(PrintContext printContext, SectionReportHeader sectionReportHeader);
 
-        public virtual void OnRenderSectionReportFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
+        protected void OnRenderSectionReportFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
         {
             OnRenderSectionReportFooterHeader(printContext, sectionReportFooter);
             OnRenderBlocks(printContext, sectionReportFooter.Blocks, BlockDocumentPosition.General);
             OnRenderSectionReportFooterFooter(printContext, sectionReportFooter);
         }
 
-        public virtual void OnRenderSectionReportFooterHeader(PrintContext printContext, SectionReportFooter sectionReportFooter)
-        {
+        public abstract void OnRenderSectionReportFooterHeader(PrintContext printContext, SectionReportFooter sectionReportFooter);
 
-        }
+        public abstract void OnRenderSectionReportFooterFooter(PrintContext printContext, SectionReportFooter sectionReportFooter);
 
-        public virtual void OnRenderSectionReportFooterFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
-        {
-            // 
-        }
-
-        public virtual void OnRenderSectionDataGroup(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        protected virtual void OnRenderSectionDataGroup(PrintContext printContext, SectionDataGroup sectionDataGroup)
         {
             OnRenderSectionDataGroupHeader(printContext, sectionDataGroup);
             OnRenderBlocks(printContext, sectionDataGroup.Blocks, BlockDocumentPosition.General);
             OnRenderSectionDataGroupFooter(printContext, sectionDataGroup);
         }
 
-        public virtual void OnRenderSectionDataGroupHeader(PrintContext printContext, SectionDataGroup sectionDataGroup)
-        {
-            //
-        }
+        public abstract void OnRenderSectionDataGroupHeader(PrintContext printContext, SectionDataGroup sectionDataGroup);
 
-        public virtual void OnRenderSectionDataGroupFooter(PrintContext printContext, SectionDataGroup sectionDataGroup)
-        {
-            // 
-        }
+        public abstract void OnRenderSectionDataGroupFooter(PrintContext printContext, SectionDataGroup sectionDataGroup);
 
         #endregion
 
         #region Methods -> Render -> Table
 
-        public virtual void OnRenderSectionTable(PrintContext printContext, Table table)
+        protected void OnRenderSectionTable(PrintContext printContext, Table table)
         {
             OnRenderSectionTableHeader(printContext, table);
 
@@ -389,22 +353,13 @@ namespace gip.core.reporthandler
             printContext.ColumnDivisor = 1;
         }
 
-        public virtual void OnRenderSectionTableHeader(PrintContext printContext, Table table)
-        {
-            //
-        }
+        public abstract void OnRenderSectionTableHeader(PrintContext printContext, Table table);
 
-        public virtual void OnRenderSectionTableFooter(PrintContext printContext, Table table)
-        {
-            //
-        }
+        public abstract void OnRenderSectionTableFooter(PrintContext printContext, Table table);
 
-        public virtual void OnRenderTableColumn(PrintContext printContext, TableColumn tableColumn)
-        {
+        public abstract void OnRenderTableColumn(PrintContext printContext, TableColumn tableColumn);
 
-        }
-
-        public virtual void OnRenderTableRowGroup(PrintContext printContext, TableRowGroup tableRowGroup)
+        protected void OnRenderTableRowGroup(PrintContext printContext, TableRowGroup tableRowGroup)
         {
             OnRenderTableRowGroupHeader(printContext, tableRowGroup);
             foreach (TableRow tableRow in tableRowGroup.Rows)
@@ -412,17 +367,11 @@ namespace gip.core.reporthandler
             OnRenderTableRowGroupFooter(printContext, tableRowGroup);
         }
 
-        public virtual void OnRenderTableRowGroupHeader(PrintContext printContext, TableRowGroup tableRowGroup)
-        {
-            //
-        }
+        public abstract void OnRenderTableRowGroupHeader(PrintContext printContext, TableRowGroup tableRowGroup);
 
-        public virtual void OnRenderTableRowGroupFooter(PrintContext printContext, TableRowGroup tableRowGroup)
-        {
-            //
-        }
+        public abstract void OnRenderTableRowGroupFooter(PrintContext printContext, TableRowGroup tableRowGroup);
 
-        public virtual void OnRenderTableRow(PrintContext printContext, TableRow tableRow)
+        protected void OnRenderTableRow(PrintContext printContext, TableRow tableRow)
         {
             OnRenderTableRowHeader(printContext, tableRow);
             foreach (TableCell tableCell in tableRow.Cells)
@@ -432,17 +381,11 @@ namespace gip.core.reporthandler
             }
             OnRenderTableRowFooter(printContext, tableRow);
         }
-        public virtual void OnRenderTableRowHeader(PrintContext printContext, TableRow tableRow)
-        {
-            //
-        }
+        public abstract void OnRenderTableRowHeader(PrintContext printContext, TableRow tableRow);
 
-        public virtual void OnRenderTableRowFooter(PrintContext printContext, TableRow tableRow)
-        {
-            //
-        }
+        public abstract void OnRenderTableRowFooter(PrintContext printContext, TableRow tableRow);
 
-        public virtual void OnRenderTableCell(PrintContext printContext, TableCell tableCell)
+        protected void OnRenderTableCell(PrintContext printContext, TableCell tableCell)
         {
             foreach (Block block in tableCell.Blocks)
                 OnRenderBlock(printContext, block, BlockDocumentPosition.InTable);
@@ -452,8 +395,9 @@ namespace gip.core.reporthandler
 
         #region Methods -> Render -> Inlines
 
-        public virtual void OnRenderParagraph(PrintContext printContext, Paragraph paragraph)
+        protected void OnRenderParagraph(PrintContext printContext, Paragraph paragraph)
         {
+            OnRenderParagraphHeader(printContext, paragraph);
             foreach (Inline inline in paragraph.Inlines)
             {
                 if (inline is InlineContextValue)
@@ -468,38 +412,30 @@ namespace gip.core.reporthandler
                     OnRenderInlineBarcode(printContext, (InlineBarcode)inline);
                 else if (inline is InlineBoolValue)
                     OnRenderInlineBoolValue(printContext, (InlineBoolValue)inline);
+                else if (inline is Run)
+                    OnRednerRun(printContext, (Run)inline);
             }
+            OnRenderParagraphFooter(printContext, paragraph);
         }
 
-        public virtual void OnRenderInlineContextValue(PrintContext printContext, InlineContextValue inlineContextValue)
-        {
-            // inline.Text
-        }
+        public abstract void OnRenderParagraphHeader(PrintContext printContext, Paragraph paragraph);
 
-        public virtual void OnRenderInlineDocumentValue(PrintContext printContext, InlineDocumentValue inlineDocumentValue)
-        {
-            // inline.Text
-        }
+        public abstract void OnRenderParagraphFooter(PrintContext printContext, Paragraph paragraph);
 
-        public virtual void OnRenderInlineACMethodValue(PrintContext printContext, InlineACMethodValue inlineACMethodValue)
-        {
-            // inline.Text
-        }
+        public abstract void OnRenderInlineContextValue(PrintContext printContext, InlineContextValue inlineContextValue);
 
-        public virtual void OnRenderInlineTableCellValue(PrintContext printContext, InlineTableCellValue inlineTableCellValue)
-        {
-            // inline.Text
-        }
+        public abstract void OnRenderInlineDocumentValue(PrintContext printContext, InlineDocumentValue inlineDocumentValue);
 
-        public virtual void OnRenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode)
-        {
-            //
-        }
+        public abstract void OnRenderInlineACMethodValue(PrintContext printContext, InlineACMethodValue inlineACMethodValue);
 
-        public virtual void OnRenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue)
-        {
-            //
-        }
+        public abstract void OnRenderInlineTableCellValue(PrintContext printContext, InlineTableCellValue inlineTableCellValue);
+
+        public abstract void OnRenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode);
+
+        public abstract void OnRenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue);
+
+        public abstract void OnRednerRun(PrintContext printContext, Run run);
+
         #endregion
 
         #endregion
