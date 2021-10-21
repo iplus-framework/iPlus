@@ -202,7 +202,8 @@ namespace gip.core.autocomponent
             ACClass acClass = this.ComponentClass;
             if (!acClass.IsMultiInstanceInherited || IsProxy)
                 return null;
-            ACValueList acValueList = acClass.GetACParameter(null);
+
+            ACValueList acValueList = this.Parameters != null ? (ACValueList) this.Parameters.Clone() : acClass.GetACParameter(null);
             return (ParentACComponent as ACComponent).StartComponent(acClass, this.Content, acValueList, Global.ACStartTypes.Automatic, IsProxy);
         }
 

@@ -55,8 +55,13 @@ namespace gip.core.reporthandler
             {
                 try
                 {
+                    Console.WriteLine("Print ...");
                     bytes = bytes.Add(Commands.FullPaperCut);
-                    bytes.Print(string.Format("{0}:{1}", IPAddress, Port));
+                    Random random = new Random();
+                    int rndNr = random.Next(1,20);
+                    string filePath = string.Format(@"c:\VarioData\_temp\ECS-{0}-{1}.by", DateTime.Now.ToString("yyyy-mm-dd_HH-mm"), rndNr);
+                    System.IO.File.WriteAllBytes(filePath, bytes);
+                    //bytes.Print(string.Format("{0}:{1}", IPAddress, Port));
                     return;
                 }
                 catch (Exception e)

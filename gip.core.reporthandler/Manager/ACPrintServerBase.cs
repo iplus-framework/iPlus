@@ -188,8 +188,8 @@ namespace gip.core.reporthandler
                     // with this database context is disposed
                     // by many concurent request is exception thrown:
                     // ObjectContext instance has been disposed and can no longer be used for operations that require a connection.
-                    //if (acBSO != null)
-                    //    acBSO.Stop();
+                    if (acBSO != null)
+                        acBSO.Stop();
                 }
                 catch (Exception e)
                 {
@@ -207,7 +207,12 @@ namespace gip.core.reporthandler
         public virtual ACBSO GetACBSO(Guid bsoClassID, PAOrderInfo pAOrderInfo)
         {
             ACClass bsoACClass = Root.Database.ContextIPlus.GetACType(bsoClassID);
-            ACBSO acBSO = StartComponent(bsoACClass, bsoACClass, new ACValueList() { new ACValue(Const.ParamSeperateContext, typeof(bool), true) }) as ACBSO;
+            ACBSO acBSO = StartComponent(bsoACClass, bsoACClass, 
+                new ACValueList() 
+                { 
+                    new ACValue(Const.ParamSeperateContext, typeof(bool), true), 
+                    new ACValue(Const.SkipSearchOnStart, typeof(bool), true) 
+                }) as ACBSO;
             if (acBSO == null)
                 return null;
             acBSO.SetOrderInfo(pAOrderInfo);
@@ -224,7 +229,7 @@ namespace gip.core.reporthandler
         {
             bool cloneInstantiated = false;
             ACQueryDefinition aCQueryDefinition = null;
-            ReportData reportData = ReportData.BuildReportData(out cloneInstantiated, Global.CurrentOrList.Current, aCBSO, aCQueryDefinition, aCClassDesign);
+            ReportData reportData = ReportData.BuildReportData(out cloneInstantiated, Global.CurrentOrList.Current, aCBSO, aCQueryDefinition, aCClassDesign, true);
             return reportData;
         }
 

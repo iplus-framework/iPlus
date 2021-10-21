@@ -299,6 +299,7 @@
         public const string ParamAutoFilter = "AutoFilter";
         public const string ParamInheritedMember = "InheritedM";
         public const string ParamSeperateContext = "SeperateContext";
+        public const string SkipSearchOnStart = "SkipSearchOnStart";
 
         public const string TaskSubscriptionPoint = "TaskSubscriptionPoint";
         public const string TaskInvocationPoint = "TaskInvocationPoint";
