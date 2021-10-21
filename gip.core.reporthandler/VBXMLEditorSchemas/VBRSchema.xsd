@@ -75,6 +75,7 @@
       <xs:element name="InlineBarcode.StringFormat" />
       <xs:element name="InlineBarcode.CultureInfo" />
       <xs:element name="InlineBarcode.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineBarcode.Truncate" type="dInt32Container" />
       <xs:element name="InlineBarcode.MaxWidth" type="dDoubleContainer" />
       <xs:element name="InlineBarcode.MaxHeight" type="dDoubleContainer" />
       <xs:element name="InlineBarcode.DictKey" />
@@ -118,6 +119,7 @@
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="MaxWidth" />
     <xs:attribute name="MaxHeight" />
     <xs:attribute name="DictKey" />
@@ -163,6 +165,7 @@
       <xs:element name="InlineFlowDocContentValue.StringFormat" />
       <xs:element name="InlineFlowDocContentValue.CultureInfo" />
       <xs:element name="InlineFlowDocContentValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineFlowDocContentValue.Truncate" type="dInt32Container" />
       <xs:element name="InlineFlowDocContentValue.Value" type="dObjectContainer" />
       <xs:element name="InlineFlowDocContentValue.Text" />
       <xs:element name="InlineFlowDocContentValue.BaselineAlignment" />
@@ -200,6 +203,7 @@
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -240,6 +244,7 @@
           <xs:element name="InlineUIValueBase.StringFormat" />
           <xs:element name="InlineUIValueBase.CultureInfo" />
           <xs:element name="InlineUIValueBase.MaxLength" type="dInt32Container" />
+          <xs:element name="InlineUIValueBase.Truncate" type="dInt32Container" />
           <xs:element name="InlineUIValueBase.MaxWidth" type="dDoubleContainer" />
           <xs:element name="InlineUIValueBase.MaxHeight" type="dDoubleContainer" />
           <xs:element name="InlineUIValueBase.Value" type="dObjectContainer" />
@@ -279,6 +284,7 @@
         <xs:attribute name="StringFormat" />
         <xs:attribute name="CultureInfo" />
         <xs:attribute name="MaxLength" />
+        <xs:attribute name="Truncate" />
         <xs:attribute name="MaxWidth" />
         <xs:attribute name="MaxHeight" />
         <xs:attribute name="Value" />
@@ -390,6 +396,7 @@
       <xs:element name="InlineACMethodValue.StringFormat" />
       <xs:element name="InlineACMethodValue.CultureInfo" />
       <xs:element name="InlineACMethodValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineACMethodValue.Truncate" type="dInt32Container" />
       <xs:element name="InlineACMethodValue.Value" type="dObjectContainer" />
       <xs:element name="InlineACMethodValue.Text" />
       <xs:element name="InlineACMethodValue.BaselineAlignment" />
@@ -428,6 +435,7 @@
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -470,6 +478,7 @@
       <xs:element name="InlineTableCellConfigurationValue.StringFormat" />
       <xs:element name="InlineTableCellConfigurationValue.CultureInfo" />
       <xs:element name="InlineTableCellConfigurationValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineTableCellConfigurationValue.Truncate" type="dInt32Container" />
       <xs:element name="InlineTableCellConfigurationValue.Value" type="dObjectContainer" />
       <xs:element name="InlineTableCellConfigurationValue.Text" />
       <xs:element name="InlineTableCellConfigurationValue.BaselineAlignment" />
@@ -508,6 +517,7 @@
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -550,6 +560,7 @@
           <xs:element name="TableRowDataBase.ColumnWidthInfos" />
           <xs:element name="TableRowDataBase.StringFormat" />
           <xs:element name="TableRowDataBase.MaxLength" type="dInt32Container" />
+          <xs:element name="TableRowDataBase.Truncate" type="dInt32Container" />
           <xs:element name="TableRowDataBase.CultureInfo" />
           <xs:element name="TableRowDataBase.BreakPageBeforeNextRow" />
           <xs:element name="TableRowDataBase.FontFamily" type="dFontFamilyContainer" />
@@ -583,6 +594,7 @@
         <xs:attribute name="ColumnWidthInfos" />
         <xs:attribute name="StringFormat" />
         <xs:attribute name="MaxLength" />
+        <xs:attribute name="Truncate" />
         <xs:attribute name="CultureInfo" />
         <xs:attribute name="BreakPageBeforeNextRow" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="FontFamily" />
@@ -633,6 +645,7 @@
       <xs:element name="InlineAggregateValue.StringFormat" />
       <xs:element name="InlineAggregateValue.CultureInfo" />
       <xs:element name="InlineAggregateValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineAggregateValue.Truncate" type="dInt32Container" />
       <xs:element name="InlineAggregateValue.Value" type="dObjectContainer" />
       <xs:element name="InlineAggregateValue.Text" />
       <xs:element name="InlineAggregateValue.BaselineAlignment" />
@@ -671,6 +684,7 @@
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -712,6 +726,7 @@
       <xs:element name="InlineContextValue.StringFormat" />
       <xs:element name="InlineContextValue.CultureInfo" />
       <xs:element name="InlineContextValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineContextValue.Truncate" type="dInt32Container" />
       <xs:element name="InlineContextValue.Value" type="dObjectContainer" />
       <xs:element name="InlineContextValue.Text" />
       <xs:element name="InlineContextValue.BaselineAlignment" />
@@ -749,6 +764,7 @@
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -790,6 +806,7 @@
       <xs:element name="InlineDocumentValue.StringFormat" />
       <xs:element name="InlineDocumentValue.CultureInfo" />
       <xs:element name="InlineDocumentValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineDocumentValue.Truncate" type="dInt32Container" />
       <xs:element name="InlineDocumentValue.Value" type="dObjectContainer" />
       <xs:element name="InlineDocumentValue.Text" />
       <xs:element name="InlineDocumentValue.BaselineAlignment" />
@@ -827,6 +844,7 @@
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -868,6 +886,7 @@
       <xs:element name="InlineTableCellValue.StringFormat" />
       <xs:element name="InlineTableCellValue.CultureInfo" />
       <xs:element name="InlineTableCellValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineTableCellValue.Truncate" type="dInt32Container" />
       <xs:element name="InlineTableCellValue.Value" type="dObjectContainer" />
       <xs:element name="InlineTableCellValue.Text" />
       <xs:element name="InlineTableCellValue.BaselineAlignment" />
@@ -905,6 +924,7 @@
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -1340,6 +1360,7 @@
       <xs:element name="TableRowData.ColumnWidthInfos" />
       <xs:element name="TableRowData.StringFormat" />
       <xs:element name="TableRowData.MaxLength" type="dInt32Container" />
+      <xs:element name="TableRowData.Truncate" type="dInt32Container" />
       <xs:element name="TableRowData.CultureInfo" />
       <xs:element name="TableRowData.BreakPageBeforeNextRow" />
       <xs:element name="TableRowData.FontFamily" type="dFontFamilyContainer" />
@@ -1374,6 +1395,7 @@
     <xs:attribute name="ColumnWidthInfos" />
     <xs:attribute name="StringFormat" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="BreakPageBeforeNextRow" type="frlrfSystemBooleanClassTopic" />
     <xs:attribute name="FontFamily" />
@@ -1411,6 +1433,7 @@
       <xs:element name="TableRowDataDyn.ColumnWidthInfos" />
       <xs:element name="TableRowDataDyn.StringFormat" />
       <xs:element name="TableRowDataDyn.MaxLength" type="dInt32Container" />
+      <xs:element name="TableRowDataDyn.Truncate" type="dInt32Container" />
       <xs:element name="TableRowDataDyn.CultureInfo" />
       <xs:element name="TableRowDataDyn.BreakPageBeforeNextRow" />
       <xs:element name="TableRowDataDyn.FontFamily" type="dFontFamilyContainer" />
@@ -1444,6 +1467,7 @@
     <xs:attribute name="ColumnWidthInfos" />
     <xs:attribute name="StringFormat" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="BreakPageBeforeNextRow" type="frlrfSystemBooleanClassTopic" />
     <xs:attribute name="FontFamily" />
@@ -1481,6 +1505,7 @@
       <xs:element name="TableRowDataDynHeader.ColumnWidthInfos" />
       <xs:element name="TableRowDataDynHeader.StringFormat" />
       <xs:element name="TableRowDataDynHeader.MaxLength" type="dInt32Container" />
+      <xs:element name="TableRowDataDynHeader.Truncate" type="dInt32Container" />
       <xs:element name="TableRowDataDynHeader.CultureInfo" />
       <xs:element name="TableRowDataDynHeader.BreakPageBeforeNextRow" />
       <xs:element name="TableRowDataDynHeader.FontFamily" type="dFontFamilyContainer" />
@@ -1514,6 +1539,7 @@
     <xs:attribute name="ColumnWidthInfos" />
     <xs:attribute name="StringFormat" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="BreakPageBeforeNextRow" type="frlrfSystemBooleanClassTopic" />
     <xs:attribute name="FontFamily" />
@@ -1551,6 +1577,7 @@
           <xs:element name="InlineValueBase.StringFormat" />
           <xs:element name="InlineValueBase.CultureInfo" />
           <xs:element name="InlineValueBase.MaxLength" type="dInt32Container" />
+          <xs:element name="InlineValueBase.Truncate" type="dInt32Container" />
           <xs:element name="InlineValueBase.Value" type="dObjectContainer" />
           <xs:element name="InlineValueBase.Text" />
           <xs:element name="InlineValueBase.BaselineAlignment" />
@@ -1585,6 +1612,7 @@
         <xs:attribute name="StringFormat" />
         <xs:attribute name="CultureInfo" />
         <xs:attribute name="MaxLength" />
+        <xs:attribute name="Truncate" />
         <xs:attribute name="Value" />
         <xs:attribute name="Text" />
         <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -1628,6 +1656,7 @@
       <xs:element name="InlinePropertyValueBase.StringFormat" />
       <xs:element name="InlinePropertyValueBase.CultureInfo" />
       <xs:element name="InlinePropertyValueBase.MaxLength" type="dInt32Container" />
+      <xs:element name="InlinePropertyValueBase.Truncate" type="dInt32Container" />
       <xs:element name="InlinePropertyValueBase.Value" type="dObjectContainer" />
       <xs:element name="InlinePropertyValueBase.Text" />
       <xs:element name="InlinePropertyValueBase.BaselineAlignment" />
@@ -1665,6 +1694,7 @@
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -1704,6 +1734,7 @@
       <xs:element name="InlineBoolValue.StringFormat" />
       <xs:element name="InlineBoolValue.CultureInfo" />
       <xs:element name="InlineBoolValue.MaxLength" type="dInt32Container" />
+      <xs:element name="InlineBoolValue.Truncate" type="dInt32Container" />
       <xs:element name="InlineBoolValue.MaxWidth" type="dDoubleContainer" />
       <xs:element name="InlineBoolValue.MaxHeight" type="dDoubleContainer" />
       <xs:element name="InlineBoolValue.DictKey" />
@@ -1743,6 +1774,7 @@
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
     <xs:attribute name="MaxWidth" />
     <xs:attribute name="MaxHeight" />
     <xs:attribute name="DictKey" />
