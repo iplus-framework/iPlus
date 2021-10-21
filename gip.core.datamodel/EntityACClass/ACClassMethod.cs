@@ -348,6 +348,8 @@ namespace gip.core.datamodel
         /// <param name="database">The database.</param>
         /// <param name="acClassOfProcessModule">Class whre method should appear</param>
         /// <param name="virtualMethodOfChild"></param>
+        /// <param name="acClassOfFunction"></param>
+        /// <param name="combineMethodNameWithFunc"></param>
         /// <returns>ACClassMethod.</returns>
         public static ACClassMethod NewAttachedFunctionMethod(Database database, ACClass acClassOfProcessModule,
             ACClassMethod virtualMethodOfChild, ACClass acClassOfFunction,
@@ -1386,6 +1388,7 @@ namespace gip.core.datamodel
         /// Gets the member.
         /// </summary>
         /// <param name="acIdentifier">The ac identifier.</param>
+        /// <param name="forceRefreshFromDB"></param>
         /// <returns>IACType.</returns>
         public IACType GetMember(string acIdentifier, bool forceRefreshFromDB = false)
         {
@@ -1912,6 +1915,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="acObject">Optional: Reference to another Entity-Object that should be related for this new configuration entry.</param>
         /// <param name="valueTypeACClass">The iPlus-Type of the "Value"-Property.</param>
+        /// <param name="localConfigACUrl"></param>
         /// <returns>IACConfig as a new entry</returns>
         public IACConfig NewACConfig(IACObjectEntity acObject = null, gip.core.datamodel.ACClass valueTypeACClass = null, string localConfigACUrl = null)
         {

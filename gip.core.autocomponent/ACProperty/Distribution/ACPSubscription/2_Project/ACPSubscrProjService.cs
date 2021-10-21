@@ -59,10 +59,9 @@ namespace gip.core.autocomponent
             //subscrObject.Obj.UnsubscribeProxy(subscrObject);
         }
 
-        /// <summary>
-        /// Updates the Subscription
-        /// </summary>
+        /// <summary>Updates the Subscription</summary>
         /// <param name="update"></param>
+        /// <param name="broadcastList"></param>
         public void Subscribe(ACPSubscrProjDispClient update, List<Tuple<IACPointNetBase, IACPointNetBase>> broadcastList)
         {
             if (update == null)

@@ -57,7 +57,7 @@ namespace gip.core.autocomponent
             }
 
             Type TypeToCreate = null;
-            ///TODO: falls es andere Implementierungen ausser Event, AsyncRMI gibt, wie wir Proxy-Type automatisch ermittelt?
+            //TODO: falls es andere Implementierungen ausser Event, AsyncRMI gibt, wie wir Proxy-Type automatisch ermittelt?
             if (this.IsProxy)
             {
                 if (typeTGeneric == null)

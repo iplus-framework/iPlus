@@ -13,6 +13,7 @@ namespace gip.core.autocomponent
     /// All in ACPointRefNetBase declared abstract methods operates on this local storage list
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    /// <typeparam name="W"></typeparam>
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPointNetBase'}de{'ACPointNetBase'}", Global.ACKinds.TACAbstractClass)]
     public abstract class ACPointNetBase<T, W> : IACObject, IACPointNet<T, W>
@@ -29,10 +30,10 @@ namespace gip.core.autocomponent
             _ACRefParent = new ACRef<IACComponent>(this);
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acTypeInfoProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointNetBase(IACComponent parent, IACType acTypeInfoProperty, uint maxCapacity)
         {
             InitLockConnectionList();

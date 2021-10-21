@@ -25,10 +25,10 @@ namespace gip.core.autocomponent
         {
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public PWPointIn(PWBase parent, IACType acClassProperty, uint maxCapacity)
             : base(parent,acClassProperty, maxCapacity)
         {
@@ -222,10 +222,10 @@ namespace gip.core.autocomponent
         {
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public PWPointInProxy(IACComponent parent, ACClassProperty acClassProperty, uint maxCapacity)
             : base(parent, acClassProperty, maxCapacity)
         {

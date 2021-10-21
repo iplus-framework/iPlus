@@ -4,20 +4,18 @@ using gip.core.datamodel;
 
 namespace gip.core.autocomponent
 {
-	/// <summary>
-	/// A collection class containing the <see cref="CompileError"/> objects generated during a failed <see cref="ScriptEngine"/>
-	/// compilation.
-	/// </summary>
-	public class CompileErrors : CollectionBase
+    /// <summary>A collection class containing the objects generated during a failed <see cref="ScriptEngine" />
+    /// compilation.</summary>
+    public class CompileErrors : CollectionBase
 	{
-		#region Public Methods
+        #region Public Methods
 
-		/// <summary>
-		/// Adds a new <see cref="CompileError"/> object to the collection.
-		/// </summary>
-		/// <param name="err"></param>
-		/// <returns></returns>
-		public int Add(Msg err)
+        /// <summary>Adds a new object to the collection.</summary>
+        /// <param name="err"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
+        public int Add(Msg err)
 		{
 			return base.InnerList.Add(err);
 		}

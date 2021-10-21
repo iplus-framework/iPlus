@@ -22,10 +22,10 @@ namespace gip.core.autocomponent
         {
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Initializes a new instance of the <see cref="ACPointNetStorableAsyncRMIBase{T, W}" /> class.</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointNetStorableAsyncRMIBase(IACComponent parent, IACType acClassProperty, uint maxCapacity)
             : base(parent, acClassProperty, maxCapacity)
         {

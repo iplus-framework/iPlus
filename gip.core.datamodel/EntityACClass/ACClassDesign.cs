@@ -69,6 +69,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="database">The database.</param>
         /// <param name="parentACObject">The parent AC object.</param>
+        /// <param name="secondaryKey">secondaryKey</param>
         /// <returns>ACClassDesign.</returns>
         public static ACClassDesign NewACObject(Database database, IACObject parentACObject, string secondaryKey)
         {
@@ -104,6 +105,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="database">The database.</param>
         /// <param name="parentACObject">The parent AC object.</param>
+        /// <param name="secondaryKey">secondaryKey</param>
         /// <returns>ACClassDesign.</returns>
         public static ACClassDesign NewACClassDesignVisualisation(Database database, IACObject parentACObject, string secondaryKey)
         {
@@ -152,6 +154,7 @@ namespace gip.core.datamodel
         /// ACs the URL AC type signature.
         /// </summary>
         /// <param name="acUrl">The ac URL.</param>
+        /// <param name="attachToObject">attachToObject</param>
         /// <returns>ACMethod.</returns>
         public ACMethod ACUrlACTypeSignature(string acUrl, IACObject attachToObject = null)
         {
@@ -768,6 +771,7 @@ namespace gip.core.datamodel
         /// Gets the member.
         /// </summary>
         /// <param name="acIdentifier">The ac identifier.</param>
+        /// <param name="forceRefreshFromDB">forceRefreshFromDB</param>
         /// <returns>IACType.</returns>
         public IACType GetMember(string acIdentifier, bool forceRefreshFromDB = false)
         {
@@ -836,9 +840,9 @@ namespace gip.core.datamodel
         {
             return null;
         }
-#endregion
+        #endregion
 
-#region IACValueType Member
+        #region IACValueType Member
         /// <summary>
         /// Gets the design.
         /// </summary>
@@ -846,6 +850,7 @@ namespace gip.core.datamodel
         /// <param name="acUsage">The ac usage.</param>
         /// <param name="acKind">Kind of the ac.</param>
         /// <param name="vbDesignName">Name of the vb design.</param>
+        /// <param name="msg">msg</param>
         /// <returns>ACClassDesign.</returns>
         public ACClassDesign GetDesign(IACObject acObject, Global.ACUsages acUsage, Global.ACKinds acKind, string vbDesignName = "", MsgWithDetails msg = null)
         {
@@ -875,6 +880,7 @@ namespace gip.core.datamodel
         /// Mies the AC class design.
         /// </summary>
         /// <param name="acIdentifier">The ac identifier.</param>
+        /// <param name="forceRefreshFromDB"></param>
         /// <returns>ACClassDesign.</returns>
         /// <exception cref="System.NotImplementedException"></exception>
         public ACClassDesign GetDesign(string acIdentifier, bool forceRefreshFromDB = false)
@@ -920,6 +926,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="acObject">Optional: Reference to another Entity-Object that should be related for this new configuration entry.</param>
         /// <param name="valueTypeACClass">The iPlus-Type of the "Value"-Property.</param>
+        /// <param name="localConfigACUrl"></param>
         /// <returns>IACConfig as a new entry</returns>
         public IACConfig NewACConfig(IACObjectEntity acObject = null, gip.core.datamodel.ACClass valueTypeACClass = null, string localConfigACUrl = null)
         {

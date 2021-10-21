@@ -13,6 +13,7 @@ namespace gip.core.autocomponent
     /// All in ACPointRefNetBase declared abstract methods operates on this local storage list
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    /// <typeparam name="W"></typeparam>
     public class ACPointServiceReal<T, W> : ACPointServiceBase<T, W> 
         where W : ACPointNetWrapObject<T>
         where T : IACObject 

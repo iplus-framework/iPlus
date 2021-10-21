@@ -1254,10 +1254,8 @@ namespace gip.bso.iplus
 
         #region Manipulation of Rights (Private)
 
-        /// <summary>
-        /// Updates the rights recursive.
-        /// </summary>
-        /// <param name="acClass">The ac class.</param>
+        /// <summary>Updates the rights recursive.</summary>
+        /// <param name="infoItem"></param>
         /// <param name="controlMode">The control mode.</param>
         private void UpdateRightsRecursive(ACClassInfoWithItems infoItem, Global.ControlModes controlMode)
         {
@@ -1391,12 +1389,11 @@ namespace gip.bso.iplus
             }
         }
 
-        /// <summary>
-        /// Updates the rights property.
-        /// </summary>
-        /// <param name="acClass">The ac class.</param>
-        /// <param name="acClassProperty">The ac class property.</param>
+        /// <summary>Updates the rights property.</summary>
+        /// <param name="infoItem"></param>
+        /// <param name="acClassPropertyInfo"></param>
         /// <param name="controlMode">The control mode.</param>
+        /// <param name="rightsForClass"></param>
         private void UpdateRightsProperty(ACClassInfoWithItems infoItem, ACClassPropertyInfo acClassPropertyInfo, Global.ControlModes controlMode, List<VBGroupRight> rightsForClass)
         {
             VBGroupRight rightForItem = rightsForClass.Where(c => c.ACClassPropertyID == acClassPropertyInfo.ValueT.ACClassPropertyID).FirstOrDefault();
@@ -1421,12 +1418,11 @@ namespace gip.bso.iplus
                 rightForItem.ControlMode = controlMode;
         }
 
-        /// <summary>
-        /// Updates the rights method.
-        /// </summary>
-        /// <param name="acClass">The ac class.</param>
-        /// <param name="acClassMethod">The ac class method.</param>
+        /// <summary>Updates the rights method.</summary>
+        /// <param name="infoItem"></param>
+        /// <param name="acClassMethodInfo"></param>
         /// <param name="controlMode">The control mode.</param>
+        /// <param name="rightsForClass"></param>
         private void UpdateRightsMethod(ACClassInfoWithItems infoItem, ACClassMethodInfo acClassMethodInfo, Global.ControlModes controlMode, List<VBGroupRight> rightsForClass)
         {
             VBGroupRight rightForItem = rightsForClass.Where(c => c.ACClassMethodID == acClassMethodInfo.ValueT.ACClassMethodID).FirstOrDefault();
@@ -1451,12 +1447,11 @@ namespace gip.bso.iplus
                 rightForItem.ControlMode = controlMode;
         }
 
-        /// <summary>
-        /// Updates the rights design.
-        /// </summary>
-        /// <param name="acClass">The ac class.</param>
-        /// <param name="acClassDesign">The ac class design.</param>
+        /// <summary>Updates the rights design.</summary>
+        /// <param name="infoItem"></param>
+        /// <param name="acClassDesignInfo"></param>
         /// <param name="controlMode">The control mode.</param>
+        /// <param name="rightsForClass"></param>
         private void UpdateRightsDesign(ACClassInfoWithItems infoItem, ACClassDesignInfo acClassDesignInfo, Global.ControlModes controlMode, List<VBGroupRight> rightsForClass)
         {
             VBGroupRight rightForItem = rightsForClass.Where(c => c.ACClassDesignID == acClassDesignInfo.ValueT.ACClassDesignID).FirstOrDefault();

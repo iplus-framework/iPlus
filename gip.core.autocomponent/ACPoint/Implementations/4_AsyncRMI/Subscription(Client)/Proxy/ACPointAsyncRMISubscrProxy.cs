@@ -20,10 +20,10 @@ namespace gip.core.autocomponent
         {
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointAsyncRMISubscrProxy(IACComponent parent, ACClassProperty acClassProperty, uint maxCapacity)
             : base(parent,acClassProperty, maxCapacity)
         {
@@ -32,9 +32,10 @@ namespace gip.core.autocomponent
 
         /// <summary>
         /// Subscribes a Task at Source-Component only if ACIdentifier of this IACPointAsyncRMISubscr is "TaskSubscriptionPoint"
-        /// Else use InvokeAsyncMethod of IACPointAsyncRMISubscr<T>-Interface
+        /// Else use InvokeAsyncMethod of IACPointAsyncRMISubscr&lt;T&gt;-Interface
         /// </summary>
         /// <param name="acMethod"></param>
+        /// <param name="atComponent"></param>
         /// <returns></returns>
         [ACMethodInfo("", "", 9999)]
         public bool SubscribeTask(ACMethod acMethod, ACComponent atComponent)
@@ -46,9 +47,10 @@ namespace gip.core.autocomponent
 
         /// <summary>
         /// Unsubcribes a Task at Source-Component only if ACIdentifier of this IACPointAsyncRMISubscr is "TaskSubscriptionPoint"
-        /// Else use InvokeAsyncMethod of IACPointAsyncRMISubscr<T>-Interface
+        /// Else use InvokeAsyncMethod of IACPointAsyncRMISubscr&lt;T&gt;-Interface
         /// </summary>
         /// <param name="acMethod"></param>
+        /// <param name="atComponent"></param>
         /// <returns></returns>
         [ACMethodInfo("", "", 9999)]
         public bool UnSubscribeTask(ACMethod acMethod, ACComponent atComponent)

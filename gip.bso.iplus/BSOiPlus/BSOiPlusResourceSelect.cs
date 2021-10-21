@@ -471,11 +471,8 @@ namespace gip.bso.iplus
 
         #region Calling BSO outside
 
-        /// <summary>
-        /// Zeigt den Dialog zum konfigurieren eine ACQueryDefinition an
-        /// </summary>
-        /// <param name="acQueryDefinition"></param>
-        /// <param name="withQuerySelection">Dürfen andere ACQueryDefinition ausgewählt werden</param>
+        /// <summary>Zeigt den Dialog zum konfigurieren eine ACQueryDefinition an</summary>
+        /// <param name="path"></param>
         /// <returns>true wenn Dialog mit "OK" geschlossen wird</returns>
         [ACMethodCommand("ResourceDlg", "en{'Resource dialog'}de{'ResourceDialog'}", 408)]
         public string ResourceDlg(string path)

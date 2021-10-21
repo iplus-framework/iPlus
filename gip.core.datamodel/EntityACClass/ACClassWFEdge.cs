@@ -41,6 +41,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="database">The database.</param>
         /// <param name="parentACObject">The parent AC object.</param>
+        /// <param name="secondaryKey"></param>
         /// <returns>ACClassWFEdge.</returns>
         public static ACClassWFEdge NewACObject(Database database, IACObject parentACObject, string secondaryKey)
         {

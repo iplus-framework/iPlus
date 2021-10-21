@@ -57,61 +57,6 @@ namespace gip.core.datamodel
 
         #endregion
 
-        /// <summary>
-        /// Liefert die nächste gültige Nummer zurück
-        /// !!! Achtung !!! der Datensatz muss danach noch gespeichert werden !!! Achtung !!! 
-        /// </summary>
-        /// <returns></returns>
-        //public string GetNextNo()
-        //{
-        //    string nextNo = "";
-        //    string format = UsedPrefix;
-
-        //    if (MaxCounter < 0)
-        //        throw new ArgumentOutOfRangeException(String.Format("MaxCounter {0} is less than Zero", MaxCounter));
-        //    else if (MinCounter < 0)
-        //        throw new ArgumentOutOfRangeException(String.Format("MinCounter {0} is less than Zero", MinCounter));
-        //    else if (MaxCounter <= MinCounter)
-        //        throw new ArgumentOutOfRangeException(String.Format("MaxCounter {0} is less than or equal to MinCounter {1}", MaxCounter, MinCounter));
-
-        //    if (CurrentCounter <= 0)
-        //    {
-        //        if (MinCounter > 0)
-        //            CurrentCounter = MinCounter;
-        //        else
-        //            CurrentCounter = 1;
-        //    }
-
-        //    if (UseDate)
-        //    {
-        //        DateTime date = DateTime.Today;
-        //        if (CurrentDate != date)
-        //        {
-        //            CurrentDate = date;
-        //            CurrentCounter = MinCounter;
-        //        }
-        //        format += "{0:D1}{1:D2}{2:D2}" + UsedDelimiter + "{3:D" + string.Format("{0:D2}", MaxCounter.ToString().Length) + "}";
-        //        string year = CurrentDate.Year.ToString();
-        //        nextNo = string.Format(format, year.Substring(year.Length - 1, 1), CurrentDate.Month, CurrentDate.Day, CurrentCounter);
-        //    }
-        //    else
-        //    {
-        //        format += "{0:D" + string.Format("{0:D2}", MaxCounter.ToString().Length) + "}";
-        //        nextNo = string.Format(format, CurrentCounter);
-        //    }
-
-        //    CurrentCounter++;
-        //    if (CurrentCounter > MaxCounter)
-        //    {
-        //        if (MinCounter > 0)
-        //            CurrentCounter = MinCounter;
-        //        else
-        //            CurrentCounter = 0;
-        //    }
-
-        //    return nextNo;
-        //}
-
         #region IACObjectEntity Members
         /// <summary>
         /// Method for validating values and references in this EF-Object.

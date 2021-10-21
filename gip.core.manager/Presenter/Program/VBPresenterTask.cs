@@ -39,11 +39,9 @@ namespace gip.core.manager
         #region Methods -> Load
         // TODO: IACComponentTaskExec auch bei Proxy
         /// <summary>
-        /// 
+        ///   <br />
         /// </summary>
-        /// <param name="componentManager">Mit oder ohne ACProgram</param>
         /// <param name="acChildInstanceInfo"></param>
-        
         public void Load(IACTask acChildInstanceInfo)
         {
             if (!acChildInstanceInfo.ExecutingInstance.IsObjLoaded)

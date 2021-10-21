@@ -132,6 +132,8 @@ namespace gip.bso.iplus
 
         #region Change Password
         /// <summary>
+        /// Change Password
+        /// </summary>
         [ACMethodCommand("VBUser", "en{'Change Password'}de{'Password ändern'}", 100, false, Global.ACKinds.MSMethod)]
         public void ChangePW()
         {

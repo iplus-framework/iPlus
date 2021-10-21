@@ -160,12 +160,12 @@ namespace gip.core.manager
             }
         }
 
-        [ACPropertyInfo(9999)]
         /// <summary>
         /// When the XAML-Code is loaded, the logical tree is assigned to the Content-Property of the VBDesignControl.
         /// When the user selects a child from this logical tree, which is a IVBContent, then this property contains a reference to it.
         /// </summary>
         /// <value>The selected WPF-Control that implements IVBContent</value>
+        [ACPropertyInfo(9999)]
         public virtual IVBContent SelectedVBControl
         {
             get

@@ -239,11 +239,12 @@ namespace gip.core.communication
         /// "Send_" + typeName
         /// if the passed complexObj is a ACMethod the ACIdentifer will be used as typeName
         /// else the FullName of the .NET-Type will be used. The namespace-separating points will be replaced by a underscore "_"
-        /// e.g. "gip.core.TestObj" => "gip_gore_TestObj" therefore the Methodname must be "Send_gip_gore_TestObj";
+        /// e.g. "gip.core.TestObj" =&gt; "gip_gore_TestObj" therefore the Methodname must be "Send_gip_gore_TestObj";
         /// </summary>
         /// <param name="complexObj">The complexObj can be wether a ACMethod or any serializable Object.</param>
         /// <param name="dbNo">Datablock-Number</param>
         /// <param name="offset">Offset in Datablock</param>
+        /// <param name="miscParams"></param>
         /// <returns>true if succeed</returns>
         [ACMethodInfo("Exchange", "en{'Send complex object'}de{'Sende komplexes objekt'}", 202)]
         public virtual bool SendObject(object complexObj, int dbNo, int offset, object miscParams)
@@ -288,11 +289,12 @@ namespace gip.core.communication
         /// "Read_" + typeName
         /// if the passed complexObj is a ACMethod the ACIdentifer will be used as typeName
         /// else the FullName of the .NET-Type will be used. The namespace-separating points will be replaced by a underscore "_"
-        /// e.g. "gip.core.TestObj" => "gip_core_TestObj" therefore the Methodname must be "Read_gip_core_TestObj";
+        /// e.g. "gip.core.TestObj" =&gt; "gip_core_TestObj" therefore the Methodname must be "Read_gip_core_TestObj";
         /// </summary>
         /// <param name="complexObj">The complexObj can be wether a ACMethod or any serializable Object. The complexObject should be empty</param>
         /// <param name="dbNo">Datablock-Number</param>
         /// <param name="offset">Offset in Datablock</param>
+        /// <param name="miscParams"></param>
         /// <returns>The passed complexObj with filled out properties. If read error the result is null.</returns>
         [ACMethodInfo("Exchange", "en{'Read complex object'}de{'Lese komplexes objekt'}", 203)]
         public virtual object ReadObject(object complexObj, int dbNo, int offset, object miscParams)

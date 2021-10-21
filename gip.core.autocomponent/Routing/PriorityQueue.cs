@@ -29,10 +29,7 @@ namespace gip.core.autocomponent
             get { return Queue.Count; }
         }
 
-        /// <summary>
-        /// Public constructor
-        /// </summary>
-        /// <param name="_queueSize">Maximum size of queue</param>
+        /// <summary>Public constructor</summary>
         /// <exception cref="System.Exception">Throws when TObj does not implement IComparable interface</exception>
         public PriorityQueue()
         {

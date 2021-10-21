@@ -7,6 +7,10 @@ using gip.core.datamodel;
 
 namespace gip.core.autocomponent
 {
+    /// <summary>
+    ///   <br />
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPointClientObject'}de{'ACPointClientObject'}", Global.ACKinds.TACClass)]
     public class ACPointClientObject<T> : ACPointNetStorableObjectBase<T, ACPointNetWrapObject<T>>, IACPointNetClientObject<T>
@@ -22,16 +26,20 @@ namespace gip.core.autocomponent
             _base = new ACPointClientReal<T, ACPointNetWrapObject<T>>(this);
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointClientObject(IACComponent parent, IACType acClassProperty, uint maxCapacity)
             : base(parent,acClassProperty, maxCapacity)
         {
             _base = new ACPointClientReal<T, ACPointNetWrapObject<T>>(this);
         }
 
+        /// <summary>Initializes a new instance of the <see cref="ACPointClientObject{T}" /> class.</summary>
+        /// <param name="parent">The parent.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="maxCapacity">The maximum capacity.</param>
         public ACPointClientObject(IACComponent parent, string propertyName, uint maxCapacity)
             : this(parent, parent.ComponentClass.GetMember(propertyName), maxCapacity)
         {

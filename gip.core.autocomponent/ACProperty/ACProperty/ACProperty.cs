@@ -178,7 +178,7 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Implizite Zuweisung:
         /// int x = 5;
-        /// ACProperty<int> y;
+        /// ACProperty&lt;int&gt; y;
         /// x = y;
         /// </summary>
         /// <param name="value"></param>

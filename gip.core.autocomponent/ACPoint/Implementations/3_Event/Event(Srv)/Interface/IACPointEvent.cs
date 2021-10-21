@@ -20,12 +20,12 @@ namespace gip.core.autocomponent
         /// <returns></returns>
         ACPointEventWrap<T> SubscribeEvent(ACPointNetEventDelegate AsyncCallbackDelegate);
 
-        /// <summary>
-        /// Subscribes this Event, for CallbackMethods, which are defined by script
-        /// </summary>
-        /// <param name="fromObject"></param>
+        /// <summary>Subscribes this Event, for CallbackMethods, which are defined by script</summary>
+        /// <param name="fromACComponent"></param>
         /// <param name="asyncCallbackDelegateName"></param>
-        /// <returns></returns>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         ACPointEventWrap<T> SubscribeEvent(IACComponent fromACComponent, string asyncCallbackDelegateName);
         #endregion
 
@@ -57,11 +57,11 @@ namespace gip.core.autocomponent
         /// <returns></returns>
         bool UnSubscribeEvent(ACPointNetEventDelegate AsyncCallbackDelegate);
 
-        /// <summary>
-        /// Unsubscribes a ACObject from this Event
-        /// </summary>
-        /// <param name="fromObject"></param>
-        /// <returns></returns>
+        /// <summary>Unsubscribes a ACObject from this Event</summary>
+        /// <param name="fromACComponent"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         bool UnSubscribeEvent(IACComponent fromACComponent);
         #endregion
 

@@ -1065,7 +1065,7 @@ namespace gip.core.datamodel
         }
 
         /// <summary>Attaches the deserialized encapuslated objects to the parent context.</summary>
-        /// <param name="parentACObject">The parent context. Normally this is a EF-Context (IACEntityObjectContext).</param>
+        /// <param name="acObject">The parent context. Normally this is a EF-Context (IACEntityObjectContext).</param>
         public void AttachTo(IACObject acObject)
         {
             if ((XMLValue != null) && (XMLValue is IACAttach))

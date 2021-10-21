@@ -12,10 +12,12 @@ namespace gip.core.autocomponent
         where T : ACComponent 
     {
         #region c'tors
-        /// <summary>
-        /// Constructor for contructing the Wrapper-"wrapObject"
-        /// </summary>
+        /// <summary>Constructor for contructing the Wrapper-"wrapObject"</summary>
         /// <param name="refObject">A "refObject" muss be passed. It will be wrapped from this "wrapObject"</param>
+        /// <param name="owner"></param>
+        /// <param name="asyncRMI"></param>
+        /// <param name="acNameIdentifier"></param>
+        /// <param name="requestID"></param>
         public ACPointAsyncRMISubscrWrap(T refObject, IACPointNetBase owner, IACPointAsyncRMI<T> asyncRMI, string acNameIdentifier, Guid requestID)
             : base(refObject, owner)
         {
@@ -23,10 +25,11 @@ namespace gip.core.autocomponent
             _ACMethodDescriptor = new ACMethodDescriptor(acNameIdentifier, requestID);
         }
 
-        /// <summary>
-        /// Constructor for contructing the Wrapper-"wrapObject"
-        /// </summary>
+        /// <summary>Constructor for contructing the Wrapper-"wrapObject"</summary>
         /// <param name="refObject">A "refObject" muss be passed. It will be wrapped from this "wrapObject"</param>
+        /// <param name="owner"></param>
+        /// <param name="asyncRMI"></param>
+        /// <param name="asyncMethodToCall"></param>
         public ACPointAsyncRMISubscrWrap(T refObject, IACPointNetBase owner, IACPointAsyncRMI<T> asyncRMI, ACMethodDescriptor asyncMethodToCall)
             : base(refObject, owner)
         {

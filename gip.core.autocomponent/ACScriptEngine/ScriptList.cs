@@ -8,7 +8,7 @@ using gip.core.datamodel;
 namespace gip.core.autocomponent
 {
 	/// <summary>
-	/// A collection class containing <see cref="Function"/> objects.
+	/// A collection class containing script objects.
 	/// </summary>
     public class ScriptList : List<Script> // DictionaryBase
     {
@@ -29,9 +29,7 @@ namespace gip.core.autocomponent
 
         #region Public Methods
 
-        /// <summary>
-        /// Used to add a new <see cref="Function"/> object to the <see cref="ScriptEngine"/>.
-        /// </summary>
+        /// <summary>Used to add a new function object to the <see cref="ScriptEngine" />.</summary>
         /// <param name="function"></param>
         public void AddScript(Script function)
         {
@@ -41,7 +39,7 @@ namespace gip.core.autocomponent
         }
 
         /// <summary>
-        /// Used to remove a <see cref="Function"/> object from the <see cref="ScriptEngine"/>.
+        /// Used to remove a function object from the <see cref="ScriptEngine"/>.
         /// </summary>
         /// <param name="functionName"></param>
         public void Remove(string functionName)
@@ -57,7 +55,7 @@ namespace gip.core.autocomponent
         }
 
         /// <summary>
-        /// Returns a string representation of all of the <see cref="Function"/> objects in the collection.
+        /// Returns a string representation of all of the function objects in the collection.
         /// </summary>
         /// <returns>a string representing the C# functions defined.</returns>
         public override string ToString()
@@ -73,7 +71,7 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Gets a boolean value indicating whether the function with the supplied name exists.
         /// </summary>
-        /// <param name="functionName">The name of a <see cref="Function"/> object.</param>
+        /// <param name="functionName">The name of a function object.</param>
         /// <returns>true if the function exists in the collection, otherwise false.</returns>
         public bool Contains(string functionName)
         {
@@ -153,7 +151,7 @@ namespace gip.core.autocomponent
         #region Properties
 
         /// <summary>
-        /// Provides an indexer to override the returned object type to a <see cref="Function"/>
+        /// Provides an indexer to override the returned object type to a function/>
         /// </summary>
         public Script this[string functionName]
         {

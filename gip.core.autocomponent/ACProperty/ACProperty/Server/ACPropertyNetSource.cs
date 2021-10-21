@@ -20,44 +20,37 @@ namespace gip.core.autocomponent
     /// <seealso cref="gip.core.autocomponent.IACPropertyNetSource" />
     public class ACPropertyNetSource<T> : ACPropertyNetServerBase<T>, IACPropertyNetSource
     {
-#region c'tors
-        /// <summary>
-        /// Constructor for SourceProperty as Real Object without SetValueInObject-Callback
-        /// </summary>
+        #region c'tors
+        /// <summary>Constructor for SourceProperty as Real Object without SetValueInObject-Callback</summary>
         /// <param name="acComponent"></param>
-        /// <param name="PropertyName"></param>
+        /// <param name="acClassProperty"></param>
         public ACPropertyNetSource(IACComponent acComponent, ACClassProperty acClassProperty)
             : this(new ACPropertyValueHolder<T>(), acComponent, acClassProperty, false, null)
         {
         }
 
-        /// <summary>
-        /// Constructor for SourceProperty as Proxy Object
-        /// </summary>
+        /// <summary>Constructor for SourceProperty as Proxy Object</summary>
         /// <param name="acComponent"></param>
-        /// <param name="PropertyName"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="IsProxy"></param>
         public ACPropertyNetSource(IACComponent acComponent, ACClassProperty acClassProperty, bool IsProxy)
             : this(new ACPropertyValueHolder<T>(), acComponent, acClassProperty, IsProxy, null)
         {
         }
 
-        /// <summary>
-        /// SourceProperty as Real-Object => IsProxy = false;
-        /// </summary>
+        /// <summary>SourceProperty as Real-Object =&gt; IsProxy = false;</summary>
         /// <param name="acComponent"></param>
-        /// <param name="PropertyName"></param>
+        /// <param name="acClassProperty"></param>
         /// <param name="method"></param>
         public ACPropertyNetSource(IACComponent acComponent, ACClassProperty acClassProperty, ACPropertySetMethod method)
             : this(new ACPropertyValueHolder<T>(), acComponent, acClassProperty, false, method)
         {
         }
 
-        /// <summary>
-        /// Universal Constructor
-        /// </summary>
+        /// <summary>Universal Constructor</summary>
         /// <param name="PropertyValue"></param>
         /// <param name="acComponent"></param>
-        /// <param name="PropertyName"></param>
+        /// <param name="acClassProperty"></param>
         /// <param name="IsProxy"></param>
         /// <param name="method"></param>
         public ACPropertyNetSource(ACPropertyValueHolder<T> PropertyValue, IACComponent acComponent, ACClassProperty acClassProperty, bool IsProxy, ACPropertySetMethod method)
@@ -220,11 +213,12 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Internes Auslösen der Wertänderung durch:
         /// - Direktes setzen von ValueT (oder Oberflächenbindung)
-        /// - Indirekt durch PropertyAccessorChanged-Event -> Setzen von ValueT
+        /// - Indirekt durch PropertyAccessorChanged-Event -&gt; Setzen von ValueT
         /// - Durch OnPropertychanged()-Aufruf von PropertyValueHolder weil ListChanged-/CollectionChanged-/PropertyChanged-Ereignis eines komplexen T-Objekts ausgelöst worden ist
         /// </summary>
         /// <param name="newValue"></param>
         /// <param name="forceSend"></param>
+        /// <param name="invokerInfo"></param>
         protected override void ChangeValueRequest(T newValue, bool forceSend, object invokerInfo = null)
         {
             //base.ChangeValueRequest(newValue);

@@ -43,10 +43,9 @@ namespace gip.core.autocomponent
         }
 
 
-        /// <summary>
-        /// WPF-Control that removes itself
-        /// </summary>
+        /// <summary>WPF-Control that removes itself</summary>
         /// <param name="hashOfDepObj">Hashcode of the calling WPF-Control</param>
+        /// <param name="searchInChilds"></param>
         /// <returns>true if WPF-Control was remove from ReferencePoint</returns>
         public bool RemoveWPFRef(int hashOfDepObj, bool searchInChilds = false)
         {

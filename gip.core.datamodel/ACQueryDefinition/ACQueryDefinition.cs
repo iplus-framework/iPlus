@@ -1301,10 +1301,10 @@ namespace gip.core.datamodel
         /// <summary>
         /// Builds a either a LINQ-Statement or a Entity-SQL-Statement from the ACFilterColumns and ACSortColumns
         /// </summary>
-        /// <param name="queryDefinition">The query definition.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="filterValues">The filter values.</param>
         /// <param name="sortOrder">The sort order.</param>
+        /// <param name="forEntitySQL"></param>
         protected void BuildFilter(ref string filter, ref List<ObjectParameter> filterValues, ref string sortOrder, bool forEntitySQL = false)
         {
             sortOrder = GetOrderExpression(forEntitySQL);
@@ -1383,9 +1383,8 @@ namespace gip.core.datamodel
         /// NULL is returned if expression coud not be ctreadted
         /// </summary>
         /// <param name="filterItem">The filter item.</param>
-        /// <param name="queryType">Type of the query.</param>
-        /// <param name="globalSearchWord">The search word.</param>
         /// <param name="filterValueList">The filter value list.</param>
+        /// <param name="forEntitySQL">The search word.</param>
         /// <returns>System.String.</returns>
         private string CreateFilterExpression(ACFilterItem filterItem, ref List<ObjectParameter> filterValueList, bool forEntitySQL = false)
         {
@@ -1581,7 +1580,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Gets the order expression.
         /// </summary>
-        /// <param name="queryDefinition">The query definition.</param>
+        /// <param name="forEntitySQL">The query definition.</param>
         /// <returns>System.String.</returns>
         private string GetOrderExpression(bool forEntitySQL = false)
         {
@@ -1660,9 +1659,9 @@ namespace gip.core.datamodel
         /// Reads the SearchWord from a ACFilterItem that matches the propertyname and the passed operator and converts it to the generic datataype.
         /// This method is helpful if ther are more ACFilterItem's with the same name.
         /// </summary>
-        /// <typeparam name="T">Datatype</typeparam>
-        /// <typeparam name="logicalOperator">Datatype</typeparam>
-        /// <param name="filterPropertyName">Name of the filter property.</param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="filterPropertyName"></param>
+        /// <param name="logicalOperator"></param>
         /// <returns></returns>
         public T GetSearchValue<T>(string filterPropertyName, Global.LogicalOperators logicalOperator)
         {
@@ -1676,9 +1675,9 @@ namespace gip.core.datamodel
         /// Sets the SearchWord at a ACFilterItem that matches the propertyname and the passed operator and converts it from the generic datataype to string.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="filterPropertyName">Name of the filter property.</param>
-        /// <typeparam name="logicalOperator">Datatype</typeparam>
-        /// <param name="value">The value.</param>
+        /// <param name="filterPropertyName"></param>
+        /// <param name="logicalOperator"></param>
+        /// <param name="value"></param>
         public void SetSearchValue<T>(string filterPropertyName, Global.LogicalOperators logicalOperator, T value)
         {
             ACFilterItem filterItem = this.ACFilterColumns.Where(c => c.PropertyName == filterPropertyName && c.LogicalOperator == logicalOperator).FirstOrDefault();
@@ -1934,10 +1933,11 @@ namespace gip.core.datamodel
         /// <summary>
         /// Creates a Access-instance for executing the query without navigation-feature.
         /// </summary>
-        /// <param name="acQueryDefinition">The nav AC query definition.</param>
-        /// <param name="acGroup">The ac group.</param>
-        /// <param name="acComponentParent">The ac component parent.</param>
-        /// <returns>IAccess.</returns>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="acGroup"></param>
+        /// <param name="acComponentParent"></param>
+        /// <param name="contextForQuery"></param>
+        /// <returns></returns>
         public ACAccess<T> NewAccess<T>(string acGroup, IACObjectWithInit acComponentParent, IACObject contextForQuery = null) where T : class
         {
             if (QueryType == null)
@@ -1960,10 +1960,10 @@ namespace gip.core.datamodel
         /// <summary>
         /// Creates a Access-instance for executing the query without navigation-feature.
         /// </summary>
-        /// <param name="acQueryDefinition">The nav AC query definition.</param>
-        /// <param name="acGroup">The ac group.</param>
-        /// <param name="acComponentParent">The ac component parent.</param>
-        /// <returns>IAccess.</returns>
+        /// <param name="acGroup"></param>
+        /// <param name="acComponentParent"></param>
+        /// <param name="contextForQuery"></param>
+        /// <returns></returns>
         public IAccess NewAccess(string acGroup, IACObjectWithInit acComponentParent, IACObject contextForQuery = null)
         {
             if (QueryType == null)

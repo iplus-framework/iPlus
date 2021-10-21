@@ -772,11 +772,10 @@ namespace gip.bso.iplus
         #endregion
 
         #region Manager->Modify->ACProjectRightmanagement
-        /// <summary>
-        /// Gets the right item info class property.
-        /// </summary>
+        /// <summary>Gets the right item info class property.</summary>
         /// <param name="acClass">The ac class.</param>
         /// <param name="groupRightList">The group right list.</param>
+        /// <param name="property"></param>
         /// <returns>List{ACClassPropertyInfo}.</returns>
         public List<ACClassPropertyInfo> GetRightItemInfoClassProperty(ACClass acClass, IEnumerable<VBGroupRight> groupRightList, ACClassPropertyInfo property = null)
         {
@@ -799,11 +798,10 @@ namespace gip.bso.iplus
             return rightItemInfoClassPropertyList.OrderBy(c => c.ValueT.ACCaption).ToList();
         }
 
-        /// <summary>
-        /// Gets the right item info class method.
-        /// </summary>
+        /// <summary>Gets the right item info class method.</summary>
         /// <param name="acClass">The ac class.</param>
         /// <param name="groupRightList">The group right list.</param>
+        /// <param name="method"></param>
         /// <returns>List{ACClassMethodInfo}.</returns>
         public List<ACClassMethodInfo> GetRightItemInfoClassMethod(ACClass acClass, IEnumerable<VBGroupRight> groupRightList, ACClassMethodInfo method = null)
         {
@@ -1568,10 +1566,9 @@ namespace gip.bso.iplus
         #endregion
 
         #region Clone
-        /// <summary>
-        /// Root point for clone IPlus Studio Tree Item
-        /// </summary>
+        /// <summary>Root point for clone IPlus Studio Tree Item</summary>
         /// <param name="rootACClass"></param>
+        /// <param name="userID"></param>
         /// <param name="model"></param>
         public void CloneClassTree(ACClass rootACClass, string userID, CloneDialogModel model)
         {
@@ -2085,11 +2082,10 @@ namespace gip.bso.iplus
             return true;
         }
 
-        /// <summary>
-        /// Gets the control mode is default AC class design.
-        /// </summary>
+        /// <summary>Gets the control mode is default AC class design.</summary>
         /// <param name="acClass">The ac class.</param>
         /// <param name="acClassDesign">The ac class design.</param>
+        /// <param name="msgDetails"></param>
         /// <returns>Global.ControlModes.</returns>
         public Global.ControlModes GetControlModeIsDefaultACClassDesign(ACClass acClass, ACClassDesign acClassDesign, MsgWithDetails msgDetails)
         {
@@ -2142,12 +2138,12 @@ namespace gip.bso.iplus
             }
         }
 
-        /// <summary>
-        /// Determines whether [is default AC class design] [the specified ac class].
-        /// </summary>
+        /// <summary>Determines whether [is default AC class design] [the specified ac class].</summary>
         /// <param name="acClass">The ac class.</param>
         /// <param name="acClassDesign">The ac class design.</param>
-        /// <returns><c>true</c> if [is default AC class design] [the specified ac class]; otherwise, <c>false</c>.</returns>
+        /// <param name="msgDetails"></param>
+        /// <returns>
+        ///   <c>true</c> if [is default AC class design] [the specified ac class]; otherwise, <c>false</c>.</returns>
         public bool IsDefaultACClassDesign(ACClass acClass, ACClassDesign acClassDesign, MsgWithDetails msgDetails)
         {
             if (acClassDesign == null)
@@ -2641,39 +2637,37 @@ namespace gip.bso.iplus
             public int Count { get; set; }
         }
 
-        /// <summary>
-        /// Updates the MS method function rekursiv.
-        /// </summary>
+        /// <summary>Updates the MS method function rekursiv.</summary>
         /// <param name="acClass">The ac class.</param>
+        /// <param name="msg"></param>
         public void UpdateMSMethodFunctionRekursiv(ACClass acClass, MsgWithDetails msg)
         {
-            /// DERIVATION-SZENARIOS
-            ///  - "PAFDosing"(Level1):
-            ///     - has a "Start"-Method(Level1) and 
-            ///     - a virtual Method "VDosing"(Level1) => ParentACClassMethodID points to "Start"-Method(Level1)
-            ///
-            ///  - "PAProcessModule2"(Level2):
-            ///     - has a child "PAFDosing"(Level2), BasedOnACClassId points to PAFDosing(Level1)
-            ///         therefore PAProcessModule2 gets a new virtual attached Method:
-            ///         - "VDosing"(Level2) => ParentACClassMethodID points to "VDosing"(Level1)
-            ///                             => AttachedFromACClassID points to "PAFDosing"(Level2)
-            ///
-            ///  - "PAProcessModule3" (Level3):
-            ///     - has a child "PAFDosing"(Level3), BasedOnACClassId points to "PAFDosing"(Level2)
-            ///         therefore PAProcessModule3 inhertis the virtual attached Method from "PAProcessModule2"(Level2):
-            ///         - "VDosing"(Level2) => ParentACClassMethodID points to "VDosing"(Level1)
-            ///                             => AttachedFromACClassID points to "PAFDosing"(Level2)
-            ///     - has a new child "PAFDosingB"(Level2), BasedOnACClassId points to PAFDosing(Level1)
-            ///         therefore PAProcessModule3 gets a new virtual attached Method WITH A PREFIX "PAFDosingB_":
-            ///         - "PAFDosingB_VDosing"(Level2) => ParentACClassMethodID points to "VDosing"(Level1)
-            ///                                        => AttachedFromACClassID points to "PAFDosingB"(Level2)
-
-            /// select m.ACIdentifier, m.ACClassMethodID, m.ACClassID, m.ACKindIndex, c.ACIdentifier, c.ACURLCached, m.ParentACClassMethodID, mp.ACIdentifier, m.AttachedFromACClassID, ac.ACIdentifier from ACClassMethod m
-            /// inner join ACClass c on c.ACClassID = m.ACClassID
-            /// left join ACClass ac on ac.ACClassID = m.AttachedFromACClassID
-            /// inner join ACClassMethod mp on mp.ACClassMethodID = m.ParentACClassMethodID
-            /// where m.ACIdentifier = 'Dosing'
-            /// order by c.ACURLCached desc;
+         //   DERIVATION - SZENARIOS
+         //   -"PAFDosing"(Level1):
+         //   -has a "Start" - Method(Level1) and
+         // -a virtual Method "VDosing"(Level1) => ParentACClassMethodID points to "Start"-Method(Level1)
+         //   
+         //     - "PAProcessModule2"(Level2):
+         //        - has a child "PAFDosing"(Level2), BasedOnACClassId points to PAFDosing(Level1)
+         //            therefore PAProcessModule2 gets a new virtual attached Method:
+         //            - "VDosing"(Level2) => ParentACClassMethodID points to "VDosing"(Level1)
+         //                                => AttachedFromACClassID points to "PAFDosing"(Level2)
+         //   
+         //     - "PAProcessModule3" (Level3):
+         //        - has a child "PAFDosing"(Level3), BasedOnACClassId points to "PAFDosing"(Level2)
+         //            therefore PAProcessModule3 inhertis the virtual attached Method from "PAProcessModule2"(Level2):
+         //            - "VDosing"(Level2) => ParentACClassMethodID points to "VDosing"(Level1)
+         //                                => AttachedFromACClassID points to "PAFDosing"(Level2)
+         //        - has a new child "PAFDosingB"(Level2), BasedOnACClassId points to PAFDosing(Level1)
+         //            therefore PAProcessModule3 gets a new virtual attached Method WITH A PREFIX "PAFDosingB_":
+         //            - "PAFDosingB_VDosing"(Level2) => ParentACClassMethodID points to "VDosing"(Level1)
+         //                                           => AttachedFromACClassID points to "PAFDosingB"(Level2)
+         //    select m.ACIdentifier, m.ACClassMethodID, m.ACClassID, m.ACKindIndex, c.ACIdentifier, c.ACURLCached, m.ParentACClassMethodID, mp.ACIdentifier, m.AttachedFromACClassID, ac.ACIdentifier from ACClassMethod m
+         //    inner join ACClass c on c.ACClassID = m.ACClassID
+         //    left join ACClass ac on ac.ACClassID = m.AttachedFromACClassID
+         //    inner join ACClassMethod mp on mp.ACClassMethodID = m.ParentACClassMethodID
+         //    where m.ACIdentifier = 'Dosing'
+         //    order by c.ACURLCached desc;
 
             // If there are no Child-Classes for this ProcessModule do nothing
             if (!acClass.ACClass_ParentACClass.Any())

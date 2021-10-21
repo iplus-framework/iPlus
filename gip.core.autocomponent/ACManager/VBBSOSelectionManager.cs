@@ -165,12 +165,11 @@ namespace gip.core.autocomponent
             return paProcessModule;
         }
 
-        /// <summary>
-        /// Method which ist called from VBDesign, to select a Control
+        /// <summary>Method which ist called from VBDesign, to select a Control
         /// The VBBSOSelectionManager can have more VBDesigns connected,
-        /// but only one VBControl can be active
-        /// </summary>
+        /// but only one VBControl can be active</summary>
         /// <param name="clickedVBControl"></param>
+        /// <param name="isMultiSelect"></param>
         [ACMethodInfo("", "en{'OnVBControlClicked'}de{'OnVBControlClicked'}", 9999)]
         public void OnVBControlClicked(IVBContent clickedVBControl, bool isMultiSelect = false)
         {

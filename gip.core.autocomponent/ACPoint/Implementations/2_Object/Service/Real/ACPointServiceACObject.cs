@@ -20,15 +20,19 @@ namespace gip.core.autocomponent
         {
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointServiceACObject(IACComponent parent, IACType acClassProperty, uint maxCapacity)
             : base(parent, acClassProperty, maxCapacity)
         {
         }
 
+        /// <summary>Initializes a new instance of the <see cref="ACPointServiceACObject" /> class.</summary>
+        /// <param name="parent">The parent.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="maxCapacity">The maximum capacity.</param>
         public ACPointServiceACObject(IACComponent parent, string propertyName, uint maxCapacity)
             : this(parent, parent.ComponentClass.GetMember(propertyName), maxCapacity)
         {

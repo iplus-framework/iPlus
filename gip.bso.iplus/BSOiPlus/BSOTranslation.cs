@@ -2444,12 +2444,13 @@ namespace gip.bso.iplus
             return pages;
         }
 
-        /// <summary>
-        /// Fetch translation from google api
-        /// </summary>
+        /// <summary>Fetch translation from google api</summary>
+        /// <param name="sourceLanguageCode"></param>
         /// <param name="targetLanguageCode"></param>
-        /// <param name="translation"></param>
-        /// <returns></returns>
+        /// <param name="pharses"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         private List<TranslationPair> GetTranslationPairFromGoogleApi(string sourceLanguageCode, string targetLanguageCode, string[] pharses)
         {
             List<TranslationPair> result = new List<TranslationPair>();

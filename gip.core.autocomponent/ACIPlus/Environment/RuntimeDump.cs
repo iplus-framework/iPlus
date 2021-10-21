@@ -150,6 +150,7 @@ namespace gip.core.autocomponent
 
 
         #region public
+#pragma warning disable CS0618
         /// <summary>
         ///   <para>
         /// Create an empty text file called "Invoke_Dump.txt" in the iPlus installation directory or in the directory where the iPlus service is executed.</para>
@@ -186,6 +187,7 @@ namespace gip.core.autocomponent
                 thread.Resume();
             }
         }
+#pragma warning restore CS0618
 
         /// <summary>
         ///   <para>

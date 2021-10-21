@@ -22,10 +22,10 @@ namespace gip.core.autocomponent
             _base = new ACPointClientReal<T, ACPointEventSubscrWrap<T>>(this);
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointNetEventSubscrBase(IACComponent parent, IACType acClassProperty, uint maxCapacity)
             : base(parent,acClassProperty, maxCapacity)
         {

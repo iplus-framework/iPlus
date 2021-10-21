@@ -66,6 +66,7 @@ namespace gip.core.datamodel
         /// <param name="logicalConnective">The logical connective.</param>
         /// <param name="searchWord">The search word.</param>
         /// <param name="isConfiguration">if set to <c>true</c> [is configuration].</param>
+        /// <param name="usedInGlobalSearch">usedInGlobalSearch</param>
         public ACFilterItem(Global.FilterTypes filterType, string properyName, Global.LogicalOperators relationalOperator, Global.Operators logicalConnective, string searchWord, bool isConfiguration, bool usedInGlobalSearch = false)
         {
             FilterType = filterType;

@@ -45,6 +45,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="database">The database.</param>
         /// <param name="parentACObject">The parent AC object.</param>
+        /// <param name="secondaryKey"></param>
         /// <returns>ACClassWF.</returns>
         public static ACClassWF NewACObject(Database database, IACObject parentACObject, string secondaryKey)
         {
@@ -74,6 +75,7 @@ namespace gip.core.datamodel
         /// <param name="paACClass">The pa AC class.</param>
         /// <param name="paACClassMethod">The pa AC class method.</param>
         /// <param name="groupVisualClass">The group visual class.</param>
+        /// <param name="secondaryKey"></param>
         /// <returns>ACClassWF.</returns>
         public static ACClassWF NewACClassWF(Database database, ACClassMethod acClassMethod, ACClass pwACClass, ACClass paACClass, ACClassMethod paACClassMethod, IACWorkflowNode groupVisualClass, string secondaryKey)
         {

@@ -415,10 +415,10 @@ namespace gip.core.autocomponent
             }
             set
             {
-                /// Falls die Funktion durch einen Workflowschritt gestartet worden ist,
-                /// dann sollen die gültigen Parameter (ACMethod) indirekt über diese Task-Property gespeichert werden
-                /// Beim anschliessenden Hochfahren, wird der setter durch die Restore-Funktion aufgerufen und dadurch die CurrentACMethod gesetzt
-                /// In diesem Fall ist SavedACMethod = null
+                // Falls die Funktion durch einen Workflowschritt gestartet worden ist,
+                // dann sollen die gültigen Parameter (ACMethod) indirekt über diese Task-Property gespeichert werden
+                // Beim anschliessenden Hochfahren, wird der setter durch die Restore-Funktion aufgerufen und dadurch die CurrentACMethod gesetzt
+                // In diesem Fall ist SavedACMethod = null
                 _CurrentTask = value;
                 if (_CurrentTask != null)
                 {
@@ -456,10 +456,10 @@ namespace gip.core.autocomponent
             }
             set
             {
-                /// Falls die Funktion durch einen manuellen Start von der Client-Oberfläche gestartet worden ist,
-                /// dann sollen die gültigen Parameter (ACMethod) über diese lokale Property persisitiert werden
-                /// Beim anschliessenden Hochfahren, wird der setter durch die Restore-Funktion aufgerufen und dadurch die CurrentACMethod gesetzt
-                /// In diesem Fall ist CurrentTask = null
+                // Falls die Funktion durch einen manuellen Start von der Client-Oberfläche gestartet worden ist,
+                // dann sollen die gültigen Parameter (ACMethod) über diese lokale Property persisitiert werden
+                // Beim anschliessenden Hochfahren, wird der setter durch die Restore-Funktion aufgerufen und dadurch die CurrentACMethod gesetzt
+                // In diesem Fall ist CurrentTask = null
                 _SavedACMethod = value;
                 if (_SavedACMethod != null)
                 {

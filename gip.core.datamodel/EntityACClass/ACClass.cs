@@ -893,7 +893,7 @@ namespace gip.core.datamodel
         /// Determines if this class is derived from a given named baseclass
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
-        /// <param name="baseClass"></param>
+        /// <param name="baseClassACIdentifier"></param>
         /// <returns></returns>
         public bool IsDerivedClassFrom(string baseClassACIdentifier)
         {
@@ -1459,7 +1459,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// UNSAFE: Returns first found Method in class hierarchy.
         /// </summary>
-        /// <param name="acIdentifier">Name of property</param>
+        /// <param name="acMethodName">Name of method</param>
         /// <param name="forceRefreshFromDB">Refresh the property cache through reload from database</param>
         /// <returns>ACClassProperty.</returns>
         private ACClassMethod GetMethodLocked(string acMethodName, bool forceRefreshFromDB)
@@ -1722,6 +1722,7 @@ namespace gip.core.datamodel
         /// <param name="withOverrides"></param>
         /// <param name="onlyBaseProperties"></param>
         /// <param name="propUsage"></param>
+        /// <param name="includeStatic">search static properties</param>
         /// <returns>New threadsafe list</returns>
         public List<ACClassProperty> GetProperties(bool forceRefreshFromDB = false, bool withOverrides = false, bool onlyBaseProperties = false, Global.ACPropUsages? propUsage = null, bool includeStatic = false)
         {
@@ -1757,6 +1758,7 @@ namespace gip.core.datamodel
         /// <param name="acGroup">Name of group</param>
         /// <param name="acPropType">PropertyType</param>
         /// <param name="forceRefreshFromDB">Refresh the property cache through reload from database</param>
+        /// <param name="includeStatic">search static properties</param>
         /// <returns>ACClassProperty.</returns>
         public ACClassProperty GetProperty(string acGroup, Global.ACPropUsages acPropType, bool forceRefreshFromDB = false, bool includeStatic = false)
         {
@@ -1772,6 +1774,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE while using QueryLock_1X000
         /// </summary>
         /// <param name="acPropertyName">Name of the ac property.</param>
+        /// <param name="forceRefreshFromDB">reloads from db</param>
         /// <returns>ACClassProperty.</returns>
         public ACClassProperty GetPoint(string acPropertyName, bool forceRefreshFromDB = false)
         {
@@ -1866,7 +1869,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// UNSAFE: Returns first found Point in class hierarchy.
         /// </summary>
-        /// <param name="acIdentifier">Name of property</param>
+        /// <param name="acPropertyName">Name of property</param>
         /// <param name="forceRefreshFromDB">Refresh the property cache through reload from database</param>
         /// <returns>ACClassProperty.</returns>
         private ACClassProperty GetPointLocked(string acPropertyName, bool forceRefreshFromDB)
@@ -3323,6 +3326,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="acObject">Optional: Reference to another Entity-Object that should be related for this new configuration entry.</param>
         /// <param name="valueTypeACClass">The iPlus-Type of the "Value"-Property.</param>
+        /// <param name="localConfigACUrl">localConfigACUrl</param>
         /// <returns>IACConfig as a new entry</returns>
         public IACConfig NewACConfig(IACObjectEntity acObject = null, gip.core.datamodel.ACClass valueTypeACClass = null, string localConfigACUrl = null)
         {

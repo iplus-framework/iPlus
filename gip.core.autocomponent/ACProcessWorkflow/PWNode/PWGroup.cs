@@ -552,7 +552,7 @@ namespace gip.core.autocomponent
                     return _RoutableModuleList;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 using (ACMonitor.Lock(_20015_LockValue))
                 {

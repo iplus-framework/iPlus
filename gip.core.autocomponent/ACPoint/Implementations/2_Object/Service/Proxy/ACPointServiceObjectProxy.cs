@@ -7,24 +7,26 @@ using gip.core.datamodel;
 
 namespace gip.core.autocomponent
 {
+    /// <summary>
+    ///   <br />
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     [DataContract]
     internal class ACPointServiceObjectProxy<T> : ACPointNetStorableObjectBase<T, ACPointNetWrapObject<T>>, IACPointNetServiceObject<T>
         where T : IACObject 
     {
         #region c'tors
-        /// <summary>
-        /// Constructor for Deserializer
-        /// </summary>
+        /// <summary>Constructor for Deserializer</summary>
         public ACPointServiceObjectProxy()
             : this(null, null, 0)
         {
             _base = new ACPointServiceProxy<T, ACPointNetWrapObject<T>>(this, true);
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointServiceObjectProxy(IACComponent parent, ACClassProperty acClassProperty, uint maxCapacity)
             : base(parent,acClassProperty, maxCapacity)
         {

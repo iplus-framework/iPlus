@@ -22,10 +22,10 @@ namespace gip.core.autocomponent
             _base = new ACPointServiceProxy<T, ACPointAsyncRMIWrap<T>>(this, true);
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointNetAsyncRMIProxy(IACComponent parent, ACClassProperty acClassProperty, uint maxCapacity)
             : base(parent,acClassProperty, maxCapacity)
         {
@@ -257,13 +257,13 @@ namespace gip.core.autocomponent
             //throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Invoke Callback-Method for selectable RMI-Entry
-        /// </summary>
+        /// <summary>Invoke Callback-Method for selectable RMI-Entry</summary>
         /// <param name="serviceEntry"></param>
         /// <param name="Result"></param>
-        /// <param name="newState"></param>
-        /// <returns></returns>
+        /// <param name="state"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         public bool InvokeCallbackDelegate(ACPointAsyncRMIWrap<T> serviceEntry, ACMethodEventArgs Result, PointProcessingState state = PointProcessingState.Deleted)
         {
             return true;

@@ -1049,12 +1049,15 @@ namespace gip.core.autocomponent
                                                           includeAllocated, isForEditor);
         }
 
-        /// <summary>
-        /// Searches a route from start components to end components. 
-        /// </summary>
+        /// <summary>Searches a route from start components to end components.</summary>
         /// <param name="startComponentsACUrl">The ACUrl array of start components.</param>
         /// <param name="endComponentsACUrl">The ACUrl array of end components.</param>
         /// <param name="routeDirection">Determines a sources and targets in route from a start and end components.</param>
+        /// <param name="selectionRuleID"></param>
+        /// <param name="selectionRuleParams"></param>
+        /// <param name="maxRouteAlternatives"></param>
+        /// <param name="includeReserved"></param>
+        /// <param name="includeAllocated"></param>
         /// <returns>Available routes between start and end components.</returns>
         [ACMethodInfo("", "", 302, true)]
         public RoutingResult SelectRoutes(string[] startComponentsACUrl, string[] endComponentsACUrl, RouteDirections routeDirection, string selectionRuleID, object[] selectionRuleParams,
@@ -1135,13 +1138,17 @@ namespace gip.core.autocomponent
             return rResult;
         }
 
-        /// <summary>
-        /// Searches routes from the startComponentACUrl to the nearest component which is match to selector parameter.
-        /// </summary>
+        /// <summary>Searches routes from the startComponentACUrl to the nearest component which is match to selector parameter.</summary>
         /// <param name="startComponentACUrl">The start component in searching.</param>
-        /// <param name="selector">The kind of a end component in searching.</param>
+        /// <param name="selectionRuleID"></param>
         /// <param name="routeDirection">The search diretion.</param>
-        /// <returns></returns>
+        /// <param name="selectionRuleParams"></param>
+        /// <param name="maxRouteAlternatives"></param>
+        /// <param name="includeReserved"></param>
+        /// <param name="includeAllocated"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         [ACMethodInfo("", "", 304, true)]
         public RoutingResult FindSuccessors(string startComponentACUrl, string selectionRuleID, RouteDirections routeDirection, object[] selectionRuleParams, int maxRouteAlternatives,
                                             bool includeReserved, bool includeAllocated)

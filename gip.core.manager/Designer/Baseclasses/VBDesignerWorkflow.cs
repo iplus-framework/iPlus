@@ -572,7 +572,7 @@ namespace gip.core.manager
             return false;
         }
 
-        /// </summary>
+        /// <summary>Switches the ac class ok.</summary>
         [ACMethodCommand("SwitchACClass", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
         public virtual void SwitchACClassOK()
         {
@@ -692,13 +692,14 @@ namespace gip.core.manager
                 changeGroup.Commit();
         }
 
-        /// <summary>
-        /// Erzeugen einer VBEdge anhand eines WFEdge-Datensatzes
-        /// Es wird nur das DesignItem erzeugt, da WFEdge-Datensatz schon vorhanden
-        /// </summary>
+        /// <summary>Erzeugen einer VBEdge anhand eines WFEdge-Datensatzes
+        /// Es wird nur das DesignItem erzeugt, da WFEdge-Datensatz schon vorhanden</summary>
+        /// <param name="visualInfo"></param>
         /// <param name="acVisualEdge"></param>
         /// <param name="designContext"></param>
-        /// <returns></returns>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         public DesignItem CreateVBEdgeDesignItem(VisualInfo visualInfo, IACWorkflowEdge acVisualEdge, DesignContext designContext)
         {
             DesignItem vbCanvas = designContext.RootItem;
@@ -724,13 +725,15 @@ namespace gip.core.manager
             return item;
         }
 
-        /// <summary>
-        /// Erzeugen einer VBVisual anhand eines WF-Datensatzes
-        /// Es wird nur das DesignItem erzeugt, da WF-Datensatz schon vorhanden
-        /// </summary>
+        /// <summary>Erzeugen einer VBVisual anhand eines WF-Datensatzes
+        /// Es wird nur das DesignItem erzeugt, da WF-Datensatz schon vorhanden</summary>
+        /// <param name="visualInfo"></param>
         /// <param name="acVisualWF"></param>
         /// <param name="designContext"></param>
-        /// <returns></returns>
+        /// <param name="designItemParent"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         public virtual DesignItem CreateVBVisualDesignItem(VisualInfo visualInfo, IACWorkflowNode acVisualWF, DesignContext designContext, out DesignItem designItemParent)
         {
             object newInstance = null;

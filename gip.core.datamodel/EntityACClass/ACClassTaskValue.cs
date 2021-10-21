@@ -54,12 +54,12 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// News the AC class task value.
+        /// Creates a new ACClassTask-Entry
         /// </summary>
-        /// <param name="database">The database.</param>
-        /// <param name="acClass">The ac class.</param>
-        /// <param name="acClassProperty">The ac class property.</param>
-        /// <returns>ACClassTaskValue.</returns>
+        /// <param name="database"></param>
+        /// <param name="parentACObject"></param>
+        /// <param name="acClassProperty"></param>
+        /// <returns></returns>
         public static ACClassTaskValue NewACClassTaskValue(Database database, IACObject parentACObject, IACType acClassProperty)
         {
             ACClassTaskValue entity = ACClassTaskValue.NewACObject(database, parentACObject);

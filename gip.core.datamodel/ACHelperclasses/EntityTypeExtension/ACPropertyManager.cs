@@ -300,6 +300,8 @@ namespace gip.core.datamodel
         /// Gets the name of the AC property ext by.
         /// </summary>
         /// <param name="acIdentifier">The ac identifier.</param>
+        /// <param name="autoCreate"></param>
+        /// <param name="subscribePropChanged"></param>
         /// <returns>ACPropertyExt.</returns>
         public ACPropertyExt GetOrCreateACPropertyExtByName(string acIdentifier, bool autoCreate = true, bool subscribePropChanged = false)
         {

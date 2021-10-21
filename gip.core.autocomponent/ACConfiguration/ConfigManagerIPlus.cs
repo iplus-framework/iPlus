@@ -94,6 +94,7 @@ namespace gip.core.autocomponent
         /// <param name="mandatoryConfigStores"></param>
         /// <param name="preACUrl"></param>
         /// <param name="localACURL"></param>
+        /// <param name="reloadParams"></param>
         /// <returns></returns>
         public List<ACConfigParam> GetACConfigParamList(ACMethod acMethod, List<IACConfigStore> mandatoryConfigStores, string preACUrl, string localACURL, bool reloadParams = false)
         {
@@ -327,11 +328,10 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Get stored Rule values from defined config store name
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="configStores"></param>
+        /// <param name="callingConfigStores"></param>
         /// <param name="preConfigACUrl"></param>
         /// <param name="localConfigACUrl"></param>
-        /// <param name="configStoreName"></param>
+        /// <param name="configStoreUrl"></param>
         /// <returns></returns>
         public List<RuleValue> GetDBStoredRuleValueList(List<IACConfigStore> callingConfigStores, string preConfigACUrl, string localConfigACUrl, string configStoreUrl)
         {

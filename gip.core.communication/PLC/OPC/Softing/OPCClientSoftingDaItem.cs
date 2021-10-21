@@ -23,7 +23,6 @@ namespace gip.core.communication
     /// DaSession               VBSPSSession
     /// DaSubscription          VBSPSSubscription
     /// DaItem                  VBSPSItem
-    ////////////////////////////////////////////////////////////////////////////// 
     /// Die Übertragung der Daten vom Softing-OPC-Client erfolgt in Form von zwei Arrays,
     /// 1. DaItem[] Liste von Items (z.B. "S7.DB800.DBD102") 
     /// 2. ValueQT[] Liste von neuen Wert in Form von Objekten enthalten. 
@@ -36,7 +35,6 @@ namespace gip.core.communication
     /// Damit die von VarioBatch-Seite geänderten Werte zum OPC-Server übertragen werden, wird
     /// über das Event "OnSendValueToSPS" das DaItem informiert.
     /// 
-    ////////////////////////////////////////////////////////////////////////////// 
     /// TOD: Gedanken zur Optimierung:
     /// 
     /// In VBSPSSubscription wird die RequiredUpdateRate in Milisekunden festgelegt. Wenn diese 0 ist,

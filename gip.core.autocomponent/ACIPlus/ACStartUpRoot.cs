@@ -166,12 +166,13 @@ namespace gip.core.autocomponent
         {
             Messages.ConsoleMsg("System", msg.Message);
         }
-        /// <summary>
-        /// Prüft auf gültiges Login
-        /// </summary>
+        /// <summary>Prüft auf gültiges Login</summary>
         /// <param name="user"></param>
         /// <param name="password"></param>
-        /// <returns></returns>
+        /// <param name="errorMsg"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         public VBUser CheckLogin(string user, string password, ref String errorMsg)
         {
             Messages.ConsoleMsg("System", "Login " + user + "...");

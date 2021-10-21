@@ -54,7 +54,6 @@
         /// </summary>
         /// <param name="acMessage">Message</param>
         /// <param name="forACComponent">Adressed component</param>
-        /// <exception cref="gip.core.autocomponent.ACWCFException">Thrown when disconnected</exception>
         void SendACMessage(IWCFMessage acMessage, IACComponent forACComponent);
 
         /// <summary>

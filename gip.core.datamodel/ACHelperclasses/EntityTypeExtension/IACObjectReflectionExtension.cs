@@ -1003,6 +1003,9 @@ namespace gip.core.datamodel
         /// ACValueType
         /// </summary>
         /// <param name="acObject"></param>
+        /// <param name="ose"></param>
+        /// <param name="changeLogList"></param>
+        /// <param name="database"></param>
         public static IList<Msg> CheckACObject(this IACObject acObject, ObjectStateEntry ose, List<Tuple<ACChangeLog, int>> changeLogList, Database database = null)
         {
             if (acObject == null)

@@ -59,10 +59,8 @@ namespace gip.core.processapplication
 
         #region Constructors
 
-        /// <summary>
-        /// Read CSV-formatted data from a file
-        /// </summary>
-        /// <param name="filename">Name of the CSV file</param>
+        /// <summary>Read CSV-formatted data from a file</summary>
+        /// <param name="csvFileInfo"></param>
         public CSVReader(FileInfo csvFileInfo)
         {
             if (csvFileInfo == null)

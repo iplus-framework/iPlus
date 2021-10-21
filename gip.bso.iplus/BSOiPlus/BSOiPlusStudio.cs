@@ -1822,7 +1822,6 @@ namespace gip.bso.iplus
             CurrentNewACClass = null;
         }
 
-        /// </summary>
         [ACMethodCommand("SwitchACClass", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
         public void SwitchACClassOK()
         {

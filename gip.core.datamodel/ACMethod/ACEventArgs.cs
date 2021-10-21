@@ -19,11 +19,11 @@ using System.Runtime.Serialization;
 
 namespace gip.core.datamodel
 {
+    /// <summary>
+    /// ACEventArgs
+    /// </summary>
     //[ACSerializeableInfo]
     [CollectionDataContract]
-    /// <summary>
-    /// Class ACEventArgs
-    /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACEventArgs'}de{'ACEventArgs'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACEventArgs : ACValueList
     {

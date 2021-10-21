@@ -72,7 +72,8 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="database">The database.</param>
         /// <param name="parentACObject">The parent AC object.</param>
-        /// <returns>ACProject.</returns>
+        /// <param name="secondaryKey"></param>
+        /// <returns>ACProject</returns>
         public static ACProject NewACObject(Database database, IACObject parentACObject, string secondaryKey)
         {
             ACProject entity = new ACProject();

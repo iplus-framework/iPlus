@@ -30,11 +30,14 @@ namespace gip.core.datamodel
 
         #region Filesystem
         /// <summary>
-        /// Dirs the with root.
+        /// Dir
         /// </summary>
-        /// <param name="folderpath">The folderpath.</param>
-        /// <param name="recursive">if set to <c>true</c> [recursive].</param>
-        /// <returns>ACFSItem.</returns>
+        /// <param name="db"></param>
+        /// <param name="container"></param>
+        /// <param name="path"></param>
+        /// <param name="recursive"></param>
+        /// <param name="withFiles"></param>
+        /// <returns></returns>
         ACFSItem Dir(IACEntityObjectContext db, ACFSItemContainer container, string path, bool recursive, bool withFiles = true);
 
         /// <summary>

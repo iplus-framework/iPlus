@@ -9,7 +9,6 @@ namespace gip.core.autocomponent
     /// <summary>
     /// Dictionary for all Child-Workflow-Instances that are stored under the ACClassWF as key.
     /// </summary>
-    /// <seealso cref="System.Collections.Generic.Dictionary{gip.core.datamodel.ACClassWF, gip.core.datamodel.ACRef{gip.core.autocomponent.ACComponent}}" />
     public class WFDictionary : Dictionary<ACClassWF, ACRef<ACComponent>>
     {
         public ACComponent GetPWComponent(ACClassWF acClassWF)

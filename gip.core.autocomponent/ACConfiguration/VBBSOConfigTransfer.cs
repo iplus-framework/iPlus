@@ -126,7 +126,7 @@ namespace gip.core.autocomponent
         #region TransferMethod
         private ACConfigTransferMethodModel _SelectedTransferMethod;
         /// <summary>
-        /// Selected property for Tuple<ACClassMethod, bool>
+        /// Selected property for Tuple&lt;ACClassMethod, bool&gt;
         /// </summary>
         /// <value>The selected TransferMethod</value>
         [ACPropertySelected(9999, "TransferMethod", "en{'TODO: TransferMethod'}de{'TODO: TransferMethod'}")]
@@ -150,7 +150,7 @@ namespace gip.core.autocomponent
 
         private List<ACConfigTransferMethodModel> _TransferMethodList;
         /// <summary>
-        /// List property for Tuple<ACClassMethod, bool>
+        /// List property for Tuple&lt;ACClassMethod, bool&gt;
         /// </summary>
         /// <value>The TransferMethod list</value>
         [ACPropertyList(9999, "TransferMethod")]

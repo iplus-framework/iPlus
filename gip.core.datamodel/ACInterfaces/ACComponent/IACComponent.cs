@@ -377,11 +377,11 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="acClass">Type which should be instantiated</param>
         /// <param name="content">This parameter is passed to the second parameter "IACObject content" of a ACComponent-Constructor.</param>
-        /// <param name="parameterList">This parameter is passed to the fourth parameter "ACValueList parameter" of a ACComponent-Constructor. 
+        /// <param name="acParameter">This parameter is passed to the fourth parameter "ACValueList parameter" of a ACComponent-Constructor. 
         /// Call the ACClass.TypeACSignature()-Method of the corresponding iPlus type that you want to instance to get the right ACValueList (from your passed acClass parameter)</param>
         /// <param name="startChildMode">Controls if further childrens should be created automatically</param>
         /// <param name="asProxy"></param>
-        /// <param name="acIdentifier">Identifier which should given to the new created instance</param>
+        /// <param name="acNameInstance">Identifier which should given to the new created instance</param>
         /// <returns></returns>
         IACComponent StartComponent(ACClass acClass, object content, ACValueList acParameter, Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic, bool asProxy = false, string acNameInstance = "");
 
@@ -389,7 +389,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Starts/Creates a new Instance as a child of this instance
         /// </summary>
-        /// <param name="acIdentifier">This parameter, you pass the name of the Child-Class/instance, 
+        /// <param name="acName">This parameter, you pass the name of the Child-Class/instance, 
         /// which was defined by the development environment in the application tree below the class in which this instance is currently located (this-pointer). 
         /// If no class could be found in the application tree with this ACIdentifier, then it is checked whether it is a business object class (derivation of ACBSO). 
         /// If so, then a new dynamic "child instance" is created below the instance in which this instance is currently located.</param>

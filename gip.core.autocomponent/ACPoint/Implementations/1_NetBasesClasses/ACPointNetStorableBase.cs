@@ -17,6 +17,7 @@ namespace gip.core.autocomponent
     /// All in ACPointRefNetBase declared abstract methods operates on this local storage list
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    /// <typeparam name="W"></typeparam>
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPointNetStorableBase'}de{'ACPointNetStorableBase'}", Global.ACKinds.TACAbstractClass)]
     public abstract class ACPointNetStorableBase<T, W> : ACPointNetBase<T, W>
@@ -33,10 +34,10 @@ namespace gip.core.autocomponent
             InitLockLocalStorage();
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointNetStorableBase(IACComponent parent, IACType acClassProperty, uint maxCapacity)
             : base(parent, acClassProperty, maxCapacity)
         {

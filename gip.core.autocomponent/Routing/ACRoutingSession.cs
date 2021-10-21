@@ -509,12 +509,10 @@ namespace gip.core.autocomponent
 
         private int _AddedSidetracks = 0;
 
-        /// <summary>
-        /// Adds sidetracks recursively for specified vertex and new vertices in shortest path
-        /// </summary>
-        /// <param name="_p">Previous sidetrack collection</param>
-        /// <param name="_v">Vertex to evalueate</param>
-        private void AddSidetracks(ACRoutingPath _p, ACRoutingVertex routingVertex)
+        /// <summary>Adds sidetracks recursively for specified vertex and new vertices in shortest path</summary>
+        /// <param name="rp">Previous sidetrack collection</param>
+        /// <param name="routingVertex"></param>
+        private void AddSidetracks(ACRoutingPath rp, ACRoutingVertex routingVertex)
         {
             if (routingVertex == null)
                 return;
@@ -532,7 +530,7 @@ namespace gip.core.autocomponent
                     && edge.Source.ParentACComponent != this.Target.Component.ValueT)
                 {
                     ACRoutingPath p = new ACRoutingPath();
-                    p.AddRange(_p);
+                    p.AddRange(rp);
                     p.Add(edge);
 
                     if (!CheckLoop(p) || edge.TargetParent == this.Source.Component.ValueT)
@@ -545,7 +543,7 @@ namespace gip.core.autocomponent
                 }
             }
             if (routingVertex.Next != null && routingVertex.Distance > 0 && !(_anyLoop && _AddedSidetracks >= _MaxRouteAlternatives))
-                AddSidetracks(_p, RoutingVertexList[routingVertex.Next.ValueT]);
+                AddSidetracks(rp, RoutingVertexList[routingVertex.Next.ValueT]);
         }
 
         private IEnumerable<PAEdge> OrderEdges(IEnumerable<PAEdge> edges)
@@ -585,10 +583,10 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        /// <summary>
-        /// Reconstructs path from sidetracks
-        /// </summary>
+        /// <summary>Reconstructs path from sidetracks</summary>
         /// <param name="_sidetracks">Sidetracks collections for this path, could be empty for shortest</param>
+        /// <param name="sourceComponent"></param>
+        /// <param name="vertexList"></param>
         /// <returns>Full path reconstructed from s to t, crossing sidetracks</returns>
         public static ACRoutingPath RebuildPath(ACRoutingPath _sidetracks, IACComponent sourceComponent, List<ACRoutingVertex> vertexList)
         {

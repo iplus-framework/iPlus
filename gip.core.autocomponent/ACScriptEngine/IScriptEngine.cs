@@ -34,38 +34,33 @@ namespace gip.core.autocomponent
         void UnregisterNamespace(string useNamespace);
 
 
-        /// <summary>
-        /// Registrieren einer normalen Funktion.
-        /// Die Funktionssignatur ist im "sourcecode" enthalten. 
-        /// Die aufrufende Stelle ist für die richtige Parametrisierung verantwortlich.
-        /// </summary>
-        /// <param name="functionName"></param>
+        /// <summary>Registrieren einer normalen Funktion.
+        /// Die Funktionssignatur ist im "sourcecode" enthalten.
+        /// Die aufrufende Stelle ist für die richtige Parametrisierung verantwortlich.</summary>
+        /// <param name="acMethodName"></param>
         /// <param name="sourcecode"></param>
-        /// <param name="contintueByError"></param>
+        /// <param name="continueByError"></param>
         void RegisterScript(string acMethodName, string sourcecode, bool continueByError);
 
-        /// <summary>
-        /// Registrierung eines Scripts aufheben
-        /// </summary>
-        /// <param name="identifier"></param>
-        /// <param name="sourcecode"></param>
+        /// <summary>Registrierung eines Scripts aufheben</summary>
+        /// <param name="acMethodName"></param>
         void UnregisterScript(string acMethodName);
 
-        /// <summary>
-        /// Existiert das Script
-        /// </summary>
-        /// <param name="identifier"></param>
-        /// <returns></returns>
+        /// <summary>Existiert das Script</summary>
+        /// <param name="acMethodName"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         bool ExistsScript(string acMethodName);
 
-        /// <summary>
-        /// Ausführen eines Scripts
+        /// <summary>Ausführen eines Scripts
         /// Hier darf es einen beliebigen Rückgabetyp geben, der von
-        /// object auf den konkreten Typ zu casten ist
-        /// </summary>
-        /// <param name="identifier"></param>
+        /// object auf den konkreten Typ zu casten ist</summary>
+        /// <param name="acMethodName"></param>
         /// <param name="parameters"></param>
-        /// <returns></returns>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         object Execute(string acMethodName, object[] parameters);
 
         /// <summary>
@@ -75,10 +70,12 @@ namespace gip.core.autocomponent
         /// Alternativ kann auch eine Exception geworfen werden,
         /// wenn es zu einem harten Fehler kommt.
         /// </summary>
-        /// <param name="eventTrigger"></param>
-        /// <param name="eventParameter"></param>
+        /// <param name="triggerType"></param>
+        /// <param name="methodNamePostFix"></param>
         /// <param name="parameters"></param>
-        /// <returns></returns>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         object TriggerScript(ScriptTrigger.Type triggerType, String methodNamePostFix, object[] parameters);
 
         /// <summary>

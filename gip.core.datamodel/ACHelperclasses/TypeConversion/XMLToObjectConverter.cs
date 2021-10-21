@@ -35,6 +35,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="objectType">Type of the object.</param>
         /// <param name="valueXML">The value XML.</param>
+        /// <param name="invariantCulture">invariantCulture</param>
         /// <param name="database">The database.</param>
         /// <returns>System.Object.</returns>
         static public object XMLToObject(Type objectType, string valueXML, bool invariantCulture, IACEntityObjectContext database)
@@ -46,6 +47,7 @@ namespace gip.core.datamodel
         /// Objects to XML.
         /// </summary>
         /// <param name="valueObject">The value object.</param>
+        /// <param name="invariantCulture">invariantCulture</param>
         /// <param name="entityAsEntityKey">if set to <c>true</c> [entity as entity key].</param>
         /// <param name="xmlIndented">if set to <c>true</c> [XML indented].</param>
         /// <returns>System.String.</returns>

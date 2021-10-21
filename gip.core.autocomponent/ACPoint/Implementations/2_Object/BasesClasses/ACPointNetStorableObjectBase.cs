@@ -22,10 +22,10 @@ namespace gip.core.autocomponent
         {
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointNetStorableObjectBase(IACComponent parent, IACType acClassProperty, uint maxCapacity)
             : base(parent,acClassProperty, maxCapacity)
         {
@@ -165,7 +165,7 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Removes the "wrapObject" from the local storage list including it's wrapped "refObject" 
         /// </summary>
-        /// <param name="refObject">Addressing over acURL</param>
+        /// <param name="acURL">Addressing over acURL</param>
         /// <returns>returns true if object existed and was removed</returns>
         public virtual bool Remove(string acURL)
         {
@@ -197,6 +197,7 @@ namespace gip.core.autocomponent
             return true;
         }
 
+        /// <summary>
         /// Adds a "refObject" to the List by creating a ACPointRefNetWrapObject-Instance and wrapping the "refObject".
         /// List could reside on Proxy or Serverside. This depends upon the underlying implementation.
         /// </summary>

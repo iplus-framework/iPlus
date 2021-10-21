@@ -12,16 +12,21 @@ namespace gip.core.autocomponent
         where T : ACComponent 
     {
         #region c'tors
-        /// <summary>
-        /// Constructor for contructing the Wrapper-"wrapObject"
-        /// </summary>
+        /// <summary>Constructor for contructing the Wrapper-"wrapObject"</summary>
         /// <param name="refObject">A "refObject" muss be passed. It will be wrapped from this "wrapObject"</param>
+        /// <param name="owner"></param>
+        /// <param name="asyncCallbackDelegate"></param>
         public ACPointEventWrap(T refObject, IACPointNetBase owner, ACPointNetEventDelegate asyncCallbackDelegate) 
             : base(refObject, owner)
         {
             _OriginalAsyncCallbackDelegate = asyncCallbackDelegate;
         }
 
+        /// <summary>Initializes a new instance of the <see cref="ACPointEventWrap{T}" /> class.</summary>
+        /// <param name="refObject">The reference object.</param>
+        /// <param name="owner">The owner.</param>
+        /// <param name="asyncCallbackDelegate">The asynchronous callback delegate.</param>
+        /// <param name="clientEntry">The client entry.</param>
         public ACPointEventWrap(T refObject, IACPointNetBase owner, ACPointNetEventDelegate asyncCallbackDelegate, ACPointEventSubscrWrap<T> clientEntry)
             : this(refObject, owner, asyncCallbackDelegate)
         {
@@ -29,10 +34,10 @@ namespace gip.core.autocomponent
             _RequestID = clientEntry.RequestID;
         }
 
-        /// <summary>
-        /// Constructor for contructing the Wrapper-"wrapObject", if Callback-Method is defined by script
-        /// </summary>
+        /// <summary>Constructor for contructing the Wrapper-"wrapObject", if Callback-Method is defined by script</summary>
         /// <param name="refObject">A "refObject" muss be passed. It will be wrapped from this "wrapObject"</param>
+        /// <param name="owner"></param>
+        /// <param name="asyncCallbackDelegateName"></param>
         public ACPointEventWrap(T refObject, IACPointNetBase owner, string asyncCallbackDelegateName)
             : base(refObject, owner)
         {

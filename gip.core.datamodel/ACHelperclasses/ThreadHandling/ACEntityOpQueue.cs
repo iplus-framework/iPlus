@@ -34,11 +34,12 @@ namespace gip.core.datamodel
     public class ACEntityOpQueue<T> : ACDelegateQueue, IACEntityOpQueue where T : IACEntityObjectContext
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ACEntityOpQueue"/> class.
+        /// Initializes a new instance of the ACDelegateQueue class.
         /// </summary>
         /// <param name="instanceName">Name of the instance.</param>
         /// <param name="objectContextToCreate">The object context to create.</param>
         /// <param name="connectionString">The connection string.</param>
+        /// <param name="saveChangesWithoutValidation">saveChangesWithoutValidation</param>
         public ACEntityOpQueue(string instanceName, Type objectContextToCreate, string connectionString, bool saveChangesWithoutValidation)
             : base(instanceName)
         {
@@ -51,11 +52,12 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ACEntityOpQueue"/> class.
+        /// Initializes a new instance of the ACEntityOpQueue class.
         /// </summary>
         /// <param name="instanceName">Name of the instance.</param>
         /// <param name="database">The database.</param>
         /// <param name="autoOpenClose">if set to <c>true</c> [auto open close].</param>
+        /// <param name="saveChangesWithoutValidation">saveChangesWithoutValidation</param>
         public ACEntityOpQueue(string instanceName, T database, bool autoOpenClose, bool saveChangesWithoutValidation)
             : base(instanceName)
         {
@@ -66,12 +68,13 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ACEntityOpQueue"/> class.
+        /// Initializes a new instance of the ACEntityOpQueue class.
         /// </summary>
         /// <param name="instanceName">Name of the instance.</param>
         /// <param name="database">The database.</param>
         /// <param name="workerInterval_ms">The worker interval_ms.</param>
         /// <param name="autoOpenClose">if set to <c>true</c> [auto open close].</param>
+        /// <param name="saveChangesWithoutValidation">saveChangesWithoutValidation</param>
         public ACEntityOpQueue(string instanceName, T database, int workerInterval_ms, bool autoOpenClose, bool saveChangesWithoutValidation)
             : base(instanceName, workerInterval_ms)
         {
@@ -80,11 +83,6 @@ namespace gip.core.datamodel
             _AutoOpenClose = autoOpenClose;
             ACObjectContextManager.Add(_Context, instanceName);
         }
-
-        /// <summary>
-        /// The _ connection
-        /// </summary>
-        //private EntityConnection _Connection;
 
         /// <summary>
         /// The _ context

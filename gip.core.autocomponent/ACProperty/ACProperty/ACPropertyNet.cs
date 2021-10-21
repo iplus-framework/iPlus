@@ -236,22 +236,22 @@ namespace gip.core.autocomponent
             return true;
         }
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region Internal Methods
+        #region Internal Methods
 
         /// <summary>
         /// Methode löst einen Value-Change-Request über das Netzwerk auf dem entsprechenden Realen-Objekt aus
-        /// 
         /// ChangeValueRequest wird aufgerufen durch:
         /// - Direktes setzen von ValueT (oder Oberflächenbindung)
-        /// - Indirekt durch PropertyAccessorChanged-Event -> Setzen von ValueT
+        /// - Indirekt durch PropertyAccessorChanged-Event -&gt; Setzen von ValueT
         /// - Durch OnPropertychanged()-Aufruf von PropertyValueHolder weil ListChanged-/CollectionChanged-/PropertyChanged-Ereignis eines komplexen T-Objekts ausgelöst worden ist
         /// </summary>
         /// <param name="newValue"></param>
         /// <param name="forceSend"></param>
+        /// <param name="invokerInfo"></param>
         protected virtual void ChangeValueRequest(T newValue, bool forceSend, object invokerInfo = null)
         {
             if (_PropertyValue == null)

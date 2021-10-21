@@ -22,42 +22,42 @@ namespace gip.core.autocomponent
     ///
     /// 
     /// Folgende Einträge sind hierfür in der Web.config vor zu nehmen:
-    /// 1. <configSections>
+    /// 1. &lt;configSections&gt;
     /// Hier werden die neue von uns definierte Konfigurationsgruppe registriert
     /// (Derzeit muß die LoggingConfiguration.cs im gleichen Verzeichnis wie die Web.config liegen)
-    /// 2. <Logging>
+    /// 2. &lt;Logging&gt;
     /// In diesem Bereich wird die eigentliche Konfiguration eingetragen. Zu deren Bedeutung wird
     /// in der Klasse Logging.cs näher eingegangen
     /// 
-    ///<configuration>
-    ///    <configSections>
-    ///      <sectionGroup name="Logging">
-    ///        <section
+    ///&lt;configuration&gt;
+    ///    &lt;configSections&gt;
+    ///      &lt;sectionGroup name="Logging"&gt;
+    ///        &lt;section
     ///          name="LoggingConfiguration"
     ///          type="gip.mes.client2008.LoggingConfiguration, gip.mes.client2008, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
     ///          allowLocation="true"
     ///          allowDefinition="Everywhere"
-    ///      />
-    ///      </sectionGroup>
-    ///    </configSections>
-    ///  <Logging>
-    ///    <LoggingConfiguration>
-    ///      <LogFiles>
-    ///        <addLogFile FileType="DebugLog" FileName="DebugLog%Date%.log" MaxSizeMB="10"/>
-    ///        <addLogFile FileType="UserLog" FileName="UserLog%Date%.log" MaxSizeMB="10"/>
-    ///        <addLogFile FileType="BookingLog" FileName="Booking%Date%.log" MaxSizeMB="10"/>
-    ///      </LogFiles>
-    ///      <LoggingTypes>
-    ///        <addLoggingType FileType="DebugLog" MessageType="Debug" Source="default"></addLoggingType>
-    ///        <addLoggingType FileType="DebugLog" MessageType="Command" Source="default"></addLoggingType>
-    ///        <addLoggingType FileType="UserLog" MessageType="Info" Source="default"></addLoggingType>
-    ///        <addLoggingType FileType="UserLog" MessageType="Warning" Source="default"></addLoggingType>
-    ///        <addLoggingType FileType="UserLog" MessageType="Error" Source="default"></addLoggingType>
-    ///        <addLoggingType FileType="BookingLog" MessageType="default" Source="BookingResultMessage"></addLoggingType>
-    ///      </LoggingTypes>
-    ///    </LoggingConfiguration>
-    ///  </Logging>
-    ///</configuration>
+    ///      /&gt;
+    ///      &lt;/sectionGroup&gt;
+    ///    &lt;/configSections&gt;
+    ///  &lt;Logging&gt;
+    ///    &lt;LoggingConfiguration&gt;
+    ///      &lt;LogFiles&gt;
+    ///        &lt;addLogFile FileType="DebugLog" FileName="DebugLog%Date%.log" MaxSizeMB="10"/&gt;
+    ///        &lt;addLogFile FileType="UserLog" FileName="UserLog%Date%.log" MaxSizeMB="10"/&gt;
+    ///        &lt;addLogFile FileType="BookingLog" FileName="Booking%Date%.log" MaxSizeMB="10"/&gt;
+    ///      &lt;/LogFiles&gt;
+    ///      &lt;LoggingTypes&gt;
+    ///        &lt;addLoggingType FileType="DebugLog" MessageType="Debug" Source="default"&gt;&lt;/addLoggingType&gt;
+    ///        &lt;addLoggingType FileType="DebugLog" MessageType="Command" Source="default"&gt;&lt;/addLoggingType&gt;
+    ///        &lt;addLoggingType FileType="UserLog" MessageType="Info" Source="default"&gt;&lt;/addLoggingType&gt;
+    ///        &lt;addLoggingType FileType="UserLog" MessageType="Warning" Source="default"&gt;&lt;/addLoggingType&gt;
+    ///        &lt;addLoggingType FileType="UserLog" MessageType="Error" Source="default"&gt;&lt;/addLoggingType&gt;
+    ///        &lt;addLoggingType FileType="BookingLog" MessageType="default" Source="BookingResultMessage"&gt;&lt;/addLoggingType&gt;
+    ///      &lt;/LoggingTypes&gt;
+    ///    &lt;/LoggingConfiguration&gt;
+    ///  &lt;/Logging&gt;
+    ///&lt;/configuration&gt;
     /// </summary>
     /// 
 

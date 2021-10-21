@@ -157,9 +157,9 @@ namespace gip.core.manager
             get { return PWACClass.ACCaption; }
         }
 
-        [ACPropertyInfo(9999)]
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
+        [ACPropertyInfo(9999)]
         public string ACIdentifier
         {
             get

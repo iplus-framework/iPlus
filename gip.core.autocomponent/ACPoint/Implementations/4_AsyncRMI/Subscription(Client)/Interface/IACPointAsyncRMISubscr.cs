@@ -13,10 +13,9 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Invokes an AsyncMethod at atACObject. It registers a Callback-Method, which is defined in an Assembly-Class
         /// </summary>
-        /// <param name="atACObject">ACObject which publish an AsyncMethod</param>
+        /// <param name="atACComponent">ACObject which publish an AsyncMethod</param>
         /// <param name="asyncRMIPointName">Name of Point for activating the AsyncMethod</param>
-        /// <param name="AsyncMethod">Name of Async-Method, which should be invoked</param>
-        /// <param name="parameter">Passing-Parameters</param>
+        /// <param name="acMethod">Name of Async-Method, which should be invoked</param>
         /// <param name="AsyncCallbackDelegate">Event-Handler-CallBack-Delegate of this when Asyc-Method is Executed</param>
         /// <returns></returns>
         ACPointAsyncRMISubscrWrap<T> InvokeAsyncMethod(IACComponent atACComponent, string asyncRMIPointName,
@@ -30,10 +29,9 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Invokes an AsyncMethod at atACObject. It registers a Callback-Method, which is defined in an Assembly-Class
         /// </summary>
-        /// <param name="atACObject">ACObject which publish an AsyncMethod</param>
+        /// <param name="atACComponent">ACObject which publish an AsyncMethod</param>
         /// <param name="asyncRMIPointName">Name of Point for activating the AsyncMethod</param>
-        /// <param name="AsyncMethod">Name of Async-Method, which should be invoked</param>
-        /// <param name="parameter">Passing-Parameters</param>
+        /// <param name="acMethod">Name of Async-Method, which should be invoked</param>
         /// <param name="asyncCallbackDelegateName">Event-Handler-CallBack-Delegate of this when Asyc-Method is Executed</param>
         /// <returns></returns>
         ACPointAsyncRMISubscrWrap<T> InvokeAsyncMethod(IACComponent atACComponent, string asyncRMIPointName,
@@ -49,17 +47,19 @@ namespace gip.core.autocomponent
     {
         /// <summary>
         /// Subscribes a Task at Source-Component only if ACIdentifier of this IACPointAsyncRMISubscr is "TaskSubscriptionPoint"
-        /// Else use InvokeAsyncMethod of IACPointAsyncRMISubscr<T>-Interface
+        /// Else use InvokeAsyncMethod of IACPointAsyncRMISubscr&lt;T&gt;-Interface
         /// </summary>
         /// <param name="acMethod"></param>
+        /// <param name="atComponent"></param>
         /// <returns></returns>
         bool SubscribeTask(ACMethod acMethod, ACComponent atComponent);
 
         /// <summary>
         /// Unsubcribes a Task at Source-Component only if ACIdentifier of this IACPointAsyncRMISubscr is "TaskSubscriptionPoint"
-        /// Else use InvokeAsyncMethod of IACPointAsyncRMISubscr<T>-Interface
+        /// Else use InvokeAsyncMethod of IACPointAsyncRMISubscr&lt;T&gt;-Interface
         /// </summary>
         /// <param name="acMethod"></param>
+        /// <param name="atComponent"></param>
         /// <returns></returns>
         bool UnSubscribeTask(ACMethod acMethod, ACComponent atComponent);
     }

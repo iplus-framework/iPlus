@@ -23,10 +23,9 @@ namespace gip.core.autocomponent
         where T : IACObject 
     {
         #region c'tors
-        /// <summary>
-        /// Constructor for contructing the Wrapper-"wrapObject"
-        /// </summary>
+        /// <summary>Constructor for contructing the Wrapper-"wrapObject"</summary>
         /// <param name="refObject">A "refObject" muss be passed. It will be wrapped from this "wrapObject"</param>
+        /// <param name="owner"></param>
         public ACPointNetWrapObject(T refObject, IACPointNetBase owner)
             : base(refObject,owner,true)
         {

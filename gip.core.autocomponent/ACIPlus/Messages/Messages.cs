@@ -57,9 +57,12 @@ namespace gip.core.autocomponent
         /// <summary>Opens a Messagebox with a OK-Button and a Warning-Icon
         /// Usage: "It could indicate a problem that needs to be fixed."</summary>
         /// <param name="acObject">Reference to a ACComponent that called this method and where the passed acIdentifierOrText should be searched in the class-hierarchy to find the translation.</param>
-        /// <param name="acIdentifierOrText">Unique Identifier of a message that should be retrieved form the databasetable ACClassMessage an should be translated to the VBUser-language. I parameter ignoreTranslation is set to false, this parameter will be treated as a text.</param>
-        /// <param name="defaultResult">The default result.</param>
-        /// <param name="ignoreTranslation">If true, the passed acIdentifierOrText-Parameter will be treated as a text. (No lookup in the translation-table by the Message-ACIdentifer to retrieve a translated text).</param>
+        /// <param name="acIdentifierOrText">
+        /// Unique Identifier of a message that should be retrieved form the databasetable ACClassMessage an should be translated to the VBUser-language. I parameter ignoreTranslation is set to false, this parameter will be treated as a text.
+        /// </param>
+        /// <param name="ignoreTranslation">
+        /// If true, the passed acIdentifierOrText-Parameter will be treated as a text. (No lookup in the translation-table by the Message-ACIdentifer to retrieve a translated text).
+        /// </param>
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
         public Global.MsgResult Warning(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter)
@@ -426,7 +429,7 @@ namespace gip.core.autocomponent
 
 
         /// <summary>Writes a message to the logfile.</summary>
-        /// <param name="message">The message.</param>
+        /// <param name="msg"></param>
         [ACMethodInfo("Logging", "en{'Log-Message'}de{'Log-Meldung'}", 9999)]
         public void LogMessageMsg(Msg msg)
         {

@@ -17,12 +17,10 @@ namespace gip.core.autocomponent
     public abstract class ACPropertyNetServerBase<T> : ACPropertyNet<T>, IACPropertyNetServer
     {
         #region c'tors
-        /// <summary>
-        /// Universal Constructor
-        /// </summary>
+        /// <summary>Universal Constructor</summary>
         /// <param name="PropertyValue"></param>
         /// <param name="acComponent"></param>
-        /// <param name="PropertyName"></param>
+        /// <param name="acClassProperty"></param>
         /// <param name="IsProxy"></param>
         /// <param name="method"></param>
         public ACPropertyNetServerBase(ACPropertyValueHolder<T> PropertyValue, IACComponent acComponent, ACClassProperty acClassProperty, bool IsProxy, ACPropertySetMethod method)

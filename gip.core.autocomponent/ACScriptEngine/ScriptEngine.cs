@@ -173,8 +173,6 @@ namespace gip.core.autocomponent
         }
 
         /// <summary>
-        /// Gets a <see cref="CompileErrors"/> collection containing <see cref="CompileError"/> objects
-        /// when the compiled code has failures.
         /// </summary>
         public List<Msg> CompileErrors
         {
@@ -185,13 +183,13 @@ namespace gip.core.autocomponent
         }
 
 
-#endregion
+        #endregion
 
-#region Public Methods
-        /// <summary>
-        /// Compiles the C# functions contained in the <see cref="Functions"/> collection.
-        /// </summary>
-        /// <returns></returns>
+        #region Public Methods
+        /// <summary>Compiles the C# functions contained in the collection.</summary>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         public bool Compile()
         {
             foreach(var script in mScripts)

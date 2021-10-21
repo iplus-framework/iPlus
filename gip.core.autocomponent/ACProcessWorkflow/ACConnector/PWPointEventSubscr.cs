@@ -11,8 +11,6 @@ namespace gip.core.autocomponent
     /// PWPointEventSubscr is the base class for Subscription-Points that are used by Worfklow-Classes.
     /// It reads the ACClassWFEdge-Table to subscribe the Events of the Source-Workflownodes.
     /// </summary>
-    /// <seealso cref="gip.core.autocomponent.ACPointNetEventSubscrBase{gip.core.autocomponent.ACComponent}" />
-    /// <seealso cref="gip.core.autocomponent.IACPointEventSubscr" />
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PWPointEventSubscr'}de{'PWPointEventSubscr'}", Global.ACKinds.TACClass)]
     public class PWPointEventSubscr : ACPointNetEventSubscrBase<ACComponent>, IACPointEventSubscr
@@ -142,10 +140,7 @@ namespace gip.core.autocomponent
         }
 
 
-        /// <summary>
-        /// This method reads the ACClassWFEdge-Table to subscribe the Events of the Source-Workflownodes.
-        /// </summary>
-        /// <param name="asyncCallbackDelegate">The asynchronous callback delegate.</param>
+        /// <summary>This method reads the ACClassWFEdge-Table to subscribe the Events of the Source-Workflownodes.</summary>
         public void SubscribeACClassWFEdgeEvents()
         {
             if (_ACRefParent.ValueT == null)
@@ -249,10 +244,10 @@ namespace gip.core.autocomponent
         {
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public PWPointEventSubscrProxy(IACComponent parent, ACClassProperty acClassProperty, uint maxCapacity)
             : base(parent, acClassProperty, maxCapacity)
         {

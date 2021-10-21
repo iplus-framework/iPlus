@@ -14,8 +14,11 @@ namespace gip.core.datamodel
         /// <summary>
         /// Get single configuration
         /// </summary>
+        /// <param name="configItemsSource"></param>
         /// <param name="preConfigACUrl"></param>
         /// <param name="localConfigACUrl"></param>
+        /// <param name="fetchDeattached"></param>
+        /// <param name="vbiACClassID"></param>
         /// <returns></returns>
         public static IACConfig GetStoreConfiguration(IEnumerable<IACConfig> configItemsSource, string preConfigACUrl, string localConfigACUrl, bool fetchDeattached, Guid? vbiACClassID)
         {
@@ -30,13 +33,15 @@ namespace gip.core.datamodel
             else
                 return (IACConfig)item;
         }
-       
+
 
         /// <summary>
         /// Get configuration for specified propedrties
         /// </summary>
+        /// <param name="configItemsSource"></param>
         /// <param name="preConfigACUrl"></param>
         /// <param name="localConfigACUrlList"></param>
+        /// <param name="vbiACClassID"></param>
         /// <returns></returns>
         public static List<IACConfig> GetStoreConfigurationList(IEnumerable<IACConfig> configItemsSource, string preConfigACUrl, List<string> localConfigACUrlList, Guid? vbiACClassID)
         {

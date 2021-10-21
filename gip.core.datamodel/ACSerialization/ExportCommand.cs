@@ -83,9 +83,12 @@ namespace gip.core.datamodel
         /// <summary>
         /// Exports the AC class.
         /// </summary>
+        /// <param name="aCEntitySerializer">aCEntitySerializer</param>
         /// <param name="projectItem">The project item.</param>
         /// <param name="qryACClass">The qry AC class.</param>
         /// <param name="folderPath">The folder path.</param>
+        /// <param name="currentItem"></param>
+        /// <param name="totalItems"></param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
         public bool ExportACClass(ACEntitySerializer aCEntitySerializer, ACQueryDefinition qryACClass, ACClassInfoWithItems projectItem, string folderPath, ref int currentItem, int totalItems)
         {
@@ -125,13 +128,15 @@ namespace gip.core.datamodel
         #endregion
 
         #region export class parts
+
         /// <summary>
         /// Exports the AC class.
         /// </summary>
-        /// <param name="projectItem">The project item.</param>
-        /// <param name="qryACClass">The qry AC class.</param>
-        /// <param name="folderPath">The folder path.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        /// <param name="aCEntitySerializer"></param>
+        /// <param name="aCClass"></param>
+        /// <param name="qryACClass"></param>
+        /// <param name="folderPath"></param>
+        /// <returns></returns>
         public bool ExportACClass(ACEntitySerializer aCEntitySerializer, ACClass aCClass, ACQueryDefinition qryACClass, string folderPath)
         {
             if (!CheckOrCreateDirectory(folderPath))
@@ -219,12 +224,13 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// 1. Exportieren aller ACClassProperty einer ACClass in eine Datei
+        /// Exports Properties of a class
         /// </summary>
-        /// <param name="projectItem">The project item.</param>
-        /// <param name="qryACClassProperty">The qry AC class property.</param>
-        /// <param name="folderPath">The folder path.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        /// <param name="aCEntitySerializer"></param>
+        /// <param name="acClass"></param>
+        /// <param name="qryACClassProperty"></param>
+        /// <param name="folderPath"></param>
+        /// <returns></returns>
         public bool ExportACClassProperty(ACEntitySerializer aCEntitySerializer, ACClass acClass, ACQueryDefinition qryACClassProperty, string folderPath)
         {
             System.Xml.Linq.XElement element = aCEntitySerializer.Serialize(acClass, qryACClassProperty, folderPath, true);
@@ -246,14 +252,13 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// 1. Exportieren aller Assembly-Methoden (MSMethod) einer ACClass in eine Datei
-        /// 2. Exportieren aller Script-Methoden (MSMethodExt,MSMethodExtTrigger,MSMethodExtClient) einer ACClass und ACClassMethodMapDesign in getrennten Dateien
-        /// 3. Exportieren aller Workflow-Methoden (MSWorkflow) einer ACClass und ACClassMethodMapDesign in getrennten Dateien
+        /// Exports all methods of a class
         /// </summary>
-        /// <param name="projectItem">The project item.</param>
-        /// <param name="qryACClassMethod">The qry AC class method.</param>
-        /// <param name="folderPath">The folder path.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        /// <param name="aCEntitySerializer"></param>
+        /// <param name="acClass"></param>
+        /// <param name="qryACClassMethod"></param>
+        /// <param name="folderPath"></param>
+        /// <returns></returns>
         public bool ExportACClassMethod(ACEntitySerializer aCEntitySerializer, ACClass acClass, ACQueryDefinition qryACClassMethod, string folderPath)
         {
             // 1. Exportieren aller Assembly-Methoden (MSMethod) einer ACClass in eine Datei
@@ -312,13 +317,15 @@ namespace gip.core.datamodel
             return true;
         }
 
+
         /// <summary>
-        /// 1. Exportieren aller ACClassDesign einer ACClass in getrennten Dateien
+        /// Exports all designs of a class
         /// </summary>
-        /// <param name="projectItem">The project item.</param>
-        /// <param name="qryACClassDesign">The qry AC class design.</param>
-        /// <param name="folderPath">The folder path.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        /// <param name="aCEntitySerializer"></param>
+        /// <param name="acClass"></param>
+        /// <param name="qryACClassDesign"></param>
+        /// <param name="folderPath"></param>
+        /// <returns></returns>
         public virtual bool ExportACClassDesign(ACEntitySerializer aCEntitySerializer, ACClass acClass, ACQueryDefinition qryACClassDesign, string folderPath)
         {
             string[] files = Directory.GetFiles(folderPath, ACClassDesign.ClassName + "_*" + Const.ACQueryExportFileType);
@@ -340,12 +347,13 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Exports the AC class text.
+        /// Exports all Texts of a class
         /// </summary>
-        /// <param name="projectItem">The project item.</param>
-        /// <param name="qryACClassText">The qry AC class text.</param>
-        /// <param name="folderPath">The folder path.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        /// <param name="aCEntitySerializer"></param>
+        /// <param name="acClass"></param>
+        /// <param name="qryACClassText"></param>
+        /// <param name="folderPath"></param>
+        /// <returns></returns>
         public bool ExportACClassText(ACEntitySerializer aCEntitySerializer, ACClass acClass, ACQueryDefinition qryACClassText, string folderPath)
         {
             string[] files = Directory.GetFiles(folderPath, ACClassText.ClassName + "_*" + Const.ACQueryExportFileType);
@@ -368,12 +376,13 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Exports the AC class message.
+        /// Exports all messages of a class
         /// </summary>
-        /// <param name="projectItem">The project item.</param>
-        /// <param name="qryACClassMessage">The qry AC class message.</param>
-        /// <param name="folderPath">The folder path.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        /// <param name="aCEntitySerializer"></param>
+        /// <param name="acClass"></param>
+        /// <param name="qryACClassMessage"></param>
+        /// <param name="folderPath"></param>
+        /// <returns></returns>
         public bool ExportACClassMessage(ACEntitySerializer aCEntitySerializer, ACClass acClass, ACQueryDefinition qryACClassMessage, string folderPath)
         {
             string[] files = Directory.GetFiles(folderPath, ACClassMessage.ClassName + "_*" + Const.ACQueryExportFileType);
@@ -396,12 +405,13 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Exports the AC class config.
+        /// Exports all config-entries of a class
         /// </summary>
-        /// <param name="projectItem">The project item.</param>
-        /// <param name="qryACClassComposition">The qry AC class composition.</param>
-        /// <param name="folderPath">The folder path.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        /// <param name="aCEntitySerializer"></param>
+        /// <param name="acClass"></param>
+        /// <param name="qryACClassComposition"></param>
+        /// <param name="folderPath"></param>
+        /// <returns></returns>
         public bool ExportACClassConfig(ACEntitySerializer aCEntitySerializer, ACClass acClass, ACQueryDefinition qryACClassComposition, string folderPath)
         {
             System.Xml.Linq.XElement element = aCEntitySerializer.Serialize(acClass, qryACClassComposition, folderPath, true);
@@ -423,12 +433,13 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Exports the AC class property relation.
+        /// Exports all relations of a class
         /// </summary>
-        /// <param name="projectItem">The project item.</param>
-        /// <param name="qryACClassPropertyRelation">The qry AC class property relation.</param>
-        /// <param name="folderPath">The folder path.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        /// <param name="aCEntitySerializer"></param>
+        /// <param name="acClass"></param>
+        /// <param name="qryACClassPropertyRelation"></param>
+        /// <param name="folderPath"></param>
+        /// <returns></returns>
         public bool ExportACClassPropertyRelation(ACEntitySerializer aCEntitySerializer, ACClass acClass, ACQueryDefinition qryACClassPropertyRelation, string folderPath)
         {
             System.Xml.Linq.XElement element = aCEntitySerializer.Serialize(acClass, qryACClassPropertyRelation, folderPath, true);
@@ -523,10 +534,11 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Gets the export folder path.
+        /// Export folder path
         /// </summary>
-        /// <param name="acObject">The ac object.</param>
-        /// <returns>System.String.</returns>
+        /// <param name="currentExportFolder"></param>
+        /// <param name="acObject"></param>
+        /// <returns></returns>
         public string GetExportFolderPath(string currentExportFolder, IACObject acObject)
         {
             string folderPath = acObject.GetACUrl();
@@ -548,11 +560,12 @@ namespace gip.core.datamodel
         #region Event callers
 
         /// <summary>
-        ///  Sending error info
+        /// Logs errors
         /// </summary>
         /// <param name="exportErrorType"></param>
-        /// <param name="messageID"></param>
+        /// <param name="acUrl"></param>
         /// <param name="ec"></param>
+        /// <param name="path"></param>
         public void OnExportError(ExportErrosEnum exportErrorType, string acUrl, Exception ec, string path)
         {
             if (ExportErrorEvent != null)

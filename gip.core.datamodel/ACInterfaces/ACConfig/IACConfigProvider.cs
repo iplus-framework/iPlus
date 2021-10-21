@@ -35,7 +35,7 @@ namespace gip.core.datamodel
         /// <param name="callingConfigStoreList"></param>
         /// <returns></returns>
         List<IACConfigStore> GetACConfigStores(List<IACConfigStore> callingConfigStoreList);
-       
+
 
         #endregion
 
@@ -47,7 +47,9 @@ namespace gip.core.datamodel
         /// <param name="callingConfigStoreList"></param>
         /// <param name="preConfigACUrl"></param>
         /// <param name="localConfigACUrlList"></param>
+        /// <param name="vbiACClassID"></param>
         /// <param name="fetchFirstConfig"></param>
+        /// <param name="reloadParams"></param>
         /// <returns></returns>
         List<IACConfig> GetConfigurationList(List<IACConfigStore> callingConfigStoreList, string preConfigACUrl, List<string> localConfigACUrlList, Guid? vbiACClassID, bool fetchFirstConfig = true, bool reloadParams = false);
 
@@ -58,6 +60,7 @@ namespace gip.core.datamodel
         /// <param name="mandatoryConfigStores"></param>
         /// <param name="preACUrl"></param>
         /// <param name="localACURL"></param>
+        /// <param name="reloadParams"></param>
         /// <returns></returns>
         List<ACConfigParam> GetACConfigParamList(ACMethod acMethod, List<IACConfigStore> mandatoryConfigStores, string preACUrl, string localACURL, bool reloadParams = false);
 
@@ -82,13 +85,16 @@ namespace gip.core.datamodel
         /// <param name="callingConfigStoreList"></param>
         /// <param name="preConfigACUrl"></param>
         /// <param name="localConfigACUrl"></param>
+        /// <param name="vbiACClassID"></param>
+        /// <param name="priorityLevel"></param>
         /// <returns></returns>
         IACConfig GetConfiguration(List<IACConfigStore> callingConfigStoreList, string preConfigACUrl, string localConfigACUrl, Guid? vbiACClassID, out int priorityLevel);
 
         /// <summary>
         ///  Delete all configuration for node by deleting same node
         /// </summary>
-        /// <param name="localConfigACUrl"></param>
+        /// <param name="db"></param>
+        /// <param name="acClassWFID"></param>
         void DeleteConfigNode(IACEntityObjectContext db, Guid acClassWFID);
 
         #endregion

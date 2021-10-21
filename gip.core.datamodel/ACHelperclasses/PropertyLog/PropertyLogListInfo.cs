@@ -59,8 +59,11 @@ namespace gip.core.datamodel
         /// <summary>
         /// Constructor for ArchiveLog
         /// </summary>
-        /// <param name="refreshRateOfItems">The refresh rate of items.</param>
-        /// <param name="archiveLogList">The archive log list.</param>
+        /// <param name="refreshRateOfItems"></param>
+        /// <param name="archiveLogList"></param>
+        /// <param name="iPolMethod"></param>
+        /// <param name="range"></param>
+        /// <param name="decay"></param>
         public PropertyLogListInfo(Global.MaxRefreshRates refreshRateOfItems, IList<PropertyLogItem> archiveLogList, Global.InterpolationMethod iPolMethod = Global.InterpolationMethod.None, double? range = null, double? decay = null)
         {
             _ArchiveLogList = archiveLogList;
@@ -72,6 +75,10 @@ namespace gip.core.datamodel
         /// Constructor for LiveLog
         /// </summary>
         /// <param name="refreshRateOfItems">The refresh rate of items.</param>
+        /// <param name="iPolMethod"></param>
+        /// <param name="range"></param>
+        /// <param name="decay"></param>
+        /// <param name="logBufferSize"></param>
         public PropertyLogListInfo(Global.MaxRefreshRates refreshRateOfItems, Global.InterpolationMethod iPolMethod = Global.InterpolationMethod.None, int? range = null, double? decay = null, int logBufferSize = 0)
         {
             _RefreshRate = refreshRateOfItems;
@@ -366,7 +373,6 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="interpolationMethod"></param>
         /// <param name="range"></param>
-        /// <param name="decay"></param>
         /// <returns></returns>
         public bool IsInterpolationPossible(Global.InterpolationMethod interpolationMethod, int? range)
         {

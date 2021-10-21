@@ -32,6 +32,7 @@ namespace gip.core.datamodel
         /// <param name="acCaption">The ac caption.</param>
         /// <param name="isClosableBSORoot">if set to <c>true</c> [is closable BSO root].</param>
         /// <param name="ribbonVisibility">The ribbon visibility.</param>
+        /// <param name="closeButtonVisibility">visibility of the close button</param>
         void ShowDialog(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
             Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled);
 
@@ -45,6 +46,7 @@ namespace gip.core.datamodel
         /// <param name="dockState">State of the dock.</param>
         /// <param name="dockPosition">The dock position.</param>
         /// <param name="ribbonVisibility">The ribbon visibility.</param>
+        /// <param name="closeButtonVisibility">visibility of the close button</param>
         void ShowWindow(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState,
             Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled);
 

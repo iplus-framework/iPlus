@@ -51,7 +51,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Adds a new edge to this workflow
         /// </summary>
-        /// <param name="acVisualEdge"></param>
+        /// <param name="edge"></param>
         void AddEdge(IACWorkflowEdge edge);
 
 

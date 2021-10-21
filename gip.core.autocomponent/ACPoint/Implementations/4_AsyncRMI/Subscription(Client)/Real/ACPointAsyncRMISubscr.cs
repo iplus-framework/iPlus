@@ -20,15 +20,19 @@ namespace gip.core.autocomponent
         {
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointAsyncRMISubscr(IACComponent parent, IACType acClassProperty, uint maxCapacity)
             : base(parent,acClassProperty, maxCapacity)
         {
         }
 
+        /// <summary>Initializes a new instance of the <see cref="ACPointAsyncRMISubscr" /> class.</summary>
+        /// <param name="parent">The parent.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="maxCapacity">The maximum capacity.</param>
         public ACPointAsyncRMISubscr(IACComponent parent, string propertyName, uint maxCapacity)
             : this(parent, parent.ComponentClass.GetMember(propertyName), maxCapacity)
         {
@@ -38,10 +42,13 @@ namespace gip.core.autocomponent
 
         /// <summary>
         /// Subscribes a Task at Source-Component only if ACIdentifier of this IACPointAsyncRMISubscr is "TaskSubscriptionPoint"
-        /// Else use InvokeAsyncMethod of IACPointAsyncRMISubscr<T>-Interface
+        /// Else use InvokeAsyncMethod of IACPointAsyncRMISubscr&lt;T&gt;-Interface
         /// </summary>
         /// <param name="acMethod"></param>
-        /// <returns></returns>
+        /// <param name="atComponent"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         [ACMethodInfo("", "", 9999)]
         public bool SubscribeTask(ACMethod acMethod, ACComponent atComponent)
         {
@@ -52,10 +59,13 @@ namespace gip.core.autocomponent
 
         /// <summary>
         /// Unsubcribes a Task at Source-Component only if ACIdentifier of this IACPointAsyncRMISubscr is "TaskSubscriptionPoint"
-        /// Else use InvokeAsyncMethod of IACPointAsyncRMISubscr<T>-Interface
+        /// Else use InvokeAsyncMethod of IACPointAsyncRMISubscr&lt;T&gt;-Interface
         /// </summary>
         /// <param name="acMethod"></param>
-        /// <returns></returns>
+        /// <param name="atComponent"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         [ACMethodInfo("", "", 9999)]
         public bool UnSubscribeTask(ACMethod acMethod, ACComponent atComponent)
         {

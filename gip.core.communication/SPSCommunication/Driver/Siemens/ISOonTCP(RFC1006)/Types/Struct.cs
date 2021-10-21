@@ -54,11 +54,10 @@ namespace gip.core.communication.ISOonTCP.Types
             return (int)numBytes;
         }
 
-        /// <summary>
-        /// Creates a struct of a specified type by an array of bytes.
-        /// </summary>
+        /// <summary>Creates a struct of a specified type by an array of bytes.</summary>
         /// <param name="structType">The struct type</param>
         /// <param name="bytes">The array of bytes</param>
+        /// <param name="endianess"></param>
         /// <returns>The object depending on the struct type or null if fails(array-length != struct-length</returns>
         public static object FromBytes(Type structType, byte[] bytes, EndianessEnum endianess)
         {
@@ -131,10 +130,9 @@ namespace gip.core.communication.ISOonTCP.Types
             return structValue;
         }
 
-        /// <summary>
-        /// Creates a byte array depending on the struct type.
-        /// </summary>
+        /// <summary>Creates a byte array depending on the struct type.</summary>
         /// <param name="structValue">The struct object</param>
+        /// <param name="endianess"></param>
         /// <returns>A byte array or null if fails.</returns>
         public static byte[] ToBytes(object structValue, EndianessEnum endianess)
         {

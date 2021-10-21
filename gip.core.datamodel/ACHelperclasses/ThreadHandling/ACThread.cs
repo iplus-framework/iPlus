@@ -65,9 +65,10 @@ namespace gip.core.datamodel
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ACThread"/> class.
+        /// Initializes a new instance of the ACThread class.
         /// </summary>
         /// <param name="start">The start.</param>
+        /// <param name="parentQueue">The parentQueue.</param>
         public ACThread(ThreadStart start, ACDelegateQueue parentQueue)
             : this(start)
         {
@@ -563,6 +564,7 @@ namespace gip.core.datamodel
             return result;
         }
 
+#pragma warning disable CS0618
         /// <summary>
         /// Resumes this instance.
         /// </summary>
@@ -619,6 +621,7 @@ namespace gip.core.datamodel
         {
             this.Thread.Suspend();
         }
+#pragma warning restore CS0618
 
         /// <summary>
         /// Tries the state of the set apartment.

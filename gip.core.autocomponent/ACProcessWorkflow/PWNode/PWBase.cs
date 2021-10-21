@@ -800,12 +800,11 @@ namespace gip.core.autocomponent
 
 
         #region ACMethod and Config-Store
-        /// <summary>
-        /// Fills Parameterlist in ACMethod with values from Config-Store-Hierarchy
-        /// Derivations of PWClasses can manipulate the Paramterlist as well according to their individual logic
-        /// </summary>
+        /// <summary>Fills Parameterlist in ACMethod with values from Config-Store-Hierarchy
+        /// Derivations of PWClasses can manipulate the Paramterlist as well according to their individual logic</summary>
         /// <param name="paramMethod">ACMethod to fill</param>
         /// <param name="isForPAF">If its a acMethod which will be passed to the Start-Method of a PAPocessFunction else it's the local configuration for this PWNode</param>
+        /// <param name="acParameter"></param>
         [ACMethodInfo("", "en{'GetConfigForACMethod'}de{'GetConfigForACMethod'}", 9999)]
         public virtual bool GetConfigForACMethod(ACMethod paramMethod, bool isForPAF, params Object[] acParameter)
         {

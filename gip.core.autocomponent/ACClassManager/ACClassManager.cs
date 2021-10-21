@@ -1099,13 +1099,15 @@ namespace gip.core.autocomponent
         #region Project
         /// <summary>
         /// Die Assemblyklassen werden entsprechend ihres ACKind unter "Root" oder "ClassLibrary"
-        /// abgespeichert. 
+        /// abgespeichert.
         /// TODO: Damir: Prüfen ob WCFServiceManager, WCFClientManager, WCFClientChannel und WCFServiceChannel
-        ///              auch unter "Root" aufgehängt werden.
+        ///            auch unter "Root" aufgehängt werden.
         /// </summary>
         /// <param name="acType"></param>
-        /// <param name="isAbstract"></param>
-        /// <returns></returns>
+        /// <param name="classType"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         public ACProject GetACProjectByACType(Global.ACKinds acType, Type classType)
         {
             if (classType.IsAbstract)
@@ -1464,8 +1466,9 @@ namespace gip.core.autocomponent
         /// 1. Aktualisierung des XMLACMethod für die Assemblymethode
         /// 2. Neuanlage/Aktualisierung der konfigurierten Methodenaufrufe (neue ACClassMethod Datensätze, die sich mit ParentACClassMethodID auf die Assemblymethode beziehen
         /// </summary>
-        /// <param name="acClassMethod"></param>
-        /// <param name="methodInfo"></param>
+        /// <param name="ClassType"></param>
+        /// <param name="ClassMethod"></param>
+        /// <param name="Method"></param>
         void InsertOrUpdateMethodParameters(Type ClassType, ACClassMethod ClassMethod, MethodInfo Method)
         {
             string XML = null;

@@ -35,13 +35,16 @@ namespace gip.core.datamodel
     public class ACFSItem : IACContainerWithItems, IACObject, INotifyPropertyChanged, IVBDataCheckbox, IVBIsVisible
     {
         #region c´tors
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="ACFSItem"/> class.
+        /// ACFSItem
         /// </summary>
-        /// <param name="acObject">The ac object.</param>
-        /// <param name="caption">The caption.</param>
-        /// <param name="isDirectory">if set to <c>true</c> [is directory].</param>
-        /// <param name="acURLFS">The ac URLFS.</param>
+        /// <param name="resource"></param>
+        /// <param name="container"></param>
+        /// <param name="acObject"></param>
+        /// <param name="caption"></param>
+        /// <param name="resourceType"></param>
+        /// <param name="acURLFS"></param>
         public ACFSItem(IResources resource, ACFSItemContainer container, IACObject acObject, string caption, ResourceTypeEnum resourceType, string acURLFS = "")
         {
             Resource = resource;
@@ -703,7 +706,8 @@ namespace gip.core.datamodel
         /// Loading children after loading parents
         /// </summary>
         /// <param name="propertyInfo"></param>
-        /// <returns></returns>
+        /// <param name="aCObjectPropertyHandlingTypesEnum"></param>
+        /// <returns>KeyValuePair</returns>
         public KeyValuePair<bool, string> ReadPropertyValue(PropertyInfo propertyInfo, ACObjectSerialPropertyHandlingTypesEnum aCObjectPropertyHandlingTypesEnum)
         {
             string propertyValue = null;

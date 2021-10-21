@@ -302,14 +302,15 @@ namespace gip.core.datamodel
 #region Properties
         ACClassTaskQueue _TaskQueue = null;
         ConcurrentDictionary<Guid, ACProgramCacheEntry> _Programs = new ConcurrentDictionary<Guid, ACProgramCacheEntry>();
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
         /// <summary>
         /// Reads from Cache, If not in Cache it rebuilds by querying dababase
         /// </summary>
-        /// <param name="parentProgramLog"></param>
-        /// <param name="acUrl"></param>
+        /// <param name="parentProgramLog">parentProgramLog</param>
+        /// <param name="acUrl">acUrl</param>
+        /// <param name="checkNewerThanParentProgramLog">checkNewerThanParentProgramLog</param>
         /// <returns></returns>
         public ACProgramLog GetCurrentProgramLog(ACProgramLog parentProgramLog, string acUrl, bool checkNewerThanParentProgramLog = true)
         {
@@ -345,7 +346,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Reads from Cache, If not in Cache it rebuilds by querying dababase
         /// </summary>
-        /// <param name="parentProgramLog"></param>
+        /// <param name="acProgram"></param>
         /// <param name="acUrl"></param>
         /// <returns></returns>
         public ACProgramLog GetCurrentProgramLog(ACProgram acProgram, string acUrl)
@@ -360,8 +361,8 @@ namespace gip.core.datamodel
         /// <summary>
         /// Reads from Cache, If not in Cache it rebuilds by querying dababase
         /// </summary>
-        /// <param name="parentProgramLog"></param>
-        /// <param name="acUrl"></param>
+        /// <param name="acProgramLogID"></param>
+        /// <param name="autoLoadCache"></param>
         /// <returns></returns>
         public ACProgramLog GetCurrentProgramLogByLogID(Guid acProgramLogID, bool autoLoadCache = true)
         {
@@ -630,7 +631,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Return DETACHED Entities without change tracking!
         /// </summary>
-        /// <param name="parentProgramLog"></param>
+        /// <param name="parentProgramLogID"></param>
         /// <param name="acUrl"></param>
         /// <returns></returns>
         public IEnumerable<ACProgramLog> GetPreviousLogsFromParentLog(Guid parentProgramLogID, string acUrl)
@@ -646,7 +647,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Return DETACHED Entities without change tracking!
         /// </summary>
-        /// <param name="parentProgramLog"></param>
+        /// <param name="programID"></param>
         /// <param name="acUrl"></param>
         /// <returns></returns>
         public IEnumerable<ACProgramLog> GetPreviousLogsFromProgram(Guid programID, string acUrl)

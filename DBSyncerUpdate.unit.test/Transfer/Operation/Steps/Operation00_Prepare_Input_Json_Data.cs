@@ -51,9 +51,7 @@ namespace DBSyncerUpdate.unit.test.Transfer.Operation.Steps
                 {
                     for (int i = 0; i < TransferJob.OperationContexts.Count(); i++)
                     {
-                        Task<OperationContext> task = FactoryContext(TransferJob.OperationContexts[i]);
-                        task.Wait();
-                        TransferJob.OperationContexts[i] = task.Result;
+                        TransferJob.OperationContexts[i] = FactoryContext(TransferJob.OperationContexts[i]);
                     }
                     // Define UsedScriptDate - add shift in minutes for scripts they have same svn update date
                     List<OperationFile> files = new List<OperationFile>();
@@ -123,7 +121,7 @@ namespace DBSyncerUpdate.unit.test.Transfer.Operation.Steps
 
         #region Private methods
 
-        private static async Task<OperationContext> FactoryContext(OperationContext operationContext)
+        private static OperationContext FactoryContext(OperationContext operationContext)
         {
             string folderPath = operationContext.ContextFolders[0];
             var listFiles = Directory.GetFiles(folderPath, "*.sql").Where(c => !c.Contains("InitialScript"));
@@ -137,7 +135,7 @@ namespace DBSyncerUpdate.unit.test.Transfer.Operation.Steps
                 operationFile.Version = int.Parse(mt.Groups[0].Value);
                 Match authorMatch = Regex.Match(operationFile.Name, PatternAuthor);
                 operationFile.UpdateAuthor = authorMatch.Groups[1].Value;
-                KeyValuePair<string, List<DateTime>> readedSVNData = await ReadSVNData(fullFileName);
+                KeyValuePair<string, List<DateTime>> readedSVNData = ReadSVNData(fullFileName);
                 operationFile.DumpOutput = readedSVNData.Key;
                 if (readedSVNData.Value != null && readedSVNData.Value.Any())
                 {
@@ -150,7 +148,7 @@ namespace DBSyncerUpdate.unit.test.Transfer.Operation.Steps
             return operationContext;
         }
 
-        private static async Task<KeyValuePair<string, List<DateTime>>> ReadSVNData(string fullFileName)
+        private static KeyValuePair<string, List<DateTime>> ReadSVNData(string fullFileName)
         {
             int countTry = 0;
             string dump = "";

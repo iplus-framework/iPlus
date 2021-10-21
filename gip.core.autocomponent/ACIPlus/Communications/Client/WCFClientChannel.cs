@@ -866,11 +866,9 @@ namespace gip.core.autocomponent
         }
 
 
-        /// <summary>
-        /// Sendet eine Clientseitige Nachricht an den Server
-        /// </summary>
-        /// <param name="acMessage"></param>
-        /// <exception cref="gip.core.autocomponent.System.ACWCFException">Thrown when disconnected</exception>
+        /// <summary>Sendet eine Clientseitige Nachricht an den Server</summary>
+        /// <param name="message"></param>
+        /// <exception cref="gip.core.autocomponent.ACWCFException">Thrown when disconnected</exception>
         public void SendACMessageToServer(WCFMessage message)
         {
             // Falls Verbindung zu Server getrennt war und der gerade versucht wird die Verbindung neu aufzubauen, verwerfe Request
@@ -886,11 +884,10 @@ namespace gip.core.autocomponent
         }
 
 
-        /// <summary>
-        /// Method sends a PropertyValueEvent from this Client/Proxy-Object 
-        /// to the Real Object on Server-side
-        /// </summary>
+        /// <summary>Method sends a PropertyValueEvent from this Client/Proxy-Object
+        /// to the Real Object on Server-side</summary>
         /// <param name="eventArgs"></param>
+        /// <param name="ACProject"></param>
         public bool SendPropertyValueToServer(IACPropertyNetValueEvent eventArgs, IACComponent ACProject)
         {
             // Falls Verbindung zu Server getrennt war und der gerade versucht wird ddie Verbindung neu aufzubauen, verwerfe Request
@@ -917,10 +914,9 @@ namespace gip.core.autocomponent
         }
 
 
-        /// <summary>
-        /// Method subscribes an new generated ACObject for retrieving ValueEvents from the Server
-        /// </summary>
-        /// <param name="forACComponent"></param>
+        /// <summary>Method subscribes an new generated ACObject for retrieving ValueEvents from the Server</summary>
+        /// <param name="acComponentProject"></param>
+        /// <param name="ChildNode"></param>
         public void SubscribeACObjectOnServer(IACComponent acComponentProject, IACComponent ChildNode)
         {
             if (_ACPDispatchToServer == null)
@@ -928,10 +924,9 @@ namespace gip.core.autocomponent
             _ACPDispatchToServer.Subscribe(acComponentProject, ChildNode);
         }
 
-        /// <summary>
-        /// Makes an Entry in Dispatcher-List, that a changed Point must be send to the Server
-        /// </summary>
-        /// <param name="forACComponent"></param>
+        /// <summary>Makes an Entry in Dispatcher-List, that a changed Point must be send to the Server</summary>
+        /// <param name="acComponentProject"></param>
+        /// <param name="ChildNode"></param>
         public void MarkACObjectOnChangedPoint(IACComponent acComponentProject, IACComponent ChildNode)
         {
             if (_ACPDispatchToServer == null)
@@ -942,10 +937,9 @@ namespace gip.core.autocomponent
         }
 
 
-        /// <summary>
-        /// Method unsubscribes an unloaded ACObject
-        /// </summary>
-        /// <param name="forACComponent"></param>
+        /// <summary>Method unsubscribes an unloaded ACObject</summary>
+        /// <param name="acComponentProject"></param>
+        /// <param name="ChildNode"></param>
         public void UnSubscribeACObjectOnServer(IACComponent acComponentProject, IACComponent ChildNode)
         {
             if (_ACPDispatchToServer == null)

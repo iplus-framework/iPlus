@@ -433,11 +433,10 @@ namespace gip.core.autocomponent
             }
         }
 
-        /// <summary>
-        /// Method sends a PropertyValueEvent from this Real/Server-Object 
-        /// to all Proxy-Object which has subscribed ist
-        /// </summary>
+        /// <summary>Method sends a PropertyValueEvent from this Real/Server-Object
+        /// to all Proxy-Object which has subscribed ist</summary>
         /// <param name="eventArgs"></param>
+        /// <param name="forACComponent"></param>
         public bool BroadcastPropertyValueToClients(IACPropertyNetValueEvent eventArgs, IACComponent forACComponent)
         {
             if ((_ACPDispatchToProxies == null) || (ACOperationMode != ACOperationModes.Live))

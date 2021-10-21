@@ -44,6 +44,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="acObject">The ac object.</param>
         /// <param name="queryDefinition">The query definition.</param>
+        /// <param name="mergeOption">The merge option.</param>
         /// <returns>IEnumerable.</returns>
         public static IQueryable ACSelect(this IACObject acObject, ACQueryDefinition queryDefinition, MergeOption mergeOption = MergeOption.AppendOnly)
         {
@@ -61,6 +62,7 @@ namespace gip.core.datamodel
         /// <param name="acObject">The ac object.</param>
         /// <param name="queryDefinition">The query definition.</param>
         /// <param name="childACUrl">The child AC URL.</param>
+        /// <param name="mergeOption">The merge option.</param>
         /// <returns>IEnumerable.</returns>
         public static IQueryable ACSelect(this IACObject acObject, ACQueryDefinition queryDefinition, string childACUrl, MergeOption mergeOption = MergeOption.AppendOnly)
         {
@@ -175,6 +177,7 @@ namespace gip.core.datamodel
         /// <typeparam name="T"></typeparam>
         /// <param name="source">The source.</param>
         /// <param name="queryDefinition">The query definition.</param>
+        /// <param name="mergeOption">The merge option.</param>
         /// <returns>IQueryable{``0}.</returns>
         private static IQueryable<T> SearchWithDynQuery<T>(IEnumerable<T> source, ACQueryDefinition queryDefinition, MergeOption mergeOption)
         {

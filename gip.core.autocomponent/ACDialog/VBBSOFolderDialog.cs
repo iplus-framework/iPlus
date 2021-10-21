@@ -64,11 +64,8 @@ namespace gip.core.autocomponent
 
         #region BSO->ACMethod
 
-        /// <summary>
-        /// Zeigt den Dialog zum konfigurieren eine ACQueryDefinition an
-        /// </summary>
-        /// <param name="acQueryDefinition"></param>
-        /// <param name="withQuerySelection">Dürfen andere ACQueryDefinition ausgewählt werden</param>
+        /// <summary>Zeigt den Dialog zum konfigurieren eine ACQueryDefinition an</summary>
+        /// <param name="folderPath"></param>
         /// <returns>true wenn Dialog mit "OK" geschlossen wird</returns>
         [ACMethodCommand("FolderPath", "en{'Folderdialog'}de{'Verzeichnisdialog'}", 9999)]
         public string FolderDlg(string folderPath)

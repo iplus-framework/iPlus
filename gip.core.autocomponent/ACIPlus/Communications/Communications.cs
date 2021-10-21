@@ -163,11 +163,10 @@ namespace gip.core.autocomponent
 
         #region Client-Side-Send-Methods
 
-        /// <summary>
-        /// Sendet eine Clientseitige Nachricht an den Server
-        /// </summary>
+        /// <summary>Sendet eine Clientseitige Nachricht an den Server</summary>
         /// <param name="acMessage"></param>
-        /// <exception cref="gip.core.autocomponent.System.ACWCFException">Thrown when disconnected</exception>
+        /// <param name="forACComponent"></param>
+        /// <exception cref="gip.core.autocomponent.ACWCFException">Thrown when disconnected</exception>
         public void SendACMessageToServer(WCFMessage acMessage, IACComponent forACComponent)
         {
             if (_WCFClientManager == null || (ACOperationMode != ACOperationModes.Live))
@@ -175,11 +174,10 @@ namespace gip.core.autocomponent
             _WCFClientManager.SendACMessageToServer(acMessage, forACComponent);
         }
 
-        /// <summary>
-        /// Method sends a PropertyValueEvent from this Client/Proxy-Object 
-        /// to the Real Object on Server-side
-        /// </summary>
+        /// <summary>Method sends a PropertyValueEvent from this Client/Proxy-Object
+        /// to the Real Object on Server-side</summary>
         /// <param name="eventArgs"></param>
+        /// <param name="forACComponent"></param>
         public void SendPropertyValueToServer(IACPropertyNetValueEvent eventArgs, IACComponent forACComponent)
         {
             if (_WCFClientManager == null || (ACOperationMode != ACOperationModes.Live))
@@ -246,11 +244,10 @@ namespace gip.core.autocomponent
             _WCFServiceManager.BroadcastACMessageToClients(acMessage);
         }
 
-        /// <summary>
-        /// Method sends a PropertyValueEvent from this Real/Server-Object 
-        /// to all Proxy-Object which has subscribed ist
-        /// </summary>
+        /// <summary>Method sends a PropertyValueEvent from this Real/Server-Object
+        /// to all Proxy-Object which has subscribed ist</summary>
         /// <param name="eventArgs"></param>
+        /// <param name="forACComponent"></param>
         public void BroadcastPropertyValueToClients(IACPropertyNetValueEvent eventArgs, IACComponent forACComponent)
         {
             if (_WCFServiceManager == null || (ACOperationMode != ACOperationModes.Live))

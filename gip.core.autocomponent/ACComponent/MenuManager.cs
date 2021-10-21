@@ -161,11 +161,8 @@ namespace gip.core.autocomponent
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="acMenuItemList"></param>
         /// <param name="acComponent"></param>
         /// <param name="acElement"></param>
-        /// <param name="acContent1"></param>
-        /// <param name="acContent2"></param>
         static private ACMenuItem GetMenuForHelp(IACComponent acComponent, IACInteractiveObject acElement)
         {
             ACValueList helpValueList = new ACValueList();

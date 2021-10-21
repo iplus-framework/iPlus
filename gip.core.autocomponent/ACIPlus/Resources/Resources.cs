@@ -28,12 +28,15 @@ namespace gip.core.autocomponent
         #region Filesystem
 
 
-        /// <summary>
-        /// Liefert Direktory 
-        /// </summary>
+        /// <summary>Liefert Direktory</summary>
+        /// <param name="db"></param>
+        /// <param name="container"></param>
         /// <param name="path"></param>
         /// <param name="recursive"></param>
-        /// <returns></returns>
+        /// <param name="withFiles"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         [ACMethodInfo("Directory", "en{'Directory'}de{'Verzeichnis'}", 9999)]
         public virtual ACFSItem Dir(IACEntityObjectContext db, ACFSItemContainer container, string path, bool recursive, bool withFiles = true)
         {

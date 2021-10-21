@@ -22,10 +22,10 @@ namespace gip.core.autocomponent
             _base = new ACPointClientReal<T, ACPointAsyncRMISubscrWrap<T>>(this);
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointNetAsyncRMISubscrBase(IACComponent parent, IACType acClassProperty, uint maxCapacity)
             : base(parent,acClassProperty, maxCapacity)
         {
@@ -97,15 +97,14 @@ namespace gip.core.autocomponent
 
         #region IACPointAsyncRMISubscr<T> Member
 
-        /// <summary>
-        /// Invokes an AsyncMethod at atACObject. It registers a Callback-Method, which is defined in an Assembly-Class
-        /// </summary>
+        /// <summary>Invokes an AsyncMethod at atACObject. It registers a Callback-Method, which is defined in an Assembly-Class</summary>
         /// <param name="atACComponent">ACObject which publish an AsyncMethod</param>
         /// <param name="asyncRMIPointName">Name of Point for activating the AsyncMethod</param>
-        /// <param name="AsyncMethod">Name of Async-Method, which should be invoked</param>
-        /// <param name="parameter">Passing-Parameters</param>
+        /// <param name="acMethod"></param>
         /// <param name="AsyncCallbackDelegate">Event-Handler-CallBack-Delegate of this when Asyc-Method is Executed</param>
-        /// <returns></returns>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         public ACPointAsyncRMISubscrWrap<T> InvokeAsyncMethod(IACComponent atACComponent, string asyncRMIPointName,
                                                        ACMethod acMethod,
                                                        ACPointNetEventDelegate AsyncCallbackDelegate)
@@ -175,15 +174,14 @@ namespace gip.core.autocomponent
             return wAsyncRMISubscr;
         }
 
-        /// <summary>
-        /// Invokes an AsyncMethod at atACObject. It registers a Callback-Method, which is defined in an Assembly-Class
-        /// </summary>
+        /// <summary>Invokes an AsyncMethod at atACObject. It registers a Callback-Method, which is defined in an Assembly-Class</summary>
         /// <param name="atACComponent">ACObject which publish an AsyncMethod</param>
         /// <param name="asyncRMIPointName">Name of Point for activating the AsyncMethod</param>
-        /// <param name="AsyncMethod">Name of Async-Method, which should be invoked</param>
-        /// <param name="parameter">Passing-Parameters</param>
+        /// <param name="acMethod"></param>
         /// <param name="asyncCallbackDelegateName">Event-Handler-CallBack-Delegate of this when Asyc-Method is Executed</param>
-        /// <returns></returns>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         public ACPointAsyncRMISubscrWrap<T> InvokeAsyncMethod(IACComponent atACComponent, string asyncRMIPointName, ACMethod acMethod, string asyncCallbackDelegateName)
         {
             return InvokeAsyncMethod(atACComponent, asyncRMIPointName, acMethod, asyncCallbackDelegateName, !PropertyInfo.IsPersistable);

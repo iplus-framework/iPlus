@@ -551,11 +551,12 @@ namespace gip.core.autocomponent
 
         #region BSO->ACMethod
 
-        /// <summary>
-        /// Zeigt den Dialog zum konfigurieren eine ACQueryDefinition an
-        /// </summary>
+        /// <summary>Zeigt den Dialog zum konfigurieren eine ACQueryDefinition an</summary>
         /// <param name="acQueryDefinition"></param>
         /// <param name="withQuerySelection">Dürfen andere ACQueryDefinition ausgewählt werden</param>
+        /// <param name="showFilter"></param>
+        /// <param name="showSort"></param>
+        /// <param name="showColumns"></param>
         /// <returns>true wenn Dialog mit "OK" geschlossen wird</returns>
         [ACMethodCommand("Query", "en{'Config'}de{'Konfiguration'}", (short)MISort.QueryPrintDlg)]
         public bool QueryConfigDlg(ACQueryDefinition acQueryDefinition, bool withQuerySelection, bool showFilter, bool showSort, bool showColumns)
@@ -821,12 +822,10 @@ namespace gip.core.autocomponent
             return CurrentSortItem != null && SortItemList.Count() - 1 > SortItemList.IndexOf(CurrentSortItem);
         }
 
-        /// <summary>
-        /// Einfügen eines SortItems per DragAndDrop vom TreeView aus
+        /// <summary>Einfügen eines SortItems per DragAndDrop vom TreeView aus
         /// Wenn acSortItem != null, dann vor diesem einfügen
-        /// Wenn acSortItem == null, dann am Ende einfügen
-        /// </summary>
-        /// <param name="DropObject"></param>
+        /// Wenn acSortItem == null, dann am Ende einfügen</summary>
+        /// <param name="dropObject"></param>
         /// <param name="acSortItem"></param>
         public void InsertSortItem(IACInteractiveObject dropObject, ACSortItem acSortItem = null)
         {
@@ -916,12 +915,10 @@ namespace gip.core.autocomponent
             return CurrentColumnItem != null && ColumnItemList.Count() - 1 > ColumnItemList.IndexOf(CurrentColumnItem);
         }
 
-        /// <summary>
-        /// Einfügen eines ColumnItems per DragAndDrop vom TreeView aus
+        /// <summary>Einfügen eines ColumnItems per DragAndDrop vom TreeView aus
         /// Wenn acColumnItem != null, dann vor diesem einfügen
-        /// Wenn acColumnItem == null, dann am Ende einfügen
-        /// </summary>
-        /// <param name="DropObject"></param>
+        /// Wenn acColumnItem == null, dann am Ende einfügen</summary>
+        /// <param name="dropObject"></param>
         /// <param name="acColumnItem"></param>
         public void InsertColumnItem(IACInteractiveObject dropObject, ACColumnItem acColumnItem = null)
         {

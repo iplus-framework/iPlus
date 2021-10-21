@@ -92,34 +92,6 @@ namespace gip.core.autocomponent
             }
         }
 
-        /// <summary>
-        /// Enters Critical Section e.g. if access to Childs-List which could be emptied from framework during access
-        /// </summary>
-        //protected bool TryEnterCS()
-        //{
-        //    int tries = 0;
-        //    while (tries < 100)
-        //    {
-        //        if (ACMonitor.TryEnter(_LockProjectDispatchList, 10))
-        //            break;
-        //        tries++;
-        //    }
-        //    return tries < 100;
-        //}
-
-        //protected void EnterCS()
-        //{
-        //    ACMonitor.Enter(_LockProjectDispatchList);
-        //}
-
-        ///// <summary>
-        ///// Leaves Critical Section
-        ///// </summary>
-        //protected void LeaveCS()
-        //{
-        //    ACMonitor.Exit(_LockProjectDispatchList);
-        //}
-
 #endregion
 
     }

@@ -57,12 +57,15 @@ namespace gip.core.communication.ISOonTCP.Types
 
         #region FromByteArray
         /// <summary>
-        /// 
+        ///   <br />
         /// </summary>
         /// <param name="bytes"></param>
         /// <param name="startindex"></param>
         /// <param name="totalStringLen">totalStringLen of S7-String is String-Length + 2</param>
-        /// <returns></returns>
+        /// <param name="asBase64"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         public static string FromByteArray(byte[] bytes, int startindex, int totalStringLen, bool asBase64 = false)
         {
             byte[] sub = new byte[totalStringLen];

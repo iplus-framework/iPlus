@@ -227,11 +227,12 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Internes Auslösen der Wertänderung durch:
         /// - Direktes setzen von ValueT (oder Oberflächenbindung)
-        /// - Indirekt durch PropertyAccessorChanged-Event -> Setzen von ValueT
+        /// - Indirekt durch PropertyAccessorChanged-Event -&gt; Setzen von ValueT
         /// - Durch OnPropertychanged()-Aufruf von PropertyValueHolder weil ListChanged-/CollectionChanged-/PropertyChanged-Ereignis eines komplexen T-Objekts ausgelöst worden ist
         /// </summary>
         /// <param name="newValue"></param>
         /// <param name="forceSend"></param>
+        /// <param name="invokerInfo"></param>
         protected override void ChangeValueRequest(T newValue, bool forceSend, object invokerInfo = null)
         {
             //base.ChangeValueRequest(newValue);
@@ -796,11 +797,12 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Internes Auslösen der Wertänderung durch:
         /// - Direktes setzen von ValueT (oder Oberflächenbindung)
-        /// - Indirekt durch PropertyAccessorChanged-Event -> Setzen von ValueT
+        /// - Indirekt durch PropertyAccessorChanged-Event -&gt; Setzen von ValueT
         /// - Durch OnPropertychanged()-Aufruf von PropertyValueHolder weil ListChanged-/CollectionChanged-/PropertyChanged-Ereignis eines komplexen T-Objekts ausgelöst worden ist
         /// </summary>
         /// <param name="newValue"></param>
         /// <param name="forceSend"></param>
+        /// <param name="invokerInfo"></param>
         protected override void ChangeValueRequest(T newValue, bool forceSend, object invokerInfo = null)
         {
             //base.ChangeValueRequest(newValue, forceSend);
@@ -937,7 +939,6 @@ namespace gip.core.autocomponent
         /// <param name="eventArgs"></param>
         internal override void OnValueEventReceived(ACPropertyValueEvent<T> eventArgs)
         {
-            ///base.OnValueEventReceived(eventArgs);
             if (eventArgs == null || this.ACRef == null)
                 return;
 

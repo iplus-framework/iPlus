@@ -190,6 +190,8 @@ namespace gip.core.autocomponent
         /// Synchonizes the ACState-Property with the corresponding State-Method, that should be invoked when ACState has changed
         /// </summary>
         /// <param name="acStateValue"></param>
+        /// <param name="valueEvent"></param>
+        /// <param name="inconsistentStateButForce"></param>
         private void SyncACStateWithACStateMethod(ACStateEnum acStateValue, ACPropertyValueEvent<ACStateEnum> valueEvent, bool inconsistentStateButForce = false)
         {
             //if (string.IsNullOrEmpty(acStateValue))

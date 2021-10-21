@@ -1224,9 +1224,9 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Ermittelt die ACClass für den Klassennamen
+        /// Determines the ACClass for the passed class id
         /// </summary>
-        /// <param name="acIdentifier"></param>
+        /// <param name="acClassID"></param>
         /// <returns></returns>
         public ACClass GetACType(Guid acClassID)
         {

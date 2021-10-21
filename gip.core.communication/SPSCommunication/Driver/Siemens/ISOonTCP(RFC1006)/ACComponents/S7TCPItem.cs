@@ -116,10 +116,10 @@ namespace gip.core.communication
         {
             get
             {
-                ///S5- und S7-Strings sind unterschiedlich aufgebaut. 
-                ///Während S5-Strings keine Längenangaben enthalten, 
-                ///sind in einem S7-String die ersten beiden Bytes mit entsprechenden Angaben belegt:
-                ///enthält im 1. Byte maximale Länge und im 2. Byte tatsächliche Länge
+                // S5- und S7-Strings sind unterschiedlich aufgebaut. 
+                // Während S5-Strings keine Längenangaben enthalten, 
+                // sind in einem S7-String die ersten beiden Bytes mit entsprechenden Angaben belegt:
+                // enthält im 1. Byte maximale Länge und im 2. Byte tatsächliche Länge
                 if (ItemVarType == VarType.String || ItemVarType == VarType.Base64String)
                     return _ItemLength + 2;
                 return _ItemLength;

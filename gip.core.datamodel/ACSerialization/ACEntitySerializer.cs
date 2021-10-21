@@ -36,7 +36,6 @@ namespace gip.core.datamodel
         /// <summary>
         /// Initializes a new instance of the <see cref="ACEntitySerializer"/> class.
         /// </summary>
-        /// <param name="database">The database.</param>
         public ACEntitySerializer()
         {
 
@@ -265,10 +264,12 @@ namespace gip.core.datamodel
         /// <summary>
         /// Deserializes the specified ac XML.
         /// </summary>
-        /// <param name="acXML">The ac XML.</param>
-        /// <param name="acQueryDefinition">The ac query definition.</param>
-        /// <param name="onlyCompare">if set to <c>true</c> [only compare].</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        /// <param name="resource"></param>
+        /// <param name="db"></param>
+        /// <param name="acFSItemParent"></param>
+        /// <param name="xDoc"></param>
+        /// <param name="acQueryDefinition"></param>
+        /// <param name="path"></param>
         public void DeserializeXML(IResources resource, IACEntityObjectContext db, ACFSItem acFSItemParent, XElement xDoc, ACQueryDefinition acQueryDefinition, string path = null)
         {
             var typeValue = xDoc.Attribute("Type").Value;
@@ -348,13 +349,14 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Deserializes the recursive.
+        /// Deserializes recursive.
         /// </summary>
-        /// <param name="xDoc">The x doc.</param>
-        /// <param name="xNode">The x node.</param>
-        /// <param name="acObjectParent">The ac object parent.</param>
-        /// <param name="acQueryDefinition">The ac query definition.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        /// <param name="resource"></param>
+        /// <param name="db"></param>
+        /// <param name="acFSParentItem"></param>
+        /// <param name="xNode"></param>
+        /// <param name="acQueryDefinition"></param>
+        /// <param name="path"></param>
         public void DeserializeXMLRecursive(IResources resource, IACEntityObjectContext db, ACFSItem acFSParentItem, XElement xNode, ACQueryDefinition acQueryDefinition, string path = null)
         {
             //Type objectType = ACObjectHelper.GetType(xNode.Attribute("Type").Value);
@@ -502,13 +504,13 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Deserializes the recursive.
+        /// DeserializeSQLRecursive
         /// </summary>
-        /// <param name="xDoc">The x doc.</param>
-        /// <param name="xNode">The x node.</param>
-        /// <param name="acObjectParent">The ac object parent.</param>
-        /// <param name="acQueryDefinition">The ac query definition.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        /// <param name="resource"></param>
+        /// <param name="db"></param>
+        /// <param name="acFSParentItem"></param>
+        /// <param name="outerAcObject"></param>
+        /// <param name="acQueryDefinition"></param>
         public void DeserializeSQLRecursive(IResources resource, IACEntityObjectContext db, ACFSItem acFSParentItem, IACObject outerAcObject, ACQueryDefinition acQueryDefinition)
         {
 

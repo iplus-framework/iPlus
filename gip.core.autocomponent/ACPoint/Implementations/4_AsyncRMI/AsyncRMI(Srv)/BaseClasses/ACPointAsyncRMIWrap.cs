@@ -12,10 +12,11 @@ namespace gip.core.autocomponent
         where T : ACComponent 
     {
         #region c'tors
-        /// <summary>
-        /// Constructor for contructing the Wrapper-"wrapObject"
-        /// </summary>
+        /// <summary>Constructor for contructing the Wrapper-"wrapObject"</summary>
         /// <param name="refObject">A "refObject" muss be passed. It will be wrapped from this "wrapObject"</param>
+        /// <param name="owner"></param>
+        /// <param name="asyncCallbackDelegate"></param>
+        /// <param name="acMethod"></param>
         public ACPointAsyncRMIWrap(T refObject, IACPointNetBase owner, ACPointNetEventDelegate asyncCallbackDelegate,
                                     ACMethod acMethod)
             : base(refObject, owner, asyncCallbackDelegate)
@@ -24,7 +25,13 @@ namespace gip.core.autocomponent
         }
 
 
-        
+
+        /// <summary>Initializes a new instance of the <see cref="ACPointAsyncRMIWrap{T}" /> class.</summary>
+        /// <param name="refObject">The reference object.</param>
+        /// <param name="owner">The owner.</param>
+        /// <param name="clientEntry">The client entry.</param>
+        /// <param name="asyncCallbackDelegate">The asynchronous callback delegate.</param>
+        /// <param name="acMethod">The ac method.</param>
         public ACPointAsyncRMIWrap(T refObject, IACPointNetBase owner, ACPointAsyncRMISubscrWrap<T> clientEntry,
                                     ACPointNetEventDelegate asyncCallbackDelegate, ACMethod acMethod)
             : base(refObject, owner, asyncCallbackDelegate)
@@ -34,16 +41,23 @@ namespace gip.core.autocomponent
             _ClientPointName = clientEntry.Point.ACIdentifier;
         }
 
-        /// <summary>
-        /// Constructor for contructing the Wrapper-"wrapObject", if Callback-Method is defined by script
-        /// </summary>
+        /// <summary>Constructor for contructing the Wrapper-"wrapObject", if Callback-Method is defined by script</summary>
         /// <param name="refObject">A "refObject" muss be passed. It will be wrapped from this "wrapObject"</param>
+        /// <param name="owner"></param>
+        /// <param name="asyncCallbackDelegateName"></param>
+        /// <param name="acMethod"></param>
         public ACPointAsyncRMIWrap(T refObject, IACPointNetBase owner, string asyncCallbackDelegateName, ACMethod acMethod)
             : base(refObject, owner, asyncCallbackDelegateName)
         {
             _ACMethod = acMethod;
         }
 
+        /// <summary>Initializes a new instance of the <see cref="ACPointAsyncRMIWrap{T}" /> class.</summary>
+        /// <param name="refObject">The reference object.</param>
+        /// <param name="owner">The owner.</param>
+        /// <param name="clientEntry">The client entry.</param>
+        /// <param name="asyncCallbackDelegateName">Name of the asynchronous callback delegate.</param>
+        /// <param name="acMethod">The ac method.</param>
         public ACPointAsyncRMIWrap(T refObject, IACPointNetBase owner, ACPointAsyncRMISubscrWrap<T> clientEntry, string asyncCallbackDelegateName, ACMethod acMethod)
             : base(refObject, owner, asyncCallbackDelegateName)
         {

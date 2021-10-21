@@ -256,9 +256,9 @@ namespace gip.core.autocomponent
             get;
         }
 
-        [ACPropertyInfo(9999)]
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
+        [ACPropertyInfo(9999)]
         public override string ACIdentifier
         {
             get

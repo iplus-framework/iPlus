@@ -51,7 +51,7 @@ namespace gip.core.autocomponent
         /// Removes the "wrapObject" from the list including it's wrapped "refObject" 
         /// List could reside on Proxy or Serverside. This depends upon the underlying implementation.
         /// </summary>
-        /// <param name="refObject">Addressing over acURL</param>
+        /// <param name="acURL">Addressing over acURL</param>
         /// <returns>returns true if object existed and was removed</returns>
         bool Remove(string acURL);
 

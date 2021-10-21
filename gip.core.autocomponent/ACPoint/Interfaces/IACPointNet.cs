@@ -22,19 +22,19 @@ namespace gip.core.autocomponent
         /// <returns>Returns a "WrapObject"</returns>
         W GetWrapObject(W cloneOrOriginal);
 
-        /// <summary>
-        /// Checks if a "wrapObject" exists in the List
-        /// List could reside on Proxy or Serverside. This depends upon the underlying implementation.
-        /// </summary>
-        /// <param name="refObject">A wrapObject which is the Original Instance or a clone with same Properties</param>
-        /// <returns></returns>
+        /// <summary>Checks if a "wrapObject" exists in the List
+        /// List could reside on Proxy or Serverside. This depends upon the underlying implementation.</summary>
+        /// <param name="cloneOrOriginal">A wrapObject which is the Original Instance or a clone with same Properties</param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         bool Contains(W cloneOrOriginal);
 
         /// <summary>
         /// Removes a "wrapObject" from the list including it's wrapped "refObject" 
         /// List could reside on Proxy or Serverside. This depends upon the underlying implementation.
         /// </summary>
-        /// <param name="refObject">A wrapObject which is the Original Instance or a clone with same Properties</param>
+        /// <param name="cloneOrOriginal">A wrapObject which is the Original Instance or a clone with same Properties</param>
         /// <returns>returns true if object existed and was removed</returns>
         bool Remove(W cloneOrOriginal);
 

@@ -57,10 +57,8 @@ namespace gip.core.autocomponent
             get { return _ACClassDesign; }
             set { _ACClassDesign = value; }
         }
-        /// <summary>
-        /// Gets a data table by table name
-        /// </summary>
-        /// <param name="tableName">table name (case insensitive)</param>
+        /// <summary>Gets a data table by table name</summary>
+        /// <param name="dictKey"></param>
         /// <returns>null, if DataTable not found</returns>
         public DataTable GetDataTableByName(string dictKey)
         {

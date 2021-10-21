@@ -18,6 +18,7 @@ using System.Text;
 using System.Threading;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace gip.core.datamodel
 {
@@ -467,6 +468,7 @@ namespace gip.core.datamodel
             }
         }
 
+#pragma warning disable CS0618
         /// <summary>
         /// Creates a textual description of the deadlock.
         /// </summary>
@@ -616,6 +618,7 @@ namespace gip.core.datamodel
                 }
             }
         }
+#pragma warning restore CS0618
 
         /// <summary>
         /// Information on an underlying monitor, the thread holding it, threads waiting on it, and so forth.

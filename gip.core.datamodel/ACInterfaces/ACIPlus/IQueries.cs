@@ -30,8 +30,7 @@ namespace gip.core.datamodel
         /// <param name="acComponentParent">The ac component parent.</param>
         /// <param name="qryACName">Name of the qry AC.</param>
         /// <param name="acKey">The ac key.</param>
-        /// <param name="startChildMode">None=Nur diese ACQueryDefinition-Instanz wird erzeugt
-        /// Manual=Auch alle untergeordneten ACQueryDefinition-Instanzen werden mit erzeugt</param>
+        /// <param name="forVBControl"></param>
         /// <returns>ACQueryDefinition.</returns>
         ACQueryDefinition CreateQuery(IACComponent acComponentParent, string qryACName, string acKey, bool forVBControl = false);
 
@@ -41,8 +40,7 @@ namespace gip.core.datamodel
         /// <param name="acComponentParent">optional</param>
         /// <param name="qryACClass">The qry AC class.</param>
         /// <param name="acKey">optional Schlüssel für Konfiguration</param>
-        /// <param name="startChildMode">None=Nur diese ACQueryDefinition-Instanz wird erzeugt
-        /// Manual=Auch alle untergeordneten ACQueryDefinition-Instanzen werden mit erzeugt</param>
+        /// <param name="forVBControl"></param>
         /// <returns>ACQueryDefinition.</returns>
         ACQueryDefinition CreateQueryByClass(IACComponent acComponentParent, ACClass qryACClass, string acKey, bool forVBControl = false);
 
@@ -52,8 +50,7 @@ namespace gip.core.datamodel
         /// <param name="acComponentParent">The ac component parent.</param>
         /// <param name="qryACClass">The qry AC class.</param>
         /// <param name="configXML">The config XML.</param>
-        /// <param name="startChildMode">None=Nur diese ACQueryDefinition-Instanz wird erzeugt
-        /// Manual=Auch alle untergeordneten ACQueryDefinition-Instanzen werden mit erzeugt</param>
+        /// <param name="forVBControl"></param>
         /// <returns>ACQueryDefinition.</returns>
         ACQueryDefinition CreateQueryByClassWithConfig(IACComponent acComponentParent, ACClass qryACClass, string configXML, bool forVBControl = false);
     }

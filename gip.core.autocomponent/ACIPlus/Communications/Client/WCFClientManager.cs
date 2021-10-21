@@ -280,11 +280,10 @@ namespace gip.core.autocomponent
         #endregion
 
         #region public methods
-        /// <summary>
-        /// Sendet eine Clientseitige Nachricht an den Server
-        /// </summary>
+        /// <summary>Sendet eine Clientseitige Nachricht an den Server</summary>
         /// <param name="acMessage"></param>
-        /// <exception cref="gip.core.autocomponent.System.ACWCFException">Thrown when disconnected</exception>
+        /// <param name="forACComponent"></param>
+        /// <exception cref="gip.core.autocomponent.ACWCFException">Thrown when disconnected</exception>
         public void SendACMessageToServer(WCFMessage acMessage, IACComponent forACComponent)
         {
             if (ACOperationMode != ACOperationModes.Live)
@@ -295,11 +294,10 @@ namespace gip.core.autocomponent
                 clientChannel.SendACMessageToServer(acMessage);
         }
 
-        /// <summary>
-        /// Method sends a PropertyValueEvent from this Client/Proxy-Object 
-        /// to the Real Object on Server-side
-        /// </summary>
+        /// <summary>Method sends a PropertyValueEvent from this Client/Proxy-Object
+        /// to the Real Object on Server-side</summary>
         /// <param name="eventArgs"></param>
+        /// <param name="forACComponent"></param>
         public void SendPropertyValueToServer(IACPropertyNetValueEvent eventArgs, IACComponent forACComponent)
         {
             if (ACOperationMode != ACOperationModes.Live)

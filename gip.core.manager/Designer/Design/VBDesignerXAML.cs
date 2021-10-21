@@ -78,9 +78,10 @@ namespace gip.core.manager
         /// Liefert eine Liste von ObjectLayoutEntrys zurück, die
         /// alle in der Visualisierung verwendeten grafischen Elemente enthält
         ///  return _WorkflowWorkflow.GetAvailableElements(CurrentACClassMethod == null ? null : CurrentACClassMethod.ACClass, CurrentACClassMethod);
-
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         public override void UpdateAvailableElements()
         {
             // Ist mir abends eingefallen, dass Tree-View auf PropertyChanged reagiert => Instanz-Objekt muss sich ändern
@@ -126,12 +127,13 @@ namespace gip.core.manager
             InsertVBControls(_AvailableElementList);
         }
 
-        /// <summary>
-        /// Wird aufgerufen von Komponenten, die den Designer-Context ändern
-        /// z.B. iplus-Studio durch auswahl der Klasse
-        /// </summary>
+        /// <summary>Wird aufgerufen von Komponenten, die den Designer-Context ändern
+        /// z.B. iplus-Studio durch auswahl der Klasse</summary>
         /// <param name="currentContextOfDesignEditor"></param>
-        /// <returns></returns>
+        /// <param name="objectLayoutEntrys"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         public void GetAvailableElements(IACObject currentContextOfDesignEditor, ObservableCollection<IACObject> objectLayoutEntrys)
         {
             objectLayoutEntrys.Clear();

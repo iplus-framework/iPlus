@@ -3441,13 +3441,14 @@ namespace gip.core.autocomponent
         }
 
 
-        /// <summary>
-        /// Creates a new Workflow-Instance
-        /// </summary>
+        /// <summary>Creates a new Workflow-Instance</summary>
+        /// <param name="invocationMode"></param>
         /// <param name="acClassMethod"></param>
-        /// <param name="acParameter"></param>
+        /// <param name="acMethod"></param>
         /// <param name="acClassTask">Wird nur benötigt bei Instanziierung anhand SP-Eintrag</param>
-        /// <returns></returns>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         protected PWProcessFunction InstanceNewWorkflow(AsyncMethodInvocationMode invocationMode, ACClassMethod acClassMethod, ACMethod acMethod, ACClassTask acClassTask = null)
         {
             ACValueList acParameter = acMethod.ParameterValueList;
@@ -3724,13 +3725,13 @@ namespace gip.core.autocomponent
 
 
         #region Open Dialog/Windows
-        /// <summary>
-        /// Opens a modal dialog with the XAML-Layout of the passed design-name.
-        /// </summary>
-        /// <param name="acClassDesignName"></param>
+        /// <summary>Opens a modal dialog with the XAML-Layout of the passed design-name.</summary>
         /// <param name="forObject"></param>
+        /// <param name="acClassDesignName"></param>
+        /// <param name="acCaption"></param>
         /// <param name="isClosableBSORoot"></param>
         /// <param name="ribbonVisibility"></param>
+        /// <param name="closeButtonVisibility"></param>
         public void ShowDialog(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
             Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
         {
@@ -3740,16 +3741,16 @@ namespace gip.core.autocomponent
         }
 
 
-        /// <summary>
-        /// Opens a floating window with the XAML-Layout of the passed design-name.
-        /// </summary>
+        /// <summary>Opens a floating window with the XAML-Layout of the passed design-name.</summary>
+        /// <param name="forObject"></param>
         /// <param name="acClassDesignName"></param>
         /// <param name="isClosableBSORoot"></param>
         /// <param name="containerType"></param>
         /// <param name="dockState"></param>
         /// <param name="dockPosition"></param>
-        /// <param name="forObject"></param>
         /// <param name="ribbonVisibility"></param>
+        /// <param name="dockingManagerName"></param>
+        /// <param name="closeButtonVisibility"></param>
         public void ShowWindow(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState,
             Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, string dockingManagerName = "",
             Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
@@ -4515,7 +4516,7 @@ namespace gip.core.autocomponent
 
         /// <summary>
         /// Resets the Configuration-Cache: ComponentClass.ConfigurationEntries (IACConfigStore).
-        /// This also resets all configuration properties and reloads them from the database (ACPropertyConfigValue<T>).
+        /// This also resets all configuration properties and reloads them from the database (ACPropertyConfigValue&lt;T&gt;).
         /// This method is recursively. It resets also all childs in the application tree.
         /// </summary>
         [ACMethodInfo("ACComponent", "en{'Reset configuration cache'}de{'Resettiere Konfigurationspuffer'}", 9999)]

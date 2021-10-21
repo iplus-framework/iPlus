@@ -14,6 +14,7 @@ namespace gip.core.datamodel
         /// Initializes a new instance of the <see cref="ACDelegateQueue" /> class.
         /// </summary>
         /// <param name="instanceName">Name of the instance.</param>
+        /// <param name="saveChangesWithoutValidation">saveChangesWithoutValidation</param>
         public RootDbOpQueue(string instanceName, bool saveChangesWithoutValidation)
             : base(instanceName, typeof(Database), Database.ConnectionString, saveChangesWithoutValidation)
         {
@@ -25,6 +26,7 @@ namespace gip.core.datamodel
         /// <param name="instanceName">Name of the instance.</param>
         /// <param name="database">The database.</param>
         /// <param name="autoOpenClose">if set to <c>true</c> [auto open close].</param>
+        /// <param name="saveChangesWithoutValidation">saveChangesWithoutValidation</param>
         public RootDbOpQueue(string instanceName, Database database, bool autoOpenClose, bool saveChangesWithoutValidation)
             : base(instanceName, database, autoOpenClose, saveChangesWithoutValidation)
         {
@@ -37,6 +39,7 @@ namespace gip.core.datamodel
         /// <param name="database">The database.</param>
         /// <param name="workerInterval_ms">The worker interval_ms.</param>
         /// <param name="autoOpenClose">if set to <c>true</c> [auto open close].</param>
+        /// <param name="saveChangesWithoutValidation">saveChangesWithoutValidation</param>
         public RootDbOpQueue(string instanceName, Database database, int workerInterval_ms, bool autoOpenClose, bool saveChangesWithoutValidation)
             : base(instanceName, database, workerInterval_ms, autoOpenClose, saveChangesWithoutValidation)
         {

@@ -26,21 +26,19 @@ namespace gip.core.communication
         /// <param name="typeOrACMethodName">Is wether the full-TypeName of the object which should be serialized or the ACIdentifier of a ACMethod</param>
         public abstract bool IsSerializerFor(string typeOrACMethodName);
 
-        /// <summary>
-        /// This method must bei implemented in the derivation class.
-        /// </summary>
+        /// <summary>This method must bei implemented in the derivation class.</summary>
         /// <param name="complexObj">The complexObj can be wether a ACMethod or any serializable Object.</param>
         /// <param name="dbNo">Datablock-Number</param>
         /// <param name="offset">Offset in Datablock</param>
+        /// <param name="miscParams"></param>
         /// <returns>true if succeede</returns>
         public abstract bool SendObject(object complexObj, int dbNo, int offset, object miscParams);
 
-        /// <summary>
-        /// This method must bei implemented in the derivation class.
-        /// </summary>
+        /// <summary>This method must bei implemented in the derivation class.</summary>
         /// <param name="complexObj">The complexObj can be wether a ACMethod or any serializable Object. The complexObject should be empty</param>
         /// <param name="dbNo">Datablock-Number</param>
         /// <param name="offset">Offset in Datablock</param>
+        /// <param name="miscParams"></param>
         /// <returns>The passed complexObj with filled out properties. If read error the result is null.</returns>
         public abstract object ReadObject(object complexObj, int dbNo, int offset, object miscParams);
 

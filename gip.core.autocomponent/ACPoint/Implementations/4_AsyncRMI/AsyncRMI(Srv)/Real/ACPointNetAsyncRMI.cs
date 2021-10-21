@@ -25,10 +25,10 @@ namespace gip.core.autocomponent
             _base = new ACPointServiceReal<T, ACPointAsyncRMIWrap<T>>(this);
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointNetAsyncRMI(IACComponent parent, IACType acClassProperty, uint maxCapacity)
             : base(parent, acClassProperty, maxCapacity)
         {

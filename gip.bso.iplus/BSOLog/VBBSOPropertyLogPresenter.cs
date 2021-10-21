@@ -1722,9 +1722,7 @@ namespace gip.bso.iplus
             ParentACObject = parent;
         }
 
-        /// <summary>
-        /// Creates a new instance of a ACPropertyLogModel.
-        /// </summary>
+        /// <summary>Creates a new instance of a ACPropertyLogModel.</summary>
         /// <param name="start">The start date time for propertylog model.</param>
         /// <param name="end">The end date time for propertylog model.</param>
         /// <param name="propertyValue">The property value parameter.</param>
@@ -1733,6 +1731,7 @@ namespace gip.bso.iplus
         /// <param name="acCaption">The acCaption parameter.</param>
         /// <param name="propertyType">The .NET type of a property.</param>
         /// <param name="parent">The parent object parameter.</param>
+        /// <param name="groupName"></param>
         public ACPropertyLogModel(DateTime? start, DateTime? end, object propertyValue, ACPropertyLogModelType modelType, int displayOrder = 0, string acCaption = null,
                                   Type propertyType = null, IACObject parent = null, string groupName = null) : base(start, end, propertyValue, acCaption)
         {

@@ -225,13 +225,12 @@ namespace gip.core.manager
         //IACWorkflowNode _GroupClass = null;
         WFItem _WFItemGroup = null;
         WFItem _WFItemSelf = null;
-        /// <summary>
-        /// Im Konstruktor wird die sortierte Liste erzeugt.
+        /// <summary>Im Konstruktor wird die sortierte Liste erzeugt.
         /// Falls der "visualClass" mit anderen ClassItems kolidiert, wird
-        /// dieser in der Sortierreihenfolge davorgestellt.
-        /// </summary>
+        /// dieser in der Sortierreihenfolge davorgestellt.</summary>
         /// <param name="designItemGroup"></param>
-        /// <param name="visualClass"></param>
+        /// <param name="designItem"></param>
+        /// <param name="isStartMethod"></param>
         public WFItemList(DesignItem designItemGroup, DesignItem designItem, bool isStartMethod = true)
         {
             if (designItemGroup.ComponentType.Name != Const.VBVisualGroup_ClassName)
@@ -717,13 +716,14 @@ namespace gip.core.manager
         #endregion
 
         #region Konflikte
-        /// <summary>
-        /// Prüft auf Kollission und verschiebt das Element
-        /// this        -> bleibt immer auf der Position
-        /// classItem    -> wird nach rechts oder unten verschoben
-        /// </summary>
+        /// <summary>Prüft auf Kollission und verschiebt das Element
+        /// this        -&gt; bleibt immer auf der Position
+        /// classItem    -&gt; wird nach rechts oder unten verschoben</summary>
+        /// <param name="classItemList"></param>
         /// <param name="classItem"></param>
+        /// <param name="isFromInsertedClassItem"></param>
         /// <returns>
+        ///   <br />
         /// </returns>
         public bool ResolveConflict(WFItemList classItemList, WFItem classItem, bool isFromInsertedClassItem = true)
         {

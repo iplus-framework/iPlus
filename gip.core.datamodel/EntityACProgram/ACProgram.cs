@@ -168,6 +168,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="acObject">Optional: Reference to another Entity-Object that should be related for this new configuration entry.</param>
         /// <param name="valueTypeACClass">The iPlus-Type of the "Value"-Property.</param>
+        /// <param name="localConfigACUrl">localConfigACUrl</param>
         /// <returns>IACConfig as a new entry</returns>
         public IACConfig NewACConfig(IACObjectEntity acObject = null, gip.core.datamodel.ACClass valueTypeACClass = null, string localConfigACUrl = null)
         {

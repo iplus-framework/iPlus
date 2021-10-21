@@ -20,10 +20,10 @@ namespace gip.core.autocomponent
         {
         }
 
-        /// <summary>
-        /// Constructor for Reflection-Instantiation
-        /// </summary>
+        /// <summary>Constructor for Reflection-Instantiation</summary>
         /// <param name="parent"></param>
+        /// <param name="acClassProperty"></param>
+        /// <param name="maxCapacity"></param>
         public ACPointAsyncRMIProxy(IACComponent parent, ACClassProperty acClassProperty, uint maxCapacity)
             : base(parent,acClassProperty, maxCapacity)
         {
@@ -35,11 +35,12 @@ namespace gip.core.autocomponent
             ACPointAsyncRMIHelper.ClearMyInvocations(this, subscriber);
         }
 
-        /// <summary>
-        /// Add a Task at Target-Component
-        /// </summary>
+        /// <summary>Add a Task at Target-Component</summary>
         /// <param name="acMethod"></param>
-        /// <returns></returns>
+        /// <param name="subscriber"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         [ACMethodInfo("", "", 9999)]
         public IACPointEntry AddTask(ACMethod acMethod, IACComponentTaskSubscr subscriber)
         {
@@ -48,11 +49,12 @@ namespace gip.core.autocomponent
             return ACPointAsyncRMIHelper.AddTask(this, acMethod, subscriber);
         }
 
-        /// <summary>
-        /// Remove a Task at Target-Component
-        /// </summary>
-        /// <param name="acJob"></param>
-        /// <returns></returns>
+        /// <summary>Remove a Task at Target-Component</summary>
+        /// <param name="acMethod"></param>
+        /// <param name="subscriber"></param>
+        /// <returns>
+        ///   <br />
+        /// </returns>
         [ACMethodInfo("", "", 9999)]
         public bool RemoveTask(ACMethod acMethod, IACComponentTaskSubscr subscriber)
         {
