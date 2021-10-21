@@ -307,7 +307,8 @@ namespace gip.core.autocomponent
                 IACPointAsyncRMI rmiInvocationPoint = pFunction.GetPoint(Const.TaskInvocationPoint) as IACPointAsyncRMI;
                 if (rmiInvocationPoint != null)
                 {
-                    bool wfSucceeded = rmiInvocationPoint.AddTask(paramMethod, this);
+                    IACPointEntry task = rmiInvocationPoint.AddTask(paramMethod, this);
+                    bool wfSucceeded = IsTaskStarted(task);
                     if (!wfSucceeded)
                     {
                         //Error50145: Generation and starting of a new subworkflow failed.

@@ -12,21 +12,21 @@ namespace gip.core.autocomponent
     public static class ACPointAsyncRMIHelper
     {
         #region Helper-Methods for IACPointAsyncRMI
-        internal static bool AddTask(IACPointAsyncRMI rmiInvocationPoint, ACMethod acMethod, IACComponentTaskSubscr subscriber)
+        internal static IACPointEntry AddTask(IACPointAsyncRMI rmiInvocationPoint, ACMethod acMethod, IACComponentTaskSubscr subscriber)
         {
             if (subscriber == null || acMethod == null || rmiInvocationPoint == null || !acMethod.IsValid())
-                return false;
+                return null;
             if (rmiInvocationPoint.ACIdentifier != Const.TaskInvocationPoint)
-                return false;
+                return null;
             ACComponent subscriberComp = subscriber as ACComponent;
             if (subscriberComp == null)
-                return false;
+                return null;
 
             IACPointAsyncRMISubscr rmiSubscriptionPoint = subscriber.GetPoint(Const.TaskSubscriptionPoint) as IACPointAsyncRMISubscr;
             if (rmiSubscriptionPoint == null)
-                return false;
+                return null;
 
-            IACObject wrapObject = null;
+            IACPointEntry wrapObject = null;
             ACPointNetEventDelegate cbDelegate = subscriber.TaskCallbackDelegate;
             if (cbDelegate != null)
             {
@@ -43,7 +43,7 @@ namespace gip.core.autocomponent
                     wrapObject = rmiSubscriptionPoint.InvokeAsyncMethod(rmiInvocationPoint.ParentACComponent, rmiInvocationPoint.ACIdentifier, acMethod, Const.TaskCallback);
             }
 
-            return wrapObject != null;
+            return wrapObject;
         }
 
         internal static bool RemoveTask(IACPointAsyncRMI rmiInvocationPoint, ACMethod acMethod, IACComponentTaskSubscr subscriber)

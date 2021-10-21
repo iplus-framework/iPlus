@@ -161,7 +161,7 @@ namespace gip.core.datamodel
         /// Gets the sequence no.
         /// </summary>
         /// <value>The sequence no.</value>
-        ulong IACTask.SequenceNo
+        ulong IACPointEntry.SequenceNo
         {
             get
             {

@@ -43,12 +43,8 @@ namespace gip.core.datamodel
         Deleted = 4, // Completed
     }
 
-    /// <summary>
-    /// Interface IACTask
-    /// </summary>
-    [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACTask", "en{'ACPointAsyncRMIWrap'}de{'ACPointAsyncRMIWrap'}", typeof(IACTask), "ACPointAsyncRMIWrap", "ACIdentifier,ACCaption", Const.ACIdentifierPrefix)]
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'IACTask'}de{'IACTask'}", Global.ACKinds.TACInterface)]
-    public interface IACTask : IACObject
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'IACPointEntry'}de{'IACPointEntry'}", Global.ACKinds.TACInterface)]
+    public interface IACPointEntry : IACObject
     {
         /// <summary>
         /// Gets the request ID.
@@ -65,17 +61,25 @@ namespace gip.core.datamodel
         ulong SequenceNo { get; }
 
         /// <summary>
+        /// Gets the state.
+        /// </summary>
+        /// <value>The state.</value>
+        PointProcessingState State { get; }
+    }
+
+    /// <summary>
+    /// Interface IACTask
+    /// </summary>
+    [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACTask", "en{'ACPointAsyncRMIWrap'}de{'ACPointAsyncRMIWrap'}", typeof(IACTask), "ACPointAsyncRMIWrap", "ACIdentifier,ACCaption", Const.ACIdentifierPrefix)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'IACTask'}de{'IACTask'}", Global.ACKinds.TACInterface)]
+    public interface IACTask : IACPointEntry
+    {
+        /// <summary>
         /// Gets the workflow context.
         /// </summary>
         /// <value>The workflow context.</value>
         [ACPropertyInfo(9999)]
         IACWorkflowContext WorkflowContext { get; }
-
-        /// <summary>
-        /// Gets the state.
-        /// </summary>
-        /// <value>The state.</value>
-        PointProcessingState State { get; }
 
         /// <summary>
         /// Gets a value indicating whether [auto remove].

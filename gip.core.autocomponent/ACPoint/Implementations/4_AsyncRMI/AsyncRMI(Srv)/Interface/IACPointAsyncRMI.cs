@@ -107,7 +107,7 @@ namespace gip.core.autocomponent
         /// </summary>
         /// <param name="acMethod"></param>
         /// <returns></returns>
-        bool AddTask(ACMethod acMethod, IACComponentTaskSubscr subscriber);
+        IACPointEntry AddTask(ACMethod acMethod, IACComponentTaskSubscr subscriber);
 
         /// <summary>
         /// Remove a Task at Target-Component only if ACIdentifier of this IACPointAsyncRMI is "TaskInvocationPoint"

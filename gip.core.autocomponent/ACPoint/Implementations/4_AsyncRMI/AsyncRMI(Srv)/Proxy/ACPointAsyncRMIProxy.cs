@@ -41,10 +41,10 @@ namespace gip.core.autocomponent
         /// <param name="acMethod"></param>
         /// <returns></returns>
         [ACMethodInfo("", "", 9999)]
-        public bool AddTask(ACMethod acMethod, IACComponentTaskSubscr subscriber)
+        public IACPointEntry AddTask(ACMethod acMethod, IACComponentTaskSubscr subscriber)
         {
             if (this.ACIdentifier != Const.TaskInvocationPoint)
-                return false;
+                return null;
             return ACPointAsyncRMIHelper.AddTask(this, acMethod, subscriber);
         }
 

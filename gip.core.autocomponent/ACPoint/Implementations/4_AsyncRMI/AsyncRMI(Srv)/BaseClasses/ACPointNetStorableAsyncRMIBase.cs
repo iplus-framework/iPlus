@@ -66,8 +66,8 @@ namespace gip.core.autocomponent
             OnLocalStorageListChanged();
             if ((wAsync.State == PointProcessingState.Rejected) || (wAsync.State == PointProcessingState.Deleted))
             {
-                if (!Contains(wAsync))
-                    wAsync = null;
+                //if (!Contains(wAsync))
+                    //wAsync = null;
             }
             return wAsync;
         }

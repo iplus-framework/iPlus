@@ -53,6 +53,33 @@ namespace gip.core.autocomponent
             }
         }
 
+        public TResult GetCurrentExecutingFunction<TResult>() where TResult : PAProcessFunction
+        {
+            ACPointAsyncRMISubscrWrap<ACComponent> taskEntry = null;
+
+            using (ACMonitor.Lock(TaskSubscriptionPoint.LockLocalStorage_20033))
+            {
+                taskEntry = this.TaskSubscriptionPoint.ConnectionList.FirstOrDefault();
+            }
+            // Falls Dosierung zur Zeit aktiv ist, dann gibt es auch einen Eintrag in der TaskSubscriptionListe
+            if (taskEntry != null && ParentPWGroup != null)
+            {
+                return ParentPWGroup.GetExecutingFunction<TResult>(taskEntry.RequestID);
+            }
+            return null;
+        }
+
+        public bool IsAnyTaskStarted
+        {
+            get
+            {
+                using (ACMonitor.Lock(TaskSubscriptionPoint.LockLocalStorage_20033))
+                {
+                    return this.TaskSubscriptionPoint.ConnectionList.Any();
+                }
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -163,7 +190,8 @@ namespace gip.core.autocomponent
 
                     module.TaskInvocationPoint.ClearMyInvocations(this);
                     _CurrentMethodEventArgs = null;
-                    if (!module.TaskInvocationPoint.AddTask(paramMethod, this))
+                    IACPointEntry task = module.TaskInvocationPoint.AddTask(paramMethod, this);
+                    if (!IsTaskStarted(task))
                     {
                         ACMethodEventArgs eM = _CurrentMethodEventArgs;
                         if (eM == null || eM.ResultState != Global.ACMethodResultState.FailedAndRepeat)

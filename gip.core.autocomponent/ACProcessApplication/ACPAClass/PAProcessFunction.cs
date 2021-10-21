@@ -537,7 +537,13 @@ namespace gip.core.autocomponent
             /// The Standard-Logic in iPlus must be disabled.
             /// Example: PLC needs a Way-Function in background
             /// </summary>
-            OnlyOnPLCSide = 1
+            OnlyOnPLCSide = 1,
+
+            /// <summary>
+            /// Function will not be sended to a external System (PLC) and should be completed immediately.
+            /// In this case don't use a converter as a child
+            /// </summary>
+            InternalSimulation = 2,
         }
 
         private ACPropertyConfigValue<short> _FuncConvMode;
@@ -1078,7 +1084,8 @@ namespace gip.core.autocomponent
             if (CyclicWaitIfSimulationOn())
                 return;
 
-            if (IsSimulationOn)
+            if (    IsSimulationOn
+                || (FuncConvMode == (short)FuncConverterMode.InternalSimulation))
             {
                 if (ACStateConverter != null)
                     CurrentACState = ACStateConverter.GetNextACState(this);
@@ -1479,7 +1486,7 @@ namespace gip.core.autocomponent
 
                 CurrentACState = ACStateEnum.SMStarting;
             }
-            return CreateNewMethodEventArgs(acMethod, Global.ACMethodResultState.InProcess);
+            return CreateNewMethodEventArgs(acMethod, CurrentACState >= ACStateEnum.SMStarting && CurrentACState < ACStateEnum.SMCompleted ? Global.ACMethodResultState.InProcess : Global.ACMethodResultState.Succeeded);
         }
 
         /// <summary>
