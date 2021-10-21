@@ -125,6 +125,7 @@ namespace gip.core.datamodel
                 }
 
                 string xmlValue = XMLValue;
+                var objectType = ObjectType;
                 if (   xmlValue == null 
                     && (   objectType == null
                         || objectType.Name == Const.TNameNullable))
