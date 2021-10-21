@@ -924,6 +924,11 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>CodeCompletionXsdGenerator.txt</LastGenOutput>
     </Content>
+    <Content Include="CodeCompletionXsdGenerator.txt">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CodeCompletionXsdGenerator.tt</DependentUpon>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
