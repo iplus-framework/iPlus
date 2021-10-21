@@ -78,7 +78,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// List of collected submessages
         /// </summary>
-        /// <value>IList<Msg></value>
+        /// <value>IList{Msg}</value>
         [DataMember]
 #if NETFRAMEWORK
         [ACPropertyList(9999, "Details", "en{'Messagelist'}de{'Meldungsliste'}")]

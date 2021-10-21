@@ -222,7 +222,7 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// If this ACQueryDefinition is used to query a child relationship, then the name of the navigation property (EntityCollection <T>, EdmRelationshipNavigationPropertyAttribute) must be specified here, which is declared in the parent entity class.
+        /// If this ACQueryDefinition is used to query a child relationship, then the name of the navigation property (EntityCollection {T}, EdmRelationshipNavigationPropertyAttribute) must be specified here, which is declared in the parent entity class.
         /// </summary>
         /// <value>The child AC URL.</value>
         [DataMember]

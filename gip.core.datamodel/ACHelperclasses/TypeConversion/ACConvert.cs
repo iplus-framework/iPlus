@@ -40,6 +40,7 @@ namespace gip.core.datamodel
         /// oder ein Objekt, das die System.IConvertible-Schnittstelle implementiert
         /// oder ein serialisierbares ACKnownTypes-Objekt</param>
         /// <param name="conversionType">Der System.Type des zurückzugebenden Objekts.</param>
+        /// <param name="invariantCulture">invariantCulture</param>
         /// <param name="database">Referenz zum ObjectContext, falls ein Entity-Objekt attached wird</param>
         /// <param name="entityAsEntityKey">Falls value ein EntityObject: Soll das EntityObject als EntityKey serialisiert werden oder als ACUrl-String falls value auch ein IACObject ist</param>
         /// <param name="xmlIndented">Falls conversionType ein String und value ACKnownTypes-Objekt ist, soll XML-String Einzüge haben</param>
@@ -65,6 +66,7 @@ namespace gip.core.datamodel
         /// oder ein serialisierbares ACKnownTypes-Objekt</param>
         /// <param name="previouslyConvertedValue">value, der zuvor in den conversionType gewandelt wurde.</param>
         /// <param name="conversionType">Der System.Typ des zurückzugebenden Objekts.</param>
+        /// <param name="invariantCulture">invariantCulture</param>
         /// <param name="database">Referenz zum ObjectContext, falls ein Entity-Objekt attached wird</param>
         /// <param name="entityAsEntityKey">Falls value ein EntityObject: Soll das EntityObject als EntityKey serialisiert werden oder als ACUrl-String falls value auch ein IACObject ist</param>
         /// <param name="xmlIndented">Falls conversionType ein String und value ACKnownTypes-Objekt ist, soll XML-String Einzüge haben</param>
@@ -87,6 +89,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="objectType">Type of the object.</param>
         /// <param name="valueXML">The value XML.</param>
+        /// <param name="invariantCulture">invariantCulture</param>
         /// <param name="database">The database.</param>
         /// <returns>System.Object.</returns>
         static public object XMLToObject(Type objectType, string valueXML, bool invariantCulture, IACEntityObjectContext database)
@@ -107,6 +110,7 @@ namespace gip.core.datamodel
         /// Objects to XML.
         /// </summary>
         /// <param name="valueObject">The value object.</param>
+        /// <param name="invariantCulture">invariantCulture</param>
         /// <param name="entityAsEntityKey">if set to <c>true</c> [entity as entity key].</param>
         /// <param name="xmlIndented">if set to <c>true</c> [XML indented].</param>
         /// <returns>System.String.</returns>
@@ -124,6 +128,7 @@ namespace gip.core.datamodel
         /// <param name="value">The value.</param>
         /// <param name="previouslyConvertedValue">The previously converted value.</param>
         /// <param name="conversionType">Type of the conversion.</param>
+        /// <param name="invariantCulture">invariantCulture</param>
         /// <param name="database">The database.</param>
         /// <param name="conversionACType">Type of the conversion AC.</param>
         /// <param name="entityAsEntityKey">if set to <c>true</c> [entity as entity key].</param>
@@ -198,16 +203,16 @@ namespace gip.core.datamodel
                     //throw new InvalidCastException("Null-Value can't be converted to ACQueryDefinition");
                     return null;
                 }
+                else if (conversionType.Name == Const.TNameNullable)
+                {
+                    return null;
+                }
                 else if (ACKnownTypes.IsKnownType(conversionType))
                 {
                     if (conversionType.IsValueType)
                     {
                         return conversionType.GetDefault();
                     }
-                    return null;
-                }
-                else if (conversionType.Name == Const.TNameNullable)
-                {
                     return null;
                 }
                 else if (!conversionType.IsValueType)

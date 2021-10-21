@@ -57,7 +57,7 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="T"/> at the specified index.
+        /// Gets or sets at the specified index.
         /// </summary>
         /// <param name="index">The index.</param>
         /// <returns>`1.</returns>

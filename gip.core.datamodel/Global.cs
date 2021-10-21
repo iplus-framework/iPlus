@@ -556,27 +556,27 @@ namespace gip.core.datamodel
             DUMainmenu      = 5280,
 
             /// <summary>
-            /// List&Label Report: List of Master-Detail (Head + Lines)
+            /// List and Label Report: List of Master-Detail (Head + Lines)
             /// </summary>
             DULLReport        = 6300,
 
             /// <summary>
-            /// List&Label Report: List of Masters (Only Head)
+            /// List and Label Report: List of Masters (Only Head)
             /// </summary>
             DULLOverview = 6310,
 
             /// <summary>
-            /// List&Label Report: List of Lines
+            /// List and Label Report: List of Lines
             /// </summary>
             DULLList = 6320,
 
             /// <summary>
-            /// List&Label Report: Label with Master-Data (Head)
+            /// List and Label Report: Label with Master-Data (Head)
             /// </summary>
             DULLLabel = 6330,
 
             /// <summary>
-            /// List&Label Filecard
+            /// List and Label Filecard
             /// </summary>
             DULLFilecard = 6340,
 
@@ -1542,47 +1542,47 @@ namespace gip.core.datamodel
             none = 0,
 
             /// <summary>
-            /// Equal: =
+            /// Equal
             /// </summary>
             equal = 1,
 
             /// <summary>
-            /// Not equal: !=
+            /// Not equal
             /// </summary>
             notEqual = 2,
 
             /// <summary>
-            /// Less than: <
+            /// Less than
             /// </summary>
             lessThan = 3,
 
             /// <summary>
-            /// The greater than: >
+            /// The greater than
             /// </summary>
             greaterThan = 4,
 
             /// <summary>
-            /// Less than or equal: <=
+            /// Less than or equal
             /// </summary>
             lessThanOrEqual = 5,
 
             /// <summary>
-            /// Greater than or equal: >=
+            /// Greater than or equal
             /// </summary>
             greaterThanOrEqual = 6,
 
             /// <summary>
-            /// String.StartsWith(x); SQL: LIKE 'x%'
+            /// String.StartsWith(x); SQL: LIKE 
             /// </summary>
             startsWith = 7,
 
             /// <summary>
-            /// String.EndsWith(x); SQL: LIKE '%x'
+            /// String.EndsWith(x); SQL: LIKE 
             /// </summary>
             endsWith = 8,
 
             /// <summary>
-            /// string.Contains(x); SQL: LIKE '%x%'
+            /// string.Contains(x); SQL: LIKE 
             /// </summary>
             contains = 9,
 
@@ -1597,7 +1597,7 @@ namespace gip.core.datamodel
             isNotNull = 11,
 
             /// <summary>
-            /// !string.Contains(x); SQL: NOT LIKE '%x%'
+            /// !string.Contains(x); SQL: NOT LIKE 
             /// </summary>
             notContains = 12,
         }

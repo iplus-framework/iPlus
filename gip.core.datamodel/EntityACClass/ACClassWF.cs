@@ -417,10 +417,6 @@ namespace gip.core.datamodel
             set { ACClassWFID = value; }
         }
 
-        /// <summary>
-        /// Returns a <see cref=TypeAnalyser._TypeName_String /> that represents this instance.
-        /// </summary>
-        /// <returns>A <see cref=TypeAnalyser._TypeName_String /> that represents this instance.</returns>
         public override string ToString()
         {
             return ACCaption;

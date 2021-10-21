@@ -122,14 +122,20 @@ namespace gip.ext.design
                 Debug.Assert(currentContainerBehavior != null);
                 currentContainerBehavior.EnterContainer(this);
             }
+#if DEBUG
             catch (Exception ex)
             {
-#if DEBUG
                 Debug.WriteLine(ex.ToString());
-#endif
+            Abort();
+                throw;
+            }
+#else
+            catch (Exception)
+            {
                 Abort();
                 throw;
             }
+#endif
         }
 
         static Rect TransformRectByMiddlePoint(GeneralTransform transform, Rect r)
@@ -314,14 +320,20 @@ namespace gip.ext.design
                 }
                 op.currentContainerBehavior.EnterContainer(op);
             }
+#if DEBUG
             catch (Exception ex)
             {
-#if DEBUG
                 Debug.WriteLine(ex.ToString());
-#endif
+            op.changeGroup.Abort();
+                throw;
+            }
+#else
+            catch (Exception)
+            {
                 op.changeGroup.Abort();
                 throw;
             }
+#endif
             return op;
         }
         #endregion

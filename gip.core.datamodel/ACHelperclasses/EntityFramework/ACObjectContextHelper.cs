@@ -646,8 +646,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="entityObject"></param>
         /// <param name="refreshMode"></param>
-        /// <summary>
-        public void AutoRefresh(EntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins)
+       public void AutoRefresh(EntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins)
         {
             if (refreshMode == RefreshMode.StoreWins)
             {
@@ -665,10 +664,11 @@ namespace gip.core.datamodel
         /// Refreshes all EntityObjects in the EntityCollection if not in modified state. Else it leaves it untouched.
         /// Attention: This method will only refresh the entities with entity keys that are tracked by the ObjectContext. 
         /// If changes are made in background on the database you shoud use the method AutoLoad, to retrieve new Entries from the Database!
-        /// </summary>
+        ///<summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
         /// <param name="refreshMode"></param>
+        ///</summary>
         public void AutoRefresh<T>(EntityCollection<T> entityCollection, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
         {
             if (refreshMode == RefreshMode.StoreWins)

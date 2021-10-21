@@ -248,7 +248,7 @@ namespace gip.core.datamodel
         /// <summary>Executes a Query according to the filter and sort entries in ACQueryDefinition without changing the NavObjectList. The result is returned directly.</summary>
         /// <param name="searchWord">The search word.</param>
         /// <param name="mergeOption">The merge option.</param>
-        /// <returns>A IQueryableIQueryable<T></returns>
+        /// <returns>A IQueryableIQueryable{T}</returns>
         public IQueryable<T> OneTimeSearchT(string searchWord, MergeOption mergeOption = MergeOption.AppendOnly)
         {
             if (String.IsNullOrEmpty(searchWord))
@@ -379,7 +379,7 @@ namespace gip.core.datamodel
 
         /// <summary>
         /// Occurs before query will be executed to the database.
-        /// You can extend the passed IQueryable<T> of NavSearchEventHandler and return it again
+        /// You can extend the passed IQueryable{T} of NavSearchEventHandler and return it again
         /// </summary>
         public event NavSearchEventHandler NavSearchExecuting;
 
