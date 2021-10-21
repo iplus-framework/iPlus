@@ -368,6 +368,8 @@ namespace gip.core.datamodel
         /// Throws an exception if a deadlock would be caused by the current thread waiting on the specified lock.
         /// </summary>
         /// <param name="targetMs">The target lock data.</param>
+        /// <param name="validateLockHierarchy">validateLockHierarchy</param>
+        /// <param name="monitor">monitor</param>
         /// <exception cref="System.Threading.SynchronizationLockException"></exception>
         private static void ThrowIfDeadlockDetected(MonitorState targetMs, bool validateLockHierarchy, ACMonitorObject monitor)
         {
@@ -624,6 +626,7 @@ namespace gip.core.datamodel
             /// Initializes a new instance of the <see cref="MonitorState"/> class.
             /// </summary>
             /// <param name="monitor">The monitor.</param>
+            /// <param name="sequence">The sequence.</param>
             public MonitorState(ACMonitorObject monitor, int sequence) { MonitorObject = monitor; Sequence = sequence;  }
             /// <summary>
             /// The monitor object

@@ -299,16 +299,6 @@ namespace gip.core.datamodel
  
         #region IBindingList interface 
   
-        /// <include file="doc\BindingList.uex" path="docs/doc[@for="BindingList.AddNew"]/*">
-        /// <devdoc> 
-        ///     Adds a new item to the list. Calls <see cref="AddNewCore"> to create and add the item.
-        ///
-        ///     Add operations are cancellable via the <see cref="ICancelAddNew"> interface. The position of the
-        ///     new item is tracked until the add operation is either cancelled by a call to <see cref="CancelNew">, 
-        ///     explicitly commited by a call to <see cref="EndNew">, or implicitly commmited some other operation
-        ///     that changes the contents of the list (such as an Insert or Remove). When an add operation is 
-        ///     cancelled, the new item is removed from the list. 
-        /// </see></see></see></see></devdoc>
         public T AddNew() { 
             return (T)((this as IBindingList).AddNew());
         }
@@ -330,14 +320,6 @@ namespace gip.core.datamodel
             } 
         }
  
-        /// <include file="doc\BindingList.uex" path="docs/doc[@for="BindingList.AddNewCore"]/*">
-        /// <devdoc> 
-        ///     Creates a new item and adds it to the list.
-        /// 
-        ///     The base implementation raises the AddingNew event to allow an event handler to 
-        ///     supply a custom item to add to the list. Otherwise an item of type T is created.
-        ///     The new item is then added to the end of the list. 
-        /// </devdoc>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2113:SecureLateBindingMethods")]
         protected virtual object AddNewCore() {
             // Allow event handler to supply the new item for us 
@@ -359,9 +341,6 @@ namespace gip.core.datamodel
             return newItem;
         }
  
-        /// <include file="doc\BindingList.uex" path="docs/doc[@for="BindingList.AllowNew"]/*"> 
-        /// <devdoc>
-        /// </devdoc> 
         public bool AllowNew { 
             get {
                 //If the user set AllowNew, return what they set.  If we have a default constructor, allowNew will be 
@@ -392,9 +371,6 @@ namespace gip.core.datamodel
             } 
         }
   
-        /// <include file="doc\BindingList.uex" path="docs/doc[@for="BindingList.AllowEdit"]/*">
-        /// <devdoc>
-        /// </devdoc>
         public bool AllowEdit { 
             get {
                 return this.allowEdit; 
@@ -413,9 +389,6 @@ namespace gip.core.datamodel
             }
         }
  
-        /// <include file="doc\BindingList.uex" path="docs/doc[@for="BindingList.AllowRemove"]/*"> 
-        /// <devdoc>
-        /// </devdoc> 
         public bool AllowRemove { 
             get {
                 return this.allowRemove; 
@@ -631,12 +604,6 @@ namespace gip.core.datamodel
   
         #region IRaiseItemChangedEvents interface
   
-        /// <include file="doc\BindingList.uex" path="docs/doc[@for="BindingList.RaisesItemChangedEvents"]/*"> 
-        /// <devdoc>
-        ///     Returns false to indicate that BindingList<t> does NOT raise ListChanged events 
-        ///     of type ItemChanged as a result of property changes on individual list items
-        ///     unless those items support INotifyPropertyChanged
-        /// </t></devdoc>
         bool IRaiseItemChangedEvents.RaisesItemChangedEvents { 
             get {
                 return this.raiseItemChangedEvents; 

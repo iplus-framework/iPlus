@@ -220,11 +220,12 @@ namespace gip.core.datamodel
         /// <summary>
         /// Set property from XML
         /// </summary>
+        /// <param name="db"></param>
         /// <param name="resource"></param>
         /// <param name="container"></param>
-        /// <param name="db"></param>
         /// <param name="acObject"></param>
         /// <param name="pi"></param>
+        /// <param name="acObjectPropertyType"></param>
         /// <param name="xValue"></param>
         /// <returns></returns>
         public static ACFSItemChanges SetProperty(IACEntityObjectContext db, IResources resource, ACFSItemContainer container, IACObject acObject, PropertyInfo pi, ACObjectSerialPropertyHandlingTypesEnum acObjectPropertyType, string xValue)

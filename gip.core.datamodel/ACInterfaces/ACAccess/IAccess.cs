@@ -22,7 +22,7 @@ namespace gip.core.datamodel
     /// <summary>
     /// Interface that encapsulates a ACQueryDefinition, that stores a user defined query.
     /// This user defined query is passed to ACQuery.ACSelect()-Method when the NavSearch()-Method is invoked.
-    /// The ACSelect()-Method builds a dynamic LINQ-expression tree and returns a IQueryable<T>.
+    /// The ACSelect()-Method builds a dynamic LINQ-expression tree and returns a IQueryable{T}.
     /// The result can be read in the NavObjectList-Property.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'IAccess'}de{'IAccess'}", Global.ACKinds.TACInterface)]

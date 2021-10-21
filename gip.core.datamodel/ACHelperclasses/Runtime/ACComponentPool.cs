@@ -86,10 +86,11 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Wills the be disposed.
+        /// CanBePooled
         /// </summary>
-        /// <param name="component">The component.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        /// <param name="component"></param>
+        /// <param name="ignoreInitState"></param>
+        /// <returns></returns>
         internal bool CanBePooled(IACComponent component, bool ignoreInitState = false)
         {
             if (component == null || component is IRoot || PoolingOff || !component.IsPoolable || (!ignoreInitState && component.InitState != ACInitState.Initialized))
@@ -104,6 +105,7 @@ namespace gip.core.datamodel
         /// Pushes the specified component.
         /// </summary>
         /// <param name="component">The component.</param>
+        /// <param name="ignoreInitState">The ignoreInitState.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
         internal bool Push(IACComponent component, bool ignoreInitState = false)
         {

@@ -15,7 +15,6 @@ namespace gip.core.datamodel
         /// <param name="formatNewNo">A Format-String how the sequantially generated nummer should be formatted.</param>
         /// <param name="invoker">The invoker who calls this method.</param>
         /// <returns>A unique secondary key</returns>
-        /// <seealso cref="gip.bso.BSONoConfiguration" />
         string GetNewNo(IACEntityObjectContext context, Type type, string entityNoFieldName, string formatNewNo, IACComponent invoker = null);
     }
 

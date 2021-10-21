@@ -98,7 +98,6 @@ namespace gip.core.datamodel
         /// <summary>
         /// Sets the translation.
         /// </summary>
-        /// <param name="acName">Name of the ac.</param>
         /// <param name="translationTuple">Structure of TranslationTuple: languageCode1{'translatedText1'}languageCode2{'translatedText2'}..</param>
         /// <param name="value">The value.</param>
         /// <param name="VBLanguageCode">The md language code.</param>

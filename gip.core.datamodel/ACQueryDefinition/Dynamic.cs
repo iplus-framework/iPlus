@@ -284,10 +284,6 @@ namespace gip.core.datamodel
     /// </summary>
     public abstract class DynamicClass
     {
-        /// <summary>
-        /// Returns a <see cref=TypeAnalyser._TypeName_String /> that represents this instance.
-        /// </summary>
-        /// <returns>A <see cref=TypeAnalyser._TypeName_String /> that represents this instance.</returns>
         public override string ToString() {
             PropertyInfo[] props = this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
             StringBuilder sb = new StringBuilder();
@@ -731,13 +727,6 @@ namespace gip.core.datamodel
             get { return position; }
         }
 
-        /// <summary>
-        /// Returns a <see cref=TypeAnalyser._TypeName_String /> that represents this instance.
-        /// </summary>
-        /// <returns>A <see cref=TypeAnalyser._TypeName_String /> that represents this instance.</returns>
-        /// <PermissionSet>
-        ///   <IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" PathDiscovery="*AllFiles*" />
-        ///   </PermissionSet>
         public override string ToString() {
             return string.Format(Res.ParseExceptionFormat, Message, position);
         }

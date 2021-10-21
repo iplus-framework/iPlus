@@ -556,12 +556,11 @@ namespace gip.core.datamodel
         /// <param name="sortIndex">Sort sequence of the listing of properties in the iPlus development environment. If the SortIndex is > 9999, this property is not displayed in the tool window of the designer.</param>
         /// <param name="acPropUsage">Usage of the Property. (Point, Selected, Current....)</param>
         /// <param name="acGroup">Used to assign related properties (List, Selected, and Current). Use an empty string for independent properties.</param>
+        /// <param name="dataType">Data type which is used for this property</param>
         /// <param name="acCaptionTranslation">Translation tuple for the translation of the property. Example: en{'My english text'}de{'Mein deutscher Text'}</param>
         /// <param name="isRightmanagement">Properties with rights management, different access rights can be assigned for individual users or groups in the Rights management module.</param>
         /// <param name="isPersistable">If the property is persistent, the value is written to the database for each change event (table ACClassTaskValue). The next time the iPlus service is started or the next time it is instantiated, the property receives the last value stored.</param>
         /// <param name="pointCapacity">The point capacity.</param>
-        /// <param name="isInteraction">if set to <c>true</c> [is interaction].</param>
-        /// <param name="dataType">Data type which is used for this property</param>
         public ACPropertyPoint(Int16 sortIndex, Global.ACPropUsages acPropUsage, string acGroup, Type dataType, string acCaptionTranslation = "", bool isRightmanagement = false, bool isPersistable = false, uint pointCapacity = 0)
             : base(sortIndex, acPropUsage, acGroup, acCaptionTranslation, "", false, false, isPersistable, isRightmanagement, dataType)
         {
@@ -683,7 +682,6 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="sortIndex">Sort sequence of the listing of properties in the iPlus development environment. If the SortIndex is > 9999, this property is not displayed in the tool window of the designer.</param>
         /// <param name="isPersistable">If the property is persistent, the value is written to the database for each change event (table ACClassTaskValue). The next time the iPlus service is started or the next time it is instantiated, the property receives the last value stored.</param>
-        /// <param name="acResults">The ac results.</param>
         /// <param name="isRightmanagement">Properties with rights management, different access rights can be assigned for individual users or groups in the Rights management module.</param>
         public ACPropertyEventPoint(Int16 sortIndex, bool isPersistable, bool isRightmanagement = false)
             : base(sortIndex, Global.ACPropUsages.EventPoint, "", null, "", isRightmanagement, isPersistable, 0)
@@ -703,6 +701,10 @@ namespace gip.core.datamodel
         /// <param name="sortIndex">Sort sequence of the listing of properties in the iPlus development environment. If the SortIndex is > 9999, this property is not displayed in the tool window of the designer.</param>
         /// <param name="isPersistable">If the property is persistent, the value is written to the database for each change event (table ACClassTaskValue). The next time the iPlus service is started or the next time it is instantiated, the property receives the last value stored.</param>
         /// <param name="callbackMethod">The callback method.</param>
+        /// <param name="acGroup">Used to assign related properties (List, Selected, and Current). Use an empty string for independent properties.</param>
+        /// <param name="acCaptionTranslation">Translation tuple for the translation of the property. Example: en{'My english text'}de{'Mein deutscher Text'}</param>
+        /// <param name="pointCapacity"></param>
+        /// <param name="isRightmanagement">Properties with rights management, different access rights can be assigned for individual users or groups in the Rights management module.</param>
         public ACPropertyEventPointSubscr(Int16 sortIndex, bool isPersistable, string callbackMethod = "", string acGroup = "", string acCaptionTranslation = "", uint pointCapacity = 0, bool isRightmanagement = false)
             : base(sortIndex, Global.ACPropUsages.EventPointSubscr, acGroup, acCaptionTranslation, isRightmanagement, isPersistable, pointCapacity)
         {
@@ -762,6 +764,8 @@ namespace gip.core.datamodel
         /// <param name="sortIndex">Sort sequence of the listing of properties in the iPlus development environment. If the SortIndex is > 9999, this property is not displayed in the tool window of the designer.</param>
         /// <param name="isPersistable">If the property is persistent, the value is written to the database for each change event (table ACClassTaskValue). The next time the iPlus service is started or the next time it is instantiated, the property receives the last value stored.</param>
         /// <param name="pointCapacity">The point capacity.</param>
+        /// <param name="acCaptionTranslation">Translation tuple for the translation of the property. Example: en{'My english text'}de{'Mein deutscher Text'}</param>
+        /// <param name="isRightmanagement">Properties with rights management, different access rights can be assigned for individual users or groups in the Rights management module.</param>
         public ACPropertyAsyncMethodPoint(Int16 sortIndex, bool isPersistable = false, uint pointCapacity = 0, string acCaptionTranslation = "", bool isRightmanagement = false)
             : base(sortIndex, Global.ACPropUsages.AsyncMethodPoint, "", acCaptionTranslation, isRightmanagement, isPersistable, pointCapacity)
         {

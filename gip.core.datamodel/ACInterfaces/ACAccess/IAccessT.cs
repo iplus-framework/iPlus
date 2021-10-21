@@ -34,7 +34,7 @@ namespace gip.core.datamodel
         /// <summary>Executes a Query according to the filter and sort entries in ACQueryDefinition without changing the NavObjectList. The result is returned directly.</summary>
         /// <param name="searchWord">The search word.</param>
         /// <param name="mergeOption">The merge option.</param>
-        /// <returns>A IQueryableIQueryable<T></returns>
+        /// <returns>A IQueryableIQueryable{T}</returns>
         IQueryable<T> OneTimeSearchT(string searchWord, MergeOption mergeOption = MergeOption.AppendOnly);
 
 

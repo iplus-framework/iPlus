@@ -500,7 +500,7 @@ namespace gip.core.datamodel
             return isValid;
         }
 
-        // <summary>
+        /// <summary>
         /// Checks the or create directory.
         /// </summary>
         /// <param name="folder">The folder.</param>

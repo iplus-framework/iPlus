@@ -143,6 +143,7 @@ namespace gip.core.datamodel
         /// <param name="startChildMode">The start child mode.</param>
         /// <param name="acObjectType">Type of the ac object.</param>
         /// <param name="acIdentifier">The ac identifier.</param>
+        /// <param name="propagateException">The ac identifier.</param>
         /// <returns>IACObjectWithInit.</returns>
         public static IACObjectWithInit CreateInstance(ACClass acClass, object content, IACObjectWithInit acComponentParent, ACValueList parameter, Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic, Type acObjectType = null, string acIdentifier = "", bool propagateException = false)
         {
@@ -374,6 +375,7 @@ namespace gip.core.datamodel
         /// Runs the post init.
         /// </summary>
         /// <param name="currentActivatingThread">The current activating thread.</param>
+        /// <param name="acClass">acClass</param>
         private static void RunPostInit(ACActivatorThread currentActivatingThread, ACClass acClass)
         {
             if (currentActivatingThread.InstanceDepth <= 0)

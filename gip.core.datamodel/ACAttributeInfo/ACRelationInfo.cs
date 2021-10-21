@@ -53,6 +53,7 @@ namespace gip.core.datamodel
         /// <param name="propertyName">Name of the property.</param>
         /// <param name="valueWhenActive">The value when active.</param>
         /// <param name="logicalOperation">The logical operation.</param>
+        /// <param name="displayGroup"></param>
         public ACPointStateInfo(string propertyName, object valueWhenActive, Global.Operators logicalOperation = Global.Operators.and, short displayGroup = 0)
             : base(propertyName)
         {
@@ -66,6 +67,8 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
         /// <param name="valueWhenActive">The value when active.</param>
+        /// <param name="groupName"></param>
+        /// <param name="stateName"></param>
         /// <param name="logicalOperation">The logical operation.</param>
         public ACPointStateInfo(string propertyName, object valueWhenActive, string groupName, string stateName, Global.Operators logicalOperation = Global.Operators.and)
             : base(propertyName)

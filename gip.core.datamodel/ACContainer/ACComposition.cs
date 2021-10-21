@@ -24,7 +24,7 @@ namespace gip.core.datamodel
     /// Container für Definition einer Beziehung zwischen einer ACClass und einem IACObject (ValueT) Serialisierbar
     /// Verwendung: Konfiguration im iPlus-Studio
     /// </summary>
-    /// <seealso cref="gip.core.datamodel.IACContainerT{gip.core.datamodel.IACObject}" />
+    /// <seealso cref="gip.core.datamodel.IACContainerT{IACObject}" />
     /// <seealso cref="gip.core.datamodel.IACAttach" />
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     [ACSerializeableInfo()]
@@ -217,10 +217,7 @@ namespace gip.core.datamodel
             }
         }
 
-        /// <summary>
-        /// Returns a <see cref=TypeAnalyser._TypeName_String /> that represents this instance.
-        /// </summary>
-        /// <returns>A <see cref=TypeAnalyser._TypeName_String /> that represents this instance.</returns>
+        
         public override string ToString()
         {
             IACObject acObject = GetComposition(gip.core.datamodel.Database.GlobalDatabase);
