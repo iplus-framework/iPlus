@@ -552,15 +552,16 @@ namespace gip.core.communication.ISOonTCP
                 package.Add((byte)DataType);
 
                 // Area-Code
-                package.Add((byte)0);
 
                 switch (DataType)
                 {
                     case DataType.Timer:
                     case DataType.Counter:
+                        package.Add((byte)0);
                         package.Add(Types.Word.ToByteArray((ushort)(startByteAddr), EndianessEnum.BigEndian));
                         break;
                     default:
+                        package.Add((byte)((startByteAddr * 8) / 0x10000));
                         package.Add(Types.Word.ToByteArray((ushort)((startByteAddr) * 8), EndianessEnum.BigEndian));
                         break;
                 }

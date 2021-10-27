@@ -643,17 +643,17 @@ namespace gip.core.autocomponent
                         }
                     }
 
-                    bool recive = typeof(IPAFuncReceiveMaterial).IsAssignableFrom(SelectedFunction.ACType.ObjectType);
+                    bool receive = typeof(IPAFuncReceiveMaterial).IsAssignableFrom(SelectedFunction.ACType.ObjectType);
                     bool deliver = typeof(IPAFuncDeliverMaterial).IsAssignableFrom(SelectedFunction.ACType.ObjectType);
 
-                    if ((!recive && !deliver) || recive && deliver)
+                    if ((!receive && !deliver) || receive && deliver)
                     {
                         ShowDialog(this, "SourceOrTarget");
-                        recive = _CurrentSourceOrTarget.Value.ToString() == "Source";
-                        deliver = !recive ? true : false;
+                        receive = _CurrentSourceOrTarget != null ? _CurrentSourceOrTarget.Value.ToString() == "Source" : false;
+                        deliver = !receive ? true : false;
                     }
 
-                    if (recive && sources != null)
+                    if (receive && sources != null)
                     {
                         if (sources.Message != null)
                             Messages.Msg(sources.Message);
