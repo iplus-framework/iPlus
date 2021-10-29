@@ -68,7 +68,7 @@ namespace gip.bso.iplus
             _ExportCommand = new ExportCommand();
             _ExportCommand.ExportErrorEvent += ExportCommand_ExportErrorEvent;
             _ExportCommand.ExportProgressEvent += ExportCommand_ExportProgressEvent;
-            PackageExportUser = Root.CurrentInvokingUser.Initials;
+            PackageExportUser = Root.Environment.User.Initials;
             return true;
         }
 
