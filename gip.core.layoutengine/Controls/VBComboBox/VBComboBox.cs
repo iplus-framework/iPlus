@@ -724,8 +724,26 @@ namespace gip.core.layoutengine
 
                         FrameworkElementFactory factorySP = new FrameworkElementFactory(typeof(StackPanel));
                         factorySP.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
+                        //FrameworkElementFactory factorySP = new FrameworkElementFactory(typeof(Grid));
 
                         int columnCount = 0;
+                        int maxColumnCount = vbShowColumns.Count();
+                        if (String.IsNullOrEmpty(VBShowColumns) && maxColumnCount >= 3)
+                            maxColumnCount = 3;
+                        double maxColWidth = 1000 / maxColumnCount;
+                        if (maxColWidth > 250)
+                            maxColWidth = 250;
+                        else if (maxColWidth < 50)
+                            maxColWidth = 50;
+                        //for (int i = 0; i < maxColumnCount; i++)
+                        //{
+                        //    FrameworkElementFactory factoryCol = new FrameworkElementFactory(typeof(ColumnDefinition));
+                        //    factoryCol.SetValue(ColumnDefinition.WidthProperty, GridLength.Auto);
+                        //    factoryCol.SetValue(ColumnDefinition.MaxWidthProperty, maxColWidth);
+                        //    factoryCol.SetValue(ColumnDefinition.MinWidthProperty, 50.0);
+                        //    factorySP.AppendChild(factoryCol);
+                        //}
+
                         foreach (var dataShowColumn in vbShowColumns)
                         {
                             IACType dsColACTypeInfo = dsACTypeInfo;
@@ -747,7 +765,8 @@ namespace gip.core.layoutengine
                                     binding1.Path = new PropertyPath(dataShowColumn.ACIdentifier);
                                     binding1.Mode = BindingMode.OneWay;
                                     factoryTextBlock.SetBinding(TextBlock.TextProperty, binding1);
-                                    factoryTextBlock.SetValue(TextBlock.WidthProperty, vbShowColumns.Count() < 2 ? 400.0 : 120.0);
+                                    factoryTextBlock.SetValue(TextBlock.WidthProperty, maxColWidth);
+                                    //factoryTextBlock.SetValue(Grid.ColumnProperty, columnCount);
                                     factorySP.AppendChild(factoryTextBlock);
                                     selectedValuePath = Const.Value;
                                     textPath = dataShowColumn.ACIdentifier;
@@ -774,7 +793,8 @@ namespace gip.core.layoutengine
                                 binding1.Mode = BindingMode.OneWay;
                                 factoryTextBlock.SetBinding(CheckBox.IsCheckedProperty, binding1);
                                 factoryTextBlock.SetValue(CheckBox.IsEnabledProperty, false);
-                                factoryTextBlock.SetValue(CheckBox.WidthProperty, 80.0);
+                                factoryTextBlock.SetValue(CheckBox.WidthProperty, maxColWidth);
+                                //factoryTextBlock.SetValue(Grid.ColumnProperty, columnCount);
 
                                 factorySP.AppendChild(factoryTextBlock);
                             }
@@ -786,12 +806,13 @@ namespace gip.core.layoutengine
                                 binding1.Path = new PropertyPath(dsColPath);
                                 binding1.Mode = BindingMode.OneWay;
                                 factoryTextBlock.SetBinding(TextBlock.TextProperty, binding1);
-                                factoryTextBlock.SetValue(TextBlock.WidthProperty, vbShowColumns.Count() < 2 ? 400.0 : 120.0);
+                                factoryTextBlock.SetValue(TextBlock.WidthProperty, maxColWidth);
+                                //factoryTextBlock.SetValue(Grid.ColumnProperty, columnCount);
 
                                 factorySP.AppendChild(factoryTextBlock);
                             }
                             columnCount++;
-                            if (String.IsNullOrEmpty(VBShowColumns) && columnCount >= 2)
+                            if (columnCount >= maxColumnCount)
                                 break;
                         }
                         dataTemplate.VisualTree = factorySP;

@@ -295,8 +295,13 @@ namespace gip.core.autocomponent
 
         public static IACConfig ACConfigFactory(IACConfigStore configStore, ACConfigParam acConfigParam, string preValueACUrl, string localConfigACUrl, Guid? vbiACClassID)
         {
-            ACClass typeForCreate = (configStore as VBEntityObject).GetObjectContext().ContextIPlus.ACClass.Where(c => c.ACClassID == acConfigParam.ValueTypeACClassID).FirstOrDefault();
-            IACConfig configItem = configStore.NewACConfig(acConfigParam.ACClassWF, typeForCreate);
+            return ACConfigFactory(configStore, acConfigParam.ACClassWF, acConfigParam.ValueTypeACClassID, preValueACUrl, localConfigACUrl, vbiACClassID);
+        }
+
+        public static IACConfig ACConfigFactory(IACConfigStore configStore, ACClassWF acClassWF, Guid valueTypeACClassID, string preValueACUrl, string localConfigACUrl, Guid? vbiACClassID)
+        {
+            ACClass typeForCreate = (configStore as VBEntityObject).GetObjectContext().ContextIPlus.ACClass.Where(c => c.ACClassID == valueTypeACClassID).FirstOrDefault();
+            IACConfig configItem = configStore.NewACConfig(acClassWF, typeForCreate);
             configItem.PreConfigACUrl = preValueACUrl;
             configItem.LocalConfigACUrl = localConfigACUrl;
             configItem.VBiACClassID = vbiACClassID;

@@ -414,9 +414,17 @@ namespace gip.core.autocomponent
             }
         }
 
-#endregion
+        public string LocalConfigACUrl
+        {
+            get
+            {
+                return ACUrlHelper.BuildLocalConfigACUrl(this);
+            }
+        }
 
-#region IACConfigMethodHierarchy
+        #endregion
+
+        #region IACConfigMethodHierarchy
 
 
 

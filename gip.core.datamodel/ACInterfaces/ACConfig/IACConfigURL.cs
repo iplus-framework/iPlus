@@ -32,6 +32,16 @@ namespace gip.core.datamodel
 
 
         /// <summary>
+        /// The LocalConfigACUrl points to a Property that is relative to the the object that is specified by KeyACUrl.
+        /// It can also used for something else, if you program a individual logic.
+        /// In most cases LocalConfigACUrl is used for addressing Properties of ACMethod's in Workflows or their configuratio properties.
+        /// e.g. "MixeryDef\Mixer(0)\Dosing(0)\SMStarting\SkipComponents" or "MixeryDef\Mixer(0)\Dosing(0)\Dosing\FlowRate1"
+        /// </summary>
+        /// <value>ACUrl that points to a property</value>
+        string LocalConfigACUrl { get; }
+
+
+        /// <summary>
         /// Refreshes the Routing-Rules in a node.
         /// </summary>
         void RefreshRuleStates();

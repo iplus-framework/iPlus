@@ -479,14 +479,14 @@ namespace gip.core.autocomponent
         public bool IsEnabledCreatePWNodeValue()
         {
             return
-                CurrentPWInfo != null &&
-                CurrentPWInfo.CurrentConfigStore != null &&
-                !CurrentPWInfo.IsReadonly &&
-                SelectedPWNodeParamValue != null &&
-                (
-                    SelectedPWNodeParamValue.DefaultConfiguration == null ||
-                    SelectedPWNodeParamValue.DefaultConfiguration.ConfigStore.GetACUrl() != CurrentPWInfo.CurrentConfigStore.GetACUrl() ||
-                    ((SelectedPWNodeParamValue.DefaultConfiguration.VBiACClassID == null) && (SelectedPWNodeMachine != null))
+                CurrentPWInfo != null
+                && CurrentPWInfo.CurrentConfigStore != null
+                && !CurrentPWInfo.IsReadonly
+                && SelectedPWNodeParamValue != null
+                && (
+                       SelectedPWNodeParamValue.DefaultConfiguration == null
+                    || SelectedPWNodeParamValue.DefaultConfiguration.ConfigStore.GetACUrl() != CurrentPWInfo.CurrentConfigStore.GetACUrl()
+                    || ((SelectedPWNodeParamValue.DefaultConfiguration.VBiACClassID == null) && (SelectedPWNodeMachine != null))
                 );
         }
 
@@ -1335,7 +1335,7 @@ namespace gip.core.autocomponent
 
         #region Replication -> Methods
 
-        [ACMethodInfo("Replication", "en{'Apply to selected data objects'}de{'Bei ausgewählten Datenobjekten anwenden'}", 9999)]
+        [ACMethodInfo("Replication", "en{'Apply to selected data objects'}de{'Bei ausgewählten Datenobjekten anwenden'}", 500)]
         public void ReplicationNodeApplyToAll()
         {
             if (!IsEnabledReplicationNodeApplyToAll()) return;
@@ -1364,7 +1364,7 @@ namespace gip.core.autocomponent
                  AllHistoryPWNodeParamValueList.Any(p => p.Selected); ;
         }
 
-        [ACMethodInfo("Replication", "en{'Apply to selected data objects'}de{'Bei ausgewählten Datenobjekten anwenden'}", 9999)]
+        [ACMethodInfo("Replication", "en{'Apply to selected data objects'}de{'Bei ausgewählten Datenobjekten anwenden'}", 501)]
         public void ReplicationFunctionApplyToAll()
         {
             if (!IsEnabledReplicationFunctionApplyToAll()) return;
@@ -1391,6 +1391,72 @@ namespace gip.core.autocomponent
                  // check is any param selected for replication
                  AllHistoryPAFunctionParamValueList != null &&
                  AllHistoryPAFunctionParamValueList.Any(p => p.Selected);
+        }
+
+
+        [ACMethodInfo("Replication", "en{'Copy values to similar nodes'}de{'Kopiere Werte in gleiche Knoten'}", 502)]
+        public void CopyConfigToSimilarNodes()
+        {
+            if (!IsEnabledCopyConfigToSimilarNodes())
+                return;
+
+            //ACClassWF[] similarNodes = CurrentACClassWF.ACClassMethod.ACClassWF_ACClassMethod
+            //        .Where(c => c.PWACClassID == CurrentACClassWF.PWACClassID && c != CurrentACClassWF)
+            //        .ToArray();
+
+            List<IACComponentPWNode> similarNodes = CurrentPWInfo.ParentRootWFNode.FindChildComponents<IACComponentPWNode>(c => 
+                   (c is IACComponentPWNode) 
+                && (c as IACComponentPWNode).ContentACClassWF.PWACClassID == CurrentACClassWF.PWACClassID
+                && c != CurrentPWInfo
+                );
+            if (similarNodes != null && similarNodes.Any())
+            {
+                foreach (IACComponentPWNode similarNode in similarNodes)
+                {
+                    foreach (IACConfig thisConfigEntry in CurrentPWInfo.CurrentConfigStore.ConfigurationEntries.Where(c => c.ACClassWFID == CurrentPWInfo.ContentACClassWF.ACClassWFID))
+                    {
+                        string configACUrlOfSimilarNode = thisConfigEntry.ConfigACUrl.Replace(CurrentPWInfo.ConfigACUrl, similarNode.ConfigACUrl);
+                        string localConfigUrlOfSimilarNode = thisConfigEntry.LocalConfigACUrl.Replace(CurrentPWInfo.LocalConfigACUrl, similarNode.LocalConfigACUrl);
+                        IACConfig configOfSimilarNode = similarNode.CurrentConfigStore.ConfigurationEntries.Where(c => c.ConfigACUrl == configACUrlOfSimilarNode
+                                                                                                                    && c.ValueTypeACClass != null
+                                                                                                                    && thisConfigEntry.ValueTypeACClass != null
+                                                                                                                    && c.ValueTypeACClass.ACClassID == thisConfigEntry.ValueTypeACClass.ACClassID)
+                                                                                                            .FirstOrDefault();
+                        if (configOfSimilarNode == null)
+                        {
+                            configOfSimilarNode = ConfigManagerIPlus
+                            .ACConfigFactory(
+                                similarNode.CurrentConfigStore,
+                                similarNode.ContentACClassWF,
+                                thisConfigEntry.ValueTypeACClass.ACClassID,
+                                similarNode.PreValueACUrl,
+                                localConfigUrlOfSimilarNode,
+                                null);
+                        }
+                        if (configOfSimilarNode != null)
+                            configOfSimilarNode.Value = thisConfigEntry.Value;
+                    }
+                    //similarNode.MandatoryConfigStores
+                    //foreach (ACConfigParam thisConfigParam in PWNodeParamValueList)
+                    //{
+                    //    if (   thisConfigParam.DefaultConfiguration != null
+                    //        && thisConfigParam.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl())
+                    //    {
+                    //        similarNode.CurrentConfigStore.ConfigurationEntries;
+                    //    }
+                    //    //thisConfigParam.ConfigurationList
+                    //}
+                }
+            }
+        }
+
+        public bool IsEnabledCopyConfigToSimilarNodes()
+        {
+            return     CurrentPWInfo != null
+                    && CurrentPWInfo.CurrentConfigStore != null
+                    && CurrentACClassWF != null
+                    && PWNodeParamValueList != null
+                    && PWNodeParamValueList.Any();
         }
 
         #endregion
@@ -1656,6 +1722,9 @@ namespace gip.core.autocomponent
                 case "OpenRoute":
                     OpenRoute();
                     return true;
+                case "CopyConfigToSimilarNodes":
+                    CopyConfigToSimilarNodes();
+                    return true;
                 case Const.IsEnabledPrefix + "CreatePWNodeValue":
                     result = IsEnabledCreatePWNodeValue();
                     return true;
@@ -1682,6 +1751,9 @@ namespace gip.core.autocomponent
                     return true;
                 case Const.IsEnabledPrefix + "OpenRoute":
                     result = IsEnabledOpenRoute();
+                    return true;
+                case Const.IsEnabledPrefix + "CopyConfigToSimilarNodes":
+                    result = IsEnabledCopyConfigToSimilarNodes();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);

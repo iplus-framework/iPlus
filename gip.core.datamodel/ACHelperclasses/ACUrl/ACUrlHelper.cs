@@ -46,7 +46,7 @@ namespace gip.core.datamodel
     public class ACUrlHelper
     {
         #region Delimiter
-        
+
         /// <summary>
         /// Path to a Child
         /// </summary>
@@ -177,7 +177,7 @@ namespace gip.core.datamodel
                     case Delimiter_DirSeperator:
                         urlKey = UrlKeys.Root;
                         acUrlPart = "";
-                        nextACUrl = cmdDelimiter != Char.MinValue ? cmdDelimiter  + acUrl.Substring(1) : acUrl.Substring(1);
+                        nextACUrl = cmdDelimiter != Char.MinValue ? cmdDelimiter + acUrl.Substring(1) : acUrl.Substring(1);
                         break;
                     case Delimiter_InvokeMethod:
                         urlKey = UrlKeys.InvokeMethod;
@@ -282,7 +282,7 @@ namespace gip.core.datamodel
             /// Get the child Component: ".\\"
             /// </summary>
             Child = 1,
-            
+
             /// <summary>
             /// Get the root Component (Application): "\\"
             /// </summary>
@@ -347,7 +347,7 @@ namespace gip.core.datamodel
         /// Gets the URL key.
         /// </summary>
         /// <value>The URL key.</value>
-        public UrlKeys UrlKey 
+        public UrlKeys UrlKey
         {
             get
             {
@@ -363,7 +363,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                switch(_CmdDelimiter)
+                switch (_CmdDelimiter)
                 {
                     case Delimiter_Exists:
                         return UrlTypes.QueryType;
@@ -467,21 +467,21 @@ namespace gip.core.datamodel
         static public string[] GetFilterValues(string acName)
         {
             int pos = acName.IndexOf(Delimiter_InstanceNoOpen);
-          
+
             int pos2 = acName.IndexOf(Delimiter_InstanceNoClose);
-            if(pos2 != -1)
+            if (pos2 != -1)
             {
                 pos2 = -1;
                 pos2 = acName.ToDictionary(key => ++pos2, val => val).Where(x => x.Value == Delimiter_InstanceNoClose).Last().Key;
             }
-           
+
             if (pos == -1 || pos2 <= pos)
             {
                 return null;
             }
             else
             {
-                string filter =   acName.Substring(pos+1, pos2 - pos - 1);
+                string filter = acName.Substring(pos + 1, pos2 - pos - 1);
 
                 return filter.Split(',');
             }
@@ -497,10 +497,10 @@ namespace gip.core.datamodel
         /// <param name="filterVBContent">VBContent of IACInteractiveObject, which is most the Name of the XMLDesign (VBContent-Member of IACInteractiveObject)</param>
         /// <param name="filterACNameOfComponent">ACIdentifier of Component, which is set as DataContext (ContextACObject-Member of IACInteractiveObject)</param>
         /// <returns><c>true</c> if [is searched GUI instance] [the specified ac name of VB content]; otherwise, <c>false</c>.</returns>
-        static public bool IsSearchedGUIInstance(string acNameOfVBContent, 
-            string filterVBControlClassName = "", 
-            string filterFrameworkElementName = "", 
-            string filterVBContent = "", 
+        static public bool IsSearchedGUIInstance(string acNameOfVBContent,
+            string filterVBControlClassName = "",
+            string filterFrameworkElementName = "",
+            string filterVBContent = "",
             string filterACNameOfComponent = "")
         {
             if (String.IsNullOrEmpty(acNameOfVBContent))
@@ -509,7 +509,7 @@ namespace gip.core.datamodel
             bool filterFrameworkElementNameSet = !String.IsNullOrEmpty(filterFrameworkElementName);
             bool filterACNameOfComponentSet = !String.IsNullOrEmpty(filterACNameOfComponent);
             bool filterVBContentSet = !String.IsNullOrEmpty(filterVBContent);
-            string[] splittedACName = acNameOfVBContent.Split(new char[]{':'});
+            string[] splittedACName = acNameOfVBContent.Split(new char[] { ':' });
             if (splittedACName.Count() < 5)
                 return false;
             if (splittedACName[0] != "GUI")
@@ -519,8 +519,8 @@ namespace gip.core.datamodel
 
             if (!filterVBContentSet && filterVBControlClassNameSet && filterFrameworkElementNameSet && filterACNameOfComponentSet)
             {
-                if ((splittedACName[1] == filterVBControlClassName) 
-                    && (splittedACName[2] == filterFrameworkElementName) 
+                if ((splittedACName[1] == filterVBControlClassName)
+                    && (splittedACName[2] == filterFrameworkElementName)
                     && (splittedACName[4] == filterACNameOfComponent))
                     return true;
                 return false;
@@ -705,7 +705,7 @@ namespace gip.core.datamodel
                 return 0;
             if (acUrl1.Length == acUrl2.Length)
                 return -1;
-            List<string> hier1 = ResolveParents(acUrl1,true);
+            List<string> hier1 = ResolveParents(acUrl1, true);
             List<string> hier2 = ResolveParents(acUrl2, true);
             if (!hier1.Any() || !hier2.Any())
                 return -1;
@@ -738,6 +738,46 @@ namespace gip.core.datamodel
                 str = str.Replace(c.ToString(), String.Empty);
             }
             return str;
+        }
+
+        public static string BuildConfigACUrl(IACConfig config)
+        {
+            if (config == null)
+                return null;
+            if (String.IsNullOrEmpty(config.PreConfigACUrl))
+            {
+                if (String.IsNullOrEmpty(config.LocalConfigACUrl))
+                    return config.LocalConfigACUrl;
+                else if (!config.LocalConfigACUrl.StartsWith("\\"))
+                    return "\\" + config.LocalConfigACUrl;
+                return config.LocalConfigACUrl;
+            }
+            else if (config.PreConfigACUrl.EndsWith("\\"))
+            {
+                if (!config.LocalConfigACUrl.StartsWith("\\"))
+                    return config.PreConfigACUrl + config.LocalConfigACUrl;
+                else
+                    return config.PreConfigACUrl + config.LocalConfigACUrl.Substring(1);
+            }
+            else
+            {
+                if (!config.LocalConfigACUrl.StartsWith("\\"))
+                    return config.PreConfigACUrl + "\\" + config.LocalConfigACUrl;
+                else
+                    return config.PreConfigACUrl + config.LocalConfigACUrl;
+            }
+        }
+
+        public static string BuildLocalConfigACUrl(IACConfigURL configUrl)
+        {
+            if (configUrl == null)
+                return null;
+            if (String.IsNullOrEmpty(configUrl.PreValueACUrl))
+                return configUrl.ConfigACUrl;
+            else
+            {
+                return configUrl.ConfigACUrl.Replace(configUrl.PreValueACUrl, "");
+            }
         }
     }
 }

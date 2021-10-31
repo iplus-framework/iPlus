@@ -586,6 +586,15 @@ namespace gip.core.autocomponent
             }
         }
 
+        public string LocalConfigACUrl
+        {
+            get
+            {
+                return ACUrlHelper.BuildLocalConfigACUrl(this);
+            }
+        }
+
+
         public virtual void RefreshRuleStates()
         {
         }

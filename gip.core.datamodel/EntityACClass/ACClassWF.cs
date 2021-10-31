@@ -649,6 +649,14 @@ namespace gip.core.datamodel
             }
         }
 
+        public string LocalConfigACUrl
+        {
+            get
+            {
+                return ACUrlHelper.BuildLocalConfigACUrl(this);
+            }
+        }
+
         public void RefreshRuleStates()
         {
         }

@@ -71,6 +71,14 @@ namespace gip.core.manager
             }
         }
 
+        public string LocalConfigACUrl
+        {
+            get
+            {
+                return ACUrlHelper.BuildLocalConfigACUrl(this);
+            }
+        }
+
         public virtual void RefreshRuleStates()
         {
 
