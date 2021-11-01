@@ -748,8 +748,8 @@ namespace gip.core.datamodel
             {
                 if (String.IsNullOrEmpty(config.LocalConfigACUrl))
                     return config.LocalConfigACUrl;
-                else if (!config.LocalConfigACUrl.StartsWith("\\"))
-                    return "\\" + config.LocalConfigACUrl;
+                //else if (!config.LocalConfigACUrl.StartsWith("\\"))
+                //    return "\\" + config.LocalConfigACUrl;
                 return config.LocalConfigACUrl;
             }
             else if (config.PreConfigACUrl.EndsWith("\\"))
