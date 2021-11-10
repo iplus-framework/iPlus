@@ -201,6 +201,20 @@ namespace gip.core.autocomponent.ACDialog
                             xml.Append("\"");
                         xml.Append("></vb:VBCheckBox>");
                     }
+                    else if (t == typeof(System.DateTime))
+                    {
+                        xml.Append("<vb:VBDateTimePicker VBContent=\"CurrentValue");
+                        xml.Append((i + 1).ToString());
+                        xml.Append("\\Value\" Grid.Row=\"");
+                        xml.Append(i.ToString());
+                        xml.Append("\" Grid.ColumnSpan=\"2\" ACCaption=\"");
+                        xml.Append(caption);
+                        if (i == 0)
+                            xml.Append("\" AutoFocus=\"true\"");
+                        else
+                            xml.Append("\"");
+                        xml.Append("></vb:VBDateTimePicker>");
+                    }
                     else
                     {
                         xml.Append("<vb:VBTextBox VBContent=\"CurrentValue");
