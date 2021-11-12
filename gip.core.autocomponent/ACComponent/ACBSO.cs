@@ -622,7 +622,10 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledQueryPrintDlg()
         {
-            return (bool)ACUrlCommand("VBBSOReportDialog!IsEnabledReportPrintDlg");
+            object result = ACUrlCommand("VBBSOReportDialog!IsEnabledReportPrintDlg");
+            if (result == null)
+                return false;
+            return (bool)result;
         }
 
 
@@ -637,7 +640,10 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledQueryPreviewDlg()
         {
-            return (bool)ACUrlCommand("VBBSOReportDialog!IsEnabledReportPreviewDlg");
+            object result = ACUrlCommand("VBBSOReportDialog!IsEnabledReportPreviewDlg");
+            if (result == null)
+                return false;
+            return (bool)result;
         }
 
 
@@ -652,7 +658,10 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledQueryDesignDlg()
         {
-            return (bool)ACUrlCommand("VBBSOReportDialog!IsEnabledReportDesignDlg");
+            object result = ACUrlCommand("VBBSOReportDialog!IsEnabledReportDesignDlg");
+            if (result == null)
+                return false;
+            return (bool)result;
         }
 
 

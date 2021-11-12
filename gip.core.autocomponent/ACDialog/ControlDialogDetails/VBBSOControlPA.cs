@@ -845,6 +845,8 @@ namespace gip.core.autocomponent
             }
             set
             {
+                if (_SelectedOutPointConfig == null)
+                    return;
                 _SelectedOutPointConfig.Value = value;
                 if (tempConfigOutPointList == null)
                 {
