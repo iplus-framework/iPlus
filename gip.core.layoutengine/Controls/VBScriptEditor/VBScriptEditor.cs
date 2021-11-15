@@ -188,10 +188,10 @@ namespace gip.core.layoutengine
                     if (this.VBText == null)
                         this.VBText = "";
 
-                    var assemblyPath = Directory.GetFiles(AppContext.BaseDirectory, "*.dll", SearchOption.TopDirectoryOnly);
+                    //var assemblyPath = Directory.GetFiles(AppContext.BaseDirectory, "*.dll", SearchOption.TopDirectoryOnly);
                     try
                     {
-                        _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault); 
+                        _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault.With(typeNamespaceImports: new[] { typeof(Object), typeof(Enumerable) }));
                     }
                     catch (Exception e)
                     {
@@ -204,7 +204,7 @@ namespace gip.core.layoutengine
                         }
                         try
                         {
-                            _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault);
+                            _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault.With(typeNamespaceImports: new[] { typeof(Object), typeof(Enumerable) }));
                         }
                         catch (Exception ec)
                         {
