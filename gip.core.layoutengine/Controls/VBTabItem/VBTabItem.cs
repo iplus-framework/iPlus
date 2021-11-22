@@ -132,6 +132,13 @@ namespace gip.core.layoutengine
                 _PART_RibbonSwitchButton = ((Button)partObj);
                 _PART_RibbonSwitchButton.Click += ribbonSwitchButton_Click;
             }
+            //ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, FrameworkElement.MinHeightProperty);
+            //if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+            //{
+            //    if (ControlManager.TouchScreenMode)
+            //        MinHeight = 35;
+            //}
+
             InitVBControl();
         }
 

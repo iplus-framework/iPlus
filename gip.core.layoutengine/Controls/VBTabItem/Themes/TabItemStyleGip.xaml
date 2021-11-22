@@ -182,7 +182,17 @@
                                                   HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" 
                                                   RecognizesAccessKey="True" 
                                                   SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
-                                                  VerticalAlignment="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                                                  VerticalAlignment="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
+                                    <!--<ContentPresenter.Style>
+                                        <Style TargetType="{x:Type ContentPresenter}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Source={StaticResource TouchScreenMode}}" Value="True">
+                                                    <Setter Property="MinHeight" Value="40" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ContentPresenter.Style>-->
+                                </ContentPresenter>
                                 <Button Grid.Row="1" Grid.Column="2" x:Name="PART_CloseButton" Style="{StaticResource CloseButtonStyleGip}" 
                                         Margin="4,0,0,0" MinWidth="5" MinHeight="5" Height="16" Width="16" 
                                         VerticalAlignment="Center" HorizontalAlignment="Left" 

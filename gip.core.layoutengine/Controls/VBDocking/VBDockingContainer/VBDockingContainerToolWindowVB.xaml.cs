@@ -124,9 +124,19 @@ namespace gip.core.layoutengine
                 if (button.Name == "PART_RibbonSwitchButton")
                 {
                     if (_VBRibbon.Visibility == System.Windows.Visibility.Collapsed)
+                    {
                         _VBRibbon.Visibility = System.Windows.Visibility.Visible;
+                        // Call SetRibbonBarVisibility for persistance of user-Design
+                        if (VBDesignContent != null)
+                            VBDockingManager.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Enabled);
+                    }
                     else
+                    {
                         _VBRibbon.Visibility = System.Windows.Visibility.Collapsed;
+                        // Call SetRibbonBarVisibility for persistance of user-Design
+                        if (VBDesignContent != null)
+                            VBDockingManager.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Collapsed);
+                    }
                 }
                 else if ((button.Name == "PART_CloseButton") && (VBDesignContent != null))
                 {

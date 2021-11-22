@@ -982,6 +982,8 @@ namespace gip.core.layoutengine
             }
             vbTabItem.Content = new ContentPresenter();
             (vbTabItem.Content as ContentPresenter).Content = content.Content;
+            if (content.DockManager != null && content.DockManager.TabItemMinHeight > 0.1)
+                vbTabItem.MinHeight = content.DockManager.TabItemMinHeight;
 
             PART_tbcContents.Items.Add(vbTabItem);
             PART_tbcContents.SelectedItem = vbTabItem;

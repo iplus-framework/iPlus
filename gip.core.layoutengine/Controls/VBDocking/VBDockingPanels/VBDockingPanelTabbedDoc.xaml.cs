@@ -291,6 +291,8 @@ namespace gip.core.layoutengine
                 if (tbcDocuments.Items.Count > 1)
                     ((VBTabItem)tbcDocuments.Items[0]).ShowCaption = true;
             }
+            if (container.DockManager != null && container.DockManager.TabItemMinHeight > 0.1)
+                vbTabItem.MinHeight = container.DockManager.TabItemMinHeight;
         }
 
 
@@ -421,7 +423,7 @@ namespace gip.core.layoutengine
 
                 contentToDrag = Documents[index] as VBDockingContainerToolWindow;
                 
-                if (contentToDrag != null)
+                if (contentToDrag != null && !ControlManager.TouchScreenMode)
                     DragContent(contentToDrag, e.GetPosition(DockManager), e.GetPosition(item));
                 
                 e.Handled = true;

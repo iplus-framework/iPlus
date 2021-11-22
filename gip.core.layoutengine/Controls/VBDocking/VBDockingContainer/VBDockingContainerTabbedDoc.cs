@@ -101,11 +101,21 @@ namespace gip.core.layoutengine
                 Button button = (Button)e.Source;
                 if (button.Name == "PART_RibbonSwitchButton")
                 {
-                    string xaml = XamlWriter.Save(DockManager);
+                    //string xaml = XamlWriter.Save(DockManager);
                     if (_VBRibbon.Visibility == System.Windows.Visibility.Collapsed)
+                    {
                         _VBRibbon.Visibility = System.Windows.Visibility.Visible;
+                        // Call SetRibbonBarVisibility for persistance of user-Design
+                        if (VBDesignContent != null)
+                            VBDockingManager.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Enabled);
+                    }
                     else
+                    {
                         _VBRibbon.Visibility = System.Windows.Visibility.Collapsed;
+                        // Call SetRibbonBarVisibility for persistance of user-Design
+                        if (VBDesignContent != null)
+                            VBDockingManager.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Collapsed);
+                    }
                 }
                 else if ((button.Name == "PART_CloseButton") && (VBDesignContent != null))
                 {

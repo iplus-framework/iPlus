@@ -294,6 +294,12 @@ namespace gip.core.layoutengine
                                                                     typeof(VBDockingManager),
                                                                     new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.None));
 
+        public static readonly DependencyProperty TabItemMinHeightProperty =
+                               DependencyProperty.Register("TabItemMinHeight",
+                                                                    typeof(double),
+                                                                    typeof(VBDockingManager),
+                                                                    new FrameworkPropertyMetadata(0.0,FrameworkPropertyMetadataOptions.None));
+
 
         public string ACClassUrl
         {
@@ -708,6 +714,12 @@ namespace gip.core.layoutengine
             return (string)element.GetValue(VBDockingManager.TabVisibilityACUrlProperty);
         }
 
+        public double TabItemMinHeight
+        {
+            set { SetValue(TabItemMinHeightProperty, value); }
+            get { return (double)GetValue(TabItemMinHeightProperty); }
+        }
+
         #endregion
         #endregion
 
@@ -968,6 +980,8 @@ namespace gip.core.layoutengine
                 else
                     VBDockingManager.SetRibbonBarVisibility(vbDesign, Global.ControlModes.Enabled);
                 VBDockingManager.SetCloseButtonVisibility(vbDesign, Global.ControlModes.Enabled);
+                if (ControlManager.TouchScreenMode)
+                    VBDockingManager.SetDisableDockingOnClick(vbDesign, true);
                 VBDesignList.Add(vbDesign);
                 ShowVBDesign(vbDesign);
             }
@@ -1115,6 +1129,9 @@ namespace gip.core.layoutengine
         bool _ReinitAtStartupDone = false;
         public void InitBusinessobjectsAtStartup()
         {
+            if (ControlManager.TouchScreenMode && IsBSOManager)
+                this.TabItemMinHeight = 35;
+
             if (_ReinitAtStartupDone || vbDockingPanelTabbedDoc == null)
                 return;
             _ReinitAtStartupDone = true;
@@ -1123,14 +1140,22 @@ namespace gip.core.layoutengine
             {
                 VBDesign vbDesign = toolWin.VBDesignContent as VBDesign;
                 if (vbDesign != null)
+                {
+                    if (ControlManager.TouchScreenMode && IsBSOManager)
+                        VBDockingManager.SetDisableDockingOnClick(vbDesign, true);
                     vbDesign.InitVBControl();
+                }
                 toolWin.ReInitDataContext();
             }
             foreach (VBDockingContainerTabbedDoc tabbedDoc in TabbedDocContainerList)
             {
                 VBDesign vbDesign = tabbedDoc.VBDesignContent as VBDesign;
                 if (vbDesign != null)
+                {
+                    if (ControlManager.TouchScreenMode && IsBSOManager)
+                        VBDockingManager.SetDisableDockingOnClick(vbDesign, true);
                     vbDesign.InitVBControl();
+                }
                 tabbedDoc.ReInitDataContext();
             }
 
@@ -2460,7 +2485,9 @@ namespace gip.core.layoutengine
                     new XAttribute(xNsThis + thisTypeName + ".DockPosition", VBDockingManager.GetDockPosition(uiElement).ToString()),
                     new XAttribute(xNsThis + thisTypeName + ".RibbonBarVisibility", VBDockingManager.GetRibbonBarVisibility(uiElement).ToString()),
                     new XAttribute(xNsThis + thisTypeName + ".IsCloseableBSORoot", VBDockingManager.GetIsCloseableBSORoot(uiElement).ToString()),
-                    new XAttribute(xNsThis + thisTypeName + ".CloseButtonVisibility", VBDockingManager.GetCloseButtonVisibility(uiElement).ToString()));
+                    new XAttribute(xNsThis + thisTypeName + ".CloseButtonVisibility", VBDockingManager.GetCloseButtonVisibility(uiElement).ToString()),
+                    new XAttribute(xNsThis + thisTypeName + ".DisableDockingOnClick", VBDockingManager.GetDisableDockingOnClick(uiElement).ToString())
+                    );
                 Size size = VBDockingManager.GetWindowSize(uiElement);
                 xElement.Add(new XAttribute(xNsThis + thisTypeName + ".WindowSize", String.Format("{0},{1}", size.Width, size.Height)));
                 if (uiElement is FrameworkElement)
