@@ -131,7 +131,9 @@ namespace gip.core.datamodel
             get
             {
                 bool isChanged = false;
-                if (_ObjectContext.ContextIPlus != null && _ObjectContext.ContextIPlus != _ObjectContext)
+                if (_ObjectContext.ContextIPlus != null 
+                    && _ObjectContext.ContextIPlus != _ObjectContext 
+                    && _ObjectContext.IsSeparateIPlusContext)
                     isChanged = _ObjectContext.ContextIPlus.IsChanged;
                 if (!isChanged)
                     isChanged = HasModifiedObjectStateEntries();
