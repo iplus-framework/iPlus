@@ -290,6 +290,16 @@ namespace gip.core.layoutengine
             return new VBComboBoxItem();
         }
 
+        public static readonly DependencyProperty UpdateSourceTriggerProperty
+                                = DependencyProperty.Register("UpdateSource", typeof(System.Windows.Data.UpdateSourceTrigger), typeof(VBComboBox), new PropertyMetadata(System.Windows.Data.UpdateSourceTrigger.Default));
+        [Category("VBControl")]
+        public UpdateSourceTrigger UpdateSourceTrigger
+        {
+            get { return (UpdateSourceTrigger)GetValue(UpdateSourceTriggerProperty); }
+            set { SetValue(UpdateSourceTriggerProperty, value); }
+        }
+
+
         #region Layout
 
         /// <summary>
@@ -856,6 +866,7 @@ namespace gip.core.layoutengine
                         binding2.Mode = BindingMode.TwoWay;
                         binding2.NotifyOnSourceUpdated = true;
                         binding2.NotifyOnTargetUpdated = true;
+                        binding2.UpdateSourceTrigger = UpdateSourceTrigger;
                         //SetBinding(ComboBox.SelectedItemProperty, binding2);
                         SetBinding(ComboBox.SelectedValueProperty, binding2);
                     }
@@ -871,6 +882,7 @@ namespace gip.core.layoutengine
                             binding2.Mode = (dcACTypeInfo as ACClassProperty).IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
                         binding2.NotifyOnSourceUpdated = true;
                         binding2.NotifyOnTargetUpdated = true;
+                        binding2.UpdateSourceTrigger = UpdateSourceTrigger;
                         if (!String.IsNullOrEmpty(VBValidation))
                             binding2.ValidationRules.Add(new VBValidationRule(ValidationStep.ConvertedProposedValue, true, ContextACObject, VBContent, VBValidation));
 

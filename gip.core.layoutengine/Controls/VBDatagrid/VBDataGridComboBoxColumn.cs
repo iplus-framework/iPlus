@@ -130,6 +130,14 @@ namespace gip.core.layoutengine
             set { SetValue(IsEditableProperty, value); }
         }
 
+        public static readonly DependencyProperty UpdateSourceTriggerProperty
+                        = DependencyProperty.Register("UpdateSource", typeof(System.Windows.Data.UpdateSourceTrigger), typeof(VBDataGridComboBoxColumn), new PropertyMetadata(System.Windows.Data.UpdateSourceTrigger.LostFocus));
+        [Category("VBControl")]
+        public UpdateSourceTrigger UpdateSourceTrigger
+        {
+            get { return (UpdateSourceTrigger)GetValue(UpdateSourceTriggerProperty); }
+            set { SetValue(UpdateSourceTriggerProperty, value); }
+        }
 
         /// <summary>
         /// Gets or sets the right control mode.
@@ -374,7 +382,7 @@ namespace gip.core.layoutengine
                 //binding2.Source = dsColSource;
                 binding2.Path = new PropertyPath(dsColPath);
                 binding2.Mode = BindingMode.TwoWay;
-                binding2.UpdateSourceTrigger = UpdateSourceTrigger.LostFocus;
+                binding2.UpdateSourceTrigger = UpdateSourceTrigger;
                 //this.SelectedItemBinding = binding2;
                 SelectedValueBinding = binding2;
 
@@ -404,6 +412,7 @@ namespace gip.core.layoutengine
                 bindingEdit.Path = new PropertyPath(dsColPath);
                 bindingEdit.Mode = BindingMode.TwoWay;
                 this.SelectedItemBinding = bindingEdit;
+                bindingEdit.UpdateSourceTrigger = UpdateSourceTrigger;
 
                 // Anzeige des Wertes in der Zelle
                 if (String.IsNullOrEmpty(DisplayMemberPath))
@@ -503,7 +512,7 @@ namespace gip.core.layoutengine
                 Binding bindingEdit = new Binding();
                 bindingEdit.Path = new PropertyPath(dsColACTypeInfo.ACIdentifier);
                 bindingEdit.Mode = this.IsReadOnly ? BindingMode.OneWay : BindingMode.TwoWay;
-                bindingEdit.UpdateSourceTrigger = UpdateSourceTrigger.LostFocus;
+                bindingEdit.UpdateSourceTrigger = UpdateSourceTrigger;
                 this.SelectedValueBinding = bindingEdit;
                 valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.HeaderProperty);
                 if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
@@ -525,7 +534,7 @@ namespace gip.core.layoutengine
                 Binding bindingEdit = new Binding();
                 bindingEdit.Path = new PropertyPath(dsColACTypeInfo.ACIdentifier);
                 bindingEdit.Mode = BindingMode.TwoWay;
-                bindingEdit.UpdateSourceTrigger = UpdateSourceTrigger.LostFocus;
+                bindingEdit.UpdateSourceTrigger = UpdateSourceTrigger;
                 this.SelectedItemBinding = bindingEdit;
                 valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.HeaderProperty);
                 if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
@@ -563,6 +572,7 @@ namespace gip.core.layoutengine
             comboBox.IsEditable = IsEditable;
             comboBox.ShowCaption = false;
             comboBox.VBContent = Const.Value;
+            comboBox.UpdateSourceTrigger = UpdateSourceTrigger;
             if (!string.IsNullOrEmpty(this.VBContent) && !string.IsNullOrEmpty(this.VBShowColumns))
             {
                 comboBox.VBContent = this.VBContent;
