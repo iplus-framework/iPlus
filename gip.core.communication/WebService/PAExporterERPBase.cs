@@ -165,7 +165,10 @@ namespace gip.core.communication
                 msg = new Msg("Temp directory and Archive directory is same directory. This is not allowed. Please, change one of those two.", this, eMsgLevel.Error, "PAExporterERPBase", "IsEnabledExecuteBuildAndSend(20)", 164);
 
             if (msg == null && PAExportERP == null)
-                msg = new Msg("The parent component is not PAExportERPGroup!", this, eMsgLevel.Error, "PAExporterERPBase", "IsEnabledExecuteBuildAndSend(10)", 157);
+                msg = new Msg("The parent component is not PAExportERPGroup!", this, eMsgLevel.Error, "PAExporterERPBase", "IsEnabledExecuteBuildAndSend(30)", 157);
+
+            if (msg == null && !acMethod.IsValid())
+                msg = new Msg("acMethod is not valid", this, eMsgLevel.Error, "PAExporterERPBase", "IsEnabledExecuteBuildAndSend(40)", 158);
 
             if (msg != null)
             {
