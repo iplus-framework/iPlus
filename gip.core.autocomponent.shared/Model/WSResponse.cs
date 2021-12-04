@@ -9,6 +9,9 @@ namespace gip.core.autocomponent
         Msg Message { get;  }
     }
 
+#if NETFRAMEWORK
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'WSResponse'}de{'WSResponse'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
+#endif
     [DataContract]
     public class WSResponse<T> : IWSResponse
     {
@@ -27,6 +30,12 @@ namespace gip.core.autocomponent
             _Message = msg;
         }
 
+        public WSResponse(Msg msg)
+        {
+            _Data = default(T);
+            _Message = msg;
+        }
+
         [IgnoreDataMember]
         public bool Suceeded
         {
@@ -39,6 +48,9 @@ namespace gip.core.autocomponent
         [IgnoreDataMember]
         private Msg _Message;
 
+#if NETFRAMEWORK
+        [ACPropertyInfo(101, "en{'Message'}de{'Message'}")]
+#endif
         [DataMember()]
         public Msg Message
         {
@@ -50,6 +62,9 @@ namespace gip.core.autocomponent
         [IgnoreDataMember]
         private T _Data;
 
+#if NETFRAMEWORK
+        [ACPropertyInfo(100, "en{'Data'}de{'Data'}")]
+#endif
         [DataMember()]
         public T Data
         {

@@ -1,12 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
+using System.Xml.Serialization;
 using gip.core.autocomponent;
 using gip.core.datamodel;
+using System.Linq;
 
 namespace gip.core.communication
 {
+
+    [ACSerializeableInfo]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PAAlarmChangeState'}de{'PAAlarmChangeState'}", Global.ACKinds.TACEnum)]
+    public enum PAXMLDocSerializerType : short
+    {
+        DataContractSerializer = 0,
+        XMLSerializer = 1,
+    }
+
+
     //TODO Ivan: add message(alarm) translation
     /// <summary>
     /// Represents the base class for ERP's web service inovker(exporter) and archiver.
@@ -49,6 +62,23 @@ namespace gip.core.communication
         {
             get;
         }
+
+        protected virtual PAXMLDocSerializerType SerializerType
+        {
+            get
+            {
+                return PAXMLDocSerializerType.DataContractSerializer;
+            }
+        }
+
+        protected virtual IEnumerable<Type> KnownTypesForDCSerializer
+        {
+            get
+            {
+                return null;
+            }
+        }
+
 
         /// <summary>
         /// Cache for last invoke call which isn't successfull.
@@ -318,10 +348,27 @@ namespace gip.core.communication
 
             try
             {
-                DataContractSerializer dcs = new DataContractSerializer(objectType);
-                using (FileStream fs = new FileStream(filePath, FileMode.Create))
+                if (SerializerType == PAXMLDocSerializerType.DataContractSerializer)
                 {
-                    dcs.WriteObject(fs, objectToSerialize);
+                    DataContractSerializer dcs = null;
+                    if (KnownTypesForDCSerializer != null && KnownTypesForDCSerializer.Any())
+                        dcs = new DataContractSerializer(objectType, KnownTypesForDCSerializer);
+                    else
+                        dcs = new DataContractSerializer(objectType);
+
+                    using (FileStream fs = new FileStream(filePath, FileMode.Create))
+                    {
+                        dcs.WriteObject(fs, objectToSerialize);
+                    }
+                }
+                else if (SerializerType == PAXMLDocSerializerType.XMLSerializer)
+                {
+                    var serializer = new XmlSerializer(objectType);
+                    using (TextWriter writer = new StreamWriter(filePath))
+                    {
+                        serializer.Serialize(writer, objectToSerialize);
+                        writer.Close();
+                    }
                 }
                 return null;
             }
@@ -347,10 +394,28 @@ namespace gip.core.communication
 
             try
             {
-                DataContractSerializer dcs = new DataContractSerializer(objectType);
-                using (FileStream fs = new FileStream(filePath, FileMode.Open))
+                if (SerializerType == PAXMLDocSerializerType.DataContractSerializer)
                 {
-                    deserializedObject = dcs.ReadObject(fs);
+                    DataContractSerializer dcs = null;
+                    if (KnownTypesForDCSerializer != null && KnownTypesForDCSerializer.Any())
+                        dcs = new DataContractSerializer(objectType, KnownTypesForDCSerializer);
+                    else
+                        dcs = new DataContractSerializer(objectType);
+                    using (FileStream fs = new FileStream(filePath, FileMode.Open))
+                    {
+                        deserializedObject = dcs.ReadObject(fs);
+                    }
+                }
+                else
+                {
+                    XmlSerializer xmlSerializer = new XmlSerializer(objectType);
+                    using (FileStream fs = new FileStream(filePath, FileMode.Open))
+                    {
+                        using (XmlReader xmlReader = XmlReader.Create(fs))
+                        {
+                            deserializedObject = xmlSerializer.Deserialize(xmlReader);
+                        }
+                    }
                 }
                 return null;
             }
