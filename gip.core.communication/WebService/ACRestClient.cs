@@ -47,6 +47,8 @@ namespace gip.core.communication
 
             bool result = base.ACInit(startChildMode);
 
+            Connect();
+
             return result;
         }
 
@@ -224,7 +226,7 @@ namespace gip.core.communication
         protected void OnCreateDefaultRequestHeaders(HttpClient client)
         {
             client.DefaultRequestHeaders.Accept.Clear();
-            if (!String.IsNullOrEmpty(User) && String.IsNullOrEmpty(Password))
+            if (!String.IsNullOrEmpty(User) && !String.IsNullOrEmpty(Password))
             {
                 client.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue(
@@ -417,7 +419,7 @@ namespace gip.core.communication
         #region Helper
         public Uri GetUri(string relativeUri)
         {
-            if (String.IsNullOrEmpty(relativeUri))
+            if (!String.IsNullOrEmpty(relativeUri))
                 return new Uri(relativeUri, UriKind.Relative);
             else
                 return new Uri(ServiceUrl, UriKind.Absolute);
