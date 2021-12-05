@@ -154,7 +154,7 @@ namespace gip.core.communication
         }
 
         protected JsonSerializerSettings _DefaultJsonSerializerSettings;
-        protected virtual JsonSerializerSettings DefaultJsonSerializerSettings
+        public virtual JsonSerializerSettings DefaultJsonSerializerSettings
         {
             get
             {
