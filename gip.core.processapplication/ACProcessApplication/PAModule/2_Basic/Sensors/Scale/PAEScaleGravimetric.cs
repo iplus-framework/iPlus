@@ -45,7 +45,6 @@ namespace gip.core.processapplication
 
         #endregion
 
-
         #region Properties Range 700
 
         #region Configuration
