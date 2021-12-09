@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace gip.core.communication
 {
@@ -67,11 +68,14 @@ namespace gip.core.communication
             _UASubscription = new OPCUAClientSubscr(OPCUASession.UASession.DefaultSubscription)
             {
                 DisplayName = ACIdentifier,
-                PublishingInterval = RequiredUpdateRate,
-                LifetimeCount = 0
+                PublishingInterval = RequiredUpdateRate
+                //LifetimeCount = 0
             };
 
             OPCUASession.UASession.AddSubscription(_UASubscription);
+
+            _UASubscription.StateChanged += _UASubscription_StateChanged;
+            _UASubscription.PublishStatusChanged += _UASubscription_PublishStatusChanged;
 
             Messages.LogDebug(this.GetACUrl(), "OPCUAClientACSubscr.InitSubscription(2)", "The UA Subscription is created.");
 
@@ -98,6 +102,19 @@ namespace gip.core.communication
             return true;
         }
 
+        private void _UASubscription_PublishStatusChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void _UASubscription_StateChanged(Opc.Ua.Client.Subscription subscription, Opc.Ua.Client.SubscriptionStateChangedEventArgs e)
+        {
+            if (subscription != null && subscription.PublishingStopped)
+            {              
+                Messages.LogInfo (this.GetACUrl(), "StateChanged", "OPC UA subscription is stopped.");
+            }
+        }
+
         public override bool IsEnabledDeInitSubscription()
         {
             if (UASubscription == null)
@@ -110,6 +127,9 @@ namespace gip.core.communication
         {
             if (UASubscription == null)
                 return true;
+
+            _UASubscription.StateChanged -= _UASubscription_StateChanged;
+            _UASubscription.PublishStatusChanged -= _UASubscription_PublishStatusChanged;
 
             DisConnect();
 
@@ -178,5 +198,78 @@ namespace gip.core.communication
         #endregion
 
         #endregion
+
+        protected override void DumpPropertyList(XmlDocument doc, XmlElement xmlACPropertyList)
+        {
+            base.DumpPropertyList(doc, xmlACPropertyList);
+
+            OPCUAClientSubscr subscr = _UASubscription;
+
+            if (subscr != null)
+            {
+                XmlElement xmlChild = xmlACPropertyList["CurrentKeepAliveCount"];
+                if (xmlChild == null)
+                {
+                    xmlChild = doc.CreateElement("CurrentKeepAliveCount");
+                    if (xmlChild != null)
+                        xmlChild.InnerText = subscr.KeepAliveCount.ToString();
+                    xmlACPropertyList.AppendChild(xmlChild);
+                }
+
+                xmlChild = xmlACPropertyList["CurrentLifetimeCount"];
+                if (xmlChild == null)
+                {
+                    xmlChild = doc.CreateElement("CurrentLifetimeCount");
+                    if (xmlChild != null)
+                        xmlChild.InnerText = subscr.CurrentLifetimeCount.ToString();
+                    xmlACPropertyList.AppendChild(xmlChild);
+                }
+
+                xmlChild = xmlACPropertyList["CurrentPublishingEnabled"];
+                if (xmlChild == null)
+                {
+                    xmlChild = doc.CreateElement("CurrentPublishingEnabled");
+                    if (xmlChild != null)
+                        xmlChild.InnerText = subscr.CurrentPublishingEnabled.ToString();
+                    xmlACPropertyList.AppendChild(xmlChild);
+                }
+
+                xmlChild = xmlACPropertyList["PublishingStopped"];
+                if (xmlChild == null)
+                {
+                    xmlChild = doc.CreateElement("PublishingStopped");
+                    if (xmlChild != null)
+                        xmlChild.InnerText = subscr.PublishingStopped.ToString();
+                    xmlACPropertyList.AppendChild(xmlChild);
+                }
+
+                xmlChild = xmlACPropertyList["LifetimeCount"];
+                if (xmlChild == null)
+                {
+                    xmlChild = doc.CreateElement("LifetimeCount");
+                    if (xmlChild != null)
+                        xmlChild.InnerText = subscr.LifetimeCount.ToString();
+                    xmlACPropertyList.AppendChild(xmlChild);
+                }
+
+                xmlChild = xmlACPropertyList["KeepAliveCount"];
+                if (xmlChild == null)
+                {
+                    xmlChild = doc.CreateElement("KeepAliveCount");
+                    if (xmlChild != null)
+                        xmlChild.InnerText = subscr.KeepAliveCount.ToString();
+                    xmlACPropertyList.AppendChild(xmlChild);
+                }
+
+                xmlChild = xmlACPropertyList["SequenceNumber"];
+                if (xmlChild == null)
+                {
+                    xmlChild = doc.CreateElement("SequenceNumber");
+                    if (xmlChild != null)
+                        xmlChild.InnerText = subscr.SequenceNumber.ToString();
+                    xmlACPropertyList.AppendChild(xmlChild);
+                }   
+            }
+        }
     }
 }

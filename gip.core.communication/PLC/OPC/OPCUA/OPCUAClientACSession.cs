@@ -255,7 +255,7 @@ namespace gip.core.communication
 
         private bool _StopReconnectInitiated = false;
 
-        //private ACMonitorObject _ReconnectActiveLock = new ACMonitorObject(10000);
+        private ACMonitorObject _30100_ReconnectActiveLock = new ACMonitorObject(30100);
 
         private SessionReconnectHandler _ReconnectHandler;
 
@@ -362,9 +362,12 @@ namespace gip.core.communication
             UASession.Dispose();
             _UASession = null;
 
-            if (_ReconnectHandler != null)
-                _ReconnectHandler.Dispose();
-            _ReconnectHandler = null;
+            using (ACMonitor.Lock(_30100_ReconnectActiveLock))
+            {
+                if (_ReconnectHandler != null)
+                    _ReconnectHandler.Dispose();
+                _ReconnectHandler = null;
+            }
 
             return true;
         }
@@ -480,23 +483,42 @@ namespace gip.core.communication
 
         private void UASession_KeepAlive(Session session, KeepAliveEventArgs e)
         {
-            if (e.Status != null && ServiceResult.IsNotGood(e.Status))
+            if (e.Status != null)
             {
-                IsConnected.ValueT = false;
-                if (_ReconnectHandler == null && AutoReconnect)
+                if (ServiceResult.IsNotGood(e.Status))
+                { 
+                    IsConnected.ValueT = false;
+
+                    using (ACMonitor.Lock(_30100_ReconnectActiveLock))
+                    {
+                        if (_ReconnectHandler == null && AutoReconnect)
+                        {
+                            _ReconnectHandler = new SessionReconnectHandler();
+                            _ReconnectHandler.BeginReconnect(_UASession, ReconnectPeriod, Client_ReconnectComplete);
+                        }
+                    }
+                }
+
+                bool isGood = ServiceResult.IsGood(e.Status);
+                if (!isGood)
                 {
-                    _ReconnectHandler = new SessionReconnectHandler();
-                    _ReconnectHandler.BeginReconnect(_UASession, ReconnectPeriod, Client_ReconnectComplete);
+                    Messages.LogInfo(this.GetACUrl(), "OPCUA KeepAlive status:", e.Status.ToLongString());
                 }
             }
         }
 
         private void Client_ReconnectComplete(object sender, EventArgs e)
         {
-            if (!Object.ReferenceEquals(sender, _ReconnectHandler))
+            SessionReconnectHandler reconnectHandler = null;
+            using (ACMonitor.Lock(_30100_ReconnectActiveLock))
+            {
+                reconnectHandler = _ReconnectHandler;
+            }
+
+            if (!Object.ReferenceEquals(sender, reconnectHandler))
                 return;
 
-            _UASession = _ReconnectHandler.Session;
+            _UASession = reconnectHandler.Session;
 
             try
             {
@@ -513,8 +535,11 @@ namespace gip.core.communication
                 AddAlarm(new Msg(exc.Message, this, eMsgLevel.Error, ClassName, "Client_ReconnectComplete(10)", 498));
             }
 
-            _ReconnectHandler.Dispose();
-            _ReconnectHandler = null;
+            using (ACMonitor.Lock(_30100_ReconnectActiveLock))
+            {
+                _ReconnectHandler.Dispose();
+                _ReconnectHandler = null;
+            }
             _ReconnectTries = 0;
             IsConnected.ValueT = true;
         }

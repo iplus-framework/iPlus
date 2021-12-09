@@ -147,6 +147,15 @@ namespace gip.core.communication
                 return;
 
             ReadValue(notification.Value);
+
+            if (notification.Value != null)
+            {
+                bool isGood = StatusCode.IsGood(notification.Value.StatusCode);
+                if (!isGood && _OPCUAClientACSubscr != null)
+                {
+                     _OPCUAClientACSubscr.Messages.LogInfo(this.ResolvedNodeId.ToString(), "OPCUA KeepAlive status:", notification.Value.StatusCode.ToString());
+                }
+            }
         }
 
         internal void ReadInitValue(OPCUAClientACSubscr opcUASubscr)

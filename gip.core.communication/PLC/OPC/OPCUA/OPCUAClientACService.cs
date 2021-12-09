@@ -128,7 +128,8 @@ namespace gip.core.communication
 
         private void InitOPCUAApp()
         {
-            string configPath = ClientApplicationConfigrationPath.EndsWith(".Config.xml") ? ClientApplicationConfigrationPath.Replace(".Config.xml", "") 
+            string configPath = ClientApplicationConfigrationPath != null 
+                             && ClientApplicationConfigrationPath.EndsWith(".Config.xml") ? ClientApplicationConfigrationPath.Replace(".Config.xml", "") 
                                                                                           : ClientApplicationConfigrationPath;
 
             _AppInstance = new ApplicationInstance()
