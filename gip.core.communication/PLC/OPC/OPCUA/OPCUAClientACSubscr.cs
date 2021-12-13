@@ -75,7 +75,6 @@ namespace gip.core.communication
             OPCUASession.UASession.AddSubscription(_UASubscription);
 
             _UASubscription.StateChanged += _UASubscription_StateChanged;
-            _UASubscription.PublishStatusChanged += _UASubscription_PublishStatusChanged;
 
             Messages.LogDebug(this.GetACUrl(), "OPCUAClientACSubscr.InitSubscription(2)", "The UA Subscription is created.");
 
@@ -102,11 +101,6 @@ namespace gip.core.communication
             return true;
         }
 
-        private void _UASubscription_PublishStatusChanged(object sender, EventArgs e)
-        {
-            
-        }
-
         private void _UASubscription_StateChanged(Opc.Ua.Client.Subscription subscription, Opc.Ua.Client.SubscriptionStateChangedEventArgs e)
         {
             if (subscription != null && subscription.PublishingStopped)
@@ -129,7 +123,6 @@ namespace gip.core.communication
                 return true;
 
             _UASubscription.StateChanged -= _UASubscription_StateChanged;
-            _UASubscription.PublishStatusChanged -= _UASubscription_PublishStatusChanged;
 
             DisConnect();
 

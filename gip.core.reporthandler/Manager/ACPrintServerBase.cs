@@ -21,11 +21,11 @@ namespace gip.core.reporthandler
         public ACPrintServerBase(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            _IPAddress = new ACPropertyConfigValue<string>(this, "IPAddress", null);
+            _IPAddress = new ACPropertyConfigValue<string>(this, "IPAddress", "");
             _Port = new ACPropertyConfigValue<int>(this, "Port", 0);
             _SendTimeout = new ACPropertyConfigValue<int>(this, "SendTimeout", 0);
             _ReceiveTimeout = new ACPropertyConfigValue<int>(this, "ReceiveTimeout", 0);
-            _PrintTries = new ACPropertyConfigValue<int>(this, "PrintTries", 0);
+            _PrintTries = new ACPropertyConfigValue<int>(this, "PrintTries", 1);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -53,16 +53,16 @@ namespace gip.core.reporthandler
             return base.ACDeInit(deleteACClassTask);
         }
 
-        //public override bool ACPostInit()
-        //{
-        //    bool baseReturn = base.ACPostInit();
-        //    string tempIpAddress = IPAddress;
-        //    int temp = Port;
-        //    temp = SendTimeout;
-        //    temp = ReceiveTimeout;
-        //    temp = PrintTries;
-        //    return baseReturn;
-        //}
+        public override bool ACPostInit()
+        {
+            bool baseReturn = base.ACPostInit();
+            string tempIpAddress = IPAddress;
+            int temp = Port;
+            temp = SendTimeout;
+            temp = ReceiveTimeout;
+            temp = PrintTries;
+            return baseReturn;
+        }
 
         protected static IACEntityObjectContext _CommonManagerContext;
         /// <summary>
