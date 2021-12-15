@@ -410,6 +410,31 @@ namespace gip.core.reporthandler
 
         #endregion
 
+        #region Properties => VBUser
+
+        private core.datamodel.VBUser _SelectedVBUser;
+        [ACPropertySelected(604, "VBUser", "en{'User'}de{'Benutzer'}")]
+        public core.datamodel.VBUser SelectedVBUser
+        {
+            get => _SelectedVBUser;
+            set
+            {
+                _SelectedVBUser = value;
+                OnPropertyChanged("SelectedVBUser");
+            }
+        }
+
+        [ACPropertyList(605, "VBUser")]
+        public IEnumerable<core.datamodel.VBUser> VBUserList
+        {
+            get
+            {
+                return (Database as gip.core.datamodel.Database).VBUser/*.Where(c => !c.IsSuperuser)*/.ToArray();
+            }
+        }
+
+
+        #endregion
 
         #endregion
 
@@ -452,13 +477,21 @@ namespace gip.core.reporthandler
 
             ACClassConfig aCClassConfig = ACClassConfig.NewACObject(Database as gip.core.datamodel.Database, aCClass);
             aCClassConfig.ValueTypeACClassID = propertyInfoType.ACClassID;
+
             PrinterInfo newConfiguredPrinter = new PrinterInfo();
             newConfiguredPrinter.ACClassConfigID = aCClassConfig.ACClassConfigID;
+
             SetPrinterTarget(newConfiguredPrinter);
+
             if (SelectedWindowsPrinter != null)
                 newConfiguredPrinter.PrinterName = SelectedWindowsPrinter.PrinterName;
             else if (SelectedPrintServer != null)
                 newConfiguredPrinter.PrinterACUrl = SelectedPrintServer.PrinterACUrl;
+
+            if (SelectedVBUser != null)
+            {
+                newConfiguredPrinter.VBUserID = SelectedVBUser.VBUserID;
+            }
 
             aCClassConfig.KeyACUrl = ACPrintManager.Const_KeyACUrl_ConfiguredPrintersConfig;
             aCClassConfig.Value = newConfiguredPrinter;
@@ -475,13 +508,14 @@ namespace gip.core.reporthandler
 
         public virtual void SetPrinterTarget(PrinterInfo printerInfo)
         {
-            printerInfo.MachineACUrl = SelectedMachine.ACUrlComponent;
+            if (SelectedMachine != null)
+                printerInfo.MachineACUrl = SelectedMachine.ACUrlComponent;
         }
 
         public virtual bool IsEnabledAddPrinter()
         {
             return
-                 SelectedMachine != null
+                   (SelectedMachine != null || SelectedVBUser != null)
                 && (SelectedWindowsPrinter != null || SelectedPrintServer != null)
                 && !ConfiguredPrinterList.Any(c =>
                     (
@@ -495,6 +529,10 @@ namespace gip.core.reporthandler
         public virtual void LoadConfiguredPrinters()
         {
             ConfiguredPrinterList = ACPrintManager.GetConfiguredPrinters(Database as gip.core.datamodel.Database, PrintManager.ComponentClass.ACClassID, true);
+            foreach (PrinterInfo pInfo in ConfiguredPrinterList)
+            {
+                pInfo.Attach((Database as Database));
+            }
         }
 
         #endregion

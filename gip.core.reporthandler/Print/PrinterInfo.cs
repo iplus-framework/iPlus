@@ -1,5 +1,6 @@
 ﻿using gip.core.datamodel;
 using System;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace gip.core.reporthandler
@@ -37,12 +38,37 @@ namespace gip.core.reporthandler
         [ACPropertyInfo(7, "", "en{'Name'}de{'Name'}")]
         public string Name { get; set; }
 
+        [DataMember]
+        [ACPropertyInfo(8, "", "en{'VBUserID'}de{'VBUserID'}")]
+        public Guid VBUserID { get; set; }
+
+        [IgnoreDataMember]
+        private VBUser _User;
+        [IgnoreDataMember]
+        [ACPropertyInfo(9, "", "en{'VBUserID'}de{'VBUserID'}")]
+        public VBUser User
+        {
+            get => _User;
+            set
+            {
+                _User = value;
+            }
+        }
+
         [IgnoreDataMember]
         public Guid? ACClassConfigID { get; set; }
 
         public override string ToString()
         {
             return PrinterACUrl ?? "" + PrinterName ?? "";
+        }
+
+        public void Attach(Database db)
+        {
+            if (db != null && VBUserID != Guid.Empty)
+            {
+                User = db.VBUser.FirstOrDefault(c => c.VBUserID == VBUserID);
+            }
         }
 
     }
