@@ -325,7 +325,6 @@ namespace gip.core.reporthandler
             }
             return
                 windowsPrintersList
-                .Where(c => !configuredPrinters.Contains(c))
                 .Select(c => new PrinterInfo() { PrinterName = c, Name = c })
                 .ToList();
         }
