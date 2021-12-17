@@ -144,8 +144,7 @@
   <ItemGroup>
     <Compile Include="Manager\BlockDocumentPosition.cs" />
     <Compile Include="Manager\ESCPosPrinter.cs" />
-    <Compile Include="Manager\PAOrderInfoDestination.cs" />
-    <Compile Include="Manager\PAOrderInfoManagerBase.cs" />
+    <Compile Include="Manager\PAPrintInfo.cs" />
     <Compile Include="Print\ESCPosExt.cs" />
     <Compile Include="Print\PrintContext.cs" />
     <Compile Include="Print\PrintFormat.cs" />

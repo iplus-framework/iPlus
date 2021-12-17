@@ -97,5 +97,13 @@ namespace gip.core.autocomponent
             return string.Format(@"{0} [{1}]", EntityName, EntityID);
         }
 
+        public ACClass EntityACType
+        {
+            get
+            {
+                return Database.GlobalDatabase.GetACType(EntityName);
+            }
+        }
+
     }
 }

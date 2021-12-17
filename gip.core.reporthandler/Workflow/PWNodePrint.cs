@@ -113,7 +113,6 @@ namespace gip.core.reporthandler
             else
                 msg = printManager.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + ACPrintManager.MN_Print, OrderInfo, NumberOfCopies) as Msg;
 
-
             if (msg != null)
             {
                 OnNewAlarmOccurred(ProcessAlarm, msg, true);

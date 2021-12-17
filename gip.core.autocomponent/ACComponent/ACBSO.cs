@@ -680,62 +680,73 @@ namespace gip.core.autocomponent
             }
         }
 
-        // ACPrintServer Step10 - divide steps for printing into prepare data (SetDataFromPAOrderInfo) and printing
-
         /// <summary>
-        /// Setup selected data from PAOrderInfo
+        /// Override in subclass to filter the Main Entity
         /// </summary>
-        /// <param name="wfOrderInfo"></param>
+        /// <param name="paOrderInfo"></param>
         /// <returns></returns>
-        public virtual Msg SetOrderInfo(PAOrderInfo wfOrderInfo)
+        public virtual Msg FilterByOrderInfo(PAOrderInfo paOrderInfo)
         {
-            if (wfOrderInfo == null)
-                return new Msg();
-            return null;
-        }
-
-
-        /// <summary>
-        /// Override this method if you want to enable background-printing on server-side via class PWNodePrint.
-        /// Read the the data in PAOrderInfo and navigate to the Entity-Object that you want to print.
-        /// At least call ACComponent.PrintDesign() to print the report.
-        /// </summary>
-        /// <param name="designName">Name of the design.</param>
-        /// <param name="printerName">Name of the printer.</param>
-        /// <param name="numberOfCopies">The number of copies.</param>
-        /// <returns></returns>
-        public virtual Msg PrintViaOrderInfo(string designName, string printerName, short numberOfCopies)
-        {
-            if (string.IsNullOrEmpty(designName))
-                return new Msg(); //TODO: error
-
-            return null;
-        }
-
-
-        /// <summary>
-        /// Override this method if you want to enable background-printing on server-side via class PWNodePrint.
-        /// Read the the data in PAOrderInfo and navigate to the Entity-Object that you want to print.
-        /// At least call ACComponent.PrintDesign() to print the report.
-        /// </summary>
-        /// <param name="designName">Name of the design.</param>
-        /// <param name="printerName">Name of the printer.</param>
-        /// <param name="numberOfCopies">The number of copies.</param>
-        /// <param name="wfOrderInfo">The wf order information.</param>
-        /// <returns></returns>
-        public virtual Msg PrintViaOrderInfo(string designName, string printerName, short numberOfCopies, PAOrderInfo wfOrderInfo)
-        {
-            Msg prepareDataMsg = SetOrderInfo(wfOrderInfo);
-            if(prepareDataMsg != null)
-                return prepareDataMsg;
-            if (string.IsNullOrEmpty(designName))
-                return new Msg(); //TODO: error
-
             return null;
         }
 
         public virtual PAOrderInfo GetOrderInfo()
         {
+            return null;
+        }
+
+        /// <summary>
+        /// Prints a default report via windows print driver in background
+        /// </summary>
+        /// <param name="paOrderInfo">Order Info</param>
+        /// <param name="designName">Name of the design.</param>
+        /// <param name="printerName">Name of the printer.</param>
+        /// <param name="numberOfCopies">The number of copies.</param>
+        /// <returns></returns>
+        public Msg PrintByOrderInfo(PAOrderInfo paOrderInfo, string printerName, short numberOfCopies, string designName = null)
+        {
+            Msg msg = FilterByOrderInfo(paOrderInfo);
+            if (msg != null)
+                return msg;
+            ACClassDesign printDesign = GetDesignForPrinting(printerName, designName, paOrderInfo);
+            if (printDesign == null)
+            {
+                // TODO Translate
+                Messages.Error(this, string.Format(@"Report {0} doesn't exist!", designName));
+                return new Msg();
+            }
+            msg = PrintDesign(printDesign, printerName, numberOfCopies, false);
+            return msg;
+        }
+
+        /// <summary>
+        /// Returns the first matching report (design) for the passed printer
+        /// </summary>
+        /// <param name="printerName"></param>
+        /// <param name="designName"></param>
+        /// <returns></returns>
+        public ACClassDesign GetDesignForPrinting(string printerName, string designName = null, PAOrderInfo paOrderInfo = null)
+        {
+            ACClassDesign printDesign = null;
+            if (!String.IsNullOrEmpty(designName))
+                printDesign = GetDesign(designName);
+            else
+            {
+                var result = OnGetDefaultPrintDesigns(printerName, paOrderInfo);
+                if (result != null)
+                    printDesign = result.FirstOrDefault();
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Method for option implementation in Subclass to determine which design is to be printed depending on the passed printer and order info
+        /// </summary>
+        /// <param name="printerName"></param>
+        /// <returns></returns>
+        protected virtual IEnumerable<ACClassDesign> OnGetDefaultPrintDesigns(string printerName, PAOrderInfo paOrderInfo = null)
+        {
+            // TODO: Read Config to determine which design sholud be used for the passed printer
             return null;
         }
 

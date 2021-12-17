@@ -163,7 +163,11 @@ namespace gip.core.reporthandler
             try
             {
                 acBSO = GetACBSO(bsoClassID, pAOrderInfo);
-                ACClassDesign aCClassDesign = acBSO.GetDesign(designACIdentifier);
+                if (acBSO == null)
+                    return;
+                ACClassDesign aCClassDesign = acBSO.GetDesignForPrinting(GetACUrl(), designACIdentifier, pAOrderInfo);
+                if (aCClassDesign == null)
+                    return;
                 ReportData reportData = GetReportData(acBSO, aCClassDesign);
                 byte[] bytes = null;
                 await Application.Current.Dispatcher.InvokeAsync((Action)delegate
@@ -215,7 +219,7 @@ namespace gip.core.reporthandler
                 }) as ACBSO;
             if (acBSO == null)
                 return null;
-            acBSO.SetOrderInfo(pAOrderInfo);
+            acBSO.FilterByOrderInfo(pAOrderInfo);
             return acBSO;
         }
 
