@@ -23,6 +23,8 @@ using System.Xml.Linq;
 
 namespace gip.core.datamodel
 {
+
+    public delegate void ACFSItemChange(ACFSItem aCFSItem, string propertyName, IACObject aCObject, string acObjectPropertyName);
     /// <summary>
     /// Container mit Verzeichnisinformationen (Verzeichnisse/Dateien) Serialisierbar
     /// Verwendung: Für alle Trees in denen Verzeichnisse dargestellt werden u.a. in BSOIPlusInstall
@@ -34,6 +36,10 @@ namespace gip.core.datamodel
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACFSItem", "en{'ACFSItem'}de{'ACFSItem'}", typeof(ACFSItem), "ACFSItem", Const.ACCaptionPrefix, Const.ACCaptionPrefix)]
     public class ACFSItem : IACContainerWithItems, IACObject, INotifyPropertyChanged, IVBDataCheckbox, IVBIsVisible
     {
+        #region event
+        public event ACFSItemChange OnACFSItemChange;
+        #endregion
+
         #region c´tors
 
         /// <summary>
@@ -150,10 +156,23 @@ namespace gip.core.datamodel
             }
             set
             {
-                _ACObject = value;
-                if (value != null)
-                    ACObjectACUrl = _ACObject.GetACUrl();
+                if (_ACObject != value)
+                {
+                    _ACObject = value;
+                    if (value != null)
+                        ACObjectACUrl = _ACObject.GetACUrl();
+                    OnPropertyChanged("ACObject");
+                    if (_ACObject != null)
+                        if (_ACObject is INotifyPropertyChanged)
+                            (_ACObject as INotifyPropertyChanged).PropertyChanged += ACFSItem_PropertyChanged;
+                }
             }
+        }
+
+        private void ACFSItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (OnACFSItemChange != null)
+                OnACFSItemChange(this, "ACObject", ACObject, e.PropertyName);
         }
 
         public IResources Resource { get; set; }
@@ -185,11 +204,23 @@ namespace gip.core.datamodel
         /// <summary>Container-Childs</summary>
         /// <value>Container-Childs</value>
         [DataMember]
+        [ACPropertyInfo(9999)]
         public IEnumerable<IACContainerWithItems> Items
         {
             get
             {
                 return _ACObjectItemList.Select(c => c);
+            }
+        }
+
+        /// <summary>Visible Container-Childs</summary>
+        /// <value>Visible Container-Childs</value>
+        [ACPropertyInfo(9999)]
+        public IEnumerable<IACContainerWithItems> VisibleItemsT
+        {
+            get
+            {
+                return Items.Where(c => (c as IVBIsVisible).IsVisible);
             }
         }
 
@@ -229,7 +260,8 @@ namespace gip.core.datamodel
             {
                 (child as ACFSItem).ParentACObject = this;
             }
-
+            OnPropertyChanged("ACObjectItemList");
+            OnPropertyChanged("Items");
         }
 
         public void AddItemChange(ACFSItemChanges item)
@@ -246,6 +278,8 @@ namespace gip.core.datamodel
         public bool Remove(IACContainerWithItems child)
         {
             return _ACObjectItemList.Remove(child);
+            OnPropertyChanged("ACObjectItemList");
+            OnPropertyChanged("Items");
         }
 
         #endregion
@@ -277,7 +311,14 @@ namespace gip.core.datamodel
                     return _ACObject.ACIdentifier;
                 return "unknown";
             }
-            set { _ACCaption = value; }
+            set
+            {
+                if (_ACCaption != value)
+                {
+                    _ACCaption = value;
+                    OnPropertyChanged("ACCaption");
+                }
+            }
         }
 
         /// <summary>
@@ -474,6 +515,9 @@ namespace gip.core.datamodel
             {
                 handler(this, new PropertyChangedEventArgs(name));
             }
+
+            if (OnACFSItemChange != null)
+                OnACFSItemChange(this, name, ACObject, null);
         }
         #endregion
 
