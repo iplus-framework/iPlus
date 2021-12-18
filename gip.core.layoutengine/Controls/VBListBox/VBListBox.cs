@@ -29,7 +29,6 @@ namespace gip.core.layoutengine
     public class VBListBox : ListBox, IVBContent, IVBSource, IACMenuBuilderWPFTree, IACObject
     {
         #region c'tors
-        string _DataSource;
         string _DataShowColumns;
         string _DataChilds;
 
@@ -418,6 +417,8 @@ namespace gip.core.layoutengine
                 return;
             }
 
+            if (!String.IsNullOrEmpty(VBAccess))
+                acAccess = VBAccess;
             if (string.IsNullOrEmpty(acAccess))
             {
                 ACClass navQueryClass = dsACTypeInfo.ValueTypeACClass.PrimaryNavigationquery();
@@ -811,20 +812,20 @@ namespace gip.core.layoutengine
         #region IVBSource Members
 
         /// <summary>
+        /// Represents the dependency property for VBSource.
+        /// </summary>
+        public static readonly DependencyProperty VBSourceProperty
+            = DependencyProperty.Register("VBSource", typeof(string), typeof(VBListBox));
+
+        /// <summary>
         /// Represents the property in which you enter the name of BSO's list property marked with [ACPropertyList(...)] attribute. In usage with ACPropertySelected with same ACGroup,
         /// this property is not necessary to be setted. Only if you want to use different list instead, you must set this property to name of that list which must be marked with ACPropertyList attribute.
         /// </summary>
         [Category("VBControl")]
         public string VBSource
         {
-            get
-            {
-                return _DataSource;
-            }
-            set
-            {
-                _DataSource = value;
-            }
+            get { return (string)GetValue(VBSourceProperty); }
+            set { SetValue(VBSourceProperty, value); }
         }
 
         /// <summary>
@@ -867,6 +868,24 @@ namespace gip.core.layoutengine
                 _DataChilds = value;
             }
         }
+
+        /// <summary>
+        /// Represents the dependency property for VBAccess.
+        /// </summary>
+        public static readonly DependencyProperty VBAccessProperty
+            = DependencyProperty.Register("VBAccess", typeof(string), typeof(VBListBox));
+
+        /// <summary>
+        /// Represents the property in which you enter the name of BSO's list property marked with [ACPropertyList(...)] attribute. In usage with ACPropertySelected with same ACGroup,
+        /// this property is not necessary to be setted. Only if you want to use different list instead, you must set this property to name of that list which must be marked with ACPropertyList attribute.
+        /// </summary>
+        [Category("VBControl")]
+        public string VBAccess
+        {
+            get { return (string)GetValue(VBAccessProperty); }
+            set { SetValue(VBAccessProperty, value); }
+        }
+
 
         ACQueryDefinition _ACQueryDefinition = null;
         /// <summary>

@@ -29,6 +29,7 @@ namespace gip.core.datamodel
     public class ACAccess<T> : ACGenericObject, IAccessT<T> where T : class
     {
         public delegate IQueryable<T> NavSearchEventHandler(IQueryable<T> result);
+        public delegate void NavSearchExecutedEventHandler(object sender, IList<T> result);
 
         #region c'tors
         public ACAccess(ACClass acType, IACObject content, IACObjectWithInit parentACObject, ACValueList parameter, string acIdentifier = "") :
@@ -205,6 +206,8 @@ namespace gip.core.datamodel
             }
             else
                 _NavList = new ObservableCollection<T>();
+            if (NavSearchExecuted != null)
+                NavSearchExecuted(this, _NavList);
             OnPropertyChanged("NavList");
             OnPropertyChanged("NavObjectList");
             OnPropertyChanged("QueryItemsCount");
@@ -336,6 +339,8 @@ namespace gip.core.datamodel
                 _NavList = new ObservableCollection<T>(result);
             else
                 _NavList = new ObservableCollection<T>();
+            if (NavSearchExecuted != null)
+                NavSearchExecuted(this, _NavList);
             OnPropertyChanged("NavList");
             OnPropertyChanged("NavObjectList");
             OnPostNavSearch();
@@ -382,6 +387,8 @@ namespace gip.core.datamodel
         /// You can extend the passed IQueryable{T} of NavSearchEventHandler and return it again
         /// </summary>
         public event NavSearchEventHandler NavSearchExecuting;
+
+        public event NavSearchExecutedEventHandler NavSearchExecuted;
 
         /// <summary>
         /// Property-Changed event

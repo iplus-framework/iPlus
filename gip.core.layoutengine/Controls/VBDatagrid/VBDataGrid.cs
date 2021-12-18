@@ -429,6 +429,8 @@ namespace gip.core.layoutengine
                 return;
             }
 
+            if (!String.IsNullOrEmpty(VBAccess))
+                acAccess = VBAccess;
             // Falls kein Access (IAccess) im BSO definiert ist, dann die globale ACQueryDefinition verwenden
             if (string.IsNullOrEmpty(acAccess))
             {
@@ -1214,6 +1216,24 @@ namespace gip.core.layoutengine
                 _Caption = "";
             }
         }
+
+        /// <summary>
+        /// Represents the dependency property for VBAccess.
+        /// </summary>
+        public static readonly DependencyProperty VBAccessProperty
+            = DependencyProperty.Register("VBAccess", typeof(string), typeof(VBDataGrid));
+
+        /// <summary>
+        /// Represents the property in which you enter the name of BSO's list property marked with [ACPropertyList(...)] attribute. In usage with ACPropertySelected with same ACGroup,
+        /// this property is not necessary to be setted. Only if you want to use different list instead, you must set this property to name of that list which must be marked with ACPropertyList attribute.
+        /// </summary>
+        [Category("VBControl")]
+        public string VBAccess
+        {
+            get { return (string)GetValue(VBAccessProperty); }
+            set { SetValue(VBAccessProperty, value); }
+        }
+
         #endregion
 
         #region IVBSource Members
