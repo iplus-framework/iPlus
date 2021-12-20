@@ -1533,14 +1533,14 @@ namespace gip.core.layoutengine
         /// <returns></returns>
         private VBTreeViewItem FindVBTreeViewItemByContent(ItemCollection itemColletion, IACObject acObject)
         {
-            if (acObject is ACClassInfoWithItems)
+            if (acObject is IACContainerWithItems)
             {
                 foreach (var item in itemColletion)
                 {
                     VBTreeViewItem vbTreeViewItem = item as VBTreeViewItem;
-                    if (vbTreeViewItem.ContentACObject is ACClassInfoWithItems)
+                    if (vbTreeViewItem.ContentACObject is IACContainerWithItems)
                     {
-                        if ((acObject as ACClassInfoWithItems).ValueT == (vbTreeViewItem.ContentACObject as ACClassInfoWithItems).ValueT)
+                        if ((acObject as IACContainerWithItems).Value == (vbTreeViewItem.ContentACObject as IACContainerWithItems).Value)
                         {
                             return vbTreeViewItem;
                         }
