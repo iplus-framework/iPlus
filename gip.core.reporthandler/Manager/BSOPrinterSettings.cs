@@ -8,8 +8,8 @@ using System.Linq;
 
 namespace gip.core.reporthandler
 {
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Printing settings'}de{'Druckeinstellungen'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true)]
-    public class BSOPrint : ACBSO
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Printer settings'}de{'Drucker-Einstellungen'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true)]
+    public class BSOPrinterSettings : ACBSO
     {
         #region const
         public const string ClassName = @"BSOPrint";
@@ -26,7 +26,7 @@ namespace gip.core.reporthandler
         /// <param name="parentACObject">The parentACObject parameter.</param>
         /// <param name="parameter">The parameters in the ACValueList.</param>
         /// <param name="acIdentifier">The acIdentifier parameter.</param>
-        public BSOPrint(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "") :
+        public BSOPrinterSettings(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "") :
             base(acType, content, parentACObject, parameter, acIdentifier)
         {
             // 
@@ -439,7 +439,7 @@ namespace gip.core.reporthandler
 
         #region Methods
 
-        [ACMethodInfo(BSOPrint.ClassName, "en{'Remove printer'}de{'Drucker entfernen'}", 9999)]
+        [ACMethodInfo(BSOPrinterSettings.ClassName, "en{'Remove printer'}de{'Drucker entfernen'}", 9999)]
 
         public void RemovePrinter()
         {
@@ -466,7 +466,7 @@ namespace gip.core.reporthandler
         }
 
 
-        [ACMethodInfo(BSOPrint.ClassName, "en{'Add printer'}de{'Drucker hinzufügen'}", 9999)]
+        [ACMethodInfo(BSOPrinterSettings.ClassName, "en{'Add printer'}de{'Drucker hinzufügen'}", 9999)]
         public virtual void AddPrinter()
         {
             if (!IsEnabledAddPrinter())

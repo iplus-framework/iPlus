@@ -422,6 +422,11 @@
   <ItemGroup>
     <Folder Include="VBControlScripts\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="DbScripts\iPlus\dbsync_2021-12-21_09-56_ihrastinski.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="..\gip.core.datamodel.shared\gip.core.datamodel.shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

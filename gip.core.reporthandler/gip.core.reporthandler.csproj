@@ -307,7 +307,7 @@
     </Compile>
     <Compile Include="Manager\ACPrintManager.cs" />
     <Compile Include="Manager\ACPrintServerBase.cs" />
-    <Compile Include="Manager\BSOPrint.cs" />
+    <Compile Include="Manager\BSOPrinterSettings.cs" />
     <Compile Include="Print\PrinterInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -333,9 +333,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="VBControlScripts\2021-10-15 12-56_aaginic.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="VBControlScripts\2021-12-15 08-35_ihrastinski.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
