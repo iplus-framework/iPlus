@@ -72,7 +72,7 @@ namespace gip.core.datamodel
             Source = source.GetACUrl();
             SourceComponent = new ACRef<IACComponent>(source, true);
             MessageLevel = msgLevel;
-            ACIdentifier = String.Format("{0}({1})", methodName, 100);
+            ACIdentifier = String.Format("{0}({1})", methodName, sourceRowID);
             Column = Msg.CreateHashCodeForMethod(className, methodName);
             Row = sourceRowID;
             TranslID = translID;
@@ -84,7 +84,7 @@ namespace gip.core.datamodel
             Source = source.GetACUrl();
             SourceComponent = new ACRef<IACComponent>(source, true);
             MessageLevel = msgLevel;
-            ACIdentifier = String.Format("{0}({1})", methodName, 100);
+            ACIdentifier = String.Format("{0}({1})", methodName, sourceRowID);
             Column = Msg.CreateHashCodeForMethod(className, methodName);
             Row = sourceRowID;
             TranslID = translID;
@@ -95,7 +95,7 @@ namespace gip.core.datamodel
         {
             Source = source.GetACUrl();
             MessageLevel = msgLevel;
-            ACIdentifier = String.Format("{0}({1})", methodName, 100);
+            ACIdentifier = String.Format("{0}({1})", methodName, sourceRowID);
             Column = Msg.CreateHashCodeForMethod(className, methodName);
             Row = sourceRowID;
             Message = message;
@@ -106,7 +106,7 @@ namespace gip.core.datamodel
             Source = source.GetACUrl();
             SourceComponent = new ACRef<IACComponent>(source, true);
             MessageLevel = msgLevel;
-            ACIdentifier = String.Format("{0}({1})", methodName, 100);
+            ACIdentifier = String.Format("{0}({1})", methodName, sourceRowID);
             Column = Msg.CreateHashCodeForMethod(className, methodName);
             Row = sourceRowID;
             TranslID = translID;
@@ -120,7 +120,7 @@ namespace gip.core.datamodel
             Source = source.GetACUrl();
             SourceComponent = new ACRef<IACComponent>(source, true);
             MessageLevel = msgLevel;
-            ACIdentifier = String.Format("{0}({1})", methodName, 100);
+            ACIdentifier = String.Format("{0}({1})", methodName, sourceRowID);
             Column = Msg.CreateHashCodeForMethod(className, methodName);
             Row = sourceRowID;
             TranslID = translID;
@@ -132,7 +132,7 @@ namespace gip.core.datamodel
         {
             Source = source.GetACUrl();
             MessageLevel = msgLevel;
-            ACIdentifier = String.Format("{0}({1})", methodName, 100);
+            ACIdentifier = String.Format("{0}({1})", methodName, sourceRowID);
             Column = Msg.CreateHashCodeForMethod(className, methodName);
             Row = sourceRowID;
             Message = message;

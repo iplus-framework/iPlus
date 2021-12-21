@@ -180,7 +180,7 @@ namespace gip.core.communication
         /// <returns>True if is enabled to invoke, otherwise false.</returns>
         public virtual bool IsEnabledExecuteBuildAndSend(ACMethod acMethod)
         {
-            if (ExportOff)
+            if (ExportOff && !ArchivingOn)
                 return false;
 
             Msg msg = null;
@@ -230,15 +230,20 @@ namespace gip.core.communication
                 {
                     bool sended = false;
 
-                    if (PAExportERP.IsWSSupportsMultiInvokesInSameTime)
-                        sended = SendToWebService(objectToSend);
-                    else
+                    if (!ExportOff)
                     {
-                        using (ACMonitor.Lock(PAExportERP.SendLockObject))
-                        {
+                        if (PAExportERP.IsWSSupportsMultiInvokesInSameTime)
                             sended = SendToWebService(objectToSend);
+                        else
+                        {
+                            using (ACMonitor.Lock(PAExportERP.SendLockObject))
+                            {
+                                sended = SendToWebService(objectToSend);
+                            }
                         }
                     }
+                    else
+                        sended = true;
 
                     if (sended)
                     {
@@ -263,7 +268,7 @@ namespace gip.core.communication
                     else
                         addToSendCache = true;
                 }
-                else
+                else if (!ExportOff)
                     addToSendCache = true;
 
                 if (addToSendCache)

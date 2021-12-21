@@ -724,6 +724,7 @@ namespace gip.core.autocomponent
         /// </summary>
         /// <param name="printerName"></param>
         /// <param name="designName"></param>
+        /// <param name="paOrderInfo"></param>
         /// <returns></returns>
         public ACClassDesign GetDesignForPrinting(string printerName, string designName = null, PAOrderInfo paOrderInfo = null)
         {
@@ -736,18 +737,22 @@ namespace gip.core.autocomponent
                 if (result != null)
                     printDesign = result.FirstOrDefault();
             }
-            return null;
+            return printDesign;
         }
 
         /// <summary>
         /// Method for option implementation in Subclass to determine which design is to be printed depending on the passed printer and order info
         /// </summary>
         /// <param name="printerName"></param>
+        /// <param name="paOrderInfo"></param>
         /// <returns></returns>
         protected virtual IEnumerable<ACClassDesign> OnGetDefaultPrintDesigns(string printerName, PAOrderInfo paOrderInfo = null)
         {
             // TODO: Read Config to determine which design sholud be used for the passed printer
-            return null;
+            return this.ComponentClass
+                        .GetDesigns()
+                        .Where(c => c.ACKind == Global.ACKinds.DSDesignReport)
+                        .OrderByDescending(c => c.SortIndex);
         }
 
         #endregion

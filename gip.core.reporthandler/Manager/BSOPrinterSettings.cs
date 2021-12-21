@@ -68,8 +68,8 @@ namespace gip.core.reporthandler
 
         #region Managers
 
-        protected ACRef<ACComponent> _PrintManager = null;
-        protected ACComponent PrintManager
+        protected ACRef<ACPrintManager> _PrintManager = null;
+        protected ACPrintManager PrintManager
         {
             get
             {

@@ -7,7 +7,6 @@ using System.Linq;
 
 namespace gip.core.reporthandler
 {
-
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPrintManager'}de{'ACPrintManager'}", Global.ACKinds.TPARole, Global.ACStorableTypes.NotStorable, false, false)]
     public class ACPrintManager : PARole
     {
@@ -24,6 +23,7 @@ namespace gip.core.reporthandler
 
         }
         public const string C_DefaultServiceACIdentifier = "ACPrintManager";
+        public const string C_ClassName = "ACPrintManager";
 
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -34,24 +34,21 @@ namespace gip.core.reporthandler
         #endregion
 
         #region Attach / Deattach
-        public static ACComponent GetServiceInstance(ACComponent requester)
+        public static ACPrintManager GetServiceInstance(ACComponent requester)
         {
-            return GetServiceInstance<ACComponent>(requester, C_DefaultServiceACIdentifier, CreationBehaviour.Default);
+            return GetServiceInstance<ACPrintManager>(requester, C_DefaultServiceACIdentifier, CreationBehaviour.OnlyLocal);
         }
 
-        public static ACRef<ACComponent> ACRefToServiceInstance(ACComponent requester)
+        public static ACRef<ACPrintManager> ACRefToServiceInstance(ACComponent requester)
         {
-            ACComponent serviceInstance = GetServiceInstance(requester) as ACComponent;
+            ACPrintManager serviceInstance = GetServiceInstance(requester);
             if (serviceInstance != null)
-                return new ACRef<ACComponent>(serviceInstance, requester);
+                return new ACRef<ACPrintManager>(serviceInstance, requester);
             return null;
         }
         #endregion
 
         #region Properties
-
-        [ACPropertyBindingSource(305, "Error", "en{'Print Manager Alarm'}de{'Druckmanager-Alarm'}", "", false, false)]
-        public IACContainerTNet<PANotifyState> PrintManagerAlarm { get; set; }
 
 
         #region Properties -> ConfiguredPrinters
@@ -108,20 +105,21 @@ namespace gip.core.reporthandler
                 PAPrintInfo printInfo = GetPrintingInfo(pAOrderInfo);
                 if (printInfo == null)
                 {
-                    msg = new Msg() { MessageLevel = eMsgLevel.Error, Message = "Print(124) fail! No mandatory printer found!" };
-                    Messages.LogMessageMsg(msg);
+                    // Error50488: Can't print because no printer was configured for printing. Open the businessobject for printer settings and assign a printer!
+                    msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1010, "Error50488");
                     return msg;
                 }
 
                 // first fetch a BSO
                 ACBSO bso = null;
                 // TODO: @aagincic place for implement BSO Pool
+
                 bso = this.Root.ACUrlCommand(printInfo.BSOACUrl) as ACBSO;
                 //bso = StartComponent(bsoACClass, bsoACClass, new ACValueList()) as ACBSO;
                 if (bso == null)
                 {
-                    msg = new Msg() { MessageLevel = eMsgLevel.Error, Message = "Print(139) fail! No mandatory BSO found!" };
-                    Messages.LogMessageMsg(msg);
+                    // Error50489: Can't start Businessobject {0}.
+                    msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1020, "Error50489", printInfo.BSOACUrl);
                     return msg;
                 }
 
@@ -131,20 +129,17 @@ namespace gip.core.reporthandler
                     {
                         msg = bso.PrintByOrderInfo(pAOrderInfo, printInfo.PrinterInfo.PrinterName, (short)copyCount, printInfo.ReportACIdentifier);
                         if (msg != null)
-                        {
-                            Messages.LogMessageMsg(msg);
                             return msg;
-                        }
                         else
-                            return new Msg() { MessageLevel = eMsgLevel.Info, Message = "Successfuly printed on: " + printInfo.PrinterInfo.PrinterName };
+                        {
+                            // Info50078 Successfully printed on {0}.
+                            return new Msg(this, eMsgLevel.Info, C_ClassName, "Print", 1020, "Info50078", printInfo.PrinterInfo.PrinterName);
+                        }
                     }
                     catch (Exception e)
                     {
-                        msg = new Msg() { MessageLevel = eMsgLevel.Error, Message = "Print(162) Error by printing: " + e.Message };
-                        PrintManagerAlarm.ValueT = PANotifyState.AlarmOrFault;
-                        if (IsAlarmActive(PrintManagerAlarm, e.Message) == null)
-                            Messages.LogException(this.GetACUrl(), "Print(166)", e);
-                        OnNewAlarmOccurred(PrintManagerAlarm, msg, true);
+                        msg = new Msg(e.Message, this, eMsgLevel.Exception, C_ClassName, "Print", 1040);
+                        Messages.LogException(this.GetACUrl(), msg.ACIdentifier, e);
                     }
                     finally
                     {
@@ -155,11 +150,8 @@ namespace gip.core.reporthandler
                         }
                         catch (Exception e)
                         {
-                            msg = new Msg() { MessageLevel = eMsgLevel.Error, Message = "Print(177) Error by stopping BSO: " + e.Message };
-                            PrintManagerAlarm.ValueT = PANotifyState.AlarmOrFault;
-                            if (IsAlarmActive(PrintManagerAlarm, e.Message) == null)
-                                Messages.LogException(this.GetACUrl(), "Print(181)", e);
-                            OnNewAlarmOccurred(PrintManagerAlarm, msg, true);
+                            msg = new Msg(e.Message, this, eMsgLevel.Exception, C_ClassName, "Print", 1050);
+                            Messages.LogException(this.GetACUrl(), msg.ACIdentifier, e);
                         }
                     }
                 }
@@ -168,14 +160,14 @@ namespace gip.core.reporthandler
                     IACComponent printServer = Root.ACUrlCommand(printInfo.PrinterInfo.PrinterACUrl) as IACComponent;
                     if (printServer == null)
                     {
-                        msg = new Msg() { MessageLevel = eMsgLevel.Error, Message = String.Format("Print(190) Printserver {0} is not configured or you don't have access-rights!", GetACUrl()) };
-                        Messages.LogMessageMsg(msg);
+                        // Error50490, Printserver {0} is not configured.
+                        msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1060, "Error50490", printInfo.PrinterInfo.PrinterACUrl);
                         return msg;
                     }
                     if (printServer.ConnectionState == ACObjectConnectionState.DisConnected)
                     {
-                        msg = new Msg() { MessageLevel = eMsgLevel.Error, Message = String.Format("Print(190) Printserver {0} is disconnected!", GetACUrl()) };
-                        Messages.LogMessageMsg(msg);
+                        // Error50491, Printserver {0} is disconnected.
+                        msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1061, "Error50491", printInfo.PrinterInfo.PrinterACUrl);
                         return msg;
                     }
 
@@ -184,8 +176,8 @@ namespace gip.core.reporthandler
             }
             catch (Exception ex)
             {
-                msg = new Msg() { MessageLevel = eMsgLevel.Error, Message = "Print(120) fail! Error: " + ex.Message };
-                Root.Messages.LogException(ACPrintManager.C_DefaultServiceACIdentifier, "Print(125)", ex);
+                msg = new Msg(ex.Message, this, eMsgLevel.Exception, C_ClassName, "Print", 1100);
+                Messages.LogException(this.GetACUrl(), msg.ACIdentifier, ex);
             }
             return msg;
         }
@@ -234,6 +226,8 @@ namespace gip.core.reporthandler
         public virtual PAPrintInfo GetPrintingInfo(PAOrderInfo pAOrderInfo)
         {
             PrinterInfo printerInfo = OnGetPrinterInfo(pAOrderInfo);
+            if (printerInfo == null)
+                return null;
             ACClass bsoClass = OnResolveBSOForOrderInfo(pAOrderInfo);
             if (bsoClass == null)
             {
@@ -258,6 +252,8 @@ namespace gip.core.reporthandler
                 if (aCClassID != null)
                     aCClass = database.ACClass.FirstOrDefault();
             }
+            if (configuredPrinters == null || !configuredPrinters.Any())
+                return null;
 
             return GetPrinterInfoFromMachine(aCClass, configuredPrinters);
         }
@@ -277,7 +273,12 @@ namespace gip.core.reporthandler
 
         protected PrinterInfo GetPrinterInfoFromMachine(gip.core.datamodel.ACClass acClass, List<PrinterInfo> configuredPrinters)
         {
-            return configuredPrinters.FirstOrDefault(c => c.MachineACUrl == acClass.ACURLCached);
+            if (configuredPrinters == null || !configuredPrinters.Any())
+                return null;
+            if (acClass != null)
+                return configuredPrinters.FirstOrDefault(c => c.MachineACUrl == acClass.ACURLCached);
+            else
+                return configuredPrinters.FirstOrDefault();
         }
 
 

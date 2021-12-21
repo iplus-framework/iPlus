@@ -107,7 +107,7 @@ namespace gip.core.reporthandler
 
             Msg msg = null;
 
-            ACComponent printManager = ACPrintManager.GetServiceInstance(this) as ACComponent;
+            ACPrintManager printManager = ACPrintManager.GetServiceInstance(this);
             if (printManager == null)
                 OnNewAlarmOccurred(ProcessAlarm, "PrintManager is not configured!", true);
             else

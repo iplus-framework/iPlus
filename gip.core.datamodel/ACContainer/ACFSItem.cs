@@ -277,9 +277,10 @@ namespace gip.core.datamodel
         /// <returns>true if removed</returns>
         public bool Remove(IACContainerWithItems child)
         {
-            return _ACObjectItemList.Remove(child);
+            bool result = _ACObjectItemList.Remove(child);
             OnPropertyChanged("ACObjectItemList");
             OnPropertyChanged("Items");
+            return result;
         }
 
         #endregion
