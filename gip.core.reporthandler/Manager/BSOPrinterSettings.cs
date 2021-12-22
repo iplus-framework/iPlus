@@ -45,7 +45,7 @@ namespace gip.core.reporthandler
             if (_PrintManager == null)
                 throw new Exception("ACPrintManager not configured");
 
-            LoadMachinesAndPrinters(Database as gip.core.datamodel.Database);
+            LoadMachinesAndPrinters(Db);
 
             return baseInit;
         }
@@ -61,6 +61,13 @@ namespace gip.core.reporthandler
             if (_PrintManager != null)
                 ACPrintManager.DetachACRefFromServiceInstance(this, _PrintManager);
             _PrintManager = null;
+
+            if (done && _BSODatabase != null)
+            {
+                ACObjectContextManager.DisposeAndRemove(_BSODatabase);
+                _BSODatabase = null;
+            }
+
             return done;
         }
 
@@ -83,6 +90,32 @@ namespace gip.core.reporthandler
 
         #region Properties
 
+        #region Database
+
+        private Database _BSODatabase = null;
+        /// <summary>
+        /// Overriden: Returns a separate database context.
+        /// </summary>
+        /// <value>The context as IACEntityObjectContext.</value>
+        public override IACEntityObjectContext Database
+        {
+            get
+            {
+                if (_BSODatabase == null)
+                    _BSODatabase = ACObjectContextManager.GetOrCreateContext<Database>(this.GetACUrl());
+                return _BSODatabase;
+            }
+        }
+
+        public Database Db
+        {
+            get
+            {
+                return Database as Database;
+            }
+        }
+
+        #endregion
 
         #region Properties -> Messages
 
@@ -428,7 +461,7 @@ namespace gip.core.reporthandler
         {
             get
             {
-                return (Database as gip.core.datamodel.Database).VBUser/*.Where(c => !c.IsSuperuser)*/.ToArray();
+                return Db.VBUser/*.Where(c => !c.IsSuperuser)*/.ToArray();
             }
         }
 
@@ -446,11 +479,11 @@ namespace gip.core.reporthandler
             if (!IsEnabledRemovePrinter())
                 return;
 
-            ACClassConfig aCClassConfig = (Database as gip.core.datamodel.Database).ACClassConfig.FirstOrDefault(c => c.ACClassConfigID == SelectedConfiguredPrinter.ACClassConfigID);
-            MsgWithDetails msg = aCClassConfig.DeleteACObject(Database, false);
+            ACClassConfig aCClassConfig = Db.ACClassConfig.FirstOrDefault(c => c.ACClassConfigID == SelectedConfiguredPrinter.ACClassConfigID);
+            MsgWithDetails msg = aCClassConfig.DeleteACObject(Db, false);
             if (msg == null)
             {
-                msg = Database.ACSaveChanges();
+                msg = Db.ACSaveChanges();
                 if (msg == null)
                 {
                     ConfiguredPrinterList.Remove(SelectedConfiguredPrinter);
@@ -471,10 +504,10 @@ namespace gip.core.reporthandler
         {
             if (!IsEnabledAddPrinter())
                 return;
-            ACClass aCClass = (Database as gip.core.datamodel.Database).ACClass.FirstOrDefault(c => c.ACClassID == PrintManager.ComponentClass.ACClassID);
-            ACClass propertyInfoType = (Database as gip.core.datamodel.Database).ACClass.FirstOrDefault(c => c.ACIdentifier == "PrinterInfo");
+            ACClass aCClass = Db.ACClass.FirstOrDefault(c => c.ACClassID == PrintManager.ComponentClass.ACClassID);
+            ACClass propertyInfoType = Db.ACClass.FirstOrDefault(c => c.ACIdentifier == "PrinterInfo");
 
-            ACClassConfig aCClassConfig = ACClassConfig.NewACObject(Database as gip.core.datamodel.Database, aCClass);
+            ACClassConfig aCClassConfig = ACClassConfig.NewACObject(Db, aCClass);
             aCClassConfig.ValueTypeACClassID = propertyInfoType.ACClassID;
 
             PrinterInfo newConfiguredPrinter = new PrinterInfo();
@@ -490,13 +523,14 @@ namespace gip.core.reporthandler
             if (SelectedVBUser != null)
             {
                 newConfiguredPrinter.VBUserID = SelectedVBUser.VBUserID;
+                newConfiguredPrinter.Attach(Db);
             }
 
             aCClassConfig.KeyACUrl = ACPrintManager.Const_KeyACUrl_ConfiguredPrintersConfig;
             aCClassConfig.Value = newConfiguredPrinter;
             var test = aCClassConfig.ACProperties.Properties.FirstOrDefault().Value;
-            (Database as gip.core.datamodel.Database).ACClassConfig.AddObject(aCClassConfig);
-            MsgWithDetails msg = (Database as gip.core.datamodel.Database).ACSaveChanges();
+            Db.ACClassConfig.AddObject(aCClassConfig);
+            MsgWithDetails msg = Db.ACSaveChanges();
             if (msg == null)
             {
                 ConfiguredPrinterList.Add(newConfiguredPrinter);
@@ -527,11 +561,23 @@ namespace gip.core.reporthandler
 
         public virtual void LoadConfiguredPrinters()
         {
-            ConfiguredPrinterList = ACPrintManager.GetConfiguredPrinters(Database as gip.core.datamodel.Database, PrintManager.ComponentClass.ACClassID, true);
+            ConfiguredPrinterList = ACPrintManager.GetConfiguredPrinters(Db, PrintManager.ComponentClass.ACClassID, true);
             foreach (PrinterInfo pInfo in ConfiguredPrinterList)
             {
-                pInfo.Attach((Database as Database));
+                pInfo.Attach(Db);
             }
+        }
+
+        [ACMethodInteraction("", "en{'Deselect user'}de{'Benutzer abwählen '}", 9999, true, "SelectedVBUser")]
+        public void DeselectVBUser()
+        {
+            if (SelectedVBUser != null)
+                SelectedVBUser = null;
+        }
+
+        public bool IsEnabledDeselectVBUser()
+        {
+            return SelectedVBUser != null;
         }
 
         #endregion
@@ -542,8 +588,8 @@ namespace gip.core.reporthandler
             _PrintServerList = ACPrintManager.GetPrintServers(database);
             List<ACItem> machines = new List<ACItem>();
 
-            ACClass acClassPAClassPhysicalBase = Database.ContextIPlus.GetACType(typeof(PAClassPhysicalBase));
-            IQueryable<ACClass> queryClasses = ACClassManager.s_cQry_GetAvailableModulesAsACClass(Database.ContextIPlus, acClassPAClassPhysicalBase.ACIdentifier);
+            ACClass acClassPAClassPhysicalBase = database.GetACType(typeof(PAClassPhysicalBase));
+            IQueryable<ACClass> queryClasses = ACClassManager.s_cQry_GetAvailableModulesAsACClass(database, acClassPAClassPhysicalBase.ACIdentifier);
             if (queryClasses != null && queryClasses.Any())
             {
                 ACClass[] aCClasses = queryClasses.ToArray();
