@@ -3,6 +3,7 @@ using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Data.Objects;
+using System.Drawing.Printing;
 using System.Linq;
 
 namespace gip.core.reporthandler
@@ -220,6 +221,21 @@ namespace gip.core.reporthandler
             }
             return printerInfos;
         }
+
+        public static List<PrinterInfo> GetWindowsPrinters()
+        {
+            System.Drawing.Printing.PrinterSettings.StringCollection windowsPrinters = PrinterSettings.InstalledPrinters;
+            List<string> windowsPrintersList = new List<string>();
+            foreach (string printer in windowsPrinters)
+            {
+                windowsPrintersList.Add(printer);
+            }
+            return
+                windowsPrintersList
+                .Select(c => new PrinterInfo() { PrinterName = c, Name = c })
+                .ToList();
+        }
+
 
         #region Determine Printer
 

@@ -349,17 +349,7 @@ namespace gip.core.reporthandler
 
         private List<PrinterInfo> LoadWindowsPrinterList()
         {
-            string[] configuredPrinters = ConfiguredPrinterList.Select(c => c.PrinterName).ToArray();
-            System.Drawing.Printing.PrinterSettings.StringCollection windowsPrinters = PrinterSettings.InstalledPrinters;
-            List<string> windowsPrintersList = new List<string>();
-            foreach (string printer in windowsPrinters)
-            {
-                windowsPrintersList.Add(printer);
-            }
-            return
-                windowsPrintersList
-                .Select(c => new PrinterInfo() { PrinterName = c, Name = c })
-                .ToList();
+            return ACPrintManager.GetWindowsPrinters();
         }
 
         #endregion
@@ -568,7 +558,7 @@ namespace gip.core.reporthandler
             }
         }
 
-        [ACMethodInteraction("", "en{'Deselect user'}de{'Benutzer abwählen '}", 9999, true, "SelectedVBUser")]
+        [ACMethodInteraction("", "en{'Deselect user'}de{'Benutzer abwählen'}", 9999, true, "SelectedVBUser")]
         public void DeselectVBUser()
         {
             if (SelectedVBUser != null)
