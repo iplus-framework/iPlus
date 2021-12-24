@@ -236,6 +236,49 @@ namespace gip.core.reporthandler
                 .ToList();
         }
 
+        public Msg AssignPrinter(Database db, PrinterInfo printerToAssign)
+        {
+            if (db == null || printerToAssign == null)
+                return new Msg(eMsgLevel.Error, "db and/or printerToAssign are/is null.");
+
+            ACClass printManagerClass = ComponentClass.FromIPlusContext<ACClass>(db);
+            ACClass propertyInfoType = db.ACClass.FirstOrDefault(c => c.ACIdentifier == "PrinterInfo");
+            if (propertyInfoType == null)
+            {
+                return new Msg(eMsgLevel.Error, "PrinterInfo property type is null.");
+            }
+
+            ACClassConfig aCClassConfig = ACClassConfig.NewACObject(db, printManagerClass);
+            aCClassConfig.ValueTypeACClassID = propertyInfoType.ACClassID;
+
+            printerToAssign.ACClassConfigID = aCClassConfig.ACClassConfigID;
+
+            aCClassConfig.KeyACUrl = ACPrintManager.Const_KeyACUrl_ConfiguredPrintersConfig;
+            aCClassConfig.Value = printerToAssign;
+            db.ACClassConfig.AddObject(aCClassConfig);
+            return db.ACSaveChanges();
+        }
+
+        public Msg UnAssignPrinter(Database db, PrinterInfo printerToUnAssign)
+        {
+            if (db == null || printerToUnAssign == null)
+            {
+                return new Msg(eMsgLevel.Error, "db and/or printerToUnAssign are/is null!");
+            }
+
+            ACClassConfig aCClassConfig = db.ACClassConfig.FirstOrDefault(c => c.ACClassConfigID == printerToUnAssign.ACClassConfigID);
+            if (aCClassConfig == null)
+            {
+                return new Msg(eMsgLevel.Error, "acClassConfig is null!");
+            }
+
+            Msg msg = aCClassConfig.DeleteACObject(db, false);
+            if (msg == null)
+            {
+                msg = db.ACSaveChanges();
+            }
+            return msg;
+        }
 
         #region Determine Printer
 

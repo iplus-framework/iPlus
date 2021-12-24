@@ -469,18 +469,14 @@ namespace gip.core.reporthandler
             if (!IsEnabledRemovePrinter())
                 return;
 
-            ACClassConfig aCClassConfig = Db.ACClassConfig.FirstOrDefault(c => c.ACClassConfigID == SelectedConfiguredPrinter.ACClassConfigID);
-            MsgWithDetails msg = aCClassConfig.DeleteACObject(Db, false);
+            Msg msg = PrintManager.UnAssignPrinter(Db, SelectedConfiguredPrinter);
             if (msg == null)
             {
-                msg = Db.ACSaveChanges();
-                if (msg == null)
-                {
-                    ConfiguredPrinterList.Remove(SelectedConfiguredPrinter);
-                    SelectedConfiguredPrinter = ConfiguredPrinterList.FirstOrDefault();
-                    OnPropertyChanged("ConfiguredPrinterList");
-                }
+                ConfiguredPrinterList.Remove(SelectedConfiguredPrinter);
+                SelectedConfiguredPrinter = ConfiguredPrinterList.FirstOrDefault();
+                OnPropertyChanged("ConfiguredPrinterList");
             }
+            
         }
 
         public bool IsEnabledRemovePrinter()
@@ -492,17 +488,10 @@ namespace gip.core.reporthandler
         [ACMethodInfo(BSOPrinterSettings.ClassName, "en{'Add printer'}de{'Drucker hinzufügen'}", 9999)]
         public virtual void AddPrinter()
         {
-            if (!IsEnabledAddPrinter())
+            if (!IsEnabledAddPrinter() || PrintManager == null)
                 return;
-            ACClass aCClass = Db.ACClass.FirstOrDefault(c => c.ACClassID == PrintManager.ComponentClass.ACClassID);
-            ACClass propertyInfoType = Db.ACClass.FirstOrDefault(c => c.ACIdentifier == "PrinterInfo");
-
-            ACClassConfig aCClassConfig = ACClassConfig.NewACObject(Db, aCClass);
-            aCClassConfig.ValueTypeACClassID = propertyInfoType.ACClassID;
 
             PrinterInfo newConfiguredPrinter = new PrinterInfo();
-            newConfiguredPrinter.ACClassConfigID = aCClassConfig.ACClassConfigID;
-
             SetPrinterTarget(newConfiguredPrinter);
 
             if (SelectedWindowsPrinter != null)
@@ -516,11 +505,7 @@ namespace gip.core.reporthandler
                 newConfiguredPrinter.Attach(Db);
             }
 
-            aCClassConfig.KeyACUrl = ACPrintManager.Const_KeyACUrl_ConfiguredPrintersConfig;
-            aCClassConfig.Value = newConfiguredPrinter;
-            var test = aCClassConfig.ACProperties.Properties.FirstOrDefault().Value;
-            Db.ACClassConfig.AddObject(aCClassConfig);
-            MsgWithDetails msg = Db.ACSaveChanges();
+            Msg msg = PrintManager.AssignPrinter(Db, newConfiguredPrinter);
             if (msg == null)
             {
                 ConfiguredPrinterList.Add(newConfiguredPrinter);
@@ -572,7 +557,6 @@ namespace gip.core.reporthandler
 
         #endregion
 
-
         private void LoadMachinesAndPrinters(Database database)
         {
             _PrintServerList = ACPrintManager.GetPrintServers(database);
@@ -595,5 +579,11 @@ namespace gip.core.reporthandler
             OnPropertyChanged("MachineList");
         }
 
+        public override object Clone()
+        {
+            BSOPrinterSettings clone = base.Clone() as BSOPrinterSettings;
+            clone.SelectedWindowsPrinter = this.SelectedWindowsPrinter;
+            return clone;
+        }
     }
 }
