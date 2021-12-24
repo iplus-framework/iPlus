@@ -16,38 +16,37 @@
             <local:VBXMLEditor x:Name="ucAvalonTextEditor" CodeCompletionSchema="VBDesignEditor.xsd"/>
         </local:VBTabItem>
         <local:VBTabItem Header="Info" x:Name="InfoTab">
-            <StackPanel>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="5*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Design name" Grid.Column="0" Grid.Row="0"/>
-                    <TextBlock Text="Caption" Grid.Column="0" Grid.Row="1"/>
-                    <TextBlock Text="Caption Translation" Grid.Column="0" Grid.Row="2"/>
-                    <TextBlock Text="Class" Grid.Column="0" Grid.Row="3"/>
-                    <TextBlock Text="ACUrl info" Grid.Column="0" Grid.Row="4"/>
-                    <TextBlock Text="Insert date" Grid.Column="0" Grid.Row="5"/>
-                    <TextBlock Text="Update date" Grid.Column="0" Grid.Row="6"/>
+            <local:VBGrid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="5*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <local:VBTextBlock Text="Design name" Grid.Column="0" Grid.Row="0"/>
+                <local:VBTextBlock Text="Caption" Grid.Column="0" Grid.Row="1"/>
+                <local:VBTextBlock Text="Caption Translation" Grid.Column="0" Grid.Row="2"/>
+                <local:VBTextBlock Text="Class" Grid.Column="0" Grid.Row="3"/>
+                <local:VBTextBlock Text="ACUrl info" Grid.Column="0" Grid.Row="4"/>
+                <local:VBTextBlock Text="Insert date" Grid.Column="0" Grid.Row="5"/>
+                <local:VBTextBlock Text="Update date" Grid.Column="0" Grid.Row="6"/>
 
-                    <TextBox x:Name="tbInfoDesignFullName" Grid.Column="1" Grid.Row="0" IsReadOnly="True"/>
-                    <TextBox x:Name="tblCaption" Grid.Column="1" Grid.Row="1" IsReadOnly="True"/>
-                    <TextBox x:Name="tblCaptionTranslation" Grid.Column="1" Grid.Row="2" IsReadOnly="True"/>
-                    <TextBox x:Name="tbInfoClassName" Grid.Column="1" Grid.Row="3" IsReadOnly="True"/>
-                    <TextBox x:Name="tbInfoACUrl" Grid.Column="3" Grid.Row="4" IsReadOnly="True"/>
-                    <TextBox x:Name="tbInsertDate" Grid.Column="3" Grid.Row="5" IsReadOnly="True"/>
-                    <TextBox x:Name="tbUpdateDate" Grid.Column="3" Grid.Row="6" IsReadOnly="True"/>
-                </Grid>
-            </StackPanel>
+                <local:VBTextBox x:Name="tbInfoDesignFullName" Grid.Column="1" Grid.Row="0" IsReadOnly="True"/>
+                <local:VBTextBox x:Name="tblCaption" Grid.Column="1" Grid.Row="1" IsReadOnly="True"/>
+                <local:VBTextBox x:Name="tblCaptionTranslation" Grid.Column="1" Grid.Row="2" IsReadOnly="True"/>
+                <local:VBTextBox x:Name="tbInfoClassName" Grid.Column="1" Grid.Row="3" IsReadOnly="True"/>
+                <local:VBTextBox x:Name="tbInfoACUrl" Grid.Column="3" Grid.Row="4" IsReadOnly="True"/>
+                <local:VBTextBox x:Name="tbInsertDate" Grid.Column="3" Grid.Row="5" IsReadOnly="True"/>
+                <local:VBTextBox x:Name="tbUpdateDate" Grid.Column="3" Grid.Row="6" IsReadOnly="True"/>
+            </local:VBGrid>
         </local:VBTabItem>
     </local:VBTabControl>
 </UserControl>

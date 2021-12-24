@@ -60,6 +60,52 @@ namespace gip.core.layoutengine
             DeInitVBControl();
         }
 
+        private static ACClass _ClassOfBSOiPlusStudio;
+        private static ACClass ClassOfBSOiPlusStudio
+        {
+            get
+            {
+                if (_ClassOfBSOiPlusStudio != null)
+                    return _ClassOfBSOiPlusStudio;
+                _ClassOfBSOiPlusStudio = Database.GlobalDatabase.GetACType("BSOiPlusStudio");
+                return _ClassOfBSOiPlusStudio;
+            }
+        }
+
+        private static Type TypeOfBSOiPlusStudio
+        {
+            get
+            {
+                if (ClassOfBSOiPlusStudio == null)
+                    return null;
+                return ClassOfBSOiPlusStudio.ObjectType;
+            }
+        }
+
+
+        private static ACClass _ClassOfBSOVisualisationStudio;
+
+        private static ACClass ClassOfBSOVisualisationStudio
+        {
+            get
+            {
+                if (_ClassOfBSOVisualisationStudio != null)
+                    return _ClassOfBSOVisualisationStudio;
+                _ClassOfBSOVisualisationStudio = Database.GlobalDatabase.GetACType("BSOVisualisationStudio");
+                return _ClassOfBSOVisualisationStudio;
+            }
+        }
+
+        private static Type TypeOfBSOVisualisationStudio
+        {
+            get 
+            {
+                if (ClassOfBSOVisualisationStudio == null)
+                    return null;
+                return ClassOfBSOVisualisationStudio.ObjectType;
+            }
+        }
+
         protected bool _Loaded = false;
         protected void VBDesignEditor_Loaded(object sender, RoutedEventArgs e)
         {
@@ -501,6 +547,53 @@ namespace gip.core.layoutengine
             VBTabItem vbTabitemAdded = this.ucTabControl.SelectedItem as VBTabItem;
             if (vbTabitemAdded == DesignTab)
                 RefreshViewFromXAML();
+
+            VBDesign vbDesign = this.GetVBDesign();
+            ACClassDesign acClassDesign = null;
+
+            if (TypeOfBSOiPlusStudio.IsAssignableFrom(DataContext.GetType()))
+            {
+                IACComponent component = this.DataContext as IACComponent;
+                if (component != null)
+                    acClassDesign = component.ACUrlCommand("CurrentACClassDesign") as ACClassDesign;
+            }
+            else if (TypeOfBSOVisualisationStudio.IsAssignableFrom(DataContext.GetType()))
+            {
+                IACComponent component = this.DataContext as IACComponent;
+                if (component != null)
+                    acClassDesign = component.ACUrlCommand("CurrentVisualisation") as ACClassDesign;
+            }
+            if (acClassDesign == null && vbDesign != null)
+            {
+                acClassDesign = vbDesign.ACClassDesign;
+            }
+
+            if (acClassDesign != null)
+            {
+                tbInfoDesignFullName.Text = acClassDesign.ACIdentifier;
+                tbInfoClassName.Text = acClassDesign.ACClass.ACIdentifier;
+                tblCaption.Text = acClassDesign.ACCaption;
+                tblCaptionTranslation.Text = acClassDesign.ACCaptionTranslation;
+                tbInsertDate.Text = acClassDesign.InsertDate.ToString();
+                tbUpdateDate.Text = acClassDesign.UpdateDate.ToString();
+                tbInfoACUrl.Text = acClassDesign.GetACUrl();
+            }
+            else
+            {
+                IACObject contentItem = vbDesign.ACContentList.FirstOrDefault();
+                if (contentItem != null)
+                {
+                    if (contentItem.ParentACObject != null)
+                        tbInfoClassName.Text = contentItem.ParentACObject.ACIdentifier;
+                    tbInfoDesignFullName.Text = contentItem.ACIdentifier;
+                    tbInfoACUrl.Text = contentItem.GetACUrl();
+                }
+                tblCaption.Text = vbDesign.ACCaption;
+                tblCaptionTranslation.Text = vbDesign.ACCaption;
+                tbInsertDate.Text = "";
+                tbUpdateDate.Text = "";
+                tbInfoACUrl.Text = "";
+            }
         }
 
 
@@ -529,42 +622,14 @@ namespace gip.core.layoutengine
                     settings.DesignerAssemblies.Add(assembly);
                     settings.TypeFinder.RegisterAssembly(assembly,true);
                 }
-                //foreach (KeyValuePair<String, ACxmlnsInfo> kvp in ACxmlnsResolver.NamespacesDict)
-                //{
-                //    if (kvp.Value.Assembly != null)
-                //    {
-                //        settings.TypeFinder.RegisterAssembly(kvp.Value.Assembly, kvp.Value.XMLNameSpace, kvp.Key);
-                //    }
-                //}
-                //Type controlType = typeof(VBDesignEditor);
-                //settings.DesignerAssemblies.Add(controlType.Assembly);
-                //KeyValuePair<string, string> kvp = Layoutgenerator.GetNamespaceInfo(controlType);
-                //if (String.IsNullOrEmpty(kvp.Key))
-                //settings.TypeFinder.RegisterAssembly(controlType.Assembly);
-                //else
-                    //settings.TypeFinder.RegisterAssembly(controlType.Assembly, controlType.Namespace, kvp.Key);
-                //foreach (Assembly assembly in DesignerAssemblies)
-                //{
-                //    settings.DesignerAssemblies.Add(assembly);
-                //    settings.TypeFinder.RegisterAssembly(assembly);
-                //}
-                /*settings.CustomServiceRegisterFunctions.Add(
-                    delegate(XamlDesignContext context)
-                    {
-                        //context.Services.AddService(typeof(IUriContext), new FileUriContext(this.PrimaryFile));
-                        //context.Services.AddService(typeof(IPropertyDescriptionService), new PropertyDescriptionService(this.PrimaryFile));
-                        //context.Services.AddService(typeof(IEventHandlerService), new CSharpEventHandlerService(this));
-                        //context.Services.AddService(typeof(ITopLevelWindowService), new WpfAndWinFormsTopLevelWindowService());
-                        //context.Services.AddService(typeof(ChooseClassServiceBase), new IdeChooseClassService());
-                    });*/
-                //settings.TypeFinder = MyTypeFinder.Create(this.PrimaryFile);
+
                 try
                 {
-                    if (this.DataContext.GetType().Name == "BSOiPlusStudio")
+                    if (TypeOfBSOiPlusStudio.IsAssignableFrom(DataContext.GetType()))
                     {
                         if (DesignerDataContext != null)
                         {
-                            if (DesignerDataContext.GetType().Name == ACClass.ClassName)
+                            if (DesignerDataContext is ACClass)
                             {
                                 ACClass acClass = DesignerDataContext as ACClass;
                                 switch (acClass.ACKind)
@@ -579,7 +644,7 @@ namespace gip.core.layoutengine
                                         DesignSurface.DataContext = null;
                                         break;
                                 }
-                                if (acClass.ACIdentifier == "BSOVisualisationStudio")
+                                if (TypeOfBSOVisualisationStudio.IsAssignableFrom(acClass.ObjectType))
                                 {
                                     IACComponent component = this.DataContext as IACComponent;
                                     if (component != null)
@@ -1152,19 +1217,6 @@ namespace gip.core.layoutengine
         public IACComponentDesignManager GetDesignManager(bool create = false)
         {
             VBDesign vbDesign = this.GetVBDesign();
-            var contentItem = vbDesign.ACContentList.FirstOrDefault();
-            if (contentItem.ParentACObject != null)
-                tbInfoClassName.Text = contentItem.ParentACObject.ACIdentifier;
-            tblCaption.Text = vbDesign.ACCaption;
-            tblCaptionTranslation.Text = vbDesign.ACClassDesign != null ? vbDesign.ACClassDesign.ACCaptionTranslation : vbDesign.ACCaption;
-            tbInfoDesignFullName.Text = contentItem.ACIdentifier;
-            tbInfoACUrl.Text = contentItem.GetACUrl();
-            var acClassDesign = Database.GlobalDatabase.ACClassDesign.FirstOrDefault(c => c.ACIdentifier == contentItem.ACIdentifier);
-            if (acClassDesign != null)
-            {
-                tbInsertDate.Text = acClassDesign.InsertDate.ToShortDateString();
-                tbUpdateDate.Text = acClassDesign.UpdateDate.ToShortDateString();
-            }
                 
             if (BSOACComponent is IACComponentDesignManager)
                 return BSOACComponent as IACComponentDesignManager;
