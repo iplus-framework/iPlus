@@ -341,6 +341,9 @@
     <None Include="VBControlScripts\2021-12-22 08-35_ihrastinski.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="VBControlScripts\2021-12-25 09-21_ihrastinski.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj">
