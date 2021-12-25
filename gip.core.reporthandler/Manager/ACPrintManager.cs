@@ -98,12 +98,12 @@ namespace gip.core.reporthandler
         }
 
         [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 200, true)]
-        public virtual Msg Print(PAOrderInfo pAOrderInfo, int copyCount)
+        public virtual Msg Print(PAOrderInfo pAOrderInfo, int copyCount, string vbUserName = null)
         {
             Msg msg = null;
             try
             {
-                PAPrintInfo printInfo = GetPrintingInfo(pAOrderInfo);
+                PAPrintInfo printInfo = GetPrintingInfo(pAOrderInfo, vbUserName);
                 if (printInfo == null)
                 {
                     // Error50488: Can't print because no printer was configured for printing. Open the businessobject for printer settings and assign a printer!
@@ -282,9 +282,9 @@ namespace gip.core.reporthandler
 
         #region Determine Printer
 
-        public virtual PAPrintInfo GetPrintingInfo(PAOrderInfo pAOrderInfo)
+        public virtual PAPrintInfo GetPrintingInfo(PAOrderInfo pAOrderInfo, string vbUserName = null)
         {
-            PrinterInfo printerInfo = OnGetPrinterInfo(pAOrderInfo);
+            PrinterInfo printerInfo = OnGetPrinterInfo(pAOrderInfo, vbUserName);
             if (printerInfo == null)
                 return null;
             ACClass bsoClass = OnResolveBSOForOrderInfo(pAOrderInfo);
@@ -297,7 +297,7 @@ namespace gip.core.reporthandler
             return new PAPrintInfo(acUrl, printerInfo, "");
         }
 
-        protected virtual PrinterInfo OnGetPrinterInfo(PAOrderInfo pAOrderInfo)
+        protected virtual PrinterInfo OnGetPrinterInfo(PAOrderInfo pAOrderInfo, string vbUserName = null)
         {
             Guid? aCClassID = null;
             if (pAOrderInfo.Entities.Any(c => c.EntityName == gip.core.datamodel.ACClass.ClassName))
@@ -308,6 +308,18 @@ namespace gip.core.reporthandler
             using (Database database = new core.datamodel.Database())
             {
                 configuredPrinters = ACPrintManager.GetConfiguredPrinters(database, ComponentClass.ACClassID, false);
+
+                if (!string.IsNullOrEmpty(vbUserName))
+                {
+                    VBUser vbUser = database.VBUser.FirstOrDefault(c => c.VBUserName == vbUserName);
+                    if (vbUser != null)
+                    {
+                        PrinterInfo printerForUser = configuredPrinters.FirstOrDefault(c => c.VBUserID == vbUser.VBUserID);
+                        if (printerForUser != null)
+                            return printerForUser;
+                    }
+                }
+
                 if (aCClassID != null)
                     aCClass = database.ACClass.FirstOrDefault();
             }
@@ -344,8 +356,6 @@ namespace gip.core.reporthandler
         #endregion
 
         #endregion
-
-
 
         #endregion
     }
