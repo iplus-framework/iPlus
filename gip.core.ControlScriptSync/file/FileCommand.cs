@@ -57,12 +57,13 @@ namespace gip.core.ControlScriptSync.file
 
         private UpdateFiles LoadUpdateFileListHigherAsYoungestInDatabase()
         {
+            UpdateFiles updateFiles = new UpdateFiles();
             ControlScriptSyncInfo maxVersion = VBSQLCommand.MaxVersion();
+            updateFiles.MaxVersion = string.Format(@"{0}_{1}.zip", maxVersion.VersionTime.ToString("yyyy-MM-dd HH-mm"), maxVersion.UpdateAuthor);
             string folder = GetScriptFolderPath();
             DirectoryInfo dir = new DirectoryInfo(folder);
             var query = dir.GetFiles().Where(x => x.Extension == ".zip").Select(x => new ScriptFileInfo(x.Name, folder));
             List<ControlScriptSyncInfo> dbScriptList = VBSQLCommand.AllVersions();
-            UpdateFiles updateFiles = new UpdateFiles();
             if (maxVersion != null)
             {
                 var queryIncluded = query.Where(x => x.Version > maxVersion.VersionTime);
