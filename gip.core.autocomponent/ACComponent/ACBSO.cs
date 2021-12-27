@@ -703,7 +703,7 @@ namespace gip.core.autocomponent
         /// <param name="printerName">Name of the printer.</param>
         /// <param name="numberOfCopies">The number of copies.</param>
         /// <returns></returns>
-        public Msg PrintByOrderInfo(PAOrderInfo paOrderInfo, string printerName, short numberOfCopies, string designName = null)
+        public virtual Msg PrintByOrderInfo(PAOrderInfo paOrderInfo, string printerName, short numberOfCopies, string designName = null)
         {
             Msg msg = FilterByOrderInfo(paOrderInfo);
             if (msg != null)
