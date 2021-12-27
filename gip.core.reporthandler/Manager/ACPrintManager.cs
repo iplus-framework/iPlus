@@ -321,7 +321,7 @@ namespace gip.core.reporthandler
                 }
 
                 if (aCClassID != null)
-                    aCClass = database.ACClass.FirstOrDefault();
+                    aCClass = database.ACClass.FirstOrDefault(c => c.ACClassID == aCClassID);
             }
             if (configuredPrinters == null || !configuredPrinters.Any())
                 return null;
