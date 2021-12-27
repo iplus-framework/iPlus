@@ -84,6 +84,11 @@ namespace gip.core.ControlScriptSync
             // Print omitted - Excluded files if exist
             if (updateFiles != null && updateFiles.ExcludedItems != null && updateFiles.ExcludedItems.Any())
             {
+                OnMessage(new SyncMessage()
+                {
+                    MessageLevel = MessageLevel.Warning,
+                    Message = string.Format("Max. version in database is: {0}! Some file are excluded:", updateFiles.MaxVersion)
+                });
                 foreach (var item in updateFiles.ExcludedItems)
                 {
                     OnMessage(new SyncMessage()

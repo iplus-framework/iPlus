@@ -8,5 +8,7 @@ namespace gip.core.ControlScriptSync.model
         public List<ScriptFileInfo> Items { get; set; }
 
         public List<ScriptFileInfo> ExcludedItems { get; set; }
+
+        public string MaxVersion { get;set;}
     }
 }
