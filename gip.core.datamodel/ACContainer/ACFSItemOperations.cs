@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Objects;
 using System.Linq;
 
 namespace gip.core.datamodel
@@ -32,7 +33,7 @@ namespace gip.core.datamodel
                 EntityState objectEntityState = entityObject.EntityState;
                 if (objectEntityState != EntityState.Added && context != null)
                 {
-                    string entityTypeName= entityObject.GetType().Name;
+                    string entityTypeName = entityObject.GetType().Name;
                     Msg checkStateMsg = CheckUpdateDate(context, entityObject, importFileName, entityTypeName);
                     // Exclude broadcast messages for ACProject type
                     if (checkStateMsg != null && entityTypeName != ACProject.ClassName)
@@ -95,6 +96,9 @@ namespace gip.core.datamodel
                 {
                     if (aCFSItem.IsChecked && objectEntityState == EntityState.Detached && (!checkUpdateDate || !aCFSItem.UpdateDateFail))
                     {
+                        VBEntityObject tempObject = (context as ObjectContext).GetObjectByKey(entityObject.EntityKey) as VBEntityObject;
+                        if (tempObject != null)
+                            context.Detach(tempObject);
                         context.Attach(entityObject);
                     }
                     else if (objectEntityState != EntityState.Detached && (!aCFSItem.IsChecked || (checkUpdateDate && aCFSItem.UpdateDateFail)))
