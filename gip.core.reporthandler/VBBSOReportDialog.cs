@@ -1,15 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Reflection;
-using System.Data.Objects.DataClasses;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using gip.core.reporthandler.Flowdoc;
-using System.Windows.Documents;
-using System.Windows.Controls;
-using System.Windows.Xps.Packaging;
 
 namespace gip.core.reporthandler
 {
@@ -510,6 +503,10 @@ namespace gip.core.reporthandler
                 return false;
             }
         }
+        #endregion
+
+        #region ConfiguredPrinters
+
         #endregion
 
         #endregion
