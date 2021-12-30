@@ -1,21 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Reflection;
-using System.Data.Objects.DataClasses;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using gip.core.reporthandler.Flowdoc;
-using System.Windows.Documents;
-using System.Windows.Controls;
-using System.Windows.Xps.Packaging;
 
 namespace gip.core.reporthandler
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Report'}de{'Bericht'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, false, false)]
     public class VBBSOReportDialog : ACBSO
     {
+        #region const
+
+        public const string Const_PrinterPreConfigACUrl = @"Printer";
+
+        #endregion
+
         #region c´tors
         public VBBSOReportDialog(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
@@ -26,6 +25,8 @@ namespace gip.core.reporthandler
         {
             if (!base.ACInit(startChildMode))
                 return false;
+
+            _VarioConfigManager = ConfigManagerIPlus.ACRefToServiceInstance(this);
 
             CurrentCurrentOrList = Global.CurrentOrList.Current;
 
@@ -78,6 +79,10 @@ namespace gip.core.reporthandler
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
+            if (_VarioConfigManager != null)
+                ConfigManagerIPlus.DetachACRefFromServiceInstance(this, _VarioConfigManager);
+            _VarioConfigManager = null;
+
             this._ACClassDesignList = null;
             this._CurrentACClassDesign = null;
             this._CurrentACQueryDefinition = null;
@@ -89,6 +94,21 @@ namespace gip.core.reporthandler
             this._SelectedACClassDesign = null;
             this._SelectedQueryACClass = null;
             return base.ACDeInit(deleteACClassTask);
+        }
+
+        #endregion
+
+        #region Manager
+
+        protected ACRef<ConfigManagerIPlus> _VarioConfigManager = null;
+        public ConfigManagerIPlus VarioConfigManager
+        {
+            get
+            {
+                if (_VarioConfigManager == null)
+                    return null;
+                return _VarioConfigManager.ValueT;
+            }
         }
 
         #endregion
@@ -174,6 +194,7 @@ namespace gip.core.reporthandler
                         CurrentACQueryDefinition = null;
                         CurrentSelectedACQueryDefinition = null;
                     }
+                    ReloadPrinterConfigList();
                     OnPropertyChanged("CurrentACClassDesign");
                 }
             }
@@ -510,6 +531,171 @@ namespace gip.core.reporthandler
                 return false;
             }
         }
+        #endregion
+
+        #region BSO-> ACProperty -> Printer configuration
+
+        #region BSO-> ACProperty ->Printer configuration -> Windows printers
+
+        private PrinterInfo _SelectedWindowsPrinter;
+        /// <summary>
+        /// Selected property for PrinterInfo
+        /// </summary>
+        /// <value>The selected WindowsPrinter</value>
+        [ACPropertySelected(9999, "WindowsPrinter", "en{'SelectedWindowsPrinter'}de{'SelectedWindowsPrinter'}")]
+        public PrinterInfo SelectedWindowsPrinter
+        {
+            get
+            {
+                return _SelectedWindowsPrinter;
+            }
+            set
+            {
+                if (_SelectedWindowsPrinter != value)
+                {
+                    _SelectedWindowsPrinter = value;
+                    if (value != null)
+                    {
+                        PrinterName = value.PrinterName;
+                    }
+                    OnPropertyChanged("SelectedWindowsPrinter");
+                }
+            }
+        }
+
+        private List<PrinterInfo> _WindowsPrinterList;
+        /// <summary>
+        /// List property for PrinterInfo
+        /// </summary>
+        /// <value>The WindowsPrinter list</value>
+        [ACPropertyList(9999, "WindowsPrinter")]
+        public List<PrinterInfo> WindowsPrinterList
+        {
+            get
+            {
+                if (_WindowsPrinterList == null)
+                    _WindowsPrinterList = LoadWindowsPrinterList();
+                return _WindowsPrinterList;
+            }
+        }
+
+        private List<PrinterInfo> LoadWindowsPrinterList()
+        {
+            List<PrinterInfo> printerInfos = ACPrintManager.GetWindowsPrinters();
+            if (ConfiguredPrinterList != null && ConfiguredPrinterList.Any())
+                printerInfos = printerInfos.Where(c => !ConfiguredPrinterList.Select(x => x.ACCaption).Contains(c.PrinterName)).OrderBy(c => c.PrinterName).ToList();
+            return printerInfos;
+        }
+
+        #endregion
+
+        #region BSO-> ACProperty -> Printer configuration ->  PrintServer
+
+        private PrinterInfo _SelectedPrintServer;
+        /// <summary>
+        /// Selected property for PrinterInfo
+        /// </summary>
+        /// <value>The selected ESCPosPrinter</value>
+        [ACPropertySelected(9999, "PrintServer", "en{'SelectedPrintServer'}de{'SelectedPrintServer'}")]
+        public PrinterInfo SelectedPrintServer
+        {
+            get
+            {
+                return _SelectedPrintServer;
+            }
+            set
+            {
+                if (_SelectedPrintServer != value)
+                {
+                    _SelectedPrintServer = value;
+                    OnPropertyChanged("SelectedPrintServer");
+                }
+            }
+        }
+
+
+        private List<PrinterInfo> _PrintServerList;
+        /// <summary>
+        /// List property for PrinterInfo
+        /// </summary>
+        /// <value>The ESCPosPrinter list</value>
+        [ACPropertyList(9999, "PrintServer")]
+        public List<PrinterInfo> PrintServerList
+        {
+            get
+            {
+                if (_PrintServerList == null)
+                    _PrintServerList = LoadPrintServerList();
+                return _PrintServerList;
+            }
+        }
+
+        private List<PrinterInfo> LoadPrintServerList()
+        {
+            List<PrinterInfo> printerInfos = ACPrintManager.GetPrintServers(Database.ContextIPlus);
+            if (ConfiguredPrinterList != null && ConfiguredPrinterList.Any())
+                printerInfos = printerInfos.Where(c => !ConfiguredPrinterList.Select(x => x.ACCaption).Contains(c.PrinterACUrl)).OrderBy(c => c.PrinterACUrl).ToList();
+            return printerInfos;
+        }
+
+
+        #endregion
+
+        #region BSO-> ACProperty -> Printer configuration -> ConfiguredPrinter
+
+        // ACValueItem
+
+        private ACValueItem _SelectedConfiguredPrinter;
+        /// <summary>
+        /// Selected property for ACValueItem
+        /// </summary>
+        /// <value>The selected ConfiguredPrinter</value>
+        [ACPropertySelected(9999, "ConfiguredPrinter", "en{'SelectedConfiguredPrinter'}de{'SelectedConfiguredPrinter'}")]
+        public ACValueItem SelectedConfiguredPrinter
+        {
+            get
+            {
+                return _SelectedConfiguredPrinter;
+            }
+            set
+            {
+                _SelectedConfiguredPrinter = value;
+                OnPropertyChanged("SelectedConfiguredPrinter");
+            }
+        }
+
+
+        private ACValueItemList _ConfiguredPrinterList;
+
+        /// <summary>
+        /// List property for ACValueItem
+        /// </summary>
+        /// <value>The ConfiguredPrinter list</value>
+        [ACPropertyList(9999, "ConfiguredPrinter")]
+        public IEnumerable<ACValueItem> ConfiguredPrinterList
+        {
+            get
+            {
+                if (_ConfiguredPrinterList == null)
+                    _ConfiguredPrinterList = LoadConfiguredPrinterList();
+                return _ConfiguredPrinterList;
+            }
+        }
+
+        private ACValueItemList LoadConfiguredPrinterList()
+        {
+            ACValueItemList aCValueItems = new ACValueItemList("ConfiguredPrinters");
+            if (CurrentACClassDesign != null)
+            {
+                List<IACConfig> configs = VarioConfigManager.GetConfigurationList(new List<IACConfigStore>() { CurrentACClassDesign.ACClass }, null, new List<string>() { Const_PrinterPreConfigACUrl }, null);
+                configs = configs.Where(c => c.KeyACUrl == CurrentACClassDesign.ACConfigKeyACUrl).ToList();
+                configs.ForEach(c => aCValueItems.AddEntry(c, c.Value.ToString()));
+                configs = configs.OrderBy(c => c.Value.ToString()).ToList();
+            }
+            return aCValueItems;
+        }
+        #endregion
+
         #endregion
 
         #endregion
@@ -1124,6 +1310,83 @@ namespace gip.core.reporthandler
                 return;
             PostExecute(Const.SMEdit);
         }
+        #endregion
+
+        #region Methods -> Printer configuration
+
+        private void ReloadPrinterConfigList()
+        {
+            _ConfiguredPrinterList = null;
+            _WindowsPrinterList = null;
+            _PrintServerList = null;
+
+            OnPropertyChanged("ConfiguredPrinterList");
+            OnPropertyChanged("WindowsPrinterList");
+            OnPropertyChanged("PrintServerList");
+        }
+
+        private void AddConfiguredPrinter(string name)
+        {
+            IACConfig config = CurrentACClassDesign.NewACConfig(CurrentACClassDesign.ACClass, Database.ContextIPlus.GetACType(typeof(string)), Const_PrinterPreConfigACUrl);
+            config.Value = name;
+            _ConfiguredPrinterList.AddEntry(config, config.Value.ToString());
+            OnPropertyChanged("ConfiguredPrinterList");
+        }
+
+
+        [ACMethodInfo("DeleteConfiguredPrinter", "en{'<'}de{'<'}", 999)]
+        public void DeleteConfiguredPrinter()
+        {
+            if (!IsEnabledDeleteConfiguredPrinter())
+                return;
+            ACClassConfig config = SelectedConfiguredPrinter.Value as ACClassConfig;
+            MsgWithDetails msg = config.DeleteACObject(Database, false);
+            if (msg == null)
+            {
+                ReloadPrinterConfigList();
+            }
+        }
+
+        public bool IsEnabledDeleteConfiguredPrinter()
+        {
+            return SelectedConfiguredPrinter != null;
+        }
+
+        [ACMethodInfo("AddWinPrinter", "en{'>'}de{'>'}", 999)]
+        public void AddWinPrinter()
+        {
+            if (!IsEnabledAddWinPrinter())
+                return;
+            AddConfiguredPrinter(SelectedWindowsPrinter.PrinterName);
+            WindowsPrinterList.Remove(SelectedWindowsPrinter);
+            OnPropertyChanged("WindowsPrinterList");
+            SelectedWindowsPrinter = WindowsPrinterList.FirstOrDefault();
+        }
+
+        public bool IsEnabledAddWinPrinter()
+        {
+            return CurrentACClassDesign != null && SelectedWindowsPrinter != null;
+        }
+
+        /// <summary>
+        /// Source Property: AddComponentPrinter
+        /// </summary>
+        [ACMethodInfo("AddPrintServer", "en{'>'}de{'>'}", 999)]
+        public void AddPrintServer()
+        {
+            if (!IsEnabledAddPrintServer())
+                return;
+            AddConfiguredPrinter(SelectedPrintServer.PrinterACUrl);
+            PrintServerList.Remove(SelectedPrintServer);
+            OnPropertyChanged("PrintServerList");
+            SelectedPrintServer = PrintServerList.FirstOrDefault();
+        }
+
+        public bool IsEnabledAddPrintServer()
+        {
+            return CurrentACClassDesign != null && SelectedPrintServer != null;
+        }
+
         #endregion
 
         #region Hilfsmethoden
