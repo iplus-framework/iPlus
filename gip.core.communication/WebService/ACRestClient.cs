@@ -194,7 +194,7 @@ namespace gip.core.communication
             return true;
         }
 
-#endregion
+        #endregion
 
 
         #region Public 
@@ -214,9 +214,9 @@ namespace gip.core.communication
                 case Const.IsEnabledPrefix + "CallWS":
                     result = IsEnabledCallWS(acParameter[0] as ACMethod);
                     return true;
-                //case Const.IsEnabledPrefix + "CallWSAsync":
-                //    result = IsEnabledCallWSAsync(acParameter[0] as ACMethod);
-                //    return true;
+                    //case Const.IsEnabledPrefix + "CallWSAsync":
+                    //    result = IsEnabledCallWSAsync(acParameter[0] as ACMethod);
+                    //    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
@@ -444,7 +444,7 @@ namespace gip.core.communication
             if (Client == null)
                 return new WSResponse<string>(null, new Msg(eMsgLevel.Error, "Disconnected"));
             try
-            { 
+            {
                 Task<WSResponse<string>> task = GetAsync(uri);
                 return task.Result;
             }
@@ -465,7 +465,7 @@ namespace gip.core.communication
                 return new WSResponse<TResult>(default(TResult), new Msg(eMsgLevel.Error, "Disconnected"));
             try
             {
-                Task <WSResponse<TResult>> task = GetAsync<TResult>(uri);
+                Task<WSResponse<TResult>> task = GetAsync<TResult>(uri);
                 return task.Result;
             }
             catch (Exception ex)
@@ -556,9 +556,16 @@ namespace gip.core.communication
             }
             catch (Exception ex)
             {
-                var msg = new Msg(eMsgLevel.Exception, ex.Message);
+                string errMsg = "";
+                Exception tmpEx = ex;
+                while (tmpEx != null)
+                {
+                    errMsg += tmpEx.Message;
+                    tmpEx = tmpEx.InnerException;
+                }
+                var msg = new Msg(eMsgLevel.Exception, errMsg);
                 Messages.LogException(this.GetACUrl(), "Post(20)", ex);
-                OnNewAlarmOccurred("IsConnected", new Msg(eMsgLevel.Exception, ex.Message));
+                OnNewAlarmOccurred("IsConnected", new Msg(eMsgLevel.Exception, errMsg));
                 if (ex is HttpRequestException)
                     IsConnected.ValueT = false;
                 return new WSResponse<string>(null, msg);
