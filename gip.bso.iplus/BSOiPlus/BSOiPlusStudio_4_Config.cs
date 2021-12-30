@@ -348,6 +348,8 @@ namespace gip.bso.iplus
             if (!IsEnabledDeletePointConfig())
                 return;
 
+            IACConfigStore acConfigHandler = CurrentConfigPointACClassProperty as IACConfigStore;
+            acConfigHandler.RemoveACConfig(CurrentPointConfig);
             CurrentACClass.RemoveACConfig(CurrentPointConfig);
 
             //Msg msg = CurrentPointConfig.DeleteACObject(Database.ContextIPlus, true);

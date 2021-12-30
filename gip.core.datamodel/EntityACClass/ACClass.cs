@@ -3354,7 +3354,10 @@ namespace gip.core.datamodel
                 ACConfigListCache.Remove(acConfig);
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
-                ACClassConfig_ACClass.Remove(acConfig);
+                if (acConfig.ACClass == this)
+                    this.ACClassConfig_ACClass.Remove(acConfig);
+                else
+                    acConfig.ACClass.ACClassConfig_ACClass.Remove(acConfig);
                 if (acConfig.EntityState != System.Data.EntityState.Detached)
                     acConfig.DeleteACObject(this.Database, false);
             }
