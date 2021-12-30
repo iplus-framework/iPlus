@@ -146,6 +146,7 @@
     <Compile Include="ACProcessApplication\ACPAClass\PAWebServiceBase.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PAJobScheduler.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PAFuncStateConvBase.cs" />
+    <Compile Include="ACProcessApplication\RemoteAppManager.cs" />
     <Compile Include="ACProcessApplication\Interfaces\IACMyConfigCache.cs" />
     <Compile Include="ACProcessApplication\Interfaces\IACWorkCycle.cs" />
     <Compile Include="ACProcessApplication\Interfaces\IACCommSession.cs" />
