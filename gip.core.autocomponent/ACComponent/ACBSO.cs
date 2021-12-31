@@ -18,7 +18,12 @@ namespace gip.core.autocomponent
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass BSO stateless'}de{'Basisklasse BSO zustandslos'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, true, true)]
     public abstract class ACBSO : ACComponentState, IACBSO, IACComponentTaskSubscr
     {
+        #region const
+
+        public const string Const_PrinterPreConfigACUrl = @"Printer";
         public const string DesignNameProgressBar = "Progress";
+
+        #endregion
 
         #region c´tors
         public ACBSO(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "") :
@@ -97,7 +102,7 @@ namespace gip.core.autocomponent
             }
         }
         private void VerifyMaxSessions()
-        { 
+        {
             if (ParentACComponent != null
                 && ParentACComponent.Root != null
                 && ParentACComponent.Root.RootPageWPF != null
@@ -204,7 +209,7 @@ namespace gip.core.autocomponent
             if (!acClass.IsMultiInstanceInherited || IsProxy)
                 return null;
 
-            ACValueList acValueList = this.Parameters != null ? (ACValueList) this.Parameters.Clone() : acClass.GetACParameter(null);
+            ACValueList acValueList = this.Parameters != null ? (ACValueList)this.Parameters.Clone() : acClass.GetACParameter(null);
             return (ParentACComponent as ACComponent).StartComponent(acClass, this.Content, acValueList, Global.ACStartTypes.Automatic, IsProxy);
         }
 
@@ -272,7 +277,7 @@ namespace gip.core.autocomponent
         #region Common-Save-Handling
 
         #region Motify-Methods to inform all BSO's from the same ObjectContext
-        
+
         /// <summary>Asks all BSO's that shares this database-context if Saving-Changes is allowed by calling their OnIsEnabledSave()-Method</summary>
         /// <returns>True, if each BSO has agreed.</returns>
         protected bool NotifyAllIsEnabledSave()
@@ -435,8 +440,8 @@ namespace gip.core.autocomponent
             // If Businessobject with Selected-Property and Current-Rroperty
             if (selectedGetter != null && currentGetter != null)
             {
-                if (   selectedGetter() != null
-                    && (   requery
+                if (selectedGetter() != null
+                    && (requery
                         || currentGetter() != selectedGetter())
                    )
                 {
@@ -749,10 +754,28 @@ namespace gip.core.autocomponent
         protected virtual IEnumerable<ACClassDesign> OnGetDefaultPrintDesigns(string printerName, PAOrderInfo paOrderInfo = null)
         {
             // TODO: Read Config to determine which design sholud be used for the passed printer
-            return this.ComponentClass
+            List<ACClassDesign> list = this.ComponentClass
                         .GetDesigns()
                         .Where(c => c.ACKind == Global.ACKinds.DSDesignReport)
-                        .OrderByDescending(c => c.SortIndex);
+                        .OrderByDescending(c => c.SortIndex)
+                        .ToList();
+            var configManager = ConfigManagerIPlus.ACRefToServiceInstance(this);
+
+            List<ACClassDesign> filteredList = new List<ACClassDesign>();
+            foreach (ACClassDesign desing in list)
+            {
+                if (configManager != null)
+                {
+                    List<IACConfig> configs = configManager.ValueT.GetConfigurationList(new List<IACConfigStore>() { desing.ACClass }, null, new List<string>() { Const_PrinterPreConfigACUrl }, null);
+                    configs = configs.Where(c => c.KeyACUrl == desing.ACConfigKeyACUrl).ToList();
+                    if (configs.Any(c => printerName == c.Value.ToString()))
+                        filteredList.Add(desing);
+                }
+                else
+                    filteredList.Add(desing);
+            }
+
+            return filteredList;
         }
 
         #endregion
@@ -800,7 +823,7 @@ namespace gip.core.autocomponent
         [ACMethodInfo("Query", "en{'Ok'}de{'Ok'}", (short)MISort.QueryDesignDlg, true)]
         public virtual void DataExportOk()
         {
-            if (!IsEnabledDataExportOk()) 
+            if (!IsEnabledDataExportOk())
                 return;
             CloseTopDialog();
             BackgroundWorker.RunWorkerAsync("DataExport");
@@ -1005,7 +1028,7 @@ namespace gip.core.autocomponent
                 return null;
 
             object current = currentProperty.GetValue(accessPrimary);
-            if (current == null || !(current is IACObject) || !(current is EntityObject) 
+            if (current == null || !(current is IACObject) || !(current is EntityObject)
                 || ((IACObject)current).ACType == null || ((EntityObject)current).EntityKey == null || ((EntityObject)current).EntityKey.EntityKeyValues == null)
                 return null;
 
@@ -1063,7 +1086,7 @@ namespace gip.core.autocomponent
 
             ACValueList param = new ACValueList();
             param.Add(new ACValue("EntityKey", entityKey.EntityKeyValues[0].Value));
-            param.Add(new ACValue(ACClassProperty.ClassName+"ID", acClassProperty.ACClassPropertyID));
+            param.Add(new ACValue(ACClassProperty.ClassName + "ID", acClassProperty.ACClassPropertyID));
 
             bool? isEnabled = ACUrlCommand(Const.BusinessobjectsACUrl + ACUrlHelper.Delimiter_DirSeperator + "BSOChangeLog" + ACUrlHelper.Delimiter_InvokeMethod + "IsEnabledLogForProperty", param[0].Value, param[1].Value) as bool?;
             if (!isEnabled.HasValue || !isEnabled.Value)

@@ -9,11 +9,7 @@ namespace gip.core.reporthandler
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Report'}de{'Bericht'}", Global.ACKinds.TACBSOGlobal, Global.ACStorableTypes.NotStorable, false, false)]
     public class VBBSOReportDialog : ACBSO
     {
-        #region const
-
-        public const string Const_PrinterPreConfigACUrl = @"Printer";
-
-        #endregion
+        
 
         #region c´tors
         public VBBSOReportDialog(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
@@ -687,7 +683,7 @@ namespace gip.core.reporthandler
             ACValueItemList aCValueItems = new ACValueItemList("ConfiguredPrinters");
             if (CurrentACClassDesign != null)
             {
-                List<IACConfig> configs = VarioConfigManager.GetConfigurationList(new List<IACConfigStore>() { CurrentACClassDesign.ACClass }, null, new List<string>() { Const_PrinterPreConfigACUrl }, null);
+                List<IACConfig> configs = VarioConfigManager.GetConfigurationList(new List<IACConfigStore>() { CurrentACClassDesign.ACClass }, null, new List<string>() { ACBSO.Const_PrinterPreConfigACUrl }, null);
                 configs = configs.Where(c => c.KeyACUrl == CurrentACClassDesign.ACConfigKeyACUrl).ToList();
                 configs.ForEach(c => aCValueItems.AddEntry(c, c.Value.ToString()));
                 configs = configs.OrderBy(c => c.Value.ToString()).ToList();
