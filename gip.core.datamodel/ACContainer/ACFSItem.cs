@@ -795,8 +795,7 @@ namespace gip.core.datamodel
             ts += "]";
             if (ACObject != null)
                 ts += ACObjectACUrl;
-            else
-                if (ACUrlFS.Contains("\\"))
+            else if (!ACUrlFS.Contains("\\"))
                 ts += ACUrlFS;
             else
                 ts += ACUrlFS.Substring(ACUrlFS.LastIndexOf("\\"));

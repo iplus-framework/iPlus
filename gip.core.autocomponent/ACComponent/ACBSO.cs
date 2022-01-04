@@ -753,29 +753,26 @@ namespace gip.core.autocomponent
         /// <returns></returns>
         protected virtual IEnumerable<ACClassDesign> OnGetDefaultPrintDesigns(string printerName, PAOrderInfo paOrderInfo = null)
         {
-            // TODO: Read Config to determine which design sholud be used for the passed printer
             List<ACClassDesign> list = this.ComponentClass
                         .GetDesigns()
                         .Where(c => c.ACKind == Global.ACKinds.DSDesignReport)
                         .OrderByDescending(c => c.SortIndex)
                         .ToList();
-            var configManager = ConfigManagerIPlus.ACRefToServiceInstance(this);
 
-            List<ACClassDesign> filteredList = new List<ACClassDesign>();
-            foreach (ACClassDesign desing in list)
+            var query = this.ComponentClass.ConfigurationEntries.Where(c =>    c.LocalConfigACUrl == Const_PrinterPreConfigACUrl 
+                                                                            && (c.Value as string) == printerName);
+            if (query != null && query.Any())
             {
-                if (configManager != null)
+                List<ACClassDesign> filteredList = new List<ACClassDesign>();
+                foreach (ACClassDesign design in list)
                 {
-                    List<IACConfig> configs = configManager.ValueT.GetConfigurationList(new List<IACConfigStore>() { desing.ACClass }, null, new List<string>() { Const_PrinterPreConfigACUrl }, null);
-                    configs = configs.Where(c => c.KeyACUrl == desing.ACConfigKeyACUrl).ToList();
-                    if (configs.Any(c => printerName == c.Value.ToString()))
-                        filteredList.Add(desing);
+                    if (query.Where(c => c.KeyACUrl == design.ACConfigKeyACUrl).Any())
+                        filteredList.Add(design);
                 }
-                else
-                    filteredList.Add(desing);
+                return filteredList;
             }
-
-            return filteredList;
+            else
+                return list;
         }
 
         #endregion
