@@ -242,6 +242,9 @@ namespace gip.core.processapplication
         [ACPropertyBindingTarget]
         public IACContainerTNet<double> DifferenceWeight { get; set; }
 
+        [ACPropertyBindingTarget(641, "Read from PLC", "en{'Not Standstill - Moving'}de{'Kein Stillstand - In Bewegung'}", "", false, false)]
+        public IACContainerTNet<Boolean> NotStandStill { get; set; }
+
 
         #endregion
 
