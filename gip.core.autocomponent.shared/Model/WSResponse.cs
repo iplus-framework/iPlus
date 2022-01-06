@@ -71,5 +71,10 @@ namespace gip.core.autocomponent
             get { return _Data; }
             set { _Data = value; }
         }
+
+        public static Msg LoginAgainMessage
+        {
+            get =>  new Msg() { Row = 9999, Column = 9999, ACIdentifier = "LoginAgain" };
+        }
     }
 }
