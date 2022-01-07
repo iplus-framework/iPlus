@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using gip.core.autocomponent;
 using gip.core.datamodel;
 
 namespace gip.core.communication
@@ -184,6 +185,24 @@ namespace gip.core.communication
             }
         }
 
+        [ACMethodInteraction("", "en{'Remove first item from send cache'}de{'Erstes Element aus dem Sende-Cache entfernen'}", 700, true)]
+        public void RemoveFirstERPFileItem()
+        {
+            using (ACMonitor.Lock(_OperationLockObject))
+            {
+                if (_FilesToSendList == null)
+                    return;
+
+                ERPFileItem erpFileItem = _FilesToSendList.FirstOrDefault();
+                if (erpFileItem != null)
+                {
+                    _FilesToSendList.Remove(erpFileItem);
+                    if (File.Exists(erpFileItem.FilePath))
+                        File.Delete(erpFileItem.FilePath);
+                }
+            }
+        }
+
         /// <summary>
         /// Tries direct invoke on web service's method and return result. This method is only available on the server side.
         /// </summary>
@@ -220,6 +239,20 @@ namespace gip.core.communication
             }
         }
         #endregion
+
+        protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, ACClassMethod acClassMethod, params object[] acParameter)
+        {
+            result = null;
+
+            switch(acMethodName)
+            {
+                case "RemoveFirstERPFileItem":
+                    RemoveFirstERPFileItem();
+                    return true;
+            }
+
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
     }
 
     public class ERPFileItem
