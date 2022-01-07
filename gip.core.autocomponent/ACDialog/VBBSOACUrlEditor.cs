@@ -28,10 +28,10 @@ namespace gip.core.autocomponent
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
-            this._CurrentACComponentACClass = null;
-            this._CurrentACSignature = null;
-            this._CurrentParameterValue = null;
-            this._CurrentResultValue = null;
+            //this._CurrentACComponentACClass = null;
+            //this._CurrentACSignature = null;
+            //this._CurrentParameterValue = null;
+            //this._CurrentResultValue = null;
             return base.ACDeInit(deleteACClassTask);
         }
 
@@ -101,6 +101,10 @@ namespace gip.core.autocomponent
             get
             {
                 return _CurrentACSignature;
+            }
+            set
+            {
+                _CurrentACSignature = value;
             }
             //set
             //{
@@ -211,10 +215,10 @@ namespace gip.core.autocomponent
             IsValidACUrl = false;
             CurrentACComponentACClass = acComponentACClass;
 
-            _CurrentACSignature = new ACMethod();
+            CurrentACSignature = new ACMethod();
             CurrentACUrl = acUrl;
 
-            _CurrentACSignature = GetACValueList(acUrl);
+            CurrentACSignature = GetACValueList(acUrl);
 
             CurrentACSignature.ACIdentifier = acUrl;
             if (CurrentACSignature != null)
@@ -266,7 +270,7 @@ namespace gip.core.autocomponent
                     Cancel();
                     return true;
                 case "ACUrlEditorDlg":
-                    ACUrlEditorDlg(acParameter[0] as ACClass, acParameter[1] as string, acParameter[2] as ACValueList);
+                    result = ACUrlEditorDlg(acParameter[0] as ACClass, acParameter[1] as string, acParameter[2] as ACValueList);
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
