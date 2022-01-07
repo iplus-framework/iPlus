@@ -2635,7 +2635,7 @@ namespace gip.core.datamodel
                     foreach(ACClassText aCClassText in classForEnumList.ACClassText_ACClass.ToArray())
                     {
                         ACValueItem aCValueItem = _ACValueListForEnum.FirstOrDefault(c=>c.Value.ToString() == aCClassText.ACIdentifier);
-                        if(aCValueItem != null)
+                        if (aCValueItem != null)
                             aCValueItem.ACCaptionTranslation = aCClassText.ACCaptionTranslation;
                     }
                     return _ACValueListForEnum;

@@ -298,7 +298,7 @@ namespace gip.core.datamodel
                 switch (tok.value)
                 {
                     case "if":
-                        #region if(test) statement else statement2
+                        #region if (test) statement else statement2
                         Assert((tok = ts.Next()) != null && tok.value == "(", tok);
                         Assert((test = ParseNextExpression(ts.NextUntilOperatorClose(), null, parseInfo)) != null && ts.Current != null, ts.Current);
                         statement = ParseNextStatement(ts, parseInfo);
@@ -328,7 +328,7 @@ namespace gip.core.datamodel
                         break;
                         #endregion
                     case "while":
-                        #region while(test) statement : loop { if(test) statement; continueLabel; } breakLabel;
+                        #region while(test) statement : loop { if (test) statement; continueLabel; } breakLabel;
                         parseInfo.jumpInfoStack.Push(new JumpInfo());
                         Assert((tok = ts.Next()) != null && tok.value == "(", tok); // skip "while"
                         Assert((test = ParseNextExpression(ts.NextUntilOperatorClose(), null, parseInfo)) != null && ts.Current != null, ts.Current);
@@ -346,7 +346,7 @@ namespace gip.core.datamodel
                         break;
                         #endregion
                     case "do":
-                        #region do statement while(test) : loop { statement; if(test) break; continueLabel } breakLabel
+                        #region do statement while(test) : loop { statement; if (test) break; continueLabel } breakLabel
                         ts.Next(); // skip "do"
                         parseInfo.jumpInfoStack.Push(new JumpInfo());
                         statement = ParseNextStatement(ts, parseInfo);
@@ -365,7 +365,7 @@ namespace gip.core.datamodel
                         break;
                         #endregion
                     case "for":
-                        #region for(exp1,test,exp2) statement : exp1; loop{if(test) statement; continuelabel;exp2;} breaklabel;
+                        #region for(exp1,test,exp2) statement : exp1; loop{if (test) statement; continuelabel;exp2;} breaklabel;
                         parseInfo.localVariableStack.Push(new Dictionary<string, ParameterExpression>());   // exp1 can contain local variable only for "for statement"
                         parseInfo.jumpInfoStack.Push(new JumpInfo());
                         Assert((tok = ts.Next()) != null && tok.value == "(", tok); // skip "for"
@@ -401,7 +401,7 @@ namespace gip.core.datamodel
                         break;
                         #endregion
                     case "foreach":
-                        #region foreach(exp1 var in exp2) statement : IEnumerator ie=exp2.GetEnumerator(); Loop { if(ie.MoveNext()) {var=ie.Current; statement;} continueLabel } breakLabel
+                        #region foreach(exp1 var in exp2) statement : IEnumerator ie=exp2.GetEnumerator(); Loop { if (ie.MoveNext()) {var=ie.Current; statement;} continueLabel } breakLabel
 
                         // begin stack
                         lv = new Dictionary<string, ParameterExpression>();
@@ -740,7 +740,7 @@ namespace gip.core.datamodel
                                             ////List<Expression> param_list = new List<Expression>();
                                             ////foreach (TokenStore one_ts in ts_list)
                                             ////{
-                                            ////    if(one_ts.token_list.Count>0)
+                                            ////    if (one_ts.token_list.Count>0)
                                             ////        param_list.Add(GetNextExpression(one_ts, null, exprParameterList));
                                             ////}
                                             //List<Type> param_types = new List<Type>();
@@ -1079,7 +1079,7 @@ namespace gip.core.datamodel
             }
             //if (param_types != null)
             //{
-            //    if(typeByValue)
+            //    if (typeByValue)
             //        foreach (Expression e in param_list) param_types.Add((Type)((ConstantExpression)e).Value);
             //    else
             //        foreach (Expression e in param_list) param_types.Add(e.Type);

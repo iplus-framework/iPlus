@@ -1164,7 +1164,7 @@ namespace gip.core.autocomponent
                                                                    includeReserved, includeAllocated);
             if (result != null && result.Message != null)
             {
-                if(result.Message.MessageLevel > eMsgLevel.Warning)
+                if (result.Message.MessageLevel > eMsgLevel.Warning)
                     return result;
                 else if (DumpRoutingData)
                 {
@@ -1195,7 +1195,7 @@ namespace gip.core.autocomponent
             RoutingResult rResult = new ACRoutingSession(this).FindAvailableComponents(new ACRoutingVertex(startComp), selectionRuleID, direction, selectionRuleParams, 
                                                                                        includeReserved, includeAllocated);
             
-            if(DumpRoutingData && rResult != null && rResult.Message != null && rResult.Message.MessageLevel <= eMsgLevel.Warning)
+            if (DumpRoutingData && rResult != null && rResult.Message != null && rResult.Message.MessageLevel <= eMsgLevel.Warning)
             {
                 Messages.LogMessageMsg(rResult.Message);
             }
