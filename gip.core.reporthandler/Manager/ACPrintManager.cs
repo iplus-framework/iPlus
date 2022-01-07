@@ -98,7 +98,7 @@ namespace gip.core.reporthandler
         }
 
         [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 200, true)]
-        public virtual Msg Print(PAOrderInfo pAOrderInfo, int copyCount, string vbUserName = null)
+        public virtual Msg Print(PAOrderInfo pAOrderInfo, int copyCount, string vbUserName = null, bool skipPrinterCheck = true)
         {
             Msg msg = null;
             try
@@ -128,7 +128,7 @@ namespace gip.core.reporthandler
                 {
                     try
                     {
-                        msg = bso.PrintByOrderInfo(pAOrderInfo, printInfo.PrinterInfo.PrinterName, (short)copyCount, printInfo.ReportACIdentifier);
+                        msg = bso.PrintByOrderInfo(pAOrderInfo, printInfo.PrinterInfo.PrinterName, (short)copyCount, printInfo.ReportACIdentifier, skipPrinterCheck);
                         if (msg != null)
                             return msg;
                         else

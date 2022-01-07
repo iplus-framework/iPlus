@@ -7,7 +7,7 @@ namespace gip.core.autocomponent
 {
     public interface IReportHandler : IACComponent
     {
-        void Print(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies = 1);
+        Msg Print(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies = 1, bool skipPrinterCheck = true);
         void Preview(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data);
         void Design(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data);
     }

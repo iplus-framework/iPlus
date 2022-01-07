@@ -161,17 +161,17 @@ namespace gip.core.reporthandler
         #region Public Methods
 
         [ACMethodInfo("Report", "en{'Print'}de{'Drucken'}", 9999, false)]
-        public void Print(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies = 1)
+        public Msg Print(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies = 1, bool skipPrinterCheck = true)
         {
             if (acClassDesign == null || data == null)
-                return;
+                return null;
             CurrentACClassDesign = acClassDesign;
             CurrentReportData = data;
             WithDialog = withDialog;
             PrinterName = printerName;
             if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
             {
-                FlowPrint(acClassDesign, withDialog, printerName, data, copies);
+                return FlowPrint(acClassDesign, withDialog, printerName, data, copies, skipPrinterCheck);
             }
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
             {
@@ -181,6 +181,8 @@ namespace gip.core.reporthandler
             {
                 DoPrintComponent(acClassDesign, withDialog, copies);
             }
+
+            return null;
         }
 
         [ACMethodInfo("Report", "en{'Preview'}de{'Vorschau'}", 9999, false)]
@@ -822,28 +824,28 @@ namespace gip.core.reporthandler
             }
         }
 
-        public void FlowPrint(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies)
+        public Msg FlowPrint(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies, bool skipPrinterCheck = true)
         {
             if (acClassDesign == null || data == null)
-                return;
+                return null;
 
             ReportDocument reportDoc = new ReportDocument(CurrentACClassDesign.XMLDesign);
             if (reportDoc == null)
-                return;
+                return null;
             XpsDocument xps;
             if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://"))
             {
                 string fileName = printerName.Substring(7);
                 xps = reportDoc.CreateXpsDocument(data, fileName);
-                return;
+                return null;
             }
             else
                 xps = reportDoc.CreateXpsDocument(data);
             if (xps == null)
-                return;
+                return null;
             FixedDocumentSequence fDocSeq = xps.GetFixedDocumentSequence();
             if (fDocSeq == null)
-                return;
+                return null;
 
             if (copies <= 0)
                 copies = 1;
@@ -938,7 +940,13 @@ namespace gip.core.reporthandler
                     }
                 }
                 if (pQ == null)
-                    return;
+                    return null;
+
+                if (!skipPrinterCheck && (pQ.IsInError || pQ.NumberOfJobs > 3))
+                {
+                    return new Msg(this, eMsgLevel.Question, "VBBSOReport", "FlowPrint", 947, "Question50078", eMsgButton.YesNo);
+                }
+
                 XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
                 if (writer != null)
                 {
@@ -973,6 +981,8 @@ namespace gip.core.reporthandler
                     //}
                 }
             }
+
+            return null;
         }
 
         #endregion
