@@ -39,8 +39,24 @@ namespace gip.core.processapplication
             double tol = _TolerancePlus.ValueT;
             tol = _ToleranceMinus.ValueT;
 
-
             return true;
+        }
+
+        public override bool ACPostInit()
+        {
+            bool result = base.ACPostInit();
+
+            var target = ActualWeightExternal as IACPropertyNetTarget;
+            if (target != null && target.Source != null)
+                IsVisibleExtActualWeight.ValueT = true;
+            return result;
+        }
+
+        public override bool ACDeInit(bool deleteACClassTask = false)
+        {
+            bool result = base.ACDeInit(deleteACClassTask);
+            UnSubscribeStandStillDetection();
+            return result;
         }
 
         #endregion
@@ -52,7 +68,7 @@ namespace gip.core.processapplication
         public IACContainerTNet<TimeSpan> CalmingTime { get; set; }
 
         [ACPropertyBindingTarget(701, "Configuration", "en{'Calmingweight'}de{'Beruhigungsgewicht '}", "", true, true, RemotePropID = 73)]
-        public IACContainerTNet<TimeSpan> CalmingWeight { get; set; }
+        public IACContainerTNet<double> CalmingWeight { get; set; }
 
         private ACPropertyConfigValue<bool> _TareInternal;
         [ACPropertyConfig("en{'Tare internal'}de{'Internes Tarieren'}")]
@@ -94,12 +110,6 @@ namespace gip.core.processapplication
             {
                 _ToleranceMinus.ValueT = value;
             }
-        }
-
-        [ACPropertyInfo(703)]
-        public bool IsVisibleExtAcutalWeight
-        {
-            get => TareInternal;
         }
 
         /// <summary>
@@ -156,6 +166,9 @@ namespace gip.core.processapplication
 
         [ACPropertyBindingTarget(736, "Read from PLC", "en{'Actual-/Netweight [kg]'}de{'Ist-/Nettogewicht [kg]'}", "", false, false, RemotePropID = 84)]
         public IACContainerTNet<Double> ActualWeightExternal { get; set; }
+
+        [ACPropertyBindingSource(703, "Config", "en{'External Weight is used'}de{'Zeige externes Gewicht an'}", "", false, false)]
+        public IACContainerTNet<Boolean> IsVisibleExtActualWeight { get; set; }
 
         [ACPropertyBindingTarget(737, "Write to PLC", "en{'Tarecounter Res.'}de{'Tarierzaehler Antw.'}", "", false, false, RemotePropID = 85)]
         public IACContainerTNet<Int32> TareCounterRes { get; set; }
@@ -344,6 +357,7 @@ namespace gip.core.processapplication
             base.ActualValue_PropertyChanged(sender, e);
             if (IsInternalActualWeightCalculation)
                 RecalcActualWeight();
+            HandleStandStill();
         }
 
         protected virtual void RecalcActualWeight()
@@ -351,6 +365,87 @@ namespace gip.core.processapplication
             if (ActualValue != null && StoredTareWeight != null)
                 ActualWeight.ValueT = ActualValue.ValueT - StoredTareWeight.ValueT;
         }
+
+        #region Stand-Still-Handling
+        private ACMonitorObject _80000_StandStillLock = new ACMonitorObject(80000);
+        private double _PrevActualValue = 0.0;
+        private System.Diagnostics.Stopwatch _StandStillStopWatch = new System.Diagnostics.Stopwatch();
+        protected virtual void HandleStandStill()
+        {
+            if ((NotStandStill as IACPropertyNetTarget).Source == null
+                && CalmingTime.ValueT > TimeSpan.Zero
+                && CalmingWeight.ValueT >= 0.000001)
+            {
+                double actualValue = ActualValue.ValueT;
+                double calmingWeight = CalmingWeight.ValueT;
+                bool notStandStill = false;
+                using (ACMonitor.Lock(_80000_StandStillLock))
+                {
+                    if (Math.Abs(_PrevActualValue - actualValue) > calmingWeight)
+                    {
+                        if (_StandStillStopWatch.IsRunning)
+                            _StandStillStopWatch.Restart();
+                        else
+                            _StandStillStopWatch.Start();
+                        _PrevActualValue = actualValue;
+                        notStandStill = true;
+                    }
+                }
+                if (notStandStill)
+                    NotStandStill.ValueT = notStandStill;
+                SubscribeStandStillDetection();
+            }
+            else
+            {
+                UnSubscribeStandStillDetection();
+            }
+        }
+
+        private bool _StandStillSubsc = false;
+        private void SubscribeStandStillDetection()
+        {
+            if (InitState != ACInitState.Initialized)
+                return;
+            using (ACMonitor.Lock(_80000_StandStillLock))
+            {
+                if (_StandStillSubsc)
+                    return;
+                this.ApplicationManager.ProjectWorkCycleR200ms += StandStillSubsc_ProjectWorkCycleR200ms;
+                _StandStillSubsc = true;
+            }
+        }
+
+        private void UnSubscribeStandStillDetection()
+        {
+            using (ACMonitor.Lock(_80000_StandStillLock))
+            {
+                if (!_StandStillSubsc)
+                    return;
+                _StandStillSubsc = false;
+                _StandStillStopWatch.Reset();
+                this.ApplicationManager.ProjectWorkCycleR200ms -= StandStillSubsc_ProjectWorkCycleR200ms;
+            }
+        }
+
+        private void StandStillSubsc_ProjectWorkCycleR200ms(object sender, EventArgs e)
+        {
+            TimeSpan calmingTime = CalmingTime.ValueT;
+            bool resetStandStill = false;
+
+            using (ACMonitor.Lock(_80000_StandStillLock))
+            {
+                if (_StandStillStopWatch.IsRunning && _StandStillStopWatch.Elapsed > calmingTime)
+                {
+                    resetStandStill = true;
+                    _StandStillStopWatch.Reset();
+                }
+            }
+
+            if (resetStandStill)
+                NotStandStill.ValueT = false;
+        }
+        #endregion
+
         #endregion
 
         #region Handle execute helpers

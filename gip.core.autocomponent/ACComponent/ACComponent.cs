@@ -4827,7 +4827,7 @@ namespace gip.core.autocomponent
         /// <param name="queryDefinition">Query definiton for a additional query.</param>
         /// <returns></returns>
         public virtual Msg PrintDesign(ACClassDesign design, string printerName, int numberOfCopies, bool withDialog, Global.CurrentOrList selectMode = Global.CurrentOrList.Current, 
-                                       ACQueryDefinition queryDefinition = null, bool skipPrinterCheck = true)
+                                       ACQueryDefinition queryDefinition = null, int maxPrintJobsInSpooler = 0)
         {
             if (design == null)
                 return new Msg("The parameter design is null!", this, eMsgLevel.Error, "ACComponent", "PrintDesign(10)", 4622);
@@ -4851,7 +4851,7 @@ namespace gip.core.autocomponent
                     {
                         var t = new Thread(() =>
                         {
-                            msg = acReportComp.Print(design, withDialog, printerName, reportData, numberOfCopies, skipPrinterCheck);
+                            msg = acReportComp.Print(design, withDialog, printerName, reportData, numberOfCopies, maxPrintJobsInSpooler);
                         });
                         t.SetApartmentState(ApartmentState.STA);
                         t.IsBackground = false;
@@ -4863,7 +4863,7 @@ namespace gip.core.autocomponent
                         // do work here when calling thread is STA
                         // this removes the overhead of creating
                         // a new thread when it is not necessary
-                        msg = acReportComp.Print(design, withDialog, printerName, reportData, numberOfCopies, skipPrinterCheck);
+                        msg = acReportComp.Print(design, withDialog, printerName, reportData, numberOfCopies, maxPrintJobsInSpooler);
                     }
 
                     if (cloneInstantiated)

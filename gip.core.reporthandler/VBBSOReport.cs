@@ -161,7 +161,7 @@ namespace gip.core.reporthandler
         #region Public Methods
 
         [ACMethodInfo("Report", "en{'Print'}de{'Drucken'}", 9999, false)]
-        public Msg Print(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies = 1, bool skipPrinterCheck = true)
+        public Msg Print(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies = 1, int maxPrintJobsInSpooler = 0)
         {
             if (acClassDesign == null || data == null)
                 return null;
@@ -171,7 +171,7 @@ namespace gip.core.reporthandler
             PrinterName = printerName;
             if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
             {
-                return FlowPrint(acClassDesign, withDialog, printerName, data, copies, skipPrinterCheck);
+                return FlowPrint(acClassDesign, withDialog, printerName, data, copies, maxPrintJobsInSpooler);
             }
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
             {
@@ -824,7 +824,7 @@ namespace gip.core.reporthandler
             }
         }
 
-        public Msg FlowPrint(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies, bool skipPrinterCheck = true)
+        public Msg FlowPrint(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies, int maxPrintJobsInSpooler = 0)
         {
             if (acClassDesign == null || data == null)
                 return null;
@@ -942,7 +942,8 @@ namespace gip.core.reporthandler
                 if (pQ == null)
                     return null;
 
-                if (!skipPrinterCheck && (pQ.IsInError || pQ.NumberOfJobs > 3))
+                if (   maxPrintJobsInSpooler > 0 
+                    && (pQ.IsInError || pQ.NumberOfJobs >= maxPrintJobsInSpooler))
                 {
                     return new Msg(this, eMsgLevel.Question, "VBBSOReport", "FlowPrint", 947, "Question50078", eMsgButton.YesNo);
                 }
