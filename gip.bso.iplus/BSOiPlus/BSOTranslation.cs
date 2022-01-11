@@ -519,6 +519,8 @@ namespace gip.bso.iplus
         {
             get
             {
+                if (string.IsNullOrEmpty(_FilterClassACIdentifier))
+                    _FilterClassACIdentifier = null;
                 return _FilterClassACIdentifier;
             }
             set
@@ -537,6 +539,8 @@ namespace gip.bso.iplus
         {
             get
             {
+                if (string.IsNullOrEmpty(_FilterACIdentifier))
+                    _FilterACIdentifier = null;
                 return _FilterACIdentifier;
             }
             set
@@ -555,6 +559,8 @@ namespace gip.bso.iplus
         {
             get
             {
+                if (string.IsNullOrEmpty(_FilterTranslation))
+                    _FilterTranslation = null;
                 return _FilterTranslation;
             }
             set

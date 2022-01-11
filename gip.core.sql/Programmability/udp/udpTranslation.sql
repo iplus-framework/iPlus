@@ -1513,6 +1513,30 @@ begin
 					(@notHaveInTranslation is null or LOWER(md.MDNameTrans) not like '%' + @notHaveInTranslation + '%')
 					order by md.MDKey
 				end
+
+			-- MDPickingType
+			if(@searchClassACIdentifier is null or @searchClassACIdentifier = 'MDPickingType')
+			begin
+				insert into #translationViewResults(JobID, ACProjectName, TableName, MandatoryID, MandatoryACIdentifier, MandatoryACURLCached, ID, ACIdentifier, TranslationValue, UpdateName, UpdateDate)
+				select
+					@jobID as				JobID,
+					'' as					ACProjectName,
+					'MDPickingType' as		TableName,
+					@emptyID as				MandatoryID,
+					'' as					MandatoryACIdentifier,
+					null as					MandatoryACURLCached,
+					md.MDPickingTypeID as	ID,
+					md.MDKey as				ACIdentifier,
+					md.MDNameTrans as		TranslationValue,
+					md.UpdateName as		UpdateName,
+					md.UpdateDate as		UpdateDate
+				from MDPickingType md
+					where 
+					(@searchACIdentifier is null or lower(md.MDKey) like '%' + @searchACIdentifier + '%') and
+					(@searchTranslation is null or LOWER(md.MDNameTrans) like '%' + @searchTranslation + '%') and
+					(@notHaveInTranslation is null or LOWER(md.MDNameTrans) not like '%' + @notHaveInTranslation + '%')
+					order by md.MDKey
+			end
 			
 		-- ## end MDTables
 		end
