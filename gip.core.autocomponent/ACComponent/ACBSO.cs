@@ -707,6 +707,7 @@ namespace gip.core.autocomponent
         /// <param name="designName">Name of the design.</param>
         /// <param name="printerName">Name of the printer.</param>
         /// <param name="numberOfCopies">The number of copies.</param>
+        /// <param name="maxPrintJobsInSpooler">Max Print Jobs in Queue</param>
         /// <returns></returns>
         public virtual Msg PrintByOrderInfo(PAOrderInfo paOrderInfo, string printerName, short numberOfCopies, string designName = null, int maxPrintJobsInSpooler = 0)
         {
