@@ -1922,53 +1922,55 @@ namespace gip.bso.iplus
             int progressDiff = rangeTo - rangeFrom;
             int itemsCount = 0;
             if (list != null)
-                itemsCount = list.Count();
-            foreach (var translationItem in list)
             {
-                translationItem.TranslationValue = string.Join("", translationItem.EditTranslationList.Where(c => !string.IsNullOrEmpty(c.Translation)).Select(c => c.GetTranslationTuple()));
-                object item = null;
-                if (translationItem.TableName.StartsWith("AC"))
-                    item = GetACClassObjectItem(Database as Database, translationItem);
-                else
-                    item = GetMDObjectItem(Database as Database, translationItem);
-
-                if (item != null)
+                itemsCount = list.Count();
+                foreach (var translationItem in list)
                 {
-                    if (updateOnly)
-                    {
-                        VBTranslationView tmpTranslationView = new VBTranslationView();
-                        if (item is IACObjectEntityWithCheckTrans)
-                            tmpTranslationView.TranslationValue = (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation;
-                        else if (item is IMDTrans)
-                            tmpTranslationView.TranslationValue = (item as IMDTrans).MDNameTrans;
-                        if (!string.IsNullOrEmpty(tmpTranslationView.TranslationValue))
-                            tmpTranslationView.EditTranslationList = VBTranslationView.LoadEditTranslationList(SourceLanguageList, tmpTranslationView.TranslationValue);
-                        else
-                            tmpTranslationView.EditTranslationList = new List<TranslationPair>();
+                    translationItem.TranslationValue = string.Join("", translationItem.EditTranslationList.Where(c => !string.IsNullOrEmpty(c.Translation)).Select(c => c.GetTranslationTuple()));
+                    object item = null;
+                    if (translationItem.TableName.StartsWith("AC"))
+                        item = GetACClassObjectItem(Database as Database, translationItem);
+                    else
+                        item = GetMDObjectItem(Database as Database, translationItem);
 
-                        foreach (TranslationPair newTranslation in translationItem.EditTranslationList)
+                    if (item != null)
+                    {
+                        if (updateOnly)
                         {
-                            TranslationPair oldTranslation = tmpTranslationView.EditTranslationList.FirstOrDefault(c => c.LangCode == newTranslation.LangCode);
-                            if (oldTranslation != null)
-                                oldTranslation.Translation = newTranslation.Translation;
+                            VBTranslationView tmpTranslationView = new VBTranslationView();
+                            if (item is IACObjectEntityWithCheckTrans)
+                                tmpTranslationView.TranslationValue = (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation;
+                            else if (item is IMDTrans)
+                                tmpTranslationView.TranslationValue = (item as IMDTrans).MDNameTrans;
+                            if (!string.IsNullOrEmpty(tmpTranslationView.TranslationValue))
+                                tmpTranslationView.EditTranslationList = VBTranslationView.LoadEditTranslationList(SourceLanguageList, tmpTranslationView.TranslationValue);
                             else
-                                tmpTranslationView.EditTranslationList.Add(newTranslation);
+                                tmpTranslationView.EditTranslationList = new List<TranslationPair>();
+
+                            foreach (TranslationPair newTranslation in translationItem.EditTranslationList)
+                            {
+                                TranslationPair oldTranslation = tmpTranslationView.EditTranslationList.FirstOrDefault(c => c.LangCode == newTranslation.LangCode);
+                                if (oldTranslation != null)
+                                    oldTranslation.Translation = newTranslation.Translation;
+                                else
+                                    tmpTranslationView.EditTranslationList.Add(newTranslation);
+                            }
+                            tmpTranslationView.TranslationValue = string.Join("", tmpTranslationView.EditTranslationList.Where(c => !string.IsNullOrEmpty(c.Translation)).Select(c => c.GetTranslationTuple()));
+                            translationItem.TranslationValue = tmpTranslationView.TranslationValue;
                         }
-                        tmpTranslationView.TranslationValue = string.Join("", tmpTranslationView.EditTranslationList.Where(c => !string.IsNullOrEmpty(c.Translation)).Select(c => c.GetTranslationTuple()));
-                        translationItem.TranslationValue = tmpTranslationView.TranslationValue;
+
+                        if (item is IACObjectEntityWithCheckTrans)
+                            (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation = translationItem.TranslationValue;
+                        else
+                            UpdateMDObject(Database as Database, SourceLanguageList, translationItem);
                     }
 
-                    if (item is IACObjectEntityWithCheckTrans)
-                        (item as IACObjectEntityWithCheckTrans).ACCaptionTranslation = translationItem.TranslationValue;
-                    else
-                        UpdateMDObject(Database as Database, SourceLanguageList, translationItem);
+                    int itemIndex = list.IndexOf(translationItem);
+                    int progressValue = (itemIndex / itemsCount) * progressDiff;
+                    worker.ProgressInfo.TotalProgress.ProgressCurrent = progressValue;
                 }
-
-                int itemIndex = list.IndexOf(translationItem);
-                int progressValue = (itemIndex / itemsCount) * progressDiff;
-                worker.ProgressInfo.TotalProgress.ProgressCurrent = progressValue;
+                var testResult = Database.ACSaveChanges();
             }
-            var testResult = Database.ACSaveChanges();
             return list;
         }
 
