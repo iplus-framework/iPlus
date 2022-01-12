@@ -63,7 +63,7 @@ namespace gip.core.datamodel
                 entity.IsTestmode = false;
             }
 
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

@@ -19,7 +19,7 @@ namespace gip.core.datamodel
             VBLicense entity = new VBLicense();
             entity.VBLicenseID = Guid.NewGuid();
             entity.LicenseNo = secondaryKey;
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             database.VBLicense.AddObject(entity);
             return entity;
         }

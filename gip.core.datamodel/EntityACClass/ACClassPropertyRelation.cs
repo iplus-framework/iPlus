@@ -89,7 +89,7 @@ namespace gip.core.datamodel
             entity.UseFactor = 1;
             entity.LastManipulationDT = new DateTime(2000,1,1);
 
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 
@@ -115,7 +115,7 @@ namespace gip.core.datamodel
             if (entity.TargetACClass.ACKind == Global.ACKinds.TPAProcessFunction) 
                 entity.ConnectionType = Global.ConnectionTypes.LogicalBridge;
 
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

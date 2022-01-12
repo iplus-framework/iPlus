@@ -26,7 +26,7 @@ namespace gip.core.datamodel
             ACProgramLogTask entity = new ACProgramLogTask();
             entity.ACProgramLogTaskID = Guid.NewGuid();
             entity.DefaultValuesACObject();
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

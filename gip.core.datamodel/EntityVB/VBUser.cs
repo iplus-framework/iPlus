@@ -32,7 +32,7 @@ namespace gip.core.datamodel
             entity.VBLanguage = VBLanguage.DefaultVBLanguage(database);
             entity.IsSuperuser = false;
 
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

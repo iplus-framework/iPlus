@@ -40,7 +40,7 @@ namespace gip.core.datamodel
             entity.PlannedStartDate = DateTime.Now;
             entity.Comment = "";
             entity.ACProgramType = Global.ACProgramTypes.Precompiled;
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

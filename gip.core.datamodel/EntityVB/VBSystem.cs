@@ -20,7 +20,7 @@ namespace gip.core.datamodel
             // Bei Systembelegung gibt es keine Vorbelegung, da hier kein Customizing erwünscht ist
             VBSystem entity = new VBSystem();
             entity.VBSystemID = Guid.NewGuid();
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             database.VBSystem.AddObject(entity);
             return entity;
         }

@@ -25,7 +25,7 @@ namespace gip.core.datamodel
             entity.VBGroupID = Guid.NewGuid();
             // Bei Systembelegung gibt es keine Vorbelegung, da hier kein Customizing erwünscht ist
             entity.Description = "";
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

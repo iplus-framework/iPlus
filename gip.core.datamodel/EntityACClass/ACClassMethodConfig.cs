@@ -37,7 +37,7 @@ namespace gip.core.datamodel
             {
                 entity.ACClassMethod = parentACObject as ACClassMethod;
             }
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

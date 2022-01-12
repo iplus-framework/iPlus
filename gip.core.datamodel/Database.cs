@@ -179,6 +179,27 @@ namespace gip.core.datamodel
             }
         }
 
+        private string _UserName;
+        public string UserName
+        {
+            get
+            {
+                if (!String.IsNullOrEmpty(_UserName))
+                    return _UserName;
+                if (Database.Root == null 
+                    || !Database.Root.Initialized
+                    || Database.Root.Environment == null
+                    || Database.Root.Environment.User == null)
+                    return "Init";
+                _UserName = Database.Root.Environment.User.Initials;
+                return _UserName;
+            }
+            set
+            {
+                _UserName = value;
+            }
+        }
+
         /// <summary>
         /// 1. Globale Datenbank (Nur eine Instanz)
         /// ---------------------------------------

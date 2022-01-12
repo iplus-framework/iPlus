@@ -32,6 +32,12 @@ namespace gip.core.webservices
         }
 
         [DataMember]
+        public string Initials
+        {
+            get; set;
+        }
+
+        [DataMember]
         public List<VBMenuItem> Menu
         {
             get; set;

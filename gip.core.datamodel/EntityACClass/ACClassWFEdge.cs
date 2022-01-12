@@ -56,7 +56,7 @@ namespace gip.core.datamodel
             entity.ACIdentifier = secondaryKey;
             entity.XName = entity.ACIdentifier;
             entity.BranchNo = 0;
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

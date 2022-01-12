@@ -28,7 +28,7 @@ namespace gip.core.webservices
                 if (mainMenu == null)
                     return new WSResponse<VBUserRights>(null, new Msg(eMsgLevel.Error, "Could not create a menu for user"));
                 string defaultLanguage = VBLanguage.DefaultVBLanguage(ACRoot.SRoot.Database as Database).VBLanguageCode;
-                userRights = new VBUserRights() { DefaultLanguage = defaultLanguage, Language = vbUser.VBLanguage.VBLanguageCode, UserName = vbUser.VBUserName, Menu = new List<VBMenuItem>() };
+                userRights = new VBUserRights() { DefaultLanguage = defaultLanguage, Language = vbUser.VBLanguage.VBLanguageCode, UserName = vbUser.VBUserName, Initials = vbUser.Initials, Menu = new List<VBMenuItem>() };
             }
 
             if (userRights != null)
@@ -134,6 +134,28 @@ namespace gip.core.webservices
         {
             knownTypes.Add(new Tuple<Type, Type>(typeof(datamodel.ACClass), typeof(webservices.ACClass)));
             knownTypes.Add(new Tuple<Type, Type>(typeof(datamodel.ACClassProperty), typeof(webservices.ACClassProperty)));
+        }
+
+        public VBUserRights InvokingUser
+        {
+            get
+            {
+                PAJsonServiceHost myServiceHost = PAWebServiceBase.FindPAWebService<PAJsonServiceHost>(true);
+                return GetInvokingUser(myServiceHost);
+            }
+        }
+
+        public VBUserRights GetInvokingUser(PAJsonServiceHost myServiceHost)
+        {
+            if (myServiceHost == null)
+                return null;
+
+            Guid? currentSessionID = WSRestAuthorizationManager.CurrentSessionID;
+            if (currentSessionID.HasValue && myServiceHost != null)
+            {
+                return myServiceHost.GetRightsForSession(currentSessionID.Value);
+            }
+            return null;
         }
     }
 }

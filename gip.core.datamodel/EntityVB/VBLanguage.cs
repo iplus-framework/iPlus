@@ -24,7 +24,7 @@ namespace gip.core.datamodel
             entity.VBLanguageID = Guid.NewGuid();
             entity.DefaultValuesACObject();
             entity.IsDefault = false;
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

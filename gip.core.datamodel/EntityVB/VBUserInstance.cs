@@ -70,7 +70,7 @@ namespace gip.core.datamodel
             entity.UseTextEncoding = false;
             entity.SessionInfo = "";
             entity.SessionCount = 0;
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

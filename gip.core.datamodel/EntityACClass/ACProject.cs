@@ -90,7 +90,7 @@ namespace gip.core.datamodel
             entity.IsWorkflowEnabled = false;
             entity.IsControlCenterEnabled = false;
             entity.IsDataAccess = false;
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

@@ -43,7 +43,7 @@ namespace gip.core.datamodel
             entity.DefaultValuesACObject();
             entity.Comment = "";
             entity.BranchNo = 0;
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

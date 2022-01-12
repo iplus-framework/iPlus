@@ -125,6 +125,8 @@ namespace gip.core.datamodel
 
         EntityConnection SeparateConnection { get; }
 
+        string UserName { get; set; }
+
         #endregion
 
         #region ObjectContext

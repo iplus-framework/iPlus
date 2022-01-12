@@ -118,7 +118,7 @@ namespace gip.core.datamodel
             }
             entity.ACIdentifier = "NewClass";
 
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

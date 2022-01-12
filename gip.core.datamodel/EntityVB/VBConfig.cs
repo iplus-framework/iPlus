@@ -29,7 +29,7 @@ namespace gip.core.datamodel
             entity.VBConfigID = Guid.NewGuid();
             entity.DefaultValuesACObject();
             entity.XMLConfig = "";
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

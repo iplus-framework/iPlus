@@ -107,7 +107,7 @@ namespace gip.core.datamodel
                 entity.ACClass = parentACObject as ACClass;
             }
             database.ACClassConfig.AddObject(entity);
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

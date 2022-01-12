@@ -25,7 +25,7 @@ namespace gip.core.datamodel
                 VBUser user = parentACObject as VBUser;
                 entity.VBUser = user;
             }
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
        }
 

@@ -49,7 +49,7 @@ namespace gip.core.datamodel
             {
                 entity.ACClassTask = parentACObject as ACClassTask;
             }
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 
@@ -64,7 +64,7 @@ namespace gip.core.datamodel
         {
             ACClassTaskValue entity = ACClassTaskValue.NewACObject(database, parentACObject);
             entity.ACClassProperty = acClassProperty as ACClassProperty;
-            entity.EntityCheckAdded(Database.Initials, database);
+            entity.EntityCheckAdded(database.UserName, database);
             return entity;
         }
 

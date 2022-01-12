@@ -32,7 +32,7 @@ namespace gip.core.datamodel
             entity.XMLConfig = "";
             entity.TimeStampOccurred = DateTime.MinValue;
             entity.TimeStampAcknowledged = DateTime.MinValue;
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

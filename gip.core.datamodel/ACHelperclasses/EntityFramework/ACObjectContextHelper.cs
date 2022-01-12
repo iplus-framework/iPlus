@@ -524,7 +524,7 @@ namespace gip.core.datamodel
                     if (o != null)
                     {
                         if (writeUpdateInfo)
-                            subResultList = o.EntityCheckModified(Database.Initials, _ObjectContext);
+                            subResultList = o.EntityCheckModified(_ObjectContext.UserName, _ObjectContext);
                         if (subResultList != null)
                         {
                             if (resultList == null)
@@ -557,7 +557,7 @@ namespace gip.core.datamodel
                     if (o != null)
                     {
                         if (writeUpdateInfo)
-                            subResultList = o.EntityCheckAdded(Database.Initials, _ObjectContext);
+                            subResultList = o.EntityCheckAdded(_ObjectContext.UserName, _ObjectContext);
                         if (subResultList != null)
                         {
                             if (resultList == null)

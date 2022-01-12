@@ -57,7 +57,7 @@ namespace gip.core.datamodel
             {
                 entity.ACClassTaskValue = parentACObject as ACClassTaskValue;
             }
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

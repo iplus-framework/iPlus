@@ -185,7 +185,7 @@ namespace gip.core.datamodel
                 if (this is IDeleteInfo)
                 {
                     ((IDeleteInfo)this).DeleteDate = DateTime.Now;
-                    ((IDeleteInfo)this).DeleteName = Database.Initials;
+                    ((IDeleteInfo)this).DeleteName = database.UserName;
                 }
                 else
                 {

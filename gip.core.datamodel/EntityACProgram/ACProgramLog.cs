@@ -33,7 +33,7 @@ namespace gip.core.datamodel
             if (parentACObject is ACProgram)
                 entity.ACProgram = parentACObject as ACProgram;
             entity.DefaultValuesACObject();
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 

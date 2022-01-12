@@ -20,7 +20,7 @@ namespace gip.core.datamodel
             entityObject.ACPropertyLogRuleID = Guid.NewGuid();
             entityObject.RuleType = (short)ruleType;
             entityObject.ACClassID = acClass.ACClassID;
-            entityObject.SetInsertAndUpdateInfo(Database.Initials, db);
+            entityObject.SetInsertAndUpdateInfo(db.UserName, db);
             return entityObject;
         }
     }

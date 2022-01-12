@@ -31,7 +31,7 @@ namespace gip.core.datamodel
             entity.MaxCounter = 99999999;
             entity.CurrentDate = DateTime.Now;
             entity.CurrentCounter = entity.MinCounter;
-            entity.SetInsertAndUpdateInfo(Database.Initials, database);
+            entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
 
