@@ -3900,7 +3900,7 @@ namespace gip.core.autocomponent
         /// </summary>
         /// <param name="name">Name of the property</param>
         [ACMethodInfo("ACComponent", "en{'PropertyChanged'}de{'PropertyChanged'}", 9999)]
-        public virtual void OnPropertyChanged(string name)
+        public virtual void OnPropertyChanged([CallerMemberName] string name = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

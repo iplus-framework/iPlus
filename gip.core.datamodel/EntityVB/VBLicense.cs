@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace gip.core.datamodel
 {
@@ -7,6 +8,8 @@ namespace gip.core.datamodel
     [ACPropertyEntity(1, "LicenseNo", "en{'License No'}de{'Lizenz Nr.'}", "", "", true)]
     [ACPropertyEntity(2, "ProjectNo", "en{'Project number'}de{'Projekt Nummer'}", "", "", true)]
     [ACPropertyEntity(3, "CustomerName", "en{'Customer name'}de{'Name des Kunden'}", "", "", true)]
+    [ACPropertyEntity(4, "SystemDB", "en{'Unique customer code'}de{'Eindeutiger Kundencode'}", "", "", true)]
+    [ACPropertyEntity(5, "SystemDS", "en{'Number of licensed sessions'}de{'Anzahl lizenzierter Sitzungen'}", "", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBLicense.ClassName, "en{'License'}de{'Lizenz'}", typeof(VBLicense), VBLicense.ClassName, "CustomerName", "CustomerName")]
     public partial class VBLicense : IACObjectEntity
     {
@@ -41,6 +44,28 @@ namespace gip.core.datamodel
             get
             {
                 return "CustomerName";
+            }
+        }
+
+        [ACPropertyInfo(200, "", "en{'Readable License Key'}de{'Lesbarer Lizenzschlüssel'}")]
+        public string ReadableLicenseKey
+        {
+            get
+            {
+                if (SystemCommon == null || SystemCommon.Length <= 0)
+                    return null;
+                return BitConverter.ToString(SystemCommon);
+            }
+        }
+
+        [ACPropertyInfo(201, "", "en{'Assigned Packages'}de{'Zugewiesen Pakete'}")]
+        public string ReadablePackages
+        {
+            get
+            {
+                if (PackageSystem == null || PackageSystem.Length <= 0)
+                    return "";
+                return Encoding.UTF8.GetString(PackageSystem);
             }
         }
     }

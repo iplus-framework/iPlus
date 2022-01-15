@@ -662,7 +662,7 @@ namespace gip.core.datamodel.Licensing
             sysLicense.SystemInternal1 = info.Signature;
             sysLicense.SystemInternal2 = info.PublicKey;
             license.PackageSystem1 = info.PrivateKey;
-            license.SystemDB = "";
+            license.SystemDB = uniqueUserCode;
             license.SystemDS = "";
 
             SignInfo infoDB = CSP.SignData(Encoding.UTF8.GetBytes(uniqueUserCode), info.PrivateKey);

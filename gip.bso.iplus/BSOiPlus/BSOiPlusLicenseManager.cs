@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.ComponentModel;
 using System.Threading;
+using System.Drawing;
 
 namespace gip.bso.iplus
 {
@@ -53,7 +54,6 @@ namespace gip.bso.iplus
             _AccessPrimary = null;
             _SelectedAssignedPackage = null;
             _SelectedAvailablePackage = null;
-            _UniqueCustomerCode = null;
             _RemoteUserCode = null;
             _RemoteUserKey = null;
             _LicenseFileDirPath = null;
@@ -144,6 +144,9 @@ namespace gip.bso.iplus
                 LoadAvailableAssignedPackages();
                 //GenerateiPlusPackageCode();
                 OnPropertyChanged("CurrentVBLicense");
+                _LicenseImage = null;
+                OnPropertyChanged(nameof(LicenseImage));
+                OnPropertyChanged("UniqueCustomerCode");
             }
         }
 
@@ -159,7 +162,7 @@ namespace gip.bso.iplus
             }
         }
 
-        private string _UniqueCustomerCode;
+        //private string _UniqueCustomerCode;
         /// <summary>
         /// Gets or sets the unique customer code.
         /// </summary>
@@ -168,11 +171,15 @@ namespace gip.bso.iplus
         {
             get
             {
-                return _UniqueCustomerCode;
+                if (CurrentVBLicense == null)
+                    return null;
+                return CurrentVBLicense.SystemDB;
             }
             set
             {
-                _UniqueCustomerCode = value;
+                if (CurrentVBLicense == null)
+                    return;
+                CurrentVBLicense.SystemDB = value;
                 OnPropertyChanged("UniqueCustomerCode");
             }
         }
@@ -572,7 +579,7 @@ namespace gip.bso.iplus
                     allPackages = new List<string>();
                 else
                     allPackages = query.ToList();
-                var assignedPackages = Encoding.UTF8.GetString(CurrentVBLicense.PackageSystem).Split(',');
+                var assignedPackages = CurrentVBLicense.ReadablePackages.Split(',');
                 AssignedPackages = new ObservableCollection<string>(assignedPackages);
                 AvailablePackages = new ObservableCollection<string>(allPackages.Except(assignedPackages));
             }
@@ -753,6 +760,111 @@ namespace gip.bso.iplus
             }
         }
 
+        #endregion
+
+        #region Methods -> Create License Image
+        private void CreateLicenseImage()
+        {
+            if (CurrentVBLicense == null 
+                || CurrentVBLicense.SystemCommon == null 
+                || !CurrentVBLicense.SystemCommon.Any())
+                return;
+            byte[] licenseArr = CurrentVBLicense.SystemCommon;
+
+            using (MemoryStream memory = new MemoryStream())
+            using (Bitmap bitmap = new Bitmap(510, 510, System.Drawing.Imaging.PixelFormat.Format32bppPArgb))
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                int segmentPos = 0;
+                short shape = 0;
+                int alpha = 255, red = 0, green = 0, blue = 0, x = 0, y = 0, width = 0, height = 0;
+
+                for (int i = 0; i < licenseArr.Length; i++)
+                {
+                    switch (segmentPos)
+                    {
+                        case 0:
+                            alpha = licenseArr[i];
+                            break;
+                        case 1:
+                            red = licenseArr[i];
+                            break;
+                        case 2:
+                            green = licenseArr[i];
+                            break;
+                        case 3:
+                            blue = licenseArr[i];
+                            break;
+                        case 4:
+                            x = licenseArr[i];
+                            break;
+                        case 5:
+                            y = licenseArr[i];
+                            break;
+                        case 6:
+                            width = licenseArr[i];
+                            break;
+                        case 7:
+                            height = licenseArr[i];
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (segmentPos == 7)
+                    {
+                        segmentPos = 0;
+                        Color color = Color.FromArgb(alpha, red, green, blue);
+                        Pen pen = new Pen(color, 2);
+                        if (shape == 0)
+                        {
+                            graphics.FillEllipse(new SolidBrush(color), x, y, width, height);
+                            //graphics.DrawEllipse(pen, x, y, width, height);
+                            shape = 1;
+                        }
+                        else if (shape == 1)
+                        {
+                            graphics.FillRectangle(new SolidBrush(color), x, y, width, height);
+                            //graphics.DrawRectangle(pen, x, y, width, height);
+                            shape = 0;
+                        }
+                        //else if (shape == 2)
+                        //{
+                        //    graphics.DrawLine(pen, x, y, width, height);
+                        //    shape = 0;
+                        //}
+                    }
+                    else
+                        segmentPos++;
+                }
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
+                memory.Position = 0;
+                System.Windows.Media.Imaging.BitmapImage bitmapImage = new System.Windows.Media.Imaging.BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+                _LicenseImage = bitmapImage;
+                //Color color = new Color();
+            }
+        }
+
+        System.Windows.Media.Imaging.BitmapImage _LicenseImage;
+        [ACPropertyInfo(540, "", "en{'LicenseImage'}de{'LicenseImage'}")]
+        public System.Windows.Media.Imaging.BitmapImage LicenseImage
+        {
+            get
+            {
+                if (_LicenseImage == null)
+                    CreateLicenseImage();
+                return _LicenseImage;
+            }
+            set
+            {
+                _LicenseImage = value;
+                OnPropertyChanged();
+            }
+        }
         #endregion
 
         #endregion
