@@ -397,9 +397,7 @@ namespace gip.core.autocomponent
         {
             if (!IsWorkflowActive(invoker, acClassMethod, db))
                 return false;
-            return db.ContextIPlus.ObjectStateManager.GetObjectStateEntries(EntityState.Modified | EntityState.Added | EntityState.Deleted)
-                                .ToArray()
-                                .Where(c => c.Entity is ACClassWF || c.Entity is ACClassWFEdge).Any();
+            return db.ContextIPlus.GetChangedEntities<VBEntityObject>(c => c is ACClassWF || c is ACClassWFEdge).Any();
         }
 
         public static bool MustConfigBeReloadedOnServer(ACComponent invoker, List<ACClassMethod> visitedMethods, IACEntityObjectContext db)
@@ -411,8 +409,7 @@ namespace gip.core.autocomponent
                 var query = ConfigManagerIPlus.GetActiveWorkflows(invoker, acClassMethod, db.ContextIPlus);
                 if (query.Any())
                 {
-                    var changedEntities = db.ObjectStateManager.GetObjectStateEntries(EntityState.Modified | EntityState.Added | EntityState.Deleted).ToArray();
-                    return changedEntities.Where(c => c.Entity is IACConfig).Any();
+                    return db.GetChangedEntities<IACConfig>().Any();
                 }
             }
             return false;

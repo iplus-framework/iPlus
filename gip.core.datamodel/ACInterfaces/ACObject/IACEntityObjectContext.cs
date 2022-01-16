@@ -66,7 +66,42 @@ namespace gip.core.datamodel
 
         bool HasModifiedObjectStateEntries();
         bool HasAddedEntities<T>() where T : class;
-        IList<T> GetAddedEntities<T>() where T : class;
+        /// <summary>
+        /// returns Entities with EntityState.Added-State only
+        /// </summary>
+        /// <returns></returns>
+        IList<T> GetAddedEntities<T>(Func<T, bool> selector = null) where T : class;
+
+        /// <summary>
+        /// returns Entities with EntityState.Modified-State only
+        /// </summary>
+        /// <returns></returns>
+        IList<T> GetModifiedEntities<T>(Func<T, bool> selector = null) where T : class;
+
+        /// <summary>
+        /// returns Entities with EntityState.Deleted-State only
+        /// </summary>
+        /// <returns></returns>
+        IList<T> GetDeletedEntities<T>(Func<T, bool> selector = null) where T : class;
+
+        /// <summary>
+        /// returns Entities with EntityState.Detached-State only
+        /// </summary>
+        /// <returns></returns>
+        IList<T> GetDetachedEntities<T>(Func<T, bool> selector = null) where T : class;
+
+        /// <summary>
+        /// returns Entities with EntityState.Unchanged-State only
+        /// </summary>
+        /// <returns></returns>
+        IList<T> GetUnchangedEntities<T>(Func<T, bool> selector = null) where T : class;
+ 
+        /// <summary>
+        /// returns EntityState.Modified | EntityState.Added | EntityState.Deleted
+        /// </summary>
+        /// <returns></returns>
+        IList<T> GetChangedEntities<T>(Func<T, bool> selector = null) where T : class;
+
         IList<Msg> CheckChangedEntities();
 
         /// <summary>

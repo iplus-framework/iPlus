@@ -465,25 +465,87 @@ namespace gip.core.datamodel
         /// THREAD-SAFE. Uses QueryLock_1X000
         /// </summary>
         /// <returns></returns>
-        public bool HasAddedEntities<T>() where T : class
+        public bool HasAddedEntities<T>(Func<T, bool> selector = null) where T : class
         {
-            IList<T> list = GetAddedEntities<T>();
-            return list.Count > 0;
+            IList<T> list = GetAddedEntities<T>(selector);
+            return list.Any();
         }
 
 
         /// <summary>
         /// THREAD-SAFE. Uses QueryLock_1X000
+        /// returns Entities with EntityState.Added-State only
         /// </summary>
         /// <returns></returns>
-        public IList<T> GetAddedEntities<T>() where T : class
+        public IList<T> GetAddedEntities<T>(Func<T, bool> selector = null) where T : class
         {
+            return GetChangedEntities<T>(System.Data.EntityState.Added, selector);
+        }
 
+        /// <summary>
+        /// THREAD-SAFE. Uses QueryLock_1X000
+        /// returns Entities with EntityState.Modified-State only
+        /// </summary>
+        /// <returns></returns>
+        public IList<T> GetModifiedEntities<T>(Func<T, bool> selector = null) where T : class
+        {
+            return GetChangedEntities<T>(System.Data.EntityState.Modified, selector);
+        }
+
+        /// <summary>
+        /// THREAD-SAFE. Uses QueryLock_1X000
+        /// returns Entities with EntityState.Deleted-State only
+        /// </summary>
+        /// <returns></returns>
+        public IList<T> GetDeletedEntities<T>(Func<T, bool> selector = null) where T : class
+        {
+            return GetChangedEntities<T>(System.Data.EntityState.Deleted, selector);
+        }
+
+        /// <summary>
+        /// THREAD-SAFE. Uses QueryLock_1X000
+        /// returns Entities with EntityState.Detached-State only
+        /// </summary>
+        /// <returns></returns>
+        public IList<T> GetDetachedEntities<T>(Func<T, bool> selector = null) where T : class
+        {
+            return GetChangedEntities<T>(System.Data.EntityState.Detached, selector);
+        }
+
+        /// <summary>
+        /// THREAD-SAFE. Uses QueryLock_1X000
+        /// returns Entities with EntityState.Unchanged-State only
+        /// </summary>
+        /// <returns></returns>
+        public IList<T> GetUnchangedEntities<T>(Func<T, bool> selector = null) where T : class
+        {
+            return GetChangedEntities<T>(System.Data.EntityState.Unchanged, selector);
+        }
+
+        /// <summary>
+        /// THREAD-SAFE. Uses QueryLock_1X000
+        /// returns EntityState.Modified | EntityState.Added | EntityState.Deleted
+        /// </summary>
+        /// <returns></returns>
+        public IList<T> GetChangedEntities<T>(Func<T, bool> selector = null) where T : class
+        {
+            return GetChangedEntities<T>(EntityState.Modified | EntityState.Added | EntityState.Deleted, selector);
+        }
+
+        /// <summary>
+        /// THREAD-SAFE. Uses QueryLock_1X000
+        /// </summary>
+        /// <returns></returns>
+        public IList<T> GetChangedEntities<T>(System.Data.EntityState entityState, Func<T, bool> selector) where T : class
+        {
             using (ACMonitor.Lock(_ObjectContext.QueryLock_1X000))
             {
-                return _ObjectContext.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Added)
+                var query = _ObjectContext.ObjectStateManager.GetObjectStateEntries(entityState)
                                                                 .Where(c => c.Entity is T)
-                                                                .Select(c => c.Entity as T).ToList();
+                                                                .Select(c => c.Entity as T);
+                if (selector != null)
+                    query = query.Where(c => selector(c));
+                return query.ToList();
             }
         }
 

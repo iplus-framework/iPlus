@@ -4398,7 +4398,7 @@ namespace gip.core.autocomponent
 
         public readonly ACMonitorObject _20015_LockValue = new ACMonitorObject(20015);
         private ACClass _ACTypeFromLiveContext;
-        protected ACClass ACTypeFromLiveContext
+        public ACClass ACTypeFromLiveContext
         {
             get
             {

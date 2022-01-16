@@ -74,7 +74,7 @@ namespace gip.core.datamodel
         })
     ]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClass>) })]
-    public partial class ACClass : IACObjectEntityWithCheckTrans, IACType, IACConfigStore, IACClassEntity
+    public partial class ACClass : IACObjectEntityWithCheckTrans, IACType, IACConfigStore, IACClassEntity, ICloneable
     {
         public const string ClassName = "ACClass";
         public readonly ACMonitorObject _10020_LockValue = new ACMonitorObject(10020);
@@ -139,6 +139,56 @@ namespace gip.core.datamodel
             }
             return entity;
         }
+
+        public object Clone()
+        {
+            ACClass clonedObject = new ACClass();
+            clonedObject.ACClassID = this.ACClassID;
+            clonedObject.CopyFrom(this, true);
+            return clonedObject;
+        }
+
+        public void CopyFrom(ACClass from, bool withReferences)
+        {
+            if (withReferences)
+            {
+                ACProjectID = from.ACProjectID;
+                BasedOnACClassID = from.BasedOnACClassID;
+                ParentACClassID = from.ParentACClassID;
+                PWMethodACClassID = from.PWMethodACClassID;
+                ACPackageID = from.ACPackageID;
+                PWACClassID = from.PWACClassID;
+            }
+
+            ACIdentifier = from.ACIdentifier;
+            ACIdentifierKey = from.ACIdentifierKey;
+            ACCaptionTranslation = from.ACCaptionTranslation;
+            ACKindIndex = from.ACKindIndex;
+            SortIndex = from.SortIndex;
+            AssemblyQualifiedName = from.AssemblyQualifiedName;
+            Comment = from.Comment;
+            IsAutostart = from.IsAutostart;
+            IsAbstract = from.IsAbstract;
+            ACStartTypeIndex = from.ACStartTypeIndex;
+            ACStorableTypeIndex = from.ACStorableTypeIndex;
+            IsAssembly = from.IsAssembly;
+            IsMultiInstance = from.IsMultiInstance;
+            IsRightmanagement = from.IsRightmanagement;
+            ACSortColumns = from.ACSortColumns;
+            ACFilterColumns = from.ACFilterColumns;
+            XMLConfig = from.XMLConfig;
+            XMLACClass = from.XMLACClass;
+            BranchNo = from.BranchNo;
+            InsertName = from.InsertName;
+            InsertDate = from.InsertDate;
+            UpdateName = from.UpdateName;
+            UpdateDate = from.UpdateDate;
+            ChangeLogMax = from.ChangeLogMax;
+            ACURLCached = from.ACURLCached;
+            ACURLComponentCached = from.ACURLComponentCached;
+            IsStatic = from.IsStatic;
+        }
+
 
         public Database Database { get; private set; } = null;
 

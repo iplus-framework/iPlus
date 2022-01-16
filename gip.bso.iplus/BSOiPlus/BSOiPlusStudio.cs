@@ -1449,8 +1449,8 @@ namespace gip.bso.iplus
                 Messages.Warning(this, "Warning50026");
         }
 
-        List<Guid> _acClassDesignIDList = null;
-        List<ACClass> _acClassList = null;
+        IList<Guid> _acClassDesignIDList = null;
+        IList<ACClass> _acClassList = null;
         List<ACProjectManager.MoveInfo> _moveInfoList = null;
 
         protected override Msg OnPreSave()
@@ -1469,10 +1469,9 @@ namespace gip.bso.iplus
                 //    return
             }
 
-            _acClassDesignIDList = Database.ContextIPlus.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Modified).Where(c => c.Entity is ACClassDesign).Select(c => c.Entity as ACClassDesign).Select(c => c.ACClassDesignID).ToList();
-            _acClassList = Database.ContextIPlus.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Added).Where(c => c.Entity is ACClass).Select(c => c.Entity as ACClass).ToList();
-
-            foreach (var newACClass in _acClassList.ToList())
+            _acClassDesignIDList = Database.GetModifiedEntities<ACClassDesign>().Select(c => c.ACClassDesignID).ToList();
+            _acClassList = Database.GetAddedEntities<ACClass>();
+            foreach (var newACClass in _acClassList)
             {
                 if (newACClass.ACClass1_ParentACClass != null && newACClass.ACClass1_ParentACClass.EntityState == System.Data.EntityState.Added)
                 {
