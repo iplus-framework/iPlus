@@ -830,7 +830,7 @@ namespace gip.bso.iplus
 
                 foreach (IACComponent appManager in appManagers.Where(c => c is ApplicationManager || c is ApplicationManagerProxy))
                 {
-                    if (!_QueryResultNew.ContainsKey(appManager))
+                    if (_QueryResultNew != null && !_QueryResultNew.ContainsKey(appManager))
                         _QueryResultNew.Add(appManager, new List<Msg>());
 
                     List<Msg> alarms = appManager.ACUrlCommand("!GetAlarmsConfig", true, true, false) as List<Msg>;
