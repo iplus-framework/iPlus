@@ -22,6 +22,7 @@ using System.Data;
 using System.Data.EntityClient;
 using System.Reflection;
 using System.Data.Objects.DataClasses;
+using System.Data.Common;
 
 namespace gip.core.datamodel
 {
@@ -547,6 +548,11 @@ namespace gip.core.datamodel
                     query = query.Where(c => selector(c));
                 return query.ToList();
             }
+        }
+
+        public virtual DbDataRecord GetOriginalValues(EntityKey entityKey)
+        {
+            return _ObjectContext.ObjectStateManager.GetObjectStateEntry(entityKey).OriginalValues;
         }
 
         /// <summary>
