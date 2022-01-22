@@ -39,6 +39,19 @@ namespace gip.core.autocomponent
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
             StopService();
+
+            ACCompTypeDictionary serviceTypeDict = null;
+            using (ACMonitor.Lock(_S_20015_LockValue))
+            {
+                serviceTypeDict = _ServiceTypeDict;
+            }
+            if (serviceTypeDict != null)
+                serviceTypeDict.DetachAll();
+            using (ACMonitor.Lock(_S_20015_LockValue))
+            {
+                _ServiceTypeDict = null;
+            }
+
             bool result = base.ACDeInit(deleteACClassTask);
             return result;
         }
@@ -134,19 +147,42 @@ namespace gip.core.autocomponent
 
         #endregion
 
-        public static TResult FindPAWebService<TResult>(bool findInheritedType = false) where TResult : PAWebServiceBase
+
+        public static readonly ACMonitorObject _S_20015_LockValue = new ACMonitorObject(20015);
+        private static ACCompTypeDictionary _ServiceTypeDict = new ACCompTypeDictionary();
+        public static ACCompTypeDictionary ServiceTypeDict
+        {
+            get
+            {
+                using (ACMonitor.Lock(_S_20015_LockValue))
+                {
+                    if (_ServiceTypeDict == null)
+                        _ServiceTypeDict = new ACCompTypeDictionary();
+                    return _ServiceTypeDict;
+                }
+            }
+        }
+
+        public static TResult FindPAWebService<TResult>(bool findInheritedType = true) where TResult : PAWebServiceBase
         {
             ACRoot root = gip.core.datamodel.Database.Root as ACRoot;
             if (root == null)
                 return null;
+            var webServices = ServiceTypeDict.GetComponentsOfType<TResult>();
+            if (webServices != null && webServices.Any())
+                return webServices.FirstOrDefault();
             var appManagers = root.FindChildComponents<ApplicationManager>(c => c is ApplicationManager, null, 1);
             if (appManagers == null)
                 return null;
             foreach (var appManager in appManagers)
             {
-                var webServices = appManager.ACCompTypeDict.GetComponentsOfType<TResult>(findInheritedType);
+                webServices = appManager.ACCompTypeDict.GetComponentsOfType<TResult>(findInheritedType);
                 if (webServices != null && webServices.Any())
-                    return webServices.FirstOrDefault();
+                {
+                    TResult firstWebService = webServices.FirstOrDefault();
+                    ServiceTypeDict.AddComponent(firstWebService);
+                    return firstWebService;
+                }
             }
             return null;
         }

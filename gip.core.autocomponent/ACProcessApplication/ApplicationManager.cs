@@ -112,7 +112,7 @@ namespace gip.core.autocomponent
 
             this.ACCompTypeDict.DetachAll();
 
-                using (ACMonitor.Lock(_20015_LockValue))
+            using (ACMonitor.Lock(_20015_LockValue))
             {
                 this._ACCompTypeDict = null;
             }
