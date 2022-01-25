@@ -851,7 +851,7 @@ namespace gip.core.autocomponent
         {
             try
             {
-                if ((from c in _ACProjectsOnServerSide where c == ProjectACIdentifier select c).Any())
+                if (_ACProjectsOnServerSide.Where(c => c == ProjectACIdentifier).Any())
                     return true;
             }
             catch (Exception e)

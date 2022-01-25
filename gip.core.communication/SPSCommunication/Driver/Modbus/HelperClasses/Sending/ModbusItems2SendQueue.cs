@@ -99,10 +99,7 @@ namespace gip.core.communication
                 EnterLockSendList();
             try
             {
-                IEnumerable<ModbusItems2SendEntry> query = null;
-                query = (from c in _SendList where c.Item == item select c);
-                if (query.Any())
-                    pollingPlanEntry = query.First();
+                pollingPlanEntry = _SendList.Where(c => c.Item == item).FirstOrDefault();
             }
             catch (Exception e)
             {

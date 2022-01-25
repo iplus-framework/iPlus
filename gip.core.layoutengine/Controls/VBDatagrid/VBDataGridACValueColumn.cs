@@ -388,24 +388,15 @@ namespace gip.core.layoutengine
                 element.Style = style;
                 IACContainer acValue = dataItem as IACContainer;
 
-                if (acValue != null && acValue.ValueTypeACClass != null && (style == DefaultElementStyle || style == DefaultEditingElementStyle))
+                if (acValue != null 
+                    && acValue.ValueTypeACClass != null 
+                    && (style == DefaultElementStyle || style == DefaultEditingElementStyle)
+                    && TypeAnalyser.IsNumericType(acValue.ValueTypeACClass.ObjectType))
                 {
-                    Type typeOfProp = acValue.ValueTypeACClass.ObjectType;
-                    if ((typeOfProp.FullName == TypeAnalyser._TypeName_Byte)
-                        || (typeOfProp.FullName == TypeAnalyser._TypeName_Int16)
-                        || (typeOfProp.FullName == TypeAnalyser._TypeName_Int32)
-                        || (typeOfProp.FullName == TypeAnalyser._TypeName_Int64)
-                        || (typeOfProp.FullName == TypeAnalyser._TypeName_UInt16)
-                        || (typeOfProp.FullName == TypeAnalyser._TypeName_UInt32)
-                        || (typeOfProp.FullName == TypeAnalyser._TypeName_UInt64)
-                        || (typeOfProp.FullName == TypeAnalyser._TypeName_Double)
-                        || (typeOfProp.FullName == TypeAnalyser._TypeName_Single))
-                    {
-                        if (style == DefaultElementStyle)
-                            (element as TextBlock).TextAlignment = TextAlignment.Right;
-                        else if (style == DefaultEditingElementStyle)
-                            (element as VBValueEditor).TextAlignment = TextAlignment.Right;
-                    }
+                    if (style == DefaultElementStyle)
+                        (element as TextBlock).TextAlignment = TextAlignment.Right;
+                    else if (style == DefaultEditingElementStyle)
+                        (element as VBValueEditor).TextAlignment = TextAlignment.Right;
                 }
             }
         }

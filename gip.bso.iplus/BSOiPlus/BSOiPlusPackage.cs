@@ -202,8 +202,7 @@ namespace gip.bso.iplus
             {
                 if (CurrentACPackage == null)
                     return null;
-                return new ObservableCollection<ACClass>(from c in CurrentACPackage.ACClass_ACPackage
-                                                             select c);
+                return new ObservableCollection<ACClass>(CurrentACPackage.ACClass_ACPackage);
             }
         }
         #endregion

@@ -2311,10 +2311,10 @@ namespace gip.bso.iplus
         /// <returns>ACProject.</returns>
         public ACProject GetACProjectByModelName(string acProjectName)
         {
-            return (from c in Database.ACProject
-                    .Include("ACProjectClass_ACProject")
-                    where c.ACProjectName == acProjectName
-                    select c).First();
+            return Database.ACProject
+                    //.Include(c => c.ACProject_BasedOnACProject)
+                    .Where(c => c.ACProjectName == acProjectName)
+                    .FirstOrDefault();
         }
         #endregion
 
@@ -2330,34 +2330,6 @@ namespace gip.bso.iplus
             Database.ACClassDesign.AddObject(acClassDesign);
             return acClassDesign;
         }
-
-        #endregion
-
-        #region Manager->Modify->ACVisualItem
-        //public ACVisualItem LoadACVisualItem(ACVisual acVisual, Guid acVisualItemID)
-        //{
-        //    return (from c in acVisual.ACVisualItem_ACVisual
-        //            where c.ACVisualItemID == acVisualItemID
-        //            select c).First();
-        //}
-
-        //public ACVisualItem NewACVisualItem(ACVisual acVisual)
-        //{
-        //    ACVisualItem vbComplexLevelVisual = ACVisualItem.NewACVisualItem(Database);
-        //    vbComplexLevelVisual.ACVisual = acVisual;
-        //    if (acVisual.ACVisualItem_ACVisual.Any())
-        //    {
-        //        var max = acVisual.ACVisualItem_ACVisual.Max(c => c.SortIndex);
-        //        vbComplexLevelVisual.SortIndex = max + 1;
-        //    }
-        //    else
-        //    {
-        //        vbComplexLevelVisual.SortIndex = 1;
-        //    }
-        //    acVisual.ACVisualItem_ACVisual.Add(vbComplexLevelVisual);
-        //    Database.ACVisualItem.AddObject(vbComplexLevelVisual);
-        //    return vbComplexLevelVisual;
-        //}
 
         #endregion
 

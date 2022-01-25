@@ -76,7 +76,7 @@ namespace gip.core.datamodel
                 return;
             try
             {
-                if (!(from c in _KnownMessageTypes where c.FullName == t.FullName select c).Any())
+                if (!_KnownMessageTypes.Where(c => c.FullName == t.FullName).Any())
                 {
                     _KnownMessageTypes.Add(t);
                     _AllTypes = null;
@@ -108,7 +108,7 @@ namespace gip.core.datamodel
                 return;
             try
             {
-                if (!(from c in _UnKnownTypes where c.FullName == t.FullName select c).Any())
+                if (!_UnKnownTypes.Where(c => c.FullName == t.FullName).Any())
                 {
                     _UnKnownTypes.Add(t);
                     _AllTypes = null;
@@ -194,7 +194,7 @@ namespace gip.core.datamodel
                 return false;
             try
             {
-                if ((from c in _UnKnownTypes where c.FullName == t.FullName select c).Any())
+                if (_UnKnownTypes.Where(c => c.FullName == t.FullName).Any())
                 {
                     return true;
                 }

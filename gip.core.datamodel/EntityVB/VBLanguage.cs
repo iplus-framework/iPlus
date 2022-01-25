@@ -32,9 +32,9 @@ namespace gip.core.datamodel
         {
             try
             {
-                VBLanguage state = (from c in database.VBLanguage where c.IsDefault select c).FirstOrDefault();
+                VBLanguage state = database.VBLanguage.Where(c => c.IsDefault).FirstOrDefault();
                 if (state == null)
-                    state = (from c in database.VBLanguage where c.VBLanguageCode == "de" select c).FirstOrDefault();
+                    state = database.VBLanguage.Where(c => c.VBLanguageCode == "en").FirstOrDefault();
                 return state;
             }
             catch (Exception e)

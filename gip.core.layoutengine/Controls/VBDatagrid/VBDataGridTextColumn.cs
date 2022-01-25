@@ -239,6 +239,10 @@ namespace gip.core.layoutengine
             set;
         }
 
+        private BindingBase BindingTooltip { get; set; }
+        private TextAlignment? TBAlignment { get; set; }
+
+
         /// <summary>
         /// Initializes a VBDataGridACValueColumn.
         /// </summary>
@@ -257,6 +261,12 @@ namespace gip.core.layoutengine
 
             _ACColumnItem = acColumnItem;
             _ColACTypeInfo = dsColACTypeInfo;
+            if (_ColACTypeInfo != null)
+            {
+                if (TypeAnalyser.IsNumericType(ColACType.ObjectType))
+                    TBAlignment = TextAlignment.Right;
+            }
+
             if (isShowColumnAMethod)
             {
                 IACType dscACTypeInfo = null;
@@ -308,7 +318,6 @@ namespace gip.core.layoutengine
                 binding.StringFormat = StringFormat;
             binding.ConverterCulture = System.Globalization.CultureInfo.CurrentCulture; //System.Globalization.CultureInfo.CurrentUICulture;
             binding.UpdateSourceTrigger = UpdateSourceTrigger.LostFocus;
-
 
             ValueSource valueSource;
             
@@ -366,6 +375,16 @@ namespace gip.core.layoutengine
                 this.Width = new DataGridLength(100, DataGridLengthUnitType.SizeToCells);
             }
 
+            if (TBAlignment.HasValue 
+                && TBAlignment.Value == TextAlignment.Right 
+                && !String.IsNullOrEmpty(this.StringFormat))
+            {
+                binding = new Binding();
+                binding.Path = new PropertyPath(dsColPath);
+                binding.Mode = BindingMode.OneWay;
+                this.BindingTooltip = binding;
+            }
+
             //valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.IsReadOnlyProperty);
             //if ((valueSource == null) || (valueSource.BaseValueSource != BaseValueSource.Local))
             //    this.IsReadOnly = !dataGrid.IsSetInVBDisabledColumns(acColumnItem.PropertyName);
@@ -409,7 +428,9 @@ namespace gip.core.layoutengine
             textBox.ShowCaption = false;
             SyncProperties(textBox);
             ApplyStyle(true, false, textBox);
-            ApplyBinding(textBox, TextBox.TextProperty);
+            ApplyBinding(Binding, textBox, TextBox.TextProperty);
+            if (this.BindingTooltip != null)
+                ApplyBinding(BindingTooltip, textBox, TextBox.ToolTipProperty);
             return textBox;
         }
 
@@ -427,9 +448,12 @@ namespace gip.core.layoutengine
 
             VBTextBlock textBlock = new VBTextBlock();
             SyncProperties(textBlock);
+            //if (BindingTooltip == null)
             textBlock.IsEnabled = !this.IsReadOnly;
             ApplyStyle(/* isEditing = */ false, /* defaultToElementStyle = */ false, textBlock);
-            ApplyBinding(textBlock, VBTextBlock.TextProperty);
+            ApplyBinding(Binding, textBlock, VBTextBlock.TextProperty);
+            if (this.BindingTooltip != null)
+                ApplyBinding(BindingTooltip, textBlock, VBTextBlock.ToolTipProperty);
             return textBlock;
         }
 
@@ -455,9 +479,8 @@ namespace gip.core.layoutengine
             }
         }
 
-        internal void ApplyBinding(DependencyObject target, DependencyProperty property)
+        internal void ApplyBinding(BindingBase binding, DependencyObject target, DependencyProperty property)
         {
-            BindingBase binding = Binding;
             if (binding != null)
             {
                 BindingOperations.SetBinding(target, property, binding);
@@ -476,24 +499,12 @@ namespace gip.core.layoutengine
                 try
                 {
                     element.Style = style;
-                    if ((style == VBDefaultElementStyle || style == VBDefaultEditingElementStyle) && ColACType != null)
+                    if ((style == VBDefaultElementStyle || style == VBDefaultEditingElementStyle) && TBAlignment.HasValue)
                     {
-                        Type typeOfProp = ColACType.ObjectType;
-                        if ((typeOfProp.FullName == TypeAnalyser._TypeName_Byte)
-                            || (typeOfProp.FullName == TypeAnalyser._TypeName_Int16)
-                            || (typeOfProp.FullName == TypeAnalyser._TypeName_Int32)
-                            || (typeOfProp.FullName == TypeAnalyser._TypeName_Int64)
-                            || (typeOfProp.FullName == TypeAnalyser._TypeName_UInt16)
-                            || (typeOfProp.FullName == TypeAnalyser._TypeName_UInt32)
-                            || (typeOfProp.FullName == TypeAnalyser._TypeName_UInt64)
-                            || (typeOfProp.FullName == TypeAnalyser._TypeName_Double)
-                            || (typeOfProp.FullName == TypeAnalyser._TypeName_Single))
-                        {
-                            if (style == VBDefaultElementStyle)
-                                (element as TextBlock).TextAlignment = TextAlignment.Right;
-                            else if (style == VBDefaultEditingElementStyle)
-                                (element as TextBox).TextAlignment = TextAlignment.Right;
-                        }
+                        if (style == VBDefaultElementStyle)
+                            (element as TextBlock).TextAlignment = TBAlignment.Value;
+                        else if (style == VBDefaultEditingElementStyle)
+                            (element as TextBox).TextAlignment = TBAlignment.Value;
                     }
                 }
                 catch (Exception e)

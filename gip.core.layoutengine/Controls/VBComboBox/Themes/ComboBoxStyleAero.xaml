@@ -1004,6 +1004,7 @@
         <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
         <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
         <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+        <Setter Property="ToolTipService.ShowOnDisabled" Value="true"/>
         <!--<Setter Property="ItemContainerStyle" Value="{StaticResource ComboBoxItemStyleAero}" />-->
         <Setter Property="Validation.ErrorTemplate">
             <Setter.Value>

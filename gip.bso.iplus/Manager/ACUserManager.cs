@@ -70,10 +70,7 @@ namespace gip.bso.iplus
         /// <returns>VBUser.</returns>
         public VBUser GetUserByName(string userName)
         {
-            VBUser user = (from c in Database.VBUser
-                                 where c.VBUserName == userName
-                                 select c).First();
-            return user;
+            return Database.VBUser.Where(c => c.VBUserName == userName).FirstOrDefault();
         }
 
         #endregion

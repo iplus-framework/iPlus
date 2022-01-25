@@ -66,6 +66,7 @@
         <Setter Property="Padding" Value="1"/>
         <Setter Property="ContentStroke" Value="{StaticResource ButtonNormalContentStrokeGip}"/>
         <Setter Property="ContentFill" Value="{StaticResource ButtonNormalContentFillGip}"/>
+        <Setter Property="ToolTipService.ShowOnDisabled" Value="true"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:VBButton}">

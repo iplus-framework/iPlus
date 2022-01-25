@@ -75,6 +75,21 @@ namespace gip.core.datamodel
                 || fullNameOfGenericType == _TypeName_IQueryable
                 || fullNameOfGenericType == _TypeName_BindingList;
         }
+
+        public static bool IsNumericType(Type typeOfProp)
+        {
+            if (typeOfProp == null)
+                return false;
+            return (typeOfProp.FullName == TypeAnalyser._TypeName_Byte)
+                    || (typeOfProp.FullName == TypeAnalyser._TypeName_Int16)
+                    || (typeOfProp.FullName == TypeAnalyser._TypeName_Int32)
+                    || (typeOfProp.FullName == TypeAnalyser._TypeName_Int64)
+                    || (typeOfProp.FullName == TypeAnalyser._TypeName_UInt16)
+                    || (typeOfProp.FullName == TypeAnalyser._TypeName_UInt32)
+                    || (typeOfProp.FullName == TypeAnalyser._TypeName_UInt64)
+                    || (typeOfProp.FullName == TypeAnalyser._TypeName_Double)
+                    || (typeOfProp.FullName == TypeAnalyser._TypeName_Single);
+        }
         #endregion
 
 

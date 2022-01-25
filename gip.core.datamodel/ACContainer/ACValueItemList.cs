@@ -93,9 +93,7 @@ namespace gip.core.datamodel
         {
             try
             {
-                return (from c in this
-                        where (short)c.Value == index
-                        select c).Single();
+                return this.Where(c => (short)c.Value == index).FirstOrDefault();
             }
             catch(Exception e)
             {
@@ -117,9 +115,7 @@ namespace gip.core.datamodel
         public void CheckIndex(short index)
         {
 
-            if (!(from c in this
-                 where (short)c.Value == index
-                 select c).Any())
+            if (!this.Where(c => (short)c.Value == index).Any())
             {
                 string message = string.Format("Der Index {0} ist für die Eigenschaft {1} nicht erlaubt!",
                     index, _Property);

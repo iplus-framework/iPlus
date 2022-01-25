@@ -248,10 +248,10 @@ namespace gip.core.autocomponent
                     return _ConnectedUser;
                 if (String.IsNullOrEmpty(UserName))
                     return null;
-                var query = from c in Database.ContextIPlus.VBUser where c.VBUserName == UserName select c;
-                if (!query.Any())
-                    return null;
-                _ConnectedUser = query.First();
+                using (ACMonitor.Lock(Database.ContextIPlus.QueryLock_1X000))
+                {
+                    _ConnectedUser = Database.ContextIPlus.VBUser.Where(c => c.VBUserName == UserName).FirstOrDefault();
+                }
                 return _ConnectedUser;
             }
         }

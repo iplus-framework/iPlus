@@ -380,13 +380,14 @@ namespace gip.core.layoutengine
                 return;
             _Initialized = true;
 
+            Binding binding = null;
             if (ContextACObject == null)
             {
                 if (!string.IsNullOrEmpty(ACCaption))
                     this.Text = Translator.GetTranslation(ACIdentifier, ACCaption, this.Root().Environment.VBLanguageCode);
                 else if (!String.IsNullOrEmpty(VBContent))
                 {
-                    Binding binding = new Binding();
+                    binding = new Binding();
                     binding.Path = new PropertyPath(VBContent);
                     binding.NotifyOnSourceUpdated = true;
                     binding.NotifyOnTargetUpdated = true;
@@ -412,22 +413,32 @@ namespace gip.core.layoutengine
             {
                 Visibility = Visibility.Collapsed;
             }
-            //ucTextblock.Text = PropertySchema.DataTypeCaption;
+
             IACType dcACTypeInfo = null;
             object dcSource = null;
             string dcPath = "";
-
             Global.ControlModes dcRightControlMode = Global.ControlModes.Hidden;
-
             if (!ContextACObject.ACUrlBinding(VBContent, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcRightControlMode))
             {
                 this.Root().Messages.LogDebug("Error00003", "VBTextBlock", VBContent);
                 return;
             }
 
+            bool isNumericValueBound = false;
+            if (dcACTypeInfo != null)
+                isNumericValueBound = TypeAnalyser.IsNumericType(dcACTypeInfo.ObjectType);
+
+            ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, VBTextBlock.TextAlignmentProperty);
+            if ((valueSource == null)
+                || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+            {
+                if (isNumericValueBound)
+                    TextAlignment = TextAlignment.Right;
+            }
+
+            binding = null;
             if (dcSource is INotifyPropertyChanged)
             {
-                Binding binding = null;
                 ProxyACRefConverter refConverter = ProxyACRefConverter.IfACRefGenerateConverter(out binding, ref dcACTypeInfo, ref dcPath, ref dcSource, ref dcRightControlMode);
                 if (refConverter == null)
                 {
@@ -438,6 +449,8 @@ namespace gip.core.layoutengine
                     binding.NotifyOnSourceUpdated = true;
                     binding.NotifyOnTargetUpdated = true;
                 }
+                else
+                    isNumericValueBound = false;
 
                 if (!String.IsNullOrEmpty(StringFormat))
                     binding.StringFormat = StringFormat;
@@ -453,12 +466,34 @@ namespace gip.core.layoutengine
 
             if (BSOACComponent != null)
             {
-                Binding binding = new Binding();
+                binding = new Binding();
                 binding.Source = BSOACComponent;
                 binding.Path = new PropertyPath(Const.InitState);
                 binding.Mode = BindingMode.OneWay;
                 SetBinding(VBTextBlock.ACCompInitStateProperty, binding);
             }
+
+            valueSource = DependencyPropertyHelper.GetValueSource(this, FrameworkElement.ToolTipProperty);
+            if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+            {
+                if (ToolTip != null && ToolTip is string)
+                {
+                    string toolTip = ToolTip as string;
+                    if (!string.IsNullOrEmpty(toolTip))
+                    {
+                        ToolTip = this.Root().Environment.TranslateText(ContextACObject, toolTip);
+                    }
+                }
+                else if (isNumericValueBound && !String.IsNullOrEmpty(this.StringFormat))
+                {
+                    binding = new Binding();
+                    binding.Source = dcSource;
+                    binding.Path = new PropertyPath(dcPath);
+                    binding.Mode = BindingMode.OneWay;
+                    SetBinding(FrameworkElement.ToolTipProperty, binding);
+                }
+            }
+
         }
 
         bool _Loaded = false;

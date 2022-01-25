@@ -13,14 +13,14 @@ namespace gip.core.layoutengine
         public int FillCompletionDataList(string partOfTypeName, IList<ICompletionData> data)
         {
             int nCopied = 0;
-            List<VBTextEditorCompletionData> queryList = null;
+            IEnumerable<VBTextEditorCompletionData> queryList = null;
             if (partOfTypeName.Length <= 0)
                 queryList = AutomCompleteRegisteredTypeNames;
             else
             {
                 try
                 {
-                    queryList = (from c in AutomCompleteRegisteredTypeNames where c.Text.StartsWith(partOfTypeName) select c).ToList();
+                    queryList = AutomCompleteRegisteredTypeNames.Where(c => c.Text.StartsWith(partOfTypeName)).AsEnumerable();
                 }
                 catch (Exception e)
                 {
@@ -32,15 +32,12 @@ namespace gip.core.layoutengine
                         datamodel.Database.Root.Messages.LogException("AutoCompleteTypeHelper", "FillCompletionDataList", msg);
                 }
             }
-            if (queryList != null)
+            if (queryList != null && queryList.Any())
             {
-                if (queryList.Count > 0)
+                foreach (VBTextEditorCompletionData element in queryList)
                 {
-                    foreach (VBTextEditorCompletionData element in queryList)
-                    {
-                        data.Add(element);
-                        nCopied++;
-                    }
+                    data.Add(element);
+                    nCopied++;
                 }
             }
             return nCopied;

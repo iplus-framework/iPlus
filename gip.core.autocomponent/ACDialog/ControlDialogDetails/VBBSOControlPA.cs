@@ -566,8 +566,6 @@ namespace gip.core.autocomponent
 
             if (!this.QuerySubAlarms)
             {
-                //var query = from c in Database.ContextIPlus.MsgAlarmLog where c.TimeStampOccurred >= SearchFrom && c.TimeStampOccurred <= SearchTo && c.Source == acUrl select c;
-
                 var query = Database.ContextIPlus.MsgAlarmLog.Where(c => c.TimeStampOccurred >= SearchFrom && c.TimeStampOccurred <= SearchTo && c.ACClass != null && 
                                                                          c.ACClassID == currentComponentClassID).AsQueryable();
                 (query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
@@ -575,8 +573,6 @@ namespace gip.core.autocomponent
             }
             else
             {
-                //var query = from c in Database.ContextIPlus.MsgAlarmLog where c.TimeStampOccurred >= SearchFrom && c.TimeStampOccurred <= SearchTo && c.Source.StartsWith(acUrl) select c;
-
                 var query = Database.ContextIPlus.MsgAlarmLog.Where(c => c.TimeStampOccurred >= SearchFrom && c.TimeStampOccurred <= SearchTo).AsQueryable();
 
                 (query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;

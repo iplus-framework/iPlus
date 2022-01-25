@@ -93,11 +93,10 @@ namespace gip.core.communication
             {
                 IEnumerable<ModbusPollingPlanEntry> query = null;
                 if (dbNo <= -1)
-                    query = (from c in _PollingPlanList where c.Subscr == subscr select c);
+                    query = _PollingPlanList.Where(c => c.Subscr == subscr);
                 else
-                    query = (from c in _PollingPlanList where c.Subscr == subscr && c.DBNo == dbNo select c);
-                if (query.Any())
-                    pollingPlanEntry = query.First();
+                    query = _PollingPlanList.Where(c => c.Subscr == subscr && c.DBNo == dbNo);
+                pollingPlanEntry = query.FirstOrDefault();
             }
             catch (Exception e)
             {

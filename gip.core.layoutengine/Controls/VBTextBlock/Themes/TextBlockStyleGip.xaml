@@ -9,6 +9,7 @@
         <Setter Property="TextWrapping" Value="NoWrap"/>
         <Setter Property="TextTrimming" Value="None"/>
         <Setter Property="Foreground" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlTxtEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+        <Setter Property="ToolTipService.ShowOnDisabled" Value="true"/>
         <Style.Triggers>
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Foreground" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlTxtDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>

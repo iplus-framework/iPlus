@@ -180,25 +180,16 @@ namespace gip.core.layoutengine
                 RightControlMode = dcRightControlMode;
             }
 
+            bool isNumericValueBound = false;
+            if (dcACTypeInfo != null)
+                isNumericValueBound = TypeAnalyser.IsNumericType(dcACTypeInfo.ObjectType);
+
             valueSource = DependencyPropertyHelper.GetValueSource(this, VBTextBox.TextAlignmentProperty);
             if ((valueSource == null)
                 || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
             {
-                RightControlMode = dcRightControlMode;
-
-                Type typeOfProp = dcACTypeInfo.ObjectType;
-                if ((typeOfProp.FullName == TypeAnalyser._TypeName_Byte)
-                    || (typeOfProp.FullName == TypeAnalyser._TypeName_Int16)
-                    || (typeOfProp.FullName == TypeAnalyser._TypeName_Int32)
-                    || (typeOfProp.FullName == TypeAnalyser._TypeName_Int64)
-                    || (typeOfProp.FullName == TypeAnalyser._TypeName_UInt16)
-                    || (typeOfProp.FullName == TypeAnalyser._TypeName_UInt32)
-                    || (typeOfProp.FullName == TypeAnalyser._TypeName_UInt64)
-                    || (typeOfProp.FullName == TypeAnalyser._TypeName_Double)
-                    || (typeOfProp.FullName == TypeAnalyser._TypeName_Single))
-                {
+                if (isNumericValueBound)
                     TextAlignment = TextAlignment.Right;
-                }
             }
 
             // VBContent muß im XAML gestetzt sein
@@ -225,7 +216,6 @@ namespace gip.core.layoutengine
                 binding.Path = new PropertyPath(dcPath);
                 binding.NotifyOnSourceUpdated = true;
                 binding.NotifyOnTargetUpdated = true;
-                binding.Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
                 if (!String.IsNullOrEmpty(VBValidation))
                 {
                     binding.ValidationRules.Add(new VBValidationRule(ValidationStep.ConvertedProposedValue, true, ContextACObject, VBContent, VBValidation));
@@ -235,6 +225,8 @@ namespace gip.core.layoutengine
                 }
                 binding.Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
             }
+            else
+                isNumericValueBound = false;
 
             if (!String.IsNullOrEmpty(StringFormat))
                 binding.StringFormat = StringFormat;
@@ -285,13 +277,21 @@ namespace gip.core.layoutengine
             valueSource = DependencyPropertyHelper.GetValueSource(this, FrameworkElement.ToolTipProperty);
             if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
             {
-                if (ToolTip is string)
+                if (ToolTip != null && ToolTip is string)
                 {
                     string toolTip = ToolTip as string;
                     if (!string.IsNullOrEmpty(toolTip))
                     {
                         ToolTip = this.Root().Environment.TranslateText(ContextACObject, toolTip);
                     }
+                }
+                else if (isNumericValueBound && !String.IsNullOrEmpty(this.StringFormat))
+                {
+                    binding = new Binding();
+                    binding.Source = dcSource;
+                    binding.Path = new PropertyPath(dcPath);
+                    binding.Mode = BindingMode.OneWay;
+                    SetBinding(FrameworkElement.ToolTipProperty, binding);
                 }
             }
 

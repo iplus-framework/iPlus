@@ -223,23 +223,14 @@ namespace gip.core.autocomponent
                 ACClass serviceACClass = (ACClass)service.ACType;
                 lock ((serviceACClass.Database.QueryLock_1X000))
                 {
-                    var query = from c in serviceACClass.ACProject.VBUserACProject_ACProject
-                                where c.IsServer
-                                select c;
-                    if (query.Any())
+                    var query = serviceACClass.ACProject.VBUserACProject_ACProject.Where(c => c.IsServer);
+                    VBUserACProject userACProject = query.FirstOrDefault();
+                    if (userACProject != null)
                     {
-                        VBUserACProject userACProject = query.First();
-                        if (userACProject != null)
+                        VBUserInstance VBUserInstance = userACProject.VBUser.VBUserInstance_VBUser.FirstOrDefault();
+                        if (VBUserInstance != null)
                         {
-                            var query2 = from d in userACProject.VBUser.VBUserInstance_VBUser select d;
-                            if (query2.Any())
-                            {
-                                VBUserInstance VBUserInstance = query2.First();
-                                if (VBUserInstance != null)
-                                {
-                                    channelForRemoteObject = (WCFClientChannel)StartComponent("WCFClientChannel", null, new object[] { VBUserInstance });
-                                }
-                            }
+                            channelForRemoteObject = (WCFClientChannel)StartComponent("WCFClientChannel", null, new object[] { VBUserInstance });
                         }
                     }
                 }

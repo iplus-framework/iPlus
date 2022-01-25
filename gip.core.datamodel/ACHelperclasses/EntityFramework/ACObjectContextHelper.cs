@@ -301,8 +301,8 @@ namespace gip.core.datamodel
                     var entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Modified);
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
-                        var entityList = from c in entityStateList where c.Entity != null select c.Entity;
-                        if ((entityList != null) && (entityList.Any()))
+                        var entityList = entityStateList.Where(c => c.Entity != null);
+                        if (entityList != null && entityList.Any())
                             // Leere liste indem die Objekte aus der Datenbank nachgeladen werden (StoreWins)
                             _ObjectContext.Refresh(System.Data.Objects.RefreshMode.StoreWins, entityList);
                     }
@@ -324,8 +324,8 @@ namespace gip.core.datamodel
                     var entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Deleted);
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
-                        var entityList = from c in entityStateList where c.Entity != null select c.Entity;
-                        if ((entityList != null) && (entityList.Any()))
+                        var entityList = entityStateList.Where(c => c.Entity != null);
+                        if (entityList != null && entityList.Any())
                         {
                             // Lade Objekte aus der Datenbank nach (StoreWins)
                             _ObjectContext.Refresh(System.Data.Objects.RefreshMode.StoreWins, entityList);
@@ -383,8 +383,8 @@ namespace gip.core.datamodel
                     entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Added);
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
-                        var entityList = from c in entityStateList where c.Entity != null select c.Entity;
-                        if ((entityList != null) && (entityList.Any()))
+                        var entityList = entityStateList.Where(c => c.Entity != null);
+                        if (entityList != null && entityList.Any())
                         {
                             // Lade Objekte aus der Datenbank nach (StoreWins)
                             _ObjectContext.Refresh(System.Data.Objects.RefreshMode.StoreWins, entityList);

@@ -581,54 +581,42 @@ namespace gip.core.autocomponent
 
         public void DeQueueInvocationList()
         {
-            List<ACPointAsyncRMIWrap<T>> invocationList;
-
+            IEnumerable<ACPointAsyncRMIWrap<T>> invocationList;
             using (ACMonitor.Lock(LockConnectionList_20040))
             {
-                invocationList = ConnectionList.ToList();
+                invocationList = ConnectionList.ToArray();
             }
-            if (invocationList.Count <= 0)
+            if (!invocationList.Any())
                 return;
 
             // Falls ein Auftrag in Bearbeitung
             if ((CurrentAsyncRMI != null) || (invocationList.Where(c => c.InProcess == true || c.State == PointProcessingState.Deleted).Any()))
                 return;
-            // TODO:
-            var query = from c in invocationList where c.State == PointProcessingState.Accepted orderby c.SequenceNo select c;
+            ACPointAsyncRMIWrap<T> nextRMI = invocationList.Where(c => c.State == PointProcessingState.Accepted).OrderBy(c => c.SequenceNo).FirstOrDefault();
             // Falls in SetMethod, die Liste nicht manipuliert worden ist und kein spezielles Element selektiert worden ist durch Accepted-state
             // Dann Starte Auftrag, der NewEntry ist.
-            if (!query.Any())
-            {
-                query = from c in invocationList where c.State == PointProcessingState.NewEntry orderby c.SequenceNo select c;
-                if (!query.Any())
-                    return;
-            }
-            ACPointAsyncRMIWrap<T> nextRMI = query.First();
-            if (nextRMI != null)
-            {
-                bool result = ActivateAsyncRMI(nextRMI, true);
-                if (!result)
-                {
-                    nextRMI.State = PointProcessingState.Rejected;
-                }
-            }
+            if (nextRMI == null)
+                nextRMI = invocationList.Where(c => c.State == PointProcessingState.NewEntry).OrderBy(c => c.SequenceNo).FirstOrDefault();
+            if (nextRMI == null)
+                return;
+            bool result = ActivateAsyncRMI(nextRMI, true);
+            if (!result)
+                nextRMI.State = PointProcessingState.Rejected;
         }
 
         public void ActivateAllNewInvocations()
         {
-            List<ACPointAsyncRMIWrap<T>> invocationList;
-
+            IEnumerable<ACPointAsyncRMIWrap<T>> invocationList;
             using (ACMonitor.Lock(LockConnectionList_20040))
             {
-                invocationList = ConnectionList.ToList();
+                invocationList = ConnectionList.ToArray();
             }
-            if (invocationList.Count <= 0)
+            if (!invocationList.Any())
                 return;
 
-            var query = from c in invocationList 
-                        where  ((c.State == PointProcessingState.NewEntry) 
-                            && (c.InProcess == false)) 
-                        orderby c.SequenceNo select c;
+            var query = invocationList 
+                        .Where(c => c.State == PointProcessingState.NewEntry && !c.InProcess) 
+                        .OrderBy(c => c.SequenceNo);
             if (!query.Any())
                 return;
             foreach (ACPointAsyncRMIWrap<T> nextRMI in query)

@@ -203,7 +203,7 @@ namespace gip.core.autocomponent
                 VBUserInstance userInstance = environment.User.VBUserInstance_VBUser.First();
                 try
                 {
-                    if ((from c in userInstance.VBUser.VBUserACProject_VBUser where c.IsServer select c).Any())
+                    if (userInstance.VBUser.VBUserACProject_VBUser.Where(c => c.IsServer).Any())
                         _HasACModelServer = true;
                 }
                 catch (Exception e)

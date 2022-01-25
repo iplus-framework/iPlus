@@ -126,10 +126,7 @@ namespace gip.core.autocomponent
             {
                 try
                 {
-                    ACObjectRMIWaitHandle waitHandle = null;
-                    var query = from c in _waitHandles where c.RequestID == MethodInvokeRequestID select c;
-                    if (query.Any())
-                        waitHandle = query.First();
+                    ACObjectRMIWaitHandle waitHandle = _waitHandles.Where(c => c.RequestID == MethodInvokeRequestID).FirstOrDefault();
                     if (waitHandle != null)
                     {
                         waitHandle.RemoteMethodInvocationResult = MethodResult;

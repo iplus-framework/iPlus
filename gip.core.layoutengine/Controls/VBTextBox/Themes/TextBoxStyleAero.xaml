@@ -529,6 +529,7 @@
         <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
         <Setter Property="Stylus.IsFlicksEnabled" Value="True"/>
         <Setter Property="CaretBrush" Value="{StaticResource TextBoxFgEnabledAeroFocus}" />
+        <Setter Property="ToolTipService.ShowOnDisabled" Value="true"/>
         <!--<Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBoxAeroTemplate, TypeInTargetAssembly={x:Type local:VBTextBox}}}"/>-->
         <Setter Property="Validation.ErrorTemplate">
             <Setter.Value>
@@ -564,6 +565,7 @@
         <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
         <Setter Property="Stylus.IsFlicksEnabled" Value="True"/>
         <Setter Property="CaretBrush" Value="{StaticResource TextBoxFgEnabledAeroFocus}" />
+        <Setter Property="ToolTipService.ShowOnDisabled" Value="true"/>
         <!--<Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBoxAeroTemplate, TypeInTargetAssembly={x:Type local:VBTextBox}}}"/>-->
         <Setter Property="Validation.ErrorTemplate">
             <Setter.Value>
@@ -600,6 +602,7 @@
         <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
         <Setter Property="Stylus.IsFlicksEnabled" Value="True"/>
         <Setter Property="CaretBrush" Value="{StaticResource TextBoxFgEnabledAeroFocus}" />
+        <Setter Property="ToolTipService.ShowOnDisabled" Value="true"/>
         <!--<Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBoxAeroTemplate, TypeInTargetAssembly={x:Type local:VBTextBox}}}"/>-->
         <Setter Property="Validation.ErrorTemplate">
             <Setter.Value>

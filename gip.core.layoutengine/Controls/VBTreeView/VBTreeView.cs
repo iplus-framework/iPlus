@@ -1374,9 +1374,7 @@ namespace gip.core.layoutengine
                         sortItems.Add(new SortItem(dataClass as IACObject, SortOrder));
                     }
 
-                    var sorted = from c in sortItems
-                                 orderby c.Property
-                                 select c.Item;
+                    var sorted = sortItems.OrderBy(c => c.Property).Select(c => c.Item);
                     foreach (var item in sorted)
                     {
 
@@ -1453,9 +1451,7 @@ namespace gip.core.layoutengine
                         sortItems.Add(new SortItem(dataClass as IACObject, SortOrder));
                     }
 
-                    var sorted = from c in sortItems
-                                 orderby c.Property
-                                 select c.Item;
+                    var sorted = sortItems.OrderBy(c => c.Property).Select(c => c.Item);
                     foreach (var item in sorted)
                     {
                         FillChilds(newTreeItem.Items, item, level + 1);
@@ -1504,9 +1500,7 @@ namespace gip.core.layoutengine
                         sortItems.Add(new SortItem(dataClass as IACObject, SortOrder));
                     }
 
-                    var sorted = from c in sortItems
-                                 orderby c.Property
-                                 select c.Item;
+                    var sorted = sortItems.OrderBy(c => c.Property).Select(c => c.Item);
                     foreach (var item in sorted)
                     {
                         FillChilds(expandedItem.Items, item, 1);
