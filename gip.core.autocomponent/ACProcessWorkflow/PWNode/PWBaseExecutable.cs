@@ -190,32 +190,38 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case ACStateConst.TMStart:
+                case nameof(Start):
                     Start();
                     return true;
-                case ACStateConst.SMStarting:
+                case nameof(SMStarting):
                     SMStarting();
                     return true;
-                case ACStateConst.SMBreakPoint:
+                case nameof(SMBreakPoint):
                     SMBreakPoint();
                     return true;
-                case ACStateConst.SMBreakPointStart:
+                case nameof(SMBreakPointStart):
                     SMBreakPointStart();
                     return true;
-                case "SetBreakPoint":
+                case nameof(SetBreakPoint):
                     SetBreakPoint();
                     return true;
-                case "RemoveBreakPoint":
+                case nameof(RemoveBreakPoint):
                     RemoveBreakPoint();
                     return true;
-                case Const.IsEnabledPrefix + ACStateConst.TMStart:
+                case nameof(ResetAndComplete):
+                    ResetAndComplete();
+                    return true;
+                case Const.IsEnabledPrefix + nameof(Start):
                     result = IsEnabledStart();
                     return true;
-                case Const.IsEnabledPrefix + "SetBreakPoint":
+                case Const.IsEnabledPrefix + nameof(SetBreakPoint):
                     result = IsEnabledSetBreakPoint();
                     return true;
-                case Const.IsEnabledPrefix + "RemoveBreakPoint":
+                case Const.IsEnabledPrefix + nameof(RemoveBreakPoint):
                     result = IsEnabledRemoveBreakPoint();
+                    return true;
+                case Const.IsEnabledPrefix + nameof(ResetAndComplete):
+                    result = IsEnabledResetAndComplete();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -226,13 +232,13 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "ShowOrderDialog":
+                case nameof(ShowOrderDialog):
                     ShowOrderDialog(acComponent);
                     return true;
-                case Const.IsEnabledPrefix + "ShowOrderDialog":
+                case Const.IsEnabledPrefix + nameof(ShowOrderDialog):
                     result = IsEnabledShowOrderDialog(acComponent);
                     return true;
-                case "AskUserStart":
+                case nameof(AskUserStart):
                     result = AskUserStart(acComponent);
                     return true;
             }
@@ -278,7 +284,7 @@ namespace gip.core.autocomponent
             return acComponent.Messages.Question(acComponent, "Question50038", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
 
-        [ACMethodInteraction("Process", "en{'Set breakpoint'}de{'Haltepunkt setzen'}", (short)201, true, "")]
+        [ACMethodInteraction("Process", "en{'Set breakpoint'}de{'Haltepunkt setzen'}", (short)201, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands)]
         public virtual void SetBreakPoint()
         {
             if (IsEnabledSetBreakPoint())
@@ -292,7 +298,7 @@ namespace gip.core.autocomponent
             return IsEnabledStartInternal();
         }
 
-        [ACMethodInteraction("Process", "en{'Remove breakpoint'}de{'Haltepunkt entfernen'}", (short)202, true)]
+        [ACMethodInteraction("Process", "en{'Remove breakpoint'}de{'Haltepunkt entfernen'}", (short)202, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands)]
         public virtual void RemoveBreakPoint()
         {
             if (IsEnabledRemoveBreakPoint())
@@ -309,6 +315,19 @@ namespace gip.core.autocomponent
             return CurrentACState == ACStateEnum.SMBreakPoint || CurrentACState == ACStateEnum.SMBreakPointStart;
         }
 
+        [ACMethodInteraction("Process", "en{'Reset and complete'}de{'Reset und Beenden'}", (short)203, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands)]
+        public virtual void ResetAndComplete()
+        {
+            if (!IsEnabledResetAndComplete())
+                return;
+            Reset();
+            RaiseOutEvent();
+        }
+
+        public virtual bool IsEnabledResetAndComplete()
+        {
+            return IsEnabledReset();
+        }
 
         public override void SMIdle()
         {
@@ -342,6 +361,7 @@ namespace gip.core.autocomponent
                 Reset();
             }
         }
+
         #endregion
 
         #region Callbacks

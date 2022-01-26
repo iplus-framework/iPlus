@@ -172,8 +172,10 @@ namespace gip.ext.chart.Common.Auxiliary
 			{
 #if DEBUG
                 Debug.WriteLine("Exception while saving bitmap to file: " + exc.Message);
+#else
+				_ = exc.Message;
 #endif
-            }
+			}
 		}
 
 		private static void OnBitmapDownloadCompleted(object sender, EventArgs e)
