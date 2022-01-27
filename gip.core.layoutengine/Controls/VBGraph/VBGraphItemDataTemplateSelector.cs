@@ -1,9 +1,4 @@
 ﻿using gip.core.datamodel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -11,6 +6,13 @@ namespace gip.core.layoutengine
 {
     public class VBGraphItemDataTemplateSelector : DataTemplateSelector
     {
+
+        /*
+         * For now no idea how resolve this generic
+         * Can be array items used in binding
+         */
+
+        #region DataTemplate
         public DataTemplate DataTemplate0 { get; set; }
         public DataTemplate DataTemplate1 { get; set; }
         public DataTemplate DataTemplate2 { get; set; }
@@ -22,8 +24,22 @@ namespace gip.core.layoutengine
         public DataTemplate DataTemplate8 { get; set; }
         public DataTemplate DataTemplate9 { get; set; }
         public DataTemplate DataTemplate10 { get; set; }
+        public DataTemplate DataTemplate11 { get; set; }
+        public DataTemplate DataTemplate12 { get; set; }
+        public DataTemplate DataTemplate13 { get; set; }
+        public DataTemplate DataTemplate14 { get; set; }
+        public DataTemplate DataTemplate15 { get; set; }
+        public DataTemplate DataTemplate16 { get; set; }
+        public DataTemplate DataTemplate17 { get; set; }
+        public DataTemplate DataTemplate18 { get; set; }
+        public DataTemplate DataTemplate19 { get; set; }
+        public DataTemplate DataTemplate20 { get; set; }
+
+        #endregion
 
         public string DataTemplateValueACUrl { get; set; }
+
+        #region DataTemplate Value
 
         public string DataTemplate0Value { get; set; }
         public string DataTemplate1Value { get; set; }
@@ -36,6 +52,18 @@ namespace gip.core.layoutengine
         public string DataTemplate8Value { get; set; }
         public string DataTemplate9Value { get; set; }
         public string DataTemplate10Value { get; set; }
+        public string DataTemplate11Value { get; set; }
+        public string DataTemplate12Value { get; set; }
+        public string DataTemplate13Value { get; set; }
+        public string DataTemplate14Value { get; set; }
+        public string DataTemplate15Value { get; set; }
+        public string DataTemplate16Value { get; set; }
+        public string DataTemplate17Value { get; set; }
+        public string DataTemplate18Value { get; set; }
+        public string DataTemplate19Value { get; set; }
+        public string DataTemplate20Value { get; set; }
+
+        #endregion
 
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
@@ -83,6 +111,39 @@ namespace gip.core.layoutengine
 
             if (stringValue == DataTemplate9Value)
                 return DataTemplate9;
+
+            if (stringValue == DataTemplate10Value)
+                return DataTemplate10;
+
+            if (stringValue == DataTemplate11Value)
+                return DataTemplate11;
+
+            if (stringValue == DataTemplate12Value)
+                return DataTemplate12;
+
+            if (stringValue == DataTemplate13Value)
+                return DataTemplate13;
+
+            if (stringValue == DataTemplate14Value)
+                return DataTemplate14;
+
+            if (stringValue == DataTemplate15Value)
+                return DataTemplate15;
+
+            if (stringValue == DataTemplate16Value)
+                return DataTemplate16;
+
+            if (stringValue == DataTemplate17Value)
+                return DataTemplate17;
+
+            if (stringValue == DataTemplate18Value)
+                return DataTemplate18;
+
+            if (stringValue == DataTemplate19Value)
+                return DataTemplate19;
+
+            if (stringValue == DataTemplate20Value)
+                return DataTemplate20;
 
             return DataTemplate1;
         }
