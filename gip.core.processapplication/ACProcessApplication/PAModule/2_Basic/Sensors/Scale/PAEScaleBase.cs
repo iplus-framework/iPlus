@@ -56,6 +56,7 @@ namespace gip.core.processapplication
         #endregion
 
         #region Properties Range 600
+
         #region Configuration
         [ACPropertyBindingTarget(600, "Configuration", "en{'Max. dosingtime'}de{'Maximale Dosierzeit'}", "", true, true, RemotePropID = 52)]
         public IACContainerTNet<TimeSpan> MaxDosingTime { get; set; }
@@ -248,9 +249,50 @@ namespace gip.core.processapplication
 
         #endregion
 
+        #region Occupation
+        private string _OccupiedFrom;
+        [ACPropertyInfo(true, 640, "", "en{'Occupied from'}de{'Belegt von'}")]
+        public string OccupiedFrom
+        {
+            get
+            {
+                return _OccupiedFrom;
+            }
+            set
+            {
+                _OccupiedFrom = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string IsScaleOccupied()
+        {
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                return _OccupiedFrom;
+            }
+        }
+
+        public bool OccupyScale(string acUrlFunc, bool withCheck, bool release)
+        {
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                if (!withCheck
+                    || (String.IsNullOrEmpty(_OccupiedFrom) || _OccupiedFrom == acUrlFunc))
+                {
+                    _OccupiedFrom = release ? null : acUrlFunc;
+                }
+                else
+                    return false;
+            }
+            OnPropertyChanged(nameof(OccupiedFrom));
+            return true;
+        }
         #endregion
-        // Methods, Range: 600
-        #region methods
+
+            #endregion
+
+            #region Methods, Range: 600
         public override void AcknowledgeAlarms()
         {
             if (!IsEnabledAcknowledgeAlarms())
