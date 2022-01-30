@@ -1471,7 +1471,7 @@ namespace gip.bso.iplus
 
             _acClassDesignIDList = Database.GetModifiedEntities<ACClassDesign>().Select(c => c.ACClassDesignID).ToList();
             _acClassList = Database.GetAddedEntities<ACClass>();
-            foreach (var newACClass in _acClassList)
+            foreach (var newACClass in _acClassList.ToArray())
             {
                 if (newACClass.ACClass1_ParentACClass != null && newACClass.ACClass1_ParentACClass.EntityState == System.Data.EntityState.Added)
                 {

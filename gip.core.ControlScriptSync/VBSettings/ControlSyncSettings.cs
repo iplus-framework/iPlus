@@ -22,6 +22,6 @@ namespace gip.core.ControlScriptSync.VBSettings
         public static string DateSQLFormat = "yyyy-MM-dd HH:mm";
 
 
-        public static FileLoadMode FileLoadMode = file.FileLoadMode.HigherAsYoungestInDatabase;
+        public static FileLoadMode FileLoadMode = file.FileLoadMode.AllMissingInDatabase;
     }
 }
