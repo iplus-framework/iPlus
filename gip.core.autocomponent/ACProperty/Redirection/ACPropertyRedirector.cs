@@ -162,7 +162,7 @@ namespace gip.core.autocomponent
 
                                         int alreadyAddedValues = valuesToProcess.PropertyLogList != null ? valuesToProcess.PropertyLogList.Count : 0;
                                         int neededValues = valuesToTake - alreadyAddedValues;
-                                        if(validatedItems.Count() >= neededValues)
+                                        if (validatedItems.Count() >= neededValues)
                                         {
                                             (valuesToProcess.PropertyLogList as List<PropertyLogItem>).AddRange(validatedItems.Take(neededValues));
                                             break;
@@ -194,7 +194,7 @@ namespace gip.core.autocomponent
                                     counter++;
                                 }
 
-                                if(valuesToProcess.PropertyLogList != null && valuesToProcess.PropertyLogList.Count >= valuesToTake)
+                                if (valuesToProcess.PropertyLogList != null && valuesToProcess.PropertyLogList.Count >= valuesToTake)
                                 {
                                     valuesToProcess.SetInterpolationParams(RedirectConfig.Interpolation, RedirectConfig.InterpolationRange, RedirectConfig.InterpolationDecay);
                                     object sourceVal = valuesToProcess.PropertyLogList?.LastOrDefault()?.Value;
