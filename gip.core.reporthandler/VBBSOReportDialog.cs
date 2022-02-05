@@ -1336,7 +1336,7 @@ namespace gip.core.reporthandler
             if (!IsEnabledDeleteConfiguredPrinter())
                 return;
             ACClassConfig config = SelectedConfiguredPrinter.Value as ACClassConfig;
-            MsgWithDetails msg = config.DeleteACObject(Database, false);
+            MsgWithDetails msg = config.DeleteACObject(CurrentACClassDesign.Database, false);
             if (msg == null)
             {
                 ReloadPrinterConfigList();
@@ -1345,7 +1345,7 @@ namespace gip.core.reporthandler
 
         public bool IsEnabledDeleteConfiguredPrinter()
         {
-            return SelectedConfiguredPrinter != null;
+            return SelectedConfiguredPrinter != null && CurrentACClassDesign != null;
         }
 
         [ACMethodInfo("AddWinPrinter", "en{'>'}de{'>'}", 999)]

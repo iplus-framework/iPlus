@@ -43,7 +43,10 @@ namespace gip.core.reporthandler
 
             _PrintManager = ACPrintManager.ACRefToServiceInstance(this);
             if (_PrintManager == null)
-                throw new Exception("ACPrintManager not configured");
+            {
+                Messages.Error(this, "ACPrintManager not configured", true);
+                //throw new Exception("ACPrintManager not configured");
+            }
 
             LoadMachinesAndPrinters(Db);
 
@@ -202,6 +205,8 @@ namespace gip.core.reporthandler
                     {
                         LocationName = SelectedMachine.ACUrlComponent;
                     }
+                    else
+                        LocationName = null;
                     OnPropertyChanged("SelectedMachine");
                     OnSelectedMachineChanged(SelectedMachine);
                 }
@@ -238,7 +243,7 @@ namespace gip.core.reporthandler
         /// Selected property for 
         /// </summary>
         /// <value>The selected </value>
-        [ACPropertyInfo(999, "LocationName", "en{'Selected location'}de{'Ausgewählter Standort'}")]
+        [ACPropertyInfo(999, "LocationName", "en{'Selected location (ACUrl)'}de{'Ausgewählter Standort (ACUrl)'}")]
         public string LocationName
         {
             get
@@ -481,7 +486,7 @@ namespace gip.core.reporthandler
 
         public bool IsEnabledRemovePrinter()
         {
-            return SelectedConfiguredPrinter != null;
+            return SelectedConfiguredPrinter != null && PrintManager != null;
         }
 
 
@@ -516,26 +521,31 @@ namespace gip.core.reporthandler
 
         public virtual void SetPrinterTarget(PrinterInfo printerInfo)
         {
-            if (SelectedMachine != null)
-                printerInfo.MachineACUrl = SelectedMachine.ACUrlComponent;
+            if (!String.IsNullOrEmpty(LocationName))
+                printerInfo.MachineACUrl = LocationName;
         }
 
         public virtual bool IsEnabledAddPrinter()
         {
+            if (ConfiguredPrinterList == null)
+                return false;
+
             return
-                   (SelectedMachine != null || SelectedVBUser != null)
+                   (!String.IsNullOrEmpty(LocationName) || SelectedVBUser != null)
                 && (SelectedWindowsPrinter != null || SelectedPrintServer != null)
                 && !ConfiguredPrinterList.Any(c =>
                     (
                         (SelectedWindowsPrinter != null && c.PrinterName == SelectedWindowsPrinter.PrinterName)
                         || (SelectedPrintServer != null && c.PrinterACUrl == SelectedPrintServer.PrinterACUrl)
                     )
-                    && (SelectedMachine != null && SelectedMachine.ACUrl == c.MachineACUrl)
+                    && (!String.IsNullOrEmpty(LocationName) && LocationName == c.MachineACUrl)
                 );
         }
 
         public virtual void LoadConfiguredPrinters()
         {
+            if (PrintManager == null)
+                return;
             ConfiguredPrinterList = ACPrintManager.GetConfiguredPrinters(Db, PrintManager.ComponentClass.ACClassID, true);
             foreach (PrinterInfo pInfo in ConfiguredPrinterList)
             {
@@ -555,14 +565,13 @@ namespace gip.core.reporthandler
             return SelectedVBUser != null;
         }
 
-        #endregion
 
         private void LoadMachinesAndPrinters(Database database)
         {
             _PrintServerList = ACPrintManager.GetPrintServers(database);
             List<ACItem> machines = new List<ACItem>();
 
-            ACClass acClassPAClassPhysicalBase = database.GetACType(typeof(PAClassPhysicalBase));
+            ACClass acClassPAClassPhysicalBase = database.GetACType(typeof(PAProcessModule));
             IQueryable<ACClass> queryClasses = ACClassManager.s_cQry_GetAvailableModulesAsACClass(database, acClassPAClassPhysicalBase.ACIdentifier);
             if (queryClasses != null && queryClasses.Any())
             {
@@ -585,5 +594,36 @@ namespace gip.core.reporthandler
             clone.SelectedWindowsPrinter = this.SelectedWindowsPrinter;
             return clone;
         }
+        #endregion
+
+        #region Execute-Helper
+        protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
+        {
+            result = null;
+            switch (acMethodName)
+            {
+                case nameof(AddPrinter):
+                    AddPrinter();
+                    return true;
+                case nameof(IsEnabledAddPrinter):
+                    result = IsEnabledAddPrinter();
+                    return true;
+                case nameof(RemovePrinter):
+                    RemovePrinter();
+                    return true;
+                case nameof(IsEnabledRemovePrinter):
+                    result = IsEnabledRemovePrinter();
+                    return true;
+                case nameof(DeselectVBUser):
+                    DeselectVBUser();
+                    return true;
+                case nameof(IsEnabledDeselectVBUser):
+                    result = IsEnabledDeselectVBUser();
+                    return true;
+            }
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+        #endregion
+
     }
 }

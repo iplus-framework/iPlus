@@ -16,7 +16,8 @@ namespace gip.core.reporthandler
     {
 
         #region c´tors
-        public const string MN_Print = "Print";
+        public const string MN_Print = nameof(Print);
+        public const string MN_PrintByACUrl = nameof(PrintByACUrl);
 
         public ACPrintServerBase(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
@@ -157,7 +158,17 @@ namespace gip.core.reporthandler
             });
         }
 
-        public async void DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 200, true)]
+        public virtual void PrintByACUrl(string acUrl, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        {
+            // suggestion: Use Queue
+            DelegateQueue.Add(() =>
+            {
+                DoPrint(acUrl, designACIdentifier, pAOrderInfo, copies);
+            });
+        }
+
+        public void DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
         {
             ACBSO acBSO = null;
             try
@@ -165,24 +176,11 @@ namespace gip.core.reporthandler
                 acBSO = GetACBSO(bsoClassID, pAOrderInfo);
                 if (acBSO == null)
                     return;
-                ACClassDesign aCClassDesign = acBSO.GetDesignForPrinting(GetACUrl(), designACIdentifier, pAOrderInfo);
-                if (aCClassDesign == null)
-                    return;
-                ReportData reportData = GetReportData(acBSO, aCClassDesign);
-                byte[] bytes = null;
-                await Application.Current.Dispatcher.InvokeAsync((Action)delegate
-                {
-                    // FlowDocument generate (separate thread)
-                    ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
-                    FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
-                    PrintContext printContext = GetPrintContext(flowDoc);
-                    bytes = printContext.Main;
-                }, DispatcherPriority.ContextIdle);
-                SendDataToPrinter(bytes);
+                DoPrint(acBSO, designACIdentifier, pAOrderInfo, copies);
             }
             catch (Exception e)
             {
-                Messages.LogException(this.GetACUrl(), "Print(185)", e);
+                Messages.LogException(this.GetACUrl(), "DoPrint(10)", e);
             }
             finally
             {
@@ -197,9 +195,68 @@ namespace gip.core.reporthandler
                 }
                 catch (Exception e)
                 {
-                    Messages.LogException(this.GetACUrl(), "Print(196)", e);
+                    Messages.LogException(this.GetACUrl(), "DoPrint(20)", e);
                 }
             }
+        }
+
+        public void DoPrint(string acUrl, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        {
+            ACBSO acBSO = null;
+            try
+            {
+                acBSO = GetACBSO(acUrl, pAOrderInfo);
+                if (acBSO == null)
+                    return;
+                DoPrint(acBSO, designACIdentifier, pAOrderInfo, copies);
+            }
+            catch (Exception e)
+            {
+                Messages.LogException(this.GetACUrl(), "DoPrint(30)", e);
+            }
+            finally
+            {
+                try
+                {
+                    // @aagincic: is this reqiered by IsPoolable = true?
+                    // with this database context is disposed
+                    // by many concurent request is exception thrown:
+                    // ObjectContext instance has been disposed and can no longer be used for operations that require a connection.
+                    if (acBSO != null)
+                        acBSO.Stop();
+                }
+                catch (Exception e)
+                {
+                    Messages.LogException(this.GetACUrl(), "DoPrint(40)", e);
+                }
+            }
+        }
+
+        public async void DoPrint(ACBSO acBSO, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        {
+            ACClassDesign aCClassDesign = acBSO.GetDesignForPrinting(GetACUrl(), designACIdentifier, pAOrderInfo);
+            if (aCClassDesign == null)
+                return;
+            ReportData reportData = GetReportData(acBSO, aCClassDesign);
+            byte[] bytes = null;
+            await Application.Current.Dispatcher.InvokeAsync((Action)delegate
+            {
+                try
+                {
+                    // FlowDocument generate (separate thread)
+                    ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
+                    FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
+                    PrintContext printContext = GetPrintContext(flowDoc);
+                    bytes = printContext.Main;
+                }
+                catch (Exception e)
+                {
+                    this.Messages.LogException(this.GetACUrl(), "InvokeAsync", e);
+                }
+            }, DispatcherPriority.ContextIdle);
+            
+            if (bytes != null)
+                SendDataToPrinter(bytes);
         }
 
         /// <summary>
@@ -222,6 +279,21 @@ namespace gip.core.reporthandler
             acBSO.FilterByOrderInfo(pAOrderInfo);
             return acBSO;
         }
+
+        public virtual ACBSO GetACBSO(string acUrl, PAOrderInfo pAOrderInfo)
+        {
+            ACBSO acBSO = this.Root.ACUrlCommand(acUrl,
+                new ACValueList()
+                {
+                    new ACValue(Const.ParamSeperateContext, typeof(bool), true),
+                    new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
+                }) as ACBSO;
+            if (acBSO == null)
+                return null;
+            acBSO.FilterByOrderInfo(pAOrderInfo);
+            return acBSO;
+        }
+
 
         /// <summary>
         /// From prepared ACBSO produce ReportData
@@ -448,6 +520,30 @@ namespace gip.core.reporthandler
         #endregion
 
         #endregion
+
+        #region Execute-Helper
+        protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
+        {
+            result = null;
+            switch (acMethodName)
+            {
+                case nameof(Print):
+                    Print((Guid) acParameter[0],
+                          acParameter[1] as string,
+                          acParameter[2] as PAOrderInfo,
+                          (int)acParameter[3]);
+                    return true;
+                case nameof(PrintByACUrl):
+                    PrintByACUrl(acParameter[0] as string,
+                          acParameter[1] as string,
+                          acParameter[2] as PAOrderInfo,
+                          (int)acParameter[3]);
+                    return true;
+            }
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+        #endregion
+
 
         #endregion
     }

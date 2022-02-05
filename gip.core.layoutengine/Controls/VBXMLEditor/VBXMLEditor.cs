@@ -243,34 +243,40 @@ namespace gip.core.layoutengine
 
         internal void ShowCompletionWindow(char ch)
         {
-            var result = _xmlCompletionDataProvider.GenerateCompletionData("", this.TextArea, ch);
-            if (result != null && result.Any())
+            try
             {
-                completionWindow = new CompletionWindow(TextArea);
-                completionWindow.MinWidth = 100;
-                completionWindow.SizeToContent = SizeToContent.Width;
-
-                foreach (XmlCompletionData item in result.OrderBy(c => c.Text))
+                var result = _xmlCompletionDataProvider.GenerateCompletionData("", this.TextArea, ch);
+                if (result != null && result.Any())
                 {
-                    if (item.Text.EndsWith(":"))
-                        item.vBXMLEditor = this;
-                    completionWindow.CompletionList.CompletionData.Add(item);
+                    completionWindow = new CompletionWindow(TextArea);
+                    completionWindow.MinWidth = 100;
+                    completionWindow.SizeToContent = SizeToContent.Width;
+
+                    foreach (XmlCompletionData item in result.OrderBy(c => c.Text))
+                    {
+                        if (item.Text.EndsWith(":"))
+                            item.vBXMLEditor = this;
+                        completionWindow.CompletionList.CompletionData.Add(item);
+                    }
+
+                    if (ch == '<')
+                        completionWindow.CompletionList.CompletionData.Add(new XmlCompletionData("!--", "Comment"));
+                    else if (Char.IsLetter(ch))
+                    {
+                        completionWindow.StartOffset--;
+                        completionWindow.CompletionList.SelectItem(ch.ToString());
+                    }
+
+                    completionWindow.Show();
+                    completionWindow.Closed += delegate
+                    {
+                        completionWindow = null;
+                    };
+
                 }
-
-                if (ch == '<')
-                    completionWindow.CompletionList.CompletionData.Add(new XmlCompletionData("!--", "Comment"));
-                else if (Char.IsLetter(ch))
-                {
-                    completionWindow.StartOffset--;
-                    completionWindow.CompletionList.SelectItem(ch.ToString());
-                }
-
-                completionWindow.Show();
-                completionWindow.Closed += delegate
-                {
-                    completionWindow = null;
-                };
-
+            }
+            catch (Exception)
+            {
             }
         }
 

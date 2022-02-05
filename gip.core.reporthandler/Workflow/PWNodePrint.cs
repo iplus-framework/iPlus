@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 
 namespace gip.core.reporthandler
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Print'}de{'Drucken'}", Global.ACKinds.TPWNodeStatic, Global.ACStorableTypes.Optional, false, PWProcessFunction.PWClassName, true)]
-    public class PWNodePrint : PWBaseNodeProcess
+    public class PWNodePrint : PWBaseNodeProcess, IACMyConfigCache
     {
+        #region c'tors
         static PWNodePrint()
         {
             ACMethod method;
@@ -18,7 +20,9 @@ namespace gip.core.reporthandler
             Dictionary<string, string> paramTranslation = new Dictionary<string, string>();
 
             method.ParameterValueList.Add(new ACValue("NumberOfCopies", typeof(short), 1, Global.ParamOption.Optional));
-            paramTranslation.Add("NumberOfCopies", "en{'Number Of Copies}de{'Number Of Copies'}");
+            paramTranslation.Add("NumberOfCopies", "en{'Number Of Copies'}de{'Anzahl Ausdrucke'}");
+            method.ParameterValueList.Add(new ACValue("MaxPrintJobsInSpooler", typeof(int), 0, Global.ParamOption.Optional));
+            paramTranslation.Add("MaxPrintJobsInSpooler", "en{'Max. print jobs in spooler'}de{'Maximale Anzahl an Druckaufträgen im Spooler'}");
 
             var wrapper = new ACMethodWrapper(method, "en{'Print'}de{'Drucken'}", typeof(PWNodePrint), paramTranslation, null);
             ACMethod.RegisterVirtualMethod(typeof(PWNodePrint), ACStateConst.SMStarting, wrapper);
@@ -30,34 +34,101 @@ namespace gip.core.reporthandler
         {
         }
 
-        public const string PWClassName = "PWNodePrint";
+        public override bool ACDeInit(bool deleteACClassTask = false)
+        {
+            ClearMyConfiguration();
+            return base.ACDeInit(deleteACClassTask);
+        }
+
+        public override void Recycle(IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
+        {
+            ClearMyConfiguration();
+            base.Recycle(content, parentACObject, parameter, acIdentifier);
+        }
+
+        public const string PWClassName = nameof(PWNodePrint);
+        #endregion
+
 
         #region Properties
 
+        private ACMethod _MyConfiguration;
+        public ACMethod MyConfiguration
+        {
+            get
+            {
+
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    if (_MyConfiguration != null)
+                        return _MyConfiguration;
+                }
+
+                var myNewConfig = NewACMethodWithConfiguration();
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    _MyConfiguration = myNewConfig;
+                }
+                return myNewConfig;
+            }
+        }
+
+        public void ClearMyConfiguration()
+        {
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                _MyConfiguration = null;
+            }
+            this.HasRules.ValueT = 0;
+        }
 
         public short NumberOfCopies
         {
-            get;
-            set;
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("NumberOfCopies");
+                    if (acValue != null)
+                    {
+                        return acValue.ParamAsInt16;
+                    }
+                }
+                return 0;
+            }
         }
 
-        public PAOrderInfo OrderInfo
+        public int MaxPrintJobsInSpooler
         {
-            get;
-            set;
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("MaxPrintJobsInSpooler");
+                    if (acValue != null)
+                    {
+                        return acValue.ParamAsInt32;
+                    }
+                }
+                return 0;
+            }
         }
-
 
         #endregion
+
+
+        #region Methods
+        public override void Reset()
+        {
+            ClearMyConfiguration();
+            base.Reset();
+        }
 
         public override void SMIdle()
         {
             base.SMIdle();
-            using (ACMonitor.Lock(_20015_LockValue))
-            {
-                NumberOfCopies = 0;
-                OrderInfo = null;
-            }
         }
 
         [ACMethodState("en{'Executing'}de{'Ausführend'}", 20, true)]
@@ -65,18 +136,6 @@ namespace gip.core.reporthandler
         {
             var newMethod = NewACMethodWithConfiguration();
             CreateNewProgramLog(newMethod, true);
-
-            Msg error = ReadParameters(newMethod);
-            if (error != null)
-            {
-                OnNewAlarmOccurred(ProcessAlarm, error, true);
-                if (IsAlarmActive(ProcessAlarm, error.Message) != null)
-                    Messages.LogMessageMsg(error);
-
-                ProcessAlarm.ValueT = PANotifyState.AlarmOrFault;
-                return;
-            }
-
             base.SMStarting();
         }
 
@@ -90,37 +149,28 @@ namespace gip.core.reporthandler
 
             UnSubscribeToProjectWorkCycle();
 
-            if (NumberOfCopies == 0 || OrderInfo == null)
+            if (NumberOfCopies > 0)
             {
-                var newMethod = NewACMethodWithConfiguration();
-                Msg error = ReadParameters(newMethod);
-                if (error != null)
+                Msg msg = null;
+                ACPrintManager printManager = ACPrintManager.GetServiceInstance(this);
+                if (printManager == null)
+                    OnNewAlarmOccurred(ProcessAlarm, "PrintManager is not configured!", true);
+                else
                 {
-                    OnNewAlarmOccurred(ProcessAlarm, error, true);
-                    if (IsAlarmActive(ProcessAlarm, error.Message) != null)
-                        Messages.LogMessageMsg(error);
+                    PAOrderInfo orderInfo = GetPAOrderInfo();
+                    if (orderInfo != null)
+                        msg = printManager.Print(orderInfo, NumberOfCopies, null, MaxPrintJobsInSpooler);
+                        //msg = printManager.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + ACPrintManager.MN_Print, orderInfo, NumberOfCopies) as Msg;
+                }
+                if (msg != null)
+                {
+                    OnNewAlarmOccurred(ProcessAlarm, msg, true);
+                    if (IsAlarmActive(ProcessAlarm, msg.Message) != null)
+                        Messages.LogMessageMsg(msg);
 
                     ProcessAlarm.ValueT = PANotifyState.AlarmOrFault;
                     return;
                 }
-            }
-
-            Msg msg = null;
-
-            ACPrintManager printManager = ACPrintManager.GetServiceInstance(this);
-            if (printManager == null)
-                OnNewAlarmOccurred(ProcessAlarm, "PrintManager is not configured!", true);
-            else
-                msg = printManager.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + ACPrintManager.MN_Print, OrderInfo, NumberOfCopies) as Msg;
-
-            if (msg != null)
-            {
-                OnNewAlarmOccurred(ProcessAlarm, msg, true);
-                if (IsAlarmActive(ProcessAlarm, msg.Message) != null)
-                    Messages.LogMessageMsg(msg);
-
-                ProcessAlarm.ValueT = PANotifyState.AlarmOrFault;
-                return;
             }
 
             CurrentACState = ACStateEnum.SMCompleted;
@@ -129,85 +179,54 @@ namespace gip.core.reporthandler
         public override PAOrderInfo GetPAOrderInfo()
         {
             PAOrderInfo orderInfo = base.GetPAOrderInfo();
-
-            if (RootPW != null)
+            // If Parent is not a PWGroup, than OrderInfo is null
+            if (orderInfo == null && RootPW != null)
+                orderInfo = RootPW.GetPAOrderInfo();
+            if (orderInfo != null)
             {
-                PAOrderInfo rootOrderInfo = RootPW.GetPAOrderInfo();
-                if (orderInfo == null)
-                    orderInfo = rootOrderInfo;
-                else
-                    orderInfo.Append(rootOrderInfo);
-
-                if (orderInfo != null)
-                    orderInfo.Add(PWClassName, ContentACClassWF.ACClassWFID);
+                // Add info on which machine this print takes place
+                PWGroup pwGroup = FindParentComponent<PWGroup>();
+                if (pwGroup != null)
+                {
+                    PAProcessModule module = pwGroup.AccessedProcessModule;
+                    if (module == null)
+                        module = pwGroup.PreviousAccessedPM;
+                    if (module != null)
+                        orderInfo.Add(ACClass.ClassName, module.ComponentClass.ACClassID);
+                }
+                orderInfo.Add(PWClassName, ContentACClassWF.ACClassWFID);
             }
-
             return orderInfo;
-        }
-
-        private Msg ReadParameters(ACMethod configMethod)
-        {
-            if (configMethod == null)
-            {
-                //Error50327 The ACMethod configuration is null!
-                return new Msg(this, eMsgLevel.Error, PWClassName, "ReadParameters(10)", 215, "Error50327");
-            }
-
-            string bsoName = null, reportDesignName = null, printerName = null;
-            short numberOfCopies = 0;
-
-            ACValue bsoVal = configMethod.ParameterValueList.GetACValue("PrintBSO");
-            if (bsoVal != null)
-            {
-                bsoName = bsoVal.ParamAsString;
-            }
-
-            if (string.IsNullOrEmpty(bsoName))
-            {
-                //Error50328 The configuration parameter PrintBSO is not configured!
-                return new Msg(this, eMsgLevel.Error, PWClassName, "ReadParameters(20)", 230, "Error50328");
-            }
-
-            ACValue reportNameVal = configMethod.ParameterValueList.GetACValue("ReportDesignName");
-            if (reportNameVal != null)
-            {
-                reportDesignName = reportNameVal.ParamAsString;
-            }
-
-            if (string.IsNullOrEmpty(reportDesignName))
-            {
-                //Error50329 The configuration parameter ReportDesignName is not configured!
-                return new Msg(this, eMsgLevel.Error, PWClassName, "ReadParameters(30)", 242, "Error50329");
-            }
-
-            ACValue printerNameVal = configMethod.ParameterValueList.GetACValue("PrinterName");
-            if (printerNameVal != null)
-                printerName = printerNameVal.ParamAsString;
-
-            ACValue nOCVal = configMethod.ParameterValueList.GetACValue("NumberOfCopies");
-            if (nOCVal != null)
-                numberOfCopies = nOCVal.ParamAsInt16;
-
-            PAOrderInfo orderInfo = GetPAOrderInfo();
-            if (orderInfo == null)
-            {
-                // Error50330 The order information PAOrderInfo can not be found!
-                return new Msg(this, eMsgLevel.Error, PWClassName, "ReadParameters(40)", 257, "Error50330");
-            }
-
-            using (ACMonitor.Lock(_20015_LockValue))
-            {
-                NumberOfCopies = numberOfCopies;
-                OrderInfo = orderInfo;
-            }
-
-            return null;
         }
 
         public static bool HandleExecuteACMethod_PWNodePrint(out object result, IACComponent acComponent, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             return HandleExecuteACMethod_PWBaseNodeProcess(out result, acComponent, acMethodName, acClassMethod, acParameter);
         }
+
+        protected override void DumpPropertyList(XmlDocument doc, XmlElement xmlACPropertyList)
+        {
+            base.DumpPropertyList(doc, xmlACPropertyList);
+
+            XmlElement xmlChild = xmlACPropertyList["NumberOfCopies"];
+            if (xmlChild == null)
+            {
+                xmlChild = doc.CreateElement("NumberOfCopies");
+                if (xmlChild != null)
+                    xmlChild.InnerText = NumberOfCopies.ToString();
+                xmlACPropertyList.AppendChild(xmlChild);
+            }
+
+            xmlChild = xmlACPropertyList["MaxPrintJobsInSpooler"];
+            if (xmlChild == null)
+            {
+                xmlChild = doc.CreateElement("MaxPrintJobsInSpooler");
+                if (xmlChild != null)
+                    xmlChild.InnerText = MaxPrintJobsInSpooler.ToString();
+                xmlACPropertyList.AppendChild(xmlChild);
+            }
+        }
+        #endregion
 
     }
 }

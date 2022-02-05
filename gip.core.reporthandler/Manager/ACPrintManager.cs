@@ -111,23 +111,22 @@ namespace gip.core.reporthandler
                     return msg;
                 }
 
-                // first fetch a BSO
-                ACBSO bso = null;
-                // TODO: @aagincic place for implement BSO Pool
-
-                bso = this.Root.ACUrlCommand(printInfo.BSOACUrl) as ACBSO;
-                //bso = StartComponent(bsoACClass, bsoACClass, new ACValueList()) as ACBSO;
-                if (bso == null)
-                {
-                    // Error50489: Can't start Businessobject {0}.
-                    msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1020, "Error50489", printInfo.BSOACUrl);
-                    return msg;
-                }
 
                 if (String.IsNullOrEmpty(printInfo.PrinterInfo.PrinterACUrl))
                 {
+                    // first fetch a BSO
+                    ACBSO bso = null;
+                    // TODO: @aagincic place for implement BSO Pool
                     try
                     {
+                        bso = this.Root.ACUrlCommand(printInfo.BSOACUrl) as ACBSO;
+                        if (bso == null)
+                        {
+                            // Error50489: Can't start Businessobject {0}.
+                            msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1020, "Error50489", printInfo.BSOACUrl);
+                            return msg;
+                        }
+
                         msg = bso.PrintByOrderInfo(pAOrderInfo, printInfo.PrinterInfo.PrinterName, (short)copyCount, printInfo.ReportACIdentifier, maxPrintJobsInSpooler);
                         if (msg != null)
                             return msg;
@@ -172,7 +171,7 @@ namespace gip.core.reporthandler
                         return msg;
                     }
 
-                    printServer.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + ACPrintServerBase.MN_Print, bso.ACType.ValueTypeACClass.ACClassID, printInfo.ReportACIdentifier, pAOrderInfo, copyCount);
+                    printServer.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + ACPrintServerBase.MN_PrintByACUrl, printInfo.BSOACUrl, printInfo.ReportACIdentifier, pAOrderInfo, copyCount);
                 }
             }
             catch (Exception ex)
@@ -326,7 +325,7 @@ namespace gip.core.reporthandler
             if (configuredPrinters == null || !configuredPrinters.Any())
                 return null;
 
-            return GetPrinterInfoFromMachine(aCClass, configuredPrinters);
+            return GetPrinterInfoFromMachine(aCClass, configuredPrinters, true);
         }
 
         protected virtual ACClass OnResolveBSOForOrderInfo(PAOrderInfo pAOrderInfo)
@@ -342,19 +341,41 @@ namespace gip.core.reporthandler
             return entityClass.ManagingBSO;
         }
 
-        protected PrinterInfo GetPrinterInfoFromMachine(gip.core.datamodel.ACClass acClass, List<PrinterInfo> configuredPrinters)
+        protected PrinterInfo GetPrinterInfoFromMachine(gip.core.datamodel.ACClass acClass, List<PrinterInfo> configuredPrinters, bool useFirstOrDefaultIfNotFoundForClass)
         {
+            PrinterInfo printerInfo = null;
             if (configuredPrinters == null || !configuredPrinters.Any())
-                return null;
+                return printerInfo;
             if (acClass != null)
-                return configuredPrinters.FirstOrDefault(c => c.MachineACUrl == acClass.ACURLCached);
-            else
-                return configuredPrinters.FirstOrDefault();
+                printerInfo = configuredPrinters.FirstOrDefault(c => c.MachineACUrl == acClass.ACURLComponentCached);
+            if (printerInfo == null && useFirstOrDefaultIfNotFoundForClass)
+                printerInfo = configuredPrinters.FirstOrDefault();
+            return printerInfo;
         }
 
 
         #endregion
 
+        #endregion
+
+        #region Execute-Helper
+        protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
+        {
+            result = null;
+            switch (acMethodName)
+            {
+                case nameof(Print):
+                    result = Print(acParameter[0] as PAOrderInfo, 
+                                    (int)acParameter[1], 
+                                    acParameter.Count() > 2 ? acParameter[2] as string : null, 
+                                    acParameter.Count() > 3 ? (int) acParameter[3] : 0);
+                    return true;
+                case nameof(ReloadConfig):
+                    ReloadConfig();
+                    return true;
+            }
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
         #endregion
 
         #endregion
