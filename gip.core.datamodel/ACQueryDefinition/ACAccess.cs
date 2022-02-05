@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Data.Objects;
 using System.Collections;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace gip.core.datamodel
 {
@@ -395,7 +396,7 @@ namespace gip.core.datamodel
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged(string name)
+        protected void OnPropertyChanged([CallerMemberName] string name = "")
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)

@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows;
+using System.Runtime.CompilerServices;
 
 namespace gip.core.layoutengine.ganttchart
 {
@@ -494,7 +495,7 @@ namespace gip.core.layoutengine.ganttchart
         // we could use DependencyProperties as well to inform others of property changes
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged(string name)
+        protected void OnPropertyChanged([CallerMemberName] string name = "")
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)

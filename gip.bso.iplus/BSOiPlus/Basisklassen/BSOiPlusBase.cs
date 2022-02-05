@@ -537,54 +537,54 @@ namespace gip.bso.iplus
                 if (_MethodMode != value)
                 {
                     _MethodMode = value;
-                    switch (_MethodMode)
-                    {
-                        case Global.MethodModes.Methods:
-                            AccessACClassMethod.NavACQueryDefinition.ClearFilter();
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACGroup, Global.LogicalOperators.notEqual, Global.Operators.and, Const.ACState, false));
-                            AccessACClassMethod.NavACQueryDefinition.ClearSort(true);
-                            AccessACClassMethod.NavACQueryDefinition.ACSortColumns.Add(new ACSortItem(Const.ACIdentifierPrefix, Global.SortDirections.ascending, false));
-                            break;
-                        case Global.MethodModes.Assemblymethods:
-                            AccessACClassMethod.NavACQueryDefinition.ClearFilter();
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACGroup, Global.LogicalOperators.notEqual, Global.Operators.and, Const.ACState, false));
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSMethod).ToString(), false));
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSMethodClient).ToString(), false));
-                            AccessACClassMethod.NavACQueryDefinition.ClearSort(true);
-                            AccessACClassMethod.NavACQueryDefinition.ACSortColumns.Add(new ACSortItem(Const.ACIdentifierPrefix, Global.SortDirections.ascending, false));
-                            break;
-                        case Global.MethodModes.Scriptmethods:
-                            AccessACClassMethod.NavACQueryDefinition.ClearFilter();
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACGroup, Global.LogicalOperators.notEqual, Global.Operators.and, Const.ACState, false));
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.parenthesisOpen, null, Global.LogicalOperators.none, Global.Operators.and, null, false));
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSMethodExt).ToString(), false));
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSMethodExtClient).ToString(), false));
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSMethodExtTrigger).ToString(), false));
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.parenthesisClose, null, Global.LogicalOperators.none, Global.Operators.and, null, false));
-                            AccessACClassMethod.NavACQueryDefinition.ClearSort(true);
-                            AccessACClassMethod.NavACQueryDefinition.ACSortColumns.Add(new ACSortItem(Const.ACIdentifierPrefix, Global.SortDirections.ascending, false));
-                            break;
-                        case Global.MethodModes.Workflows:
-                            AccessACClassMethod.NavACQueryDefinition.ClearFilter();
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACGroup, Global.LogicalOperators.notEqual, Global.Operators.and, Const.ACState, false));
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSWorkflow).ToString(), false));
-                            AccessACClassMethod.NavACQueryDefinition.ClearSort(true);
-                            AccessACClassMethod.NavACQueryDefinition.ACSortColumns.Add(new ACSortItem(Const.ACIdentifierPrefix, Global.SortDirections.ascending, false));
-                            break;
-                        case Global.MethodModes.Submethod:
-                            AccessACClassMethod.NavACQueryDefinition.ClearFilter();
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACGroup, Global.LogicalOperators.notEqual, Global.Operators.and, Const.ACState, false));
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSMethodFunction).ToString(), false));
-                            AccessACClassMethod.NavACQueryDefinition.ClearSort(true);
-                            AccessACClassMethod.NavACQueryDefinition.ACSortColumns.Add(new ACSortItem(Const.ACIdentifierPrefix, Global.SortDirections.ascending, false));
-                            break;
-                        case Global.MethodModes.States:
-                            AccessACClassMethod.NavACQueryDefinition.ClearFilter();
-                            AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACGroup, Global.LogicalOperators.equal, Global.Operators.and, Const.ACState, false));
-                            AccessACClassMethod.NavACQueryDefinition.ClearSort(true);
-                            AccessACClassMethod.NavACQueryDefinition.ACSortColumns.Add(new ACSortItem("SortIndex", Global.SortDirections.ascending, false));
-                            break;
-                    }
+                    //switch (_MethodMode)
+                    //{
+                    //    case Global.MethodModes.Methods:
+                    //        AccessACClassMethod.NavACQueryDefinition.ClearFilter();
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACGroup, Global.LogicalOperators.notEqual, Global.Operators.and, Const.ACState, false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ClearSort(true);
+                    //        AccessACClassMethod.NavACQueryDefinition.ACSortColumns.Add(new ACSortItem(Const.ACIdentifierPrefix, Global.SortDirections.ascending, false));
+                    //        break;
+                    //    case Global.MethodModes.Assemblymethods:
+                    //        AccessACClassMethod.NavACQueryDefinition.ClearFilter();
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACGroup, Global.LogicalOperators.notEqual, Global.Operators.and, Const.ACState, false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSMethod).ToString(), false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSMethodClient).ToString(), false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ClearSort(true);
+                    //        AccessACClassMethod.NavACQueryDefinition.ACSortColumns.Add(new ACSortItem(Const.ACIdentifierPrefix, Global.SortDirections.ascending, false));
+                    //        break;
+                    //    case Global.MethodModes.Scriptmethods:
+                    //        AccessACClassMethod.NavACQueryDefinition.ClearFilter();
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACGroup, Global.LogicalOperators.notEqual, Global.Operators.and, Const.ACState, false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.parenthesisOpen, null, Global.LogicalOperators.none, Global.Operators.and, null, false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSMethodExt).ToString(), false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSMethodExtClient).ToString(), false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSMethodExtTrigger).ToString(), false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.parenthesisClose, null, Global.LogicalOperators.none, Global.Operators.and, null, false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ClearSort(true);
+                    //        AccessACClassMethod.NavACQueryDefinition.ACSortColumns.Add(new ACSortItem(Const.ACIdentifierPrefix, Global.SortDirections.ascending, false));
+                    //        break;
+                    //    case Global.MethodModes.Workflows:
+                    //        AccessACClassMethod.NavACQueryDefinition.ClearFilter();
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACGroup, Global.LogicalOperators.notEqual, Global.Operators.and, Const.ACState, false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSWorkflow).ToString(), false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ClearSort(true);
+                    //        AccessACClassMethod.NavACQueryDefinition.ACSortColumns.Add(new ACSortItem(Const.ACIdentifierPrefix, Global.SortDirections.ascending, false));
+                    //        break;
+                    //    case Global.MethodModes.Submethod:
+                    //        AccessACClassMethod.NavACQueryDefinition.ClearFilter();
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACGroup, Global.LogicalOperators.notEqual, Global.Operators.and, Const.ACState, false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACKindIndex, Global.LogicalOperators.equal, Global.Operators.or, ((Int16)Global.ACKinds.MSMethodFunction).ToString(), false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ClearSort(true);
+                    //        AccessACClassMethod.NavACQueryDefinition.ACSortColumns.Add(new ACSortItem(Const.ACIdentifierPrefix, Global.SortDirections.ascending, false));
+                    //        break;
+                    //    case Global.MethodModes.States:
+                    //        AccessACClassMethod.NavACQueryDefinition.ClearFilter();
+                    //        AccessACClassMethod.NavACQueryDefinition.ACFilterColumns.Add(new ACFilterItem(Global.FilterTypes.filter, Const.ACGroup, Global.LogicalOperators.equal, Global.Operators.and, Const.ACState, false));
+                    //        AccessACClassMethod.NavACQueryDefinition.ClearSort(true);
+                    //        AccessACClassMethod.NavACQueryDefinition.ACSortColumns.Add(new ACSortItem("SortIndex", Global.SortDirections.ascending, false));
+                    //        break;
+                    //}
 
                     BroadcastToVBControls(Const.CmdUpdateControlMode, "CurrentACClassMethod");
                     BroadcastToVBControls(Const.CmdUpdateVBContent, "CurrentACClassMethod");

@@ -1,4 +1,5 @@
-﻿using gip.tool.devLicenseProvider;
+﻿using System.Runtime.CompilerServices;
+using gip.tool.devLicenseProvider;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -105,7 +106,7 @@ namespace gip.tool.devLicense
         #region PropertyChanged
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged(string propertyName)
+        public void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             if (PropertyChanged != null)
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));

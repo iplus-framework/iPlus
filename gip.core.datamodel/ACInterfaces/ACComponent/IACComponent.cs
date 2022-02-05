@@ -13,7 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
-
+using System.Runtime.CompilerServices;
 
 namespace gip.core.datamodel
 {
@@ -559,7 +559,7 @@ namespace gip.core.datamodel
         /// Raises the INotifyPropertyChanged.PropertyChanged-Event.
         /// </summary>
         /// <param name="name">Name of the property</param>
-        void OnPropertyChanged(string name);
+        void OnPropertyChanged([CallerMemberName] string name = "");
         #endregion
 
 

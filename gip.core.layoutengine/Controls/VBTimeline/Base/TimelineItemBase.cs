@@ -1,4 +1,5 @@
-﻿using gip.core.datamodel;
+﻿using System.Runtime.CompilerServices;
+using gip.core.datamodel;
 using gip.core.layoutengine.ganttchart;
 using gip.core.layoutengine.Helperclasses;
 using System;
@@ -330,7 +331,7 @@ namespace gip.core.layoutengine.timeline
             ToolTip = VBTimelineChart.container;
         }
 
-        internal void OnPropertyChanged(string propertyName)
+        internal void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             var handlers = PropertyChanged;
             if (handlers != null)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Runtime.CompilerServices;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Media;
@@ -111,7 +112,7 @@ namespace gip.core.datamodel
             return !string.IsNullOrEmpty(ThumbPath) && ThumbPath.Contains(fileName);
         }
 
-        public void OnPropertyChanged(string propertyName)
+        public void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));

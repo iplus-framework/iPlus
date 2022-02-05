@@ -1,4 +1,5 @@
-﻿// ***********************************************************************
+﻿using System.Runtime.CompilerServices;
+// ***********************************************************************
 // Assembly         : gip.core.datamodel
 // Author           : DLisak
 // Created          : 10-16-2012
@@ -660,7 +661,7 @@ namespace gip.core.datamodel
         /// Called when [property changed].
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
-        protected void OnPropertyChanged(string propertyName)
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             if (PropertyChanged != null)
             {

@@ -27,8 +27,7 @@ using gip.core.autocomponent;
 using Microsoft.Win32;
 using System.Windows.Threading;
 using System.Reflection;
-
-
+using System.Runtime.CompilerServices;
 
 namespace gip.iplus.client
 {
@@ -408,7 +407,7 @@ namespace gip.iplus.client
 #region INotifyPropertyChanged Member
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged(string name)
+        public void OnPropertyChanged([CallerMemberName] string name = "")
         {
             if (PropertyChanged != null)
             {

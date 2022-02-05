@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System;
 using System.Linq;
 using System.Collections;
@@ -1318,7 +1319,7 @@ namespace gip.core.communication.ISOonTCP
 
 #region Events
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             if (PropertyChanged != null)
             {

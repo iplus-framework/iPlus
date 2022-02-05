@@ -161,10 +161,32 @@ namespace gip.bso.iplus
             {
                 if (CurrentACClass == null)
                     return null;
-
                 if (_ACClassMethodList == null)
                     _ACClassMethodList = CurrentACClass.GetMethods();
-                return _ACClassMethodList;
+                IEnumerable<ACClassMethod> filteredList = null;
+                switch (CurrentMethodModeEnum)
+                {
+                    case Global.MethodModes.Assemblymethods:
+                        filteredList = _ACClassMethodList.Where(c => c.ACKind == Global.ACKinds.MSMethod || c.ACKind == Global.ACKinds.MSMethodClient);
+                        break;
+                    case Global.MethodModes.Scriptmethods:
+                        filteredList = _ACClassMethodList.Where(c => c.ACKind == Global.ACKinds.MSMethodExt || c.ACKind == Global.ACKinds.MSMethodExtClient || c.ACKind == Global.ACKinds.MSMethodExtTrigger);
+                        break;
+                    case Global.MethodModes.Workflows:
+                        filteredList = _ACClassMethodList.Where(c => c.ACKind == Global.ACKinds.MSWorkflow);
+                        break;
+                    case Global.MethodModes.Submethod:
+                        filteredList = _ACClassMethodList.Where(c => c.ACKind == Global.ACKinds.MSMethodFunction);
+                        break;
+                    case Global.MethodModes.States:
+                        filteredList = _ACClassMethodList.Where(c => c.ACGroup == Const.ACState);
+                        break;
+                    default:
+                        filteredList = _ACClassMethodList.ToArray();
+                        break;
+                }
+
+                return filteredList;
             }
         }
 

@@ -261,7 +261,7 @@ namespace gip.core.layoutengine
 
             _ACColumnItem = acColumnItem;
             _ColACTypeInfo = dsColACTypeInfo;
-            if (_ColACTypeInfo != null)
+            if (ColACType != null)
             {
                 if (TypeAnalyser.IsNumericType(ColACType.ObjectType))
                     TBAlignment = TextAlignment.Right;

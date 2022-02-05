@@ -17,6 +17,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace gip.core.datamodel
 {
@@ -30,7 +31,7 @@ namespace gip.core.datamodel
     [ACSerializeableInfo()]
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACCompositionObject'}de{'ACCompositionObject'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
-    public class ACComposition : IACContainerT<IACObject>, IACAttach, INotifyPropertyChanged
+    public class ACComposition : IACContainerT<IACObject>, IACAttach, INotifyPropertyChanged, IACObject
     {
         #region IACContainerT
         /// <summary>Gets or sets the encapsulated value of the generic type T</summary>
@@ -106,15 +107,24 @@ namespace gip.core.datamodel
         }
         #endregion
 
+        string _ACUrlComposition;
         /// <summary>
         /// Gets or sets the AC URL composition.
         /// </summary>
         /// <value>The AC URL composition.</value>
         [DataMember]
+        [ACPropertyInfo(2, "", "en{'ACUrl of reference Componentence'}de{'ACUrl der referenzierten Komponente'}")]
         public String  ACUrlComposition
         {
-            get;
-            set;
+            get
+            {
+                return _ACUrlComposition;
+            }
+            set
+            {
+                _ACUrlComposition = value;
+                OnPropertyChanged();
+            }
         }
 
         /// <summary>
@@ -153,11 +163,12 @@ namespace gip.core.datamodel
         /// </summary>
         bool _IsSystem;
         /// <summary>
-        /// Gets or sets a value indicating whether this instance is system.
+        /// If this property is set to false, than the user has customized this entry
+        /// ACClassManager won't change the setting at login with Ctrl
         /// </summary>
         /// <value><c>true</c> if this instance is system; otherwise, <c>false</c>.</value>
         [DataMember]
-        [ACPropertyInfo(1, "", "en{'Assembly'}de{'Assambly'}")]
+        [ACPropertyInfo(2, "", "en{'Is the original setting'}de{'Ist die originale Einstellung'}")]
         public bool IsSystem
         {
             get
@@ -167,7 +178,7 @@ namespace gip.core.datamodel
             set
             {
                 _IsSystem = value;
-                OnPropertyChanged("IsSystem");
+                OnPropertyChanged();
             }
         }
 
@@ -180,7 +191,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The appendix.</value>
         [DataMember]
-        [ACPropertyInfo(1, "", "en{'Appendix'}de{'Appendix'}")]
+        [ACPropertyInfo(3, "", "en{'Appendix'}de{'Appendix'}")]
         public string Appendix
         {
             get
@@ -190,7 +201,7 @@ namespace gip.core.datamodel
             set
             {
                 _Appendix = value;
-                OnPropertyChanged("Appendix");
+                OnPropertyChanged();
             }
         }
 
@@ -203,7 +214,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value><c>true</c> if this instance is primary; otherwise, <c>false</c>.</value>
         [DataMember]
-        [ACPropertyInfo(1, "", "en{'Primary'}de{'Primär'}")]
+        [ACPropertyInfo(4, "", "en{'Primary'}de{'Primär'}")]
         public bool IsPrimary
         {
             get
@@ -213,7 +224,7 @@ namespace gip.core.datamodel
             set
             {
                 _IsPrimary = value;
-                OnPropertyChanged("IsPrimary");
+                OnPropertyChanged();
             }
         }
 
@@ -235,7 +246,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="name">The name.</param>
         [ACMethodInfo("ACComponent", "en{'PropertyChanged'}de{'PropertyChanged'}", 9999)]
-        public void OnPropertyChanged(string name)
+        public void OnPropertyChanged([CallerMemberName] string name = "")
         {
             if (PropertyChanged != null)
             {
@@ -282,6 +293,58 @@ namespace gip.core.datamodel
                 ObjectDetached(this, new EventArgs());
         }
 
+        /// <summary>
+        /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
+        /// 1. get references to components,
+        /// 2. query property values,
+        /// 3. execute method calls,
+        /// 4. start and stop Components,
+        /// 5. and send messages to other components.
+        /// </summary>
+        /// <param name="acUrl">String that adresses a command</param>
+        /// <param name="acParameter">Parameters if a method should be invoked</param>
+        /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
+        public object ACUrlCommand(string acUrl, params object[] acParameter)
+        {
+            return this.ReflectACUrlCommand(acUrl, acParameter);
+        }
+
+        /// <summary>
+        /// This method is called before ACUrlCommand if a method-command was encoded in the ACUrl
+        /// </summary>
+        /// <param name="acUrl">String that adresses a command</param>
+        /// <param name="acParameter">Parameters if a method should be invoked</param>
+        /// <returns>true if ACUrlCommand can be invoked</returns>
+        public bool IsEnabledACUrlCommand(string acUrl, params object[] acParameter)
+        {
+            return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
+        }
+
+        /// <summary>
+        /// Returns a ACUrl relatively to the passed object.
+        /// If the passed object is null then the absolute path is returned
+        /// </summary>
+        /// <param name="rootACObject">Object for creating a realtive path to it</param>
+        /// <returns>ACUrl as string</returns>
+        public virtual string GetACUrl(IACObject rootACObject = null)
+        {
+            return ACIdentifier;
+        }
+
+        /// <summary>
+        /// Method that returns a source and path for WPF-Bindings by passing a ACUrl.
+        /// </summary>
+        /// <param name="acUrl">ACUrl of the Component, Property or Method</param>
+        /// <param name="acTypeInfo">Reference to the iPlus-Type (ACClass)</param>
+        /// <param name="source">The Source for WPF-Databinding</param>
+        /// <param name="path">Relative path from the returned source for WPF-Databinding</param>
+        /// <param name="rightControlMode">Information about access rights for the requested object</param>
+        /// <returns><c>true</c> if binding could resolved for the passed ACUrl<c>false</c> otherwise</returns>
+        public bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode)
+        {
+            return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
+        }
+
         /// <summary>Gets a value indicating whether the encapuslated objects are attached.</summary>
         /// <value>
         ///   <c>true</c> if the encapuslated objects are attached; otherwise, <c>false</c>.</value>
@@ -290,6 +353,32 @@ namespace gip.core.datamodel
             get
             {
                 return _Database != null;
+            }
+        }
+
+        public IACObject ParentACObject
+        {
+            get;
+            set;
+        }
+
+        public IACType ACType
+        {
+            get
+            {
+                return this.ReflectACType();
+            }
+            set
+            {
+            }
+        }
+
+
+        public IEnumerable<IACObject> ACContentList
+        {
+            get
+            {
+                return null;
             }
         }
 

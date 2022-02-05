@@ -1,4 +1,5 @@
-﻿using gip.core.datamodel;
+﻿using System.Runtime.CompilerServices;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -91,7 +92,7 @@ namespace gip.core.autocomponent
             return string.Format("{0}[{1}]", AssemblyName, count);
         }
 
-        public void OnPropertyChanged(string propertyName)
+        public void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));

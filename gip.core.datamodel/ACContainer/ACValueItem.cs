@@ -19,6 +19,7 @@ using System.Runtime.Serialization;
 using System.Transactions;
 using System.ComponentModel;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace gip.core.datamodel
 {
@@ -307,7 +308,7 @@ namespace gip.core.datamodel
         /// Called when [property changed].
         /// </summary>
         /// <param name="name">The name.</param>
-        public void OnPropertyChanged(string name)
+        public void OnPropertyChanged([CallerMemberName] string name = "")
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)

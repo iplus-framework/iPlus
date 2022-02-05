@@ -2950,7 +2950,11 @@ namespace gip.core.autocomponent
             else
             {
                 ACComposition acComposition = acConfig[Const.Value] as ACComposition;
-                if (acComposition.ACUrlComposition != compositionACClass.GetACUrl() || acComposition.Appendix != appendix || acComposition.IsSystem != true || acComposition.IsPrimary != isPrimary)
+                if (   acComposition != null
+                    && acComposition.IsSystem
+                    && (   acComposition.ACUrlComposition != compositionACClass.GetACUrl()
+                        || acComposition.Appendix != appendix 
+                        || acComposition.IsPrimary != isPrimary))
                 {
                     acComposition.SetComposition(compositionACClass);
                     acComposition.Appendix = appendix;
