@@ -760,7 +760,7 @@ namespace gip.core.autocomponent
                         .OrderByDescending(c => c.SortIndex)
                         .ToList();
 
-            var query = this.ComponentClass.ConfigurationEntries.Where(c =>    c.LocalConfigACUrl == Const_PrinterPreConfigACUrl 
+            var query = this.ComponentClass.ConfigurationEntriesInClassHierarchy.Where(c =>    c.LocalConfigACUrl == Const_PrinterPreConfigACUrl 
                                                                             && (c.Value as string) == printerName);
             if (query != null && query.Any())
             {

@@ -3446,6 +3446,14 @@ namespace gip.core.datamodel
             }
         }
 
+        public IEnumerable<IACConfig> ConfigurationEntriesInClassHierarchy
+        {
+            get
+            {
+                return ClassHierarchy.SelectMany(c => c.ConfigurationEntries);
+            }
+        }
+
         private SafeList<IACConfig> _ACConfigListCache;
         private SafeList<IACConfig> ACConfigListCache
         {
