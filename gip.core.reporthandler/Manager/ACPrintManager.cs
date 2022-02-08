@@ -90,13 +90,6 @@ namespace gip.core.reporthandler
 
         #region Methods -> Public
 
-        [ACMethodInfo("Print", "en{'Reload Printer Config'}de{'Druckerkonfiguration nachladen'}", 201, false)]
-        public void ReloadConfig()
-        {
-
-
-        }
-
         [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 200, true)]
         public virtual Msg Print(PAOrderInfo pAOrderInfo, int copyCount, string vbUserName = null, int maxPrintJobsInSpooler = 0)
         {
@@ -369,9 +362,6 @@ namespace gip.core.reporthandler
                                     (int)acParameter[1], 
                                     acParameter.Count() > 2 ? acParameter[2] as string : null, 
                                     acParameter.Count() > 3 ? (int) acParameter[3] : 0);
-                    return true;
-                case nameof(ReloadConfig):
-                    ReloadConfig();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
