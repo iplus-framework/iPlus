@@ -54,8 +54,8 @@ namespace gip.core.processapplication
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
-            bool result = base.ACDeInit(deleteACClassTask);
             UnSubscribeStandStillDetection();
+            bool result = base.ACDeInit(deleteACClassTask);
             return result;
         }
 
@@ -417,13 +417,21 @@ namespace gip.core.processapplication
 
         private void UnSubscribeStandStillDetection()
         {
-            using (ACMonitor.Lock(_80000_StandStillLock))
+            try
             {
-                if (!_StandStillSubsc)
-                    return;
-                _StandStillSubsc = false;
-                _StandStillStopWatch.Reset();
-                this.ApplicationManager.ProjectWorkCycleR200ms -= StandStillSubsc_ProjectWorkCycleR200ms;
+                using (ACMonitor.Lock(_80000_StandStillLock))
+                {
+                    if (!_StandStillSubsc)
+                        return;
+                    _StandStillSubsc = false;
+                    _StandStillStopWatch.Reset();
+                    var manager = this.ApplicationManager;
+                    if (manager != null)
+                        manager.ProjectWorkCycleR200ms -= StandStillSubsc_ProjectWorkCycleR200ms;
+                }
+            }
+            catch
+            {
             }
         }
 
