@@ -92,7 +92,7 @@ namespace gip.core.communication
         /// <summary>
         /// Gets the parent component as a PAExportERPGroup.
         /// </summary>
-        public PAExportERPGroup PAExportERP
+        public PAExportERPGroup ParentExportGroup
         {
             get => ParentACComponent as PAExportERPGroup;
         }
@@ -139,7 +139,7 @@ namespace gip.core.communication
         /// </summary>
         /// <param name="acMethod">The acMethod with parameters.</param>
         /// <returns>The ACMethod event arguments(RequestID and ACMethodResult)</returns>
-        [ACMethodAsync("Send", "en{'Send Verbrauchsmeldung asynchronous'}de{'Sende Verbrauchsmeldung asynchron'}", 201, false)]
+        [ACMethodAsync("Send", "en{'Send Message asynchronous'}de{'Sende Nachricht asynchron'}", 201, false)]
         public virtual ACMethodEventArgs ExecuteBuildAndSend(ACMethod acMethod)
         {
             ACMethodEventArgs result = new ACMethodEventArgs(acMethod, Global.ACMethodResultState.Failed);
@@ -158,7 +158,7 @@ namespace gip.core.communication
                 ACPointAsyncRMIWrap<ACComponent> currentAsyncRMI = TaskInvocationPoint.CurrentAsyncRMI;
                 DateTime sendTime = DateTime.Now;
 
-                PAExportERP.DelegateQueue.Add(() => BuildAndSend(acMethod, sendTime, currentAsyncRMI));
+                ParentExportGroup.DelegateQueue.Add(() => BuildAndSend(acMethod, sendTime, currentAsyncRMI));
             }
             catch (Exception e)
             {
@@ -194,7 +194,7 @@ namespace gip.core.communication
             if(msg == null && ExportDir == ArchiveDir)
                 msg = new Msg("Temp directory and Archive directory is same directory. This is not allowed. Please, change one of those two.", this, eMsgLevel.Error, "PAExporterERPBase", "IsEnabledExecuteBuildAndSend(20)", 164);
 
-            if (msg == null && PAExportERP == null)
+            if (msg == null && ParentExportGroup == null)
                 msg = new Msg("The parent component is not PAExportERPGroup!", this, eMsgLevel.Error, "PAExporterERPBase", "IsEnabledExecuteBuildAndSend(30)", 157);
 
             if (msg == null && !acMethod.IsValid())
@@ -226,17 +226,17 @@ namespace gip.core.communication
 
                 bool addToSendCache = false;
 
-                if (PAExportERP.IsAvailableDirectSend)
+                if (ParentExportGroup.IsAvailableDirectSend)
                 {
                     bool sended = false;
 
                     if (!ExportOff)
                     {
-                        if (PAExportERP.IsWSSupportsMultiInvokesInSameTime)
+                        if (ParentExportGroup.IsWSSupportsMultiInvokesInSameTime)
                             sended = SendToWebService(objectToSend);
                         else
                         {
-                            using (ACMonitor.Lock(PAExportERP.SendLockObject))
+                            using (ACMonitor.Lock(ParentExportGroup.SendLockObject))
                             {
                                 sended = SendToWebService(objectToSend);
                             }
@@ -282,7 +282,7 @@ namespace gip.core.communication
                         AddAlarm(msg);
                         return;
                     }
-                    PAExportERP.AddObjectToSendCache(fileItem);
+                    ParentExportGroup.AddObjectToSendCache(fileItem);
                 }
             }
             catch (Exception e)
@@ -315,7 +315,7 @@ namespace gip.core.communication
                         Messages.LogMessageMsg(msg);
                     AddAlarm(msg);
 
-                    PAExportERP.RemoveFromSendCache(fileItem);
+                    ParentExportGroup.RemoveFromSendCache(fileItem);
                     ObjectToSendCache = null;
                     return false;
                 }
