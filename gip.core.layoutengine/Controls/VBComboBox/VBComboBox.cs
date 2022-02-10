@@ -1232,6 +1232,18 @@ namespace gip.core.layoutengine
             {
                 Filter();
             }
+            else if (e.Key == Key.Enter)
+            {
+                TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Next);
+                UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
+
+                if (keyboardFocus != null)
+                {
+                    keyboardFocus.MoveFocus(tRequest);
+                }
+
+                e.Handled = true;
+            }
             base.OnKeyUp(e);
         }
 
