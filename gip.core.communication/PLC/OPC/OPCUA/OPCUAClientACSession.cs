@@ -603,6 +603,28 @@ namespace gip.core.communication
             _StopReconnectInitiated = false;
         }
 
+        private void SubscribeToEvents(Session session)
+        {
+            if (session == null)
+                return;
+
+
+
+        }
+
+        private void UnSubscribeFromEvents(Session session)
+        {
+            if (session == null)
+                return;
+
+            session.Notification -= Session_Notification;
+        }
+
+        private void Session_Notification(Session session, NotificationEventArgs e)
+        {
+            
+        }
+
         #endregion
 
         private UserIdentity LoadCertificate()
