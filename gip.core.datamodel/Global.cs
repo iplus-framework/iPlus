@@ -1293,21 +1293,6 @@ namespace gip.core.datamodel
         }
         #endregion
 
-        #region ParamOption
-        /// <summary>
-        /// Enum für das Feld ParamOptionIndex
-        /// </summary>
-        [ACSerializeableInfo]
-        [ACClassInfo(Const.PackName_VarioSystem, "en{'ParamOption'}de{'ParamOption'}", Global.ACKinds.TACEnum)]
-        public enum ParamOption : short
-        {
-            NotRequired = 0,    // Nicht erforderlich
-            Required = 1,       // Erforderlich
-            Optional = 2,       // Optional
-            Fix = 3             // Fester Wert, der nicht geändert werden kann
-        }
-        #endregion
-
         #region ControlModes
         /// <summary>Mode of the WPF-Control</summary>
         [ACSerializeableInfo]

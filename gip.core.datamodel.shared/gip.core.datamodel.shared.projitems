@@ -10,6 +10,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\EntityBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\CircularBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\ISafeCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\ISafeList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\SafeBindingList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\SafeCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\SafeList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Translator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACMessages\eMessageButton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACMessages\eMsgLevel.cs" />
@@ -17,6 +23,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)ACMessages\Msg.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACMessages\MsgResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACMessages\MsgWithDetails.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMethod\ACMethod.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMethod\ACMethodDescriptor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMethod\ACValue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMethod\ACValueList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Const.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Global.cs" />
   </ItemGroup>

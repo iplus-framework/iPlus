@@ -558,8 +558,10 @@ namespace gip.core.datamodel
                         if (ec.InnerException != null && ec.InnerException.Message != null)
                             msg += " Inner:" + ec.InnerException.Message;
 
+#if NETFRAMEWORK
                         if (Database.Root != null && Database.Root.Messages != null)
                             Database.Root.Messages.LogException("SafeBindingList", "Child_PropertyChanged", msg);
+#endif
 
                         ResetBindings(); 
                         return;
@@ -600,9 +602,9 @@ namespace gip.core.datamodel
             } 
         }
  
-        #endregion
+#endregion
   
-        #region IRaiseItemChangedEvents interface
+#region IRaiseItemChangedEvents interface
   
         bool IRaiseItemChangedEvents.RaisesItemChangedEvents { 
             get {
@@ -610,7 +612,7 @@ namespace gip.core.datamodel
             } 
         }
   
-        #endregion
+#endregion
  
     }
 } 

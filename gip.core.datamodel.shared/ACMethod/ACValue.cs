@@ -16,11 +16,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
-using System.Data.Objects.DataClasses;
 using System.ComponentModel;
-using System.Data.Objects;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+#if NETFRAMEWORK
+using System.Data.Objects.DataClasses;
+using System.Data.Objects;
+#endif
 
 namespace gip.core.datamodel
 {
@@ -32,11 +34,14 @@ namespace gip.core.datamodel
     /// <seealso cref="System.ICloneable" />
     /// <seealso cref="gip.core.datamodel.IACAttach" />
     [DataContract]
+#if NETFRAMEWORK
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACValue", "en{'ACValue'}de{'ACValue'}", typeof(ACValue), "ACValue", Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValue'}de{'ACValue'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACValue : IACContainer, INotifyPropertyChanged, ICloneable, IACAttach
+#else
+    public class ACValue : INotifyPropertyChanged
+#endif
     {
-
         #region ctor's
         /// <summary>
         /// Initializes a new instance of the <see cref="ACValue"/> class.
@@ -45,6 +50,7 @@ namespace gip.core.datamodel
         {
         }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="ACValue"/> class.
         /// </summary>
@@ -98,15 +104,37 @@ namespace gip.core.datamodel
             ACIdentifier = acIdentifier;
             Value = value;
         }
+#endif
 
 
         #endregion
+
+#if NETFRAMEWORK
+        private bool? _FullSerialization;
+        public bool FullSerialization 
+        {
+            get
+            {
+                if (_FullSerialization.HasValue)
+                    return _FullSerialization.Value;
+                if (ParentMethod != null)
+                    return ParentMethod.FullSerialization;
+                return false;
+            }
+            set
+            {
+                _FullSerialization = value;
+            }
+        }
+#endif
 
         string _ACIdentifier;
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
         [DataMember]
+#if NETFRAMEWORK
         [ACPropertyInfo(10, "", "en{'Propertyname'}de{'Eigenschaftsname'}")]
+#endif
         public string ACIdentifier 
         {
             get
@@ -123,20 +151,60 @@ namespace gip.core.datamodel
             }
         }
 
+#if NETFRAMEWORK
+    [ACPropertyInfo(9999)]
+#endif
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
-        [ACPropertyInfo(9999)]
         public virtual string ACCaption
         {
             get
             {
+#if NETFRAMEWORK
                 var parentMethod = ParentMethod;
                 if (parentMethod != null)
                     return parentMethod.GetACCaptionForACValue(this);
                 return ACIdentifier;
+#else
+                return _ACCaption;
+#endif
+            }
+#if !NETFRAMEWORK
+            set
+            {
+                _ACCaption = value;
+                OnPropertyChanged();
+            }
+#endif
+        }
+
+#if !NETFRAMEWORK        
+string _ACCaption;
+#endif
+        [DataMember(Name ="L")]
+        public string Label
+        {
+            get
+            {
+#if NETFRAMEWORK
+                if (FullSerialization)
+                    return ACCaption;
+                else
+                    return null;
+#else
+                return _ACCaption;
+#endif
+            }
+            set
+            {
+#if !NETFRAMEWORK
+                _ACCaption = value;
+                OnPropertyChanged();
+#endif
             }
         }
 
+#if NETFRAMEWORK
         public ACValueList ParentList
         {
             get
@@ -173,19 +241,24 @@ namespace gip.core.datamodel
                 return null;
             return PropertyChanged.GetInvocationList();
         }
+#endif
 
         /// <summary>Gets or sets the encapsulated value as a boxed type</summary>
         /// <value>The boxed value.</value>
         [IgnoreDataMember]
+#if NETFRAMEWORK
         [ACPropertyInfo(20, "", "en{'Value'}de{'Wert'}")]
+#endif
         public object Value
         {
             get
             {
+#if NETFRAMEWORK
                 if (XMLValue is IACContainerRef)
                 {
                     return (XMLValue as IACContainerRef).Value;
                 }
+#endif
                 return XMLValue;
             }
             set
@@ -194,6 +267,7 @@ namespace gip.core.datamodel
                     return;
                 if (value != null)
                 {
+#if NETFRAMEWORK
                     if (value is EntityObject)
                     {
                         EntityObject entity = value as EntityObject;
@@ -215,12 +289,15 @@ namespace gip.core.datamodel
                         OnPropertyChanged(Const.Value);
                         return;
                     }
+#endif
                 }
+#if NETFRAMEWORK
                 if (ValueTypeACClass != null)
                     XMLValue = ACConvert.ChangeType(value, XMLValue, ObjectFullType, true, ValueTypeACClass.Database, true);
                 else
+#endif
                     XMLValue = value;
-                OnPropertyChanged(Const.Value);
+                OnPropertyChanged();
             }
         }
 
@@ -230,7 +307,9 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The option.</value>
         [DataMember]
+#if NETFRAMEWORK
         [ACPropertyInfo(30, "", "en{'Option'}de{'Option'}")]
+#endif
         public Global.ParamOption Option 
         {
             get
@@ -242,11 +321,12 @@ namespace gip.core.datamodel
                 if (_Option != value)
                 {
                     _Option = value;
-                    OnPropertyChanged("Option");
+                    OnPropertyChanged();
                 }
             }
         }
 
+#if NETFRAMEWORK
         ACClass _ValueTypeACClass;
         /// <summary>
         /// Metadata (iPlus-Type) of the Value-Property. ATTENTION: ACClass is a EF-Object. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
@@ -265,32 +345,78 @@ namespace gip.core.datamodel
                 OnPropertyChanged("ValueTypeACClass");
             }
         }
+#endif
 
+
+#if NETFRAMEWORK
+        [ACPropertyInfo(40, "", "en{'Data Type'}de{'Datentyp'}")]
+#else
+        string _DataTypeName;
+#endif
         /// <summary>
         /// Gets or sets the name of the data type.
         /// </summary>
         /// <value>The name of the data type.</value>
         [DataMember]
-        [ACPropertyInfo(40, "", "en{'Data Type'}de{'Datentyp'}")]
         public string DataTypeName
         {
             get
             {
+#if NETFRAMEWORK
                 if (_ValueTypeACClass == null)
                     return null;
                 return _ValueTypeACClass.ACIdentifier;
+#else
+                return _DataTypeName;
+#endif
             }
             set
             {
+#if NETFRAMEWORK
                 if (string.IsNullOrEmpty(value))
                 {
                     _ValueTypeACClass = null;
                 }
                 _ValueTypeACClass = Database.GlobalDatabase.GetACType(value);
-                OnPropertyChanged("DataTypeName");
+#else
+                _DataTypeName = value;
+#endif
+                OnPropertyChanged();
             }
         }
 
+#if !NETFRAMEWORK
+        string _AssemblyQualifiedName;
+#endif
+        [DataMember(Name = "ASQN")]
+        public string AssemblyQualifiedName
+        {
+            get
+            {
+#if NETFRAMEWORK
+                if (!FullSerialization)
+                    return null;
+                else
+                {
+                    if (_ValueTypeACClass == null)
+                        return null;
+                    return _ValueTypeACClass.ObjectType.AssemblyQualifiedName;
+                }
+#else
+                return _AssemblyQualifiedName;
+#endif
+            }
+            set
+            {
+#if !NETFRAMEWORK
+                _AssemblyQualifiedName = value;
+                OnPropertyChanged();
+#endif
+            }
+        }
+
+
+#if NETFRAMEWORK
         string _GenericType;
         /// <summary>
         /// Gets or sets the type of the generic.
@@ -313,6 +439,7 @@ namespace gip.core.datamodel
                 }
             }
         }
+#endif
 
         /// <summary>
         /// Gets the type of the object.
@@ -322,14 +449,21 @@ namespace gip.core.datamodel
         {
             get
             {
+#if NETFRAMEWORK
                 if (ValueTypeACClass == null)
                 {
                     return null;
                 }
                 return ValueTypeACClass.ObjectType;
+#else
+                if (String.IsNullOrEmpty(AssemblyQualifiedName))
+                    return null;
+                return Type.GetType(AssemblyQualifiedName);
+#endif
             }
         }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Gets the type of the object generic.
         /// </summary>
@@ -346,6 +480,7 @@ namespace gip.core.datamodel
                 return TypeAnalyser.GetTypeInAssembly(GenericType);
             }
         }
+#endif
 
         /// <summary>
         /// Gets or sets the full type of the object.
@@ -355,10 +490,15 @@ namespace gip.core.datamodel
         {
             get
             {
+#if NETFRAMEWORK
                 if (String.IsNullOrEmpty(GenericType))
                     return ObjectType;
                 return GetGenericACPropertyType(ObjectGenericType, ObjectType, null);
+#else
+                return ObjectType;
+#endif
             }
+#if NETFRAMEWORK
             set
             {
                 Type t = value; 
@@ -398,8 +538,9 @@ namespace gip.core.datamodel
                     ValueTypeACClass = Database.GlobalDatabase.GetACType(value);
                     GenericType = "";
                 }
-                OnPropertyChanged("ObjectFullType");
+                OnPropertyChanged();
             }
+#endif
         }
 
         /// <summary>
@@ -408,6 +549,7 @@ namespace gip.core.datamodel
         [DataMember]
         private object XMLValue;
 
+#if NETFRAMEWORK
         /// <summary>
         /// Gets the value as ref.
         /// </summary>
@@ -420,6 +562,7 @@ namespace gip.core.datamodel
                 return XMLValue as IACContainerRef;
             }
         }
+#endif
 
         /// <summary>
         /// Values the T.
@@ -433,6 +576,7 @@ namespace gip.core.datamodel
             return (T)Value;
         }
 
+#if NETFRAMEWORK
         /// <summary>
         /// Entities the T.
         /// </summary>
@@ -553,6 +697,7 @@ namespace gip.core.datamodel
                 }
             }
         }
+#endif
 
         [IgnoreDataMember]
         public bool HasDefaultValue
@@ -597,6 +742,7 @@ namespace gip.core.datamodel
             if (this.ObjectType == null)
                 return null;
 
+#if NETFRAMEWORK
             if (!String.IsNullOrEmpty(GenericType))
             {
                 Value = null;
@@ -617,30 +763,34 @@ namespace gip.core.datamodel
                 //    //}
                 //}
             }
-            else if (this.ObjectType == typeof(Byte))
-                return (Byte)0;
-            else if (this.ObjectType == typeof(Int16))
-                return (Int16)0;
-            else if (this.ObjectType == typeof(Int32))
-                return (Int32)0;
-            else if (this.ObjectType == typeof(Int64))
-                return (Int64)0;
-            else if (this.ObjectType == typeof(SByte))
-                return (SByte)0;
-            else if (this.ObjectType == typeof(UInt16))
-                return (UInt16)0;
-            else if (this.ObjectType == typeof(UInt32))
-                return (UInt32)0;
-            else if (this.ObjectType == typeof(UInt64))
-                return (UInt64)0;
-            else if (this.ObjectType == typeof(Single))
-                return (Single)0.0;
-            else if (this.ObjectType == typeof(Double))
-                return (Double)0.0;
-            else if (this.ObjectType == typeof(DateTime))
-                return DateTime.MinValue;
-            else if (this.ObjectType == typeof(TimeSpan))
-                return TimeSpan.MinValue;
+            else 
+#endif
+            {
+                if (this.ObjectType == typeof(Byte))
+                    return (Byte)0;
+                else if (this.ObjectType == typeof(Int16))
+                    return (Int16)0;
+                else if (this.ObjectType == typeof(Int32))
+                    return (Int32)0;
+                else if (this.ObjectType == typeof(Int64))
+                    return (Int64)0;
+                else if (this.ObjectType == typeof(SByte))
+                    return (SByte)0;
+                else if (this.ObjectType == typeof(UInt16))
+                    return (UInt16)0;
+                else if (this.ObjectType == typeof(UInt32))
+                    return (UInt32)0;
+                else if (this.ObjectType == typeof(UInt64))
+                    return (UInt64)0;
+                else if (this.ObjectType == typeof(Single))
+                    return (Single)0.0;
+                else if (this.ObjectType == typeof(Double))
+                    return (Double)0.0;
+                else if (this.ObjectType == typeof(DateTime))
+                    return DateTime.MinValue;
+                else if (this.ObjectType == typeof(TimeSpan))
+                    return TimeSpan.MinValue;
+            }
             return null;
         }
 
@@ -1012,10 +1162,16 @@ namespace gip.core.datamodel
             if (from == null)
                 return;
             this._ACIdentifier = from.ACIdentifier;
+            this.Option = from.Option;
+#if NETFRAMEWORK
             this._ValueTypeACClass = from.ValueTypeACClass;
             this.GenericType = from.GenericType;
-            this.Option = from.Option;
             this._IsEnumerable = from.IsEnumerable;
+#else
+            this._ACCaption = from.ACCaption;
+            this._DataTypeName = from.DataTypeName;
+            this._AssemblyQualifiedName = from.AssemblyQualifiedName;
+#endif
             if (from.XMLValue != null && from.XMLValue is ICloneable)
                 this.XMLValue = (from.XMLValue as ICloneable).Clone();
             else
@@ -1053,8 +1209,10 @@ namespace gip.core.datamodel
                 if (e.InnerException != null && e.InnerException.Message != null)
                     msg += " Inner:" + e.InnerException.Message;
 
+#if NETFRAMEWORK
                 if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("ACValue", "CopyValue", msg);
+#endif
             }
         }
 
@@ -1065,6 +1223,7 @@ namespace gip.core.datamodel
             return clone;
         }
 
+#if NETFRAMEWORK
         /// <summary>Attaches the deserialized encapuslated objects to the parent context.</summary>
         /// <param name="acObject">The parent context. Normally this is a EF-Context (IACEntityObjectContext).</param>
         public void AttachTo(IACObject acObject)
@@ -1121,9 +1280,11 @@ namespace gip.core.datamodel
         /// Occurs when the encapuslated object was attached.
         /// </summary>
         public event EventHandler ObjectAttached;
+#endif
     }
 
 
+#if NETFRAMEWORK
     [DataContract]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACValueWithCaption", "en{'ACValueWithCaption'}de{'ACValueWithCaption'}", typeof(ACValueWithCaption), "ACValueWithCaption", Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValueWithCaption'}de{'ACValueWithCaption'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
@@ -1170,4 +1331,5 @@ namespace gip.core.datamodel
             return clone;
         }
     }
+#endif
 }

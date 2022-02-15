@@ -33,8 +33,12 @@ namespace gip.core.datamodel
     /// object Value: parameter value<para />
     /// Type ObjectFullType: Datatype of parameter value
     /// </summary>
+#if NETFRAMEWORK
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValueList'}de{'ACValueList'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACValueList : SafeBindingList<ACValue>, IACEntityProperty, ICloneable
+#else
+    public class ACValueList : SafeBindingList<ACValue>, ICloneable
+#endif
     {
         #region c'tors
         /// <summary>
@@ -156,14 +160,19 @@ namespace gip.core.datamodel
             {
                 if (acParameter.Option == Global.ParamOption.Required && acParameter.Value == null)
                 {
-                    ValidMessage.AddDetailMessage(new Msg { Source = "", MessageLevel = eMsgLevel.Info, ACIdentifier = "30002"/* TODO:RequiredParamsNotSet*/, Message = Database.Root.Environment.TranslateMessage(Database.Root, "Info00001", acParameter.ACIdentifier )});
+#if NETFRAMEWORK
+    ValidMessage.AddDetailMessage(new Msg { Source = "", MessageLevel = eMsgLevel.Info, ACIdentifier = "30002"/* TODO:RequiredParamsNotSet*/, Message = Database.Root.Environment.TranslateMessage(Database.Root, "Info00001", acParameter.ACIdentifier )});
+#else
+                    ValidMessage.AddDetailMessage(new Msg { Source = "", MessageLevel = eMsgLevel.Info, ACIdentifier = "30002"/* TODO:RequiredParamsNotSet*/, Message = "Required parameter was not set" });
+#endif
                 }
             }
             return ValidMessage.MsgDetailsCount == 0;
         }
-        #endregion
+#endregion
 
-        #region Attaching
+#region Attaching
+#if NETFRAMEWORK
         /// <summary>
         /// Attaches to.
         /// </summary>
@@ -185,9 +194,10 @@ namespace gip.core.datamodel
                 acValue.Detach(detachFromDBContext);
             }
         }
-        #endregion
+#endif
+#endregion
 
-        #region public TypeConversion Methods
+#region public TypeConversion Methods
         /// <summary>
         /// Gets the boolean.
         /// </summary>
@@ -338,9 +348,9 @@ namespace gip.core.datamodel
         {
             return GetACValue(propertyName).ParamAsDateTime;
         }
-        #endregion
+#endregion
 
-        #region Serializer
+#region Serializer
 
         private ReaderWriterLockSlim _ACVLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         protected override ReaderWriterLockSlim RWLock
@@ -352,6 +362,7 @@ namespace gip.core.datamodel
         }
 
 
+#if NETFRAMEWORK
         /// <summary>
         /// Serializes the AC value list.
         /// </summary>
@@ -385,9 +396,10 @@ namespace gip.core.datamodel
                 return acValueList;
             }
         }
-        #endregion
+#endif
+#endregion
 
-        #region Abgleich
+#region Abgleich
         /// <summary>
         /// Updates the values.
         /// </summary>
@@ -399,7 +411,7 @@ namespace gip.core.datamodel
                 acValue.Value = acValueList[acValue.ACIdentifier];
             }
         }
-        #endregion
+#endregion
 
         /// <summary>
         /// To the value array.
@@ -430,10 +442,12 @@ namespace gip.core.datamodel
             //OnPropertyChanged(property);
         }
 
+#if NETFRAMEWORK
         public ACPropertyManager ACProperties
         {
             get { return null; }
         }
+#endif
 
         public virtual void CloneValues(ACValueList from)
         {
@@ -468,6 +482,7 @@ namespace gip.core.datamodel
         }
     }
 
+#if NETFRAMEWORK
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValueWithCaptionList'}de{'ACValueWithCaptionList'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACValueWithCaptionList : BindingList<ACValueWithCaption>
     {
@@ -481,5 +496,5 @@ namespace gip.core.datamodel
         }
 
     }
-
+#endif
 }

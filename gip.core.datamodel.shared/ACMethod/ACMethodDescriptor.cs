@@ -22,9 +22,11 @@ namespace gip.core.datamodel
     /// <summary>
     /// Class ACMethodDescriptor
     /// </summary>
-    [ACSerializeableInfo]
     [DataContract]
+#if NETFRAMEWORK
+    [ACSerializeableInfo]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACMethod'}de{'ACMethod'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
+#endif
     public class ACMethodDescriptor : ICloneable
     {
         #region c´tors
@@ -62,7 +64,9 @@ namespace gip.core.datamodel
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
         [DataMember]
+#if NETFRAMEWORK
         [ACPropertyInfo(9999, "", "en{'Name'}de{'Name'}")]
+#endif
         public string ACIdentifier
         {
             get;
@@ -83,7 +87,9 @@ namespace gip.core.datamodel
         /// Immer die ACRequestID des vorangegangenen Methodenaufrufs
         /// </summary>
         /// <value>The AC request ID.</value>
+#if NETFRAMEWORK
         [ACPropertyInfo(9999, "", "en{'ACRequestID'}de{'ACRequestID'}")]
+#endif
         [DataMember]
         public Guid ACRequestID
         {

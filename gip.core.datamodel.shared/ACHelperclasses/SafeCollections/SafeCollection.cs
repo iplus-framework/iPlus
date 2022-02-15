@@ -221,8 +221,10 @@ namespace gip.core.datamodel
                     if (e.InnerException != null && e.InnerException.Message != null)
                         msg += " Inner:" + e.InnerException.Message;
 
+#if NETFRAMEWORK
                     if (Database.Root != null && Database.Root.Messages != null)
                         Database.Root.Messages.LogException("SafeCollection", "ICollection.CopyTo", msg);
+#endif
 
                     throw new ArgumentException("Argument_InvalidArrayType");
                 }
@@ -238,11 +240,11 @@ namespace gip.core.datamodel
             return this.GetEnumerator();
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region ISafeCollection
+#region ISafeCollection
 
         public virtual int Add(T item, int timeout)
         {
@@ -293,9 +295,9 @@ namespace gip.core.datamodel
             ClearItems();
         }
 
-        #endregion
+#endregion
 
-        #region protected
+#region protected
         protected virtual void ClearItems()
         {
             if (!RWLock.TryEnterWriteLock(-1))
@@ -355,9 +357,9 @@ namespace gip.core.datamodel
         }
 
 
-        #endregion
+#endregion
 
-        #region Enumerator
+#region Enumerator
 
         [Serializable]
         public struct Enumerator : IEnumerator<T>
@@ -410,7 +412,7 @@ namespace gip.core.datamodel
                 ExitReadLock();
             }
 
-            #region Private
+#region Private
 
             object IEnumerator.Current
             {
@@ -437,16 +439,18 @@ namespace gip.core.datamodel
                         if (e.InnerException != null && e.InnerException.Message != null)
                             msg += " Inner:" + e.InnerException.Message;
 
+#if NETFRAMEWORK
                         if (Database.Root != null && Database.Root.Messages != null)
                             Database.Root.Messages.LogException("SafeCollection", "ExitReadLock", msg);
+#endif
                     }
                 }
             }
 
-            #endregion
+#endregion
         }
 
-        #endregion
+#endregion
 
     }
 }

@@ -35,11 +35,15 @@ namespace gip.core.datamodel
     /// Die Events an die entsprechende JobPointSubcr sollte immer mittels "ACValueList" (oder einer spezialisierten
     /// Ableitung) erfolgen in welcher immer die orignale ACJobID und der aktuelle ACState gestetzt sind.
     /// </summary>
+    [DataContract]
+#if NETFRAMEWORK
     [KnownType(typeof(ACValue))]
     [ACSerializeableInfo]
-    [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACMethod'}de{'ACMethod'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACMethod : ACMethodDescriptor, INotifyPropertyChanged, IACObject, IACEntityProperty
+#else
+    public class ACMethod : ACMethodDescriptor, INotifyPropertyChanged
+#endif
     {
         #region c´tors
         /// <summary>
@@ -80,6 +84,7 @@ namespace gip.core.datamodel
         #endregion
 
         #region Virtual Methods Registration
+#if NETFRAMEWORK
         private class VirtualMethodsNameDict : Dictionary<string, List<ACMethodWrapper>>
         {
             public void RegisterVirtualMethod(ACMethodWrapper acMethodWrapper)
@@ -286,11 +291,14 @@ namespace gip.core.datamodel
                 return _MethodsRegistry.GetVirtualMethodInfos(typeOfACComponent, assemblyMethodName);
             }
         }
-
+#endif
 
         #endregion
-     
+
         #region Properties
+
+        public bool FullSerialization { get; set; }
+#if NETFRAMEWORK
         /// <summary>
         /// The _ database
         /// </summary>
@@ -310,7 +318,7 @@ namespace gip.core.datamodel
                 _Database = value;
             }
         }
-
+#endif
 
         /// <summary>
         /// The _ parameter value list
@@ -321,7 +329,9 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The parameter value list.</value>
         [DataMember]
+#if NETFRAMEWORK
         [ACPropertyInfo(9999, "", "en{'Parameter'}de{'Parameter'}")]
+#endif
         public ACValueList ParameterValueList
         {
             get
@@ -362,7 +372,9 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The result value list.</value>
         [DataMember]
+#if NETFRAMEWORK
         [ACPropertyInfo(9999, "", "en{'Result'}de{'Ergebnis'}")]
+#endif
         public ACValueList ResultValueList
         {
             get
@@ -427,7 +439,9 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value><c>true</c> if [auto remove]; otherwise, <c>false</c>.</value>
         [DataMember]
+#if NETFRAMEWORK
         [ACPropertyInfo(9999, "", "en{'AutoRemove'}de{'AutoRemove'}")]
+#endif
         public bool AutoRemove
         {
             get
@@ -437,12 +451,13 @@ namespace gip.core.datamodel
             set
             {
                 _AutoRemove = value;
-                OnPropertyChanged("AutoRemove");
+                OnPropertyChanged();
             }
         }
         #endregion
 
         #region Attaching
+#if NETFRAMEWORK
         /// <summary>
         /// Attaches to.
         /// </summary>
@@ -465,7 +480,8 @@ namespace gip.core.datamodel
                 ResultValueList.Detach(detachFromDBContext);
             _Database = null;
         }
-        #endregion
+#endif
+#endregion
 
 
         /// <summary>
@@ -575,6 +591,7 @@ namespace gip.core.datamodel
             get { return ACIdentifier; }
         }
 
+#if NETFRAMEWORK
         private static gip.core.datamodel.ACClass _ReflectedACType = null;
         /// <summary>
         /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
@@ -670,6 +687,7 @@ namespace gip.core.datamodel
         {
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
+#endif
 
         public object this[string property]
         {
@@ -680,6 +698,7 @@ namespace gip.core.datamodel
                 if (param == null)
                 {
                     param = ResultValueList.GetACValue(property);
+#if NETFRAMEWORK
                     if (param == null && TypeAsACClass != null)
                     {
                         ACClassProperty acProp = TypeAsACClass.Properties.Where(c => c.ACIdentifier == property).FirstOrDefault();
@@ -689,6 +708,7 @@ namespace gip.core.datamodel
                             ParameterValueList.Add(param);
                         }
                     }
+#endif
                 }
                 if (param == null)
                     return null;
@@ -700,6 +720,7 @@ namespace gip.core.datamodel
                 if (param == null)
                 {
                     param = ResultValueList.GetACValue(property);
+#if NETFRAMEWORK
                     if (param == null && TypeAsACClass != null)
                     {
                         ACClassProperty acProp = TypeAsACClass.Properties.Where(c => c.ACIdentifier == property).FirstOrDefault();
@@ -711,6 +732,10 @@ namespace gip.core.datamodel
                     }
                     else
                         param.Value = value;
+#else
+                    if (param != null)
+                        param.Value = value;
+#endif
                 }
                 else
                     param.Value = value;
@@ -718,6 +743,7 @@ namespace gip.core.datamodel
             }
         }
 
+#if NETFRAMEWORK
         public virtual string XMLConfig
         {
             get
@@ -729,6 +755,7 @@ namespace gip.core.datamodel
                 throw new NotImplementedException();
             }
         }
+#endif
 
 
         public void OnEntityPropertyChanged(string property)
@@ -737,6 +764,7 @@ namespace gip.core.datamodel
         }
 
 
+#if NETFRAMEWORK
         public ACPropertyManager ACProperties
         {
             get { throw new NotImplementedException(); }
@@ -864,6 +892,7 @@ namespace gip.core.datamodel
                 return _Wrapper.GetResultParamACCaption(acIdentifier);
             return acIdentifier;
         }
+#endif
 
     }
 }

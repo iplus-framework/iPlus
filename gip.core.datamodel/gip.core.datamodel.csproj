@@ -144,11 +144,6 @@
     <Compile Include="ACHelperclasses\Performance\PerformanceLogger.cs" />
     <Compile Include="ACHelperclasses\Performance\PerformanceLoggerInstance.cs" />
     <Compile Include="ACHelperclasses\Performance\PerformanceStatistic.cs" />
-    <Compile Include="ACHelperclasses\SafeCollections\CircularBuffer.cs" />
-    <Compile Include="ACHelperclasses\SafeCollections\ISafeCollection.cs" />
-    <Compile Include="ACHelperclasses\SafeCollections\SafeBindingList.cs" />
-    <Compile Include="ACHelperclasses\SafeCollections\SafeCollection.cs" />
-    <Compile Include="ACHelperclasses\SafeCollections\SafeList.cs" />
     <Compile Include="ACHelperclasses\ThreadHandling\TaskProgressInfo.cs" />
     <Compile Include="ACHelperclasses\ThreadHandling\ACDelegateQueue.cs" />
     <Compile Include="ACHelperclasses\ThreadHandling\ACEntityOpQueue.cs" />
@@ -216,11 +211,8 @@
     <Compile Include="ACInterfaces\VBControl\IVBTileGrid.cs" />
     <Compile Include="ACConfig\ACConfigStoreInfo.cs" />
     <Compile Include="ACObject\ACChildInstanceInfo.cs" />
-    <Compile Include="ACMethod\ACMethodDescriptor.cs" />
-    <Compile Include="ACMethod\ACMethod.cs" />
     <Compile Include="ACMethod\ACMethodEventArgs.cs" />
     <Compile Include="ACMethod\ACMethodWrapper.cs" />
-    <Compile Include="ACMethod\ACValue.cs" />
     <Compile Include="ACHelperclasses\Misc4Components\ChangeInfo.cs" />
     <Compile Include="ACHelperclasses\Runtime\ClassRightManager.cs" />
     <Compile Include="ACContainer\ACClassMethodInfo.cs" />
@@ -259,7 +251,6 @@
     <Compile Include="ACInterfaces\ACDesign\IACMenuBuilder.cs" />
     <Compile Include="ACInterfaces\VBControl\IVBFindAndReplace.cs" />
     <Compile Include="ACMethod\ACEventArgs.cs" />
-    <Compile Include="ACMethod\ACValueList.cs" />
     <Compile Include="ACMessages\IMsgObserver.cs" />
     <Compile Include="ACMessages\VBDialogResult.cs" />
     <Compile Include="ACQueryDefinition\ACAccess.cs" />
@@ -376,7 +367,6 @@
     <Compile Include="ACConfig\Rules\RuleTypeDefinition.cs" />
     <Compile Include="ACConfig\Rules\RuleValue.cs" />
     <Compile Include="ACConfig\Rules\RuleValueList.cs" />
-    <Compile Include="ACHelperclasses\SafeCollections\ISafeList.cs" />
     <Compile Include="ACHelperclasses\EntityFramework\SequenceManager.cs" />
     <Compile Include="ACSerialization\SQLInstanceInfo.cs" />
     <Compile Include="EntityVB\VBTranslationView.cs" />

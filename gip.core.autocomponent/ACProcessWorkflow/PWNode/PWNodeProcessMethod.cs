@@ -158,11 +158,18 @@ namespace gip.core.autocomponent
 
                 if (refPAACClassMethod != null)
                 {
+                    ACMethod paramMethod = null;
                     PAProcessModule module = null;
                     if (ParentPWGroup.NeedsAProcessModule && (ACOperationMode == ACOperationModes.Live || ACOperationMode == ACOperationModes.Simulation))
                         module = ParentPWGroup.AccessedProcessModule;
                     if (ParentPWGroup.WithoutPM || RunWithoutInvokingFunction)
                     {
+                        paramMethod = MyConfiguration;
+                        RecalcTimeInfo();
+                        if (CreateNewProgramLog(paramMethod) <= CreateNewProgramLogResult.ErrorNoProgramFound)
+                            return;
+                        _ExecutingACMethod = paramMethod;
+                        UpdateCurrentACMethod();
                         base.SMStarting();
                         return;
                     }
@@ -175,8 +182,7 @@ namespace gip.core.autocomponent
                         // TODO: Meldung: Programmfehler, darf nicht vorkommen
                         return;
                     }
-                    ACMethod paramMethod = refPAACClassMethod.TypeACSignature();
-
+                    paramMethod = refPAACClassMethod.TypeACSignature();
                     if (!(bool)ExecuteMethod("GetConfigForACMethod", paramMethod, true))
                     {
                         // TODO: Meldung

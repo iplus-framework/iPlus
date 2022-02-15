@@ -39,5 +39,29 @@ namespace gip.core.datamodel
             [EnumMember(Value = "N1")]
             No = 4,
         }
+
+        #region ParamOption
+        /// <summary>
+        /// Enum für das Feld ParamOptionIndex
+        /// </summary>
+#if NETFRAMEWORK
+        [ACSerializeableInfo]
+        [ACClassInfo(Const.PackName_VarioSystem, "en{'ParamOption'}de{'ParamOption'}", Global.ACKinds.TACEnum)]
+#else
+        [DataContract]
+#endif
+        public enum ParamOption : short
+        {
+            [EnumMember(Value = "NR")]
+            NotRequired = 0,    // Nicht erforderlich
+            [EnumMember(Value = "R")]
+            Required = 1,       // Erforderlich
+            [EnumMember(Value = "O")]
+            Optional = 2,       // Optional
+            [EnumMember(Value = "F")]
+            Fix = 3             // Fester Wert, der nicht geändert werden kann
+        }
+        #endregion
+
     }
 }
