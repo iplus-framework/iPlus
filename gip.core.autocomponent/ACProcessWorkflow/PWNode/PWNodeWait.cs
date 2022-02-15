@@ -20,7 +20,7 @@ namespace gip.core.autocomponent
     /// SMCompleted (Definiert in PWMethodCall)
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Wait'}de{'Warten'}", Global.ACKinds.TPWNodeStatic, Global.ACStorableTypes.Optional, false, PWProcessFunction.PWClassName, true)]
-    public class PWNodeWait : PWBaseNodeProcess, IACMyConfigCache
+    public class PWNodeWait : PWBaseNodeProcess
     {
         public const string PWClassName = "PWNodeWait";
 
@@ -74,7 +74,6 @@ namespace gip.core.autocomponent
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
-            ClearMyConfiguration();
             UnSubscribeToTimerCycle();
             return base.ACDeInit(deleteACClassTask);
         }
@@ -82,37 +81,6 @@ namespace gip.core.autocomponent
         #endregion
 
         #region Properties
-        private ACMethod _MyConfiguration;
-        public ACMethod MyConfiguration
-        {
-            get
-            {
-
-                using (ACMonitor.Lock(_20015_LockValue))
-                {
-                    if (_MyConfiguration != null)
-                        return _MyConfiguration;
-                }
-
-                var myNewConfig = NewACMethodWithConfiguration();
-                using (ACMonitor.Lock(_20015_LockValue))
-                {
-                    _MyConfiguration = myNewConfig;
-                }
-                return myNewConfig;
-            }
-        }
-
-        public void ClearMyConfiguration()
-        {
-
-            using (ACMonitor.Lock(_20015_LockValue))
-            {
-                _MyConfiguration = null;
-            }
-            this.HasRules.ValueT = 0;
-        }
-
         public TimeSpan Duration
         {
             get

@@ -8,7 +8,7 @@ using gip.core.datamodel;
 namespace gip.core.autocomponent
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Decision question'}de{'Entscheidungsfrage'}", Global.ACKinds.TPWNodeStatic, Global.ACStorableTypes.Optional, false, PWProcessFunction.PWClassName, true)]
-    public class PWNodeDecisionMsg : PWNodeDecisionFunc, IACMyConfigCache
+    public class PWNodeDecisionMsg : PWNodeDecisionFunc
     {
         #region Constructors 
 
@@ -43,7 +43,6 @@ namespace gip.core.autocomponent
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
-            ClearMyConfiguration();
             return base.ACDeInit(deleteACClassTask);
         }
 
@@ -51,37 +50,6 @@ namespace gip.core.autocomponent
 
 
         #region Properties
-        private ACMethod _MyConfiguration;
-        public ACMethod MyConfiguration
-        {
-            get
-            {
-
-                using (ACMonitor.Lock(_20015_LockValue))
-                {
-                    if (_MyConfiguration != null)
-                        return _MyConfiguration;
-                }
-
-                var myNewConfig = NewACMethodWithConfiguration();
-                using (ACMonitor.Lock(_20015_LockValue))
-                {
-                    _MyConfiguration = myNewConfig;
-                }
-                return myNewConfig;
-            }
-        }
-
-        public void ClearMyConfiguration()
-        {
-
-            using (ACMonitor.Lock(_20015_LockValue))
-            {
-                _MyConfiguration = null;
-            }
-            this.HasRules.ValueT = 0;
-        }
-
         protected bool OutIsRepeat
         {
             get

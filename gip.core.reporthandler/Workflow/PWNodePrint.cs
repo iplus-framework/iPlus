@@ -10,7 +10,7 @@ using gip.core.datamodel;
 namespace gip.core.reporthandler
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Print'}de{'Drucken'}", Global.ACKinds.TPWNodeStatic, Global.ACStorableTypes.Optional, false, PWProcessFunction.PWClassName, true)]
-    public class PWNodePrint : PWBaseNodeProcess, IACMyConfigCache
+    public class PWNodePrint : PWBaseNodeProcess
     {
         #region c'tors
         static PWNodePrint()
@@ -36,14 +36,7 @@ namespace gip.core.reporthandler
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
-            ClearMyConfiguration();
             return base.ACDeInit(deleteACClassTask);
-        }
-
-        public override void Recycle(IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
-        {
-            ClearMyConfiguration();
-            base.Recycle(content, parentACObject, parameter, acIdentifier);
         }
 
         public const string PWClassName = nameof(PWNodePrint);
@@ -51,37 +44,6 @@ namespace gip.core.reporthandler
 
 
         #region Properties
-
-        private ACMethod _MyConfiguration;
-        public ACMethod MyConfiguration
-        {
-            get
-            {
-
-                using (ACMonitor.Lock(_20015_LockValue))
-                {
-                    if (_MyConfiguration != null)
-                        return _MyConfiguration;
-                }
-
-                var myNewConfig = NewACMethodWithConfiguration();
-                using (ACMonitor.Lock(_20015_LockValue))
-                {
-                    _MyConfiguration = myNewConfig;
-                }
-                return myNewConfig;
-            }
-        }
-
-        public void ClearMyConfiguration()
-        {
-            using (ACMonitor.Lock(_20015_LockValue))
-            {
-                _MyConfiguration = null;
-            }
-            this.HasRules.ValueT = 0;
-        }
-
         public short NumberOfCopies
         {
             get

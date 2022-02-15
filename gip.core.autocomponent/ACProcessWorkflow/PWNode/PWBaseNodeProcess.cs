@@ -248,7 +248,15 @@ namespace gip.core.autocomponent
             }
 
             RecalcTimeInfo();
-            FinishProgramLog(ExecutingACMethod);
+            ACMethod acMethod = ExecutingACMethod;
+            ACMethod configMethod = MyConfiguration;
+            if (    configMethod != null
+                && (acMethod == null || acMethod.ACIdentifier != configMethod.ACIdentifier))
+            {
+                acMethod = configMethod;
+            }
+            
+            FinishProgramLog(acMethod);
             IterationCount.ValueT++;
 
             ACMethodEventArgs lastMethodResult = null;

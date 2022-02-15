@@ -13,7 +13,7 @@ namespace gip.core.autocomponent
     }
 
     [ACClassInfo(Const.PackName_VarioSystem, "en{'User Acknowledge'}de{'Benutzerbestätigung'}", Global.ACKinds.TPWNodeStatic, Global.ACStorableTypes.Optional, false, PWProcessFunction.PWClassName, true)]
-    public class PWNodeUserAck : PWBaseNodeProcess, IACMyConfigCache
+    public class PWNodeUserAck : PWBaseNodeProcess
     {
         public const string PWClassName = "PWNodeUserAck";
 
@@ -42,7 +42,6 @@ namespace gip.core.autocomponent
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
-            ClearMyConfiguration();
             _AckTiggeredOverSwitch = false;
             RefreshNodeInfoOnModule(true);
             return base.ACDeInit(deleteACClassTask);
@@ -52,37 +51,6 @@ namespace gip.core.autocomponent
 
 
         #region Properties
-        private ACMethod _MyConfiguration;
-        public ACMethod MyConfiguration
-        {
-            get
-            {
-
-                using (ACMonitor.Lock(_20015_LockValue))
-                {
-                    if (_MyConfiguration != null)
-                        return _MyConfiguration;
-                }
-
-                var myNewConfig = NewACMethodWithConfiguration();
-                using (ACMonitor.Lock(_20015_LockValue))
-                {
-                    _MyConfiguration = myNewConfig;
-                }
-                return myNewConfig;
-            }
-        }
-
-        public void ClearMyConfiguration()
-        {
-
-            using (ACMonitor.Lock(_20015_LockValue))
-            {
-                _MyConfiguration = null;
-            }
-            this.HasRules.ValueT = 0;
-        }
-
         protected string CMessageText
         {
             get

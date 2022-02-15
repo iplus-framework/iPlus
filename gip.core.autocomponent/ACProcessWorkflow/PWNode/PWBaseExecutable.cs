@@ -18,7 +18,7 @@ namespace gip.core.autocomponent
     /// </summary>
     /// <seealso cref="gip.core.autocomponent.PWBaseInOut" />
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PWBaseExecutable'}de{'PWBaseExecutable'}", Global.ACKinds.TPWNode, Global.ACStorableTypes.Optional, false, PWProcessFunction.PWClassName, false)]
-    public abstract class PWBaseExecutable : PWBaseInOut
+    public abstract class PWBaseExecutable : PWBaseInOut, IACMyConfigCache
     {
         #region c´tors
 
@@ -47,7 +47,14 @@ namespace gip.core.autocomponent
             }
             _ExecutingACMethod = null;
             _ACMethodSignature = null;
+            ClearMyConfiguration();
             return base.ACDeInit(deleteACClassTask);
+        }
+
+        public override void Recycle(IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
+        {
+            ClearMyConfiguration();
+            base.Recycle(content, parentACObject, parameter, acIdentifier);
         }
 
         public virtual void OnRootPWStarted()
@@ -177,6 +184,48 @@ namespace gip.core.autocomponent
         {
             this.CurrentACMethod.ValueT = ExecutingACMethod;
         }
+
+        protected ACMethod _MyConfiguration;
+        [ACPropertyInfo(999)]
+        public ACMethod MyConfiguration
+        {
+            get
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    if (_MyConfiguration != null)
+                        return _MyConfiguration;
+                }
+                var myNewConfig = NewACMethodWithConfiguration();
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    if (_MyConfiguration == null)
+                        _MyConfiguration = myNewConfig;
+                }
+                return myNewConfig;
+            }
+        }
+
+        public virtual void ClearMyConfiguration()
+        {
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                _MyConfiguration = null;
+            }
+            this.HasRules.ValueT = 0;
+        }
+
+        public bool IsMyConfigurationLoaded
+        {
+            get
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    return _MyConfiguration != null;
+                }
+            }
+        }
+
 
         #endregion
 

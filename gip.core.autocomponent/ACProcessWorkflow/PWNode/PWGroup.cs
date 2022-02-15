@@ -23,7 +23,7 @@ namespace gip.core.autocomponent
     /// <seealso cref="gip.core.datamodel.IACComponentPWGroup" />
     /// <seealso cref="gip.core.autocomponent.IACMyConfigCache" />
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PWGroup'}de{'PWGroup'}", Global.ACKinds.TPWGroup, Global.ACStorableTypes.Optional, false, PWProcessFunction.PWClassName, true)]
-    public class PWGroup : PWBaseExecutable, IACComponentPWGroup, IACMyConfigCache
+    public class PWGroup : PWBaseExecutable, IACComponentPWGroup
     {
         public const string PWClassName = "PWGroup";
 
@@ -131,46 +131,18 @@ namespace gip.core.autocomponent
         #region Properties
 
         #region Configuration
-        private ACMethod _MyConfiguration;
-        public ACMethod MyConfiguration
-        {
-            get
-            {
-                using (ACMonitor.Lock(_20015_LockValue))
-                {
-                    if (_MyConfiguration != null)
-                        return _MyConfiguration;
-                }
 
-                var myNewConfig = NewACMethodWithConfiguration();
-                _MyConfiguration = myNewConfig;
-                return myNewConfig;
-            }
-        }
-
-        public bool IsMyConfigurationLoaded
+        public override void ClearMyConfiguration()
         {
-            get
-            {
-                using (ACMonitor.Lock(_20015_LockValue))
-                {
-                    return _MyConfiguration != null;
-                }
-            }
-        }
-
-        public virtual void ClearMyConfiguration()
-        {
+            base.ClearMyConfiguration();
             using (ACMonitor.Lock(_20015_LockValue))
             {
-                _MyConfiguration = null;
                 // Priority mustn't be reset! 
                 // If _Priority was changed through SetPriority(PriorityMode mode) by a individual logic,
                 // then the expected behaviour would not take place because the _Priority has been resetted when a change in the workflow-rules are done on client-side.
                 //_Priority = null;
                 _RoutableModuleList = null;
             }
-            this.HasRules.ValueT = 0;
         }
 
 
