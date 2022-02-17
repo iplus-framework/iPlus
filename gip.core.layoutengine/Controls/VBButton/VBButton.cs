@@ -446,12 +446,12 @@ namespace gip.core.layoutengine
         /// </summary>
         public bool IsTouchLeave
         {
-            get { return (bool)GetValue(IsTouchActiveProperty); }
-            private set { SetValue(IsTouchActiveProperty, value); }
+            get { return (bool)GetValue(IsTouchLeaveProperty); }
+            private set { SetValue(IsTouchLeaveProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for IsTouchActive.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty IsTouchActiveProperty =
+        public static readonly DependencyProperty IsTouchLeaveProperty =
             DependencyProperty.Register("IsTouchLeave", typeof(bool), typeof(VBButton), new PropertyMetadata(false));
 
 
