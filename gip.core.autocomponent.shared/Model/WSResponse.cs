@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Net;
+using System.Runtime.Serialization;
 using gip.core.datamodel;
 
 namespace gip.core.autocomponent
@@ -24,16 +25,36 @@ namespace gip.core.autocomponent
             _Data = data;
         }
 
+        public WSResponse(T data, HttpStatusCode httpStatusCode)
+        {
+            _Data = data;
+            HttpStatusCode = httpStatusCode;
+        }
+
         public WSResponse(T data, Msg msg)
         {
             _Data = data;
             _Message = msg;
         }
 
+        public WSResponse(T data, Msg msg, HttpStatusCode httpStatusCode)
+        {
+            _Data = data;
+            _Message = msg;
+            HttpStatusCode = httpStatusCode;
+        }
+
         public WSResponse(Msg msg)
         {
             _Data = default(T);
             _Message = msg;
+        }
+
+        public WSResponse(Msg msg, HttpStatusCode httpStatusCode)
+        {
+            _Data = default(T);
+            _Message = msg;
+            HttpStatusCode = httpStatusCode;
         }
 
         [IgnoreDataMember]
@@ -44,6 +65,9 @@ namespace gip.core.autocomponent
                 return Message == null || Message.MessageLevel < eMsgLevel.Warning;
             }
         }
+
+        [IgnoreDataMember]
+        public HttpStatusCode HttpStatusCode { get;set;}
 
         [IgnoreDataMember]
         private Msg _Message;

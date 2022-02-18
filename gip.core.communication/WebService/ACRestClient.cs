@@ -497,7 +497,7 @@ namespace gip.core.communication
             {
                 IsConnected.ValueT = true;
                 string result = await response.Content.ReadAsStringAsync();
-                return new WSResponse<string>(result);
+                return new WSResponse<string>(result, response.StatusCode);
             }
             return await Task.FromResult(new WSResponse<string>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
         }
@@ -519,7 +519,7 @@ namespace gip.core.communication
                 IsConnected.ValueT = true;
                 string json = await response.Content.ReadAsStringAsync();
                 var result = await Task.Run(() => JsonConvert.DeserializeObject<TResult>(json));
-                return new WSResponse<TResult>(result);
+                return new WSResponse<TResult>(result, response.StatusCode);
             }
             return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
         }
@@ -630,9 +630,9 @@ namespace gip.core.communication
                 {
                     string json = await response.Content.ReadAsStringAsync();
                     var result = await Task.Run(() => JsonConvert.DeserializeObject<TResult>(json));
-                    return new WSResponse<TResult>(result);
+                    return new WSResponse<TResult>(result, response.StatusCode);
                 }
-                return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
+                return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode)), response.StatusCode));
             }
         }
 
@@ -644,9 +644,9 @@ namespace gip.core.communication
             {
                 string json = await response.Content.ReadAsStringAsync();
                 var result = await Task.Run(() => JsonConvert.DeserializeObject<TResult>(json));
-                return new WSResponse<TResult>(result);
+                return new WSResponse<TResult>(result, response.StatusCode);
             }
-            return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
+            return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode)), response.StatusCode));
         }
 
         protected async Task<WSResponse<string>> PostAsync(StringContent content, Uri uri)
@@ -656,9 +656,9 @@ namespace gip.core.communication
             if (response.IsSuccessStatusCode)
             {
                 string result = await response.Content.ReadAsStringAsync();
-                return new WSResponse<string>(result);
+                return new WSResponse<string>(result, response.StatusCode);
             }
-            return await Task.FromResult(new WSResponse<string>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
+            return await Task.FromResult(new WSResponse<string>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode)), response.StatusCode));
         }
         #endregion
 
@@ -760,7 +760,7 @@ namespace gip.core.communication
                 {
                     string json = await response.Content.ReadAsStringAsync();
                     var result = await Task.Run(() => JsonConvert.DeserializeObject<TResult>(json));
-                    return new WSResponse<TResult>(result);
+                    return new WSResponse<TResult>(result, response.StatusCode);
                 }
                 return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
             }
@@ -774,7 +774,7 @@ namespace gip.core.communication
             {
                 string json = await response.Content.ReadAsStringAsync();
                 var result = await Task.Run(() => JsonConvert.DeserializeObject<TResult>(json));
-                return new WSResponse<TResult>(result);
+                return new WSResponse<TResult>(result, response.StatusCode);
             }
             return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
         }
@@ -786,7 +786,7 @@ namespace gip.core.communication
             if (response.IsSuccessStatusCode)
             {
                 string result = await response.Content.ReadAsStringAsync();
-                return new WSResponse<string>(result);
+                return new WSResponse<string>(result, response.StatusCode);
             }
             return await Task.FromResult(new WSResponse<string>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
         }
@@ -864,7 +864,7 @@ namespace gip.core.communication
             {
                 IsConnected.ValueT = true;
                 string result = await response.Content.ReadAsStringAsync();
-                return new WSResponse<string>(result);
+                return new WSResponse<string>(result, response.StatusCode);
             }
             return await Task.FromResult(new WSResponse<string>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
         }
@@ -886,7 +886,7 @@ namespace gip.core.communication
                 IsConnected.ValueT = true;
                 string json = await response.Content.ReadAsStringAsync();
                 var result = await Task.Run(() => JsonConvert.DeserializeObject<TResult>(json));
-                return new WSResponse<TResult>(result);
+                return new WSResponse<TResult>(result, response.StatusCode);
             }
             return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
         }
