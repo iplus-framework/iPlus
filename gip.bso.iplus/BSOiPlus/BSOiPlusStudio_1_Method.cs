@@ -717,7 +717,7 @@ namespace gip.bso.iplus
                         }
                     }
 
-                    methodText += string.Format("{0}case\"{1}\":{2}{3}{4}{5}({6});{7}{8}return true;{9}",
+                    methodText += string.Format("{0}case nameof({1}):{2}{3}{4}{5}({6});{7}{8}return true;{9}",
                                                        _16spaces, method.Name, se.NewLine, _20spaces, result, method.Name, paramString, se.NewLine, _20spaces, se.NewLine);
                     check = true;
                 }
