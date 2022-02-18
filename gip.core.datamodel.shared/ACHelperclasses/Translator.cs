@@ -123,14 +123,25 @@ namespace gip.core.datamodel
         /// <param name="newTranslationTuple">Structure of TranslationTuple: languageCode1{'translatedText1'}languageCode2{'translatedText2'}..</param>
         public static void UpdateTranslation(IACType acTypeInfo, string newTranslationTuple)
         {
-            if (string.IsNullOrEmpty(newTranslationTuple))
-                return;
+            string updatedTuple = GetUpdatedTranslation(acTypeInfo.ACCaptionTranslation, newTranslationTuple);
+            if (updatedTuple != acTypeInfo.ACCaptionTranslation)
+                acTypeInfo.ACCaptionTranslation = updatedTuple;
+        }
 
-            if (!newTranslationTuple.Contains('{') || !newTranslationTuple.Contains('}'))
-                return;
+        public static string GetUpdatedTranslation(string prevTranslationTuple, string newTranslationTuple)
+        {
+            string newTuple = prevTranslationTuple;
+            if (string.IsNullOrEmpty(newTranslationTuple))
+                return newTuple;
+
+            if (   !newTranslationTuple.Contains('{') 
+                || !newTranslationTuple.Contains('}')
+                || !prevTranslationTuple.Contains('{') 
+                || !prevTranslationTuple.Contains('}'))
+                return newTuple;
             try
             {
-                TranslationTupleHelper translatorHelper = new TranslationTupleHelper(acTypeInfo.ACCaptionTranslation);
+                TranslationTupleHelper translatorHelper = new TranslationTupleHelper(prevTranslationTuple);
 
                 string temp = newTranslationTuple;
                 string language = "";
@@ -155,7 +166,7 @@ namespace gip.core.datamodel
                             if (!translatorHelper.TryGetValue(language, out captionOld) || caption != captionOld)
                             {
                                 translatorHelper.SetValue(language, caption);
-                                acTypeInfo.ACCaptionTranslation = translatorHelper.CaptionLocalized;
+                                newTuple = translatorHelper.CaptionLocalized;
                             }
 
                             language = "";
@@ -170,7 +181,9 @@ namespace gip.core.datamodel
             catch (Exception e)
             {
                 Database.Root.Messages.LogException("Translator.UpdateTranslation(): ", "Translationtupel", String.Format("{0}: {1}", e.Message, newTranslationTuple));
+                return prevTranslationTuple;
             }
+            return newTuple;
         }
 
         /// <summary>
@@ -190,7 +203,9 @@ namespace gip.core.datamodel
                     aCClassText.ACIdentifier = acIdentifier;
                     acClass.ACClassText_ACClass.Add(aCClassText);
                 }
-                aCClassText.ACCaptionTranslation = aCValueItem.ACCaptionTranslation;
+                string updatedTuple = GetUpdatedTranslation(aCClassText.ACCaptionTranslation, aCValueItem.ACCaptionTranslation);
+                if (updatedTuple != aCClassText.ACCaptionTranslation)
+                    aCClassText.ACCaptionTranslation = updatedTuple;
             }
         }
 
