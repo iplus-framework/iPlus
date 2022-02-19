@@ -1756,7 +1756,8 @@ namespace gip.core.datamodel
         #endregion
 
         #region ContextMenuCategory
-        [ACClassInfo(Const.PackName_VarioSystem, "en{'ContextMenuCategory'}de{'ContextMenuCategory'}", Global.ACKinds.TACEnum)]
+        [ACClassInfo(Const.PackName_VarioSystem, "en{'ContextMenuCategory'}de{'ContextMenuCategory'}", Global.ACKinds.TACEnum, 
+                     QRYConfig = "gip.core.datamodel.ACValueListContextMenuCategoryEnum")]
         public enum ContextMenuCategory : short
         {
             NoCategory = 0,
@@ -1765,6 +1766,8 @@ namespace gip.core.datamodel
             Utilities = 30, 
             Image = 40
         }
+
+
 
         static ACValueItemList _ContextMenuCategoryList = null;
         static Dictionary<ContextMenuCategory, string> IconCategory = new Dictionary<ContextMenuCategory, string>();
@@ -1783,11 +1786,18 @@ namespace gip.core.datamodel
             {
                 if (Global._ContextMenuCategoryList == null)
                 {
-                    _ContextMenuCategoryList = new ACValueItemList("ContextMenuCategoryIndex");
-                    _ContextMenuCategoryList.Add(new ACValueItem("en{'Process-Commands'}de{'Prozessbefehle'}", (short)ContextMenuCategory.ProcessCommands, null, null, 220));
-                    _ContextMenuCategoryList.Add(new ACValueItem("en{'Production, Planning & Logistics'}de{'Produktion, Planung & Logistik'}", (short)Global.ContextMenuCategory.ProdPlanLog, null, null, 250));
-                    _ContextMenuCategoryList.Add(new ACValueItem("en{'Tools'}de{'Werkzeuge'}", (short)ContextMenuCategory.Utilities, null, null, 20008));
-                    _ContextMenuCategoryList.Add(new ACValueItem("en{'Image'}de{'Bild'}", (short)ContextMenuCategory.Image, null, _ContextMenuCategoryList.FirstOrDefault(c => (short)c.Value == (short)ContextMenuCategory.Utilities), 1000));
+
+                    var acClass = Database.GlobalDatabase.GetACType(typeof(ContextMenuCategory));
+                    if (acClass != null && acClass.ACValueListForEnum != null)
+                        _ContextMenuCategoryList = acClass.ACValueListForEnum;
+                    else
+                        _ContextMenuCategoryList = new ACValueListContextMenuCategoryEnum();
+
+                    //_ContextMenuCategoryList = new ACValueItemList("ContextMenuCategoryIndex");
+                    //_ContextMenuCategoryList.Add(new ACValueItem("en{'Process-Commands'}de{'Prozessbefehle'}", (short)ContextMenuCategory.ProcessCommands, null, null, 220));
+                    //_ContextMenuCategoryList.Add(new ACValueItem("en{'Production, Planning & Logistics'}de{'Produktion, Planung & Logistik'}", (short)Global.ContextMenuCategory.ProdPlanLog, null, null, 250));
+                    //_ContextMenuCategoryList.Add(new ACValueItem("en{'Tools'}de{'Werkzeuge'}", (short)ContextMenuCategory.Utilities, null, null, 20008));
+                    //_ContextMenuCategoryList.Add(new ACValueItem("en{'Image'}de{'Bild'}", (short)ContextMenuCategory.Image, null, _ContextMenuCategoryList.FirstOrDefault(c => (short)c.Value == (short)ContextMenuCategory.Utilities), 1000));
                 }
                 return _ContextMenuCategoryList;
             }
@@ -1930,6 +1940,17 @@ namespace gip.core.datamodel
         #endregion
     }
 
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Context menu category'}de{'Context menu category'}", Global.ACKinds.TACEnumACValueList)]
+    public class ACValueListContextMenuCategoryEnum : ACValueItemList
+    {
+        public ACValueListContextMenuCategoryEnum() : base("ContextMenuCategory")
+        {
+            AddEntry(new ACValueItem("en{'Process-Commands'}de{'Prozessbefehle'}", (short)Global.ContextMenuCategory.ProcessCommands, null, null, 220));
+            AddEntry(new ACValueItem("en{'Production, Planning & Logistics'}de{'Produktion, Planung & Logistik'}", (short)Global.ContextMenuCategory.ProdPlanLog, null, null, 250));
+            AddEntry(new ACValueItem("en{'Tools'}de{'Werkzeuge'}", (short)Global.ContextMenuCategory.Utilities, null, null, 20008));
+            AddEntry(new ACValueItem("en{'Image'}de{'Bild'}", (short)Global.ContextMenuCategory.Image, null, this.FirstOrDefault(c => (short)c.Value == (short)Global.ContextMenuCategory.Utilities), 1000));
+        }
+    }
 
     public static class GlobalExtensionMethods
     {
