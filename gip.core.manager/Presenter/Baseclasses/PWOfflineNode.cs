@@ -84,6 +84,16 @@ namespace gip.core.manager
 
         }
 
+        [ACPropertyInfo(9999)]
+        public bool IsOnlineNode
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+
         #endregion
 
         #region IACConfigMethodHierarchy

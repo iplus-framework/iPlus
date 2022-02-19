@@ -37,5 +37,7 @@ namespace gip.core.datamodel
         /// <summary>Reference to the definition of this Workflownode.</summary>
         /// <value>Reference to the definition of this Workflownode.</value>
         ACClassWF ContentACClassWF { get;  }
+
+        bool IsOnlineNode { get; }
     }
 }

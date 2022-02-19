@@ -165,7 +165,7 @@ namespace gip.core.autocomponent
         /// <returns></returns>
         public virtual ACMethod NewACMethodWithConfiguration()
         {
-            if (   InitState < ACInitState.Reloading
+            if (InitState < ACInitState.Reloading
                 || InitState >= ACInitState.Destructing)
             {
                 Messages.LogError(this.GetACUrl(), "NewACMethodWithConfiguration(10)", "Access to early: InitState is not Initialized");
@@ -184,6 +184,49 @@ namespace gip.core.autocomponent
         {
             this.CurrentACMethod.ValueT = ExecutingACMethod;
         }
+
+        [ACMethodCommand("Process", "en{'Save changed Parameters'}de{'Speichere geänderte Paramter'}", (short)MISort.Save, true)]
+        public Msg SaveChangedACMethod()
+        {
+            ACMethod thisACMethod = this.CurrentACMethod.ValueT;
+            Msg msg = OnValidateChangedACMethod(this.CurrentACMethod.ValueT);
+            if (msg != null)
+                return msg;
+            _ExecutingACMethod = thisACMethod;
+            FinishProgramLog(thisACMethod);
+            return null;
+        }
+
+        public virtual bool IsEnabledSaveChangedACMethod()
+        {
+            if ((CurrentACState == ACStateEnum.SMRunning
+                || CurrentACState == ACStateEnum.SMPaused
+                || CurrentACState == ACStateEnum.SMHeld
+                || CurrentACState == ACStateEnum.SMStopping
+                || CurrentACState == ACStateEnum.SMStarting)
+                && CurrentACMethod.ValueT != null)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool AskUserSaveChangedACMethod(IACComponent acComponent)
+        {
+            if (acComponent == null)
+                return false;
+            IACPropertyNetBase netProperty = acComponent.GetMember("CurrentACMethod") as IACPropertyNetBase;
+            if (netProperty == null)
+                return false;
+            netProperty.OnMemberChanged();
+            return acComponent.Messages.Question(acComponent, "Question50023", Global.MsgResult.Yes) == Global.MsgResult.Yes;
+        }
+
+        protected virtual Msg OnValidateChangedACMethod(ACMethod acMethod)
+        {
+            return null;
+        }
+
 
         protected ACMethod _MyConfiguration;
         [ACPropertyInfo(999)]
@@ -260,6 +303,9 @@ namespace gip.core.autocomponent
                 case nameof(ResetAndComplete):
                     ResetAndComplete();
                     return true;
+                case nameof(SaveChangedACMethod):
+                    result = SaveChangedACMethod();
+                    return true;
                 case Const.IsEnabledPrefix + nameof(Start):
                     result = IsEnabledStart();
                     return true;
@@ -271,6 +317,9 @@ namespace gip.core.autocomponent
                     return true;
                 case Const.IsEnabledPrefix + nameof(ResetAndComplete):
                     result = IsEnabledResetAndComplete();
+                    return true;
+                case Const.IsEnabledPrefix + nameof(SaveChangedACMethod):
+                    result = IsEnabledSaveChangedACMethod();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -289,6 +338,9 @@ namespace gip.core.autocomponent
                     return true;
                 case nameof(AskUserStart):
                     result = AskUserStart(acComponent);
+                    return true;
+                case Const.AskUserPrefix + nameof(SaveChangedACMethod):
+                    result = AskUserSaveChangedACMethod(acComponent);
                     return true;
             }
             return HandleExecuteACMethod_PWBase(out result, acComponent, acMethodName, acClassMethod, acParameter);

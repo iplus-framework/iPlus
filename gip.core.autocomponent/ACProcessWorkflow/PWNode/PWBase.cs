@@ -254,7 +254,15 @@ namespace gip.core.autocomponent
             }
         }
 
-        
+        [ACPropertyInfo(9999)]
+        public bool IsOnlineNode
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         public override string ACCaption

@@ -221,6 +221,15 @@ namespace gip.core.autocomponent
             }
         }
 
+        [ACPropertyInfo(9999)]
+        public bool IsOnlineNode
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         #endregion
 
         #region IACObject

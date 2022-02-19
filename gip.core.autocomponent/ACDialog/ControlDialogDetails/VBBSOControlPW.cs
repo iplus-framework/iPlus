@@ -103,6 +103,15 @@ namespace gip.core.autocomponent
 
         #region 1. PWNode/ACClassWF
 
+        [ACPropertyInfo(9999)]
+        public bool IsLiveView
+        {
+            get
+            {
+                return CurrentPWInfo != null && (CurrentPWInfo is PWBase || CurrentPWInfo is PWNodeProxy);
+            }
+        }
+
         IACComponentPWNode _CurrentPWInfo;
         [ACPropertyInfo(9999)]
         public IACComponentPWNode CurrentPWInfo
@@ -122,6 +131,7 @@ namespace gip.core.autocomponent
                 {
                     CurrentACClassWF = CurrentPWInfo.ContentACClassWF;
                 }
+                OnPropertyChanged(nameof(IsLiveView));
             }
         }
 

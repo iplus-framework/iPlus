@@ -133,6 +133,8 @@ namespace gip.core.datamodel
             string newTuple = prevTranslationTuple;
             if (string.IsNullOrEmpty(newTranslationTuple))
                 return newTuple;
+            else if (String.IsNullOrEmpty(prevTranslationTuple))
+                return newTranslationTuple;
 
             if (   !newTranslationTuple.Contains('{') 
                 || !newTranslationTuple.Contains('}')
