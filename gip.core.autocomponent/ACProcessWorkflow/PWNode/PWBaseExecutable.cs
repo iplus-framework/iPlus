@@ -192,8 +192,12 @@ namespace gip.core.autocomponent
             Msg msg = OnValidateChangedACMethod(this.CurrentACMethod.ValueT);
             if (msg != null)
                 return msg;
-            _ExecutingACMethod = thisACMethod;
-            FinishProgramLog(thisACMethod);
+            if (   _ExecutingACMethod == null 
+                || _ExecutingACMethod.ACIdentifier == thisACMethod.ACIdentifier)
+            {
+                _ExecutingACMethod = thisACMethod;
+                FinishProgramLog(thisACMethod);
+            }
             return null;
         }
 
@@ -219,7 +223,7 @@ namespace gip.core.autocomponent
             if (netProperty == null)
                 return false;
             netProperty.OnMemberChanged();
-            return acComponent.Messages.Question(acComponent, "Question50023", Global.MsgResult.Yes) == Global.MsgResult.Yes;
+            return acComponent.Messages.Question(acComponent, "Question50081", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
 
         protected virtual Msg OnValidateChangedACMethod(ACMethod acMethod)
