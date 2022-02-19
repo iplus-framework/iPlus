@@ -18,7 +18,9 @@ using System.Text;
 using System.IO;
 using System.Xml;
 using System.Runtime.Serialization;
+#if NETFRAMEWORK
 using System.Data.Objects.DataClasses;
+#endif
 using System.Data;
 using System.Globalization;
 using System.Threading;
@@ -30,9 +32,11 @@ namespace gip.core.datamodel
     /// </summary>
     public static class ACConvert
     {
+#if NETFRAMEWORK
         public static DataContractResolver MyDataContractResolver { get; set; }
 
-        #region Public Methods
+
+#region Public Methods
         /// <summary>
         /// Gibt ein Objekt vom angegebenen Typ zurück, dessen Wert dem angegebenen Objekt entspricht.
         /// </summary>
@@ -119,9 +123,9 @@ namespace gip.core.datamodel
             return ACConvert.ChangeType(valueObject, null, typeof(string), invariantCulture, null, entityAsEntityKey, xmlIndented) as string;
         }
 
-        #endregion
+#endregion
 
-        #region Private Methods
+#region Private Methods
         /// <summary>
         /// Changes the type.
         /// </summary>
@@ -469,16 +473,6 @@ namespace gip.core.datamodel
                             }
                             return convValue;
                         }
-                        else if (value is string && innerType.IsEnum)
-                        {
-                            object convValue = Enum.Parse(innerType, (String)value);
-                            if (genericNullableType != null)
-                            {
-                                object acRefInstance = Activator.CreateInstance(conversionType, new Object[] { convValue });
-                                return acRefInstance;
-                            }
-                            return convValue;
-                        }
                         else if (innerType.IsEnum && value is IConvertible)
                         {
                             object convValue = Enum.ToObject(innerType, value);
@@ -672,11 +666,6 @@ namespace gip.core.datamodel
             }
         }
 
-        public static object GetDefault(this Type type)
-        {
-            return type.IsValueType ? (!type.IsGenericType ? Activator.CreateInstance(type) : type.GenericTypeArguments[0].GetDefault()) : null;
-        }
-
         /// <summary>
         /// Serializes the object.
         /// </summary>
@@ -703,7 +692,331 @@ namespace gip.core.datamodel
                 return sw.ToString();
             }
         }
-#endregion
+        #endregion
+
+#else
+        /// <summary>
+        /// Gibt ein Objekt vom angegebenen Typ zurück, dessen Wert dem angegebenen Objekt entspricht.
+        /// </summary>
+        /// <param name="value">Ein TimeSpan-, oder DateTime-, oder EntityKey-, oder EntityObject-, oder ACQueryDefinition-Objekt
+        /// oder ein Objekt, das die System.IConvertible-Schnittstelle implementiert
+        /// oder ein serialisierbares ACKnownTypes-Objekt</param>
+        /// <param name="conversionType">Der System.Type des zurückzugebenden Objekts.</param>
+        /// <param name="invariantCulture">invariantCulture</param>
+        /// <returns>Ein Objekt, dessen Typ gleich conversionType ist und dessen Wert value entspricht.–
+        /// oder –Ein NULL-Verweis (Nothing in Visual Basic), wenn valuenull ist und
+        /// conversionType kein Werttyp ist.</returns>
+        /// <exception cref="System.InvalidCastException">Diese Konvertierung wird nicht unterstützt. – oder –value ist null, und conversionType
+        /// ist ein Werttyp.– oder –value implementiert die System.IConvertible-Schnittstelle
+        /// nicht.</exception>
+        /// <exception cref="System.FormatException">value weist kein von conversionType erkanntes Format auf.</exception>
+        /// <exception cref="System.OverflowException">value stellt eine Zahl dar, die außerhalb des Bereichs von conversionType liegt.</exception>
+        /// <exception cref="System.ArgumentNullException">conversionType ist null</exception>
+        public static object ChangeType(object value, Type conversionType, bool invariantCulture)
+        {
+            // TODO: IACType Conversion
+            if (conversionType == null)
+                throw new ArgumentNullException("conversionType ist null");
+            if (value == null)
+            {
+
+                // Konvertiere in ein TimeSpan
+                if (typeof(TimeSpan).IsAssignableFrom(conversionType))
+                {
+                    return TimeSpan.Zero;
+                }
+               
+                // Konvertiere in ein DateTime
+                else if (typeof(DateTime).IsAssignableFrom(conversionType))
+                {
+                    return DateTime.MinValue;
+                }
+                // Konvertiere in eine primitiver Typ ist der IConvertible implementiert z.B. String, int, ....
+                else if (typeof(IConvertible).IsAssignableFrom(conversionType))
+                {
+                    return  conversionType.GetDefault();
+                    //return conversionType.IsValueType ? (!conversionType.IsGenericType ? Activator.CreateInstance(conversionType) : conversionType.GenericTypeArguments[0].GetDefault()) : null;
+                    //if (invariantCulture)
+                    //    return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
+                    //else
+                    //    return Convert.ChangeType(value, conversionType);
+                }
+                else if (conversionType.Name == Const.TNameNullable)
+                {
+                    return null;
+                }
+                else if (!conversionType.IsValueType)
+                {
+                    return null;
+                }
+
+                throw new InvalidCastException("Not supported Type");
+            }
+            else
+            {
+                if (conversionType.IsAssignableFrom(value.GetType()))
+                {
+                    return value;
+                }
+                // Falls zu konvertierender Wert ein TimeSpan ist
+                else if (value is TimeSpan)
+                {
+                    // Umwandlung von TimeSpan nach String
+                    if (conversionType == typeof(string))
+                        return ((TimeSpan)(object)value).ToString("c");
+                    // Umwandlung von TimeSpan nach Ticks
+                    else if (conversionType == typeof(long))
+                        return ((TimeSpan)(object)value).Ticks;
+                    // Umwandlung von TimeSpan nach IConvertible
+                    else if (typeof(IConvertible).IsAssignableFrom(conversionType))
+                    {
+                        if (invariantCulture)
+                            return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
+                        else
+                            return Convert.ChangeType(value, conversionType);
+                    }
+                    else
+                        throw new InvalidCastException("Not convertable");
+                }
+                // Falls zu konvertierender Wert ein DateTime ist
+                else if (value is DateTime)
+                {
+                    // Umwandlung von DateTime nach String
+                    if (conversionType == typeof(string))
+                    {
+                        DateTime utcDate = ((DateTime)value).ToUniversalTime();
+                        if (invariantCulture)
+                        {
+                            return utcDate.ToString("o", CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            return utcDate.ToString("o");
+                        }
+                    }
+                    // Umwandlung von DateTime nach IConvertible
+                    else if (typeof(IConvertible).IsAssignableFrom(conversionType))
+                    {
+                        if (invariantCulture)
+                            return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
+                        else
+                            return Convert.ChangeType(value, conversionType);
+                    }
+                    else
+                        throw new InvalidCastException("Not convertable");
+                }
+                // Falls value ein primitiver Typ ist der IConvertible implementiert z.B. String, int, ....
+                else if (value is IConvertible)
+                {
+                    Type innerType = conversionType;
+                    Type genericNullableType = null;
+                    if (conversionType.IsGenericType)
+                    {
+                        innerType = conversionType.GetGenericArguments()[0];
+                        genericNullableType = conversionType.GetGenericTypeDefinition();
+                        if (!genericNullableType.IsAssignableFrom(typeof(Nullable<>)))
+                        {
+                            genericNullableType = null;
+                            innerType = conversionType;
+                        }
+                    }
+                    // Umwandlung von String/IConvertible nach TimeSpan
+                    if (typeof(TimeSpan).IsAssignableFrom(innerType))
+                    {
+                        if (value is string)
+                        {
+                            TimeSpan result;
+                            if (!TimeSpan.TryParseExact(value as string, "c", CultureInfo.InvariantCulture, TimeSpanStyles.None, out result))
+                            {
+                                if (genericNullableType != null)
+                                    return new Nullable<TimeSpan>(new TimeSpan());
+                                return new TimeSpan();
+                            }
+                            if (genericNullableType != null)
+                                return new Nullable<TimeSpan>(result);
+                            return result;
+                        }
+                        else if (value is long)
+                        {
+                            TimeSpan convValue = TimeSpan.FromTicks((long)value);
+                            if (genericNullableType != null)
+                                return new Nullable<TimeSpan>(convValue);
+                            return convValue;
+                        }
+                        else if (value is TimeSpanStyles)
+                        {
+                            if (genericNullableType != null)
+                                return new Nullable<TimeSpan>(new TimeSpan());
+                            return new TimeSpan();
+                        }
+                        else
+                        {
+                            TimeSpan convValue = TimeSpan.ParseExact((value as IConvertible).ToString(), "c", CultureInfo.InvariantCulture, TimeSpanStyles.None);
+                            if (genericNullableType != null)
+                                return new Nullable<TimeSpan>(convValue);
+                            return convValue;
+                        }
+                    }
+                    // Umwandlung von String/IConvertible nach DateTime
+                    else if (typeof(DateTime).IsAssignableFrom(innerType))
+                    {
+                        if (value is string)
+                        {
+                            DateTime convValue = DateTime.MinValue;
+                            try
+                            {
+                                convValue = DateTime.ParseExact(value as string, "o", CultureInfo.InvariantCulture, DateTimeStyles.None);
+                            }
+                            catch (Exception e)
+                            {
+                                convValue = DateTime.Parse(value as string);
+
+                                string msg = e.Message;
+                                if (e.InnerException != null && e.InnerException.Message != null)
+                                    msg += " Inner:" + e.InnerException.Message;
+                            }
+                            if (genericNullableType != null)
+                                return new Nullable<DateTime>(convValue);
+                            return convValue;
+                        }
+                        else
+                        {
+                            DateTime convValue;
+                            if (invariantCulture)
+                                convValue = (DateTime)Convert.ChangeType(value, innerType, CultureInfo.InvariantCulture);
+                            else
+                                convValue = (DateTime)Convert.ChangeType(value, innerType);
+
+                            if (genericNullableType != null)
+                                return new Nullable<DateTime>(convValue);
+                            return convValue;
+                        }
+                    }
+                    else if (typeof(Guid).IsAssignableFrom(innerType))
+                    {
+                        string valueString = "";
+                        if (value is string)
+                            valueString = value as string;
+                        if (!String.IsNullOrEmpty(valueString))
+                        {
+                            try
+                            {
+                                if (valueString.IndexOf("guid") < 0)
+                                    return new Guid(valueString);
+                            }
+                            catch (Exception e)
+                            {
+                                string msg = e.Message;
+                                if (e.InnerException != null && e.InnerException.Message != null)
+                                    msg += " Inner:" + e.InnerException.Message;
+                            }
+                            return Guid.Empty;
+                        }
+                        else
+                            return Guid.Empty;
+                    }
+                    // Umwandlung von String/IConvertible nach IConvertible
+                    else if (typeof(IConvertible).IsAssignableFrom(innerType))
+                    {
+                        if (value is string && innerType.IsEnum)
+                        {
+                            object convValue = Enum.Parse(innerType, (String)value);
+                            if (genericNullableType != null)
+                            {
+                                object acRefInstance = Activator.CreateInstance(conversionType, new Object[] { convValue });
+                                return acRefInstance;
+                            }
+                            return convValue;
+                        }
+                        else if (innerType.IsEnum && value is IConvertible)
+                        {
+                            object convValue = Enum.ToObject(innerType, value);
+                            if (genericNullableType != null)
+                            {
+                                object acRefInstance = Activator.CreateInstance(conversionType, new Object[] { convValue });
+                                return acRefInstance;
+                            }
+                            return convValue;
+                        }
+                        else
+                        {
+                            object convValue = null;
+                            if (invariantCulture)
+                            {
+                                if (value is string && (((string)value) == "n. def." || String.IsNullOrEmpty((string)value)))
+                                {
+                                    if (genericNullableType == null)
+                                    {
+                                        if (innerType == typeof(bool))
+                                            convValue = false;
+                                        else
+                                            convValue = Convert.ChangeType("0", innerType, CultureInfo.InvariantCulture);
+                                    }
+                                    else
+                                        convValue = null;
+                                }
+                                else
+                                    convValue = Convert.ChangeType(value, innerType, CultureInfo.InvariantCulture);
+                            }
+                            else
+                            {
+                                if (value is string && (((string)value) == "n. def." || String.IsNullOrEmpty((string)value)))
+                                {
+                                    if (genericNullableType == null)
+                                    {
+                                        if (innerType == typeof(bool))
+                                            convValue = false;
+                                        else
+                                            convValue = Convert.ChangeType("0", innerType);
+                                    }
+                                    else
+                                        convValue = null;
+                                }
+                                else
+                                    convValue = Convert.ChangeType(value, innerType);
+                            }
+                            if (genericNullableType != null && convValue != null)
+                            {
+                                object acRefInstance = Activator.CreateInstance(conversionType, new Object[] { convValue });
+                                return acRefInstance;
+                            }
+                            return convValue;
+                        }
+                    }
+                    // Umwandlung von String/IConvertible nach Entity oder Deserialisierbaren Typen
+                    else
+                    {
+                        string valueString = "";
+                        if (value is string)
+                            valueString = value as string;
+                        else
+                        {
+                            if (invariantCulture)
+                                valueString = (value as IConvertible).ToString(CultureInfo.InvariantCulture);
+                            else
+                                valueString = (value as IConvertible).ToString();
+                        }
+                        if (String.IsNullOrEmpty(valueString))
+                            return null;
+                        throw new InvalidCastException("Not convertable");
+                    }
+                }
+                else if (conversionType == typeof(string))
+                {
+                    return value.ToString();
+                }
+                else if (conversionType.IsAssignableFrom(value.GetType()))
+                    return value;
+
+                throw new InvalidCastException("Not supported Type");
+            }
+        }
+
+#endif
+        public static object GetDefault(this Type type)
+        {
+            return type.IsValueType ? (!type.IsGenericType ? Activator.CreateInstance(type) : type.GenericTypeArguments[0].GetDefault()) : null;
+        }
 
     }
 }

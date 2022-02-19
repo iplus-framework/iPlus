@@ -119,7 +119,6 @@
     <Compile Include="ACHelperclasses\ACLicense\CSP.cs" />
     <Compile Include="ACHelperclasses\ACLicense\DBInfo.cs" />
     <Compile Include="ACHelperclasses\Runtime\TypeResolver.cs" />
-    <Compile Include="ACHelperclasses\TypeConversion\ACConvert.cs" />
     <Compile Include="ACInterfaces\ACEntity\IImageInfo.cs" />
     <Compile Include="ACInterfaces\ACEntity\MDTrans.cs" />
     <Compile Include="ACInterfaces\ACIPlus\IACVBNoManager.cs" />

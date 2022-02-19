@@ -109,6 +109,39 @@ namespace gip.core.datamodel
 
         #endregion
 
+        private bool? _UseCultureInfoForConversion;
+        public bool? UseCultureInfoForConversion
+        {
+            get
+            {
+                if (_UseCultureInfoForConversion.HasValue)
+                    return _UseCultureInfoForConversion;
+                if (ParentList != null)
+                    return ParentList.UseCultureInfoForConversion;
+                return null;
+            }
+            set
+            {
+                _UseCultureInfoForConversion = value;
+            }
+        }
+
+        private bool InvariantCulture
+        {
+            get
+            {
+                return UseCultureInfoForConversion.HasValue ? !UseCultureInfoForConversion.Value : true;
+            }
+        }
+
+        private CultureInfo UsedCultureInfo
+        {
+            get
+            {
+                return InvariantCulture ? CultureInfo.InvariantCulture : CultureInfo.CurrentCulture;
+            }
+        }
+
 #if NETFRAMEWORK
         private bool? _FullSerialization;
         public bool FullSerialization 
@@ -204,7 +237,6 @@ string _ACCaption;
             }
         }
 
-#if NETFRAMEWORK
         public ACValueList ParentList
         {
             get
@@ -241,7 +273,6 @@ string _ACCaption;
                 return null;
             return PropertyChanged.GetInvocationList();
         }
-#endif
 
         /// <summary>Gets or sets the encapsulated value as a boxed type</summary>
         /// <value>The boxed value.</value>
@@ -293,10 +324,21 @@ string _ACCaption;
                 }
 #if NETFRAMEWORK
                 if (ValueTypeACClass != null)
-                    XMLValue = ACConvert.ChangeType(value, XMLValue, ObjectFullType, true, ValueTypeACClass.Database, true);
+                    XMLValue = ACConvert.ChangeType(value, XMLValue, ObjectFullType, InvariantCulture, ValueTypeACClass.Database, true);
                 else
-#endif
                     XMLValue = value;
+#else
+                if (value != null)
+                {
+                    Type objectType = ObjectType;
+                    if (objectType != null && value.GetType() != objectType)
+                        XMLValue = ACConvert.ChangeType(value, ObjectType, InvariantCulture);
+                    else
+                        XMLValue = value;
+                }
+                else
+                    XMLValue = value;
+#endif
                 OnPropertyChanged();
             }
         }
@@ -791,7 +833,32 @@ string _ACCaption;
                 else if (this.ObjectType == typeof(TimeSpan))
                     return TimeSpan.MinValue;
             }
+         
             return null;
+        }
+
+        public bool IsPrimitiveType
+        {
+            get 
+            {
+                Type type = this.ObjectType;
+                if (type == null)
+                    return false;
+                return (type == typeof(Byte)
+                    || type == typeof(Int16)
+                    || type == typeof(Int32)
+                    || type == typeof(Int64)
+                    || type == typeof(SByte)
+                    || type == typeof(UInt16)
+                    || type == typeof(UInt32)
+                    || type == typeof(UInt64)
+                    || type == typeof(Single)
+                    || type == typeof(Double)
+                    || type == typeof(DateTime)
+                    || type == typeof(TimeSpan)
+                    || type == typeof(string)
+                    );
+            }
         }
 
         /// <summary>
@@ -826,7 +893,7 @@ string _ACCaption;
                 if ((Value == null) || !(Value is Boolean))
                 {
                     if (Value != null && Value is IConvertible)
-                        return (Value as IConvertible).ToBoolean(CultureInfo.InvariantCulture);
+                        return (Value as IConvertible).ToBoolean(UsedCultureInfo);
                     throw new InvalidCastException("Parameter is not Boolean");
                 }
                 return (Boolean)Value;
@@ -846,7 +913,7 @@ string _ACCaption;
                 if ((Value == null) || !(Value is SByte))
                 {
                     if (Value != null && Value is IConvertible)
-                        return (Value as IConvertible).ToSByte(CultureInfo.InvariantCulture);
+                        return (Value as IConvertible).ToSByte(UsedCultureInfo);
                     throw new InvalidCastException("Parameter is not SByte");
                 }
                 return (SByte)Value;
@@ -866,7 +933,7 @@ string _ACCaption;
                 if ((Value == null) || (!(Value is Int16) && !Value.GetType().IsEnum))
                 {
                     if (Value != null && Value is IConvertible)
-                        return (Value as IConvertible).ToInt16(CultureInfo.InvariantCulture);
+                        return (Value as IConvertible).ToInt16(UsedCultureInfo);
                     throw new InvalidCastException("Parameter is not Int16");
                 }
                 return (Int16)Value;
@@ -886,7 +953,7 @@ string _ACCaption;
                 if ((Value == null) || (!(Value is Int32) && !Value.GetType().IsEnum))
                 {
                     if (Value != null && Value is IConvertible)
-                        return (Value as IConvertible).ToInt32(CultureInfo.InvariantCulture);
+                        return (Value as IConvertible).ToInt32(UsedCultureInfo);
                     throw new InvalidCastException("Parameter is not Int32");
                 }
                 return (Int32)Value;
@@ -906,7 +973,7 @@ string _ACCaption;
                 if ((Value == null) || (!(Value is Int64) && !Value.GetType().IsEnum))
                 {
                     if (Value != null && Value is IConvertible)
-                        return (Value as IConvertible).ToInt64(CultureInfo.InvariantCulture);
+                        return (Value as IConvertible).ToInt64(UsedCultureInfo);
                     throw new InvalidCastException("Parameter is not Int64");
                 }
                 return (Int64)Value;
@@ -926,7 +993,7 @@ string _ACCaption;
                 if ((Value == null) || (!(Value is UInt16) && !Value.GetType().IsEnum))
                 {
                     if (Value != null && Value is IConvertible)
-                        return (Value as IConvertible).ToUInt16(CultureInfo.InvariantCulture);
+                        return (Value as IConvertible).ToUInt16(UsedCultureInfo);
                     throw new InvalidCastException("Parameter is not UInt16");
                 }
                 return (UInt16)Value;
@@ -946,7 +1013,7 @@ string _ACCaption;
                 if ((Value == null) || (!(Value is UInt32) && !Value.GetType().IsEnum))
                 {
                     if (Value != null && Value is IConvertible)
-                        return (Value as IConvertible).ToUInt32(CultureInfo.InvariantCulture);
+                        return (Value as IConvertible).ToUInt32(UsedCultureInfo);
                     throw new InvalidCastException("Parameter is not UInt32");
                 }
                 return (UInt32)Value;
@@ -966,7 +1033,7 @@ string _ACCaption;
                 if ((Value == null) || (!(Value is UInt64) && !Value.GetType().IsEnum))
                 {
                     if (Value != null && Value is IConvertible)
-                        return (Value as IConvertible).ToUInt64(CultureInfo.InvariantCulture);
+                        return (Value as IConvertible).ToUInt64(UsedCultureInfo);
                     throw new InvalidCastException("Parameter is not UInt64");
                 }
                 return (UInt64)Value;
@@ -986,7 +1053,7 @@ string _ACCaption;
                 if ((Value == null) || !(Value is Single))
                 {
                     if (Value != null && Value is IConvertible)
-                        return (Value as IConvertible).ToSingle(CultureInfo.InvariantCulture);
+                        return (Value as IConvertible).ToSingle(UsedCultureInfo);
                     throw new InvalidCastException("Parameter is not Single");
                 }
                 return (Single)Value;
@@ -1006,7 +1073,7 @@ string _ACCaption;
                 if ((Value == null) || !(Value is Double))
                 {
                     if (Value != null && Value is IConvertible)
-                        return (Value as IConvertible).ToDouble(CultureInfo.InvariantCulture);
+                        return (Value as IConvertible).ToDouble(UsedCultureInfo);
                     throw new InvalidCastException("Parameter is not Double");
                 }
                 return (Double)Value;
@@ -1026,7 +1093,7 @@ string _ACCaption;
                 if ((Value == null) || !(Value is Decimal))
                 {
                     if (Value != null && Value is IConvertible)
-                        return (Value as IConvertible).ToDecimal(CultureInfo.InvariantCulture);
+                        return (Value as IConvertible).ToDecimal(UsedCultureInfo);
                     throw new InvalidCastException("Parameter is not Decimal");
                 }
                 return (Decimal)Value;
@@ -1178,7 +1245,7 @@ string _ACCaption;
                 this.XMLValue = from.XMLValue;
         }
 
-        public virtual void CopyValue(ACValue from)
+        public virtual void CopyValue(ACValue from, bool forceConversion = false)
         {
             if (from == null)
                 return;
@@ -1186,10 +1253,24 @@ string _ACCaption;
             {
                 if (from.Value != null && this.Value != from.Value)
                 {
-                    if (from.Value is IConvertible)
+                    if (forceConversion)
+                    {
+                        if (from.Value is string && this.IsPrimitiveType && this.ObjectType != typeof(string))
+                            from.Value = (from.Value as string).Replace(',','.');
+#if NETFRAMEWORK
+                        this.Value = ACConvert.ChangeType(from.Value, this.ObjectType, InvariantCulture, gip.core.datamodel.Database.GlobalDatabase);
+#else
+                        this.Value = Convert.ChangeType(from.Value, this.ObjectType);
+#endif
+                    }
+                    else if (from.Value is IConvertible)
                     {
                         if (this.ObjectType != from.ObjectType)
+                        {
                             this.Value = Convert.ChangeType(from.Value, this.ObjectType);
+                            //if (from.ValueTypeACClass == null)
+                            //    from.ValueTypeACClass = this.ValueTypeACClass;
+                        }
                         else
                             this.Value = from.Value;
                     }

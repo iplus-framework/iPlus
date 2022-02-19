@@ -99,6 +99,23 @@ namespace gip.core.datamodel
             }
         }
 
+        private bool? _UseCultureInfoForConversion;
+        public bool? UseCultureInfoForConversion
+        {
+            get
+            {
+                if (_UseCultureInfoForConversion.HasValue)
+                    return _UseCultureInfoForConversion;
+                if (ParentACMethod != null)
+                    return ParentACMethod.UseCultureInfoForConversion;
+                return null;
+            }
+            set
+            {
+                _UseCultureInfoForConversion = value;
+            }
+        }
+
         /// <summary>
         /// Ruft das Element am angegebenen Index ab oder legt dieses fest.
         /// </summary>
@@ -462,14 +479,14 @@ namespace gip.core.datamodel
             }
         }
 
-        public virtual void CopyValues(ACValueList from)
+        public virtual void CopyValues(ACValueList from, bool forceConversion = false)
         {
             foreach (ACValue toValue in this)
             {
                 ACValue fromValue = from.GetACValue(toValue.ACIdentifier);
                 if (fromValue != null)
                 {
-                    toValue.CopyValue(fromValue);
+                    toValue.CopyValue(fromValue, forceConversion);
                 }
             }
         }

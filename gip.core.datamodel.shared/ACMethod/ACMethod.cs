@@ -297,6 +297,20 @@ namespace gip.core.datamodel
 
         #region Properties
 
+        private bool? _UseCultureInfoForConversion;
+        public bool? UseCultureInfoForConversion
+        {
+            get
+            {
+                return _UseCultureInfoForConversion;
+            }
+            set
+            {
+                _UseCultureInfoForConversion = value;
+            }
+        }
+
+
         public bool FullSerialization { get; set; }
 #if NETFRAMEWORK
         /// <summary>

@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\SafeCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\SafeList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Translator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\TypeConversion\ACConvert.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACMessages\eMessageButton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACMessages\eMsgLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACMessages\MsgList.cs" />
