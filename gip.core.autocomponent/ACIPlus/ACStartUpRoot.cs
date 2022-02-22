@@ -13,7 +13,7 @@ namespace gip.core.autocomponent
 {
     public class ACStartUpRoot
     {
-        public short LoginUser(string userName, string password, bool registerACObjects, bool propPersistenceOff, ref String errorMsg, bool wcfOff = false, bool simulation = false)
+        public short LoginUser(string userName, string password, bool registerACObjects, bool propPersistenceOff, ref String errorMsg, bool wcfOff = false, bool simulation = false, bool fullscreen = false)
         {
             try
             {
@@ -119,6 +119,7 @@ namespace gip.core.autocomponent
                 acValueList.Add(new ACValue(Const.StartupParamPropPersistenceOff, typeof(Boolean), propPersistenceOff));
                 acValueList.Add(new ACValue(Const.StartupParamWCFOff, typeof(Boolean), wcfOff));
                 acValueList.Add(new ACValue(Const.StartupParamSimulation, typeof(Boolean), simulation));
+                acValueList.Add(new ACValue(Const.StartupParamFullscreen, typeof(Boolean), fullscreen));
 
                 ACConvert.MyDataContractResolver = new WCFDataContractResolver();
                 ACRoot root = ACActivator.CreateInstance(typeACClass, acClassTask, null, acValueList, Global.ACStartTypes.Automatic, null, "", true) as ACRoot;

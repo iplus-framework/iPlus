@@ -1,4 +1,8 @@
-﻿namespace gip.iplus.service
+﻿using gip.core.autocomponent;
+using gip.core.datamodel;
+using System;
+
+namespace gip.iplus.service
 {
     partial class ProjectInstaller
     {
@@ -24,6 +28,7 @@
 
         /// <summary>
         /// Erforderliche Methode für die VBDesignerunterstützung.
+        /// Erforderliche Methode für die VBDesignerunterstützung.
         /// Der Inhalt der Methode darf nicht mit dem Code-Editor geändert werden.
         /// </summary>
         private void InitializeComponent()
@@ -39,8 +44,16 @@
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.DisplayName = "IPlusService";
-            this.serviceInstaller1.ServiceName = "IPlusService";
+
+            string winServiceName = "IPlusService";
+            //if (!String.IsNullOrEmpty(this.Context.Parameters["ServiceName"]))
+            //{
+            //    winServiceName = this.Context.Parameters["ServiceName"];
+            //    winServiceName = this.Context.Parameters["ServiceName"];
+            //}
+
+            this.serviceInstaller1.DisplayName = winServiceName;
+            this.serviceInstaller1.ServiceName = winServiceName;
             this.serviceInstaller1.AfterInstall += new System.Configuration.Install.InstallEventHandler(this.serviceInstaller1_AfterInstall);
             // 
             // ProjectInstaller

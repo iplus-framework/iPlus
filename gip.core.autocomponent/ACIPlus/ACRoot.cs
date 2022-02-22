@@ -22,11 +22,12 @@ namespace gip.core.autocomponent
     [ACClassConstructorInfo(
         new object[]
         {
-            new object[] {"User",                   Global.ParamOption.Optional, typeof(VBUser)  },
-            new object[] {"IsRegisterACObjects",    Global.ParamOption.Optional, typeof(Boolean) },
-            new object[] {"IsPropPersistenceOff",   Global.ParamOption.Optional, typeof(Boolean) },
-            new object[] {"IsWCFOff",               Global.ParamOption.Optional, typeof(Boolean) },
-            new object[] {"Simulation",             Global.ParamOption.Optional, typeof(Boolean) }
+            new object[] { Const.StartupParamUser,                   Global.ParamOption.Optional, typeof(VBUser)  },
+            new object[] { Const.StartupParamRegisterACObjects,    Global.ParamOption.Optional, typeof(Boolean) },
+            new object[] { Const.StartupParamPropPersistenceOff,   Global.ParamOption.Optional, typeof(Boolean) },
+            new object[] { Const.StartupParamWCFOff,               Global.ParamOption.Optional, typeof(Boolean) },
+            new object[] { Const.StartupParamSimulation,             Global.ParamOption.Optional, typeof(Boolean) },
+            new object[] { Const.StartupParamFullscreen,             Global.ParamOption.Optional, typeof(Boolean) }
         }
     )]
     public class ACRoot : ACBSO, IRoot
@@ -97,6 +98,11 @@ namespace gip.core.autocomponent
             if (ParameterValue(Const.StartupParamWCFOff) != null)
             {
                 WCFOff = (bool)ParameterValue(Const.StartupParamWCFOff);
+            }
+
+            if (ParameterValue(Const.StartupParamFullscreen) != null)
+            {
+                Fullscreen = (bool)ParameterValue(Const.StartupParamFullscreen);
             }
 
             _TypeNameOfAppContext = new ACPropertyConfigValue<string>(this, "TypeNameOfAppContext", "");
@@ -845,6 +851,12 @@ namespace gip.core.autocomponent
         }
 
         public bool WCFOff
+        {
+            get;
+            set;
+        }
+
+        public bool Fullscreen
         {
             get;
             set;
