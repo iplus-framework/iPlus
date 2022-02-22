@@ -215,6 +215,9 @@ namespace gip.core.reporthandler
 
         public override void OnRenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode)
         {
+            if (printContext == null || inlineBarcode == null || inlineBarcode.Value == null)
+                return;
+
             string barcodeValue = inlineBarcode.Value.ToString();
             if (inlineBarcode.BarcodeType == BarcodeType.QRCODE)
             {

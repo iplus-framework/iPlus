@@ -183,6 +183,17 @@ namespace gip.core.layoutengine
         public static readonly DependencyProperty IconACUrlProperty =
             DependencyProperty.Register("IconACUrl", typeof(string), typeof(VBTileGrid), new PropertyMetadata(""));
 
+        public ACValueList Parameters
+        {
+            get;
+            set;
+        }
+
+        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ParametersProperty =
+            DependencyProperty.Register(nameof(Parameters), typeof(ACValueList), typeof(VBTile), new PropertyMetadata(null, OnDepPropChanged));
+
+
         private static void OnDepPropChanged(DependencyObject dependencyObject,
                                              DependencyPropertyChangedEventArgs args)
         {
@@ -460,7 +471,7 @@ namespace gip.core.layoutengine
             ReleaseMouseCapture();
             if (Math.Abs(Margin.Bottom) <= 3 && Math.Abs(Margin.Top) <= 3 && Math.Abs(Margin.Left) <= 3 && Math.Abs(Margin.Right) <= 3)
             {
-                ContextACObject.ACUrlCommand(_VBTileGrid.VBContent, ACUrl);
+                _VBTileGrid.OnTileClicked(this);
             }
             else
             {
@@ -794,6 +805,8 @@ namespace gip.core.layoutengine
             {
             }
         }
+
+
 
         #endregion
     }

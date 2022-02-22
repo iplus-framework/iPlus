@@ -47,6 +47,13 @@ namespace gip.core.datamodel
             set;
         }
 
+        [DataMember]
+        public ACValueList Parameters
+        {
+            get;
+            set;
+        }
+
         Global.VBTileType IVBTileGrid.VBTileType
         {
             get

@@ -232,14 +232,16 @@ namespace gip.core.reporthandler
             }
         }
 
-        public async void DoPrint(ACBSO acBSO, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        public void DoPrint(ACBSO acBSO, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
         {
             ACClassDesign aCClassDesign = acBSO.GetDesignForPrinting(GetACUrl(), designACIdentifier, pAOrderInfo);
             if (aCClassDesign == null)
                 return;
             ReportData reportData = GetReportData(acBSO, aCClassDesign);
             byte[] bytes = null;
-            await Application.Current.Dispatcher.InvokeAsync((Action)delegate
+
+
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 try
                 {
@@ -253,8 +255,8 @@ namespace gip.core.reporthandler
                 {
                     this.Messages.LogException(this.GetACUrl(), "InvokeAsync", e);
                 }
-            }, DispatcherPriority.ContextIdle);
-            
+            });
+
             if (bytes != null)
                 SendDataToPrinter(bytes);
         }

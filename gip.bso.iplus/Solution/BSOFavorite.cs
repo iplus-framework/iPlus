@@ -112,13 +112,20 @@ namespace gip.bso.iplus
                 {
                     if (!string.IsNullOrEmpty(_VBUserACClassDesign.XMLDesign))
                     {
-                        using (StringReader ms = new StringReader(_VBUserACClassDesign.XMLDesign))
-                        using (XmlTextReader xmlReader = new XmlTextReader(ms))
+                        try
                         {
-                            DataContractSerializer serializer = new DataContractSerializer(typeof(ACFavorite[]));
-                            var favList = serializer.ReadObject(xmlReader);
-                            if (favList is ACFavorite[])
-                                _FavoriteList = ((ACFavorite[])favList).ToList();
+                            using (StringReader ms = new StringReader(_VBUserACClassDesign.XMLDesign))
+                            using (XmlTextReader xmlReader = new XmlTextReader(ms))
+                            {
+                                DataContractSerializer serializer = new DataContractSerializer(typeof(ACFavorite[]));
+                                var favList = serializer.ReadObject(xmlReader);
+                                if (favList is ACFavorite[])
+                                    _FavoriteList = ((ACFavorite[])favList).ToList();
+                            }
+                        }
+                        catch (Exception e)
+                        {
+
                         }
                     }
                     if (_FavoriteList == null)
@@ -214,6 +221,7 @@ namespace gip.bso.iplus
                 fav.Title = vbTile.Title;
                 fav.ACUrl = vbTile.ACUrl;
                 fav.IconACUrl = vbTile.IconACUrl;
+                fav.Parameters = vbTile.Parameters;
                 FavoriteList.Add(fav);
                 FavoriteList = FavoriteList.ToList();
             }
@@ -236,9 +244,9 @@ namespace gip.bso.iplus
         /// </summary>
         /// <param name="acUrl">The acUrl of a business object.</param>
         [ACMethodInfo("", "", 405)]
-        public void OnTileClicked(string acUrl)
+        public void OnTileClicked(string acUrl, ACValueList parameters)
         {
-            Root.RootPageWPF.StartBusinessobject(acUrl, null);
+            Root.RootPageWPF.StartBusinessobject(acUrl, parameters);
         }
 
         #endregion
@@ -359,7 +367,7 @@ namespace gip.bso.iplus
                     DeleteVBFavorite((IVBTileGrid)acParameter[0]);
                     return true;
                 case"OnTileClicked":
-                    OnTileClicked((String)acParameter[0]);
+                    OnTileClicked((String)acParameter[0], acParameter[1] as ACValueList);
                     return true;
                 case "StartBSO":
                     StartBSO();

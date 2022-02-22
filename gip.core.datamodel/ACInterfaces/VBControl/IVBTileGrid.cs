@@ -16,6 +16,8 @@ namespace gip.core.datamodel
 
         string ACUrl { get; set; }
 
+        ACValueList Parameters { get; set; }
+
         string IconACUrl { get; set; }
 
         Global.VBTileType VBTileType { get; set; }

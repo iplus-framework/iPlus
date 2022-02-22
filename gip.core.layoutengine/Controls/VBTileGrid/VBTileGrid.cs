@@ -304,7 +304,8 @@ namespace gip.core.layoutengine
                     int rowNum = ((Grid)this.Content).RowDefinitions.Count();
                     VBTile vbTile = new VBTile() { Height = TileSize, Width = TileSize };
                     vbTile.Title = containter.ACCaption;
-                    vbTile.ACUrl = (containter).ACUrl;
+                    vbTile.ACUrl = containter.ACUrl;
+                    vbTile.Parameters = containter.ParameterList;
                     if (containter is ACMenuItem && !string.IsNullOrEmpty(((ACMenuItem)containter).IconACUrl))
                         vbTile.IconACUrl = ((ACMenuItem)containter).IconACUrl;
                     ((Grid)this.Content).Children.Add(vbTile);
@@ -449,6 +450,11 @@ namespace gip.core.layoutengine
             iconACurl.Source = item;
             iconACurl.Path = new PropertyPath("IconACUrl");
             vbTile.SetBinding(VBTile.IconACUrlProperty, iconACurl);
+
+            Binding paramBinding = new Binding();
+            paramBinding.Source = item;
+            paramBinding.Path = new PropertyPath(nameof(item.Parameters));
+            vbTile.SetBinding(VBTile.ParametersProperty, paramBinding);
 
             return vbTile;
         }
@@ -634,6 +640,22 @@ namespace gip.core.layoutengine
                 vbTile.HorizontalAlignment = HorizontalAlignment.Left;
             else
                 vbTile.HorizontalAlignment = HorizontalAlignment.Center;
+        }
+
+        public void OnTileClicked(VBTile vbTile)
+        {
+            if (vbTile != null)
+            {
+                IVBTileGrid item = Items.FirstOrDefault(c => c.ACUrl == vbTile.ACUrl && c.TileColumn == vbTile.TileColumn && c.TileRow == vbTile.TileRow);
+                if (item != null)
+                {
+                    ContextACObject.ACUrlCommand(VBContent, item.ACUrl, item.Parameters);
+                }
+                else
+                {
+                    ContextACObject.ACUrlCommand(VBContent, vbTile.ACUrl, vbTile.Parameters);
+                }
+            }
         }
 
         #endregion
