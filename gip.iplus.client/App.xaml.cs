@@ -142,8 +142,9 @@ namespace gip.iplus.client
 
             bool RegisterACObjects = false;
             bool PropPersistenceOff = false;
-            bool WCFOff = cmLineArg.Contains("/WCFOff");
-            bool simulation = cmLineArg.Contains("/Simulation");
+            bool WCFOff = cmLineArg.Contains("/" + Const.StartupParamWCFOff);
+            bool simulation = cmLineArg.Contains("/" + Const.StartupParamSimulation);
+            bool fullscreen = cmLineArg.Contains("/" + Const.StartupParamFullscreen);
             string UserName = "";
             string PassWord = "";
             eWpfTheme wpfTheme = gip.iplus.client.Properties.Settings.Default.WpfTheme;
@@ -179,7 +180,7 @@ namespace gip.iplus.client
                 }
 
                 ControlManager.WpfTheme = wpfTheme;
-                short result = _StartUpManager.LoginUser(UserName, PassWord, RegisterACObjects, PropPersistenceOff, ref errorMsg, WCFOff, simulation);
+                short result = _StartUpManager.LoginUser(UserName, PassWord, RegisterACObjects, PropPersistenceOff, ref errorMsg, WCFOff, simulation, fullscreen);
                 if (result == 1)
                 {
                     if (!cmLineArg.Contains("/autologin"))

@@ -312,6 +312,9 @@
         public const string StartupParamSimulation = "Simulation";
         public const string StartupParamUser = "User";
         public const string StartupParamRegisterACObjects = "RegisterACObjects";
+        public const string StartupParamFullscreen = "Fullscreen";
+        public const string StartupParamAutologin = "Autologin";
+
         /// <summary>
         /// Parameter for disabling Persistence of Property-Values. It's used for persistable Target-Properties 
         /// which are bound to Source-Properties from Data-Access-Components. This parameter is needed to prevent saving wrong values when e.g. a PLS is resetted 

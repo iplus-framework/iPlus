@@ -187,8 +187,6 @@ namespace gip.core.datamodel
 #if NETFRAMEWORK
     [ACPropertyInfo(9999)]
 #endif
-        /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
-        /// <value>  Translated description</value>
         public virtual string ACCaption
         {
             get
@@ -395,10 +393,6 @@ string _ACCaption;
 #else
         string _DataTypeName;
 #endif
-        /// <summary>
-        /// Gets or sets the name of the data type.
-        /// </summary>
-        /// <value>The name of the data type.</value>
         [DataMember]
         public string DataTypeName
         {

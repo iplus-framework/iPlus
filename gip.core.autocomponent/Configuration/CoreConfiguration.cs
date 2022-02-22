@@ -92,6 +92,5 @@ namespace gip.core.autocomponent
                 this["ConsistencyCheckWF"] = value;
             }
         }
-
     }
 }
