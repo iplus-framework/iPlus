@@ -599,8 +599,10 @@ namespace gip.bso.iplus
                     acClass = bsoACClass.Childs.FirstOrDefault(c => c.ACIdentifier == className);
                 if (acClass != null)
                 {
-                    if (!MapClassToItem.TryGetValue(acClass, out info))
-                        return;
+                    if (MapClassToItem.TryGetValue(acClass, out info))
+                    {
+                        info = new ACClassInfoWithItems(acClass);
+                    }
                 }
                 else
                     info = new ACClassInfoWithItems(menuItem.ACCaption);
@@ -2034,7 +2036,7 @@ namespace gip.bso.iplus
             return acClassMethod.ACKind != Global.ACKinds.MSMethod
                 && acClassMethod.ACKind != Global.ACKinds.MSMethodPrePost
                 && acClassMethod.ACKind != Global.ACKinds.MSMethodClient
-                && (   acClassMethod.ACKind != Global.ACKinds.MSMethodFunction
+                && (acClassMethod.ACKind != Global.ACKinds.MSMethodFunction
                     || (acClassMethod.ACKind == Global.ACKinds.MSMethodFunction && acClassMethod.AttachedFromACClassID.HasValue && acClassMethod.ParentACClassMethodID.HasValue));
         }
 
@@ -2614,32 +2616,32 @@ namespace gip.bso.iplus
         /// <param name="msg"></param>
         public void UpdateMSMethodFunctionRekursiv(ACClass acClass, MsgWithDetails msg)
         {
-         //   DERIVATION - SZENARIOS
-         //   -"PAFDosing"(Level1):
-         //   -has a "Start" - Method(Level1) and
-         // -a virtual Method "VDosing"(Level1) => ParentACClassMethodID points to "Start"-Method(Level1)
-         //   
-         //     - "PAProcessModule2"(Level2):
-         //        - has a child "PAFDosing"(Level2), BasedOnACClassId points to PAFDosing(Level1)
-         //            therefore PAProcessModule2 gets a new virtual attached Method:
-         //            - "VDosing"(Level2) => ParentACClassMethodID points to "VDosing"(Level1)
-         //                                => AttachedFromACClassID points to "PAFDosing"(Level2)
-         //   
-         //     - "PAProcessModule3" (Level3):
-         //        - has a child "PAFDosing"(Level3), BasedOnACClassId points to "PAFDosing"(Level2)
-         //            therefore PAProcessModule3 inhertis the virtual attached Method from "PAProcessModule2"(Level2):
-         //            - "VDosing"(Level2) => ParentACClassMethodID points to "VDosing"(Level1)
-         //                                => AttachedFromACClassID points to "PAFDosing"(Level2)
-         //        - has a new child "PAFDosingB"(Level2), BasedOnACClassId points to PAFDosing(Level1)
-         //            therefore PAProcessModule3 gets a new virtual attached Method WITH A PREFIX "PAFDosingB_":
-         //            - "PAFDosingB_VDosing"(Level2) => ParentACClassMethodID points to "VDosing"(Level1)
-         //                                           => AttachedFromACClassID points to "PAFDosingB"(Level2)
-         //    select m.ACIdentifier, m.ACClassMethodID, m.ACClassID, m.ACKindIndex, c.ACIdentifier, c.ACURLCached, m.ParentACClassMethodID, mp.ACIdentifier, m.AttachedFromACClassID, ac.ACIdentifier from ACClassMethod m
-         //    inner join ACClass c on c.ACClassID = m.ACClassID
-         //    left join ACClass ac on ac.ACClassID = m.AttachedFromACClassID
-         //    inner join ACClassMethod mp on mp.ACClassMethodID = m.ParentACClassMethodID
-         //    where m.ACIdentifier = 'Dosing'
-         //    order by c.ACURLCached desc;
+            //   DERIVATION - SZENARIOS
+            //   -"PAFDosing"(Level1):
+            //   -has a "Start" - Method(Level1) and
+            // -a virtual Method "VDosing"(Level1) => ParentACClassMethodID points to "Start"-Method(Level1)
+            //   
+            //     - "PAProcessModule2"(Level2):
+            //        - has a child "PAFDosing"(Level2), BasedOnACClassId points to PAFDosing(Level1)
+            //            therefore PAProcessModule2 gets a new virtual attached Method:
+            //            - "VDosing"(Level2) => ParentACClassMethodID points to "VDosing"(Level1)
+            //                                => AttachedFromACClassID points to "PAFDosing"(Level2)
+            //   
+            //     - "PAProcessModule3" (Level3):
+            //        - has a child "PAFDosing"(Level3), BasedOnACClassId points to "PAFDosing"(Level2)
+            //            therefore PAProcessModule3 inhertis the virtual attached Method from "PAProcessModule2"(Level2):
+            //            - "VDosing"(Level2) => ParentACClassMethodID points to "VDosing"(Level1)
+            //                                => AttachedFromACClassID points to "PAFDosing"(Level2)
+            //        - has a new child "PAFDosingB"(Level2), BasedOnACClassId points to PAFDosing(Level1)
+            //            therefore PAProcessModule3 gets a new virtual attached Method WITH A PREFIX "PAFDosingB_":
+            //            - "PAFDosingB_VDosing"(Level2) => ParentACClassMethodID points to "VDosing"(Level1)
+            //                                           => AttachedFromACClassID points to "PAFDosingB"(Level2)
+            //    select m.ACIdentifier, m.ACClassMethodID, m.ACClassID, m.ACKindIndex, c.ACIdentifier, c.ACURLCached, m.ParentACClassMethodID, mp.ACIdentifier, m.AttachedFromACClassID, ac.ACIdentifier from ACClassMethod m
+            //    inner join ACClass c on c.ACClassID = m.ACClassID
+            //    left join ACClass ac on ac.ACClassID = m.AttachedFromACClassID
+            //    inner join ACClassMethod mp on mp.ACClassMethodID = m.ParentACClassMethodID
+            //    where m.ACIdentifier = 'Dosing'
+            //    order by c.ACURLCached desc;
 
             // If there are no Child-Classes for this ProcessModule do nothing
             if (!acClass.ACClass_ParentACClass.Any())
