@@ -125,7 +125,7 @@ namespace gip.bso.iplus
                         }
                         catch (Exception e)
                         {
-
+                            Messages.LogException(this.GetACUrl(), "FavoriteList", e);
                         }
                     }
                     if (_FavoriteList == null)
