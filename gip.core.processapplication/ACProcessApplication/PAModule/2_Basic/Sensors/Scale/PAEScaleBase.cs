@@ -288,6 +288,13 @@ namespace gip.core.processapplication
             OnPropertyChanged(nameof(OccupiedFrom));
             return true;
         }
+
+        [ACMethodInteraction("", "en{'Release occupation'}de{'Reservierung entfernen'}", 700, true)]
+        public void ReleaseScale()
+        {
+            OccupyScale(null, false, true);
+        }
+
         #endregion
 
             #endregion
@@ -320,6 +327,20 @@ namespace gip.core.processapplication
         #endregion
 
         #region Handle execute helpers
+
+        protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, ACClassMethod acClassMethod, params object[] acParameter)
+        {
+            result = null;
+
+            switch (acMethodName)
+            {
+                case nameof(ReleaseScale):
+                    ReleaseScale();
+                    return true;
+            }
+
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
 
         public static bool HandleExecuteACMethod_PAEScaleBase(out object result, IACComponent acComponent, string acMethodName, ACClassMethod acClassMethod, object[] acParameter)
         {
