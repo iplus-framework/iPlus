@@ -371,12 +371,12 @@ namespace gip.core.communication
         {
             if (!IsEnabledAcknowledgeAlarms())
                 return;
-            base.AcknowledgeAlarms();
             if (IsImportAlarm.ValueT == PANotifyState.AlarmOrFault)
             {
                 IsImportAlarm.ValueT = PANotifyState.Off;
                 OnAlarmDisappeared(IsImportAlarm);
             }
+            base.AcknowledgeAlarms();
         }
 
         public override bool IsEnabledAcknowledgeAlarms()

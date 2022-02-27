@@ -294,10 +294,10 @@ namespace gip.core.autocomponent
                 return;
             if (IsServiceAlarm.ValueT == PANotifyState.AlarmOrFault)
             {
-                base.AcknowledgeAlarms();
                 IsServiceAlarm.ValueT = PANotifyState.Off;
                 OnAlarmDisappeared(IsServiceAlarm);
             }
+            base.AcknowledgeAlarms();
         }
 
         #endregion

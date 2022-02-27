@@ -643,7 +643,8 @@ namespace gip.core.datamodel
             return false;
         }
 
-        /// <summary>
+#if NETFRAMEWORK
+/// <summary>
         /// Structure of ACIdentifier at VBDocking/GUI-Objects
         /// GUI:VBControlClassName:FrameworkElementName:VBContent:ACNameOfComponent
         /// </summary>
@@ -661,6 +662,7 @@ namespace gip.core.datamodel
                 acNameOfComponent = guiObject.ContextACObject.ACIdentifier;
             return "GUI:" + vbControlClassName + ":" + frameworkElementName + ":" + guiObject.VBContent + ":" + acNameOfComponent;
         }
+#endif
 
         static public List<string> ResolveParents(string acUrl, bool breakOnCommand = false)
         {
@@ -740,6 +742,7 @@ namespace gip.core.datamodel
             return str;
         }
 
+#if NETFRAMEWORK
         public static string BuildConfigACUrl(IACConfig config)
         {
             if (config == null)
@@ -778,6 +781,17 @@ namespace gip.core.datamodel
             {
                 return configUrl.ConfigACUrl.Replace(configUrl.PreValueACUrl, "");
             }
+        }
+#endif
+
+        public static string GetParentACUrl(string acURL)
+        {
+            if (String.IsNullOrEmpty(acURL))
+                return acURL;
+            int indexOfLastSegment = acURL.LastIndexOf(ACUrlHelper.Delimiter_DirSeperator);
+            if (indexOfLastSegment > 0)
+                return acURL.Substring(0, indexOfLastSegment);
+            return acURL;
         }
     }
 }

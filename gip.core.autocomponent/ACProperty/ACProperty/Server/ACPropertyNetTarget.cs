@@ -84,6 +84,26 @@ namespace gip.core.autocomponent
             }
         }
 
+        protected override bool CanPersist
+        {
+            get
+            {
+                if (Source != null)
+                    return false;
+                return base.CanPersist;
+            }
+        }
+
+        protected override bool CanRestoreRuntimeValue
+        {
+            get
+            {
+                if (Source != null)
+                    return false;
+                return base.CanRestoreRuntimeValue;
+            }
+        }
+
         /// <summary>
         /// CurrentEventArgs ist immer nur temporär gesetzt, wenn PropertyAccessor verwendet wird (Vor Aufruf gesetzt, nach Aufruf gelöscht)
         /// </summary>
@@ -628,6 +648,26 @@ namespace gip.core.autocomponent
             get
             {
                 return _Source;
+            }
+        }
+
+        protected override bool CanPersist
+        {
+            get
+            {
+                if (Source != null)
+                    return false;
+                return base.CanPersist;
+            }
+        }
+
+        protected override bool CanRestoreRuntimeValue
+        {
+            get
+            {
+                if (Source != null)
+                    return false;
+                return base.CanRestoreRuntimeValue;
             }
         }
 

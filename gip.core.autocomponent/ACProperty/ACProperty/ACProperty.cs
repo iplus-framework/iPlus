@@ -746,9 +746,21 @@ namespace gip.core.autocomponent
             }
         }
 
+        protected virtual bool CanRestoreRuntimeValue
+        {
+            get
+            {
+                return !(   IsProxy
+                        || !PropertyInfo.IsPersistable
+                        || !ACRef.IsObjLoaded
+                        || (ACRef.ValueT.ContentTask == null)
+                        || (ACRef.ValueT.ACOperationMode == ACOperationModes.Test));
+            }
+        }
+
         protected virtual bool RestoreRuntimeValue()
         {
-            if (IsProxy || !PropertyInfo.IsPersistable || !ACRef.IsObjLoaded || (ACRef.ValueT.ContentTask == null) || (ACRef.ValueT.ACOperationMode == ACOperationModes.Test))
+            if (!CanRestoreRuntimeValue)
                 return false;
 
             bool restored = false;
@@ -867,6 +879,19 @@ namespace gip.core.autocomponent
             return restored;
         }
 
+        protected virtual bool CanPersist
+        {
+            get
+            {
+                return !(InRestorePhase
+                        || IsProxy
+                        || !PropertyInfo.IsPersistable
+                        || !ACRef.IsObjLoaded
+                        || (ACRef.ValueT.ContentTask == null)
+                        || ACRef.ValueT.Root.PropPersistenceOff
+                        || (ACRef.ValueT.ACOperationMode == ACOperationModes.Test));
+            }
+        }
 
         /// <summary>Writes the current value to the database.
         /// It this property is persistable, then the current value is serialized (invokes ValueSerialized()) and set to the XMLValue-Property.</summary>
@@ -874,13 +899,7 @@ namespace gip.core.autocomponent
         ///   <c>true</c> if sucessful</returns>
         public virtual bool Persist()
         {
-            if (InRestorePhase
-                || IsProxy
-                || !PropertyInfo.IsPersistable
-                || !ACRef.IsObjLoaded
-                || (ACRef.ValueT.ContentTask == null)
-                || ACRef.ValueT.Root.PropPersistenceOff
-                || (ACRef.ValueT.ACOperationMode == ACOperationModes.Test))
+            if (!CanPersist)
                 return false;
 
             string valueXML = null;

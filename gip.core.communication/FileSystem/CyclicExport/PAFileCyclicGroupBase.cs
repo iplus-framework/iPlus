@@ -348,10 +348,10 @@ namespace gip.core.communication
                 return;
             if (IsExportingAlarm.ValueT == PANotifyState.AlarmOrFault)
             {
-                base.AcknowledgeAlarms();
                 IsExportingAlarm.ValueT = PANotifyState.Off;
                 OnAlarmDisappeared(IsExportingAlarm);
             }
+            base.AcknowledgeAlarms();
         }
 
         //protected override void OnNewMsgAlarmLogCreated(MsgAlarmLog newLog)
@@ -361,7 +361,7 @@ namespace gip.core.communication
         //    base.OnNewMsgAlarmLogCreated(newLog);
         //}
         #endregion
-        
+
         #endregion
     }
 }

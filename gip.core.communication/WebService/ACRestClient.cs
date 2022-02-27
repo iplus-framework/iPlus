@@ -452,7 +452,8 @@ namespace gip.core.communication
             {
                 var msg = new Msg(eMsgLevel.Exception, ex.Message);
                 Messages.LogException(this.GetACUrl(), "Get(30)", ex);
-                OnNewAlarmOccurred("IsConnected", new Msg(eMsgLevel.Exception, ex.Message));
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
                 if (ex is HttpRequestException)
                     IsConnected.ValueT = false;
                 return new WSResponse<string>(msg);
@@ -472,7 +473,8 @@ namespace gip.core.communication
             {
                 var msg = new Msg(eMsgLevel.Exception, ex.Message);
                 Messages.LogException(this.GetACUrl(), "Get(40)", ex);
-                OnNewAlarmOccurred("IsConnected", new Msg(eMsgLevel.Exception, ex.Message));
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
                 if (ex is HttpRequestException)
                     IsConnected.ValueT = false;
                 return new WSResponse<TResult>(msg);
@@ -565,7 +567,8 @@ namespace gip.core.communication
                 }
                 var msg = new Msg(eMsgLevel.Exception, errMsg);
                 Messages.LogException(this.GetACUrl(), "Post(20)", ex);
-                OnNewAlarmOccurred("IsConnected", new Msg(eMsgLevel.Exception, errMsg));
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, errMsg));
                 if (ex is HttpRequestException)
                     IsConnected.ValueT = false;
                 return new WSResponse<string>(null, msg);
@@ -585,7 +588,8 @@ namespace gip.core.communication
             {
                 var msg = new Msg(eMsgLevel.Exception, ex.Message);
                 Messages.LogException(this.GetACUrl(), "Post(30)", ex);
-                OnNewAlarmOccurred("IsConnected", new Msg(eMsgLevel.Exception, ex.Message));
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
                 if (ex is HttpRequestException)
                     IsConnected.ValueT = false;
                 return new WSResponse<TResult>(msg);
@@ -605,7 +609,8 @@ namespace gip.core.communication
             {
                 var msg = new Msg(eMsgLevel.Exception, ex.Message);
                 Messages.LogException(this.GetACUrl(), "Post(40)", ex);
-                OnNewAlarmOccurred("IsConnected", new Msg(eMsgLevel.Exception, ex.Message));
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
                 if (ex is HttpRequestException)
                     IsConnected.ValueT = false;
                 return new WSResponse<TResult>(msg);
@@ -695,7 +700,8 @@ namespace gip.core.communication
             {
                 var msg = new Msg(eMsgLevel.Exception, ex.Message);
                 Messages.LogException(this.GetACUrl(), "Put(20)", ex);
-                OnNewAlarmOccurred("IsConnected", new Msg(eMsgLevel.Exception, ex.Message));
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
                 if (ex is HttpRequestException)
                     IsConnected.ValueT = false;
                 return new WSResponse<string>(null, msg);
@@ -715,7 +721,8 @@ namespace gip.core.communication
             {
                 var msg = new Msg(eMsgLevel.Exception, ex.Message);
                 Messages.LogException(this.GetACUrl(), "Put(30)", ex);
-                OnNewAlarmOccurred("IsConnected", new Msg(eMsgLevel.Exception, ex.Message));
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
                 if (ex is HttpRequestException)
                     IsConnected.ValueT = false;
                 return new WSResponse<TResult>(msg);
@@ -735,7 +742,8 @@ namespace gip.core.communication
             {
                 var msg = new Msg(eMsgLevel.Exception, ex.Message);
                 Messages.LogException(this.GetACUrl(), "Put(40)", ex);
-                OnNewAlarmOccurred("IsConnected", new Msg(eMsgLevel.Exception, ex.Message));
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
                 if (ex is HttpRequestException)
                     IsConnected.ValueT = false;
                 return new WSResponse<TResult>(msg);
@@ -819,7 +827,8 @@ namespace gip.core.communication
             {
                 var msg = new Msg(eMsgLevel.Exception, ex.Message);
                 Messages.LogException(this.GetACUrl(), "Delete(30)", ex);
-                OnNewAlarmOccurred("IsConnected", new Msg(eMsgLevel.Exception, ex.Message));
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
                 if (ex is HttpRequestException)
                     IsConnected.ValueT = false;
                 return new WSResponse<string>(msg);
@@ -839,7 +848,8 @@ namespace gip.core.communication
             {
                 var msg = new Msg(eMsgLevel.Exception, ex.Message);
                 Messages.LogException(this.GetACUrl(), "Delete(40)", ex);
-                OnNewAlarmOccurred("IsConnected", new Msg(eMsgLevel.Exception, ex.Message));
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
                 if (ex is HttpRequestException)
                     IsConnected.ValueT = false;
                 return new WSResponse<TResult>(msg);
@@ -894,6 +904,14 @@ namespace gip.core.communication
 
         #endregion
 
+        #endregion
+
+
+        #region Alarms
+        public override void AcknowledgeAlarms()
+        {
+            base.AcknowledgeAlarms();
+        }
         #endregion
 
         #endregion

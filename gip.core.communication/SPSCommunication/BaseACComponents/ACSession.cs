@@ -223,13 +223,13 @@ namespace gip.core.communication
         {
             if (!IsEnabledAcknowledgeAlarms())
                 return;
-            base.AcknowledgeAlarms();
             if (IsConnectedAlarm.ValueT == PANotifyState.AlarmOrFault)
             {
                 IsConnectedAlarm.ValueT = PANotifyState.Off;
                 _ConnectedAlarmChanged = PAAlarmChangeState.NoChange;
+                OnAlarmDisappeared(IsConnectedAlarm);
             }
-            OnAlarmDisappeared(IsConnectedAlarm);
+            base.AcknowledgeAlarms();
         }
 
         /// <summary>

@@ -361,10 +361,10 @@ namespace gip.core.communication
                 return;
             if (IsWatchingAlarm.ValueT == PANotifyState.AlarmOrFault)
             {
-                base.AcknowledgeAlarms();
                 IsWatchingAlarm.ValueT = PANotifyState.Off;
                 OnAlarmDisappeared(IsWatchingAlarm);
             }
+            base.AcknowledgeAlarms();
         }
 
         //protected override void OnNewMsgAlarmLogCreated(MsgAlarmLog newLog)

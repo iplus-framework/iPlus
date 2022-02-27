@@ -576,19 +576,19 @@ namespace gip.core.communication
         {
             if (!IsEnabledAcknowledgeAlarms())
                 return;
-            base.AcknowledgeAlarms();
             if (ReadAlarm.ValueT == PANotifyState.AlarmOrFault)
             {
                 ReadAlarm.ValueT = PANotifyState.Off;
+                OnAlarmDisappeared(ReadAlarm);
             }
-            OnAlarmDisappeared(ReadAlarm);
             if (WriteAlarm.ValueT == PANotifyState.AlarmOrFault)
             {
                 WriteAlarm.ValueT = PANotifyState.Off;
+                OnAlarmDisappeared(WriteAlarm);
             }
-            OnAlarmDisappeared(WriteAlarm);
+            base.AcknowledgeAlarms();
         }
 
-#endregion
+        #endregion
     }
 }

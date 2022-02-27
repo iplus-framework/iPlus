@@ -310,7 +310,6 @@
     <Compile Include="EntityVB\VBGroupRight.cs" />
     <Compile Include="EntityVB\VBUserGroup.cs" />
     <Compile Include="ACMessages\ACCommand.cs" />
-    <Compile Include="ACHelperclasses\ACUrl\ACUrlHelper.cs" />
     <Compile Include="ACHelperclasses\CommandLineHelper.cs" />
     <Compile Include="ACHelperclasses\EntityTypeExtension\ACPropertyExt.cs" />
     <Compile Include="ACHelperclasses\EntityTypeExtension\ACPropertyManager.cs" />

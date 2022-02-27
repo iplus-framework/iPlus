@@ -9,6 +9,7 @@
     <Import_RootNamespace>gip.core.datamodel.shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\ACUrl\ACUrlHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\EntityBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\CircularBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\ISafeCollection.cs" />

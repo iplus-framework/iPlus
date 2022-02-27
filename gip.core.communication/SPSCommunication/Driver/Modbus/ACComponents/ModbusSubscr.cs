@@ -574,18 +574,17 @@ namespace gip.core.communication
                 return;
             if (ReadAlarm.ValueT == PANotifyState.AlarmOrFault || IsAlarmActive(ReadAlarm) != null)
             {
-                base.AcknowledgeAlarms();
                 ReadAlarm.ValueT = PANotifyState.Off;
                 OnAlarmDisappeared(ReadAlarm);
             }
             if (WriteAlarm.ValueT == PANotifyState.AlarmOrFault || IsAlarmActive(WriteAlarm) != null)
             {
-                base.AcknowledgeAlarms();
                 WriteAlarm.ValueT = PANotifyState.Off;
                 OnAlarmDisappeared(WriteAlarm);
             }
+            base.AcknowledgeAlarms();
         }
 
-#endregion
+        #endregion
     }
 }
