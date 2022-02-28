@@ -112,7 +112,14 @@ namespace gip.core.reporthandler
                     // TODO: @aagincic place for implement BSO Pool
                     try
                     {
-                        bso = this.Root.ACUrlCommand(printInfo.BSOACUrl) as ACBSO;
+                        string acIdentifier = printInfo.BSOACUrl.Substring(printInfo.BSOACUrl.IndexOf("#") + 1);
+                        ACClass bsoACClass = Root.Database.ContextIPlus.GetACType(acIdentifier);
+                        bso = StartComponent(bsoACClass, bsoACClass,
+                            new ACValueList()
+                            {
+                                new ACValue(Const.ParamSeperateContext, typeof(bool), true),
+                                new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
+                            }) as ACBSO;
                         if (bso == null)
                         {
                             // Error50489: Can't start Businessobject {0}.
@@ -358,10 +365,10 @@ namespace gip.core.reporthandler
             switch (acMethodName)
             {
                 case nameof(Print):
-                    result = Print(acParameter[0] as PAOrderInfo, 
-                                    (int)acParameter[1], 
-                                    acParameter.Count() > 2 ? acParameter[2] as string : null, 
-                                    acParameter.Count() > 3 ? (int) acParameter[3] : 0);
+                    result = Print(acParameter[0] as PAOrderInfo,
+                                    (int)acParameter[1],
+                                    acParameter.Count() > 2 ? acParameter[2] as string : null,
+                                    acParameter.Count() > 3 ? (int)acParameter[3] : 0);
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
