@@ -4852,7 +4852,17 @@ namespace gip.core.autocomponent
                     {
                         var t = new Thread(() =>
                         {
-                            msg = acReportComp.Print(design, withDialog, printerName, reportData, numberOfCopies, maxPrintJobsInSpooler);
+                            try
+                            {
+                                msg = acReportComp.Print(design, withDialog, printerName, reportData, numberOfCopies, maxPrintJobsInSpooler);
+                            }
+                            catch (Exception ex2)
+                            {
+                                string message = ex2.Message;
+                                if (ex2.InnerException != null)
+                                    message += ex2.InnerException.Message;
+                                msg = new Msg(ex2.Message, this, eMsgLevel.Exception, this.GetType().AssemblyQualifiedName, "PrintDesign(40)", 40);
+                            }
                         });
                         t.SetApartmentState(ApartmentState.STA);
                         t.IsBackground = false;
