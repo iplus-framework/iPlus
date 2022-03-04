@@ -112,6 +112,19 @@ namespace gip.core.datamodel
             }
         }
 
+        public void StartWorkerThreadSTA()
+        {
+            if (_workerThread == null)
+            {
+                _syncQueue = new SyncQueueEvents();
+                _workerThread = new ACThread(RunWorker, this);
+                _workerThread.Name = _InstanceName;
+                _workerThread.SetApartmentState(ApartmentState.STA);
+                OnThreadStarted();
+                _workerThread.Start();
+            }
+        }
+
         /// <summary>
         /// Called when [thread started].
         /// </summary>
