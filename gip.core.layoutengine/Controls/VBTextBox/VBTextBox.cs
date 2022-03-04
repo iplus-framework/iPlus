@@ -245,6 +245,15 @@ namespace gip.core.layoutengine
                 SetBinding(VBTextBox.ACCompInitStateProperty, binding);
             }
 
+            if (ContextACObject != null && ContextACObject is IACComponent)
+            {
+                Binding binding2 = new Binding();
+                binding2.Source = ContextACObject;
+                binding2.Path = new PropertyPath(Const.ACUrlCmdMessage);
+                binding2.Mode = BindingMode.OneWay;
+                SetBinding(VBTextBox.ACUrlCmdMessageProperty, binding2);
+            }
+
             // DAMIR TEST
             if (ResourceKeyTestOn)
             {
@@ -393,7 +402,7 @@ namespace gip.core.layoutengine
 
             MaskProvider = null;
             BindingOperations.ClearBinding(this, TextBox.TextProperty);
-            //BindingOperations.ClearBinding(this, VBTextBox.ACUrlCmdMessageProperty);
+            BindingOperations.ClearBinding(this, VBTextBox.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBTextBox.ACCompInitStateProperty);
             BindingOperations.ClearAllBindings(this);
         }
@@ -749,22 +758,22 @@ namespace gip.core.layoutengine
 
         ///////////////////////////////////////////////
 
-        ///// <summary>
-        ///// Represents the dependency property for ACUrlCmdMessage.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACUrlCmdMessageProperty =
-        ////    DependencyProperty.Register("ACUrlCmdMessage",
-        ////        typeof(ACUrlCmdMessage), typeof(VBTextBox),
-        ////        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        /// <summary>
+        /// Represents the dependency property for ACUrlCmdMessage.
+        /// </summary>
+        public static readonly DependencyProperty ACUrlCmdMessageProperty =
+            DependencyProperty.Register(nameof(ACUrlCmdMessage),
+                typeof(ACUrlCmdMessage), typeof(VBTextBox),
+                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
 
-        ///// <summary>
-        ///// Gets or sets the ACUrlCmdMessage.
-        ///// </summary>
-        ////public ACUrlCmdMessage ACUrlCmdMessage
-        ////{
-        ////    get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-        ////    set { SetValue(ACUrlCmdMessageProperty, value); }
-        ////}
+        /// <summary>
+        /// Gets or sets the ACUrlCmdMessage.
+        /// </summary>
+        public ACUrlCmdMessage ACUrlCmdMessage
+        {
+            get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
+            set { SetValue(ACUrlCmdMessageProperty, value); }
+        }
 
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
@@ -804,6 +813,27 @@ namespace gip.core.layoutengine
             {
                 if (String.IsNullOrEmpty(thisControl.VBContent) && thisControl.ContextACObject == null)
                     thisControl.UpdateControlMode();
+            }
+            else if (args.Property == ACUrlCmdMessageProperty)
+            {
+                thisControl.OnACUrlMessageReceived();
+            }
+        }
+
+        /// <summary>
+        /// Handles the ACUrl message when it is received.
+        /// </summary>
+        public void OnACUrlMessageReceived()
+        {
+            if (ACUrlCmdMessage != null
+                && ACUrlCmdMessage.ACUrl == Const.CmdFocusAndSelectAll
+                && !String.IsNullOrEmpty(this.VBContent)
+                && !String.IsNullOrEmpty(ACUrlCmdMessage.TargetVBContent)
+                && (this.VBContent == ACUrlCmdMessage.TargetVBContent
+                   || this.VBContent.Contains(ACUrlCmdMessage.TargetVBContent)))
+            {
+                Focus();
+                SelectAll();
             }
         }
 
