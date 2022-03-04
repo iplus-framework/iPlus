@@ -157,7 +157,9 @@ namespace gip.ext.designer.Controls
 		{
 			if (textBlock != null) {
 				if (property != null)
-					textBlock.Text = (string) designItem.Properties[property].ValueOnInstance;
+				{
+					textBlock.Text = designItem.Properties[property].ValueOnInstance as string;
+				}
 				textBlock.FontFamily = (System.Windows.Media.FontFamily)designItem.Properties[Control.FontFamilyProperty].ValueOnInstance;
 				textBlock.FontSize = (double) designItem.Properties[Control.FontSizeProperty].ValueOnInstance;
 				textBlock.FontStretch = (FontStretch) designItem.Properties[Control.FontStretchProperty].ValueOnInstance;

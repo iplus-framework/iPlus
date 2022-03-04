@@ -249,10 +249,12 @@
         public const string CmdNameRedo = "Redo";                      // Wiederherstellen, ApplicationCommands.Redo
         public const string CmdRedo = "!" + CmdNameRedo;                      // Wiederherstellen, ApplicationCommands.Redo
 
+        
         public const string CmdSelectAll = "!SelectAll";            // Alles auswählen
         public const string CmdClear = "!Clear";                    // Leeren
 
         public const string CmdTooltip = "Tooltip";
+        public const string CmdFocusAndSelectAll = "FocusAndASelectAll";
 
         public const string CmdUpdateControlMode = "^CmdUpdateControlMode";
         public const string CmdInvalidateRequerySuggested = "^InvalidateRequerySuggested";

@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\ACUrl\ACUrlHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\EntityBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\GS1Parser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\CircularBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\ISafeCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\ISafeList.cs" />
