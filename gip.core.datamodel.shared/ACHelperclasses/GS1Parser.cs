@@ -252,6 +252,7 @@ namespace gip.core.datamodel
         /// Parse the ean128 code
         /// </summary>
         /// <param name="data">The raw scanner data</param>
+        /// <param name="hasCheckSum">hasCheckSum</param>
         /// <param name="throwException">If an exception will be thrown if an AI cannot be found</param>
         /// <returns>The different parts of the ean128 code</returns>
         public static Dictionary<AII, ParseResult> Parse(string data, bool hasCheckSum = true, bool throwException = false)
@@ -290,6 +291,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="data">The row data from the scanner</param>
         /// <param name="index">The refrence of the current position</param>
+        /// <param name="decimalPlaces">decimalPlaces</param>
         /// <param name="usePlaceHolder">Sets if the last character of the AI should replaced with a placehoder ("d")</param>
         /// <returns>The current AI or null if no match was found</returns>
         private static AII GetAI(string data, ref int index, out int? decimalPlaces, bool usePlaceHolder = false)

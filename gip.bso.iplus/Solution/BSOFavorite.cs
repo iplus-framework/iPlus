@@ -243,6 +243,7 @@ namespace gip.bso.iplus
         /// Starts the business object according to parameter acUrl. 
         /// </summary>
         /// <param name="acUrl">The acUrl of a business object.</param>
+        /// <param name="parameters">parameters</param>
         [ACMethodInfo("", "", 405)]
         public void OnTileClicked(string acUrl, ACValueList parameters)
         {
