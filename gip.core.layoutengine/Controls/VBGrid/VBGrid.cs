@@ -338,7 +338,12 @@ namespace gip.core.layoutengine
                 return;
             Global.ControlModesInfo controlModeInfo = elementACComponent.GetControlModes(this);
             Global.ControlModes controlMode = controlModeInfo.Mode;
-            Visibility = controlMode >= Global.ControlModes.Disabled ? Visibility.Visible : Visibility.Collapsed;
+            ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, VBGrid.VisibilityProperty);
+            if ((valueSource == null)
+                || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+            {
+                Visibility = controlMode >= Global.ControlModes.Disabled ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
 
         void VBGrid_Loaded(object sender, RoutedEventArgs e)

@@ -249,12 +249,13 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return SelectedPWNodeParamValue != null
-                    && SelectedPWNodeParamValue.DefaultConfiguration != null
-                    && SelectedPWNodeParamValue.DefaultConfiguration.ConfigStore != null
-                    && CurrentPWInfo != null
-                    && CurrentPWInfo.CurrentConfigStore != null
-                    && SelectedPWNodeParamValue.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl();
+                return IsEnabledDeletePWNodeParamValue();
+                //return SelectedPWNodeParamValue != null
+                //    && SelectedPWNodeParamValue.DefaultConfiguration != null
+                //    && SelectedPWNodeParamValue.DefaultConfiguration.ConfigStore != null
+                //    && CurrentPWInfo != null
+                //    && CurrentPWInfo.CurrentConfigStore != null
+                //    && SelectedPWNodeParamValue.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl();
             }
         }
 
@@ -575,13 +576,14 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return
-                    CurrentPWInfo != null
-                    && !CurrentPWInfo.IsReadonly
-                    && SelectedPAFunctionParamValue != null
-                    && SelectedPAFunctionParamValue.DefaultConfiguration != null
-                    && SelectedPAFunctionParamValue.DefaultConfiguration.ConfigStore != null
-                    && SelectedPAFunctionParamValue.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl();
+                return IsEnabledDeletePAFunctionValue();
+                //return
+                //    CurrentPWInfo != null
+                //    && !CurrentPWInfo.IsReadonly
+                //    && SelectedPAFunctionParamValue != null
+                //    && SelectedPAFunctionParamValue.DefaultConfiguration != null
+                //    && SelectedPAFunctionParamValue.DefaultConfiguration.ConfigStore != null
+                //    && SelectedPAFunctionParamValue.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl();
             }
         }
 
@@ -1297,6 +1299,43 @@ namespace gip.core.autocomponent
             using (ACMonitor.Lock(Root.Database.ContextIPlus.QueryLock_1X000))
             {
                 this.Root.Database.ACSaveChanges();
+            }
+        }
+
+        public override Global.ControlModes OnGetControlModes(IVBContent vbControl)
+        {
+            if (vbControl == null)
+                return base.OnGetControlModes(vbControl);
+
+            Global.ControlModes result = base.OnGetControlModes(vbControl);
+            if (result < Global.ControlModes.Enabled)
+                return result;
+            //if (vbControl.VBContent == null && vbControl.ACIdentifier == "VBGrid[]:")
+            //{
+            //    if (IsEnabledDeletePWNodeParamValue())
+            //        return result;
+            //    else
+            //        return Global.ControlModes.Hidden;
+            //}
+            switch (vbControl.VBContent)
+            {
+                case "SelectedPWNodeParamValue\\DefaultConfiguration":
+                    {
+                        if (IsEnabledDeletePWNodeParamValue())
+                            return result;
+                        else
+                            return Global.ControlModes.Disabled;
+                    }
+                case "SelectedPAFunctionParamValue\\DefaultConfiguration":
+                    {
+                        if (IsEnabledDeletePAFunctionValue())
+                            return result;
+                        else
+                            return Global.ControlModes.Disabled;
+                    }
+                default:
+                    return result;
+
             }
         }
 
