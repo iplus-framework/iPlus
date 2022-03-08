@@ -513,6 +513,56 @@ namespace gip.core.autocomponent
         }
         #endregion
 
+        //#region Params info
+
+        //public string GetPWParamsInfo(string pwParamInfo, ACMethod acMethod)
+        //{
+        //    string result = "";
+        //    string[] items = pwParamInfo.Split(new char[] { ',' });
+
+        //    try
+        //    {
+        //        foreach (string item in items)
+        //        {
+        //            string paramItem = item.TrimStart().TrimEnd();
+
+        //            string acIdentifier = paramItem;
+        //            string acCaption = "";
+        //            if (paramItem.Contains("{'"))
+        //            {
+        //                var paramTuple = paramItem.Split(new string[] { "{'" }, StringSplitOptions.None);
+        //                acIdentifier = paramTuple.FirstOrDefault();
+        //                acCaption = paramTuple.LastOrDefault().TrimEnd(new char[] { '\'', '}' });
+        //            }
+
+
+        //            var acValue = acMethod.ParameterValueList.GetACValue(acIdentifier);
+        //            if (acValue != null)
+        //            {
+        //                if (string.IsNullOrEmpty(acCaption))
+        //                    acCaption = acValue.ACCaption;
+
+        //                if (acValue.Value is TimeSpan)
+        //                {
+        //                    result += acCaption + ": " + acValue.ParamAsTimeSpan + "; ";
+        //                }
+        //                else
+        //                {
+        //                    result += acCaption + ": " + acValue.ParamAsString + "; ";
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Messages.LogException(this.GetACUrl(), nameof(GetPWParamsInfo), e);
+        //    }
+
+        //    return result;
+        //}
+
+        //#endregion
+
         #endregion
     }
 }
