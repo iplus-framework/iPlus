@@ -339,8 +339,12 @@ namespace gip.core.layoutengine
             Global.ControlModesInfo controlModeInfo = elementACComponent.GetControlModes(this);
             Global.ControlModes controlMode = controlModeInfo.Mode;
             ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, VBGrid.VisibilityProperty);
-            if ((valueSource == null)
-                || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+            Binding boundedValue = BindingOperations.GetBinding(this, VBGrid.VisibilityProperty);
+            if (    boundedValue == null
+                && ((   valueSource == null)
+                     || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style))
+                     || !String.IsNullOrEmpty(VBContent))
+                   )
             {
                 Visibility = controlMode >= Global.ControlModes.Disabled ? Visibility.Visible : Visibility.Collapsed;
             }
