@@ -508,5 +508,41 @@ namespace gip.core.autocomponent
         }
         #endregion
 
+        #region ParametersInfo
+
+        public static string GetParametersInfo(IEnumerable<IACConfigStore> configStores)
+        {
+            if (configStores == null || !configStores.Any())
+                return null;
+
+            try
+            {
+                var configEntries = configStores.SelectMany(c => c.ConfigurationEntries.Select(x => new Tuple<decimal, IACConfig>(c.OverridingOrder, x)))
+                            .GroupBy(x => x.Item2.LocalConfigACUrl).Where(x => x.Any(c => !string.IsNullOrEmpty(c.Item2.Expression))).OrderBy(x => x.Key).ToArray();
+
+                string result = "";
+
+                foreach (var configEntry in configEntries)
+                {
+                    var sortedItems = configEntry.OrderByDescending(c => c.Item1);
+                    IACConfig configExpression = sortedItems.FirstOrDefault(x => !string.IsNullOrEmpty(x.Item2.Expression))?.Item2;
+                    if (configExpression == null)
+                        continue;
+
+                    IACConfig configValue = sortedItems.FirstOrDefault()?.Item2;
+
+                    result += configExpression.Expression + ": " + configValue.Value.ToString() + "; ";
+                }
+
+                return String.IsNullOrEmpty(result) ? null : result;
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
+
+        #endregion
+
     }
 }
