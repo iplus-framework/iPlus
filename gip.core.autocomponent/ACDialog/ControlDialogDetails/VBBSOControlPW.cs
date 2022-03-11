@@ -356,7 +356,15 @@ namespace gip.core.autocomponent
         {
             if (CurrentPWNodeMethod != null && CurrentPWNodeMethod.ACMethod != null)
             {
-                _PWNodeParamValueList = VarioConfigManager.GetACConfigParamList(CurrentPWNodeMethod.ACMethod, CurrentPWInfo.MandatoryConfigStores, CurrentPWInfo.PreValueACUrl, CurrentPWNodeURL);
+                _PWNodeParamValueList = 
+                    VarioConfigManager
+                    .GetACConfigParamList(
+                        CurrentPWNodeMethod.ACMethod, 
+                        CurrentPWInfo.MandatoryConfigStores, 
+                        CurrentPWInfo.PreValueACUrl, 
+                        CurrentPWNodeURL,
+                        true
+                      );
             }
 
             OnPropertyChanged("PWNodeParamValueList");
@@ -641,7 +649,14 @@ namespace gip.core.autocomponent
         {
             if (CurrentPAFunctionMethod != null)
             {
-                _PAFunctionParamValueList = VarioConfigManager.GetACConfigParamList(CurrentPAFunctionMethod.ACMethod, CurrentPWInfo.MandatoryConfigStores, CurrentPWInfo.PreValueACUrl, CurrentPAFunctionURL);
+                _PAFunctionParamValueList = 
+                    VarioConfigManager
+                    .GetACConfigParamList(
+                        CurrentPAFunctionMethod.ACMethod, 
+                        CurrentPWInfo.MandatoryConfigStores, 
+                        CurrentPWInfo.PreValueACUrl, 
+                        CurrentPAFunctionURL,
+                        true);
             }
 
             OnPropertyChanged("PAFunctionParamValueList");
