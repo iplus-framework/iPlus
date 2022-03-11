@@ -3494,6 +3494,16 @@ namespace gip.core.autocomponent
                 if (rootWF == null)
                     return null;
 
+                if (acClassMethod.MustRefreshACClassWF)
+                {
+                    ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                    {
+                        if (rootWF.ACClassMethod != null)
+                            rootWF.ACClassMethod.AutoRefresh();
+                    });
+                    acClassMethod.LastReadUpdateACClassWF = acClassMethod.UpdateDate;
+                }
+
                 pwProcessFunc = StartComponent(typeOfWFRoot, rootWF, acParameter, Global.ACStartTypes.Automatic, false) as PWProcessFunction;
                 acClassMethod.SetACClassWFRefreshed();
             }

@@ -500,17 +500,20 @@ namespace gip.bso.iplus
                     Msg msg = new Msg { ACIdentifier = "BSOiPlusWorkflow", Message = Root.Environment.TranslateMessage(this, "Info50017", null), MessageLevel = eMsgLevel.Error };
                     return msg;
                 }
-                if (!ConfigManagerIPlus.MustConfigBeReloadedOnServer(this, VisitedMethods, this.Database))
-                    this.VisitedMethods = null;
+                //if (!ConfigManagerIPlus.MustConfigBeReloadedOnServer(this, VisitedMethods, this.Database))
+                    //this.VisitedMethods = null;
             }
             if (CurrentACClassMethod != null)
+            {
+                AddVisitedMethods(CurrentACClassMethod);
                 CurrentACClassMethod.UpdateDate = DateTime.Now;
+            }
             return base.OnPreSave();
         }
 
         protected override void OnPostSave()
         {
-            ConfigManagerIPlus.ReloadConfigOnServerIfChanged(this, VisitedMethods, this.Database);
+            ConfigManagerIPlus.ReloadConfigOnServerIfChanged(this, VisitedMethods, this.Database, true);
             this.VisitedMethods = null;
             //ValidateWF(); //TODO Ivan: Consult with Damir
             base.OnPostSave();
@@ -1119,6 +1122,7 @@ namespace gip.bso.iplus
                 OnPropertyChanged("VisitedMethods");
             }
         }
+
         public void AddVisitedMethods(core.datamodel.ACClassMethod acClassMethod)
         {
             if (!VisitedMethods.Contains(acClassMethod))

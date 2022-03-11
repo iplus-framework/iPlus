@@ -416,13 +416,14 @@ namespace gip.core.autocomponent
         }
 
 
-        public static void ReloadConfigOnServerIfChanged(ACComponent invoker, List<ACClassMethod> visitedMethods, IACEntityObjectContext db)
+        public static void ReloadConfigOnServerIfChanged(ACComponent invoker, List<ACClassMethod> visitedMethods, IACEntityObjectContext db, bool reloadWorkflow = false)
         {
             if (visitedMethods == null || !visitedMethods.Any())
                 return;
             //bool? hasChangedConfig = null;
             foreach (ACClassMethod acClassMethod in visitedMethods)
             {
+                bool wasReloaded = false;
                 var query = ConfigManagerIPlus.GetActiveWorkflows(invoker, acClassMethod, db.ContextIPlus);
                 if (query.Any())
                 {
@@ -436,9 +437,23 @@ namespace gip.core.autocomponent
                                 ACComponent appManager = invoker.ACUrlCommand(acUrl) as ACComponent;
                                 if (appManager != null)
                                 {
+                                    wasReloaded = true;
                                     appManager.ACUrlCommand("!ReloadConfig", acClassMethod.ACClassMethodID);
                                 }
                             }
+                        }
+                    }
+                }
+                if (!wasReloaded && reloadWorkflow)
+                {
+                    foreach (ACProject project in acClassMethod.ACClass.ACProject.ACProject_BasedOnACProject)
+                    {
+                        if (project.RootClass == null || String.IsNullOrEmpty(project.RootClass.ACUrlComponent))
+                            continue;
+                        ACComponent pAppManager = invoker.ACUrlCommand(project.RootClass.ACUrlComponent, null) as ACComponent;
+                        if (pAppManager != null)
+                        {
+                            pAppManager.ACUrlCommand("!ReloadConfig", acClassMethod.ACClassMethodID);
                         }
                     }
                 }

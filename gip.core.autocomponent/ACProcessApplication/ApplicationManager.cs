@@ -607,7 +607,7 @@ namespace gip.core.autocomponent
         public void ReloadConfig(Guid acMethodID)
         {
             var query = FindChildComponents<PWProcessFunction>(c => c is PWProcessFunction
-                                                                && (c as PWProcessFunction).ContentACClassWF != null 
+                                                                && (c as PWProcessFunction).ContentACClassWF != null
                                                                 && (c as PWProcessFunction).ContentACClassWF.ACClassMethodID == acMethodID
                                                                 , null, 3);
             if (query.Any())
@@ -639,6 +639,15 @@ namespace gip.core.autocomponent
                 //        }
                 //    }
                 //}
+            }
+
+            ACClassMethod acClassMethodWF = ACClassMethods.FirstOrDefault(c => c.ACClassMethodID == acMethodID);
+            if (acClassMethodWF != null)
+            {
+                using (ACMonitor.Lock(acClassMethodWF.Database.QueryLock_1X000))
+                {
+                    acClassMethodWF.AutoRefresh();
+                }
             }
         }
 
