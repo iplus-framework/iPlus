@@ -530,8 +530,8 @@ namespace gip.core.autocomponent
                         continue;
 
                     IACConfig configValue = sortedItems.FirstOrDefault()?.Item2;
-
-                    result += configExpression.Expression + ": " + configValue.Value.ToString() + "; ";
+                    if (configValue != null && configValue.Value != null)
+                        result += configExpression.Expression + ": " + configValue.Value.ToString() + "; ";
                 }
 
                 return String.IsNullOrEmpty(result) ? null : result;
