@@ -2,26 +2,17 @@ using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
 using System.Windows.Controls.Primitives;
-using System.Transactions;
 using System.Collections;
 using System.Runtime.Serialization;
 using gip.core.layoutengine.Helperclasses;
 using gip.core.datamodel;
-using System.IO;
-using System.Xml;
 using System.Data.Objects.DataClasses;
 using System.Reflection;
 using System.Data;
@@ -2208,13 +2199,17 @@ namespace gip.core.layoutengine
                         throw new ApplicationException("EnableRowsMoveProperty requires the ItemsSource property of DataGrid to be at least IList inherited collection. Use ObservableCollection to have movements reflected in UI.");
                     //get target index
                     var targetIndex = list.IndexOf(targetItem);
-                    //remove the source from the list
-                    if (targetIndex >= 0)
-                        list.Remove(_DraggedItem);
+                    DataGridRow row = (DataGridRow)ItemContainerGenerator.ContainerFromIndex(targetIndex);
+                    if(row != null && !row.IsEditing)
+                    {
+                        //remove the source from the list
+                        if (targetIndex >= 0)
+                            list.Remove(_DraggedItem);
 
-                    //move source at the target's location
-                    if (targetIndex >= 0)
-                        list.Insert(targetIndex, _DraggedItem);
+                        //move source at the target's location
+                        if (targetIndex >= 0)
+                            list.Insert(targetIndex, _DraggedItem);
+                    }
                 }
             }
             catch (Exception e)

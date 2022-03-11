@@ -1,26 +1,12 @@
 using gip.core.datamodel;
-using gip.core.layoutengine.Helperclasses;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Markup;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml;
 
 namespace gip.core.layoutengine
 {
@@ -79,7 +65,7 @@ namespace gip.core.layoutengine
         public static Style GetDefaultElementStyle()
         {
             Style style = new Style(typeof(ComboBox));
-            style.Setters.Add(new Setter(ComboBox.IsSynchronizedWithCurrentItemProperty, false));            
+            style.Setters.Add(new Setter(ComboBox.IsSynchronizedWithCurrentItemProperty, false));
             //Style style = new Style(typeof(TextBlock));
             //style.BasedOn = ControlManager.GetStyleOfTheme(TextBlock.StyleInfoList);
             return style;
@@ -120,6 +106,7 @@ namespace gip.core.layoutengine
             get { return (bool)GetValue(VBIsReadOnlyProperty); }
             set { SetValue(VBIsReadOnlyProperty, value); }
         }
+
 
         public static readonly DependencyProperty IsEditableProperty
             = DependencyProperty.Register("IsEditable", typeof(bool), typeof(VBDataGridComboBoxColumn), new PropertyMetadata(true));
@@ -402,9 +389,9 @@ namespace gip.core.layoutengine
                     this.Header = this.Root().Environment.TranslateText(dataGrid.ContextACObject, ACCaption);
                 else
                 {
-                valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.HeaderProperty);
-                if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
-                    this.Header = dsColACTypeInfo.ACCaption;
+                    valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.HeaderProperty);
+                    if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+                        this.Header = dsColACTypeInfo.ACCaption;
                 }
 
                 // Set Selected Item
@@ -569,6 +556,8 @@ namespace gip.core.layoutengine
         protected override FrameworkElement GenerateEditingElement(DataGridCell cell, object dataItem)
         {
             VBComboBox comboBox = new VBComboBox();
+            comboBox.MouseEnter += ComboBox_MouseEnter;
+            comboBox.MouseLeave += ComboBox_MouseLeave;
             comboBox.IsEditable = IsEditable;
             comboBox.ShowCaption = false;
             comboBox.VBContent = Const.Value;
@@ -581,6 +570,26 @@ namespace gip.core.layoutengine
             ApplyStyle(true, false, comboBox);
             ApplyColumnProperties(comboBox);
             return comboBox;
+        }
+
+        private void ComboBox_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (DataGridOwner != null && !IsReadOnly)
+            {
+                DataGridCellInfo currentCell = DataGridOwner.CurrentCell;
+                DataGridOwner.BeginEdit();
+                System.Diagnostics.Debug.WriteLine("MouseLeave BeginEdit()");
+            }
+        }
+
+        private void ComboBox_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (DataGridOwner != null && !IsReadOnly)
+            {
+                DataGridCellInfo currentCell = DataGridOwner.CurrentCell;
+                DataGridOwner.CommitEdit();
+                System.Diagnostics.Debug.WriteLine("MouseLeave CommitEdit()");
+            }
         }
 
         /// <summary>
