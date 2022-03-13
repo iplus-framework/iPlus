@@ -513,10 +513,14 @@ namespace gip.core.autocomponent
         public void DeletePWNodeParamValue()
         {
             if (!IsEnabledDeletePWNodeParamValue()) return;
-            ACConfigParam configParam = SelectedPWNodeParamValue;
-            ConfigParamDelete(configParam);
-            RefreshPWNodeParamValueList();
-            SelectedPWNodeParamValue = configParam;
+            if(Messages.Question(this, "Question50083", Global.MsgResult.No) == Global.MsgResult.Yes)
+            {
+                ACConfigParam configParam = SelectedPWNodeParamValue;
+                ConfigParamDelete(configParam);
+                ACSaveChanges();
+                RefreshPWNodeParamValueList();
+                SelectedPWNodeParamValue = configParam;
+            }
         }
 
         public bool IsEnabledDeletePWNodeParamValue()
