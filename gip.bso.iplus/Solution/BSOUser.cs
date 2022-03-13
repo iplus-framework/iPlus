@@ -735,9 +735,29 @@ namespace gip.bso.iplus
             return SelectedUser != null;
         }
 
+
+        [ACMethodInfo("CleanUserDesign", "en{'Clean user designs'}de{'Klar Benutzerdesigns'}", 999 )]
+        
+        public void CleanUserDesign()
+        {
+            if (!IsEnabledCleanUserDesign())
+                return;
+            VBUserACClassDesign[] userClassDesigns = CurrentUser.VBUserACClassDesign_VBUser.ToArray();
+            foreach (VBUserACClassDesign userClassDesign in userClassDesigns)
+            {
+                userClassDesign.DeleteACObject(Database, false);
+                CurrentUser.VBUserACClassDesign_VBUser.Remove(userClassDesign);
+            }
+        }
+
+        public bool IsEnabledCleanUserDesign()
+        {
+            return CurrentUser != null;
+        }
+
         #endregion
 
-        #region Execute-Helper-Handlers
+            #region Execute-Helper-Handlers
 
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
