@@ -422,7 +422,7 @@ namespace gip.core.layoutengine
                 if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
                 {
                     IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
+                    if (bso != null && thisControl.CommandParameter == null)
                         thisControl.DeInitVBControl(bso);
                 }
             }
