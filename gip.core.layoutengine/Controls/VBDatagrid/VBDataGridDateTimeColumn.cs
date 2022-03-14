@@ -401,7 +401,7 @@ namespace gip.core.layoutengine
 
         }
 
-        protected override void RefreshCellContent(FrameworkElement element, string propertyName)
+        protected override void RefreshCellContent(FrameworkElement element, string propertyName)   
         {
             DataGridCell cell = element as DataGridCell;
             if (cell != null && _ACColumnItem != null && _ColACTypeInfo != null)
