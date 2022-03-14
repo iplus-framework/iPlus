@@ -9,6 +9,38 @@ using System.Windows.Data;
 
 namespace gip.core.layoutengine
 {
+    public class IntegerEqualsOrGreaterThan : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double intValue = (int)value;
+            double compareToValue = int.Parse(parameter as string);
+
+            return intValue >= compareToValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class IntegerEqualsOrLessThan : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double intValue = (int)value;
+            double compareToValue = int.Parse(parameter as string);
+
+            return intValue <= compareToValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class DoubleEqualsOrGreaterThan : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
