@@ -37,7 +37,7 @@ namespace gip.core.datamodel
             Dictionary<int, IScheduledOrder> dict = items.ToDictionary(key => key.ScheduledOrder ?? 0, val => val);
             IScheduledOrder firstItem = null;
             IScheduledOrder secondItem = null;
-            for (int i = dict.Count() - 1; i > -1; i--)
+            for (int i = dict.Count(); i > -1; i--)
             {
                 firstItem = null;
                 secondItem = null;
