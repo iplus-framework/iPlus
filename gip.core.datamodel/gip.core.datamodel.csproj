@@ -107,6 +107,7 @@
     <Compile Include="ACContainer\ACMenuItemLight.cs" />
     <Compile Include="ACContainer\InstallImportTypeFilter.cs" />
     <Compile Include="ACHelperclasses\Cryptography\ByteExtensions.cs" />
+    <Compile Include="ACHelperclasses\EntityFramework\ScheduledOrderManager.cs" />
     <Compile Include="ACHelperclasses\Misc4Components\ACActionArgs.cs" />
     <Compile Include="ACHelperclasses\Runtime\ACActivator.cs" />
     <Compile Include="ACHelperclasses\ThreadHandling\ACBackgroundWorker.cs">
@@ -120,6 +121,7 @@
     <Compile Include="ACHelperclasses\ACLicense\DBInfo.cs" />
     <Compile Include="ACHelperclasses\Runtime\TypeResolver.cs" />
     <Compile Include="ACInterfaces\ACEntity\IImageInfo.cs" />
+    <Compile Include="ACInterfaces\ACEntity\IScheduledOrder.cs" />
     <Compile Include="ACInterfaces\ACEntity\MDTrans.cs" />
     <Compile Include="ACInterfaces\ACIPlus\IACVBNoManager.cs" />
     <Compile Include="ACSerialization\ACObjectSerialHelper.cs" />
