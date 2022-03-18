@@ -66,6 +66,7 @@ namespace gip.core.autocomponent
         #region Public Methods
 
         public abstract void ShowDialogOrder(IACComponent caller, PAOrderInfo orderInfo = null);
+        public abstract void ShowDialogComponents(IACComponent caller, PAOrderInfo orderInfo = null);
 
         public abstract bool IsEnabledShowDialogOrder(IACComponent caller);
 
