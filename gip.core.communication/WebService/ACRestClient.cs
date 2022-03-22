@@ -350,7 +350,7 @@ namespace gip.core.communication
                 if (_Client != null)
                     return true;
                 _Client = new HttpClient();
-                _Client.Timeout = TimeOut > TimeSpan.MinValue ? TimeOut : new TimeSpan(0, 0, 15);
+                _Client.Timeout = TimeOut > TimeSpan.Zero ? TimeOut : new TimeSpan(0, 0, 15);
                 _Client.BaseAddress = new Uri(ServiceUrl);
                 OnCreateDefaultRequestHeaders(_Client);
             }

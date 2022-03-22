@@ -277,6 +277,7 @@ namespace gip.core.datamodel
                         string message2 = String.Format("ACClass not created: {0}, {1}", acClass.GetACUrl(), e.InnerException.Message);
                         Database.Root.Messages.LogException(acClass.GetACUrl(), "ACActivator.CreateInstance()", message2);
                     }
+                    Database.Root.Messages.LogException(acClass.GetACUrl(), "ACActivator.CreateInstance()", e.StackTrace);
                 }
                 if (propagateException)
                     throw new ACCreateException(newACObject, message, e);

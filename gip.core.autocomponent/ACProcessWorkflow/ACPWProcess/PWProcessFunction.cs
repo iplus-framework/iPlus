@@ -172,6 +172,12 @@ namespace gip.core.autocomponent
                 _IgnoreConfigStoreValidation = false;
                 _AreConfigurationEntriesValid = false;
             }
+
+            using (ACMonitor.Lock(_50100_LockAcessedPMs))
+            {
+                _AccessedProcessModules = null;
+            }
+
             UnloadCounter = 0;
             RetryUnloadCountDown = C_MaxRetryUnloadCountDown;
 
@@ -183,6 +189,10 @@ namespace gip.core.autocomponent
 
         public override void Recycle(IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
         {
+            using (ACMonitor.Lock(_50100_LockAcessedPMs))
+            {
+                _AccessedProcessModules = null;
+            }
             UnloadCounter = 0;
             RetryUnloadCountDown = C_MaxRetryUnloadCountDown;
             using (ACMonitor.Lock(_20015_LockStoreList))
@@ -1826,45 +1836,36 @@ namespace gip.core.autocomponent
         #region Mapping
 
         private ACMonitorObject _50100_LockAcessedPMs = new ACMonitorObject(50100);
-        private ACMonitorObject _50200_LockAlarmsInPhysicalModel = new ACMonitorObject(50200);
 
         public void OnPWGroupRun(PWGroup pwGroup)
         {
-            if (pwGroup == null || pwGroup.AccessedProcessModule == null)
+            if (pwGroup == null || pwGroup.AccessedProcessModule == null || AccessedProcessModules == null)
                 return;
 
-            using (ACMonitor.Lock(_50100_LockAcessedPMs))
-            {
-                if (AccessedProcessModules.ValueT != null && AccessedProcessModules.ValueT.Any(c => (c.ACUrlParent + "\\" + c.ACIdentifier) == pwGroup.AccessedProcessModule.ACUrl))
-                    return;
+            List<ACChildInstanceInfo> instanceInfoList = AccessedProcessModules.ValueT;
+            if (instanceInfoList != null && instanceInfoList.Any(c => (c.ACUrlParent + "\\" + c.ACIdentifier) == pwGroup.AccessedProcessModule.ACUrl))
+                return;
 
-                RefreshAccessedProcessModules();
-            }
+            RefreshAccessedProcessModules();
         }
 
         public void OnPWGroupIdle(PWGroup pwGroup)
         {
-            using (ACMonitor.Lock(_50100_LockAcessedPMs))
-            {
-                RefreshAccessedProcessModules();
-            }
+            RefreshAccessedProcessModules();
         }
 
-        public void OnHasAlarmChagnedInPhysicalModel(PAProcessModule module)
+        public void OnHasAlarmChangedInPhysicalModel(PAProcessModule module)
         {
             if (module.HasAlarms.ValueT)
             {
-                using (ACMonitor.Lock(_50200_LockAlarmsInPhysicalModel))
-                {
-                    AlarmsInPhysicalModel.ValueT = true;
-                }
+                AlarmsInPhysicalModel.ValueT = true;
             }
             else
             {
                 IEnumerable<PAProcessModule> modules = null;
-                using(ACMonitor.Lock(_50100_LockAcessedPMs))
+                using (ACMonitor.Lock(_50100_LockAcessedPMs))
                 {
-                    modules = _AccessedProcessModules.ToArray();
+                    modules = _AccessedProcessModules?.ToArray();
                 }
 
                 bool anyAlarm = false;
@@ -1872,26 +1873,24 @@ namespace gip.core.autocomponent
                 if (modules != null)
                     anyAlarm = modules.Any(c => c.HasAlarms.ValueT);
 
-                using (ACMonitor.Lock(_50200_LockAlarmsInPhysicalModel))
-                {
-                    AlarmsInPhysicalModel.ValueT = anyAlarm;
-                }
+                AlarmsInPhysicalModel.ValueT = anyAlarm;
             }
         }
 
         private void RefreshAccessedProcessModules()
         {
-            _AccessedProcessModules = FindChildComponents<PWGroup>(c => c is PWGroup).Where(x => x.AccessedProcessModule != null)
+            var processModules = FindChildComponents<PWGroup>(c => c is PWGroup).Where(x => x.AccessedProcessModule != null)
                                                                                      .Select(p => p.AccessedProcessModule).ToArray();
 
-            if (_AccessedProcessModules != null)
+            using (ACMonitor.Lock(_50100_LockAcessedPMs))
             {
-                AccessedProcessModules.ValueT = _AccessedProcessModules.Select(x => new ACChildInstanceInfo(x)).ToList();
+                _AccessedProcessModules = processModules;
             }
+
+            if (processModules != null)
+                AccessedProcessModules.ValueT = processModules.Select(x => new ACChildInstanceInfo(x)).ToList();
             else
-            {
                 AccessedProcessModules.ValueT = new List<ACChildInstanceInfo>();
-            }
             
         }
 

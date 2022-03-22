@@ -73,6 +73,14 @@ namespace gip.core.autocomponent
         #endregion
 
         #region Properties
+        public void ForceCreatePropertyValueLog(Global.MaxRefreshRates maxRefresh = Global.MaxRefreshRates.EventDriven)
+        {
+            if (_PropertyLog != null)
+                return;
+            _PropertyLog = new ACPropertyValueLog<T>(this);
+            _PropertyLog.LogRefreshRate = maxRefresh;
+        }
+
         private ACPropertyValueLog<T> _PropertyLog = null;
         public ACPropertyValueLog<T> PropertyLog
         {

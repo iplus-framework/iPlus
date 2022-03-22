@@ -477,7 +477,7 @@ namespace gip.core.reporthandler.Flowdoc
                     UCDesigner.Document = _ReportDocument.CreateFlowDocument(true);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 UCDesigner.Document = null;
                 _WrongXAML = true;

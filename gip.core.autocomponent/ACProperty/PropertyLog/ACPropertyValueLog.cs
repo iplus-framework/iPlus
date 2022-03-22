@@ -21,6 +21,21 @@ namespace gip.core.autocomponent
             _property2Log = property2Log;
         }
 
+        Global.MaxRefreshRates? _LogRefreshRate;
+        public Global.MaxRefreshRates LogRefreshRate
+        {
+            get
+            {
+                if (_LogRefreshRate.HasValue)
+                    return _LogRefreshRate.Value;
+                return (_property2Log.ACType as ACClassProperty).LogRefreshRate;
+            }
+            set
+            {
+                _LogRefreshRate = value;
+            }
+        }
+
         private T _LastLogValue = default(T);
         private DateTime _LastLogTime = DateTime.MinValue;
         internal void LogCurrentValue()
@@ -55,7 +70,7 @@ namespace gip.core.autocomponent
                 if (IsRefreshCycleElapsed && ApplyFilter_IsLogable)
                 {
                     DateTime dtNow = DateTime.Now;
-                    PropertyLogDict[dtNow] = _property2Log.ValueT;
+                    AddValue(_property2Log.ValueT, dtNow);
                     if ((dtNow - _LastSaveTime).TotalMinutes >= 5)
                     {
                         SaveChanges();
@@ -64,6 +79,12 @@ namespace gip.core.autocomponent
                     _LastLogValue = _property2Log.ValueT;
                 }
             }
+        }
+
+        public void AddValue(T value, DateTime stamp)
+        {
+            if (PropertyLogDict != null)
+                PropertyLogDict[stamp] = value;
         }
 
         internal PropertyLogListInfo GetValues(DateTime from, DateTime to)
@@ -156,7 +177,7 @@ namespace gip.core.autocomponent
                 if (_LastLogTime == DateTime.MinValue)
                     return true;
                 TimeSpan diff = DateTime.Now - _LastLogTime;
-                return diff.IsRefreshRateCycleElapsed((_property2Log.ACType as ACClassProperty).LogRefreshRate);
+                return diff.IsRefreshRateCycleElapsed(LogRefreshRate);
             }
         }
 
@@ -238,11 +259,9 @@ namespace gip.core.autocomponent
 
 
         private DateTime _LastSaveTime = DateTime.Now;
-        internal void SaveChanges(bool isDeInit = false)
+        public void SaveChanges(bool isDeInit = false)
         {
-            if (isDeInit && _PropertyLogDict == null)
-                return;
-            if (PropertyLogDict == null)
+            if (isDeInit || _PropertyLogDict == null)
                 return;
 
             using (ACMonitor.Lock(_property2Log._20015_LockValue))
