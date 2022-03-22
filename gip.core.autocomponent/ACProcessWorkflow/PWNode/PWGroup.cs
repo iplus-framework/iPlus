@@ -871,6 +871,15 @@ namespace gip.core.autocomponent
                 ACSubState.ValueT = value;
             }
         }
+
+        public virtual bool IsPWGroupOrRootPWInSkipMode
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         #endregion
 
 
