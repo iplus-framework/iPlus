@@ -481,7 +481,7 @@ namespace gip.core.reporthandler.Flowdoc
             {
                 UCDesigner.Document = null;
                 _WrongXAML = true;
-                MessageBox.Show(e.Message, "Report Exception", MessageBoxButton.OK, MessageBoxImage.Warning);
+                // MessageBox.Show(e.Message, "Report Exception", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
