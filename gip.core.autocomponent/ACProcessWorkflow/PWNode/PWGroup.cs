@@ -8,6 +8,28 @@ using System.Xml;
 
 namespace gip.core.autocomponent
 {
+
+    public delegate void ProcessModuleChangedEventHandler(object sender, ProcessModuleChangedArgs e);
+
+    public class ProcessModuleChangedArgs : EventArgs
+    {
+        public ProcessModuleChangedArgs(PAProcessModule module, bool removed)
+        {
+            Module = module;
+            Removed = removed;
+        }
+
+        public PAProcessModule Module
+        {
+            get; private set;
+        }
+
+        public bool Removed
+        {
+            get; private set;
+        }
+    }
+
     /// <summary>
     ///   <para>
     /// PWGroup is on the one hand a derivative of PWBaseExecutable and on the other hand it implements the IACComponentPWGroup interface. </para>
@@ -1199,6 +1221,7 @@ namespace gip.core.autocomponent
                 return false;
             if (!TrySemaphore.RemoveFromServicePoint(module, module.Semaphore))
                 return false;
+            _ProcessModuleChanged?.Invoke(this, new ProcessModuleChangedArgs(module, true));
             module.RefreshOrderInfo();
             return true;
         }
@@ -1217,8 +1240,22 @@ namespace gip.core.autocomponent
 
         protected virtual void OnProcessModuleOccupied(PAProcessModule processModule)
         {
+            _ProcessModuleChanged?.Invoke(this, new ProcessModuleChangedArgs(processModule, false));
         }
 
+        private event ProcessModuleChangedEventHandler _ProcessModuleChanged;
+        public event ProcessModuleChangedEventHandler ProcessModuleChanged
+        {
+            add
+            {
+                _ProcessModuleChanged -= value;
+                _ProcessModuleChanged += value;
+            }
+            remove
+            {
+                _ProcessModuleChanged -= value;
+            }
+        }
 
         /// <summary>
         /// Occupies the passed procesmodule if the Configuration-Property "OccupationByScan" was set to true.
@@ -1248,6 +1285,7 @@ namespace gip.core.autocomponent
             {
                 processModule.LastOccupation.ValueT = DateTime.Now;
                 processModule.RefreshOrderInfo();
+                OnProcessModuleOccupied(processModule);
             }
 
             if (IsACStateMethodConsistent(ACStateEnum.SMStarting) < ACStateCompare.WrongACStateMethod)
