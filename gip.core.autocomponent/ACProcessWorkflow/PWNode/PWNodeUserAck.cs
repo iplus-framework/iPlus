@@ -135,6 +135,10 @@ namespace gip.core.autocomponent
         [ACMethodState("en{'Executing'}de{'Ausführend'}", 20, true)]
         public override void SMStarting()
         {
+            RecalcTimeInfo();
+            if (CreateNewProgramLog(NewACMethodWithConfiguration()) <= CreateNewProgramLogResult.ErrorNoProgramFound)
+                return;
+
             RefreshNodeInfoOnModule();
             if (!CPasswordDlg)
                 CurrentACState = ACStateEnum.SMRunning;
