@@ -3481,8 +3481,13 @@ namespace gip.core.autocomponent
                 if (rootWF == null)
                     return null;
 
-                if (acClassMethod.MustRefreshACClassWF)
-                    rootWF.AutoRefresh();
+                if (acClassMethod.MustRefreshACClassWF && acClassMethod.Database != null)
+                {
+                    using (ACMonitor.Lock(acClassMethod.Database.QueryLock_1X000))
+                    {
+                        rootWF.AutoRefresh();
+                    }
+                }
 
                 // Typ muss vom globalen Context sein
                 ACClass typeOfWFRoot = Root.Database.ContextIPlus.GetACType(rootWF.PWACClassID);

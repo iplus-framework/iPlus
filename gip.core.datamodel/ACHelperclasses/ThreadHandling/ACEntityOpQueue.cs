@@ -305,7 +305,7 @@ namespace gip.core.datamodel
                         {
                             Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(0)", "ACSaveChanges failed");
                             Database.Root.Messages.LogMessageMsg(msg);
-                            if (_SaveChangesRetriesA < 2 && ACObjectContextHelper.IsDisconnectedException(msg))
+                            if (_SaveChangesRetriesA <= 3 && ACObjectContextHelper.IsDisconnectedException(msg))
                             {
                                 Add(() => { Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(1)", "Try to exceute ACSaveChanges again"); } );
                                 _SaveChangesRetriesA++;
@@ -350,7 +350,7 @@ namespace gip.core.datamodel
                             {
                                 Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(10)", "ContextIPlus.ACSaveChanges failed");
                                 Database.Root.Messages.LogMessageMsg(msg);
-                                if (_SaveChangesRetriesB < 2 && ACObjectContextHelper.IsDisconnectedException(msg))
+                                if (_SaveChangesRetriesB <= 3 && ACObjectContextHelper.IsDisconnectedException(msg))
                                 {
                                     Add(() => { Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(11)", "Try to exceute ACSaveChanges again"); });
                                     _SaveChangesRetriesB++;
