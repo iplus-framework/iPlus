@@ -103,19 +103,6 @@ namespace gip.core.autocomponent
             return pAProcessFunction;
         }
 
-        public void ActivateProcessAlarmWithLog(Msg msg, bool autoAck = true)
-        {
-            if (IsAlarmActive(ProcessAlarm, msg.Message) == null)
-                Messages.LogMessageMsg(msg);
-            ActivateProcessAlarm(msg, autoAck);
-        }
-
-        public void ActivateProcessAlarm(Msg msg, bool autoAck = true)
-        {
-            OnNewAlarmOccurred(ProcessAlarm, msg, autoAck);
-            ProcessAlarm.ValueT = PANotifyState.AlarmOrFault;
-        }
-
         #endregion
 
         #region ACState

@@ -64,7 +64,10 @@ namespace gip.core.processapplication
         protected override void OnResetActualWeight()
         {
             base.OnResetActualWeight();
-            TotalActualWeight.ValueT = 0;
+            if (   IsInternalActualWeightCalculation 
+                && IsVisibleExtActualWeight != null 
+                && !IsVisibleExtActualWeight.ValueT)
+                TotalActualWeight.ValueT = 0;
         }
 
 
@@ -76,7 +79,10 @@ namespace gip.core.processapplication
         protected override void RecalcActualWeight()
         {
             base.RecalcActualWeight();
-            if (ActualWeight != null)
+            if (   ActualWeight != null 
+                && IsInternalActualWeightCalculation 
+                && IsVisibleExtActualWeight != null 
+                && !IsVisibleExtActualWeight.ValueT)
                 TotalActualWeight.ValueT = ActualWeight.ValueT;
         }
         #endregion
