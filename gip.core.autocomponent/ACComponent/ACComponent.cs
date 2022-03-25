@@ -538,7 +538,8 @@ namespace gip.core.autocomponent
                 appManager.ACCompUrlDict.RemoveComponent(this);
             }
 
-            ACDeInitEvent.Raise(new ACEventArgs());
+            if (ACDeInitEvent != null)
+                ACDeInitEvent.Raise(new ACEventArgs());
 
             if (ParentACComponent != null)
             {
@@ -546,7 +547,8 @@ namespace gip.core.autocomponent
             }
 
             ACDeInitACProperties(deleteACClassTask);
-            _ReferenceList.DetachAndClear();
+            if (_ReferenceList != null)
+                _ReferenceList.DetachAndClear();
             using (ACMonitor.Lock(LockMemberList_20020))
             {
                 using (ACMonitor.Lock(LockMemberList_20020))

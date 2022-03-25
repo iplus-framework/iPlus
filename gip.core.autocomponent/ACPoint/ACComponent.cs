@@ -172,13 +172,17 @@ namespace gip.core.autocomponent
 
         private void ACDeInitACPoints(bool deleteACClassTask = false)
         {
-            using (ACMonitor.Lock(LockMemberList_20020))
+            var pointList = ACPointList;
+            if (pointList != null)
             {
-                foreach (var member in ACPointList)
+                using (ACMonitor.Lock(LockMemberList_20020))
                 {
-                    member.ACDeInit(deleteACClassTask);
-                    if (InitState == ACInitState.Destructing)
-                        ACMemberList.Remove(member);
+                    foreach (var member in pointList)
+                    {
+                        member.ACDeInit(deleteACClassTask);
+                        if (InitState == ACInitState.Destructing)
+                            ACMemberList.Remove(member);
+                    }
                 }
             }
         }
@@ -225,6 +229,8 @@ namespace gip.core.autocomponent
 
                 using (ACMonitor.Lock(LockMemberList_20020))
                 {
+                    if (ACMemberList == null)
+                        return null;
                     return ACMemberList.Where(c => c is IACPointBase).Select(c => c as IACPointBase).ToList();
                 }
             }

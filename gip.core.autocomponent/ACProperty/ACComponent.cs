@@ -170,6 +170,8 @@ namespace gip.core.autocomponent
             {
                 using (ACMonitor.Lock(LockMemberList_20020))
                 {
+                    if (ACMemberList == null)
+                        return null;
                     return ACMemberList.Where(c => c is IACPropertyBase).Select(c => c as IACPropertyBase).ToList();
                 }
             }
@@ -634,18 +636,21 @@ namespace gip.core.autocomponent
             }
 
             var list = this.ACPropertyList;
-            foreach (IACPropertyBase member in list)
-            {
-                member.ACDeInit(deleteACClassTask);
-            }
-
-            using (ACMonitor.Lock(LockMemberList_20020))
+            if (list != null)
             {
                 foreach (IACPropertyBase member in list)
                 {
-                    // Wäre nur notwendig beim Heruntefahren
-                    if (InitState == ACInitState.Destructing)
-                        ACMemberList.Remove(member);
+                    member.ACDeInit(deleteACClassTask);
+                }
+
+                using (ACMonitor.Lock(LockMemberList_20020))
+                {
+                    foreach (IACPropertyBase member in list)
+                    {
+                        // Wäre nur notwendig beim Heruntefahren
+                        if (InitState == ACInitState.Destructing)
+                            ACMemberList.Remove(member);
+                    }
                 }
             }
 
