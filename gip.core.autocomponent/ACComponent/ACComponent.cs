@@ -366,7 +366,7 @@ namespace gip.core.autocomponent
                                     .ToArray()
                                     .Where(c => !c.IsACComponentInitialized);
                         if (subTasks != null && subTasks.Any())
-                            querySafeTaskType = subTasks.Select(c => new SafeTaskType() { Task = c, TaskType = c.TaskTypeACClass });
+                            querySafeTaskType = subTasks.Select(c => new SafeTaskType() { Task = c, TaskType = c.TaskTypeACClass }).ToArray();
                     });
 
                     if (querySafeTaskType != null && querySafeTaskType.Any())

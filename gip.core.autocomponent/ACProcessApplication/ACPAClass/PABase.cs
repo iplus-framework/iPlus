@@ -971,7 +971,12 @@ namespace gip.core.autocomponent
                 acProgram = pwFunction.CurrentACProgram;
             }
             else if (parentProgramLog != null)
-                acProgram = parentProgramLog.ACProgram;
+            {
+                ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                {
+                    acProgram = parentProgramLog.ACProgram;
+                });
+            }
 
             if (acProgram != null)
             {

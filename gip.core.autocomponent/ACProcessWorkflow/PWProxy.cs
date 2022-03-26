@@ -37,7 +37,10 @@ namespace gip.core.autocomponent
             else if (content is ACClassTask)
             {
                 ACClassTask acClassTask = content as ACClassTask;
-                _ContentACClassWF = acClassTask.ContentACClassWF;
+                using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                {
+                    _ContentACClassWF = acClassTask.ContentACClassWF;
+                }
             }
         }
 

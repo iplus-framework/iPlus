@@ -55,8 +55,11 @@ namespace gip.core.datamodel
             // Bei Systembelegung gibt es keine Vorbelegung, da hier kein Customizing erwünscht ist
             if (parentACObject is ACClassTask)
             {
-                entity.ACClassTask1_ParentACClassTask = parentACObject as ACClassTask;
-                entity.IsTestmode = entity.ACClassTask1_ParentACClassTask.IsTestmode;
+                using (ACMonitor.Lock(database.QueryLock_1X000))
+                {
+                    entity.ACClassTask1_ParentACClassTask = parentACObject as ACClassTask;
+                    entity.IsTestmode = entity.ACClassTask1_ParentACClassTask.IsTestmode;
+                }
             }
             else
             {
@@ -97,6 +100,14 @@ namespace gip.core.datamodel
         {
             get
             {
+                var context = this.GetObjectContext();
+                if (context != null)
+                {
+                    using (ACMonitor.Lock(context.QueryLock_1X000))
+                    {
+                        return ACClassTask1_ParentACClassTask;
+                    }
+                }
                 return ACClassTask1_ParentACClassTask;
             }
         }

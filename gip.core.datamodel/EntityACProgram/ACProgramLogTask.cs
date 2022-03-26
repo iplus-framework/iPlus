@@ -59,6 +59,14 @@ namespace gip.core.datamodel
         {
             get
             {
+                var context = this.GetObjectContext();
+                if (context != null)
+                {
+                    using (ACMonitor.Lock(context.QueryLock_1X000))
+                    {
+                        return this.ACProgramLog;
+                    }
+                }
                 return this.ACProgramLog;
             }
         }

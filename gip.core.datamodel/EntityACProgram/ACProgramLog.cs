@@ -31,7 +31,12 @@ namespace gip.core.datamodel
             ACProgramLog entity = new ACProgramLog();
             entity.ACProgramLogID = Guid.NewGuid();
             if (parentACObject is ACProgram)
-                entity.ACProgram = parentACObject as ACProgram;
+            {
+                using (ACMonitor.Lock(database.QueryLock_1X000))
+                {
+                    entity.ACProgram = parentACObject as ACProgram;
+                }
+            }
             entity.DefaultValuesACObject();
             entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
@@ -69,6 +74,14 @@ namespace gip.core.datamodel
         {
             get
             {
+                var context = this.GetObjectContext();
+                if (context != null)
+                {
+                    using (ACMonitor.Lock(context.QueryLock_1X000))
+                    {
+                        return this.ACProgram;
+                    }
+                }
                 return this.ACProgram;
             }
         }

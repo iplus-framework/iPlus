@@ -47,7 +47,10 @@ namespace gip.core.datamodel
             entity.DefaultValuesACObject();
             if (parentACObject is ACClassTask)
             {
-                entity.ACClassTask = parentACObject as ACClassTask;
+                using (ACMonitor.Lock(database.QueryLock_1X000))
+                {
+                    entity.ACClassTask = parentACObject as ACClassTask;
+                }
             }
             entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
@@ -63,7 +66,10 @@ namespace gip.core.datamodel
         public static ACClassTaskValue NewACClassTaskValue(Database database, IACObject parentACObject, IACType acClassProperty)
         {
             ACClassTaskValue entity = ACClassTaskValue.NewACObject(database, parentACObject);
-            entity.ACClassProperty = acClassProperty as ACClassProperty;
+            using (ACMonitor.Lock(database.QueryLock_1X000))
+            {
+                entity.ACClassProperty = acClassProperty as ACClassProperty;
+            }
             entity.EntityCheckAdded(database.UserName, database);
             return entity;
         }
@@ -84,6 +90,14 @@ namespace gip.core.datamodel
         {
             get
             {
+                var context = this.GetObjectContext();
+                if (context != null)
+                {
+                    using (ACMonitor.Lock(context.QueryLock_1X000))
+                    {
+                        return ACClassProperty.ACCaption;
+                    }
+                }
                 return ACClassProperty.ACCaption;
             }
         }
@@ -98,6 +112,14 @@ namespace gip.core.datamodel
         {
             get
             {
+                var context = this.GetObjectContext();
+                if (context != null)
+                {
+                    using (ACMonitor.Lock(context.QueryLock_1X000))
+                    {
+                        return ACClassProperty;
+                    }
+                }
                 return ACClassProperty;
             }
         }
@@ -114,7 +136,7 @@ namespace gip.core.datamodel
         /// <returns>NULL if sucessful otherwise a Message-List</returns>
         public override IList<Msg> EntityCheckAdded(string user, IACEntityObjectContext context)
         {
-            if ((ACClassTask == null) || (ACClassProperty == null))
+            if ((this.ACClassTaskID == Guid.Empty) || (ACClassPropertyID == Guid.Empty))
             {
                 List<Msg> messages = new List<Msg>();
                 messages.Add(new Msg
