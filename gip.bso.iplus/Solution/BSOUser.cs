@@ -876,7 +876,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Source Property: ReplaceBSO
         /// </summary>
-        [ACMethodInfo("ReplaceBSO", "en{'Replace'}de{'Ersetzen'}", 999)]
+        [ACMethodInfo("ReplaceBSO", "en{'Replace'}de{'Ersetzen'}", 500, true)]
         public void ReplaceBSO()
         {
             if (!IsEnabledReplaceBSO())
