@@ -20,6 +20,7 @@ using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.manager;
 using System.Data.Objects;
+using System.Text.RegularExpressions;
 
 namespace gip.bso.iplus
 {
@@ -54,6 +55,11 @@ namespace gip.bso.iplus
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
             //DatabaseMode = DatabaseModes.OwnDB;
+
+            _StartDelimiterString = new ACPropertyConfigValue<string>(this, "StartDelimiterString", "#");
+            _EndDelimiterDesignString = new ACPropertyConfigValue<string>(this, "EndDelimiterDesignString", @"""");
+            _EndDelimiterFavoritesString = new ACPropertyConfigValue<string>(this, "EndDelimiterFavoritesString", "<");
+
         }
 
         /// <summary>
@@ -66,6 +72,10 @@ namespace gip.bso.iplus
             if (!base.ACInit(startChildMode))
                 return false;
             _UserManager = new ACUserManager(Db, Root);
+
+            _ = _StartDelimiterString.ValueT;
+            _ = _EndDelimiterDesignString.ValueT;
+            _ = _EndDelimiterFavoritesString.ValueT;
 
             Search();
             return true;
@@ -139,6 +149,8 @@ namespace gip.bso.iplus
         #endregion
 
         #region Properties
+
+        #region Properties -> AccessNav
         public override IAccessNav AccessNav { get { return AccessPrimary; } }
         /// <summary>
         /// Dies sind die vom BSO verwendeten Datenentitäten.
@@ -417,6 +429,110 @@ namespace gip.bso.iplus
             }
         }
         ///////////////////////////////////////////////////////////////////////
+
+        #endregion
+
+
+        #region Properties -> User Design replaces
+        private ACPropertyConfigValue<string> _StartDelimiterString;
+        [ACPropertyConfig("en{'Initial sign of separation'}de{'Erste Zeichen der Trennung'}")]
+        public string StartDelimiterString
+        {
+            get
+            {
+                return _StartDelimiterString.ValueT;
+            }
+            set
+            {
+                if (_StartDelimiterString.ValueT != value)
+                {
+                    _StartDelimiterString.ValueT = value;
+                    OnPropertyChanged(nameof(StartDelimiterString));
+                }
+            }
+        }
+
+        private ACPropertyConfigValue<string> _EndDelimiterDesignString;
+        [ACPropertyConfig("en{'Ending sign of separation (Design)'}de{'Das letzte Zeichen der Trennung (Design)'}")]
+        public string EndDelimiterDesignString
+        {
+            get
+            {
+                return _EndDelimiterDesignString.ValueT;
+            }
+            set
+            {
+                if (_EndDelimiterDesignString.ValueT != value)
+                {
+                    _EndDelimiterDesignString.ValueT = value;
+                    OnPropertyChanged(nameof(EndDelimiterDesignString));
+                }
+            }
+        }
+
+        private ACPropertyConfigValue<string> _EndDelimiterFavoritesString;
+        [ACPropertyConfig("en{'Ending sign of separation (Favorite)'}de{'Das letzte Zeichen der Trennung (Favorite)'}")]
+        public string EndDelimiterFavoritesString
+        {
+            get
+            {
+                return _EndDelimiterFavoritesString.ValueT;
+            }
+            set
+            {
+                if (_EndDelimiterFavoritesString.ValueT != value)
+                {
+                    _EndDelimiterFavoritesString.ValueT = value;
+                    OnPropertyChanged(nameof(EndDelimiterFavoritesString));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Source Property: 
+        /// </summary>
+        private string _SourceBSO;
+        [ACPropertySelected(999, "SourceBSO", "en{'Source BSO'}de{'Quelle BSO'}")]
+        public string SourceBSO
+        {
+            get
+            {
+                return _SourceBSO;
+            }
+            set
+            {
+                if (_SourceBSO != value)
+                {
+                    _SourceBSO = value;
+                    OnPropertyChanged("SourceBSO");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Source Property: 
+        /// </summary>
+        private string _TargetBSO;
+        [ACPropertySelected(999, "TargetBSO", "en{'Target BSO'}de{'Ziel BSO'}")]
+        public string TargetBSO
+        {
+            get
+            {
+                return _TargetBSO;
+            }
+            set
+            {
+                if (_TargetBSO != value)
+                {
+                    _TargetBSO = value;
+                    OnPropertyChanged("TargetBSO");
+                }
+            }
+        }
+
+
+        #endregion
+
         #endregion
 
         #region Methods
@@ -688,7 +804,7 @@ namespace gip.bso.iplus
 
             foreach (var prevUserProject in SelectedUser.VBUserACProject_VBUser)
             {
-                VBUserACProject vBUserACProject =  VBUserACProject.NewACObject(_BSODatabase, clonedUser);
+                VBUserACProject vBUserACProject = VBUserACProject.NewACObject(_BSODatabase, clonedUser);
                 vBUserACProject.ACProject = prevUserProject.ACProject;
                 vBUserACProject.IsClient = prevUserProject.IsClient;
                 vBUserACProject.IsServer = prevUserProject.IsServer;
@@ -736,8 +852,8 @@ namespace gip.bso.iplus
         }
 
 
-        [ACMethodInfo("CleanUserDesign", "en{'Clean user designs'}de{'Klar Benutzerdesigns'}", 999 )]
-        
+        [ACMethodInfo("CleanUserDesign", "en{'Clean user designs'}de{'Klar Benutzerdesigns'}", 999)]
+
         public void CleanUserDesign()
         {
             if (!IsEnabledCleanUserDesign())
@@ -755,9 +871,54 @@ namespace gip.bso.iplus
             return CurrentUser != null;
         }
 
+        #region Methdds -> User Design replaces
+
+        /// <summary>
+        /// Source Property: ReplaceBSO
+        /// </summary>
+        [ACMethodInfo("ReplaceBSO", "en{'Replace'}de{'Ersetzen'}", 999)]
+        public void ReplaceBSO()
+        {
+            if (!IsEnabledReplaceBSO())
+                return;
+            int matchDesign = 0;
+            VBUserACClassDesign[] designs = Database.ContextIPlus.VBUserACClassDesign.ToArray();
+            foreach (VBUserACClassDesign dsg in designs)
+            {
+                string xml = dsg.XMLDesign;
+                MatchCollection matches = Regex.Matches(xml, StartDelimiterString + SourceBSO + EndDelimiterDesignString);
+                matchDesign += matches.Count;
+                if (matches.Count > 0)
+                    xml = xml.Replace(StartDelimiterString + SourceBSO + EndDelimiterDesignString, StartDelimiterString + TargetBSO + EndDelimiterDesignString);
+
+                matches = Regex.Matches(xml, StartDelimiterString + SourceBSO + EndDelimiterFavoritesString);
+                matchDesign += matches.Count;
+                if (matches.Count > 0)
+                    xml = xml.Replace(StartDelimiterString + SourceBSO + EndDelimiterFavoritesString, StartDelimiterString + TargetBSO + EndDelimiterFavoritesString);
+
+                if (matchDesign > 0)
+                    dsg.XMLDesign = xml;
+            }
+            if (matchDesign > 0)
+            {
+                ACSaveChanges();
+                SourceBSO = null;
+                TargetBSO = null;
+            }
+            Messages.Info(this, "Info50083", false, matchDesign);
+        }
+
+        public bool IsEnabledReplaceBSO()
+        {
+            return !string.IsNullOrEmpty(SourceBSO) && !string.IsNullOrEmpty(TargetBSO);
+        }
+
+
         #endregion
 
-            #region Execute-Helper-Handlers
+        #endregion
+
+        #region Execute-Helper-Handlers
 
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
@@ -829,7 +990,6 @@ namespace gip.bso.iplus
         }
 
         #endregion
-
 
     }
 }
