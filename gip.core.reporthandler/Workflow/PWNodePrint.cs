@@ -124,7 +124,7 @@ namespace gip.core.reporthandler
                         msg = printManager.Print(orderInfo, NumberOfCopies, null, MaxPrintJobsInSpooler);
                         //msg = printManager.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + ACPrintManager.MN_Print, orderInfo, NumberOfCopies) as Msg;
                 }
-                if (msg != null)
+                if (msg != null && msg.MessageLevel > eMsgLevel.Info)
                 {
                     OnNewAlarmOccurred(ProcessAlarm, msg, true);
                     if (IsAlarmActive(ProcessAlarm, msg.Message) != null)

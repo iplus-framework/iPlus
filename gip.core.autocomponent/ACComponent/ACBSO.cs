@@ -709,7 +709,7 @@ namespace gip.core.autocomponent
         /// <param name="numberOfCopies">The number of copies.</param>
         /// <param name="maxPrintJobsInSpooler">Max Print Jobs in Queue</param>
         /// <returns></returns>
-        public virtual Msg PrintByOrderInfo(PAOrderInfo paOrderInfo, string printerName, short numberOfCopies, string designName = null, int maxPrintJobsInSpooler = 0)
+        public virtual Msg PrintByOrderInfo(PAOrderInfo paOrderInfo, string printerName, short numberOfCopies, string designName = null, int maxPrintJobsInSpooler = 0, bool preventClone = true)
         {
             Msg msg = FilterByOrderInfo(paOrderInfo);
             if (msg != null)
@@ -721,7 +721,7 @@ namespace gip.core.autocomponent
                 Messages.Error(this, string.Format(@"Report {0} doesn't exist!", designName));
                 return new Msg();
             }
-            msg = PrintDesign(printDesign, printerName, numberOfCopies, false, maxPrintJobsInSpooler: maxPrintJobsInSpooler);
+            msg = PrintDesign(printDesign, printerName, numberOfCopies, false, maxPrintJobsInSpooler: maxPrintJobsInSpooler, preventClone: preventClone);
             return msg;
         }
 

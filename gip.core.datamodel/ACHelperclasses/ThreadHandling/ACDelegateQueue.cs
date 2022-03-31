@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Windows.Threading;
 
 namespace gip.core.datamodel
 {
@@ -354,9 +355,9 @@ namespace gip.core.datamodel
                         }
                         actionCounter++;
 
-                        if (_syncQueue != null 
-                            && !_syncQueue.NewItemsEnqueueable 
-                            && _syncQueue.TerminationTimeout.HasValue 
+                        if (_syncQueue != null
+                            && !_syncQueue.NewItemsEnqueueable
+                            && _syncQueue.TerminationTimeout.HasValue
                             && DateTime.Now > _syncQueue.TerminationTimeout.Value)
                             break;
                     }
@@ -376,7 +377,7 @@ namespace gip.core.datamodel
                         {
                             RetryDelegateQueue.Clear();
                         }
-                        Database.Root.Messages.LogError(_InstanceName,"ACDelegateQueue.Work(3)", "RetryDelegateQueue cleared. Actions could not be perforemd because of not solveable Deadlocks.");
+                        Database.Root.Messages.LogError(_InstanceName, "ACDelegateQueue.Work(3)", "RetryDelegateQueue cleared. Actions could not be perforemd because of not solveable Deadlocks.");
                         _CountRetryDelegate = 0;
                     }
                     else
@@ -470,6 +471,36 @@ namespace gip.core.datamodel
         protected virtual void OnQueueProcessed(int countActions)
         {
         }
-#endregion
+        #endregion
+    }
+
+    public class ACDispatchedDelegateQueue : ACDelegateQueue
+    {
+        public ACDispatchedDelegateQueue(string instanceName) : base(instanceName)
+        {
+        }
+
+        public ACDispatchedDelegateQueue(string instanceName, int workerInterval_ms) : base(instanceName, workerInterval_ms)
+        {
+        }
+
+        public override void ProcessAction(Action action)
+        {
+            Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.Normal, action);
+            GC.Collect();
+        }
+
+        #region Properties
+        private static ACDispatchedDelegateQueue _PrintQueue = null;
+        public static ACDispatchedDelegateQueue PrintQueue
+        {
+            get
+            {
+                if (_PrintQueue == null)
+                    _PrintQueue = new ACDispatchedDelegateQueue(RootDbOpQueue.ClassName + "." + nameof(PrintQueue));
+                return _PrintQueue;
+            }
+        }
+        #endregion
     }
 }

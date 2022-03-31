@@ -144,6 +144,7 @@ namespace gip.core.autocomponent
                 ACClassTaskQueue.TaskQueue.StartWorkerThread();
                 RootDbOpQueue.AppContextQueue.StartWorkerThread();
                 GarbageCollector.Instance.StartWorkerThread();
+                ACDispatchedDelegateQueue.PrintQueue.StartWorkerThreadSTA();
                 Dispatcher.StartWorkerThread();
 
                 try
@@ -408,6 +409,7 @@ namespace gip.core.autocomponent
             if (_Root == this)
             {
                 Dispatcher.StopWorkerThread();
+                ACDispatchedDelegateQueue.PrintQueue.StopWorkerThread();
                 GarbageCollector.Instance.StopWorkerThread();
                 ACClassTaskQueue.TaskQueue.StopWorkerThread();
                 RootDbOpQueue.AppContextQueue.StopWorkerThread();

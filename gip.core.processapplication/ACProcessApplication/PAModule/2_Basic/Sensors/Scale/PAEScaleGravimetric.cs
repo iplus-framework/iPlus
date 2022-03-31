@@ -35,10 +35,9 @@ namespace gip.core.processapplication
         {
             if (!base.ACInit(startChildMode))
                 return false;
-            bool tare = _TareInternal.ValueT;
-            double tol = _TolerancePlus.ValueT;
-            tol = _ToleranceMinus.ValueT;
-
+            _ = _TareInternal.ValueT;
+            _ = _TolerancePlus.ValueT;
+            _ = _ToleranceMinus.ValueT;
             return true;
         }
 

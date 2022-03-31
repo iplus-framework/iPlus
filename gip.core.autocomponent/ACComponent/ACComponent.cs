@@ -4845,7 +4845,7 @@ namespace gip.core.autocomponent
         /// <param name="maxPrintJobsInSpooler">Max Print Jobs in Queue</param>
         /// <returns></returns>
         public virtual Msg PrintDesign(ACClassDesign design, string printerName, int numberOfCopies, bool withDialog, Global.CurrentOrList selectMode = Global.CurrentOrList.Current, 
-                                       ACQueryDefinition queryDefinition = null, int maxPrintJobsInSpooler = 0)
+                                       ACQueryDefinition queryDefinition = null, int maxPrintJobsInSpooler = 0, bool preventClone = false)
         {
             if (design == null)
                 return new Msg("The parameter design is null!", this, eMsgLevel.Error, "ACComponent", "PrintDesign(10)", 4622);
@@ -4862,29 +4862,33 @@ namespace gip.core.autocomponent
                 if (acReportComp != null)
                 {
                     bool cloneInstantiated = false;
-                    ReportData reportData = ReportData.BuildReportData(out cloneInstantiated, selectMode, this, queryDefinition, design);
+                    ReportData reportData = ReportData.BuildReportData(out cloneInstantiated, selectMode, this, queryDefinition, design, preventClone);
                     Msg msg = null;
 
                     if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
                     {
-                        var t = new Thread(() =>
+                        using (EventWaitHandle waitHandle = new EventWaitHandle(false, EventResetMode.AutoReset))
                         {
-                            try
+                            ACDispatchedDelegateQueue.PrintQueue.Add(() =>
                             {
-                                msg = acReportComp.Print(design, withDialog, printerName, reportData, numberOfCopies, maxPrintJobsInSpooler);
-                            }
-                            catch (Exception ex2)
-                            {
-                                string message = ex2.Message;
-                                if (ex2.InnerException != null)
-                                    message += ex2.InnerException.Message;
-                                msg = new Msg(ex2.Message, this, eMsgLevel.Exception, this.GetType().AssemblyQualifiedName, "PrintDesign(40)", 40);
-                            }
-                        });
-                        t.SetApartmentState(ApartmentState.STA);
-                        t.IsBackground = false;
-                        t.Start();
-                        t.Join();
+                                try
+                                {
+                                    msg = acReportComp.Print(design, withDialog, printerName, reportData, numberOfCopies, maxPrintJobsInSpooler);
+                                }
+                                catch (Exception ex2)
+                                {
+                                    string message = ex2.Message;
+                                    if (ex2.InnerException != null)
+                                        message += ex2.InnerException.Message;
+                                    msg = new Msg(ex2.Message, this, eMsgLevel.Exception, this.GetType().AssemblyQualifiedName, "PrintDesign(40)", 40);
+                                }
+                                finally
+                                {
+                                    waitHandle.Set();
+                                }
+                            });
+                            waitHandle.WaitOne();
+                        }
                     }
                     else
                     {

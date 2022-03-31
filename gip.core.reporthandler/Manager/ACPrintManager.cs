@@ -21,16 +21,19 @@ namespace gip.core.reporthandler
         public ACPrintManager(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
            : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-
+            _QueuedPrinting = new ACPropertyConfigValue<bool>(this, "QueuedPrinting", true);
         }
+
         public const string C_DefaultServiceACIdentifier = "ACPrintManager";
         public const string C_ClassName = "ACPrintManager";
 
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
-            bool baseACInit = base.ACInit(startChildMode);
-            return baseACInit;
+            if (!base.ACInit(startChildMode))
+                return false;
+            _ = _QueuedPrinting.ValueT;
+            return true;
         }
         #endregion
 
@@ -50,6 +53,20 @@ namespace gip.core.reporthandler
         #endregion
 
         #region Properties
+
+        private ACPropertyConfigValue<bool> _QueuedPrinting;
+        [ACPropertyConfig("en{'Queued Printing'}de{'Paralleles Drucken in Warteschlange'}")]
+        public bool QueuedPrinting
+        {
+            get
+            {
+                return _QueuedPrinting.ValueT;
+            }
+            set
+            {
+                _QueuedPrinting.ValueT = value;
+            }
+        }
 
 
         #region Properties -> ConfiguredPrinters
@@ -107,51 +124,105 @@ namespace gip.core.reporthandler
 
                 if (String.IsNullOrEmpty(printInfo.PrinterInfo.PrinterACUrl))
                 {
-                    // first fetch a BSO
-                    ACBSO bso = null;
-                    // TODO: @aagincic place for implement BSO Pool
-                    try
+                    if (QueuedPrinting)
                     {
-                        string acIdentifier = printInfo.BSOACUrl.Substring(printInfo.BSOACUrl.IndexOf("#") + 1);
-                        ACClass bsoACClass = Root.Database.ContextIPlus.GetACType(acIdentifier);
-                        bso = StartComponent(bsoACClass, bsoACClass,
-                            new ACValueList()
+                        ACDispatchedDelegateQueue.PrintQueue.Add(() =>
+                        {
+                            ACBSO bso = null;
+                            // TODO: @aagincic place for implement BSO Pool
+                            try
                             {
+                                string acIdentifier = printInfo.BSOACUrl.Substring(printInfo.BSOACUrl.IndexOf("#") + 1);
+                                ACClass bsoACClass = Root.Database.ContextIPlus.GetACType(acIdentifier);
+                                bso = StartComponent(bsoACClass, bsoACClass,
+                                    new ACValueList()
+                                    {
                                 new ACValue(Const.ParamSeperateContext, typeof(bool), true),
                                 new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
-                            }) as ACBSO;
-                        if (bso == null)
-                        {
-                            // Error50489: Can't start Businessobject {0}.
-                            msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1020, "Error50489", printInfo.BSOACUrl);
-                            return msg;
-                        }
+                                    }) as ACBSO;
+                                if (bso == null)
+                                {
+                                    // Error50489: Can't start Businessobject {0}.
+                                    msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1020, "Error50489", printInfo.BSOACUrl);
+                                    Messages.LogMessageMsg(msg);
+                                }
 
-                        msg = bso.PrintByOrderInfo(pAOrderInfo, printInfo.PrinterInfo.PrinterName, (short)copyCount, printInfo.ReportACIdentifier, maxPrintJobsInSpooler);
-                        if (msg != null)
-                            return msg;
-                        else
-                        {
-                            // Info50078 Successfully printed on {0}.
-                            return new Msg(this, eMsgLevel.Info, C_ClassName, "Print", 1020, "Info50078", printInfo.PrinterInfo.PrinterName);
-                        }
+                                msg = bso.PrintByOrderInfo(pAOrderInfo, printInfo.PrinterInfo.PrinterName, (short)copyCount, printInfo.ReportACIdentifier, maxPrintJobsInSpooler, true);
+                                if (msg != null)
+                                {
+                                    Messages.LogMessageMsg(msg);
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                msg = new Msg(e.Message, this, eMsgLevel.Exception, C_ClassName, "Print", 1040);
+                                Messages.LogException(this.GetACUrl(), msg.ACIdentifier, e);
+                            }
+                            finally
+                            {
+                                try
+                                {
+                                    if (bso != null)
+                                        bso.Stop();
+                                }
+                                catch (Exception e)
+                                {
+                                    msg = new Msg(e.Message, this, eMsgLevel.Exception, C_ClassName, "Print", 1050);
+                                    Messages.LogException(this.GetACUrl(), msg.ACIdentifier, e);
+                                }
+                            }
+                        });
+                        // Info50078 Successfully printed on {0}.
+                        return new Msg(this, eMsgLevel.Info, C_ClassName, "Print", 1020, "Info50078", printInfo.PrinterInfo.PrinterName);
                     }
-                    catch (Exception e)
+                    else
                     {
-                        msg = new Msg(e.Message, this, eMsgLevel.Exception, C_ClassName, "Print", 1040);
-                        Messages.LogException(this.GetACUrl(), msg.ACIdentifier, e);
-                    }
-                    finally
-                    {
+
+                        ACBSO bso = null;
+                        // TODO: @aagincic place for implement BSO Pool
                         try
                         {
-                            if (bso != null)
-                                bso.Stop();
+                            string acIdentifier = printInfo.BSOACUrl.Substring(printInfo.BSOACUrl.IndexOf("#") + 1);
+                            ACClass bsoACClass = Root.Database.ContextIPlus.GetACType(acIdentifier);
+                            bso = StartComponent(bsoACClass, bsoACClass,
+                                new ACValueList()
+                                {
+                                new ACValue(Const.ParamSeperateContext, typeof(bool), true),
+                                new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
+                                }) as ACBSO;
+                            if (bso == null)
+                            {
+                                // Error50489: Can't start Businessobject {0}.
+                                msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1020, "Error50489", printInfo.BSOACUrl);
+                                return msg;
+                            }
+
+                            msg = bso.PrintByOrderInfo(pAOrderInfo, printInfo.PrinterInfo.PrinterName, (short)copyCount, printInfo.ReportACIdentifier, maxPrintJobsInSpooler, true);
+                            if (msg != null)
+                                return msg;
+                            else
+                            {
+                                // Info50078 Successfully printed on {0}.
+                                return new Msg(this, eMsgLevel.Info, C_ClassName, "Print", 1020, "Info50078", printInfo.PrinterInfo.PrinterName);
+                            }
                         }
                         catch (Exception e)
                         {
-                            msg = new Msg(e.Message, this, eMsgLevel.Exception, C_ClassName, "Print", 1050);
+                            msg = new Msg(e.Message, this, eMsgLevel.Exception, C_ClassName, "Print", 1040);
                             Messages.LogException(this.GetACUrl(), msg.ACIdentifier, e);
+                        }
+                        finally
+                        {
+                            try
+                            {
+                                if (bso != null)
+                                    bso.Stop();
+                            }
+                            catch (Exception e)
+                            {
+                                msg = new Msg(e.Message, this, eMsgLevel.Exception, C_ClassName, "Print", 1050);
+                                Messages.LogException(this.GetACUrl(), msg.ACIdentifier, e);
+                            }
                         }
                     }
                 }
