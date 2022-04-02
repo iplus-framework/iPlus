@@ -387,6 +387,7 @@ namespace gip.core.autocomponent
             if (!(allocTarget != null && allocTarget.Source != null && AllocationExternal))
                 Allocated.ValueT = !String.IsNullOrEmpty(this.OrderInfo.ValueT);
             RefreshPWNodeInfo();
+            FindChildComponents<PAProcessFunction>(c => c is PAProcessFunction, null, 1).ForEach(c => c.OnOrderInfoRefreshed());
         }
 
         public virtual void RefreshPWNodeInfo()

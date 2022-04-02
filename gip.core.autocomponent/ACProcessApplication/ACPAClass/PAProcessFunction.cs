@@ -90,7 +90,7 @@ namespace gip.core.autocomponent
 
         public override bool ACPostInit()
         {
-            short functConvMode = FuncConvMode;
+            _ = FuncConvMode;
             bool result = base.ACPostInit();
             return result;
         }
@@ -2055,6 +2055,11 @@ namespace gip.core.autocomponent
                 }
             }
         }
+
+        public virtual void OnOrderInfoRefreshed()
+        {
+        }
+
         #endregion
 
 
