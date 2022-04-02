@@ -356,12 +356,12 @@ namespace gip.core.autocomponent
         {
             if (CurrentPWNodeMethod != null && CurrentPWNodeMethod.ACMethod != null)
             {
-                _PWNodeParamValueList = 
+                _PWNodeParamValueList =
                     VarioConfigManager
                     .GetACConfigParamList(
-                        CurrentPWNodeMethod.ACMethod, 
-                        CurrentPWInfo.MandatoryConfigStores, 
-                        CurrentPWInfo.PreValueACUrl, 
+                        CurrentPWNodeMethod.ACMethod,
+                        CurrentPWInfo.MandatoryConfigStores,
+                        CurrentPWInfo.PreValueACUrl,
                         CurrentPWNodeURL,
                         true
                       );
@@ -513,14 +513,11 @@ namespace gip.core.autocomponent
         public void DeletePWNodeParamValue()
         {
             if (!IsEnabledDeletePWNodeParamValue()) return;
-            if(Messages.Question(this, "Question50083", Global.MsgResult.No) == Global.MsgResult.Yes)
-            {
-                ACConfigParam configParam = SelectedPWNodeParamValue;
-                ConfigParamDelete(configParam);
-                ACSaveChanges();
-                RefreshPWNodeParamValueList();
-                SelectedPWNodeParamValue = configParam;
-            }
+            ACConfigParam configParam = SelectedPWNodeParamValue;
+            ConfigParamDelete(configParam);
+            ACSaveChanges();
+            RefreshPWNodeParamValueList();
+            SelectedPWNodeParamValue = configParam;
         }
 
         public bool IsEnabledDeletePWNodeParamValue()
@@ -653,12 +650,12 @@ namespace gip.core.autocomponent
         {
             if (CurrentPAFunctionMethod != null)
             {
-                _PAFunctionParamValueList = 
+                _PAFunctionParamValueList =
                     VarioConfigManager
                     .GetACConfigParamList(
-                        CurrentPAFunctionMethod.ACMethod, 
-                        CurrentPWInfo.MandatoryConfigStores, 
-                        CurrentPWInfo.PreValueACUrl, 
+                        CurrentPAFunctionMethod.ACMethod,
+                        CurrentPWInfo.MandatoryConfigStores,
+                        CurrentPWInfo.PreValueACUrl,
                         CurrentPAFunctionURL,
                         true);
             }
@@ -813,6 +810,7 @@ namespace gip.core.autocomponent
             if (!IsEnabledDeletePAFunctionValue()) return;
             ACConfigParam configParam = SelectedPAFunctionParamValue;
             ConfigParamDelete(configParam);
+            ACSaveChanges();
             RefreshPAFunctionParamValueList();
             SelectedPAFunctionParamValue = configParam;
         }
@@ -1472,8 +1470,8 @@ namespace gip.core.autocomponent
             //        .Where(c => c.PWACClassID == CurrentACClassWF.PWACClassID && c != CurrentACClassWF)
             //        .ToArray();
 
-            List<IACComponentPWNode> similarNodes = CurrentPWInfo.ParentRootWFNode.FindChildComponents<IACComponentPWNode>(c => 
-                   (c is IACComponentPWNode) 
+            List<IACComponentPWNode> similarNodes = CurrentPWInfo.ParentRootWFNode.FindChildComponents<IACComponentPWNode>(c =>
+                   (c is IACComponentPWNode)
                 && (c as IACComponentPWNode).ContentACClassWF.PWACClassID == CurrentACClassWF.PWACClassID
                 && c != CurrentPWInfo
                 );
@@ -1520,7 +1518,7 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledCopyConfigToSimilarNodes()
         {
-            return     CurrentPWInfo != null
+            return CurrentPWInfo != null
                     && CurrentPWInfo.CurrentConfigStore != null
                     && CurrentACClassWF != null
                     && PWNodeParamValueList != null
@@ -1619,7 +1617,7 @@ namespace gip.core.autocomponent
         [ACMethodInteraction("AllHistoryPWNodeParamValue", "en{'Search'}de{'Suchen'}", (short)MISort.Delete, true, "SelectedPWNodeParamValue")]
         public void SearchAllHistoryPWNodeParamValue()
         {
-            if (SelectedPWNodeParamValue == null) 
+            if (SelectedPWNodeParamValue == null)
                 return;
             _AllHistoryPWNodeParamValueList = null;
 
@@ -1709,7 +1707,7 @@ namespace gip.core.autocomponent
 
         public List<IACConfig> FilterAllHistoryParamValue(List<IACConfig> list, string minValue, string maxValue)
         {
-            if (string.IsNullOrEmpty(minValue) && string.IsNullOrEmpty(maxValue)) 
+            if (string.IsNullOrEmpty(minValue) && string.IsNullOrEmpty(maxValue))
                 return list;
             List<IACConfig> processedList = new List<IACConfig>();
             double filterValue = 0;
