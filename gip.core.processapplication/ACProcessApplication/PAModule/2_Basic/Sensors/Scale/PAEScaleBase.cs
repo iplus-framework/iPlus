@@ -297,9 +297,9 @@ namespace gip.core.processapplication
 
         #endregion
 
-            #endregion
+        #endregion
 
-            #region Methods, Range: 600
+        #region Methods, Range: 600
         public override void AcknowledgeAlarms()
         {
             if (!IsEnabledAcknowledgeAlarms())
@@ -324,6 +324,19 @@ namespace gip.core.processapplication
                 return true;
             return base.IsEnabledAcknowledgeAlarms();
         }
+
+        public double VerifyScaleTolerance(double desiredTolerance)
+        {
+            if (DigitWeight.ValueT >= 0.000001)
+            {
+                double digitWeight = DigitWeight.ValueT * 0.001;
+                if (desiredTolerance < digitWeight)
+                    return digitWeight;
+            }
+
+            return desiredTolerance;
+        }
+
         #endregion
 
         #region Handle execute helpers
