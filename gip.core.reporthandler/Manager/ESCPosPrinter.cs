@@ -48,14 +48,14 @@ namespace gip.core.reporthandler
         /// </summary>
         /// <param name="reportData"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public override void SendDataToPrinter(byte[] bytes)
+        public override bool SendDataToPrinter(byte[] bytes)
         {
             int tries = 0;
             while (tries < PrintTries)
             {
                 try
                 {
-                    Console.WriteLine("Print ...");
+                    //Console.WriteLine("Print ...");
                     bytes = bytes.Add(Commands.FullPaperCut);
                     //#region Test
                     //Random random = new Random();
@@ -64,15 +64,24 @@ namespace gip.core.reporthandler
                     //System.IO.File.WriteAllBytes(filePath, bytes);
                     //#endregion
                     bytes.Print(string.Format("{0}:{1}", IPAddress, Port));
-                    return;
+                    if (IsAlarmActive(IsConnected) != null)
+                        AcknowledgeAlarms();
+                    IsConnected.ValueT = true;
+                    return true;
                 }
                 catch (Exception e)
                 {
-                    Root.Messages.LogMessage(eMsgLevel.Exception, GetACUrl(), "SendDataToPrinter", "Exception: " + e.Message);
+                    string message = String.Format("Print failed on {0}. See log for further details.", IPAddress);
+                    if (IsAlarmActive(IsConnected, message) == null)
+                        Messages.LogException(GetACUrl(), "SendDataToPrinter(20)", e);
+                    OnNewAlarmOccurred(IsConnected, message);
+                    IsConnected.ValueT = false;
+                    //Root.Messages.LogMessage(eMsgLevel.Exception, GetACUrl(), "SendDataToPrinter", "Exception: " + e.Message);
                     Thread.Sleep(5000);
                 }
                 tries++;
             }
+            return false;
         }
 
         #region Methods -> Render -> Block

@@ -144,6 +144,9 @@ namespace gip.core.reporthandler
             }
         }
 
+        [ACPropertyBindingSource]
+        public IACContainerTNet<bool> IsConnected { get; set; }
+
         #endregion
 
         #region Methods
@@ -332,14 +335,31 @@ namespace gip.core.reporthandler
         /// </summary>
         /// <param name="reportData"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public virtual void SendDataToPrinter(byte[] bytes)
+        public virtual bool SendDataToPrinter(byte[] bytes)
         {
-            using (TcpClient tcpClient = new TcpClient(IPAddress, Port))
+            try
             {
-                NetworkStream clientStream = tcpClient.GetStream();
-                clientStream.Write(bytes, 0, bytes.Length);
-                clientStream.Flush();
+                using (TcpClient tcpClient = new TcpClient(IPAddress, Port))
+                {
+                    NetworkStream clientStream = tcpClient.GetStream();
+                    clientStream.Write(bytes, 0, bytes.Length);
+                    clientStream.Flush();
+                }
             }
+            catch (Exception e)
+            {
+                string message = String.Format("Connection failed to {0}. See log for further details.", IPAddress);
+                if (IsAlarmActive(IsConnected, message) == null)
+                    Messages.LogException(GetACUrl(), "SendDataToPrinter(10)", e);
+                OnNewAlarmOccurred(IsConnected, message);
+                IsConnected.ValueT = false;
+                return false;
+            }
+            if (IsAlarmActive(IsConnected) != null)
+                AcknowledgeAlarms();
+            //OnAlarmDisappeared(IsConnected);
+            IsConnected.ValueT = true;
+            return true;
         }
 
         /// <summary>
