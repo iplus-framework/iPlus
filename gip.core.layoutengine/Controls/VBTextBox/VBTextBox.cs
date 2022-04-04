@@ -65,7 +65,7 @@ namespace gip.core.layoutengine
         static VBTextBox()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTextBox), new FrameworkPropertyMetadata(typeof(VBTextBox)));
-            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner(typeof(VBTextBox), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner(typeof(VBTextBox), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));//, new PropertyChangedCallback(OnDepPropChanged)));
         }
 
         protected bool _themeApplied = false;
@@ -817,6 +817,14 @@ namespace gip.core.layoutengine
             else if (args.Property == ACUrlCmdMessageProperty)
             {
                 thisControl.OnACUrlMessageReceived();
+            }
+            else if (args.Property == StringFormatProperty)
+            {
+                Binding boundedValue = BindingOperations.GetBinding(thisControl, TextBlock.TextProperty);
+                if (boundedValue != null && boundedValue.StringFormat != thisControl.StringFormat)
+                {
+                    boundedValue.StringFormat = thisControl.StringFormat;
+                }
             }
         }
 

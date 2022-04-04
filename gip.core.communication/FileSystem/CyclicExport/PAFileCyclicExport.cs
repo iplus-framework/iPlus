@@ -29,7 +29,7 @@ namespace gip.core.communication
 
             using (ACMonitor.Lock(_20015_LockValue))
             {
-                _DelegateQueue = new ACDelegateQueue(ACIdentifier);
+                _DelegateQueue = new ACDelegateQueue(this.GetACUrl());
             }
             _DelegateQueue.StartWorkerThread();
             return result;

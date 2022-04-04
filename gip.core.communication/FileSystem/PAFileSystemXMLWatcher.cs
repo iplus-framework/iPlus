@@ -26,7 +26,7 @@ namespace gip.core.communication
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
             bool result = base.ACInit(startChildMode);
-            _DelegateQueue = new ACDelegateQueue(ACIdentifier);
+            _DelegateQueue = new ACDelegateQueue(this.GetACUrl());
             _DelegateQueue.StartWorkerThread();
             return result;
         }

@@ -51,7 +51,7 @@ namespace gip.core.layoutengine
         static VBTextBlock()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTextBlock), new FrameworkPropertyMetadata(typeof(VBTextBlock)));
-            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner(typeof(VBTextBlock), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner(typeof(VBTextBlock), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits)); //, new PropertyChangedCallback(OnDepPropChanged)));
         }
 
         bool _themeApplied = false;
@@ -253,6 +253,14 @@ namespace gip.core.layoutengine
                         thisControl.DeInitVBControl(bso);
                 }
             }
+            //else if (args.Property == StringFormatProperty)
+            //{
+            //    Binding boundedValue = BindingOperations.GetBinding(thisControl, TextBlock.TextProperty);
+            //    if (boundedValue != null && boundedValue.StringFormat != thisControl.StringFormat)
+            //    {
+            //        boundedValue.StringFormat = thisControl.StringFormat;
+            //    }
+            //}
         }
 
         /// <summary>
