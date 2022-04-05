@@ -848,6 +848,13 @@ namespace gip.core.reporthandler
                 FixedDocumentSequence fDocSeq = xps.GetFixedDocumentSequence();
                 if (fDocSeq == null)
                     return null;
+                var docpage = fDocSeq.DocumentPaginator.GetPage(0);
+                if (docpage != null && docpage.Visual != null)
+                {
+                    FixedPage fixedPage = docpage.Visual as FixedPage;
+                    if (fixedPage != null)
+                        fixedPage.UpdateLayout();
+                }
 
                 if (copies <= 0)
                     copies = 1;

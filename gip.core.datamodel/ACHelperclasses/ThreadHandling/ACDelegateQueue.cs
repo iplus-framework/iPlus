@@ -486,8 +486,19 @@ namespace gip.core.datamodel
 
         public override void ProcessAction(Action action)
         {
-            Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.Normal, action);
+            var currentDispatcher = Dispatcher.CurrentDispatcher;
+            if (currentDispatcher != null)
+                currentDispatcher.Invoke(DispatcherPriority.Normal, action);
+        }
+
+        protected override void OnQueueProcessed(int countActions)
+        {
+            //Dispatcher.ExitAllFrames();
+            //var currentDispatcher = Dispatcher.CurrentDispatcher;
+            //if (currentDispatcher != null)
+            //    currentDispatcher.Invoke(DispatcherPriority.Normal, (Action)delegate () { Dispatcher.ExitAllFrames(); });
             GC.Collect();
+            base.OnQueueProcessed(countActions);
         }
 
         #region Properties
