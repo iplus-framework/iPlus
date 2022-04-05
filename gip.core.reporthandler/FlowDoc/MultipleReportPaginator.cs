@@ -9,8 +9,9 @@ namespace gip.core.reporthandler.Flowdoc
     /// <summary>
     /// Paginator to concat multiple reports
     /// </summary>
-    public class MultipleReportPaginator : DocumentPaginator
+    public class MultipleReportPaginator : ReportPaginatorBase
     {
+
         #region c'tors
         /// <summary>
         /// Constructor
@@ -118,6 +119,17 @@ namespace gip.core.reporthandler.Flowdoc
             _pageSize = dp.Size;
             return dp;
         }
+
+        public override void Dispose()
+        {
+            foreach (ReportPaginator paginator in _reportPaginators.ToArray())
+            {
+                if (paginator != null)
+                    paginator.Dispose();
+            }
+            _reportPaginators = null;
+        }
+
         #endregion
     }
 }

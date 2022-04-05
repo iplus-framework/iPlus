@@ -76,7 +76,7 @@ namespace gip.core.autocomponent
             if (clone.AccessNav != null)
             {
                 clone.AccessNav.NavACQueryDefinition.CopyFrom(this.AccessNav.NavACQueryDefinition, true, true, true);
-                clone.ACUrlCommand("!Search");
+                clone.ACUrlCommand(Const.CmdSearch);
             }
             return clone;
         }

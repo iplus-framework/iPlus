@@ -1003,7 +1003,10 @@ namespace gip.core.datamodel
                         PropertyInfo piEntity = dbType.GetProperty(acName);
                         if (piEntity == null)
                             return null;
-                        Type entityType = piEntity.PropertyType.GetGenericArguments()[0];
+                        Type[] genericArguments = piEntity.PropertyType.GetGenericArguments();
+                        Type entityType = piEntity.PropertyType;
+                        if (genericArguments != null && genericArguments.Count() > 0)
+                            entityType = piEntity.PropertyType.GetGenericArguments()[0];
 
                         PropertyInfo piDataIdentifier = entityType.GetProperty("KeyACIdentifier");
                         if (piDataIdentifier == null)

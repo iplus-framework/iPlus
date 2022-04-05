@@ -35,6 +35,7 @@ namespace gip.core.reporthandler
                 }
                 return binName;
             }
+
             public static PrintTicket ModifyPrintTicket(PrintTicket ticket, string featureName, string newValue, string nameSpaceURI)
             {
                 if (ticket == null)

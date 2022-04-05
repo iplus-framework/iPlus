@@ -1166,29 +1166,8 @@ namespace gip.core.reporthandler
                 return;
             CloseTopDialog();
 
-            //ACUrlCommand("..!Save");
-
             try
             {
-                //ReportData reportData = new ReportData();
-                //if (IsCurrentDesignFromParentBSO())
-                //    reportData.ReportDocumentValues.Add(ParentBSONav.GetType().Name, ParentBSONav);
-                //else
-                //{
-                //    UpdateACQueryFilter();
-                //    reportData.ReportDocumentValues.Add(CurrentACQueryDefinition.ChildACUrl, CurrentACQueryDefinition);
-                //}
-                //ReportDocument reportDoc = new ReportDocument(CurrentACClassDesign.XMLDesign);
-                //if (reportDoc != null)
-                //{
-                //    XpsDocument xps = reportDoc.CreateXpsDocument(reportData);
-                //    if (xps != null)
-                //        CurrentXPSDocument = xps.GetFixedDocumentSequence();
-                //    else
-                //        CurrentXPSDocument = null;
-                //    //OnPropertyChanged("CurrentXPSDocument");
-                //}
-
                 VBBSOReport acReportQuery = StartVBBSOReport();
                 if (acReportQuery == null)
                     return;

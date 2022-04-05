@@ -50,8 +50,7 @@ namespace gip.core.reporthandler
         /// <exception cref="NotImplementedException"></exception>
         public override bool SendDataToPrinter(byte[] bytes)
         {
-            int tries = 0;
-            while (tries < PrintTries)
+            for (int tries = 0; tries < PrintTries; tries++)
             {
                 try
                 {
@@ -76,10 +75,8 @@ namespace gip.core.reporthandler
                         Messages.LogException(GetACUrl(), "SendDataToPrinter(20)", e);
                     OnNewAlarmOccurred(IsConnected, message);
                     IsConnected.ValueT = false;
-                    //Root.Messages.LogMessage(eMsgLevel.Exception, GetACUrl(), "SendDataToPrinter", "Exception: " + e.Message);
                     Thread.Sleep(5000);
                 }
-                tries++;
             }
             return false;
         }

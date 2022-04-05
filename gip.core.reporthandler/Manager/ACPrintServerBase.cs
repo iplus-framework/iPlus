@@ -9,6 +9,7 @@ using System.Windows;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using System.Threading;
+using System.IO;
 
 namespace gip.core.reporthandler
 {
@@ -249,32 +250,17 @@ namespace gip.core.reporthandler
             try
             {
                 // FlowDocument generate (separate thread)
-                ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
-                FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
-                PrintContext printContext = GetPrintContext(flowDoc);
-                bytes = printContext.Main;
+                using (ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign))
+                {
+                    FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
+                    PrintContext printContext = GetPrintContext(flowDoc);
+                    bytes = printContext.Main;
+                }
             }
             catch (Exception e)
             {
                 this.Messages.LogException(this.GetACUrl(), "InvokeAsync", e);
             }
-
-
-            //Application.Current.Dispatcher.Invoke(() =>
-            //{
-            //    try
-            //    {
-            //        // FlowDocument generate (separate thread)
-            //        ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign);
-            //        FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
-            //        PrintContext printContext = GetPrintContext(flowDoc);
-            //        bytes = printContext.Main;
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        this.Messages.LogException(this.GetACUrl(), "InvokeAsync", e);
-            //    }
-            //});
 
             if (bytes != null)
                 SendDataToPrinter(bytes);

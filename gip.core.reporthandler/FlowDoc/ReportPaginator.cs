@@ -18,10 +18,15 @@ using gip.core.reporthandler.Configuration;
 
 namespace gip.core.reporthandler.Flowdoc
 {
+    public abstract class ReportPaginatorBase : DocumentPaginator, IDisposable
+    {
+        public abstract void Dispose();
+    }
+
     /// <summary>
     /// Creates all pages of a report
     /// </summary>
-    public class ReportPaginator : DocumentPaginator
+    public class ReportPaginator : ReportPaginatorBase
     {
         #region c'tors
         /// <summary>
@@ -39,7 +44,6 @@ namespace gip.core.reporthandler.Flowdoc
             _data = data;
 
             layoutengine.Layoutgenerator.CurrentDataContext = _data?.ReportDocumentValues.Values.Where(c => c is IACComponent).FirstOrDefault() as IACComponent;
-
             _flowDocument = report.CreateFlowDocument();
             // make height smaller to have enough space for page header and page footer
             _flowDocument.PageHeight = report.PageHeight - report.PageHeight * (report.PageHeaderHeight + report.PageFooterHeight) / 100d;
@@ -116,11 +120,27 @@ namespace gip.core.reporthandler.Flowdoc
 
         #region Properties
 
-        #region private members
-        /// <summary>
-        /// Reference to a original flowdoc paginator
-        /// </summary>
-        protected DocumentPaginator _paginator = null;
+        public override void Dispose()
+        {
+            _flowDocument = null;
+            _paginator = null;
+            //if (_report != null)
+                //_report.Dispose();
+            _report = null;
+            _data = null;
+            _blockPageHeader = null;
+            _blockPageHeaderXAML = null;
+            _blockPageFooter = null;
+            _blockPageFooterXAML = null;
+            _reportContextValues = null;
+            _rootCache = null;
+        }
+
+    #region private members
+    /// <summary>
+    /// Reference to a original flowdoc paginator
+    /// </summary>
+    protected DocumentPaginator _paginator = null;
 
         protected FlowDocument _flowDocument = null;
         public FlowDocument FlowDoc

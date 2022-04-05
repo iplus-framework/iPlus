@@ -71,6 +71,8 @@ namespace gip.core.reporthandler.Flowdoc
             if (!String.IsNullOrEmpty(VBReportData))
                 BindingOperations.ClearBinding(this, VBReportEditor.DesignerReportDataProperty);
 
+            if (_ReportDoc != null)
+                _ReportDoc.Dispose();
             _ReportDoc = null;
             base.DeInitVBControl(bso);
         }
@@ -79,13 +81,11 @@ namespace gip.core.reporthandler.Flowdoc
         ReportDocument _ReportDoc;
         public override void LoadFile()
         {
+            if (_ReportDoc != null)
+                _ReportDoc.Dispose();
             _ReportDoc = null;
             if (!string.IsNullOrEmpty(ContentFile) && DesignerReportData != null && ContentFile != null)
             {
-                //string newXMLText = Layoutgenerator.CheckOrUpdateNamespaceInLayout(this.ContentFile);
-                //if (_LastLoadedXAMLInViewer == newXMLText)
-                //    return;
-
                 try
                 {
                     _ReportDoc = new ReportDocument(this.ContentFile);

@@ -2,8 +2,10 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Documents;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BarcodeLib;
+using QRCoder.Xaml;
 
 namespace gip.core.reporthandler.Flowdoc
 {
@@ -120,40 +122,55 @@ namespace gip.core.reporthandler.Flowdoc
             if (string.IsNullOrEmpty(strValue))
                 return;
 
-            System.Drawing.Image img = null;
+            //System.Drawing.Image img = null;
             System.Windows.Controls.Image wpfImage = new System.Windows.Controls.Image();
             if (BarcodeType == BarcodeType.QRCODE)
             {
-                QRCoder.QRCodeGenerator qrGenerator = new QRCoder.QRCodeGenerator();
-                QRCoder.QRCodeData qrCodeData = qrGenerator.CreateQrCode(strValue, QRCoder.QRCodeGenerator.ECCLevel.Q);
-                QRCoder.QRCode qrCode = new QRCoder.QRCode(qrCodeData);
-                img = qrCode.GetGraphic(QRPixelsPerModule);
-                wpfImage.MaxHeight = MaxHeight > 0.1 ? MaxHeight : 200;
-                wpfImage.MaxWidth = MaxWidth > 0.1 ? MaxWidth : 200;
+                using (QRCoder.QRCodeGenerator qrGenerator = new QRCoder.QRCodeGenerator())
+                using (QRCoder.QRCodeData qrCodeData = qrGenerator.CreateQrCode(strValue, QRCoder.QRCodeGenerator.ECCLevel.Q))
+                using (XamlQRCode xamlQRCode = new XamlQRCode(qrCodeData))
+                {
+                    DrawingImage dw = xamlQRCode.GetGraphic(QRPixelsPerModule);
+                    wpfImage.Source = dw;
+                    wpfImage.MaxHeight = MaxHeight > 0.1 ? MaxHeight : 200;
+                    wpfImage.MaxWidth = MaxWidth > 0.1 ? MaxWidth : 200;
+                    this.Child = wpfImage;
+                }
+
+                //using (QRCoder.QRCodeGenerator qrGenerator = new QRCoder.QRCodeGenerator())
+                //using (QRCoder.QRCodeData qrCodeData = qrGenerator.CreateQrCode(strValue, QRCoder.QRCodeGenerator.ECCLevel.Q))
+                //using (QRCoder.QRCode qrCode = new QRCoder.QRCode(qrCodeData))
+                //{
+                //    img = qrCode.GetGraphic(QRPixelsPerModule);
+                //    wpfImage.MaxHeight = MaxHeight > 0.1 ? MaxHeight : 200;
+                //    wpfImage.MaxWidth = MaxWidth > 0.1 ? MaxWidth : 200;
+                //}
             }
             else
             {
-                Barcode b = new Barcode();
-                img = b.Encode((TYPE)BarcodeType, strValue, System.Drawing.Color.Black, System.Drawing.Color.White, BarcodeWidth, BarcodeHeight);
-                if (MaxHeight > 0.1)
-                    wpfImage.MaxHeight = MaxHeight;
-                if (MaxWidth > 0.1)
-                    wpfImage.MaxWidth = MaxWidth;
-            }
+                using (Barcode b = new Barcode())
+                {
+                    //img = b.Encode((TYPE)BarcodeType, strValue, System.Drawing.Color.Black, System.Drawing.Color.White, BarcodeWidth, BarcodeHeight);
+                    if (MaxHeight > 0.1)
+                        wpfImage.MaxHeight = MaxHeight;
+                    if (MaxWidth > 0.1)
+                        wpfImage.MaxWidth = MaxWidth;
+                    using (System.Drawing.Image img = b.Encode((TYPE)BarcodeType, strValue, System.Drawing.Color.Black, System.Drawing.Color.White, BarcodeWidth, BarcodeHeight))
+                    using (var ms = new MemoryStream())
+                    {
+                        img.Save(ms, ImageFormat.Bmp);
+                        ms.Seek(0, SeekOrigin.Begin);
 
-            using (var ms = new MemoryStream())
-            {
-                img.Save(ms, ImageFormat.Bmp);
-                ms.Seek(0, SeekOrigin.Begin);
+                        var bitmapImage = new BitmapImage();
+                        bitmapImage.BeginInit();
+                        bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmapImage.StreamSource = ms;
+                        bitmapImage.EndInit();
 
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.StreamSource = ms;
-                bitmapImage.EndInit();
-
-                wpfImage.Source = bitmapImage;
-                this.Child = wpfImage;
+                        wpfImage.Source = bitmapImage;
+                        this.Child = wpfImage;
+                    }
+                }
             }
         }
     }

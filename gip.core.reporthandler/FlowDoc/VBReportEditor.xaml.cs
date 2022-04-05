@@ -325,6 +325,12 @@ namespace gip.core.reporthandler.Flowdoc
             _VBContentPropertyInfo = null;
 
             _Loaded = false;
+
+            if (_ReportDocument != null)
+            {
+                _ReportDocument.Dispose();
+                _ReportDocument = null;
+            }
         }
 
         FlowDocEditor UCDesigner
@@ -469,6 +475,11 @@ namespace gip.core.reporthandler.Flowdoc
             if (DesignerReportData == null || (_ReportDocument != null && _ReportDocument.XamlData == newXMLText))
                 return;
 
+            if (_ReportDocument != null)
+            {
+                _ReportDocument.Dispose();
+                _ReportDocument = null;
+            }
             try
             {
                 _ReportDocument = new ReportDocument(this.XMLText);
@@ -494,6 +505,11 @@ namespace gip.core.reporthandler.Flowdoc
             if (DesignerReportData == null || _ReportDocument != null && _ReportDocument.XamlData == newXMLText)
                 return;
 
+            if (_ReportDocument != null)
+            {
+                _ReportDocument.Dispose();
+                _ReportDocument = null;
+            }
             try
             {
                 _ReportDocument = new ReportDocument(this.XMLText);

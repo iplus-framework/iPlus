@@ -4843,6 +4843,7 @@ namespace gip.core.autocomponent
         /// <param name="selectMode">Selection mode current or list.</param>
         /// <param name="queryDefinition">Query definiton for a additional query.</param>
         /// <param name="maxPrintJobsInSpooler">Max Print Jobs in Queue</param>
+        /// <param name="preventClone">Prevent generating a clone for the BSO</param>
         /// <returns></returns>
         public virtual Msg PrintDesign(ACClassDesign design, string printerName, int numberOfCopies, bool withDialog, Global.CurrentOrList selectMode = Global.CurrentOrList.Current, 
                                        ACQueryDefinition queryDefinition = null, int maxPrintJobsInSpooler = 0, bool preventClone = false)

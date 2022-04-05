@@ -63,23 +63,25 @@ namespace gip.core.layoutengine
         {
             CurrentDataContext = dataContext;
             CurrentBSO = bso;
-            MemoryStream memoryStream = GetEncodedStream(xmlLayout);
-            if (memoryStream == null)
-                return null;
+            using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
+            {
+                if (memoryStream == null)
+                    return null;
 
-            try
-            {
-                ResourceDictionary sp = (ResourceDictionary)XamlReader.Load(memoryStream);
-                return sp;
-            }
-            catch (XamlParseException e)
-            {
-                AsyncMessageBox.BeginMessageBoxAsync(
-                    e.Message,
-                    "XAML Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                return null;
+                try
+                {
+                    ResourceDictionary sp = (ResourceDictionary)XamlReader.Load(memoryStream);
+                    return sp;
+                }
+                catch (XamlParseException e)
+                {
+                    AsyncMessageBox.BeginMessageBoxAsync(
+                        e.Message,
+                        "XAML Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return null;
+                }
             }
         }
 
@@ -100,23 +102,25 @@ namespace gip.core.layoutengine
             }
             _CurrentDataContext = null;
             _CurrentBSO = null;
-            MemoryStream memoryStream = GetEncodedStream(xmlLayout);
-            if (memoryStream == null)
-                return null;
+            using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
+            {
+                if (memoryStream == null)
+                    return null;
 
-            try
-            {
-                UIElement sp = (UIElement)XamlReader.Load(memoryStream);
-                return sp;
-            }
-            catch (XamlParseException e)
-            {
-                AsyncMessageBox.BeginMessageBoxAsync(
-                    e.Message,
-                    "XAML Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                return null;
+                try
+                {
+                    UIElement sp = (UIElement)XamlReader.Load(memoryStream);
+                    return sp;
+                }
+                catch (XamlParseException e)
+                {
+                    AsyncMessageBox.BeginMessageBoxAsync(
+                        e.Message,
+                        "XAML Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return null;
+                }
             }
         }
 
@@ -134,23 +138,25 @@ namespace gip.core.layoutengine
                 }
                 _WPFAssembliesLoaded = true;
             }
-            MemoryStream memoryStream = GetEncodedStream(xmlLayout);
-            if (memoryStream == null)
-                return null;
+            using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
+            {
+                if (memoryStream == null)
+                    return null;
 
-            try
-            {
-                DependencyObject sp = (DependencyObject)XamlReader.Load(memoryStream);
-                return sp;
-            }
-            catch (XamlParseException e)
-            {
-                AsyncMessageBox.BeginMessageBoxAsync(
-                    e.Message,
-                    "XAML Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                return null;
+                try
+                {
+                    DependencyObject sp = (DependencyObject)XamlReader.Load(memoryStream);
+                    return sp;
+                }
+                catch (XamlParseException e)
+                {
+                    AsyncMessageBox.BeginMessageBoxAsync(
+                        e.Message,
+                        "XAML Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return null;
+                }
             }
         }
 
@@ -247,33 +253,34 @@ namespace gip.core.layoutengine
                 }
                 _WPFAssembliesLoaded = true;
             }
-            MemoryStream memoryStream = GetEncodedStream(xmlLayout);
-            if (memoryStream == null)
-                return null;
-
-            try
+            using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
             {
-                return XamlReader.Load(memoryStream);
-            }
-            catch (Exception e)
-            {
-                string errorMessage = "";
-                Exception tmpEc = e;
-                while(tmpEc != null)
+                if (memoryStream == null)
+                    return null;
+                try
                 {
-                    errorMessage += tmpEc.Message;
-                    tmpEc = tmpEc.InnerException;
-                    if (tmpEc != null)
-                        errorMessage += " Inner Exception: ";
+                    return XamlReader.Load(memoryStream);
                 }
-                errorMessage = string.Format("Error loading XAML:{0}BSO:{1}{2}XAMLLayout:{3}{4}Error:{5}",
-                    Environment.NewLine, bso != null ? bso.ACIdentifier : "", Environment.NewLine, layoutName, Environment.NewLine, errorMessage);
-                AsyncMessageBox.BeginMessageBoxAsync(
-                    errorMessage,
-                    "XAML Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                return null;
+                catch (Exception e)
+                {
+                    string errorMessage = "";
+                    Exception tmpEc = e;
+                    while (tmpEc != null)
+                    {
+                        errorMessage += tmpEc.Message;
+                        tmpEc = tmpEc.InnerException;
+                        if (tmpEc != null)
+                            errorMessage += " Inner Exception: ";
+                    }
+                    errorMessage = string.Format("Error loading XAML:{0}BSO:{1}{2}XAMLLayout:{3}{4}Error:{5}",
+                        Environment.NewLine, bso != null ? bso.ACIdentifier : "", Environment.NewLine, layoutName, Environment.NewLine, errorMessage);
+                    AsyncMessageBox.BeginMessageBoxAsync(
+                        errorMessage,
+                        "XAML Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return null;
+                }
             }
         }
 
@@ -313,23 +320,24 @@ namespace gip.core.layoutengine
 
         static public XElement LoadLayoutAsXElement(string xmlLayout)
         {
-            MemoryStream memoryStream = GetEncodedStream(xmlLayout);
-            if (memoryStream == null)
-                return null;
-
-            try
+            using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
             {
-                XElement sp = XElement.Load(memoryStream);
-                return sp;
-            }
-            catch (Exception e)
-            {
-                AsyncMessageBox.BeginMessageBoxAsync(
-                    e.Message,
-                    "XAML Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                return null;
+                if (memoryStream == null)
+                    return null;
+                try
+                {
+                    XElement sp = XElement.Load(memoryStream);
+                    return sp;
+                }
+                catch (Exception e)
+                {
+                    AsyncMessageBox.BeginMessageBoxAsync(
+                        e.Message,
+                        "XAML Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return null;
+                }
             }
         }
 

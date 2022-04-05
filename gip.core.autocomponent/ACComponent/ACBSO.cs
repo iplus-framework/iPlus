@@ -210,6 +210,10 @@ namespace gip.core.autocomponent
                 return null;
 
             ACValueList acValueList = this.Parameters != null ? (ACValueList)this.Parameters.Clone() : acClass.GetACParameter(null);
+            if (acValueList == null)
+                acValueList = new ACValueList();
+            if (acValueList.GetACValue(Const.SkipSearchOnStart) == null)
+                acValueList.Add(new ACValue(Const.SkipSearchOnStart, typeof(bool), true));
             return (ParentACComponent as ACComponent).StartComponent(acClass, this.Content, acValueList, Global.ACStartTypes.Automatic, IsProxy);
         }
 
@@ -708,6 +712,7 @@ namespace gip.core.autocomponent
         /// <param name="printerName">Name of the printer.</param>
         /// <param name="numberOfCopies">The number of copies.</param>
         /// <param name="maxPrintJobsInSpooler">Max Print Jobs in Queue</param>
+        /// <param name="preventClone">Prevent generating a clone for the BSO</param>
         /// <returns></returns>
         public virtual Msg PrintByOrderInfo(PAOrderInfo paOrderInfo, string printerName, short numberOfCopies, string designName = null, int maxPrintJobsInSpooler = 0, bool preventClone = true)
         {
