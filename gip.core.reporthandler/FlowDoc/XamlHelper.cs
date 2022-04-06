@@ -6,6 +6,7 @@ using System.Windows.Markup;
 using System.Xml;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
+using System.Reflection;
 
 namespace gip.core.reporthandler.Flowdoc
 {
@@ -101,6 +102,13 @@ namespace gip.core.reporthandler.Flowdoc
             PngBitmapEncoder image = new PngBitmapEncoder();
             image.Frames.Add(BitmapFrame.Create(bitmap));
             image.Save(stream);
+        }
+
+        public static void DetachFromDispatcherExt(this DependencyObject dependencyObject)
+        {
+            MethodInfo mi = dependencyObject.GetType().GetMethod("DetachFromDispatcher", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (mi != null)
+                mi.Invoke(dependencyObject, null);
         }
     }
 }

@@ -38,7 +38,7 @@ namespace gip.core.reporthandler
 
             using (ACMonitor.Lock(_20015_LockValue))
             {
-                _DelegateQueue = new ACDispatchedDelegateQueue(ACIdentifier);
+                _DelegateQueue = new ACDispatchedDelegateQueue(GetACUrl());
             }
             _DelegateQueue.StartWorkerThreadSTA();
             //_DelegateQueue.StartWorkerThread();

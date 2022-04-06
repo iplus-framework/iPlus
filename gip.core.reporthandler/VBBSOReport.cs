@@ -847,20 +847,21 @@ namespace gip.core.reporthandler
 
                 using (xps)
                 {
+                    FixedDocumentSequence fDocSeq = null;
                     try
                     {
-                        FixedDocumentSequence fDocSeq = xps.GetFixedDocumentSequence();
+                        fDocSeq = xps.GetFixedDocumentSequence();
                         if (fDocSeq == null)
                             return null;
                         // Fix for leaking memory
                         // https://social.msdn.microsoft.com/Forums/vstudio/en-US/c6511918-17f6-42be-ac4c-459eeac676fd/memory-leak-when-launching-new-sta-thread-to-convert-xps-to-images?forum=wpf
-                        var docpage = fDocSeq.DocumentPaginator.GetPage(0);
-                        if (docpage != null && docpage.Visual != null)
-                        {
-                            FixedPage fixedPage = docpage.Visual as FixedPage;
-                            if (fixedPage != null)
-                                fixedPage.UpdateLayout();
-                        }
+                        //var docpage = fDocSeq.DocumentPaginator.GetPage(0);
+                        //if (docpage != null && docpage.Visual != null)
+                        //{
+                        //    FixedPage fixedPage = docpage.Visual as FixedPage;
+                        //    if (fixedPage != null)
+                        //        fixedPage.UpdateLayout();
+                        //}
 
                         if (copies <= 0)
                             copies = 1;
@@ -993,7 +994,14 @@ namespace gip.core.reporthandler
 
                                 //for (int i = 0; i < copies; i++)
                                 //{
-                                writer.Write(fDocSeq, pt);
+                                try
+                                {
+                                    writer.Write(fDocSeq, pt);
+                                }
+                                catch (Exception ex2)
+                                {
+                                    this.Root().Messages.LogException("VBBSOReport", "FlowPrint(50)", ex2.Message);
+                                }
                                 //}
                             }
                         }
@@ -1002,6 +1010,39 @@ namespace gip.core.reporthandler
                     {
                         if (xps != null)
                             xps.Close();
+                        try
+                        {
+                            // https://stackoverflow.com/questions/8742454/saving-a-fixeddocument-to-an-xps-file-causes-memory-leak
+                            if (fDocSeq != null)
+                            {
+                                for (int i = 0; i < fDocSeq.DocumentPaginator.PageCount; i++)
+                                {
+                                    var docpage = fDocSeq.DocumentPaginator.GetPage(i);
+                                    if (docpage != null && docpage.Visual != null)
+                                    {
+                                        FixedPage fixedPage = docpage.Visual as FixedPage;
+                                        if (fixedPage != null)
+                                        {
+                                            fixedPage.Children.Clear();
+                                            fixedPage.UpdateLayout();
+                                            //var dispatcher = fixedPage.Dispatcher;
+                                            //if (dispatcher != null
+                                            //    && dispatcher.Thread != null
+                                            //    && !String.IsNullOrEmpty(dispatcher.Thread.Name)
+                                            //    && (dispatcher.Thread.Name.Contains(RootDbOpQueue.ClassName)
+                                            //        || dispatcher.Thread.Name.Contains(ACUrlHelper.Delimiter_DirSeperator)))
+                                            //{
+                                            //    fixedPage.DetachFromDispatcherExt();
+                                            //}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
+                            this.Root().Messages.LogException("VBBSOReport", "FlowPrint(99)", ex2.Message);
+                        }
                     }
                 }
             }
