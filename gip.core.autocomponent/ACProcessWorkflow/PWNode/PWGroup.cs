@@ -902,6 +902,14 @@ namespace gip.core.autocomponent
             }
         }
 
+        public virtual bool MustRepeatGroupAtEnd
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         #endregion
 
 
@@ -1021,6 +1029,28 @@ namespace gip.core.autocomponent
             base.Reset();
         }
 
+
+        public virtual void ResetWithRepeat()
+        {
+            PAProcessModule module = AccessedProcessModule;
+            if (NeedsAProcessModule && module != null)
+            {
+                TrySemaphore.RemoveFromServicePoint(module, module.Semaphore);
+                module.RefreshOrderInfo();
+            }
+            TrySemaphore.RemoveAll();
+            ACSubState.ValueT = 0;
+
+            using (ACMonitor.Lock(_20015_LockValue))
+            {
+                _WaitsOnAvailableProcessModule = false;
+                _Priority = null;
+            }
+
+            _ExecutingACMethod = null;
+            AcknowledgeAllAlarms();
+            CurrentACState = ACStateEnum.SMStarting;
+        }
 
         /// <summary>
         ///   <para>
@@ -1170,13 +1200,23 @@ namespace gip.core.autocomponent
 
             ReleaseAllAccessedModules();
 
-            ACEventArgs eventArgs = ACEventArgs.GetVirtualEventArgs(Const.PWPointOut, VirtualEventArgs);
-            eventArgs.GetACValue("TimeInfo").Value = RecalcTimeInfo();
-            PWPointOut.Raise(eventArgs);
-
-            if (IsACStateMethodConsistent(ACStateEnum.SMCompleted) < ACStateCompare.WrongACStateMethod) // Vergleich notwendig, da durch Callbacks im selben Callstack, der Status evtl. schon weitergesetzt worden ist
+            if (MustRepeatGroupAtEnd)
             {
-                Reset();
+                if (IsACStateMethodConsistent(ACStateEnum.SMCompleted) < ACStateCompare.WrongACStateMethod) // Vergleich notwendig, da durch Callbacks im selben Callstack, der Status evtl. schon weitergesetzt worden ist
+                {
+                    ResetWithRepeat();
+                }
+            }
+            else
+            {
+                ACEventArgs eventArgs = ACEventArgs.GetVirtualEventArgs(Const.PWPointOut, VirtualEventArgs);
+                eventArgs.GetACValue("TimeInfo").Value = RecalcTimeInfo();
+                PWPointOut.Raise(eventArgs);
+
+                if (IsACStateMethodConsistent(ACStateEnum.SMCompleted) < ACStateCompare.WrongACStateMethod) // Vergleich notwendig, da durch Callbacks im selben Callstack, der Status evtl. schon weitergesetzt worden ist
+                {
+                    Reset();
+                }
             }
         }
 
