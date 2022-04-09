@@ -172,7 +172,8 @@ namespace gip.core.autocomponent
             {
                 RaiseElseEventAndComplete();
             }
-            base.SMStarting();
+            else
+                base.SMStarting();
         }
 
         protected override TimeSpan GetPlannedDuration()
