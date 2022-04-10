@@ -293,6 +293,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public MsgWithDetails ACUndoChanges(bool autoUndoContextIPlus = true)
         {
+            MsgWithDetails msgWithDetails = null;
             try
             {
                 // 1. Hole manipulierte Objekte
@@ -301,7 +302,7 @@ namespace gip.core.datamodel
                     var entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Modified);
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
-                        var entityList = entityStateList.Where(c => c.Entity != null);
+                        var entityList = entityStateList.Where(c => c.Entity != null).Select(c => c.Entity);
                         if (entityList != null && entityList.Any())
                             // Leere liste indem die Objekte aus der Datenbank nachgeladen werden (StoreWins)
                             _ObjectContext.Refresh(System.Data.Objects.RefreshMode.StoreWins, entityList);
@@ -315,6 +316,9 @@ namespace gip.core.datamodel
 
                     if (Database.Root != null && Database.Root.Messages != null)
                         Database.Root.Messages.LogException("ACObjectContextHelper", "ACUndoChanges", msg);
+                    if (msgWithDetails == null)
+                        msgWithDetails = new MsgWithDetails();
+                    msgWithDetails.AddDetailMessage(new Msg(eMsgLevel.Exception, msg) { ACIdentifier = "ACUndoChanges(0)" });
                 }
 
 
@@ -324,7 +328,7 @@ namespace gip.core.datamodel
                     var entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Deleted);
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
-                        var entityList = entityStateList.Where(c => c.Entity != null);
+                        var entityList = entityStateList.Where(c => c.Entity != null).Select(c => c.Entity);
                         if (entityList != null && entityList.Any())
                         {
                             // Lade Objekte aus der Datenbank nach (StoreWins)
@@ -340,6 +344,9 @@ namespace gip.core.datamodel
 
                     if (Database.Root != null && Database.Root.Messages != null)
                         Database.Root.Messages.LogException("ACObjectContextHelper", "ACUndoChanges(10)", msg);
+                    if (msgWithDetails == null)
+                        msgWithDetails = new MsgWithDetails();
+                    msgWithDetails.AddDetailMessage(new Msg(eMsgLevel.Exception, msg) { ACIdentifier = "ACUndoChanges(10)" });
                 }
 
                 // 5. Hole vom Kontext hinzugefügte Objekte
@@ -369,6 +376,9 @@ namespace gip.core.datamodel
 
                                     if (Database.Root != null && Database.Root.Messages != null)
                                         Database.Root.Messages.LogException("ACObjectContextHelper", "ACUndoChanges(20)", msg);
+                                    if (msgWithDetails == null)
+                                        msgWithDetails = new MsgWithDetails();
+                                    msgWithDetails.AddDetailMessage(new Msg(eMsgLevel.Exception, msg) { ACIdentifier = "ACUndoChanges(20)" });
                                 }
                             }
                             // Else-Fall testhalber eingebaut:
@@ -383,7 +393,7 @@ namespace gip.core.datamodel
                     entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Added);
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
-                        var entityList = entityStateList.Where(c => c.Entity != null);
+                        var entityList = entityStateList.Where(c => c.Entity != null).Select(c => c.Entity);
                         if (entityList != null && entityList.Any())
                         {
                             // Lade Objekte aus der Datenbank nach (StoreWins)
@@ -399,6 +409,9 @@ namespace gip.core.datamodel
 
                     if (Database.Root != null && Database.Root.Messages != null)
                         Database.Root.Messages.LogException("ACObjectContextHelper", "ACUndoChanges(30)", msg);
+                    if (msgWithDetails == null)
+                        msgWithDetails = new MsgWithDetails();
+                    msgWithDetails.AddDetailMessage(new Msg(eMsgLevel.Exception, msg) { ACIdentifier = "ACUndoChanges(30)" });
                 }
 
                 /* Der StoreWins-Modus bedeutet, dass die Objekte in der Auflistung aktualisiert werden sollen, 
@@ -416,6 +429,9 @@ namespace gip.core.datamodel
 
                 if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("ACObjectContextHelper", "ACUndoChanges(40)", msg);
+                if (msgWithDetails == null)
+                    msgWithDetails = new MsgWithDetails();
+                msgWithDetails.AddDetailMessage(new Msg(eMsgLevel.Exception, msg) { ACIdentifier = "ACUndoChanges(40)" });
             }
 
             if (autoUndoContextIPlus
@@ -428,7 +444,7 @@ namespace gip.core.datamodel
                     return subMessage;
             }
 
-            return null;
+            return msgWithDetails;
         }
 
 
