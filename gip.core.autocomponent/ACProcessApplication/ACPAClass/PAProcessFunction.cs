@@ -480,6 +480,24 @@ namespace gip.core.autocomponent
             }
         }
 
+        public ACMethod GetCurrentACMethod()
+        {
+            ACMethod acMethod = CurrentACMethod.ValueT;
+            if (acMethod != null)
+                return acMethod;
+            if (CurrentTask != null)
+            {
+                acMethod = CurrentTask.ACMethod;
+                CurrentACMethod.ValueT = acMethod;
+            }
+            else if (SavedACMethod != null)
+            {
+                acMethod = CurrentTask.ACMethod;
+                CurrentACMethod.ValueT = SavedACMethod;
+            }
+            return acMethod;
+        }
+
         /// <summary>
         /// Parent Processmodule, that attaches this function as a method that can be invoked to start this process function.
         /// </summary>
@@ -990,7 +1008,7 @@ namespace gip.core.autocomponent
                 return;
 
             RecalcTimeInfo();
-            if (CurrentTask != null && CreateNewProgramLog(CurrentACMethod.ValueT) <= CreateNewProgramLogResult.ErrorNoProgramFound)
+            if (CurrentTask != null && CreateNewProgramLog(GetCurrentACMethod()) <= CreateNewProgramLogResult.ErrorNoProgramFound)
                 return;
 
             if (IsACStateMethodConsistent(ACStateEnum.SMStarting) < ACStateCompare.WrongACStateMethod) // Vergleich notwendig, da durch Callbacks im selben Callstack, der Status evtl. schon weitergesetzt worden ist
@@ -1055,13 +1073,17 @@ namespace gip.core.autocomponent
                     CurrentACState = ACStateEnum.SMIdle;
                 return false;
             }
-            else if (CurrentACMethod.ValueT != null && !CurrentACMethod.ValueT.IsValid())
+            else
             {
-                if (ParentTaskExecComp != null)
-                    ParentTaskExecComp.CallbackTask(CurrentACMethod.ValueT, CreateNewMethodEventArgs(CurrentACMethod.ValueT, Global.ACMethodResultState.Failed));
-                if (CurrentACState == ACStateEnum.SMStarting) // Vergleich notwendig, da durch Callbacks im selben Callstack, der Status evtl. schon weitergesetzt worden ist
-                    CurrentACState = ACStateEnum.SMIdle;
-                return false;
+                ACMethod acMethod = GetCurrentACMethod();
+                if (acMethod != null && !acMethod.IsValid())
+                {
+                    if (ParentTaskExecComp != null)
+                        ParentTaskExecComp.CallbackTask(acMethod, CreateNewMethodEventArgs(acMethod, Global.ACMethodResultState.Failed));
+                    if (CurrentACState == ACStateEnum.SMStarting) // Vergleich notwendig, da durch Callbacks im selben Callstack, der Status evtl. schon weitergesetzt worden ist
+                        CurrentACState = ACStateEnum.SMIdle;
+                    return false;
+                }
             }
             return true;
         }
@@ -1086,8 +1108,9 @@ namespace gip.core.autocomponent
                 return;
             }
 
-            if (ParentTaskExecComp != null && CurrentACMethod.ValueT != null && LastACState != CurrentACState && LastACState == ACStateEnum.SMStarting)
-                ParentTaskExecComp.CallbackTask(CurrentACMethod.ValueT, CreateNewMethodEventArgs(CurrentACMethod.ValueT, Global.ACMethodResultState.InProcess), PointProcessingState.Accepted);
+            ACMethod acMethod = GetCurrentACMethod();
+            if (ParentTaskExecComp != null && acMethod != null && LastACState != CurrentACState && LastACState == ACStateEnum.SMStarting)
+                ParentTaskExecComp.CallbackTask(acMethod, CreateNewMethodEventArgs(acMethod, Global.ACMethodResultState.InProcess), PointProcessingState.Accepted);
 
             if (CyclicWaitIfSimulationOn())
                 return;
@@ -1207,8 +1230,9 @@ namespace gip.core.autocomponent
                 return;
             }
 
-            if (ParentTaskExecComp != null && CurrentACMethod.ValueT != null && LastACState != CurrentACState && LastACState == ACStateEnum.SMStarting)
-                ParentTaskExecComp.CallbackTask(CurrentACMethod.ValueT, CreateNewMethodEventArgs(CurrentACMethod.ValueT, Global.ACMethodResultState.InProcess), PointProcessingState.Accepted);
+            ACMethod acMethod = GetCurrentACMethod();
+            if (ParentTaskExecComp != null && acMethod != null && LastACState != CurrentACState && LastACState == ACStateEnum.SMStarting)
+                ParentTaskExecComp.CallbackTask(acMethod, CreateNewMethodEventArgs(acMethod, Global.ACMethodResultState.InProcess), PointProcessingState.Accepted);
         }
 
 
@@ -1282,8 +1306,9 @@ namespace gip.core.autocomponent
                 return;
             }
 
-            if (ParentTaskExecComp != null && CurrentACMethod.ValueT != null && LastACState != CurrentACState && LastACState == ACStateEnum.SMStarting)
-                ParentTaskExecComp.CallbackTask(CurrentACMethod.ValueT, CreateNewMethodEventArgs(CurrentACMethod.ValueT, Global.ACMethodResultState.InProcess), PointProcessingState.Accepted);
+            ACMethod acMethod = GetCurrentACMethod();
+            if (ParentTaskExecComp != null && acMethod != null && LastACState != CurrentACState && LastACState == ACStateEnum.SMStarting)
+                ParentTaskExecComp.CallbackTask(acMethod, CreateNewMethodEventArgs(acMethod, Global.ACMethodResultState.InProcess), PointProcessingState.Accepted);
         }
 
         /// <summary>
@@ -1861,7 +1886,11 @@ namespace gip.core.autocomponent
                 {
                     if (CurrentTask != null)
                     {
-                        CurrentTask.ACMethod = CurrentACMethod.ValueT;
+                        var acMethod = CurrentACMethod.ValueT;
+                        if (acMethod == null)
+                            return;
+
+                        CurrentTask.ACMethod = acMethod;
                         OnPropertyChanged("CurrentTask"); // Persist
                         ACPointAsyncRMIWrap<ACComponent> taskClone = ParentTaskExecComp.TaskInvocationPoint.ConnectionList.Where(c => c.RequestID == CurrentTask.ACMethod.ACRequestID).FirstOrDefault();
                         if (taskClone != null && taskClone != CurrentTask)
@@ -1885,7 +1914,7 @@ namespace gip.core.autocomponent
                 || CurrentACState == ACStateEnum.SMHeld
                 || CurrentACState == ACStateEnum.SMStopping
                 || CurrentACState == ACStateEnum.SMStarting)
-                && CurrentACMethod.ValueT != null)
+                && GetCurrentACMethod() != null)
             {
                 return true;
             }
@@ -1958,14 +1987,15 @@ namespace gip.core.autocomponent
             {
                 CompleteResult completeResult = CompleteResult.Succeeded;
                 MsgWithDetails msgError = null;
+                ACMethod acMethod = GetCurrentACMethod();
                 if (ACStateConverter != null)
                 {
-                    completeResult = ACStateConverter.ReceiveACMethodResult(this, CurrentACMethod.ValueT, out msgError);
+                    completeResult = ACStateConverter.ReceiveACMethodResult(this, acMethod, out msgError);
                     completeResult = HandleFunctionErrorOnCallback(msgError, completeResult);
                     if (completeResult == CompleteResult.FailedAndWait)
                         return completeResult;
                 }
-                completeResult = AnalyzeACMethodResult(CurrentACMethod.ValueT, out msgError, completeResult);
+                completeResult = AnalyzeACMethodResult(acMethod, out msgError, completeResult);
                 completeResult = HandleFunctionErrorOnCallback(msgError, completeResult);
                 if (completeResult == CompleteResult.FailedAndWait)
                     return completeResult;
@@ -1974,7 +2004,8 @@ namespace gip.core.autocomponent
 
                 CallbackTaskBeforeResetting(resultState);
                 CurrentACMethod.ForceBroadcast = true;
-                CurrentACMethod.ValueT = CurrentACMethod.ValueT;
+                if (acMethod != null)
+                    CurrentACMethod.ValueT = acMethod;
                 CurrentACMethod.ForceBroadcast = false;
             }
             catch (Exception e)
@@ -2043,14 +2074,15 @@ namespace gip.core.autocomponent
                 FinishProgramLog(CurrentTask.ACMethod);
                 if (ParentTaskExecComp != null)
                 {
-                    if (CurrentTask != null && CurrentACMethod.ValueT != null)
+                    ACMethod acMethod = GetCurrentACMethod();
+                    if (CurrentTask != null && acMethod != null)
                     {
                         if (ParentTaskExecComp.CallbackTask(CurrentTask, CreateNewMethodEventArgs(CurrentTask.ACMethod, resultState)))
                             CurrentTask = null;
                     }
-                    else if (CurrentACMethod.ValueT != null)
+                    else if (acMethod != null)
                     {
-                        ParentTaskExecComp.CallbackTask(CurrentACMethod.ValueT, CreateNewMethodEventArgs(CurrentACMethod.ValueT, resultState));
+                        ParentTaskExecComp.CallbackTask(acMethod, CreateNewMethodEventArgs(acMethod, resultState));
                     }
                 }
             }
@@ -2091,27 +2123,21 @@ namespace gip.core.autocomponent
         /// </summary>
         public MsgWithDetails ReSendACMethod(ACMethod newParameters = null)
         {
+            ACMethod acMethod = GetCurrentACMethod();
             if (newParameters != null)
             {
-                OnChangingCurrentACMethod(CurrentACMethod.ValueT, newParameters);
+                OnChangingCurrentACMethod(acMethod, newParameters);
                 CurrentACMethod.ValueT = newParameters;
             }
             MsgWithDetails msgError = null;
-            if (CurrentACMethod.ValueT == null)
-            {
-                if (CurrentTask != null)
-                    CurrentACMethod.ValueT = CurrentTask.ACMethod;
-                else if (SavedACMethod != null)
-                    CurrentACMethod.ValueT = SavedACMethod;
-            }
-
-            if (CurrentACMethod.ValueT == null)
+            acMethod = GetCurrentACMethod();
+            if (acMethod == null)
             {
                 msgError = new MsgWithDetails() { Message = "CurrentACMethod is null" };
                 Messages.LogError(this.GetACUrl(), "ReSendACMethod(0)", msgError.Message);
             }
             else
-                msgError = CompleteACMethodOnSMStarting(CurrentACMethod.ValueT);
+                msgError = CompleteACMethodOnSMStarting(acMethod);
             if (msgError != null)
             {
                 if (FunctionError.ValueT == PANotifyState.Off)
@@ -2123,7 +2149,7 @@ namespace gip.core.autocomponent
 
             if (ACStateConverter != null)
             {
-                msgError = ACStateConverter.SendACMethod(this, CurrentACMethod.ValueT);
+                msgError = ACStateConverter.SendACMethod(this, acMethod);
                 if (msgError != null && !IsSimulationOn)
                 {
                     if (FunctionError.ValueT == PANotifyState.Off)
