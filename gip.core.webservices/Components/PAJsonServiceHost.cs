@@ -49,7 +49,14 @@ namespace gip.core.webservices
             Uri uri = new Uri(strUri);
             WebServiceHost serviceHost = new WebServiceHost(ServiceType, uri);
             serviceHost.Authorization.ServiceAuthorizationManager = new WSRestAuthorizationManager();
-            ServiceEndpoint serviceEndpoint = serviceHost.AddServiceEndpoint(ServiceInterfaceType, new WebHttpBinding() { ContentTypeMapper = new WSJsonServiceContentTypeMapper(), AllowCookies = true }, "");
+            WebHttpBinding httpBinding = new WebHttpBinding() { ContentTypeMapper = new WSJsonServiceContentTypeMapper(), AllowCookies = true };
+            httpBinding.MaxReceivedMessageSize = int.MaxValue;
+            httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
+            httpBinding.MaxBufferSize = int.MaxValue;
+            //httpBinding.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
+            httpBinding.MaxBufferPoolSize = int.MaxValue;
+
+            ServiceEndpoint serviceEndpoint = serviceHost.AddServiceEndpoint(ServiceInterfaceType, httpBinding, "");
             if (serviceEndpoint != null)
                 serviceEndpoint.EndpointBehaviors.Add(new PAWebServiceBaseErrorBehavior(this.GetACUrl()));
 
