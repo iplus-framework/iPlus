@@ -118,7 +118,7 @@ namespace gip.core.autocomponent
 
                 using (ACMonitor.Lock(LockLocalStorage_20033))
                 {
-                    return _LocalStorage.Where(c => c.ValueT.Equals(refObject)).FirstOrDefault();
+                    return _LocalStorage.Where(c => c.ValueT != null && c.ValueT.Equals(refObject)).FirstOrDefault();
                 }
             }
         }
