@@ -1034,6 +1034,15 @@ namespace gip.core.layoutengine
             }
             if (actionArgs == null)
             {
+                if(ParameterList != null && CommandParameter != null)
+                {
+                    foreach (ACValue valueItem in ParameterList.ToArray())
+                        if (valueItem.ACIdentifier == "CommandParameter")
+                            ParameterList.Remove(valueItem);
+
+                    ParameterList.Add(new ACValue("CommandParameter", CommandParameter));
+                }
+                
                 actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
                 ACAction(actionArgs);
             }
