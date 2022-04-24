@@ -29,7 +29,20 @@ namespace gip.core.layoutengine
             if (string.IsNullOrEmpty(valueString) || (parameter == null))
                 return false;
             string parameterAsString = parameter.ToString();
-            return valueString.Contains(parameterAsString);
+            if (String.IsNullOrEmpty(parameterAsString))
+                return false;
+            if (parameterAsString[0] == '$' && parameterAsString.Contains(";"))
+            {
+                string[] searchVals = parameterAsString.Substring(1).Split(';');
+                foreach (string searchVal in searchVals)
+                {
+                    if (!String.IsNullOrEmpty(searchVal) && valueString.Contains(searchVal))
+                        return true;
+                }
+                return false;
+            }
+            else
+                return valueString.Contains(parameterAsString);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

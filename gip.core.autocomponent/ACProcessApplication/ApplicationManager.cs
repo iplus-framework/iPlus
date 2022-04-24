@@ -606,49 +606,32 @@ namespace gip.core.autocomponent
         [ACMethodInfo("", "en{'Refresh configuration'}de{'Aktualisiere Konfiguration'}", 102, false)]
         public void ReloadConfig(Guid acMethodID)
         {
-            var query = FindChildComponents<PWProcessFunction>(c => c is PWProcessFunction
+            this.ApplicationQueue.Add(() =>
+            {
+                var query = FindChildComponents<PWProcessFunction>(c => c is PWProcessFunction
                                                                 && (c as PWProcessFunction).ContentACClassWF != null
                                                                 && (c as PWProcessFunction).ContentACClassWF.ACClassMethodID == acMethodID
                                                                 , null, 3);
-            if (query.Any())
-            {
-                //ACMonitorObject contextLockForACClassWF = null;
-                //List<ACClassWF> allLoadedWFs = new List<ACClassWF>();
-                foreach (PWProcessFunction pwFunction in query)
+                if (query.Any())
                 {
-                    pwFunction.ReloadConfig();
-                    //if (pwFunction.WFDictionary != null)
-                    //{
-                    //    foreach (ACClassWF wfClass in pwFunction.WFDictionary.Keys.ToArray())
-                    //    {
-                    //        if (contextLockForACClassWF == null && pwFunction.ContextLockForACClassWF != null)
-                    //            contextLockForACClassWF = pwFunction.ContextLockForACClassWF;
-                    //        if (!allLoadedWFs.Contains(wfClass))
-                    //            allLoadedWFs.Add(wfClass);
-                    //    }
-                    //}
+                    //ACMonitorObject contextLockForACClassWF = null;
+                    //List<ACClassWF> allLoadedWFs = new List<ACClassWF>();
+                    foreach (PWProcessFunction pwFunction in query)
+                    {
+                        pwFunction.ReloadConfig();
+                    }
                 }
 
-                //if (contextLockForACClassWF != null && allLoadedWFs.Any())
-                //{
-                //    using (ACMonitor.Lock(contextLockForACClassWF))
-                //    {
-                //        foreach (ACClassWF wfClass in allLoadedWFs)
-                //        {
-                //            wfClass.AutoRefresh();
-                //        }
-                //    }
-                //}
-            }
-
-            ACClassMethod acClassMethodWF = ACClassMethods.FirstOrDefault(c => c.ACClassMethodID == acMethodID);
-            if (acClassMethodWF != null)
-            {
-                using (ACMonitor.Lock(acClassMethodWF.Database.QueryLock_1X000))
+                ACClassMethod acClassMethodWF = ACClassMethods.FirstOrDefault(c => c.ACClassMethodID == acMethodID);
+                if (acClassMethodWF != null)
                 {
-                    acClassMethodWF.AutoRefresh();
+                    using (ACMonitor.Lock(acClassMethodWF.Database.QueryLock_1X000))
+                    {
+                        acClassMethodWF.AutoRefresh();
+                    }
                 }
             }
+            );
         }
 
         [ACMethodInteraction("xxx", "en{'Run State Validation'}de{'Führe Zustandsvalidaierung durch'}", 103, true)]
