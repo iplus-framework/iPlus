@@ -87,6 +87,11 @@ namespace gip.core.webservices
             }
         }
 
+        public override object GetWebServiceInstance()
+        {
+            return new CoreWebService();
+        }
+
         private ConcurrentDictionary<Guid, VBUserRights> _Sessions = new ConcurrentDictionary<Guid, VBUserRights>();
 
         public void AddSession(VBUserRights vbUserRights)

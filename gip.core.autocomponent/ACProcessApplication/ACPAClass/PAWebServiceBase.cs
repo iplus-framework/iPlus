@@ -89,6 +89,11 @@ namespace gip.core.autocomponent
             get;
         }
 
+        public virtual object GetWebServiceInstance()
+        {
+            return new object();
+        }
+
         [ACPropertyBindingSource(203, "Error", "en{'Watching Alarm'}de{'Überwachungs Alarm'}", "", false, false)]
         public IACContainerTNet<PANotifyState> IsServiceAlarm { get; set; }
 
