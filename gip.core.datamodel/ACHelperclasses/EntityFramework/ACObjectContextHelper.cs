@@ -813,9 +813,15 @@ namespace gip.core.datamodel
             if (isDisconnectedException)
                 return isDisconnectedException;
 
+            isDisconnectedException = e is InvalidOperationException
+                                            && e.HResult == Const.EF_HResult_InvalidOperationException
+                                            && e.Message.IndexOf("not closed", 0, StringComparison.OrdinalIgnoreCase) >= 0;
+            if (isDisconnectedException)
+                return isDisconnectedException;
+
             isDisconnectedException = e.InnerException != null
-                                    && ((e.InnerException is InvalidOperationException && e.InnerException.HResult == Const.EF_HResult_InvalidOperationException)
-                                    || (e.InnerException is System.Data.SqlClient.SqlException && e.InnerException.HResult == Const.EF_HResult_SqlException));
+                                    && (   (e.InnerException is InvalidOperationException && e.InnerException.HResult == Const.EF_HResult_InvalidOperationException)
+                                        || (e.InnerException is System.Data.SqlClient.SqlException && e.InnerException.HResult == Const.EF_HResult_SqlException));
             return isDisconnectedException;
         }
 
@@ -823,18 +829,24 @@ namespace gip.core.datamodel
         {
             if (msg == null)
                 return false;
-            bool isDisconnectedException = msg.MsgDetails.Where(c => c.Row == Const.EF_HResult_EntityException && c.Message.IndexOf("Open", 0, StringComparison.OrdinalIgnoreCase) >= 0).Any();
+            bool isDisconnectedException = msg.MsgDetails.Where(c =>   c.Row == Const.EF_HResult_EntityException 
+                                                                    && c.Message.IndexOf("Open", 0, StringComparison.OrdinalIgnoreCase) >= 0).Any();
             if (isDisconnectedException)
                 return isDisconnectedException;
+
+            isDisconnectedException = msg.MsgDetails.Where(c =>    c.Row == Const.EF_HResult_InvalidOperationException
+                                                                && c.Message.IndexOf("not closed", 0, StringComparison.OrdinalIgnoreCase) >= 0).Any();
+            if (isDisconnectedException)
+                return isDisconnectedException;
+
             isDisconnectedException = msg.MsgDetails.Where(c => c.Row == Const.EF_HResult_EntityException).Any()
-                                        && msg.MsgDetails.Where(c => c.Row == Const.EF_HResult_InvalidOperationException || c.Row == Const.EF_HResult_SqlException).Any();
+                                   && msg.MsgDetails.Where(c => c.Row == Const.EF_HResult_InvalidOperationException || c.Row == Const.EF_HResult_SqlException).Any();
             return isDisconnectedException;
         }
 
         public static void ParseExceptionStatic(MsgWithDetails msg, Exception e)
         {
             bool isDisconnectedException = IsDisconnectedException(e);
-
 
             string constraint = "";
             if (e.InnerException != null)
@@ -867,7 +879,19 @@ namespace gip.core.datamodel
                     }
                 }
             }
-            msg.AddDetailMessage(new Msg { ACIdentifier = "Error", Message = e.Message, Row = e.HResult });
+
+            int exceptionType = e.HResult;
+            if (exceptionType == 0)
+            {
+                if (e is EntityException)
+                    exceptionType = Const.EF_HResult_EntityException;
+                else if (e is InvalidOperationException)
+                    exceptionType = Const.EF_HResult_InvalidOperationException;
+                else if (e is System.Data.SqlClient.SqlException)
+                    exceptionType = Const.EF_HResult_SqlException;
+            }
+
+            msg.AddDetailMessage(new Msg { ACIdentifier = "Error", Message = e.Message, Row = exceptionType });
             if (e.InnerException != null)
                 msg.AddDetailMessage(new Msg { ACIdentifier = "Error", Message = e.InnerException.Message, Row = e.InnerException.HResult });
 
