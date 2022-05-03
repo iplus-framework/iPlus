@@ -411,9 +411,11 @@ namespace gip.core.communication.ISOonTCP
             return ipAddrToConnect.GetAddressBytes();
 
         }
-#endregion
+        #endregion
 
-        /*  Aufbau eines Data TPDUs
+        /*  
+         *  https://github.com/S7NetPlus/s7netplus
+         *  Aufbau eines Data TPDUs
 
             Byte Description 
             0-3 ISO-TCP header 
@@ -453,7 +455,7 @@ namespace gip.core.communication.ISOonTCP
             ...-... data part 
         */
 
-#region Read
+        #region Read
         public ErrorCode ReadBytes(DataType DataType, int dbNo, int startByteAddr, int count, out byte[] bytes)
         {
             bytes = new byte[count];

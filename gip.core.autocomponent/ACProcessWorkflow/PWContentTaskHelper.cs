@@ -92,13 +92,14 @@ namespace gip.core.autocomponent
             if (pwGroupComponent.WFInitPhase >= PWBase.WFInstantiatonPhase.NewWF_Creating)
             {
                 ACClassWF[] wfChilds = null;
+                bool? mustRefreshACClassWF = null;
                 try
                 {
-
                     using (ACMonitor.Lock(pwGroupComponent.ContextLockForACClassWF))
                     {
+                        mustRefreshACClassWF = pwGroupComponent.ContentACClassWF.ACClassMethod != null && pwGroupComponent.ContentACClassWF.ACClassMethod.MustRefreshACClassWF;
                         // Nachladen, falls Workflow von Client verändert worden ist
-                        if (pwGroupComponent.ContentACClassWF.ACClassMethod != null && pwGroupComponent.ContentACClassWF.ACClassMethod.MustRefreshACClassWF)
+                        if (mustRefreshACClassWF.Value)
                         {
                             if (pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.IsLoaded)
                             {
@@ -107,6 +108,13 @@ namespace gip.core.autocomponent
                             }
                         }
                         wfChilds = pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.ToArray();
+                        if (mustRefreshACClassWF.Value && wfChilds != null && wfChilds.Any())
+                        {
+                            foreach (var acClassWF in wfChilds)
+                            {
+                                acClassWF.AutoRefresh();
+                            }
+                        }
                     }
                 }
                 catch (Exception e)
@@ -123,8 +131,13 @@ namespace gip.core.autocomponent
                 {
                     foreach (var acClassWF in wfChilds)
                     {
-                        if (acClassWF.ACClassMethod != null && acClassWF.ACClassMethod.MustRefreshACClassWF)
-                            acClassWF.AutoRefresh();
+                        //if (mustRefreshACClassWF.HasValue && mustRefreshACClassWF.Value)
+                        //{
+                        //    using (ACMonitor.Lock(pwGroupComponent.ContextLockForACClassWF))
+                        //    {
+                        //        acClassWF.AutoRefresh();
+                        //    }
+                        //}
 
                         // Typ der Klasse ist vom Globalen Context, WF vom Task-Context
                         ACClass acClass = pwGroupComponent.Root.Database.ContextIPlus.GetACType(acClassWF.PWACClassID);
