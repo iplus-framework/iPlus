@@ -29,12 +29,12 @@ namespace gip.core.layoutengine
     public class VBButton : Button, IVBDynamicIcon, IVBContent, IACObject
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "ButtonStyleGip", 
+        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> {
+            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip,
+                                         styleName = "ButtonStyleGip",
                                          styleUri = "/gip.core.layoutengine;Component/Controls/VBButton/Themes/ButtonStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "ButtonStyleAero", 
+            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero,
+                                         styleName = "ButtonStyleAero",
                                          styleUri = "/gip.core.layoutengine;Component/Controls/VBButton/Themes/ButtonStyleAero.xaml" },
         };
 
@@ -248,7 +248,7 @@ namespace gip.core.layoutengine
                     CheckBinding(VBContentMemberMouseUp, ref _TypeMemberMouseUp);
             }
 
-            if(!string.IsNullOrEmpty(VBToolTip) && ContextACObject != null)
+            if (!string.IsNullOrEmpty(VBToolTip) && ContextACObject != null)
             {
                 ToolTip = this.Root().Environment.TranslateText(ContextACObject, VBToolTip);
             }
@@ -643,7 +643,7 @@ namespace gip.core.layoutengine
         /// <summary>
         /// Represents the dependency property for CanExecuteCyclic.
         /// </summary>
-        public static readonly DependencyProperty CanExecuteCyclicProperty = 
+        public static readonly DependencyProperty CanExecuteCyclicProperty =
             ContentPropertyHandler.CanExecuteCyclicProperty.AddOwner(typeof(VBButton), new FrameworkPropertyMetadata((int)0, FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary>
@@ -663,7 +663,7 @@ namespace gip.core.layoutengine
         /// <summary>
         /// Represents the dependency property for DisableContextMenu.
         /// </summary>
-        public static readonly DependencyProperty DisableContextMenuProperty = 
+        public static readonly DependencyProperty DisableContextMenuProperty =
             ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBButton), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary>
@@ -1034,15 +1034,25 @@ namespace gip.core.layoutengine
             }
             if (actionArgs == null)
             {
-                if(ParameterList != null && CommandParameter != null)
+                #region @aagincic: Temp fix with grid button without action parameters
+                if (ParameterList == null)
+                    ParameterList = new ACValueList();
+
+                if (CommandParameter != null)
                 {
                     foreach (ACValue valueItem in ParameterList.ToArray())
+                    {
                         if (valueItem.ACIdentifier == "CommandParameter")
                             ParameterList.Remove(valueItem);
-
+                    }
                     ParameterList.Add(new ACValue("CommandParameter", CommandParameter));
+
+                    ACCommand acCommand = ACContentList.Where(c => c is ACCommand).FirstOrDefault() as ACCommand;
+                    if (acCommand != null)
+                        acCommand.ParameterList = ParameterList;
                 }
-                
+                #endregion
+
                 actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
                 ACAction(actionArgs);
             }
@@ -1050,7 +1060,7 @@ namespace gip.core.layoutengine
 
         private void ucButton_IsEnabled(object sender, CanExecuteRoutedEventArgs e)
         {
-            if (this.Visibility == System.Windows.Visibility.Collapsed 
+            if (this.Visibility == System.Windows.Visibility.Collapsed
                 || this.Visibility == System.Windows.Visibility.Hidden
                 || this.RightControlMode <= Global.ControlModes.Disabled)
             {
