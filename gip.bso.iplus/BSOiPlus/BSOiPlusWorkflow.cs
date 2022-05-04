@@ -506,7 +506,7 @@ namespace gip.bso.iplus
             if (CurrentACClassMethod != null)
             {
                 AddVisitedMethods(CurrentACClassMethod);
-                CurrentACClassMethod.UpdateDate = DateTime.Now;
+                //CurrentACClassMethod.UpdateDate = DateTime.Now;
             }
             return base.OnPreSave();
         }

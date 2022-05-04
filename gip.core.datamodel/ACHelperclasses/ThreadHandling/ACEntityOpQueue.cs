@@ -303,6 +303,11 @@ namespace gip.core.datamodel
                         MsgWithDetails msg = Context.ACSaveChanges(true, SaveOptions.AcceptAllChangesAfterSave, SaveChangesWithoutValidation);
                         if (msg != null)
                         {
+                            if (   ACThread.PerfLogger.Active
+                                && ACObjectContextHelper.IsDisconnectedException(msg)
+                                && Database.Root  != null 
+                                && Database.Root.VBDump != null)
+                                Database.Root.VBDump.DumpStackTrace(Thread.CurrentThread);
                             Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(0)", "ACSaveChanges failed");
                             Database.Root.Messages.LogMessageMsg(msg);
                             if (_SaveChangesRetriesA <= 3 && ACObjectContextHelper.IsDisconnectedException(msg))

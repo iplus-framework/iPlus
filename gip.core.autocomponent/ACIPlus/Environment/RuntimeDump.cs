@@ -162,13 +162,19 @@ namespace gip.core.autocomponent
             string xmlDumpFileName = string.Format("{0}RuntimeDump_{1}_{2:yyyyMMdd_HHmmss}.xml", Messages.LogFilePath, Process.GetCurrentProcess().Id.ToString(), DateTime.Now);
 
             (Root as ACComponent).DumpAsXMLDoc().Save(xmlDumpFileName);
+            DumpStackTrace();
+        }
 
+        public void DumpStackTrace(Thread ignoreThread = null)
+        {
             StackTrace st = new StackTrace(true);
             string trace = st.ToString();
             Messages.LogDebug(this.GetACUrl(), "RuntimeDump.Dump(StackTrace)", trace);
 
             foreach (ACThread thread in ACThread.ACThreadList)
             {
+                if (ignoreThread != null && thread.Thread == ignoreThread)
+                    continue;
                 StringBuilder builder = new StringBuilder();
                 thread.Suspend();
                 st = new StackTrace(thread.Thread, true);
