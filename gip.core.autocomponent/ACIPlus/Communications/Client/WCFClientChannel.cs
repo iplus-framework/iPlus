@@ -1323,7 +1323,8 @@ namespace gip.core.autocomponent
                 ACDisconnect disconnect = acMessage.ACParameter[0] as ACDisconnect;
                 if (disconnect.ShutdownClient)
                 {
-                    Root.RootPageWPF.CloseWindowFromThread();
+                    if (Root.RootPageWPF != null)
+                        Root.RootPageWPF.CloseWindowFromThread();
                 }
                 return;
             }
