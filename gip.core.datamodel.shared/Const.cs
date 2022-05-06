@@ -348,6 +348,9 @@
         public const int EF_HResult_SqlException = unchecked((int)0x80131904); // -2146232060 System.Data.SqlClient.SqlException
 
         public const string VBLanguage = "en{'Language'}de{'Sprache'}";
+
+        public const string From = "en{'From'}de{'Von'}";
+        public const string To = "en{'To'}de{'Bis'}";
     }
 
 
