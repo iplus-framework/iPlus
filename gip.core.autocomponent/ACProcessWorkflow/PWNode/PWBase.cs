@@ -877,18 +877,18 @@ namespace gip.core.autocomponent
         /// <param name="deselector">Break condition for search. Can be null. Hint: If deselector equals the selector, then the first matching node will be returned.</param>
         /// <param name="maxRecursionDepth">If = 0, then unlimited search depth</param>
         /// <returns></returns>
-        public List<TResult> FindPredecessors<TResult>(bool inSameGroup, Func<PWBase, bool> selector, Func<PWBase, bool> deselector = null,
-                                                       int maxRecursionDepth = 0) where TResult : PWBase
+        public List<TResult> FindPredecessors<TResult>(bool inSameGroup, Func<IACComponentPWNode, bool> selector, Func<IACComponentPWNode, bool> deselector = null,
+                                                       int maxRecursionDepth = 0) where TResult : IACComponentPWNode
         {
             List<TResult> foundNodes = new List<TResult>();
-            List<PWBase> visitedNodes = new List<PWBase>();
+            List<IACComponentPWNode> visitedNodes = new List<IACComponentPWNode>();
             FindPredecessorsIntern<TResult>(ref foundNodes, ref visitedNodes, inSameGroup ? this : null, selector, deselector, 0, maxRecursionDepth);
             return foundNodes;
         }
 
-        private void FindPredecessorsIntern<TResult>(ref List<TResult> foundNodes, ref List<PWBase> visitedNodes,
-                                                PWBase startNodeForSearchInSameGroupOnly, Func<PWBase, bool> selector, Func<PWBase, bool> deselector,
-                                                int currentRecursionDepth = 0, int maxRecursionDepth = 0) where TResult : PWBase
+        private void FindPredecessorsIntern<TResult>(ref List<TResult> foundNodes, ref List<IACComponentPWNode> visitedNodes,
+                                                PWBase startNodeForSearchInSameGroupOnly, Func<IACComponentPWNode, bool> selector, Func<IACComponentPWNode, bool> deselector,
+                                                int currentRecursionDepth = 0, int maxRecursionDepth = 0) where TResult : IACComponentPWNode
         {
             if (visitedNodes.Contains(this))
                 return;
@@ -945,19 +945,19 @@ namespace gip.core.autocomponent
         /// <param name="deselector">Break condition for search. Can be null. Hint: If deselector equals the selector, then the first matching node will be returned.</param>
         /// <param name="maxRecursionDepth">If = 0, then unlimited search depth</param>
         /// <returns></returns>
-        public List<TResult> FindSuccessors<TResult>(bool inSameGroup, Func<PWBase, bool> selector, Func<PWBase, bool> deselector = null,
-                                                       int maxRecursionDepth = 0) where TResult : PWBase
+        public List<TResult> FindSuccessors<TResult>(bool inSameGroup, Func<IACComponentPWNode, bool> selector, Func<IACComponentPWNode, bool> deselector = null,
+                                                       int maxRecursionDepth = 0) where TResult : IACComponentPWNode
         {
             List<TResult> foundNodes = new List<TResult>();
-            List<PWBase> visitedNodes = new List<PWBase>();
+            List<IACComponentPWNode> visitedNodes = new List<IACComponentPWNode>();
             FindSuccessorsIntern<TResult>(ref foundNodes, ref visitedNodes, inSameGroup ? this : null, selector, deselector, 0, maxRecursionDepth);
             return foundNodes;
         }
 
 
-        private void FindSuccessorsIntern<TResult>(ref List<TResult> foundNodes, ref List<PWBase> visitedNodes,
-                                                PWBase startNodeForSearchInSameGroupOnly, Func<PWBase, bool> selector, Func<PWBase, bool> deselector,
-                                                int currentRecursionDepth = 0, int maxRecursionDepth = 0) where TResult : PWBase
+        private void FindSuccessorsIntern<TResult>(ref List<TResult> foundNodes, ref List<IACComponentPWNode> visitedNodes,
+                                                IACComponentPWNode startNodeForSearchInSameGroupOnly, Func<IACComponentPWNode, bool> selector, Func<IACComponentPWNode, bool> deselector,
+                                                int currentRecursionDepth = 0, int maxRecursionDepth = 0) where TResult : IACComponentPWNode
         {
             if (visitedNodes.Contains(this))
                 return;
@@ -992,17 +992,17 @@ namespace gip.core.autocomponent
 
 
             var targetComps = pwOutNode.PWPointOut.ConnectionList
-                            .Where(c => c.ValueT is PWBase
+                            .Where(c => c.ValueT is IACComponentPWNode
                                         && (   (startNodeForSearchInSameGroupOnly == null) 
                                             || (startNodeForSearchInSameGroupOnly != null && c.ValueT.ParentACComponent == startNodeForSearchInSameGroupOnly.ParentACComponent)))
-                          .Select(c => c.ValueT as PWBase).ToArray();
+                          .Select(c => c.ValueT as IACComponentPWNode).ToArray();
             if (!targetComps.Any())
                 return;
 
 
-            foreach (PWBase pwBase in targetComps)
+            foreach (IACComponentPWNode pwBase in targetComps)
             {
-                pwBase.FindSuccessorsIntern<TResult>(ref foundNodes, ref visitedNodes, startNodeForSearchInSameGroupOnly, selector, deselector, currentRecursionDepth, maxRecursionDepth);
+                (pwBase as PWBase).FindSuccessorsIntern<TResult>(ref foundNodes, ref visitedNodes, startNodeForSearchInSameGroupOnly, selector, deselector, currentRecursionDepth, maxRecursionDepth);
             }
         }
         #endregion
