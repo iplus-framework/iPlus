@@ -324,7 +324,7 @@ namespace gip.bso.iplus
         }
 
         private ACValueItem _SelectedMessageLevel;
-        [ACPropertySelected(999,"MessageLevel", "en{'Message level'}de{'Nachrichtenebene'}")]
+        [ACPropertySelected(9999,"MessageLevel", "en{'Message level'}de{'Nachrichtenebene'}")]
         public ACValueItem SelectedMessageLevel
         {
             get
@@ -339,7 +339,7 @@ namespace gip.bso.iplus
         }
 
         private ACValueItemList _MessageLevelList;
-        [ACPropertyList(999,"MessageLevel")]
+        [ACPropertyList(9999,"MessageLevel")]
         public ACValueItemList MessageLevelList
         {
             get
@@ -357,6 +357,19 @@ namespace gip.bso.iplus
                 return _MessageLevelList;
             }
         }
+
+        private string _AlarmSourceText;
+        [ACPropertyInfo(9999, "", "en{'Alarm source text'}de{'Die Alarmquelle'}")]
+        public string AlarmSourceText
+        {
+            get => _AlarmSourceText;
+            set
+            {
+                _AlarmSourceText = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         #endregion
 
@@ -515,6 +528,10 @@ namespace gip.bso.iplus
 
             if (!String.IsNullOrEmpty(SearchText))
                 query = query.Where(c => c.Message.Contains(SearchText)).AsQueryable();
+
+            if (!string.IsNullOrEmpty(AlarmSourceText))
+                query = query.Where(c => (c.ACClass != null && c.ACClass.ACURLComponentCached == AlarmSourceText) ||
+                                         (c.ACProgramLog != null && c.ACProgramLog.ACUrl == AlarmSourceText)).AsQueryable();
 
             (query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
 
