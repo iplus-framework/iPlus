@@ -30,10 +30,10 @@ namespace gip.core.autocomponent
         #endregion
 
         #region Enums
-        public enum ValidationBehaviour
+        public enum ValidationBehaviour : short
         {
-            Laxly = 0,
-            Strict = 1
+            Laxly = 1,
+            Strict = 2
         }
 
         /// <summary>Controls the behaviour how a instance of a Managerclass will be returned from method GetServiceInstance</summary>
