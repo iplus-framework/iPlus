@@ -1488,7 +1488,7 @@ namespace gip.core.autocomponent
         {
             if (!IsEnabledCopyConfigToSimilarNodes())
                 return;
-
+            // CopyConfigToSimilarNodes_Old();
             CopyConfigToSimilarNodes_New();
         }
 
