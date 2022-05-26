@@ -2,16 +2,9 @@ using System;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
-using System.IO;
-using System.Xml;
 using gip.core.datamodel;
 using System.Data.Objects.DataClasses;
-using System.Collections.ObjectModel;
-using System.Data.Objects;
 using System.Data;
-using System.Data.Metadata.Edm;
 
 
 namespace gip.core.autocomponent
@@ -1397,9 +1390,32 @@ namespace gip.core.autocomponent
             }
         }
 
+        /// <summary>
+        /// Source Property: 
+        /// </summary>
+        private bool _IsCopyNodeConfigOnParentLevel;
+        [ACPropertyInfo(999, nameof(IsCopyNodeConfigOnParentLevel), "en{'Copy on parent level'}de{'Auf'}")]
+        public bool IsCopyNodeConfigOnParentLevel
+        {
+            get
+            {
+                return _IsCopyNodeConfigOnParentLevel;
+            }
+            set
+            {
+                if (_IsCopyNodeConfigOnParentLevel != value)
+                {
+                    _IsCopyNodeConfigOnParentLevel = value;
+                    OnPropertyChanged(nameof(IsCopyNodeConfigOnParentLevel));
+                }
+            }
+        }
+
         #endregion
 
         #region Replication -> Methods
+
+        #region Replication -> Methods -> ReplicationNodeApplyToAll
 
         [ACMethodInfo("Replication", "en{'Apply to selected data objects'}de{'Bei ausgewählten Datenobjekten anwenden'}", 500)]
         public void ReplicationNodeApplyToAll()
@@ -1430,6 +1446,10 @@ namespace gip.core.autocomponent
                  AllHistoryPWNodeParamValueList.Any(p => p.Selected); ;
         }
 
+        #endregion
+
+        #region Replication -> Methods -> ReplicationFunctionApplyToAll
+
         [ACMethodInfo("Replication", "en{'Apply to selected data objects'}de{'Bei ausgewählten Datenobjekten anwenden'}", 501)]
         public void ReplicationFunctionApplyToAll()
         {
@@ -1459,6 +1479,9 @@ namespace gip.core.autocomponent
                  AllHistoryPAFunctionParamValueList.Any(p => p.Selected);
         }
 
+        #endregion
+
+        #region Replication -> Methods -> Copy(Remove)ConfigToSimilarNodes
 
         [ACMethodInfo("Replication", "en{'Copy values to similar nodes'}de{'Kopiere Werte in gleiche Knoten'}", 502)]
         public void CopyConfigToSimilarNodes()
@@ -1466,53 +1489,54 @@ namespace gip.core.autocomponent
             if (!IsEnabledCopyConfigToSimilarNodes())
                 return;
 
-            //ACClassWF[] similarNodes = CurrentACClassWF.ACClassMethod.ACClassWF_ACClassMethod
-            //        .Where(c => c.PWACClassID == CurrentACClassWF.PWACClassID && c != CurrentACClassWF)
-            //        .ToArray();
+            CopyConfigToSimilarNodes_New();
+        }
 
-            List<IACComponentPWNode> similarNodes = CurrentPWInfo.ParentRootWFNode.FindChildComponents<IACComponentPWNode>(c =>
-                   (c is IACComponentPWNode)
-                && (c as IACComponentPWNode).ContentACClassWF.PWACClassID == CurrentACClassWF.PWACClassID
-                && c != CurrentPWInfo
-                );
+        public void CopyConfigToSimilarNodes_Old()
+        {
+            List<IACComponentPWNode> rootNodes = new List<IACComponentPWNode>();
+            if (IsCopyNodeConfigOnParentLevel)
+            {
+                if (CurrentPWInfo.ParentRootWFNode != null && CurrentPWInfo.ParentRootWFNode.ParentRootWFNode != null)
+                {
+                    rootNodes = CurrentPWInfo.ParentRootWFNode.ParentRootWFNode.FindChildComponents<IACComponentPWNode>(c =>
+                                   (c is IACComponentPWNode)
+                                && (c as IACComponentPWNode).ContentACClassWF.PWACClassID == CurrentPWInfo.ParentRootWFNode.ContentACClassWF.PWACClassID);
+                }
+            }
+            else
+            {
+                rootNodes.Add(CurrentPWInfo.ParentRootWFNode);
+            }
+            List<IACComponentPWNode> similarNodes = GetSimilarNodes(rootNodes, CurrentPWInfo);
+
             if (similarNodes != null && similarNodes.Any())
             {
-                foreach (IACComponentPWNode similarNode in similarNodes)
-                {
-                    foreach (IACConfig thisConfigEntry in CurrentPWInfo.CurrentConfigStore.ConfigurationEntries.Where(c => c.ACClassWFID == CurrentPWInfo.ContentACClassWF.ACClassWFID))
-                    {
-                        string configACUrlOfSimilarNode = thisConfigEntry.ConfigACUrl.Replace(CurrentPWInfo.ConfigACUrl, similarNode.ConfigACUrl);
-                        string localConfigUrlOfSimilarNode = thisConfigEntry.LocalConfigACUrl.Replace(CurrentPWInfo.LocalConfigACUrl, similarNode.LocalConfigACUrl);
-                        IACConfig configOfSimilarNode = similarNode.CurrentConfigStore.ConfigurationEntries.Where(c => c.ConfigACUrl == configACUrlOfSimilarNode
-                                                                                                                    && c.ValueTypeACClass != null
-                                                                                                                    && thisConfigEntry.ValueTypeACClass != null
-                                                                                                                    && c.ValueTypeACClass.ACClassID == thisConfigEntry.ValueTypeACClass.ACClassID)
-                                                                                                            .FirstOrDefault();
-                        if (configOfSimilarNode == null)
-                        {
-                            configOfSimilarNode = ConfigManagerIPlus
-                            .ACConfigFactory(
-                                similarNode.CurrentConfigStore,
-                                similarNode.ContentACClassWF,
-                                thisConfigEntry.ValueTypeACClass.ACClassID,
-                                similarNode.PreValueACUrl,
-                                localConfigUrlOfSimilarNode,
-                                null);
-                        }
-                        if (configOfSimilarNode != null)
-                            configOfSimilarNode.Value = thisConfigEntry.Value;
-                    }
-                    //similarNode.MandatoryConfigStores
-                    //foreach (ACConfigParam thisConfigParam in PWNodeParamValueList)
-                    //{
-                    //    if (   thisConfigParam.DefaultConfiguration != null
-                    //        && thisConfigParam.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl())
-                    //    {
-                    //        similarNode.CurrentConfigStore.ConfigurationEntries;
-                    //    }
-                    //    //thisConfigParam.ConfigurationList
-                    //}
-                }
+                CopyNodeConfigToList(CurrentPWInfo, similarNodes);
+            }
+        }
+
+        public void CopyConfigToSimilarNodes_New()
+        {
+            IACComponentPWNode rootNode = null;
+            if (IsCopyNodeConfigOnParentLevel)
+            {
+                rootNode = CurrentPWInfo;
+                while (rootNode.ParentRootWFNode != null)
+                    rootNode = rootNode.ParentRootWFNode;
+            }
+            else
+            {
+                rootNode = CurrentPWInfo.ParentRootWFNode;
+            }
+            List<WF_WrapForConfig> sameMethodNodes = GetAllSameMethodNodes
+                (rootNode.ContentACClassWF,
+                null, // CurrentPWInfo.ContentACClassWF.RefPAACClassID, 
+                CurrentPWInfo.ContentACClassWF.RefPAACClassMethodID,
+                CurrentPWInfo.PreValueACUrl);
+            if (sameMethodNodes != null && sameMethodNodes.Any())
+            {
+                WriteConfigToNodes(CurrentPWInfo.CurrentConfigStore, CurrentPWInfo.ContentACClassWF, sameMethodNodes);
             }
         }
 
@@ -1524,6 +1548,195 @@ namespace gip.core.autocomponent
                     && PWNodeParamValueList != null
                     && PWNodeParamValueList.Any();
         }
+
+
+        public List<IACComponentPWNode> GetSimilarNodes(List<IACComponentPWNode> rootNodes, IACComponentPWNode templateNode)
+        {
+            List<IACComponentPWNode> similarNodes = new List<IACComponentPWNode>();
+
+            foreach (IACComponentPWNode rootNode in rootNodes)
+            {
+                List<IACComponentPWNode> tmpNodes = rootNode.FindChildComponents<IACComponentPWNode>(c =>
+                   (c is IACComponentPWNode)
+                && (c as IACComponentPWNode).ContentACClassWF.PWACClassID == templateNode.ContentACClassWF.PWACClassID
+                    && c != templateNode
+                );
+                if (tmpNodes != null && tmpNodes.Any())
+                    similarNodes.AddRange(tmpNodes);
+            }
+
+            return similarNodes;
+        }
+
+        public void CopyNodeConfigToList(IACComponentPWNode sourceNode, List<IACComponentPWNode> similarNodes)
+        {
+            foreach (IACComponentPWNode similarNode in similarNodes)
+            {
+                IEnumerable<IACConfig> configItems = sourceNode.CurrentConfigStore.ConfigurationEntries.Where(c => c.ACClassWFID == sourceNode.ContentACClassWF.ACClassWFID);
+                foreach (IACConfig thisConfigEntry in configItems)
+                {
+                    string configACUrlOfSimilarNode = thisConfigEntry.ConfigACUrl.Replace(sourceNode.ConfigACUrl, similarNode.ConfigACUrl);
+                    string localConfigUrlOfSimilarNode = thisConfigEntry.LocalConfigACUrl.Replace(sourceNode.LocalConfigACUrl, similarNode.LocalConfigACUrl);
+                    IACConfig configOfSimilarNode = similarNode.CurrentConfigStore.ConfigurationEntries.Where(c => c.ConfigACUrl == configACUrlOfSimilarNode
+                                                                                                                && c.ValueTypeACClass != null
+                                                                                                                && thisConfigEntry.ValueTypeACClass != null
+                                                                                                                && c.ValueTypeACClass.ACClassID == thisConfigEntry.ValueTypeACClass.ACClassID)
+                                                                                                        .FirstOrDefault();
+                    if (configOfSimilarNode == null)
+                    {
+                        configOfSimilarNode = ConfigManagerIPlus
+                        .ACConfigFactory(
+                            similarNode.CurrentConfigStore,
+                            similarNode.ContentACClassWF,
+                            thisConfigEntry.ValueTypeACClass.ACClassID,
+                            similarNode.PreValueACUrl,
+                            localConfigUrlOfSimilarNode,
+                            null);
+                    }
+                    if (configOfSimilarNode != null)
+                        configOfSimilarNode.Value = thisConfigEntry.Value;
+                }
+            }
+        }
+
+
+        #region Replication -> Methods -> CopyConfigToSimilarNodes -> TestImplementWithACClassWF
+
+        public List<WF_WrapForConfig> GetAllSameMethodNodes(ACClassWF node, Guid? refPAACClassID, Guid? refPAACClassMethodID, string preValueACUrl)
+        {
+            if (!preValueACUrl.EndsWith("\\"))
+                preValueACUrl += "\\";
+            List<WF_WrapForConfig> sameMethodNodes = new List<WF_WrapForConfig>();
+            if (
+                    (refPAACClassID == null || node.RefPAACClassID == refPAACClassID)
+                && (refPAACClassMethodID == null || node.RefPAACClassMethodID == refPAACClassMethodID)
+                )
+            {
+                WF_WrapForConfig tempNode = new WF_WrapForConfig(node, preValueACUrl);
+                sameMethodNodes.Add(tempNode);
+            }
+            foreach (ACClassWF child in node.ACClassWF_ParentACClassWF.ToArray())
+            {
+                List<WF_WrapForConfig> temp = GetAllSameMethodNodes(child, refPAACClassID, refPAACClassMethodID, preValueACUrl);
+                sameMethodNodes.AddRange(temp);
+            }
+
+            if (node.RefPAACClassMethodID != null && node.RefPAACClassMethod.ACKindIndex == (short)Global.ACKinds.MSWorkflow)
+            {
+                ACClassWF childWFRootNode = node.RefPAACClassMethod.ACClassWF_ACClassMethod.Where(c => c.ParentACClassWFID == null).FirstOrDefault();
+                List<WF_WrapForConfig> temp = GetAllSameMethodNodes(childWFRootNode, refPAACClassID, refPAACClassMethodID, preValueACUrl);
+                sameMethodNodes.AddRange(temp);
+            }
+
+            return sameMethodNodes;
+        }
+
+        public List<WF_WrapForConfig> GetSamePositionNodes(ACClassWF node, string localConfigACUrl, string preValueACUrl)
+        {
+            List<WF_WrapForConfig> sameMethodNodes = new List<WF_WrapForConfig>();
+            if (node.ConfigACUrl == localConfigACUrl)
+            {
+                if (!preValueACUrl.EndsWith("\\"))
+                    preValueACUrl += "\\";
+                WF_WrapForConfig tempNode = new WF_WrapForConfig(node, preValueACUrl);
+                sameMethodNodes.Add(tempNode);
+            }
+            ACClassWF[] children = node.ACClassWF_ParentACClassWF.ToArray();
+            foreach (ACClassWF child in children)
+            {
+                string tempPreAcUrl = preValueACUrl;
+                if (child.RefPAACClassMethodID != null && child.RefPAACClassMethod.ACKindIndex == (short)Global.ACKinds.MSWorkflow)
+                {
+                    if (!string.IsNullOrEmpty(preValueACUrl))
+                        tempPreAcUrl = preValueACUrl + "\\" + child.ConfigACUrl;
+                    else
+                        tempPreAcUrl = child.ConfigACUrl;
+                }
+                List<WF_WrapForConfig> temp = GetSamePositionNodes(child, localConfigACUrl, tempPreAcUrl);
+                sameMethodNodes.AddRange(temp);
+            }
+
+            if (node.RefPAACClassMethodID != null && node.RefPAACClassMethod.ACKindIndex == (short)Global.ACKinds.MSWorkflow)
+            {
+                ACClassWF childWFRootNode = node.RefPAACClassMethod.ACClassWF_ACClassMethod.Where(c => c.ParentACClassWFID == null).FirstOrDefault();
+                List<WF_WrapForConfig> temp = GetSamePositionNodes(childWFRootNode, localConfigACUrl, preValueACUrl);
+                sameMethodNodes.AddRange(temp);
+            }
+
+            return sameMethodNodes;
+        }
+
+        public void WriteConfigToNodes(IACConfigStore configStore, ACClassWF sourceNode, List<WF_WrapForConfig> similarNodes, bool useSimilarNodeConfigACUrl = false)
+        {
+            foreach (WF_WrapForConfig similarNode in similarNodes)
+            {
+                List<IACConfig> configEntries = configStore.ConfigurationEntries.Where(c => c.ACClassWFID == sourceNode.ACClassWFID).ToList();
+                foreach (IACConfig thisConfigEntry in configEntries)
+                {
+                    string configACUrlOfSimilarNode = "";
+
+                    if (useSimilarNodeConfigACUrl)
+                    {
+                        string[] splitConfigUrl = thisConfigEntry.ConfigACUrl.Split('\\');
+                        configACUrlOfSimilarNode = similarNode.TempPreValueACUrl + similarNode.ACClassWF.ConfigACUrl + "\\" + splitConfigUrl[splitConfigUrl.Count() - 2] + "\\" + splitConfigUrl[splitConfigUrl.Count() - 1];
+                    }
+                    else
+                    {
+                        configACUrlOfSimilarNode = thisConfigEntry.ConfigACUrl.Replace(sourceNode.ConfigACUrl, similarNode.ACClassWF.ConfigACUrl);
+                    }
+
+                    string localConfigUrlOfSimilarNode = thisConfigEntry.LocalConfigACUrl.Replace(sourceNode.LocalConfigACUrl, similarNode.ACClassWF.LocalConfigACUrl);
+                    IACConfig configOfSimilarNode = configStore.ConfigurationEntries.Where(c => c.ConfigACUrl == configACUrlOfSimilarNode
+                                                                                                                && c.ValueTypeACClass != null
+                                                                                                                && thisConfigEntry.ValueTypeACClass != null
+                                                                                                                && c.ValueTypeACClass.ACClassID == thisConfigEntry.ValueTypeACClass.ACClassID)
+                                                                                                        .FirstOrDefault();
+                    if (configOfSimilarNode == null)
+                    {
+                        configOfSimilarNode = ConfigManagerIPlus
+                        .ACConfigFactory(
+                            configStore,
+                            similarNode.ACClassWF,
+                            thisConfigEntry.ValueTypeACClass.ACClassID,
+                            similarNode.TempPreValueACUrl,
+                            localConfigUrlOfSimilarNode,
+                            null);
+                    }
+                    if (configOfSimilarNode != null)
+                        configOfSimilarNode.Value = thisConfigEntry.Value;
+                }
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Replication -> Methods -> CopyValuesToEqualSubWF
+
+        [ACMethodInfo("Replication", "en{'Copy values to equal subworkflows'}de{'Kopiere Werte auf gleiche Unterworkflows'}", 504)]
+        public void CopyValuesToEqualSubWF()
+        {
+            if (!IsEnabledCopyValuesToEqualSubWF())
+                return;
+
+            IACComponentPWNode rootNode = CurrentPWInfo;
+            while (rootNode.ParentRootWFNode != null)
+                rootNode = rootNode.ParentRootWFNode;
+            List<WF_WrapForConfig> sameMethodNodes = GetSamePositionNodes(rootNode.ContentACClassWF, CurrentPWInfo.LocalConfigACUrl, null).ToList();
+            if (sameMethodNodes != null && sameMethodNodes.Any())
+            {
+                WriteConfigToNodes(CurrentPWInfo.CurrentConfigStore, CurrentPWInfo.ContentACClassWF, sameMethodNodes, true);
+            }
+        }
+
+        public bool IsEnabledCopyValuesToEqualSubWF()
+        {
+            return IsEnabledCopyConfigToSimilarNodes();
+        }
+
+        #endregion
+
 
         #endregion
 
@@ -1825,6 +2038,19 @@ namespace gip.core.autocomponent
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
         #endregion
+
+    }
+
+
+    public class WF_WrapForConfig
+    {
+        public WF_WrapForConfig(ACClassWF wf, string tempPreValueACUrl)
+        {
+            ACClassWF = wf;
+            TempPreValueACUrl = tempPreValueACUrl;
+        }
+        public ACClassWF ACClassWF { get; set; }
+        public string TempPreValueACUrl { get; set; }
 
     }
 }

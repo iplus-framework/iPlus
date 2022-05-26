@@ -21,15 +21,15 @@ namespace gip.core.datamodel
     /// ACClassWF represents a Workflow-Node.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Workflow'}de{'Workflow'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(2, Const.ACIdentifierPrefix, "en{'Identifier'}de{'Identifizierer'}","", "", true)]
-    [ACPropertyEntity(3, "XName", "en{'XName'}de{'XName'}","", "", true)]
-    [ACPropertyEntity(4, "ACInstanceNo", "en{'Instance No'}de{'Instanznr'}","", "", true)]
+    [ACPropertyEntity(2, Const.ACIdentifierPrefix, "en{'Identifier'}de{'Identifizierer'}", "", "", true)]
+    [ACPropertyEntity(3, "XName", "en{'XName'}de{'XName'}", "", "", true)]
+    [ACPropertyEntity(4, "ACInstanceNo", "en{'Instance No'}de{'Instanznr'}", "", "", true)]
     [ACPropertyEntity(5, "ACClassMethod", "Method'}de{'Methode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName, "", true)]
     [ACPropertyEntity(6, "PWACClass", "en{'Workflowclass'}de{'Workflowklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
     [ACPropertyEntity(7, "RefPAACClass", "en{'Application Class'}de{'Anwendungsklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
     [ACPropertyEntity(8, "RefPAACClassMethod", "en{'Application Method'}de{'Anwendungsmethode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName, "", true)]
-    [ACPropertyEntity(9, "PhaseIdentifier", "en{'Phase'}de{'Phase'}","", "", true)]
-    [ACPropertyEntity(10, "Comment", "en{'Comment'}de{'Bemerkung'}","", "", true)]
+    [ACPropertyEntity(9, "PhaseIdentifier", "en{'Phase'}de{'Phase'}", "", "", true)]
+    [ACPropertyEntity(10, "Comment", "en{'Comment'}de{'Bemerkung'}", "", "", true)]
     [ACPropertyEntity(9999, "ParentACClassWF", "en{'Parent Workflow'}de{'Elternworkflow'}", Const.ContextDatabaseIPlus + "\\" + ACClassWF.ClassName, "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassWF.ClassName, "en{'Workflow'}de{'Workflow'}", typeof(ACClassWF), ACClassWF.ClassName, Const.ACCaptionPrefix, Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassWF>) })]
@@ -107,7 +107,7 @@ namespace gip.core.datamodel
                         entity.ACIdentifier = Const.TPWNodeEnd;
                         return entity;
                     default:
-                            acIdentifier = entity.PWACClass.ACIdentifier;
+                        acIdentifier = entity.PWACClass.ACIdentifier;
                         break;
                 }
             }
@@ -161,10 +161,10 @@ namespace gip.core.datamodel
             {
                 int p1 = ACIdentifier.IndexOf('(');
                 int p2 = ACIdentifier.IndexOf(')');
-                if ( p1 > 0 && p2 > p1)
+                if (p1 > 0 && p2 > p1)
                 {
                     Int32 result;
-                    if (Int32.TryParse(ACIdentifier.Substring(p1+1, p2-p1-1), out result))
+                    if (Int32.TryParse(ACIdentifier.Substring(p1 + 1, p2 - p1 - 1), out result))
                         return result;
                 }
                 return 0;
@@ -180,7 +180,7 @@ namespace gip.core.datamodel
             get
             {
                 int p1 = ACIdentifier.IndexOf('(');
-                if ( p1 > 0 )
+                if (p1 > 0)
                 {
                     return ACIdentifier.Substring(0, p1);
                 }
@@ -325,11 +325,11 @@ namespace gip.core.datamodel
         /// Gets the parent AC class.
         /// </summary>
         /// <value>The parent AC class.</value>
-        public ACClass ParentACClass 
-        { 
+        public ACClass ParentACClass
+        {
             get
             {
-                if ( WFGroup != null && WFGroup is ACClassWF)
+                if (WFGroup != null && WFGroup is ACClassWF)
                     return ((ACClassWF)WFGroup).RefPAACClass;
                 return null;
             }
@@ -403,7 +403,7 @@ namespace gip.core.datamodel
                 return parentUrl + "\\" + ACIdentifier;
             }
             else
-                return ACIdentifier;            
+                return ACIdentifier;
         }
         #endregion
 
@@ -458,7 +458,7 @@ namespace gip.core.datamodel
         {
             if (PWACClass == null)
                 return null;
-            return PWACClass.ACType.GetDesign(PWACClass,acUsage, acKind, vbDesignName);
+            return PWACClass.ACType.GetDesign(PWACClass, acUsage, acKind, vbDesignName);
         }
 
         //public Double VisualBottom
@@ -547,7 +547,7 @@ namespace gip.core.datamodel
         /// Returns a ACUrl, to be able to find this instance in the WPF-Logical-Tree.
         /// </summary>
         /// <value>ACUrl as string</value>
-        public string VisualACUrl 
+        public string VisualACUrl
         {
             get
             {
@@ -649,6 +649,7 @@ namespace gip.core.datamodel
             }
         }
 
+
         public string LocalConfigACUrl
         {
             get
@@ -660,7 +661,7 @@ namespace gip.core.datamodel
         public void RefreshRuleStates()
         {
         }
-#endregion
+        #endregion
 
         public IACObject GetParentACObject(IACObject context)
         {
@@ -671,5 +672,6 @@ namespace gip.core.datamodel
         {
             return RefPAACClassMethod.ACClassWF_ACClassMethod.Where(c => c.PWACClass != null && c.PWACClass.ACKindIndex == (short)Global.ACKinds.TPWGroup);
         }
+
     }
 }
