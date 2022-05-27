@@ -25,7 +25,7 @@ namespace gip.core.processapplication
         public PAEActuator3way(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            _PAPointMatOut3 = new PAPoint(this, Const.PAPointMatOut3);
+            _PAPointMatOut3 = new PAPoint(this, nameof(PAPointMatOut3));
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)

@@ -26,8 +26,8 @@ namespace gip.core.processapplication
         public PAEEMotorFreq2D(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            _PAPointMatInOut1 = new PAPoint(this, Const.PAPointMatInOut1);
-            _PAPointMatInOut2 = new PAPoint(this, Const.PAPointMatInOut2);
+            _PAPointMatInOut1 = new PAPoint(this, nameof(PAPointMatInOut1));
+            _PAPointMatInOut2 = new PAPoint(this, nameof(PAPointMatInOut2));
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)

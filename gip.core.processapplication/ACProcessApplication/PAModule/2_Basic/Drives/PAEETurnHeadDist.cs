@@ -26,27 +26,27 @@ namespace gip.core.processapplication
         public PAETurnHeadDist(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            _PAPointMatIn1 = new PAPoint(this, Const.PAPointMatIn1);
-            _PAPointMatOut01 = new PAPoint(this, "PAPointMatOut01");
-            _PAPointMatOut02 = new PAPoint(this, "PAPointMatOut02");
-            _PAPointMatOut03 = new PAPoint(this, "PAPointMatOut03");
-            _PAPointMatOut04 = new PAPoint(this, "PAPointMatOut04");
-            _PAPointMatOut05 = new PAPoint(this, "PAPointMatOut05");
-            _PAPointMatOut06 = new PAPoint(this, "PAPointMatOut06");
-            _PAPointMatOut07 = new PAPoint(this, "PAPointMatOut07");
-            _PAPointMatOut08 = new PAPoint(this, "PAPointMatOut08");
-            _PAPointMatOut09 = new PAPoint(this, "PAPointMatOut09");
-            _PAPointMatOut10 = new PAPoint(this, "PAPointMatOut10");
-            _PAPointMatOut11 = new PAPoint(this, "PAPointMatOut11");
-            _PAPointMatOut12 = new PAPoint(this, "PAPointMatOut12");
-            _PAPointMatOut13 = new PAPoint(this, "PAPointMatOut13");
-            _PAPointMatOut14 = new PAPoint(this, "PAPointMatOut14");
-            _PAPointMatOut15 = new PAPoint(this, "PAPointMatOut15");
-            _PAPointMatOut16 = new PAPoint(this, "PAPointMatOut16");
-            _PAPointMatOut17 = new PAPoint(this, "PAPointMatOut17");
-            _PAPointMatOut18 = new PAPoint(this, "PAPointMatOut18");
-            _PAPointMatOut19 = new PAPoint(this, "PAPointMatOut19");
-            _PAPointMatOut20 = new PAPoint(this, "PAPointMatOut20");
+            _PAPointMatIn1 = new PAPoint(this, nameof(PAPointMatIn1));
+            _PAPointMatOut01 = new PAPoint(this, nameof(PAPointMatOut01));
+            _PAPointMatOut02 = new PAPoint(this, nameof(PAPointMatOut02));
+            _PAPointMatOut03 = new PAPoint(this, nameof(PAPointMatOut03));
+            _PAPointMatOut04 = new PAPoint(this, nameof(PAPointMatOut04));
+            _PAPointMatOut05 = new PAPoint(this, nameof(PAPointMatOut05));
+            _PAPointMatOut06 = new PAPoint(this, nameof(PAPointMatOut06));
+            _PAPointMatOut07 = new PAPoint(this, nameof(PAPointMatOut07));
+            _PAPointMatOut08 = new PAPoint(this, nameof(PAPointMatOut08));
+            _PAPointMatOut09 = new PAPoint(this, nameof(PAPointMatOut09));
+            _PAPointMatOut10 = new PAPoint(this, nameof(PAPointMatOut10));
+            _PAPointMatOut11 = new PAPoint(this, nameof(PAPointMatOut11));
+            _PAPointMatOut12 = new PAPoint(this, nameof(PAPointMatOut12));
+            _PAPointMatOut13 = new PAPoint(this, nameof(PAPointMatOut13));
+            _PAPointMatOut14 = new PAPoint(this, nameof(PAPointMatOut14));
+            _PAPointMatOut15 = new PAPoint(this, nameof(PAPointMatOut15));
+            _PAPointMatOut16 = new PAPoint(this, nameof(PAPointMatOut16));
+            _PAPointMatOut17 = new PAPoint(this, nameof(PAPointMatOut17));
+            _PAPointMatOut18 = new PAPoint(this, nameof(PAPointMatOut18));
+            _PAPointMatOut19 = new PAPoint(this, nameof(PAPointMatOut19));
+            _PAPointMatOut20 = new PAPoint(this, nameof(PAPointMatOut20));
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)

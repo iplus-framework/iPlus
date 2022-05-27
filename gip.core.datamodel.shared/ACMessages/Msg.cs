@@ -138,6 +138,12 @@ namespace gip.core.datamodel
             Message = message;
             MessageButton = msgButton;
         }
+
+        public void RedirectToOtherSource(IACComponent source)
+        {
+            Source = source.GetACUrl();
+            SourceComponent = new ACRef<IACComponent>(source, true);
+        }
 #endif
 
         #endregion

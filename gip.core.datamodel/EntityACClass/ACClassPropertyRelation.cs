@@ -69,19 +69,19 @@ namespace gip.core.datamodel
                     case Global.ACKinds.TPWNodeStatic:
                         entity.ConnectionType = Global.ConnectionTypes.StartTrigger;
                         entity.Direction = Global.Directions.Forward;
-                        entity.SourceACClassProperty = entity.SourceACClass.GetPoint("PWPointOut");
+                        entity.SourceACClassProperty = entity.SourceACClass.GetPoint(Const.PWPointOut);
                         break;
 
                     case Global.ACKinds.TPAProcessFunction:
                         entity.ConnectionType = Global.ConnectionTypes.LogicalBridge;
                         entity.Direction = Global.Directions.Forward;
-                        entity.SourceACClassProperty = entity.SourceACClass.GetPoint("PAPointMatOut1");
+                        entity.SourceACClassProperty = entity.SourceACClass.GetPoint(Const.PAPointMatOut1);
                         break;
 
                     default:
                         entity.ConnectionType = Global.ConnectionTypes.ConnectionPhysical;
                         entity.Direction = Global.Directions.Forward;
-                        entity.SourceACClassProperty = entity.SourceACClass.GetPoint("PAPointMatOut1");
+                        entity.SourceACClassProperty = entity.SourceACClass.GetPoint(Const.PAPointMatOut1);
                         break;
                 }
             }

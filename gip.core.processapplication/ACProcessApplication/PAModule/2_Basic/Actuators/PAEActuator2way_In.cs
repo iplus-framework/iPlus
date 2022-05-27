@@ -25,9 +25,9 @@ namespace gip.core.processapplication
         public PAEActuator2way_In(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            _PAPointMatIn1 = new PAPoint(this, Const.PAPointMatIn1);
-            _PAPointMatOut1 = new PAPoint(this, Const.PAPointMatOut1);
-            _PAPointMatIn2 = new PAPoint(this, Const.PAPointMatIn2);
+            _PAPointMatIn1 = new PAPoint(this, nameof(PAPointMatIn1));
+            _PAPointMatOut1 = new PAPoint(this, nameof(PAPointMatOut1));
+            _PAPointMatIn2 = new PAPoint(this, nameof(PAPointMatIn2));
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
