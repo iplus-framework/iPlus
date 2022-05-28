@@ -208,8 +208,21 @@ namespace gip.core.autocomponent
                             }
                         }
                     }
-
-                    TargetProperty.Value = ACPropertyNetTargetConverter<object, object>.ConvertS2T(sourceValue, SourceProperty.PropertyType, TargetProperty.PropertyType);
+                    object targetValue = ACPropertyNetTargetConverter<object, object>.ConvertS2T(sourceValue, SourceProperty.PropertyType, TargetProperty.PropertyType);
+                    if (  RedirectConfig != null 
+                            && RedirectConfig.Interpolation == Global.InterpolationMethod.None
+                            && RedirectConfig.InterpolationDecay > 0.00000001)
+                    {
+                        if (TargetProperty.PropertyType == typeof(double))
+                            targetValue = (double)targetValue * RedirectConfig.InterpolationDecay;
+                        else if (TargetProperty.PropertyType == typeof(Single))
+                            targetValue = (Single)targetValue * RedirectConfig.InterpolationDecay;
+                        else if (TargetProperty.PropertyType == typeof(Int32))
+                            targetValue = (Int32)((Int32)targetValue * RedirectConfig.InterpolationDecay);
+                        else if (TargetProperty.PropertyType == typeof(Int16))
+                            targetValue = (Int16)((Int16)targetValue * RedirectConfig.InterpolationDecay);
+                    }
+                    TargetProperty.Value = targetValue;
                 }
                 catch (Exception ec)
                 {
