@@ -1222,7 +1222,7 @@ namespace gip.core.layoutengine
 
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
         {
-            if (WithVisibleCloseButton && e.OriginalSource == PART_TabItemBorder)
+            if (WithVisibleCloseButton && !ControlManager.TouchScreenMode && e.OriginalSource == PART_TabItemBorder)
                 closeButton_Click(this, new RoutedEventArgs());
         }
 
