@@ -1488,8 +1488,8 @@ namespace gip.core.autocomponent
         {
             if (!IsEnabledCopyConfigToSimilarNodes())
                 return;
-            // CopyConfigToSimilarNodes_Old();
-            CopyConfigToSimilarNodes_New();
+            CopyConfigToSimilarNodes_Old();
+            //CopyConfigToSimilarNodes_New();
         }
 
         public void CopyConfigToSimilarNodes_Old()
@@ -1516,29 +1516,29 @@ namespace gip.core.autocomponent
             }
         }
 
-        public void CopyConfigToSimilarNodes_New()
-        {
-            IACComponentPWNode rootNode = null;
-            if (IsCopyNodeConfigOnParentLevel)
-            {
-                rootNode = CurrentPWInfo;
-                while (rootNode.ParentRootWFNode != null)
-                    rootNode = rootNode.ParentRootWFNode;
-            }
-            else
-            {
-                rootNode = CurrentPWInfo.ParentRootWFNode;
-            }
-            List<WF_WrapForConfig> sameMethodNodes = GetAllSameMethodNodes
-                (rootNode.ContentACClassWF,
-                null, // CurrentPWInfo.ContentACClassWF.RefPAACClassID, 
-                CurrentPWInfo.ContentACClassWF.RefPAACClassMethodID,
-                CurrentPWInfo.PreValueACUrl);
-            if (sameMethodNodes != null && sameMethodNodes.Any())
-            {
-                WriteConfigToNodes(CurrentPWInfo.CurrentConfigStore, CurrentPWInfo.ContentACClassWF, sameMethodNodes);
-            }
-        }
+        //public void CopyConfigToSimilarNodes_New()
+        //{
+        //    IACComponentPWNode rootNode = null;
+        //    if (IsCopyNodeConfigOnParentLevel)
+        //    {
+        //        rootNode = CurrentPWInfo;
+        //        while (rootNode.ParentRootWFNode != null)
+        //            rootNode = rootNode.ParentRootWFNode;
+        //    }
+        //    else
+        //    {
+        //        rootNode = CurrentPWInfo.ParentRootWFNode;
+        //    }
+        //    List<WF_WrapForConfig> sameMethodNodes = GetAllSameMethodNodes
+        //        (rootNode.ContentACClassWF,
+        //        null, // CurrentPWInfo.ContentACClassWF.RefPAACClassID, 
+        //        CurrentPWInfo.ContentACClassWF.RefPAACClassMethodID,
+        //        CurrentPWInfo.PreValueACUrl);
+        //    if (sameMethodNodes != null && sameMethodNodes.Any())
+        //    {
+        //        WriteConfigToNodes(CurrentPWInfo.CurrentConfigStore, CurrentPWInfo.ContentACClassWF, sameMethodNodes);
+        //    }
+        //}
 
         public bool IsEnabledCopyConfigToSimilarNodes()
         {
