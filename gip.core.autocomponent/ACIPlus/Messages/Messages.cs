@@ -885,7 +885,9 @@ namespace gip.core.autocomponent
         {
             LoggingConfiguration loggingConfiguration =
                     (LoggingConfiguration)CommandLineHelper.ConfigCurrentDir.GetSection("Logging/LoggingConfiguration");
-
+            _LogFilePath = loggingConfiguration.LogFilePath;
+            if (!_LogFilePath.EndsWith("\\"))
+                _LogFilePath += "\\";
             if (loggingConfiguration != null)
             {
                 foreach (LogFileElement files in loggingConfiguration.LogFiles)

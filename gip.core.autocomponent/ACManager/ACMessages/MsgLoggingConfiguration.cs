@@ -145,6 +145,34 @@ namespace gip.core.autocomponent
                 this["DeletePropLogAfterXMonths"] = value;
             }
         }
+
+        [ConfigurationProperty("Path", DefaultValue = "", IsRequired = false)]
+        public string Path
+        {
+            get
+            {
+                return (string)this["Path"];
+            }
+            set
+            {
+                this["Path"] = value;
+            }
+        }
+
+        public string LogFilePath
+        {
+            get
+            {
+                if (String.IsNullOrEmpty(Path))
+                    return System.IO.Path.GetTempPath();
+                if (Path.Contains("\\"))
+                    return Path;
+                System.Environment.SpecialFolder specialFolder;
+                if (Enum.TryParse<System.Environment.SpecialFolder>(Path, out specialFolder))
+                    return System.Environment.GetFolderPath(specialFolder);
+                return System.IO.Path.GetTempPath();
+            }
+        }
     }
 
 
