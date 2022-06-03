@@ -1488,33 +1488,82 @@ namespace gip.core.autocomponent
         {
             if (!IsEnabledCopyConfigToSimilarNodes())
                 return;
-            CopyConfigToSimilarNodes_Old();
+            //ACClassWF[] similarNodes = CurrentACClassWF.ACClassMethod.ACClassWF_ACClassMethod
+            //        .Where(c => c.PWACClassID == CurrentACClassWF.PWACClassID && c != CurrentACClassWF)
+            //        .ToArray();
+
+            List<IACComponentPWNode> similarNodes = CurrentPWInfo.ParentRootWFNode.FindChildComponents<IACComponentPWNode>(c =>
+                   (c is IACComponentPWNode)
+                && (c as IACComponentPWNode).ContentACClassWF.PWACClassID == CurrentACClassWF.PWACClassID
+                && c != CurrentPWInfo
+                );
+            if (similarNodes != null && similarNodes.Any())
+            {
+                foreach (IACComponentPWNode similarNode in similarNodes)
+                {
+                    foreach (IACConfig thisConfigEntry in CurrentPWInfo.CurrentConfigStore.ConfigurationEntries.Where(c => c.ACClassWFID == CurrentPWInfo.ContentACClassWF.ACClassWFID))
+                    {
+                        string configACUrlOfSimilarNode = thisConfigEntry.ConfigACUrl.Replace(CurrentPWInfo.ConfigACUrl, similarNode.ConfigACUrl);
+                        string localConfigUrlOfSimilarNode = thisConfigEntry.LocalConfigACUrl.Replace(CurrentPWInfo.LocalConfigACUrl, similarNode.LocalConfigACUrl);
+                        IACConfig configOfSimilarNode = similarNode.CurrentConfigStore.ConfigurationEntries.Where(c => c.ConfigACUrl == configACUrlOfSimilarNode
+                                                                                                                    && c.ValueTypeACClass != null
+                                                                                                                    && thisConfigEntry.ValueTypeACClass != null
+                                                                                                                    && c.ValueTypeACClass.ACClassID == thisConfigEntry.ValueTypeACClass.ACClassID)
+                                                                                                            .FirstOrDefault();
+                        if (configOfSimilarNode == null)
+                        {
+                            configOfSimilarNode = ConfigManagerIPlus
+                            .ACConfigFactory(
+                                similarNode.CurrentConfigStore,
+                                similarNode.ContentACClassWF,
+                                thisConfigEntry.ValueTypeACClass.ACClassID,
+                                similarNode.PreValueACUrl,
+                                localConfigUrlOfSimilarNode,
+                                null);
+                        }
+                        if (configOfSimilarNode != null)
+                            configOfSimilarNode.Value = thisConfigEntry.Value;
+                    }
+                    //similarNode.MandatoryConfigStores
+                    //foreach (ACConfigParam thisConfigParam in PWNodeParamValueList)
+                    //{
+                    //    if (   thisConfigParam.DefaultConfiguration != null
+                    //        && thisConfigParam.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl())
+                    //    {
+                    //        similarNode.CurrentConfigStore.ConfigurationEntries;
+                    //    }
+                    //    //thisConfigParam.ConfigurationList
+                    //}
+                }
+            }
+
+            //CopyConfigToSimilarNodes_Old();
             //CopyConfigToSimilarNodes_New();
         }
 
-        public void CopyConfigToSimilarNodes_Old()
-        {
-            List<IACComponentPWNode> rootNodes = new List<IACComponentPWNode>();
-            if (IsCopyNodeConfigOnParentLevel)
-            {
-                if (CurrentPWInfo.ParentRootWFNode != null && CurrentPWInfo.ParentRootWFNode.ParentRootWFNode != null)
-                {
-                    rootNodes = CurrentPWInfo.ParentRootWFNode.ParentRootWFNode.FindChildComponents<IACComponentPWNode>(c =>
-                                   (c is IACComponentPWNode)
-                                && (c as IACComponentPWNode).ContentACClassWF.PWACClassID == CurrentPWInfo.ParentRootWFNode.ContentACClassWF.PWACClassID);
-                }
-            }
-            else
-            {
-                rootNodes.Add(CurrentPWInfo.ParentRootWFNode);
-            }
-            List<IACComponentPWNode> similarNodes = GetSimilarNodes(rootNodes, CurrentPWInfo);
+        //public void CopyConfigToSimilarNodes_Old()
+        //{
+        //    List<IACComponentPWNode> rootNodes = new List<IACComponentPWNode>();
+        //    if (IsCopyNodeConfigOnParentLevel)
+        //    {
+        //        if (CurrentPWInfo.ParentRootWFNode != null && CurrentPWInfo.ParentRootWFNode.ParentRootWFNode != null)
+        //        {
+        //            rootNodes = CurrentPWInfo.ParentRootWFNode.ParentRootWFNode.FindChildComponents<IACComponentPWNode>(c =>
+        //                           (c is IACComponentPWNode)
+        //                        && (c as IACComponentPWNode).ContentACClassWF.PWACClassID == CurrentPWInfo.ParentRootWFNode.ContentACClassWF.PWACClassID);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        rootNodes.Add(CurrentPWInfo.ParentRootWFNode);
+        //    }
+        //    List<IACComponentPWNode> similarNodes = GetSimilarNodes(rootNodes, CurrentPWInfo);
 
-            if (similarNodes != null && similarNodes.Any())
-            {
-                CopyNodeConfigToList(CurrentPWInfo, similarNodes);
-            }
-        }
+        //    if (similarNodes != null && similarNodes.Any())
+        //    {
+        //        CopyNodeConfigToList(CurrentPWInfo, similarNodes);
+        //    }
+        //}
 
         //public void CopyConfigToSimilarNodes_New()
         //{
