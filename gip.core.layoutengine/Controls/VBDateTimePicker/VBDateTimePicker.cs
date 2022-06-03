@@ -734,7 +734,14 @@ namespace gip.core.layoutengine
         /// <param name="e">The event arguments.</param>
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
         {
-            this.SelectedDate = DateTime.Now;
+            if (Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                this.SelectedDate = null;
+            }
+            else
+            {
+                this.SelectedDate = DateTime.Now;
+            }
             base.OnMouseDoubleClick(e);
         }
 
