@@ -18,6 +18,7 @@ using System.Windows.Media.Animation;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.layoutengine;
+using System.Collections.Concurrent;
 
 namespace gip.core.visualcontrols
 {
@@ -64,17 +65,69 @@ namespace gip.core.visualcontrols
         public override void DeInitVBControl(IACComponent bso)
         {
  	         base.DeInitVBControl(bso);
+            EmptyChildFunctions();
         }
 
         #region Child PAFFunctions
+
+        private ConcurrentDictionary<IACComponent, object> _WPFReferenceMap = new ConcurrentDictionary<IACComponent, object>();
+        private void AddToWPFReferenceMap(IACComponent component, IACBSO bso)
+        {
+            if (bso == null || component == null)
+                return;
+            if (!_WPFReferenceMap.ContainsKey(component))
+            {
+                object dummyWPFObj = new object();
+                _WPFReferenceMap.TryAdd(component, dummyWPFObj);
+                bso.AddWPFRef(dummyWPFObj.GetHashCode(), component);
+            }
+        }
+
+        private void RemoveFromWPFReferenceMap(IACComponent component, IACBSO bso)
+        {
+            if (bso == null || component == null)
+                return;
+            if (_WPFReferenceMap.ContainsKey(component))
+            {
+                object dummyWPFObj;
+                _WPFReferenceMap.TryRemove(component, out dummyWPFObj);
+                if (dummyWPFObj != null && bso != null)
+                    bso.RemoveWPFRef(dummyWPFObj.GetHashCode());
+            }
+        }
 
         public static readonly DependencyProperty FunctionListProperty = DependencyProperty.Register("FunctionList", typeof(IList<IACComponent>), typeof(VBFunctionFlipView));
         [Category("VBControl")]
         [ACPropertyInfo(23)]
         public IList<IACComponent> FunctionList
         {
-            get { return (IList<IACComponent>)GetValue(FunctionListProperty); }
-            set { SetValue(FunctionListProperty, value); }
+            get 
+            { 
+                return (IList<IACComponent>)GetValue(FunctionListProperty); 
+            }
+            set 
+            {
+                var bso = BSOACComponent;
+                IList<IACComponent> prevList = (IList<IACComponent>)GetValue(FunctionListProperty);
+                if (prevList != null && prevList.Any())
+                {
+                    foreach (IACComponent component in prevList)
+                    {
+                        if (   value != null
+                            && !value.Contains(component))
+                            RemoveFromWPFReferenceMap(component, bso);
+                    }
+                }
+                SetValue(FunctionListProperty, value);
+                
+                if (value != null && bso != null)
+                {
+                    foreach (IACComponent component in value)
+                    {
+                        AddToWPFReferenceMap(component, bso);
+                    }
+                }
+            }
         }
 
 
@@ -156,6 +209,7 @@ namespace gip.core.visualcontrols
                         ACComponent wfNode = processModule.ACUrlCommand(wfInstanceInfo.ACUrlParent + "\\" + wfInstanceInfo.ACIdentifier) as ACComponent;
                         if (wfNode != null)
                         {
+                            AddToWPFReferenceMap(wfNode, BSOACComponent);
                             functionList.Add(wfNode);
                         }
                     }

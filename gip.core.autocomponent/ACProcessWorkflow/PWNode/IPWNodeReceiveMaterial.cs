@@ -25,6 +25,10 @@ namespace gip.core.autocomponent
         bool HasAnyDosings(out double sumQuantity);
 
         void OnDosingLoopDecision(IACComponentPWNode dosingloop, bool willRepeatDosing);
+
+        bool ResetDosingsAfterInterDischarging(IACEntityObjectContext dbApp);
+
+        bool SetDosingsCompletedAfterDischarging(IACEntityObjectContext dbApp);
     }
 
     public interface IPWNodeReceiveMaterialRouteable : IPWNodeReceiveMaterial

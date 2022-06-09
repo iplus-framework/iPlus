@@ -24,10 +24,20 @@ namespace gip.core.autocomponent
 
         public void Close()
         {
-            foreach (ACObjectRMIWaitHandle waitHandle in _waitHandles)
+            using (ACMonitor.Lock(_20500_LockWaitHandles))
             {
-                waitHandle.Set();
-                waitHandle.Close();
+                foreach (ACObjectRMIWaitHandle waitHandle in _waitHandles)
+                {
+                    try
+                    {
+                        waitHandle.Set();
+                        waitHandle.Close();
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+                _waitHandles = new List<ACObjectRMIWaitHandle>();
             }
         }
         #endregion

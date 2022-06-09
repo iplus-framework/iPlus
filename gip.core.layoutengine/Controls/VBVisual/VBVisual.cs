@@ -346,13 +346,15 @@ namespace gip.core.layoutengine
             set
             {
                 _ACObject = value;
-                if ((_ACObject != null) && (DataContext != _ACObject))
+                if (_ACObject != null)
                 {
-                    BindingOperations.ClearBinding(this, FrameworkElement.DataContextProperty);
-                    Binding binding = new Binding();
-                    binding.Source = _ACObject;
-                    this.SetBinding(FrameworkElement.DataContextProperty, binding);
-                    //DataContext = _ACObject;
+                    if (DataContext != _ACObject)
+                    {
+                        BindingOperations.ClearBinding(this, FrameworkElement.DataContextProperty);
+                        Binding binding = new Binding();
+                        binding.Source = _ACObject;
+                        this.SetBinding(FrameworkElement.DataContextProperty, binding);
+                    }
                     if (_ACObject is IACComponent)
                         LastElementACComponent = _ACObject as IACComponent;
                 }
@@ -1109,7 +1111,12 @@ namespace gip.core.layoutengine
                 {
                     IACObject acObject = null;
 
-                    if (VBContent == "this")
+                    // Workaround for VBFunctionFlipItem: (Sometimes it happens, that VBContent ist not set properly through Binding to ACUrl of PWNodeProxy-Object
+                    if (VBContent == "\\" && ContextACObject != null && ContextACObject is IACComponent)
+                    {
+                        acObject = ContextACObject;
+                    }
+                    else if (VBContent == "this")
                     {
                         acObject = BSOACComponent;
                     }
