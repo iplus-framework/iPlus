@@ -63,7 +63,6 @@ namespace gip.core.datamodel
 
         public MediaItemPresentation UploadImage(MediaSet mediaSet, MediaItemPresentation item)
         {
-            string extension = Path.GetExtension(item.EditFilePath);
 
             if (item.IsDefault)
             {
@@ -79,21 +78,40 @@ namespace gip.core.datamodel
             CheckDirectory(item.FilePath);
             if (!string.IsNullOrEmpty(item.EditFilePath))
                 UpladFile(item.EditFilePath, item.FilePath);
-            else if(item.Image != null)
+            else if (item.Image != null)
             {
-                var encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create((BitmapSource)item.Image));
-                using (FileStream stream = new FileStream(item.FilePath, FileMode.Create))
-                    encoder.Save(stream);
+                BitmapSource bitmapSource = (BitmapSource)item.Image;
+                using (var fileStream = new FileStream(item.FilePath, FileMode.Create))
+                {
+                    BitmapEncoder encoder = new PngBitmapEncoder();
+                    //encoder.Frames.Add(BitmapFrame.Create(image));
+                    encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                    encoder.Save(fileStream);
+                }
             }
 
             string thumbFileName = MediaSettings.FullDefaultThumbImageName;
             if (!item.IsDefault)
+            {
+                string extension = Path.GetExtension(item.EditFilePath);
                 thumbFileName = Path.GetFileNameWithoutExtension(item.FilePath) + MediaSettings.DefaultThumbSuffix + extension;
+            }
             string fullThumbFileName = Path.Combine(mediaSet.ItemRootFolder, thumbFileName);
             if (item.IsGenerateThumb)
             {
-                RenderThumbImage(item.EditFilePath, fullThumbFileName);
+                if (item.Image != null && string.IsNullOrEmpty(item.EditFilePath))
+                {
+                    BitmapImage bmImage = (item.Image as BitmapImage);
+                    if(bmImage != null)
+                    {
+                        Bitmap bm = BitmapImage2Bitmap(bmImage);
+                        RenderThumbImage((Image)bm, fullThumbFileName);
+                    }
+                }
+                else
+                {
+                    RenderThumbImage(item.EditFilePath, fullThumbFileName);
+                }
                 item.ThumbPath = fullThumbFileName;
                 item.IsGenerateThumb = false;
             }
@@ -108,6 +126,18 @@ namespace gip.core.datamodel
             item.LoadImage(true);
             item.IsNew = false;
             return item;
+        }
+
+        private Bitmap BitmapImage2Bitmap(BitmapImage bitmapImage)
+        {
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                BitmapEncoder enc = new BmpBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(bitmapImage));
+                enc.Save(outStream);
+                System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(outStream);
+                return new Bitmap(bitmap);
+            }
         }
 
         private MediaItemPresentation UploadDocument(MediaSet mediaSet, MediaItemPresentation item)
@@ -153,7 +183,7 @@ namespace gip.core.datamodel
             File.Copy(sourcePath, targetPath);
         }
 
-        public  void RenderThumbImage(string sourceFile, string targetFile)
+        public void RenderThumbImage(string sourceFile, string targetFile)
         {
             using (Image image = Image.FromFile(sourceFile))
             {
