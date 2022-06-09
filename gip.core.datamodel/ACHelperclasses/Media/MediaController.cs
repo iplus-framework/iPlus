@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows.Media.Imaging;
 
 namespace gip.core.datamodel
 {
@@ -60,9 +61,8 @@ namespace gip.core.datamodel
         }
 
 
-        private MediaItemPresentation UploadImage(MediaSet mediaSet, MediaItemPresentation item)
+        public MediaItemPresentation UploadImage(MediaSet mediaSet, MediaItemPresentation item)
         {
-            string extension = Path.GetExtension(item.EditFilePath);
 
             if (item.IsDefault)
             {
@@ -76,15 +76,42 @@ namespace gip.core.datamodel
             }
 
             CheckDirectory(item.FilePath);
-            UpladFile(item.EditFilePath, item.FilePath);
+            if (!string.IsNullOrEmpty(item.EditFilePath))
+                UpladFile(item.EditFilePath, item.FilePath);
+            else if (item.Image != null)
+            {
+                BitmapSource bitmapSource = (BitmapSource)item.Image;
+                using (var fileStream = new FileStream(item.FilePath, FileMode.Create))
+                {
+                    BitmapEncoder encoder = new PngBitmapEncoder();
+                    //encoder.Frames.Add(BitmapFrame.Create(image));
+                    encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                    encoder.Save(fileStream);
+                }
+            }
 
             string thumbFileName = MediaSettings.FullDefaultThumbImageName;
             if (!item.IsDefault)
+            {
+                string extension = Path.GetExtension(item.EditFilePath);
                 thumbFileName = Path.GetFileNameWithoutExtension(item.FilePath) + MediaSettings.DefaultThumbSuffix + extension;
+            }
             string fullThumbFileName = Path.Combine(mediaSet.ItemRootFolder, thumbFileName);
             if (item.IsGenerateThumb)
             {
-                RenderThumbImage(item.EditFilePath, fullThumbFileName);
+                if (item.Image != null && string.IsNullOrEmpty(item.EditFilePath))
+                {
+                    BitmapImage bmImage = (item.Image as BitmapImage);
+                    if(bmImage != null)
+                    {
+                        Bitmap bm = BitmapImage2Bitmap(bmImage);
+                        RenderThumbImage((Image)bm, fullThumbFileName);
+                    }
+                }
+                else
+                {
+                    RenderThumbImage(item.EditFilePath, fullThumbFileName);
+                }
                 item.ThumbPath = fullThumbFileName;
                 item.IsGenerateThumb = false;
             }
@@ -101,6 +128,18 @@ namespace gip.core.datamodel
             return item;
         }
 
+        private Bitmap BitmapImage2Bitmap(BitmapImage bitmapImage)
+        {
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                BitmapEncoder enc = new BmpBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(bitmapImage));
+                enc.Save(outStream);
+                System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(outStream);
+                return new Bitmap(bitmap);
+            }
+        }
+
         private MediaItemPresentation UploadDocument(MediaSet mediaSet, MediaItemPresentation item)
         {
             string extension = Path.GetExtension(item.EditFilePath);
@@ -112,7 +151,7 @@ namespace gip.core.datamodel
 
             if (!string.IsNullOrEmpty(item.EditThumbPath) && File.Exists(item.EditThumbPath))
             {
-                if(item.ThumbExistAndIsNotGeneric())
+                if (item.ThumbExistAndIsNotGeneric())
                     DeleteWithRetry(item.ThumbPath);
                 item.ThumbPath =
                             Path.GetFileNameWithoutExtension(item.FilePath)
@@ -144,33 +183,38 @@ namespace gip.core.datamodel
             File.Copy(sourcePath, targetPath);
         }
 
-        private void RenderThumbImage(string sourceFile, string targetFile)
+        public void RenderThumbImage(string sourceFile, string targetFile)
         {
             using (Image image = Image.FromFile(sourceFile))
             {
-                double thumbWidth = 0;
-                double thumbHeight = 0;
-
-                if (image.Width >= image.Height)
-                {
-                    thumbWidth = MediaSettings.MaxThumbWidth;
-                    thumbHeight = image.Height * (((double)MediaSettings.MaxThumbWidth) / ((double)image.Width));
-                }
-                else
-                {
-                    thumbHeight = MediaSettings.MaxThumbHeight;
-                    thumbWidth = image.Width * (((double)MediaSettings.MaxThumbHeight) / ((double)image.Height));
-                }
-
-                using (Image resizedImage = ImageResize.ResizeImage(image, thumbWidth, thumbHeight))
-                {
-                    if (File.Exists(targetFile))
-                        DeleteWithRetry(targetFile);
-                    resizedImage.Save(targetFile);
-                    resizedImage.Dispose();
-                }
-                image.Dispose();
+                RenderThumbImage(image, targetFile);
             }
+        }
+
+        public void RenderThumbImage(Image image, string targetFile)
+        {
+            double thumbWidth = 0;
+            double thumbHeight = 0;
+
+            if (image.Width >= image.Height)
+            {
+                thumbWidth = MediaSettings.MaxThumbWidth;
+                thumbHeight = image.Height * (((double)MediaSettings.MaxThumbWidth) / ((double)image.Width));
+            }
+            else
+            {
+                thumbHeight = MediaSettings.MaxThumbHeight;
+                thumbWidth = image.Width * (((double)MediaSettings.MaxThumbHeight) / ((double)image.Height));
+            }
+
+            using (Image resizedImage = ImageResize.ResizeImage(image, thumbWidth, thumbHeight))
+            {
+                if (File.Exists(targetFile))
+                    DeleteWithRetry(targetFile);
+                resizedImage.Save(targetFile);
+                resizedImage.Dispose();
+            }
+            image.Dispose();
         }
 
         public void DeleteFile(MediaItemTypeEnum mediaType, string fileName)
