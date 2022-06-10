@@ -1111,6 +1111,9 @@ namespace gip.core.manager
                     pwOfflineNode.ContentACClassWF.PWACClass = PWClassToSwitch;
                     pwOfflineNode.OnPropertyChanged("ContentACClassWF");
                     pwOfflineNode.OnPropertyChanged("XMLDesign");
+                    ACClassMethod acClassMethod = CurrentDesign as ACClassMethod;
+                    if (acClassMethod != null)
+                        acClassMethod.UpdateDate = DateTime.Now;
                 }
             }
         }

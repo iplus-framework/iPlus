@@ -700,7 +700,9 @@ namespace gip.core.autocomponent
                             string defaultValue = PropertyInfo.Value as string;
                             this.ValueT = (T)(object)TimeSpan.ParseExact(defaultValue, "c", CultureInfo.InvariantCulture, TimeSpanStyles.None);
                         }
-                        else if ((typeT.GetInterface("IConvertible") != null)/* && (typeT.GetInterface("IFormattable") != null)*/)
+                        else if (  (typeT.GetInterface("IConvertible") != null)
+                                || (typeT.IsGenericType && typeT.Name == Const.TNameNullable)
+                            /* && (typeT.GetInterface("IFormattable") != null)*/)
                         {
                             if (typeT.IsEnum)
                                 this.ValueT = (T)Enum.Parse(typeT, PropertyInfo.Value as string);
@@ -847,7 +849,8 @@ namespace gip.core.autocomponent
                             this.ValueT = (T)(object)TimeSpan.ParseExact(valueXML, "c", CultureInfo.InvariantCulture, TimeSpanStyles.None);
                             restored = true;
                         }
-                        else if (typeT.GetInterface("IConvertible") != null)
+                        else if (typeT.GetInterface("IConvertible") != null
+                            || (typeT.IsGenericType && typeT.Name == Const.TNameNullable))
                         {
                             this.ValueT = (T)ACConvert.ChangeType(valueXML, typeof(T), true, gip.core.datamodel.Database.GlobalDatabase);
                             restored = true;
