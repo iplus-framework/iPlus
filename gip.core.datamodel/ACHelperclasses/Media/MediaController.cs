@@ -57,16 +57,26 @@ namespace gip.core.datamodel
                 UploadImage(mediaSet, item);
             else
                 UploadDocument(mediaSet, item);
+
             return item;
         }
 
+        public string GetDefaultFilePath(MediaSet mediaSet)
+        {
+            return Path.Combine(mediaSet.ItemRootFolder, MediaSettings.FullDefaultImageName);
+        }
+
+        public string GetDefaultThumbFilePath(string sourceFile, string targetFolder)
+        {
+            string extension = Path.GetExtension(sourceFile);
+            return Path.GetFileNameWithoutExtension(targetFolder) + MediaSettings.DefaultThumbSuffix + extension;
+        }
 
         public MediaItemPresentation UploadImage(MediaSet mediaSet, MediaItemPresentation item)
         {
-
             if (item.IsDefault)
             {
-                item.FilePath = Path.Combine(mediaSet.ItemRootFolder, MediaSettings.FullDefaultImageName);
+                item.FilePath = GetDefaultFilePath(mediaSet);
                 item.Name = MediaSettings.FullDefaultImageName;
             }
             else if (item.IsNew)
@@ -78,40 +88,17 @@ namespace gip.core.datamodel
             CheckDirectory(item.FilePath);
             if (!string.IsNullOrEmpty(item.EditFilePath))
                 UpladFile(item.EditFilePath, item.FilePath);
-            else if (item.Image != null)
-            {
-                BitmapSource bitmapSource = (BitmapSource)item.Image;
-                using (var fileStream = new FileStream(item.FilePath, FileMode.Create))
-                {
-                    BitmapEncoder encoder = new PngBitmapEncoder();
-                    //encoder.Frames.Add(BitmapFrame.Create(image));
-                    encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
-                    encoder.Save(fileStream);
-                }
-            }
 
             string thumbFileName = MediaSettings.FullDefaultThumbImageName;
             if (!item.IsDefault)
             {
-                string extension = Path.GetExtension(item.EditFilePath);
-                thumbFileName = Path.GetFileNameWithoutExtension(item.FilePath) + MediaSettings.DefaultThumbSuffix + extension;
+                thumbFileName = GetDefaultThumbFilePath(item.EditFilePath, item.FilePath);
             }
+
             string fullThumbFileName = Path.Combine(mediaSet.ItemRootFolder, thumbFileName);
             if (item.IsGenerateThumb)
             {
-                if (item.Image != null && string.IsNullOrEmpty(item.EditFilePath))
-                {
-                    BitmapImage bmImage = (item.Image as BitmapImage);
-                    if(bmImage != null)
-                    {
-                        Bitmap bm = BitmapImage2Bitmap(bmImage);
-                        RenderThumbImage((Image)bm, fullThumbFileName);
-                    }
-                }
-                else
-                {
-                    RenderThumbImage(item.EditFilePath, fullThumbFileName);
-                }
+                RenderThumbImage(item.EditFilePath, fullThumbFileName);
                 item.ThumbPath = fullThumbFileName;
                 item.IsGenerateThumb = false;
             }
@@ -125,19 +112,8 @@ namespace gip.core.datamodel
             item.EditThumbPath = null;
             item.LoadImage(true);
             item.IsNew = false;
-            return item;
-        }
 
-        private Bitmap BitmapImage2Bitmap(BitmapImage bitmapImage)
-        {
-            using (MemoryStream outStream = new MemoryStream())
-            {
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(bitmapImage));
-                enc.Save(outStream);
-                System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(outStream);
-                return new Bitmap(bitmap);
-            }
+            return item;
         }
 
         private MediaItemPresentation UploadDocument(MediaSet mediaSet, MediaItemPresentation item)
@@ -216,7 +192,7 @@ namespace gip.core.datamodel
             }
             image.Dispose();
         }
-
+        
         public void DeleteFile(MediaItemTypeEnum mediaType, string fileName)
         {
             MediaSet mediaSet = Items[mediaType];
@@ -249,7 +225,6 @@ namespace gip.core.datamodel
             }
             return isDeleted;
         }
-
         public string GetEmptyImagePath()
         {
             return Path.Combine(RootFolder, Const_DefImage);
@@ -259,7 +234,6 @@ namespace gip.core.datamodel
         {
             return Path.Combine(RootFolder, Const_DefThumbImage);
         }
-
         public string GetIconFilePath(string extension)
         {
             string iconPath = "";
