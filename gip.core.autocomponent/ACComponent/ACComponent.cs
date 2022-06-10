@@ -4507,7 +4507,7 @@ namespace gip.core.autocomponent
                 IACConfig acClassConfig = acTypeFromLiveContext.ConfigurationEntries.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl && c.LocalConfigACUrl == configuration).FirstOrDefault();
                 if (acClassConfig == null)
                 {
-                    if (value != null)
+                    if (value != null || forceIfNull)
                     {
                         ACClassConfig baseACClassConfig = null;
                         var queryBaseClasses = acTypeFromLiveContext.ClassHierarchyWithInterfaces;
