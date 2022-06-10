@@ -26,6 +26,8 @@ namespace gip.core.processapplication
         public PAEScaleBase(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
+            _WeightRemovedBin = new ACPropertyConfigValue<double?>(this, nameof(WeightRemovedBin), null);
+            _WeightPlacedBin = new ACPropertyConfigValue<double?>(this, nameof(WeightPlacedBin), null);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -42,6 +44,15 @@ namespace gip.core.processapplication
             return true;
         }
 
+        public override bool ACPostInit()
+        {
+            bool result = base.ACPostInit();
+
+            _ = WeightRemovedBin;
+            _ = WeightPlacedBin;
+
+            return result;
+        }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
@@ -77,6 +88,55 @@ namespace gip.core.processapplication
         [ACPropertyBindingTarget(604, "Configuration", "en{'Digit/Precision [g]'}de{'Teilung/Ziffernschritt [g]'}", "", true, true)]
         public IACContainerTNet<Double> DigitWeight { get; set; }
         // https://de.wikipedia.org/wiki/Genauigkeitsklasse_eines_Wiegesystems
+
+
+        private ACPropertyConfigValue<double?> _WeightRemovedBin;
+        [ACPropertyConfig("en{'Detection weight of removed bin'}de{'Erkennungsgewicht Behälter entfernt'}")]
+        public double? WeightRemovedBin
+        {
+            get => _WeightRemovedBin.ValueT;
+            set
+            {
+                _WeightRemovedBin.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ACPropertyConfigValue<double?> _WeightPlacedBin;
+        [ACPropertyConfig("en{'Detection weight of placed bin'}de{'Erkennungsgewicht Behälter hingestellt'}")]
+        public double? WeightPlacedBin
+        {
+            get => _WeightPlacedBin.ValueT;
+            set
+            {
+                _WeightPlacedBin.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool? IsBinRemoved
+        {
+            get
+            {
+                if (WeightRemovedBin.HasValue)
+                {
+                    return ActualValue.ValueT <= WeightRemovedBin.Value && !NotStandStill.ValueT;
+                }
+                return null;
+            }
+        }
+
+        public bool? IsBinPlaced
+        {
+            get
+            {
+                if (WeightPlacedBin.HasValue)
+                {
+                    return ActualValue.ValueT >= WeightPlacedBin.Value && !NotStandStill.ValueT;
+                }
+                return null;
+            }
+        }
 
         #endregion
 
