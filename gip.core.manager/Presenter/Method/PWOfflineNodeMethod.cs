@@ -538,5 +538,14 @@ namespace gip.core.manager
         }
 
         #endregion
+
+        #region Override
+
+        public override string ToString()
+        {
+            return ACCaption;
+        }
+
+        #endregion
     }
 }
