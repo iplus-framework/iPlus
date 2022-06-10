@@ -245,6 +245,67 @@ namespace gip.core.datamodel
                 }
             }
         }
+
+        public override bool IsSucceded()
+        {
+            if (!base.IsSucceded())
+                return false;
+            if (MsgDetailsCount > 0)
+            {
+                foreach (var detailMsg in MsgDetails)
+                {
+                    if (!detailMsg.IsSucceded())
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        public override bool HasWarnings()
+        {
+            if (base.HasWarnings())
+                return true;
+            if (MsgDetailsCount > 0)
+            {
+                foreach (var detailMsg in MsgDetails)
+                {
+                    if (detailMsg.HasWarnings())
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public override bool CanRetry()
+        {
+            if (!base.CanRetry())
+                return false;
+            if (MsgDetailsCount > 0)
+            {
+                foreach (var detailMsg in MsgDetails)
+                {
+                    if (!detailMsg.CanRetry())
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        public override bool HasInfos()
+        {
+            if (base.HasInfos())
+                return true;
+            if (MsgDetailsCount > 0)
+            {
+                foreach (var detailMsg in MsgDetails)
+                {
+                    if (detailMsg.HasInfos())
+                        return true;
+                }
+            }
+            return false;
+        }
+
         #endregion
 
         #region IMsg Members
