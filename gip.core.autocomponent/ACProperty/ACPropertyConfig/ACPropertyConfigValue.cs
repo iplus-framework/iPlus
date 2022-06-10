@@ -107,7 +107,7 @@ namespace gip.core.autocomponent
         private void SetDefaultValue()
         {
             _ValueT = _DefaultValue;
-            _ACComponent[_ACIdentifier] = _ValueT;
+            _ACComponent.SetConfigurationValue(_ACIdentifier, _ValueT, true);
             _IsCachedValueSet = true;
         }
 

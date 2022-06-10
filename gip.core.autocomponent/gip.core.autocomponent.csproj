@@ -161,7 +161,6 @@
     <Compile Include="ACDialog\VBBSOQueryDialog.cs" />
     <Compile Include="ACDialog\VBBSOSelectionDependentDialog.cs" />
     <Compile Include="ACManager\VBBSOSelectionManager.cs" />
-    <Compile Include="ACManager\ACMessages\MsgExtensions.cs" />
     <Compile Include="ACManager\ACMessages\MsgLoggingConfiguration.cs" />
     <Compile Include="ACDialog\VBBSOFindAndReplace.cs" />
     <Compile Include="ACPoint\ACComponent.cs" />

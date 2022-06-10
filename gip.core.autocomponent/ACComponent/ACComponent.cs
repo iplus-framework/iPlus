@@ -4492,43 +4492,48 @@ namespace gip.core.autocomponent
             }
             set
             {
-                ACClass acTypeFromLiveContext = ACTypeFromLiveContext;
-                if (acTypeFromLiveContext == null)
-                    return;
-                ACClassTaskQueue.TaskQueue.Add(() =>
+                SetConfigurationValue(configuration, value);
+            }
+        }
+
+        internal void SetConfigurationValue(string configuration, object value, bool forceIfNull = false)
+        {
+            ACClass acTypeFromLiveContext = ACTypeFromLiveContext;
+            if (acTypeFromLiveContext == null)
+                return;
+            ACClassTaskQueue.TaskQueue.Add(() =>
+            {
+                //ACClassConfig acClassConfig = acTypeFromLiveContext.ACClassConfig_ACClass.Where(c => c.KeyACUrl == null && c.LocalConfigACUrl == configuration).FirstOrDefault();
+                IACConfig acClassConfig = acTypeFromLiveContext.ConfigurationEntries.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl && c.LocalConfigACUrl == configuration).FirstOrDefault();
+                if (acClassConfig == null)
                 {
-                    //ACClassConfig acClassConfig = acTypeFromLiveContext.ACClassConfig_ACClass.Where(c => c.KeyACUrl == null && c.LocalConfigACUrl == configuration).FirstOrDefault();
-                    IACConfig acClassConfig = acTypeFromLiveContext.ConfigurationEntries.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl && c.LocalConfigACUrl == configuration).FirstOrDefault();
-                    if (acClassConfig == null)
+                    if (value != null)
                     {
-                        if (value != null)
+                        ACClassConfig baseACClassConfig = null;
+                        var queryBaseClasses = acTypeFromLiveContext.ClassHierarchyWithInterfaces;
+                        if (queryBaseClasses != null)
                         {
-                            ACClassConfig baseACClassConfig = null;
-                            var queryBaseClasses = acTypeFromLiveContext.ClassHierarchyWithInterfaces;
-                            if (queryBaseClasses != null)
+                            foreach (var baseClass in queryBaseClasses)
                             {
-                                foreach (var baseClass in queryBaseClasses)
-                                {
-                                    baseACClassConfig = baseClass.ACClassConfig_ACClass.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl
-                                                                                                && c.LocalConfigACUrl == configuration
-                                                                                                && !String.IsNullOrEmpty(c.Comment)).FirstOrDefault();
-                                    if (baseACClassConfig != null)
-                                        break;
-                                }
+                                baseACClassConfig = baseClass.ACClassConfig_ACClass.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl
+                                                                                            && c.LocalConfigACUrl == configuration
+                                                                                            && !String.IsNullOrEmpty(c.Comment)).FirstOrDefault();
+                                if (baseACClassConfig != null)
+                                    break;
                             }
-                            acClassConfig = acTypeFromLiveContext.NewACConfig(null, ACClassTaskQueue.TaskQueue.Context.GetACType(value.GetType())) as ACClassConfig;
-                            acClassConfig.LocalConfigACUrl = configuration;
-                            if (baseACClassConfig != null)
-                                acClassConfig.Comment = baseACClassConfig.Comment;
-                            acClassConfig.Value = value;
                         }
-                    }
-                    else
-                    {
+                        acClassConfig = acTypeFromLiveContext.NewACConfig(null, ACClassTaskQueue.TaskQueue.Context.GetACType(value.GetType())) as ACClassConfig;
+                        acClassConfig.LocalConfigACUrl = configuration;
+                        if (baseACClassConfig != null)
+                            acClassConfig.Comment = baseACClassConfig.Comment;
                         acClassConfig.Value = value;
                     }
-                });
-            }
+                }
+                else
+                {
+                    acClassConfig.Value = value;
+                }
+            });
         }
 
         /// <summary>
