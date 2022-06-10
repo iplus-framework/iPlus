@@ -885,18 +885,21 @@ namespace gip.core.autocomponent
         {
             LoggingConfiguration loggingConfiguration =
                     (LoggingConfiguration)CommandLineHelper.ConfigCurrentDir.GetSection("Logging/LoggingConfiguration");
-            _LogFilePath = loggingConfiguration.LogFilePath;
-            if (!_LogFilePath.EndsWith("\\"))
-                _LogFilePath += "\\";
-            if (loggingConfiguration != null)
+            if(loggingConfiguration != null)
             {
-                foreach (LogFileElement files in loggingConfiguration.LogFiles)
+                _LogFilePath = loggingConfiguration.LogFilePath;
+                if (!_LogFilePath.EndsWith("\\"))
+                    _LogFilePath += "\\";
+                if (loggingConfiguration != null)
                 {
-                    AddLogFile(files.FileType, files.FileName, files.MaxSizeMB, files.ArchiveAfterDays);
-                }
-                foreach (LoggingTypeElement types in loggingConfiguration.LoggingTypes)
-                {
-                    AddLoggingType(types.FileType, types.MessageType, types.Source, types.DumpThreadID, types.ACName, types.Smtp);
+                    foreach (LogFileElement files in loggingConfiguration.LogFiles)
+                    {
+                        AddLogFile(files.FileType, files.FileName, files.MaxSizeMB, files.ArchiveAfterDays);
+                    }
+                    foreach (LoggingTypeElement types in loggingConfiguration.LoggingTypes)
+                    {
+                        AddLoggingType(types.FileType, types.MessageType, types.Source, types.DumpThreadID, types.ACName, types.Smtp);
+                    }
                 }
             }
         }
