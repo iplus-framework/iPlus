@@ -685,6 +685,29 @@ namespace gip.core.datamodel
             return true;
         }
 
+        public virtual bool IsSucceded()
+        {
+            return ! (     MessageLevel == eMsgLevel.Failure
+                        || MessageLevel == eMsgLevel.Error
+                        || MessageLevel == eMsgLevel.Exception);
+        }
+
+        public virtual bool HasWarnings()
+        {
+            return MessageLevel == eMsgLevel.Warning;
+        }
+
+        public virtual bool CanRetry()
+        {
+            return !(   MessageLevel == eMsgLevel.Error
+                     || MessageLevel == eMsgLevel.Exception);
+        }
+
+        public virtual bool HasInfos()
+        {
+            return MessageLevel == eMsgLevel.Info;
+        }
+
 #if NETFRAMEWORK
         /// <summary>
         /// Acknowledges the specified acknowledged by.
