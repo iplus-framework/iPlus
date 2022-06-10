@@ -107,7 +107,14 @@ namespace gip.core.autocomponent
         private void SetDefaultValue()
         {
             _ValueT = _DefaultValue;
-            _ACComponent.SetConfigurationValue(_ACIdentifier, _ValueT, true);
+            Type innerType = null;
+            if (_ValueT == null)
+            {
+                Type typeT = typeof(T);
+                if ((typeT.IsGenericType && typeT.Name == Const.TNameNullable))
+                    innerType = typeT.GetGenericArguments()[0];
+            }
+            _ACComponent.SetConfigurationValue(_ACIdentifier, _ValueT, innerType);
             _IsCachedValueSet = true;
         }
 

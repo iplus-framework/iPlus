@@ -4496,7 +4496,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        internal void SetConfigurationValue(string configuration, object value, bool forceIfNull = false)
+        internal void SetConfigurationValue(string configuration, object value, Type forceType = null)
         {
             ACClass acTypeFromLiveContext = ACTypeFromLiveContext;
             if (acTypeFromLiveContext == null)
@@ -4507,7 +4507,7 @@ namespace gip.core.autocomponent
                 IACConfig acClassConfig = acTypeFromLiveContext.ConfigurationEntries.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl && c.LocalConfigACUrl == configuration).FirstOrDefault();
                 if (acClassConfig == null)
                 {
-                    if (value != null)
+                    if (value != null || forceType != null)
                     {
                         ACClassConfig baseACClassConfig = null;
                         var queryBaseClasses = acTypeFromLiveContext.ClassHierarchyWithInterfaces;
@@ -4522,7 +4522,7 @@ namespace gip.core.autocomponent
                                     break;
                             }
                         }
-                        acClassConfig = acTypeFromLiveContext.NewACConfig(null, ACClassTaskQueue.TaskQueue.Context.GetACType(value.GetType())) as ACClassConfig;
+                        acClassConfig = acTypeFromLiveContext.NewACConfig(null, ACClassTaskQueue.TaskQueue.Context.GetACType(value != null ? value.GetType() : forceType)) as ACClassConfig;
                         acClassConfig.LocalConfigACUrl = configuration;
                         if (baseACClassConfig != null)
                             acClassConfig.Comment = baseACClassConfig.Comment;
