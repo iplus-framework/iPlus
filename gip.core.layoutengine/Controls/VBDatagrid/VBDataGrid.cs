@@ -2348,22 +2348,22 @@ namespace gip.core.layoutengine
 
                 if (value != null && !string.IsNullOrEmpty(filterColumn))
                 {
-                    if (Database.Root.Environment.License.MayUserDevelop)
+                    if (value is ACClass)   // Falls ACClass, dann im BSOiPlusStudio öffnen
                     {
-                        if (value is ACClass)   // Falls ACClass, dann im BSOiPlusStudio öffnen
+                        if (Database.Root.Environment.License.MayUserDevelop)
                         {
                             ACMethod acMethod = Database.Root.ACType.ACType.ACUrlACTypeSignature(Const.BusinessobjectsACUrl + ACUrlHelper.Delimiter_Start + Const.BSOiPlusStudio);
                             acMethod.ParameterValueList["AutoLoad"] = (value as ACClass).GetACUrl();
 
                             this.Root().RootPageWPF.StartBusinessobject(Const.BusinessobjectsACUrl + ACUrlHelper.Delimiter_Start + Const.BSOiPlusStudio, acMethod.ParameterValueList);
                         }
-                        else
-                        {
-                            ACMethod acMethod = Database.Root.ACType.ACType.ACUrlACTypeSignature(Const.BusinessobjectsACUrl + ACUrlHelper.Delimiter_Start + Const.BSOiPlusStudio);
-                            acMethod.ParameterValueList["AutoFilter"] = value.ACUrlCommand(filterColumn).ToString();
+                    }
+                    else
+                    {
+                        ACMethod acMethod = Database.Root.ACType.ACType.ACUrlACTypeSignature(Const.BusinessobjectsACUrl + ACUrlHelper.Delimiter_Start + Const.BSOiPlusStudio);
+                        acMethod.ParameterValueList["AutoFilter"] = value.ACUrlCommand(filterColumn).ToString();
 
-                            this.Root().RootPageWPF.StartBusinessobject(Const.BusinessobjectsACUrl + ACUrlHelper.Delimiter_Start + acClass.ManagingBSO.ACIdentifier, acMethod.ParameterValueList);
-                        }
+                        this.Root().RootPageWPF.StartBusinessobject(Const.BusinessobjectsACUrl + ACUrlHelper.Delimiter_Start + acClass.ManagingBSO.ACIdentifier, acMethod.ParameterValueList);
                     }
                 }
                 else

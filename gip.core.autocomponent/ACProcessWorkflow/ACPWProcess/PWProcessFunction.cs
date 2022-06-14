@@ -1031,9 +1031,11 @@ namespace gip.core.autocomponent
             int expectedConfigStores = 0;
             using (ACMonitor.Lock(_20015_LockStoreList))
             {
-                if (_IgnoreConfigStoreValidation
-                   || _RecalcExpectedConfigStoresCount)
+                if (_IgnoreConfigStoreValidation)
+                   //|| _RecalcExpectedConfigStoresCount)
                     return true;
+                if (_RecalcExpectedConfigStoresCount)
+                    return false;
                 expectedConfigStores = _ExpectedConfigStoresCount;
                 if (_MandatoryConfigStores == null)
                     isValid = false;
