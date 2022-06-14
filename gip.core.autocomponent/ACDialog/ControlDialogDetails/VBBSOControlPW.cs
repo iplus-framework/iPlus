@@ -1650,35 +1650,32 @@ namespace gip.core.autocomponent
 
         #region Replication -> Methods -> CopyConfigToSimilarNodes -> TestImplementWithACClassWF
 
-        public void WriteConfigToNodes(IACConfigStore configStore, ACClassWF sourceNode, string preConfigACUrl)
+        public void WriteConfigToNodes(IACConfigStore configStore, ACClassWF sourceNode, string preConfigACUrl, string localConfigACUrl, Guid valueTypeACClassID, object value)
         {
             List<IACConfig> configEntries = configStore.ConfigurationEntries.Where(c => c.ACClassWFID == sourceNode.ACClassWFID).ToList();
-            foreach (IACConfig thisConfigEntry in configEntries)
-            {
-                IACConfig configOfSimilarNode =
-                    configStore
-                    .ConfigurationEntries
-                    .Where(c => c.PreConfigACUrl == preConfigACUrl
-                                && c.LocalConfigACUrl.StartsWith(sourceNode.LocalConfigACUrl)
-                                && c.ValueTypeACClass != null
-                                && thisConfigEntry.ValueTypeACClass != null
-                                && c.ValueTypeACClass.ACClassID == thisConfigEntry.ValueTypeACClass.ACClassID)
-                        .FirstOrDefault();
+            IACConfig configOfSimilarNode =
+                configStore
+                .ConfigurationEntries
+                .Where(c => 
+                            c.PreConfigACUrl == preConfigACUrl
+                            && c.LocalConfigACUrl == localConfigACUrl
+                            && c.ValueTypeACClass != null
+                            && c.ValueTypeACClass.ACClassID == valueTypeACClassID)
+                    .FirstOrDefault();
 
-                if (configOfSimilarNode == null)
-                {
-                    configOfSimilarNode = ConfigManagerIPlus
-                    .ACConfigFactory(
-                        configStore,
-                        sourceNode,
-                        thisConfigEntry.ValueTypeACClass.ACClassID,
-                        preConfigACUrl,
-                        thisConfigEntry.LocalConfigACUrl,
-                        null);
-                }
-                if (configOfSimilarNode != null)
-                    configOfSimilarNode.Value = thisConfigEntry.Value;
+            if (configOfSimilarNode == null)
+            {
+                configOfSimilarNode = ConfigManagerIPlus
+                .ACConfigFactory(
+                    configStore,
+                    sourceNode,
+                    valueTypeACClassID,
+                    preConfigACUrl,
+                    localConfigACUrl,
+                    null);
             }
+            if (configOfSimilarNode != null)
+                configOfSimilarNode.Value = value;
         }
 
         #endregion
@@ -1692,6 +1689,8 @@ namespace gip.core.autocomponent
         {
             if (!IsEnabledCopyValuesToEqualSubWF())
                 return;
+
+            ACSaveChanges();
 
             IACComponentPWNode rootPlanningNode = CurrentPWInfo;
             while (rootPlanningNode.ParentRootWFNode != null)
@@ -1707,9 +1706,21 @@ namespace gip.core.autocomponent
                 .Where(c => c.RefPAACClassMethodID == methodType.ACClassMethodID)
                 .ToArray();
 
+                //  SelectedPWNodeParamValue.DefaultConfiguration.ConfigStore.GetACUrl() != CurrentPWInfo.CurrentConfigStore.GetACUrl()
+
+                List<ACConfigParam> allHereOverridenParams = PWNodeParamValueList.Where(c => c.DefaultConfiguration != null && c.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl()).ToList();
                 foreach (ACClassWF rootNodeGroup in sameTypeRootMethods)
                 {
-                    WriteConfigToNodes(CurrentPWInfo.CurrentConfigStore, CurrentPWInfo.ContentACClassWF, rootNodeGroup.ConfigACUrl + "\\");
+                    foreach (ACConfigParam configParam in allHereOverridenParams)
+                    {
+                        WriteConfigToNodes(
+                        CurrentPWInfo.CurrentConfigStore,
+                        CurrentPWInfo.ContentACClassWF,
+                        rootNodeGroup.ConfigACUrl + "\\",
+                        configParam.DefaultConfiguration.LocalConfigACUrl,
+                        configParam.DefaultConfiguration.ValueTypeACClass.ACClassID,
+                        configParam.DefaultConfiguration.Value);
+                    }
                 }
             }
         }
