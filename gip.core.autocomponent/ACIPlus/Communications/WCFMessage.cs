@@ -80,6 +80,7 @@ namespace gip.core.autocomponent
             ACKnownTypes.RegisterKnownMessageType(typeof(Dictionary<string, string>));
             ACKnownTypes.RegisterKnownMessageType(typeof(Dictionary<string, object>));
             ACKnownTypes.RegisterKnownMessageType(typeof(BitAccessForAllocatedByWay));
+            ACKnownTypes.RegisterKnownMessageType(typeof(Guid[]));
 
             ACKnownTypes.RegisterUnKnownType(typeof(ACRef<IACObject>));
             ACKnownTypes.RegisterUnKnownType(typeof(ACRef<ACComponent>));

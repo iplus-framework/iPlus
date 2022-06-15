@@ -25,8 +25,6 @@ namespace gip.core.autocomponent
             }
             else if (typeName == "XmlStringArray")
                 return TypeStringArray;
-            else if (typeName == "XmlGuidArray")
-                return TypeGuidArray;
             else
             {
                 resolvedType = knownTypeResolver.ResolveName(typeName, typeNamespace, declaredType, null);
@@ -67,17 +65,6 @@ namespace gip.core.autocomponent
             }
         }
 
-        static Type _TypeGuidArray = null;
-        static Type TypeGuidArray
-        {
-            get
-            {
-                if (_TypeGuidArray == null)
-                    _TypeGuidArray = typeof(Guid[]);
-                return _TypeGuidArray;
-            }
-        }
-
         public override bool TryResolveType(Type type, Type declaredType, DataContractResolver knownTypeResolver, out System.Xml.XmlDictionaryString typeName, out System.Xml.XmlDictionaryString typeNamespace)
         {
             bool result = false;
@@ -99,13 +86,6 @@ namespace gip.core.autocomponent
             {
                 XmlDictionary dictionary = new XmlDictionary();
                 typeName = dictionary.Add("XmlStringArray");
-                typeNamespace = dictionary.Add("http://schemas.datacontract.org/2004/07/gip.core.datamodel");
-                return true;
-            }
-            else if (type == TypeGuidArray)
-            {
-                XmlDictionary dictionary = new XmlDictionary();
-                typeName = dictionary.Add("XmlGuidArray");
                 typeNamespace = dictionary.Add("http://schemas.datacontract.org/2004/07/gip.core.datamodel");
                 return true;
             }
