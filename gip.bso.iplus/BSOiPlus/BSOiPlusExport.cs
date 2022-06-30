@@ -251,7 +251,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// The _ is export AC class
         /// </summary>
-        bool _IsExportACClass = true;
+        bool _IsExportACClass = false;
         /// <summary>
         /// Gets or sets a value indicating whether this instance is export AC class.
         /// </summary>
@@ -273,7 +273,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// The _ is export AC class property
         /// </summary>
-        bool _IsExportACClassProperty = true;
+        bool _IsExportACClassProperty = false;
         /// <summary>
         /// Gets or sets a value indicating whether this instance is export AC class property.
         /// </summary>
@@ -295,7 +295,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// The _ is export AC class method
         /// </summary>
-        bool _IsExportACClassMethod = true;
+        bool _IsExportACClassMethod = false;
         /// <summary>
         /// Gets or sets a value indicating whether this instance is export AC class method.
         /// </summary>
@@ -339,7 +339,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// The _ is export AC class config
         /// </summary>
-        bool _IsExportACClassConfig = true;
+        bool _IsExportACClassConfig = false;
         /// <summary>
         /// Gets or sets a value indicating whether this instance is export AC class config.
         /// </summary>
@@ -405,7 +405,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// The _ is export AC class property relation
         /// </summary>
-        bool _IsExportACClassPropertyRelation = true;
+        bool _IsExportACClassPropertyRelation = false;
         /// <summary>
         /// Gets or sets a value indicating whether this instance is export AC class property relation.
         /// </summary>
