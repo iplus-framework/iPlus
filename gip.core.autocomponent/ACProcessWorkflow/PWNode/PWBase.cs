@@ -919,6 +919,17 @@ namespace gip.core.autocomponent
                     pwInNode = this.ParentACComponent as IPWNodeIn;
                 if (pwInNode == null)
                     return;
+                else
+                {
+                    if (selector(pwInNode))
+                    {
+                        if (typeof(TResult).IsAssignableFrom(pwInNode.GetType()))
+                            foundNodes.Add((TResult)(object)pwInNode);
+                    }
+
+                    if (deselector != null && deselector(pwInNode))
+                        return;
+                }
             }
 
             var sourceComps = pwInNode.PWPointIn.ConnectionList
@@ -988,6 +999,17 @@ namespace gip.core.autocomponent
                     pwOutNode = this.ParentACComponent as IPWNodeOut;
                 if (pwOutNode == null)
                     return;
+                else
+                {
+                    if (selector(pwOutNode))
+                    {
+                        if (typeof(TResult).IsAssignableFrom(pwOutNode.GetType()))
+                            foundNodes.Add((TResult)(object)pwOutNode);
+                    }
+
+                    if (deselector != null && deselector(pwOutNode))
+                        return;
+                }
             }
 
 
