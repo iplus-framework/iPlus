@@ -916,20 +916,12 @@ namespace gip.core.autocomponent
             if (pwInNode == null)
             {
                 if (this is PWNodeStart)
-                    pwInNode = this.ParentACComponent as IPWNodeIn;
-                if (pwInNode == null)
-                    return;
-                else
                 {
-                    if (selector(pwInNode))
-                    {
-                        if (typeof(TResult).IsAssignableFrom(pwInNode.GetType()))
-                            foundNodes.Add((TResult)(object)pwInNode);
-                    }
-
-                    if (deselector != null && deselector(pwInNode))
-                        return;
+                    PWBase parentNode = this.ParentACComponent as PWBase;
+                    if (parentNode != null)
+                        parentNode.FindPredecessorsIntern<TResult>(ref foundNodes, ref visitedNodes, startNodeForSearchInSameGroupOnly, selector, deselector, currentRecursionDepth, maxRecursionDepth);
                 }
+                return;
             }
 
             var sourceComps = pwInNode.PWPointIn.ConnectionList
@@ -996,20 +988,12 @@ namespace gip.core.autocomponent
             if (pwOutNode == null)
             {
                 if (this is PWNodeEnd)
-                    pwOutNode = this.ParentACComponent as IPWNodeOut;
-                if (pwOutNode == null)
-                    return;
-                else
                 {
-                    if (selector(pwOutNode))
-                    {
-                        if (typeof(TResult).IsAssignableFrom(pwOutNode.GetType()))
-                            foundNodes.Add((TResult)(object)pwOutNode);
-                    }
-
-                    if (deselector != null && deselector(pwOutNode))
-                        return;
+                    PWBase parentNode = this.ParentACComponent as PWBase;
+                    if (parentNode != null)
+                        parentNode.FindSuccessorsIntern<TResult>(ref foundNodes, ref visitedNodes, startNodeForSearchInSameGroupOnly, selector, deselector, currentRecursionDepth, maxRecursionDepth);
                 }
+                return;
             }
 
 
