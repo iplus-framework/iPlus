@@ -129,6 +129,22 @@ namespace gip.core.autocomponent
             AlarmsAsText.ValueT = CMessageText;
         }
 
+        public override void ResetAndComplete()
+        {
+            if (ForceEventPoint == 1)
+            {
+                RaiseOutEventAndComplete();
+            }
+            else if (ForceEventPoint == 2)
+            {
+                RaiseElseEventAndComplete();
+            }
+            else if (OutIsRepeat)
+                RaiseElseEventAndComplete();
+            else
+                RaiseOutEventAndComplete();
+        }
+
 
         [ACMethodState("en{'Running'}de{'Läuft'}", 30, true)]
         public virtual void SMRunning()

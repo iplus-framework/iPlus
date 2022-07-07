@@ -101,6 +101,13 @@ namespace gip.core.autocomponent
             }
         }
 
+        public override bool MustBeInsidePWGroup
+        {
+            get
+            {
+                return false;
+            }
+        }
         #endregion
 
         #region Public
@@ -151,18 +158,8 @@ namespace gip.core.autocomponent
         [ACMethodState("en{'Executing'}de{'Ausführend'}", 20, true)]
         public override void SMStarting()
         {
-            var pwGroup = ParentPWGroup;
-            if (pwGroup != null) // Is null when Service-Application is shutting down
-            {
-                if (pwGroup.IsPWGroupOrRootPWInSkipMode)
-                {
-                    UnSubscribeToProjectWorkCycle();
-                    // Falls durch tiefere Callstacks der Status schon weitergeschaltet worden ist, dann schalte Status nicht weiter
-                    if (CurrentACState == ACStateEnum.SMStarting)
-                        CurrentACState = ACStateEnum.SMCompleted;
-                    return;
-                }
-            }
+            if (!CheckParentGroupAndHandleSkipMode())
+                return;
 
             //if (!PreExecute(PABaseState.SMStarting))
             //  return;

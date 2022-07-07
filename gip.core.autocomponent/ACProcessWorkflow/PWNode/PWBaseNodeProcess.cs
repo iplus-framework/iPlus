@@ -207,9 +207,12 @@ namespace gip.core.autocomponent
         {
             _RepeatAfterCompleted = false;
             RecalcTimeInfo();
-            // Falls durch tiefere Callstacks der Status schon weitergeschaltet worden ist, dann schalte Status nicht weiter
-            if (CurrentACState == ACStateEnum.SMStarting)
-                CurrentACState = ACStateEnum.SMRunning;
+            if (CheckParentGroupAndHandleSkipMode())
+            {
+                // Falls durch tiefere Callstacks der Status schon weitergeschaltet worden ist, dann schalte Status nicht weiter
+                if (CurrentACState == ACStateEnum.SMStarting)
+                    CurrentACState = ACStateEnum.SMRunning;
+            }
         }
 
 

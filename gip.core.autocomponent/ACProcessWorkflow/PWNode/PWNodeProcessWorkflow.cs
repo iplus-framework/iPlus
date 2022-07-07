@@ -190,11 +190,19 @@ namespace gip.core.autocomponent
             }
         }
 
-#endregion
+        public override bool MustBeInsidePWGroup
+        {
+            get
+            {
+                return false;
+            }
+        }
 
-#region Methods
+        #endregion
 
-#region Execute-Helper-Handlers
+        #region Methods
+
+        #region Execute-Helper-Handlers
         public static bool HandleExecuteACMethod_PWNodeProcessWorkflow(out object result, IACComponent acComponent, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             return HandleExecuteACMethod_PWBaseNodeProcess(out result, acComponent, acMethodName, acClassMethod, acParameter);

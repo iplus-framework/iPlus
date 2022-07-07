@@ -87,6 +87,14 @@ namespace gip.core.autocomponent
 
         private IACContainerTNet<bool> _KeySwitch = null;
         bool _AckTiggeredOverSwitch = false;
+
+        public override bool MustBeInsidePWGroup
+        {
+            get
+            {
+                return false;
+            }
+        }
         #endregion
 
 
@@ -135,6 +143,9 @@ namespace gip.core.autocomponent
         [ACMethodState("en{'Executing'}de{'Ausführend'}", 20, true)]
         public override void SMStarting()
         {
+            if (!CheckParentGroupAndHandleSkipMode())
+                return;
+
             RecalcTimeInfo();
             if (CreateNewProgramLog(NewACMethodWithConfiguration()) <= CreateNewProgramLogResult.ErrorNoProgramFound)
                 return;

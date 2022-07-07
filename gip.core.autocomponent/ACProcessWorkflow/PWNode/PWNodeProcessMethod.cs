@@ -80,6 +80,14 @@ namespace gip.core.autocomponent
             }
         }
 
+        public override bool MustBeInsidePWGroup
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -133,6 +141,8 @@ namespace gip.core.autocomponent
 
         public override void SMStarting()
         {
+            if (!CheckParentGroupAndHandleSkipMode())
+                return;
             if (ParentPWGroup != null
                 && this.ContentACClassWF != null)
             {

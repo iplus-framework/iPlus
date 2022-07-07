@@ -713,6 +713,14 @@ namespace gip.core.autocomponent
                 ACSubState.ValueT = value;
             }
         }
+
+        public virtual bool IsInSkippingMode
+        {
+            get
+            {
+                return false;
+            }
+        }
         #endregion
 
         #region IACConfigMethodHierarchy

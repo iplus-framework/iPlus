@@ -894,7 +894,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        public virtual bool IsPWGroupOrRootPWInSkipMode
+        public virtual bool IsInSkippingMode
         {
             get
             {
@@ -903,6 +903,14 @@ namespace gip.core.autocomponent
         }
 
         public virtual bool MustRepeatGroupAtEnd
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override bool MustBeInsidePWGroup
         {
             get
             {

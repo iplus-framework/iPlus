@@ -273,6 +273,49 @@ namespace gip.core.autocomponent
             }
         }
 
+        public virtual bool IsSkippable
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public abstract bool MustBeInsidePWGroup { get; }
+
+        /// <summary>
+        /// Checks if Workflow or parent group is set to skipping mode.
+        /// If Node is allowed to skip, then the state is automatically se to SMCompleted.
+        /// </summary>
+        /// <returns>Returns true if parent PWGroup exists and node can continue with it's logic.</returns>
+        public virtual bool CheckParentGroupAndHandleSkipMode(bool autoSetCompleted = true)
+        {
+            var pwGroup = ParentPWGroup;
+            if (pwGroup == null) // Is null when Service-Application is shutting down
+            {
+                if (MustBeInsidePWGroup)
+                {
+                    if (this.InitState == ACInitState.Initialized)
+                        Messages.LogError(this.GetACUrl(), "SMStarting()", "ParentPWGroup is null");
+                    return false;
+                }
+            }
+            if (!IsSkippable)
+                return true;
+            if (   (pwGroup != null && pwGroup.IsInSkippingMode)
+                || (RootPW != null && RootPW.IsInSkippingMode))
+            {
+                UnSubscribeToProjectWorkCycle();
+                if (autoSetCompleted)
+                {
+                    // Falls durch tiefere Callstacks der Status schon weitergeschaltet worden ist, dann schalte Status nicht weiter
+                    if (CurrentACState == ACStateEnum.SMStarting)
+                        CurrentACState = ACStateEnum.SMCompleted;
+                }
+                return false;
+            }
+            return true;
+        }
 
         #endregion
 

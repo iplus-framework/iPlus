@@ -113,6 +113,14 @@ namespace gip.core.autocomponent
                 return 0;
             }
         }
+
+        public override bool MustBeInsidePWGroup
+        {
+            get
+            {
+                return false;
+            }
+        }
         #endregion
 
         #region Public
