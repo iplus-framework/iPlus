@@ -362,28 +362,36 @@ namespace gip.core.datamodel
         {
             if (string.IsNullOrEmpty(acUrl))
                 return false;
-
-            ACUrlHelper acUrlHelper = new ACUrlHelper(acUrl);
-            switch (acUrlHelper.UrlKey)
+            try
             {
-                case ACUrlHelper.UrlKeys.Root:
-                    if (reflectedObject is IACInteractiveObject)
-                        return reflectedObject.Root().IsEnabledACUrlCommand(acUrl.Substring(1), acParameter);
-                    return false;
-                case ACUrlHelper.UrlKeys.Parent:
-                    if (reflectedObject is IACComponent)
-                        return ((IACComponent)reflectedObject).ParentACComponent.IsEnabledACUrlCommand(acUrlHelper.NextACUrl, acParameter);
-                    return false;
-                case ACUrlHelper.UrlKeys.InvokeMethod:
-                    return ReflectIsEnabledExecuteACMethod(reflectedObject, acUrlHelper.ACUrlPart, acParameter);
-                case ACUrlHelper.UrlKeys.Stop:
-                    {
-                        if (reflectedObject is IACObjectEntity)
-                            return (reflectedObject as IACObjectEntity).IsEnabledDeleteACObject((reflectedObject as EntityObject).GetObjectContext<Database>()) == null;
+                ACUrlHelper acUrlHelper = new ACUrlHelper(acUrl);
+                switch (acUrlHelper.UrlKey)
+                {
+                    case ACUrlHelper.UrlKeys.Root:
+                        if (reflectedObject is IACInteractiveObject)
+                            return reflectedObject.Root().IsEnabledACUrlCommand(acUrl.Substring(1), acParameter);
                         return false;
-                    }
-                default:
-                    return false; // TODO: Fehlerbehandlung
+                    case ACUrlHelper.UrlKeys.Parent:
+                        if (reflectedObject is IACComponent)
+                            return ((IACComponent)reflectedObject).ParentACComponent.IsEnabledACUrlCommand(acUrlHelper.NextACUrl, acParameter);
+                        return false;
+                    case ACUrlHelper.UrlKeys.InvokeMethod:
+                        return ReflectIsEnabledExecuteACMethod(reflectedObject, acUrlHelper.ACUrlPart, acParameter);
+                    case ACUrlHelper.UrlKeys.Stop:
+                        {
+                            if (reflectedObject is IACObjectEntity)
+                                return (reflectedObject as IACObjectEntity).IsEnabledDeleteACObject((reflectedObject as EntityObject).GetObjectContext<Database>()) == null;
+                            return false;
+                        }
+                    default:
+                        return false; // TODO: Fehlerbehandlung
+                }
+            }
+            catch (Exception ex)
+            {
+                if (Database.Root != null && Database.Root.Messages != null)
+                    Database.Root.Messages.LogException("IACObjectReflectionExtension", "ReflectIsEnabledACUrlCommand", ex);
+                return false;
             }
         }
 
