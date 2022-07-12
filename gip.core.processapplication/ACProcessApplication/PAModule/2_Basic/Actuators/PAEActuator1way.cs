@@ -145,7 +145,10 @@ namespace gip.core.processapplication
 
         protected virtual void OnSetOpenValues()
         {
-            ReqPos1Open.ValueT = true;
+            if (Behaviour == 1)
+                ReqPos1Open.ValueT = false;
+            else
+                ReqPos1Open.ValueT = true;
         }
 
 
@@ -173,7 +176,10 @@ namespace gip.core.processapplication
 
         protected virtual void OnSetCloseValues()
         {
-            ReqPos1Open.ValueT = false;
+            if (Behaviour == 1)
+                ReqPos1Open.ValueT = true;
+            else
+                ReqPos1Open.ValueT = false;
         }
 
         protected override void GoToBasicPosition()

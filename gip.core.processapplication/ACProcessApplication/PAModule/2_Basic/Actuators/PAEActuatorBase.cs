@@ -38,12 +38,15 @@ namespace gip.core.processapplication
         public PAEActuatorBase(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
+            _Behaviour = new ACPropertyConfigValue<ushort>(this, "Behaviour", 0);
+
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
             if (!base.ACInit(startChildMode))
                 return false;
+            _ = Behaviour;
             return true;
         }
 
@@ -62,6 +65,22 @@ namespace gip.core.processapplication
         #endregion
 
         #region Properties, Range:500
+
+        #region Configuration
+        private ACPropertyConfigValue<ushort> _Behaviour;
+        [ACPropertyConfig("en{'Behaviour'}de{'Verhalten'}")]
+        public ushort Behaviour
+        {
+            get
+            {
+                return _Behaviour.ValueT;
+            }
+            set
+            {
+                _Behaviour.ValueT = value;
+            }
+        }
+        #endregion
 
         //#region Read-Values from PLC
         //[ACPropertyBindingTarget(530, "Read from PLC", "en{'Position'}de{'Stellung'}", "", false, false)]
