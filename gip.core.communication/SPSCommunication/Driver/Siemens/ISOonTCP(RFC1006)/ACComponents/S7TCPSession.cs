@@ -434,7 +434,7 @@ namespace gip.core.communication
             if (res != ErrorCode.NoError)
             {
                 if (_ReconnectTries <= 0)
-                    Messages.LogDebug(this.GetACUrl(), "S7TCPSession.Connect(1)", "Not Connected: " + _PLCConn.lastErrorString);
+                    Messages.LogDebug(this.GetACUrl(), "S7TCPSession.Connect(1)", "Not Connected: " + _PLCConn.LastErrorString);
                 _ReconnectTries++;
                 return false;
             }
@@ -925,15 +925,15 @@ namespace gip.core.communication
                 }
                 else if (plcError == ErrorCode.DBRangeToSmall || plcError == ErrorCode.DBNotExist)
                 {
-                    dataBlock.ReadErrorMessage = PLCConn.lastErrorString;
-                    Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.ReadFromPLC(S7TCPDataBlock)", String.Format("No Data received from PLC. DB{0}, Start: {1}, Length: {2}, ErrorString: {3} ", dataBlock.DBNoForISOonTCP, readSegment.StartIndex, readSegment.ReadLength, PLCConn.lastErrorString));
+                    dataBlock.ReadErrorMessage = PLCConn.LastErrorString;
+                    Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.ReadFromPLC(S7TCPDataBlock)", String.Format("No Data received from PLC. DB{0}, Start: {1}, Length: {2}, ErrorString: {3} ", dataBlock.DBNoForISOonTCP, readSegment.StartIndex, readSegment.ReadLength, PLCConn.LastErrorString));
                     readSucc = false;
                     break;
                 }
                 else
                 {
-                    dataBlock.ReadErrorMessage = PLCConn.lastErrorString;
-                    Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.ReadFromPLC(S7TCPDataBlock)", String.Format("No Data received from PLC. DB{0}, Start: {1}, Length: {2}, ErrorString: {3} ", dataBlock.DBNoForISOonTCP, readSegment.StartIndex, readSegment.ReadLength, PLCConn.lastErrorString));
+                    dataBlock.ReadErrorMessage = PLCConn.LastErrorString;
+                    Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.ReadFromPLC(S7TCPDataBlock)", String.Format("No Data received from PLC. DB{0}, Start: {1}, Length: {2}, ErrorString: {3} ", dataBlock.DBNoForISOonTCP, readSegment.StartIndex, readSegment.ReadLength, PLCConn.LastErrorString));
                     readSucc = false;
                     break;
                 }
@@ -1127,14 +1127,14 @@ namespace gip.core.communication
                         if (plcError == ErrorCode.DBRangeToSmall || plcError == ErrorCode.DBNotExist)
                         {
                             S7TCPDataBlock s7DataBlock = package2Send.ParentSubscription.PLCRAMOfDataBlocks[package2Send.DBNo];
-                            s7DataBlock.WriteErrorMessage = PLCConn.lastErrorString;
-                            Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.SendPackage(S7TCPDataBlock)", "No Data send to PLC: " + PLCConn.lastErrorString);
+                            s7DataBlock.WriteErrorMessage = PLCConn.LastErrorString;
+                            Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.SendPackage(S7TCPDataBlock)", "No Data send to PLC: " + PLCConn.LastErrorString);
                         }
                         else
                         {
                             S7TCPDataBlock s7DataBlock = package2Send.ParentSubscription.PLCRAMOfDataBlocks[package2Send.DBNo];
-                            s7DataBlock.WriteErrorMessage = PLCConn.lastErrorString;
-                            Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.SendPackage(S7TCPDataBlock)", "No Data send to PLC: " + PLCConn.lastErrorString);
+                            s7DataBlock.WriteErrorMessage = PLCConn.LastErrorString;
+                            Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.SendPackage(S7TCPDataBlock)", "No Data send to PLC: " + PLCConn.LastErrorString);
                         }
                         writeSucc = false;
                         break;

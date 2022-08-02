@@ -100,8 +100,23 @@ namespace gip.core.communication.ISOonTCP
             }
         }
 
-        public ErrorCode lastErrorCode = 0;
-        public string lastErrorString = "";
+        protected ErrorCode _LastErrorCode = 0;
+        public ErrorCode LastErrorCode
+        {
+            get
+            {
+                return _LastErrorCode;
+            }
+        }
+
+        protected string _LastErrorString = "";
+        public string LastErrorString
+        {
+            get
+            {
+                return _LastErrorString;
+            }
+        }
 
         private bool _IsConnected = false;
         public bool IsConnected
@@ -238,16 +253,16 @@ namespace gip.core.communication.ISOonTCP
                 }
                 catch (Exception e)
                 {
-                    lastErrorCode = ErrorCode.IPAdressNotAvailable;
-                    lastErrorString = "Destination IP-Address '" + IP + "' is not available!" + e.Message;
-                    return lastErrorCode;
+                    _LastErrorCode = ErrorCode.IPAdressNotAvailable;
+                    _LastErrorString = "Destination IP-Address '" + IP + "' is not available!" + e.Message;
+                    return _LastErrorCode;
                 }
             }
             if (!succeeded)
             {
-                lastErrorCode = ErrorCode.IPAdressNotAvailable;
-                lastErrorString = "Destination IP-Address '" + IP + "' is not available!";
-                return lastErrorCode;
+                _LastErrorCode = ErrorCode.IPAdressNotAvailable;
+                _LastErrorString = "Destination IP-Address '" + IP + "' is not available!";
+                return _LastErrorCode;
             }
 
             try
@@ -269,22 +284,22 @@ namespace gip.core.communication.ISOonTCP
             catch (SocketException sockEx)
             {
                 IsConnected = false;
-                lastErrorCode = ErrorCode.ConnectionError;
-                lastErrorString = sockEx.Message;
+                _LastErrorCode = ErrorCode.ConnectionError;
+                _LastErrorString = sockEx.Message;
                 return ErrorCode.ConnectionError;
             }
             catch (ObjectDisposedException dispEx)
             {
                 IsConnected = false;
-                lastErrorCode = ErrorCode.ConnectionError;
-                lastErrorString = dispEx.Message;
+                _LastErrorCode = ErrorCode.ConnectionError;
+                _LastErrorString = dispEx.Message;
                 return ErrorCode.ConnectionError;
             }
             catch (Exception ex)
             {
                 IsConnected = false;
-                lastErrorCode = ErrorCode.ConnectionError;
-                lastErrorString = ex.Message;
+                _LastErrorCode = ErrorCode.ConnectionError;
+                _LastErrorString = ex.Message;
                 return ErrorCode.ConnectionError;
             }
 
@@ -358,8 +373,8 @@ namespace gip.core.communication.ISOonTCP
 		    }
 		    catch (Exception ex)
             {
-			    lastErrorCode = ErrorCode.ConnectionError;
-			    lastErrorString = "Couldn't establish the connection: " + ex.Message;
+			    _LastErrorCode = ErrorCode.ConnectionError;
+			    _LastErrorString = "Couldn't establish the connection: " + ex.Message;
 			    IsConnected = false;
 			    return ErrorCode.ConnectionError;
 		    }
@@ -534,7 +549,7 @@ namespace gip.core.communication.ISOonTCP
                     //...-... ...                       following requests 
                     //Read Requests haben keinen Datenteil. 
                 
-                package.Add(new byte[] { 0x04, 0x01, 0x12, 
+                package.Add(new byte[] { (byte) FunctionCode.Read, 0x01, 0x12, 
                                          0x0a, 0x10});
                 // data type:
                 switch (DataType)
@@ -580,60 +595,34 @@ namespace gip.core.communication.ISOonTCP
                     numReceived = mSocket.Receive(bReceive, readSize, SocketFlags.None);
                 }
 
-                
-                //21 data error code 
-                    //Error Code Description 
-                    //0x00ff no error 
-                    //0x0001 there is no peripheral at given address 
-                    //0x0003 a piece of data is not available, e.g. when trying to read a bit block (with a length other than 1) or a non existing DB (200 family) 
-                    //0x0005 the data address exceeds the address range 
-                    //0x0006 can not read a bit block with a length other than 1 
-                    //0x0007 write data size does not fit item size 
-                    //0x000A a piece of data is not available, e.g. when trying to read a non existing DB 
-
-                if (bReceive[21] == 0xff)
+                ErrorCode validationResult = ValidateResponseHeader(ref bReceive, ErrorCode.ReadData, dbNo, startByteAddr, count);
+                if (validationResult == ErrorCode.NoError)
                 {
                     for (int cnt = 0; cnt < count; cnt++)
                         bytes[cnt] = bReceive[cnt + 25];
-                    lastErrorCode = ErrorCode.NoError;
-                    lastErrorString = "";
-                    return lastErrorCode;
                 }
-                else if (bReceive[21] == 0x05)
-                {
-                    lastErrorCode = ErrorCode.DBRangeToSmall;
-                    lastErrorString = String.Format("DB-Size in PLC to small! (DB: {0}, StartAddr: {1}, Length: {2}, EndAddr: {3}", dbNo, startByteAddr, count, startByteAddr + count);
-                    return lastErrorCode;
-                }
-                else if (bReceive[21] == 0x0A)
-                {
-                    lastErrorCode = ErrorCode.DBNotExist;
-                    lastErrorString = String.Format("DB does not exist in PLC! (DB: {0}, StartAddr: {1}, Length: {2}, EndAddr: {3}", dbNo, startByteAddr, count, startByteAddr + count);
-                    return lastErrorCode;
-                }
-
-                return ErrorCode.ReadData;
+                return validationResult;
             }
             catch (SocketException sockEx)
             {
                 IsConnected = false;
-                lastErrorCode = ErrorCode.ConnectionError;
-                lastErrorString = sockEx.Message;
-                return lastErrorCode;
+                _LastErrorCode = ErrorCode.ConnectionError;
+                _LastErrorString = sockEx.Message;
+                return _LastErrorCode;
             }
             catch (ObjectDisposedException dispEx)
             {
                 IsConnected = false;
-                lastErrorCode = ErrorCode.ConnectionError;
-                lastErrorString = dispEx.Message;
-                return lastErrorCode;
+                _LastErrorCode = ErrorCode.ConnectionError;
+                _LastErrorString = dispEx.Message;
+                return _LastErrorCode;
             }
             catch (Exception e)
             {
                 ReadError = true;
-                lastErrorCode = ErrorCode.Exception;
-                lastErrorString = e.Message;
-                return lastErrorCode;
+                _LastErrorCode = ErrorCode.Exception;
+                _LastErrorString = e.Message;
+                return _LastErrorCode;
             }
         }
 
@@ -755,16 +744,16 @@ namespace gip.core.communication.ISOonTCP
             bool resolved = ItemSyntaxResolver.Resolve(variable, out mDataType, out mVarType, out mDB, out mByte, out mLength, out mBit);
             if (!resolved)
             {
-                lastErrorCode = ErrorCode.WrongVarFormat;
-                lastErrorString = "The Variable '" + variable + "' coudn't be decoded!";
+                _LastErrorCode = ErrorCode.WrongVarFormat;
+                _LastErrorString = "The Variable '" + variable + "' coudn't be decoded!";
                 return null;
             }
 
             object readResult = Read(mDataType, mDB, mByte, mVarType, 1);
             if (readResult == null)
             {
-                lastErrorCode = ErrorCode.WrongVarFormat;
-                lastErrorString = "The Variable '" + variable + "' coudn't be read!";
+                _LastErrorCode = ErrorCode.WrongVarFormat;
+                _LastErrorString = "The Variable '" + variable + "' coudn't be read!";
                 return null;
             }
 
@@ -942,9 +931,9 @@ namespace gip.core.communication.ISOonTCP
                 package.Add(Types.Word.ToByteArray((ushort)(varCount - 1), EndianessEnum.BigEndian));
                 package.Add(new byte[] { 0, 0x0e });
                 package.Add(Types.Word.ToByteArray((ushort)(varCount + 4), EndianessEnum.BigEndian));
-                package.Add(new byte[] { 0x05, 0x01, 0x12, 0x0a, 0x10, 0x02 });
-                package.Add(Types.Word.ToByteArray((ushort)varCount, EndianessEnum.BigEndian));
-                package.Add(Types.Word.ToByteArray((ushort)(dbNo), EndianessEnum.BigEndian));
+                package.Add(new byte[] { (byte) FunctionCode.Write, 0x01, 0x12, 0x0a, 0x10, 0x02 }); // Reserved, Max AMQ Caller 2B, MAX AMQ Callee 2 B
+                package.Add(Types.Word.ToByteArray((ushort)varCount, EndianessEnum.BigEndian)); // PDU Length
+                package.Add(Types.Word.ToByteArray((ushort)(dbNo), EndianessEnum.BigEndian)); // DB No
                 package.Add((byte)DataType);
                 package.Add((byte)((startByteAddr * 8) / 0x10000));
                 package.Add(Types.Word.ToByteArray((ushort)(startByteAddr * 8), EndianessEnum.BigEndian));
@@ -971,47 +960,29 @@ namespace gip.core.communication.ISOonTCP
                 //0x0007 write data size does not fit item size 
                 //0x000A a piece of data is not available, e.g. when trying to read a non existing DB 
 
-                if (bReceive[21] == 0xff)
-                {
-                    lastErrorCode = ErrorCode.NoError;
-                    lastErrorString = "";
-                    return lastErrorCode;
-                }
-                else if (bReceive[21] == 0x05)
-                {
-                    lastErrorCode = ErrorCode.DBRangeToSmall;
-                    lastErrorString = String.Format("DB-Size in PLC to small! (DB: {0}, StartAddr: {1}, Length: {2}, EndAddr: {3}", dbNo, startByteAddr, package.array.Length, startByteAddr + package.array.Length);
-                    return lastErrorCode;
-                }
-                else if (bReceive[21] == 0x0A)
-                {
-                    lastErrorCode = ErrorCode.DBNotExist;
-                    lastErrorString = String.Format("DB does not exist in PLC! (DB: {0}, StartAddr: {1}, Length: {2}, EndAddr: {3}", dbNo, startByteAddr, package.array.Length, startByteAddr + package.array.Length);
-                    return lastErrorCode;
-                }
-
-                return ErrorCode.WriteData;
+                ErrorCode validationResult = ValidateResponseHeader(ref bReceive, ErrorCode.ReadData, dbNo, startByteAddr, package.array.Length);
+                return validationResult;
             }
             catch (SocketException sockEx)
             {
                 IsConnected = false;
-                lastErrorCode = ErrorCode.ConnectionError;
-                lastErrorString = sockEx.Message;
-                return lastErrorCode;
+                _LastErrorCode = ErrorCode.ConnectionError;
+                _LastErrorString = sockEx.Message;
+                return _LastErrorCode;
             }
             catch (ObjectDisposedException dispEx)
             {
                 IsConnected = false;
-                lastErrorCode = ErrorCode.ConnectionError;
-                lastErrorString = dispEx.Message;
-                return lastErrorCode;
+                _LastErrorCode = ErrorCode.ConnectionError;
+                _LastErrorString = dispEx.Message;
+                return _LastErrorCode;
             }
             catch (Exception e)
             {
                 WriteError = true;
-                lastErrorCode = ErrorCode.Exception;
-                lastErrorString = e.Message;
-                return lastErrorCode;
+                _LastErrorCode = ErrorCode.Exception;
+                _LastErrorString = e.Message;
+                return _LastErrorCode;
             }
         }
 
@@ -1096,8 +1067,8 @@ namespace gip.core.communication.ISOonTCP
             bool resolved = ItemSyntaxResolver.Resolve(variable, out mDataType, out mVarType, out mDB, out mByte, out mLength, out mBit);
             if (!resolved)
             {
-                lastErrorCode = ErrorCode.WrongVarFormat;
-                lastErrorString = "The Variable '" + variable + "' coudn't be decoded!";
+                _LastErrorCode = ErrorCode.WrongVarFormat;
+                _LastErrorString = "The Variable '" + variable + "' coudn't be decoded!";
                 return null;
             }
 
@@ -1147,8 +1118,8 @@ namespace gip.core.communication.ISOonTCP
                 catch (Exception ex)
                 {
                     string msg = ex.Message;
-                    lastErrorCode = ErrorCode.WrongVarFormat;
-                    lastErrorString = "Die Variable '" + variable + "' coudn't be decoded!";
+                    _LastErrorCode = ErrorCode.WrongVarFormat;
+                    _LastErrorString = "Die Variable '" + variable + "' coudn't be decoded!";
                     return null;
                 }
             }
@@ -1311,15 +1282,90 @@ namespace gip.core.communication.ISOonTCP
             }
             catch
             {
-                lastErrorCode = ErrorCode.WriteData;
-                lastErrorString = "Error while writing the Struct!";
-                return lastErrorCode;
+                _LastErrorCode = ErrorCode.WriteData;
+                _LastErrorString = "Error while writing the Struct!";
+                return _LastErrorCode;
             }
         }
-#endregion
+        #endregion
+
+        #region Error-Handling
+        protected ErrorCode ValidateResponseHeader(ref byte[] bReceive, ErrorCode defaultErrorCode, int dbNo, int startByteAddr, int count)
+        {
+            if (bReceive[17] != (byte)HeaderErrorClass.NoError || bReceive[18] != (byte)ParameterErrorCode.NoError)
+            {
+                _LastErrorCode = defaultErrorCode;
+                try
+                {
+                    MessageType messageType = (MessageType)bReceive[8];
+                    _LastErrorString = BuildErrorMessage(messageType, bReceive[17], bReceive[18]);
+                }
+                catch (Exception ex)
+                {
+                    _LastErrorString = String.Format("HeaderErrorClass : {0}, ParameterErrorCode: {1}, Exception: {2}", bReceive[17], bReceive[18], ex.Message);
+                }
+                return defaultErrorCode;
+            }
+
+            //21 data error code 
+            //Error Code Description 
+            //0x00ff no error 
+            //0x0001 there is no peripheral at given address 
+            //0x0003 a piece of data is not available, e.g. when trying to read a bit block (with a length other than 1) or a non existing DB (200 family) 
+            //0x0005 the data address exceeds the address range 
+            //0x0006 can not read a bit block with a length other than 1 
+            //0x0007 write data size does not fit item size 
+            //0x000A a piece of data is not available, e.g. when trying to read a non existing DB 
+            if (bReceive[21] == (byte)ReadWriteErrorCode.Success)
+            {
+                _LastErrorCode = ErrorCode.NoError;
+                _LastErrorString = "";
+                return ErrorCode.NoError;
+            }
+            else if (bReceive[21] == (byte)ReadWriteErrorCode.AddressOutOfRange)
+            {
+                _LastErrorCode = ErrorCode.DBRangeToSmall;
+                _LastErrorString = String.Format("DB-Size in PLC to small! (DB: {0}, StartAddr: {1}, Length: {2}, EndAddr: {3}", dbNo, startByteAddr, count, startByteAddr + count);
+                return _LastErrorCode;
+            }
+            else if (bReceive[21] == (byte)ReadWriteErrorCode.ObjectDoesNotExist)
+            {
+                _LastErrorCode = ErrorCode.DBNotExist;
+                _LastErrorString = String.Format("DB does not exist in PLC! (DB: {0}, StartAddr: {1}, Length: {2}, EndAddr: {3}", dbNo, startByteAddr, count, startByteAddr + count);
+                return _LastErrorCode;
+            }
+            return defaultErrorCode;
+        }
+
+        static string BuildErrorMessage(MessageType messageType, byte errorClass, byte errorCode)
+        {
+            var sb = new StringBuilder("An error was returned during communication:").AppendLine().AppendLine();
+
+            sb.Append("\tMessage type: ").Append(messageType).Append(" / 0x").AppendFormat("{0:X}", messageType).AppendLine();
+
+            sb.Append("\tError class: ");
+            if (Enum.IsDefined(typeof(HeaderErrorClass), errorClass))
+            {
+                sb.Append(((HeaderErrorClass)errorClass).ToString()).Append(" / ");
+            }
+            sb.Append("0x").AppendFormat("{0:X}", errorClass).AppendLine();
+
+            sb.Append("\tError code: 0x").AppendFormat("{0:X}", errorCode).AppendLine();
+
+            ushort combinedErrorCode = (ushort)(((int)errorClass << 8) | errorCode);
+            sb.Append("\tCombined error: ");
+            if (Enum.IsDefined(typeof(ParameterErrorCode), combinedErrorCode))
+            {
+                sb.Append(((ParameterErrorCode)combinedErrorCode).ToString()).Append(" / ");
+            }
+            sb.Append("0x").AppendFormat("{0:X}", combinedErrorCode).AppendLine();
+
+            return sb.ToString();
+        }
+        #endregion
 
 
-#region Events
+        #region Events
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {

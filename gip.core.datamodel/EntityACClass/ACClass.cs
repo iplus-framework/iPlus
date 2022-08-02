@@ -865,11 +865,10 @@ namespace gip.core.datamodel
                         string targetPropertyACIdentifier = subFilterValues[2];
                         int connectionTypeIndex = int.Parse(subFilterValues[3]);
                         return ACClassPropertyRelation_SourceACClass
-                            .Where(c =>
-                                c.SourceACClassProperty.ACIdentifier == sourcePropertyACIdentifier &&
-                                c.TargetACClass.ACIdentifier == targetClassACIdentifier &&
-                                c.TargetACClassProperty.ACIdentifier == targetPropertyACIdentifier &&
-                                c.ConnectionTypeIndex == connectionTypeIndex
+                            .Where(c => c.SourceACClassProperty != null && c.SourceACClassProperty.ACIdentifier == sourcePropertyACIdentifier
+                                    && c.TargetACClass != null && c.TargetACClass.ACIdentifier == targetClassACIdentifier
+                                    && c.TargetACClassProperty != null && c.TargetACClassProperty.ACIdentifier == targetPropertyACIdentifier
+                                    && c.ConnectionTypeIndex == connectionTypeIndex
                             )
                             .FirstOrDefault();
                     case ACClassText.ClassName:
