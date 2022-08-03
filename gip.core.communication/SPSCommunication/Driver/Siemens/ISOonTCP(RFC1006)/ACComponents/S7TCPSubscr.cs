@@ -203,14 +203,14 @@ namespace gip.core.communication
                         {
                             switch (daItem.ItemDataType)
                             {
-                                case ISOonTCP.DataType.DataBlock:
+                                case ISOonTCP.DataTypeEnum.DataBlock:
                                     PLCRAMOfDataBlocks.Add(daItem);
                                     break;
-                                case ISOonTCP.DataType.Input:
-                                case ISOonTCP.DataType.Output:
-                                case ISOonTCP.DataType.Marker:
-                                case ISOonTCP.DataType.Timer:
-                                case ISOonTCP.DataType.Counter:
+                                case ISOonTCP.DataTypeEnum.Input:
+                                case ISOonTCP.DataTypeEnum.Output:
+                                case ISOonTCP.DataTypeEnum.Marker:
+                                case ISOonTCP.DataTypeEnum.Timer:
+                                case ISOonTCP.DataTypeEnum.Counter:
                                     PLCRAMOfDataBlocks.Add(daItem);
                                     break;
                             }

@@ -274,6 +274,7 @@ namespace gip.core.communication
 
 
         private CircularBuffer<Tuple<DateTime, S7TCPItemsSendPackageSegment, int>> _LogQueue = null;
+        private CircularBuffer<Tuple<DateTime, S7TCPItemsSendPackageSegment, int>> _LogQueueUnsent = null;
         private object _LogQueueLock = new object();
 
         #endregion
@@ -415,26 +416,24 @@ namespace gip.core.communication
             if (_PLCConn.IsConnected)
                 return true;
 
-            ErrorCode res = ErrorCode.NoError;
+            PLC.Result res = null;
 
-            //using (ACMonitor.Lock(_PLCConn._11900_SocketLockObj))
-            {
-                if (_PLCConn.IsConnected)
-                    return true;
-                if (_PLCConn.IP != IPAddress)
-                    _PLCConn.IP = IPAddress;
-                if (_PLCConn.Rack != Rack)
-                    _PLCConn.Rack = Rack;
-                else if (_PLCConn.Slot != Slot)
-                    _PLCConn.Slot = Slot;
-                if (_ReconnectTries <= 0)
-                    Messages.LogDebug(this.GetACUrl(), "S7TCPSession.Connect(0)", "Start Connect");
-                res = _PLCConn.Open();
-            }
-            if (res != ErrorCode.NoError)
+            if (_PLCConn.IsConnected)
+                return true;
+            if (_PLCConn.IP != IPAddress)
+                _PLCConn.IP = IPAddress;
+            if (_PLCConn.Rack != Rack)
+                _PLCConn.Rack = Rack;
+            else if (_PLCConn.Slot != Slot)
+                _PLCConn.Slot = Slot;
+            if (_ReconnectTries <= 0)
+                Messages.LogDebug(this.GetACUrl(), "S7TCPSession.Connect(0)", "Start Connect");
+            res = _PLCConn.Open();
+
+            if (res != null && !res.IsSucceeded)
             {
                 if (_ReconnectTries <= 0)
-                    Messages.LogDebug(this.GetACUrl(), "S7TCPSession.Connect(1)", "Not Connected: " + _PLCConn.LastErrorString);
+                    Messages.LogDebug(this.GetACUrl(), "S7TCPSession.Connect(1)", "Not Connected: " + res.ToString());
                 _ReconnectTries++;
                 return false;
             }
@@ -527,13 +526,19 @@ namespace gip.core.communication
             lock (_LogQueueLock)
             {
                 if (_LogQueue == null)
+                {
                     _LogQueue = new CircularBuffer<Tuple<DateTime, S7TCPItemsSendPackageSegment, int>>(1000, true);
+                    _LogQueueUnsent = new CircularBuffer<Tuple<DateTime, S7TCPItemsSendPackageSegment, int>>(1000, true);
+                }
             }
         }
 
         public bool IsEnabledSwitchLoggingOn()
         {
-            return _LogQueue == null;
+            lock (_LogQueueLock)
+            {
+                return _LogQueue == null;
+            }
         }
 
         [ACMethodInteraction("Log", "en{'Deactivate Logging'}de{'Sendelog ausschalten'}", 301, true)]
@@ -544,12 +549,16 @@ namespace gip.core.communication
             lock (_LogQueueLock)
             {
                 _LogQueue = null;
+                _LogQueueUnsent = null;
             }
         }
 
         public bool IsEnabledSwitchLoggingOff()
         {
-            return _LogQueue != null;
+            lock (_LogQueueLock)
+            {
+                return _LogQueue != null;
+            }
         }
 
         [ACMethodInteraction("Log", "en{'Dump Log'}de{'Sendelog in Datei schreiben'}", 302, true)]
@@ -558,11 +567,20 @@ namespace gip.core.communication
             if (!IsEnabledDumpLog())
                 return;
             CircularBuffer<Tuple<DateTime, S7TCPItemsSendPackageSegment, int>> logQueueCopy = null;
+            CircularBuffer<Tuple<DateTime, S7TCPItemsSendPackageSegment, int>> logQueueCopyUnsent = null;
             lock (_LogQueueLock)
             {
                 logQueueCopy = _LogQueue;
+                logQueueCopyUnsent = _LogQueueUnsent;
                 _LogQueue = new CircularBuffer<Tuple<DateTime, S7TCPItemsSendPackageSegment, int>>(1000, true);
+                _LogQueueUnsent = new CircularBuffer<Tuple<DateTime, S7TCPItemsSendPackageSegment, int>>(1000, true);
             }
+            WriteLogQueue(logQueueCopy, "S");
+            WriteLogQueue(logQueueCopyUnsent, "U");
+        }
+
+        private void WriteLogQueue(CircularBuffer<Tuple<DateTime, S7TCPItemsSendPackageSegment, int>> logQueueCopy, string fileNamePostfix)
+        {
             if (logQueueCopy != null)
             {
                 ThreadPool.QueueUserWorkItem((object state) =>
@@ -583,7 +601,7 @@ namespace gip.core.communication
                             sb.AppendLine();
                         }
 
-                        string fileName = String.Format("S7Dump_{0:yyyyMMdd_HHmmss}_{1}.txt", DateTime.Now, Guid.NewGuid().GetHashCode());
+                        string fileName = String.Format("S7Dump_{0:yyyyMMdd_HHmmss}_{1}_{2}.txt", DateTime.Now, Guid.NewGuid().GetHashCode(), fileNamePostfix);
                         fileName = Path.Combine(Path.GetTempPath(), fileName);
                         File.WriteAllText(fileName, sb.ToString());
                     }
@@ -602,7 +620,10 @@ namespace gip.core.communication
 
         public bool IsEnabledDumpLog()
         {
-            return _LogQueue != null;
+            lock (_LogQueueLock)
+            {
+                return _LogQueue != null;
+            }
         }
 
 #endregion
@@ -909,31 +930,28 @@ namespace gip.core.communication
             foreach (S7TCPDataBlockReadSegment readSegment in dataBlock.ReadSegmentsList)
             {
                 byte[] readResult;
-                ErrorCode plcError = PLCConn.ReadBytes(dataBlock.S7DataType, dataBlock.DBNoForISOonTCP, readSegment.StartIndex, readSegment.ReadLength, out readResult);
-                if (plcError == ErrorCode.NoError)
+                PLC.Result plcError = PLCConn.ReadBytes(dataBlock.S7DataType, dataBlock.DBNoForISOonTCP, readSegment.StartIndex, readSegment.ReadLength, out readResult);
+                if (plcError == null || plcError.IsSucceeded)
                 {
                     if (readResult.Length >= readSegment.ReadLength)
-                    {
                         dataBlock.RefreshItems(ref readResult, readSegment.StartIndex);
-                    }
                     else
                     {
                         dataBlock.RefreshItems(ref readResult, readSegment.StartIndex);
-                        // TODO: Check ob DB überhaupt so groß ??, Ist das so richtig?
                         Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.ReadFromPLC(S7TCPDataBlock)", String.Format("DataBlock-Size in only DB{0}, Start: {1}, PLC {2}, Requested Size was {3}", dataBlock.DBNoForISOonTCP, readSegment.StartIndex, readResult.Length, dataBlock.RequestedSize));
                     }
                 }
-                else if (plcError == ErrorCode.DBRangeToSmall || plcError == ErrorCode.DBNotExist)
+                else if (plcError.ErrorCode == ErrorCodeEnum.DBRangeToSmall || plcError.ErrorCode == ErrorCodeEnum.DBNotExist)
                 {
-                    dataBlock.ReadErrorMessage = PLCConn.LastErrorString;
-                    Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.ReadFromPLC(S7TCPDataBlock)", String.Format("No Data received from PLC. DB{0}, Start: {1}, Length: {2}, ErrorString: {3} ", dataBlock.DBNoForISOonTCP, readSegment.StartIndex, readSegment.ReadLength, PLCConn.LastErrorString));
+                    dataBlock.ReadErrorMessage = plcError.ErrorText;
+                    Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.ReadFromPLC(S7TCPDataBlock)", String.Format("No Data received from PLC. DB{0}, Start: {1}, Length: {2}, ErrorString: {3} ", dataBlock.DBNoForISOonTCP, readSegment.StartIndex, readSegment.ReadLength, plcError.ToString()));
                     readSucc = false;
                     break;
                 }
                 else
                 {
-                    dataBlock.ReadErrorMessage = PLCConn.LastErrorString;
-                    Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.ReadFromPLC(S7TCPDataBlock)", String.Format("No Data received from PLC. DB{0}, Start: {1}, Length: {2}, ErrorString: {3} ", dataBlock.DBNoForISOonTCP, readSegment.StartIndex, readSegment.ReadLength, PLCConn.LastErrorString));
+                    dataBlock.ReadErrorMessage = plcError.ErrorText;
+                    Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.ReadFromPLC(S7TCPDataBlock)", String.Format("No Data received from PLC. DB{0}, Start: {1}, Length: {2}, ErrorString: {3} ", dataBlock.DBNoForISOonTCP, readSegment.StartIndex, readSegment.ReadLength, plcError.ToString()));
                     readSucc = false;
                     break;
                 }
@@ -1015,7 +1033,17 @@ namespace gip.core.communication
                     continue;
                 _sendThread.StartReportingExeTime();
                 List<S7TCPDataBlock> affectedBlocks = null;
-                List<S7TCPItems2SendEntry> itemList2Send = Items2Send.GetAllEntrys(true);
+                bool overCrowdingThreat = false;
+                List<S7TCPItems2SendEntry> itemList2Send = Items2Send.GetAllEntrys(true, out overCrowdingThreat);
+
+                if (overCrowdingThreat)
+                {
+                    string message = "Bandwith is to low for communication with PLC! Consider switching to DataBlockLatestValue mode or improve your network.";
+                    WriteError.ValueT = true;
+                    if (IsAlarmActive(WriteError, message) == null)
+                        Messages.LogError(this.GetACUrl(), "SendPLC(10)", message);
+                    OnNewAlarmOccurred(WriteError, message, true);
+                }
 
                 IEnumerable<S7TCPItems2SendEntry> sortedList2Send = itemList2Send;
                 if ((WriteMode == ISOonTCP.WriteMode.AllNeigboursWithLatestValue)
@@ -1048,8 +1076,8 @@ namespace gip.core.communication
                         {
                             if (WriteMode == ISOonTCP.WriteMode.Separately)
                             {
-                                if (package2Send.ExistsAPreviousEntry(entry.Item) ||
-                                    !package2Send.IsItemADirectNeighbour(entry.Item))
+                                if (    package2Send.ExistsAPreviousEntry(entry.Item)
+                                    || !package2Send.IsItemADirectNeighbour(entry.Item))
                                 {
                                     SendPackage(package2Send);
                                     package2Send.MarkItemsAsWritten();
@@ -1067,7 +1095,7 @@ namespace gip.core.communication
                             }
                             else if (WriteMode == ISOonTCP.WriteMode.DataBlockLatestValue)
                             {
-                                if ((prevEntry.Item.ParentSubscription != entry.Item.ParentSubscription)
+                                if (   (prevEntry.Item.ParentSubscription != entry.Item.ParentSubscription)
                                     || (prevEntry.Item.ItemDBNo != entry.Item.ItemDBNo))
                                 {
                                     SendPackage(package2Send);
@@ -1114,30 +1142,50 @@ namespace gip.core.communication
                 bool writeSucc = true;
                 foreach (S7TCPItemsSendPackageSegment segment in array2Send)
                 {
-                    ErrorCode plcError = PLCConn.WriteBytes(DataType.DataBlock, package2Send.DBNo, segment.StartIndex, ref segment._WriteSegment);
-                    lock (_LogQueueLock)
+                    PLC.Result plcError = null;
+                    PLC.Result firstPLCError = null;
+                    for (int tries = 0; tries < 3; tries++)
                     {
-                        if (_LogQueue != null)
-                        {
-                            _LogQueue.Put(new Tuple<DateTime, S7TCPItemsSendPackageSegment, int>(DateTime.Now, segment, package2Send.DBNo));
-                        }
+                        if (tries > 0)
+                            Thread.Sleep(50);
+                        plcError = PLCConn.WriteBytes(DataTypeEnum.DataBlock, package2Send.DBNo, segment.StartIndex, ref segment._WriteSegment);
+                        if (plcError == null || plcError.IsSucceeded)
+                            break;
+                        if (!plcError.IsPLCError)
+                            break;
+                        else if (firstPLCError == null)
+                            firstPLCError = plcError;
                     }
-                    if (plcError != ErrorCode.NoError)
+
+                    if (firstPLCError != null)
+                        Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.SendPackage(10)", "PLC-Error: " + firstPLCError.ToString());
+
+                    if (plcError != null && !plcError.IsSucceeded)
                     {
-                        if (plcError == ErrorCode.DBRangeToSmall || plcError == ErrorCode.DBNotExist)
+                        S7TCPDataBlock s7DataBlock = package2Send.ParentSubscription.PLCRAMOfDataBlocks[package2Send.DBNo];
+                        s7DataBlock.WriteErrorMessage = plcError.ErrorText;
+                        Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.SendPackage(20)", "No Data send to PLC: " + plcError.ToString());
+                        
+                        lock (_LogQueueLock)
                         {
-                            S7TCPDataBlock s7DataBlock = package2Send.ParentSubscription.PLCRAMOfDataBlocks[package2Send.DBNo];
-                            s7DataBlock.WriteErrorMessage = PLCConn.LastErrorString;
-                            Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.SendPackage(S7TCPDataBlock)", "No Data send to PLC: " + PLCConn.LastErrorString);
+                            if (_LogQueueUnsent != null)
+                            {
+                                _LogQueueUnsent.Put(new Tuple<DateTime, S7TCPItemsSendPackageSegment, int>(DateTime.Now, segment, package2Send.DBNo));
+                            }
                         }
-                        else
-                        {
-                            S7TCPDataBlock s7DataBlock = package2Send.ParentSubscription.PLCRAMOfDataBlocks[package2Send.DBNo];
-                            s7DataBlock.WriteErrorMessage = PLCConn.LastErrorString;
-                            Messages.LogFailure(this.GetACUrl(), "S7TCPSubscr.SendPackage(S7TCPDataBlock)", "No Data send to PLC: " + PLCConn.LastErrorString);
-                        }
+
                         writeSucc = false;
                         break;
+                    }
+                    else
+                    {
+                        lock (_LogQueueLock)
+                        {
+                            if (_LogQueue != null)
+                            {
+                                _LogQueue.Put(new Tuple<DateTime, S7TCPItemsSendPackageSegment, int>(DateTime.Now, segment, package2Send.DBNo));
+                            }
+                        }
                     }
                 }
                 if (writeSucc)

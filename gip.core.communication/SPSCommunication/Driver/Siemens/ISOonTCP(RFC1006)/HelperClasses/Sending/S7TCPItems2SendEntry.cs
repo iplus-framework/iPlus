@@ -17,9 +17,7 @@ namespace gip.core.communication
             Item = item;
             Order = order;
             if ((item.ACProperty.Value != null) && item.ACProperty.Value is ACCustomTypeBase)
-            {
                 Value = (item.ACProperty.Value as ACCustomTypeBase).Value;
-            }
             else
                 Value = item.ACProperty.Value;
         }
@@ -51,11 +49,16 @@ namespace gip.core.communication
             byte[] returnValue = null;
             object valueToConvert = Value;
             if (!chronologicalValue)
-                valueToConvert = Item.ACProperty.Value;
+            {
+                if ((Item.ACProperty.Value != null) && Item.ACProperty.Value is ACCustomTypeBase)
+                    valueToConvert = (Item.ACProperty.Value as ACCustomTypeBase).Value;
+                else
+                    valueToConvert = Item.ACProperty.Value;
+            }
 
             switch (Item.ItemVarType)
             {
-                case VarType.Bit:
+                case VarTypeEnum.Bit:
                     BitAccessForByte bitAccess = new BitAccessForByte() { ValueT = s7DataBlock.RAMinPLC[Item.ItemStartByteAddr] };
                     Boolean Boolval = false;
                     if (Item.RequestedDatatype != typeof(Boolean))
@@ -66,7 +69,7 @@ namespace gip.core.communication
                     returnValue = gip.core.communication.ISOonTCP.Types.Byte.ToByteArray(bitAccess.ValueT);
                     s7DataBlock.UpdateRAMArea(ref returnValue, Item.ItemStartByteAddr);
                     return returnValue;
-                case VarType.Byte:
+                case VarTypeEnum.Byte:
                     Byte Byteval = 0;
                     if (Item.RequestedDatatype != typeof(Byte))
                         Byteval = (Byte)Convert.ChangeType(valueToConvert, typeof(Byte));
@@ -75,7 +78,7 @@ namespace gip.core.communication
                     returnValue = gip.core.communication.ISOonTCP.Types.Byte.ToByteArray(Byteval);
                     s7DataBlock.UpdateRAMArea(ref returnValue, Item.ItemStartByteAddr);
                     return returnValue;
-                case VarType.Word:
+                case VarTypeEnum.Word:
                     UInt16 UInt16val = 0;
                     if (Item.RequestedDatatype != typeof(UInt16))
                         UInt16val = (UInt16)Convert.ChangeType(valueToConvert, typeof(UInt16));
@@ -84,7 +87,7 @@ namespace gip.core.communication
                     returnValue = gip.core.communication.ISOonTCP.Types.Word.ToByteArray(UInt16val, Item.ParentSubscription.Endianess);
                     s7DataBlock.UpdateRAMArea(ref returnValue, Item.ItemStartByteAddr);
                     return returnValue;
-                case VarType.DWord:
+                case VarTypeEnum.DWord:
                     UInt32 UInt32val = 0;
                     if (Item.RequestedDatatype != typeof(UInt32))
                         UInt32val = (UInt32)Convert.ChangeType(valueToConvert, typeof(UInt32));
@@ -93,7 +96,7 @@ namespace gip.core.communication
                     returnValue = gip.core.communication.ISOonTCP.Types.DWord.ToByteArray(UInt32val, Item.ParentSubscription.Endianess);
                     s7DataBlock.UpdateRAMArea(ref returnValue, Item.ItemStartByteAddr);
                     return returnValue;
-                case VarType.Int:
+                case VarTypeEnum.Int:
                     Int16 Int16val = 0;
                     if (Item.RequestedDatatype != typeof(Int16))
                         Int16val = (Int16)Convert.ChangeType(valueToConvert, typeof(Int16));
@@ -102,7 +105,7 @@ namespace gip.core.communication
                     returnValue = gip.core.communication.ISOonTCP.Types.Int.ToByteArray(Int16val, Item.ParentSubscription.Endianess);
                     s7DataBlock.UpdateRAMArea(ref returnValue, Item.ItemStartByteAddr);
                     return returnValue;
-                case VarType.DInt:
+                case VarTypeEnum.DInt:
                     Int32 Int32val = 0;
                     if (Item.RequestedDatatype != typeof(Int32))
                         Int32val = (Int32)Convert.ChangeType(valueToConvert, typeof(Int32));
@@ -111,7 +114,7 @@ namespace gip.core.communication
                     returnValue = gip.core.communication.ISOonTCP.Types.DInt.ToByteArray(Int32val, Item.ParentSubscription.Endianess);
                     s7DataBlock.UpdateRAMArea(ref returnValue, Item.ItemStartByteAddr);
                     return returnValue;
-                case VarType.Real:
+                case VarTypeEnum.Real:
                     Single floatval = 0;
                     if (Item.RequestedDatatype != typeof(Single))
                         floatval = (Single)Convert.ChangeType(valueToConvert, typeof(Single));
@@ -120,17 +123,17 @@ namespace gip.core.communication
                     returnValue = gip.core.communication.ISOonTCP.Types.Real.ToByteArray(floatval, Item.ParentSubscription.Endianess);
                     s7DataBlock.UpdateRAMArea(ref returnValue, Item.ItemStartByteAddr);
                     return returnValue;
-                case VarType.String:
-                case VarType.Base64String:
+                case VarTypeEnum.String:
+                case VarTypeEnum.Base64String:
                     String Stringval;
                     if (Item.RequestedDatatype != typeof(String))
                         Stringval = (String)Convert.ChangeType(valueToConvert, typeof(String));
                     else
                         Stringval = (String)valueToConvert;
-                    returnValue = gip.core.communication.ISOonTCP.Types.String.ToByteArray(Stringval, System.Convert.ToByte(Item.StringLen), Item.ItemLength, Item.ItemVarType == VarType.Base64String);
+                    returnValue = gip.core.communication.ISOonTCP.Types.String.ToByteArray(Stringval, System.Convert.ToByte(Item.StringLen), Item.ItemLength, Item.ItemVarType == VarTypeEnum.Base64String);
                     s7DataBlock.UpdateRAMArea(ref returnValue, Item.ItemStartByteAddr);
                     return returnValue;
-                case VarType.Timer:
+                case VarTypeEnum.Timer:
                     UInt16 Timerval = 0;
                     if (Item.RequestedDatatype != typeof(UInt16))
                         Timerval = (UInt16)Convert.ChangeType(valueToConvert, typeof(UInt16));
@@ -139,7 +142,7 @@ namespace gip.core.communication
                     returnValue = gip.core.communication.ISOonTCP.Types.Timer.ToByteArray(Timerval);
                     s7DataBlock.UpdateRAMArea(ref returnValue, Item.ItemStartByteAddr);
                     return returnValue;
-                case VarType.Counter:
+                case VarTypeEnum.Counter:
                     UInt16 Counterval = 0;
                     if (Item.RequestedDatatype != typeof(UInt16))
                         Counterval = (UInt16)Convert.ChangeType(valueToConvert, typeof(UInt16));

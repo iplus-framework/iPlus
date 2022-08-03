@@ -76,8 +76,8 @@ namespace gip.core.communication
             }
         }
 
-        private DataType _ItemDataType;
-        public DataType ItemDataType
+        private DataTypeEnum _ItemDataType;
+        public DataTypeEnum ItemDataType
         {
             get
             {
@@ -85,8 +85,8 @@ namespace gip.core.communication
             }
         }
 
-        private VarType _ItemVarType;
-        public VarType ItemVarType
+        private VarTypeEnum _ItemVarType;
+        public VarTypeEnum ItemVarType
         {
             get
             {
@@ -121,7 +121,7 @@ namespace gip.core.communication
                 // Während S5-Strings keine Längenangaben enthalten, 
                 // sind in einem S7-String die ersten beiden Bytes mit entsprechenden Angaben belegt:
                 // enthält im 1. Byte maximale Länge und im 2. Byte tatsächliche Länge
-                if (ItemVarType == VarType.String || ItemVarType == VarType.Base64String)
+                if (ItemVarType == VarTypeEnum.String || ItemVarType == VarTypeEnum.Base64String)
                     return _ItemLength + 2;
                 return _ItemLength;
             }
@@ -193,7 +193,7 @@ namespace gip.core.communication
                     // When this thread is faster, then OnSetValueFromPLC will be called for ItemA because Bit01 is changed an from the same byte
                     // this.OnSetValueFromPLC changes the ValueT-Value. When the sceduler now switches back to the method OnValueUpdatedOnReceival() which calls this.OnSendValueToPLC()
                     // then the old read-Value from PLC will be send instead of new value of ItemA
-                    if (ItemVarType == VarType.Bit && dataBlock.RAMinPLC != null)
+                    if (ItemVarType == VarTypeEnum.Bit && dataBlock.RAMinPLC != null)
                     {
                         BitAccessForByte bitANew = new BitAccessForByte() { ValueT = readResult[atIndex + i] };
                         BitAccessForByte bitARam = new BitAccessForByte() { ValueT = dataBlock.RAMinPLC[dbReadStartIndex + atIndex + i] };
@@ -213,37 +213,37 @@ namespace gip.core.communication
 
             switch (ItemVarType)
             {
-                case VarType.Bit:
+                case VarTypeEnum.Bit:
                     BitAccessForByte bitAccess = new BitAccessForByte() { ValueT = readExtract[0] };
                     OnSetValueFromPLC(bitAccess.GetBitValue(ItemBitNo), isEqualInRAM);
                     break;
-                case VarType.Byte:
+                case VarTypeEnum.Byte:
                     OnSetValueFromPLC(readExtract[0], isEqualInRAM);
                     break;
-                case VarType.Word:
+                case VarTypeEnum.Word:
                     OnSetValueFromPLC(gip.core.communication.ISOonTCP.Types.Word.FromByteArray(readExtract, ParentSubscription.Endianess), isEqualInRAM);
                     break;
-                case VarType.Int:
+                case VarTypeEnum.Int:
                     OnSetValueFromPLC(gip.core.communication.ISOonTCP.Types.Int.FromByteArray(readExtract, ParentSubscription.Endianess), isEqualInRAM);
                     break;
-                case VarType.DWord:
+                case VarTypeEnum.DWord:
                     OnSetValueFromPLC(gip.core.communication.ISOonTCP.Types.DWord.FromByteArray(readExtract, ParentSubscription.Endianess), isEqualInRAM);
                     break;
-                case VarType.DInt:
+                case VarTypeEnum.DInt:
                     OnSetValueFromPLC(gip.core.communication.ISOonTCP.Types.DInt.FromByteArray(readExtract, ParentSubscription.Endianess), isEqualInRAM);
                     break;
-                case VarType.Real:
+                case VarTypeEnum.Real:
                     OnSetValueFromPLC(gip.core.communication.ISOonTCP.Types.Real.FromByteArray(readExtract, ParentSubscription.Endianess), isEqualInRAM);
                     break;
-                case VarType.String:
-                case VarType.Base64String:
+                case VarTypeEnum.String:
+                case VarTypeEnum.Base64String:
                     _StringLen = readExtract[0];
-                    OnSetValueFromPLC(gip.core.communication.ISOonTCP.Types.String.FromByteArray(readExtract, this.ItemVarType == VarType.Base64String), isEqualInRAM);
+                    OnSetValueFromPLC(gip.core.communication.ISOonTCP.Types.String.FromByteArray(readExtract, this.ItemVarType == VarTypeEnum.Base64String), isEqualInRAM);
                     break;
-                case VarType.Timer:
+                case VarTypeEnum.Timer:
                     OnSetValueFromPLC(gip.core.communication.ISOonTCP.Types.Timer.FromByteArray(readExtract), isEqualInRAM);
                     break;
-                case VarType.Counter:
+                case VarTypeEnum.Counter:
                     OnSetValueFromPLC(gip.core.communication.ISOonTCP.Types.Counter.FromByteArray(readExtract), isEqualInRAM);
                     break;
             }

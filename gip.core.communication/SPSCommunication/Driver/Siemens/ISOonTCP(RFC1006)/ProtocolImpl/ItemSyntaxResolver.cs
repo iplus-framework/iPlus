@@ -7,10 +7,10 @@ namespace gip.core.communication.ISOonTCP
 {
     public static class ItemSyntaxResolver
     {
-        public static bool Resolve(string itemAddr, out DataType dataType, out VarType varType, out int dbNo, out int startByteAddr, out int length, out short bitNo)
+        public static bool Resolve(string itemAddr, out DataTypeEnum dataType, out VarTypeEnum varType, out int dbNo, out int startByteAddr, out int length, out short bitNo)
         {
-            dataType = DataType.DataBlock;
-            varType = VarType.Bit;
+            dataType = DataTypeEnum.DataBlock;
+            varType = VarTypeEnum.Bit;
             dbNo = 0;
             bitNo = -1;
             startByteAddr = -1;
@@ -28,7 +28,7 @@ namespace gip.core.communication.ISOonTCP
                 switch (txt.Substring(0, 2))
                 {
                     case "DB":
-                        dataType = DataType.DataBlock;
+                        dataType = DataTypeEnum.DataBlock;
                         if (strings.Length < 2)
                             return false;
 
@@ -38,11 +38,11 @@ namespace gip.core.communication.ISOonTCP
                         {
                             case "DW":
                                 varTypeFound = true;
-                                varType = VarType.DWord;
+                                varType = VarTypeEnum.DWord;
                                 break;
                             case "DI":
                                 varTypeFound = true;
-                                varType = VarType.DInt;
+                                varType = VarTypeEnum.DInt;
                                 break;
                             default:
                                 varTypeFound = false;
@@ -62,7 +62,7 @@ namespace gip.core.communication.ISOonTCP
                             {
                                 case "X":
                                     varTypeFound = true;
-                                    varType = VarType.Bit;
+                                    varType = VarTypeEnum.Bit;
                                     length = LengthOfVarType(varType);
                                     if (strings.Length < 3)
                                         return false;
@@ -72,41 +72,41 @@ namespace gip.core.communication.ISOonTCP
                                     break;
                                 case "B":
                                     varTypeFound = true;
-                                    varType = VarType.Byte;
+                                    varType = VarTypeEnum.Byte;
                                     length = LengthOfVarType(varType);
                                     break;
                                 case "W":
                                     varTypeFound = true;
-                                    varType = VarType.Word;
+                                    varType = VarTypeEnum.Word;
                                     length = LengthOfVarType(varType);
                                     break;
                                 case "I":
                                     varTypeFound = true;
-                                    varType = VarType.Int;
+                                    varType = VarTypeEnum.Int;
                                     length = LengthOfVarType(varType);
                                     break;
                                 case "R":
                                     varTypeFound = true;
-                                    varType = VarType.Real;
+                                    varType = VarTypeEnum.Real;
                                     length = LengthOfVarType(varType);
                                     break;
                                 case "S":
                                     varTypeFound = true;
-                                    varType = VarType.String;
+                                    varType = VarTypeEnum.String;
                                     if (strings.Length < 3)
                                         return false;
                                     length = Convert.ToInt32(strings[2]);
                                     break;
                                 case "$":
                                     varTypeFound = true;
-                                    varType = VarType.Base64String;
+                                    varType = VarTypeEnum.Base64String;
                                     if (strings.Length < 3)
                                         return false;
                                     length = Convert.ToInt32(strings[2]);
                                     break;
                                 case "#":
                                     varTypeFound = true;
-                                    varType = VarType.Array;
+                                    varType = VarTypeEnum.Array;
                                     if (strings.Length < 3)
                                         return false;
                                     length = Convert.ToInt32(strings[2]);
@@ -119,89 +119,89 @@ namespace gip.core.communication.ISOonTCP
                     case "EB":
                     case "IB":
                         // Eingangsbyte
-                        dataType = DataType.Input;
-                        varType = VarType.Byte;
+                        dataType = DataTypeEnum.Input;
+                        varType = VarTypeEnum.Byte;
                         length = LengthOfVarType(varType);
                         startByteAddr = Convert.ToInt32(txt.Substring(2));
                         varTypeFound = true;
-                        dbNo = (int)DBNoSpecial.Inputs;
+                        dbNo = (int)DBNoSpecialEnum.Inputs;
                         break;
                     case "EW":
                     case "IW":
                         // Eingangswort
-                        dataType = DataType.Input;
-                        varType = VarType.Word;
+                        dataType = DataTypeEnum.Input;
+                        varType = VarTypeEnum.Word;
                         length = LengthOfVarType(varType);
                         startByteAddr = Convert.ToInt32(txt.Substring(2));
                         varTypeFound = true;
-                        dbNo = (int)DBNoSpecial.Inputs;
+                        dbNo = (int)DBNoSpecialEnum.Inputs;
                         break;
                     case "ED":
                     case "ID":
                         // Eingangsdoppelwort
-                        dataType = DataType.Input;
-                        varType = VarType.DWord;
+                        dataType = DataTypeEnum.Input;
+                        varType = VarTypeEnum.DWord;
                         length = LengthOfVarType(varType);
                         startByteAddr = Convert.ToInt32(txt.Substring(2));
                         varTypeFound = true;
-                        dbNo = (int)DBNoSpecial.Inputs;
+                        dbNo = (int)DBNoSpecialEnum.Inputs;
                         break;
                     case "AB":
                     case "OB":
                         // Ausgangsbyte
-                        dataType = DataType.Output;
-                        varType = VarType.Byte;
+                        dataType = DataTypeEnum.Output;
+                        varType = VarTypeEnum.Byte;
                         length = LengthOfVarType(varType);
                         startByteAddr = Convert.ToInt32(txt.Substring(2));
                         varTypeFound = true;
-                        dbNo = (int)DBNoSpecial.Outputs;
+                        dbNo = (int)DBNoSpecialEnum.Outputs;
                         break;
                     case "AW":
                     case "OW":
                         // Ausgangswort
-                        dataType = DataType.Output;
-                        varType = VarType.Word;
+                        dataType = DataTypeEnum.Output;
+                        varType = VarTypeEnum.Word;
                         length = LengthOfVarType(varType);
                         startByteAddr = Convert.ToInt32(txt.Substring(2));
                         varTypeFound = true;
-                        dbNo = (int)DBNoSpecial.Outputs;
+                        dbNo = (int)DBNoSpecialEnum.Outputs;
                         break;
                     case "AD":
                     case "OD":
                         // Ausgangsdoppelwort
-                        dataType = DataType.Output;
-                        varType = VarType.DWord;
+                        dataType = DataTypeEnum.Output;
+                        varType = VarTypeEnum.DWord;
                         length = LengthOfVarType(varType);
                         startByteAddr = Convert.ToInt32(txt.Substring(2));
                         varTypeFound = true;
-                        dbNo = (int)DBNoSpecial.Outputs;
+                        dbNo = (int)DBNoSpecialEnum.Outputs;
                         break;
                     case "MB":
                         // Merkerbyte
-                        dataType = DataType.Marker;
-                        varType = VarType.Byte;
+                        dataType = DataTypeEnum.Marker;
+                        varType = VarTypeEnum.Byte;
                         length = LengthOfVarType(varType);
                         startByteAddr = Convert.ToInt32(txt.Substring(2));
                         varTypeFound = true;
-                        dbNo = (int)DBNoSpecial.Marker;
+                        dbNo = (int)DBNoSpecialEnum.Marker;
                         break;
                     case "MW":
                         // Merkerwort
-                        dataType = DataType.Marker;
-                        varType = VarType.Word;
+                        dataType = DataTypeEnum.Marker;
+                        varType = VarTypeEnum.Word;
                         length = LengthOfVarType(varType);
                         startByteAddr = Convert.ToInt32(txt.Substring(2));
                         varTypeFound = true;
-                        dbNo = (int)DBNoSpecial.Marker;
+                        dbNo = (int)DBNoSpecialEnum.Marker;
                         break;
                     case "MD":
                         // Merkerdoppelwort
-                        dataType = DataType.Marker;
-                        varType = VarType.DWord;
+                        dataType = DataTypeEnum.Marker;
+                        varType = VarTypeEnum.DWord;
                         length = LengthOfVarType(varType);
                         startByteAddr = Convert.ToInt32(txt.Substring(2));
                         varTypeFound = true;
-                        dbNo = (int)DBNoSpecial.Marker;
+                        dbNo = (int)DBNoSpecialEnum.Marker;
                         break;
                     default:
                         switch (txt.Substring(0, 1))
@@ -209,8 +209,8 @@ namespace gip.core.communication.ISOonTCP
                             case "E":
                             case "I":
                                 // Eingang
-                                dataType = DataType.Input;
-                                varType = VarType.Bit;
+                                dataType = DataTypeEnum.Input;
+                                varType = VarTypeEnum.Bit;
                                 if (strings.Length < 2)
                                     return false;
                                 length = LengthOfVarType(varType);
@@ -219,13 +219,13 @@ namespace gip.core.communication.ISOonTCP
                                 if (bitNo > 7)
                                     return false;
                                 varTypeFound = true;
-                                dbNo = (int)DBNoSpecial.Inputs;
+                                dbNo = (int)DBNoSpecialEnum.Inputs;
                                 break;
                             case "A":
                             case "O":
                                 // Ausgang
-                                dataType = DataType.Output;
-                                varType = VarType.Bit;
+                                dataType = DataTypeEnum.Output;
+                                varType = VarTypeEnum.Bit;
                                 if (strings.Length < 2)
                                     return false;
                                 length = LengthOfVarType(varType);
@@ -234,12 +234,12 @@ namespace gip.core.communication.ISOonTCP
                                 if (bitNo > 7)
                                     return false;
                                 varTypeFound = true;
-                                dbNo = (int)DBNoSpecial.Outputs;
+                                dbNo = (int)DBNoSpecialEnum.Outputs;
                                 break;
                             case "M":
                                 // Merker
-                                dataType = DataType.Marker;
-                                varType = VarType.Bit;
+                                dataType = DataTypeEnum.Marker;
+                                varType = VarTypeEnum.Bit;
                                 if (strings.Length < 2)
                                     return false;
                                 length = LengthOfVarType(varType);
@@ -248,26 +248,26 @@ namespace gip.core.communication.ISOonTCP
                                 if (bitNo > 7)
                                     return false;
                                 varTypeFound = true;
-                                dbNo = (int)DBNoSpecial.Marker;
+                                dbNo = (int)DBNoSpecialEnum.Marker;
                                 break;
                             case "T":
                                 // Timer
-                                dataType = DataType.Timer;
-                                varType = VarType.Timer;
+                                dataType = DataTypeEnum.Timer;
+                                varType = VarTypeEnum.Timer;
                                 startByteAddr = Convert.ToInt32(txt.Substring(1));
                                 length = LengthOfVarType(varType);
                                 varTypeFound = true;
-                                dbNo = (int)DBNoSpecial.Timer;
+                                dbNo = (int)DBNoSpecialEnum.Timer;
                                 break;
                             case "Z":
                             case "C":
                                 // Counter
-                                dataType = DataType.Counter;
-                                varType = VarType.Counter;
+                                dataType = DataTypeEnum.Counter;
+                                varType = VarTypeEnum.Counter;
                                 startByteAddr = Convert.ToInt32(txt.Substring(1));
                                 length = LengthOfVarType(varType);
                                 varTypeFound = true;
-                                dbNo = (int)DBNoSpecial.Counter;
+                                dbNo = (int)DBNoSpecialEnum.Counter;
                                 break;
                         }
 
@@ -290,25 +290,25 @@ namespace gip.core.communication.ISOonTCP
             return false;
         }
 
-        public static int LengthOfVarType(VarType varType)
+        public static int LengthOfVarType(VarTypeEnum varType)
         {
             switch (varType)
             {
-                case VarType.Bit:
-                case VarType.Byte:
+                case VarTypeEnum.Bit:
+                case VarTypeEnum.Byte:
                     return gip.core.communication.ISOonTCP.Types.Byte.Length;
-                case VarType.Counter:
-                case VarType.Timer:
-                case VarType.Word:
-                case VarType.Int:
+                case VarTypeEnum.Counter:
+                case VarTypeEnum.Timer:
+                case VarTypeEnum.Word:
+                case VarTypeEnum.Int:
                     return gip.core.communication.ISOonTCP.Types.Word.Length;
-                case VarType.DWord:
-                case VarType.DInt:
-                case VarType.Real:
+                case VarTypeEnum.DWord:
+                case VarTypeEnum.DInt:
+                case VarTypeEnum.Real:
                     return gip.core.communication.ISOonTCP.Types.Real.Length;
-                case VarType.String:
-                case VarType.Base64String:
-                case VarType.Array:
+                case VarTypeEnum.String:
+                case VarTypeEnum.Base64String:
+                case VarTypeEnum.Array:
                     return -1;
             }
             return -1;

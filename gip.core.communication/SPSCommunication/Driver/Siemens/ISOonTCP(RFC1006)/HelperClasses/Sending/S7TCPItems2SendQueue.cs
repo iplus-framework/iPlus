@@ -27,6 +27,9 @@ namespace gip.core.communication
                 return _SendList;
             }
         }
+
+        int _MoreItemsThanLastTimeCounter = 0;
+        int _LastEmptyingCount = 0;
         #endregion
 
         #region Methods
@@ -72,8 +75,9 @@ namespace gip.core.communication
             }
         }
 
-        public List<S7TCPItems2SendEntry> GetAllEntrys(bool AutoRemove)
+        public List<S7TCPItems2SendEntry> GetAllEntrys(bool AutoRemove, out bool overCrowdingThreat)
         {
+            overCrowdingThreat = false;
             List<S7TCPItems2SendEntry> eventList = new List<S7TCPItems2SendEntry>();
             if (TryEnterLockSendList())
             {
@@ -81,7 +85,20 @@ namespace gip.core.communication
                 {
                     eventList = _SendList.ToList();
                     if (AutoRemove)
+                    {
+                        int newItemCount = eventList.Count;
+                        if (newItemCount > _LastEmptyingCount)
+                        {
+                            _MoreItemsThanLastTimeCounter++;
+                            if (_MoreItemsThanLastTimeCounter > 5)
+                                overCrowdingThreat = true;
+                        }
+                        else
+                            _MoreItemsThanLastTimeCounter = 0;
+                        _LastEmptyingCount = newItemCount;
+
                         _SendList = new List<S7TCPItems2SendEntry>();
+                    }
                 }
                 finally
                 {

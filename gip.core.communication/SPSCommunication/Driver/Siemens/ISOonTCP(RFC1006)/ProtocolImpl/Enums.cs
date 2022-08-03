@@ -35,7 +35,7 @@ namespace gip.core.communication.ISOonTCP
     #endregion
 
     #region Error Codes
-    public enum ErrorCode
+    public enum ErrorCodeEnum
     {
         NoError = 0,
         WrongCPU_Type = 1,
@@ -46,13 +46,15 @@ namespace gip.core.communication.ISOonTCP
         DBNotExist = 6,
         DBRangeToSmall = 7,
         WriteData = 8,
-        ReadData = 8,
+        ReadData = 9,
+        EmptyResult = 10,
+        UnknownPLCError = 98,
         Exception = 99,
     }
     #endregion
 
     #region DataType
-    public enum DataType
+    public enum DataTypeEnum
     {
         Input = 129,
         Output = 130,
@@ -64,7 +66,7 @@ namespace gip.core.communication.ISOonTCP
     #endregion
 
     #region VarType
-    public enum VarType
+    public enum VarTypeEnum
     {
         Bit,
         Byte,
@@ -81,7 +83,7 @@ namespace gip.core.communication.ISOonTCP
     }
     #endregion
 
-    public enum DBNoSpecial : int
+    public enum DBNoSpecialEnum : int
     {
         Inputs = 0,
         Outputs = -1,
@@ -90,7 +92,7 @@ namespace gip.core.communication.ISOonTCP
         Counter = -4,
     }
 
-    internal enum ReadWriteErrorCode : byte
+    public enum ReadWriteErrorCodeEnum : byte
     {
         Reserved = 0x00,
         HardwareFault = 0x01,
@@ -102,7 +104,7 @@ namespace gip.core.communication.ISOonTCP
         Success = 0xff
     }
 
-    internal enum ParameterErrorCode : ushort
+    public enum ParameterErrorCodeEnum : ushort
     {
         NoError = 0x0000,
         HardwareFault = 0x0001,
@@ -192,10 +194,9 @@ namespace gip.core.communication.ISOonTCP
         wrong_ID2_cyclic_job_handle = 0xEF01,
         API_function_called_with_an_invalid_parameter = 0xFFCF,
         timeout_check_RS232_interface = 0xFFFF,
-
     }
 
-    internal enum HeaderErrorClass : byte
+    internal enum HeaderErrorClassEnum : byte
     {
         NoError = 0x00,
         ApplicationRelationShipError = 0x81,
@@ -206,14 +207,14 @@ namespace gip.core.communication.ISOonTCP
         AccessError = 0x87
     }
 
-    internal enum FunctionCode : byte
+    internal enum FunctionCodeEnum : byte
     {
         Read = 0x04,
         Write = 0x05,
         CommunicationSetup = 0xf0
     }
 
-    public enum Area : byte
+    public enum AreaEnum : byte
     {
         S200SystemInfo = 0x03,
         S200SystemFlags = 0x05,
@@ -233,7 +234,7 @@ namespace gip.core.communication.ISOonTCP
         Unknown = 0x87
     }
 
-    internal enum MessageType : byte
+    internal enum MessageTypeEnum : byte
     {
         JobRequest = 0x01,
         Ack = 0x02,

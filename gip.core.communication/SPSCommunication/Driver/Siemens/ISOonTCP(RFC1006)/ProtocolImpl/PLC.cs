@@ -23,6 +23,84 @@ namespace gip.core.communication.ISOonTCP
         public const int PDUMaxSize = 240;  //A typical PDU size is 240 Byte, limiting read calls to 222 byte result length
         public const int PDUMaxDataSize = 222;  //A typical PDU size is 240 Byte, limiting read calls to 222 byte result length
 
+        public class Result
+        {
+            public Result()
+            {
+                ErrorCode = ErrorCodeEnum.NoError;
+                RWErrorCode = ReadWriteErrorCodeEnum.Success;
+                PLCErrorCode = ParameterErrorCodeEnum.NoError;
+            }
+
+            public Result(ErrorCodeEnum error, string errorText)
+            {
+                ErrorCode = error;
+                RWErrorCode = ReadWriteErrorCodeEnum.Success;
+                PLCErrorCode = ParameterErrorCodeEnum.NoError;
+                ErrorText = errorText;
+            }
+
+            public Result(ErrorCodeEnum error, ParameterErrorCodeEnum paramError, string errorText)
+            {
+                ErrorCode = error;
+                RWErrorCode = ReadWriteErrorCodeEnum.Success;
+                PLCErrorCode = paramError;
+                ErrorText = errorText;
+            }
+
+            public Result(ErrorCodeEnum error, ReadWriteErrorCodeEnum rwError, string errorText)
+            {
+                ErrorCode = error;
+                RWErrorCode = rwError;
+                PLCErrorCode = ParameterErrorCodeEnum.NoError;
+                ErrorText = errorText;
+            }
+
+            public bool IsSucceeded
+            {
+                get
+                {
+                    return     ErrorCode == ErrorCodeEnum.NoError 
+                            && RWErrorCode == ReadWriteErrorCodeEnum.Success 
+                            && PLCErrorCode == ParameterErrorCodeEnum.NoError;
+                }
+            }
+
+            public bool IsPLCError
+            {
+                get
+                {
+                    return     ErrorCode == ErrorCodeEnum.UnknownPLCError
+                            || PLCErrorCode != ParameterErrorCodeEnum.NoError;
+                }
+            }
+
+            public ErrorCodeEnum ErrorCode
+            {
+                get; private set;
+            }
+
+            public ReadWriteErrorCodeEnum RWErrorCode
+            {
+                get; private set;
+            }
+
+            public ParameterErrorCodeEnum PLCErrorCode
+            {
+                get; private set;
+            }
+
+            public string ErrorText
+            {
+                get; private set;
+            }
+
+            public override string ToString()
+            {
+                return String.Format("Error: {0}; PLC-Error: {1}; Read/Write-Error: {2}; Message: {3}", ErrorCode, PLCErrorCode, RWErrorCode, ErrorText);
+            }
+        }
+
         #region Properties
         public string IP
         { get; set; }
@@ -100,23 +178,23 @@ namespace gip.core.communication.ISOonTCP
             }
         }
 
-        protected ErrorCode _LastErrorCode = 0;
-        public ErrorCode LastErrorCode
-        {
-            get
-            {
-                return _LastErrorCode;
-            }
-        }
+        //protected ErrorCodeEnum _LastErrorCode = 0;
+        //public ErrorCodeEnum LastErrorCode
+        //{
+        //    get
+        //    {
+        //        return _LastErrorCode;
+        //    }
+        //}
 
-        protected string _LastErrorString = "";
-        public string LastErrorString
-        {
-            get
-            {
-                return _LastErrorString;
-            }
-        }
+        //protected string _LastErrorString = "";
+        //public string LastErrorString
+        //{
+        //    get
+        //    {
+        //        return _LastErrorString;
+        //    }
+        //}
 
         private bool _IsConnected = false;
         public bool IsConnected
@@ -235,7 +313,7 @@ namespace gip.core.communication.ISOonTCP
         }
 
         #region Connection (Open, Close)
-        public ErrorCode Open()
+        public Result Open()
 	    {
 		    byte[] bReceive = new byte[256];
 
@@ -253,17 +331,11 @@ namespace gip.core.communication.ISOonTCP
                 }
                 catch (Exception e)
                 {
-                    _LastErrorCode = ErrorCode.IPAdressNotAvailable;
-                    _LastErrorString = "Destination IP-Address '" + IP + "' is not available!" + e.Message;
-                    return _LastErrorCode;
+                    return new Result(ErrorCodeEnum.IPAdressNotAvailable, "Destination IP-Address '" + IP + "' is not available!" + e.Message);
                 }
             }
             if (!succeeded)
-            {
-                _LastErrorCode = ErrorCode.IPAdressNotAvailable;
-                _LastErrorString = "Destination IP-Address '" + IP + "' is not available!";
-                return _LastErrorCode;
-            }
+                return new Result(ErrorCodeEnum.IPAdressNotAvailable, "Destination IP-Address '" + IP + "' is not available!");
 
             try
             {
@@ -284,70 +356,66 @@ namespace gip.core.communication.ISOonTCP
             catch (SocketException sockEx)
             {
                 IsConnected = false;
-                _LastErrorCode = ErrorCode.ConnectionError;
-                _LastErrorString = sockEx.Message;
-                return ErrorCode.ConnectionError;
+                return new Result(ErrorCodeEnum.ConnectionError, sockEx.Message);
             }
             catch (ObjectDisposedException dispEx)
             {
                 IsConnected = false;
-                _LastErrorCode = ErrorCode.ConnectionError;
-                _LastErrorString = dispEx.Message;
-                return ErrorCode.ConnectionError;
+                return new Result(ErrorCodeEnum.ConnectionError, dispEx.Message);
             }
             catch (Exception ex)
             {
                 IsConnected = false;
-                _LastErrorCode = ErrorCode.ConnectionError;
-                _LastErrorString = ex.Message;
-                return ErrorCode.ConnectionError;
+                return new Result(ErrorCodeEnum.Exception, ex.Message);
             }
 
-		    try {
-			    byte[] bSend1 = { 3, 0, 0, 22, 17, 224, 0, 0, 0, 46, 
-			    0, 193, 2, 1, 0, 194, 2, 3, 0, 192, 
-			    1, 9 };
-			    switch (CPU) {
-				    case CPU_Type.S7200:
-					    //S7200: Chr(193) & Chr(2) & Chr(16) & Chr(0) 'Eigener Tsap
-					    bSend1[11] = 193;
-					    bSend1[12] = 2;
-					    bSend1[13] = 16;
-					    bSend1[14] = 0;
-					    //S7200: Chr(194) & Chr(2) & Chr(16) & Chr(0) 'Fremder Tsap
-					    bSend1[15] = 194;
-					    bSend1[16] = 2;
-					    bSend1[17] = 16;
-					    bSend1[18] = 0;
-					    break;
-				    case CPU_Type.S7300:
-					    //S7300: Chr(193) & Chr(2) & Chr(1) & Chr(0)  'Eigener Tsap
-					    bSend1[11] = 193;
-					    bSend1[12] = 2;
-					    bSend1[13] = 1;
-					    bSend1[14] = 0;
-					    //S7300: Chr(194) & Chr(2) & Chr(3) & Chr(2)  'Fremder Tsap
-					    bSend1[15] = 194;
-					    bSend1[16] = 2;
-					    bSend1[17] = 3;
-					    bSend1[18] = (byte)(Rack * 2 * 16 + Slot);
-					    break;
-				    case CPU_Type.S7400:
+            try
+            {
+                byte[] bSend1 = { 3, 0, 0, 22, 17, 224, 0, 0, 0, 46,
+                0, 193, 2, 1, 0, 194, 2, 3, 0, 192,
+                1, 9 };
+                switch (CPU)
+                {
+                    case CPU_Type.S7200:
+                        //S7200: Chr(193) & Chr(2) & Chr(16) & Chr(0) 'Eigener Tsap
+                        bSend1[11] = 193;
+                        bSend1[12] = 2;
+                        bSend1[13] = 16;
+                        bSend1[14] = 0;
+                        //S7200: Chr(194) & Chr(2) & Chr(16) & Chr(0) 'Fremder Tsap
+                        bSend1[15] = 194;
+                        bSend1[16] = 2;
+                        bSend1[17] = 16;
+                        bSend1[18] = 0;
+                        break;
+                    case CPU_Type.S7300:
+                        //S7300: Chr(193) & Chr(2) & Chr(1) & Chr(0)  'Eigener Tsap
+                        bSend1[11] = 193;
+                        bSend1[12] = 2;
+                        bSend1[13] = 1;
+                        bSend1[14] = 0;
+                        //S7300: Chr(194) & Chr(2) & Chr(3) & Chr(2)  'Fremder Tsap
+                        bSend1[15] = 194;
+                        bSend1[16] = 2;
+                        bSend1[17] = 3;
+                        bSend1[18] = (byte)(Rack * 2 * 16 + Slot);
+                        break;
+                    case CPU_Type.S7400:
                     case CPU_Type.S71500:
                         //S7400: Chr(193) & Chr(2) & Chr(1) & Chr(0)  'Eigener Tsap
                         bSend1[11] = 193;
-					    bSend1[12] = 2;
-					    bSend1[13] = 1;
-					    bSend1[14] = 0;
-					    //S7400: Chr(194) & Chr(2) & Chr(3) & Chr(3)  'Fremder Tsap
-					    bSend1[15] = 194;
-					    bSend1[16] = 2;
-					    bSend1[17] = 3;
+                        bSend1[12] = 2;
+                        bSend1[13] = 1;
+                        bSend1[14] = 0;
+                        //S7400: Chr(194) & Chr(2) & Chr(3) & Chr(3)  'Fremder Tsap
+                        bSend1[15] = 194;
+                        bSend1[16] = 2;
+                        bSend1[17] = 3;
                         bSend1[18] = (byte)(Rack * 2 * 16 + Slot);
-					    break;
-				    default:
-					    return ErrorCode.WrongCPU_Type;
-			    }
+                        break;
+                    default:
+                        return new Result(ErrorCodeEnum.WrongCPU_Type, "ErrorCodeEnum.WrongCPU_Type");
+                }
 
 
                 using (ACMonitor.Lock(_11900_SocketLockObj))
@@ -355,32 +423,28 @@ namespace gip.core.communication.ISOonTCP
                     mSocket.Send(bSend1, 22, SocketFlags.None);
 
                     if (mSocket.Receive(bReceive, 22, SocketFlags.None) != 22)
-                        throw new Exception(ErrorCode.WrongNumberReceivedBytes.ToString());
+                        throw new Exception(ErrorCodeEnum.WrongNumberReceivedBytes.ToString());
                 }
 
-			    byte[] bsend2 = { 3, 0, 0, 25, 2, 240, 128, 50, 1, 0, 
-			    0, 255, 255, 0, 8, 0, 0, 240, 0, 0, 
-			    3, 0, 3, 1, 0 };
+                byte[] bsend2 = { 3, 0, 0, 25, 2, 240, 128, 50, 1, 0,
+                0, 255, 255, 0, 8, 0, 0, 240, 0, 0,
+                3, 0, 3, 1, 0 };
 
                 using (ACMonitor.Lock(_11900_SocketLockObj))
                 {
                     mSocket.Send(bsend2, 25, SocketFlags.None);
 
                     if (mSocket.Receive(bReceive, 27, SocketFlags.None) != 27)
-                        throw new Exception(ErrorCode.WrongNumberReceivedBytes.ToString());
+                        throw new Exception(ErrorCodeEnum.WrongNumberReceivedBytes.ToString());
                 }
-			    IsConnected = true;
-		    }
-		    catch (Exception ex)
+                IsConnected = true;
+            }
+            catch (Exception ex)
             {
-			    _LastErrorCode = ErrorCode.ConnectionError;
-			    _LastErrorString = "Couldn't establish the connection: " + ex.Message;
-			    IsConnected = false;
-			    return ErrorCode.ConnectionError;
-		    }
+                return new Result(ErrorCodeEnum.ConnectionError, "Couldn't establish the connection: " + ex.Message);
+            }
 
-		    return ErrorCode.NoError;
-		    // ok
+		    return null;
 	    }
 
 	    public void Close()
@@ -471,7 +535,7 @@ namespace gip.core.communication.ISOonTCP
         */
 
         #region Read
-        public ErrorCode ReadBytes(DataType DataType, int dbNo, int startByteAddr, int count, out byte[] bytes)
+        public Result ReadBytes(DataTypeEnum DataType, int dbNo, int startByteAddr, int count, out byte[] bytes)
         {
             bytes = new byte[count];
 
@@ -549,13 +613,13 @@ namespace gip.core.communication.ISOonTCP
                     //...-... ...                       following requests 
                     //Read Requests haben keinen Datenteil. 
                 
-                package.Add(new byte[] { (byte) FunctionCode.Read, 0x01, 0x12, 
+                package.Add(new byte[] { (byte) FunctionCodeEnum.Read, 0x01, 0x12, 
                                          0x0a, 0x10});
                 // data type:
                 switch (DataType)
                 {
-                    case DataType.Timer:
-                    case DataType.Counter:
+                    case DataTypeEnum.Timer:
+                    case DataTypeEnum.Counter:
                         package.Add((byte)DataType);
                         break;
                     default:
@@ -573,8 +637,8 @@ namespace gip.core.communication.ISOonTCP
 
                 switch (DataType)
                 {
-                    case DataType.Timer:
-                    case DataType.Counter:
+                    case DataTypeEnum.Timer:
+                    case DataTypeEnum.Counter:
                         package.Add((byte)0);
                         package.Add(Types.Word.ToByteArray((ushort)(startByteAddr), EndianessEnum.BigEndian));
                         break;
@@ -595,8 +659,8 @@ namespace gip.core.communication.ISOonTCP
                     numReceived = mSocket.Receive(bReceive, readSize, SocketFlags.None);
                 }
 
-                ErrorCode validationResult = ValidateResponseHeader(ref bReceive, ErrorCode.ReadData, dbNo, startByteAddr, count);
-                if (validationResult == ErrorCode.NoError)
+                Result validationResult = ValidateResponseHeader(ref bReceive, ErrorCodeEnum.ReadData, dbNo, startByteAddr, count);
+                if (validationResult == null || validationResult.ErrorCode == ErrorCodeEnum.NoError)
                 {
                     for (int cnt = 0; cnt < count; cnt++)
                         bytes[cnt] = bReceive[cnt + 25];
@@ -606,314 +670,216 @@ namespace gip.core.communication.ISOonTCP
             catch (SocketException sockEx)
             {
                 IsConnected = false;
-                _LastErrorCode = ErrorCode.ConnectionError;
-                _LastErrorString = sockEx.Message;
-                return _LastErrorCode;
+                return new Result(ErrorCodeEnum.ConnectionError, sockEx.Message);
             }
             catch (ObjectDisposedException dispEx)
             {
                 IsConnected = false;
-                _LastErrorCode = ErrorCode.ConnectionError;
-                _LastErrorString = dispEx.Message;
-                return _LastErrorCode;
+                return new Result(ErrorCodeEnum.ConnectionError, dispEx.Message);
             }
             catch (Exception e)
             {
                 ReadError = true;
-                _LastErrorCode = ErrorCode.Exception;
-                _LastErrorString = e.Message;
-                return _LastErrorCode;
+                return new Result(ErrorCodeEnum.Exception, e.Message);
             }
         }
 
-        public object Read(DataType DataType, int DB, int StartByteAdr, VarType VarType, int VarCount)
+        public Result Read(DataTypeEnum DataType, int DB, int StartByteAdr, VarTypeEnum VarType, int VarCount, out object readResult)
         {
             byte[] bytes = null;
             int cntBytes = 0;
 
+            Result result;
             switch (VarType)
             {
-                case VarType.Byte:
+                case VarTypeEnum.Byte:
                     cntBytes = VarCount;
-                    if (cntBytes < 1) cntBytes = 1;
-                    if (ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes) != ErrorCode.NoError)
-                        return null;
-                    if (bytes == null) 
-                        return null;
-                    if (VarCount == 1)
-                        return bytes[0];
-                    else
-                        return bytes;
-                case VarType.Word:
-                    cntBytes = VarCount * 2;
-                    if (ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes) != ErrorCode.NoError)
-                        return null;
-                    if (bytes == null) 
-                        return null;
-                    if (VarCount == 1)
-                        return Types.Word.FromByteArray(bytes, Endianess);
-                    else
-                        return Types.Word.ToArray(bytes, Endianess);
-                case VarType.Int:
-                    cntBytes = VarCount * 2;
-                    if (ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes) != ErrorCode.NoError)
-                        return null;
+                    if (cntBytes < 1) 
+                        cntBytes = 1;
+                    result = ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes);
+                    if (result != null && !result.IsSucceeded)
+                    {
+                        readResult = null;
+                        return result;
+                    }
                     if (bytes == null)
-                        return null;
+                    {
+                        readResult = null;
+                        return new Result(ErrorCodeEnum.EmptyResult, "bytes == null");
+                    }
                     if (VarCount == 1)
-                        return Types.Int.FromByteArray(bytes, Endianess);
+                        readResult = bytes[0];
                     else
-                        return Types.Int.ToArray(bytes, Endianess);
-                case VarType.DWord:
-                    cntBytes = VarCount * 4;
-                    if (ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes) != ErrorCode.NoError)
-                        return null;
-                    if (bytes == null) 
-                        return null;
-                    if (VarCount == 1)
-                        return Types.DWord.FromByteArray(bytes, Endianess);
-                    else
-                        return Types.DWord.ToArray(bytes, Endianess);
-                case VarType.DInt:
-                    cntBytes = VarCount * 4;
-                    if (ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes) != ErrorCode.NoError)
-                        return null;
-                    if (bytes == null) 
-                        return null;
-                    if (VarCount == 1)
-                        return Types.DInt.FromByteArray(bytes, Endianess);
-                    else
-                        return Types.DInt.ToArray(bytes, Endianess);
-                case VarType.Real:
-                    cntBytes = VarCount * 4;
-                    if (ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes) != ErrorCode.NoError)
-                        return null;
-                    if (bytes == null) 
-                        return null;
-                    if (VarCount == 1)
-                        return Types.Real.FromByteArray(bytes, Endianess);
-                    else
-                        return Types.Real.ToArray(bytes, Endianess);
-                case VarType.String:
-                    cntBytes = VarCount;
-                    if (ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes) != ErrorCode.NoError)
-                        return null;
-                    if (bytes == null) 
-                        return null;
-                    return Types.String.FromByteArray(bytes);
-                case VarType.Array:
-                    cntBytes = VarCount;
-                    if (ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes) != ErrorCode.NoError)
-                        return null;
+                        readResult = bytes;
+                    break;
+                case VarTypeEnum.Word:
+                    cntBytes = VarCount * 2;
+                    result = ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes);
+                    if (result != null && !result.IsSucceeded)
+                    {
+                        readResult = null;
+                        return result;
+                    }
                     if (bytes == null)
-                        return null;
-                    return bytes;
-                case VarType.Timer:
-                    cntBytes = VarCount * 2;
-                    if (ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes) != ErrorCode.NoError)
-                        return null;
-                    if (bytes == null) 
-                        return null;
+                    {
+                        readResult = null;
+                        return new Result(ErrorCodeEnum.EmptyResult, "bytes == null");
+                    }
                     if (VarCount == 1)
-                        return Types.Timer.FromByteArray(bytes);
+                        readResult = Types.Word.FromByteArray(bytes, Endianess);
                     else
-                        return Types.Timer.ToArray(bytes);
-                case VarType.Counter:
+                        readResult = Types.Word.ToArray(bytes, Endianess);
+                    break;
+                case VarTypeEnum.Int:
                     cntBytes = VarCount * 2;
-                    if (ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes) != ErrorCode.NoError)
-                        return null;
-                    if (bytes == null) 
-                        return null;
+                    result = ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes);
+                    if (result != null && !result.IsSucceeded)
+                    {
+                        readResult = null;
+                        return result;
+                    }
+                    if (bytes == null)
+                    {
+                        readResult = null;
+                        return new Result(ErrorCodeEnum.EmptyResult, "bytes == null");
+                    }
                     if (VarCount == 1)
-                        return Types.Counter.FromByteArray(bytes);
+                        readResult = Types.Int.FromByteArray(bytes, Endianess);
                     else
-                        return Types.Counter.ToArray(bytes);
+                        readResult = Types.Int.ToArray(bytes, Endianess);
+                    break;
+                case VarTypeEnum.DWord:
+                    cntBytes = VarCount * 4;
+                    result = ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes);
+                    if (result != null && !result.IsSucceeded)
+                    {
+                        readResult = null;
+                        return result;
+                    }
+                    if (bytes == null)
+                    {
+                        readResult = null;
+                        return new Result(ErrorCodeEnum.EmptyResult, "bytes == null");
+                    }
+                    if (VarCount == 1)
+                        readResult = Types.DWord.FromByteArray(bytes, Endianess);
+                    else
+                        readResult = Types.DWord.ToArray(bytes, Endianess);
+                    break;
+                case VarTypeEnum.DInt:
+                    cntBytes = VarCount * 4;
+                    result = ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes);
+                    if (result != null && !result.IsSucceeded)
+                    {
+                        readResult = null;
+                        return result;
+                    }
+                    if (bytes == null)
+                    {
+                        readResult = null;
+                        return new Result(ErrorCodeEnum.EmptyResult, "bytes == null");
+                    }
+                    if (VarCount == 1)
+                        readResult = Types.DInt.FromByteArray(bytes, Endianess);
+                    else
+                        readResult = Types.DInt.ToArray(bytes, Endianess);
+                    break;
+                case VarTypeEnum.Real:
+                    cntBytes = VarCount * 4;
+                    result = ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes);
+                    if (result != null && !result.IsSucceeded)
+                    {
+                        readResult = null;
+                        return result;
+                    }
+                    if (bytes == null)
+                    {
+                        readResult = null;
+                        return new Result(ErrorCodeEnum.EmptyResult, "bytes == null");
+                    }
+                    if (VarCount == 1)
+                        readResult = Types.Real.FromByteArray(bytes, Endianess);
+                    else
+                        readResult = Types.Real.ToArray(bytes, Endianess);
+                    break;
+                case VarTypeEnum.String:
+                    cntBytes = VarCount;
+                    result = ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes);
+                    if (result != null && !result.IsSucceeded)
+                    {
+                        readResult = null;
+                        return result;
+                    }
+                    if (bytes == null)
+                    {
+                        readResult = null;
+                        return new Result(ErrorCodeEnum.EmptyResult, "bytes == null");
+                    }
+                    readResult = Types.String.FromByteArray(bytes);
+                    break;
+                case VarTypeEnum.Array:
+                    cntBytes = VarCount;
+                    result = ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes);
+                    if (result != null && !result.IsSucceeded)
+                    {
+                        readResult = null;
+                        return result;
+                    }
+                    if (bytes == null)
+                    {
+                        readResult = null;
+                        return new Result(ErrorCodeEnum.EmptyResult, "bytes == null");
+                    }
+                    readResult = bytes;
+                    break;
+                case VarTypeEnum.Timer:
+                    cntBytes = VarCount * 2;
+                    result = ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes);
+                    if (result != null && !result.IsSucceeded)
+                    {
+                        readResult = null;
+                        return result;
+                    }
+                    if (bytes == null)
+                    {
+                        readResult = null;
+                        return new Result(ErrorCodeEnum.EmptyResult, "bytes == null");
+                    }
+                    if (VarCount == 1)
+                        readResult = Types.Timer.FromByteArray(bytes);
+                    else
+                        readResult = Types.Timer.ToArray(bytes);
+                    break;
+                case VarTypeEnum.Counter:
+                    cntBytes = VarCount * 2;
+                    result = ReadBytes(DataType, DB, StartByteAdr, cntBytes, out bytes);
+                    if (result != null && !result.IsSucceeded)
+                    {
+                        readResult = null;
+                        return result;
+                    }
+                    if (bytes == null)
+                    {
+                        readResult = null;
+                        return new Result(ErrorCodeEnum.EmptyResult, "bytes == null");
+                    }
+                    if (VarCount == 1)
+                        readResult = Types.Counter.FromByteArray(bytes);
+                    else
+                        readResult = Types.Counter.ToArray(bytes);
+                    break;
+                default:
+                    readResult = null;
+                    return new Result(ErrorCodeEnum.EmptyResult, "Unsupported VarTypeEnum");
             }
             return null;
         }
 
-        public object Read(string variable)
-        {
-            DataType mDataType;
-            VarType mVarType;
-            int mDB;
-            int mByte;
-            short mBit;
-            int mLength;
+        #endregion
 
-            bool resolved = ItemSyntaxResolver.Resolve(variable, out mDataType, out mVarType, out mDB, out mByte, out mLength, out mBit);
-            if (!resolved)
-            {
-                _LastErrorCode = ErrorCode.WrongVarFormat;
-                _LastErrorString = "The Variable '" + variable + "' coudn't be decoded!";
-                return null;
-            }
+        #region Write
 
-            object readResult = Read(mDataType, mDB, mByte, mVarType, 1);
-            if (readResult == null)
-            {
-                _LastErrorCode = ErrorCode.WrongVarFormat;
-                _LastErrorString = "The Variable '" + variable + "' coudn't be read!";
-                return null;
-            }
-
-            switch (mVarType)
-            {
-                case VarType.Bit:
-                    bool[] objBoolArray = (bool[])readResult;
-                    return objBoolArray[mBit];
-                default:
-                    return readResult;
-            }
-
-            //return readResult;
-
-
-            //DataType mDataType;
-            //int mDB;
-            //int mByte;
-            //int mBit;
-
-            //byte objByte;
-            //UInt16 objUInt16;
-            //UInt32 objUInt32;
-            //double objDouble;
-            //bool[] objBoolArray;
-
-            //string txt = variable.ToUpper();
-            //txt = txt.Replace(" ", "");     // remove spaces
-
-            //try
-            //{
-            //    switch (txt.Substring(0, 2))
-            //    {
-            //        case "DB":
-            //            string[] strings = txt.Split(new char[] { '.' });
-            //            if (strings.Length < 2)
-            //                throw new Exception();
-
-            //            mDB = int.Parse(strings[0].Substring(2));
-            //            mDataType = DataType.DataBlock;
-            //            string dbType = strings[1].Substring(0, 3);
-            //            int dbIndex = int.Parse(strings[1].Substring(3));
-
-            //            switch (dbType)
-            //            {
-            //                case "DBB":
-            //                    byte obj = (byte)Read(DataType.DataBlock, mDB, dbIndex, VarType.Byte, 1);
-            //                    return obj;
-            //                case "DBW":
-            //                    UInt16 objI = (UInt16)Read(DataType.DataBlock, mDB, dbIndex, VarType.Word, 1);
-            //                    return objI;
-            //                case "DBD":
-            //                    UInt32 objU = (UInt32)Read(DataType.DataBlock, mDB, dbIndex, VarType.DWord, 1);
-            //                    return objU;
-            //                case "DBX":
-            //                    mByte = dbIndex;
-            //                    mBit = int.Parse(strings[2]);
-            //                    if (mBit > 7) throw new Exception();
-            //                    objBoolArray = (bool[])Read(DataType.DataBlock, mDB, mByte, VarType.Bit, 1);
-            //                    return objBoolArray[mBit];
-            //                default:
-            //                    throw new Exception();
-            //            }
-            //        case "EB":
-            //            // Eingangsbyte
-            //            objByte = (byte)Read(DataType.Input, 0, int.Parse(txt.Substring(2)), VarType.Byte, 1);
-            //            return objByte;
-            //        case "EW":
-            //            // Eingangswort
-            //            objUInt16 = (UInt16)Read(DataType.Input, 0, int.Parse(txt.Substring(2)), VarType.Word, 1);
-            //            return objUInt16;
-            //        case "ED":
-            //            // Eingangsdoppelwort
-            //            objUInt32 = (UInt32)Read(DataType.Input, 0, int.Parse(txt.Substring(2)), VarType.DWord, 1);
-            //            return objUInt32;
-            //        case "AB":
-            //            // Ausgangsbyte
-            //            objByte = (byte)Read(DataType.Output, 0, int.Parse(txt.Substring(2)), VarType.Byte, 1);
-            //            return objByte;
-            //        case "AW":
-            //            // Ausgangswort
-            //            objUInt16 = (UInt16)Read(DataType.Output, 0, int.Parse(txt.Substring(2)), VarType.Word, 1);
-            //            return objUInt16;
-            //        case "AD":
-            //            // Ausgangsdoppelwort
-            //            objUInt32 = (UInt32)Read(DataType.Output, 0, int.Parse(txt.Substring(2)), VarType.DWord, 1);
-            //            return objUInt32;
-            //        case "MB":
-            //            // Merkerbyte
-            //            objByte = (byte)Read(DataType.Marker, 0, int.Parse(txt.Substring(2)), VarType.Byte, 1);
-            //            return objByte;
-            //        case "MW":
-            //            // Merkerwort
-            //            objUInt16 = (UInt16)Read(DataType.Marker, 0, int.Parse(txt.Substring(2)), VarType.Word, 1);
-            //            return objUInt16;
-            //        case "MD":
-            //            // Merkerdoppelwort
-            //            objUInt32 = (UInt32)Read(DataType.Marker, 0, int.Parse(txt.Substring(2)), VarType.DWord, 1);
-            //            return objUInt32;
-            //        default:
-            //            switch (txt.Substring(0, 1))
-            //            {
-            //                case "E":
-            //                case "I":
-            //                    // Eingang
-            //                    mDataType = DataType.Input;
-            //                    break;
-            //                case "A":
-            //                case "O":
-            //                    // Ausgang
-            //                    mDataType = DataType.Output;
-            //                    break;
-            //                case "M":
-            //                    // Merker
-            //                    mDataType = DataType.Marker;
-            //                    break;
-            //                case "T":
-            //                    // Timer
-            //                    objDouble = (double)Read(DataType.Timer, 0, int.Parse(txt.Substring(1)), VarType.Timer, 1);
-            //                    return objDouble;
-            //                case "Z":
-            //                case "C":
-            //                    // Counter
-            //                    objUInt16 = (UInt16)Read(DataType.Counter, 0, int.Parse(txt.Substring(1)), VarType.Counter, 1);
-            //                    return objUInt16;
-            //                default:
-            //                    throw new Exception();
-            //            }
-
-            //            string txt2 = txt.Substring(1);
-            //            if (txt2.IndexOf(".") == -1) throw new Exception();
-
-            //            mByte = int.Parse(txt2.Substring(0, txt2.IndexOf(".")));
-            //            mBit = int.Parse(txt2.Substring(txt2.IndexOf(".") + 1));
-            //            if (mBit > 7) throw new Exception();
-            //            objBoolArray = (bool[])Read(mDataType, 0, mByte, VarType.Bit, 1);
-            //            return objBoolArray[mBit];
-            //    }
-            //}
-            //catch
-            //{
-            //    lastErrorCode = ErrorCode.WrongVarFormat;
-            //    lastErrorString = "Die Variable '" + variable + "' konnte nicht entschlüsselt werden!";
-            //    return lastErrorCode;
-            //}
-        }
-
-        public object ReadStruct(Type structType, int DB)
-        {
-            double numBytes = Types.Struct.GetStructSize(structType);
-            // now read the package
-            byte[] bytes = (byte[])Read(DataType.DataBlock, DB, 0, VarType.Byte, (int)numBytes);
-            // and decode it
-            return Types.Struct.FromBytes(structType, bytes, EndianessEnum.BigEndian);
-        }
-#endregion
-
-#region Write
-
-        public ErrorCode WriteBytes(DataType DataType, int dbNo, int startByteAddr, ref byte[] value)
+        public Result WriteBytes(DataTypeEnum DataType, int dbNo, int startByteAddr, ref byte[] value)
         {
             byte[] bReceive = new byte[513];
             int varCount = 0;
@@ -931,7 +897,7 @@ namespace gip.core.communication.ISOonTCP
                 package.Add(Types.Word.ToByteArray((ushort)(varCount - 1), EndianessEnum.BigEndian));
                 package.Add(new byte[] { 0, 0x0e });
                 package.Add(Types.Word.ToByteArray((ushort)(varCount + 4), EndianessEnum.BigEndian));
-                package.Add(new byte[] { (byte) FunctionCode.Write, 0x01, 0x12, 0x0a, 0x10, 0x02 }); // Reserved, Max AMQ Caller 2B, MAX AMQ Callee 2 B
+                package.Add(new byte[] { (byte) FunctionCodeEnum.Write, 0x01, 0x12, 0x0a, 0x10, 0x02 }); // Reserved, Max AMQ Caller 2B, MAX AMQ Callee 2 B
                 package.Add(Types.Word.ToByteArray((ushort)varCount, EndianessEnum.BigEndian)); // PDU Length
                 package.Add(Types.Word.ToByteArray((ushort)(dbNo), EndianessEnum.BigEndian)); // DB No
                 package.Add((byte)DataType);
@@ -960,34 +926,28 @@ namespace gip.core.communication.ISOonTCP
                 //0x0007 write data size does not fit item size 
                 //0x000A a piece of data is not available, e.g. when trying to read a non existing DB 
 
-                ErrorCode validationResult = ValidateResponseHeader(ref bReceive, ErrorCode.ReadData, dbNo, startByteAddr, package.array.Length);
+                Result validationResult = ValidateResponseHeader(ref bReceive, ErrorCodeEnum.ReadData, dbNo, startByteAddr, package.array.Length);
                 return validationResult;
             }
             catch (SocketException sockEx)
             {
                 IsConnected = false;
-                _LastErrorCode = ErrorCode.ConnectionError;
-                _LastErrorString = sockEx.Message;
-                return _LastErrorCode;
+                return new Result(ErrorCodeEnum.ConnectionError, sockEx.Message);
             }
             catch (ObjectDisposedException dispEx)
             {
                 IsConnected = false;
-                _LastErrorCode = ErrorCode.ConnectionError;
-                _LastErrorString = dispEx.Message;
-                return _LastErrorCode;
+                return new Result(ErrorCodeEnum.ConnectionError, dispEx.Message);
             }
             catch (Exception e)
             {
                 WriteError = true;
-                _LastErrorCode = ErrorCode.Exception;
-                _LastErrorString = e.Message;
-                return _LastErrorCode;
+                return new Result(ErrorCodeEnum.Exception, e.Message);
             }
         }
 
         
-        public object Write(DataType DataType, int DB, int StartByteAdr, object value)
+        public object Write(DataTypeEnum DataType, int DB, int StartByteAdr, object value)
         {
             byte[] package = null;
 
@@ -1049,262 +1009,35 @@ namespace gip.core.communication.ISOonTCP
                     package = Types.String.ToByteArray(strVal, System.Convert.ToByte(strVal.Length), strVal.Length+2);
                     break;
                 default:
-                    return ErrorCode.WrongVarFormat;
+                    return ErrorCodeEnum.WrongVarFormat;
             }
             return WriteBytes(DataType, DB, StartByteAdr, ref package);
         }
 
-        public object Write(string variable, object value)
-        {
-            DataType mDataType;
-            VarType mVarType;
-            int mDB;
-            int mByte;
-            short mBit;
-            int mLength;
-            object objValue = value;
-
-            bool resolved = ItemSyntaxResolver.Resolve(variable, out mDataType, out mVarType, out mDB, out mByte, out mLength, out mBit);
-            if (!resolved)
-            {
-                _LastErrorCode = ErrorCode.WrongVarFormat;
-                _LastErrorString = "The Variable '" + variable + "' coudn't be decoded!";
-                return null;
-            }
-
-            if (mDataType == DataType.DataBlock)
-            {
-                try
-                {
-                    switch (mVarType)
-                    {
-                        case VarType.Bit:
-                            byte b = (byte)Read(mDataType, mDB, mByte, VarType.Byte, 1);
-                            if ((int)value == 1)
-                                b = (byte)(b | (byte)Math.Pow(2, mBit)); // Bit setzen
-                            else
-                                b = (byte)(b & (b ^ (byte)Math.Pow(2, mBit))); // Bit rücksetzen
-                            objValue = (byte)b;
-                            break;
-                        case VarType.Byte:
-                            objValue = Convert.ChangeType(value, typeof(byte));
-                            break;
-                        case VarType.Word:
-                            objValue = Convert.ChangeType(value, typeof(UInt16));
-                            break;
-                        case VarType.DWord:
-                            objValue = Convert.ChangeType(value, typeof(UInt32));
-                            break;
-                        case VarType.Int:
-                            objValue = Convert.ChangeType(value, typeof(Int16));
-                            break;
-                        case VarType.DInt:
-                            objValue = Convert.ChangeType(value, typeof(Int32));
-                            break;
-                        case VarType.Real:
-                            objValue = Convert.ChangeType(value, typeof(Double));
-                            break;
-                        case VarType.String:
-                            string strVal = (String)Convert.ChangeType(value, typeof(String));
-                            if (strVal.Length > mLength)
-                                strVal = strVal.Substring(0, mLength);
-                            objValue = strVal;
-                            break;
-                        case VarType.Array:
-                            objValue = (byte[])value;
-                            break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    string msg = ex.Message;
-                    _LastErrorCode = ErrorCode.WrongVarFormat;
-                    _LastErrorString = "Die Variable '" + variable + "' coudn't be decoded!";
-                    return null;
-                }
-            }
-            //else if (mDataType == DataType.Input)...
-            //{
-            //}
-            return Write(mDataType, mDB, mByte, objValue);
-
-            //return Write(mDataType, mDB, mByte, (byte)objValue);
-            
-            //DataType mDataType;
-            //int mDB;
-            //int mByte;
-            //int mBit;
-
-            //string txt2;
-            //byte _byte;
-            //object objValue;
-
-            //string txt = variable.ToUpper();
-            //txt = txt.Replace(" ", ""); // Leerzeichen entfernen 
-
-            //try
-            //{
-            //    switch (txt.Substring(0, 2))
-            //    {
-            //        case "DB":
-            //            string[] strings = txt.Split(new char[]{'.'});
-            //            if (strings.Length < 2)
-            //                throw new Exception();
-
-            //            mDB = int.Parse(strings[0].Substring(2));
-            //            mDataType = DataType.DataBlock;
-            //            string dbType = strings[1].Substring(0, 3);
-            //            int dbIndex = int.Parse(strings[1].Substring(3));                       
-                       
-            //            switch (dbType)
-            //            {
-            //                case "DBB":
-            //                    objValue = Convert.ChangeType(value, typeof(byte));
-            //                    return Write(DataType.DataBlock, mDB, dbIndex, (byte)objValue);
-            //                case "DBW":
-            //                    objValue = Convert.ChangeType(value, typeof(UInt16));
-            //                    return Write(DataType.DataBlock, mDB, dbIndex, (UInt16)objValue);
-            //                case "DBD":
-            //                    objValue = Convert.ChangeType(value, typeof(UInt32));
-            //                    return Write(DataType.DataBlock, mDB, dbIndex, (UInt32)objValue);
-            //                case "DBX":
-            //                    mByte = dbIndex;
-            //                    mBit = int.Parse(strings[2]);
-            //                    if (mBit > 7) throw new Exception();
-            //                    byte b = (byte)Read(DataType.DataBlock, mDB, mByte, VarType.Byte, 1);
-            //                    if ((int)value == 1)
-            //                        b = (byte)(b | (byte)Math.Pow(2, mBit)); // Bit setzen
-            //                    else
-            //                        b = (byte)(b & (b ^ (byte)Math.Pow(2, mBit))); // Bit rücksetzen
-
-            //                    return Write(DataType.DataBlock, mDB, mByte, (byte)b);
-            //                case "DBS":
-            //                    // DB-String
-            //                    return Write(DataType.DataBlock, mDB, dbIndex, (string)value);
-            //                default:
-            //                    throw new Exception();
-            //            }
-            //        case "EB":
-            //            // Eingangsbyte
-            //            objValue = Convert.ChangeType(value, typeof(byte));
-            //            return Write(DataType.Input, 0, int.Parse(txt.Substring(2)), (byte)objValue);
-            //        case "EW":
-            //            // Eingangswort
-            //            objValue = Convert.ChangeType(value, typeof(UInt16));
-            //            return Write(DataType.Input, 0, int.Parse(txt.Substring(2)), (UInt16)objValue);
-            //        case "ED":
-            //            // Eingangsdoppelwort
-            //            objValue = Convert.ChangeType(value, typeof(UInt32));
-            //            return Write(DataType.Input, 0, int.Parse(txt.Substring(2)), (UInt32)objValue);
-            //        case "AB":
-            //            // Ausgangsbyte
-            //            objValue = Convert.ChangeType(value, typeof(byte));
-            //            return Write(DataType.Output, 0, int.Parse(txt.Substring(2)), (byte)objValue);
-            //        case "AW":
-            //            // Ausgangswort
-            //            objValue = Convert.ChangeType(value, typeof(UInt16));
-            //            return Write(DataType.Output, 0, int.Parse(txt.Substring(2)), (UInt16)objValue);
-            //        case "AD":
-            //            // Ausgangsdoppelwort
-            //            objValue = Convert.ChangeType(value, typeof(UInt32));
-            //            return Write(DataType.Output, 0, int.Parse(txt.Substring(2)), (UInt32)objValue);
-            //        case "MB":
-            //            // Merkerbyte
-            //            objValue = Convert.ChangeType(value, typeof(byte));
-            //            return Write(DataType.Marker, 0, int.Parse(txt.Substring(2)), (byte)objValue);
-            //        case "MW":
-            //            // Merkerwort
-            //            objValue = Convert.ChangeType(value, typeof(UInt16));
-            //            return Write(DataType.Marker, 0, int.Parse(txt.Substring(2)), (UInt16)objValue);
-            //        case "MD":
-            //            // Merkerdoppelwort
-            //            return Write(DataType.Marker, 0, int.Parse(txt.Substring(2)), value);
-            //        default:
-            //            switch (txt.Substring(0, 1))
-            //            {
-            //                case "E":
-            //                case "I":
-            //                    // Eingang
-            //                    mDataType = DataType.Input;
-            //                    break;
-            //                case "A":
-            //                case "O":
-            //                    // Ausgang
-            //                    mDataType = DataType.Output;
-            //                    break;
-            //                case "M":
-            //                    // Merker
-            //                    mDataType = DataType.Marker;
-            //                    break;
-            //                case "T":
-            //                    // Timer
-            //                    return Write(DataType.Timer, 0, int.Parse(txt.Substring(1)), (double)value);
-            //                case "Z":
-            //                case "C":
-            //                    // Zähler
-            //                    return Write(DataType.Counter, 0, int.Parse(txt.Substring(1)), (short)value);
-            //                default:
-            //                    throw new Exception("Unbekannte Variable");
-            //            }
-
-            //            txt2 = txt.Substring(1);
-            //            if (txt2.IndexOf(".") == -1) throw new Exception("Unbekannte Variable");
-
-            //            mByte = int.Parse(txt2.Substring(0, txt2.IndexOf(".")));
-            //            mBit = int.Parse(txt2.Substring(txt2.IndexOf(".") + 1));
-            //            if (mBit > 7) throw new Exception("Unbekannte Variable");
-            //            _byte = (byte)Read(mDataType, 0, mByte, VarType.Byte, 1);
-            //            if ((int)value == 1)
-            //                _byte = (byte)(_byte | (byte)Math.Pow(2, mBit));      // Bit setzen
-            //            else
-            //                _byte = (byte)(_byte & (_byte ^ (byte)Math.Pow(2, mBit))); // Bit rücksetzen
-
-            //            return Write(mDataType, 0, mByte, (byte)_byte);
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    string msg = ex.Message;
-            //    lastErrorCode = ErrorCode.WrongVarFormat;
-            //    lastErrorString = "Die Variable '" + variable + "' konnte nicht entschlüsselt werden!";
-            //    return lastErrorCode;
-            //}
-        }
-
-        
-        public ErrorCode WriteStruct(object structValue, int DB)
-        {
-            try
-            {
-                byte[] bytes = Types.Struct.ToBytes(structValue, Endianess);
-                ErrorCode errCode = WriteBytes(DataType.DataBlock, DB, 0, ref bytes);
-                return errCode;
-            }
-            catch
-            {
-                _LastErrorCode = ErrorCode.WriteData;
-                _LastErrorString = "Error while writing the Struct!";
-                return _LastErrorCode;
-            }
-        }
-        #endregion
+#endregion
 
         #region Error-Handling
-        protected ErrorCode ValidateResponseHeader(ref byte[] bReceive, ErrorCode defaultErrorCode, int dbNo, int startByteAddr, int count)
+        protected Result ValidateResponseHeader(ref byte[] bReceive, ErrorCodeEnum defaultErrorCode, int dbNo, int startByteAddr, int count)
         {
-            if (bReceive[17] != (byte)HeaderErrorClass.NoError || bReceive[18] != (byte)ParameterErrorCode.NoError)
+            if (bReceive[17] != (byte)HeaderErrorClassEnum.NoError || bReceive[18] != (byte)ParameterErrorCodeEnum.NoError)
             {
-                _LastErrorCode = defaultErrorCode;
+                string errorTxt = "";
                 try
                 {
-                    MessageType messageType = (MessageType)bReceive[8];
-                    _LastErrorString = BuildErrorMessage(messageType, bReceive[17], bReceive[18]);
+                    MessageTypeEnum messageType = (MessageTypeEnum)bReceive[8];
+                    HeaderErrorClassEnum? errorClassEnum = BuildHeaderErrorClass(bReceive[17]);
+                    ParameterErrorCodeEnum? errorCodeEnum = BuildParamErrorCode(bReceive[17], bReceive[18]);
+                    errorTxt = BuildErrorMessage(messageType, bReceive[17], bReceive[18]);
+                    if (errorCodeEnum.HasValue)
+                        return new Result(defaultErrorCode, errorCodeEnum.Value, errorTxt);
+                    else
+                        return new Result(ErrorCodeEnum.UnknownPLCError, errorTxt);
                 }
                 catch (Exception ex)
                 {
-                    _LastErrorString = String.Format("HeaderErrorClass : {0}, ParameterErrorCode: {1}, Exception: {2}", bReceive[17], bReceive[18], ex.Message);
+                    errorTxt = String.Format("HeaderErrorClass : {0}, ParameterErrorCode: {1}, Exception: {2}", bReceive[17], bReceive[18], ex.Message);
+                    return new Result(ErrorCodeEnum.UnknownPLCError, errorTxt);
                 }
-                return defaultErrorCode;
             }
 
             //21 data error code 
@@ -1316,51 +1049,61 @@ namespace gip.core.communication.ISOonTCP
             //0x0006 can not read a bit block with a length other than 1 
             //0x0007 write data size does not fit item size 
             //0x000A a piece of data is not available, e.g. when trying to read a non existing DB 
-            if (bReceive[21] == (byte)ReadWriteErrorCode.Success)
+            if (bReceive[21] == (byte)ReadWriteErrorCodeEnum.Success)
+                return null;
+            else if (bReceive[21] == (byte)ReadWriteErrorCodeEnum.AddressOutOfRange)
+                return new Result(ErrorCodeEnum.DBRangeToSmall, String.Format("DB-Size in PLC to small! (DB: {0}, StartAddr: {1}, Length: {2}, EndAddr: {3}", dbNo, startByteAddr, count, startByteAddr + count));
+            else if (bReceive[21] == (byte)ReadWriteErrorCodeEnum.ObjectDoesNotExist)
+                return new Result(ErrorCodeEnum.DBNotExist, String.Format("DB does not exist in PLC! (DB: {0}, StartAddr: {1}, Length: {2}, EndAddr: {3}", dbNo, startByteAddr, count, startByteAddr + count));
+            else
             {
-                _LastErrorCode = ErrorCode.NoError;
-                _LastErrorString = "";
-                return ErrorCode.NoError;
+                ReadWriteErrorCodeEnum? rwError = BuildReadWriteErrorCode(bReceive[21]);
+                if (rwError.HasValue)
+                    return new Result(defaultErrorCode, rwError.Value, rwError.Value.ToString());
+                else
+                    return new Result(defaultErrorCode, String.Format("{Unkown RW-Result 0:X}", bReceive[21]));
             }
-            else if (bReceive[21] == (byte)ReadWriteErrorCode.AddressOutOfRange)
-            {
-                _LastErrorCode = ErrorCode.DBRangeToSmall;
-                _LastErrorString = String.Format("DB-Size in PLC to small! (DB: {0}, StartAddr: {1}, Length: {2}, EndAddr: {3}", dbNo, startByteAddr, count, startByteAddr + count);
-                return _LastErrorCode;
-            }
-            else if (bReceive[21] == (byte)ReadWriteErrorCode.ObjectDoesNotExist)
-            {
-                _LastErrorCode = ErrorCode.DBNotExist;
-                _LastErrorString = String.Format("DB does not exist in PLC! (DB: {0}, StartAddr: {1}, Length: {2}, EndAddr: {3}", dbNo, startByteAddr, count, startByteAddr + count);
-                return _LastErrorCode;
-            }
-            return defaultErrorCode;
         }
 
-        static string BuildErrorMessage(MessageType messageType, byte errorClass, byte errorCode)
+        static string BuildErrorMessage(MessageTypeEnum messageType, byte errorClass, byte errorCode)
         {
-            var sb = new StringBuilder("An error was returned during communication:").AppendLine().AppendLine();
+            var sb = new StringBuilder("BuildErrorMessage (10):");
 
-            sb.Append("\tMessage type: ").Append(messageType).Append(" / 0x").AppendFormat("{0:X}", messageType).AppendLine();
+            sb.Append("Message type: ").Append(messageType);
 
-            sb.Append("\tError class: ");
-            if (Enum.IsDefined(typeof(HeaderErrorClass), errorClass))
-            {
-                sb.Append(((HeaderErrorClass)errorClass).ToString()).Append(" / ");
-            }
-            sb.Append("0x").AppendFormat("{0:X}", errorClass).AppendLine();
+            sb.Append("; Error class hex: ").AppendFormat("{0:X}", errorClass);
+            HeaderErrorClassEnum? errorClassEnum = BuildHeaderErrorClass(errorClass);
+            if (errorClassEnum.HasValue)
+                sb.AppendFormat(", Name: {0}", errorClassEnum.Value.ToString());
 
-            sb.Append("\tError code: 0x").AppendFormat("{0:X}", errorCode).AppendLine();
-
-            ushort combinedErrorCode = (ushort)(((int)errorClass << 8) | errorCode);
-            sb.Append("\tCombined error: ");
-            if (Enum.IsDefined(typeof(ParameterErrorCode), combinedErrorCode))
-            {
-                sb.Append(((ParameterErrorCode)combinedErrorCode).ToString()).Append(" / ");
-            }
-            sb.Append("0x").AppendFormat("{0:X}", combinedErrorCode).AppendLine();
+            sb.Append("; Param error code: 0x").AppendFormat("{0:X}", errorCode);
+            ParameterErrorCodeEnum? errorCodeEnum = BuildParamErrorCode(errorClass, errorCode);
+            if (errorCodeEnum.HasValue)
+                sb.AppendFormat(", Name: {0}", errorCodeEnum.Value.ToString());
 
             return sb.ToString();
+        }
+
+        static ParameterErrorCodeEnum? BuildParamErrorCode(byte errorClass, byte errorCode)
+        {
+            ushort combinedErrorCode = (ushort)(((int)errorClass << 8) | errorCode);
+            if (Enum.IsDefined(typeof(ParameterErrorCodeEnum), combinedErrorCode))
+                return (ParameterErrorCodeEnum)combinedErrorCode;
+            return null;
+        }
+
+        static HeaderErrorClassEnum? BuildHeaderErrorClass(byte errorClass)
+        {
+            if (Enum.IsDefined(typeof(HeaderErrorClassEnum), errorClass))
+                return (HeaderErrorClassEnum)errorClass;
+            return null;
+        }
+
+        static ReadWriteErrorCodeEnum? BuildReadWriteErrorCode(byte value)
+        {
+            if (Enum.IsDefined(typeof(ReadWriteErrorCodeEnum), value))
+                return (ReadWriteErrorCodeEnum)value;
+            return null;
         }
         #endregion
 

@@ -62,24 +62,24 @@ namespace gip.core.communication
             }
         }
 
-        public gip.core.communication.ISOonTCP.DataType S7DataType
+        public gip.core.communication.ISOonTCP.DataTypeEnum S7DataType
         {
             get
             {
                 switch (DBNo)
                 {
-                    case (int)DBNoSpecial.Inputs:
-                        return DataType.Input;
-                    case (int)DBNoSpecial.Outputs:
-                        return DataType.Output;
-                    case (int)DBNoSpecial.Marker:
-                        return DataType.Marker;
-                    case (int)DBNoSpecial.Counter:
-                        return DataType.Counter;
-                    case (int)DBNoSpecial.Timer:
-                        return DataType.Timer;
+                    case (int)DBNoSpecialEnum.Inputs:
+                        return DataTypeEnum.Input;
+                    case (int)DBNoSpecialEnum.Outputs:
+                        return DataTypeEnum.Output;
+                    case (int)DBNoSpecialEnum.Marker:
+                        return DataTypeEnum.Marker;
+                    case (int)DBNoSpecialEnum.Counter:
+                        return DataTypeEnum.Counter;
+                    case (int)DBNoSpecialEnum.Timer:
+                        return DataTypeEnum.Timer;
                     default:
-                        return DataType.DataBlock;
+                        return DataTypeEnum.DataBlock;
                 }
             }
         }
