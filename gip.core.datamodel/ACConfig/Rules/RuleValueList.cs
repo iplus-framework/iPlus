@@ -20,6 +20,9 @@ namespace gip.core.datamodel
 
         public IEnumerable<ACClass> GetSelectedClasses(ACClassWFRuleTypes ruleType, Database db)
         {
+            if (Items == null)
+                return new ACClass[] { };
+
             var queryAllowedInstances = Items.Where(c => c.RuleType == ruleType);
             if (queryAllowedInstances.Any())
             {
@@ -37,6 +40,9 @@ namespace gip.core.datamodel
 
         public bool IsBreakPointSet()
         {
+            if (Items == null)
+                return false;
+
             var item = Items.FirstOrDefault();
             return 
                 item != null && 
@@ -50,6 +56,8 @@ namespace gip.core.datamodel
         public bool Equals(RuleValueList obj)
         {
             if (obj == null)
+                return false;
+            if (Items == null)
                 return false;
             if (this.Items.Count != obj.Items.Count)
                 return false;
