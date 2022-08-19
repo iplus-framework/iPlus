@@ -655,6 +655,9 @@ namespace gip.bso.iplus
                 worker.ProgressInfo.ReportProgress(BackgroundWorker_DoImport, null, "Begin saving changes ... ");
                 CurrentImportItemRoot.CallAction(ACFSItemOperations.AttachOrDeattachToContext, CheckUpdateDate);
                 List<IACEntityObjectContext> contextList = new List<IACEntityObjectContext>();
+
+                // CurrentImportItemRoot.CallAction(ACFSItemOperations.RunSomeCheck, null);
+
                 CurrentImportItemRoot.CollectContext(contextList);
 
                 bool success = true;
@@ -690,7 +693,7 @@ namespace gip.bso.iplus
                         }
                     }
                 }
-                catch(Exception errorUpdateCtrSyncTable)
+                catch (Exception errorUpdateCtrSyncTable)
                 {
                     Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Info, Message = string.Format("Unable to update @ControlScriptSyncInfo table: {0}", errorUpdateCtrSyncTable.Message) };
                     importMsg.AddDetailMessage(errMsg);

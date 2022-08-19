@@ -49,27 +49,40 @@ namespace gip.core.datamodel
             Msg msg = null;
             var myObjectState = context.ObjectStateManager.GetObjectStateEntry(entityObject);
             var modifiedProperties = myObjectState.GetModifiedProperties();
+
+            bool isUpdated = false;
+            DateTime localRecordTime = new DateTime();
+            DateTime importedRecordTime = new DateTime();
+
+
             if (modifiedProperties.Contains(Property_UpdateDate))
             {
-                DateTime localRecordTime = (DateTime)myObjectState.OriginalValues[Property_UpdateDate];
-                DateTime importedRecordTime = (DateTime)myObjectState.CurrentValues[Property_UpdateDate];
+                localRecordTime = (DateTime)myObjectState.OriginalValues[Property_UpdateDate];
+                importedRecordTime = (DateTime)myObjectState.CurrentValues[Property_UpdateDate];
 
-                if (localRecordTime > importedRecordTime)
-                    msg = new Msg()
-                    {
-                        Source = entityObject.GetACUrl(),
-                        MessageLevel = eMsgLevel.Error,
-                        Message = string.Format("[ControlSync/Import] [Type: {0}] [File: {1}] Item not imported, local UpdateDate {2} is greater as {3} from import!",
-                        entityTypeName, importFileName, localRecordTime, importedRecordTime)
-                    };
+                isUpdated = (localRecordTime - importedRecordTime).TotalMinutes >= 1;
+            }
+
+            if (isUpdated)
+            {
+                msg = new Msg()
+                {
+                    Source = entityObject.GetACUrl(),
+                    MessageLevel = eMsgLevel.Error,
+                    Message = string.Format("[ControlSync/Import] [Type: {0}] [File: {1}] Item not imported, local UpdateDate {2} is greater as {3} from import!",
+                   entityTypeName, importFileName, localRecordTime, importedRecordTime)
+                };
             }
             else
+            {
                 msg = new Msg()
                 {
                     Source = entityObject.GetACUrl(),
                     MessageLevel = eMsgLevel.Info,
                     Message = string.Format(@"[ControlSync/Import] [Type: {0}] [File: {1}] Item not imported, UpdateDate values is same!", entityTypeName, importFileName)
                 };
+            }
+
             return msg;
         }
 
@@ -96,10 +109,20 @@ namespace gip.core.datamodel
                 {
                     if (aCFSItem.IsChecked && objectEntityState == EntityState.Detached && (!checkUpdateDate || !aCFSItem.UpdateDateFail))
                     {
-                        VBEntityObject tempObject = (context as ObjectContext).GetObjectByKey(entityObject.EntityKey) as VBEntityObject;
-                        if (tempObject != null)
-                            context.Detach(tempObject);
-                        context.Attach(entityObject);
+                        if (entityObject.EntityKey != null)
+                        {
+                            VBEntityObject tempObject = (context as ObjectContext).GetObjectByKey(entityObject.EntityKey) as VBEntityObject;
+                            if (tempObject != null)
+                                context.Detach(tempObject);
+                        }
+                        if (entityObject.EntityKey != null)
+                        {
+                            context.Attach(entityObject);
+                        }
+                        else
+                        {
+                            context.AttachTo(entityObject.GetType().Name, entityObject);
+                        }
                     }
                     else if (objectEntityState != EntityState.Detached && (!aCFSItem.IsChecked || (checkUpdateDate && aCFSItem.UpdateDateFail)))
                     {
@@ -142,6 +165,18 @@ namespace gip.core.datamodel
         }
 
         #endregion
+
+        public static void RunSomeCheck(ACFSItem aCFSItem, object[] args)
+        {
+            if(aCFSItem != null && aCFSItem.ACObject != null && aCFSItem.ACObject is ACClassDesign)
+            {
+                ACClassDesign aCClassDesign = aCFSItem.ACObject as ACClassDesign;
+                if(aCClassDesign.ACClass == null)
+                {
+                    throw new Exception("ACClassDesign.ACClass == null!");
+                }
+            }
+        }
 
     }
 }
