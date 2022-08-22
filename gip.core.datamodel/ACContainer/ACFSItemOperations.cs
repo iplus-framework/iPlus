@@ -13,7 +13,6 @@ namespace gip.core.datamodel
         public const string Property_UpdateDate = @"UpdateDate";
         #endregion
 
-
         #region Process Update Date
         /// <summary>
         /// Check items in tree and compare Update Dates - write report
@@ -87,7 +86,6 @@ namespace gip.core.datamodel
         }
 
         #endregion
-
 
         #region ObjectContext Attach / Deattach
         /// <summary>
@@ -166,6 +164,103 @@ namespace gip.core.datamodel
 
         #endregion
 
+        #region Validation
+
+        public static void ReferenceValidation(ACFSItem aCFSItem, object[] args)
+        {
+            List<Msg> messages = args[0] as List<Msg>;
+
+            if(aCFSItem.ACObject != null)
+            {
+                if(aCFSItem.ACObject is ACClassDesign)
+                {
+                    ACClassDesign acClassDesign = aCFSItem.ACObject as ACClassDesign;
+                    if(acClassDesign.ACClassID == Guid.Empty)
+                    {
+                        Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = $"ACClassDesign {acClassDesign.ACUrl} don't have referenced ACClass!" };
+                        messages.Add(errMsg);
+                        aCFSItem.IsChecked = false;
+                    }
+                }
+                else if (aCFSItem.ACObject is ACClassProperty)
+                {
+                    ACClassProperty aCClassProperty = aCFSItem.ACObject as ACClassProperty;
+                    if(aCClassProperty.ACClassID == Guid.Empty)
+                    {
+                        Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = $"ACClassProperty {aCClassProperty.ACUrl} don't have referenced ACClass!" };
+                        messages.Add(errMsg);
+                        aCFSItem.IsChecked = false;
+                    }
+                    if (aCClassProperty.BasedOnACClassPropertyID == Guid.Empty)
+                    {
+                        Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = $"ACClassProperty {aCClassProperty.ACUrl} don't have referenced BasedOnACClassProperty!" };
+                        messages.Add(errMsg);
+                        aCFSItem.IsChecked = false;
+                    }
+                    if (aCClassProperty.ValueTypeACClassID == Guid.Empty)
+                    {
+                        Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = $"ACClassProperty {aCClassProperty.ACUrl} don't have referenced ValueTypeACClass!" };
+                        messages.Add(errMsg);
+                        aCFSItem.IsChecked = false;
+                    }
+                }
+                else if (aCFSItem.ACObject is ACClassMessage)
+                {
+                    ACClassMessage aCClassMessage = aCFSItem.ACObject as ACClassMessage;
+                    if (aCClassMessage.ACClassID == Guid.Empty)
+                    {
+                        Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = $"ACClassMessage {aCClassMessage.ACUrl} don't have referenced ACClass!" };
+                        messages.Add(errMsg);
+                        aCFSItem.IsChecked = false;
+                    }
+                }
+                else if (aCFSItem.ACObject is ACClassText)
+                {
+                    ACClassText aCClassText = aCFSItem.ACObject as ACClassText;
+                    if (aCClassText.ACClassID == Guid.Empty)
+                    {
+                        Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = $"ACClassText {aCClassText.ACUrl} don't have referenced ACClass!" };
+                        messages.Add(errMsg);
+                        aCFSItem.IsChecked = false;
+                    }
+                }
+                else if (aCFSItem.ACObject is ACClassPropertyRelation)
+                {
+                    ACClassPropertyRelation aCClassPropertyRelation = aCFSItem.ACObject as ACClassPropertyRelation;
+                    if(aCClassPropertyRelation.SourceACClassID == Guid.Empty || aCClassPropertyRelation.TargetACClassID == Guid.Empty)
+                    {
+                        string propertyRelationMsg = $"ACClassPropertyRelation ACIdentifier: {aCClassPropertyRelation.ACIdentifier} SourceACUrl: ";
+                        if (aCClassPropertyRelation.SourceACClass != null && aCClassPropertyRelation.SourceACClassProperty != null)
+                        {
+                            propertyRelationMsg += aCClassPropertyRelation.SourceACUrl;
+                        }
+                        propertyRelationMsg += " TargetACUrl: ";
+                        if (aCClassPropertyRelation.TargetACClass != null && aCClassPropertyRelation.TargetACClassProperty != null)
+                        {
+                            propertyRelationMsg += aCClassPropertyRelation.TargetACUrl;
+                        }
+                        if (aCClassPropertyRelation.SourceACClassID == Guid.Empty)
+                        {
+                            Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = propertyRelationMsg + " don't have referenced SourceACClass!" };
+                            messages.Add(errMsg);
+                            aCFSItem.IsChecked = false;
+                        }
+                        if (aCClassPropertyRelation.TargetACClassID == Guid.Empty)
+                        {
+                            Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = propertyRelationMsg + " don't have referenced TargetACClass!" };
+                            messages.Add(errMsg);
+                            aCFSItem.IsChecked = false;
+                        }
+                    }
+                }
+            }
+            
+        }
+
+        #endregion
+
+        #region Test
+
         public static void RunSomeCheck(ACFSItem aCFSItem, object[] args)
         {
             if(aCFSItem != null && aCFSItem.ACObject != null && aCFSItem.ACObject is ACClassDesign)
@@ -177,6 +272,8 @@ namespace gip.core.datamodel
                 }
             }
         }
+
+        #endregion
 
     }
 }

@@ -211,6 +211,8 @@ namespace gip.bso.iplus
         ACFSItem _CurrentImportItemRoot;
         ACFSItem _CurrentImportItem;
 
+        public bool CurrentImportSuccess { get; set; }
+
         /// <summary>
         /// Gets or sets the current import project item root.
         /// </summary>
@@ -595,6 +597,16 @@ namespace gip.bso.iplus
 
                     MsgWithDetails importMsgs = new MsgWithDetails();
                     rootACFSItem.CallAction(ACFSItemOperations.ProcessUpdateDate, importMsgs, "");
+
+
+                    List<Msg> validationMessages = new List<Msg>();
+                    rootACFSItem.CallAction(ACFSItemOperations.ReferenceValidation, validationMessages);
+                    if (validationMessages.Count > 0)
+                    {
+                        foreach (Msg msg in validationMessages)
+                            importMsgs.AddDetailMessage(msg);
+                    }
+
                     model.ImportMessages = importMsgs;
 
                     model.RootACFSItem = rootACFSItem;
@@ -609,6 +621,7 @@ namespace gip.bso.iplus
                 }
 
             }
+            model.Success = !MsgList.Any(c => c.MessageLevel >= eMsgLevel.Error) && model.ImportMessages.IsSucceded();
             return model;
         }
 
@@ -650,6 +663,8 @@ namespace gip.bso.iplus
             MsgWithDetails importMsg = new MsgWithDetails();
             try
             {
+                bool success = false;
+
                 worker.ProgressInfo.ProgressInfoIsIndeterminate = true;
                 worker.ProgressInfo.AddSubTask(BackgroundWorker_DoImport, 0, 0);
                 worker.ProgressInfo.ReportProgress(BackgroundWorker_DoImport, null, "Begin saving changes ... ");
@@ -659,8 +674,6 @@ namespace gip.bso.iplus
                 // CurrentImportItemRoot.CallAction(ACFSItemOperations.RunSomeCheck, null);
 
                 CurrentImportItemRoot.CollectContext(contextList);
-
-                bool success = true;
                 foreach (IACEntityObjectContext context in contextList)
                 {
                     MsgWithDetails msg = context.ACSaveChanges(true, System.Data.Objects.SaveOptions.AcceptAllChangesAfterSave, false, false);
@@ -673,6 +686,7 @@ namespace gip.bso.iplus
                         success = false;
                     }
                 }
+                success = importMsg.IsSucceded();
 
                 try
                 {
@@ -790,6 +804,7 @@ namespace gip.bso.iplus
                                     SendMessage(childMsg);
 
                         CurrentImportItemRoot = model.RootACFSItem;
+                        CurrentImportSuccess = model.Success;
                         _ImportTypeFilterList = LoadImportTypeFilter();
                         OnPropertyChanged("ImportTypeFilterList");
 
@@ -880,6 +895,7 @@ namespace gip.bso.iplus
 
     public class InspectImportResult
     {
+        public bool Success { get; set; }
         public ACFSItem RootACFSItem { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }

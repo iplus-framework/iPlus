@@ -58,14 +58,10 @@ namespace gip.core.datamodel
         public IACObject ACUrlCommandCached(string acURL)
         {
             IACObject fetchedObject = null;
+
             if (CachedIACObjects.Keys.Contains(acURL))
                 fetchedObject = CachedIACObjects[acURL];
-            else
-            {
-                fetchedObject = DB.ACUrlCommand(acURL) as IACObject;
-                if (fetchedObject != null)
-                    CachedIACObjects.Add(acURL, fetchedObject);
-            }
+            
             return fetchedObject;
         }
         #endregion
@@ -74,7 +70,15 @@ namespace gip.core.datamodel
 
         public void BuildCache()
         {
-            _CachedIACObjects = DB.ContextIPlus.ACClass.ToDictionary(key => key.GetACUrl().Replace(Const.ContextDatabase + "\\", ""), val => val as IACObject);
+            _CachedIACObjects = 
+                DB
+                .ContextIPlus
+                .ACClass
+                .ToDictionary(key => key.GetACUrl().Replace(Const.ContextDatabase + "\\", ""), val => val as IACObject);
+            
+            ACProject[] acProjects = DB.ContextIPlus.ACProject.ToArray();
+            foreach(ACProject aCProject in acProjects)
+                _CachedIACObjects.Add(aCProject.GetACUrl().Replace(Const.ContextDatabase + "\\", ""), aCProject);
         }
 
 
