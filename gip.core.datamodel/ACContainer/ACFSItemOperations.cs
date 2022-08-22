@@ -227,8 +227,14 @@ namespace gip.core.datamodel
                 else if (aCFSItem.ACObject is ACClassPropertyRelation)
                 {
                     ACClassPropertyRelation aCClassPropertyRelation = aCFSItem.ACObject as ACClassPropertyRelation;
-                    if(aCClassPropertyRelation.SourceACClassID == Guid.Empty || aCClassPropertyRelation.TargetACClassID == Guid.Empty)
+                    if(
+                            aCClassPropertyRelation.SourceACClassID == Guid.Empty 
+                            || aCClassPropertyRelation.SourceACClassPropertyID == Guid.Empty 
+                            || aCClassPropertyRelation.TargetACClassID == Guid.Empty
+                            || aCClassPropertyRelation.TargetACClassPropertyID == Guid.Empty
+                      )
                     {
+
                         string propertyRelationMsg = $"ACClassPropertyRelation ACIdentifier: {aCClassPropertyRelation.ACIdentifier} SourceACUrl: ";
                         if (aCClassPropertyRelation.SourceACClass != null && aCClassPropertyRelation.SourceACClassProperty != null)
                         {
@@ -239,15 +245,31 @@ namespace gip.core.datamodel
                         {
                             propertyRelationMsg += aCClassPropertyRelation.TargetACUrl;
                         }
+                        
                         if (aCClassPropertyRelation.SourceACClassID == Guid.Empty)
                         {
                             Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = propertyRelationMsg + " don't have referenced SourceACClass!" };
                             messages.Add(errMsg);
                             aCFSItem.IsChecked = false;
                         }
+                        
+                        if (aCClassPropertyRelation.SourceACClassPropertyID == Guid.Empty)
+                        {
+                            Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = propertyRelationMsg + " don't have referenced SourceACClassProperty!" };
+                            messages.Add(errMsg);
+                            aCFSItem.IsChecked = false;
+                        }
+
                         if (aCClassPropertyRelation.TargetACClassID == Guid.Empty)
                         {
                             Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = propertyRelationMsg + " don't have referenced TargetACClass!" };
+                            messages.Add(errMsg);
+                            aCFSItem.IsChecked = false;
+                        }
+                        
+                        if (aCClassPropertyRelation.TargetACClassPropertyID == Guid.Empty)
+                        {
+                            Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = propertyRelationMsg + " don't have referenced TargetACClassProperty!" };
                             messages.Add(errMsg);
                             aCFSItem.IsChecked = false;
                         }
