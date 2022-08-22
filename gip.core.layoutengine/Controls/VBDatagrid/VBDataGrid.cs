@@ -681,12 +681,14 @@ namespace gip.core.layoutengine
                         VBDataGridCheckBoxColumn dataGridCheckBoxColumn = new VBDataGridCheckBoxColumn();
                         Columns.Add(dataGridCheckBoxColumn);
                         dataGridCheckBoxColumn.Initialize(dataShowColumn, dsColACTypeInfo, dsColSource, dsColPath, dsColRightControlMode);
+                        dataGridCheckBoxColumn.VBContent = dsColPath;
                     }
                     else if (dsColACTypeInfo.ObjectType == typeof(DateTime))
                     {
                         VBDataGridDateTimeColumn dataGridDateTimeColumn = new VBDataGridDateTimeColumn();
                         Columns.Add(dataGridDateTimeColumn);
                         dataGridDateTimeColumn.Initialize(dataShowColumn, dsColACTypeInfo, dsColSource, dsColPath, dsColRightControlMode);
+                        dataGridDateTimeColumn.VBContent = dsColPath;
                     }
                     else
                     {
@@ -717,12 +719,14 @@ namespace gip.core.layoutengine
                                 VBDataGridTextColumn dataGridTextColumn = new VBDataGridTextColumn();
                                 Columns.Add(dataGridTextColumn);
                                 dataGridTextColumn.Initialize(dataShowColumn, dsColACTypeInfo, dsColSource, dsColPath, dsColRightControlMode, isShowColumnAMethod);
+                                dataGridTextColumn.VBContent = dsColPath;
                             }
                             else
                             {
                                 VBDataGridComboBoxColumn dataGridComboColumn = new VBDataGridComboBoxColumn();
                                 Columns.Add(dataGridComboColumn);
                                 dataGridComboColumn.Initialize(dataShowColumn, dsColACTypeInfo, dsColSource, dsColPath, dsColRightControlMode, isShowColumnAMethod);
+                                dataGridComboColumn.VBContent = dsColPath;
                             }
                         }
                     }
@@ -2968,6 +2972,7 @@ namespace gip.core.layoutengine
         {
             try
             {
+                Type typeOfString = typeof(string);
                 CollectionView collectionView = (CollectionView)CollectionViewSource.GetDefaultView(ItemsSource);
                 if (collectionView == null)
                     return;
@@ -3006,7 +3011,31 @@ namespace gip.core.layoutengine
                     foreach (ExportColumn column in exportColumns)
                     {
                         object value = colViewEntry.GetValue(column._VBContent);
-                        row[i] = value == null ? DBNull.Value : value;
+                        if (value == null)
+                        {
+                            row[i] = DBNull.Value;
+                        }
+                        else
+                        {
+                            if (value is IConvertible)
+                                row[i] = value;
+                            else if (column._Type == typeOfString)
+                            {
+                                string sValue = null;
+                                try
+                                {
+                                    sValue = ACConvert.ObjectToXML(value, true);
+                                }
+                                catch (Exception)
+                                {
+                                }
+                                if (String.IsNullOrEmpty(sValue))
+                                    sValue = value.ToString();
+                                row[i] = sValue;
+                            }
+                            else
+                                row[i] = DBNull.Value;
+                        }
                         i++;
                     }
                     dt.Rows.Add(row);
