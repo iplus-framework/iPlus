@@ -19,7 +19,7 @@ namespace gip.core.communication
     /// or: mailaddr1@domain.com;mailaddr2@domain.com;
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACSmtpClient'}de{'ACSmtpClient'}", Global.ACKinds.TACDAClass, Global.ACStorableTypes.Required, false, false)]
-    public class ACSmtpClient : PAClassAlarmingBase
+    public class ACSmtpClient : PAClassAlarmingBase, IACAttachedAlarmHandler
     {
         private bool _SmtpRequestActive = false;
         private SmtpClient _SmtpClientSync = null;
@@ -124,6 +124,17 @@ namespace gip.core.communication
             {
                 return _TaskInvocationPoint;
             }
+        }
+
+        public IACContainerTNet<bool> HasAttachedAlarm 
+        { 
+            get; 
+            set; 
+        }
+        public SafeList<Msg> AttachedAlarms 
+        { 
+            get; 
+            set; 
         }
 
         public bool OnSetTaskInvocationPoint(IACPointNetBase point)
@@ -472,7 +483,31 @@ namespace gip.core.communication
 
             return new ACMethodWrapper(method, captionTranslation, null);
         }
-#endregion
+
+        public void AddAttachedAlarm(Msg msg)
+        {
+            ACMethod acMethod = this.ACUrlACTypeSignature("!SendMailToMailingListAsync", gip.core.datamodel.Database.GlobalDatabase); // Immer Globalen context um Deadlock zu vermeiden 
+            acMethod.ParameterValueList["Subject"] = "Alarm: " + msg.ACCaptionComponent + ", " + msg.ACCaption;
+            acMethod.ParameterValueList["Body"] = XMLToObjectConverter.ObjectToXML(msg, true, false, true);
+
+            this.SendAsync(acMethod);
+        }
+
+        public void AckAttachedAlarm(Guid msgID)
+        {
+
+        }
+
+        public void AckAllAttachedAlarms()
+        {
+            
+        }
+
+        public MsgList GetAttachedAlarms()
+        {
+            return null;
+        }
+        #endregion
 
     }
 }

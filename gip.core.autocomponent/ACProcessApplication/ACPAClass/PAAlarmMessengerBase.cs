@@ -32,13 +32,13 @@ namespace gip.core.autocomponent
             if (!base.ACInit(startChildMode))
                 return false;
 
-            RebuildRuleCache();
-
             return true;
         }
 
         public override bool ACPostInit()
         {
+            RebuildRuleCache();
+
             this.ApplicationManager.ProjectWorkCycleR1min += ApplicationManager_ProjectWorkCycleR1min;
             return base.ACPostInit();
         }
@@ -68,7 +68,7 @@ namespace gip.core.autocomponent
         bool _IsCacheRebuilded;
         private object _IsCacheRebuildedLock = new object();
 
-        private Dictionary<string, ACClass[]> _InclusionRuleCache;
+        private Dictionary<string, AlarmMessangerCacheRule[]> _InclusionRuleCache;
         private ACMonitorObject _InclusionRuleCacheLock = new ACMonitorObject(10000);
 
         private Dictionary<string, string[]> _ExclusionRuleCache;
@@ -160,7 +160,7 @@ namespace gip.core.autocomponent
             {
                 _IsCacheRebuilded = false;
             }
-            Dictionary<string, ACClass[]> cache = new Dictionary<string, ACClass[]>();
+            Dictionary<string, AlarmMessangerCacheRule[]> cache = new Dictionary<string, AlarmMessangerCacheRule[]>();
             Dictionary<string, string[]> cacheExclusion = new Dictionary<string, string[]>();
 
             try
@@ -182,7 +182,12 @@ namespace gip.core.autocomponent
                         foreach (var config in groupedConfigs)
                         {
                             if (!cache.ContainsKey(config.Key))
-                                cache.Add(config.Key, config.Select(c => (ACUrlCommand(c.KeyACUrl, null) as ACClass)).ToArray());
+                            {
+                                var groupedBySource = config.Select(c => c).GroupBy(c => c.KeyACUrl);
+                                
+                                cache.Add(config.Key, config.Select(c => BuildAlarmRuleCacheFromConfig(c.KeyACUrl, groupedBySource.Where(x => x.Key == c.KeyACUrl)
+                                                                                                                                  .SelectMany(x => x).Distinct())).ToArray());
+                            }
                         }
                     }
 
@@ -227,10 +232,17 @@ namespace gip.core.autocomponent
                 }
             }
 
+            AlarmMessangerCacheRule[][] oldRuleCache = null;
+
             using (ACMonitor.Lock(_InclusionRuleCacheLock))
             {
-                _InclusionRuleCache = new Dictionary<string, ACClass[]>(cache);
+                if (_InclusionRuleCache != null && _InclusionRuleCache.Any())
+                    oldRuleCache = _InclusionRuleCache.Values.ToArray();
+                _InclusionRuleCache = new Dictionary<string, AlarmMessangerCacheRule[]>(cache);
             }
+
+            ReleaseRefFromCache(oldRuleCache);
+            oldRuleCache = null;
 
             using (ACMonitor.Lock(_ExclusionRuleCacheLock))
             {
@@ -238,9 +250,54 @@ namespace gip.core.autocomponent
             }
         }
 
-        public Global.ConfigIconState CheckAlarmMsgInConfig(Msg msg)
+        private AlarmMessangerCacheRule BuildAlarmRuleCacheFromConfig(string sourceACUrl, IEnumerable<ACClassConfig> configs)
+        {
+            AlarmMessangerCacheRule rule = new AlarmMessangerCacheRule();
+            rule.SourceComponent = ACUrlCommand(sourceACUrl, null) as ACClass;
+
+            List<ACRef<ACComponent>> targetItems = new List<ACRef<ACComponent>>();
+
+            foreach (ACClassConfig config in configs)
+            {
+                if (!string.IsNullOrEmpty(config.Expression))
+                {
+                    ACComponent comp = Root.ACUrlCommand(config.Expression) as ACComponent;
+                    if (comp != null)
+                    {
+                        targetItems.Add(new ACRef<ACComponent>(comp, this));
+                    }
+                }
+            }
+
+            rule.TargetComponents = targetItems;
+
+            return rule;
+        }
+
+        private void ReleaseRefFromCache(AlarmMessangerCacheRule[][] ruleCache)
+        {
+            if (ruleCache == null)
+                return;
+
+            foreach(AlarmMessangerCacheRule [] cacheArray in ruleCache)
+            {
+                foreach (AlarmMessangerCacheRule cache in cacheArray)
+                {
+                    if (cache.TargetComponents == null || !cache.TargetComponents.Any())
+                        continue;
+
+                    foreach (var refComp in cache.TargetComponents)
+                    {
+                        refComp.Detach();
+                    }
+                }
+            }
+        }
+
+        public Global.ConfigIconState CheckAlarmMsgInConfig(Msg msg, out List<ACRef<ACComponent>> targetComponents)
         {
             bool isAnyConfigExist = false;
+            targetComponents = null;
 
             using (ACMonitor.Lock(_InclusionRuleCacheLock))
             {
@@ -333,7 +390,7 @@ namespace gip.core.autocomponent
             }
 
             acClass = null;
-            ACClass[] result = Array.Empty<ACClass>();
+            AlarmMessangerCacheRule[] result = Array.Empty<AlarmMessangerCacheRule>();
             if (!String.IsNullOrEmpty(msg.TranslID))
             {
                 bool isInclusionValueExists = false;
@@ -357,15 +414,19 @@ namespace gip.core.autocomponent
 
                     if (acClass != null)
                     {
-                        if (result.Any(c => c != null && c.ACClassID == acClass.ACClassID))
+                        if (result.Any(c => c.SourceComponent.ACClassID == acClass.ACClassID))
+                        {
                             return Global.ConfigIconState.Config;
+                        }
 
-                        foreach (ACClass resultItem in result)
+                        foreach (AlarmMessangerCacheRule resultItem in result)
                         {
                             try
                             {
-                                if (acClass.IsDerivedClassFrom(resultItem))
+                                if (acClass.IsDerivedClassFrom(resultItem.SourceComponent))
+                                {
                                     return Global.ConfigIconState.InheritedConfig;
+                                }
                             }
                             catch
                             {
@@ -399,15 +460,23 @@ namespace gip.core.autocomponent
 
                     if (acClass != null)
                     {
-                        if (result.Any(c => c != null && c.ACClassID == acClass.ACClassID))
-                            return Global.ConfigIconState.Config;
+                        var config = result.FirstOrDefault(c => c.SourceComponent.ACClassID == acClass.ACClassID);
 
-                        foreach (ACClass resultItem in result)
+                        if (config.SourceComponent != null)
+                        {
+                            targetComponents = config.TargetComponents;
+                            return Global.ConfigIconState.Config;
+                        }
+
+                        foreach (AlarmMessangerCacheRule resultItem in result)
                         {
                             try
                             {
-                                if (acClass.IsDerivedClassFrom(resultItem))
+                                if (acClass.IsDerivedClassFrom(resultItem.SourceComponent))
+                                {
+                                    targetComponents = resultItem.TargetComponents;
                                     return Global.ConfigIconState.InheritedConfig;
+                                }
                             }
                             catch
                             {
@@ -421,7 +490,7 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInfo("Function", "en{'DistributeAlarm'}de{'DistributeAlarm'}", 9999)]
-        public abstract void DistributeAlarm(string propertyName, Msg alarm);
+        public abstract void DistributeAlarm(string propertyName, Msg alarm, List<ACRef<ACComponent>> targetComponents);
 
         private void ApplicationManager_ProjectWorkCycleR1min(object sender, EventArgs e)
         {
@@ -474,14 +543,15 @@ namespace gip.core.autocomponent
                     try
                     {
                         bool send = (bool)ACUrlCommand("!FilterAlarm", e["PropertyName"] as string, e[Const.Value] as Msg);
-                        if (!send && ConfigRulesEnabled.ValueT)
+                        List<ACRef<ACComponent>> targetComponents = null;
+                        if (send && ConfigRulesEnabled.ValueT)
                         {
-                            Global.ConfigIconState configResult = CheckAlarmMsgInConfig(e[Const.Value] as Msg);
+                            Global.ConfigIconState configResult = CheckAlarmMsgInConfig(e[Const.Value] as Msg, out targetComponents);
                             send = configResult == Global.ConfigIconState.Config || configResult == Global.ConfigIconState.InheritedConfig;
                         }
 
                         if (send)
-                            DistributeAlarm(e["PropertyName"] as string, e[Const.Value] as Msg);
+                            DistributeAlarm(e["PropertyName"] as string, e[Const.Value] as Msg, targetComponents);
                     }
                     catch (Exception ec)
                     {
@@ -514,7 +584,7 @@ namespace gip.core.autocomponent
                     result = FilterAlarm(acParameter[0] as string, acParameter[1] as Msg);
                     return true;
                 case "DistributeAlarm":
-                    DistributeAlarm(acParameter[0] as string, acParameter[1] as Msg);
+                    DistributeAlarm(acParameter[0] as string, acParameter[1] as Msg, acParameter[2] as List<ACRef<ACComponent>>);
                     return true;
                 case "RebuildConfigurationCache":
                     RebuildConfigurationCache();
@@ -560,6 +630,20 @@ namespace gip.core.autocomponent
 
         [ACPropertyInfo(999, "", "en{'Source comp. url'}de{'Quell-Komp. url'}")]
         public string SourceACUrlComp
+        {
+            get;
+            set;
+        }
+
+        [ACPropertyInfo(999, "", "en{'Target ACUrl'}de{'Target ACUrl'}")]
+        public string TargetACUrl
+        {
+            get;
+            set;
+        }
+
+        [ACPropertyInfo(999, "", "en{'Target comp. url'}de{'Ziel-Komp. url'}")]
+        public string TargetACUrlComp
         {
             get;
             set;
@@ -622,6 +706,21 @@ namespace gip.core.autocomponent
         {
             if (PropertyChanged != null)
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public struct AlarmMessangerCacheRule
+    {
+        public ACClass SourceComponent
+        {
+            get;
+            set;
+        }
+            
+        public List<ACRef<ACComponent>> TargetComponents
+        {
+            get;
+            set;
         }
     }
 }

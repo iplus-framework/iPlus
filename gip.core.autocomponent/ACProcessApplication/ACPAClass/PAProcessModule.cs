@@ -16,7 +16,7 @@ namespace gip.core.autocomponent
     /// <seealso cref="gip.core.autocomponent.PAClassPhysicalBase" />
     /// <seealso cref="gip.core.autocomponent.IACComponentTaskExec" />
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PAProcessModule'}de{'PAProcessModule'}", Global.ACKinds.TPAProcessModule, Global.ACStorableTypes.Required, false, PWGroup.PWClassName, true)]
-    public abstract class PAProcessModule : PAClassPhysicalBase, IACComponentTaskExec
+    public abstract class PAProcessModule : PAClassPhysicalBase, IACComponentTaskExec, IACAttachedAlarmHandler
     {
         #region c'tors
 
@@ -51,6 +51,8 @@ namespace gip.core.autocomponent
             if (IsDisplayingOrderInfo)
                 _OrderInfoManager = PAShowDlgManagerBase.ACRefToServiceInstance(this);
 
+            AttachedAlarms = new SafeList<Msg>();
+
             _ = AllocationExternal;
             return true;
         }
@@ -72,6 +74,8 @@ namespace gip.core.autocomponent
             if (_OrderInfoManager != null)
                 PAShowDlgManagerBase.DetachACRefFromServiceInstance(this, _OrderInfoManager);
             _OrderInfoManager = null;
+
+            AttachedAlarms = null;
 
             bool init = base.ACDeInit(deleteACClassTask);
             return init;
@@ -243,6 +247,13 @@ namespace gip.core.autocomponent
             }
         }
 
+        [ACPropertyBindingTarget]
+        public IACContainerTNet<bool> HasAttachedAlarm
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Methods
@@ -316,6 +327,12 @@ namespace gip.core.autocomponent
                     return pwGroup.CurrentProgramLog;
                 return null;
             }
+        }
+
+        public SafeList<Msg> AttachedAlarms 
+        {
+            get;
+            set; 
         }
 
         public TResult GetExecutingFunction<TResult>(Guid acMethodRequestID) where TResult : PAProcessFunction
@@ -570,12 +587,55 @@ namespace gip.core.autocomponent
             }
             return msgList;
         }
-        
-#endregion
 
-#endregion
+        public void AddAttachedAlarm(Msg msg)
+        {
+            if (AttachedAlarms == null)
+                return;
 
-#endregion
+            AttachedAlarms.Add(msg);
+            HasAttachedAlarm.ValueT = true;
+        }
+
+        [ACMethodInfo("", "", 9999)]
+        public void AckAttachedAlarm(Guid msgID)
+        {
+            if (AttachedAlarms == null)
+                return;
+
+            Msg alarmMsg = AttachedAlarms.FirstOrDefault(c => c.MsgId == msgID);
+            if (alarmMsg != null)
+                AttachedAlarms.Remove(alarmMsg);
+
+            if (!AttachedAlarms.Any())
+                HasAttachedAlarm.ValueT = false;
+        }
+
+        [ACMethodInfo("", "", 9999)]
+        public void AckAllAttachedAlarms()
+        {
+            if (AttachedAlarms == null)
+                return;
+
+            AttachedAlarms.Clear();
+            HasAttachedAlarm.ValueT = false;
+        }
+
+        [ACMethodInfo("","",9999)]
+        public MsgList GetAttachedAlarms()
+        {
+            MsgList result = new MsgList();
+            if (AttachedAlarms != null)
+                result.AddRange(AttachedAlarms);
+            return result;
+        }
+
+        #endregion
+
+        #endregion
+
+        #endregion
+
 
         // Methods, Range: 300
 

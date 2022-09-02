@@ -96,7 +96,7 @@ namespace gip.core.communication
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
-        public override void DistributeAlarm(string propertyName, Msg alarm)
+        public override void DistributeAlarm(string propertyName, Msg alarm, List<ACRef<ACComponent>> targetComponents)
         {
             ACComponent mailComp = this.ACUrlCommand(ACUrlOfSmtpClient) as ACComponent;
             if (mailComp == null)

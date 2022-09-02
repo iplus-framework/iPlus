@@ -247,7 +247,8 @@ namespace gip.bso.iplus
                             }
 
                             _AssignedAlarmSourceList.Add(new AlarmMessengerConfig(config.KeyACUrl, config.Value.ToString(), acurlcomp, CheckExclusionRules(config.Value.ToString(), tempClass))
-                                                        { MsgPropACCaption = GetAlarmSourceCaption(config.Value.ToString()), ConfigTargetACUrl = messenger.ACUrlComponent});
+                                                        { MsgPropACCaption = GetAlarmSourceCaption(config.Value.ToString()), ConfigTargetACUrl = messenger.ACUrlComponent,
+                                                          TargetACUrlComp = config.Expression});
                         }
                     }
                     _InitialAssignedAlarmSourceList = _AssignedAlarmSourceList.ToList();
@@ -517,6 +518,44 @@ namespace gip.bso.iplus
 
         #endregion
 
+        #region Properties => TargetComponents(IACAlarmReceiver)
+
+        private ACClassInfoWithItems _CurrentConfigTargetCompRoot;
+        /// <summary>
+        /// Gets the root item of configuration levels.
+        /// </summary>
+        [ACPropertyCurrent(406, "ProjectItemRoot")]
+        public ACClassInfoWithItems CurrentConfigTargetCompRoot
+        {
+            get
+            {
+                return _CurrentConfigTargetCompRoot;
+            }
+        }
+
+        private ACClassInfoWithItems _CurrentConfigTargetComp;
+        /// <summary>
+        /// Gets or sets the current configuration level.
+        /// </summary>
+        [ACPropertyCurrent(407, "ProjectItem")]
+        public ACClassInfoWithItems CurrentConfigTargetComp
+        {
+            get
+            {
+                return _CurrentConfigTargetComp;
+            }
+            set
+            {
+                _CurrentConfigTargetComp = value;
+                OnPropertyChanged();
+            }
+
+        }
+
+        
+
+        #endregion
+
         private ACClass _CurrentACClass;
         /// <summary>
         /// Gets or sets the ACClass of selected component.
@@ -583,6 +622,19 @@ namespace gip.bso.iplus
                 _IsVisibleConfigLevel = value;
                 OnPropertyChanged("IsVisibleConfigLevel");
             }
+        }
+
+        private bool _IsVisibleConfigTargetComp;
+        [ACPropertyInfo(414)]
+        public bool IsVisibleConfigTargetComp
+        {
+            get => _IsVisibleConfigTargetComp;
+            set
+            {
+                _IsVisibleConfigTargetComp = value;
+                OnPropertyChanged();
+            }
+
         }
 
         #region Properties -> Config level
@@ -846,20 +898,25 @@ namespace gip.bso.iplus
                         CurrentConfigLevel = DefaultAlarmMessenger;
                         IsVisibleConfigTarget = false;
                         IsVisibleConfigLevel = true;
+                        IsVisibleConfigTargetComp = false;
                     }
                     else
                     {
                         CurrentConfigTarget = new ACClassInfoWithItems() { ValueT = AlarmMessengerBase };
                         IsVisibleConfigTarget = true;
                         IsVisibleConfigLevel = false;
+                        IsVisibleConfigTargetComp = false;
                         _CurrentConfigTargetRoot = CurrentConfigTarget;
-                        CreateHierarchyTree(CurrentConfigTarget);
+                        CreateHierarchyTree(CurrentConfigTarget, null);
                     }
 
                     CurrentConfigLevel = new ACClassInfoWithItems() { ValueT = currentACClass };
                     _CurrentConfigLevelRoot = CurrentConfigLevel;
-                    CreateHierarchyTree(CurrentConfigLevel);
+                    CreateHierarchyTree(CurrentConfigLevel, nameof(ACClassInfoWithItems.IsChecked));
                     _RootCache = CurrentConfigLevel;
+
+
+                    LoadTargetComponents();
                 }
                 else
                 {
@@ -928,7 +985,7 @@ namespace gip.bso.iplus
                 if (onlyFromAppProj)
                 {
                     if (item.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application)
-                    resultList.Add(item);
+                        resultList.Add(item);
                 }
                 else
                 {
@@ -951,13 +1008,13 @@ namespace gip.bso.iplus
             return configTargetList;
         }
 
-        private void CreateHierarchyTree(ACClassInfoWithItems info)
+        private void CreateHierarchyTree(ACClassInfoWithItems info, string dataContextCheckBox)
         {
             foreach (var item in info.ValueT.ACClass_BasedOnACClass)
             {
-                ACClassInfoWithItems infoItem = new ACClassInfoWithItems() { ValueT = item };
+                ACClassInfoWithItems infoItem = new ACClassInfoWithItems() { ValueT = item, DataContentCheckBox = dataContextCheckBox };
                 info.Add(infoItem);
-                CreateHierarchyTree(infoItem);
+                CreateHierarchyTree(infoItem, dataContextCheckBox);
             }
         }
 
@@ -996,6 +1053,7 @@ namespace gip.bso.iplus
         {
             IsVisibleConfigTarget = false;
             IsVisibleConfigLevel = true;
+            IsVisibleConfigTargetComp = false;
         }
 
         /// <summary>
@@ -1005,6 +1063,18 @@ namespace gip.bso.iplus
         public bool IsEnabledSelectAlarmConfigTarget()
         {
             return CurrentConfigTarget != null;
+        }
+        [ACMethodInfo("", "en{'Select target components'}de{'Ziel-komponenten auswählen'}", 405)]
+        public void SelectAlarmConfigTargetComponent()
+        {
+            IsVisibleConfigTarget = false;
+            IsVisibleConfigLevel = false;
+            IsVisibleConfigTargetComp = true;
+        }
+
+        public bool IsEnabledSelectAlarmConfigTargetComponent()
+        {
+            return true;
         }
 
         /// <summary>
@@ -1016,11 +1086,41 @@ namespace gip.bso.iplus
             if (DefaultAlarmMessenger != null)
                 CurrentConfigTarget = DefaultAlarmMessenger;
 
-            if (CurrentConfigTarget != null && ValidateAssignMessageOrProperty(CurrentConfigTarget, CurrentConfigLevel, SelectedAlarmSource.ACIdentifier))
+            if (CurrentConfigTarget != null /* && ValidateAssignMessageOrProperty(CurrentConfigTarget, CurrentConfigLevel, SelectedAlarmSource.ACIdentifier)*/)
             {
-                AlarmMessengerConfig config = new AlarmMessengerConfig(CurrentConfigLevel.ValueT.ACUrl, SelectedAlarmSource.ACIdentifier, CurrentConfigLevel.ValueT.ACUrlComponent, false)
-                                                                      { MsgPropACCaption = SelectedAlarmSource.ACCaption, ConfigTargetACUrl = CurrentConfigTarget.ValueT.ACUrlComponent };
-                AssignedAlarmSourceList.Add(config);
+                List<ACClass> sourceComponents = GetCheckedComponents(CurrentConfigLevelRoot);
+                if (sourceComponents == null || !sourceComponents.Any())
+                {
+                    //TODO message
+                    Messages.Error(this, "Please select/check at least one source component for alarm!");
+                    return;
+                }
+
+                foreach (ACClass sourceComp in sourceComponents)
+                {
+                    List<ACClass> targetComponents = GetCheckedComponents(CurrentConfigTargetCompRoot);
+
+                    if (targetComponents != null && targetComponents.Any())
+                    {
+                        foreach (ACClass targetComp in targetComponents)
+                        {
+                            AlarmMessengerConfig config = new AlarmMessengerConfig(sourceComp.ACUrl, SelectedAlarmSource.ACIdentifier, sourceComp.ACUrlComponent, false)
+                            {
+                                MsgPropACCaption = SelectedAlarmSource.ACCaption,
+                                ConfigTargetACUrl = CurrentConfigTarget.ValueT.ACUrlComponent,
+                                TargetACUrlComp = targetComp.ACUrlComponent
+                            };
+                            AssignedAlarmSourceList.Add(config);
+                        }
+                    }
+                    else
+                    {
+
+                        AlarmMessengerConfig config = new AlarmMessengerConfig(sourceComp.ACUrl, SelectedAlarmSource.ACIdentifier, sourceComp.ACUrlComponent, false)
+                        { MsgPropACCaption = SelectedAlarmSource.ACCaption, ConfigTargetACUrl = CurrentConfigTarget.ValueT.ACUrlComponent };
+                        AssignedAlarmSourceList.Add(config);
+                    }
+                }
             }
 
             CurrentConfigTarget = null;
@@ -1050,8 +1150,8 @@ namespace gip.bso.iplus
                                                                                 && c.LocalConfigACUrl == PAAlarmMessengerBase.SaveConfigPropName).ToList();
 
                 var preparedList = AssignedAlarmSourceList.Where(x => x.ConfigTargetACUrl == configTarget.ACUrlComponent)
-                                                          .Select(c => new Tuple<string, string>(c.MsgPropACIdentifier, c.SourceACUrl));
-                var preparedListConfig = currentConfigs.Select(c => new Tuple<string, string>(c.Value.ToString(), c.KeyACUrl));
+                                                          .Select(c => new Tuple<string, string, string>(c.MsgPropACIdentifier, c.SourceACUrl, c.TargetACUrlComp));
+                var preparedListConfig = currentConfigs.Select(c => new Tuple<string, string, string>(c.Value.ToString(), c.KeyACUrl, c.Expression));
 
                 var newConfigs = preparedList.Except(preparedListConfig);
                 var delConfigs = preparedListConfig.Except(preparedList);
@@ -1072,6 +1172,7 @@ namespace gip.bso.iplus
                     config.LocalConfigACUrl = PAAlarmMessengerBase.SaveConfigPropName;
                     config.KeyACUrl = item.Item2;
                     config.Value = item.Item1;
+                    config.Expression = item.Item3;
                 }
 
                 Msg msg = configTarget.GetObjectContext().ACSaveChanges();
@@ -1243,6 +1344,32 @@ namespace gip.bso.iplus
             return false;
         }
 
+        private List<ACClass> GetCheckedComponents(ACClassInfoWithItems root)
+        {
+            if (CurrentConfigTargetComp == null)
+                return null;
+
+            List<ACClass> result = new List<ACClass>();
+
+            GetCheckedComponentsRecursive(root, result);
+
+            return result;
+        }
+
+        private void GetCheckedComponentsRecursive(ACClassInfoWithItems item, List<ACClass> resultList)
+        {
+            if (item == null)
+                return;
+
+            if (item.IsChecked)
+                resultList.Add(item.ValueT);
+
+            foreach (var childItem in item.ItemsT)
+            {
+                GetCheckedComponentsRecursive(childItem, resultList);
+            }
+        }
+
         /// <summary>
         /// Saves changes.
         /// </summary>
@@ -1294,6 +1421,13 @@ namespace gip.bso.iplus
                     else
                         result = Global.ControlModes.Collapsed;
                     break;
+                case nameof(IsVisibleConfigTargetComp):
+                    if (IsVisibleConfigTargetComp)
+                        result = Global.ControlModes.Enabled;
+                    else
+                        result = Global.ControlModes.Collapsed;
+                    break;
+
             }   
             return result;
         }
@@ -1351,6 +1485,25 @@ namespace gip.bso.iplus
             return true;
         }
 
+        private void LoadTargetComponents()
+        {
+            var componentTargets = Database.ContextIPlus.ACClass.Where(c => c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application)
+                                                                        .ToArray()
+                                                                        .Where(c => typeof(IACAttachedAlarmHandler).IsAssignableFrom(c.ObjectType));
+
+            //var compTargets = componentTargets.Where(c => !componentTargets.Any(x => x.ACClassID == c.BasedOnACClassID)).ToArray();
+
+            CurrentConfigTargetComp = new ACClassInfoWithItems("Root");
+
+            foreach (var compTarget in componentTargets)
+            {
+                var temp = new ACClassInfoWithItems(compTarget) { DataContentCheckBox = nameof(ACClassInfoWithItems.IsChecked) };
+                CurrentConfigTargetComp.Add(temp);
+            }
+
+            _CurrentConfigTargetCompRoot = CurrentConfigTargetComp;
+        }
+
         #region Methods -> Explorer dialog
 
         /// <summary>
@@ -1381,6 +1534,8 @@ namespace gip.bso.iplus
             }
 
             LoadConfigTargetAndLevel(sourceComp, sourceACClass, msgPropSourceList.ToArray());
+
+            LoadTargetComponents();
 
             ShowDialog(this, "AlarmExplorerDialog");
         }
@@ -1501,11 +1656,25 @@ namespace gip.bso.iplus
             _AssignedAlarmSourceList = null;
             if (ValidateAssignMessageOrProperty(CurrentConfigTarget, CurrentConfigLevel, alarmSourceID))
             {
-                IACConfig config = CurrentConfigTarget.ValueT.NewACConfig(null, CurrentConfigTarget.ValueT.Database.GetACType(typeof(string)));
-                config.LocalConfigACUrl = PAAlarmMessengerBase.SaveConfigPropName;
-                config.KeyACUrl = CurrentConfigLevel.ValueT.ACUrl;
-                config.Value = alarmSourceID;
-
+                var targetComponents = GetCheckedComponents(CurrentConfigTargetComp);
+                if (targetComponents != null && targetComponents.Any())
+                {
+                    foreach (var targetComp in targetComponents)
+                    {
+                        IACConfig config = CurrentConfigTarget.ValueT.NewACConfig(null, CurrentConfigTarget.ValueT.Database.GetACType(typeof(string)));
+                        config.LocalConfigACUrl = PAAlarmMessengerBase.SaveConfigPropName;
+                        config.KeyACUrl = CurrentConfigLevel.ValueT.ACUrl;
+                        config.Value = alarmSourceID;
+                        config.Expression = targetComp.ACUrlComponent;
+                    }
+                }
+                else
+                {
+                    IACConfig config = CurrentConfigTarget.ValueT.NewACConfig(null, CurrentConfigTarget.ValueT.Database.GetACType(typeof(string)));
+                    config.LocalConfigACUrl = PAAlarmMessengerBase.SaveConfigPropName;
+                    config.KeyACUrl = CurrentConfigLevel.ValueT.ACUrl;
+                    config.Value = alarmSourceID;
+                }
                 Msg msg = CurrentConfigTarget.ValueT.GetObjectContext().ACSaveChanges();
                 if (msg == null)
                     RebuildAlarmMessengerCache();

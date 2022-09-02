@@ -140,12 +140,14 @@
     <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI%28Srv%29\Interface\ACPointAsyncRMIHelper.cs" />
     <Compile Include="ACPoint\Interfaces\IACComponentTaskSubscr.cs" />
     <Compile Include="ACPoint\Interfaces\IACComponentTaskExec.cs" />
+    <Compile Include="ACProcessApplication\ACPAClass\PAAlarmMessanger.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PAAlarmMessengerBase.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\ACStateEnum.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PABase.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PAWebServiceBase.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PAJobScheduler.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PAFuncStateConvBase.cs" />
+    <Compile Include="ACProcessApplication\Interfaces\IACAlarmReceiver.cs" />
     <Compile Include="ACProcessApplication\RemoteAppManager.cs" />
     <Compile Include="ACProcessApplication\Interfaces\IACMyConfigCache.cs" />
     <Compile Include="ACProcessApplication\Interfaces\IACWorkCycle.cs" />

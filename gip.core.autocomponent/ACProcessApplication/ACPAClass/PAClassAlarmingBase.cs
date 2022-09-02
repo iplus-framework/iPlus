@@ -42,7 +42,7 @@ namespace gip.core.autocomponent
 
         private IACComponent _Session = null;
 
-#region Properties
+        #region Properties
 
         public static Dictionary<string, ACEventArgs> SVirtualEventArgs
         {
@@ -995,7 +995,8 @@ namespace gip.core.autocomponent
             var alarmMessenger = this.FindChildComponents<PAAlarmMessengerBase>(c => c is PAAlarmMessengerBase).FirstOrDefault();
             foreach (var item in result)
             {
-               item.ConfigIconState = alarmMessenger == null ? Global.ConfigIconState.NoConfig : alarmMessenger.CheckAlarmMsgInConfig(item);
+                List<ACRef<ACComponent>> temp = null;
+                item.ConfigIconState = alarmMessenger == null ? Global.ConfigIconState.NoConfig : alarmMessenger.CheckAlarmMsgInConfig(item, out temp);
             }
             return result;
         }
