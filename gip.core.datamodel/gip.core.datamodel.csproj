@@ -335,6 +335,8 @@
     <Compile Include="ACContainer\ACValueItemList.cs" />
     <Compile Include="ACContainer\ACObjectItem.cs" />
     <Compile Include="ACContainer\ACObjectItemList.cs" />
+    <Compile Include="Expand\ExpandBase.cs" />
+    <Compile Include="Expand\ExpandResult.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="ACHelperclasses\ThreadHandling\ProgressInfo.cs" />
     <Compile Include="ACHelperclasses\Runtime\TypeAnalyser.cs" />
