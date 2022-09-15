@@ -91,6 +91,8 @@ namespace gip.core.processapplication
                 FaultACK.ValueT = false;
             if (newSensorState != SensorState.ValueT)
             {
+                if (newSensorState != PANotifyState.Off)
+                    SwitchingFrequency.ValueT++;
                 if (newSensorState == PANotifyState.AlarmOrFault)
                     _SensorAlarmChanged = PAAlarmChangeState.NewAlarmOccurred;
                 else if (newSensorState == PANotifyState.Off)

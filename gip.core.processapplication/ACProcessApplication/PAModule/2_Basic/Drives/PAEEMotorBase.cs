@@ -138,9 +138,16 @@ namespace gip.core.processapplication
             if (newValue != RunState.ValueT && this.Root.Initialized)
             {
                 if (newValue)
+                {
                     TurnOnInstant.ValueT = DateTime.Now;
+                    SwitchingFrequency.ValueT++;
+                }
                 else
+                {
                     TurnOffInstant.ValueT = DateTime.Now;
+                    if (TurnOnInstant.ValueT > DateTime.MinValue && TurnOnInstant.ValueT < TurnOffInstant.ValueT)
+                        OperatingTime.ValueT += TurnOffInstant.ValueT - TurnOnInstant.ValueT;
+                }
             }
         }
 

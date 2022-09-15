@@ -82,9 +82,37 @@ namespace gip.core.processapplication
         #region Read-Values from PLC
         [ACPropertyBindingTarget(630, "Read from PLC", "en{'Position 1'}de{'Position 1'}", "", false, false, RemotePropID = 36)]
         public IACContainerTNet<Boolean> Pos1 { get; set; }
+        public void OnSetPos1(IACPropertyNetValueEvent valueEvent)
+        {
+            bool newValue = (valueEvent as ACPropertyValueEvent<bool>).Value;
+            if (newValue != Pos1.ValueT && this.Root.Initialized)
+            {
+                if (newValue)
+                {
+                    SwitchingFrequency.ValueT++;
+                    if (TurnOnInstant.ValueT > DateTime.MinValue && DateTime.Now > TurnOnInstant.ValueT)
+                        OperatingTime.ValueT += DateTime.Now - TurnOnInstant.ValueT;
+                    TurnOnInstant.ValueT = DateTime.Now;
+                }
+            }
+        }
 
         [ACPropertyBindingTarget(631, "Read from PLC", "en{'Position 2'}de{'Position 2'}", "", false, false, RemotePropID = 37)]
         public IACContainerTNet<Boolean> Pos2 { get; set; }
+        public void OnSetPos2(IACPropertyNetValueEvent valueEvent)
+        {
+            bool newValue = (valueEvent as ACPropertyValueEvent<bool>).Value;
+            if (newValue != Pos2.ValueT && this.Root.Initialized)
+            {
+                if (newValue)
+                {
+                    SwitchingFrequency.ValueT++;
+                    if (TurnOnInstant.ValueT > DateTime.MinValue && DateTime.Now > TurnOnInstant.ValueT)
+                        OperatingTime.ValueT += DateTime.Now - TurnOnInstant.ValueT;
+                    TurnOnInstant.ValueT = DateTime.Now;
+                }
+            }
+        }
         #endregion
 
         #region Write-Values to PLC

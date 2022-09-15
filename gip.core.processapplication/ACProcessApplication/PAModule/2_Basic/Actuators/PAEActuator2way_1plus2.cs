@@ -66,6 +66,20 @@ namespace gip.core.processapplication
         #region Read-Values from PLC
         [ACPropertyBindingTarget(730, "Read from PLC", "en{'Position 1+2'}de{'Stellung 1+2'}", "", false, false, RemotePropID = 43)]
         public IACContainerTNet<Boolean> Pos3 { get; set; }
+        public void OnSetPos3(IACPropertyNetValueEvent valueEvent)
+        {
+            bool newValue = (valueEvent as ACPropertyValueEvent<bool>).Value;
+            if (newValue != Pos3.ValueT && this.Root.Initialized)
+            {
+                if (newValue)
+                {
+                    SwitchingFrequency.ValueT++;
+                    if (TurnOnInstant.ValueT > DateTime.MinValue && DateTime.Now > TurnOnInstant.ValueT)
+                        OperatingTime.ValueT += DateTime.Now - TurnOnInstant.ValueT;
+                    TurnOnInstant.ValueT = DateTime.Now;
+                }
+            }
+        }
         #endregion
 
         #region Write-Values to PLC

@@ -40,13 +40,24 @@ namespace gip.core.processapplication
         #region Read-Values from PLC
         [ACPropertyBindingTarget(630, "Read from PLC", "en{'Is switched on'}de{'Eingeschaltet'}", "", false, false, RemotePropID = 37)]
         public IACContainerTNet<Boolean> IsSwitchedOn { get; set; }
-        //public void OnSetIsSwitchedOn(IACPropertyNetValueEvent valueEvent)
-        //{
-        //    bool newValue = (valueEvent as ACPropertyValueEvent<bool>).Value;
-        //    if (newValue != IsSwitchedOn.ValueT && this.Root.Initialized)
-        //    {
-        //    }
-        //}
+        public void OnSetIsSwitchedOn(IACPropertyNetValueEvent valueEvent)
+        {
+            bool newValue = (valueEvent as ACPropertyValueEvent<bool>).Value;
+            if (newValue != IsSwitchedOn.ValueT && this.Root.Initialized)
+            {
+                if (newValue)
+                {
+                    TurnOnInstant.ValueT = DateTime.Now;
+                    SwitchingFrequency.ValueT++;
+                }
+                else
+                {
+                    TurnOffInstant.ValueT = DateTime.Now;
+                    if (TurnOnInstant.ValueT > DateTime.MinValue && TurnOnInstant.ValueT < TurnOffInstant.ValueT)
+                        OperatingTime.ValueT += TurnOffInstant.ValueT - TurnOnInstant.ValueT;
+                }
+            }
+        }
 
         #endregion
 

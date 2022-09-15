@@ -56,8 +56,24 @@ namespace gip.core.processapplication
         public IACContainerTNet<String> InputAddress { get; set; }
         #endregion
 
+        #region Statistics
+        [ACPropertyBindingTarget(401, "Statistics", "en{'Switching frequency'}de{'Schalthäufigkeit'}", "", true, true, RemotePropID = 13)]
+        public IACContainerTNet<Int32> SwitchingFrequency { get; set; }
+
+        [ACPropertyBindingTarget(402, "Statistics", "en{'Total alarms'}de{'Anzahl Störungen'}", "", true, true, RemotePropID = 14)]
+        public IACContainerTNet<Int32> TotalAlarms { get; set; }
+
         #endregion
-        // Methods, Range: 400
+
+        #endregion
+
+        #region Methods, Range: 400
+        protected override void OnNewMsgAlarmLogCreated(MsgAlarmLog newLog)
+        {
+            base.OnNewMsgAlarmLogCreated(newLog);
+            TotalAlarms.ValueT++;
+        }
+        #endregion
 
         #region Handle execute helpers
 

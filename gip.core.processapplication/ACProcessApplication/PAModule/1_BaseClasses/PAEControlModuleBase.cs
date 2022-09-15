@@ -114,6 +114,12 @@ namespace gip.core.processapplication
             }
         }
 
+        protected override void OnNewMsgAlarmLogCreated(MsgAlarmLog newLog)
+        {
+            base.OnNewMsgAlarmLogCreated(newLog);
+            TotalAlarms.ValueT++;
+        }
+
 
         [ACPropertyBindingTarget(441, "Read from PLC", "en{'Allocated by Way'}de{'Belegt von Wegesteuerung'}", "", false, false)] //, RemotePropID = 24)]
         public IACContainerTNet<BitAccessForAllocatedByWay> AllocatedByWay { get; set; }

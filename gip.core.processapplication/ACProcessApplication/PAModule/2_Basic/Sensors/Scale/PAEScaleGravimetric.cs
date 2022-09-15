@@ -449,7 +449,10 @@ namespace gip.core.processapplication
             }
 
             if (resetStandStill)
+            {
                 NotStandStill.ValueT = false;
+                SwitchingFrequency.ValueT++;
+            }
         }
         #endregion
 
