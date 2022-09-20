@@ -551,11 +551,8 @@ namespace gip.core.autocomponent
                 _ReferenceList.DetachAndClear();
             using (ACMonitor.Lock(LockMemberList_20020))
             {
-                using (ACMonitor.Lock(LockMemberList_20020))
-                {
-                    if (_ACPropertyConfigValueList != null)
-                        _ACPropertyConfigValueList.ForEach(c => c.IsCachedValueSet = false);
-                }
+                if (_ACPropertyConfigValueList != null)
+                    _ACPropertyConfigValueList.ForEach(c => c.IsCachedValueSet = false);
             }
 
             if (InitState == ACInitState.Destructing)
