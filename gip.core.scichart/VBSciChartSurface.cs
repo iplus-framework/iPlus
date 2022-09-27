@@ -363,6 +363,7 @@ namespace gip.core.scichart
                     chartItem.ACProperty.PropertyChanged += ACProperty_PropertyChanged;
                 InitLine(chartItem);
             }
+            InitializeAutoRangeOfAxes();
         }
 
         private void ACProperty_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -986,7 +987,7 @@ namespace gip.core.scichart
                     if (this.XAxes.Where(c => c.AutoRange == AutoRange.Always).Any())
                         return AutoRange.Always;
                     else if (this.XAxes.Where(c => c.AutoRange == AutoRange.Once).Any())
-                        return this.DisplayAsArchive ? AutoRange.Always : AutoRange.Once;
+                        return this.DisplayAsArchive ? AutoRange.Once : AutoRange.Always;
                 }
                 return AutoRange.Never;
             }
@@ -1003,9 +1004,46 @@ namespace gip.core.scichart
                     if (this.YAxes.Where(c => c.AutoRange == AutoRange.Always).Any())
                         return AutoRange.Always;
                     else if (this.YAxes.Where(c => c.AutoRange == AutoRange.Once).Any())
-                        return this.DisplayAsArchive ? AutoRange.Always : AutoRange.Once;
+                        return this.DisplayAsArchive ? AutoRange.Once : AutoRange.Always;
                 }
                 return AutoRange.Never;
+            }
+        }
+
+        protected void InitializeAutoRangeOfAxes()
+        {
+            if (this.XAxis != null)
+                InitializeAutoRangeOfAxis(this.XAxis);
+            else if (this.XAxes != null)
+            {
+                foreach (IAxis axis in this.XAxes)
+                {
+                    InitializeAutoRangeOfAxis(axis);
+                }
+            }
+
+            if (this.YAxis != null)
+                InitializeAutoRangeOfAxis(this.YAxis);
+            else if (this.YAxes != null)
+            {
+                foreach (IAxis axis in this.YAxes)
+                {
+                    InitializeAutoRangeOfAxis(axis);
+                }
+            }
+        }
+
+        protected void InitializeAutoRangeOfAxis(IAxis axis)
+        {
+            AxisBase axisBase = axis as AxisBase;
+            if (axisBase != null)
+            {
+                ValueSource valueSource = DependencyPropertyHelper.GetValueSource(axisBase, AxisBase.AutoRangeProperty);
+                if ((valueSource == null)
+                    || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+                {
+                    axis.AutoRange = AutoRange.Always; // this.DisplayAsArchive ? AutoRange.Once : AutoRange.Always;
+                }
             }
         }
 

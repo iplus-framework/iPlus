@@ -103,15 +103,27 @@ namespace gip.core.autocomponent
             }
             ACComponent subscription = session.ACUrlCommand(subscriptionName) as ACComponent;
             if (subscription != null)
-            {
-                IACPropertyNetSource sourceProp = subscription.GetPropertyNet(acIdentifierProp) as IACPropertyNetSource;
-                if (sourceProp != null)
-                    return targetProp.BindPropertyToSource(sourceProp, out newTarget, out message, bindInDBIfConverterNeeded);
-                else
-                    message = String.Format("Property {0} doesn't exist in subscription {1} at {2}.", acIdentifierProp, subscriptionName, session.GetACUrl());
-            }
+                return BindProperty(subscription, targetProp, acIdentifierProp, out newTarget, out message, bindInDBIfConverterNeeded);
             else
                 message = String.Format("Subscription {0} not found at {1}.", subscriptionName, session.GetACUrl());
+            return PropBindingBindingResult.NotPossible;
+        }
+
+        public static PropBindingBindingResult BindProperty(IACComponent subscription, IACPropertyNetTarget targetProp, string acIdentifierProp,
+            out IACPropertyNetTarget newTarget, out string message,
+            bool bindInDBIfConverterNeeded = true)
+        {
+            newTarget = null;
+            if (subscription == null)
+            {
+                message = "Subscription is null";
+                return PropBindingBindingResult.NotPossible;
+            }
+            IACPropertyNetSource sourceProp = subscription.GetPropertyNet(acIdentifierProp) as IACPropertyNetSource;
+            if (sourceProp != null)
+                return targetProp.BindPropertyToSource(sourceProp, out newTarget, out message, bindInDBIfConverterNeeded);
+            else
+                message = String.Format("Property {0} doesn't exist in subscription {1} at {2}.", acIdentifierProp, subscription.ACIdentifier, subscription.GetACUrl());
             return PropBindingBindingResult.NotPossible;
         }
 
