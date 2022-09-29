@@ -134,7 +134,10 @@ namespace gip.core.reporthandler
                     {
                         // Error50562: Invalid BSOACUrl: {0}!
                         msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 141, "Error50562", printInfo.BSOACUrl);
+                        string stackTrace = System.Environment.StackTrace.ToString();
                         Messages.LogMessageMsg(msg);
+                        Messages.LogMessage(eMsgLevel.Warning, GetACUrl(), "Print", stackTrace);
+                        return msg;
                     }
 
                     if (QueuedPrinting)
