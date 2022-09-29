@@ -124,6 +124,19 @@ namespace gip.core.reporthandler
 
                 if (String.IsNullOrEmpty(printInfo.PrinterInfo.PrinterACUrl))
                 {
+                    ACClass bsoACClass = null;
+                    string acIdentifier = null;
+                    if (!string.IsNullOrEmpty(printInfo.BSOACUrl) && printInfo.BSOACUrl.Contains("#") && (printInfo.BSOACUrl.IndexOf("#") + 1) < printInfo.BSOACUrl.Length)
+                    {
+                        acIdentifier = printInfo.BSOACUrl.Substring(printInfo.BSOACUrl.IndexOf("#") + 1);
+                    }
+                    else
+                    {
+                        // Error50562: Invalid BSOACUrl: {0}!
+                        msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 141, "Error50562", printInfo.BSOACUrl);
+                        Messages.LogMessageMsg(msg);
+                    }
+
                     if (QueuedPrinting)
                     {
                         ACDispatchedDelegateQueue.PrintQueue.Add(() =>
@@ -132,14 +145,14 @@ namespace gip.core.reporthandler
                             // TODO: @aagincic place for implement BSO Pool
                             try
                             {
-                                string acIdentifier = printInfo.BSOACUrl.Substring(printInfo.BSOACUrl.IndexOf("#") + 1);
-                                ACClass bsoACClass = Root.Database.ContextIPlus.GetACType(acIdentifier);
+                                bsoACClass = Root.Database.ContextIPlus.GetACType(acIdentifier);
                                 bso = StartComponent(bsoACClass, bsoACClass,
                                     new ACValueList()
                                     {
-                                new ACValue(Const.ParamSeperateContext, typeof(bool), true),
-                                new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
+                                            new ACValue(Const.ParamSeperateContext, typeof(bool), true),
+                                            new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
                                     }) as ACBSO;
+
                                 if (bso == null)
                                 {
                                     // Error50489: Can't start Businessobject {0}.
@@ -182,8 +195,7 @@ namespace gip.core.reporthandler
                         // TODO: @aagincic place for implement BSO Pool
                         try
                         {
-                            string acIdentifier = printInfo.BSOACUrl.Substring(printInfo.BSOACUrl.IndexOf("#") + 1);
-                            ACClass bsoACClass = Root.Database.ContextIPlus.GetACType(acIdentifier);
+                            bsoACClass = Root.Database.ContextIPlus.GetACType(acIdentifier);
                             bso = StartComponent(bsoACClass, bsoACClass,
                                 new ACValueList()
                                 {
