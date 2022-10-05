@@ -38,6 +38,13 @@ namespace gip.core.webservices
         Task<WSResponse<ACClass>> GetACClassByBarcodeAsync(string barcodeID);
 #endif
 
+#if NETFRAMEWORK
+        [OperationContract]
+        [WebInvoke(Method = "POST", UriTemplate = CoreWebServiceConst.UriDumpPerfLog, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        WSResponse<bool> DumpPerfLog(string perfLog);
+#elif NETSTANDARD
+        Task<WSResponse<bool>> DumpPerfLog(string perfLog);
+#endif
 
         // Examples: https://github.com/jaredfaris/WCF-REST-JSON-Examples/blob/master/WcfService/IExampleService.cs
         // https://forums.asp.net/t/2090145.aspx?Is+it+possible+to+use+ApiControllers+from+a+separate+project

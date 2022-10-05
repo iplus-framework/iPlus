@@ -6,13 +6,6 @@ using System.Threading;
 
 namespace gip.core.datamodel
 {
-    public interface IRuntimeDump : IACComponent
-    {
-        PerformanceLogger PerfLogger {  get; }
-
-        void DumpStackTrace(Thread ignoreThread = null);
-    }
-
     public class PerformanceLogger
     {
         #region c'tors
@@ -54,6 +47,7 @@ namespace gip.core.datamodel
                 if (_Active.HasValue)
                     return _Active.Value;
                 _Active = false;
+#if NETFRAMEWORK
                 try
                 {
                     PerfLogConfiguration coreConfig = (PerfLogConfiguration)CommandLineHelper.ConfigCurrentDir.GetSection("Logging/PerfLogConfiguration");
@@ -72,6 +66,7 @@ namespace gip.core.datamodel
                     if (Database.Root != null && Database.Root.Messages != null)
                         Database.Root.Messages.LogException("PerformanceLogger", "Active", msg);
                 }
+#endif
                 return _Active.Value;
             }
             set
@@ -79,45 +74,9 @@ namespace gip.core.datamodel
                 _Active = value;
             }
         }
+#endregion
 
-
-        //private bool? _LogACState = null;
-        //public bool LogACState
-        //{
-        //    get
-        //    {
-        //        if (_LogACState.HasValue)
-        //            return _LogACState.Value;
-        //        _LogACState = false;
-        //        try
-        //        {
-        //            PerfLogConfiguration coreConfig = (PerfLogConfiguration)CommandLineHelper.ConfigCurrentDir.GetSection("Logging/PerfLogConfiguration");
-        //            if (coreConfig != null)
-        //            {
-        //                if (coreConfig.LogACState)
-        //                    _LogACState = coreConfig.LogACState;
-        //            }
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            string msg = e.Message;
-        //            if (e.InnerException != null && e.InnerException.Message != null)
-        //                msg += " Inner:" + e.InnerException.Message;
-
-        //            if (Database.Root != null && Database.Root.Messages != null)
-        //                Database.Root.Messages.LogException("PerformanceLogger", "LogACState", msg);
-        //        }
-        //        return _LogACState.Value;
-        //    }
-        //    set
-        //    {
-        //        _LogACState = value;
-        //    }
-        //}
-
-        #endregion
-
-        #region Methods
+#region Methods
         public PerformanceEvent Start(string url, int id, bool checkCallStack = false)
         {
             if (!Active)
@@ -201,7 +160,7 @@ namespace gip.core.datamodel
             sb.AppendLine(String.Format("=========== END OF {0} ===========", this.LogName));
             return sb.ToString();
         }
-        #endregion
+#endregion
 
     }
 }

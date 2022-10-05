@@ -16,6 +16,9 @@ namespace gip.core.webservices
         public const string UriACClass_BarcodeID = "ACClasses/barcode/{barcodeID}";
         public const string UriACClass_BarcodeID_F = "ACClasses/barcode/{0}";
 
+        public const string UriDumpPerfLog = "DumpPerfLog";
+
+
         public const string EmptyParam = "*";
 
         public static Guid? DecodeSessionIdFromCookieHeader(string cookieHeader)

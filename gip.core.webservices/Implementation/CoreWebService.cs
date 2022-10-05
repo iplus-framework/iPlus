@@ -2,6 +2,7 @@
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -156,6 +157,28 @@ namespace gip.core.webservices
                 return myServiceHost.GetRightsForSession(currentSessionID.Value);
             }
             return null;
+        }
+
+        public WSResponse<bool> DumpPerfLog(string perfLog)
+        {
+            if (!String.IsNullOrEmpty(perfLog))
+            {
+                PAJsonServiceHost myServiceHost = PAWebServiceBase.FindPAWebService<PAJsonServiceHost>(true);
+                if (myServiceHost != null)
+                {
+                    try
+                    {
+                        string dumpFilePath = string.Format("{0}PerfLogMobile_{1:yyyyMMdd_HHmmss}.txt", myServiceHost.Messages.LogFilePath, DateTime.Now);
+                        if (perfLog != null)
+                            File.WriteAllText(dumpFilePath, perfLog);
+                    }
+                    catch (Exception e)
+                    {
+                        myServiceHost.Messages.LogException(myServiceHost.GetACUrl(), "DumpPerfLog", e);
+                    }
+                }
+            }
+            return new WSResponse<bool>(true) { Message = null };
         }
     }
 }

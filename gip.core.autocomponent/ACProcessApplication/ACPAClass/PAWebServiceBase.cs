@@ -6,6 +6,7 @@ using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.Text;
+using System.Text.RegularExpressions;
 using gip.core.datamodel;
 
 namespace gip.core.autocomponent
@@ -303,6 +304,24 @@ namespace gip.core.autocomponent
                 OnAlarmDisappeared(IsServiceAlarm);
             }
             base.AcknowledgeAlarms();
+        }
+
+        public virtual PerformanceEvent OnMethodCalled(string methodName)
+        {
+            var vbDump = Root.VBDump;
+            if (vbDump == null)
+                return null;
+            return vbDump.PerfLogger.Start(this.GetACUrl() + "!" + methodName, 100);
+        }
+
+        public virtual void OnMethodReturned(PerformanceEvent perfEvent, string methodName)
+        {
+            if (perfEvent == null)
+                return;
+            var vbDump = Root.VBDump;
+            if (vbDump == null)
+                return;
+            vbDump.PerfLogger.Stop(this.GetACUrl() + "!" + methodName, 100, perfEvent);
         }
 
         #endregion

@@ -109,6 +109,7 @@
     <Compile Include="ACHelperclasses\Cryptography\ByteExtensions.cs" />
     <Compile Include="ACHelperclasses\EntityFramework\ScheduledOrderManager.cs" />
     <Compile Include="ACHelperclasses\Misc4Components\ACActionArgs.cs" />
+    <Compile Include="ACHelperclasses\Performance\IRuntimeDump.cs" />
     <Compile Include="ACHelperclasses\Runtime\ACActivator.cs" />
     <Compile Include="ACHelperclasses\ThreadHandling\ACBackgroundWorker.cs">
       <SubType>Component</SubType>
@@ -141,10 +142,6 @@
     <Compile Include="ACHelperclasses\Scripting\ExprParser.cs" />
     <Compile Include="ACHelperclasses\ACUrl\ACUrlCmdMessage.cs" />
     <Compile Include="ACHelperclasses\ThreadHandling\IVBProgress.cs" />
-    <Compile Include="ACHelperclasses\Performance\PerformanceEvent.cs" />
-    <Compile Include="ACHelperclasses\Performance\PerformanceLogger.cs" />
-    <Compile Include="ACHelperclasses\Performance\PerformanceLoggerInstance.cs" />
-    <Compile Include="ACHelperclasses\Performance\PerformanceStatistic.cs" />
     <Compile Include="ACHelperclasses\ThreadHandling\TaskProgressInfo.cs" />
     <Compile Include="ACHelperclasses\ThreadHandling\ACDelegateQueue.cs" />
     <Compile Include="ACHelperclasses\ThreadHandling\ACEntityOpQueue.cs" />

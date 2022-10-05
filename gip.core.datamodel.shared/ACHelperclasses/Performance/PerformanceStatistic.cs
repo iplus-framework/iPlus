@@ -48,6 +48,7 @@ namespace gip.core.datamodel
                 if (_MaxPerfEntries.HasValue)
                     return _MaxPerfEntries.Value;
                 _MaxPerfEntries = 20;
+#if NETFRAMEWORK
                 try
                 {
                     PerfLogConfiguration coreConfig = (PerfLogConfiguration)CommandLineHelper.ConfigCurrentDir.GetSection("Logging/PerfLogConfiguration");
@@ -66,13 +67,14 @@ namespace gip.core.datamodel
                     if (Database.Root != null && Database.Root.Messages != null)
                         Database.Root.Messages.LogException("PerformanceStatistic", "MaxPerfEntries", msg);
                 }
+#endif
                 return _MaxPerfEntries.Value;
             }
         }
-        #endregion
+#endregion
 
 
-        #region Methods
+#region Methods
         /// <summary>
         /// Start des Timers
         /// </summary>
@@ -142,6 +144,6 @@ namespace gip.core.datamodel
                 }
             }
         }
-        #endregion
+#endregion
     }
 }

@@ -17,15 +17,15 @@ namespace gip.iplus.startup
     class Program
     {
         private const string InstallScriptsFolderName = "InstallScripts";
-        public const string iPlusExeName = "gip.iplus.client.exe";
-        public const string iPlusMESExeName = "gip.mes.client.exe";
-        public const string iPlusVBExeName = "gip.variobatch.client.exe";
+        public const string C_iPlusExeName = "gip.iplus.client.exe";
+        public const string C_iPlusMESExeName = "gip.mes.client.exe";
+        public const string C_iPlusVBExeName = "gip.variobatch.client.exe";
 
         static void Main(string[] args)
         {
             if (args.Count() <= 0)
             {
-                System.Console.WriteLine("gip.iplus.startup.exe [Installation path Server] [Installations path local] optional:[\"Startparameter\"] optional: [Working directory of iPlus] optional: [DisableDelete (true/false default:false)]");
+                System.Console.WriteLine("gip.iplus.startup.exe [Installation path Server] [Installation path local] optional:[\"Start parameters\"] optional: [Working directory of iPlus] optional: [DisableDelete (true/false default:false)]");
                 System.Console.Read();
                 return;
             }
@@ -46,34 +46,36 @@ namespace gip.iplus.startup
                 else if (i == 3)
                     workingDirectory = args[i];
                 else if (i == 4)
-                    if(args[i].ToLower() == "true")
+                {
+                    if (args[i].ToLower() == "true")
                         disableDelete = true;
+                }
             }
 
             if (String.IsNullOrEmpty(sourceInstallPath))
             {
-                System.Console.WriteLine("Installationspfad des Servers nicht angegeben.");
+                System.Console.WriteLine("Installation path of server not set.");
                 System.Console.Read();
                 return;
             }
 
             if (!Directory.Exists(sourceInstallPath))
             {
-                System.Console.WriteLine("Installationspfad des Servers ist ungültig.");
+                System.Console.WriteLine("Invalid Installation path of server.");
                 System.Console.Read();
                 return;
             }
 
             if (String.IsNullOrEmpty(localInstallPath))
             {
-                System.Console.WriteLine("Installationspfad auf Client nicht angegeben.");
+                System.Console.WriteLine("Installation path of client not set.");
                 System.Console.Read();
                 return;
             }
 
             if (!Directory.Exists(localInstallPath))
             {
-                System.Console.WriteLine("Installationspfad des Clients ist ungültig.");
+                System.Console.WriteLine("Invalid Installation path of client.");
                 System.Console.Read();
                 return;
             }
@@ -103,7 +105,7 @@ namespace gip.iplus.startup
             }
             if (!isWriteAccess)
             {
-                System.Console.WriteLine("Keine Schreibrechte auf Installationspfad des Clients.");
+                System.Console.WriteLine("No rights for writing on installation path of client.");
                 System.Console.Read();
                 return;
             }
@@ -116,15 +118,15 @@ namespace gip.iplus.startup
             string[] extensions = { ".dll", ".exe", ".csdl", ".ssdl", ".msl", ".chm", ".cpl", ".inf", ".llx", ".ocx", ".lng", ".cpl", ".pdb" };
             IEnumerable<string> fileListSourcePath = Directory.EnumerateFiles(sourceInstallPath)
                                                               .Where(f =>      extensions.Any(ext => ext == Path.GetExtension(f).ToLower())
-                                                                            || f.ToLower().EndsWith(iPlusExeName+ ".config") 
-                                                                            || f.ToLower().EndsWith(iPlusMESExeName+ ".config")
-                                                                            || f.ToLower().EndsWith(iPlusVBExeName + ".config")
+                                                                            || f.ToLower().EndsWith(C_iPlusExeName+ ".config") 
+                                                                            || f.ToLower().EndsWith(C_iPlusMESExeName+ ".config")
+                                                                            || f.ToLower().EndsWith(C_iPlusVBExeName + ".config")
                                                                      );
             foreach (string sourcefilePath in fileListSourcePath)
             {
                 string fileName = Path.GetFileName(sourcefilePath);
                 string destFilePath = localInstallPath + "\\" + fileName;
-                if (fileName == iPlusExeName || fileName == iPlusMESExeName || fileName == iPlusVBExeName)
+                if (fileName == C_iPlusExeName || fileName == C_iPlusMESExeName || fileName == C_iPlusVBExeName)
                     pathIPlus = destFilePath;
                 bool copyFile = !File.Exists(destFilePath);
                 if (!copyFile)
@@ -144,9 +146,9 @@ namespace gip.iplus.startup
             {
                 IEnumerable<string> fileListLocalPath = Directory.EnumerateFiles(sourceInstallPath)
                                                                  .Where(f => extensions.Any(ext => ext == Path.GetExtension(f).ToLower())
-                                                                            || f.ToLower().EndsWith(iPlusExeName + ".config")
-                                                                            || f.ToLower().EndsWith(iPlusMESExeName + ".config")
-                                                                            || f.ToLower().EndsWith(iPlusVBExeName + ".config")
+                                                                            || f.ToLower().EndsWith(C_iPlusExeName + ".config")
+                                                                            || f.ToLower().EndsWith(C_iPlusMESExeName + ".config")
+                                                                            || f.ToLower().EndsWith(C_iPlusVBExeName + ".config")
                                                                      );
                 foreach (string localFilePath in fileListLocalPath)
                 {
