@@ -10,6 +10,12 @@ namespace gip.core.datamodel
     {
         PerformanceLogger PerfLogger {  get; }
 
+        int PerfTimeoutStackTrace { get; }
+
+        PerformanceEvent PerfLoggerStart(string url, int id, bool checkCallStack = false);
+
+        bool? PerfLoggerStop(string url, int id, PerformanceEvent perfEvent, int perfTimeoutStackTrace = 0);
+
         void DumpStackTrace(Thread ignoreThread = null);
     }
 }

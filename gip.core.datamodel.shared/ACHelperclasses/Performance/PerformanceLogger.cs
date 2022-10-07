@@ -38,7 +38,6 @@ namespace gip.core.datamodel
             }
         }
 
-
         private bool? _Active = null;
         public bool Active
         {

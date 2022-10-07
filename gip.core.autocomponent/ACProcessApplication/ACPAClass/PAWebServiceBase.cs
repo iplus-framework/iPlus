@@ -311,7 +311,7 @@ namespace gip.core.autocomponent
             var vbDump = Root.VBDump;
             if (vbDump == null)
                 return null;
-            return vbDump.PerfLogger.Start(this.GetACUrl() + "!" + methodName, 100);
+            return vbDump.PerfLoggerStart(this.GetACUrl() + "!" + methodName, 100);
         }
 
         public virtual void OnMethodReturned(PerformanceEvent perfEvent, string methodName)
@@ -321,7 +321,7 @@ namespace gip.core.autocomponent
             var vbDump = Root.VBDump;
             if (vbDump == null)
                 return;
-            vbDump.PerfLogger.Stop(this.GetACUrl() + "!" + methodName, 100, perfEvent);
+            vbDump.PerfLoggerStop(this.GetACUrl() + "!" + methodName, 100, perfEvent);
         }
 
         #endregion

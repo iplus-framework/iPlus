@@ -102,6 +102,8 @@ namespace gip.core.communication
             set;
         }
 
+        [ACPropertyInfo(true, 208, DefaultValue = 10000)]
+        public int PerfTimeoutStackTrace { get; set; }
 
         #endregion
 
@@ -153,39 +155,56 @@ namespace gip.core.communication
         #region public
         public virtual bool DoImportAndArchive(ACEventArgs fileInfoArgs)
         {
-            bool parseSucc = false;
-            _CurrentFileName = fileInfoArgs["FullPath"] as string;
-            switch (ParserType)
+            PerformanceEvent perfEvent = null;
+            var vbDump = Root.VBDump;
+            if (vbDump != null)
+                perfEvent = vbDump.PerfLoggerStart(this.GetACUrl() + "!" + nameof(DoImportAndArchive), 100);
+
+            try
             {
-                case PAXMLDocImportParserType.XMLReader:
-                    parseSucc = ParseWithXMLReader(CurrentFileName);
-                    break;
-                case PAXMLDocImportParserType.XMLSerializer:
-                    parseSucc = ParseWithXMLSerializer(CurrentFileName);
-                    break;
-                case PAXMLDocImportParserType.XMLDocument:
-                    parseSucc = ParseWithXMLDocument(CurrentFileName);
-                    break;
-                case PAXMLDocImportParserType.XDocument:
-                    parseSucc = ParseWithXDocument(CurrentFileName);
-                    break;
+                bool parseSucc = false;
+                _CurrentFileName = fileInfoArgs["FullPath"] as string;
+                switch (ParserType)
+                {
+                    case PAXMLDocImportParserType.XMLReader:
+                        parseSucc = ParseWithXMLReader(CurrentFileName);
+                        break;
+                    case PAXMLDocImportParserType.XMLSerializer:
+                        parseSucc = ParseWithXMLSerializer(CurrentFileName);
+                        break;
+                    case PAXMLDocImportParserType.XMLDocument:
+                        parseSucc = ParseWithXMLDocument(CurrentFileName);
+                        break;
+                    case PAXMLDocImportParserType.XDocument:
+                        parseSucc = ParseWithXDocument(CurrentFileName);
+                        break;
+                }
+
+                if (!String.IsNullOrWhiteSpace(ForwardDir))
+                    ForwardFile(CurrentFileName, ForwardDir);
+
+                // Archiviere falls nötig
+                if (parseSucc)
+                {
+                    string movePath = FindAndCreateArchivePath(CurrentFileName);
+                    MoveOrDeleteFile(ArchivingOn, movePath, CurrentFileName);
+                }
+                // Verschiebe in Mülleimer
+                else
+                {
+                    string movePath = FindAndCreateTrashPath(CurrentFileName);
+                    MoveOrDeleteFile(true, movePath, CurrentFileName);
+                }
+            }
+            finally
+            {
+                if (vbDump != null && perfEvent != null)
+                {
+                    bool? stoppedInTime = vbDump.PerfLoggerStop(this.GetACUrl() + "!" + nameof(DoImportAndArchive), 100, perfEvent, PerfTimeoutStackTrace);
+                    Messages.LogDebug(this.GetACUrl(), "DoImportAndArchive(Duration)", CurrentFileName);
+                }
             }
 
-            if (!String.IsNullOrWhiteSpace(ForwardDir))
-                ForwardFile(CurrentFileName, ForwardDir);
-
-            // Archiviere falls nötig
-            if (parseSucc)
-            {
-                string movePath = FindAndCreateArchivePath(CurrentFileName);
-                MoveOrDeleteFile(ArchivingOn, movePath, CurrentFileName);
-            }
-            // Verschiebe in Mülleimer
-            else
-            {
-                string movePath = FindAndCreateTrashPath(CurrentFileName);
-                MoveOrDeleteFile(true, movePath, CurrentFileName);
-            }
             return true;
         }
         #endregion

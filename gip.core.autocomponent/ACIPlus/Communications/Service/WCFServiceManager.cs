@@ -457,21 +457,21 @@ namespace gip.core.autocomponent
             }
             var vbDump = Root.VBDump;
 
-            //PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLogger.Start(ACIdentifier, 100, true) : null;
+            //PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACIdentifier, 100, true) : null;
             IACComponent projectService = forACComponent as ACComponentManager;
             if (projectService == null)
                 projectService = forACComponent.FindParentComponent<ACComponentManager>(c => c is ACComponentManager);
             //if (perfEvent != null)
-            //    vbDump.PerfLogger.Stop(ACIdentifier, 100, perfEvent);
+            //    vbDump.PerfLoggerStop(ACIdentifier, 100, perfEvent);
             if (projectService == null)
             {
                 return false;
             }
 
-            //perfEvent = vbDump != null ? vbDump.PerfLogger.Start(ACIdentifier, 101, true) : null;
+            //perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACIdentifier, 101, true) : null;
             enqueued = _ACPDispatchToProxies.Enqueue(projectService, eventArgs);
             //if (perfEvent != null)
-            //    vbDump.PerfLogger.Stop(ACIdentifier, 101, perfEvent);
+            //    vbDump.PerfLoggerStop(ACIdentifier, 101, perfEvent);
 
             // Signalisiere Thread, dass neues Event ansteht
             if (enqueued)

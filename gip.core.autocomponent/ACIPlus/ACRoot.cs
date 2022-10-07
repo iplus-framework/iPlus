@@ -731,15 +731,15 @@ namespace gip.core.autocomponent
             if ((_Communications == null) || (ACOperationMode != ACOperationModes.Live))
                 return;
             var vbDump = VBDump;
-            //PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLogger.Start(ACIdentifier, 100, true) : null;
+            //PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACIdentifier, 100, true) : null;
             _Communications.BroadcastPropertyValueToClients(eventArgs, forACComponent);
             //if (perfEvent != null)
-            //    vbDump.PerfLogger.Stop(ACIdentifier, 100, perfEvent);
+            //    vbDump.PerfLoggerStop(ACIdentifier, 100, perfEvent);
 
-            //perfEvent = vbDump != null ? vbDump.PerfLogger.Start(ACIdentifier, 101, true) : null;
+            //perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACIdentifier, 101, true) : null;
             SendPropertyValueDone(true, eventArgs, forACComponent);
             //if (perfEvent != null)
-            //    vbDump.PerfLogger.Stop(ACIdentifier, 101, perfEvent);
+            //    vbDump.PerfLoggerStop(ACIdentifier, 101, perfEvent);
         }
 
         /// <summary>
@@ -882,6 +882,8 @@ namespace gip.core.autocomponent
                 if (_Dump == null && !_DumpInstanceChecked)
                 {
                     RuntimeDump dump = ACUrlCommand("\\Service\\?VBDump") as RuntimeDump;
+                    if (dump == null)
+                        dump = ACUrlCommand("\\Environment\\?RuntimeDump") as RuntimeDump;
                     _DumpInstanceChecked = true;
                     if (dump != null)
                     {

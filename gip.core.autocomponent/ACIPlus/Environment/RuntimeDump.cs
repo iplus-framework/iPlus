@@ -73,6 +73,10 @@ namespace gip.core.autocomponent
                 return _PerfLogger;
             }
         }
+
+        [ACPropertyInfo(true, 200, DefaultValue = 5000)]
+        public int PerfTimeoutStackTrace { get; set; }
+
         #endregion
 
         #region Methods
@@ -150,6 +154,36 @@ namespace gip.core.autocomponent
 
 
         #region public
+
+        public PerformanceEvent PerfLoggerStart(string url, int id, bool checkCallStack = false)
+        {
+            if (PerfLogger == null)
+                return null;
+            return PerfLogger.Start(url, id, checkCallStack);
+
+        }
+
+        public bool? PerfLoggerStop(string url, int id, PerformanceEvent perfEvent, int perfTimeoutStackTrace = 0)
+        {
+            bool? bOk = null;
+            if (PerfLogger != null)
+                bOk = PerfLogger.Stop(url, id, perfEvent);
+            else
+            {
+                perfEvent.Stop();
+                bOk = true;
+            }
+            if (perfTimeoutStackTrace <= 0)
+                perfTimeoutStackTrace = this.PerfTimeoutStackTrace;
+            if (perfTimeoutStackTrace > 0 && perfEvent.ElapsedMilliseconds > perfTimeoutStackTrace)
+            {
+                string stackTrace = System.Environment.StackTrace;
+                Messages.LogDebug(this.GetACUrl(), "Stop()", String.Format("{0}, Duration: {1}", url, perfEvent.ElapsedMilliseconds.ToString()));
+                Messages.LogDebug(this.GetACUrl(), "Stop()", stackTrace);
+                bOk = false;
+            }
+            return bOk;
+        }
 #pragma warning disable CS0618
         /// <summary>
         ///   <para>

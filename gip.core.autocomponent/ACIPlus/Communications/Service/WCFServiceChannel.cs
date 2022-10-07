@@ -464,10 +464,10 @@ namespace gip.core.autocomponent
                             break;
 
                         var vbDump = Root.VBDump;
-                        PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLogger.Start(ACUrlForLogger, 121) : null;
+                        PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACUrlForLogger, 121) : null;
                         invokeSucc = _serviceOfPeer.InvokeRemote(acMessage);
                         if (perfEvent != null)
-                            vbDump.PerfLogger.Stop(ACUrlForLogger, 121, perfEvent);
+                            vbDump.PerfLoggerStop(ACUrlForLogger, 121, perfEvent);
 
                         if (invokeSucc && (acMessage.ACParameter != null) && (acMessage.ACParameter[0] != null))
                         {
@@ -693,32 +693,49 @@ namespace gip.core.autocomponent
 
             ACMethodInvocationResult messageResult = new ACMethodInvocationResult();
             var vbDump = Root.VBDump;
+            bool? stoppedInTime = null;
             if (acMessage.ACUrl[0] != '&')
             {
-                PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLogger.Start(ACUrlForLogger, 101) : null;
+                PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACUrlForLogger, 101) : null;
                 messageResult.MethodResult = Root.ACUrlCommand(acMessage.ACUrl, acMessage.ACParameter);
-                if (perfEvent != null)
-                    vbDump.PerfLogger.Stop(ACUrlForLogger, 101, perfEvent);
+                if (perfEvent != null && vbDump != null)
+                {
+                    stoppedInTime = vbDump.PerfLoggerStop(ACUrlForLogger, 101, perfEvent);
+                    if (stoppedInTime != null && !stoppedInTime.Value)
+                        Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 101)", acMessage.ACUrl);
+                }
                 WCFMessage acMessageResult = WCFMessage.NewACMessage(acMessage.ACUrlRequester, acMessage.ACUrl, acMessage.MethodInvokeRequestID, new Object[] { messageResult });
                 if (!acMessage.ACUrl.Contains("GetChildInstanceInfo"))
                     Messages.LogDebug(this.GetACUrl(), "WCFServiceChannel.ProcessACMessage()", String.Format("ACMethodInvocationResult: {0} {1}", acMessageResult.ACUrl, acMessageResult.MethodInvokeRequestID));
-                perfEvent = vbDump != null ? vbDump.PerfLogger.Start(ACUrlForLogger, 102) : null;
+                perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACUrlForLogger, 102) : null;
                 EnqeueMessageForPeer(acMessageResult);
-                if (perfEvent != null)
-                    vbDump.PerfLogger.Stop(ACUrlForLogger, 102, perfEvent);
+                if (perfEvent != null && vbDump != null)
+                {
+                    stoppedInTime = vbDump.PerfLoggerStop(ACUrlForLogger, 102, perfEvent);
+                    if (stoppedInTime != null && !stoppedInTime.Value)
+                        Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 102)", acMessage.ACUrl);
+                }
             }
             else
             {
-                PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLogger.Start(ACUrlForLogger, 111) : null;
+                PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACUrlForLogger, 111) : null;
                 messageResult.MethodResult = Root.IsEnabledACUrlCommand(acMessage.ACUrl.Substring(1), acMessage.ACParameter);
-                if (perfEvent != null)
-                    vbDump.PerfLogger.Stop(ACUrlForLogger, 111, perfEvent);
+                if (perfEvent != null && vbDump != null)
+                {
+                    stoppedInTime = vbDump.PerfLoggerStop(ACUrlForLogger, 111, perfEvent);
+                    if (stoppedInTime != null && !stoppedInTime.Value)
+                        Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 111)", acMessage.ACUrl);
+                }
                 WCFMessage acMessageResult = WCFMessage.NewACMessage(acMessage.ACUrlRequester, acMessage.ACUrl.Substring(1), acMessage.MethodInvokeRequestID, new Object[] { messageResult });
                 //Messages.LogDebug(this.GetACUrl(), "WCFServiceChannel.ProcessACMessage()", String.Format("ACMethodInvocationResult: {0} {1}", acMessageResult.ACUrl, acMessageResult.MethodInvokeRequestID));
-                perfEvent = vbDump != null ? vbDump.PerfLogger.Start(ACUrlForLogger, 112) : null;
+                perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACUrlForLogger, 112) : null;
                 EnqeueMessageForPeer(acMessageResult);
-                if (perfEvent != null)
-                    vbDump.PerfLogger.Stop(ACUrlForLogger, 112, perfEvent);
+                if (perfEvent != null && vbDump != null)
+                {
+                    stoppedInTime = vbDump.PerfLoggerStop(ACUrlForLogger, 112, perfEvent);
+                    if (stoppedInTime != null && !stoppedInTime.Value)
+                        Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 112)", acMessage.ACUrl);
+                }
             }
         }
 

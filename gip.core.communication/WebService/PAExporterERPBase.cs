@@ -97,6 +97,9 @@ namespace gip.core.communication
             get => ParentACComponent as PAExportERPGroup;
         }
 
+        [ACPropertyInfo(true, 208, DefaultValue = 10000)]
+        public int PerfTimeoutStackTrace { get; set; }
+
         #endregion
 
         #region Static methods
@@ -218,6 +221,10 @@ namespace gip.core.communication
         /// <param name="currentAsyncRMI">The current async remote inovker.</param>
         public virtual void BuildAndSend(ACMethod acMethod, DateTime sendTime, ACPointAsyncRMIWrap<ACComponent> currentAsyncRMI)
         {
+            PerformanceEvent perfEvent = null;
+            var vbDump = Root.VBDump;
+            if (vbDump != null)
+                perfEvent = vbDump.PerfLoggerStart(this.GetACUrl() + "!" + nameof(BuildAndSend), 100);
             try
             {
                 object objectToSend = CreateObject(acMethod);
@@ -291,6 +298,15 @@ namespace gip.core.communication
                 if(IsAlarmActive(IsExportingAlarm, msg.Message) == null)
                     Messages.LogMessageMsg(msg);
                 AddAlarm(msg);
+            }
+            finally
+            {
+                if (vbDump != null && perfEvent != null)
+                {
+                    bool? stoppedInTime = vbDump.PerfLoggerStop(this.GetACUrl() + "!" + nameof(BuildAndSend), 100, perfEvent, PerfTimeoutStackTrace);
+                    string bpSerialized = ACConvert.ObjectToXML(acMethod, true);
+                    Messages.LogDebug(this.GetACUrl(), "BuildAndSend(Duration)", bpSerialized);
+                }
             }
         }
 

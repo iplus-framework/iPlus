@@ -924,7 +924,7 @@ namespace gip.core.communication
 
             //String perfUrl = String.Format("{0}.DB{1}",ACIdentifier, dataBlock.DBNo);
             //var vbDump = this.Root.VBDump;
-            //PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLogger.Start(perfUrl, 100) : null;
+            //PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(perfUrl, 100) : null;
             
             bool readSucc = true;
             foreach (S7TCPDataBlockReadSegment readSegment in dataBlock.ReadSegmentsList)
@@ -962,7 +962,7 @@ namespace gip.core.communication
             }
 
             //if (perfEvent != null)
-            //    vbDump.PerfLogger.Stop(perfUrl, 100, perfEvent);
+            //    vbDump.PerfLoggerStop(perfUrl, 100, perfEvent);
 
             return readSucc;
         }
