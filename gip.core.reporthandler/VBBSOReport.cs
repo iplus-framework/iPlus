@@ -36,7 +36,6 @@ namespace gip.core.reporthandler
 
             ACInitScriptEngineContent();
 
-            _PrintServerList = ACPrintManager.GetPrintServers(Database.ContextIPlus);
             return true;
         }
 
@@ -271,7 +270,7 @@ namespace gip.core.reporthandler
             get
             {
                 if (_PrintServerList == null)
-                    _PrintServerList = new List<PrinterInfo>();
+                    _PrintServerList = ACPrintManager.GetPrintServers(Database.ContextIPlus);
                 return _PrintServerList;
             }
         }

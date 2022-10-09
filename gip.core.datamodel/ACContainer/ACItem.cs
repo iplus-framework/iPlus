@@ -123,7 +123,9 @@ namespace gip.core.datamodel
 
         public static string FactoryACUrlComponent(ACClass item)
         {
-            string url = item.GetACUrlComponent();
+            string url = item.ACURLComponentCached;
+            if (String.IsNullOrEmpty(url))
+                url = item.GetACUrlComponent();
             string pattern = @"\((\d*)\)";
             url = Regex.Replace(url, pattern, "()");
             return url;
