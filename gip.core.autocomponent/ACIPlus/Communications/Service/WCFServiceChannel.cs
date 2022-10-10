@@ -693,15 +693,14 @@ namespace gip.core.autocomponent
 
             ACMethodInvocationResult messageResult = new ACMethodInvocationResult();
             var vbDump = Root.VBDump;
-            bool? stoppedInTime = null;
             if (acMessage.ACUrl[0] != '&')
             {
                 PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACUrlForLogger, 101) : null;
                 messageResult.MethodResult = Root.ACUrlCommand(acMessage.ACUrl, acMessage.ACParameter);
                 if (perfEvent != null && vbDump != null)
                 {
-                    stoppedInTime = vbDump.PerfLoggerStop(ACUrlForLogger, 101, perfEvent);
-                    if (stoppedInTime != null && !stoppedInTime.Value)
+                    vbDump.PerfLoggerStop(ACUrlForLogger, 101, perfEvent);
+                    if (perfEvent.IsTimedOut)
                         Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 101)", acMessage.ACUrl);
                 }
                 WCFMessage acMessageResult = WCFMessage.NewACMessage(acMessage.ACUrlRequester, acMessage.ACUrl, acMessage.MethodInvokeRequestID, new Object[] { messageResult });
@@ -711,8 +710,8 @@ namespace gip.core.autocomponent
                 EnqeueMessageForPeer(acMessageResult);
                 if (perfEvent != null && vbDump != null)
                 {
-                    stoppedInTime = vbDump.PerfLoggerStop(ACUrlForLogger, 102, perfEvent);
-                    if (stoppedInTime != null && !stoppedInTime.Value)
+                    vbDump.PerfLoggerStop(ACUrlForLogger, 102, perfEvent);
+                    if (perfEvent.IsTimedOut)
                         Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 102)", acMessage.ACUrl);
                 }
             }
@@ -722,8 +721,8 @@ namespace gip.core.autocomponent
                 messageResult.MethodResult = Root.IsEnabledACUrlCommand(acMessage.ACUrl.Substring(1), acMessage.ACParameter);
                 if (perfEvent != null && vbDump != null)
                 {
-                    stoppedInTime = vbDump.PerfLoggerStop(ACUrlForLogger, 111, perfEvent);
-                    if (stoppedInTime != null && !stoppedInTime.Value)
+                    vbDump.PerfLoggerStop(ACUrlForLogger, 111, perfEvent);
+                    if (perfEvent.IsTimedOut)
                         Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 111)", acMessage.ACUrl);
                 }
                 WCFMessage acMessageResult = WCFMessage.NewACMessage(acMessage.ACUrlRequester, acMessage.ACUrl.Substring(1), acMessage.MethodInvokeRequestID, new Object[] { messageResult });
@@ -732,8 +731,8 @@ namespace gip.core.autocomponent
                 EnqeueMessageForPeer(acMessageResult);
                 if (perfEvent != null && vbDump != null)
                 {
-                    stoppedInTime = vbDump.PerfLoggerStop(ACUrlForLogger, 112, perfEvent);
-                    if (stoppedInTime != null && !stoppedInTime.Value)
+                    vbDump.PerfLoggerStop(ACUrlForLogger, 112, perfEvent);
+                    if (perfEvent.IsTimedOut)
                         Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 112)", acMessage.ACUrl);
                 }
             }

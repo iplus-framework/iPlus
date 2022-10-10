@@ -200,8 +200,9 @@ namespace gip.core.communication
             {
                 if (vbDump != null && perfEvent != null)
                 {
-                    bool? stoppedInTime = vbDump.PerfLoggerStop(this.GetACUrl() + "!" + nameof(DoImportAndArchive), 100, perfEvent, PerfTimeoutStackTrace);
-                    Messages.LogDebug(this.GetACUrl(), "DoImportAndArchive(Duration)", CurrentFileName);
+                    vbDump.PerfLoggerStop(this.GetACUrl() + "!" + nameof(DoImportAndArchive), 100, perfEvent, PerfTimeoutStackTrace);
+                    if (perfEvent.IsTimedOut)
+                        Messages.LogDebug(this.GetACUrl(), "DoImportAndArchive(Duration)", CurrentFileName);
                 }
             }
 

@@ -31,5 +31,25 @@ namespace gip.core.datamodel
                 return StartTime + Elapsed;
             }
         }
+
+        private bool _TimedOut = false;
+        public bool IsTimedOut
+        {
+            get
+            {
+                return _TimedOut;
+            }
+            set
+            {
+                _TimedOut = value;
+            }
+        }
+
+        public bool CalculateTimeout(int perfTimeoutMs)
+        {
+            if (perfTimeoutMs > 0)
+                _TimedOut = ElapsedMilliseconds > perfTimeoutMs;
+            return _TimedOut;
+        }
     }
 }

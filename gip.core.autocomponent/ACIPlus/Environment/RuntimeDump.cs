@@ -175,7 +175,7 @@ namespace gip.core.autocomponent
             }
             if (perfTimeoutStackTrace <= 0)
                 perfTimeoutStackTrace = this.PerfTimeoutStackTrace;
-            if (perfTimeoutStackTrace > 0 && perfEvent.ElapsedMilliseconds > perfTimeoutStackTrace)
+            if (perfEvent.CalculateTimeout(perfTimeoutStackTrace))
             {
                 string stackTrace = System.Environment.StackTrace;
                 Messages.LogDebug(this.GetACUrl(), "Stop()", String.Format("{0}, Duration: {1}", url, perfEvent.ElapsedMilliseconds.ToString()));

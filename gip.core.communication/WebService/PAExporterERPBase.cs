@@ -303,9 +303,12 @@ namespace gip.core.communication
             {
                 if (vbDump != null && perfEvent != null)
                 {
-                    bool? stoppedInTime = vbDump.PerfLoggerStop(this.GetACUrl() + "!" + nameof(BuildAndSend), 100, perfEvent, PerfTimeoutStackTrace);
-                    string bpSerialized = ACConvert.ObjectToXML(acMethod, true);
-                    Messages.LogDebug(this.GetACUrl(), "BuildAndSend(Duration)", bpSerialized);
+                    vbDump.PerfLoggerStop(this.GetACUrl() + "!" + nameof(BuildAndSend), 100, perfEvent, PerfTimeoutStackTrace);
+                    if (perfEvent.IsTimedOut)
+                    {
+                        string bpSerialized = ACConvert.ObjectToXML(acMethod, true);
+                        Messages.LogDebug(this.GetACUrl(), "BuildAndSend(Duration)", bpSerialized);
+                    }
                 }
             }
         }
