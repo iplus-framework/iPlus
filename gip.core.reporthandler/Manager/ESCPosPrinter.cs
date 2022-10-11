@@ -1,7 +1,6 @@
 ﻿using gip.core.datamodel;
 using gip.core.reporthandler.Flowdoc;
 using System.Windows.Documents;
-using System.Text;
 using System;
 using System.Threading;
 
@@ -9,8 +8,8 @@ using static ESCPOS.Commands;
 using static gip.core.reporthandler.ESCPosExt;
 using ESCPOS;
 using ESCPOS.Utils;
-using System.Collections.Generic;
 using System.Windows;
+using gip.core.layoutengine;
 
 namespace gip.core.reporthandler
 {
@@ -40,6 +39,61 @@ namespace gip.core.reporthandler
 
         #region Methods (ACPrintServerBase)
 
+        #region Methods -> Character Set
+        public static byte[] SelectCodeTable(byte codeTable)
+        {
+            return new byte[3]
+            {
+                27,
+                116,
+                codeTable
+            };
+        }
+
+        public static byte[] SelectInternationalCharacterSet(CharSet charSet)
+        {
+            return new byte[3]
+            {
+                27,
+                82,
+                (byte)charSet
+            };
+        }
+
+        public virtual byte[] GetESCPosCodePage(int codePage)
+        {
+            byte[] bytes = null;
+            switch(codePage)
+            {
+                case 1250:
+                    bytes = ESCPosPrinter.SelectCodeTable(45);
+                    break;
+                case 1251:
+                    bytes = Commands.SelectCodeTable(CodeTable.Cyrillic);
+                    break;
+                case 1252:
+                    bytes = Commands.SelectCodeTable(CodeTable.Windows1252);
+                    break;
+            }
+            return bytes;
+        }
+
+        public byte[] GetInternationalCharacterSet(string language)
+        {
+            byte[] bytes = null;
+            switch (language)
+            {
+                case "de-DE":
+                    bytes = Commands.SelectInternationalCharacterSet(CharSet.Germany);
+                    break;
+                case "hr-HR":
+                    bytes = ESCPosPrinter.SelectInternationalCharacterSet(CharSet.Germany);
+                    break;
+            }
+            return bytes;
+        }
+
+        #endregion
 
         #region Methods -> Render
 
@@ -80,6 +134,44 @@ namespace gip.core.reporthandler
             }
             return false;
         }
+
+        #region Methods -> Render -> FlowDoc
+
+        public override void OnRenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
+        {
+            VBFlowDocument vBFlowDocument = flowDoc as VBFlowDocument;
+
+           byte[] codePage = null;
+            byte[] internationalCharacterSet = null;
+            if (vBFlowDocument != null && vBFlowDocument.CodePage > 0)
+            {
+                codePage = GetESCPosCodePage(vBFlowDocument.CodePage);
+                if(vBFlowDocument.Language != null && vBFlowDocument.Language.GetEquivalentCulture() != null)
+                {
+                    internationalCharacterSet = GetInternationalCharacterSet(vBFlowDocument.Language.GetEquivalentCulture().Name);
+                }
+            }
+
+            if (codePage == null)
+            {
+                codePage = Commands.SelectCodeTable(CodeTable.Windows1252);
+            }
+
+
+            printContext.Main.Add(Commands.InitializePrinter);
+            printContext.Main = printContext.Main.Add(codePage);
+
+            if(internationalCharacterSet != null)
+            {
+                printContext.Main = printContext.Main.Add(internationalCharacterSet);
+            }
+
+            base.OnRenderFlowDocment(printContext, flowDoc);
+        }
+
+       
+
+        #endregion
 
         #region Methods -> Render -> Block
 

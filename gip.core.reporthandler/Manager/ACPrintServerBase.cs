@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Threading;
 using System.Threading;
 using System.IO;
+using gip.core.layoutengine;
 
 namespace gip.core.reporthandler
 {
@@ -356,7 +357,24 @@ namespace gip.core.reporthandler
         /// <exception cref="NotImplementedException"></exception>
         protected PrintContext GetPrintContext(FlowDocument flowDocument)
         {
-            ASCIIEncoding encoder = new ASCIIEncoding();
+            Encoding encoder = Encoding.GetEncoding(1252);
+            
+            if(flowDocument is VBFlowDocument)
+            {
+                VBFlowDocument vBFlowDocument = (VBFlowDocument)flowDocument;
+                if(vBFlowDocument != null && vBFlowDocument.CodePage > 0)
+                {
+                    try
+                    {
+                        encoder = Encoding.GetEncoding(vBFlowDocument.CodePage);
+                    }
+                    catch(Exception ex)
+                    {
+                        Messages.LogException(GetACUrl(), nameof(GetPrintContext), ex);
+                    }
+                }
+            }
+
             PrintContext printContext = new PrintContext();
             printContext.FlowDocument = flowDocument;
             printContext.Encoding = encoder;
@@ -372,7 +390,7 @@ namespace gip.core.reporthandler
 
         #region Methods -> Render -> Block
 
-        protected void OnRenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
+        public virtual void OnRenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
         {
             OnRenderBlocks(printContext, flowDoc.Blocks, BlockDocumentPosition.General);
         }
