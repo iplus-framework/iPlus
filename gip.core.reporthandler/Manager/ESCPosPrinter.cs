@@ -10,6 +10,7 @@ using ESCPOS;
 using ESCPOS.Utils;
 using System.Windows;
 using gip.core.layoutengine;
+using System.Text;
 
 namespace gip.core.reporthandler
 {
@@ -63,35 +64,44 @@ namespace gip.core.reporthandler
         public virtual byte[] GetESCPosCodePage(int codePage)
         {
             byte[] bytes = null;
-            switch(codePage)
+            switch (codePage)
             {
-                case 1250:
-                    bytes = ESCPosPrinter.SelectCodeTable(45);
+                case 20127: // Encoding.ASCII.CodePage (437)
+                    bytes = Commands.SelectCodeTable(CodeTable.USA); 
                     break;
-                case 1251:
+                case 850:
+                    bytes = Commands.SelectCodeTable(CodeTable.Multilingual);
+                    break;
+                case 852:
+                    bytes = Commands.SelectCodeTable(CodeTable.Latin2);
+                    break;
+                case 855:
                     bytes = Commands.SelectCodeTable(CodeTable.Cyrillic);
                     break;
                 case 1252:
                     bytes = Commands.SelectCodeTable(CodeTable.Windows1252);
                     break;
+                default:
+                    bytes = Commands.SelectCodeTable(CodeTable.USA);
+                    break;
             }
             return bytes;
         }
 
-        public byte[] GetInternationalCharacterSet(string language)
-        {
-            byte[] bytes = null;
-            switch (language)
-            {
-                case "de-DE":
-                    bytes = Commands.SelectInternationalCharacterSet(CharSet.Germany);
-                    break;
-                case "hr-HR":
-                    bytes = ESCPosPrinter.SelectInternationalCharacterSet(CharSet.Germany);
-                    break;
-            }
-            return bytes;
-        }
+        //public byte[] GetInternationalCharacterSet(string language)
+        //{
+        //    byte[] bytes = null;
+        //    switch (language)
+        //    {
+        //        case "de-DE":
+        //            bytes = Commands.SelectInternationalCharacterSet(CharSet.Germany);
+        //            break;
+        //        case "hr-HR":
+        //            bytes = ESCPosPrinter.SelectInternationalCharacterSet(CharSet.Germany);
+        //            break;
+        //    }
+        //    return bytes;
+        //}
 
         #endregion
 
@@ -139,33 +149,8 @@ namespace gip.core.reporthandler
 
         public override void OnRenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
         {
-            VBFlowDocument vBFlowDocument = flowDoc as VBFlowDocument;
-
-           byte[] codePage = null;
-            byte[] internationalCharacterSet = null;
-            if (vBFlowDocument != null && vBFlowDocument.CodePage > 0)
-            {
-                codePage = GetESCPosCodePage(vBFlowDocument.CodePage);
-                if(vBFlowDocument.Language != null && vBFlowDocument.Language.GetEquivalentCulture() != null)
-                {
-                    internationalCharacterSet = GetInternationalCharacterSet(vBFlowDocument.Language.GetEquivalentCulture().Name);
-                }
-            }
-
-            if (codePage == null)
-            {
-                codePage = Commands.SelectCodeTable(CodeTable.Windows1252);
-            }
-
-
             printContext.Main.Add(Commands.InitializePrinter);
-            printContext.Main = printContext.Main.Add(codePage);
-
-            if(internationalCharacterSet != null)
-            {
-                printContext.Main = printContext.Main.Add(internationalCharacterSet);
-            }
-
+            printContext.Main = printContext.Main.Add(GetESCPosCodePage(printContext.Encoding.CodePage));
             base.OnRenderFlowDocment(printContext, flowDoc);
         }
 

@@ -357,21 +357,17 @@ namespace gip.core.reporthandler
         /// <exception cref="NotImplementedException"></exception>
         protected PrintContext GetPrintContext(FlowDocument flowDocument)
         {
-            Encoding encoder = Encoding.GetEncoding(1252);
-            
-            if(flowDocument is VBFlowDocument)
+            Encoding encoder = Encoding.ASCII;
+            VBFlowDocument vBFlowDocument = flowDocument as VBFlowDocument;
+            if (vBFlowDocument != null && vBFlowDocument.CodePage > 0)
             {
-                VBFlowDocument vBFlowDocument = (VBFlowDocument)flowDocument;
-                if(vBFlowDocument != null && vBFlowDocument.CodePage > 0)
+                try
                 {
-                    try
-                    {
-                        encoder = Encoding.GetEncoding(vBFlowDocument.CodePage);
-                    }
-                    catch(Exception ex)
-                    {
-                        Messages.LogException(GetACUrl(), nameof(GetPrintContext), ex);
-                    }
+                    encoder = Encoding.GetEncoding(vBFlowDocument.CodePage);
+                }
+                catch(Exception ex)
+                {
+                    Messages.LogException(GetACUrl(), nameof(GetPrintContext), ex);
                 }
             }
 
