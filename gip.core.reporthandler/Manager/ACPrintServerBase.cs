@@ -45,7 +45,7 @@ namespace gip.core.reporthandler
             }
             _DelegateQueue.StartWorkerThreadSTA();
             //_DelegateQueue.StartWorkerThread();
-            
+
             return true;
         }
 
@@ -63,7 +63,7 @@ namespace gip.core.reporthandler
         public override bool ACPostInit()
         {
             bool baseReturn = base.ACPostInit();
-           
+
             _ = _IPAddress;
             _ = _Port;
             _ = _SendTimeout;
@@ -289,11 +289,11 @@ namespace gip.core.reporthandler
         public virtual ACBSO GetACBSO(Guid bsoClassID, PAOrderInfo pAOrderInfo)
         {
             ACClass bsoACClass = Root.Database.ContextIPlus.GetACType(bsoClassID);
-            ACBSO acBSO = StartComponent(bsoACClass, bsoACClass, 
-                new ACValueList() 
-                { 
-                    new ACValue(Const.ParamSeperateContext, typeof(bool), true), 
-                    new ACValue(Const.SkipSearchOnStart, typeof(bool), true) 
+            ACBSO acBSO = StartComponent(bsoACClass, bsoACClass,
+                new ACValueList()
+                {
+                    new ACValue(Const.ParamSeperateContext, typeof(bool), true),
+                    new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
                 }) as ACBSO;
             if (acBSO == null)
                 return null;
@@ -375,16 +375,17 @@ namespace gip.core.reporthandler
 
             int? codePage = null;
 
-            if(CodePage > 0)
-            {
-                codePage = CodePage;
-            }
-            else if (vBFlowDocument != null && vBFlowDocument.CodePage > 0)
+            if (vBFlowDocument != null && vBFlowDocument.CodePage > 0)
             {
                 codePage = vBFlowDocument.CodePage;
             }
+            else if (CodePage > 0)
+            {
+                codePage = CodePage;
+            }
 
-            if(codePage != null)
+
+            if (codePage != null)
             {
                 try
                 {
@@ -591,7 +592,7 @@ namespace gip.core.reporthandler
             switch (acMethodName)
             {
                 case nameof(Print):
-                    Print((Guid) acParameter[0],
+                    Print((Guid)acParameter[0],
                           acParameter[1] as string,
                           acParameter[2] as PAOrderInfo,
                           (int)acParameter[3]);
