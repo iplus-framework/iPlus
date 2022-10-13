@@ -11,6 +11,7 @@ using System.Windows.Threading;
 using System.Threading;
 using System.IO;
 using gip.core.layoutengine;
+using System.Xaml;
 
 namespace gip.core.reporthandler
 {
@@ -30,6 +31,7 @@ namespace gip.core.reporthandler
             _SendTimeout = new ACPropertyConfigValue<int>(this, "SendTimeout", 0);
             _ReceiveTimeout = new ACPropertyConfigValue<int>(this, "ReceiveTimeout", 0);
             _PrintTries = new ACPropertyConfigValue<int>(this, "PrintTries", 1);
+            _CodePage = new ACPropertyConfigValue<int>(this, "CodePage", 0);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -43,7 +45,7 @@ namespace gip.core.reporthandler
             }
             _DelegateQueue.StartWorkerThreadSTA();
             //_DelegateQueue.StartWorkerThread();
-            
+
             return true;
         }
 
@@ -61,11 +63,14 @@ namespace gip.core.reporthandler
         public override bool ACPostInit()
         {
             bool baseReturn = base.ACPostInit();
-            string tempIpAddress = IPAddress;
-            int temp = Port;
-            temp = SendTimeout;
-            temp = ReceiveTimeout;
-            temp = PrintTries;
+
+            _ = _IPAddress;
+            _ = _Port;
+            _ = _SendTimeout;
+            _ = _ReceiveTimeout;
+            _ = _PrintTries;
+            _ = _CodePage;
+
             return baseReturn;
         }
 
@@ -131,6 +136,14 @@ namespace gip.core.reporthandler
         {
             get => _PrintTries.ValueT;
             set => _PrintTries.ValueT = value;
+        }
+
+        private ACPropertyConfigValue<int> _CodePage;
+        [ACPropertyConfig("en{'Code Page'}de{'Code Page'}")]
+        public int CodePage
+        {
+            get => _CodePage.ValueT;
+            set => _CodePage.ValueT = value;
         }
 
         private ACDispatchedDelegateQueue _DelegateQueue = null;
@@ -276,11 +289,11 @@ namespace gip.core.reporthandler
         public virtual ACBSO GetACBSO(Guid bsoClassID, PAOrderInfo pAOrderInfo)
         {
             ACClass bsoACClass = Root.Database.ContextIPlus.GetACType(bsoClassID);
-            ACBSO acBSO = StartComponent(bsoACClass, bsoACClass, 
-                new ACValueList() 
-                { 
-                    new ACValue(Const.ParamSeperateContext, typeof(bool), true), 
-                    new ACValue(Const.SkipSearchOnStart, typeof(bool), true) 
+            ACBSO acBSO = StartComponent(bsoACClass, bsoACClass,
+                new ACValueList()
+                {
+                    new ACValue(Const.ParamSeperateContext, typeof(bool), true),
+                    new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
                 }) as ACBSO;
             if (acBSO == null)
                 return null;
@@ -359,13 +372,26 @@ namespace gip.core.reporthandler
         {
             Encoding encoder = Encoding.ASCII;
             VBFlowDocument vBFlowDocument = flowDocument as VBFlowDocument;
+
+            int? codePage = null;
+
             if (vBFlowDocument != null && vBFlowDocument.CodePage > 0)
+            {
+                codePage = vBFlowDocument.CodePage;
+            }
+            else if (CodePage > 0)
+            {
+                codePage = CodePage;
+            }
+
+
+            if (codePage != null)
             {
                 try
                 {
-                    encoder = Encoding.GetEncoding(vBFlowDocument.CodePage);
+                    encoder = Encoding.GetEncoding(codePage.Value);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Messages.LogException(GetACUrl(), nameof(GetPrintContext), ex);
                 }
@@ -566,7 +592,7 @@ namespace gip.core.reporthandler
             switch (acMethodName)
             {
                 case nameof(Print):
-                    Print((Guid) acParameter[0],
+                    Print((Guid)acParameter[0],
                           acParameter[1] as string,
                           acParameter[2] as PAOrderInfo,
                           (int)acParameter[3]);
