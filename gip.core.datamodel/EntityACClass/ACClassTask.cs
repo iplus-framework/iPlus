@@ -53,22 +53,87 @@ namespace gip.core.datamodel
             entity.IsDynamic = true;
             entity.ACIdentifier = "";
             // Bei Systembelegung gibt es keine Vorbelegung, da hier kein Customizing erwünscht ist
-            if (parentACObject is ACClassTask)
+            if (parentACObject != null && parentACObject is ACClassTask)
             {
-                using (ACMonitor.Lock(database.QueryLock_1X000))
-                {
-                    entity.ACClassTask1_ParentACClassTask = parentACObject as ACClassTask;
-                    entity.IsTestmode = entity.ACClassTask1_ParentACClassTask.IsTestmode;
-                }
+                //using (ACMonitor.Lock(database.QueryLock_1X000))
+                //{
+                entity.ACClassTask1_ParentACClassTask = parentACObject as ACClassTask;
+                entity.IsTestmode = (parentACObject as ACClassTask).IsTestmode;
+                //}
             }
-            else
-            {
-                entity.IsTestmode = false;
-            }
+            //else
+            //{
+            //    entity.IsTestmode = false;
+            //}
 
             entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
         }
+
+        #region Fix referenced for avoiding Task-Queue-Collisions
+        ACClassTask _NewParentACClassTaskForQueue;
+        public ACClassTask NewParentACClassTaskForQueue
+        {
+            get
+            {
+                return _NewParentACClassTaskForQueue;
+            }
+            set
+            {
+                _NewParentACClassTaskForQueue = value;
+                //ACClassTask1_ParentACClassTask = value;
+            }
+        }
+
+        ACProgram _NewACProgramForQueue;
+        public ACProgram NewACProgramForQueue
+        {
+            get
+            {
+                return _NewACProgramForQueue;
+            }
+            set
+            {
+                _NewACProgramForQueue = value;
+                //ACProgram = value;
+            }
+        }
+
+        ACClassWF _NewContentACClassWFForQueue;
+        public ACClassWF NewContentACClassWFForQueue
+        {
+            get
+            {
+                return _NewContentACClassWFForQueue;
+            }
+            set
+            {
+                _NewContentACClassWFForQueue = value;
+                //ContentACClassWF = value;
+            }
+        }
+
+        ACClass _NewTaskTypeACClassForQueue;
+        public ACClass NewTaskTypeACClassForQueue
+        {
+            get
+            {
+                return _NewTaskTypeACClassForQueue;
+            }
+            set
+            {
+                _NewTaskTypeACClassForQueue = value;
+            }
+        }
+
+        public void PublishToChangeTrackerInQueue()
+        {
+            this.ACClassTask1_ParentACClassTask = _NewParentACClassTaskForQueue;
+            this.ACProgram = _NewACProgramForQueue;
+            this.ContentACClassWF = _NewContentACClassWFForQueue;
+            this.TaskTypeACClass = _NewTaskTypeACClassForQueue;
+        }
+        #endregion
 
         #endregion
 
@@ -100,15 +165,25 @@ namespace gip.core.datamodel
         {
             get
             {
-                var context = this.GetObjectContext();
-                if (context != null)
+                ACClassTask parentTask = null;
+                if (ACClassTask1_ParentACClassTaskReference.IsLoaded)
+                    parentTask = ACClassTask1_ParentACClassTaskReference.Value;
+                if (parentTask == null)
+                    parentTask = NewParentACClassTaskForQueue;
+                if (parentTask == null)
                 {
-                    using (ACMonitor.Lock(context.QueryLock_1X000))
+                    var context = this.GetObjectContext();
+                    if (context != null)
                     {
-                        return ACClassTask1_ParentACClassTask;
+                        using (ACMonitor.Lock(context.QueryLock_1X000))
+                        {
+                            return ACClassTask1_ParentACClassTask;
+                        }
                     }
+                    else
+                        parentTask = ACClassTask1_ParentACClassTask;
                 }
-                return ACClassTask1_ParentACClassTask;
+                return parentTask;
             }
         }
 

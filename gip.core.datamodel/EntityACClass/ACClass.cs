@@ -342,9 +342,9 @@ namespace gip.core.datamodel
         /// <param name="database">The database.</param>
         void DeleteACClassRecursiveInternal(Database database)
         {
-            if (ACClass_ParentACClass.Any())
+            if (Childs.Any())
             {
-                foreach (var acClassChild in ACClass_ParentACClass.ToList())
+                foreach (var acClassChild in Childs)
                 {
                     acClassChild.DeleteACClassRecursiveInternal(database);
                 }
@@ -364,7 +364,6 @@ namespace gip.core.datamodel
         /// <param name="database">The database.</param>
         public Msg IsEnabledDeleteRecursive(Database database)
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 return IsEnabledDeleteRecursiveLocked(database);
@@ -383,7 +382,7 @@ namespace gip.core.datamodel
                 return msg;
 
             // Unter-ACClass überprüfen
-            foreach (var acClassChild in ACClass_ParentACClass)
+            foreach (var acClassChild in Childs)
             {
                 Msg msg2 = acClassChild.IsEnabledDeleteRecursiveLocked(database);
                 if (msg2 != null)
@@ -399,7 +398,6 @@ namespace gip.core.datamodel
         /// <returns>System.Int32.</returns>
         public int CountDesignsRecursive()
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 return CountDesignsRecursiveLocked();
@@ -413,7 +411,7 @@ namespace gip.core.datamodel
         private int CountDesignsRecursiveLocked()
         {
             int count = this.ACClassDesign_ACClass.Count();
-            foreach (var acClass in this.ACClass_ParentACClass)
+            foreach (var acClass in this.Childs)
             {
                 count += acClass.CountDesignsRecursiveLocked();
             }
@@ -454,11 +452,18 @@ namespace gip.core.datamodel
         {
             get
             {
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                ACPackage acPackage = null;
+                if (ACPackageReference.IsLoaded)
+                    acPackage = ACPackageReference.Value;
+                if (acPackage == null)
                 {
-                    if (ACPackage == null)
-                        return false;
+                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    {
+                        acPackage = ACPackage;
+                    }
                 }
+                if (acPackage == null)
+                    return false;
 
                 if (_IsPackageLicensed.HasValue && !_IsPackageLicensed.Value)
                     return false;
@@ -466,20 +471,19 @@ namespace gip.core.datamodel
                 if (!_IsPackageLicensed.HasValue && !string.IsNullOrEmpty(this.AssemblyQualifiedName) && ObjectType != null && ObjectType.GetCustomAttributes(typeof(ACClassInfo), false).Any())
                 {
                     ACClassInfo acClassInfo = ObjectType.GetCustomAttributes(typeof(ACClassInfo), false).First() as ACClassInfo;
-
                     if (acClassInfo.ACPackageName == Const.PackName_VarioSystem || acClassInfo.ACPackageName == Const.PackName_System)
                     {
                         _IsPackageLicensed = true;
                         return true;
                     }
 
-                    if (acClassInfo.ACPackageName != ACPackage.ACPackageName) // Es wurde die Packagezuordnung in der Datenbank manipuliert
+                    if (acClassInfo.ACPackageName != acPackage.ACPackageName) // Es wurde die Packagezuordnung in der Datenbank manipuliert
                     {
                         _IsPackageLicensed = false;
                         return _IsPackageLicensed.Value;
                     }
                 }
-                return ACPackage.IsLicensed;
+                return acPackage.IsLicensed;
             }
         }
         #endregion
@@ -593,7 +597,6 @@ namespace gip.core.datamodel
         [ACMethodInfo("", "", 9999)]
         public override string GetACUrlComponent(IACObject rootACObject = null)
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 return GetACUrlComponentLocked(rootACObject);
@@ -694,7 +697,6 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public IACType GetTypeByACUrlComponent(string acUrlComponent)
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 return GetTypeByACUrlComponentLocked(acUrlComponent);
@@ -719,7 +721,7 @@ namespace gip.core.datamodel
                 case ACUrlHelper.UrlKeys.Child:
                     {
                         ACClass acClassChild;
-                        var query = ACClass_ParentACClass.Where(c => c.ACIdentifier == acUrlHelper.ACUrlPart);
+                        var query = Childs.Where(c => c.ACIdentifier == acUrlHelper.ACUrlPart);
                         if (!query.Any())
                         {
                             var queryProp = Properties.Where(c => c.ACIdentifier == acUrlHelper.ACUrlPart);
@@ -794,13 +796,28 @@ namespace gip.core.datamodel
         {
             get
             {
-
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                IACObject parentACObject = null;
+                if (ACClass1_ParentACClassReference.IsLoaded)
+                    parentACObject = ACClass1_ParentACClassReference.Value;
+                if (parentACObject == null)
                 {
-                    if (ACClass1_ParentACClass != null)
-                        return ACClass1_ParentACClass;
-                    return ACProject;
+                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    {
+                        parentACObject = ACClass1_ParentACClass;
+                    }
                 }
+                if (parentACObject != null)
+                    return parentACObject;
+                if (ACProjectReference.IsLoaded)
+                    parentACObject = ACProjectReference.Value;
+                if (parentACObject == null)
+                {
+                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    {
+                        parentACObject = ACProject;
+                    }
+                }
+                return parentACObject;
             }
         }
 
@@ -854,7 +871,7 @@ namespace gip.core.datamodel
                             return Designs.Where(c => c.ACIdentifier == filterValues[0]).FirstOrDefault();
                         break;
                     case ACClass.ClassName:
-                        return ACClass_ParentACClass.Where(c => c.ACIdentifier == filterValues[0]).FirstOrDefault();
+                        return Childs.Where(c => c.ACIdentifier == filterValues[0]).FirstOrDefault();
                     case ACClassConfig.ClassName:
                         return ConfigurationEntries.Where(c => c.LocalConfigACUrl == filterValues[0]).FirstOrDefault();
                     case ACClassPropertyRelation.ClassName:
@@ -920,10 +937,10 @@ namespace gip.core.datamodel
 
             bool resultDB;
 
-            using (ACMonitor.Lock(this.Database.QueryLock_1X000))
-            {
+            //using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+            //{
                 resultDB = baseClass.IsBaseClassFromLocked(this);
-            }
+            //}
             this.Database.RegisterDerivedClass(baseClass.ACClassID, this.ACClassID, resultDB);
             return resultDB;
         }
@@ -949,10 +966,10 @@ namespace gip.core.datamodel
             if (String.IsNullOrEmpty(baseClassACIdentifier))
                 return false;
 
-            using (ACMonitor.Lock(this.Database.QueryLock_1X000))
-            {
+            //using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+            //{
                 return IsBaseClassFromLocked(this, baseClassACIdentifier);
-            }
+            //}
         }
 
 
@@ -1002,7 +1019,7 @@ namespace gip.core.datamodel
                 i++;
                 if (superClass._ACClassID == this.ACClassID)
                     return true;
-                superClass = superClass.ACClass1_BasedOnACClass;
+                superClass = superClass.BaseClass;
                 if (i > 1000)
                 {
                     throw new StackOverflowException("Class is recursive derived!");
@@ -1023,7 +1040,7 @@ namespace gip.core.datamodel
                 i++;
                 if (superClass.ACIdentifier == baseClassACIdentifier)
                     return true;
-                superClass = superClass.ACClass1_BasedOnACClass;
+                superClass = superClass.BaseClass;
                 if (i > 1000)
                 {
                     throw new StackOverflowException("Class is recursive derived!");
@@ -1061,10 +1078,17 @@ namespace gip.core.datamodel
         {
             get
             {
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                ACClass baseClass = null;
+                if (ACClass1_BasedOnACClassReference.IsLoaded)
+                    baseClass = ACClass1_BasedOnACClassReference.Value;
+                if (baseClass == null)
                 {
-                    return ACClass1_BasedOnACClass;
+                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    {
+                        baseClass = ACClass1_BasedOnACClass;
+                    }
                 }
+                return baseClass;
             }
         }
 
@@ -1079,6 +1103,8 @@ namespace gip.core.datamodel
         {
             get
             {
+                if (this.ACClass_ParentACClass.IsLoaded)
+                    return this.ACClass_ParentACClass.ToArray();
                 using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                 {
                     return this.ACClass_ParentACClass.ToArray();
@@ -1095,10 +1121,10 @@ namespace gip.core.datamodel
             get
             {
                 List<ACClass> acClassList = new List<ACClass>();
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
-                {
+                //using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                //{
                     FillClassHierarchyList(ref acClassList);
-                }
+                //}
                 return acClassList;
             }
         }
@@ -1142,10 +1168,16 @@ namespace gip.core.datamodel
         {
             get
             {
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                if (!string.IsNullOrEmpty(this.AssemblyQualifiedName))
                 {
-                    return BaseClassWithASQNLocked;
+                    return this;
                 }
+
+                if (this.BaseClass != null)
+                {
+                    return this.BaseClass.BaseClassWithASQN;
+                }
+                return null;
             }
         }
 
@@ -1160,10 +1192,10 @@ namespace gip.core.datamodel
             get
             {
                 List<ACClass> acClassList = new List<ACClass>();
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
-                {
+                //using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                //{
                     FillListWithChildsInHierarchy(ref acClassList);
-                }
+                //}
                 return acClassList.OrderBy(c => c.ACIdentifier);
             }
         }
@@ -1181,10 +1213,7 @@ namespace gip.core.datamodel
             {
                 if (_InheritanceLevel.HasValue)
                     return _InheritanceLevel.Value;
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
-                {
-                    _InheritanceLevel = ACClass1_BasedOnACClass != null ? ACClass1_BasedOnACClass.InheritanceLevel + 1 : 0;
-                }
+                _InheritanceLevel = BaseClass != null ? BaseClass.InheritanceLevel + 1 : 0;
                 return _InheritanceLevel.Value;
             }
         }
@@ -1226,10 +1255,34 @@ namespace gip.core.datamodel
         {
             get
             {
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                //using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                //{
+                //    return RelatedWorkflowClassLocked;
+                //}
+                if (ACKind == Global.ACKinds.TPWGroup ||
+                    ACKind == Global.ACKinds.TPWNode ||
+                    ACKind == Global.ACKinds.TPWNodeMethod ||
+                    ACKind == Global.ACKinds.TPWNodeWorkflow ||
+                    ACKind == Global.ACKinds.TPWNodeStart ||
+                    ACKind == Global.ACKinds.TPWNodeEnd ||
+                    ACKind == Global.ACKinds.TPWNodeStatic)
+                    return this;
+                ACClass pwClassRef = null;
+                if (ACClass1_PWACClassReference.IsLoaded)
+                    pwClassRef = ACClass1_PWACClassReference.Value;
+                else
                 {
-                    return RelatedWorkflowClassLocked;
+                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    {
+                        pwClassRef = ACClass1_PWACClass;
+                    }
                 }
+                if (pwClassRef != null)
+                    return pwClassRef;
+                if (BaseClass != null)
+                    return BaseClass.RelatedWorkflowClass;
+                return null;
+
             }
         }
 
@@ -1268,48 +1321,36 @@ namespace gip.core.datamodel
         #region private
 
         #region Properties
-        /// <summary>
-        /// UNSAFE
-        /// </summary>
-        private ACClass BaseClassWithASQNLocked
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(this.AssemblyQualifiedName))
-                {
-                    return this;
-                }
 
-                if (this.ACClass1_BasedOnACClass != null)
-                {
-                    return this.ACClass1_BasedOnACClass.BaseClassWithASQNLocked;
-                }
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// UNSAFE
-        /// </summary>
-        private ACClass RelatedWorkflowClassLocked
-        {
-            get
-            {
-                if (ACKind == Global.ACKinds.TPWGroup ||
-                    ACKind == Global.ACKinds.TPWNode ||
-                    ACKind == Global.ACKinds.TPWNodeMethod ||
-                    ACKind == Global.ACKinds.TPWNodeWorkflow ||
-                    ACKind == Global.ACKinds.TPWNodeStart ||
-                    ACKind == Global.ACKinds.TPWNodeEnd ||
-                    ACKind == Global.ACKinds.TPWNodeStatic)
-                    return this;
-                if (ACClass1_PWACClass != null)
-                    return ACClass1_PWACClass;
-                if (ACClass1_BasedOnACClass != null)
-                    return ACClass1_BasedOnACClass.RelatedWorkflowClassLocked;
-                return null;
-            }
-        }
+        //private ACClass RelatedWorkflowClassLocked
+        //{
+        //    get
+        //    {
+        //        if (ACKind == Global.ACKinds.TPWGroup ||
+        //            ACKind == Global.ACKinds.TPWNode ||
+        //            ACKind == Global.ACKinds.TPWNodeMethod ||
+        //            ACKind == Global.ACKinds.TPWNodeWorkflow ||
+        //            ACKind == Global.ACKinds.TPWNodeStart ||
+        //            ACKind == Global.ACKinds.TPWNodeEnd ||
+        //            ACKind == Global.ACKinds.TPWNodeStatic)
+        //            return this;
+        //        ACClass pwClassRef = null;
+        //        if (ACClass1_PWACClassReference.IsLoaded)
+        //            pwClassRef = ACClass1_PWACClassReference.Value;
+        //        else
+        //        {
+        //            using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+        //            {
+        //                pwClassRef = ACClass1_PWACClass;
+        //            }
+        //        }
+        //        if (pwClassRef != null)
+        //            return pwClassRef;
+        //        if (BaseClass != null)
+        //            return BaseClass.RelatedWorkflowClassLocked;
+        //        return null;
+        //    }
+        //}
 
         #endregion
 
@@ -1320,8 +1361,8 @@ namespace gip.core.datamodel
         private void FillClassHierarchyList(ref List<ACClass> acClassList)
         {
             acClassList.Add(this);
-            if (ACClass1_BasedOnACClass != null)
-                ACClass1_BasedOnACClass.FillClassHierarchyList(ref acClassList);
+            if (BaseClass != null)
+                BaseClass.FillClassHierarchyList(ref acClassList);
         }
 
 
@@ -1331,13 +1372,13 @@ namespace gip.core.datamodel
         /// <param name="acClassList">The ac class list.</param>
         private void FillListWithChildsInHierarchy(ref List<ACClass> acClassList)
         {
-            foreach (var acClass in ACClass_ParentACClass)
+            foreach (var acClass in Childs)
             {
                 acClassList.Add(acClass);
             }
 
-            if (ACClass1_BasedOnACClass != null && ACClass1_BasedOnACClass.ACProject.ACProjectTypeIndex != 100 /*ACClassLibrary*/)
-                ACClass1_BasedOnACClass.FillListWithChildsInHierarchy(ref acClassList);
+            if (BaseClass != null && BaseClass.ACProject.ACProjectTypeIndex != 100 /*ACClassLibrary*/)
+                BaseClass.FillListWithChildsInHierarchy(ref acClassList);
         }
         #endregion
 
@@ -1427,7 +1468,6 @@ namespace gip.core.datamodel
         /// <returns>ACClassMethod.</returns>
         public ACClassMethod GetMethod(string acIdentifier, bool forceRefreshFromDB = false)
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 return GetMethodLocked(acIdentifier, forceRefreshFromDB);
@@ -1441,7 +1481,6 @@ namespace gip.core.datamodel
         /// <returns>ACClassMethod.</returns>
         public IEnumerable<ACClassMethod> GetWorkflowStartMethod(bool withRootWF)
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 return GetWorkflowStartMethodLocked(withRootWF);
@@ -1464,8 +1503,8 @@ namespace gip.core.datamodel
                     acClassMethodList.Add(acClassMethod);
             }
 
-            if (ACClass1_BasedOnACClass != null)
-                ACClass1_BasedOnACClass.BuildInheritedMethodList(ref acClassMethodList, forceRefreshFromDB, withOverrides);
+            if (BaseClass != null)
+                BaseClass.BuildInheritedMethodList(ref acClassMethodList, forceRefreshFromDB, withOverrides);
         }
 
         /// <summary>
@@ -1520,9 +1559,9 @@ namespace gip.core.datamodel
                 if (foundMethod != null)
                     return foundMethod;
             }
-            if (this.ACClass1_BasedOnACClass != null)
+            if (this.BaseClass != null)
             {
-                return this.ACClass1_BasedOnACClass.GetMethodLocked(acMethodName, forceRefreshFromDB);
+                return this.BaseClass.GetMethodLocked(acMethodName, forceRefreshFromDB);
             }
             return null;
         }
@@ -1556,12 +1595,12 @@ namespace gip.core.datamodel
             }
             if ((this.ACProject.ACProjectType == Global.ACProjectTypes.Application
                     || this.ACProject.ACProjectType == Global.ACProjectTypes.Service)
-                && ACClass1_BasedOnACClass != null)
+                && BaseClass != null)
             {
-                if (ACClass1_BasedOnACClass.ACProject.ACProjectType == Global.ACProjectTypes.AppDefinition
-                    || ACClass1_BasedOnACClass.ACProject.ACProjectType == Global.ACProjectTypes.Service)
+                if (BaseClass.ACProject.ACProjectType == Global.ACProjectTypes.AppDefinition
+                    || BaseClass.ACProject.ACProjectType == Global.ACProjectTypes.Service)
                 {
-                    var parentACClassMethodList = this.ACClass1_BasedOnACClass.GetWorkflowStartMethodLocked(withRootWF);
+                    var parentACClassMethodList = this.BaseClass.GetWorkflowStartMethodLocked(withRootWF);
                     if (parentACClassMethodList != null && parentACClassMethodList.Any())
                     {
                         foreach (var acClassMethod in parentACClassMethodList)
@@ -1587,7 +1626,6 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public ACMethod ACUrlACTypeSignature(string acUrl, IACObject attachToObject = null)
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 return ACUrlACTypeSignatureLocked(acUrl, attachToObject);
@@ -1623,7 +1661,11 @@ namespace gip.core.datamodel
             {
                 case ACUrlHelper.UrlKeys.Root:
                     {
-                        var root = this.Database.ACClass.Where(c => c.ACKindIndex == (Int16)Global.ACKinds.TACRoot).FirstOrDefault();
+                        ACClass root = null;
+                        using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                        {
+                            root = this.Database.ACClass.Where(c => c.ACKindIndex == (Int16)Global.ACKinds.TACRoot).FirstOrDefault();
+                        }
                         if (root == null)
                             return null;
                         return root.ACUrlACTypeSignatureLocked(acUrlHelper.NextACUrl, attachToObject);
@@ -1661,10 +1703,10 @@ namespace gip.core.datamodel
                     }
                 case ACUrlHelper.UrlKeys.InvokeMethod:
                     {
-                        var query3 = this.Methods.Where(c => c.ACIdentifier == acUrlHelper.ACUrlPart);
-                        if (query3.Any())
+                        ACClassMethod acTypeInfo = this.MethodsCached.Where(c => c.ACIdentifier == acUrlHelper.ACUrlPart).FirstOrDefault();
+                        //var query3 = this.Methods.Where(c => c.ACIdentifier == acUrlHelper.ACUrlPart);
+                        if (acTypeInfo != null)
                         {
-                            ACClassMethod acTypeInfo = query3.First();
                             ACMethod acMethod = acTypeInfo.TypeACSignature();
                             if ((acMethod != null) && (attachToObject != null))
                                 acMethod.AttachTo(attachToObject);
@@ -1699,6 +1741,42 @@ namespace gip.core.datamodel
                 return GetProperties();
             }
         }
+
+        List<ACClassProperty> _CachedPropertiesList = null;
+        /// <summary>
+        /// Returns all Methods over complete class hierarchy
+        /// Holds the result in a private cached List to avoid querying the database
+        /// THREAD-SAFE (QueryLock_1X000)
+        /// </summary>
+        [ACPropertyInfo(9999, "", "", "", true)]
+        public IEnumerable<ACClassProperty> PropertiesCached
+        {
+            get
+            {
+                using (ACMonitor.Lock(_10020_LockValue))
+                {
+                    if (_CachedPropertiesList != null)
+                        return _CachedPropertiesList;
+                    _CachedPropertiesList = Properties as List<ACClassProperty>;
+                    return _CachedPropertiesList;
+                }
+            }
+        }
+
+        public void RefreshCachedProperties()
+        {
+            using (ACMonitor.Lock(_10020_LockValue))
+            {
+                _CachedPropertiesList = null;
+            }
+        }
+
+        public void AddNewACClassProperty(ACClassProperty newProperty)
+        {
+            ACClassProperty_ACClass.Add(newProperty);
+            RefreshCachedProperties();
+        }
+
 
         /// <summary>
         /// Returns all Properties over complete class hierarchy which are declared in C#-Code
@@ -1793,7 +1871,6 @@ namespace gip.core.datamodel
         /// <returns>ACClassProperty.</returns>
         public ACClassProperty GetProperty(string acIdentifier, bool forceRefreshFromDB = false)
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 return GetPropertyLocked(acIdentifier, forceRefreshFromDB);
@@ -1811,7 +1888,6 @@ namespace gip.core.datamodel
         /// <returns>ACClassProperty.</returns>
         public ACClassProperty GetProperty(string acGroup, Global.ACPropUsages acPropType, bool forceRefreshFromDB = false, bool includeStatic = false)
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 return GetPropertyLocked(acGroup, acPropType, forceRefreshFromDB, includeStatic);
@@ -1885,9 +1961,9 @@ namespace gip.core.datamodel
                 if (foundProperty != null)
                     return foundProperty;
             }
-            if (this.ACClass1_BasedOnACClass != null)
+            if (this.BaseClass != null)
             {
-                return this.ACClass1_BasedOnACClass.GetPropertyLocked(acIdentifier, forceRefreshFromDB);
+                return this.BaseClass.GetPropertyLocked(acIdentifier, forceRefreshFromDB);
             }
             return null;
         }
@@ -1908,9 +1984,9 @@ namespace gip.core.datamodel
                 if (foundProperty != null)
                     return foundProperty;
             }
-            if (this.ACClass1_BasedOnACClass != null)
+            if (this.BaseClass != null)
             {
-                return this.ACClass1_BasedOnACClass.GetPropertyLocked(acGroup, acPropType, forceRefreshFromDB, includeStatic);
+                return this.BaseClass.GetPropertyLocked(acGroup, acPropType, forceRefreshFromDB, includeStatic);
             }
             return null;
         }
@@ -1936,9 +2012,9 @@ namespace gip.core.datamodel
                 if (foundPoint != null)
                     return foundPoint.ACClassProperty1_BasedOnACClassProperty;
             }
-            if (ACClass1_BasedOnACClass != null)
+            if (BaseClass != null)
             {
-                ACClassProperty pointProperty = ACClass1_BasedOnACClass.GetPointLocked(acPropertyName, forceRefreshFromDB);
+                ACClassProperty pointProperty = BaseClass.GetPointLocked(acPropertyName, forceRefreshFromDB);
                 if (pointProperty == null)
                     return null;
                 return pointProperty.ACClassProperty1_BasedOnACClassProperty;
@@ -1969,8 +2045,8 @@ namespace gip.core.datamodel
                     }
                 }
             }
-            if (ACClass1_BasedOnACClass != null)
-                ACClass1_BasedOnACClass.BuildInheritedPropertyList(ref acClassPropertyList, myClass, forceRefreshFromDB, withOverrides, onlyBaseProperties, propUsage, includeStatic);
+            if (BaseClass != null)
+                BaseClass.BuildInheritedPropertyList(ref acClassPropertyList, myClass, forceRefreshFromDB, withOverrides, onlyBaseProperties, propUsage, includeStatic);
         }
 
         /// <summary>
@@ -2013,8 +2089,8 @@ namespace gip.core.datamodel
         /// </summary>
         private void BuildInheritedColumnsList(ref List<ACColumnItem> acColumnItemList, ref int curColumns, int maxColumns)
         {
-            if (ACClass1_BasedOnACClass != null)
-                ACClass1_BasedOnACClass.BuildInheritedColumnsList(ref acColumnItemList, ref curColumns, maxColumns);
+            if (BaseClass != null)
+                BaseClass.BuildInheritedColumnsList(ref acColumnItemList, ref curColumns, maxColumns);
 
             foreach (var acClassProperty in ACClassProperty_ACClass.Where(c => !c.IsStatic && c.SortIndex < 9000).OrderBy(c => c.SortIndex))
             {
@@ -2073,7 +2149,6 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public ACClassDesign GetDesign(string acIdentifier, bool forceRefreshFromDB = false)
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 return GetDesignLocked(acIdentifier, forceRefreshFromDB);
@@ -2156,10 +2231,10 @@ namespace gip.core.datamodel
                         return query2.First();
                     }
 
-                    if (acClass.ACClass1_BasedOnACClass == null)
+                    if (acClass.BaseClass == null)
                         return null;
 
-                    return acClass.ACClass1_BasedOnACClass.GetDesign(acClass.ACClass1_BasedOnACClass, acUsage, acKind, vbDesignName, msg);
+                    return acClass.BaseClass.GetDesign(acClass.BaseClass, acUsage, acKind, vbDesignName, msg);
                 }
             }
             else if (acObject is IACClassDesignProvider)
@@ -2176,7 +2251,6 @@ namespace gip.core.datamodel
                 return null;
             else
             {
-
                 using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                 {
                     if (!string.IsNullOrEmpty(vbDesignName))
@@ -2200,10 +2274,10 @@ namespace gip.core.datamodel
                     if (query2.Any())
                         return query2.First();
 
-                    if (this.ACClass1_BasedOnACClass == null)
+                    if (this.BaseClass == null)
                         return null;
 
-                    return this.ACClass1_BasedOnACClass.GetDesign(this.ACClass1_BasedOnACClass, acUsage, acKind, vbDesignName);
+                    return this.BaseClass.GetDesign(this.BaseClass, acUsage, acKind, vbDesignName);
                 }
             }
         }
@@ -2226,9 +2300,9 @@ namespace gip.core.datamodel
                 if (foundDesign != null)
                     return foundDesign;
             }
-            if (this.ACClass1_BasedOnACClass != null)
+            if (this.BaseClass != null)
             {
-                return this.ACClass1_BasedOnACClass.GetDesignLocked(acIdentifier, forceRefreshFromDB);
+                return this.BaseClass.GetDesignLocked(acIdentifier, forceRefreshFromDB);
             }
             return null;
         }
@@ -2245,8 +2319,8 @@ namespace gip.core.datamodel
                     acClassDesignList.Add(acClassDesign);
             }
 
-            if (ACClass1_BasedOnACClass != null)
-                ACClass1_BasedOnACClass.BuildInheritedDesignList(ref acClassDesignList, forceRefreshFromDB, withOverrides);
+            if (BaseClass != null)
+                BaseClass.BuildInheritedDesignList(ref acClassDesignList, forceRefreshFromDB, withOverrides);
         }
 
         /// <summary>
@@ -2363,9 +2437,9 @@ namespace gip.core.datamodel
                 if (foundText != null)
                     return foundText;
             }
-            if (this.ACClass1_BasedOnACClass != null)
+            if (this.BaseClass != null)
             {
-                return this.ACClass1_BasedOnACClass.GetTextLocked(acIdentifier, forceRefreshFromDB);
+                return this.BaseClass.GetTextLocked(acIdentifier, forceRefreshFromDB);
             }
             return null;
         }
@@ -2382,8 +2456,8 @@ namespace gip.core.datamodel
                     acClassTextList.Add(acClassText);
             }
 
-            if (ACClass1_BasedOnACClass != null)
-                ACClass1_BasedOnACClass.BuildInheritedTextList(ref acClassTextList, forceRefreshFromDB, withOverrides);
+            if (BaseClass != null)
+                BaseClass.BuildInheritedTextList(ref acClassTextList, forceRefreshFromDB, withOverrides);
         }
 
         /// <summary>
@@ -2498,9 +2572,9 @@ namespace gip.core.datamodel
                 if (foundMessage != null)
                     return foundMessage;
             }
-            if (this.ACClass1_BasedOnACClass != null)
+            if (this.BaseClass != null)
             {
-                return this.ACClass1_BasedOnACClass.GetMessageLocked(acIdentifier, forceRefreshFromDB);
+                return this.BaseClass.GetMessageLocked(acIdentifier, forceRefreshFromDB);
             }
             return null;
         }
@@ -2518,8 +2592,8 @@ namespace gip.core.datamodel
                     acClassMessageList.Add(acClassMessage);
             }
 
-            if (ACClass1_BasedOnACClass != null)
-                ACClass1_BasedOnACClass.BuildInheritedMessageList(ref acClassMessageList, forceRefreshFromDB, withOverrides);
+            if (BaseClass != null)
+                BaseClass.BuildInheritedMessageList(ref acClassMessageList, forceRefreshFromDB, withOverrides);
         }
 
         /// <summary>
@@ -2789,7 +2863,6 @@ namespace gip.core.datamodel
             get
             {
                 string fullClassCaption = ACIdentifier;
-
 
                 using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                 {
@@ -3204,8 +3277,8 @@ namespace gip.core.datamodel
         {
             if (!string.IsNullOrEmpty(XMLACClass))
                 return XMLACClass;
-            if (ACClass1_BasedOnACClass != null)
-                return ACClass1_BasedOnACClass.GetConstructorParamsXML();
+            if (BaseClass != null)
+                return BaseClass.GetConstructorParamsXML();
             return null;
         }
 
@@ -3242,13 +3315,13 @@ namespace gip.core.datamodel
             {
                 acKindIndex = this.ACKindIndex;
             }
-            else if (ACClass1_BasedOnACClass == null)
+            else if (BaseClass == null)
             {
                 acKindIndex = (short)Global.ACKinds.TACClass;
             }
             else
             {
-                acKindIndex = (short)ACClass1_BasedOnACClass.ACKind;
+                acKindIndex = (short)BaseClass.ACKind;
             }
             if (acKindIndex == 0)
                 acKindIndex = (short)Global.ACKinds.TACClass;

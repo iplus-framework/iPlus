@@ -306,22 +306,22 @@ namespace gip.core.autocomponent
             base.AcknowledgeAlarms();
         }
 
-        public virtual PerformanceEvent OnMethodCalled(string methodName)
+        public virtual PerformanceEvent OnMethodCalled(string methodName, int id = 100)
         {
             var vbDump = Root.VBDump;
             if (vbDump == null)
                 return null;
-            return vbDump.PerfLoggerStart(this.GetACUrl() + "!" + methodName, 100);
+            return vbDump.PerfLoggerStart(this.GetACUrl() + "!" + methodName, id);
         }
 
-        public virtual void OnMethodReturned(PerformanceEvent perfEvent, string methodName)
+        public virtual void OnMethodReturned(PerformanceEvent perfEvent, string methodName, int id = 100)
         {
             if (perfEvent == null)
                 return;
             var vbDump = Root.VBDump;
             if (vbDump == null)
                 return;
-            vbDump.PerfLoggerStop(this.GetACUrl() + "!" + methodName, 100, perfEvent);
+            vbDump.PerfLoggerStop(this.GetACUrl() + "!" + methodName, id, perfEvent);
         }
 
         #endregion

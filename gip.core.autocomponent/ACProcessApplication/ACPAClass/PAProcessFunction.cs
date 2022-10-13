@@ -164,13 +164,19 @@ namespace gip.core.autocomponent
             }
 
             ACProgram currentACProgram = null;
-            if (ContentTask != null)
+            ACClassTask contentTask = ContentTask;
+            if (contentTask != null)
             {
-                ACClassTaskQueue.TaskQueue.ProcessAction(() => { currentACProgram = ContentTask.ACProgram; });
+                if (contentTask.ACProgramReference.IsLoaded)
+                    currentACProgram = contentTask.ACProgramReference.Value;
+                if (currentACProgram == null)// && contentTask.EntityState == System.Data.EntityState.Added)
+                    currentACProgram = contentTask.NewACProgramForQueue;
+                if (currentACProgram == null)
+                    ACClassTaskQueue.TaskQueue.ProcessAction(() => { currentACProgram = contentTask.ACProgram; });
                 if (currentACProgram != null)
                     ACClassTaskQueue.TaskQueue.ProgramCache.GetProgram(currentACProgram.ACProgramID);
             }
-            else if (CurrentTask != null)
+            if (currentACProgram == null && CurrentTask != null)
             {
                 ACValue acValue = CurrentTask.ACMethod.ParameterValueList.GetACValue(ACProgram.ClassName);
                 if (acValue != null)
@@ -700,13 +706,17 @@ namespace gip.core.autocomponent
                     ACClassMethod rootMethod = null;
                     if (currentWfNode != null)
                     {
-
-                        using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                        if (currentWfNode.ACClassMethodReference.IsLoaded)
+                            rootMethod = currentWfNode.ACClassMethodReference.Value;
+                        if (rootMethod == null)
                         {
-                            rootMethod = currentWfNode.ACClassMethod;
-                            if (rootMethod != null)
-                                rootACVisual = rootMethod.RootWFNode;
+                            using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                            {
+                                rootMethod = currentWfNode.ACClassMethod;
+                            }
                         }
+                        if (rootMethod != null)
+                            rootACVisual = rootMethod.RootWFNode;
                     }
 
                     if (rootACVisual != null && rootACVisual == currentWfNode)
@@ -1506,9 +1516,13 @@ namespace gip.core.autocomponent
                     Guid acProgramID = (Guid)acValue.Value;
                     if (acProgramID != Guid.Empty)
                     {
-                        ACClassTaskQueue.TaskQueue.ProcessAction(
-                                () => { _CurrentACProgram = ACClassTaskQueue.TaskQueue.Context.ACProgram.Where(c => c.ACProgramID == acProgramID).FirstOrDefault(); }
-                            );
+                        _CurrentACProgram = ACClassTaskQueue.TaskQueue.ProgramCache.GetProgram(acProgramID);
+                        if (_CurrentACProgram == null)
+                        {
+                            ACClassTaskQueue.TaskQueue.ProcessAction(
+                                    () => { _CurrentACProgram = ACClassTaskQueue.TaskQueue.Context.ACProgram.Where(c => c.ACProgramID == acProgramID).FirstOrDefault(); }
+                                );
+                        }
                     }
 
                     //_CurrentACProgram = value.EntityT<ACProgram>(ApplicationManager.Database.ContextIPlus);

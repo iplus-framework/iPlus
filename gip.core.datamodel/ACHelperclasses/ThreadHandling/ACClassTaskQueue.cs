@@ -61,6 +61,7 @@ namespace gip.core.datamodel
                     db.ACClassWF.Include("ACClassMethod")
                                 .Include("RefPAACClass")
                                 .Include("RefPAACClassMethod")
+                                .Include("RefPAACClassMethod.AttachedFromACClass")
                                 .Include("ACClassWF1_ParentACClassWF")
                                 .Include("ACClassWF_ParentACClassWF")
                                 .Include("PWACClass")
@@ -197,7 +198,10 @@ namespace gip.core.datamodel
             ACClassProperty acClassProperty = null;
             if (!_ACPropertyTypeCache.TryGetValue(acClassPropertyID, out acClassProperty))
             {
-                acClassProperty = s_cQry_ACPropertyCache(TaskQueue.Context, acClassPropertyID);
+                using (ACMonitor.Lock(TaskQueue.Context.QueryLock_1X000))
+                {
+                    acClassProperty = s_cQry_ACPropertyCache(TaskQueue.Context, acClassPropertyID);
+                }
                 if (acClassProperty != null)
                     _ACPropertyTypeCache.TryAdd(acClassPropertyID, acClassProperty);
             }
@@ -209,7 +213,10 @@ namespace gip.core.datamodel
             ACClassWF acClassWF= null;
             if (!_ACClassWFCache.TryGetValue(acClassWFID, out acClassWF))
             {
-                acClassWF = s_cQry_ACClassWFCache(TaskQueue.Context, acClassWFID);
+                using (ACMonitor.Lock(TaskQueue.Context.QueryLock_1X000))
+                {
+                    acClassWF = s_cQry_ACClassWFCache(TaskQueue.Context, acClassWFID);
+                }
                 if (acClassWF != null)
                     _ACClassWFCache.TryAdd(acClassWFID, acClassWF);
             }
@@ -404,29 +411,41 @@ namespace gip.core.datamodel
                 || String.IsNullOrEmpty(currentProgramLog.ACUrl))
                 return null;
 
+#if !DIAGNOSE
             if (currentProgramLog.EntityState == System.Data.EntityState.Deleted
+                || (currentProgramLog.EntityState == System.Data.EntityState.Detached && currentProgramLog.NewACProgramForQueue == null))
+#else
+            if (   currentProgramLog.EntityState == System.Data.EntityState.Deleted
                 || currentProgramLog.EntityState == System.Data.EntityState.Detached)
+#endif
             {
                 Database.Root.Messages.LogError("ACProgramCache", "AddProgramLog(0)", String.Format("Cant add currentProgramLog {0} because EntityState is {1}", currentProgramLog.ACProgramLogID, currentProgramLog.EntityState));
                 return null;
             }
 
             ACProgram acProgram = null;
-            _TaskQueue.ProcessAction(() => 
+            if (currentProgramLog.ACProgramReference.IsLoaded)
+                acProgram = currentProgramLog.ACProgramReference.Value;
+            if (acProgram == null)// && (currentProgramLog.EntityState == System.Data.EntityState.Added || currentProgramLog.EntityState == System.Data.EntityState.Detached))
+                acProgram = currentProgramLog.NewACProgramForQueue;
+            if (acProgram == null)
             {
-                try
+                _TaskQueue.ProcessAction(() =>
                 {
-                    acProgram = currentProgramLog.ACProgram;
-                }
-                catch (Exception e)
-                {
-                    string msg = e.Message;
-                    if (e.InnerException != null && e.InnerException.Message != null)
-                        msg += " Inner:" + e.InnerException.Message;
+                    try
+                    {
+                        acProgram = currentProgramLog.ACProgram;
+                    }
+                    catch (Exception e)
+                    {
+                        string msg = e.Message;
+                        if (e.InnerException != null && e.InnerException.Message != null)
+                            msg += " Inner:" + e.InnerException.Message;
 
-                    Database.Root.Messages.LogException("ACProgramCache", "AddProgramLog(1)", String.Format("Cant add currentProgramLog {0}, Exception {1}", currentProgramLog.ACProgramLogID, msg));
-                }
-            });
+                        Database.Root.Messages.LogException("ACProgramCache", "AddProgramLog(1)", String.Format("Cant add currentProgramLog {0}, Exception {1}", currentProgramLog.ACProgramLogID, msg));
+                    }
+                });
+            }
             if (acProgram == null)
                 return null;
 
@@ -663,20 +682,28 @@ namespace gip.core.datamodel
         private ACProgramCacheEntry GetCacheEntry(ACProgramLog anyProgramLog, bool autoCreateIfNotExist = true)
         {
             ACProgram acProgram = null;
-            _TaskQueue.ProcessAction(() => {
-                try
+            if (anyProgramLog.ACProgramReference.IsLoaded)
+                acProgram = anyProgramLog.ACProgramReference.Value;
+            if (acProgram == null) // && (anyProgramLog.EntityState == System.Data.EntityState.Added || anyProgramLog.EntityState == System.Data.EntityState.Detached))
+                acProgram = anyProgramLog.NewACProgramForQueue;
+            if (acProgram == null)
+            {
+                _TaskQueue.ProcessAction(() =>
                 {
-                    acProgram = anyProgramLog.ACProgram;
-                }
-                catch (Exception e)
-                {
-                    string msg = e.Message;
-                    if (e.InnerException != null && e.InnerException.Message != null)
-                        msg += " Inner:" + e.InnerException.Message;
+                    try
+                    {
+                        acProgram = anyProgramLog.ACProgram;
+                    }
+                    catch (Exception e)
+                    {
+                        string msg = e.Message;
+                        if (e.InnerException != null && e.InnerException.Message != null)
+                            msg += " Inner:" + e.InnerException.Message;
 
-                    Database.Root.Messages.LogException("ACProgramCache", "GetCacheEntry(1)", String.Format("Cant access ACProgram at anyProgramLog {0}, Exception {1}", anyProgramLog.ACProgramLogID, msg));
-                }
-            });
+                        Database.Root.Messages.LogException("ACProgramCache", "GetCacheEntry(1)", String.Format("Cant access ACProgram at anyProgramLog {0}, Exception {1}", anyProgramLog.ACProgramLogID, msg));
+                    }
+                });
+            }
             if (acProgram == null)
                 return null;
 
@@ -739,12 +766,20 @@ namespace gip.core.datamodel
                     }
                 });
 
+#if !DIAGNOSE
+                if (latestProgramLogs == null)
+                    latestProgramLogs = new Dictionary<string, ACProgramLog>();
+                cacheEntry = new ACProgramCacheEntry(acProgram, latestProgramLogs);
+                if (!_Programs.TryAdd(acProgram.ACProgramID, cacheEntry))
+                    _Programs.TryGetValue(acProgram.ACProgramID, out cacheEntry);
+#else
                 if (latestProgramLogs != null && latestProgramLogs.Any())
                 {
                     cacheEntry = new ACProgramCacheEntry(acProgram, latestProgramLogs);
                     if (!_Programs.TryAdd(acProgram.ACProgramID, cacheEntry))
                         _Programs.TryGetValue(acProgram.ACProgramID, out cacheEntry);
                 }
+#endif
             }
             return cacheEntry;
         }

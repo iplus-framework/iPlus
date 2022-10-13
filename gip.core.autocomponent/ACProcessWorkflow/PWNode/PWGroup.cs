@@ -452,13 +452,7 @@ namespace gip.core.autocomponent
                 }
 
                 PAProcessModule[] possibleModuleList;
-                ACClass refPAACClass = null;
-
-                using (ACMonitor.Lock(this.ContextLockForACClassWF))
-                {
-                    refPAACClass = ContentACClassWF.RefPAACClass;
-                }
-
+                ACClass refPAACClass = RefACClassOfContentWF;
                 if (refPAACClass == null)
                     return new PAProcessModule[0];
 

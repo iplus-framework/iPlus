@@ -177,6 +177,12 @@ namespace gip.core.autocomponent
                 perfTimeoutStackTrace = this.PerfTimeoutStackTrace;
             if (perfEvent.CalculateTimeout(perfTimeoutStackTrace))
             {
+//#if DEBUG
+//                if (System.Diagnostics.Debugger.IsAttached)
+//                {
+//                    System.Diagnostics.Debugger.Break();
+//                }
+//#endif
                 string stackTrace = System.Environment.StackTrace;
                 Messages.LogDebug(this.GetACUrl(), "Stop()", String.Format("{0}, Duration: {1}", url, perfEvent.ElapsedMilliseconds.ToString()));
                 Messages.LogDebug(this.GetACUrl(), "Stop()", stackTrace);

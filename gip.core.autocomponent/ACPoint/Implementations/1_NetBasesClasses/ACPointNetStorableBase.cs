@@ -9,6 +9,7 @@ using System.Xml;
 using System.Threading;
 using gip.core.datamodel;
 using System.Text.RegularExpressions;
+using Microsoft.Database.Isam;
 
 namespace gip.core.autocomponent
 {
@@ -289,7 +290,6 @@ namespace gip.core.autocomponent
         {
             get
             {
-
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
                     if (_ACClassTaskValue != null)
@@ -300,53 +300,85 @@ namespace gip.core.autocomponent
                 IACComponent component = ACRef.ValueT;
                 if (component == null)
                     return null;
-                ACClassTask acClassTask = component.ContentTask;
-                if (acClassTask == null)
+                ACClassTask contentTask = component.ContentTask;
+                if (contentTask == null)
                     return null;
                 Guid thisACTypeID = ACType.ACTypeID;
                 Guid vbUserID = component.Root.Environment.User.VBUserID;
                 Guid componentClassID = component.ComponentClass.ACClassID;
 
-
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
+#if !DIAGNOSE
+                    // *** TASKPERFOPT NEW ***
+                    IEnumerable<ACClassTaskValue> acClassTaskValues = null;
+                    if (contentTask.ACClassTaskValue_ACClassTask.IsLoaded)
+                        acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
+                    else
+                    {
+                        ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                        {
+                            acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
+                        });
+                    }
+                    ACClassTaskValue acClassTaskValue = acClassTaskValues.Where(c => c.ACClassPropertyID == thisACTypeID
+                                            && c.VBUserID.HasValue
+                                            && c.VBUserID == vbUserID).FirstOrDefault();
+                    if (acClassTaskValue == null)
+                    {
+                        ACClassProperty acClassProperty = ACClassTaskQueue.TaskQueue.GetACClassPropertyFromTaskQueueCache(thisACTypeID);
+                        if (acClassProperty != null)
+                        {
+                            acClassTaskValue = ACClassTaskValue.NewACClassTaskValue(ACClassTaskQueue.TaskQueue.Context, null, null);
+                            acClassTaskValue.NewACClassPropertyForQueue = acClassProperty;
+                            acClassTaskValue.NewACClassTaskForQueue = contentTask;
+                            added = true;
+                            _ACClassTaskValue = acClassTaskValue;
+                        }
+                    }
+                    // *** TASKPERFOPT NEW END ***
+#else
+
+                    // *** TASKPERFOPT OLD ***
                     // Sofort ausführend, damit Instanz angelegt wird
+                    ACClassTaskValue acClassTaskValue = null;
                     ACClassTaskQueue.TaskQueue.ProcessAction(() =>
                     {
-                        _ACClassTaskValue = ACRef.ValueT.ContentTask.ACClassTaskValue_ACClassTask
+                        acClassTaskValue = contentTask.ACClassTaskValue_ACClassTask
                                     .Where(c => (c.ACClassPropertyID == thisACTypeID)
                                             && c.VBUserID.HasValue
                                             && c.VBUserID == vbUserID)
                                     .FirstOrDefault();
-                        if (_ACClassTaskValue == null)
+                        if (acClassTaskValue == null)
                         {
                             ACClassProperty acClassProperty = ACClassTaskQueue.TaskQueue.GetACClassPropertyFromTaskQueueCache(thisACTypeID);
                             //var queryClass = RootDbOpQueue.ACClassTaskQueue.Context.ACClass.Where(c => c.ACClassID == componentClassID).FirstOrDefault();
                             if (acClassProperty != null)
                             {
-                                _ACClassTaskValue = ACClassTaskValue.NewACClassTaskValue(ACClassTaskQueue.TaskQueue.Context, acClassTask, acClassProperty);
+                                acClassTaskValue = ACClassTaskValue.NewACClassTaskValue(ACClassTaskQueue.TaskQueue.Context, contentTask, acClassProperty);
                                 if (_UserFromPropertyContext == null)
                                     _UserFromPropertyContext = ACClassTaskQueue.TaskQueue.Context.VBUser.Where(c => c.VBUserID == vbUserID).FirstOrDefault();
-                                _ACClassTaskValue.VBUser = _UserFromPropertyContext;
-                                acClassTask.ACClassTaskValue_ACClassTask.Add(_ACClassTaskValue);
+                                acClassTaskValue.VBUser = _UserFromPropertyContext;
+                                contentTask.ACClassTaskValue_ACClassTask.Add(acClassTaskValue);
                                 added = true;
-//#if DEBUG
-//                                    if (!this.ParentACComponent.Root.Initialized)
-//                                    {
-//                                        string acUrlSubscr = this.ParentACComponent.GetACUrl();
-//                                        this.ParentACComponent.Messages.LogError(acUrlSubscr, this.ACIdentifier, String.Format("***Point*** _ACClassTaskValue {0} at ACClassTakID {1} generated during Restart", _ACClassTaskValue.ACClassTaskValueID, ACRef.ValueT.ContentTask.ACClassTaskID));
-//                                    }
-//#endif
                             }
                         }
+                        _ACClassTaskValue = acClassTaskValue;
                     });
-
+                    // *** TASKPERFOPT OLD END ***
+#endif
                     if (added)
                     {
                         // Eintrag in Queue, Speicherung kann verzögert erfolgen.
                         ACClassTaskQueue.TaskQueue.Add(() => 
                             {
-                                component.ContentTask.ACClassTaskValue_ACClassTask.Add(_ACClassTaskValue);
+#if !DIAGNOSE
+                                if (_UserFromPropertyContext == null)
+                                    _UserFromPropertyContext = ACClassTaskQueue.TaskQueue.Context.VBUser.Where(c => c.VBUserID == vbUserID).FirstOrDefault();
+                                acClassTaskValue.VBUser = _UserFromPropertyContext;
+                                acClassTaskValue.PublishToChangeTrackerInQueue();
+#endif
+                                contentTask.ACClassTaskValue_ACClassTask.Add(acClassTaskValue);
                             }
                         );
                     }
@@ -516,9 +548,9 @@ namespace gip.core.autocomponent
         {
         }
 
-        #endregion
+#endregion
 
-        #region IACConnectionPoint<W> Member
+#region IACConnectionPoint<W> Member
 
         /// <summary>
         /// List of ACPointNetWrapObject-relations to other components.

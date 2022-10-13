@@ -124,12 +124,18 @@ namespace gip.core.datamodel
             /// The lock to be released.
             /// </summary>
             private ACMonitorObject _monitor;
+            //private PerformanceEvent _perfEvent;
 
             /// <summary>
             /// Initializes the ACMonitorCookie.
             /// </summary>
             /// <param name="obj">The object to be released.</param>
-            public ACMonitorCookie(ACMonitorObject obj) { _monitor = obj; }
+            public ACMonitorCookie(ACMonitorObject obj) 
+            { 
+                _monitor = obj;
+                //_perfEvent = new PerformanceEvent(false);
+                //_perfEvent.Start();
+            }
 
             /// <summary>
             /// Exit the lock.
@@ -138,6 +144,23 @@ namespace gip.core.datamodel
             {
                 if (_monitor != null)
                 {
+                    //if (_perfEvent != null)
+                    //{
+                    //    _perfEvent.Stop();
+                    //    if (_perfEvent.CalculateTimeout(2000))
+                    //    {
+//#if DEBUG
+//                            if (System.Diagnostics.Debugger.IsAttached)
+//                            {
+//                                System.Diagnostics.Debugger.Break();
+//                            }
+//                            gip.core.datamodel.Database.Root.Messages.LogWarning("ACMonitorCookie", "Dispose()", String.Format("{0}: Duration {1} ms", _monitor.LockLevel, _perfEvent.ElapsedMilliseconds));
+//                            string stackTrace = System.Environment.StackTrace;
+//                            gip.core.datamodel.Database.Root.Messages.LogWarning("ACMonitorCookie", "Dispose()", stackTrace);
+//#endif
+                    //    }
+                    //    _perfEvent = null;
+                    //}
                     ACMonitor.Exit(_monitor);
                     _monitor = null;
                 }
@@ -279,8 +302,23 @@ namespace gip.core.datamodel
                         }
                     }
 
-                    // Try to enter the monitor
+//#if DEBUG
+//                    if (millisecondsTimeout == Timeout.Infinite && System.Diagnostics.Debugger.IsAttached)
+//                    {
+//                        millisecondsTimeout = 2345;
+//                        thisThreadOwnsMonitor = Monitor.TryEnter(monitor, millisecondsTimeout);
+//                        if (!thisThreadOwnsMonitor)
+//                        {
+//                            System.Diagnostics.Debugger.Break();
+//                            thisThreadOwnsMonitor = Monitor.TryEnter(monitor, Timeout.Infinite);
+//                        }
+//                    }
+//                    else
+//                        thisThreadOwnsMonitor = Monitor.TryEnter(monitor, millisecondsTimeout);
+//#else
                     thisThreadOwnsMonitor = Monitor.TryEnter(monitor, millisecondsTimeout);
+//#endif
+
 
                     // At this point we now may own the monitor...
                 }

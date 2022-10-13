@@ -276,10 +276,17 @@ namespace gip.core.autocomponent
             }
 
             ACProgram currentACProgram = null;
-            if (ContentTask != null)
+            ACClassTask contentTask = ContentTask;
+            if (contentTask != null)
             {
-                ACClassTaskQueue.TaskQueue.ProcessAction(() => { currentACProgram = ContentTask.ACProgram; });
-                ACClassTaskQueue.TaskQueue.ProgramCache.GetProgram(currentACProgram.ACProgramID);
+                if (contentTask.ACProgramReference.IsLoaded)
+                    currentACProgram = contentTask.ACProgramReference.Value;
+                if (currentACProgram == null)// && contentTask.EntityState == System.Data.EntityState.Added)
+                    currentACProgram = contentTask.NewACProgramForQueue;
+                if (currentACProgram == null)
+                    ACClassTaskQueue.TaskQueue.ProcessAction(() => { currentACProgram = contentTask.ACProgram; });
+                if (currentACProgram != null)
+                    ACClassTaskQueue.TaskQueue.ProgramCache.GetProgram(currentACProgram.ACProgramID);
             }
             if (currentACProgram == null && (CurrentTask != null || CurrentACMethod.ValueT != null))
             {
@@ -774,13 +781,9 @@ namespace gip.core.autocomponent
             }
             if (this.ContentACClassWF != null)
             {
-                ACClassMethod acClassMethod = null;
-                using (ACMonitor.Lock(this.ContextLockForACClassWF))
-                {
-                    acClassMethod = ContentACClassWF.ACClassMethod;
-                }
-
-                methods.Add(acClassMethod);
+                ACClassMethod acClassMethod = ACClassMethodOfContentWF;
+                if (acClassMethod != null)
+                    methods.Add(acClassMethod);
                 if (CurrentTask != null && CurrentTask.ValueT != null)
                 {
                     invoker = CurrentTask.ValueT as IACComponentPWNode;

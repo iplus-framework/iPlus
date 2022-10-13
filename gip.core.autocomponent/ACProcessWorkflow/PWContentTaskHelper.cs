@@ -13,7 +13,8 @@ namespace gip.core.autocomponent
         {
             if (content is ACClassWF)
             {
-                if (wfComponent.ParentACComponent.ContentTask != null)
+                ACClassTask parentTask = wfComponent.ParentACComponent.ContentTask;
+                if (parentTask != null)
                 {
                     //bool generateTask = true;
                     //if (wfComponent is PWProcessFunction)
@@ -24,9 +25,66 @@ namespace gip.core.autocomponent
                     //        generateTask = false;
                     //}
 
+                    ACProgram acProgram = null;
+#if !DIAGNOSE
+                    // *** TASKPERFOPT NEW ***
+                    if (parentTask.ACProgramID.HasValue)
+                    {
+                        if (parentTask.ACProgramReference.IsLoaded)
+                            acProgram = parentTask.ACProgramReference.Value;
+                        if (acProgram == null)// && (parentTask.EntityState == System.Data.EntityState.Added || parentTask.EntityState == System.Data.EntityState.Detached))
+                            acProgram = parentTask.NewACProgramForQueue;
+                        if (acProgram == null)
+                            ACClassTaskQueue.TaskQueue.ProcessAction(() => acProgram = parentTask.ACProgram);
+                    }
+
+                    if (acProgram == null)
+                    {
+                        if (wfComponent is PWProcessFunction)
+                        {
+                            ACValue acValue = parameter.GetACValue(ACProgram.ClassName);
+                            if (acValue != null && acValue.Value != null)
+                            {
+                                Guid acProgramID = (Guid)acValue.Value;
+                                if (acProgramID != Guid.Empty)
+                                {
+                                    acProgram = ACClassTaskQueue.TaskQueue.ProgramCache.GetProgram(acProgramID);
+                                    if (acProgram == null)
+                                        ACClassTaskQueue.TaskQueue.ProcessAction(() => acProgram = ACClassTaskQueue.s_cQry_ACProgram(ACClassTaskQueue.TaskQueue.Context, acProgramID));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            PWProcessFunction parentPWFunction = wfComponent.RootPW;
+                            if (parentPWFunction != null)
+                                acProgram = parentPWFunction.CurrentACProgram;
+                        }
+                    }
+
+                    ACClassTask acClassTask = ACClassTask.NewACObject(ACClassTaskQueue.TaskQueue.Context, null);
+                    acClassTask.NewParentACClassTaskForQueue = parentTask;
+                    acClassTask.NewTaskTypeACClassForQueue = ACClassTaskQueue.TaskQueue.GetACClassFromTaskQueueCache(acType.ACClassID);
+                    acClassTask.NewACProgramForQueue = acProgram;
+                    acClassTask.NewContentACClassWFForQueue = wfComponent.ContentACClassWF.Database == ACClassTaskQueue.TaskQueue.Context ?
+                                                          wfComponent.ContentACClassWF
+                                                        : ACClassTaskQueue.TaskQueue.GetACClassWFFromTaskQueueCache(wfComponent.ContentACClassWF.ACClassWFID);
+                    acClassTask.ACTaskType = Global.ACTaskTypes.WorkflowTask;
+                    acClassTask.IsDynamic = true;
+                    acClassTask.ACIdentifier = wfComponent.ACIdentifier;
+                    acClassTask.IsTestmode = parentTask.IsTestmode;
+                    wfComponent.Content = acClassTask;
+                    ACClassTaskQueue.TaskQueue.Add(() => 
+                    {
+                        acClassTask.PublishToChangeTrackerInQueue();
+                        ACClassTaskQueue.TaskQueue.Context.ACClassTask.AddObject(acClassTask); 
+                    });
+                    // *** TASKPERFOPT NEW END ***
+#else
+                    // *** TASKPERFOPT OLD ***
                     ACClassTaskQueue.TaskQueue.ProcessAction(() =>
                     {
-                        ACProgram acProgram = wfComponent.ParentACComponent.ContentTask.ACProgram;
+                        acProgram = parentTask.ACProgram;
                         if (acProgram == null)
                         {
                             if (wfComponent is PWProcessFunction)
@@ -36,7 +94,11 @@ namespace gip.core.autocomponent
                                 {
                                     Guid acProgramID = (Guid)acValue.Value;
                                     if (acProgramID != Guid.Empty)
-                                        acProgram = ACClassTaskQueue.s_cQry_ACProgram(ACClassTaskQueue.TaskQueue.Context, acProgramID);
+                                    {
+                                        acProgram = ACClassTaskQueue.TaskQueue.ProgramCache.GetProgram(acProgramID);
+                                        if (acProgram == null)
+                                            acProgram = ACClassTaskQueue.s_cQry_ACProgram(ACClassTaskQueue.TaskQueue.Context, acProgramID);
+                                    }
                                 }
                             }
                             else
@@ -47,18 +109,20 @@ namespace gip.core.autocomponent
                             }
                         }
 
-                        ACClassTask acClassTask = ACClassTask.NewACObject(ACClassTaskQueue.TaskQueue.Context, wfComponent.ParentACComponent.ContentTask);
+                        ACClassTask acClassTask = ACClassTask.NewACObject(ACClassTaskQueue.TaskQueue.Context, parentTask);
                         acClassTask.TaskTypeACClass = ACClassTaskQueue.TaskQueue.GetACClassFromTaskQueueCache(acType.ACClassID);
-                        acClassTask.ContentACClassWF = wfComponent.ContentACClassWF.Database == ACClassTaskQueue.TaskQueue.Context ? 
-                                                              wfComponent.ContentACClassWF 
+                        acClassTask.NewContentACClassWFForQueue = wfComponent.ContentACClassWF.Database == ACClassTaskQueue.TaskQueue.Context ?
+                                                              wfComponent.ContentACClassWF
                                                             : ACClassTaskQueue.TaskQueue.GetACClassWFFromTaskQueueCache(wfComponent.ContentACClassWF.ACClassWFID);
                         acClassTask.ACTaskType = Global.ACTaskTypes.WorkflowTask;
                         acClassTask.IsDynamic = true;
                         acClassTask.ACIdentifier = wfComponent.ACIdentifier;
-                        acClassTask.ACProgram = acProgram;
+                        acClassTask.NewACProgramForQueue = acProgram;
                         ACClassTaskQueue.TaskQueue.Context.ACClassTask.AddObject(acClassTask);
                         wfComponent.Content = acClassTask;
                     });
+                    // *** TASKPERFOPT OLD END ***
+#endif
                 }
             }
         }

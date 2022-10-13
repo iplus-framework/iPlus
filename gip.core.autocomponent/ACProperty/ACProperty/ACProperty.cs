@@ -615,7 +615,6 @@ namespace gip.core.autocomponent
         {
             get
             {
-
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
                     return _ACClassTaskValue;
@@ -623,7 +622,6 @@ namespace gip.core.autocomponent
             }
             internal set
             {
-
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
                     _ACClassTaskValue = value;
@@ -803,7 +801,17 @@ namespace gip.core.autocomponent
                 }
 
                 if (acClassTaskValue != null)
+                {
+#if !DIAGNOSE
+                    // *** TASKPERFOPT NEW ***
+                    valueXML = acClassTaskValue.XMLValue;
+                    // *** TASKPERFOPT NEW  END***
+#else
+                    // *** TASKPERFOPT OLD ***
                     ACClassTaskQueue.TaskQueue.ProcessAction(() => { valueXML = acClassTaskValue.XMLValue; });
+                    // *** TASKPERFOPT OLD END ***
+#endif
+                }
 
                 _RestoreRuntimeActive = true;
                 if (!String.IsNullOrEmpty(valueXML))
@@ -913,29 +921,62 @@ namespace gip.core.autocomponent
                     return false;
 
                 ACClassTaskValue acClassTaskValue = null;
+                ACClassTask contentTask = ACRef.ValueT.ContentTask;
 
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
                     acClassTaskValue = _ACClassTaskValue;
                 }
 
+                bool added = false;
+#if !DIAGNOSE
+                // *** TASKPERFOPT NEW ***
+                if (acClassTaskValue == null)
+                {
+                    IEnumerable<ACClassTaskValue> acClassTaskValues = null;
+                    if (contentTask.ACClassTaskValue_ACClassTask.IsLoaded)
+                        acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
+                    else
+                    {
+                        ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                        {
+                            acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
+                        });
+                    }
+                    acClassTaskValue = acClassTaskValues.Where(c => c.ACClassPropertyID == ACType.ACTypeID).FirstOrDefault();
+                    if (acClassTaskValue == null)
+                    {
+                        ACClassProperty acClassProperty = ACClassTaskQueue.TaskQueue.GetACClassPropertyFromTaskQueueCache(ACType.ACTypeID);
+                        if (acClassProperty != null)
+                        {
+                            acClassTaskValue = ACClassTaskValue.NewACClassTaskValue(ACClassTaskQueue.TaskQueue.Context, null, null);
+                            acClassTaskValue.NewACClassPropertyForQueue = acClassProperty;
+                            acClassTaskValue.NewACClassTaskForQueue = contentTask;
+                            added = true;
+                        }
+                    }
+                }
+                // *** TASKPERFOPT NEW END ***
+#else
+                // *** TASKPERFOPT OLD ***
                 if (acClassTaskValue == null)
                 {
                     ACClassTaskQueue.TaskQueue.ProcessAction(() =>
                     {
-                        acClassTaskValue = ACRef.ValueT.ContentTask.ACClassTaskValue_ACClassTask.
+                        acClassTaskValue = contentTask.ACClassTaskValue_ACClassTask.
                                     Where(c => (c.ACClassPropertyID == ACType.ACTypeID)).FirstOrDefault();
                         if (acClassTaskValue == null)
                         {
                             ACClassProperty acClassProperty = ACClassTaskQueue.TaskQueue.GetACClassPropertyFromTaskQueueCache(ACType.ACTypeID);
                             //var queryClass = RootDbOpQueue.ACClassTaskQueue.Context.ACClass.Where(c => c.ACClassID == ((ACClass)ACRef.ValueT.ACType).ACClassID);
-                            acClassTaskValue = ACClassTaskValue.NewACClassTaskValue(ACClassTaskQueue.TaskQueue.Context, ACRef.ValueT.ContentTask, acClassProperty);
-                            ACRef.ValueT.ContentTask.ACClassTaskValue_ACClassTask.Add(acClassTaskValue);
+                            acClassTaskValue = ACClassTaskValue.NewACClassTaskValue(ACClassTaskQueue.TaskQueue.Context, contentTask, acClassProperty);
+                            contentTask.ACClassTaskValue_ACClassTask.Add(acClassTaskValue);
                         }
                     }
                     );
                 }
-
+                // *** TASKPERFOPT OLD END ***
+#endif
 
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
@@ -947,6 +988,11 @@ namespace gip.core.autocomponent
                 {
                     ACClassTaskQueue.TaskQueue.Add(() =>
                         {
+                            if (added)
+                            {
+                                acClassTaskValue.PublishToChangeTrackerInQueue();
+                                contentTask.ACClassTaskValue_ACClassTask.Add(acClassTaskValue);
+                            }
                             if (acClassTaskValue != null
                                 && acClassTaskValue.EntityState != System.Data.EntityState.Deleted
                                 && acClassTaskValue.EntityState != System.Data.EntityState.Detached)
@@ -994,11 +1040,11 @@ namespace gip.core.autocomponent
             }
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region EventHandling Methods
+#region EventHandling Methods
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             if (PropertyChanged != null)
@@ -1006,9 +1052,9 @@ namespace gip.core.autocomponent
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-        #endregion
+#endregion
 
-        #region IACUrl Member
+#region IACUrl Member
 
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
@@ -1729,7 +1775,7 @@ namespace gip.core.autocomponent
             get { return typeof(T); }
         }
 
-        #endregion
+#endregion
 
     }
 }

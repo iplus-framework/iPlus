@@ -972,37 +972,81 @@ namespace gip.core.autocomponent
             }
             else if (parentProgramLog != null)
             {
+#if !DIAGNOSE
+
+                // *** TASKPERFOPT NEW ***
+                if (parentProgramLog.ACProgramReference.IsLoaded)
+                    acProgram = parentProgramLog.ACProgramReference.Value;
+                // This is a critical section, while ACTaskQueue is maybe accessing the database and contect and a Call of DeferredLoad() could be time crititcal.
+                // Therfore access temporary cached NewACProgramForQueue
+                if (acProgram == null)// && (parentProgramLog.EntityState == System.Data.EntityState.Added || parentProgramLog.EntityState == System.Data.EntityState.Detached))
+                    acProgram = parentProgramLog.NewACProgramForQueue;
+                if (acProgram == null)
+                {
+                    ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                    {
+                        acProgram = parentProgramLog.ACProgram;
+                    });
+                }
+                if (acProgram == null && parentProgramLog.ACProgramID != Guid.Empty)
+                    acProgram = ACClassTaskQueue.TaskQueue.ProgramCache.GetProgram(parentProgramLog.ACProgramID);
+                // *** TASKPERFOPT NEW END ***
+#else
+                //  *** TASKPERFOPT OLD ***
                 ACClassTaskQueue.TaskQueue.ProcessAction(() =>
                 {
                     acProgram = parentProgramLog.ACProgram;
                 });
+                // *** TASKPERFOPT OLD END ***
+#endif
             }
 
             if (acProgram != null)
             {
                 ACProgramLog currentProgramLog = null;
                 Guid componentClassID = this.ComponentClass.ACClassID;
-                ACClassTaskQueue.TaskQueue.ProcessAction(() =>
-                    {
-                        currentProgramLog = ACProgramLog.NewACObject(ACClassTaskQueue.TaskQueue.Context, acProgram);
-                        currentProgramLog.ACProgramLog1_ParentACProgramLog = parentProgramLog;
-                        currentProgramLog.ACProgram = acProgram;
-                        currentProgramLog.ACUrl = this.GetACUrl();
-                        currentProgramLog.ACClassID = componentClassID;
-                        if (acMethod != null)
-                            currentProgramLog.XMLConfig = ACConvert.ObjectToXML(acMethod, true);
-                        else
-                            currentProgramLog.XMLConfig = "";
-                        TimeInfo.ValueT.StoreToProgramLog(currentProgramLog);
-                    }
-                );
 
+#if !DIAGNOSE
+                // *** TASKPERFOPT NEW ***
+                currentProgramLog = ACProgramLog.NewACObject(ACClassTaskQueue.TaskQueue.Context, null);
+                currentProgramLog.ACUrl = this.GetACUrl();
+                currentProgramLog.ACClassID = componentClassID;
+                if (acMethod != null)
+                    currentProgramLog.XMLConfig = ACConvert.ObjectToXML(acMethod, true);
+                if (currentProgramLog.XMLConfig == null)
+                    currentProgramLog.XMLConfig = "";
+                TimeInfo.ValueT.StoreToProgramLog(currentProgramLog);
+                currentProgramLog.NewACProgramForQueue = acProgram;
+                currentProgramLog.NewParentACProgramLogForQueue = parentProgramLog;
+                // *** TASKPERFOPT NEW END ***
+#else
+
+                //  *** TASKPERFOPT OLD ***
+                ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                {
+                    currentProgramLog = ACProgramLog.NewACObject(ACClassTaskQueue.TaskQueue.Context, acProgram);
+                    currentProgramLog.NewACProgramForQueue = acProgram;
+                    currentProgramLog.NewParentACProgramLogForQueue = parentProgramLog;
+                    currentProgramLog.ACUrl = this.GetACUrl();
+                    currentProgramLog.ACClassID = componentClassID;
+                    if (acMethod != null)
+                        currentProgramLog.XMLConfig = ACConvert.ObjectToXML(acMethod, true);
+                    if (currentProgramLog.XMLConfig == null)
+                        currentProgramLog.XMLConfig = "";
+                    TimeInfo.ValueT.StoreToProgramLog(currentProgramLog);
+                }
+                );
+                // *** TASKPERFOPT OLD END ***
+#endif
                 SetCurrentProgramLog(currentProgramLog, false);
                 ACClassTaskQueue.TaskQueue.ProgramCache.AddProgramLog(currentProgramLog);
 
                 // Eintrag in Queue, Speicherung kann verzögert erfolgen.
                 ACClassTaskQueue.TaskQueue.Add(() =>
                     {
+#if !DIAGNOSE
+                        currentProgramLog.PublishToChangeTrackerInQueue();
+#endif
                         acProgram.ACProgramLog_ACProgram.Add(currentProgramLog);
                         if (parentProgramLog != null)
                             parentProgramLog.ACProgramLog_ParentACProgramLog.Add(currentProgramLog);
@@ -1046,7 +1090,16 @@ namespace gip.core.autocomponent
                         if (refACClassID.HasValue)
                             currentProgramLog.RefACClassID = refACClassID;
                         if (acMethod != null)
-                            currentProgramLog.XMLConfig = ACConvert.ObjectToXML(acMethod, true);
+                        {
+                            string xmlConfig = ACConvert.ObjectToXML(acMethod, true);
+                            if (xmlConfig != null)
+                                currentProgramLog.XMLConfig = xmlConfig;
+                            else
+                            {
+                                if (String.IsNullOrEmpty(currentProgramLog.XMLConfig))
+                                    currentProgramLog.XMLConfig = "";
+                            }
+                        }
                         timeInfo.StoreToProgramLog(currentProgramLog);
                         currentProgramLog.UpdateDate = DateTime.Now;
                         //ACClassTaskQueue.TaskQueue.Context.ACSaveChanges();

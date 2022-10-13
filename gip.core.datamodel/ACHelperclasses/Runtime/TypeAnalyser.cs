@@ -498,7 +498,7 @@ namespace gip.core.datamodel
         #endregion
 
 
-#if DIAGNOSE
+#if DIAGNOSE2
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         unsafe public static IntPtr AddressOf(object t)
         {

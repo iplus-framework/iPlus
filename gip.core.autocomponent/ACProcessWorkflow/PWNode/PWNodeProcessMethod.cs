@@ -146,13 +146,7 @@ namespace gip.core.autocomponent
             if (ParentPWGroup != null
                 && this.ContentACClassWF != null)
             {
-                ACClassMethod refPAACClassMethod = null;
-
-                using (ACMonitor.Lock(this.ContextLockForACClassWF))
-                {
-                    refPAACClassMethod = this.ContentACClassWF.RefPAACClassMethod;
-                }
-
+                ACClassMethod refPAACClassMethod = RefACClassMethodOfContentWF;
                 if (refPAACClassMethod != null)
                 {
                     ACMethod paramMethod = null;

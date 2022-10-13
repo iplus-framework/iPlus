@@ -311,7 +311,7 @@ namespace gip.core.autocomponent
                     // Sonst Persistierbar bzw. Applicationprojects sollten immer persistierbar sein
                     else
                     {
-                        // Falls childs überhaupt perisistiert werden können: ContantTask darf nicht null sein 
+                        // Falls childs überhaupt perisistiert werden können: ContentTask darf nicht null sein 
                         if (this.ContentTask != null)
                         {
                             ACClassTaskQueue.TaskQueue.ProcessAction(() =>
@@ -1208,6 +1208,7 @@ namespace gip.core.autocomponent
                                     .Include("ContentACClassWF.ACClassMethod")
                                     .Include("ContentACClassWF.RefPAACClass")
                                     .Include("ContentACClassWF.RefPAACClassMethod")
+                                    .Include("ContentACClassWF.RefPAACClassMethod.AttachedFromACClass")
                                     .Include("ContentACClassWF.ACClassWF1_ParentACClassWF")
                                     .Include("ContentACClassWF.ACClassWF_ParentACClassWF")
                                     .Include("ContentACClassWF.PWACClass")
@@ -1229,6 +1230,7 @@ namespace gip.core.autocomponent
                                     .Include("ContentACClassWF.ACClassMethod")
                                     .Include("ContentACClassWF.RefPAACClass")
                                     .Include("ContentACClassWF.RefPAACClassMethod")
+                                    .Include("ContentACClassWF.RefPAACClassMethod.AttachedFromACClass")
                                     .Include("ContentACClassWF.ACClassWF1_ParentACClassWF")
                                     .Include("ContentACClassWF.ACClassWF_ParentACClassWF")
                                     .Include("ContentACClassWF.PWACClass")
@@ -1251,6 +1253,7 @@ namespace gip.core.autocomponent
                                     .Include("ContentACClassWF.ACClassMethod")
                                     .Include("ContentACClassWF.RefPAACClass")
                                     .Include("ContentACClassWF.RefPAACClassMethod")
+                                    .Include("ContentACClassWF.RefPAACClassMethod.AttachedFromACClass")
                                     .Include("ContentACClassWF.ACClassWF1_ParentACClassWF")
                                     .Include("ContentACClassWF.ACClassWF_ParentACClassWF")
                                     .Include("ContentACClassWF.PWACClass")
@@ -4466,13 +4469,10 @@ namespace gip.core.autocomponent
                 ACClass acTypeFromLiveContext = ACTypeFromLiveContext;
                 if (acTypeFromLiveContext == null)
                     return null;
-                ACClassTaskQueue.TaskQueue.ProcessAction(() =>
-                {
+                //ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                //{
                     try
                     {
-                        //acTypeFromLiveContext.ACClassConfig_ACClass.Load(MergeOption.OverwriteChanges);
-                        //ACClassConfig acClassConfig = acTypeFromLiveContext.ACClassConfig_ACClass.Where(c => c.KeyACUrl == null && c.LocalConfigACUrl == configuration).FirstOrDefault();
-                        //acTypeFromLiveContext.ClearCacheOfConfigurationEntries();
                         IACConfig acClassConfig = acTypeFromLiveContext.ConfigurationEntries.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl && c.LocalConfigACUrl == configuration).FirstOrDefault();
 
                         if (acClassConfig != null)
@@ -4484,7 +4484,7 @@ namespace gip.core.autocomponent
                         if (e.InnerException != null)
                             Messages.LogException(this.GetACUrl(), "this[].get", e.InnerException.Message);
                     }
-                });
+                //});
                 return result;
             }
             set
@@ -4498,39 +4498,47 @@ namespace gip.core.autocomponent
             ACClass acTypeFromLiveContext = ACTypeFromLiveContext;
             if (acTypeFromLiveContext == null)
                 return;
-            ACClassTaskQueue.TaskQueue.Add(() =>
-            {
-                //ACClassConfig acClassConfig = acTypeFromLiveContext.ACClassConfig_ACClass.Where(c => c.KeyACUrl == null && c.LocalConfigACUrl == configuration).FirstOrDefault();
+            //ACClassTaskQueue.TaskQueue.Add(() =>
+            //{
                 IACConfig acClassConfig = acTypeFromLiveContext.ConfigurationEntries.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl && c.LocalConfigACUrl == configuration).FirstOrDefault();
-                if (acClassConfig == null)
+            if (acClassConfig == null)
+            {
+                if (value != null || forceType != null)
                 {
-                    if (value != null || forceType != null)
+                    ACClassConfig baseACClassConfig = null;
+                    var queryBaseClasses = acTypeFromLiveContext.ClassHierarchyWithInterfaces;
+                    if (queryBaseClasses != null)
                     {
-                        ACClassConfig baseACClassConfig = null;
-                        var queryBaseClasses = acTypeFromLiveContext.ClassHierarchyWithInterfaces;
-                        if (queryBaseClasses != null)
+                        foreach (var baseClass in queryBaseClasses)
                         {
-                            foreach (var baseClass in queryBaseClasses)
-                            {
-                                baseACClassConfig = baseClass.ACClassConfig_ACClass.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl
-                                                                                            && c.LocalConfigACUrl == configuration
-                                                                                            && !String.IsNullOrEmpty(c.Comment)).FirstOrDefault();
-                                if (baseACClassConfig != null)
-                                    break;
-                            }
+                            baseACClassConfig = baseClass.ConfigurationEntries.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl
+                                                                                        && c.LocalConfigACUrl == configuration
+                                                                                        && !String.IsNullOrEmpty(c.Comment)).FirstOrDefault() as ACClassConfig;
+                            //baseACClassConfig = baseClass.ACClassConfig_ACClass.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl
+                            //                                                            && c.LocalConfigACUrl == configuration
+                            //                                                            && !String.IsNullOrEmpty(c.Comment)).FirstOrDefault();
+                            if (baseACClassConfig != null)
+                                break;
                         }
+                    }
+                    ACClassTaskQueue.TaskQueue.Add(() =>
+                    {
                         acClassConfig = acTypeFromLiveContext.NewACConfig(null, ACClassTaskQueue.TaskQueue.Context.GetACType(value != null ? value.GetType() : forceType)) as ACClassConfig;
                         acClassConfig.LocalConfigACUrl = configuration;
                         if (baseACClassConfig != null)
                             acClassConfig.Comment = baseACClassConfig.Comment;
                         acClassConfig.Value = value;
-                    }
+                    });
                 }
-                else
+            }
+            else
+            {
+                ACClassTaskQueue.TaskQueue.Add(() =>
                 {
                     acClassConfig.Value = value;
-                }
-            });
+                });
+            }
+            //});
         }
 
         /// <summary>

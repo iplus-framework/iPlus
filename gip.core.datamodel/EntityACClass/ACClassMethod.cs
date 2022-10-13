@@ -776,11 +776,7 @@ namespace gip.core.datamodel
         {
             get
             {
-
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
-                {
-                    return ACClass;
-                }
+                return Safe_ACClass;
             }
         }
 
@@ -1220,10 +1216,14 @@ namespace gip.core.datamodel
                 }
 
                 ACClassMethod basedOnACClassMethod = null;
-
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                if (ACClassMethod1_ParentACClassMethodReference.IsLoaded)
+                    basedOnACClassMethod = ACClassMethod1_ParentACClassMethodReference.Value;
+                if (basedOnACClassMethod == null)
                 {
-                    basedOnACClassMethod = ACClassMethod1_ParentACClassMethod;
+                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    {
+                        basedOnACClassMethod = ACClassMethod1_ParentACClassMethod;
+                    }
                 }
                 using (ACMonitor.Lock(_10020_LockValue))
                 {
@@ -1422,11 +1422,11 @@ namespace gip.core.datamodel
         {
             get
             {
-
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
-                {
-                    return this.ACClassWF_ACClassMethod.Where(c => c.IsRootWFNode(this)).FirstOrDefault();
-                }
+                return MethodWFList.Where(c => c.IsRootWFNode(this)).FirstOrDefault();
+                //using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                //{
+                //    return this.ACClassWF_ACClassMethod.Where(c => c.IsRootWFNode(this)).FirstOrDefault();
+                //}
             }
         }
 
@@ -1439,17 +1439,33 @@ namespace gip.core.datamodel
         {
             get
             {
+                ACClass workflowTypeACClass = null;
                 var acClassWF = RootWFNode as ACClassWF;
-
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                if (acClassWF != null)
                 {
-                    if (acClassWF != null)
+                    if (acClassWF.PWACClassReference.IsLoaded)
+                        workflowTypeACClass = acClassWF.PWACClassReference.Value;
+                    if (workflowTypeACClass == null)
                     {
-                        return acClassWF.PWACClass;
+                        using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                        {
+                            workflowTypeACClass = acClassWF.PWACClass;
+                        }
                     }
-                    else
-                        return PWACClass;
                 }
+                else
+                {
+                    if (PWACClassReference.IsLoaded)
+                        workflowTypeACClass = PWACClassReference.Value;
+                    if (workflowTypeACClass == null)
+                    {
+                        using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                        {
+                            workflowTypeACClass = PWACClass;
+                        }
+                    }
+                }
+                return workflowTypeACClass;
             }
         }
 
@@ -1463,13 +1479,14 @@ namespace gip.core.datamodel
         {
             get
             {
-
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                if (this.EntityState != System.Data.EntityState.Added && !ACClassWF_ACClassMethod.IsLoaded)
                 {
-                    if (this.EntityState != System.Data.EntityState.Added && !ACClassWF_ACClassMethod.IsLoaded)
+                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    {
                         ACClassWF_ACClassMethod.Load();
-                    return ACClassWF_ACClassMethod.Select(c => c).ToList(); // ToList, damit Query Thread-Safe
+                    }
                 }
+                return ACClassWF_ACClassMethod.ToList(); // ToList, damit Query Thread-Safe
             }
         }
 
@@ -1513,7 +1530,6 @@ namespace gip.core.datamodel
         /// <param name="node"></param>
         public void AddNode(IACWorkflowNode node)
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 if (node is ACClassWF)
@@ -1538,7 +1554,6 @@ namespace gip.core.datamodel
             ACClassWF acClassWF = node as ACClassWF;
             if (acClassWF is null)
                 return;
-
 
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
@@ -1583,7 +1598,6 @@ namespace gip.core.datamodel
         /// <param name="edge"></param>
         public void AddEdge(IACWorkflowEdge edge)
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 if (edge is ACClassWFEdge)
@@ -1604,7 +1618,6 @@ namespace gip.core.datamodel
         /// <param name="edge"></param>
         public void DeleteEdge(IACEntityObjectContext database, IACWorkflowEdge edge)
         {
-
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 if (edge is ACClassWFEdge)
@@ -1769,11 +1782,17 @@ namespace gip.core.datamodel
         {
             get
             {
-
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                ACClass sc = null;
+                if (ACClassReference.IsLoaded)
+                    sc = ACClassReference.Value;
+                if (sc == null)
                 {
-                    return this.ACClass;
+                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    {
+                        sc = this.ACClass;
+                    }
                 }
+                return sc;
             }
         }
 
@@ -1782,11 +1801,17 @@ namespace gip.core.datamodel
         {
             get
             {
-
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                ACClass sc = null;
+                if (ValueTypeACClassReference.IsLoaded)
+                    sc = ValueTypeACClassReference.Value;
+                if (sc == null)
                 {
-                    return this.ValueTypeACClass;
+                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    {
+                        sc = this.ValueTypeACClass;
+                    }
                 }
+                return sc;
             }
         }
 

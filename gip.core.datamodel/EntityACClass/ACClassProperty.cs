@@ -447,10 +447,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
-                {
-                    return ACClass;
-                }
+                return Safe_ACClass;
             }
         }
 
@@ -575,7 +572,6 @@ namespace gip.core.datamodel
         {
             get
             {
-
                 using (ACMonitor.Lock(_10020_LockValue))
                 {
                     if (_LastPointSequenceNo == ulong.MaxValue)
@@ -597,26 +593,53 @@ namespace gip.core.datamodel
         {
             get
             {
-
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
-                {
-                    return TopBaseACClassPropertyLocked;
-                }
-            }
-        }
-
-
-        private ACClassProperty TopBaseACClassPropertyLocked
-        {
-            get
-            {
+                //using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                //{
+                //    return TopBaseACClassPropertyLocked;
+                //}
                 if (this.ACClassPropertyID == this.BasedOnACClassPropertyID)
                     return this;
-                else if (this.ACClassProperty1_BasedOnACClassProperty != null)
-                    return this.ACClassProperty1_BasedOnACClassProperty.TopBaseACClassPropertyLocked;
+
+                ACClassProperty basedProperty = null;
+                if (this.ACClassProperty1_BasedOnACClassPropertyReference.IsLoaded)
+                    basedProperty = this.ACClassProperty1_BasedOnACClassPropertyReference.Value;
+                else
+                {
+                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    {
+                        basedProperty = this.ACClassProperty1_BasedOnACClassProperty;
+                    }
+                }
+                if (basedProperty != null)
+                    return basedProperty.TopBaseACClassProperty;
                 return this;
+
             }
         }
+
+
+        //private ACClassProperty TopBaseACClassPropertyLocked
+        //{
+        //    get
+        //    {
+        //        if (this.ACClassPropertyID == this.BasedOnACClassPropertyID)
+        //            return this;
+
+        //        ACClassProperty basedProperty = null;
+        //        if (this.ACClassProperty1_BasedOnACClassPropertyReference.IsLoaded)
+        //            basedProperty = this.ACClassProperty1_BasedOnACClassPropertyReference.Value;
+        //        else
+        //        {
+        //            using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+        //            {
+        //                basedProperty = this.ACClassProperty1_BasedOnACClassProperty;
+        //            }
+        //        }
+        //        if (basedProperty != null)
+        //            return basedProperty.TopBaseACClassPropertyLocked;
+        //        return this;
+        //    }
+        //}
 
 
         /// <summary>
@@ -1650,11 +1673,17 @@ namespace gip.core.datamodel
         {
             get
             {
-
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                ACClass sc = null;
+                if (ACClassReference.IsLoaded)
+                    sc = ACClassReference.Value;
+                if (sc == null)
                 {
-                    return this.ACClass;
+                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    {
+                        sc = this.ACClass;
+                    }
                 }
+                return sc;
             }
         }
 
@@ -1663,11 +1692,17 @@ namespace gip.core.datamodel
         {
             get
             {
-
-                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                ACClass sc = null;
+                if (ValueTypeACClassReference.IsLoaded)
+                    sc = ValueTypeACClassReference.Value;
+                if (sc == null)
                 {
-                    return this.ValueTypeACClass;
+                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    {
+                        sc = this.ValueTypeACClass;
+                    }
                 }
+                return sc;
             }
         }
 

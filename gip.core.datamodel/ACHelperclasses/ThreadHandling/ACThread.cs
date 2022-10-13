@@ -173,7 +173,7 @@ namespace gip.core.datamodel
             {
                 lock (_Lock)
                 {
-                    return new ReadOnlyCollection<ACThread>(_ACThreadList);
+                    return new ReadOnlyCollection<ACThread>(_ACThreadList.ToArray());
                 }
             }
         }
@@ -186,10 +186,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                lock (_Lock)
-                {
-                    return new ReadOnlyCollection<Thread>(_ACThreadList.Select(c => c.Thread).ToList());
-                }
+                return ACThreadList.Select(c => c.Thread);
             }
         }
 
@@ -201,7 +198,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                return _ACThreadList.Where(c => c.Thread == Thread.CurrentThread).FirstOrDefault();
+                return ACThreadList.Where(c => c.Thread == Thread.CurrentThread).FirstOrDefault();
             }
         }
 

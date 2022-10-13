@@ -45,7 +45,7 @@ namespace gip.core.datamodel
             entity.XMLValue = "";
             entity.XMLValue2 = "";
             entity.DefaultValuesACObject();
-            if (parentACObject is ACClassTask)
+            if (parentACObject != null && parentACObject is ACClassTask)
             {
                 using (ACMonitor.Lock(database.QueryLock_1X000))
                 {
@@ -66,14 +66,48 @@ namespace gip.core.datamodel
         public static ACClassTaskValue NewACClassTaskValue(Database database, IACObject parentACObject, IACType acClassProperty)
         {
             ACClassTaskValue entity = ACClassTaskValue.NewACObject(database, parentACObject);
-            using (ACMonitor.Lock(database.QueryLock_1X000))
+            if (acClassProperty != null)
             {
-                entity.ACClassProperty = acClassProperty as ACClassProperty;
+                using (ACMonitor.Lock(database.QueryLock_1X000))
+                {
+                    entity.ACClassProperty = acClassProperty as ACClassProperty;
+                }
             }
             entity.EntityCheckAdded(database.UserName, database);
             return entity;
         }
 
+        ACClassProperty _NewACClassPropertyForQueue;
+        public ACClassProperty NewACClassPropertyForQueue
+        {
+            get
+            {
+                return _NewACClassPropertyForQueue;
+            }
+            set
+            {
+                _NewACClassPropertyForQueue = value;
+            }
+        }
+
+        ACClassTask _NewACClassTaskForQueue;
+        public ACClassTask NewACClassTaskForQueue
+        {
+            get
+            {
+                return _NewACClassTaskForQueue;
+            }
+            set
+            {
+                _NewACClassTaskForQueue = value;
+            }
+        }
+
+        public void PublishToChangeTrackerInQueue()
+        {
+            this.ACClassProperty = NewACClassPropertyForQueue;
+            this.ACClassTask = NewACClassTaskForQueue;
+        }
         #endregion
 
         #region IACUrl Member

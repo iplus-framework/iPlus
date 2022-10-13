@@ -214,6 +214,27 @@ namespace gip.core.autocomponent
             }
         }
 
+        public ACClassMethod ACClassMethodOfContentWF
+        {
+            get
+            {
+                var contentACClassWF = this.ContentACClassWF;
+                if (contentACClassWF == null)
+                    return null;
+                ACClassMethod acClassMethodOfContentWF = null;
+                if (contentACClassWF.ACClassMethodReference.IsLoaded)
+                    acClassMethodOfContentWF = contentACClassWF.ACClassMethodReference.Value;
+                if (acClassMethodOfContentWF == null)
+                {
+                    using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                    {
+                        acClassMethodOfContentWF = contentACClassWF.ACClassMethod;
+                    }
+                }
+                return acClassMethodOfContentWF;
+            }
+        }
+
         public ACMonitorObject ContextLockForACClassWF
         {
             get
@@ -365,21 +386,18 @@ namespace gip.core.autocomponent
         {
             get
             {
-                if (this.ContentTask == null)
+                var contentTask = this.ContentTask;
+                if (contentTask == null)
                     return null;
 
                 ACProgram acProgram = null;
-                ACClassTaskQueue.TaskQueue.ProcessAction(() => { acProgram = ContentTask.ACProgram; });
+                if (contentTask.ACProgramReference.IsLoaded)
+                    acProgram = contentTask.ACProgramReference.Value;
+                if (acProgram == null)
+                    ACClassTaskQueue.TaskQueue.ProcessAction(() => { acProgram = contentTask.ACProgram; });
                 if (acProgram != null)
                     return acProgram;
-
-                if (ContentACClassWF == null)
-                    return null;
-
-                using (ACMonitor.Lock(this.ContextLockForACClassWF))
-                {
-                    return ContentACClassWF.ACClassMethod;
-                }
+                return ACClassMethodOfContentWF;
             }
         }
 

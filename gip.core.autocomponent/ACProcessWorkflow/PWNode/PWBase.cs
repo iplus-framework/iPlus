@@ -206,7 +206,12 @@ namespace gip.core.autocomponent
                     else if (value is ACClassTask)
                     {
                         ACClassTask acClassTask = value as ACClassTask;
-                        ACClassTaskQueue.TaskQueue.ProcessAction(() => { _ContentACClassWF = acClassTask.ContentACClassWF; });
+                        if (acClassTask.ContentACClassWFReference.IsLoaded)
+                            _ContentACClassWF = acClassTask.ContentACClassWFReference.Value;
+                        if (_ContentACClassWF == null) // && (acClassTask.EntityState == System.Data.EntityState.Added || acClassTask.EntityState == System.Data.EntityState.Detached))
+                            _ContentACClassWF = acClassTask.NewContentACClassWFForQueue;
+                        if (_ContentACClassWF == null)
+                            ACClassTaskQueue.TaskQueue.ProcessAction(() => { _ContentACClassWF = acClassTask.ContentACClassWF; });
                         if (_WFInitPhase == WFInstantiatonPhase.NewWF_Creating)
                             _WFInitPhase = WFInstantiatonPhase.NewWF_TaskCreated;
                     }
@@ -231,10 +236,99 @@ namespace gip.core.autocomponent
                     else if (Content is ACClassTask)
                     {
                         ACClassTask acClassTask = Content as ACClassTask;
-                        ACClassTaskQueue.TaskQueue.ProcessAction(() => { _ContentACClassWF = acClassTask.ContentACClassWF; });
+                        if (acClassTask.ContentACClassWFReference.IsLoaded)
+                            _ContentACClassWF = acClassTask.ContentACClassWFReference.Value;
+                        if (_ContentACClassWF == null)// && (acClassTask.EntityState == System.Data.EntityState.Added || acClassTask.EntityState == System.Data.EntityState.Detached))
+                            _ContentACClassWF = acClassTask.NewContentACClassWFForQueue;
+                        if (_ContentACClassWF == null)
+                            ACClassTaskQueue.TaskQueue.ProcessAction(() => { _ContentACClassWF = acClassTask.ContentACClassWF; });
                     }
                 }
                 return _ContentACClassWF;
+            }
+        }
+
+        public ACClassMethod RefACClassMethodOfContentWF
+        {
+            get
+            {
+                var contentACClassWF = this.ContentACClassWF;
+                if (contentACClassWF == null)
+                    return null;
+                ACClassMethod aCClassMethod = null;
+                if (contentACClassWF.RefPAACClassMethodReference.IsLoaded)
+                    aCClassMethod = contentACClassWF.RefPAACClassMethodReference.Value;
+                if (aCClassMethod == null)
+                {
+                    using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                    {
+                        aCClassMethod = contentACClassWF.RefPAACClassMethod;
+                    }
+                }
+                return aCClassMethod;
+            }
+        }
+
+        public ACClass RefACClassOfContentWF
+        {
+            get
+            {
+                var contentACClassWF = this.ContentACClassWF;
+                if (contentACClassWF == null)
+                    return null;
+                ACClass refACClassOfContentWF = null;
+                if (contentACClassWF.RefPAACClassReference.IsLoaded)
+                    refACClassOfContentWF = contentACClassWF.RefPAACClassReference.Value;
+                if (refACClassOfContentWF == null)
+                {
+                    using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                    {
+                        refACClassOfContentWF = contentACClassWF.RefPAACClass;
+                    }
+                }
+                return refACClassOfContentWF;
+            }
+        }
+
+        public ACClassMethod ACClassMethodOfContentWF
+        {
+            get
+            {
+                var contentACClassWF = this.ContentACClassWF;
+                if (contentACClassWF == null)
+                    return null;
+                ACClassMethod acClassMethodOfContentWF = null;
+                if (contentACClassWF.ACClassMethodReference.IsLoaded)
+                    acClassMethodOfContentWF = contentACClassWF.ACClassMethodReference.Value;
+                if (acClassMethodOfContentWF == null)
+                {
+                    using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                    {
+                        acClassMethodOfContentWF = contentACClassWF.ACClassMethod;
+                    }
+                }
+                return acClassMethodOfContentWF;
+            }
+        }
+
+        public ACClass PWACClassOfContentWF
+        {
+            get
+            {
+                var contentACClassWF = this.ContentACClassWF;
+                if (contentACClassWF == null)
+                    return null;
+                ACClass pwACClassOfContentW = null;
+                if (contentACClassWF.PWACClassReference.IsLoaded)
+                    pwACClassOfContentW = contentACClassWF.PWACClassReference.Value;
+                if (pwACClassOfContentW == null)
+                {
+                    using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                    {
+                        pwACClassOfContentW = contentACClassWF.PWACClass;
+                    }
+                }
+                return pwACClassOfContentW;
             }
         }
 
@@ -502,20 +596,34 @@ namespace gip.core.autocomponent
         {
             get
             {
-                if (this.ContentTask == null)
+                ACClassTask contentTask = ContentTask;
+                if (contentTask == null)
                     return null;
+
                 ACProgram acProgram = null;
-                ACClassTaskQueue.TaskQueue.ProcessAction(() => { acProgram = ContentTask.ACProgram; });
+                if (contentTask.ACProgramReference.IsLoaded)
+                    acProgram = contentTask.ACProgramReference.Value;
+                if (acProgram == null)// && (contentTask.EntityState == System.Data.EntityState.Added || contentTask.EntityState == System.Data.EntityState.Detached))
+                    acProgram = contentTask.NewACProgramForQueue;
+                if (acProgram == null)
+                    ACClassTaskQueue.TaskQueue.ProcessAction(() => { acProgram = contentTask.ACProgram; });
                 if (acProgram != null)
                     return acProgram;
 
-                if (ContentACClassWF == null)
+                ACClassMethod wfContext = null;
+                ACClassWF contentACClassWF = ContentACClassWF;
+                if (contentACClassWF == null)
                     return null;
-
-                using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                if (contentACClassWF.ACClassMethodReference.IsLoaded)
+                    wfContext = contentACClassWF.ACClassMethodReference.Value;
+                if (wfContext == null)
                 {
-                    return ContentACClassWF.ACClassMethod;
+                    using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                    {
+                        wfContext = ContentACClassWF.ACClassMethod;
+                    }
                 }
+                return wfContext;
             }
         }
 
@@ -551,7 +659,8 @@ namespace gip.core.autocomponent
                     return false;
 
                 System.Data.EntityState entityState = System.Data.EntityState.Unchanged;
-                ACClassTaskQueue.TaskQueue.ProcessAction(() => { entityState = ContentTask.EntityState; });
+                entityState = ContentTask.EntityState;
+                //ACClassTaskQueue.TaskQueue.ProcessAction(() => { entityState = ContentTask.EntityState; });
                 if (entityState != System.Data.EntityState.Unchanged && entityState != System.Data.EntityState.Modified)
                     return false;
 

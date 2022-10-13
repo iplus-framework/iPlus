@@ -62,11 +62,14 @@ namespace gip.core.autocomponent
             if (CurrentACState == ACStateEnum.SMIdle)
             {
                 ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
-                var ruleValueList = serviceInstance.GetRuleValueList(MandatoryConfigStores, PreValueACUrl, ConfigACUrl + @"\Rules\" + ACClassWFRuleTypes.Breakpoint.ToString());
-                if (ruleValueList != null)
+                if (serviceInstance != null)
                 {
-                    if (ruleValueList.IsBreakPointSet())
-                        CurrentACState = ACStateEnum.SMBreakPoint;
+                    var ruleValueList = serviceInstance.GetRuleValueList(MandatoryConfigStores, PreValueACUrl, ConfigACUrl + @"\Rules\" + ACClassWFRuleTypes.Breakpoint.ToString());
+                    if (ruleValueList != null)
+                    {
+                        if (ruleValueList.IsBreakPointSet())
+                            CurrentACState = ACStateEnum.SMBreakPoint;
+                    }
                 }
             }
         }
@@ -142,14 +145,9 @@ namespace gip.core.autocomponent
         {
             if (_ACMethodSignature != null)
                 return _ACMethodSignature.Clone() as ACMethod;
-            ACClass pwACClass = null;
-
-            using (ACMonitor.Lock(this.ContextLockForACClassWF))
-            {
-                if (this.ContentACClassWF == null)
-                    return null;
-                pwACClass = this.ContentACClassWF.PWACClass;
-            }
+            ACClass pwACClass = PWACClassOfContentWF;
+            if (pwACClass == null)
+                return null;
             var acClassMethod = pwACClass.MethodsCached.Where(c => c.ACIdentifier == ACStateConst.SMStarting && c.ACGroup == Const.ACState).FirstOrDefault();
             if (acClassMethod == null)
                 return null;

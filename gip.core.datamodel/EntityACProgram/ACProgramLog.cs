@@ -30,16 +30,48 @@ namespace gip.core.datamodel
         {
             ACProgramLog entity = new ACProgramLog();
             entity.ACProgramLogID = Guid.NewGuid();
-            if (parentACObject is ACProgram)
+            if (parentACObject != null && parentACObject is ACProgram)
             {
-                using (ACMonitor.Lock(database.QueryLock_1X000))
-                {
+                //using (ACMonitor.Lock(database.QueryLock_1X000))
+                //{
                     entity.ACProgram = parentACObject as ACProgram;
-                }
+                //}
             }
             entity.DefaultValuesACObject();
             entity.SetInsertAndUpdateInfo(database.UserName, database);
             return entity;
+        }
+
+        ACProgramLog _NewParentACProgramLogForQueue;
+        public ACProgramLog NewParentACProgramLogForQueue
+        {
+            get
+            {
+                return _NewParentACProgramLogForQueue;
+            }
+            set
+            {
+                _NewParentACProgramLogForQueue = value;
+            }
+        }
+
+        ACProgram _NewACProgramForQueue;
+        public ACProgram NewACProgramForQueue
+        {
+            get
+            {
+                return _NewACProgramForQueue;
+            }
+            set
+            {
+                _NewACProgramForQueue = value;
+            }
+        }
+
+        public void PublishToChangeTrackerInQueue()
+        {
+            ACProgram = _NewACProgramForQueue;
+            ACProgramLog1_ParentACProgramLog = _NewParentACProgramLogForQueue;
         }
 
         #endregion

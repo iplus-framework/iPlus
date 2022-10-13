@@ -51,14 +51,9 @@ namespace gip.core.autocomponent
         {
             get
             {
-                ACClass refPAACClass = null;
                 if (ContentACClassWF == null)
                     return new List<ACComponent>();
-
-                using (ACMonitor.Lock(this.ContextLockForACClassWF))
-                {
-                    refPAACClass = ContentACClassWF.RefPAACClass;
-                }
+                ACClass refPAACClass = RefACClassOfContentWF;
                 if (refPAACClass == null)
                     return new List<ACComponent>();
                 IEnumerable<IACComponent> queryProject = null;
@@ -253,16 +248,7 @@ namespace gip.core.autocomponent
 
         protected virtual bool AddNewTaskToApplication()
         {
-            ACClassMethod refPAACClassMethod = null;
-            if (this.ContentACClassWF != null)
-            {
-
-                using (ACMonitor.Lock(this.ContextLockForACClassWF))
-                {
-                    refPAACClassMethod = this.ContentACClassWF.RefPAACClassMethod;
-                }
-            }
-
+            ACClassMethod refPAACClassMethod = RefACClassMethodOfContentWF;
             if (refPAACClassMethod != null)
             {
                 ACComponent pFunction = FirstInvokableTaskExecutor;

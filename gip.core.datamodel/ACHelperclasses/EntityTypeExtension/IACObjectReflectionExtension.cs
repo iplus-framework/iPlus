@@ -880,7 +880,7 @@ namespace gip.core.datamodel
                 return;
 
             Type entityType = acObject.GetType();
-            foreach (ACClassProperty acClassProperty in entitySchema.Properties)
+            foreach (ACClassProperty acClassProperty in entitySchema.PropertiesCached)
             {
                 //if (acClassProperty.AssemblyQualifiedName == "Item")
                 //    continue;
