@@ -1232,7 +1232,15 @@ namespace gip.core.autocomponent
                                     .Include("ContentACClassWF.ACClassWF_ParentACClassWF")
                                     .Include("ContentACClassWF.PWACClass")
                                     .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF.SourceACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF.TargetACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF.SourceACClassProperty")
+                                    .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF.TargetACClassProperty")
                                     .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF.SourceACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF.TargetACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF.SourceACClassProperty")
+                                    .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF.TargetACClassProperty")
                                     .Include("ACProgram")
                                     .Include("TaskTypeACClass")
                                     .Include("ACClassTaskValue_ACClassTask")
@@ -1255,7 +1263,15 @@ namespace gip.core.autocomponent
                                     .Include("ContentACClassWF.ACClassWF_ParentACClassWF")
                                     .Include("ContentACClassWF.PWACClass")
                                     .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF.SourceACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF.TargetACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF.SourceACClassProperty")
+                                    .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF.TargetACClassProperty")
                                     .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF.SourceACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF.TargetACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF.SourceACClassProperty")
+                                    .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF.TargetACClassProperty")
                                     .Include("ACProgram")
                                     .Include("TaskTypeACClass")
                                     .Include("ACClassTaskValue_ACClassTask")
@@ -1279,7 +1295,15 @@ namespace gip.core.autocomponent
                                     .Include("ContentACClassWF.ACClassWF_ParentACClassWF")
                                     .Include("ContentACClassWF.PWACClass")
                                     .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF.SourceACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF.TargetACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF.SourceACClassProperty")
+                                    .Include("ContentACClassWF.ACClassWFEdge_SourceACClassWF.TargetACClassProperty")
                                     .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF.SourceACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF.TargetACClassWF")
+                                    .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF.SourceACClassProperty")
+                                    .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF.TargetACClassProperty")
                                     .Include("ACProgram")
                                     .Include("TaskTypeACClass")
                                     .Include("ACClassTaskValue_ACClassTask")
@@ -3530,11 +3554,19 @@ namespace gip.core.autocomponent
                         if (rootWF.ACClassMethod != null)
                             rootWF.ACClassMethod.AutoRefresh();
                     });
-                    acClassMethod.LastReadUpdateACClassWF = acClassMethod.UpdateDate;
                 }
 
                 pwProcessFunc = StartComponent(typeOfWFRoot, rootWF, acParameter, Global.ACStartTypes.Automatic, false) as PWProcessFunction;
-                acClassMethod.SetACClassWFRefreshed();
+
+                if (acClassMethod.MustRefreshACClassWF)
+                {
+                    ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                    {
+                        if (rootWF.ACClassMethod != null)
+                            rootWF.ACClassMethod.SetACClassWFRefreshed();
+                    });
+                    acClassMethod.SetACClassWFRefreshed();
+                }
             }
             catch (ACCreateException e)
             {

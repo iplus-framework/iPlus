@@ -73,29 +73,83 @@ namespace gip.core.autocomponent
                         // Reload if workflow changes have been made on the client side
                         try
                         {
-
-                            using (ACMonitor.Lock(pwNode.ContextLockForACClassWF))
+                            bool mustRefreshEdges = pwNode.ContentACClassWF.ACClassMethod.MustRefreshACClassWF;
+                            bool edgesLoaded = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.IsLoaded;
+                            IEnumerable<ACClassWFEdge> edgesArray = null;
+                            if (mustRefreshEdges || !edgesLoaded)
                             {
-                                edges = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.CreateSourceQuery()
-                                    .Include(c => c.SourceACClassWF)
-                                    .Include(c => c.TargetACClassWF)
-                                    .Include(c => c.SourceACClassProperty)
-                                    .Include(c => c.TargetACClassProperty)
-                                    .Select(c => new SafeWFNodeEdgeResult()
+                                using (ACMonitor.Lock(pwNode.ContextLockForACClassWF))
+                                {
+                                    if (edgesLoaded)
                                     {
-                                        Edge = c,
-                                        SourceACClassWF = c.SourceACClassWF,
-                                        TargetACClassWF = c.TargetACClassWF,
-                                        SourceACClassProperty = c.SourceACClassProperty,
-                                        TargetACClassProperty = c.TargetACClassProperty
-                                    })
-                                    .ToArray();
-                                //if (pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.IsLoaded)
-                                //{
-                                //    pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
-                                //    pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad();
-                                //}
+                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
+                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad();
+                                    }
+                                    else
+                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.Load();
+
+                                    edgesArray = pwNode.ContentACClassWF.Database.ACClassWFEdge
+                                        .Include(c => c.SourceACClassWF)
+                                        .Include(c => c.TargetACClassWF)
+                                        .Include(c => c.SourceACClassProperty)
+                                        .Include(c => c.TargetACClassProperty)
+                                        .Where(c => c.TargetACClassWFID == pwNode.ContentACClassWF.ACClassWFID)
+                                        .ToArray();
+
+                                    //edges = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.CreateSourceQuery()
+                                    //    .Include(c => c.SourceACClassWF)
+                                    //    .Include(c => c.TargetACClassWF)
+                                    //    .Include(c => c.SourceACClassProperty)
+                                    //    .Include(c => c.TargetACClassProperty)
+                                    //    .Select(c => new SafeWFNodeEdgeResult()
+                                    //    {
+                                    //        Edge = c,
+                                    //        SourceACClassWF = c.SourceACClassWF,
+                                    //        TargetACClassWF = c.TargetACClassWF,
+                                    //        SourceACClassProperty = c.SourceACClassProperty,
+                                    //        TargetACClassProperty = c.TargetACClassProperty
+                                    //    })
+                                    //    .ToArray();
+                                }
                             }
+                            else
+                            {
+                                edgesArray = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF
+                                    .ToArray();
+                                foreach (var edge in edgesArray)
+                                {
+                                    if (   !edge.SourceACClassWFReference.IsLoaded
+                                        || !edge.TargetACClassWFReference.IsLoaded
+                                        || !edge.SourceACClassPropertyReference.IsLoaded
+                                        || !edge.TargetACClassPropertyReference.IsLoaded)
+                                    {
+                                        mustRefreshEdges = true;
+                                        break;
+                                    }
+                                }
+                                if (mustRefreshEdges)
+                                {
+                                    using (ACMonitor.Lock(pwNode.ContextLockForACClassWF))
+                                    {
+                                        edgesArray = pwNode.ContentACClassWF.Database.ACClassWFEdge
+                                            .Include(c => c.SourceACClassWF)
+                                            .Include(c => c.TargetACClassWF)
+                                            .Include(c => c.SourceACClassProperty)
+                                            .Include(c => c.TargetACClassProperty)
+                                            .Where(c => c.TargetACClassWFID == pwNode.ContentACClassWF.ACClassWFID)
+                                            .ToArray();
+                                    }
+                                }
+                            }
+                            edges = edgesArray.Select(c => new SafeWFNodeEdgeResult()
+                            {
+                                Edge = c,
+                                SourceACClassWF = c.SourceACClassWF,
+                                TargetACClassWF = c.TargetACClassWF,
+                                SourceACClassProperty = c.SourceACClassProperty,
+                                TargetACClassProperty = c.TargetACClassProperty
+                            })
+                            .ToArray();
                         }
                         catch (Exception e)
                         {
@@ -165,29 +219,83 @@ namespace gip.core.autocomponent
                         // Reload if workflow changes have been made on the client side
                         try
                         {
-
-                            using (ACMonitor.Lock(pwNode.ContextLockForACClassWF))
+                            bool mustRefreshEdges = pwNode.ContentACClassWF.ACClassMethod.MustRefreshACClassWF;
+                            bool edgesLoaded = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.IsLoaded;
+                            IEnumerable<ACClassWFEdge> edgesArray = null;
+                            if (mustRefreshEdges || !edgesLoaded)
                             {
-                                edges = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.CreateSourceQuery()
-                                    .Include(c => c.SourceACClassWF)
-                                    .Include(c => c.TargetACClassWF)
-                                    .Include(c => c.SourceACClassProperty)
-                                    .Include(c => c.TargetACClassProperty)
-                                    .Select(c => new SafeWFNodeEdgeResult()
+
+                                using (ACMonitor.Lock(pwNode.ContextLockForACClassWF))
+                                {
+                                    if (edgesLoaded)
                                     {
-                                        Edge = c,
-                                        SourceACClassWF = c.SourceACClassWF,
-                                        TargetACClassWF = c.TargetACClassWF,
-                                        SourceACClassProperty = c.SourceACClassProperty,
-                                        TargetACClassProperty = c.TargetACClassProperty
-                                    })
-                                    .ToArray();
-                                //if (pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.IsLoaded)
-                                //{
-                                //    pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
-                                //    pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad();
-                                //}
+                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
+                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad();
+                                    }
+                                    else
+                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.Load();
+
+                                    edgesArray = pwNode.ContentACClassWF.Database.ACClassWFEdge
+                                        .Include(c => c.SourceACClassWF)
+                                        .Include(c => c.TargetACClassWF)
+                                        .Include(c => c.SourceACClassProperty)
+                                        .Include(c => c.TargetACClassProperty)
+                                        .Where(c => c.TargetACClassWFID == pwNode.ContentACClassWF.ACClassWFID)
+                                        .ToArray();
+                                    //edges = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.CreateSourceQuery()
+                                    //    .Include(c => c.SourceACClassWF)
+                                    //    .Include(c => c.TargetACClassWF)
+                                    //    .Include(c => c.SourceACClassProperty)
+                                    //    .Include(c => c.TargetACClassProperty)
+                                    //    .Select(c => new SafeWFNodeEdgeResult()
+                                    //    {
+                                    //        Edge = c,
+                                    //        SourceACClassWF = c.SourceACClassWF,
+                                    //        TargetACClassWF = c.TargetACClassWF,
+                                    //        SourceACClassProperty = c.SourceACClassProperty,
+                                    //        TargetACClassProperty = c.TargetACClassProperty
+                                    //    })
+                                    //    .ToArray();
+                                }
                             }
+                            else
+                            {
+                                edgesArray = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF
+                                    .ToArray();
+                                foreach (var edge in edgesArray)
+                                {
+                                    if (!edge.SourceACClassWFReference.IsLoaded
+                                        || !edge.TargetACClassWFReference.IsLoaded
+                                        || !edge.SourceACClassPropertyReference.IsLoaded
+                                        || !edge.TargetACClassPropertyReference.IsLoaded)
+                                    {
+                                        mustRefreshEdges = true;
+                                        break;
+                                    }
+                                }
+                                if (mustRefreshEdges)
+                                {
+                                    using (ACMonitor.Lock(pwNode.ContextLockForACClassWF))
+                                    {
+                                        edgesArray = pwNode.ContentACClassWF.Database.ACClassWFEdge
+                                            .Include(c => c.SourceACClassWF)
+                                            .Include(c => c.TargetACClassWF)
+                                            .Include(c => c.SourceACClassProperty)
+                                            .Include(c => c.TargetACClassProperty)
+                                            .Where(c => c.TargetACClassWFID == pwNode.ContentACClassWF.ACClassWFID)
+                                            .ToArray();
+                                    }
+                                }
+                            }
+                            edges = edgesArray.Select(c => new SafeWFNodeEdgeResult()
+                            {
+                                Edge = c,
+                                SourceACClassWF = c.SourceACClassWF,
+                                TargetACClassWF = c.TargetACClassWF,
+                                SourceACClassProperty = c.SourceACClassProperty,
+                                TargetACClassProperty = c.TargetACClassProperty
+                            })
+                            .ToArray();
                         }
                         catch (Exception e)
                         {

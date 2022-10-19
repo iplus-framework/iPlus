@@ -156,29 +156,35 @@ namespace gip.core.autocomponent
             if (pwGroupComponent.WFInitPhase >= PWBase.WFInstantiatonPhase.NewWF_Creating)
             {
                 ACClassWF[] wfChilds = null;
-                bool? mustRefreshACClassWF = null;
+                bool mustRefreshACClassWF = false;
                 try
                 {
-                    using (ACMonitor.Lock(pwGroupComponent.ContextLockForACClassWF))
+                    mustRefreshACClassWF = pwGroupComponent.ContentACClassWF.ACClassMethod != null && pwGroupComponent.ContentACClassWF.ACClassMethod.MustRefreshACClassWF;
+                    bool childsLoaded = pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.IsLoaded;
+
+                    if (mustRefreshACClassWF || !childsLoaded)
                     {
-                        mustRefreshACClassWF = pwGroupComponent.ContentACClassWF.ACClassMethod != null && pwGroupComponent.ContentACClassWF.ACClassMethod.MustRefreshACClassWF;
-                        // Nachladen, falls Workflow von Client verändert worden ist
-                        if (mustRefreshACClassWF.Value)
+                        using (ACMonitor.Lock(pwGroupComponent.ContextLockForACClassWF))
                         {
-                            if (pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.IsLoaded)
+                            // Nachladen, falls Workflow von Client verändert worden ist
+                            if (mustRefreshACClassWF || !childsLoaded)
                             {
                                 pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.AutoRefresh();
                                 pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.AutoLoad();
                             }
-                        }
-                        wfChilds = pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.ToArray();
-                        if (mustRefreshACClassWF.Value && wfChilds != null && wfChilds.Any())
-                        {
-                            foreach (var acClassWF in wfChilds)
+                            wfChilds = pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.ToArray();
+                            if (mustRefreshACClassWF && wfChilds != null && wfChilds.Any())
                             {
-                                acClassWF.AutoRefresh();
+                                foreach (var acClassWF in wfChilds)
+                                {
+                                    acClassWF.AutoRefresh();
+                                }
                             }
                         }
+                    }
+                    else
+                    {
+                        wfChilds = pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.ToArray();
                     }
                 }
                 catch (Exception e)
