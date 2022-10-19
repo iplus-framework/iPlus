@@ -49,7 +49,8 @@ namespace gip.core.datamodel
             var myObjectState = context.ObjectStateManager.GetObjectStateEntry(entityObject);
             var modifiedProperties = myObjectState.GetModifiedProperties();
 
-            bool isUpdated = false;
+            bool localWithGreaterUpdateDate = false;
+            bool isSame = false;
             DateTime localRecordTime = new DateTime();
             DateTime importedRecordTime = new DateTime();
 
@@ -59,10 +60,12 @@ namespace gip.core.datamodel
                 localRecordTime = (DateTime)myObjectState.OriginalValues[Property_UpdateDate];
                 importedRecordTime = (DateTime)myObjectState.CurrentValues[Property_UpdateDate];
 
-                isUpdated = (localRecordTime - importedRecordTime).TotalMinutes >= 1;
+                isSame = Math.Abs((localRecordTime - importedRecordTime).TotalMinutes) < 1;
+
+                localWithGreaterUpdateDate = !isSame && localRecordTime > importedRecordTime;
             }
 
-            if (isUpdated)
+            if (localWithGreaterUpdateDate)
             {
                 msg = new Msg()
                 {
@@ -72,7 +75,7 @@ namespace gip.core.datamodel
                    entityTypeName, importFileName, localRecordTime, importedRecordTime)
                 };
             }
-            else
+            else if(isSame)
             {
                 msg = new Msg()
                 {
