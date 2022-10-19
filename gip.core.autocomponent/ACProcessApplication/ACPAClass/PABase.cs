@@ -390,6 +390,7 @@ namespace gip.core.autocomponent
         /// Restores the CurrentProgramLog-Property from the database.
         /// </summary>
         /// <param name="attach">if set to <c>true</c> [attach].</param>
+        /// <param name="lookupOnlyInCache">lookupOnlyInCache</param>
         /// <returns></returns>
         protected abstract ACProgramLog GetCurrentProgramLog(bool attach, bool lookupOnlyInCache = false);
 

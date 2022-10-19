@@ -200,13 +200,11 @@ namespace gip.core.autocomponent
                 }
                 else if (taskValue != null)
                 {
-                    bool saveNeeded = false;
                     // Sofort ausführen, damit keine Multithreading-Probleme auftauchen
                     ACClassTaskQueue.TaskQueue.Add(() =>
                         {
                             if (taskValue.ACClassTaskValuePos_ACClassTaskValue.Any())
                             {
-                                saveNeeded = true;
                                 foreach (ACClassTaskValuePos posToDelete in taskValue.ACClassTaskValuePos_ACClassTaskValue.ToList())
                                 {
                                     posToDelete.DeleteACObject(ACClassTaskQueue.TaskQueue.Context, false);

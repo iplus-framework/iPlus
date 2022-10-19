@@ -318,6 +318,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="parentProgramLog">parentProgramLog</param>
         /// <param name="acUrl">acUrl</param>
+        /// <param name="lookupOnlyInCache">lookupOnlyInCache</param>
         /// <param name="checkNewerThanParentProgramLog">checkNewerThanParentProgramLog</param>
         /// <returns></returns>
         public ACProgramLog GetCurrentProgramLog(ACProgramLog parentProgramLog, string acUrl, bool lookupOnlyInCache = false, bool checkNewerThanParentProgramLog = true)
