@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using gip.core.datamodel;
 using System.Xml;
+using System.Threading;
 
 namespace gip.core.autocomponent
 {
@@ -163,7 +164,8 @@ namespace gip.core.autocomponent
                 && IsEnabledAckStart())
             {
                 _AckTiggeredOverSwitch = true;
-                this.ApplicationManager.ApplicationQueue.Add(() => AckStart());
+                AckStart();
+                //this.ApplicationManager.ApplicationQueue.Add(() => AckStart());
             }
         }
 
@@ -244,7 +246,11 @@ namespace gip.core.autocomponent
             if (!IsEnabledAckStart())
                 return;
             AcknowledgeAllAlarms();
-            CurrentACState = ACStateEnum.SMCompleted;
+            var appManager = this.ApplicationManager;
+            if (appManager != null && Thread.CurrentThread != appManager.ApplicationQueue.ThreadOfQueue)
+                this.ApplicationManager.ApplicationQueue.Add(() => CurrentACState = ACStateEnum.SMCompleted);
+            else
+                CurrentACState = ACStateEnum.SMCompleted;
         }
 
         public virtual bool IsEnabledAckStart()

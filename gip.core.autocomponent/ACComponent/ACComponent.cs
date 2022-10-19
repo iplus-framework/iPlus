@@ -146,10 +146,13 @@ namespace gip.core.autocomponent
                     && parentACComponent.ContentTask != null
                     && parentACComponent.ACOperationMode == ACOperationModes.Live)
                 {
-                    ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                    if (parentACComponent.ContentTask.EntityState != System.Data.EntityState.Detached)
                     {
-                        content = s_cQry_ContentTaskByIdentifier(ACClassTaskQueue.TaskQueue.Context, parentACComponent.ContentTask.ACClassTaskID, acType.ACIdentifier);
-                    });
+                        ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                        {
+                            content = s_cQry_ContentTaskByIdentifier(ACClassTaskQueue.TaskQueue.Context, parentACComponent.ContentTask.ACClassTaskID, acType.ACIdentifier);
+                        });
+                    }
 
                     if (!IsProxy && content == null)
                     {
@@ -172,6 +175,16 @@ namespace gip.core.autocomponent
 
             if (ContentTask != null)
             {
+                if (ContentTask.TaskTypeACClassReference.IsLoaded)
+                {
+                    using (ACMonitor.Lock(_20015_LockValue))
+                    {
+                        if (_ACTypeFromLiveContext == null)
+                        {
+                            _ACTypeFromLiveContext = ContentTask.TaskTypeACClass;
+                        }
+                    }
+                }
                 if (ParentACComponent != null && ParentACComponent.ACOperationMode == ACOperationModes.Simulation)
                     _ACOperationMode = ACOperationModes.Simulation;
                 //else if (ContentTask.IsTestmode) // Testmode mit ContentTask darf es nicht geben
@@ -314,10 +327,13 @@ namespace gip.core.autocomponent
                         // Falls childs überhaupt perisistiert werden können: ContentTask darf nicht null sein 
                         if (this.ContentTask != null)
                         {
-                            ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                            if (ContentTask.EntityState != System.Data.EntityState.Detached)
                             {
-                                acClassTaskChild = s_cQry_ContentTaskByClassID(ACClassTaskQueue.TaskQueue.Context, this.ContentTask.ACClassTaskID, acClassOfChild.ACClassID);
-                            });
+                                ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                                {
+                                    acClassTaskChild = s_cQry_ContentTaskByClassID(ACClassTaskQueue.TaskQueue.Context, this.ContentTask.ACClassTaskID, acClassOfChild.ACClassID);
+                                });
+                            }
                             //var queryT = acClassOfChild.ACClassTask_TaskTypeACClass.Where(c => c.IsTestmode == this.ContentTask.IsTestmode);
                             // Falls keine Child-ACClassTask angelegt, erzeuge eine neue Task
                             if (acClassTaskChild == null)
@@ -360,14 +376,17 @@ namespace gip.core.autocomponent
                 {
                     IEnumerable<ACClassTask> subTasks = null;
                     IEnumerable<SafeTaskType> querySafeTaskType = null;
-                    ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                    if (ContentTask.EntityState != System.Data.EntityState.Detached)
                     {
-                        subTasks = s_cQry_SubTasks(ACClassTaskQueue.TaskQueue.Context, this.ContentTask.ACClassTaskID)
-                                    .ToArray()
-                                    .Where(c => !c.IsACComponentInitialized);
-                        if (subTasks != null && subTasks.Any())
-                            querySafeTaskType = subTasks.Select(c => new SafeTaskType() { Task = c, TaskType = c.TaskTypeACClass }).ToArray();
-                    });
+                        ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                        {
+                            subTasks = s_cQry_SubTasks(ACClassTaskQueue.TaskQueue.Context, this.ContentTask.ACClassTaskID)
+                                        .ToArray()
+                                        .Where(c => !c.IsACComponentInitialized);
+                            if (subTasks != null && subTasks.Any())
+                                querySafeTaskType = subTasks.Select(c => new SafeTaskType() { Task = c, TaskType = c.TaskTypeACClass }).ToArray();
+                        });
+                    }
 
                     if (querySafeTaskType != null && querySafeTaskType.Any())
                     {
@@ -1216,6 +1235,7 @@ namespace gip.core.autocomponent
                                     .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF")
                                     .Include("ACProgram")
                                     .Include("TaskTypeACClass")
+                                    .Include("ACClassTaskValue_ACClassTask")
                                     .Where(c => c.ParentACClassTaskID.HasValue
                                                 && c.ParentACClassTaskID == parentTaskID
                                                 && c.ACIdentifier == acIdentifier)
@@ -1238,6 +1258,7 @@ namespace gip.core.autocomponent
                                     .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF")
                                     .Include("ACProgram")
                                     .Include("TaskTypeACClass")
+                                    .Include("ACClassTaskValue_ACClassTask")
                                     .Where(c => c.ParentACClassTaskID.HasValue
                                                 && c.ParentACClassTaskID == taskID
                                                 && c.ACTaskTypeIndex != (short)Global.ACTaskTypes.MethodTask
@@ -1261,6 +1282,7 @@ namespace gip.core.autocomponent
                                     .Include("ContentACClassWF.ACClassWFEdge_TargetACClassWF")
                                     .Include("ACProgram")
                                     .Include("TaskTypeACClass")
+                                    .Include("ACClassTaskValue_ACClassTask")
                                     .Where(c => c.ParentACClassTaskID.HasValue
                                                 && c.ParentACClassTaskID == taskID
                                                 && c.ACTaskTypeIndex != (short)Global.ACTaskTypes.MethodTask)

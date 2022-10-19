@@ -266,7 +266,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        protected override ACProgramLog GetCurrentProgramLog(bool attach)
+        protected override ACProgramLog GetCurrentProgramLog(bool attach, bool lookupOnlyInCache = false)
         {
             return null;
         }

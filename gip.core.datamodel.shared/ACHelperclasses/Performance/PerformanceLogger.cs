@@ -26,8 +26,8 @@ namespace gip.core.datamodel
         }
 
         Dictionary<string, PerformanceLoggerInstance> _Log = new Dictionary<string, PerformanceLoggerInstance>();
+        List<PerformanceEvent> _ActivePerfEvents = new List<PerformanceEvent>();
         object _LogLock = new object();
-
 
         private TimeSpan _TotalExecutionTime;
         public TimeSpan TotalExecutionTime
@@ -92,7 +92,17 @@ namespace gip.core.datamodel
                 }
             }
             if (performanceLoggerInstance != null)
-                return performanceLoggerInstance.Start(id, checkCallStack);
+            {
+                PerformanceEvent perfEvent = performanceLoggerInstance.Start(id, checkCallStack);
+                if (perfEvent != null)
+                {
+                    lock (_LogLock)
+                    {
+                        _ActivePerfEvents.Add(perfEvent);
+                    }
+                }
+                return perfEvent;
+            }
             return null;
         }
 
@@ -112,6 +122,13 @@ namespace gip.core.datamodel
             {
                 bool added = performanceLoggerInstance.Stop(id, perfEvent);
                 _TotalExecutionTime += perfEvent.Elapsed;
+                if (perfEvent != null)
+                {
+                    lock (_LogLock)
+                    {
+                        _ActivePerfEvents.Remove(perfEvent);
+                    }
+                }
                 return added;
             }
             return false;
@@ -159,6 +176,36 @@ namespace gip.core.datamodel
             sb.AppendLine(String.Format("=========== END OF {0} ===========", this.LogName));
             return sb.ToString();
         }
+
+        public void MonitorActivePerfEvents(int perfTimeoutForStop, IRuntimeDump runtimeDump)
+        {
+            if (perfTimeoutForStop <= 0)
+                return;
+            IEnumerable<PerformanceEvent> activeEvents;
+            lock (_LogLock)
+            {
+                activeEvents = _ActivePerfEvents.ToArray();
+            }
+            if (activeEvents != null && activeEvents.Any())
+            {
+                if (activeEvents.Where(c => c.ElapsedMilliseconds > perfTimeoutForStop).Any())
+                {
+#if DEBUG
+                    if (System.Diagnostics.Debugger.IsAttached)
+                        System.Diagnostics.Debugger.Break();
+                    else
+                        runtimeDump.DumpStackTrace(Thread.CurrentThread);
+#else
+                        runtimeDump.DumpStackTrace(Thread.CurrentThread);
+#endif
+                    foreach (var perfEvent in activeEvents)
+                    {
+                        perfEvent.Restart();
+                    }
+                }
+            }
+        }
+
 #endregion
 
     }

@@ -26,11 +26,18 @@ namespace gip.core.autocomponent
         public RuntimeDump(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
+            _WorkCycleThread = new ACThread(RunWorkCycle);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
-            return base.ACInit(startChildMode);
+            if (!base.ACInit(startChildMode))
+                return false;
+
+            _WorkCycleThread.Name = "ACUrl:" + this.GetACUrl() + ";RunWorkCycle();";
+            _WorkCycleThread.Start();
+
+            return true;
         }
 
         public override bool ACPostInit()
@@ -58,7 +65,19 @@ namespace gip.core.autocomponent
                 _FileSystemWatcher.Renamed -= _FileSystemWatcher_Renamed;
                 _FileSystemWatcher = null;
             }
-            return base.ACDeInit(deleteACClassTask);
+
+            bool result = base.ACDeInit(deleteACClassTask);
+
+            if (_WorkCycleThread != null)
+            {
+                if (_ShutdownEvent != null && _ShutdownEvent.SafeWaitHandle != null && !_ShutdownEvent.SafeWaitHandle.IsClosed)
+                    _ShutdownEvent.Set();
+                if (!_WorkCycleThread.Join(10000))
+                    _WorkCycleThread.Abort();
+                _WorkCycleThread = null;
+                _ShutdownEvent = null;
+            }
+            return result;
         }
         #endregion
 
@@ -74,8 +93,15 @@ namespace gip.core.autocomponent
             }
         }
 
+        private static ManualResetEvent _ShutdownEvent = new ManualResetEvent(false);
+        private static ACThread _WorkCycleThread;
+
+
         [ACPropertyInfo(true, 200, DefaultValue = 5000)]
         public int PerfTimeoutStackTrace { get; set; }
+
+        [ACPropertyInfo(true, 200, DefaultValue = 0)]
+        public int PerfMonitoringTimeout { get; set; }
 
         #endregion
 
@@ -155,6 +181,32 @@ namespace gip.core.autocomponent
 
         #region public
 
+        private void RunWorkCycle()
+        {
+            try
+            {
+                while (!_ShutdownEvent.WaitOne(500, false))
+                {
+                    _WorkCycleThread.StartReportingExeTime();
+                    MonitorActivePerfEvents();
+                    _WorkCycleThread.StopReportingExeTime();
+                }
+            }
+            catch (Exception e)
+            {
+                //ThreadAbortException
+                Messages.LogException(this.GetACUrl(), "RunWorkCycle()", e.GetType().Name);
+                if (!String.IsNullOrEmpty(e.Message))
+                {
+                    Messages.LogException(this.GetACUrl(), "RunWorkCycle()", e.Message);
+                    if (e.InnerException != null && !String.IsNullOrEmpty(e.InnerException.Message))
+                    {
+                        Messages.LogException(this.GetACUrl(), "RunWorkCycle()", e.InnerException.Message);
+                    }
+                }
+            }
+        }
+
         public PerformanceEvent PerfLoggerStart(string url, int id, bool checkCallStack = false)
         {
             if (PerfLogger == null)
@@ -189,6 +241,13 @@ namespace gip.core.autocomponent
                 bOk = false;
             }
             return bOk;
+        }
+
+        private void MonitorActivePerfEvents()
+        {
+            if (PerfLogger == null || !PerfLogger.Active || PerfMonitoringTimeout <= 0)
+                return;
+            PerfLogger.MonitorActivePerfEvents(this.PerfMonitoringTimeout, this);
         }
 #pragma warning disable CS0618
         /// <summary>

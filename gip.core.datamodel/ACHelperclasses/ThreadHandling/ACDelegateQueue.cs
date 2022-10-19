@@ -98,6 +98,14 @@ namespace gip.core.datamodel
             }
         }
 
+        public Thread ThreadOfQueue
+        {
+            get
+            {
+                return _workerThread?.Thread;
+            }
+        }
+
         /// <summary>
         /// Starts the worker thread.
         /// </summary>

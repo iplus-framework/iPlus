@@ -46,7 +46,8 @@ namespace gip.core.autocomponent
                 ACClassTaskValue taskValue = this.ACClassTaskValue;
                 if (taskValue != null)
                 {
-                    if (taskValue.ACClassTaskValuePos_ACClassTaskValue.Any())
+                    if (   !taskValue.ACClassTaskValuePos_ACClassTaskValue.IsLoaded
+                        || taskValue.ACClassTaskValuePos_ACClassTaskValue.Any())
                     {
                         ACClassTaskQueue.TaskQueue.Add(() => 
                         {
@@ -132,15 +133,14 @@ namespace gip.core.autocomponent
                 {
                     if (taskValue != null)
                     {
-                        StringBuilder sb = new StringBuilder();
-                        using (StringWriter sw = new StringWriter(sb))
-                        using (XmlTextWriter xmlWriter = new XmlTextWriter(sw))
-                        {
-                            DataContractSerializer serializer = new DataContractSerializer(typeof(ACMethod), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
-
                             // Sofort ausführen, damit keine Multithreading-Probleme auftauchen
-                            ACClassTaskQueue.TaskQueue.ProcessAction(() => 
+                            ACClassTaskQueue.TaskQueue.Add(() => 
+                            {
+                                StringBuilder sb = new StringBuilder();
+                                using (StringWriter sw = new StringWriter(sb))
+                                using (XmlTextWriter xmlWriter = new XmlTextWriter(sw))
                                 {
+                                    DataContractSerializer serializer = new DataContractSerializer(typeof(ACMethod), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
                                     IEnumerable<IACTask> diffTasks = taskValue.ACClassTaskValuePos_ACClassTaskValue
                                                                             .Select(c => c as IACTask)
                                                                             .Except(copyLocalStorage, new ACPointTaskEqualityComparer())
@@ -164,9 +164,13 @@ namespace gip.core.autocomponent
                                         sw.Flush();
                                         xmlWriter.Flush();
 
+                                        bool add = false;
                                         ACClassTaskValuePos taskValuePos = taskValue.ACClassTaskValuePos_ACClassTaskValue.Where(c => c.RequestID == entry.RequestID).FirstOrDefault();
                                         if (taskValuePos == null)
+                                        {
                                             taskValuePos = ACClassTaskValuePos.NewACObject(ACClassTaskQueue.TaskQueue.Context, taskValue);
+                                            add = true;
+                                        }
                                         taskValuePos.XMLACMethod = valueACMethodXML;
                                         taskValuePos.ACUrl = entry.ACUrl;
                                         taskValuePos.State = entry.State;
@@ -179,24 +183,26 @@ namespace gip.core.autocomponent
                                         if (entry.ExecutingInstance != null)
                                             taskValuePos.ExecutingInstanceURL = entry.ExecutingInstance.ACUrl;
                                         taskValuePos.CallbackIsPending = entry.CallbackIsPending;
-                                        taskValue.ACClassTaskValuePos_ACClassTaskValue.Add(taskValuePos);
+                                        if (add)
+                                            taskValue.ACClassTaskValuePos_ACClassTaskValue.Add(taskValuePos);
+                                        taskValue.UpdateDate = DateTime.Now;
                                     }
                                 }
-                            );
-                        }
-                        // Schliesse Transaktion, damit ProcessQueue am Ende Save-Changes auslöst.
-                        ACClassTaskQueue.TaskQueue.Add(() =>
-                            {
-                                taskValue.UpdateDate = DateTime.Now;
                             }
                         );
+                        //// Schliesse Transaktion, damit ProcessQueue am Ende Save-Changes auslöst.
+                        //ACClassTaskQueue.TaskQueue.Add(() =>
+                        //    {
+                        //        taskValue.UpdateDate = DateTime.Now;
+                        //    }
+                        //);
                     }
                 }
                 else if (taskValue != null)
                 {
                     bool saveNeeded = false;
                     // Sofort ausführen, damit keine Multithreading-Probleme auftauchen
-                    ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                    ACClassTaskQueue.TaskQueue.Add(() =>
                         {
                             if (taskValue.ACClassTaskValuePos_ACClassTaskValue.Any())
                             {
@@ -205,18 +211,19 @@ namespace gip.core.autocomponent
                                 {
                                     posToDelete.DeleteACObject(ACClassTaskQueue.TaskQueue.Context, false);
                                 }
+                                taskValue.UpdateDate = DateTime.Now;
                             }
                         }
                     );
-                    if (saveNeeded)
-                    {
-                        // Schliesse Transaktion, damit ProcessQueue am Ende Save-Changes auslöst.
-                        ACClassTaskQueue.TaskQueue.Add(() =>
-                            {
-                                taskValue.UpdateDate = DateTime.Now;
-                            }
-                        );
-                    }
+                    //if (saveNeeded)
+                    //{
+                    //    // Schliesse Transaktion, damit ProcessQueue am Ende Save-Changes auslöst.
+                    //    ACClassTaskQueue.TaskQueue.Add(() =>
+                    //        {
+                    //            taskValue.UpdateDate = DateTime.Now;
+                    //        }
+                    //    );
+                    //}
                 }
             }
             catch (Exception e)
@@ -322,10 +329,15 @@ namespace gip.core.autocomponent
                     if (acClassTaskValue != null)
                     {
                         ACClassTaskValuePosSafeWrapper[] taskValuePositions = null;
-                        ACClassTaskQueue.TaskQueue.ProcessAction(() => 
+                        if (acClassTaskValue.ACClassTaskValuePos_ACClassTaskValue.IsLoaded)
+                            taskValuePositions = acClassTaskValue.ACClassTaskValuePos_ACClassTaskValue.Select(c => new ACClassTaskValuePosSafeWrapper(c)).ToArray();
+                        else
                         {
-                            taskValuePositions = acClassTaskValue.ACClassTaskValuePos_ACClassTaskValue.Select(c => new ACClassTaskValuePosSafeWrapper(c)).ToArray(); 
-                        });
+                            ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                            {
+                                taskValuePositions = acClassTaskValue.ACClassTaskValuePos_ACClassTaskValue.Select(c => new ACClassTaskValuePosSafeWrapper(c)).ToArray();
+                            });
+                        }
 
                         if (taskValuePositions != null && taskValuePositions.Any())
                         {

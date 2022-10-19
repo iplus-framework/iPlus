@@ -138,6 +138,7 @@ namespace gip.core.datamodel
                     _AllPropertyValues = Context.ACClassTaskValue
                                             .Include(c => c.VBUser)
                                             .Include(c => c.ACClassProperty)
+                                            .Include("ACClassTaskValuePos_ACClassTaskValue")
                                             .GroupBy(c => c.ACClassTaskID)
                                             .ToDictionary(g => g.Key,
                                                           g => g.GroupBy(t => t.ACClassPropertyID)
@@ -319,13 +320,16 @@ namespace gip.core.datamodel
         /// <param name="acUrl">acUrl</param>
         /// <param name="checkNewerThanParentProgramLog">checkNewerThanParentProgramLog</param>
         /// <returns></returns>
-        public ACProgramLog GetCurrentProgramLog(ACProgramLog parentProgramLog, string acUrl, bool checkNewerThanParentProgramLog = true)
+        public ACProgramLog GetCurrentProgramLog(ACProgramLog parentProgramLog, string acUrl, bool lookupOnlyInCache = false, bool checkNewerThanParentProgramLog = true)
         {
             ACProgramCacheEntry cacheEntry = GetCacheEntry(parentProgramLog);
             if (cacheEntry == null)
                 return null;
             ACProgramLog programLog = cacheEntry.GetCurrentProgramLog(acUrl, parentProgramLog);
-            if (programLog == null)
+            if (programLog == null 
+                && parentProgramLog.EntityState != System.Data.EntityState.Detached 
+                && parentProgramLog.EntityState != System.Data.EntityState.Added
+                && !lookupOnlyInCache)
             {
                 _TaskQueue.ProcessAction(() =>
                 {

@@ -395,11 +395,24 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return GetCurrentProgramLog(CurrentACState != ACStateEnum.SMIdle);
+                return GetCurrentProgramLog(CurrentACState != ACStateEnum.SMIdle, IsNodeSkipping);
             }
         }
 
-        protected override ACProgramLog GetCurrentProgramLog(bool attach)
+        public bool IsNodeSkipping
+        {
+            get
+            {
+                ACProgramLog currentProgramLog = null;
+                using (ACMonitor.Lock(this._20015_LockValue))
+                {
+                    currentProgramLog = _CurrentProgramLog;
+                }
+                return currentProgramLog == null && LastACState == ACStateEnum.SMStarting && CurrentACState == ACStateEnum.SMCompleted;
+            }
+        }
+
+        protected override ACProgramLog GetCurrentProgramLog(bool attach, bool lookupOnlyInCache = false)
         {
             using (ACMonitor.Lock(this._20015_LockValue))
             {
@@ -415,7 +428,7 @@ namespace gip.core.autocomponent
                 if (parentProgramLog != null)
                 {
                     string acUrl = this.GetACUrl();
-                    currentProgramLog = ACClassTaskQueue.TaskQueue.ProgramCache.GetCurrentProgramLog(parentProgramLog, acUrl);
+                    currentProgramLog = ACClassTaskQueue.TaskQueue.ProgramCache.GetCurrentProgramLog(parentProgramLog, acUrl, lookupOnlyInCache);
                     if (currentProgramLog == null
                         && CurrentACState > ACStateEnum.SMStarting
                         && LastACState > ACStateEnum.SMStarting) // If Node was skipped, because it never switched to Running, don't log error

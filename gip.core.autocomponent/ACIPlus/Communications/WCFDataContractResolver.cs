@@ -16,19 +16,15 @@ namespace gip.core.autocomponent
         {
             Type resolvedType = null;
             if (typeName == "XmlACEventArgs")
-            {
                 return TypeACEventArgs;
-            }
             else if (typeName == "XmlACMethodEventArgs")
-            {
                 return TypeACMethodEventArgs;
-            }
             else if (typeName == "XmlStringArray")
                 return TypeStringArray;
+            else if (typeName == "XmlStringArrayValueEvent")
+                return TypeStringArrayValueEvent;
             else
-            {
                 resolvedType = knownTypeResolver.ResolveName(typeName, typeNamespace, declaredType, null);
-            }
             return resolvedType;
         }
 
@@ -65,6 +61,17 @@ namespace gip.core.autocomponent
             }
         }
 
+        static Type _TypeStringArrayValueEvent = null;
+        static Type TypeStringArrayValueEvent
+        {
+            get
+            {
+                if (_TypeStringArrayValueEvent == null)
+                    _TypeStringArrayValueEvent = typeof(ACPropertyValueEvent<string[]>);
+                return _TypeStringArrayValueEvent;
+            }
+        }
+
         public override bool TryResolveType(Type type, Type declaredType, DataContractResolver knownTypeResolver, out System.Xml.XmlDictionaryString typeName, out System.Xml.XmlDictionaryString typeNamespace)
         {
             bool result = false;
@@ -89,6 +96,14 @@ namespace gip.core.autocomponent
                 typeNamespace = dictionary.Add("http://schemas.datacontract.org/2004/07/gip.core.datamodel");
                 return true;
             }
+            else if (type == TypeStringArrayValueEvent)
+            {
+                XmlDictionary dictionary = new XmlDictionary();
+                typeName = dictionary.Add("XmlStringArrayValueEvent");
+                typeNamespace = dictionary.Add("http://schemas.datacontract.org/2004/07/gip.core.autocomponent");
+                return true;
+            }
+
             else
             {
                 result = knownTypeResolver.TryResolveType(type, declaredType, null, out typeName, out typeNamespace);

@@ -512,7 +512,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        protected override ACProgramLog GetCurrentProgramLog(bool attach)
+        protected override ACProgramLog GetCurrentProgramLog(bool attach, bool lookupOnlyInCache = false)
         {
             using (ACMonitor.Lock(this._20015_LockValue))
             {
@@ -528,7 +528,7 @@ namespace gip.core.autocomponent
                 if (parentProgramLog != null)
                 {
                     string acUrl = this.GetACUrl();
-                    currentProgramLog = ACClassTaskQueue.TaskQueue.ProgramCache.GetCurrentProgramLog(parentProgramLog, acUrl);
+                    currentProgramLog = ACClassTaskQueue.TaskQueue.ProgramCache.GetCurrentProgramLog(parentProgramLog, acUrl, lookupOnlyInCache);
                 }
                 // Sonst Workflow is Root
                 else if (CurrentACProgram != null)
@@ -1068,6 +1068,8 @@ namespace gip.core.autocomponent
             else if (!AreConfigurationEntriesValid)
             {
                 ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
+                if (serviceInstance == null)
+                    return false;
                 ValidateConfigStoreModel validationModel = serviceInstance.ValidateConfigStores(MandatoryConfigStores);
                 AreConfigurationEntriesValid = validationModel.IsValid;
                 if (!validationModel.IsValid)

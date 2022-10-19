@@ -391,7 +391,7 @@ namespace gip.core.autocomponent
         /// </summary>
         /// <param name="attach">if set to <c>true</c> [attach].</param>
         /// <returns></returns>
-        protected abstract ACProgramLog GetCurrentProgramLog(bool attach);
+        protected abstract ACProgramLog GetCurrentProgramLog(bool attach, bool lookupOnlyInCache = false);
 
         /// <summary>
         /// Sets or replaces the CurrentProgramLog-Property with the passed ACProgramLog. 
@@ -945,7 +945,7 @@ namespace gip.core.autocomponent
                 SetCurrentProgramLog(null, true);
             else
             {
-                ACProgramLog currentLog = GetCurrentProgramLog(true);
+                ACProgramLog currentLog = GetCurrentProgramLog(true, true);
                 if (currentLog != null)
                 {
                     if (checkCurrentMustBeNull)
