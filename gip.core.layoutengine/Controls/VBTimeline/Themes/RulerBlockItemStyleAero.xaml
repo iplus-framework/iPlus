@@ -1,0 +1,66 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.timeline">
+
+    <SolidColorBrush x:Key="NormalBrushAero" Color="#FFA2A2A2" />
+    <SolidColorBrush x:Key="NormalBorderBrushAero" Color="#FFC9C9C9" />
+    <SolidColorBrush x:Key="DataGridLineBrushAero" Color="#FF5D5D5D" />
+
+    <LinearGradientBrush x:Key="ShineBrushAero" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+        <GradientStop Color="#59FFFFFF" Offset="0" />
+        <GradientStop Color="#00FFFFFF" Offset="1" />
+        <GradientStop Color="#26FFFFFF" Offset="0.467" />
+        <GradientStop Color="#00FFFFFF" Offset="0.475" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="HoverShineBrushAero" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+        <GradientStop Color="#6CFF2020" Offset="0" />
+        <GradientStop Color="#46FF2020" Offset="1" />
+        <GradientStop Color="#46FF2020" Offset="0.467" />
+        <GradientStop Color="#26FF2020" Offset="0.475" />
+        <GradientStop Color="#26FF2020" Offset="0.856" />
+    </LinearGradientBrush>
+
+    <local:RulerBlockSizeConverter x:Key="RulerBlockSizeConverter" />
+
+    <DataTemplate DataType="{x:Type local:RulerBlockItem}">
+        <Border BorderThickness="0,0,1,1" BorderBrush="{StaticResource DataGridLineBrushAero}"
+                Background="{StaticResource NormalBrushAero}" Height="27.5">
+            <Border.Width>
+                <MultiBinding Converter="{StaticResource RulerBlockSizeConverter}">
+
+                    <Binding Path="TickTimeSpan">
+                        <Binding.RelativeSource>
+                            <RelativeSource AncestorType="{x:Type local:TimelineRulerControl}" />
+                        </Binding.RelativeSource>
+                    </Binding>
+
+                    <Binding Path="Span" />
+
+                </MultiBinding>
+            </Border.Width>
+            <Grid>
+                <Rectangle x:Name="BackgroundRectangle"  Fill="{StaticResource NormalBrushAero}" 
+                                                        Stretch="Fill" Stroke="{StaticResource NormalBorderBrushAero}" StrokeThickness="1" />
+                <Rectangle x:Name="HoverRectangle" Stretch="Fill" 
+                                                        Fill="{StaticResource HoverShineBrushAero}" Opacity="0" />
+
+
+                <Rectangle x:Name="ShineRectangle" 
+                                                       Fill="{StaticResource ShineBrushAero}" 
+                                                       Stretch="Fill" 
+                                                       Stroke="{StaticResource NormalBorderBrushAero}" 
+                                                       StrokeThickness="1" />
+
+
+                <StackPanel Orientation="Vertical" MaxHeight="27" VerticalAlignment="Top">
+                    <TextBlock Text="{Binding HeaderText}" MaxHeight="12" Foreground="Black" FontSize="11" VerticalAlignment="Top" HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <!--<Viewbox MaxHeight="16">
+                    <TextBlock Text="{Binding Text}" Foreground="Black"/>
+                </Viewbox>-->
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+</ResourceDictionary>

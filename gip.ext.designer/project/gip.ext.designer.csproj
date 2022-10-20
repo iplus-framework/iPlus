@@ -1,0 +1,454 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+  <PropertyGroup>
+    <ProjectGuid>{78CC29AC-CC79-4355-B1F2-97936DF198AC}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>gip.ext.designer</RootNamespace>
+    <AssemblyName>gip.ext.designer</AssemblyName>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <OutputPath>..\..\..\..\..\..\AddIns\DisplayBindings\WpfDesign\</OutputPath>
+    <DocumentationFile>..\..\..\..\..\..\AddIns\DisplayBindings\WpfDesign\ICSharpCode.WpfDesign.Designer.xml</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>False</DelaySign>
+    <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
+    <RunCodeAnalysis>False</RunCodeAnalysis>
+    <CodeAnalysisRules>-Microsoft.Performance#CA1800;-Microsoft.Performance#CA1810;-Microsoft.Performance#CA1822</CodeAnalysisRules>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>..\bin\Release\</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <ItemGroup>
+    <Reference Include="PresentationCore">
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="PresentationFramework">
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <Private>False</Private>
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\AdornerLayer.cs" />
+    <Compile Include="Controls\ContainerDragHandle.cs" />
+    <Compile Include="Controls\DropDownButton.cs" />
+    <Compile Include="Controls\EnterTextBox.cs" />
+    <Compile Include="Controls\EnumBar.xaml.cs">
+      <DependentUpon>EnumBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EnumButton.cs" />
+    <Compile Include="Controls\GrayOutDesignerExceptActiveArea.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controls\GridAdorner.cs" />
+    <Compile Include="Controls\GridUnitSelector.xaml.cs">
+      <DependentUpon>GridUnitSelector.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controls\InPlaceEditor.cs" />
+    <Compile Include="Controls\DrawShapesAdornerBase.cs" />
+    <Compile Include="Controls\DrawRectangleAdorner.cs" />
+    <Compile Include="Controls\DrawEllipseAdorner.cs" />
+    <Compile Include="Controls\DrawLineAdorner.cs" />
+    <Compile Include="Controls\DrawPolyAdornerBase.cs" />
+    <Compile Include="Controls\DrawPolylineAdorner.cs" />
+    <Compile Include="Controls\DrawPolygonAdorner.cs" />
+    <Compile Include="Controls\DrawLineEditPointAdorner.cs" />
+    <Compile Include="Controls\DrawShapesEditPointAdornerBase.cs" />
+    <Compile Include="Controls\DrawPolylineEditPointAdorner.cs" />
+    <Compile Include="Controls\DrawPolyEditPointAdornerBase.cs" />
+    <Compile Include="Controls\DrawPolygonEditPointAdorner.cs" />
+    <Compile Include="Controls\MarginHandle.cs" />
+    <Compile Include="Controls\PanelMoveAdorner.cs" />
+    <Compile Include="Controls\QuickOperationMenu.cs" />
+    <Compile Include="Controls\SelectionFrame.cs" />
+    <Compile Include="Controls\ErrorBalloon.cs" />
+    <Compile Include="Controls\ResizeThumb.cs" />
+    <Compile Include="CallExtension.cs" />
+    <Compile Include="Controls\DragListener.cs" />
+    <Compile Include="Controls\SizeDisplay.cs" />
+    <Compile Include="Controls\ShapePointAdorner.cs" />
+    <Compile Include="Controls\WindowClone.cs" />
+    <Compile Include="Controls\ZoomControl.cs" />
+    <Compile Include="Converters.cs" />
+    <Compile Include="DesignCommand.cs" />
+    <Compile Include="DesignPanel.cs" />
+    <Compile Include="DesignSurface.xaml.cs">
+      <DependentUpon>DesignSurface.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DragDropExceptionHandler.cs" />
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="Extensions\CanvasPlacementSupport.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\BorderForInvisibleControl.cs" />
+    <Compile Include="Extensions\Initializers.cs" />
+    <Compile Include="Extensions\DefaultPlacementBehavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\GridAdornerProvider.cs" />
+    <Compile Include="Extensions\GridPlacementSupport.cs" />
+    <Compile Include="Extensions\InPlaceEditorExtension.cs" />
+    <Compile Include="Extensions\ShapePointsAdornerProvider.cs" />
+    <Compile Include="Extensions\ShapeEditPointsHandler.cs" />
+    <Compile Include="Extensions\ShapeDrawingHandler.cs" />
+    <Compile Include="Extensions\MarginHandleExtension.cs" />
+    <Compile Include="Extensions\QuickOperationMenuExtension.cs" />
+    <Compile Include="Extensions\SizeDisplayExtension.cs" />
+    <Compile Include="Extensions\SnaplinePlacementBehavior.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\PanelMove.cs" />
+    <Compile Include="Extensions\StackPanelPlacementSupport.cs" />
+    <Compile Include="FocusNavigator.cs" />
+    <Compile Include="ModelTools.cs" />
+    <Compile Include="Extensions\PanelInstanceFactory.cs" />
+    <Compile Include="Extensions\PanelSelectionHandler.cs" />
+    <Compile Include="Extensions\SelectedElementRectangleExtension.cs" />
+    <Compile Include="Extensions\TabItemClickableExtension.cs" />
+    <Compile Include="Extensions\TopLeftContainerDragHandle.cs" />
+    <Compile Include="Extensions\ResizeThumbExtension.cs" />
+    <Compile Include="BasicMetadata.cs" />
+    <Compile Include="OutlineView\DataTriggerEditor.cs" />
+    <Compile Include="OutlineView\Editors\BindingEditor.cs" />
+    <Compile Include="OutlineView\Editors\BindingWrapper.cs" />
+    <Compile Include="OutlineView\Editors\ConditionWrapper.cs" />
+    <Compile Include="OutlineView\Editors\ConditionEditor.cs" />
+    <Compile Include="OutlineView\Editors\MultiBindingEditor.cs" />
+    <Compile Include="OutlineView\EventTriggerEditor.cs" />
+    <Compile Include="OutlineView\EventTriggerOutlineNode.cs" />
+    <Compile Include="OutlineView\DataTriggerOutlineNode.cs" />
+    <Compile Include="OutlineView\ActionCollectionEditor.cs" />
+    <Compile Include="OutlineView\ActionOutlineNode.cs" />
+    <Compile Include="OutlineView\MultiTriggerEditor.cs" />
+    <Compile Include="OutlineView\StyleTriggerWindow.xaml.cs">
+      <DependentUpon>StyleTriggerWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OutlineView\MultiDataTriggerOutlineNode.cs" />
+    <Compile Include="OutlineView\MultiTriggerOutlineNode.cs" />
+    <Compile Include="OutlineView\PropertyTriggerOutlineNode.cs" />
+    <Compile Include="OutlineView\TriggerItemTemplateSelector.cs" />
+    <Compile Include="OutlineView\TriggerOutlineNodeBase.cs" />
+    <Compile Include="OutlineView\TriggersCollectionEditor.cs" />
+    <Compile Include="OutlineView\PropertyTriggerEditor.cs" />
+    <Compile Include="OutlineView\StyleSetterWindow.xaml.cs">
+      <DependentUpon>StyleSetterWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OutlineView\DragListener.cs" />
+    <Compile Include="OutlineView\DragTreeView.cs" />
+    <Compile Include="OutlineView\DragTreeViewItem.cs" />
+    <Compile Include="OutlineView\IconItem.cs" />
+    <Compile Include="OutlineView\SettersCollectionEditor.cs" />
+    <Compile Include="OutlineView\SetterOutlineNode.cs" />
+    <Compile Include="OutlineView\Outline.xaml.cs">
+      <DependentUpon>Outline.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OutlineView\OutlineNode.cs">
+    </Compile>
+    <Compile Include="OutlineView\OutlineTreeView.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyGrid\Editors\BoolEditor.xaml.cs">
+      <DependentUpon>BoolEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PropertyGrid\Editors\BrushEditor\BrushEditor.cs" />
+    <Compile Include="PropertyGrid\Editors\BrushEditor\BrushEditorPopup.xaml.cs">
+      <DependentUpon>BrushEditorPopup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PropertyGrid\Editors\BrushEditor\BrushEditorView.xaml.cs">
+      <DependentUpon>BrushEditorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PropertyGrid\Editors\BrushEditor\BrushTypeEditor.xaml.cs">
+      <DependentUpon>BrushTypeEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PropertyGrid\Editors\BrushEditor\GradientBrushEditor.xaml.cs">
+      <DependentUpon>GradientBrushEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PropertyGrid\Editors\BrushEditor\GradientSlider.xaml.cs">
+      <DependentUpon>GradientSlider.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PropertyGrid\Editors\BrushEditor\NormalizedPanel.cs" />
+    <Compile Include="PropertyGrid\Editors\BrushEditor\SolidBrushEditor.xaml.cs">
+      <DependentUpon>SolidBrushEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PropertyGrid\Editors\CollectionEditor.xaml.cs">
+      <DependentUpon>CollectionEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PropertyGrid\Editors\EventEditor.xaml.cs">
+      <DependentUpon>EventEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PropertyGrid\Editors\NumberEditor.xaml.cs">
+      <DependentUpon>NumberEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PropertyGrid\DesignItemTreeView.cs" />
+    <Compile Include="PropertyGrid\PropertyGridView.cs" />
+    <Compile Include="PropertyGrid\PropertyContextMenu.xaml.cs">
+      <DependentUpon>PropertyContextMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PropertyGrid\PropertyGrid.cs" />
+    <Compile Include="RootItemBehavior.cs" />
+    <Compile Include="Services\ChooseClass.cs" />
+    <Compile Include="Services\ChooseClassDialog.xaml.cs">
+      <DependentUpon>ChooseClassDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\ChooseClassServiceBase.cs" />
+    <Compile Include="Services\ClickOrDragMouseGesture.cs" />
+    <Compile Include="Services\CreateComponentTool.cs" />
+    <Compile Include="Services\DesignerKeyBindings.cs" />
+    <Compile Include="Services\DragMoveMouseGesture.cs" />
+    <Compile Include="Services\ErrorService.cs" />
+    <Compile Include="Services\DrawingService.cs" />
+    <Compile Include="Services\DrawingTool.cs" />
+    <Compile Include="Services\MouseMoveAndDrawGestureBase.cs" />
+    <Compile Include="Services\MouseGestureBase.cs" />
+    <Compile Include="Services\MoveLogic.cs" />
+    <Compile Include="Services\OptionService.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\PointerTool.cs" />
+    <Compile Include="Services\SelectionService.cs" />
+    <Compile Include="Services\ToolService.cs" />
+    <Compile Include="Services\UndoService.cs" />
+    <Compile Include="Services\ViewService.cs" />
+    <Compile Include="Services\WpfTopLevelWindowService.cs" />
+    <Compile Include="Services\XamlErrorService.cs" />
+    <Compile Include="SharedInstances.cs" />
+    <Compile Include="Xaml\XamlEditOperations.cs" />
+    <Compile Include="Xaml\XamlLoadSettings.cs" />
+    <Compile Include="Xaml\XamlModelCollectionElementsCollection.cs" />
+    <Compile Include="Xaml\XamlComponentService.cs" />
+    <Compile Include="Xaml\XamlDesignContext.cs" />
+    <Compile Include="Xaml\XamlDesignItem.cs" />
+    <Compile Include="Xaml\XamlModelProperty.cs" />
+    <Compile Include="Xaml\XamlModelPropertyCollection.cs" />
+    <Resource Include="Images\Tag.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\gip.core.datamodel\gip.core.datamodel.csproj">
+      <Project>{16FB4111-5110-46E5-851D-38A4D7522F85}</Project>
+      <Name>gip.core.datamodel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\gip.ext.design\project\gip.ext.design.csproj">
+      <Project>{66a378a1-e9f4-4ad5-8946-d0ec06c2902f}</Project>
+      <Name>gip.ext.design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\gip.ext.graphics\gip.ext.graphics.csproj">
+      <Project>{889DAD2E-8E03-4A47-9A24-8EE759B37A70}</Project>
+      <Name>gip.ext.graphics</Name>
+    </ProjectReference>
+    <Page Include="Controls\EnumBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\GridUnitSelector.xaml" />
+    <Page Include="Controls\ControlStyles.xaml" />
+    <Page Include="DesignSurface.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OutlineView\Editors\BindingEditorStyle.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OutlineView\Editors\ConditionEditorStyle.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OutlineView\Editors\MultiBindingEditorStyle.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OutlineView\StyleTriggerWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OutlineView\StyleSetterWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OutlineView\Outline.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OutlineView\OutlineView.xaml" />
+    <Page Include="OutlineView\Themes\DataTriggerEditorStyle.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OutlineView\Themes\EventTriggerEditorStyle.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OutlineView\Themes\ActionCollectionEditorStyle.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OutlineView\Themes\MultiTriggerEditorStyle.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OutlineView\Themes\PropertyTriggerEditorStyle.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OutlineView\Themes\TriggersCollectionEditorStyle.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OutlineView\Themes\SettersCollectionEditorStyle.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\Editors\BoolEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\Editors\BrushEditor\BrushEditorPopup.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\Editors\BrushEditor\BrushEditorView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\Editors\BrushEditor\BrushTypeEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\Editors\BrushEditor\GradientBrushEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\Editors\BrushEditor\GradientSlider.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\Editors\BrushEditor\SolidBrushEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\Editors\CollectionEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\Editors\EventEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\Editors\NumberEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\PropertyContextMenu.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\Themes\DesignItemTreeViewStyle.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyGrid\Themes\PropertyGridViewStyle.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Services\ChooseClassDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Generic.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <ProjectReference Include="..\..\gip.ext.widgets\Project\gip.ext.widgets.csproj">
+      <Project>{8035765f-d51f-4a0c-a746-2fd100e19419}</Project>
+      <Name>gip.ext.widgets</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\gip.ext.xamldom\Project\gip.ext.xamldom.csproj">
+      <Project>{88da149f-21b2-48ab-82c4-28fb6bdfd783}</Project>
+      <Name>gip.ext.xamldom</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Class.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\PanToolCursor.cur" />
+    <Resource Include="Images\PanToolCursorMouseDown.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ZoomIn.png" />
+    <Resource Include="Images\ZoomOut.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <CodeAnalysisDictionary Include="Configuration\CodeAnalysisDictionary.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\GIP-SNKey.snk">
+      <Link>GIP-SNKey.snk</Link>
+    </None>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CursorEditNode.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CursorInsertPoint.cur" />
+  </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

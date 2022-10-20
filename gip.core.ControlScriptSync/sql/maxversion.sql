@@ -1,0 +1,1 @@
+﻿SELECT top 1 * FROM [dbo].[@ControlScriptSyncInfo] order by VersionTime desc;

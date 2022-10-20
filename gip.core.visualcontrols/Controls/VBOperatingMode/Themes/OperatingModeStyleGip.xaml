@@ -1,0 +1,219 @@
+<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.visualcontrols;Component/Controls/Shared.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <ControlTemplate x:Key="AutoOperatingModeGip" TargetType="{x:Type local:VBOperatingMode}">
+        <Viewbox>
+            <Canvas x:Name="Ebene_1" Width="250" Height="250" Canvas.Left="0" Canvas.Top="0">
+                <Image x:Name="Image" Source="imageAuto.png" Width="266" Height="266" Canvas.Left="0.32" Canvas.Top="0.76001"/>
+                <Viewbox x:Name="Group" Width="141.6" Height="150.72" Canvas.Left="60.8" Canvas.Top="54.52">
+                    <Canvas Width="141.6" Height="150.72">
+                        <Path x:Name="Path" Width="75.1485" Height="116.525" Canvas.Left="47.8634" Canvas.Top="0.107056" Stretch="Fill" StrokeThickness="12" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Stroke="#FF012303" Data="F1 M 77.9728,6.10706C 88.7262,13.6215 99.4795,21.1358 106.983,32.268C 114.486,43.4002 118.739,58.1502 116.343,70.7822C 113.946,83.4141 104.899,93.928 93.3772,100.217C 81.8557,106.505 67.8596,108.568 53.8634,110.632">
+                            <Path.Effect>
+                                <DropShadowEffect BlurRadius="8" ShadowDepth="7.55906" Opacity="1" Color="#FF000000" Direction="315"/>
+                            </Path.Effect>
+                        </Path>
+                        <Path x:Name="Path_0" Width="116.921" Height="75.2312" Canvas.Left="0.157001" Canvas.Top="35.2027" Stretch="Fill" StrokeThickness="12" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Stroke="#FF012303" Data="F1 M 6.157,104.434C 8.42279,91.5123 10.6886,78.5909 17.6067,67.0858C 24.5249,55.5808 36.0955,45.4925 48.5568,42.3262C 61.0182,39.16 74.3703,42.916 84.9389,50.7004C 95.5075,58.4848 103.293,70.2976 111.078,82.1104">
+                            <Path.Effect>
+                                <DropShadowEffect BlurRadius="8" ShadowDepth="7.55906" Opacity="1" Color="#FF000000" Direction="315"/>
+                            </Path.Effect>
+                        </Path>
+                        <Path x:Name="Path_1" Width="101.218" Height="97.3254" Canvas.Left="30.9384" Canvas.Top="39.5539" Stretch="Fill" StrokeThickness="12" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Stroke="#FF012303" Data="F1 M 126.157,118.696C 114.273,124.251 102.388,129.807 88.9959,130.738C 75.6034,131.67 60.7029,127.979 50.9618,119.587C 41.2206,111.196 36.6388,98.1037 36.9536,84.9814C 37.2683,71.8592 42.4794,58.7066 47.6906,45.5539">
+                            <Path.Effect>
+                                <DropShadowEffect BlurRadius="8" ShadowDepth="7.55906" Opacity="1" Color="#FF000000" Direction="315"/>
+                            </Path.Effect>
+                        </Path>
+                    </Canvas>
+                    <Viewbox.RenderTransform>
+                        <RotateTransform Angle="0"
+                                        CenterX="70.8"
+                                        CenterY="75.36" />
+                    </Viewbox.RenderTransform>
+                    <Viewbox.Triggers>
+                        <EventTrigger RoutedEvent="Viewbox.Loaded">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation
+                                        Storyboard.TargetName="Group"
+                                        Storyboard.TargetProperty="(Viewbox.RenderTransform).(RotateTransform.Angle)"
+                                        From="0"
+                                        To="360"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever" />
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Viewbox.Triggers>
+                </Viewbox>
+                <Path x:Name="Path_2" Width="200" Height="152.42" Canvas.Left="33.1481" Canvas.Top="19.6546" Stretch="Fill" Data="F1 M 138.051,19.6546L 128.061,19.6546C 85.9716,19.6546 33.1481,53.775 33.1481,95.8646L 33.1481,95.8646C 33.1481,137.954 67.2684,172.075 109.358,172.075L 156.938,172.075C 199.027,172.075 233.148,137.954 233.148,95.8646L 233.148,95.8646C 233.148,53.775 180.14,19.6546 138.051,19.6546 Z ">
+                    <Path.Fill>
+                        <LinearGradientBrush StartPoint="0.505399,1.00035" EndPoint="0.505399,0.00368235">
+                            <LinearGradientBrush.GradientStops>
+                                <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                            </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                    </Path.Fill>
+                </Path>
+                <Path x:Name="Path_3" Width="230.306" Height="230.306" Canvas.Left="18.2362" Canvas.Top="18.6015" Stretch="Fill" StrokeThickness="2" StrokeLineJoin="Round" Stroke="#FF94E77F" Data="F1 M 133.542,19.6015L 133.236,19.6015C 70.2757,19.6015 19.2362,70.641 19.2362,133.601L 19.2362,133.908C 19.2362,196.868 70.2757,247.908 133.236,247.908L 133.542,247.908C 196.502,247.908 247.542,196.868 247.542,133.908L 247.542,133.601C 247.542,70.641 196.502,19.6015 133.542,19.6015 Z ">
+                    <Path.Fill>
+                        <RadialGradientBrush RadiusX="0.500001" RadiusY="0.500001" Center="0.5,0.5" GradientOrigin="0.5,0.5">
+                            <RadialGradientBrush.GradientStops>
+                                <GradientStop Color="#00000000" Offset="0.741525"/>
+                                <GradientStop Color="#B3000000" Offset="1"/>
+                            </RadialGradientBrush.GradientStops>
+                            <RadialGradientBrush.RelativeTransform>
+                                <TransformGroup/>
+                            </RadialGradientBrush.RelativeTransform>
+                        </RadialGradientBrush>
+                    </Path.Fill>
+                </Path>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ManualOperatingModeGip" TargetType="{x:Type local:VBOperatingMode}">
+        <Viewbox>
+            <Canvas x:Name="Ebene_1_11" Width="250" Height="250" Canvas.Left="0" Canvas.Top="0">
+                <Viewbox x:Name="Group" Width="265.92" Height="265.92" Canvas.Left="0.28" Canvas.Top="0.720001">
+                    <Canvas Width="265.92" Height="265.92">
+                        <Image x:Name="Image" Source="imageManual.png" Width="266" Height="266" Canvas.Left="0" Canvas.Top="0"/>
+                        <Viewbox x:Name="Group_0" Width="137.28" Height="166.843" Canvas.Left="74.4" Canvas.Top="51.0774">
+                            <Canvas Width="137.28" Height="166.843">
+                                <Ellipse x:Name="Ellipse" Width="98.4145" Height="91.6453" Canvas.Left="1.33813" Canvas.Top="68.3547" Stretch="Fill" StrokeThickness="4" StrokeLineJoin="Round" Stroke="#FF959500" Fill="#FF182100">
+                                    <Ellipse.Effect>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="0.599998" Color="#FF000000" Direction="315"/>
+                                    </Ellipse.Effect>
+                                </Ellipse>
+                                <Path x:Name="Path" Width="25.7295" Height="98.772" Canvas.Left="1.48199" Canvas.Top="30.845" Stretch="Fill" StrokeThickness="4" StrokeLineJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="M 14.3468,127.617L 14.3468,127.617C 20.3472,127.617 25.2115,122.753 25.2115,116.752L 25.2115,43.7098C 25.2115,37.7094 20.3472,32.845 14.3468,32.845L 14.3468,32.845C 8.34633,32.845 3.48199,37.7094 3.48199,43.7098L 3.48199,116.752C 3.48199,122.753 8.34633,127.617 14.3468,127.617 Z "/>
+                                <Path x:Name="Path_1" Width="25.7212" Height="98.7697" Canvas.Left="23.2031" Canvas.Top="13.7113" Stretch="Fill" StrokeThickness="4" StrokeLineJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="F1 M 36.0637,110.481L 36.0637,110.481C 42.0619,110.481 46.9243,105.619 46.9243,99.6205L 46.9243,26.5719C 46.9243,20.5738 42.0619,15.7113 36.0637,15.7113L 36.0637,15.7113C 30.0656,15.7113 25.2031,20.5738 25.2031,26.5719L 25.2031,99.6205C 25.2031,105.619 30.0656,110.481 36.0637,110.481 Z "/>
+                                <Path x:Name="Path_2" Width="25.7212" Height="98.7697" Canvas.Left="45.3587" Canvas.Top="0" Stretch="Fill" StrokeThickness="4" StrokeLineJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="F1 M 58.2193,96.7697L 58.2193,96.7697C 64.2174,96.7697 69.0799,91.9073 69.0799,85.9091L 69.0799,12.8606C 69.0799,6.86246 64.2174,2 58.2193,2L 58.2193,2C 52.2212,2 47.3587,6.86246 47.3587,12.8606L 47.3587,85.9091C 47.3587,91.9073 52.2212,96.7697 58.2193,96.7697 Z "/>
+                                <Path x:Name="Path_3" Width="25.7289" Height="98.7698" Canvas.Left="67.0815" Canvas.Top="13.3075" Stretch="Fill" StrokeThickness="4" StrokeLineJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="F1 M 79.946,110.077L 79.946,110.077C 85.9463,110.077 90.8104,105.213 90.8104,99.2129L 90.8104,26.172C 90.8104,20.1717 85.9463,15.3075 79.946,15.3075L 79.946,15.3075C 73.9457,15.3075 69.0815,20.1717 69.0815,26.172L 69.0815,99.2129C 69.0815,105.213 73.9457,110.077 79.946,110.077 Z ">
+                                    <Path.Effect>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="0.599998" Color="#FF000000" Direction="315"/>
+                                    </Path.Effect>
+                                </Path>
+                                <Path x:Name="Path_4" Width="72.8893" Height="77.8691" Canvas.Left="56.0215" Canvas.Top="63.5213" Stretch="Fill" StrokeThickness="4" StrokeLineJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="F1 M 73.1599,135.071L 73.1599,135.071C 78.1529,138.156 87.6974,141.564 90.5469,137.591L 125.54,80.2177C 128.39,76.2439 126.652,70.5213 121.659,67.4359L 121.659,67.4359C 116.666,64.3505 110.308,65.0707 107.459,69.0445L 58.4365,125.106C 55.5869,129.08 68.1668,131.985 73.1599,135.071 Z ">
+                                    <Path.Effect>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="0.599998" Color="#FF000000" Direction="315"/>
+                                    </Path.Effect>
+                                </Path>
+                                <Ellipse x:Name="Ellipse_5" Width="70.3764" Height="63.7176" Canvas.Left="23.9009" Canvas.Top="87.6956" Stretch="Fill" Fill="#FF182100"/>
+                                <Ellipse x:Name="Ellipse_6" Width="59.0814" Height="58.0717" Canvas.Left="5.65506" Canvas.Top="87.2923" Stretch="Fill" Fill="#FF182100"/>
+                            </Canvas>
+                        </Viewbox>
+                        <Path x:Name="Path_7" Width="200" Height="152.42" Canvas.Left="31.4789" Canvas.Top="18.1799" Stretch="Fill" Data="F1 M 136.382,18.1799L 126.392,18.1799C 84.3025,18.1799 31.4789,52.3003 31.4789,94.3899L 31.4789,94.3899C 31.4789,136.48 65.5993,170.6 107.689,170.6L 155.269,170.6C 197.358,170.6 231.479,136.48 231.479,94.3899L 231.479,94.3899C 231.479,52.3003 178.471,18.1799 136.382,18.1799 Z ">
+                            <Path.Fill>
+                                <LinearGradientBrush StartPoint="0.505399,1.00035" EndPoint="0.505399,0.00368225">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                        <Path x:Name="Path_8" Width="230.306" Height="230.306" Canvas.Left="16.5671" Canvas.Top="17.1268" Stretch="Fill" StrokeThickness="2" StrokeLineJoin="Round" Stroke="#FFFFFF75" Data="F1 M 131.873,18.1268L 131.567,18.1268C 68.6066,18.1268 17.5671,69.1664 17.5671,132.127L 17.5671,132.433C 17.5671,195.394 68.6066,246.433 131.567,246.433L 131.873,246.433C 194.833,246.433 245.873,195.394 245.873,132.433L 245.873,132.127C 245.873,69.1664 194.833,18.1268 131.873,18.1268 Z ">
+                            <Path.Fill>
+                                <RadialGradientBrush RadiusX="0.500001" RadiusY="0.500001" Center="0.5,0.5" GradientOrigin="0.5,0.5">
+                                    <RadialGradientBrush.GradientStops>
+                                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                                        <GradientStop Color="#B3000000" Offset="1"/>
+                                    </RadialGradientBrush.GradientStops>
+                                    <RadialGradientBrush.RelativeTransform>
+                                        <TransformGroup/>
+                                    </RadialGradientBrush.RelativeTransform>
+                                </RadialGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                    </Canvas>
+                </Viewbox>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="MaintOperatingModeGip" TargetType="{x:Type local:VBOperatingMode}">
+        <Viewbox>
+            <Canvas x:Name="Ebene_1_24" Width="250" Height="250" Canvas.Left="0" Canvas.Top="0">
+                <Viewbox x:Name="Group" Width="265.92" Height="265.92" Canvas.Left="0.84" Canvas.Top="0.720001">
+                    <Canvas Width="265.92" Height="265.92">
+                        <Image x:Name="Image" Source="imageMaint.png" Width="266" Height="266" Canvas.Left="0" Canvas.Top="0"/>
+                        <Viewbox x:Name="Group_0" Width="133.92" Height="146.4" Canvas.Left="68.64" Canvas.Top="61.92">
+                            <Canvas Width="133.92" Height="146.4">
+                                <Path x:Name="Path" Width="117.545" Height="134.061" Canvas.Left="4.28846" Canvas.Top="2.06748" Stretch="Fill" StrokeThickness="3" StrokeLineJoin="Round" Stroke="#FFF10000" Fill="#FF230000" Data="M 6.47846,118.973C 10.4482,115.091 63.9589,59.9193 71.6783,46.4427C 79.3976,32.966 80.2143,19.8497 82.7298,14.6781C 85.2454,9.50642 89.9238,5.26369 96.2395,4.01593C 102.555,2.76819 109.807,4.26569 113.315,6.76129C 116.824,9.25687 117.058,9.25687 120.333,13.25L 97.6431,21.7354L 94.368,29.472L 94.3082,41.8547L 108.637,54.1793C 102.217,54.792 98.0317,54.2707 91.7951,56.675C 85.5585,59.0793 84.3878,61.9991 80.801,64.4116C 58.3733,87.4704 25.0532,130.335 20.9181,134.041C 16.783,137.747 2.50875,122.855 6.47846,118.973 Z M 23.6303,116.233L 16.5875,114.924L 12.4898,119.296L 13.706,126.822L 20.76,128.119L 24.8578,123.747L 23.6303,116.233 Z M 85.0713,40.6669C 88.0265,40.6669 90.4221,43.2229 90.4221,46.3758C 90.4221,49.5288 88.0265,52.0848 85.0713,52.0847C 82.1161,52.0848 79.7205,49.5288 79.7205,46.3758C 79.7205,43.2229 82.1161,40.6669 85.0713,40.6669 Z ">
+                                    <Path.Effect>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="1" Color="#FF000000" Direction="315"/>
+                                    </Path.Effect>
+                                </Path>
+                                <Path x:Name="Path_1" Width="33.877" Height="26.3347" Canvas.Left="92.868" Canvas.Top="26.9739" Stretch="Fill" StrokeThickness="3" StrokeLineJoin="Round" Stroke="#FFF10000" Fill="#FF230000" Data="F1 M 94.368,36.0857L 102.321,38.4566L 125.245,28.4739C 125.245,32.7166 123.842,36.9592 122.438,40.2036C 121.035,43.448 119.163,46.1933 118.228,47.1915C 117.292,48.1898 110.118,50.9767 106.064,51.8086L 94.602,41.701L 94.368,36.0857 Z ">
+                                    <Path.Effect>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="1" Color="#FF000000" Direction="315"/>
+                                    </Path.Effect>
+                                </Path>
+                            </Canvas>
+                            <Viewbox.RenderTransform>
+                                <RotateTransform Angle="0"
+                                        CenterX="77.67"
+                                        CenterY="58.56" />
+                            </Viewbox.RenderTransform>
+                            <Viewbox.Triggers>
+                                <EventTrigger RoutedEvent="Viewbox.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                        Storyboard.TargetName="Group_0"
+                                        Storyboard.TargetProperty="(Viewbox.RenderTransform).(RotateTransform.Angle)"
+                                        From="-30"
+                                        To="30"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Viewbox.Triggers>
+                        </Viewbox>
+                        <Path x:Name="Path_2" Width="200" Height="152.42" Canvas.Left="32.9189" Canvas.Top="18.1799" Stretch="Fill" StrokeThickness="1" StrokeLineJoin="Round" Stroke="#FFFF5959" Data="F1 M 137.822,18.1799L 127.832,18.1799C 85.7425,18.1799 32.9189,52.3003 32.9189,94.3899L 32.9189,94.3899C 32.9189,136.48 67.0393,170.6 109.129,170.6L 156.709,170.6C 198.798,170.6 232.919,136.48 232.919,94.3899L 232.919,94.3899C 232.919,52.3003 179.911,18.1799 137.822,18.1799 Z ">
+                            <Path.Fill>
+                                <LinearGradientBrush StartPoint="0.505399,1.00035" EndPoint="0.505399,0.00368225">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                        <Path x:Name="Path_3" Width="230.306" Height="230.306" Canvas.Left="18.0071" Canvas.Top="17.1268" Stretch="Fill" StrokeThickness="2" StrokeLineJoin="Round" Stroke="#FFFF5959" Data="F1 M 133.313,18.1268L 133.007,18.1268C 70.0466,18.1268 19.0071,69.1664 19.0071,132.127L 19.0071,132.433C 19.0071,195.394 70.0466,246.433 133.007,246.433L 133.313,246.433C 196.273,246.433 247.313,195.394 247.313,132.433L 247.313,132.127C 247.313,69.1664 196.273,18.1268 133.313,18.1268 Z ">
+                            <Path.Fill>
+                                <RadialGradientBrush RadiusX="0.500001" RadiusY="0.500001" Center="0.5,0.5" GradientOrigin="0.5,0.5">
+                                    <RadialGradientBrush.GradientStops>
+                                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                                        <GradientStop Color="#B3000000" Offset="1"/>
+                                    </RadialGradientBrush.GradientStops>
+                                    <RadialGradientBrush.RelativeTransform>
+                                        <TransformGroup/>
+                                    </RadialGradientBrush.RelativeTransform>
+                                </RadialGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                    </Canvas>
+                </Viewbox>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <Style x:Key="OperatingModeStyleGip" TargetType="{x:Type local:VBOperatingMode}">
+        <Setter Property="Template" Value="{StaticResource AutoOperatingModeGip}"/>
+        <Style.Triggers>
+            <Trigger Property="OperatingMode" Value="Manual">
+                <Setter Property="Template" Value="{StaticResource ManualOperatingModeGip}"/>
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="Maintenance">
+                <Setter Property="Template" Value="{StaticResource MaintOperatingModeGip}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

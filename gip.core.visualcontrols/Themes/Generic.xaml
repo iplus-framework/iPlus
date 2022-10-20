@@ -1,0 +1,23 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.visualcontrols">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.visualcontrols;Component/Controls/VBFillLevel/Themes/FillLevelStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols;Component/Controls/VBSlideValve/Themes/SlideValveStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols;Component/Controls/VBValve/Themes/ValveStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols;Component/Controls/VBOperatingMode/Themes/OperatingModeStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols;Component/Controls/VBMotor/Themes/MotorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols;Component/Controls/VBSensor/Themes/SensorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols;Component/Controls/VBTransportBody/Themes/TransportBodyStyleGip.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <Style TargetType="{x:Type local:VBFillLevel}" BasedOn="{StaticResource FillLevelStyleGip}" />
+    <Style TargetType="{x:Type local:VBSlideValve}" BasedOn="{StaticResource SlideValveStyleGip}" />
+    <Style TargetType="{x:Type local:VBValve}" BasedOn="{StaticResource ValveStyleGip}" />
+    <Style TargetType="{x:Type local:VBOperatingMode}" BasedOn="{StaticResource OperatingModeStyleGip}" />
+    <Style TargetType="{x:Type local:VBMotor}" BasedOn="{StaticResource MotorStyleGip}" />
+    <Style TargetType="{x:Type local:VBSensor}" BasedOn="{StaticResource SensorStyleGip}" />
+    <Style TargetType="{x:Type local:VBTransportBody}" BasedOn="{StaticResource TransportBodyStyleGip}" />
+
+</ResourceDictionary>

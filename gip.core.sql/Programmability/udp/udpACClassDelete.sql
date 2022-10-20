@@ -1,0 +1,541 @@
+﻿-- author:		@aagincic
+-- name:		udpACClassDelete
+-- desc:		delete class and resources
+-- created:		-
+-- updated:		2020--06-03
+-- deployed:	-
+
+IF EXISTS (SELECT * FROM sysobjects WHERE type = 'P' AND name = 'udpACClassDelete')
+	BEGIN
+		DROP  procedure  dbo.[udpACClassDelete]
+	END
+GO
+
+CREATE PROCEDURE [dbo].[udpACClassDelete]
+				
+	@acClassID uniqueidentifier
+	AS
+begin
+	begin tran
+		
+		delete from [dbo].[ACClassText] where ACClassID = @acClassID;
+		delete from [dbo].[ACClassMessage] where ACClassID = @acClassID;
+		delete from [dbo].[ACClassDesign] where ACClassID = @acClassID;
+
+
+		declare @classPropertyIDs table
+		(
+			ACClassPropertyID uniqueidentifier
+		)
+
+		insert into @classPropertyIDs (ACClassPropertyID)
+		select
+			ACClassPropertyID
+		from ACClassProperty where ACClassID = @acClassID;
+
+		delete from ACClassPropertyRelation where
+		SourceACClassPropertyID in (select ACClassPropertyID from @classPropertyIDs)
+		or TargetACClassPropertyID in (select ACClassPropertyID from @classPropertyIDs);
+
+		delete from ACClassPropertyRelation where
+		SourceACClassID = @acClassID
+		or TargetACClassID = @acClassID;
+
+--=========================================================================
+--| TABLE_NAME                    | COLUMN_NAME                           |
+--=========================================================================
+--| ACChangeLog                   | ACClassID                             |
+---------------------------------------------------------------------------
+--| ACChangeLog                   | ACClassPropertyID                     |
+---------------------------------------------------------------------------
+--| ACClass                       | ACClassID                             |
+---------------------------------------------------------------------------
+--| ACClass                       | BasedOnACClassID                      |
+---------------------------------------------------------------------------
+--| ACClass                       | ParentACClassID                       |
+---------------------------------------------------------------------------
+--| ACClass                       | PWACClassID                           |
+---------------------------------------------------------------------------
+--| ACClass                       | PWMethodACClassID                     |
+---------------------------------------------------------------------------
+--| ACClass                       | XMLACClass                            |
+---------------------------------------------------------------------------
+--| ACClassConfig                 | ACClassConfigID                       |
+---------------------------------------------------------------------------
+--| ACClassConfig                 | ACClassID                             |
+---------------------------------------------------------------------------
+--| ACClassConfig                 | ACClassPropertyRelationID             |
+---------------------------------------------------------------------------
+--| ACClassConfig                 | ParentACClassConfigID                 |
+---------------------------------------------------------------------------
+--| ACClassConfig                 | ValueTypeACClassID                    |
+---------------------------------------------------------------------------
+--| ACClassDesign                 | ACClassDesignID                       |
+---------------------------------------------------------------------------
+--| ACClassDesign                 | ACClassID                             |
+---------------------------------------------------------------------------
+--| ACClassDesign                 | ValueTypeACClassID                    |
+---------------------------------------------------------------------------
+--| ACClassMessage                | ACClassID                             |
+---------------------------------------------------------------------------
+--| ACClassMessage                | ACClassMessageID                      |
+---------------------------------------------------------------------------
+--| ACClassMethod                 | ACClassID                             |
+---------------------------------------------------------------------------
+--| ACClassMethod                 | ACClassMethodID                       |
+---------------------------------------------------------------------------
+--| ACClassMethod                 | AttachedFromACClassID                 |
+---------------------------------------------------------------------------
+--| ACClassMethod                 | ParentACClassMethodID                 |
+---------------------------------------------------------------------------
+--| ACClassMethod                 | PWACClassID                           |
+---------------------------------------------------------------------------
+--| ACClassMethod                 | ValueTypeACClassID                    |
+---------------------------------------------------------------------------
+--| ACClassMethodConfig           | ACClassMethodConfigID                 |
+---------------------------------------------------------------------------
+--| ACClassMethodConfig           | ACClassMethodID                       |
+---------------------------------------------------------------------------
+--| ACClassMethodConfig           | ACClassWFID                           |
+---------------------------------------------------------------------------
+--| ACClassMethodConfig           | ParentACClassMethodConfigID           |
+---------------------------------------------------------------------------
+--| ACClassMethodConfig           | ValueTypeACClassID                    |
+---------------------------------------------------------------------------
+--| ACClassMethodConfig           | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| ACClassMethodConfig           | VBiACClassPropertyRelationID          |
+---------------------------------------------------------------------------
+--| ACClassProperty               | ACClassID                             |
+---------------------------------------------------------------------------
+--| ACClassProperty               | ACClassPropertyID                     |
+---------------------------------------------------------------------------
+--| ACClassProperty               | BasedOnACClassPropertyID              |
+---------------------------------------------------------------------------
+--| ACClassProperty               | ConfigACClassID                       |
+---------------------------------------------------------------------------
+--| ACClassProperty               | ParentACClassPropertyID               |
+---------------------------------------------------------------------------
+--| ACClassProperty               | ValueTypeACClassID                    |
+---------------------------------------------------------------------------
+--| ACClassPropertyRelation       | ACClassPropertyRelationID             |
+---------------------------------------------------------------------------
+--| ACClassPropertyRelation       | SourceACClassID                       |
+---------------------------------------------------------------------------
+--| ACClassPropertyRelation       | SourceACClassPropertyID               |
+---------------------------------------------------------------------------
+--| ACClassPropertyRelation       | TargetACClassID                       |
+---------------------------------------------------------------------------
+--| ACClassPropertyRelation       | TargetACClassPropertyID               |
+---------------------------------------------------------------------------
+--| ACClassTask                   | ACClassTaskID                         |
+---------------------------------------------------------------------------
+--| ACClassTask                   | ContentACClassWFID                    |
+---------------------------------------------------------------------------
+--| ACClassTask                   | ParentACClassTaskID                   |
+---------------------------------------------------------------------------
+--| ACClassTask                   | TaskTypeACClassID                     |
+---------------------------------------------------------------------------
+--| ACClassTaskValue              | ACClassPropertyID                     |
+---------------------------------------------------------------------------
+--| ACClassTaskValue              | ACClassTaskID                         |
+---------------------------------------------------------------------------
+--| ACClassTaskValue              | ACClassTaskValueID                    |
+---------------------------------------------------------------------------
+--| ACClassTaskValuePos           | ACClassTaskValueID                    |
+---------------------------------------------------------------------------
+--| ACClassTaskValuePos           | ACClassTaskValuePosID                 |
+---------------------------------------------------------------------------
+--| ACClassText                   | ACClassID                             |
+---------------------------------------------------------------------------
+--| ACClassText                   | ACClassTextID                         |
+---------------------------------------------------------------------------
+--| ACClassWF                     | ACClassMethodID                       |
+---------------------------------------------------------------------------
+--| ACClassWF                     | ACClassWFID                           |
+---------------------------------------------------------------------------
+--| ACClassWF                     | ParentACClassWFID                     |
+---------------------------------------------------------------------------
+--| ACClassWF                     | PWACClassID                           |
+---------------------------------------------------------------------------
+--| ACClassWF                     | RefPAACClassID                        |
+---------------------------------------------------------------------------
+--| ACClassWF                     | RefPAACClassMethodID                  |
+---------------------------------------------------------------------------
+--| ACClassWFEdge                 | ACClassMethodID                       |
+---------------------------------------------------------------------------
+--| ACClassWFEdge                 | ACClassWFEdgeID                       |
+---------------------------------------------------------------------------
+--| ACClassWFEdge                 | SourceACClassMethodID                 |
+---------------------------------------------------------------------------
+--| ACClassWFEdge                 | SourceACClassPropertyID               |
+---------------------------------------------------------------------------
+--| ACClassWFEdge                 | SourceACClassWFID                     |
+---------------------------------------------------------------------------
+--| ACClassWFEdge                 | TargetACClassMethodID                 |
+---------------------------------------------------------------------------
+--| ACClassWFEdge                 | TargetACClassPropertyID               |
+---------------------------------------------------------------------------
+--| ACClassWFEdge                 | TargetACClassWFID                     |
+---------------------------------------------------------------------------
+--| ACProgram                     | ProgramACClassMethodID                |
+---------------------------------------------------------------------------
+--| ACProgram                     | WorkflowTypeACClassID                 |
+---------------------------------------------------------------------------
+--| ACProgramConfig               | ACClassID                             |
+---------------------------------------------------------------------------
+--| ACProgramConfig               | ACClassPropertyRelationID             |
+---------------------------------------------------------------------------
+--| ACProgramConfig               | ValueTypeACClassID                    |
+---------------------------------------------------------------------------
+--| ACProgramLog                  | ACClassID                             |
+---------------------------------------------------------------------------
+--| ACProgramLog                  | RefACClassID                          |
+---------------------------------------------------------------------------
+--| ACProgramLogTask              | ACClassMethodXAML                     |
+---------------------------------------------------------------------------
+--| ACProgramLogView              | ACClassACCaptionTranslation           |
+---------------------------------------------------------------------------
+--| ACProgramLogView              | ACClassACIdentifier                   |
+---------------------------------------------------------------------------
+--| ACProgramLogView              | ACClassID                             |
+---------------------------------------------------------------------------
+--| ACProgramLogView              | BasedOnACClassID                      |
+---------------------------------------------------------------------------
+--| ACProject                     | PAAppClassAssignmentACClassID         |
+---------------------------------------------------------------------------
+--| ACPropertyLog                 | ACClassID                             |
+---------------------------------------------------------------------------
+--| ACPropertyLog                 | ACClassPropertyID                     |
+---------------------------------------------------------------------------
+--| ACPropertyLogRule             | ACClassID                             |
+---------------------------------------------------------------------------
+--| CompanyPersonRole             | VBiRoleACClassID                      |
+---------------------------------------------------------------------------
+--| DemandOrderPos                | VBiProgramACClassMethodID             |
+---------------------------------------------------------------------------
+--| Facility                      | VBiFacilityACClassID                  |
+---------------------------------------------------------------------------
+--| Facility                      | VBiStackCalculatorACClassID           |
+---------------------------------------------------------------------------
+--| FacilityBooking               | VBiStackCalculatorACClassID           |
+---------------------------------------------------------------------------
+--| FacilityBookingCharge         | VBiStackCalculatorACClassID           |
+---------------------------------------------------------------------------
+--| FacilityReservation           | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| HistoryConfig                 | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| HistoryConfig                 | VBiACClassPropertyRelationID          |
+---------------------------------------------------------------------------
+--| HistoryConfig                 | VBiACClassWFID                        |
+---------------------------------------------------------------------------
+--| HistoryConfig                 | VBiValueTypeACClassID                 |
+---------------------------------------------------------------------------
+--| InOrderConfig                 | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| InOrderConfig                 | VBiACClassPropertyRelationID          |
+---------------------------------------------------------------------------
+--| InOrderConfig                 | VBiACClassWFID                        |
+---------------------------------------------------------------------------
+--| InOrderConfig                 | VBiValueTypeACClassID                 |
+---------------------------------------------------------------------------
+--| InRequestConfig               | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| InRequestConfig               | VBiACClassPropertyRelationID          |
+---------------------------------------------------------------------------
+--| InRequestConfig               | VBiValueTypeACClassID                 |
+---------------------------------------------------------------------------
+--| MachineMaterialPosView        | ACClassID                             |
+---------------------------------------------------------------------------
+--| MachineMaterialPosView        | BasedOnACClassID                      |
+---------------------------------------------------------------------------
+--| MachineMaterialRelView        | ACClassID                             |
+---------------------------------------------------------------------------
+--| MachineMaterialRelView        | BasedOnACClassID                      |
+---------------------------------------------------------------------------
+--| MachineMaterialView           | ACClassID                             |
+---------------------------------------------------------------------------
+--| MachineMaterialView           | BasedOnACClassID                      |
+---------------------------------------------------------------------------
+--| MaintACClass                  | MaintACClassID                        |
+---------------------------------------------------------------------------
+--| MaintACClass                  | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| MaintACClassProperty          | MaintACClassID                        |
+---------------------------------------------------------------------------
+--| MaintACClassProperty          | MaintACClassPropertyID                |
+---------------------------------------------------------------------------
+--| MaintACClassProperty          | VBiACClassPropertyID                  |
+---------------------------------------------------------------------------
+--| MaintACClassVBGroup           | MaintACClassID                        |
+---------------------------------------------------------------------------
+--| MaintACClassVBGroup           | MaintACClassPropertyID                |
+---------------------------------------------------------------------------
+--| MaintACClassVBGroup           | MaintACClassVBGroupID                 |
+---------------------------------------------------------------------------
+--| MaintOrder                    | MaintACClassID                        |
+---------------------------------------------------------------------------
+--| MaintOrder                    | VBiPAACClassID                        |
+---------------------------------------------------------------------------
+--| MaintOrderProperty            | MaintACClassPropertyID                |
+---------------------------------------------------------------------------
+--| MaintTask                     | MaintACClassVBGroupID                 |
+---------------------------------------------------------------------------
+--| Material                      | VBiProgramACClassMethodID             |
+---------------------------------------------------------------------------
+--| Material                      | VBiStackCalculatorACClassID           |
+---------------------------------------------------------------------------
+--| MaterialConfig                | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| MaterialConfig                | VBiACClassPropertyRelationID          |
+---------------------------------------------------------------------------
+--| MaterialConfig                | VBiACClassWFID                        |
+---------------------------------------------------------------------------
+--| MaterialConfig                | VBiValueTypeACClassID                 |
+---------------------------------------------------------------------------
+--| MaterialWFACClassMethod       | ACClassMethodID                       |
+---------------------------------------------------------------------------
+--| MaterialWFACClassMethod       | MaterialWFACClassMethodID             |
+---------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig | MaterialWFACClassMethodConfigID       |
+---------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig | MaterialWFACClassMethodID             |
+---------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig | ParentMaterialWFACClassMethodConfigID |
+---------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig | VBiACClassPropertyRelationID          |
+---------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig | VBiACClassWFID                        |
+---------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig | VBiValueTypeACClassID                 |
+---------------------------------------------------------------------------
+--| MaterialWFConnection          | ACClassWFID                           |
+---------------------------------------------------------------------------
+--| MaterialWFConnection          | MaterialWFACClassMethodID             |
+---------------------------------------------------------------------------
+--| MsgAlarmLog                   | ACClassID                             |
+---------------------------------------------------------------------------
+--| OrderLogPosMachines           | ACClassID                             |
+---------------------------------------------------------------------------
+--| OrderLogPosMachines           | BasedOnACClassID                      |
+---------------------------------------------------------------------------
+--| OrderLogRelView               | ACClassID                             |
+---------------------------------------------------------------------------
+--| OrderLogRelView               | BasedOnACClassID                      |
+---------------------------------------------------------------------------
+--| OrderLogRelView               | RefACClassID                          |
+---------------------------------------------------------------------------
+--| OutOfferingConfig             | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| OutOfferingConfig             | VBiACClassPropertyRelationID          |
+---------------------------------------------------------------------------
+--| OutOfferingConfig             | VBiValueTypeACClassID                 |
+---------------------------------------------------------------------------
+--| OutOrderConfig                | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| OutOrderConfig                | VBiACClassPropertyRelationID          |
+---------------------------------------------------------------------------
+--| OutOrderConfig                | VBiACClassWFID                        |
+---------------------------------------------------------------------------
+--| OutOrderConfig                | VBiValueTypeACClassID                 |
+---------------------------------------------------------------------------
+--| PartslistACClassMethod        | MaterialWFACClassMethodID             |
+---------------------------------------------------------------------------
+--| PartslistACClassMethod        | PartslistACClassMethodID              |
+---------------------------------------------------------------------------
+--| PartslistConfig               | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| PartslistConfig               | VBiACClassPropertyRelationID          |
+---------------------------------------------------------------------------
+--| PartslistConfig               | VBiACClassWFID                        |
+---------------------------------------------------------------------------
+--| PartslistConfig               | VBiValueTypeACClassID                 |
+---------------------------------------------------------------------------
+--| Picking                       | ACClassMethodID                       |
+---------------------------------------------------------------------------
+--| PickingConfig                 | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| PickingConfig                 | VBiACClassPropertyRelationID          |
+---------------------------------------------------------------------------
+--| PickingConfig                 | VBiACClassWFID                        |
+---------------------------------------------------------------------------
+--| PickingConfig                 | VBiValueTypeACClassID                 |
+---------------------------------------------------------------------------
+--| ProdOrderBatchPlan            | MaterialWFACClassMethodID             |
+---------------------------------------------------------------------------
+--| ProdOrderBatchPlan            | VBiACClassWFID                        |
+---------------------------------------------------------------------------
+--| ProdOrderPartslistConfig      | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| ProdOrderPartslistConfig      | VBiACClassPropertyRelationID          |
+---------------------------------------------------------------------------
+--| ProdOrderPartslistConfig      | VBiACClassWFID                        |
+---------------------------------------------------------------------------
+--| ProdOrderPartslistConfig      | VBiValueTypeACClassID                 |
+---------------------------------------------------------------------------
+--| ProdOrderPartslistPos         | ACClassTaskID                         |
+---------------------------------------------------------------------------
+--| TandTv2StepItem               | ACClassID                             |
+---------------------------------------------------------------------------
+--| TourplanConfig                | VBiACClassID                          |
+---------------------------------------------------------------------------
+--| TourplanConfig                | VBiACClassPropertyRelationID          |
+---------------------------------------------------------------------------
+--| TourplanConfig                | VBiValueTypeACClassID                 |
+---------------------------------------------------------------------------
+--| VBConfig                      | ACClassID                             |
+---------------------------------------------------------------------------
+--| VBConfig                      | ACClassPropertyRelationID             |
+---------------------------------------------------------------------------
+--| VBConfig                      | ValueTypeACClassID                    |
+---------------------------------------------------------------------------
+--| VBGroupRight                  | ACClassDesignID                       |
+---------------------------------------------------------------------------
+--| VBGroupRight                  | ACClassID                             |
+---------------------------------------------------------------------------
+--| VBGroupRight                  | ACClassMethodID                       |
+---------------------------------------------------------------------------
+--| VBGroupRight                  | ACClassPropertyID                     |
+---------------------------------------------------------------------------
+--| VBUser                        | MenuACClassDesignID                   |
+---------------------------------------------------------------------------
+--| VBUserACClassDesign           | ACClassDesignID                       |
+---------------------------------------------------------------------------
+--| VBUserACClassDesign           | VBUserACClassDesignID                 |
+---------------------------------------------------------------------------
+--| Weighing                      | VBiACClassID                          |
+---------------------------------------------------------------------------
+--dentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialConfig                    | VBiACClassPropertyRelationID          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialConfig                    | VBiACClassWFID                        | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialConfig                    | VBiValueTypeACClassID                 | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialWFACClassMethod           | ACClassMethodID                       | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialWFACClassMethod           | MaterialWFACClassMethodID             | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig     | MaterialWFACClassMethodConfigID       | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig     | MaterialWFACClassMethodID             | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig     | ParentMaterialWFACClassMethodConfigID | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig     | VBiACClassID                          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig     | VBiACClassPropertyRelationID          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig     | VBiACClassWFID                        | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialWFACClassMethodConfig     | VBiValueTypeACClassID                 | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialWFConnection              | ACClassWFID                           | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| MaterialWFConnection              | MaterialWFACClassMethodID             | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| MsgAlarmLog                       | ACClassID                             | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| OrderLogPosMachines               | ACClassID                             | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| OrderLogPosMachines               | BasedOnACClassID                      | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| OrderLogRelView                   | ACClassID                             | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| OrderLogRelView                   | BasedOnACClassID                      | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| OrderLogRelView                   | RefACClassID                          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| OutOfferingConfig                 | VBiACClassID                          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| OutOfferingConfig                 | VBiACClassPropertyRelationID          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| OutOfferingConfig                 | VBiValueTypeACClassID                 | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| OutOrderConfig                    | VBiACClassID                          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| OutOrderConfig                    | VBiACClassPropertyRelationID          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| OutOrderConfig                    | VBiACClassWFID                        | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| OutOrderConfig                    | VBiValueTypeACClassID                 | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| PartslistACClassMethod            | MaterialWFACClassMethodID             | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| PartslistACClassMethod            | PartslistACClassMethodID              | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| PartslistConfig                   | VBiACClassID                          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| PartslistConfig                   | VBiACClassPropertyRelationID          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| PartslistConfig                   | VBiACClassWFID                        | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| PartslistConfig                   | VBiValueTypeACClassID                 | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| Picking                           | ACClassMethodID                       | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| PickingConfig                     | VBiACClassID                          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| PickingConfig                     | VBiACClassPropertyRelationID          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| PickingConfig                     | VBiACClassWFID                        | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| PickingConfig                     | VBiValueTypeACClassID                 | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| ProdOrderBatchPlan                | MaterialWFACClassMethodID             | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| ProdOrderBatchPlan                | VBiACClassWFID                        | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| ProdOrderPartslistConfig          | VBiACClassID                          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| ProdOrderPartslistConfig          | VBiACClassPropertyRelationID          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| ProdOrderPartslistConfig          | VBiACClassWFID                        | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| ProdOrderPartslistConfig          | VBiValueTypeACClassID                 | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| ProdOrderPartslistPos             | ACClassTaskID                         | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| RecapitulationMaterialMachineView | BasedOnACClassID                      | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| TandTv2StepItem                   | ACClassID                             | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| TourplanConfig                    | VBiACClassID                          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| TourplanConfig                    | VBiACClassPropertyRelationID          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| TourplanConfig                    | VBiValueTypeACClassID                 | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| variocoffee_IMSParamDB61Res       | ACClassID                             | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| VBConfig                          | ACClassID                             | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| VBConfig                          | ACClassPropertyRelationID             | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| VBConfig                          | ValueTypeACClassID                    | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| VBGroupRight                      | ACClassDesignID                       | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| VBGroupRight                      | ACClassID                             | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| VBGroupRight                      | ACClassMethodID                       | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| VBGroupRight                      | ACClassPropertyID                     | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| VBUser                            | MenuACClassDesignID                   | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| VBUserACClassDesign               | ACClassDesignID                       | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+--| VBUserACClassDesign               | VBUserACClassDesignID                 | uniqueidentifier | NO          |
+----------------------------------------------------------------------------------------------------------------
+--| Weighing                          | VBiACClassID                          | uniqueidentifier | YES         |
+----------------------------------------------------------------------------------------------------------------
+
+
+
+	commit tran;
+end

@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="gip.core.layoutengine.VBDesignEditor"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine"
+    xmlns:wpf="clr-namespace:gip.ext.designer;assembly=gip.ext.designer"
+    xmlns:wpf2="clr-namespace:gip.ext.designer.PropertyGrid;assembly=gip.ext.designer"
+    Background="Transparent" Padding="0,0,0,0">
+    <UserControl.Resources>
+        <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/Shared.xaml"/>
+    </UserControl.Resources>
+    <local:VBTabControl x:Name="ucTabControl" TabStripPlacement="Bottom" SelectionChanged="TabControl_SelectionChanged">
+        <local:VBTabItem Header="Design" x:Name="DesignTab">
+            <wpf:DesignSurface x:Name="ucWpfDesignSurface" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </local:VBTabItem>
+        <local:VBTabItem Header="XAML" x:Name="XAMLTab">
+            <local:VBXMLEditor x:Name="ucAvalonTextEditor" CodeCompletionSchema="VBDesignEditor.xsd"/>
+        </local:VBTabItem>
+        <local:VBTabItem Header="Info" x:Name="InfoTab">
+            <local:VBGrid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="5*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <local:VBTextBlock Text="Design name" Grid.Column="0" Grid.Row="0"/>
+                <local:VBTextBlock Text="Caption" Grid.Column="0" Grid.Row="1"/>
+                <local:VBTextBlock Text="Caption Translation" Grid.Column="0" Grid.Row="2"/>
+                <local:VBTextBlock Text="Class" Grid.Column="0" Grid.Row="3"/>
+                <local:VBTextBlock Text="ACUrl info" Grid.Column="0" Grid.Row="4"/>
+                <local:VBTextBlock Text="Insert date" Grid.Column="0" Grid.Row="5"/>
+                <local:VBTextBlock Text="Update date" Grid.Column="0" Grid.Row="6"/>
+
+                <local:VBTextBox x:Name="tbInfoDesignFullName" Grid.Column="1" Grid.Row="0" IsReadOnly="True"/>
+                <local:VBTextBox x:Name="tblCaption" Grid.Column="1" Grid.Row="1" IsReadOnly="True"/>
+                <local:VBTextBox x:Name="tblCaptionTranslation" Grid.Column="1" Grid.Row="2" IsReadOnly="True"/>
+                <local:VBTextBox x:Name="tbInfoClassName" Grid.Column="1" Grid.Row="3" IsReadOnly="True"/>
+                <local:VBTextBox x:Name="tbInfoACUrl" Grid.Column="3" Grid.Row="4" IsReadOnly="True"/>
+                <local:VBTextBox x:Name="tbInsertDate" Grid.Column="3" Grid.Row="5" IsReadOnly="True"/>
+                <local:VBTextBox x:Name="tbUpdateDate" Grid.Column="3" Grid.Row="6" IsReadOnly="True"/>
+            </local:VBGrid>
+        </local:VBTabItem>
+    </local:VBTabControl>
+</UserControl>

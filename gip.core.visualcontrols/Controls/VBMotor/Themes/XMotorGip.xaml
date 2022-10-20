@@ -1,0 +1,344 @@
+<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols">
+
+    <ControlTemplate x:Key="MotorGip" TargetType="{x:Type local:VBMotor}">
+        <Viewbox Stretch="Fill">
+            <Canvas Width="200" Height="200">
+                <Path x:Name="OpModeBack" Width="200" Height="200" Canvas.Left="1.90735e-006" Canvas.Top="0" Stretch="Fill" 
+                      Stroke="{TemplateBinding BorderBrushAuto}" 
+                      Fill="{TemplateBinding BorderBrushAuto}" 
+                      Data="F1 M 101,0L 99,0C 44.3238,0 1.90735e-006,44.3238 1.90735e-006,99L 1.90735e-006,101C 1.90735e-006,155.677 44.3238,200 99,200L 101,200C 155.676,200 200,155.677 200,101L 200,99C 200,44.3238 155.676,0 101,0 Z "/>
+                <Path x:Name="RunStateFront" Width="174" Height="174" Canvas.Left="13.0002" Canvas.Top="13.0001" Stretch="Fill" 
+                      StrokeThickness="4" StrokeLineJoin="Round" 
+                      Stroke="#FF000000" 
+                      Fill="{TemplateBinding FillBrushIdle}" 
+                      Data="F1 M 100,15.0001L 100,15.0001C 53.056,15.0001 15.0002,53.0559 15.0002,100L 15.0002,100C 15.0002,146.944 53.056,185 100,185L 100,185C 146.945,185 185,146.944 185,100L 185,100C 185,53.0559 146.945,15.0001 100,15.0001 Z "/>
+                <Viewbox x:Name="Rotor" Width="170" Height="170" Canvas.Left="14.9999" Canvas.Top="15.0001" Visibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Rotor}">
+                    <Canvas Width="170" Height="170">
+                        <Path x:Name="Rot2" Width="85" Height="85.0001" Canvas.Left="-3.8147e-006" Canvas.Top="85.0002" Stretch="Fill" Fill="#4D000000" Data="F1 M 84.1501,170L 85,170L 85,85.0002L -3.8147e-006,85.0002L -3.8147e-006,85.8502C -3.8147e-006,132.325 37.6753,170 84.1501,170 Z "/>
+                        <Path x:Name="Rot1" Width="85" Height="85.0001" Canvas.Left="85" Canvas.Top="0" Stretch="Fill" Fill="#4D000000" Data="F1 M 85.8499,0L 85,0L 85,85.0001L 170,85.0001L 170,84.1501C 170,37.6753 132.325,0 85.8499,0 Z "/>
+                    </Canvas>
+                    <Viewbox.RenderTransform>
+                        <RotateTransform Angle="0"
+                                        CenterX="85"
+                                        CenterY="85" />
+                    </Viewbox.RenderTransform>
+                </Viewbox>
+                <Viewbox x:Name="Group3" Width="93.44" Height="93.44" Canvas.Left="53.2799" Canvas.Top="53.2803">
+                    <Canvas Width="93.44" Height="93.44">
+                        <Path x:Name="Path" Width="93.44" Height="93.44" Canvas.Left="1.90735e-006" Canvas.Top="0" Stretch="Fill" Fill="#FF000000" Data="F1 M 93.44,93.44L 70.4,93.44L 70.4,31.6L 53.86,71.68L 38.3,71.68L 21.76,31.6L 21.76,93.44L 1.90735e-006,93.44L 1.90735e-006,0L 26.58,0L 46.72,46.26L 66.8,0L 93.44,0L 93.44,93.44 Z "/>
+                    </Canvas>
+                </Viewbox>
+                <Viewbox x:Name="Glass" Width="170" Height="170" Canvas.Left="15.0002" Canvas.Top="15.0003" Visibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+                    <Canvas Width="170" Height="170">
+                        <Path x:Name="Path_286" Width="148.922" Height="113.494" Canvas.Left="10.359" Canvas.Top="0.039505" Stretch="Fill" Data="F1 M 88.4709,0.039505L 81.0327,0.039505C 49.6922,0.039505 10.359,25.446 10.359,56.7865L 10.359,56.7865C 10.359,88.127 35.7655,113.533 67.106,113.533L 102.535,113.533C 133.875,113.533 159.281,88.127 159.281,56.7865L 159.281,56.7865C 159.281,25.446 119.811,0.039505 88.4709,0.039505 Z ">
+                            <Path.Fill>
+                                <LinearGradientBrush StartPoint="0.505399,1.00035" EndPoint="0.505399,0.00368234">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                        <Path x:Name="Path_287" Width="169.999" Height="170" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" Data="F1 M 84.9997,0L 84.9997,0C 38.0557,0 0,38.0557 0,84.9998L 0,85.0002C 0,131.944 38.0557,170 84.9997,170L 84.9997,170C 131.944,170 169.999,131.944 169.999,85.0002L 169.999,84.9998C 169.999,38.0557 131.944,0 84.9997,0 Z ">
+                            <Path.Fill>
+                                <RadialGradientBrush RadiusX="0.500002" RadiusY="0.500001" Center="0.500001,0.499999" GradientOrigin="0.500001,0.499999">
+                                    <RadialGradientBrush.GradientStops>
+                                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                                        <GradientStop Color="#B3000000" Offset="1"/>
+                                    </RadialGradientBrush.GradientStops>
+                                    <RadialGradientBrush.RelativeTransform>
+                                        <TransformGroup/>
+                                    </RadialGradientBrush.RelativeTransform>
+                                </RadialGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                    </Canvas>
+                </Viewbox>
+            </Canvas>
+        </Viewbox>
+        <ControlTemplate.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqRunState" Value="True"/>
+                    <Condition Property="RunState" Value="False"/>
+                    <Condition Property="IsTriggered" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunStateFront" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunStateFront" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStart">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunStateFront"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStart" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <Trigger Property="IsTriggered" Value="True">
+                <Setter TargetName="RunStateFront" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunStateFront" Property="StrokeDashArray" Value="4 4" />
+                <Trigger.EnterActions>
+                    <BeginStoryboard Name="StoryStart2">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunStateFront"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStart2" />
+                </Trigger.ExitActions>
+            </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqRunState" Value="True"/>
+                    <Condition Property="ReqDirectionLeft" Value="True"/>
+                    <Condition Property="RunState" Value="False"/>
+                    <Condition Property="SpeedFast" Value="False"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryRunLeft">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="Rotor"
+                                        Storyboard.TargetProperty="(Viewbox.RenderTransform).(RotateTransform.Angle)"
+                                        From="0"
+                                        To="-360"
+                                        Duration="0:0:2"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="False"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryRunLeft" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="RunState" Value="True"/>
+                    <Condition Property="DirectionLeft" Value="True"/>
+                    <Condition Property="SpeedFast" Value="False"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryRunLeft2">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="Rotor"
+                                        Storyboard.TargetProperty="(Viewbox.RenderTransform).(RotateTransform.Angle)"
+                                        From="0"
+                                        To="-360"
+                                        Duration="0:0:2"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="False"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryRunLeft2" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqRunState" Value="True"/>
+                    <Condition Property="ReqDirectionLeft" Value="False"/>
+                    <Condition Property="RunState" Value="False"/>
+                    <Condition Property="SpeedFast" Value="False"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryRunRight">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="Rotor"
+                                        Storyboard.TargetProperty="(Viewbox.RenderTransform).(RotateTransform.Angle)"
+                                        From="0"
+                                        To="360"
+                                        Duration="0:0:2"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="False"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryRunRight" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="RunState" Value="True"/>
+                    <Condition Property="DirectionLeft" Value="False"/>
+                    <Condition Property="SpeedFast" Value="False"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryRunRight2">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="Rotor"
+                                        Storyboard.TargetProperty="(Viewbox.RenderTransform).(RotateTransform.Angle)"
+                                        From="0"
+                                        To="360"
+                                        Duration="0:0:2"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="False"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryRunRight2" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqRunState" Value="True"/>
+                    <Condition Property="ReqDirectionLeft" Value="True"/>
+                    <Condition Property="RunState" Value="False"/>
+                    <Condition Property="SpeedFast" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryRunLeft_Fast">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="Rotor"
+                                        Storyboard.TargetProperty="(Viewbox.RenderTransform).(RotateTransform.Angle)"
+                                        From="0"
+                                        To="-360"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="False"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryRunLeft_Fast" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="RunState" Value="True"/>
+                    <Condition Property="DirectionLeft" Value="True"/>
+                    <Condition Property="SpeedFast" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryRunLeft_Fast2">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="Rotor"
+                                        Storyboard.TargetProperty="(Viewbox.RenderTransform).(RotateTransform.Angle)"
+                                        From="0"
+                                        To="-360"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="False"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryRunLeft_Fast2" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqRunState" Value="True"/>
+                    <Condition Property="ReqDirectionLeft" Value="False"/>
+                    <Condition Property="RunState" Value="False"/>
+                    <Condition Property="SpeedFast" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryRunRight_Fast">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="Rotor"
+                                        Storyboard.TargetProperty="(Viewbox.RenderTransform).(RotateTransform.Angle)"
+                                        From="0"
+                                        To="360"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="False"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryRunRight_Fast" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="RunState" Value="True"/>
+                    <Condition Property="DirectionLeft" Value="False"/>
+                    <Condition Property="SpeedFast" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryRunRight_Fast2">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="Rotor"
+                                        Storyboard.TargetProperty="(Viewbox.RenderTransform).(RotateTransform.Angle)"
+                                        From="0"
+                                        To="360"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="False"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryRunRight_Fast2" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+
+            <Trigger Property="OperatingMode" Value="Manual">
+                <Setter TargetName="OpModeBack" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderBrushManual}" />
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="Maintenance">
+                <Setter TargetName="OpModeBack" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderBrushMaint}" />
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="InActive">
+                <Setter TargetName="RunStateFront" Property="Fill" Value="Black"/>
+            </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="RunState" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunStateFront" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsInterlocked" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunStateFront" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushInterlocked}" />
+            </MultiTrigger>
+            <Trigger Property="FaultState" Value="AlarmOrFault">
+                <Setter TargetName="RunStateFront" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushFault}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+</ResourceDictionary>

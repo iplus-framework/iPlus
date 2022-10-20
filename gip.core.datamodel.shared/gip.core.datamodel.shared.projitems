@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>fe279fba-181f-4d15-bbe8-8820caf186b2</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>gip.core.datamodel.shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\ACUrl\ACUrlHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\EntityBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\GS1Parser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Performance\PerformanceEvent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Performance\PerformanceLogger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Performance\PerformanceLoggerInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Performance\PerformanceStatistic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\CircularBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\ISafeCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\ISafeList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\SafeBindingList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\SafeCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\SafeList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Translator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\TypeConversion\ACConvert.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMessages\eMessageButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMessages\eMsgLevel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMessages\MsgList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMessages\Msg.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMessages\MsgResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMessages\MsgWithDetails.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMethod\ACMethod.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMethod\ACMethodDescriptor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMethod\ACValue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACMethod\ACValueList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Const.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Global.cs" />
+  </ItemGroup>
+</Project>

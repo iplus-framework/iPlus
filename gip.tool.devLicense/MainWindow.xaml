@@ -1,0 +1,89 @@
+﻿<Window x:Class="gip.tool.devLicense.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="GIP developer license tool" Height="350" Width="500"
+        WindowStyle="SingleBorderWindow"
+        WindowStartupLocation="CenterScreen"
+        Background="#FF333333">
+    <Window.ContextMenu>
+        <ContextMenu>
+            <MenuItem x:Name="miEditCustomers" Header="Edit customers" Click="miEditCustomers_Click" />
+        </ContextMenu>
+    </Window.ContextMenu>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30"/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Column="1" Grid.Row="1" Margin="0,0,0,5" HorizontalAlignment="Center" Text="Generated dev licenses" Foreground="White" />
+        <ListBox Grid.Column="1" Grid.Row="1" Grid.RowSpan="4" Margin="20,17,20,15" Background="Beige" ItemsSource="{Binding Provider.Licenses}" SelectedItem="{Binding SelectedLicense}">
+            <ListBox.Resources>
+                <ContextMenu x:Key="cMenu">
+                    <MenuItem Header="Delete" Click="MenuItem_Click" />
+                </ContextMenu>
+            </ListBox.Resources>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="ContextMenu" Value="{StaticResource cMenu}" />
+                    <Setter Property="ToolTip">
+                        <Setter.Value>
+                            <ToolTip>
+                                <ToolTip.Content>
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="CustomerNo: " />
+                                            <TextBlock Text="{Binding Customer.CustomerNoView}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Address: " />
+                                            <TextBlock Text="{Binding Customer.Address}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </ToolTip.Content>
+                            </ToolTip>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding LicenseNoView}" />
+                        <TextBlock Text=" - " />
+                        <TextBlock Text="{Binding Customer.CustomerName}" />
+                        <TextBlock Text=" @ " />
+                        <TextBlock Text="{Binding ProjectNo}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
+        <Button x:Name="btnDevelLicense" Grid.Column="2" Grid.Row="1" Margin="20,17,20,15" Content="New development license" Click="btnDevelLicense_Click">
+        </Button>
+        <Button x:Name="btnDevelLicenseRewrite" Grid.Column="2" Grid.Row="2" Margin="20,17,20,15" Content="Development license" Click="btnDevelLicenseRewrite_Click">
+            <Button.Style>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="IsEnabled" Value="True"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding SelectedLicense}" Value="{x:Null}">
+                            <Setter Property="IsEnabled" Value="False"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+        <Button x:Name="btnEndUserDev" Grid.Column="2" Grid.Row="3" Margin="20,17,20,15" Content="End user dev (clear dongle)" Click="btnEndUserDev_Click"
+                ToolTip="Clear all connected dongles">
+        </Button>
+    </Grid>
+</Window>

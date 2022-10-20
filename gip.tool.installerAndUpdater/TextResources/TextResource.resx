@@ -1,0 +1,856 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="BtnBack" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="BtnBrowse" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="BtnCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="BtnConfigure" xml:space="preserve">
+    <value>Configure</value>
+  </data>
+  <data name="BtnIAgree" xml:space="preserve">
+    <value>I Agree</value>
+  </data>
+  <data name="BtnInstall" xml:space="preserve">
+    <value>Install</value>
+  </data>
+  <data name="BtnLogin" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="CbAppVersion" xml:space="preserve">
+    <value>iPlus version</value>
+  </data>
+  <data name="CbiSqlServerSqlAuth" xml:space="preserve">
+    <value>SQL Server authentication</value>
+  </data>
+  <data name="CbiSqlServerWinAuth" xml:space="preserve">
+    <value>Windows authentication</value>
+  </data>
+  <data name="CbDBAuthentication" xml:space="preserve">
+    <value>Authentication</value>
+  </data>
+  <data name="ChDesktopShortcut" xml:space="preserve">
+    <value>Create iPlus shortcut on desktop.</value>
+  </data>
+  <data name="TbApplicationVersion" xml:space="preserve">
+    <value>Please select which version of iPlus you want install.</value>
+  </data>
+  <data name="TbDestinationFolder" xml:space="preserve">
+    <value>Destination folder</value>
+  </data>
+  <data name="TbInstallHeader" xml:space="preserve">
+    <value>Install options</value>
+  </data>
+  <data name="TbInstallLocationInfo" xml:space="preserve">
+    <value>Setup will install iPlus in the following folder. To install in a different folder click Browse and select another folder.</value>
+  </data>
+  <data name="TbInstallProgressHeader" xml:space="preserve">
+    <value>Installation progress</value>
+  </data>
+  <data name="TbLicenseAgreement" xml:space="preserve">
+    <value>License Agreement</value>
+  </data>
+  <data name="TbLicenseInfo" xml:space="preserve">
+    <value>Please review the license terms before installing iPlus.</value>
+  </data>
+  <data name="TbLicenseInfo2" xml:space="preserve">
+    <value>If you accept the terms of the agrement, click I agree to continue. You must accept the agreement to install iPlus.</value>
+  </data>
+  <data name="TbLicenseText" xml:space="preserve">
+    <value>GIPSOFT D.O.O. SOFTWARE LICENSE TERMS
+
+IPLUS, IPLUS.MES
+
+These license terms are an agreement between you and GIPSOFT D.O.O.. They apply to the software named above. The terms also apply to any GIPSOFT services and updates for the software, except to the extent those have different terms. 
+BY INSTALLING, HAVING INSTALLED, SUBSCRIBING TO, OR USING THE SOFTWARE, YOU ACCEPT THIS AGREEMENT (INCLUDING ANY MODIFICATIONS MADE TO IT FROM TIME TO TIME).  IF YOU DO NOT ACCEPT THIS AGREEMENT, DO NOT INSTALL, HAVE INSTALLED, SUBSCRIBE TO, OR USE THE SOFTWARE.
+If an individual enters into this agreement on behalf of a legal entity, that individual represents that he or she has the authority to bind that entity to this agreement.
+
+DEFINITIONS
+• „iPlus“. The Software „iPlus“ functions as both development and runtime environment.
+• An „Application project“ is the overall application created by the development environment, delivered to the end-user by an integrator or created by the end-user himself.
+• „Integrators“ are companies or partners that create application projects for end-users or provide services based on the iPlus platform.
+• A „product package“ is a collection of software components that run through the runtime system. Product packages can be created and licensed by integrators.
+• „iPlus-MES“ is a collection of product packages that GIPSOFT itself licenses.
+• License types
+o A „DLI“ (Developer License Issuer) is a development license to use the development environment. A DLI allows you to create your own product packages and their product licenses.
+o A „DLC“ (Developer License Consumer) is a development license for end users to use the development environment. A DLC enables customization on the product packages and the resulting application project.
+o A „PL“ (Product License) is a product license for a product package.
+o A „SAL“ (Server Access License) is a license to use one or more application projects that are deployed as a network service.
+o A „CAL“ (Client Access License) means client access license.
+
+TRIAL EDITION USE RIGHTS
+If the software is a trial edition, this Section applies to your use of the trial edition. You have a trial version as long as you don’t have a DLI-, DLC- or PL-License.
+A. GENERAL. You may use any number of copies of the trial edition on your devices. You may only use the trial edition 
+• for internal evaluation purposes,
+• or as a test environment, that does not cause any damage of any kind.
+You may not distribute or deploy any applications you make with the trial edition to a production environment. 
+
+B. TRIAL PERIOD AND CONVERSION. The trial period is unlimited and ends with the purchase of a developer dongle. The projects you created during the trial period can be further developed when you purchase a DLI- or DLC-License.
+
+C. DISCLAIMER OF WARRANTY. THE TRIAL EDITION IS LICENSED “AS-IS.” YOU BEAR THE RISK OF USING IT. GIPSOFT GIVES NO EXPRESS WARRANTIES, GUARANTEES OR CONDITIONS. TO THE EXTENT PERMITTED UNDER YOUR LOCAL LAWS, GIPSOFT EXCLUDES THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
+
+D. SUPPORT. Because the trial edition is “as is” we may not provide support services for it.
+
+E. LIMITATIONS ON DAMAGES. YOU CAN RECOVER FROM GIPSOFT ONLY DIRECT DAMAGES UP TO 5.00 EUR. YOU CANNOT RECOVER ANY OTHER DAMAGES, INCLUDING CONSEQUENTIAL, LOST PROFITS, SPECIAL, INDIRECT OR INCIDENTAL DAMAGES.
+This limitation applies to (a) anything related to the trial version, services, content (including code) on third party Internet sites, or third party programs; and (b) claims for breach of contract, breach of warranty, guarantee or condition, strict liability, negligence, or other tort to the extent permitted by applicable law.
+It also applies even if gipSoft knew or should have known about the possibility of the damages. The above limitation or exclusion may not apply to you because your country may not allow the exclusion or limitation of incidental, consequential or other damages.
+
+FULL-USE LICENSE TERMS FOR THE SOFTWARE
+When you acquire a valid license, the terms below apply. 
+1) OVERVIEW.
+a) Software. The software includes 
+• development tools, 
+• server software,
+• client software,
+• applications for distributing and installing the server and client software,
+• maybe product packages (iPlus-MES),
+• database files and
+• documentation.
+b) Licensing. The software is licensed differently depending on the application: 
+i.   Development license. To use the software as a development environment, you need a development license (DLI or DLC) licensed on a per user basis. Development licenses are shipped on dongles and can only be created by GIPSOFT. DLI licenses can only be purchased directly from GIPSOFT. Dongles with DLC licenses can also be purchased from integrators that own a DLI license.  
+ii.  Product license. A product license (PL) is required to use the runtime environment when product packages from "iPlus-MES" are used in production mode. A product license is issued as a license key per database file. 
+iii. Licensing by third parties. Licensing by server (SAL) or client access (CAL) is not provided for under this agreement. However, integrators who hold a DLI license may agree to such licensing in another contract. This licensing then refers to the application projects that are created and delivered to the end customer. An integrator who holds a DLI license may also create and issue product licenses (PL) for its own product packages.
+c) License Model. The software is licensed under two models:
+i.  Perpetual License Model – Under this model, you have licensed the software under perpetual license terms, as code that is installed on your premises or hosted for you by a third party acting as your agent (“Perpetual License Model”). The Perpetual License Model is applied to product licenses (PL).
+ii. Subscription License Model – Under this model, you have licensed the software on a per user basis for a limited period. This license model is applied development licenses (DLI, DLC).
+
+2) USE RIGHTS.
+a) General. 
+One user may use copies of the software and install it on any number of computers unless a third party license exists (see section 1.b.iii) in which something else has been agreed.
+i)  A User with a development license may
+(1) work on multiple installations at the same time,
+(2) create application projects that use product packages that require a product license without owning a product license. The application project will then run as a trial version.
+A development license cannot be shared by multiple persons.
+ii) An owner of a product license is entitled to use the unlocked product packages through an  unlimited number of network clients provided that they all access the same database file on which the product license has been activated. The same product license cannot and must not be enabled on multiple database files at the same time. Multiple product licenses for different product packages can be activated on a database file at the same time.
+b)  Transfer of licenses
+If you are a valid licensee of the software, you may transfer it and this agreement directly to another party. Before the transfer, that party must agree that this agreement applies to the transfer and use of the software.
+i)  Transfer of development licenses 
+The transfer must include the software and the developer dongle.
+ii) Transfer of product licenses
+A product license can be transferred to another database instance when the database file is migrated. However, this requires a new software key to be generated for each product package that you request from the product package vendor. In this case, you must provide the vendor with proof that you have destroyed the database file on which the original product license was located.
+c) Demo Use. The use permitted above includes use of the software in demonstrating your applications.
+d) Backup copy. You may make multiple copies of the software for backup, development and testing purposes, so long as such copies are not used in production and the development or testing is for your internal business purpose only.
+
+3) TERMS FOR SPECIFIC COMPONENTS.
+a) Other development tools. If you use third-party development environments or build tools to create your own assemblies based on the iPlus framework, the third-party license terms also apply.
+b) Third party components. The software may include third party components with separate legal notices or governed by other agreements.
+c) Database. The software requires Microsoft's SQL-Server software, which is not ship with this software. You are responsible for the procurement, installation, management and maintenance of SQL Server software and database files.
+
+4) DISTRIBUTABLE CODE. The software contains code that you are permitted to distribute in applications you develop as described in this Section. (For this Section the term “distribution” also means deployment of your applications for third parties to access over the Internet.) The term "code" also includes program code and all configurations that are stored in the database file and can be created, modified, and deleted using the iPlus development environment or other database manipulating software.
+a) Right to Use and Distribute. 
+• Modifications to the code in the database file. You have the right to modify, extend, copy, and distribute changes to the code stored in the database file. If the original code is modified, the liability and warranty will pass to you. GIPSOFT is not responsible for any problems that result from modifications made to the software. 
+• Code samples and templates for assembly code. You may modify, copy, and distribute the source codes and templates that can be downloaded from the documentation page to create your own assemblies.
+• Own Distribution. You may copy and distribute all assemblies and SQL-Database-Files installed on your computer by the iPlus installation program.
+• Third Party Distribution. You may permit distributors of your applications to copy and distribute the Distributable Code as part of those applications.
+b) Distribution Requirements. For any Distributable Code you distribute, you must:
+• add significant primary functionality to it in your applications;
+• require distributors and external end users to agree to terms that protect the Distributable Code at least as much as this agreement; and
+• indemnify, defend, and hold harmless GIPSOFT from any claims, including attorneys’ fees, related to the distribution or use of your applications, except to the extent that any claim is based solely on the Distributable Code.
+c) Distribution Restrictions. You may not:
+• use GIPSOFT’s trademarks in your applications’ names or in a way that suggests your applications come from or are endorsed by GIPSOFT; or
+• modify or distribute the source code of any Distributable Code so that any part of it becomes subject to an Excluded License. An Excluded License is one that requires, as a condition of use, modification or distribution of code, that (i) it be disclosed or distributed in source code form; or (ii) others have the right to modify it.
+
+5) DATA COLLECTION. The software may collect information about you and your use of the software and send that to GIPSOFT. GIPSOFT may use this information to provide services and improve GIPSOFT’s products and services. Your opt-out rights, if any, are described in the product documentation. Some features in the software may enable collection of data from users of your applications that access or use the software. If you use these features to enable data collection in your applications, you must comply with applicable law, including getting any required user consent, and maintain a prominent privacy policy that accurately informs users about how you use, collect, and share their data.
+
+6) DOCUMENTATION. Any person that has valid access to your computer or internal network may copy and use the documentation for your internal, reference purposes.
+
+7) UPDATES. Updates and patches are available for download on the website. The installation of the update must be done manually. GIPSOFT also has the right to provide automatic updates in the future. An update may mean that the self-developed programs and created application projects need to be adapted.
+
+8) SCOPE OF LICENSE. The software is licensed, not sold. This agreement only gives you some rights to use the software. GIPSOFT reserves all other rights. Unless applicable law gives you more rights despite this limitation, you may use the software only as expressly permitted in this agreement. In doing so, you must comply with any technical limitations in the software that only allow you to use it in certain ways. You may not
+• work around any technical limitations in the software;
+• reverse engineer, decompile or disassemble the software, or otherwise attempt to derive the source code for the software, except and to the extent required by third party licensing terms governing use of certain open source components that may be included in the software;
+• remove, minimize, block or modify any notices of GIPSOFT or its suppliers in the software;
+• use the software in any way that is against the law;
+• share, publish, rent or lease the software, or provide the software as a stand-alone offering for others to use;
+• modify the content of the developer dongle.
+
+9) PARTICIPATING OBLIGATIONS OF THE LICENSEE 
+a) The licensee is obligated to document possible defects in the software as comprehensibly as possible for the licensor and to inform the licensor immediately. In doing so, he will take into account the information provided by the licensor for the purpose of analyzing the problem within the limits of what is reasonable for him and forward all information available to him for the elimination of the defect to the licensor.
+b) The licensee must take appropriate precautions to protect the software from unauthorized access by third parties. This also applies to the rights to access the database file.
+c) Licensee will take reasonable precautions in the event that the software fails to operate properly, in whole or in part (e.g. through regular updates to the operating system, appropriate protection against malicious software, regular data backup, fault diagnosis, periodic review of data processing results).
+d) The licensee is obliged to update the software to the latest version and to install the updates or patches provided by the licensor, unless this would be unreasonable for licensees (e.g. because the latest software version is faulty).
+e) The licensee bears disadvantages and additional costs from a violation of these obligations.
+
+10) PROOF OF LICENSE. 
+a) Development license. The dongle is used as proof of license. If the subscription is cancelled, the dongle must be returned to GIPSOFT.
+b) Product license. The license key and the invoice are used as proof of license. 
+
+11) DOWNGRADE. You have no rights to use earlier versions of the software under this license and GIPSOFT is not obligated to supply earlier versions to you.
+
+12) EXPORT RESTRICTIONS. You must comply with all domestic and international export laws and regulations that apply to the software, which include restrictions on destinations, end users, and end use.
+
+13) SUPPORT. GIPSOFT provides support for the software as described by contacting GIPSOFT by e-Mail at info@gipsoft.eu. Support may be subject to a charge.
+
+14) ENTIRE AGREEMENT. This agreement (including the warranty below), and the terms for supplements, updates, Internet-based services and support services, are the entire agreement for the software and support services.
+
+15) APPLICABLE LAW. The laws of the country in which you purchased the software apply.
+
+16) CONSUMER RIGHTS; REGIONAL VARIATIONS. This agreement describes certain legal rights. You may have other rights, including consumer rights, under the laws of your state or country. Separate and apart from your relationship with GIPSOFT, you may also have rights with respect to the party from which you acquired the software. This agreement does not change those other rights if the laws of your state, province, or country do not permit it to do so. For example, if you acquired the software in one of the below regions, or mandatory country law applies, then the following provisions apply to you:
+a) Australia. You have statutory guarantees under the Australian Consumer Law and nothing in this agreement is intended to affect those rights.
+b) Germany and Austria.
+i) Warranty. The properly licensed software will perform substantially as described in any GIPSOFT materials that accompany the software. However, GIPSOFT gives no contractual guarantee in relation to the licensed software.
+ii) Limitation of Liability. In case of intentional conduct, gross negligence, claims based on the Product Liability Act, as well as, in case of death or personal or physical injury, GIPSOFT is liable according to the statutory law.
+Subject to the foregoing clause (ii), GIPSOFT will only be liable for slight negligence if GIPSOFT is in breach of such material contractual obligations, the fulfillment of which facilitate the due performance of this agreement, the breach of which would endanger the purpose of this agreement and the compliance with which a party may constantly trust in (so-called "cardinal obligations"). In other cases of slight negligence, GIPSOFT will not be liable for slight negligence.
+
+17) LIMITATION ON AND EXCLUSION OF DAMAGES. YOU CAN RECOVER FROM GIPSOFT AND ITS SUPPLIERS ONLY DIRECT DAMAGES UP TO THE AMOUNT YOU PAID FOR THE SOFTWARE. YOU CANNOT RECOVER ANY OTHER DAMAGES, INCLUDING CONSEQUENTIAL, LOST PROFITS, SPECIAL, INDIRECT OR INCIDENTAL DAMAGES.
+
+This limitation applies to 
+• anything related to the software, services, content (including code) on third party Internet sites, or third party applications; and 
+• claims for breach of contract, breach of warranty, guarantee or condition, strict liability, negligence, or other tort to the extent permitted by applicable law.
+
+It also applies 
+• repair, replacement or a refund for the software does not fully compensate you for any losses; or 
+• even if GIPSOFT knew or should have known about the possibility of the damages. 
+
+Some states do not allow the exclusion or limitation of incidental or consequential damages, so the above limitation or exclusion may not apply to you. They also may not apply to you because your country may not allow the exclusion or limitation of incidental, consequential or other damages. 
+
+*************************************************************************
+LIMITED WARRANTY
+A. LIMITED WARRANTY. If you follow the instructions, the software will perform substantially as described in the GIPSOFT materials that you receive in or with the software.
+References to “limited warranty” are references to the express warranty provided by GIPSOFT. This warranty is given in addition to other rights and remedies you may have under law, including your rights and remedies in accordance with the statutory guarantees under local Consumer Law.
+
+B. TERM OF WARRANTY; WARRANTY RECIPIENT; LENGTH OF ANY IMPLIED WARRANTIES. THE LIMITED WARRANTY COVERS THE SOFTWARE FOR ONE YEAR AFTER ACQUIRED BY THE FIRST USER. IF YOU RECEIVE SUPPLEMENTS, UPDATES, OR REPLACEMENT SOFTWARE DURING THAT YEAR, THEY WILL BE COVERED FOR THE REMAINDER OF THE WARRANTY OR 30 DAYS, WHICHEVER IS LONGER. If the first user transfers the software, the remainder of the warranty will apply to the recipient.
+TO THE EXTENT PERMITTED BY LAW, ANY IMPLIED WARRANTIES, GUARANTEES OR CONDITIONS LAST ONLY DURING THE TERM OF THE LIMITED WARRANTY. Some states do not allow limitations on how long an implied warranty lasts, so these limitations may not apply to you. They also might not apply to you because some countries may not allow limitations on how long an implied warranty, guarantee or condition lasts.
+
+C. EXCLUSIONS FROM WARRANTY. This warranty does not cover problems caused by your acts (or failures to act), the acts of others, or events beyond GIPSOFT’s reasonable control.
+
+D. REMEDY FOR BREACH OF WARRANTY. GIPSOFT WILL REPAIR OR REPLACE THE SOFTWARE AT NO CHARGE. IF GIPSOFT CANNOT REPAIR OR REPLACE IT, GIPSOFT WILL REFUND THE AMOUNT SHOWN ON YOUR RECEIPT FOR THE SOFTWARE. IT WILL ALSO REPAIR OR REPLACE SUPPLEMENTS, UPDATES AND REPLACEMENT SOFTWARE AT NO CHARGE. IF GIPSOFT CANNOT REPAIR OR REPLACE THEM, IT WILL REFUND THE AMOUNT YOU PAID FOR THEM, IF ANY. YOU MUST UNINSTALL THE SOFTWARE AND RETURN ANY MEDIA AND OTHER ASSOCIATED MATERIALS TO GIPSOFT WITH PROOF OF PURCHASE TO OBTAIN A REFUND. THESE ARE YOUR ONLY REMEDIES FOR BREACH OF THE LIMITED WARRANTY.
+
+E. CONSUMER RIGHTS NOT AFFECTED. YOU MAY HAVE ADDITIONAL CONSUMER RIGHTS UNDER YOUR LOCAL LAWS, WHICH THIS AGREEMENT CANNOT CHANGE.
+
+F. WARRANTY PROCEDURES. You need proof of purchase for warranty service. For warranty service or information about how to obtain a refund for software please contact GIPSOFT via E-Mail at adress info@gipsoft.eu.
+
+G. NO OTHER WARRANTIES. THE LIMITED WARRANTY IS THE ONLY DIRECT WARRANTY FROM GIPSOFT. GIPSOFT GIVES NO OTHER EXPRESS WARRANTIES, GUARANTEES OR CONDITIONS. WHERE ALLOWED BY YOUR LOCAL LAWS, GIPSOFT EXCLUDES IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. If your local laws give you any implied warranties, guarantees or conditions, despite this exclusion, your remedies are described in the Remedy for Breach of Warranty clause above, to the extent permitted by your local laws.
+FOR AUSTRALIA ONLY. References to “Limited Warranty” are references to the warranty provided by GIPSOFT. This warranty is given in addition to other rights and remedies you may have under law, including your rights and remedies in accordance with the statutory guarantees under the Australian Consumer Law. Our goods come with guarantees that cannot be excluded under the Australian Consumer Law. You are entitled to a replacement or refund for a major failure and compensation for any other reasonably foreseeable loss or damage. You are also entitled to have the goods repaired or replaced if the goods fail to be of acceptable quality and the failure does not amount to a major failure. Goods presented for repair may be replaced by refurbished goods of the same type rather than being replaced. Refurbished parts may be used to repair the goods. 
+
+H. LIMITATION ON AND EXCLUSION OF DAMAGES FOR BREACH OF WARRANTY. THE LIMITATION ON AND EXCLUSION OF DAMAGES CLAUSE ABOVE APPLIES TO BREACHES OF THIS LIMITED WARRANTY.
+THIS WARRANTY GIVES YOU SPECIFIC LEGAL RIGHTS, AND YOU MAY ALSO HAVE OTHER RIGHTS WHICH VARY FROM STATE TO STATE. YOU MAY ALSO HAVE OTHER RIGHTS WHICH VARY FROM COUNTRY TO COUNTRY.</value>
+  </data>
+  <data name="TbLoginInfo" xml:space="preserve">
+    <value>Please login with your gip account. Enter a valid e-mail address and password.</value>
+  </data>
+  <data name="TbLoginInfo2" xml:space="preserve">
+    <value>Click Login to continue with installation.</value>
+  </data>
+  <data name="TbDBInfo" xml:space="preserve">
+    <value>Please enter required MSSQL Server information. The server role of the user must be sysadmin.</value>
+  </data>
+  <data name="TbDBInfo2" xml:space="preserve">
+    <value>Click Configure for automatic configuration of the App.config file and automatic insert of the iPlus database into MSSQL Server. If you want to manually configure the App.config and insert the database into MSSQL server, click Skip.</value>
+  </data>
+  <data name="TbDBServerName" xml:space="preserve">
+    <value>Server name</value>
+  </data>
+  <data name="TbDBServerPassword" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="TbDBServerUserName" xml:space="preserve">
+    <value>User name</value>
+  </data>
+  <data name="BtnSkipDB" xml:space="preserve">
+    <value>Skip</value>
+  </data>
+  <data name="TbDBProgress" xml:space="preserve">
+    <value>Configuration progress</value>
+  </data>
+  <data name="TbDBProgressInfo" xml:space="preserve">
+    <value>Please wait, while iPlus installer finishes the database configuration.</value>
+  </data>
+  <data name="TbDBHeader" xml:space="preserve">
+    <value>Database configuration</value>
+  </data>
+  <data name="MsgCancel" xml:space="preserve">
+    <value>Do you want cancel the installation process?</value>
+  </data>
+  <data name="MsgCancelHeader" xml:space="preserve">
+    <value>Cancel installation</value>
+  </data>
+  <data name="BtnFinish" xml:space="preserve">
+    <value>Finish</value>
+  </data>
+  <data name="BtnNext" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="BtnRefresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="DBProgress0" xml:space="preserve">
+    <value>Connecting to MSSQL Server.</value>
+  </data>
+  <data name="DBProgress10" xml:space="preserve">
+    <value>Connected to MSSQL Server.</value>
+  </data>
+  <data name="DBProgress100" xml:space="preserve">
+    <value>Configuration is finished. Click Next to continue.</value>
+  </data>
+  <data name="DBProgress30" xml:space="preserve">
+    <value>Database insert process started.</value>
+  </data>
+  <data name="DBProgress70" xml:space="preserve">
+    <value>Database insert process finished</value>
+  </data>
+  <data name="DBProgress75" xml:space="preserve">
+    <value>App.config has been configured</value>
+  </data>
+  <data name="TbLoginEmail" xml:space="preserve">
+    <value>e-mail</value>
+  </data>
+  <data name="TbLoginPassword" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="TbSqlCheckHeader" xml:space="preserve">
+    <value>Searching for MSSQL Server</value>
+  </data>
+  <data name="TbSqlCheckInfo" xml:space="preserve">
+    <value>iPlus installer seraching for available MSSQL Servers ...</value>
+  </data>
+  <data name="TbSqlCheckInfo2" xml:space="preserve">
+    <value>Search is completed. Click Next to continue.</value>
+  </data>
+  <data name="TbSqlCheckWarning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="TbSqlCheckWarningServiceMissing" xml:space="preserve">
+    <value>Windows service SQL Server Browser missing.</value>
+  </data>
+  <data name="TbSqlCheckWarningServiceMissingInfo" xml:space="preserve">
+    <value>iPlus installer needs SQL Server Browser service for searching available SQL servers. Click Next to continue to the next installation page where you'll need to manually enter a SQL server name.</value>
+  </data>
+  <data name="TbSqlCheckWarningServiceNotRunning" xml:space="preserve">
+    <value>Windows service SQL Server Browser not running.</value>
+  </data>
+  <data name="TbSqlCheckWarningServiceNotRunningInfo" xml:space="preserve">
+    <value>iPlus installer needs SQL Server Browser service for searching available SQL servers. If you want to automatically search SQL servers, start the SQL Server-Browser service in Windows Service Management and click the Refresh button. Click Next if you want enter SQL server name manually.</value>
+  </data>
+  <data name="OperationCancel" xml:space="preserve">
+    <value>Cancellation installation ...</value>
+  </data>
+  <data name="OperationCompleted" xml:space="preserve">
+    <value>Completed.</value>
+  </data>
+  <data name="OperationCreateFolder" xml:space="preserve">
+    <value>Creating installation folder ...</value>
+  </data>
+  <data name="OperationDownloadApp" xml:space="preserve">
+    <value>Downloading application ...</value>
+  </data>
+  <data name="OperationDownloadDB" xml:space="preserve">
+    <value>Downloading database ...</value>
+  </data>
+  <data name="OperationSetShortcut" xml:space="preserve">
+    <value>Setting desktop shortcut ...</value>
+  </data>
+  <data name="OperationUnpackApp" xml:space="preserve">
+    <value>Unpacking application ...</value>
+  </data>
+  <data name="OperationUnpackDB" xml:space="preserve">
+    <value>Unpacking database ...</value>
+  </data>
+  <data name="TbInstallProgressCompleted" xml:space="preserve">
+    <value>Installation is completed. Click Next to continue.</value>
+  </data>
+  <data name="TbInstallProgressInfo" xml:space="preserve">
+    <value>Please wait, while iPlus installer completes the installation.</value>
+  </data>
+  <data name="TbInstallTotalProgress" xml:space="preserve">
+    <value>Total progress</value>
+  </data>
+  <data name="TbSqlCheckSearching" xml:space="preserve">
+    <value>Searching ...</value>
+  </data>
+  <data name="TbFinishHeader" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="TbFinishInfo" xml:space="preserve">
+    <value>Installation is successfully completed.</value>
+  </data>
+  <data name="BtnExit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="BtnInstallUpdates" xml:space="preserve">
+    <value>Install updates</value>
+  </data>
+  <data name="BtnStartVB" xml:space="preserve">
+    <value>Start iPlus</value>
+  </data>
+  <data name="CheckForUpdateStatus1" xml:space="preserve">
+    <value>Checking run ...</value>
+  </data>
+  <data name="CheckForUpdateStatus2" xml:space="preserve">
+    <value>Finished</value>
+  </data>
+  <data name="TbCheckForUpdateAvailableNewUpdates" xml:space="preserve">
+    <value>New application version is available. Click Next to continue with update.</value>
+  </data>
+  <data name="TbCheckForUpdateHeader" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="TbCheckForUpdateInfo" xml:space="preserve">
+    <value>Updater checking for iPlus updates ...</value>
+  </data>
+  <data name="TbCheckForUpdateNoNewUpdates" xml:space="preserve">
+    <value>Your application is up to date. Click Exit to close updater.</value>
+  </data>
+  <data name="TbUpdateProgressHeader" xml:space="preserve">
+    <value>Update progress</value>
+  </data>
+  <data name="TbUpdateProgressInfo" xml:space="preserve">
+    <value>Please wait, while iPlus updater completes the update action.</value>
+  </data>
+  <data name="OperationDownloadUpdate" xml:space="preserve">
+    <value>Downloading update ...</value>
+  </data>
+  <data name="OperationFinishUpdate" xml:space="preserve">
+    <value>Completed.</value>
+  </data>
+  <data name="OperationUnpackUpdate" xml:space="preserve">
+    <value>Unpacking update ...</value>
+  </data>
+  <data name="TbUpdateProgressCompleted" xml:space="preserve">
+    <value>Update is completed. Click Start iPlus to apply update.</value>
+  </data>
+  <data name="MsgLoginWrongCred" xml:space="preserve">
+    <value>Wrong username or password! Try again with correct username and password.</value>
+  </data>
+  <data name="MsgLoginWrongCredHeader" xml:space="preserve">
+    <value>Wrong credentials</value>
+  </data>
+  <data name="MsgErrorHeader" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="MsgSqlErrorNoConnection" xml:space="preserve">
+    <value>Please check the SQL Server name, username and password if you use SQL server authentication.</value>
+  </data>
+  <data name="MsgSqlErrorUserNotSysAdmin" xml:space="preserve">
+    <value>Role of the current user is not serveradmin.</value>
+  </data>
+  <data name="MsgCancelUpdate" xml:space="preserve">
+    <value>Do you want cancel the update process?</value>
+  </data>
+  <data name="MsgCancelUpdateHeader" xml:space="preserve">
+    <value>Cancel update</value>
+  </data>
+  <data name="ListRollbackOptionDisabled" xml:space="preserve">
+    <value>Rollback disabled</value>
+  </data>
+  <data name="ListRollbackOptionEnabledAutomatic" xml:space="preserve">
+    <value>Rollback enabled (Automatic database backup)</value>
+  </data>
+  <data name="ListRollbackOptionEnabledManual" xml:space="preserve">
+    <value>Rollback enabled (Manual database backup)</value>
+  </data>
+  <data name="RollbackOptionDescriptionDisabled" xml:space="preserve">
+    <value>Option rollback disabled - restores application to previously available versions with initial database. You will lose all data from the application, including application configuration(App.config). This option is not recommended.</value>
+  </data>
+  <data name="RollbackOptionDescriptionEnabledAutomatic" xml:space="preserve">
+    <value>Option rollback enabled with automatic database backup - restores application to previous version with all your data. This option requires database login with the user role sysadmin.</value>
+  </data>
+  <data name="RollbackOptionDescriptionEnabledManual" xml:space="preserve">
+    <value>Option rollback enabled with manual database backup - provides restore application to previous version with all your data. Please backup your database NOW, then continue with update! If you don't backup your database, you will lose all your data.</value>
+  </data>
+  <data name="TbProgramMaintHeader" xml:space="preserve">
+    <value>iPlus installation and update program</value>
+  </data>
+  <data name="TbProgramMaintInfo" xml:space="preserve">
+    <value>Choose an operation and click Next to continue</value>
+  </data>
+  <data name="TbProgramMaintRollback" xml:space="preserve">
+    <value>Rollback</value>
+  </data>
+  <data name="TbProgramMaintUninstall" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
+  <data name="TbProgramMaintUpdate" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="TbUpdateChangeLogHeader" xml:space="preserve">
+    <value>Update info</value>
+  </data>
+  <data name="TbUpdateChangeLogInfo" xml:space="preserve">
+    <value>Update change log</value>
+  </data>
+  <data name="TbUpdateChangeLogInfoInstall" xml:space="preserve">
+    <value>Click Install updates to start update ...</value>
+  </data>
+  <data name="TbUpdateRollbackInfo" xml:space="preserve">
+    <value>Click Next to continue ...</value>
+  </data>
+  <data name="TbUpdateRollbackInfoAuto" xml:space="preserve">
+    <value>Click Next to continue and please wait database connection ...</value>
+  </data>
+  <data name="TbUpdateRollbackOptionsChoose" xml:space="preserve">
+    <value>Choose Rollback option</value>
+  </data>
+  <data name="TbUpdateRollbackOptionsDescription" xml:space="preserve">
+    <value>Rollback option description</value>
+  </data>
+  <data name="TbUpdateRollbackOptionsHeader" xml:space="preserve">
+    <value>Rollback options</value>
+  </data>
+  <data name="TbFinishInfoRollback" xml:space="preserve">
+    <value>Rollback is successfully completed.</value>
+  </data>
+  <data name="MsgHeaderWarning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="MsgRollbackDisabledNext" xml:space="preserve">
+    <value>Are you sure? You will lose all your data!</value>
+  </data>
+  <data name="TbRollbackAutoDBFile" xml:space="preserve">
+    <value>Available backup database files:</value>
+  </data>
+  <data name="TbRollbackAutoInfo" xml:space="preserve">
+    <value>Click Next to continue with rollback....</value>
+  </data>
+  <data name="TbRollbackAutoPrevVersion" xml:space="preserve">
+    <value>Rollback application to previous version</value>
+  </data>
+  <data name="TbRollbackDBHeader" xml:space="preserve">
+    <value>Rollback database connection</value>
+  </data>
+  <data name="TbRollbackDBInfo" xml:space="preserve">
+    <value>Click Next to continue with rollback operation ...</value>
+  </data>
+  <data name="TbRollbackDisabledChangeLog" xml:space="preserve">
+    <value>Version changelog</value>
+  </data>
+  <data name="TbRollbackDisabledChooseVersion" xml:space="preserve">
+    <value>Choose version for rollback</value>
+  </data>
+  <data name="TbRollbackDisabledHeader" xml:space="preserve">
+    <value>Rollback</value>
+  </data>
+  <data name="TbRollbackDisabledInfo" xml:space="preserve">
+    <value>Rollback to initial application version with initial database. If you continue with rollback, you will lose all your data!</value>
+  </data>
+  <data name="TbRollbackDisabledInfo2" xml:space="preserve">
+    <value>Click Next to continue with rollback ...</value>
+  </data>
+  <data name="BtnRollback" xml:space="preserve">
+    <value>Rollback</value>
+  </data>
+  <data name="BtnUninstall" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
+  <data name="CbiRollbackManualAuto" xml:space="preserve">
+    <value>Automatic</value>
+  </data>
+  <data name="CbiRollbackManualManual" xml:space="preserve">
+    <value>Manual</value>
+  </data>
+  <data name="MsgUpdateRollbackOptionHeader" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="MsgUpdateRollbackOptionText" xml:space="preserve">
+    <value>Are you sure you want to continue?</value>
+  </data>
+  <data name="OperationCompleteUpdate" xml:space="preserve">
+    <value>Completing update ...</value>
+  </data>
+  <data name="OperationPrepareUpdate" xml:space="preserve">
+    <value>Preparing to update ...</value>
+  </data>
+  <data name="OperationRollbackCompleted" xml:space="preserve">
+    <value>Rollback is completed.</value>
+  </data>
+  <data name="OperationRollbackRestoreDatabase" xml:space="preserve">
+    <value>Database restore in progress ...</value>
+  </data>
+  <data name="OperationRollbackRestorePrevAppVersion" xml:space="preserve">
+    <value>Restoring previous application version ...</value>
+  </data>
+  <data name="OperationRollbackStart" xml:space="preserve">
+    <value>Rollback operation start ...</value>
+  </data>
+  <data name="OperationRollbackUninstallCurrentVersion" xml:space="preserve">
+    <value>Uninstalling current application version ...</value>
+  </data>
+  <data name="OperationRollbackUnpackDatabase" xml:space="preserve">
+    <value>Unpacking database ...</value>
+  </data>
+  <data name="RbUninstallRemoveUserDataNo" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="RbUninstallRemoveUserDataYes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="TbRollbackManualDBFile" xml:space="preserve">
+    <value>Choose database backup file (*.bak)</value>
+  </data>
+  <data name="TbRollbackManualDBRestoreOption" xml:space="preserve">
+    <value>Choose database restore option</value>
+  </data>
+  <data name="TbRollbackManualHeader" xml:space="preserve">
+    <value>Rollback</value>
+  </data>
+  <data name="TbRollbackManualInfo" xml:space="preserve">
+    <value>Rollback application to previous version</value>
+  </data>
+  <data name="TbRollbackManualInfo2" xml:space="preserve">
+    <value>Click Rollback to start rollback operation.</value>
+  </data>
+  <data name="TbRollbackProgressHeader" xml:space="preserve">
+    <value>Rollback progress</value>
+  </data>
+  <data name="TbRollbackProgressInfo" xml:space="preserve">
+    <value>Please wait, rollback operation is in progress</value>
+  </data>
+  <data name="TbRollbackProgressInfo2" xml:space="preserve">
+    <value>Rollback info</value>
+  </data>
+  <data name="TbRollbackProgressRun" xml:space="preserve">
+    <value>Rollback run ...</value>
+  </data>
+  <data name="TbUninstallHeader" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
+  <data name="TbUninstallInfo" xml:space="preserve">
+    <value>Click Uninstall to start the uninstallation.</value>
+  </data>
+  <data name="TbUninstallProgressHeader" xml:space="preserve">
+    <value>Uninstall progress</value>
+  </data>
+  <data name="TbUninstallProgressInfo" xml:space="preserve">
+    <value>Uninstalling is in progress, please wait ...</value>
+  </data>
+  <data name="TbUninstallProgressInfo2" xml:space="preserve">
+    <value>Uninstall is finished. Click Finish to exit.</value>
+  </data>
+  <data name="TbUninstallRemoveUserData" xml:space="preserve">
+    <value>Remove user data?</value>
+  </data>
+  <data name="MsgRollbackManualMissingFileHeader" xml:space="preserve">
+    <value>Missing backup file</value>
+  </data>
+  <data name="MsgRollbackManualMissingFileText" xml:space="preserve">
+    <value>Missing database backup file! Please select a database backup file.</value>
+  </data>
+  <data name="MsgRollbackManualWrongFileTypeHeader" xml:space="preserve">
+    <value>Wrong file type</value>
+  </data>
+  <data name="MsgRollbackManualWrongFileTypeText" xml:space="preserve">
+    <value>Wrong file type! Please select appropriate file.</value>
+  </data>
+  <data name="MsgUninstallHeader" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="MsgUninstallText" xml:space="preserve">
+    <value>Are you sure, you want to uninstall application?</value>
+  </data>
+  <data name="TbRollbackAppVersion" xml:space="preserve">
+    <value>Rollback application version:</value>
+  </data>
+  <data name="TbRollbackDisabledVersionUnavailable" xml:space="preserve">
+    <value>Previous versions are unavailable.</value>
+  </data>
+  <data name="MsgRollbackManualHeader" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="MsgRollbackManualText" xml:space="preserve">
+    <value>Are you sure, you want to continue? You will lose all data from the current application version!</value>
+  </data>
+  <data name="TbRollbackManualInfo2Next" xml:space="preserve">
+    <value>Click Next to continue with rollback ...</value>
+  </data>
+  <data name="MsgBoxNo" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="MsgBoxOk" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="MsgBoxYes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="MsgConnecting" xml:space="preserve">
+    <value>Connecting</value>
+  </data>
+  <data name="MsgDBUserOrPassEmpty" xml:space="preserve">
+    <value>Username or password can't be empty!</value>
+  </data>
+  <data name="MsgLoading" xml:space="preserve">
+    <value>Loading</value>
+  </data>
+  <data name="MsgServerNameEmpty" xml:space="preserve">
+    <value>Server name can't be empty!</value>
+  </data>
+  <data name="TbAllRightsReserved" xml:space="preserve">
+    <value>gipSoft d.o.o. - All rights reserved.</value>
+  </data>
+  <data name="TbHowToUseiPlus" xml:space="preserve">
+    <value>How to use iPlus</value>
+  </data>
+  <data name="TbUninstallFollowingFolder" xml:space="preserve">
+    <value>{0} will be uninstalled from the following folder.</value>
+  </data>
+  <data name="TbUninstallRemove" xml:space="preserve">
+    <value>{0} will be removed from your Computer</value>
+  </data>
+  <data name="CONNECTSYNTAXEXCEPTIONFORMAT" xml:space="preserve">
+    <value>The :connect command '{0}' contains an invalid data source</value>
+  </data>
+  <data name="SETVARSYNTAXEXCEPTIONFORMAT" xml:space="preserve">
+    <value>The :setvar command '{0}' contains an invalid variable definition</value>
+  </data>
+  <data name="SHELLSYNTAXEXCEPTIONFORMAT" xml:space="preserve">
+    <value>The :!! command '{0}' contains an invalid command</value>
+  </data>
+  <data name="MsgDBAlreadyExist" xml:space="preserve">
+    <value>{0} database already exist, please delete this database and click Yes to continue or No to skip this step.</value>
+  </data>
+  <data name="TbUpdateRollbackAutoDBFile" xml:space="preserve">
+    <value>Enter a database backup file name (*.bak)</value>
+  </data>
+  <data name="TbUpdateRollbackDBHeader" xml:space="preserve">
+    <value>Database backup - login</value>
+  </data>
+  <data name="TbUpdateRollbackDBInfo" xml:space="preserve">
+    <value>Click Next to continue or if you want skip this step click on Skip ...</value>
+  </data>
+  <data name="TbRollbackBackupFilePathInfo" xml:space="preserve">
+    <value>Warning: If you use a remote SQL server, enter a backup file path from remote machine!</value>
+  </data>
+  <data name="MsgRollbackWrongBackupFileType" xml:space="preserve">
+    <value>Backup file doesn´t end with .bak extension.</value>
+  </data>
+  <data name="TbUpdateApplicationStillRunning" xml:space="preserve">
+    <value>{0} is running, please close the application before starting the updater.</value>
+  </data>
+  <data name="TbMicrosoftTrademark" xml:space="preserve">
+    <value>SQL-Server® is a registred trademark of the Microsoft Corporation.</value>
+  </data>
+  <data name="SqlServerInfoInstall" xml:space="preserve">
+    <value>iPlus requires Microsoft's SQL server database software.
+If you do not have a SQL server available on your network or are installed on your local machine, please download the free Express or Developer version from the Microsoft page.
+When the SQL server installation is complete, please proceed with this installation.</value>
+  </data>
+  <data name="SqlServerDownloadPage" xml:space="preserve">
+    <value>https://www.microsoft.com/en-us/sql-server/sql-server-downloads</value>
+  </data>
+  <data name="TbSqlServerDownload" xml:space="preserve">
+    <value>SQL-Server download page</value>
+  </data>
+  <data name="iPlusDocumentationPage" xml:space="preserve">
+    <value>https://iplus-framework.com/en/documentation/Home</value>
+  </data>
+</root>

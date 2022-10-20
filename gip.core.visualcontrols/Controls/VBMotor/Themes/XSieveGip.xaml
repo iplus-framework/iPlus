@@ -1,0 +1,164 @@
+<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.visualcontrols;Component/Controls/VBMotor/Themes/BrushesGip.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <ControlTemplate x:Key="SieveGip" TargetType="{x:Type local:VBMotor}">
+        <Viewbox Stretch="Fill">
+            <Canvas Width="200" Height="100">
+                <Path x:Name="OpModeBack" Width="200" Height="100" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" 
+                      Stroke="{TemplateBinding BorderBrushAuto}" 
+              Fill="{TemplateBinding BorderBrushAuto}" 
+                      Data="F1 M 0,0L 200,0L 200,100L 0,60L 0,0 Z "/>
+                <Path x:Name="RunStateFront" Width="184" Height="84" Canvas.Left="8.00003" Canvas.Top="6.99998" Stretch="Fill" StrokeThickness="4" 
+                      StrokeLineJoin="Round" 
+                      Stroke="#FF000000" 
+              Fill="{TemplateBinding FillBrushIdle}" 
+                      Data="F1 M 10,8.99998L 190,8.99998L 190,89L 10,53.7619L 10,8.99998 Z "/>
+                <Viewbox x:Name="Sieve" Width="177" Height="82" Canvas.Left="14.8" Canvas.Top="7.39998">
+                    <Canvas Width="177" Height="82">
+                        <Path x:Name="Path_144" StrokeDashArray="20 10" Width="177.017" Height="82.0169" Canvas.Left="-0.00842667" Canvas.Top="-0.00843811" Stretch="Fill" Fill="#FF000000" Data="F1 M 148.413,70.9111L 136.229,65.4959L 135.713,65.2115L 135.266,64.8274L 134.905,64.3615L 134.647,63.8314L 134.484,63.2653L 134.439,62.6776L 134.513,62.093L 134.706,61.536L 134.99,61.0198L 135.375,60.5729L 135.841,60.2121L 136.371,59.9544L 136.937,59.7905L 137.524,59.746L 138.109,59.8204L 138.666,60.013L 150.85,65.4282L 151.366,65.7126L 151.813,66.0967L 152.174,66.5627L 152.432,67.0927L 152.596,67.6588L 152.64,68.2465L 152.566,68.8311L 152.373,69.3881L 152.089,69.9043L 151.705,70.3513L 151.239,70.712L 150.709,70.9697L 150.143,71.1336L 149.555,71.1781L 148.97,71.1037L 148.413,70.9111 Z M 124.045,60.0807L 111.861,54.6656L 111.345,54.3812L 110.898,53.9971L 110.537,53.5311L 110.279,53.001L 110.115,52.435L 110.071,51.8473L 110.145,51.2627L 110.338,50.7057L 110.622,50.1895L 111.006,49.7425L 111.472,49.3817L 112.002,49.1241L 112.568,48.9601L 113.156,48.9157L 113.741,48.9901L 114.298,49.1827L 126.482,54.5979L 126.998,54.8822L 127.445,55.2663L 127.806,55.7323L 128.063,56.2624L 128.227,56.8284L 128.272,57.4161L 128.197,58.0007L 128.005,58.5577L 127.72,59.0739L 127.336,59.5209L 126.87,59.8817L 126.34,60.1393L 125.774,60.3033L 125.187,60.3477L 124.602,60.2733L 124.045,60.0807 Z M 99.6767,49.2504L 87.4925,43.8352L 86.9763,43.5508L 86.5293,43.1667L 86.1685,42.7007L 85.9109,42.1707L 85.747,41.6046L 85.7025,41.0169L 85.7769,40.4323L 85.9695,39.8753L 86.2539,39.3591L 86.638,38.9122L 87.104,38.5514L 87.634,38.2937L 88.2001,38.1298L 88.7878,38.0853L 89.3724,38.1597L 89.9294,38.3523L 102.113,43.7675L 102.63,44.0519L 103.077,44.436L 103.437,44.902L 103.695,45.432L 103.859,45.9981L 103.904,46.5858L 103.829,47.1704L 103.637,47.7274L 103.352,48.2435L 102.968,48.6905L 102.502,49.0513L 101.972,49.309L 101.406,49.4729L 100.818,49.5174L 100.234,49.443L 99.6767,49.2504 Z M 75.3084,38.42L 63.1242,33.0048L 62.608,32.7205L 62.161,32.3363L 61.8002,31.8704L 61.5426,31.3403L 61.3787,30.7742L 61.3342,30.1866L 61.4086,29.6019L 61.6012,29.045L 61.8855,28.5288L 62.2696,28.0818L 62.7356,27.721L 63.2657,27.4633L 63.8318,27.2994L 64.4194,27.255L 65.0041,27.3293L 65.561,27.522L 77.7452,32.9371L 78.2614,33.2215L 78.7084,33.6056L 79.0692,34.0716L 79.3268,34.6016L 79.4908,35.1677L 79.5352,35.7554L 79.4608,36.34L 79.2682,36.897L 78.9839,37.4132L 78.5997,37.8602L 78.1338,38.221L 77.6037,38.4786L 77.0376,38.6425L 76.45,38.687L 75.8653,38.6126L 75.3084,38.42 Z M 50.9401,27.5896L 38.7559,22.1745L 38.2397,21.8901L 37.7927,21.506L 37.4319,21.04L 37.1743,20.51L 37.0104,19.9439L 36.9659,19.3562L 37.0403,18.7716L 37.2329,18.2146L 37.5172,17.6984L 37.9013,17.2514L 38.3673,16.8906L 38.8974,16.633L 39.4635,16.4691L 40.0511,16.4246L 40.6358,16.499L 41.1927,16.6916L 53.3769,22.1068L 53.8931,22.3911L 54.3401,22.7753L 54.7009,23.2412L 54.9585,23.7713L 55.1224,24.3374L 55.1669,24.925L 55.0925,25.5097L 54.8999,26.0666L 54.6155,26.5828L 54.2314,27.0298L 53.7654,27.3906L 53.2354,27.6483L 52.6693,27.8122L 52.0817,27.8566L 51.497,27.7823L 50.9401,27.5896 Z M 26.5718,16.7593L 14.3876,11.3441L 13.8714,11.0597L 13.4244,10.6756L 13.0636,10.2096L 12.806,9.67961L 12.642,9.11353L 12.5976,8.52586L 12.672,7.94124L 12.8646,7.38426L 13.1489,6.86806L 13.533,6.42108L 13.999,6.06029L 14.5291,5.80263L 15.0952,5.6387L 15.6828,5.59424L 16.2674,5.66862L 16.8244,5.86124L 29.0086,11.2764L 29.5248,11.5608L 29.9718,11.9449L 30.3325,12.4109L 30.5902,12.9409L 30.7541,13.507L 30.7986,14.0947L 30.7242,14.6793L 30.5316,15.2363L 30.2472,15.7525L 29.8631,16.1994L 29.3971,16.5602L 28.8671,16.8179L 28.301,16.9818L 27.7134,17.0263L 27.1287,16.9519L 26.5718,16.7593 Z M 2.20344,5.92892L 1.78159,5.74144L 1.26538,5.45708L 0.818409,5.07297L 0.457615,4.60698L 0.199963,4.07693L 0.0360298,3.51085L -0.00842667,2.92319L 0.0659599,2.33856L 0.258564,1.78159L 0.542927,1.2654L 0.927032,0.818405L 1.39302,0.457611L 1.92306,0.199966L 2.48914,0.036026L 3.07681,-0.00843811L 3.66143,0.0659637L 4.21841,0.25856L 4.64027,0.44606L 5.15647,0.730423L 5.60344,1.11452L 5.96424,1.58052L 6.22189,2.11055L 6.38582,2.67664L 6.43027,3.2643L 6.35589,3.84892L 6.16329,4.4059L 5.87893,4.9221L 5.49482,5.36908L 5.02883,5.72987L 4.49879,5.98753L 3.93271,6.15146L 3.34505,6.19592L 2.76042,6.12154L 2.20344,5.92892 Z M 172.782,81.7415L 160.597,76.3263L 160.081,76.0419L 159.634,75.6578L 159.273,75.1918L 159.016,74.6618L 158.852,74.0957L 158.807,73.508L 158.882,72.9234L 159.074,72.3664L 159.359,71.8502L 159.743,71.4032L 160.209,71.0424L 160.739,70.7848L 161.305,70.6208L 161.893,70.5764L 162.477,70.6508L 163.034,70.8434L 175.218,76.2586L 175.735,76.5429L 176.182,76.9271L 176.542,77.393L 176.8,77.9231L 176.964,78.4892L 177.008,79.0768L 176.934,79.6615L 176.741,80.2184L 176.457,80.7346L 176.073,81.1816L 175.607,81.5424L 175.077,81.8L 174.511,81.964L 173.923,82.0084L 173.339,81.9341L 172.782,81.7415 Z "/>
+                        <Path x:Name="Path_146" StrokeDashArray="15 10" Width="135.956" Height="65.0154" Canvas.Left="40.022" Canvas.Top="0.0923004" Stretch="Fill" Fill="#FF000000" Data="F1 M 141.379,51.0506L 123.168,42.7819L 122.654,42.4934L 122.21,42.1058L 121.853,41.6369L 121.6,41.1048L 121.44,40.5374L 121.401,39.9494L 121.48,39.3654L 121.677,38.81L 121.965,38.2961L 122.353,37.8522L 122.822,37.4951L 123.354,37.2417L 123.921,37.0823L 124.509,37.0426L 125.093,37.1216L 125.649,37.3187L 143.859,45.5873L 144.373,45.8758L 144.817,46.2635L 145.174,46.7324L 145.428,47.2644L 145.587,47.8318L 145.627,48.4198L 145.548,49.0038L 145.351,49.5592L 145.062,50.0732L 144.675,50.5171L 144.206,50.8741L 143.674,51.1275L 143.106,51.2869L 142.518,51.3267L 141.934,51.2476L 141.379,51.0506 Z M 111.028,37.2695L 92.8169,29.0008L 92.303,28.7124L 91.8591,28.3247L 91.502,27.8558L 91.2486,27.3237L 91.0892,26.7564L 91.0495,26.1684L 91.1285,25.5844L 91.3256,25.0289L 91.6141,24.515L 92.0017,24.0711L 92.4706,23.7141L 93.0027,23.4607L 93.57,23.3013L 94.1581,23.2615L 94.7421,23.3406L 95.2975,23.5376L 113.508,31.8063L 114.022,32.0948L 114.466,32.4824L 114.823,32.9513L 115.076,33.4834L 115.236,34.0507L 115.276,34.6387L 115.197,35.2228L 114.999,35.7782L 114.711,36.2921L 114.323,36.736L 113.854,37.093L 113.322,37.3465L 112.755,37.5058L 112.167,37.5456L 111.583,37.4665L 111.028,37.2695 Z M 80.6764,23.4884L 62.4657,15.2198L 61.9518,14.9313L 61.5079,14.5436L 61.1509,14.0748L 60.8975,13.5427L 60.7381,12.9753L 60.6983,12.3873L 60.7774,11.8033L 60.9744,11.2479L 61.2629,10.734L 61.6506,10.2901L 62.1194,9.93301L 62.6515,9.67961L 63.2189,9.5202L 63.8069,9.48045L 64.3909,9.55951L 64.9463,9.75656L 83.157,18.0252L 83.6709,18.3137L 84.1148,18.7013L 84.4719,19.1702L 84.7253,19.7023L 84.8847,20.2697L 84.9245,20.8577L 84.8454,21.4417L 84.6483,21.9971L 84.3598,22.511L 83.9722,22.9549L 83.5033,23.312L 82.9712,23.5654L 82.4039,23.7248L 81.8159,23.7645L 81.2319,23.6855L 80.6764,23.4884 Z M 50.3253,9.70735L 41.7895,5.83163L 41.2756,5.54315L 40.8317,5.15549L 40.4746,4.68663L 40.2212,4.15454L 40.0618,3.58717L 40.022,2.99916L 40.1011,2.41515L 40.2982,1.85973L 40.5866,1.34583L 40.9743,0.901932L 41.4432,0.544876L 41.9752,0.291458L 42.5426,0.132065L 43.1306,0.0923004L 43.7146,0.171371L 44.2701,0.368423L 52.8059,4.24413L 53.3198,4.53261L 53.7637,4.92027L 54.1207,5.38914L 54.3741,5.92122L 54.5335,6.4886L 54.5733,7.0766L 54.4942,7.66061L 54.2972,8.21603L 54.0087,8.72993L 53.621,9.17384L 53.1522,9.5309L 52.6201,9.7843L 52.0527,9.94371L 51.4647,9.98346L 50.8807,9.9044L 50.3253,9.70735 Z M 171.73,64.8316L 153.519,56.563L 153.005,56.2745L 152.561,55.8868L 152.204,55.418L 151.951,54.8859L 151.792,54.3185L 151.752,53.7305L 151.831,53.1465L 152.028,52.5911L 152.316,52.0772L 152.704,51.6333L 153.173,51.2762L 153.705,51.0228L 154.272,50.8634L 154.86,50.8236L 155.444,50.9027L 156,51.0998L 174.211,59.3684L 174.724,59.6569L 175.168,60.0446L 175.525,60.5134L 175.779,61.0455L 175.938,61.6129L 175.978,62.2009L 175.899,62.7849L 175.702,63.3403L 175.413,63.8542L 175.026,64.2981L 174.557,64.6552L 174.025,64.9086L 173.457,65.068L 172.869,65.1077L 172.285,65.0287L 171.73,64.8316 Z "/>
+                        <Path x:Name="Path_148" StrokeDashArray="10 10" Width="96.313" Height="47.0154" Canvas.Left="79.043" Canvas.Top="0.794785" Stretch="Fill" Fill="#FF000000" Data="F1 M 134.687,30.9968L 110.406,19.972L 109.892,19.6835L 109.448,19.2958L 109.091,18.827L 108.837,18.2949L 108.678,17.7275L 108.638,17.1395L 108.717,16.5555L 108.914,16.0001L 109.203,15.4862L 109.591,15.0423L 110.059,14.6852L 110.592,14.4318L 111.159,14.2724L 111.747,14.2326L 112.331,14.3117L 112.886,14.5087L 137.167,25.5336L 137.681,25.8221L 138.125,26.2098L 138.482,26.6786L 138.736,27.2107L 138.895,27.7781L 138.935,28.3661L 138.856,28.9501L 138.659,29.5055L 138.37,30.0194L 137.982,30.4633L 137.514,30.8204L 136.981,31.0738L 136.414,31.2332L 135.826,31.2729L 135.242,31.1939L 134.687,30.9968 Z M 98.2653,14.4595L 80.8104,6.5341L 80.2965,6.24562L 79.8526,5.85796L 79.4956,5.3891L 79.2422,4.85701L 79.0828,4.28964L 79.043,3.70164L 79.1221,3.11763L 79.3191,2.56221L 79.6076,2.04829L 79.9953,1.6044L 80.4641,1.24734L 80.9962,0.993942L 81.5636,0.834534L 82.1516,0.794785L 82.7356,0.87384L 83.291,1.07089L 100.746,8.99632L 101.26,9.28481L 101.704,9.67247L 102.061,10.1413L 102.314,10.6734L 102.474,11.2408L 102.513,11.8288L 102.434,12.4128L 102.237,12.9682L 101.949,13.4821L 101.561,13.926L 101.092,14.2831L 100.56,14.5365L 99.9927,14.6959L 99.4047,14.7357L 98.8207,14.6566L 98.2653,14.4595 Z M 171.108,47.5341L 146.827,36.5093L 146.313,36.2208L 145.869,35.8331L 145.512,35.3642L 145.259,34.8322L 145.099,34.2648L 145.06,33.6768L 145.139,33.0928L 145.336,32.5374L 145.624,32.0235L 146.012,31.5795L 146.481,31.2225L 147.013,30.9691L 147.58,30.8097L 148.168,30.7699L 148.752,30.849L 149.308,31.046L 173.589,42.0709L 174.103,42.3594L 174.546,42.747L 174.904,43.2159L 175.157,43.748L 175.316,44.3154L 175.356,44.9034L 175.277,45.4874L 175.08,46.0428L 174.791,46.5567L 174.404,47.0006L 173.935,47.3577L 173.403,47.6111L 172.835,47.7705L 172.247,47.8102L 171.663,47.7312L 171.108,47.5341 Z "/>
+                    </Canvas>
+                </Viewbox>
+                <Viewbox x:Name="Glass" Width="180" Height="81" Canvas.Left="10" Canvas.Top="8.99998" Visibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+                    <Canvas Width="180" Height="81">
+                        <Path x:Name="Path_150" Width="180" Height="81" Canvas.Left="3.43323e-005" Canvas.Top="1.52588e-005" Stretch="Fill" Data="F1 M 180,1.52588e-005L 3.43323e-005,1.52588e-005L 3.43323e-005,45L 180,81L 180,1.52588e-005 Z " StrokeThickness="1" StrokeLineJoin="Bevel">
+                            <Path.Stroke>
+                                <RadialGradientBrush RadiusX="1" RadiusY="0.358293" Center="1,0.277778" GradientOrigin="1,0.277778">
+                                    <RadialGradientBrush.GradientStops>
+                                        <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                        <GradientStop Color="#00000000" Offset="0.253275"/>
+                                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                                        <GradientStop Color="#B3000000" Offset="1"/>
+                                    </RadialGradientBrush.GradientStops>
+                                    <RadialGradientBrush.RelativeTransform>
+                                        <TransformGroup>
+                                            <RotateTransform CenterX="1" CenterY="0.277778" Angle="180"/>
+                                        </TransformGroup>
+                                    </RadialGradientBrush.RelativeTransform>
+                                </RadialGradientBrush>
+                            </Path.Stroke>
+                            <Path.Fill>
+                                <LinearGradientBrush StartPoint="1,0.277778" EndPoint="4.45048e-007,0.277778">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                        <GradientStop Color="#00000000" Offset="0.253275"/>
+                                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                                        <GradientStop Color="#B3000000" Offset="1"/>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                        <Path x:Name="Path_151" Width="176.693" Height="36.9404" Canvas.Left="0.623367" Canvas.Top="41.5332" Stretch="Fill" Data="F1 M 86.6975,49.857L 95.526,51.5731C 132.166,58.6952 177.091,72.3284 177.316,78.4736L 0.623367,44.1281C 3.13867,38.5154 50.0578,42.735 86.6975,49.857 Z ">
+                            <Path.Fill>
+                                <LinearGradientBrush StartPoint="1.00583,0.856505" EndPoint="2.37128,0.856505">
+                                    <LinearGradientBrush.RelativeTransform>
+                                        <TransformGroup>
+                                            <SkewTransform CenterX="1.00583" CenterY="0.856505" AngleX="40.5882" AngleY="0"/>
+                                            <RotateTransform CenterX="1.00583" CenterY="0.856505" Angle="222.915"/>
+                                        </TransformGroup>
+                                    </LinearGradientBrush.RelativeTransform>
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                        <Path x:Name="Path_152" Width="180" Height="10.8" Canvas.Left="0.000133514" Canvas.Top="1.52588e-005" Stretch="Fill" Data="F1 M 85.5861,10.8L 94.5798,10.8C 131.905,10.8 178.607,5.98946 180,1.52588e-005L 0.000133514,1.52588e-005C 1.39828,5.98946 48.2606,10.8 85.5861,10.8 Z ">
+                            <Path.Fill>
+                                <LinearGradientBrush StartPoint="1,0.499999" EndPoint="8.4771e-008,0.499999">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                    </Canvas>
+                </Viewbox>
+            </Canvas>
+        </Viewbox>
+        <ControlTemplate.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqRunState" Value="True"/>
+                    <Condition Property="RunState" Value="False"/>
+                    <Condition Property="IsTriggered" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunStateFront" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunStateFront" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStart">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunStateFront"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStart" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <Trigger Property="IsTriggered" Value="True">
+                <Setter TargetName="RunStateFront" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunStateFront" Property="StrokeDashArray" Value="4 4" />
+                <Trigger.EnterActions>
+                    <BeginStoryboard Name="StoryStart2">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunStateFront"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStart2" />
+                </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="Manual">
+                <Setter TargetName="OpModeBack" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderBrushManual}" />
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="Maintenance">
+                <Setter TargetName="OpModeBack" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderBrushMaint}" />
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="InActive">
+                <Setter TargetName="RunStateFront" Property="Fill" Value="Black"/>
+            </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="RunState" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunStateFront" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsInterlocked" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunStateFront" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushInterlocked}" />
+            </MultiTrigger>
+            <Trigger Property="FaultState" Value="AlarmOrFault">
+                <Setter TargetName="RunStateFront" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushFault}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+</ResourceDictionary>

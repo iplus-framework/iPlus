@@ -1,0 +1,11 @@
+﻿<Popup x:Class="gip.core.layoutengine.PropertyGrid.Editors.VBConverterEditorPopup"
+       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+       xmlns:local="clr-namespace:gip.core.layoutengine.PropertyGrid.Editors"
+       Placement="Bottom"
+       AllowsTransparency="True"
+       SnapsToDevicePixels="True"
+       StaysOpen="False">
+    <local:VBConverterEditorView x:Name="VBConverterEditorView"
+                                 x:FieldModifier="public" />
+</Popup>

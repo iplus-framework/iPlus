@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>0c232936-48b8-4ccd-951e-8ad3d439d264</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>gip.core.webservices.shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\ICoreWebService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\CoreWebServiceConst.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Model\ACClassProperty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Model\WSTranslation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Model\ACClass.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Model\VBMenuItem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Model\VBUserRights.cs" />
+  </ItemGroup>
+</Project>

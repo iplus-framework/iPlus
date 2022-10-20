@@ -1,0 +1,630 @@
+﻿<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/Shared.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <SolidColorBrush x:Key="TextBoxBgEnabledGip" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="TextBoxFgEnabledGip" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="TextBoxFgEnabledGipFocus" Color="#FFFFFFFF"/>
+    <RadialGradientBrush x:Key="TextBoxBorderEnabledGip" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+        <GradientStop Color="#FF666666" Offset="0.548"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="TextBoxBgDisabledGip" Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+    <SolidColorBrush x:Key="TextBoxFgDisabledGip" Color="Silver"/>
+    <RadialGradientBrush x:Key="TextBoxBorderDisabledGip" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+        <GradientStop Color="#FF666666" Offset="0.548"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="TextBoxBgRequiredGip" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="TextBoxFgRequiredGip" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="TextBoxFgRequiredGipFocus" Color="Yellow"/>
+    <RadialGradientBrush x:Key="TextBoxBorderRequiredGip" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFFFEA00" Offset="0.116"/>
+        <GradientStop Color="#FFD1D261" Offset="0.3"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="TextBoxBgWrongGip" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="TextBoxFgWrongGip" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="TextBoxFgWrongGipFocus" Color="#FFFF0000"/>
+    <RadialGradientBrush x:Key="TextBoxBorderWrongGip" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFFF0004" Offset="0.1116"/>
+        <GradientStop Color="#FFE43D3D" Offset="0.3"/>
+        <GradientStop Color="#FF020101" Offset="1"/>
+    </RadialGradientBrush>
+
+    <ControlTemplate x:Key="{ComponentResourceKey ResourceId=TextBoxGipTemplateNoTrigger, TypeInTargetAssembly={x:Type local:VBTextBox}}" TargetType="{x:Type local:VBTextBox}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}" ></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <local:VBTextBlock x:Name="PART_Caption" Margin="0,0,0,0" Grid.Column="0" VerticalAlignment="Center" Text="{TemplateBinding ACCaptionTrans}" TextAlignment="{TemplateBinding TextAlignmentCaption}"></local:VBTextBlock>
+            <Border Margin="5,0,0,0" Grid.Column="1" x:Name="Border" 
+							CornerRadius="3"
+							BorderBrush="{TemplateBinding BorderBrush}" 
+							BorderThickness="{TemplateBinding BorderThickness}" 
+							Background="{TemplateBinding Background}" 
+							SnapsToDevicePixels="true">
+                <local:VBScrollViewer x:Name="PART_ContentHost" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+            </Border>
+            <Canvas Width="10" Height="10" x:Name="PART_Nullable" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,2,2" Grid.Column="1">
+                <Rectangle StrokeThickness="1" Width="10" Height="10" Stroke="{StaticResource TextBoxBgDisabledGip}" RadiusX="2" RadiusY="2" />
+                <Polygon Stroke="{StaticResource TextBoxBgDisabledGip}" StrokeThickness="1" Points="1,5 4,8 8,2 4,6"  x:Name="PART_IsValueNull">
+                    <Polygon.Style>
+                        <Style TargetType="{x:Type Polygon}">
+                            <Setter Property="Visibility" Value="Hidden" />
+                        </Style>
+                    </Polygon.Style>
+                </Polygon>
+                <Canvas.Style>
+                    <Style TargetType="{x:Type Canvas}">
+                        <Setter Property="Visibility" Value="Hidden" />
+                    </Style>
+                </Canvas.Style>
+            </Canvas>
+            <!--<Ellipse x:Name="PART_Nullable" Width="10" Height="10" Stretch="Fill" Grid.Column="1" StrokeThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,2,2">
+                <Ellipse.Style>
+                    <Style TargetType="{x:Type Ellipse}">
+                        <Setter Property="Stroke" Value="{StaticResource TextBoxBgDisabledGip}" />
+                        <Setter Property="Visibility" Value="Hidden" />
+                    </Style>
+                </Ellipse.Style>
+            </Ellipse>-->
+        </Grid>
+    </ControlTemplate>
+        
+    <ControlTemplate x:Key="{ComponentResourceKey ResourceId=TextBoxGipTemplate, TypeInTargetAssembly={x:Type local:VBTextBox}}" TargetType="{x:Type local:VBTextBox}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}" ></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <local:VBTextBlock x:Name="PART_Caption" Margin="0,0,0,0" Grid.Column="0" VerticalAlignment="Center" Text="{TemplateBinding ACCaptionTrans}" TextAlignment="{TemplateBinding TextAlignmentCaption}"></local:VBTextBlock>
+            <Border Margin="5,0,0,0" Grid.Column="1" x:Name="Border" 
+							CornerRadius="3"
+							BorderBrush="{TemplateBinding BorderBrush}" 
+							BorderThickness="{TemplateBinding BorderThickness}" 
+							Background="{TemplateBinding Background}" 
+							SnapsToDevicePixels="true">
+                <local:VBScrollViewer x:Name="PART_ContentHost" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+            </Border>
+            <Canvas Width="10" Height="10" x:Name="PART_Nullable" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,2,2" Grid.Column="1">
+                <Rectangle StrokeThickness="1" Width="10" Height="10" Stroke="{StaticResource TextBoxBgDisabledGip}" RadiusX="2" RadiusY="2" />
+                <Polygon Stroke="{StaticResource TextBoxBgDisabledGip}" StrokeThickness="1" Points="1,5 4,8 8,2 4,6"  x:Name="PART_IsValueNull">
+                    <Polygon.Style>
+                        <Style TargetType="{x:Type Polygon}">
+                            <Setter Property="Visibility" Value="Hidden" />
+                        </Style>
+                    </Polygon.Style>
+                </Polygon>
+                <Canvas.Style>
+                    <Style TargetType="{x:Type Canvas}">
+                        <Setter Property="Visibility" Value="Hidden" />
+                    </Style>
+                </Canvas.Style>
+            </Canvas>
+            <!--<Ellipse x:Name="PART_Nullable" Width="10" Height="10" Stretch="Fill" Grid.Column="1" StrokeThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,2,2">
+                <Ellipse.Style>
+                    <Style TargetType="{x:Type Ellipse}">
+                        <Setter Property="Stroke" Value="{StaticResource TextBoxBgDisabledGip}" />
+                        <Setter Property="Visibility" Value="Hidden" />
+                    </Style>
+                </Ellipse.Style>
+            </Ellipse>-->
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Background" Value="{StaticResource TextBoxBgDisabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderDisabledGip}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="true">
+                <Setter TargetName="Border" Property="BorderThickness" Value="2,2,2,2"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+            </Trigger>
+            <Trigger Property="ShowCaption" Value="False">
+                <Setter TargetName="ColCaption" Property="Width" Value="0"/>
+                <Setter TargetName="Border" Property="Margin" Value="0,0,0,0"/>
+            </Trigger>
+            <Trigger Property="IsNullable" Value="true">
+                <Setter TargetName="PART_Nullable" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsValueNull" Value="true">
+                <Setter TargetName="PART_IsValueNull" Property="Visibility" Value="Visible" />
+            </Trigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="Disabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgDisabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderDisabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabledGip}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="Disabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgDisabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderDisabledGip}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgEnabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabledGipFocus}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgEnabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabledGip}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                    <Condition Property="Text" Value=""/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgRequiredGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderRequiredGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgRequiredGipFocus}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                    <Condition Property="Text" Value=""/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgRequiredGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgRequiredGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderRequiredGip}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrongGipFocus}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderWrongGip}"/>
+            </MultiTrigger>
+
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="Background" Value="{StaticResource TextBoxBgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrongGipFocus}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="{ComponentResourceKey ResourceId=TextBox2GipTemplateNoTrigger, TypeInTargetAssembly={x:Type local:VBTextBox2}}" TargetType="{x:Type local:VBTextBox2}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColCaption2" Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}" ></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <local:VBTextBlock x:Name="PART_Caption" Margin="0,0,0,0" Grid.Column="0" VerticalAlignment="Center" Text="{TemplateBinding ACCaptionTrans}" TextAlignment="{TemplateBinding TextAlignmentCaption}"></local:VBTextBlock>
+            <Border Margin="5,0,0,0" Grid.Column="1" x:Name="Border" 
+							CornerRadius="3"
+							BorderBrush="{TemplateBinding BorderBrush}" 
+							BorderThickness="{TemplateBinding BorderThickness}" 
+							Background="{TemplateBinding Background}" 
+							SnapsToDevicePixels="true">
+                <local:VBScrollViewer x:Name="PART_ContentHost" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+            </Border>
+            <local:VBTextBlock x:Name="PART_Caption2" Margin="5,0,0,0" Grid.Column="2" VerticalAlignment="Center" Text="{TemplateBinding ACCaption2Trans}"  TextAlignment="{TemplateBinding TextAlignmentCaption2}"></local:VBTextBlock>
+        </Grid>
+    </ControlTemplate>
+    
+    <ControlTemplate x:Key="{ComponentResourceKey ResourceId=TextBox2GipTemplate, TypeInTargetAssembly={x:Type local:VBTextBox2}}" TargetType="{x:Type local:VBTextBox2}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColCaption2" Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}" ></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <local:VBTextBlock x:Name="PART_Caption" Margin="0,0,0,0" Grid.Column="0" VerticalAlignment="Center" Text="{TemplateBinding ACCaptionTrans}" TextAlignment="{TemplateBinding TextAlignmentCaption}"></local:VBTextBlock>
+            <Border Margin="5,0,0,0" Grid.Column="1" x:Name="Border" 
+							CornerRadius="3"
+							BorderBrush="{TemplateBinding BorderBrush}" 
+							BorderThickness="{TemplateBinding BorderThickness}" 
+							Background="{TemplateBinding Background}" 
+							SnapsToDevicePixels="true">
+                <local:VBScrollViewer x:Name="PART_ContentHost" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+            </Border>
+            <local:VBTextBlock x:Name="PART_Caption2" Margin="5,0,0,0" Grid.Column="2" VerticalAlignment="Center" Text="{TemplateBinding ACCaption2Trans}"  TextAlignment="{TemplateBinding TextAlignmentCaption2}"></local:VBTextBlock>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Background" Value="{StaticResource TextBoxBgDisabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderDisabledGip}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="true">
+                <Setter TargetName="Border" Property="BorderThickness" Value="2,2,2,2"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+            </Trigger>
+            <Trigger Property="ShowCaption" Value="False">
+                <Setter TargetName="ColCaption" Property="Width" Value="0"/>
+                <Setter TargetName="Border" Property="Margin" Value="0,0,0,0"/>
+            </Trigger>
+            <Trigger Property="ShowCaption2" Value="False">
+                <Setter TargetName="ColCaption2" Property="Width" Value="0"/>
+                <Setter TargetName="PART_Caption2" Property="Margin" Value="0,0,0,0"/>
+            </Trigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="Disabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgDisabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderDisabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabledGip}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="Disabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgDisabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderDisabledGip}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgEnabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabledGipFocus}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgEnabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabledGip}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                    <Condition Property="Text" Value=""/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgRequiredGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderRequiredGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgRequiredGipFocus}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                    <Condition Property="Text" Value=""/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgRequiredGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgRequiredGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderRequiredGip}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrongGipFocus}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderWrongGip}"/>
+            </MultiTrigger>
+
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="Background" Value="{StaticResource TextBoxBgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrongGipFocus}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="{ComponentResourceKey ResourceId=TextBox3GipTemplateNoTrigger, TypeInTargetAssembly={x:Type local:VBTextBox3}}" TargetType="{x:Type local:VBTextBox3}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColCaption2" Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}" ></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <local:VBTextBlock x:Name="PART_Caption" Margin="0,0,0,0" Grid.Column="0" VerticalAlignment="Center"  Text="{TemplateBinding ACCaptionTrans}"  TextAlignment="{TemplateBinding TextAlignmentCaption}"></local:VBTextBlock>
+            <Border Margin="5,0,0,0" Grid.Column="1" x:Name="Border"
+      CornerRadius="3"
+      BorderBrush="{TemplateBinding BorderBrush}"
+      BorderThickness="{TemplateBinding BorderThickness}"
+      Background="{TemplateBinding Background}"
+      SnapsToDevicePixels="true">
+                <local:VBScrollViewer x:Name="PART_ContentHost" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+            </Border>
+            <!--<local:VBComboBox x:Name="PART_Caption2" Margin="5,0,0,0" Grid.Column="2" VerticalAlignment="Center" VBContent="{TemplateBinding VBContent2}" VBSource="{TemplateBinding VBSource2}" ShowCaption="False"></local:VBComboBox>-->
+            <local:VBComboBox x:Name="PART_Caption2" Margin="5,0,0,0" Grid.Column="2" VerticalAlignment="Center" VBContent="{TemplateBinding VBContent2}" VBSource="{TemplateBinding VBSource2}" ShowCaption="False"></local:VBComboBox>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="{ComponentResourceKey ResourceId=TextBox3GipTemplate, TypeInTargetAssembly={x:Type local:VBTextBox3}}" TargetType="{x:Type local:VBTextBox3}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColCaption2" Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}" ></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <local:VBTextBlock x:Name="PART_Caption" Margin="0,0,0,0" Grid.Column="0" VerticalAlignment="Center"  Text="{TemplateBinding ACCaptionTrans}"  TextAlignment="{TemplateBinding TextAlignmentCaption}"></local:VBTextBlock>
+            <Border Margin="5,0,0,0" Grid.Column="1" x:Name="Border"
+      CornerRadius="3"
+      BorderBrush="{TemplateBinding BorderBrush}"
+      BorderThickness="{TemplateBinding BorderThickness}"
+      Background="{TemplateBinding Background}"
+      SnapsToDevicePixels="true">
+                <local:VBScrollViewer x:Name="PART_ContentHost" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+            </Border>
+            <!--<local:VBComboBox x:Name="PART_Caption2" Margin="5,0,0,0" Grid.Column="2" VerticalAlignment="Center" VBContent="{TemplateBinding VBContent2}" VBSource="{TemplateBinding VBSource2}" ShowCaption="False"></local:VBComboBox>-->
+            <local:VBComboBox x:Name="PART_Caption2" Margin="5,0,0,0" Grid.Column="2" VerticalAlignment="Center" VBContent="{TemplateBinding VBContent2}" VBSource="{TemplateBinding VBSource2}" ShowCaption="False"></local:VBComboBox>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Background" Value="{StaticResource TextBoxBgDisabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderDisabledGip}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="true">
+                <Setter TargetName="Border" Property="BorderThickness" Value="2,2,2,2"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+            </Trigger>
+            <Trigger Property="ShowCaption" Value="False">
+                <Setter TargetName="ColCaption" Property="Width" Value="0"/>
+                <Setter TargetName="Border" Property="Margin" Value="0,0,0,0"/>
+            </Trigger>
+            <!--<Trigger Property="ShowCaption2" Value="False">
+                <Setter TargetName="ColCaption2" Property="Width" Value="0"/>
+                <Setter TargetName="PART_Caption2" Property="Margin" Value="0,0,0,0"/>
+            </Trigger>-->
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="Disabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgDisabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderDisabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabledGip}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="Disabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgDisabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderDisabledGip}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgEnabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabledGipFocus}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgEnabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabledGip}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                    <Condition Property="Text" Value=""/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgRequiredGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderRequiredGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgRequiredGipFocus}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                    <Condition Property="Text" Value=""/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgRequiredGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgRequiredGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderRequiredGip}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrongGipFocus}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource TextBoxBgWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderWrongGip}"/>
+            </MultiTrigger>
+
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="Background" Value="{StaticResource TextBoxBgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrongGipFocus}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="TextBoxStyleGip" TargetType="{x:Type local:VBTextBox}">
+        <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabledGip}"/>
+        <Setter Property="Background" Value="{StaticResource TextBoxBgEnabledGip}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabledGip}"/>
+        <Setter Property="BorderThickness" Value="1,1,1,1"/>
+        <Setter Property="Padding" Value="1"/>
+        <Setter Property="AllowDrop" Value="true"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="True"/>
+        <Setter Property="CaretBrush" Value="{StaticResource TextBoxFgRequiredGipFocus}" />
+        <Setter Property="ToolTipService.ShowOnDisabled" Value="true"/>
+        <!--<Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBoxGipTemplate, TypeInTargetAssembly={x:Type local:VBTextBox}}}"/>-->
+        <Setter Property="Validation.ErrorTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <AdornedElementPlaceholder/>
+                        <!-- TODO <TextBlock Text="!"/>-->
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+            </Trigger>
+            <Trigger Property="OverrideTemplateTrigger" Value="False">
+                <Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBoxGipTemplate, TypeInTargetAssembly={x:Type local:VBTextBox}}}"/>
+            </Trigger>
+            <Trigger Property="OverrideTemplateTrigger" Value="True">
+                <Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBoxGipTemplateNoTrigger, TypeInTargetAssembly={x:Type local:VBTextBox}}}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="TextBox2StyleGip" TargetType="{x:Type local:VBTextBox2}">
+        <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabledGip}"/>
+        <Setter Property="Background" Value="{StaticResource TextBoxBgEnabledGip}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabledGip}"/>
+        <Setter Property="BorderThickness" Value="1,1,1,1"/>
+        <Setter Property="Padding" Value="1"/>
+        <Setter Property="AllowDrop" Value="true"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="True"/>
+        <Setter Property="CaretBrush" Value="{StaticResource TextBoxFgRequiredGipFocus}" />
+        <Setter Property="ToolTipService.ShowOnDisabled" Value="true"/>
+        <!--<Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBoxGipTemplate, TypeInTargetAssembly={x:Type local:VBTextBox}}}"/>-->
+        <Setter Property="Validation.ErrorTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <AdornedElementPlaceholder/>
+                        <!-- TODO <TextBlock Text="!"/>-->
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+            </Trigger>
+            <Trigger Property="OverrideTemplateTrigger" Value="False">
+                <Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBox2GipTemplate, TypeInTargetAssembly={x:Type local:VBTextBox2}}}"/>
+            </Trigger>
+            <Trigger Property="OverrideTemplateTrigger" Value="True">
+                <Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBox2GipTemplateNoTrigger, TypeInTargetAssembly={x:Type local:VBTextBox2}}}"/>
+            </Trigger>
+        </Style.Triggers>
+        <!--<Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBox2GipTemplate, TypeInTargetAssembly={x:Type local:VBTextBox2}}}"/>-->
+    </Style>
+
+    <Style x:Key="TextBox3StyleGip" TargetType="{x:Type local:VBTextBox3}">
+        <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabledGip}"/>
+        <Setter Property="Background" Value="{StaticResource TextBoxBgEnabledGip}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabledGip}"/>
+        <Setter Property="BorderThickness" Value="1,1,1,1"/>
+        <Setter Property="Padding" Value="1"/>
+        <Setter Property="AllowDrop" Value="true"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="True"/>
+        <Setter Property="CaretBrush" Value="{StaticResource TextBoxFgRequiredGipFocus}" />
+        <Setter Property="ToolTipService.ShowOnDisabled" Value="true"/>
+        <!--<Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBoxGipTemplate, TypeInTargetAssembly={x:Type local:VBTextBox}}}"/>-->
+        <Setter Property="Validation.ErrorTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <AdornedElementPlaceholder/>
+                        <!-- TODO <TextBlock Text="!"/>-->
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+            </Trigger>
+            <Trigger Property="OverrideTemplateTrigger" Value="False">
+                <Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBox3GipTemplate, TypeInTargetAssembly={x:Type local:VBTextBox3}}}"/>
+            </Trigger>
+            <Trigger Property="OverrideTemplateTrigger" Value="True">
+                <Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBox3GipTemplateNoTrigger, TypeInTargetAssembly={x:Type local:VBTextBox3}}}"/>
+            </Trigger>
+        </Style.Triggers>
+        <!--<Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TextBox3GipTemplate, TypeInTargetAssembly={x:Type local:VBTextBox3}}}"/>-->
+    </Style>
+</ResourceDictionary>

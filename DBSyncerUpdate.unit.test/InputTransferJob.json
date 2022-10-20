@@ -1,0 +1,32 @@
+﻿{
+  "IsBuildTransferJobJson": true,
+  "IsDoJob": true,
+  "IsUpdateProjectFile": false,
+  "IsClientUpdate": false,
+  "OperationContexts": [
+    {
+      "Order": 1,
+      "DataContextID": "varioiplus",
+      "ContextFolders": [
+        "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\trunk\\iPlus\\gip.core.datamodel\\DbScripts\\iPlus\\"
+      ],
+      "ContextProjectFile": "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\trunk\\iPlus\\gip.core.datamodel\\gip.core.datamodel.csproj"
+    },
+    {
+      "Order": 2,
+      "DataContextID": "variobatch",
+      "ContextFolders": [
+        "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\trunk\\iPlusMES\\gip.mes.datamodel\\DbScripts\\iPlusMES\\"
+      ],
+      "ContextProjectFile": "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\trunk\\iPlusMES\\gip.mes.datamodel\\gip.mes.datamodel.csproj"
+    },
+    {
+      "Order": 1,
+      "DataContextID": "vbcoffee",
+      "ContextFolders": [
+        "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\trunk\\BranchSCoffee\\gipcoffee.mes.datamodel\\DbScripts\\vbcoffee\\"
+      ],
+      "ContextProjectFile": "d:\\Aleksandar\\gipSoft\\Devel\\Source\\V4\\trunk\\BranchSCoffee\\gipcoffee.mes.datamodel\\gipcoffee.mes.datamodel.csproj"
+    }
+  ]
+}

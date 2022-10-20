@@ -1,0 +1,69 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine">
+    <Style x:Key="IconDesignEllipseStyleGip" TargetType="{x:Type ContentControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ContentControl}">
+                    <Viewbox Stretch="Uniform">
+                        <Canvas x:Name="Ebene_1_17" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                            <Ellipse x:Name="Ellipse" Width="20" Height="14" Canvas.Left="2" Canvas.Top="5" Stretch="Fill" 
+                                     StrokeThickness="2" StrokeLineJoin="Round" 
+                                     Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}"
+				                     Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}"
+                                     />
+                            <Viewbox x:Name="Group_18" Width="11.1421" Height="18.0967" Canvas.Left="8.75" Canvas.Top="2.15333">
+                                <Canvas Width="11.1421" Height="18.0967">
+                                    <Path x:Name="Path_19" Width="2.50033" Height="2.50035" Canvas.Left="8.49978" Canvas.Top="0.142" Stretch="Fill" StrokeThickness="0.5" StrokeLineJoin="Round" Stroke="#FF000000" Fill="#FFFF0000" Data="M 10.2499,0.526142L 10.2499,0.526142C 10.7282,0.802284 10.8921,1.41388 10.616,1.89217L 10.616,1.89218C 10.3398,2.37047 9.72824,2.53435 9.24995,2.2582L 9.24995,2.2582C 8.77166,1.98206 8.60778,1.37047 8.88392,0.892179L 8.88393,0.892166C 9.16007,0.413874 9.77165,0.25 10.2499,0.526142 Z "/>
+                                    <Path x:Name="Path_20" Width="9.50033" Height="14.6247" Canvas.Left="0.999783" Canvas.Top="1.00804" Stretch="Fill" StrokeThickness="0.5" StrokeLineJoin="Round" Stroke="#FF000000" Data="M 9.74995,1.39219L 9.74995,1.39219C 10.2282,1.66833 10.3921,2.27992 10.116,2.75821L 3.11597,14.8826C 2.83983,15.3609 2.22824,15.5247 1.74995,15.2486L 1.74995,15.2486C 1.27166,14.9725 1.10778,14.3609 1.38392,13.8826L 8.38393,1.75821C 8.66007,1.27992 9.27166,1.11604 9.74995,1.39219 Z ">
+                                        <Path.Fill>
+                                            <LinearGradientBrush StartPoint="0.387742,0.458701" EndPoint="0.626969,0.458701">
+                                                <LinearGradientBrush.RelativeTransform>
+                                                    <TransformGroup>
+                                                        <SkewTransform CenterX="0.387742" CenterY="0.458701" AngleX="-21.9805" AngleY="0"/>
+                                                        <RotateTransform CenterX="0.387742" CenterY="0.458701" Angle="20.1982"/>
+                                                    </TransformGroup>
+                                                </LinearGradientBrush.RelativeTransform>
+                                                <LinearGradientBrush.GradientStops>
+                                                    <GradientStop Color="#FFAAAAAA" Offset="0"/>
+                                                    <GradientStop Color="#FFA9A9A9" Offset="0.211513"/>
+                                                    <GradientStop Color="#FFA8A8A8" Offset="0.497674"/>
+                                                    <GradientStop Color="#FF676767" Offset="0.502326"/>
+                                                    <GradientStop Color="#FFAEAEAE" Offset="1"/>
+                                                </LinearGradientBrush.GradientStops>
+                                            </LinearGradientBrush>
+                                        </Path.Fill>
+                                    </Path>
+                                    <Path x:Name="Path_21" Width="3.36602" Height="4.4641" Canvas.Left="9.53674e-007" Canvas.Top="13.6326" Stretch="Fill" StrokeThickness="0.5" StrokeLineJoin="Round" Stroke="#FF000000" Data="M 1.38398,13.8826C 0.943334,15.1851 0.564876,16.5081 0.250001,17.8467L 3.11602,14.8826L 1.38398,13.8826 Z ">
+                                        <Path.Fill>
+                                            <LinearGradientBrush StartPoint="-0.0287973,0.405401" EndPoint="0.789798,0.405401">
+                                                <LinearGradientBrush.RelativeTransform>
+                                                    <TransformGroup>
+                                                        <SkewTransform CenterX="-0.0287973" CenterY="0.405401" AngleX="-15.9526" AngleY="0"/>
+                                                        <RotateTransform CenterX="-0.0287973" CenterY="0.405401" Angle="22.6567"/>
+                                                    </TransformGroup>
+                                                </LinearGradientBrush.RelativeTransform>
+                                                <LinearGradientBrush.GradientStops>
+                                                    <GradientStop Color="#FFFF0000" Offset="0"/>
+                                                    <GradientStop Color="#FFAC0303" Offset="0.21067"/>
+                                                    <GradientStop Color="#FF5A0707" Offset="0.49569"/>
+                                                    <GradientStop Color="#FFD70000" Offset="0.497674"/>
+                                                    <GradientStop Color="#FFFE0000" Offset="1"/>
+                                                </LinearGradientBrush.GradientStops>
+                                            </LinearGradientBrush>
+                                        </Path.Fill>
+                                    </Path>
+                                </Canvas>
+                            </Viewbox>
+                        </Canvas>
+                    </Viewbox>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="IconDesignEllipseStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconDesignEllipseStyleGip}">
+    </Style>
+</ResourceDictionary>
+
+

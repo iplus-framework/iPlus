@@ -1,0 +1,126 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine">
+    <Style x:Key="IconMsgStopStyleGip" TargetType="{x:Type ContentControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ContentControl}">
+                    <Viewbox Stretch="Uniform">
+                        <Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Ebene_1_156" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                            <Path x:Name="Path_157" Width="22" Height="22" Canvas.Left="1" Canvas.Top="1" Stretch="Fill" Data="F1 M 7.71429,2L 16.2857,2L 22,7.71429L 22,16.2857L 16.2857,22L 7.71429,22L 2,16.2857L 2,7.71429L 7.71429,2 Z " StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round">
+                                <Path.Stroke>
+                                    <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,2.60093e-007">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStop Color="#FF401B1B" Offset="0"/>
+                                            <GradientStop Color="#FF6A4646" Offset="0.15691"/>
+                                            <GradientStop Color="#FF947171" Offset="0.262931"/>
+                                            <GradientStop Color="#FF967474" Offset="0.465895"/>
+                                            <GradientStop Color="#FF987777" Offset="0.642241"/>
+                                            <GradientStop Color="#FF502323" Offset="1"/>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Path.Stroke>
+                                <Path.Fill>
+                                    <LinearGradientBrush StartPoint="0.5,1.05" EndPoint="0.5,-0.0499997">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStop Color="#FFFF0000" Offset="0"/>
+                                            <GradientStop Color="#FFBD0900" Offset="0.1672"/>
+                                            <GradientStop Color="#FF7B1300" Offset="0.280172"/>
+                                            <GradientStop Color="#FF800900" Offset="0.409332"/>
+                                            <GradientStop Color="#FF850000" Offset="0.521552"/>
+                                            <GradientStop Color="#FFFF0000" Offset="1"/>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Path.Fill>
+                            </Path>
+                            <Viewbox x:Name="Group_158" Width="16" Height="5" Canvas.Left="4" Canvas.Top="9.5">
+                                <Canvas Width="16" Height="5">
+                                    <Path x:Name="Path_159" Width="3.16701" Height="5" Canvas.Left="-2.38419e-007" Canvas.Top="0" Stretch="Fill" Data="F1 M -2.38419e-007,4.73633L -2.38419e-007,3.68055C 0.186254,3.84259 0.388316,3.96412 0.606185,4.04514C 0.824054,4.12616 1.04399,4.16667 1.26598,4.16667C 1.39656,4.16667 1.51048,4.15364 1.60773,4.1276C 1.70498,4.10156 1.78625,4.06557 1.85155,4.01964C 1.91684,3.9737 1.96546,3.91963 1.99742,3.85742C 2.02938,3.79521 2.04536,3.72757 2.04536,3.65451C 2.04536,3.56047 2.01993,3.47638 1.96907,3.40223C 1.91821,3.32809 1.8488,3.25955 1.76082,3.19661C 1.67285,3.13368 1.56856,3.07292 1.44794,3.01432C 1.32732,2.95573 1.19725,2.89605 1.05773,2.83529C 0.701718,2.67831 0.436426,2.48625 0.261855,2.25911C 0.0872853,2.03197 -2.38419e-007,1.75781 -2.38419e-007,1.43663C -2.38419e-007,1.18489 0.0482819,0.968605 0.144845,0.78776C 0.241409,0.606915 0.373024,0.457899 0.53969,0.340712C 0.706357,0.223524 0.899312,0.137443 1.11856,0.0824652C 1.3378,0.0274878 1.5701,0 1.81546,0C 2.05601,0 2.26924,0.0150099 2.45515,0.0450306C 2.64106,0.0750504 2.81237,0.121166 2.96907,0.183376L 2.96907,1.18056C 2.89278,1.12268 2.80962,1.07169 2.71959,1.02756C 2.62955,0.983435 2.53677,0.946903 2.44124,0.917968C 2.3457,0.889033 2.25086,0.867694 2.1567,0.85395C 2.06254,0.840205 1.97285,0.833332 1.88763,0.833332C 1.77148,0.833332 1.66563,0.84563 1.5701,0.870226C 1.47457,0.89482 1.39399,0.929543 1.32835,0.974392C 1.26271,1.01924 1.21186,1.07295 1.17577,1.13552C 1.13969,1.1981 1.12165,1.26808 1.12165,1.34549C 1.12165,1.4265 1.14175,1.49902 1.18196,1.56304C 1.22216,1.62706 1.27938,1.68764 1.35361,1.74479C 1.42783,1.80194 1.51787,1.85818 1.62371,1.91352C 1.72955,1.96886 1.84914,2.02546 1.98247,2.08333C 2.1646,2.16435 2.32818,2.25043 2.47319,2.34158C 2.61821,2.43272 2.74261,2.53563 2.84639,2.65028C 2.95017,2.76494 3.02955,2.89587 3.08453,3.04308C 3.13952,3.19028 3.16701,3.36154 3.16701,3.55686C 3.16701,3.82668 3.11787,4.05309 3.01959,4.23611C 2.9213,4.41912 2.78797,4.56742 2.61959,4.68099C 2.4512,4.79456 2.25533,4.87612 2.03196,4.92567C 1.80859,4.97522 1.57285,5 1.32474,5C 1.06976,5 0.827319,4.97793 0.597422,4.93381C 0.367525,4.88968 0.168385,4.82386 -2.38419e-007,4.73633 Z ">
+                                        <Path.Fill>
+                                            <RadialGradientBrush RadiusX="1.89453" RadiusY="1.2" Center="0.5,-0.180555" GradientOrigin="0.5,-0.180555">
+                                                <RadialGradientBrush.GradientStops>
+                                                    <GradientStop Color="#FFFFFFFF" Offset="0"/>
+                                                    <GradientStop Color="#FFC5C7CC" Offset="0.172414"/>
+                                                    <GradientStop Color="#FF8B8F9A" Offset="0.521552"/>
+                                                    <GradientStop Color="#FFC5C7CC" Offset="0.823276"/>
+                                                    <GradientStop Color="#FFFFFFFF" Offset="1"/>
+                                                </RadialGradientBrush.GradientStops>
+                                                <RadialGradientBrush.RelativeTransform>
+                                                    <TransformGroup/>
+                                                </RadialGradientBrush.RelativeTransform>
+                                            </RadialGradientBrush>
+                                        </Path.Fill>
+                                    </Path>
+                                    <Path x:Name="Path_160" Width="3.69484" Height="4.86111" Canvas.Left="3.49691" Canvas.Top="0.0694447" Stretch="Fill" Data="F1 M 7.19175,0.972221L 5.87216,0.972221L 5.87216,4.93055L 4.81649,4.93055L 4.81649,0.972221L 3.49691,0.972221L 3.49691,0.0694447L 7.19175,0.0694447L 7.19175,0.972221 Z ">
+                                        <Path.Fill>
+                                            <RadialGradientBrush RadiusX="1.57878" RadiusY="1.2" Center="0.5,-0.2" GradientOrigin="0.5,-0.2">
+                                                <RadialGradientBrush.GradientStops>
+                                                    <GradientStop Color="#FFFFFFFF" Offset="0"/>
+                                                    <GradientStop Color="#FFC5C7CC" Offset="0.172414"/>
+                                                    <GradientStop Color="#FF8B8F9A" Offset="0.521552"/>
+                                                    <GradientStop Color="#FFC5C7CC" Offset="0.823276"/>
+                                                    <GradientStop Color="#FFFFFFFF" Offset="1"/>
+                                                </RadialGradientBrush.GradientStops>
+                                                <RadialGradientBrush.RelativeTransform>
+                                                    <TransformGroup/>
+                                                </RadialGradientBrush.RelativeTransform>
+                                            </RadialGradientBrush>
+                                        </Path.Fill>
+                                    </Path>
+                                    <Path x:Name="Path_161" Width="4.55257" Height="5" Canvas.Left="7.3567" Canvas.Top="0" Stretch="Fill" Data="F1 M 9.61237,5C 8.94708,5 8.40481,4.77467 7.98557,4.324C 7.56632,3.87333 7.3567,3.28595 7.3567,2.56185C 7.3567,1.79796 7.56941,1.18001 7.99484,0.708007C 8.42027,0.236003 8.98419,0 9.68659,0C 10.3498,0 10.8861,0.225875 11.2954,0.677626C 11.7046,1.12938 11.9093,1.7249 11.9093,2.46419C 11.9093,3.22446 11.6971,3.83717 11.2727,4.3023C 10.8483,4.76743 10.2948,5 9.61237,5 Z M 9.6567,0.972221C 9.29587,0.972221 9.00928,1.11238 8.7969,1.39269C 8.58453,1.673 8.47835,2.04427 8.47835,2.50651C 8.47835,2.97526 8.58453,3.34599 8.7969,3.6187C 9.00928,3.89142 9.28728,4.02778 9.63092,4.02778C 9.98556,4.02778 10.267,3.89522 10.4753,3.6301C 10.6835,3.36498 10.7876,2.99696 10.7876,2.52604C 10.7876,2.03559 10.6868,1.65401 10.485,1.38129C 10.2833,1.10858 10.0072,0.972221 9.6567,0.972221 Z ">
+                                        <Path.Fill>
+                                            <RadialGradientBrush RadiusX="1.36018" RadiusY="1.23846" Center="0.5,-0.180555" GradientOrigin="0.5,-0.180555">
+                                                <RadialGradientBrush.GradientStops>
+                                                    <GradientStop Color="#FFFFFFFF" Offset="0"/>
+                                                    <GradientStop Color="#FFC5C7CC" Offset="0.172414"/>
+                                                    <GradientStop Color="#FF8B8F9A" Offset="0.521552"/>
+                                                    <GradientStop Color="#FFC5C7CC" Offset="0.823276"/>
+                                                    <GradientStop Color="#FFFFFFFF" Offset="1"/>
+                                                </RadialGradientBrush.GradientStops>
+                                                <RadialGradientBrush.RelativeTransform>
+                                                    <TransformGroup/>
+                                                </RadialGradientBrush.RelativeTransform>
+                                            </RadialGradientBrush>
+                                        </Path.Fill>
+                                    </Path>
+                                    <Path x:Name="Path_162" Width="3.36495" Height="4.86111" Canvas.Left="12.635" Canvas.Top="0.0694447" Stretch="Fill" Data="F1 M 13.6907,3.26389L 13.6907,4.93055L 12.635,4.93055L 12.635,0.0694447L 14.2598,0.0694447C 15.4199,0.0694447 16,0.587023 16,1.62218C 16,2.11191 15.8349,2.50796 15.5046,2.81033C 15.1744,3.1127 14.7333,3.26389 14.1814,3.26389L 13.6907,3.26389 Z M 13.6907,0.902778L 13.6907,2.43056L 14.0825,2.43056C 14.6131,2.43056 14.8783,2.17303 14.8783,1.65799C 14.8783,1.15451 14.6131,0.902778 14.0825,0.902778L 13.6907,0.902778 Z ">
+                                        <Path.Fill>
+                                            <RadialGradientBrush RadiusX="1.73356" RadiusY="1.2" Center="0.5,-0.2" GradientOrigin="0.5,-0.2">
+                                                <RadialGradientBrush.GradientStops>
+                                                    <GradientStop Color="#FFFFFFFF" Offset="0"/>
+                                                    <GradientStop Color="#FFC5C7CC" Offset="0.172414"/>
+                                                    <GradientStop Color="#FF8B8F9A" Offset="0.521552"/>
+                                                    <GradientStop Color="#FFC5C7CC" Offset="0.823276"/>
+                                                    <GradientStop Color="#FFFFFFFF" Offset="1"/>
+                                                </RadialGradientBrush.GradientStops>
+                                                <RadialGradientBrush.RelativeTransform>
+                                                    <TransformGroup/>
+                                                </RadialGradientBrush.RelativeTransform>
+                                            </RadialGradientBrush>
+                                        </Path.Fill>
+                                    </Path>
+                                </Canvas>
+                            </Viewbox>
+                        </Canvas>
+                    </Viewbox>
+                    <!--<ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsMouseOver}" Value="True">
+                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsPressed}" Value="True">
+                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsEnabled}" Value="True">
+                            <Setter TargetName="Part1" Property="Fill" Value="Black"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>-->
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="IconMsgStopStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconMsgStopStyleGip}">
+    </Style>
+</ResourceDictionary>
+
+

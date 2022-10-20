@@ -1,0 +1,19 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.ext.designer;component/Controls/ControlStyles.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/OutlineView/OutlineView.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/PropertyGrid/Themes/PropertyGridViewStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/OutlineView/Themes/SettersCollectionEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/OutlineView/Themes/TriggersCollectionEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/OutlineView/Themes/PropertyTriggerEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/OutlineView/Themes/DataTriggerEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/OutlineView/Editors/BindingEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/OutlineView/Editors/MultiBindingEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/OutlineView/Themes/EventTriggerEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/OutlineView/Editors/ConditionEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/OutlineView/Themes/MultiTriggerEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/OutlineView/Themes/ActionCollectionEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer;component/PropertyGrid/Themes/DesignItemTreeViewStyle.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

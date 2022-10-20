@@ -1,0 +1,11 @@
+﻿Rules:
+
+1. Exported install files mast be ziped into file with zip extension -Version (zip) file
+2. Version File must begin with date format yyyy-MM-dd HH-mm"
+Example
+2015-01-24 10-12.zip
+3. File name can end with _authorShortName
+Name example:
+2015-01-23 21-56_aagincic.zip
+
+Note: Is important to use underscore _ not - for splitting version time and author name.
