@@ -1,8 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace gip.core.datamodel
 {
+
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'ActionResult'}de{'ActionResult'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
+    [DataContract]
     [JsonObject(MemberSerialization.OptIn)]
     public class ActionResult
     {
