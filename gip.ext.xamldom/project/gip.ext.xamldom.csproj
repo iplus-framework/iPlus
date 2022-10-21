@@ -1,16 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{88DA149F-21B2-48AB-82C4-28FB6BDFD783}</ProjectGuid>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <RootNamespace>gip.ext.xamldom</RootNamespace>
-    <AssemblyName>gip.ext.xamldom</AssemblyName>
-    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
@@ -19,103 +11,55 @@
     <CodeAnalysisRules>-Microsoft.Globalization#CA1303;-Microsoft.Performance#CA1800</CodeAnalysisRules>
     <OutputPath>..\..\..\..\..\..\AddIns\DisplayBindings\WpfDesign\</OutputPath>
     <DocumentationFile>..\..\..\..\..\..\AddIns\DisplayBindings\WpfDesign\ICSharpCode.WpfDesign.XamlDom.xml</DocumentationFile>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <SourceAnalysisOverrideSettingsFile>C:\Users\Daniel\AppData\Roaming\ICSharpCode/SharpDevelop3.0\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
     <NoWarn>1591</NoWarn>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>Full</DebugType>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <Optimize>False</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
-    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
-    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <RegisterForComInterop>False</RegisterForComInterop>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <BaseAddress>4194304</BaseAddress>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <OutputPath>..\bin\Debug\</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>..\bin\Release\</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
-    <Reference Include="PresentationCore">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="PresentationFramework">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core">
+    <Reference Update="System.Core">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="WindowsBase">
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="CollectionElementsCollection.cs" />
-    <Compile Include="CollectionSupport.cs" />
-    <Compile Include="IXamlErrorSink.cs" />
-    <Compile Include="MarkupExtensionParser.cs" />
-    <Compile Include="MarkupExtensionPrinter.cs" />
-    <Compile Include="PositionXmlDocument.cs" />
-    <Compile Include="XamlAmbientProvider.cs" />
-    <Compile Include="XamlConstants.cs" />
-    <Compile Include="XamlDocument.cs" />
-    <Compile Include="XamlLoadException.cs" />
-    <Compile Include="XamlObject.cs" />
-    <Compile Include="XamlObjectServiceProvider.cs" />
-    <Compile Include="XamlParser.cs" />
-    <Compile Include="XamlParserSettings.cs" />
-    <Compile Include="XamlProperty.cs" />
-    <Compile Include="XamlPropertyInfo.cs" />
-    <Compile Include="XamlPropertyValue.cs" />
-    <Compile Include="XamlSchemaContextProvider.cs" />
-    <Compile Include="XamlStaticTools.cs" />
-    <Compile Include="XamlTextValue.cs" />
-    <Compile Include="XamlTypeFinder.cs" />
-    <Compile Include="XamlTypeResolverProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
-    <None Include="ReadMe.txt" />
   </ItemGroup>
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
+  </ItemGroup>
 </Project>

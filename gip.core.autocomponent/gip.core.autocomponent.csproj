@@ -1,46 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{893D3B1B-DC55-4684-8B5D-941F1049151B}</ProjectGuid>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>gip.core.autocomponent</RootNamespace>
-    <AssemblyName>gip.core.autocomponent</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>..\bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>2</WarningLevel>
     <DocumentationFile>
     </DocumentationFile>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
     <OutputPath>..\bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>..\bin\Release\gip.core.autocomponent.XML</DocumentationFile>
-    <Prefer32Bit>false</Prefer32Bit>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -53,122 +31,11 @@
     <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Esent.Collections, Version=1.9.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Microsoft.Database.Collections.Generic.1.9.4\lib\net40\Esent.Collections.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Esent.Interop, Version=1.9.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\ManagedEsent.1.9.4\lib\net40\Esent.Interop.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Esent.Isam, Version=1.9.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Microsoft.Database.Isam.1.9.4\lib\net40\Esent.Isam.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Data.Entity" />
     <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ACClassManager\ACClassCleanManager.cs" />
-    <Compile Include="ACClassManager\ACClassFileHashManager.cs" />
-    <Compile Include="ACClassManager\ACCleanAssembly.cs" />
-    <Compile Include="ACClassManager\ACCleanAssemblyListExt.cs" />
-    <Compile Include="ACClassManager\ACCleanItem.cs" />
-    <Compile Include="ACClassManager\ACCleanManagerJsonReport.cs" />
-    <Compile Include="ACClassManager\CodeSummaryReader.cs" />
-    <Compile Include="ACClassManager\RemoveClassReport.cs" />
-    <Compile Include="ACComponent\ACBSONav.cs" />
-    <Compile Include="ACComponent\ACBSOWizard.cs" />
-    <Compile Include="ACComponent\ACCompUrlDictionary.cs" />
-    <Compile Include="ACComponent\ACGenericComponent.cs" />
-    <Compile Include="ACComponent\ACComponentState.cs" />
-    <Compile Include="ACComponent\ACBSO.cs" />
-    <Compile Include="ACComponent\MenuManager.cs" />
-    <Compile Include="ACComponent\ACCompTypeDictionary.cs" />
-    <Compile Include="ACConfiguration\ACConfigReplicationCommand.cs" />
-    <Compile Include="ACConfiguration\ACConfigTransferCommand.cs" />
-    <Compile Include="ACConfiguration\ACConfigTransferMethodModel.cs" />
-    <Compile Include="ACConfiguration\ACConfigTransferTaskModel.cs" />
-    <Compile Include="ACConfiguration\RulesCommand.cs" />
-    <Compile Include="ACConfiguration\ConfigManagerIPlus.cs" />
-    <Compile Include="ACConfiguration\ValidateConfigStoreModel.cs" />
-    <Compile Include="ACConfiguration\VBBSOConfigTransfer.cs" />
-    <Compile Include="ACDialog\ControlDialogDetails\ComponentPWNodeConfigModel.cs" />
-    <Compile Include="ACDialog\ControlDialogDetails\VBBSOControlPAM.cs" />
-    <Compile Include="ACDialog\ControlDialogDetails\VBBSOControlPW.cs" />
-    <Compile Include="ACDialog\ControlDialogDetails\VBBSORuleSelection.cs" />
-    <Compile Include="ACDialog\Interfaces\IVBFindAndReplaceDBSearch.cs" />
-    <Compile Include="ACDialog\VBBSOACComponentExplorer.cs" />
-    <Compile Include="ACDialog\VBBSODiagnosticDialog.cs" />
-    <Compile Include="ACDialog\VBBSOACUrlEditor.cs" />
-    <Compile Include="ACHelperclasses\LayoutHelper.cs" />
-    <Compile Include="ACHelp\ACHelpManager.cs" />
-    <Compile Include="ACHelp\DocumentsSelectResult.cs" />
-    <Compile Include="ACHelp\FilterBase.cs" />
-    <Compile Include="ACHelp\HelpConfigSection.cs" />
-    <Compile Include="ACHelp\HelpItemTypeEnum.cs" />
-    <Compile Include="ACHelp\IFilterBase.cs" />
-    <Compile Include="ACHelp\ISearchFilter.cs" />
-    <Compile Include="ACHelp\ISearchResult.cs" />
-    <Compile Include="ACHelp\ISearchResultItem.cs" />
-    <Compile Include="ACHelp\OnePageTreeDocumentView.cs" />
-    <Compile Include="ACHelp\PasswordComplexChecker.cs" />
-    <Compile Include="ACHelp\SearchFilterBase.cs" />
-    <Compile Include="ACHelp\SearchResultBase.cs" />
-    <Compile Include="ACHelp\SearchTypeEnum.cs" />
-    <Compile Include="ACHelp\VBBSOHelp.cs" />
-    <Compile Include="ACManager\PAShowDlgManagerBase.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\ACPointEventAbsorber.cs" />
     <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI%28Srv%29\Interface\ACPointAsyncRMIHelper.cs" />
-    <Compile Include="ACPoint\Interfaces\IACComponentTaskSubscr.cs" />
-    <Compile Include="ACPoint\Interfaces\IACComponentTaskExec.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PAAlarmMessanger.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PAAlarmMessengerBase.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\ACStateEnum.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PABase.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PAWebServiceBase.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PAJobScheduler.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PAFuncStateConvBase.cs" />
-    <Compile Include="ACProcessApplication\Interfaces\IACAlarmReceiver.cs" />
-    <Compile Include="ACProcessApplication\RemoteAppManager.cs" />
-    <Compile Include="ACProcessApplication\Interfaces\IACMyConfigCache.cs" />
-    <Compile Include="ACProcessApplication\Interfaces\IACWorkCycle.cs" />
-    <Compile Include="ACProcessApplication\Interfaces\IACCommSession.cs" />
-    <Compile Include="ACProcessApplication\Interfaces\IPAFuncTransportMaterial.cs" />
-    <Compile Include="ACProcessApplication\Interfaces\IPAFuncReceiveMaterial.cs" />
-    <Compile Include="ACProcessApplication\Interfaces\IPAFuncDeliverMaterial.cs" />
-    <Compile Include="ACProcessApplication\PAOrderInfo.cs" />
-    <Compile Include="ACProcessApplication\PATimeInfo.cs" />
-    <Compile Include="ACDialog\VBBSOFolderDialog.cs" />
-    <Compile Include="ACDialog\ControlDialogDetails\VBBSOControlPA.cs" />
-    <Compile Include="ACDialog\VBBSOInputBox.cs" />
-    <Compile Include="ACDialog\VBBSOQueryDialog.cs" />
-    <Compile Include="ACDialog\VBBSOSelectionDependentDialog.cs" />
-    <Compile Include="ACManager\VBBSOSelectionManager.cs" />
-    <Compile Include="ACManager\ACMessages\MsgLoggingConfiguration.cs" />
-    <Compile Include="ACDialog\VBBSOFindAndReplace.cs" />
-    <Compile Include="ACPoint\ACComponent.cs" />
-    <Compile Include="ACPoint\ACPointBase.cs" />
-    <Compile Include="ACPoint\ACPointReference.cs" />
-    <Compile Include="ACPoint\ACPointStorableBase.cs" />
     <Compile Include="ACPoint\Implementations\3_Event\Subscription%28Client%29\Interface\IACPointEventSubscr.cs" />
     <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI%28Srv%29\BaseClasses\ACPointNetStorableAsyncRMIBase.cs" />
     <Compile Include="ACPoint\Implementations\5_Task\Task%28Srv%29\Proxy\ACPointTaskProxy.cs" />
@@ -195,268 +62,86 @@
     <Compile Include="ACPoint\Implementations\3_Event\Subscription%28Client%29\Real\ACPointNetEventSubscrBase.cs" />
     <Compile Include="ACPoint\Implementations\3_Event\Event%28Srv%29\Real\ACPointEvent.cs" />
     <Compile Include="ACPoint\Implementations\3_Event\Subscription%28Client%29\Real\ACPointEventSubscr.cs" />
-    <Compile Include="ACPoint\Implementations\1_NetBasesClasses\ACPointNetBase.cs" />
-    <Compile Include="ACPoint\Implementations\1_NetBasesClasses\Service\ACPointServiceBase.cs" />
-    <Compile Include="ACPoint\Implementations\1_NetBasesClasses\Service\ACPointServiceReal.cs" />
-    <Compile Include="ACPoint\Implementations\1_NetBasesClasses\Service\ACPointServiceProxy.cs" />
-    <Compile Include="ACPoint\Implementations\1_NetBasesClasses\Client\ACPointClientBase.cs" />
-    <Compile Include="ACPoint\Implementations\1_NetBasesClasses\Client\ACPointClientReal.cs" />
-    <Compile Include="ACPoint\Implementations\1_NetBasesClasses\Client\ACPointClientProxy.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\Service\Interface\IACPointNetServiceObject.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\Service\Proxy\ACPointServiceACObjectProxy.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\Client\Proxy\ACPointClientACObjectProxy.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\Service\Real\ACPointServiceACObject.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\Client\Real\ACPointClientACObject.cs" />
-    <Compile Include="ACPoint\Interfaces\IACPointNet.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\Interface\IACPointNetObject.cs" />
     <Compile Include="ACPoint\Implementations\3_Event\Event%28Srv%29\Interface\IACPointEvent.cs" />
     <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI%28Srv%29\Interface\IACPointAsyncRMI.cs" />
-    <Compile Include="ACPoint\Interfaces\IACPointNetService.cs" />
-    <Compile Include="ACPoint\Interfaces\IACPointNetClient.cs" />
     <Compile Include="ACPoint\Implementations\3_Event\Event%28Srv%29\BaseClasses\ACPointEventWrap.cs" />
     <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI%28Srv%29\BaseClasses\ACPointAsyncRMIWrap.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\BasesClasses\ACPointNetStorableObjectBase.cs" />
-    <Compile Include="ACPoint\Implementations\1_NetBasesClasses\ACPointNetStorableBase.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\Service\Proxy\ACPointServiceObjectProxy.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\Client\Proxy\ACPointClientObjectProxy.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\Service\Real\ACPointServiceObject.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\Client\Real\ACPointClientObject.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\BasesClasses\ACPointNetWrapObject.cs" />
-    <Compile Include="ACPoint\Implementations\2_Object\Client\Interface\IACPointNetClientObject.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PARole.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PAStateConverterBase.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PAClassSimulator.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PAClassAlarmingBase.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PAClassPhysicalBase.cs" />
-    <Compile Include="ACProcessWorkflow\ACConnector\PWPointEventSubscr.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\IPWNodeIn.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\IPWNodeOut.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\IPWNodeDeliverMaterial.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\IPWNodeReceiveMaterial.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWBaseInOut.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWNodeExAnd.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWNodeProcessWorkflow.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWNodeUserAck.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWNodeWait.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWBase.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWBaseNodeProcess.cs" />
-    <Compile Include="ACProcessWorkflow\ACPWProcess\WFDictionary.cs" />
-    <Compile Include="ACProcessWorkflow\PWContentTaskHelper.cs" />
-    <Compile Include="ACProcessWorkflow\ACPWProcess\PWProcessFunction.cs" />
-    <Compile Include="ACProperty\ACComponent.cs" />
-    <Compile Include="ACProperty\ACPropertyConfig\ACPropertyConfigValue.cs" />
-    <Compile Include="ACProperty\ACPropertyLog\ACPropertyLogService.cs" />
-    <Compile Include="ACProperty\Redirection\ACPropertyRedirector.cs" />
-    <Compile Include="ACProperty\ACProperty\DynamicPropertyAccessor.cs" />
-    <Compile Include="ACProperty\CustomTypes\ACCustomType.cs" />
-    <Compile Include="ACProperty\ACProperty\ACProperty.cs" />
-    <Compile Include="ACProperty\CustomTypes\BitAccess.cs" />
-    <Compile Include="ACProperty\CustomTypes\BitAccessForAllocatedByWay.cs" />
-    <Compile Include="ACProperty\CustomTypes\BitAccessForByte.cs" />
-    <Compile Include="ACProperty\CustomTypes\BitAccessForInt16.cs" />
-    <Compile Include="ACProperty\CustomTypes\BitAccessForInt32.cs" />
-    <Compile Include="ACProperty\Distribution\ACPDispatch\ACPDispatchClient.cs" />
-    <Compile Include="ACProperty\Distribution\ACPDispatch\ACPDispatchService.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\1_Subscription\ACPSubscrDispService.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\1_Subscription\ACPSubscrDispClient.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\2_Project\ACPSubscrProjService.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\2_Project\ACPSubscrProjDispService.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\2_Project\ACPSubscrProjDispClient.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\3_Object\ACPSubscrObjDispService.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\3_Object\ACPSubscrObjService.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\3_Object\ACPSubscrObjDispClient.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\1_Subscription\ACPSubscrDispBase.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\1_Subscription\ACPSubscrService.cs" />
-    <Compile Include="ACProperty\PropertyLog\ACPropertyValueLog.cs" />
-    <Compile Include="ACProcessApplication\ACConnector\PAPoint.cs" />
-    <Compile Include="ACProperty\Redirection\PAPropRedirectConfigBase.cs" />
-    <Compile Include="ACProperty\Redirection\PAPropRedirectConfig.cs" />
-    <Compile Include="ACReport\IReportHandler.cs" />
-    <Compile Include="ACReport\ReportData.cs" />
-    <Compile Include="ACIPlus\Businessobjects\Businessobjects.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PAProcessFunction.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PAModule.cs" />
-    <Compile Include="ACManager\ACMessages\ACPropertyMessages.cs" />
-    <Compile Include="ACProcessApplication\ACPAClass\PAProcessModule.cs" />
-    <Compile Include="ACProcessApplication\ApplicationManager.cs" />
-    <Compile Include="ACIPlus\Communications\WCFDataContractResolver.cs" />
-    <Compile Include="ACIPlus\Environment\RuntimeDump.cs" />
-    <Compile Include="ACIPlus\GarbageCollector\GarbageCollector.cs" />
-    <Compile Include="ACIPlus\LocalServiceObjects\LocalServiceObjects.cs" />
-    <Compile Include="ACIPlus\Resources\ConfigApplication.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ACIPlus\Queries\Queries.cs" />
-    <Compile Include="ACProcessWorkflow\ACConnector\PWPointIn.cs" />
-    <Compile Include="ACProcessWorkflow\PWProxy.cs" />
-    <Compile Include="ACComponent\ACComponentProxy.cs" />
-    <Compile Include="ACComponent\ACComponent.cs" />
-    <Compile Include="ACConfiguration\ConfigurationGroup.cs" />
-    <Compile Include="ACDialog\VBBSOControlDialog.cs" />
-    <Compile Include="ACProperty\ACPropertyValue\ACPropertyValueEvent.cs" />
-    <Compile Include="ACProperty\ACPropertyValue\ACPropertyValueHolder.cs" />
-    <Compile Include="ACProperty\ACProperty\ACPropertyFactory.cs" />
-    <Compile Include="ACProperty\ACProperty\Interfaces\TypeNeutral\IACPropertyNetServer.cs" />
-    <Compile Include="ACProperty\ACProperty\Interfaces\TypeNeutral\IACPropertyNetSource.cs" />
-    <Compile Include="ACProperty\ACProperty\Interfaces\TypeNeutral\IACPropertyNetTarget.cs" />
-    <Compile Include="ACProperty\ACProperty\Server\ACPropertyNetServerBase.cs" />
-    <Compile Include="ACProperty\Distribution\ACPDispatch\ACPDispatchBase.cs" />
-    <Compile Include="ACProperty\Distribution\ACPDispatch\ACPDispatchProj.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\1_Subscription\ACPSubscrBase.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\2_Project\ACPSubscrProjBase.cs" />
-    <Compile Include="ACProperty\Distribution\ACPSubscription\3_Object\ACPSubscrObjBase.cs" />
-    <Compile Include="ACProcessApplication\ApplicationManagerProxy.cs" />
-    <Compile Include="ACProperty\ACProperty\ACPropertyNet.cs" />
-    <Compile Include="ACProperty\ACPropertyValue\ACPropertyValueBase.cs" />
-    <Compile Include="ACProperty\ACProperty\Server\ACPropertyNetSource.cs" />
-    <Compile Include="ACProperty\ACProperty\Server\ACPropertyNetTarget.cs" />
-    <Compile Include="ACIPlus\Environment\Environment.cs" />
-    <Compile Include="ACIPlus\Communications\Helperclasses\AsyncMethodWaitHandle.cs" />
-    <Compile Include="ACIPlus\Communications\Communications.cs" />
-    <Compile Include="ACIPlus\Communications\Client\WCFClientManager.cs" />
-    <Compile Include="ACIPlus\Communications\Client\WCFClientChannel.cs" />
-    <Compile Include="ACIPlus\Communications\Client\WCFClientServiceCallback.cs" />
-    <Compile Include="ACIPlus\Communications\Helperclasses\ACWCFException.cs" />
-    <Compile Include="ACIPlus\Communications\Helperclasses\ACObjectRMInvoker.cs" />
-    <Compile Include="ACIPlus\Communications\Interfaces\IACObjectRMI.cs" />
-    <Compile Include="ACIPlus\Communications\Service\WCFService.cs" />
-    <Compile Include="ACIPlus\Communications\Client\WCFClient.cs" />
-    <Compile Include="ACIPlus\Communications\Interfaces\IACWCFServiceCallback.cs" />
-    <Compile Include="ACIPlus\Communications\Interfaces\IACWCFService.cs" />
-    <Compile Include="ACIPlus\Communications\Service\WCFServiceChannel.cs" />
-    <Compile Include="ACIPlus\Communications\Service\WCFServiceManager.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWNodeProcessMethod.cs" />
-    <Compile Include="ACIPlus\Communications\Helperclasses\ACObjectRMIWaitHandle.cs" />
-    <Compile Include="ACManager\ACManagerBase.cs" />
-    <Compile Include="ACIPlus\Messages\Messages.cs" />
-    <Compile Include="ACIPlus\Communications\WCFMessage.cs" />
-    <Compile Include="ACIPlus\ACStartUpRoot.cs" />
-    <Compile Include="ACIPlus\Resources\ResourceFactory.cs" />
-    <Compile Include="ACIPlus\Resources\Resources.cs" />
-    <Compile Include="ACIPlus\Resources\ResourcesRoot.cs" />
-    <Compile Include="ACIPlus\Resources\ResourcesSQL.cs" />
-    <Compile Include="ACIPlus\Resources\ResourcesXML.cs" />
-    <Compile Include="ACIPlus\Resources\ResourcesZip.cs" />
-    <Compile Include="ACIPlus\ACRoot.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWNodeAnd.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWNodeDecisionFunc.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWNodeDecisionMsg.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWNodeOr.cs" />
-    <Compile Include="ACClassManager\ACClassManager.cs" />
-    <Compile Include="ACScriptEngine\IScriptEngine.cs" />
-    <Compile Include="ACScriptEngine\CompileErrors.cs" />
-    <Compile Include="ACScriptEngine\Script.cs" />
-    <Compile Include="ACScriptEngine\ScriptEngine.cs" />
-    <Compile Include="ACScriptEngine\ScriptList.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWBaseExecutable.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWNodeEnd.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWGroup.cs" />
-    <Compile Include="ACProcessWorkflow\PWNode\PWNodeStart.cs" />
-    <Compile Include="ACComponentManager\ACComponentManager.cs" />
-    <Compile Include="ACVBNo\ACVBNoManager.cs" />
-    <Compile Include="Configuration\CoreConfiguration.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ACThreadHandling\ACPDispatchThread.cs" />
-    <Compile Include="Routing\ACRoutingSession.cs" />
-    <Compile Include="Routing\ACRoutingVertex.cs" />
-    <Compile Include="Routing\RoutingHelper.cs" />
-    <Compile Include="Routing\PriorityQueue.cs" />
-    <Compile Include="Routing\ACRoutingService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ACPoint\Implementations\5_Task\Task%28Srv%29\Interface\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\gip.core.ControlScriptSync\gip.core.ControlScriptSync.csproj">
-      <Project>{aa244d31-0be9-4ad9-bcaf-25d21298552e}</Project>
-      <Name>gip.core.ControlScriptSync</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj">
-      <Project>{16fb4111-5110-46e5-851d-38a4d7522f85}</Project>
-      <Name>gip.core.datamodel</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\gip.core.dbsyncer\gip.core.dbsyncer.csproj">
-      <Project>{06002742-2a42-4e40-8ca0-011a9093791b}</Project>
-      <Name>gip.core.dbsyncer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\gip.core.layoutengine\gip.core.layoutengine.csproj">
-      <Project>{a294786a-0921-4773-a0bf-f98f5afcae0d}</Project>
-      <Name>gip.core.layoutengine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\gip.ext.graphics\gip.ext.graphics.csproj">
-      <Project>{889dad2e-8e03-4a47-9a24-8ee759b37a70}</Project>
-      <Name>gip.ext.graphics</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\gip.core.ControlScriptSync\gip.core.ControlScriptSync.csproj" />
+    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
+    <ProjectReference Include="..\gip.core.dbsyncer\gip.core.dbsyncer.csproj" />
+    <ProjectReference Include="..\gip.core.layoutengine\gip.core.layoutengine.csproj" />
+    <ProjectReference Include="..\gip.ext.graphics\gip.ext.graphics.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
-    <None Include="app.config" />
-    <None Include="VBControlScripts\2021-01-28 09-09_ihrastinski.zip">
+    <None Update="VBControlScripts\2021-01-28 09-09_ihrastinski.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2021-03-03 12-30_ihrastinski.zip">
+    <None Update="VBControlScripts\2021-03-03 12-30_ihrastinski.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2021-04-29 16-59_dlisak.zip">
+    <None Update="VBControlScripts\2021-04-29 16-59_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2021-04-30 14-25_aaginic.zip">
+    <None Update="VBControlScripts\2021-04-30 14-25_aaginic.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2021-06-10 12-52_dlisak.zip">
+    <None Update="VBControlScripts\2021-06-10 12-52_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2021-08-11 14-05_dlisak.zip">
+    <None Update="VBControlScripts\2021-08-11 14-05_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2021-08-19 17-06_ihrastinski.zip">
+    <None Update="VBControlScripts\2021-08-19 17-06_ihrastinski.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2021-08-28 09-27_dlisak.zip">
+    <None Update="VBControlScripts\2021-08-28 09-27_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2021-10-31 11-39_dlisak.zip">
+    <None Update="VBControlScripts\2021-10-31 11-39_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2022-02-05 06-59_dlisak.zip">
+    <None Update="VBControlScripts\2022-02-05 06-59_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2022-02-05 13-42_dlisak.zip">
+    <None Update="VBControlScripts\2022-02-05 13-42_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2022-02-18 13-46_ihrastinski.zip">
+    <None Update="VBControlScripts\2022-02-18 13-46_ihrastinski.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2022-02-19 19-08_dlisak.zip">
+    <None Update="VBControlScripts\2022-02-19 19-08_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2022-03-13 17-40_aagincic.zip">
+    <None Update="VBControlScripts\2022-03-13 17-40_aagincic.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2022-03-24 16-37_dlisak.zip">
+    <None Update="VBControlScripts\2022-03-24 16-37_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="VBControlScripts\2022-05-26 10-49_aagincic.zip">
+    <None Update="VBControlScripts\2022-05-26 10-49_aagincic.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <Import Project="..\gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems" Label="Shared" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+    <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="ACIPlus\Communications\Helperclasses\SyncQueueEvents.cs" />
+    <Compile Remove="ACThreadHandling\ACEntityOpQueue.cs" />
+  </ItemGroup>
+  <PropertyGroup />
+  <PropertyGroup />
 </Project>

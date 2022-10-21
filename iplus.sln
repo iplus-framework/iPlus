@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Businesslayer", "2. Businesslayer", "{AF7F207F-AE68-4199-9316-91411DFF93E4}"
 EndProject
@@ -11,83 +11,83 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Framework", "Framework", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Datalayer", "3. Datalayer", "{4A180E41-9761-46E2-ACA3-4BD41764496C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.reporthandler", "gip.core.reporthandler\gip.core.reporthandler.csproj", "{6AD88CAF-A168-4BC2-9ECE-F62E7B216465}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.reporthandler", "gip.core.reporthandler\gip.core.reporthandler.csproj", "{6AD88CAF-A168-4BC2-9ECE-F62E7B216465}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.autocomponent", "gip.core.autocomponent\gip.core.autocomponent.csproj", "{893D3B1B-DC55-4684-8B5D-941F1049151B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.autocomponent", "gip.core.autocomponent\gip.core.autocomponent.csproj", "{893D3B1B-DC55-4684-8B5D-941F1049151B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.datamodel", "gip.core.datamodel\gip.core.datamodel.csproj", "{16FB4111-5110-46E5-851D-38A4D7522F85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.datamodel", "gip.core.datamodel\gip.core.datamodel.csproj", "{16FB4111-5110-46E5-851D-38A4D7522F85}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extension", "Extension", "{B8BA799D-B3ED-4E8B-A22F-E0A099A48862}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.communication", "gip.core.communication\gip.core.communication.csproj", "{96014A57-E700-478F-850E-452E9BFCAA90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.communication", "gip.core.communication\gip.core.communication.csproj", "{96014A57-E700-478F-850E-452E9BFCAA90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.processapplication", "gip.core.processapplication\gip.core.processapplication.csproj", "{66484708-85BD-47C4-92DD-3010387465F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.processapplication", "gip.core.processapplication\gip.core.processapplication.csproj", "{66484708-85BD-47C4-92DD-3010387465F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.manager", "gip.core.manager\gip.core.manager.csproj", "{3A9383D8-5C6D-429C-89D3-57C1D2565AD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.manager", "gip.core.manager\gip.core.manager.csproj", "{3A9383D8-5C6D-429C-89D3-57C1D2565AD1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{2796C04D-296B-45C1-82A4-C984731CAD2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.bso.iplus", "gip.bso.iplus\gip.bso.iplus.csproj", "{763EA3DC-3FB4-4D74-A252-A6A8811F0461}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.bso.iplus", "gip.bso.iplus\gip.bso.iplus.csproj", "{763EA3DC-3FB4-4D74-A252-A6A8811F0461}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.layoutengine", "gip.core.layoutengine\gip.core.layoutengine.csproj", "{A294786A-0921-4773-A0BF-F98F5AFCAE0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.layoutengine", "gip.core.layoutengine\gip.core.layoutengine.csproj", "{A294786A-0921-4773-A0BF-F98F5AFCAE0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.visualcontrols", "gip.core.visualcontrols\gip.core.visualcontrols.csproj", "{1B33DCDB-80FD-4029-AA95-E1760FA3EADF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.visualcontrols", "gip.core.visualcontrols\gip.core.visualcontrols.csproj", "{1B33DCDB-80FD-4029-AA95-E1760FA3EADF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.chart", "gip.ext.chart\gip.ext.chart.csproj", "{25779059-D15F-48CD-88BD-7DEA111A2036}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.chart", "gip.ext.chart\gip.ext.chart.csproj", "{25779059-D15F-48CD-88BD-7DEA111A2036}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.designer", "gip.ext.designer\Project\gip.ext.designer.csproj", "{78CC29AC-CC79-4355-B1F2-97936DF198AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.designer", "gip.ext.designer\Project\gip.ext.designer.csproj", "{78CC29AC-CC79-4355-B1F2-97936DF198AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.opctoolbox", "gip.ext.opctoolbox\gip.ext.opctoolbox.csproj", "{BB162D04-7C12-4700-AB7D-9D1A5B823E2E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.opctoolbox", "gip.ext.opctoolbox\gip.ext.opctoolbox.csproj", "{BB162D04-7C12-4700-AB7D-9D1A5B823E2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.widgets", "gip.ext.widgets\Project\gip.ext.widgets.csproj", "{8035765F-D51F-4A0C-A746-2FD100E19419}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.widgets", "gip.ext.widgets\Project\gip.ext.widgets.csproj", "{8035765F-D51F-4A0C-A746-2FD100E19419}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.xamldom", "gip.ext.xamldom\Project\gip.ext.xamldom.csproj", "{88DA149F-21B2-48AB-82C4-28FB6BDFD783}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.xamldom", "gip.ext.xamldom\Project\gip.ext.xamldom.csproj", "{88DA149F-21B2-48AB-82C4-28FB6BDFD783}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.graphics", "gip.ext.graphics\gip.ext.graphics.csproj", "{889DAD2E-8E03-4A47-9A24-8EE759B37A70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.graphics", "gip.ext.graphics\gip.ext.graphics.csproj", "{889DAD2E-8E03-4A47-9A24-8EE759B37A70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.tool.entitywizzard", "gip.tool.entitywizzard\gip.tool.entitywizzard.csproj", "{E5D620AB-C4DB-4C79-B902-99718D51B1FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.tool.entitywizzard", "gip.tool.entitywizzard\gip.tool.entitywizzard.csproj", "{E5D620AB-C4DB-4C79-B902-99718D51B1FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.iplus.client", "gip.iplus.client\gip.iplus.client.csproj", "{87659620-A0E9-4240-9BFF-BD2772755959}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.iplus.client", "gip.iplus.client\gip.iplus.client.csproj", "{87659620-A0E9-4240-9BFF-BD2772755959}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.iplus.console", "gip.iplus.console\gip.iplus.console.csproj", "{220E6D9A-907A-44A2-9FA7-945972475ABA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.iplus.console", "gip.iplus.console\gip.iplus.console.csproj", "{220E6D9A-907A-44A2-9FA7-945972475ABA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.iplus.startup", "gip.iplus.startup\gip.iplus.startup.csproj", "{906813D8-6A71-4CC3-9033-22609FC865B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.iplus.startup", "gip.iplus.startup\gip.iplus.startup.csproj", "{906813D8-6A71-4CC3-9033-22609FC865B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.iplus.service", "gip.iplus.service\gip.iplus.service.csproj", "{02211577-F0BE-4511-A9B5-A4026ACC1979}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.iplus.service", "gip.iplus.service\gip.iplus.service.csproj", "{02211577-F0BE-4511-A9B5-A4026ACC1979}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.design", "gip.ext.design\project\gip.ext.design.csproj", "{66A378A1-E9F4-4AD5-8946-D0EC06C2902F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.design", "gip.ext.design\project\gip.ext.design.csproj", "{66A378A1-E9F4-4AD5-8946-D0EC06C2902F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.fluent", "gip.ext.fluent\gip.ext.fluent.csproj", "{4C92FCF4-3561-499F-BC5B-F2F089863047}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.fluent", "gip.ext.fluent\gip.ext.fluent.csproj", "{4C92FCF4-3561-499F-BC5B-F2F089863047}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.ControlScriptSync", "gip.core.ControlScriptSync\gip.core.ControlScriptSync.csproj", "{AA244D31-0BE9-4AD9-BCAF-25D21298552E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.ControlScriptSync", "gip.core.ControlScriptSync\gip.core.ControlScriptSync.csproj", "{AA244D31-0BE9-4AD9-BCAF-25D21298552E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.dbsyncer", "gip.core.dbsyncer\gip.core.dbsyncer.csproj", "{06002742-2A42-4E40-8CA0-011A9093791B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.dbsyncer", "gip.core.dbsyncer\gip.core.dbsyncer.csproj", "{06002742-2A42-4E40-8CA0-011A9093791B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TwinCAT", "TwinCAT", "{4F9995AC-E166-4CCB-914E-F4DC2F6C9E1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.tcShared", "gip.core.tcShared\gip.core.tcShared.csproj", "{0A7D75C1-EAFC-495C-B172-97FA094561FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.tcShared", "gip.core.tcShared\gip.core.tcShared.csproj", "{0A7D75C1-EAFC-495C-B172-97FA094561FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.bso.tcStudio", "gip.bso.tcStudio\gip.bso.tcStudio.csproj", "{F5835FCD-B186-40A9-B70C-58358BDC4FA4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.bso.tcStudio", "gip.bso.tcStudio\gip.bso.tcStudio.csproj", "{F5835FCD-B186-40A9-B70C-58358BDC4FA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.tcAgent", "gip.core.tcAgent\gip.core.tcAgent.csproj", "{D7A10715-136A-4D2D-B5EF-6430B6C12B65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.tcAgent", "gip.core.tcAgent\gip.core.tcAgent.csproj", "{D7A10715-136A-4D2D-B5EF-6430B6C12B65}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.tcClient", "gip.core.tcClient\gip.core.tcClient.csproj", "{BBE18389-883E-4E82-BED7-D8FCC77CD846}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.tcClient", "gip.core.tcClient\gip.core.tcClient.csproj", "{BBE18389-883E-4E82-BED7-D8FCC77CD846}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.archiver", "gip.core.archiver\gip.core.archiver.csproj", "{7D912622-055C-4B2C-8EE4-52D8F1C25F73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.archiver", "gip.core.archiver\gip.core.archiver.csproj", "{7D912622-055C-4B2C-8EE4-52D8F1C25F73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.tool.installerAndUpdater", "gip.tool.installerAndUpdater\gip.tool.installerAndUpdater.csproj", "{C5BDC9BD-3DF1-47FA-A1FF-302A1A09440E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.tool.installerAndUpdater", "gip.tool.installerAndUpdater\gip.tool.installerAndUpdater.csproj", "{C5BDC9BD-3DF1-47FA-A1FF-302A1A09440E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.tool.publish", "gip.tool.publish\gip.tool.publish.csproj", "{D4B53CA2-4D23-489E-9263-779A0A0CA367}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.tool.publish", "gip.tool.publish\gip.tool.publish.csproj", "{D4B53CA2-4D23-489E-9263-779A0A0CA367}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.scichart", "gip.core.scichart\gip.core.scichart.csproj", "{2665047F-0C51-458B-87A4-0D1BA264FEFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.scichart", "gip.core.scichart\gip.core.scichart.csproj", "{2665047F-0C51-458B-87A4-0D1BA264FEFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.tool.devLicense", "gip.tool.devLicense\gip.tool.devLicense.csproj", "{BA231167-B4AA-414B-8A6F-FA40887EE32C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.tool.devLicense", "gip.tool.devLicense\gip.tool.devLicense.csproj", "{BA231167-B4AA-414B-8A6F-FA40887EE32C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.tool.devLicenseProvider", "gip.tool.devLicenseProvider\gip.tool.devLicenseProvider.csproj", "{E402F0C6-5AC8-4EED-9A35-F518E61E4425}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.tool.devLicenseProvider", "gip.tool.devLicenseProvider\gip.tool.devLicenseProvider.csproj", "{E402F0C6-5AC8-4EED-9A35-F518E61E4425}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBSyncerUpdate.unit.test", "DBSyncerUpdate.unit.test\DBSyncerUpdate.unit.test.csproj", "{FCC827AC-CC93-49C5-B577-103CF86BA4ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DBSyncerUpdate.unit.test", "DBSyncerUpdate.unit.test\DBSyncerUpdate.unit.test.csproj", "{FCC827AC-CC93-49C5-B577-103CF86BA4ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.webservices", "gip.core.webservices\gip.core.webservices.csproj", "{7931F65B-3C2A-4DB9-A5A6-4BC5B4D12C00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.webservices", "gip.core.webservices\gip.core.webservices.csproj", "{7931F65B-3C2A-4DB9-A5A6-4BC5B4D12C00}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "gip.core.webservices.shared", "gip.core.webservices.shared\gip.core.webservices.shared.shproj", "{0C232936-48B8-4CCD-951E-8AD3D439D264}"
 EndProject
@@ -98,14 +98,6 @@ EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "gip.core.sql", "gip.core.sql\gip.core.sql.sqlproj", "{746E71A0-CC5A-4A1F-BE03-76AFCF9FAB12}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		gip.core.webservices.shared\gip.core.webservices.shared.projitems*{0c232936-48b8-4ccd-951e-8ad3d439d264}*SharedItemsImports = 13
-		gip.core.datamodel.shared\gip.core.datamodel.shared.projitems*{16fb4111-5110-46e5-851d-38a4d7522f85}*SharedItemsImports = 4
-		gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems*{6d353dd2-970b-45bb-9ab6-d23a28e0233f}*SharedItemsImports = 13
-		gip.core.webservices.shared\gip.core.webservices.shared.projitems*{7931f65b-3c2a-4db9-a5a6-4bc5b4d12c00}*SharedItemsImports = 4
-		gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems*{893d3b1b-dc55-4684-8b5d-941f1049151b}*SharedItemsImports = 4
-		gip.core.datamodel.shared\gip.core.datamodel.shared.projitems*{fe279fba-181f-4d15-bbe8-8820caf186b2}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -305,5 +297,11 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {98B3D62C-99C4-441A-BDBB-AA6225B4CF1C}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		gip.core.webservices.shared\gip.core.webservices.shared.projitems*{0c232936-48b8-4ccd-951e-8ad3d439d264}*SharedItemsImports = 13
+		gip.core.datamodel.shared\gip.core.datamodel.shared.projitems*{16fb4111-5110-46e5-851d-38a4d7522f85}*SharedItemsImports = 5
+		gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems*{6d353dd2-970b-45bb-9ab6-d23a28e0233f}*SharedItemsImports = 13
+		gip.core.datamodel.shared\gip.core.datamodel.shared.projitems*{fe279fba-181f-4d15-bbe8-8820caf186b2}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

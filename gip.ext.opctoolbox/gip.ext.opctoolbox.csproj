@@ -1,14 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <ProjectType>Local</ProjectType>
-    <ProductVersion>9.0.21022</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{BB162D04-7C12-4700-AB7D-9D1A5B823E2E}</ProjectGuid>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ApplicationIcon>
-    </ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
     <AssemblyName>TBN35</AssemblyName>
@@ -22,15 +15,8 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <StartupObject>
     </StartupObject>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
     <SignAssembly>true</SignAssembly>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -49,37 +35,28 @@
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>..\bin\Debug\</OutputPath>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
-    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
     <DefineConstants>TRACE;DEBUG;NET35</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
-    <DebugSymbols>true</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <NoStdLib>false</NoStdLib>
     <NoWarn>
     </NoWarn>
-    <Optimize>false</Optimize>
     <RegisterForComInterop>false</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningLevel>4</WarningLevel>
-    <DebugType>full</DebugType>
-    <ErrorReport>prompt</ErrorReport>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>..\bin\Release\</OutputPath>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
-    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
     <DefineConstants>TRACE;NDEBUG;NET35</DefineConstants>
@@ -90,189 +67,28 @@
     <NoStdLib>false</NoStdLib>
     <NoWarn>
     </NoWarn>
-    <Optimize>true</Optimize>
     <RegisterForComInterop>false</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningLevel>4</WarningLevel>
-    <DebugType>pdbonly</DebugType>
-    <ErrorReport>prompt</ErrorReport>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System">
+    <Reference Update="System">
       <Name>System</Name>
     </Reference>
-    <Reference Include="System.Core">
+    <Reference Update="System.Core">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data">
+    <Reference Update="System.Data">
       <Name>System.Data</Name>
     </Reference>
     <Reference Include="System.Design">
       <Name>System.Design</Name>
     </Reference>
-    <Reference Include="System.Drawing">
+    <Reference Update="System.Drawing">
       <Name>System.Drawing</Name>
     </Reference>
-    <Reference Include="System.Windows.Forms">
-      <Name>System.Windows.Forms</Name>
-    </Reference>
-    <Reference Include="System.Xml">
+    <Reference Update="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Ae\ClientAeAttribute.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Ae\ClientAeCategory.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Ae\ClientAeCondition.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Ae\ClientAeEvent.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Ae\ClientAeSession.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Ae\ClientAeSubscription.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\ClientAddressSpaceElement.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\ClientAddressSpaceElementBrowseOptions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\ClientApplication.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\ClientEnums.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\ClientObjectSpaceElement.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\ClientServerBrowser.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\ClientServerStatus.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Control\ClientDataControl.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Control\ClientDataElements.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Control\ClientInfoCollector.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="client\Control\ClientSubscriptionProperties.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="client\Control\ClientValueComparer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Control\ClientValueEditor.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Da\ClientDaAddressSpaceElement.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Da\ClientDaItem.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Da\ClientDaPropertiesGetOptions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Da\ClientDaProperty.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Da\ClientDaSession.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="client\Da\ClientDaSubscription.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Enums.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="OTBFunctions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="OTBStructures.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\Ae\ServerAeAddressSpaceElement.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\Ae\ServerAeAttribute.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\Ae\ServerAeCategory.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\Ae\ServerAeCondition.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\Ae\ServerAeEvent.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\Da\ServerDaAddressSpaceElement.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\Da\ServerDaProperty.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\Da\ServerDaRequest.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\Da\ServerDaSession.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\Da\ServerDaTransaction.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\ServerAddressSpaceElement.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\ServerApplication.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\ServerCreator.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\ServerEnums.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="server\ServerWebTemplate.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Trace.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ValueQT.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <EmbeddedResource Include="client\Control\ClientInfoCollector.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>ClientInfoCollector.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="client\Control\ClientSubscriptionProperties.resx">
-      <DependentUpon>ClientSubscriptionProperties.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="SoftingKeyPair.snk" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -302,26 +118,27 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="DLLs\OTB.dll">
+    <None Update="DLLs\OTB.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DLLs\OTBu.dll">
+    <None Update="DLLs\OTBu.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DLLs\TBN35.dll">
+    <None Update="DLLs\TBN35.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="client\Ae\ClientAeAddressSpaceElement.cs" />
+    <Compile Remove="client\ClientCreator.cs" />
+  </ItemGroup>
+  <PropertyGroup />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
+  </ItemGroup>
 </Project>

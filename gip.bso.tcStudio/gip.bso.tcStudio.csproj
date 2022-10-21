@@ -1,34 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F5835FCD-B186-40A9-B70C-58358BDC4FA4}</ProjectGuid>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>gip.bso.tcStudio</RootNamespace>
-    <AssemblyName>gip.bso.tcStudio</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>..\bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
     <OutputPath>..\bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
@@ -41,40 +23,12 @@
     <Reference Include="EnvDTE80, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.Data.Entity" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BSOTCStudio.cs" />
-    <Compile Include="IOleMessageFilter.cs" />
-    <Compile Include="ItemType.cs" />
-    <Compile Include="MessageFilter.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj">
-      <Project>{893d3b1b-dc55-4684-8b5d-941f1049151b}</Project>
-      <Name>gip.core.autocomponent</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj">
-      <Project>{16fb4111-5110-46e5-851d-38a4d7522f85}</Project>
-      <Name>gip.core.datamodel</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\gip.bso.iplus\gip.bso.iplus.csproj">
-      <Project>{763ea3dc-3fb4-4d74-a252-a6a8811f0461}</Project>
-      <Name>gip.bso.iplus</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\gip.core.tcShared\gip.core.tcShared.csproj">
-      <Project>{0a7d75c1-eafc-495c-b172-97fa094561fd}</Project>
-      <Name>gip.core.tcShared</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj" />
+    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
+    <ProjectReference Include="..\gip.bso.iplus\gip.bso.iplus.csproj" />
+    <ProjectReference Include="..\gip.core.tcShared\gip.core.tcShared.csproj" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="TCatSysManagerLib">
@@ -88,28 +42,29 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="VBControlScripts\2018-11-29 15-53_dlisak.zip">
+    <None Update="VBControlScripts\2018-11-29 15-53_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <MySourceFiles Include="$(ProjectDir)\VBControlScripts\*.*">
       <InProject>false</InProject>
     </MySourceFiles>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="BSOTCStudio_old.cs" />
+  </ItemGroup>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(OutDir)\gip.bso.tcStudio.dll" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
     <Copy SourceFiles="$(OutDir)\gip.bso.tcStudio.pdb" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
     <Copy SourceFiles="@(MySourceFiles)" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)\VBControlScripts" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
   </Target>
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <!--<Target Name="BeforeBuild">
-    
-  </Target>-->
+  <PropertyGroup />
 </Project>

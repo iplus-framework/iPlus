@@ -1,34 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{06002742-2A42-4E40-8CA0-011A9093791B}</ProjectGuid>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>gip.core.dbsyncer</RootNamespace>
-    <AssemblyName>gip.core.dbsyncer</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>..\bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
     <OutputPath>..\bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -38,42 +18,7 @@
     <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Command\DBSyncerVersionCommand.cs" />
-    <Compile Include="helper\DbSyncerSettings.cs" />
-    <Compile Include="helper\SQLScripts.cs" />
-    <Compile Include="model\DBContextHelper.cs" />
-    <Compile Include="model\DbSyncerInfo.cs" />
-    <Compile Include="model\DbSyncerInfoContext.cs" />
-    <Compile Include="Command\DbSyncerInfoContextCommand.cs" />
-    <Compile Include="Command\DbSyncerInfoCommand.cs" />
-    <Compile Include="Messages\BaseSyncMessage.cs" />
-    <Compile Include="Messages\ErrorMessage.cs" />
-    <Compile Include="Messages\NoUpdateNeeded.cs" />
-    <Compile Include="Messages\ProgressMessage.cs" />
-    <Compile Include="Messages\SuccessMessage.cs" />
-    <Compile Include="model\DBSyncerVersion.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="model\ScriptFileInfo.cs" />
-    <Compile Include="SyncTask.cs" />
-    <Compile Include="UpdateSettings.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="DbScripts\DbSyncerUpdate1.0.0.0.sql">
+    <None Update="DbScripts\DbSyncerUpdate1.0.0.0.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="_doc\HowToUse.txt" />
@@ -82,18 +27,17 @@
     <None Include="..\..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
-    <Compile Include="Updates.cs" />
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="helper\ScriptFileInfo.cs" />
+  </ItemGroup>
 </Project>

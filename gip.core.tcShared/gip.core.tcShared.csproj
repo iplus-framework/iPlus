@@ -1,99 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0A7D75C1-EAFC-495C-B172-97FA094561FD}</ProjectGuid>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>gip.core.tcShared</RootNamespace>
-    <AssemblyName>gip.core.tcShared</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>..\bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
     <OutputPath>..\bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryByteEvent.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryByteEvents.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryDIntEvent.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryDIntEvents.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryDTEvent.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryDTEvents.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryIntEvent.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryIntEvents.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryLRealEvent.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryLRealEvents.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryRealEvent.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryRealEvents.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryStringEvent.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryStringEvents.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryTimeEvent.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryTimeEvents.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryUDIntEvent.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryUDIntEvents.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryUIntEvent.cs" />
-    <Compile Include="ACIPlus\ACMemoryEvent\ACRMemoryUIntEvents.cs" />
-    <Compile Include="ACIPlus\ACREventCycleInfo.cs" />
-    <Compile Include="ACIPlus\ACRMemoryMetaObj.cs" />
-    <Compile Include="ACIPlus\ACRMemoryMetaProp.cs" />
-    <Compile Include="ACIPlus\ACVariobatch.cs" />
-    <Compile Include="ACIPlus\TypeOfACObject.cs" />
-    <Compile Include="ACIPlus\VBEvent.cs" />
-    <Compile Include="Other\GCL.cs" />
-    <Compile Include="Other\TCDataTypeLength.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WCF\Helper\ConnectionState.cs" />
-    <Compile Include="Other\Logger.cs" />
-    <Compile Include="Other\MonitorObject.cs" />
-    <Compile Include="Other\SyncQueueEvents.cs" />
-    <Compile Include="WCF\Helper\WcfAdsMessage.cs" />
-    <Compile Include="WCF\Interfaces\IAdsAgent.cs" />
-    <Compile Include="WCF\Interfaces\IWcfAdsService.cs" />
-    <Compile Include="WCF\Interfaces\IWcfAdsServiceCallback.cs" />
-    <Compile Include="WCF\Service\WcfAdsService.cs" />
-    <Compile Include="WCF\Service\WcfAdsServiceChannel.cs" />
-    <Compile Include="WCF\Service\WcfAdsServiceManager.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(OutDir)\gip.core.tcShared.dll" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
     <Copy SourceFiles="$(OutDir)\gip.core.tcShared.pdb" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

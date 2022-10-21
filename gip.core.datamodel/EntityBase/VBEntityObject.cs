@@ -14,7 +14,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Data.Objects.DataClasses;
 using System.Runtime.Serialization;
 using System.Collections.Concurrent;
 
@@ -30,7 +29,7 @@ namespace gip.core.datamodel
     /// </summary>
     [Serializable]
     [DataContract(IsReference = true)]
-    public class VBEntityObject : EntityObject, IACObjectEntity, IACEntityProperty
+    public class VBEntityObject : EntityBase, IACObjectEntity, IACEntityProperty
     {
 
         #region IACObject

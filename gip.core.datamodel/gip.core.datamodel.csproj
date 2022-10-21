@@ -1,47 +1,26 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{16FB4111-5110-46E5-851D-38A4D7522F85}</ProjectGuid>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>gip.core.datamodel</RootNamespace>
-    <AssemblyName>gip.core.datamodel</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>..\bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NETFRAMEWORK</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>
     </DocumentationFile>
-    <Prefer32Bit>false</Prefer32Bit>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
     <OutputPath>..\bin\Release\</OutputPath>
     <DefineConstants>TRACE;NETFRAMEWORK</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>..\bin\Release\gip.core.datamodel.XML</DocumentationFile>
-    <Prefer32Bit>false</Prefer32Bit>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -54,330 +33,19 @@
     <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework">
-      <HintPath>..\..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer">
-      <HintPath>..\..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Data.Services" />
     <Reference Include="System.Data.Services.Client" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.EnterpriseServices" />
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
-    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ACAttributeInfo\ACChildInfo.cs" />
-    <Compile Include="ACAttributeInfo\ACClassInfo.cs" />
-    <Compile Include="ACAttributeInfo\ACQueryInfo.cs" />
-    <Compile Include="ACAttributeInfo\ACRelationInfo.cs" />
-    <Compile Include="ACAttributeInfo\ACInvokeStaticCtor.cs" />
-    <Compile Include="ACAttributeInfo\ACSerializeableInfo.cs" />
-    <Compile Include="ACAttributeInfo\ACClassConstructorInfo.cs" />
-    <Compile Include="ACContainer\ACChildItem.cs" />
-    <Compile Include="ACContainer\ACClassInfoRecursive.cs" />
-    <Compile Include="ACContainer\ACClassInfoRecursiveResult.cs" />
-    <Compile Include="ACContainer\ACComposition.cs" />
-    <Compile Include="ACContainer\ACFastStartupItem.cs" />
-    <Compile Include="ACContainer\ACFavorite.cs" />
-    <Compile Include="ACContainer\ACFSItemChanges.cs" />
-    <Compile Include="ACContainer\ACFSItemContainer.cs" />
-    <Compile Include="ACContainer\ACFSItemOperations.cs" />
-    <Compile Include="ACContainer\ACItem.cs" />
-    <Compile Include="ACContainer\ACMenuItemLight.cs" />
-    <Compile Include="ACContainer\InstallImportTypeFilter.cs" />
-    <Compile Include="ACHelperclasses\Cryptography\ByteExtensions.cs" />
-    <Compile Include="ACHelperclasses\EntityFramework\ScheduledOrderManager.cs" />
-    <Compile Include="ACHelperclasses\Misc4Components\ACActionArgs.cs" />
-    <Compile Include="ACHelperclasses\Performance\IRuntimeDump.cs" />
-    <Compile Include="ACHelperclasses\Runtime\ACActivator.cs" />
-    <Compile Include="ACHelperclasses\ThreadHandling\ACBackgroundWorker.cs">
+    <Compile Update="ACHelperclasses\ThreadHandling\ACBackgroundWorker.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ACAttributeInfo\ACMethodInfo.cs" />
-    <Compile Include="ACAttributeInfo\ACPropertyInfo.cs" />
-    <Compile Include="ACHelperclasses\Misc4Components\ACClassWFSearchByURL.cs" />
-    <Compile Include="ACHelperclasses\Runtime\ACComponentPool.cs" />
-    <Compile Include="ACHelperclasses\ACLicense\CSP.cs" />
-    <Compile Include="ACHelperclasses\ACLicense\DBInfo.cs" />
-    <Compile Include="ACHelperclasses\Runtime\TypeResolver.cs" />
-    <Compile Include="ACInterfaces\ACEntity\IImageInfo.cs" />
-    <Compile Include="ACInterfaces\ACEntity\IScheduledOrder.cs" />
-    <Compile Include="ACInterfaces\ACEntity\MDTrans.cs" />
-    <Compile Include="ACInterfaces\ACIPlus\IACVBNoManager.cs" />
-    <Compile Include="ACSerialization\ACObjectSerialHelper.cs" />
-    <Compile Include="ACHelperclasses\Runtime\ACMemberIndexer.cs" />
-    <Compile Include="ACHelperclasses\ACLicense\License.cs" />
-    <Compile Include="ACHelperclasses\ACLicense\Mxapi.cs" />
-    <Compile Include="ACHelperclasses\ACLicense\Mxtea.cs" />
-    <Compile Include="ACHelperclasses\ThreadHandling\ACMonitor.cs" />
-    <Compile Include="ACSerialization\ACObjectSerialPropertyContainerModel.cs" />
-    <Compile Include="ACSerialization\ACObjectSerialPropertyHandlingTypesEnum.cs" />
-    <Compile Include="ACHelperclasses\Misc4Components\ActivityTimeInfo.cs" />
-    <Compile Include="ACHelperclasses\Runtime\DerivationCache.cs" />
-    <Compile Include="ACHelperclasses\EntityFramework\EntityCheckException.cs" />
-    <Compile Include="ACHelperclasses\EntityFramework\ACChangesEventArgs.cs" />
-    <Compile Include="ACHelperclasses\EntityFramework\ACObjectContextHelper.cs" />
-    <Compile Include="ACHelperclasses\EntityFramework\ACObjectContextManager.cs" />
-    <Compile Include="ACHelperclasses\Scripting\ExprParser.cs" />
-    <Compile Include="ACHelperclasses\ACUrl\ACUrlCmdMessage.cs" />
-    <Compile Include="ACHelperclasses\ThreadHandling\IVBProgress.cs" />
-    <Compile Include="ACHelperclasses\ThreadHandling\TaskProgressInfo.cs" />
-    <Compile Include="ACHelperclasses\ThreadHandling\ACDelegateQueue.cs" />
-    <Compile Include="ACHelperclasses\ThreadHandling\ACEntityOpQueue.cs" />
-    <Compile Include="ACHelperclasses\ThreadHandling\ACThread.cs" />
-    <Compile Include="ACHelperclasses\ThreadHandling\SyncQueueEvents.cs" />
-    <Compile Include="ACHelperclasses\ThreadHandling\ACClassTaskQueue.cs" />
-    <Compile Include="ACHelperclasses\ThreadHandling\RootDbOpQueue.cs" />
-    <Compile Include="ACHelperclasses\Misc4Components\TranslationPair.cs" />
-    <Compile Include="ACHelperclasses\TypeConversion\XMLToObjectConverter.cs" />
-    <Compile Include="ACHelp\ActionResult.cs" />
-    <Compile Include="ACHelp\BasicMessage.cs" />
-    <Compile Include="ACHelp\IMessage.cs" />
-    <Compile Include="ACHelp\Login.cs" />
-    <Compile Include="ACHelp\MessageLevelEnum.cs" />
-    <Compile Include="ACHelp\Register.cs" />
-    <Compile Include="ACInterfaces\ACAccess\IAccessNavT.cs" />
-    <Compile Include="ACInterfaces\ACAccess\IAccessNav.cs" />
-    <Compile Include="ACInterfaces\ACAccess\IAccessT.cs" />
-    <Compile Include="ACInterfaces\ACComponent\IACComponentProcessFunction.cs" />
-    <Compile Include="ACInterfaces\ACComponent\IACComponentPWGroup.cs" />
-    <Compile Include="ACInterfaces\ACComponent\IACBSO.cs" />
-    <Compile Include="ACInterfaces\ACComponent\IACSelectDependentDlg.cs" />
-    <Compile Include="ACConfig\ACConfigHelper.cs" />
-    <Compile Include="ACConfig\ACConfigParam.cs" />
-    <Compile Include="ACConfig\ACConfigQuery.cs" />
-    <Compile Include="ACConfig\ACConfigSelected.cs" />
-    <Compile Include="ACInterfaces\ACConfig\IACBSOConfigStoreSelection.cs" />
-    <Compile Include="ACInterfaces\ACConfig\IACConfig.cs" />
-    <Compile Include="ACInterfaces\ACConfig\IACConfigMethodHierarchy.cs" />
-    <Compile Include="ACInterfaces\ACConfig\IACConfigStoreSelection.cs" />
-    <Compile Include="ACInterfaces\ACConfig\IACConfigProvider.cs" />
-    <Compile Include="ACInterfaces\ACConfig\IACConfigStore.cs" />
-    <Compile Include="ACInterfaces\ACConfig\IACConfigURL.cs" />
-    <Compile Include="ACInterfaces\ACContainer\IACContainerTNet.cs" />
-    <Compile Include="ACInterfaces\ACContainer\IACContainerT.cs" />
-    <Compile Include="ACInterfaces\ACDesign\IACClassDesignProvider.cs" />
-    <Compile Include="ACInterfaces\ACEntity\IDeleteInfo.cs" />
-    <Compile Include="ACInterfaces\ACEntity\IInsertInfo.cs" />
-    <Compile Include="ACInterfaces\ACEntity\IMDTrans.cs" />
-    <Compile Include="ACInterfaces\ACEntity\IUpdateInfo.cs" />
-    <Compile Include="ACInterfaces\ACObject\IACEntityObjectContext.cs" />
-    <Compile Include="ACInterfaces\ACObject\IACObjectEntityWithCheckTrans.cs" />
-    <Compile Include="ACInterfaces\ACObject\IACObjectWithInit.cs" />
-    <Compile Include="ACInterfaces\ACObject\IACObjectBase.cs" />
-    <Compile Include="ACInterfaces\ACPoint\IACEdge.cs" />
-    <Compile Include="ACInterfaces\ACProgram\IACBSOACProgramProvider.cs" />
-    <Compile Include="ACInterfaces\ACRoute\IACVBBSORouteSelector.cs" />
-    <Compile Include="ACInterfaces\VBControl\IVBRelation.cs" />
-    <Compile Include="ACQueryDefinition\ACAccessNav.cs" />
-    <Compile Include="ACSerialization\ExportCommandExtended.cs" />
-    <Compile Include="ACSerialization\FindMatchingUrlsParam.cs" />
-    <Compile Include="ACInterfaces\ACIPlus\IAppManager.cs" />
-    <Compile Include="ACContainer\ResourceTypeEnum.cs" />
-    <Compile Include="ACInterfaces\ACWorkflow\IACWorkflowContext.cs" />
-    <Compile Include="ACInterfaces\ACObject\IACClassEntity.cs" />
-    <Compile Include="ACInterfaces\ACPoint\IACTask.cs" />
-    <Compile Include="ACInterfaces\ACContainer\IACAttach.cs" />
-    <Compile Include="ACInterfaces\ACContainer\IACContainerRef.cs" />
-    <Compile Include="ACInterfaces\ACComponent\IACComponentPWNode.cs" />
-    <Compile Include="ACInterfaces\VBControl\IVBConnector.cs" />
-    <Compile Include="ACInterfaces\ACPProperty\IBitAccessBase.cs" />
-    <Compile Include="ACInterfaces\VBControl\IVBChartTuple.cs" />
-    <Compile Include="ACInterfaces\VBControl\IVBIsVisible.cs" />
-    <Compile Include="ACInterfaces\VBControl\IVBDialog.cs" />
-    <Compile Include="ACInterfaces\VBControl\IVBTileGrid.cs" />
-    <Compile Include="ACConfig\ACConfigStoreInfo.cs" />
-    <Compile Include="ACObject\ACChildInstanceInfo.cs" />
-    <Compile Include="ACMethod\ACMethodEventArgs.cs" />
-    <Compile Include="ACMethod\ACMethodWrapper.cs" />
-    <Compile Include="ACHelperclasses\Misc4Components\ChangeInfo.cs" />
-    <Compile Include="ACHelperclasses\Runtime\ClassRightManager.cs" />
-    <Compile Include="ACContainer\ACClassMethodInfo.cs" />
-    <Compile Include="ACContainer\ACClassDesignInfo.cs" />
-    <Compile Include="ACContainer\ACClassPropertyInfo.cs" />
-    <Compile Include="ACContainer\ACClassInfoWithItems.cs" />
-    <Compile Include="ACHelperclasses\Runtime\ACxmlnsResolver.cs" />
-    <Compile Include="ACHelperclasses\Scripting\ScriptTrigger.cs" />
-    <Compile Include="ACInterfaces\ACAccess\IAccess.cs" />
-    <Compile Include="ACInterfaces\ACComponent\IACComponent.cs" />
-    <Compile Include="ACInterfaces\ACComponent\IACComponentDesignManager.cs" />
-    <Compile Include="ACInterfaces\ACContainer\IACContainer.cs" />
-    <Compile Include="ACInterfaces\ACObject\IACObjectDesign.cs" />
-    <Compile Include="ACInterfaces\ACPoint\IACPointReference.cs" />
-    <Compile Include="ACInterfaces\ACPProperty\IACMember.cs" />
-    <Compile Include="ACInterfaces\ACPProperty\IACPoint.cs" />
-    <Compile Include="ACInterfaces\ACPProperty\IACPointNetBase.cs" />
-    <Compile Include="ACInterfaces\ACPProperty\IACPropertyBase.cs" />
-    <Compile Include="ACInterfaces\ACPProperty\IACPropertyNetBase.cs" />
-    <Compile Include="ACInterfaces\ACPProperty\IACPropertyNetValueEvent.cs" />
-    <Compile Include="ACInterfaces\ACInteractiveObject\IACInteractiveObject.cs" />
-    <Compile Include="ACInterfaces\ACInteractiveObject\IACInteractiveObjectParent.cs" />
-    <Compile Include="ACInterfaces\ACPProperty\IACPointBase.cs" />
-    <Compile Include="ACInterfaces\ACIPlus\IEnvironment.cs" />
-    <Compile Include="ACInterfaces\ACIPlus\IRoot.cs" />
-    <Compile Include="ACInterfaces\VBControl\IRootPageWPF.cs" />
-    <Compile Include="ACInterfaces\ACMessage\IMessages.cs" />
-    <Compile Include="ACInterfaces\ACIPlus\IQueries.cs" />
-    <Compile Include="ACInterfaces\ACIPlus\IBusinessobjects.cs" />
-    <Compile Include="ACInterfaces\ACIPlus\IResources.cs" />
-    <Compile Include="ACInterfaces\VBControl\IVBContent.cs" />
-    <Compile Include="ACInterfaces\VBControl\IVBGui.cs" />
-    <Compile Include="ACInterfaces\VBControl\IVBSerialize.cs" />
-    <Compile Include="ACInterfaces\VBControl\IVBSource.cs" />
-    <Compile Include="ACInterfaces\ACWCF\IWCFMessage.cs" />
-    <Compile Include="ACInterfaces\ACDesign\IACMenuBuilder.cs" />
-    <Compile Include="ACInterfaces\VBControl\IVBFindAndReplace.cs" />
-    <Compile Include="ACMethod\ACEventArgs.cs" />
-    <Compile Include="ACMessages\IMsgObserver.cs" />
-    <Compile Include="ACMessages\VBDialogResult.cs" />
-    <Compile Include="ACQueryDefinition\ACAccess.cs" />
-    <Compile Include="ACObject\ACGenericObject.cs" />
-    <Compile Include="ACObject\ConnectionIACObject.cs" />
-    <Compile Include="ACQueryDefinition\ACColumnItem.cs" />
-    <Compile Include="ACQueryDefinition\Dynamic.cs" />
-    <Compile Include="ACSerialization\ACDummyValues.cs" />
-    <Compile Include="ACSerialization\ACEntitySerializer.cs" />
-    <Compile Include="ACSerialization\ACKnownTypes.cs" />
-    <Compile Include="ACSerialization\ACPropertyCompare.cs" />
-    <Compile Include="ACSerialization\ACSerializer.cs" />
-    <Compile Include="ACSerialization\DeserializedSQLDataModel.cs" />
-    <Compile Include="ACSerialization\ExportCommand.cs" />
-    <Compile Include="ACSerialization\ExportErrorEventArgs.cs" />
-    <Compile Include="ACSerialization\ExportErrosEnum.cs" />
-    <Compile Include="Configuration\PerfLogConfiguration.cs" />
-    <Compile Include="Configuration\EFConfiguration.cs" />
-    <Compile Include="EntityACClass\ACChangeLog.cs" />
-    <Compile Include="EntityACClass\ACClassTask.cs" />
-    <Compile Include="EntityACClass\ACClassTaskValue.cs" />
-    <Compile Include="EntityACClass\ACClassTaskValuePos.cs" />
-    <Compile Include="EntityACClass\ACAssembly.cs" />
-    <Compile Include="EntityACClass\ACClassMethodConfig.cs" />
-    <Compile Include="EntityACProgram\ACProgram.cs" />
-    <Compile Include="EntityACProgram\ACProgramConfig.cs" />
-    <Compile Include="EntityACProgram\ACProgramLog.cs" />
-    <Compile Include="EntityACProgram\ACProgramLogTask.cs" />
-    <Compile Include="EntityACClass\ACClassMessage.cs" />
-    <Compile Include="EntityACClass\ACClassText.cs" />
-    <Compile Include="ACInterfaces\ACEntity\ISequence.cs" />
-    <Compile Include="EntityBase\VBEntityObject.cs" />
-    <Compile Include="EntityLog\ACPropertyLog.cs" />
-    <Compile Include="EntityLog\ACPropertyLogRule.cs" />
-    <Compile Include="EntityVB\VBUserSessionInfo.cs" />
-    <Compile Include="EntityVB\VBLicense.cs" />
-    <Compile Include="EntityVB\VBSystem.cs" />
-    <Compile Include="EntityVB\VBConfig.cs" />
-    <Compile Include="EntityLog\MsgAlarmLog.cs" />
-    <Compile Include="ACMessages\ACCommandMsg.cs" />
-    <Compile Include="ACContainer\ACMenuItem.cs" />
-    <Compile Include="ACContainer\ACMenuItemList.cs" />
-    <Compile Include="EntityACClass\ACClass.cs" />
-    <Compile Include="EntityACClass\ACClassDesign.cs" />
-    <Compile Include="EntityACClass\ACClassMethod.cs" />
-    <Compile Include="EntityACClass\ACClassWF.cs" />
-    <Compile Include="EntityACClass\ACClassWFEdge.cs" />
-    <Compile Include="EntityACClass\ACClassConfig.cs" />
-    <Compile Include="EntityACClass\ACClassProperty.cs" />
-    <Compile Include="EntityACClass\ACClassPropertyRelation.cs" />
-    <Compile Include="ACContainer\ACObjectItemWCheckBox.cs" />
-    <Compile Include="ACContainer\ACFSItem.cs" />
-    <Compile Include="EntityVB\VBSystemColumns.cs" />
-    <Compile Include="EntityACClass\ACProject.cs" />
-    <Compile Include="EntityACClass\ACPackage.cs" />
-    <Compile Include="EntityVB\VBLanguage.cs" />
-    <Compile Include="EntityVB\VBUserACClassDesign.cs" />
-    <Compile Include="EntityVB\VBGroupRight.cs" />
-    <Compile Include="EntityVB\VBUserGroup.cs" />
-    <Compile Include="ACMessages\ACCommand.cs" />
-    <Compile Include="ACHelperclasses\CommandLineHelper.cs" />
-    <Compile Include="ACHelperclasses\EntityTypeExtension\ACPropertyExt.cs" />
-    <Compile Include="ACHelperclasses\EntityTypeExtension\ACPropertyManager.cs" />
-    <Compile Include="ACHelperclasses\EntityTypeExtension\IACObjectReflectionExtension.cs" />
-    <Compile Include="ACInterfaces\ACObject\IACType.cs" />
-    <Compile Include="ACInterfaces\ACObject\IACObject.cs" />
-    <Compile Include="ACInterfaces\ACIPlus\IClassManager.cs" />
-    <Compile Include="ACInterfaces\ACObject\IACObjectEntity.cs" />
-    <Compile Include="ACInterfaces\ACEntity\IACEntityProperty.cs" />
-    <Compile Include="ACInterfaces\VBControl\IVBDataCheckbox.cs" />
-    <Compile Include="ACInterfaces\ACWorkflow\IACWorkflowObject.cs" />
-    <Compile Include="ACInterfaces\ACWorkflow\IACWorkflowEdge.cs" />
-    <Compile Include="ACInterfaces\ACWorkflow\IACWorkflowDesignContext.cs" />
-    <Compile Include="ACInterfaces\ACWorkflow\IACWorkflowNode.cs" />
-    <Compile Include="EntityVB\VBGroup.cs" />
-    <Compile Include="EntityVB\VBNoConfiguration.cs" />
-    <Compile Include="EntityVB\VBUser.cs" />
-    <Compile Include="EntityVB\VBUserACProject.cs" />
-    <Compile Include="EntityVB\VBUserInstance.cs" />
-    <Compile Include="ACContainer\ACValueItem.cs" />
-    <Compile Include="ACContainer\ACValueItemList.cs" />
-    <Compile Include="ACContainer\ACObjectItem.cs" />
-    <Compile Include="ACContainer\ACObjectItemList.cs" />
-    <Compile Include="Expand\ExpandBase.cs" />
-    <Compile Include="Expand\ExpandResult.cs" />
-    <Compile Include="Global.cs" />
-    <Compile Include="ACHelperclasses\ThreadHandling\ProgressInfo.cs" />
-    <Compile Include="ACHelperclasses\Runtime\TypeAnalyser.cs" />
-    <Compile Include="ACInterfaces\ACContainer\IACContainerWithItems.cs" />
-    <Compile Include="ACContainer\ACRef.cs" />
-    <Compile Include="ACHelperclasses\Cryptography\ACCrypt.cs" />
-    <Compile Include="ACHelperclasses\PropertyLog\PropertyLogItem.cs" />
-    <Compile Include="ACHelperclasses\PropertyLog\PropertyLogListInfo.cs" />
-    <Compile Include="ACHelperclasses\PropertyLog\PropertyLogRing.cs" />
-    <Compile Include="ACHelperclasses\Media\ImageResize.cs" />
-    <Compile Include="ACHelperclasses\Media\MediaController.cs" />
-    <Compile Include="ACHelperclasses\Media\MediaItemPresentation.cs" />
-    <Compile Include="ACHelperclasses\Media\MediaItemTypeEnum.cs" />
-    <Compile Include="ACHelperclasses\Media\MediaSet.cs" />
-    <Compile Include="ACHelperclasses\Media\MediaSettings.cs" />
-    <Compile Include="ACHelperclasses\Media\MediaTypeSettingsItem.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ACQueryDefinition\ACQuery.cs" />
-    <Compile Include="ACQueryDefinition\ACFilterItem.cs" />
-    <Compile Include="ACQueryDefinition\ACSortItem.cs" />
-    <Compile Include="ACQueryDefinition\ACQueryDefinition.cs" />
-    <Compile Include="Database.cs" />
-    <Compile Include="ACHelperclasses\Routing\Route.cs" />
-    <Compile Include="ACHelperclasses\Routing\RouteItem.cs" />
-    <Compile Include="ACConfig\Rules\ACClassWFRuleTypes.cs" />
-    <Compile Include="ACConfig\Rules\RuleInfo.cs" />
-    <Compile Include="ACConfig\Rules\RuleObjectSelectionModel.cs" />
-    <Compile Include="ACConfig\Rules\RuleSelectionItem.cs" />
-    <Compile Include="ACConfig\Rules\RuleSelectionModel.cs" />
-    <Compile Include="ACConfig\Rules\RuleTypeDefinition.cs" />
-    <Compile Include="ACConfig\Rules\RuleValue.cs" />
-    <Compile Include="ACConfig\Rules\RuleValueList.cs" />
-    <Compile Include="ACHelperclasses\EntityFramework\SequenceManager.cs" />
-    <Compile Include="ACSerialization\SQLInstanceInfo.cs" />
-    <Compile Include="EntityVB\VBTranslationView.cs" />
-    <Compile Include="iPlusV4.cs">
+    <Compile Update="iPlusV4.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>iPlusV4.tt</DependentUpon>
-    </Compile>
-    <Compile Include="iPlusV4.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>iPlusV4.edmx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -385,14 +53,11 @@
       <Link>GIP-SNKey.snk</Link>
     </None>
     <None Include="ACHelperclasses\ACLicense\matrix.ini" />
-    <None Include="App.Config">
-      <SubType>Designer</SubType>
-    </None>
     <EntityDeploy Include="iPlusV4.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>iPlusV4.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <None Include="iPlusV4.tt">
+    <None Update="iPlusV4.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>iPlusV4.cs</LastGenOutput>
     </None>
@@ -401,10 +66,10 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DbScripts\iPlus\info.xml">
+    <None Update="DbScripts\iPlus\info.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="DbScripts\InitialScript.sql">
+    <None Update="DbScripts\InitialScript.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -412,26 +77,31 @@
     <Folder Include="VBControlScripts\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DbScripts\iPlus\dbsync_2021-12-21_09-56_ihrastinski.sql">
+    <None Update="DbScripts\iPlus\dbsync_2021-12-21_09-56_ihrastinski.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <Import Project="..\gip.core.datamodel.shared\gip.core.datamodel.shared.projitems" Label="Shared" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="System.ServiceModel.Federation" Version="4.8.1" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="ACHelperclasses\EntityFramework\NoConfigurationManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.json" />
+  </ItemGroup>
+  <PropertyGroup />
   <PropertyGroup>
     <PostBuildEvent>copy /Y $(ProjectDir)..\..\..\packages\Matrix\matrix.ini  $(TargetDir)
 copy /Y $(ProjectDir)..\..\..\packages\Matrix\MATRIX32.DLL  $(TargetDir)
 copy /Y $(ProjectDir)..\..\..\packages\Matrix\MATRIX64.DLL  $(TargetDir)</PostBuildEvent>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <Import Project="..\gip.core.datamodel.shared\gip.core.datamodel.shared.projitems" Label="Shared" />
 </Project>
