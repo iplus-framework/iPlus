@@ -10,26 +10,30 @@ namespace gip.core.datamodel
     public class ACClassInfoRecursive : ACClassInfoWithItems
     {
         #region c´tors
-       
+
         public ACClassInfoRecursive(ACClass acClass)
             : base(acClass)
         {
+#if !EFCR
             ACClassID = acClass.ACClassID;
             ParentACClassID = acClass.ParentACClassID;
             if (acClass.ParentACClassID == null)
                 ACProjectID = acClass.ACProjectID;
             ACCaption = acClass.ACIdentifier;
+#endif
         }
 
         public ACClassInfoRecursive(ACProject aCProject)
         {
+#if !EFCR
             ACProjectID = aCProject.ACProjectID;
             ACCaption = aCProject.ACProjectName;
+#endif
         }
 
-        #endregion
+#endregion
 
-        #region Recursive
+#region Recursive
         public bool Processed { get; set; }
 
         public bool OriginalAssigned { get; set; }
@@ -53,8 +57,10 @@ namespace gip.core.datamodel
                 var tmpParent = result.AllItems.FirstOrDefault(c => ((c.ACProjectID ?? Guid.Empty) == (ACProjectID ?? Guid.Empty)) && c.ACClassID == Guid.Empty);
                 if (tmpParent == null)
                 {
+#if !EFCR
                     ACProject acProject = database.ACProject.FirstOrDefault(c => c.ACProjectID == (ACProjectID ?? Guid.Empty));
                     tmpParent = new ACClassInfoRecursive(acProject);
+#endif
                     if (!result.AllItems.Any(c => (c.ACProjectID ?? Guid.Empty) == (tmpParent.ACProjectID ?? Guid.Empty) && c.ACClassID == Guid.Empty))
                         result.AllItems.Add(tmpParent);
                     if (!result.Projects.Any(c => (c.ACProjectID ?? Guid.Empty) == (tmpParent.ACProjectID ?? Guid.Empty) && c.ACClassID == Guid.Empty))
@@ -67,8 +73,11 @@ namespace gip.core.datamodel
                 var tmpParent = result.AllItems.FirstOrDefault(c => c.ACClassID == (ParentACClassID ?? Guid.Empty) && c.ACClassID != Guid.Empty);
                 if (tmpParent == null && ACClassID != Guid.Empty)
                 {
+#if !EFCR
                     ACClass parentACClass = database.ACClass.FirstOrDefault(c => c.ACClassID == (ParentACClassID ?? Guid.Empty));
+
                     tmpParent = new ACClassInfoRecursive(parentACClass);
+#endif
                     if (!result.AllItems.Any(c => c.ACClassID == tmpParent.ACClassID))
                         result.AllItems.Add(tmpParent);
                 }
@@ -84,10 +93,18 @@ namespace gip.core.datamodel
             }
             else
             {
+#if !EFCR
                 Guid[] childrenIds = database.ACClass.Where(c => c.ParentACClassID == ACClassID).Select(c => c.ACClassID).ToArray();
+
                 foreach (var acClassID in childrenIds)
+#endif
+
+#if !EFCR
                 {
+
+
                     ACClassInfoRecursive childPresentation = result.AllItems.FirstOrDefault(c => c.ACClassID == acClassID);
+
                     if (childPresentation == null && OriginalAssigned)
                     {
                         ACClass childACClass = database.ACClass.FirstOrDefault(c => c.ACClassID == acClassID);
@@ -99,17 +116,19 @@ namespace gip.core.datamodel
                     if (childPresentation != null)
                         _ItemsT.Add(childPresentation);
                 }
+#endif
             }
         }
-        #endregion
 
-        #region overrides
+                #endregion
+
+                #region overrides
 
         public override string ToString()
         {
             return ((ACClassID == Guid.Empty) ? "P" : "C") + " - " + ACIdentifier;
         }
 
-        #endregion
+#endregion
     }
 }

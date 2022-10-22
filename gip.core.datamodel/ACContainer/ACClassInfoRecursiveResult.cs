@@ -25,6 +25,7 @@ namespace gip.core.datamodel
         public static ACClassInfoRecursiveResult Factory(Database database, string projectName, string[] bsoNames)
         {
             ACClassInfoRecursiveResult result = new ACClassInfoRecursiveResult();
+#if !EFCR
             result.AllItems = 
                 database
                 .ACClass
@@ -37,6 +38,7 @@ namespace gip.core.datamodel
                         IsChecked = true
                     
                     }).ToList();
+#endif
             while (result.AllItems.Any(c => !c.Processed))
             {
                 List<ACClassInfoRecursive> notProcessedItems = result.AllItems.Where(c => !c.Processed).ToList();

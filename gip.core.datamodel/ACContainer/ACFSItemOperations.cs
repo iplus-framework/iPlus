@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Objects;
 using System.Linq;
 
 namespace gip.core.datamodel
@@ -26,6 +25,7 @@ namespace gip.core.datamodel
             if (aCFSItem.ACObject != null && aCFSItem.ACObject is VBEntityObject)
             {
                 VBEntityObject entityObject = aCFSItem.ACObject as VBEntityObject;
+#if !EFCR
                 IACEntityObjectContext context = (aCFSItem.ACObject as VBEntityObject).GetObjectContext();
                 if (context == null)
                     context = ACObjectContextManager.GetContextFromACUrl(null, aCFSItem.ACObject.ACType.ObjectFullType.FullName);
@@ -39,6 +39,7 @@ namespace gip.core.datamodel
                         msgWithDetails.AddDetailMessage(checkStateMsg);
                     aCFSItem.UpdateDateFail = checkStateMsg != null;
                 }
+#endif
             }
         }
 
@@ -88,9 +89,9 @@ namespace gip.core.datamodel
             return msg;
         }
 
-        #endregion
+#endregion
 
-        #region ObjectContext Attach / Deattach
+#region ObjectContext Attach / Deattach
         /// <summary>
         /// Tree operation attach or de-attach to context 
         /// </summary>
@@ -102,6 +103,7 @@ namespace gip.core.datamodel
             if (aCFSItem.ACObject != null && aCFSItem.ACObject is VBEntityObject)
             {
                 VBEntityObject entityObject = aCFSItem.ACObject as VBEntityObject;
+#if !EFCR
                 IACEntityObjectContext context = (aCFSItem.ACObject as VBEntityObject).GetObjectContext();
                 if (context == null)
                     context = ACObjectContextManager.GetContextFromACUrl(null, aCFSItem.ACObject.ACType.ObjectFullType.FullName);
@@ -128,14 +130,17 @@ namespace gip.core.datamodel
                     else if (objectEntityState != EntityState.Detached && (!aCFSItem.IsChecked || (checkUpdateDate && aCFSItem.UpdateDateFail)))
                     {
                         context.Detach(aCFSItem.ACObject);
+
                     }
+
                 }
+#endif
             }
         }
 
-        #endregion
+#endregion
 
-        #region Filter
+#region Filter
 
         public static void Filter(ACFSItem aCFSItem, object[] args)
         {
@@ -165,9 +170,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region Validation
+#region Validation
 
         public static void ReferenceValidation(ACFSItem aCFSItem, object[] args)
         {
@@ -178,35 +183,46 @@ namespace gip.core.datamodel
                 if(aCFSItem.ACObject is ACClassDesign)
                 {
                     ACClassDesign acClassDesign = aCFSItem.ACObject as ACClassDesign;
+#if !EFCR
                     if(acClassDesign.ACClassID == Guid.Empty)
                     {
                         Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = $"ACClassDesign {acClassDesign.ACUrl} don't have referenced ACClass!" };
                         messages.Add(errMsg);
                         aCFSItem.IsChecked = false;
                     }
+#endif
                 }
                 else if (aCFSItem.ACObject is ACClassProperty)
                 {
                     ACClassProperty aCClassProperty = aCFSItem.ACObject as ACClassProperty;
+#if !EFCR
                     if(aCClassProperty.ACClassID == Guid.Empty)
                     {
                         Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = $"ACClassProperty {aCClassProperty.ACUrl} don't have referenced ACClass!" };
                         messages.Add(errMsg);
                         aCFSItem.IsChecked = false;
                     }
+#endif
+
+#if !EFCR
                     if (aCClassProperty.BasedOnACClassPropertyID == Guid.Empty)
                     {
                         Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = $"ACClassProperty {aCClassProperty.ACUrl} don't have referenced BasedOnACClassProperty!" };
                         messages.Add(errMsg);
                         aCFSItem.IsChecked = false;
                     }
+#endif
+
+#if !EFCR
                     if (aCClassProperty.ValueTypeACClassID == Guid.Empty)
                     {
                         Msg errMsg = new Msg() { MessageLevel = eMsgLevel.Error, Message = $"ACClassProperty {aCClassProperty.ACUrl} don't have referenced ValueTypeACClass!" };
                         messages.Add(errMsg);
                         aCFSItem.IsChecked = false;
                     }
+#endif
                 }
+#if !EFCR
                 else if (aCFSItem.ACObject is ACClassMessage)
                 {
                     ACClassMessage aCClassMessage = aCFSItem.ACObject as ACClassMessage;
@@ -217,6 +233,9 @@ namespace gip.core.datamodel
                         aCFSItem.IsChecked = false;
                     }
                 }
+#endif
+
+#if !EFCR
                 else if (aCFSItem.ACObject is ACClassText)
                 {
                     ACClassText aCClassText = aCFSItem.ACObject as ACClassText;
@@ -227,17 +246,21 @@ namespace gip.core.datamodel
                         aCFSItem.IsChecked = false;
                     }
                 }
+#endif
                 else if (aCFSItem.ACObject is ACClassPropertyRelation)
                 {
                     ACClassPropertyRelation aCClassPropertyRelation = aCFSItem.ACObject as ACClassPropertyRelation;
+#if !EFCR
                     if(
                             aCClassPropertyRelation.SourceACClassID == Guid.Empty 
                             || aCClassPropertyRelation.SourceACClassPropertyID == Guid.Empty 
                             || aCClassPropertyRelation.TargetACClassID == Guid.Empty
                             || aCClassPropertyRelation.TargetACClassPropertyID == Guid.Empty
                       )
+#endif
                     {
 
+#if !EFCR
                         string propertyRelationMsg = $"ACClassPropertyRelation ACIdentifier: {aCClassPropertyRelation.ACIdentifier} SourceACUrl: ";
                         if (aCClassPropertyRelation.SourceACClass != null && aCClassPropertyRelation.SourceACClassProperty != null)
                         {
@@ -276,29 +299,32 @@ namespace gip.core.datamodel
                             messages.Add(errMsg);
                             aCFSItem.IsChecked = false;
                         }
+#endif
                     }
                 }
             }
             
         }
 
-        #endregion
+#endregion
 
-        #region Test
+#region Test
 
         public static void RunSomeCheck(ACFSItem aCFSItem, object[] args)
         {
             if(aCFSItem != null && aCFSItem.ACObject != null && aCFSItem.ACObject is ACClassDesign)
             {
                 ACClassDesign aCClassDesign = aCFSItem.ACObject as ACClassDesign;
+#if !EFCR
                 if(aCClassDesign.ACClass == null)
                 {
                     throw new Exception("ACClassDesign.ACClass == null!");
                 }
+#endif
             }
         }
 
-        #endregion
+#endregion
 
     }
 }

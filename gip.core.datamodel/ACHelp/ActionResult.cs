@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿
 using System.Collections.Generic;
 
 namespace gip.core.datamodel
 {
+#if !EFCR
     [JsonObject(MemberSerialization.OptIn)]
     public class ActionResult
     {
@@ -28,7 +29,9 @@ namespace gip.core.datamodel
             }
         }
     }
+#endif
 
+#if !EFCR
     public interface IActionResult<out T> { }
 
     public class ActionResult<T> : ActionResult, IActionResult<T>
@@ -36,4 +39,5 @@ namespace gip.core.datamodel
         [JsonProperty]
         public T Item { get; set; }
     }
+#endif
 }

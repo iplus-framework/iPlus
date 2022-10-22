@@ -211,6 +211,7 @@ namespace gip.core.datamodel
 
         partial void OnValueTypeACClassIDChanged()
         {
+#if !EFCR
             if (this.EntityState == System.Data.EntityState.Added || this.EntityState == System.Data.EntityState.Modified)
             {
                 ACPropertyExt acPropertyExt = ACProperties.GetOrCreateACPropertyExtByName(Const.Value, false, false);
@@ -226,6 +227,7 @@ namespace gip.core.datamodel
                     }
                 }
             }
+#endif
         }
 
 
@@ -318,7 +320,7 @@ namespace gip.core.datamodel
             get => null;
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Gets or sets the database.
@@ -433,7 +435,7 @@ namespace gip.core.datamodel
             }
         }
 
-        #region Clone
+#region Clone
 
         public object Clone()
         {
@@ -453,6 +455,6 @@ namespace gip.core.datamodel
             return clonedObject;
         }
 
-        #endregion
+#endregion
     }
 }

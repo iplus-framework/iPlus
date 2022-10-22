@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Objects.DataClasses;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,30 +19,35 @@ namespace gip.core.datamodel
         /// <param name="fetchDeattached"></param>
         /// <param name="vbiACClassID"></param>
         /// <returns></returns>
+#if !EFCR
         public static IACConfig GetStoreConfiguration(IEnumerable<IACConfig> configItemsSource, string preConfigACUrl, string localConfigACUrl, bool fetchDeattached, Guid? vbiACClassID)
         {
+
             var item = 
                 ACConfigQuery<IACConfig>.QueryConfigSource(configItemsSource, preConfigACUrl, localConfigACUrl, vbiACClassID)
                 .Where(x => (x as EntityObject).EntityState != EntityState.Deleted &&
                     (fetchDeattached || ((x as EntityObject).EntityState != EntityState.Detached) )
                 )
                 .FirstOrDefault();
+            
             if (item == null)
                 return null;
             else
                 return (IACConfig)item;
-        }
+#endif
+    }
 
 
-        /// <summary>
-        /// Get configuration for specified propedrties
-        /// </summary>
-        /// <param name="configItemsSource"></param>
-        /// <param name="preConfigACUrl"></param>
-        /// <param name="localConfigACUrlList"></param>
-        /// <param name="vbiACClassID"></param>
-        /// <returns></returns>
-        public static List<IACConfig> GetStoreConfigurationList(IEnumerable<IACConfig> configItemsSource, string preConfigACUrl, List<string> localConfigACUrlList, Guid? vbiACClassID)
+    /// <summary>
+    /// Get configuration for specified propedrties
+    /// </summary>
+    /// <param name="configItemsSource"></param>
+    /// <param name="preConfigACUrl"></param>
+    /// <param name="localConfigACUrlList"></param>
+    /// <param name="vbiACClassID"></param>
+    /// <returns></returns>
+#if !EFCR
+    public static List<IACConfig> GetStoreConfigurationList(IEnumerable<IACConfig> configItemsSource, string preConfigACUrl, List<string> localConfigACUrlList, Guid? vbiACClassID)
         {
             if (!configItemsSource.Any()) 
                 return null;
@@ -52,7 +56,8 @@ namespace gip.core.datamodel
                 .Where(x =>  (x as EntityObject).EntityState != EntityState.Deleted && (x as EntityObject).EntityState != EntityState.Detached)
                 .ToList();
         }
-
+#endif
+#if !EFCR
         public static List<IACConfig> GetStoreConfigurationList(IEnumerable<IACConfig> configItemsSource, string preConfigACUrl, string startsWithLocalConfigACUrl, Guid? vbiACClassID)
         {
             if (!configItemsSource.Any()) 
@@ -62,8 +67,8 @@ namespace gip.core.datamodel
                 .Where(x => (x as EntityObject).EntityState != EntityState.Deleted && (x as EntityObject).EntityState != EntityState.Detached)
                 .ToList();
         }
-        
-
+#endif
+#if !EFCR
         public static ACConfigParam FactoryMachineParam(ACConfigParam originalParam, ACClass vbiACClass)
         {
             ACConfigParam newParam = new ACConfigParam();
@@ -75,4 +80,5 @@ namespace gip.core.datamodel
             return newParam;
         }
     }
+#endif
 }
