@@ -553,8 +553,8 @@ namespace gip.core.manager
             if (sourceVBConnector == null)
                 return true;
             //ACClassProperty sourceACClassProperty = sourceACObject.MyPoint(sourcePropertyName);
-            var sourceACClass = sourceVBConnector.ParentACObject.ACContentList.First() as ACClass;
-            var targetACClass = targetVBConnector.ParentACObject.ACContentList.First() as ACClass;
+            var sourceACClass = sourceVBConnector.ParentACObject?.ACContentList?.FirstOrDefault() as ACClass;
+            var targetACClass = targetVBConnector.ParentACObject?.ACContentList?.FirstOrDefault() as ACClass;
 
             ACClassProperty sourceACClassProperty = FindMyPoint(sourceACClass, sourceVBConnector.VBContent);
             ACClassProperty targetACClassProperty = FindMyPoint(targetACClass, targetVBConnector.VBContent);
@@ -585,7 +585,7 @@ namespace gip.core.manager
 
         private ACClassProperty FindMyPoint(ACClass acClass, string acUrlPoint)
         {
-            if (String.IsNullOrEmpty(acUrlPoint))
+            if (String.IsNullOrEmpty(acUrlPoint) || acClass == null)
                 return null;
             ACUrlHelper helper = new ACUrlHelper(acUrlPoint);
             if (String.IsNullOrEmpty(helper.NextACUrl))
