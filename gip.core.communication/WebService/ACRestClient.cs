@@ -931,6 +931,7 @@ namespace gip.core.communication
             try
             {
                 Task<WSResponse<string>> task = PatchAsync(content, uri);
+                task.Wait(); // check ending data
                 return task.Result;
             }
             catch (Exception ex)
