@@ -29,13 +29,14 @@ namespace gip.core.datamodel
     /// </summary>
     [Serializable]
     [DataContract(IsReference = true)]
-    public class VBEntityObject : EntityBase, IACObjectEntity, IACEntityProperty
+    public class VBEntityObject : EntityBase, IACEntityProperty
     {
 
         #region IACObject
 
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
+#if !EFCR
         [ACPropertyInfo(9999)]
         [DataMember]
         public virtual string ACIdentifier
@@ -48,7 +49,7 @@ namespace gip.core.datamodel
             {
             }
         }
-
+#endif
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999)]
@@ -69,6 +70,7 @@ namespace gip.core.datamodel
         /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
         /// </summary>
         /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
+#if !EFCR
         [ACPropertyInfo(9999)]
         [IgnoreDataMember]
         public virtual IACType ACType
@@ -91,7 +93,7 @@ namespace gip.core.datamodel
                 return this.ReflectGetACContentList();
             }
         }
-
+#endif
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
         /// 1. get references to components,
@@ -103,6 +105,7 @@ namespace gip.core.datamodel
         /// <param name="acUrl">String that adresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
+#if !EFCR
         public virtual object ACUrlCommand(string acUrl, params object[] acParameter)
         {
             return this.ReflectACUrlCommand(acUrl, acParameter);
@@ -118,7 +121,7 @@ namespace gip.core.datamodel
         {
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
-
+#endif
         /// <summary>
         /// Returns the parent object
         /// </summary>
@@ -139,6 +142,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="rootACObject">Object for creating a realtive path to it</param>
         /// <returns>ACUrl as string</returns>
+#if !EFCR
         public virtual string GetACUrl(IACObject rootACObject = null)
         {
             return this.ReflectGetACUrl(rootACObject);
@@ -157,6 +161,7 @@ namespace gip.core.datamodel
         {
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
+#endif
         #endregion
 
         #region IACObjectEntity
@@ -210,11 +215,12 @@ namespace gip.core.datamodel
         /// <summary>Check if entity-object can be deleted from the database</summary>
         /// <param name="database">Entity-Framework databasecontext</param>
         /// <returns>If deletion is not allowed or the validation failed a message is returned. NULL if sucessful.</returns>
+#if !EFCR
         public virtual MsgWithDetails IsEnabledDeleteACObject(IACEntityObjectContext database)
         {
             return this.ReflectIsEnabledDelete();
         }
-
+#endif
 
         /// <summary>
         /// Returns a related EF-Object which is in a Child-Relationship to this.
@@ -272,9 +278,9 @@ namespace gip.core.datamodel
             }
             return null;
         }
-        #endregion
+#endregion
 
-        #region IACEntityProperty
+#region IACEntityProperty
         /// <summary>
         /// Gets or sets the <see cref="System.Object"/> with the specified property.
         /// </summary>
@@ -350,7 +356,9 @@ namespace gip.core.datamodel
             {
                 if (_ACPropertyManager == null)
                 {
+#if !EFCR
                     _ACPropertyManager = new ACPropertyManager(this, ACType as gip.core.datamodel.ACClass);
+#endif
                 }
                 return _ACPropertyManager;
             }
@@ -368,7 +376,7 @@ namespace gip.core.datamodel
         //        return GetConfigForConfigPoint(C_DocumentationList_KeyACUrl);
         //    }
         //}
-
+#if !EFCR
         [ACPropertyPointConfig(9999, "", typeof(ACComposition), "en{'Bussinessobject'}de{'Bussinessobjekt'}")]
         public IEnumerable<IACConfig> BussinessobjectList
         {
@@ -377,12 +385,13 @@ namespace gip.core.datamodel
                 return this.GetConfigByKeyACUrl(Const.KeyACUrl_BusinessobjectList);
             }
         }
+#endif
         #endregion
 
         #region private members
         [IgnoreDataMember]
         ACPropertyManager _ACPropertyManager = null;
-        #endregion end private members
+#endregion end private members
     }
 }
 

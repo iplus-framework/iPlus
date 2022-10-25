@@ -18,6 +18,7 @@ namespace gip.core.datamodel
     /// <summary>
     /// Table that stores information about the assemblies, that were registered to the iPlus-Type-System.
     /// </summary>
+#if !EFCR
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Assembly'}de{'Assembly'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
     [ACPropertyEntity(1, "AssemblyName", "en{'Assembly name'}de{'Assembly Name'}","", "", true)]
     [ACPropertyEntity(2, "LastReflectionDate", "en{'Last reflection'}de{'Letzte Reflektion'}","", "", true)]
@@ -28,13 +29,14 @@ namespace gip.core.datamodel
     {
         public const string ClassName = "ACAssembly";
 
-        #region New/Delete
+    #region New/Delete
         /// <summary>
         /// News the AC object.
         /// </summary>
         /// <param name="database">The database.</param>
         /// <param name="parentACObject">The parent AC object.</param>
         /// <returns>ACAssembly.</returns>
+#if !EFCR
         public static ACAssembly NewACObject(Database database, IACObject parentACObject)
         {
             // Bei Systembelegung gibt es keine Vorbelegung, da hier kein Customizing erwünscht ist
@@ -42,15 +44,16 @@ namespace gip.core.datamodel
             entity.ACAssemblyID = Guid.NewGuid();
             return entity;
         }
+#endif
+    #endregion
 
-        #endregion
-
-        #region IACObject Member
+    #region IACObject Member
 
         /// <summary>
         /// Gets the AC URL.
         /// </summary>
         /// <value>The AC URL.</value>
+#if !EFCR
         [ACPropertyInfo(9999)]
         public string ACUrl
         {
@@ -59,10 +62,10 @@ namespace gip.core.datamodel
                 return GetACUrl();
             }
         }
+#endif
+    #endregion
 
-        #endregion
-
-        #region IACObjectEntity Members
+    #region IACObjectEntity Members
         /// <summary>
         /// Gets the key AC identifier.
         /// </summary>
@@ -77,6 +80,7 @@ namespace gip.core.datamodel
 
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
+#if !EFCR
         [ACPropertyInfo(4, "", "en{'Description'}de{'ACCaption'}")]
         public override string ACCaption
         {
@@ -85,7 +89,8 @@ namespace gip.core.datamodel
                 return AssemblyName;
             }
         }
-
-        #endregion
+#endif
+    #endregion
     }
+#endif
 }

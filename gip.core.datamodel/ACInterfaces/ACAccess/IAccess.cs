@@ -12,7 +12,6 @@
 // <summary></summary>
 // ***********************************************************************
 using System.Linq;
-using System.Data.Objects;
 using System.Collections;
 using System.ComponentModel;
 
@@ -44,6 +43,7 @@ namespace gip.core.datamodel
         IEnumerable NavObjectList { get; }
 
 
+#if !EFCR
         /// <summary>Executes a Query according to the filter and sort entries in ACQueryDefinition the result is copied to the NavObjectList.</summary>
         /// <param name="parentACObject">Reference to a database context</param>
         /// <param name="mergeOption">The merge option.</param>
@@ -56,7 +56,7 @@ namespace gip.core.datamodel
         /// <param name="mergeOption">The merge option.</param>
         /// <returns>True, if query was successful</returns>
         bool NavSearch(MergeOption mergeOption = MergeOption.AppendOnly);
-
+#endif
 
         /// <summary>
         /// Executes a Query to the NavObjectList
@@ -64,6 +64,7 @@ namespace gip.core.datamodel
         bool NavSearchInObjectList();
 
 
+#if !EFCR
         /// <summary>Executes a Query according to the filter and sort entries in ACQueryDefinition without changing the NavObjectList. The result is returned directly.</summary>
         /// <param name="searchWord">The search word.</param>
         /// <param name="mergeOption">The merge option.</param>
@@ -76,7 +77,7 @@ namespace gip.core.datamodel
         /// <param name="mergeOption">The merge option.</param>
         /// <returns>The first element in the result</returns>
         object OneTimeSearchFirstOrDefault(string searchWord, MergeOption mergeOption = MergeOption.AppendOnly);
-
+#endif
 
         /// <summary>
         /// Returns the count of objects in NavObjectList.

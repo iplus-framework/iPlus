@@ -33,6 +33,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="acClass">The ac class.</param>
         /// <param name="User">The user.</param>
+#if !EFCR  
         public ClassRightManager(ACClass acClass, VBUser User)
         {
             if (!User.IsSuperuser)
@@ -83,7 +84,7 @@ namespace gip.core.datamodel
                 _IsSuperuser = true;
             }
         }
-
+#endif
         /// <summary>
         /// Gets or sets the AC class ID.
         /// </summary>

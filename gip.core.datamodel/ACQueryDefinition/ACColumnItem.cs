@@ -23,6 +23,7 @@ namespace gip.core.datamodel
     /// <summary>
     /// Class ACColumnItem
     /// </summary>
+    #if !EFCR
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACColumnItem'}de{'ACColumnItem'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     // 1 PropertyName
@@ -121,6 +122,7 @@ namespace gip.core.datamodel
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
         /// </summary>
         /// <value> A nullable list ob IACObjects.</value>
+#if !EFCR
         public IEnumerable<IACObject> ACContentList
         {
             get
@@ -155,7 +157,7 @@ namespace gip.core.datamodel
         {
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
-
+#endif
         /// <summary>
         /// Returns the parent object
         /// </summary>
@@ -199,4 +201,6 @@ namespace gip.core.datamodel
 
         #endregion
     }
+#endif
+
 }

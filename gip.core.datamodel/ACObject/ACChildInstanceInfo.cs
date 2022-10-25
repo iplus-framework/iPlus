@@ -19,7 +19,6 @@ using gip.core.datamodel;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Data;
-using System.Data.Objects.DataClasses;
 using System.Transactions;
 using System.Runtime.Serialization;
 
@@ -50,8 +49,10 @@ namespace gip.core.datamodel
             if (component.ParentACComponent != null)
                 _ACUrlParent = component.ParentACComponent.GetACUrl();
             _ACIdentifier = component.ACIdentifier;
+#if !EFCR
             _ACType = new ACRef<ACClass>(component.ComponentClass, true);
             _Content = new ACRef<IACObject>(component.Content, true);
+#endif
         }
 
         /// <summary>
@@ -61,10 +62,12 @@ namespace gip.core.datamodel
         /// <param name="contextOfContent">Content of the context of.</param>
         public void AttachTo(Database contextOfACType, Database contextOfContent)
         {
+#if !EFCR
             if (_ACType != null)
                 _ACType.AttachTo(contextOfACType);
             if (_Content != null)
                 _Content.AttachTo(contextOfContent);
+#endif
             if (Childs.Count > 0)
             {
                 foreach (ACChildInstanceInfo child in Childs)
@@ -118,6 +121,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// The _ AC type
         /// </summary>
+#if !EFCR
         [DataMember]
         private ACRef<ACClass> _ACType;
 
@@ -134,7 +138,6 @@ namespace gip.core.datamodel
                 return _ACType;
             }
         }
-
         /// <summary>
         /// The _ content
         /// </summary>
@@ -154,7 +157,7 @@ namespace gip.core.datamodel
                 return _Content;
             }
         }
-
+#endif
         /// <summary>
         /// The _ childs
         /// </summary>
@@ -199,8 +202,10 @@ namespace gip.core.datamodel
         {
             get
             {
+#if !EFCR
                 if(ACType != null && ACType.Value != null && ACType.Value is ACClass)
                     return ((ACClass)ACType.Value).ACCaption;
+#endif
                 return ACIdentifier;
             }
         }
@@ -213,8 +218,10 @@ namespace gip.core.datamodel
         [DataMember]
         public bool OnlyWorkflows { get; set; }
 
+#if !EFCR
         [DataMember]
         public ACRef<ACClass> TypeOfRoots { get; set; }
+#endif
 
         [DataMember]
         public Guid[] ACRequestIDs { get; set; }

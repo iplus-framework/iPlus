@@ -22,6 +22,7 @@ namespace gip.core.datamodel
     /// <summary>
     /// Class ACCommandMsg
     /// </summary>
+#if !EFCR
     [DataContract]
     [ACSerializeableInfo]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACCommandMsg'}de{'ACCommandMsg'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
@@ -29,7 +30,7 @@ namespace gip.core.datamodel
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACCommandMsg", "en{'ACCommandMsg'}de{'ACCommandMsg'}", typeof(ACCommandMsg), "ACCommandMsg", Const.ACCaptionPrefix, Const.ACCaptionPrefix)]
     public class ACCommandMsg : ACCommand
     {
-        #region c´tors
+    #region c´tors
         /// <summary>
         /// Initializes a new instance of the <see cref="ACCommandMsg"/> class.
         /// </summary>
@@ -44,7 +45,7 @@ namespace gip.core.datamodel
             ACUrlInfo = acUrlInfo;
             ACComment = acComment;
         }
-        #endregion
+    #endregion
 
         /// <summary>
         /// The _ AC URL info
@@ -65,7 +66,9 @@ namespace gip.core.datamodel
             set
             {
                 _ACUrlInfo = value;
+#if !EFCR
                 OnPropertyChanged("ACUrlInfo");
+#endif
             }
         }
 
@@ -88,11 +91,15 @@ namespace gip.core.datamodel
             set
             {
                 _ACComment = value;
+#if !EFCR
                 OnPropertyChanged("ACComment");
+#endif
             }
         }
     }
+#endif
 
+#if !EFCR
     /// <summary>
     /// Class ACCommandMsgList
     /// </summary>
@@ -100,4 +107,5 @@ namespace gip.core.datamodel
     public class ACCommandMsgList : List<ACCommandMsg>
     {
     }
+#endif
 }

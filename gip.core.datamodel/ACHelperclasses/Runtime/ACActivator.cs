@@ -145,6 +145,7 @@ namespace gip.core.datamodel
         /// <param name="acIdentifier">The ac identifier.</param>
         /// <param name="propagateException">The ac identifier.</param>
         /// <returns>IACObjectWithInit.</returns>
+ #if !EFCR
         public static IACObjectWithInit CreateInstance(ACClass acClass, object content, IACObjectWithInit acComponentParent, ACValueList parameter, Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic, Type acObjectType = null, string acIdentifier = "", bool propagateException = false)
         {
             string parentACIdentifier = acComponentParent != null ? acComponentParent.ACIdentifier : "";
@@ -219,6 +220,7 @@ namespace gip.core.datamodel
 
                 if (!newACObject.ACInit(startChildMode))
                 {
+
                     string message = String.Format("ACInit(startChildMode) refused: {0}", acClass.GetACUrl());
                     if ((Database.Root != null) && (Database.Root.Messages != null))
                         Database.Root.Messages.LogError(acClass.GetACUrl(), "ACActivator.CreateInstance()", message);
@@ -231,11 +233,13 @@ namespace gip.core.datamodel
                         return null;
                 }
 
+#if !EFCR
 #if DEBUG
                 if (DiagWFLoadingCount > 0 && (Database.Root != null) && (Database.Root.Messages != null))
                     gip.core.datamodel.Database.Root.Messages.LogDebug("ACActivator", recycled ? "End ACInit(Pool)" : "End ACInit(New)",
                         String.Format("Start={0:dd.MM.yyyy HH:mm:ss.ffff}; ThreadID={1}; Class={2}; InstanceCreationDepth={3}; ActivatingThread={4};",
                         DateTime.Now, Thread.CurrentThread.ManagedThreadId, acClass.ACIdentifier, currentThreadInACInit.InstanceDepth, currentThreadInACInit.Thread.ManagedThreadId));
+#endif
 #endif
 
                 if (newACObject is IACComponent && ((IACComponent)newACObject).IsProxy)
@@ -268,6 +272,7 @@ namespace gip.core.datamodel
                     newACObject.OnInitFailed(e);
                 if (e is ACCreateException)
                     throw e;
+#if !EFCR
                 string message = String.Format("ACClass not created: {0}, {1}", acClass.GetACUrl(), e.Message);
                 if ((Database.Root != null) && (Database.Root.Messages != null))
                 {
@@ -279,19 +284,22 @@ namespace gip.core.datamodel
                     }
                     Database.Root.Messages.LogException(acClass.GetACUrl(), "ACActivator.CreateInstance()", e.StackTrace);
                 }
+
                 if (propagateException)
                     throw new ACCreateException(newACObject, message, e);
                 else
                     return null;
+#endif
             }
         }
-
+#endif
 
         /// <summary>
         /// Gets the type of the AC object.
         /// </summary>
         /// <param name="acClass">The ac class.</param>
         /// <returns>Type.</returns>
+#if !EFCR
         public static Type GetACObjectType(ACClass acClass)
         {
             if (acClass.BaseClassWithASQN == null)
@@ -310,6 +318,7 @@ namespace gip.core.datamodel
             }
             return Type.GetType(acClass.BaseClassWithASQN.AssemblyQualifiedName);
         }
+#endif
 
         #region public Members
         /// <summary>
@@ -381,6 +390,8 @@ namespace gip.core.datamodel
         {
             if (currentActivatingThread.InstanceDepth <= 0)
             {
+#if !EFCR
+
 #if DEBUG
                 if (DiagWFLoadingCount > 0 && (Database.Root != null) && (Database.Root.Messages != null))
                     gip.core.datamodel.Database.Root.Messages.LogDebug("ACActivator", "RunPostInit()",
@@ -421,6 +432,7 @@ namespace gip.core.datamodel
                         DateTime.Now, Thread.CurrentThread.ManagedThreadId, acClass.ACIdentifier, 0, currentActivatingThread.Thread.ManagedThreadId));
 #endif
 
+#endif
             }
         }
 
@@ -460,7 +472,7 @@ namespace gip.core.datamodel
         {
             CurrentDeInitializingThread.PostOperationsQueue.Add(action);
         }
-        #endregion
+#endregion
 
 
 #if DEBUG

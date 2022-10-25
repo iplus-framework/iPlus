@@ -20,7 +20,6 @@ using System.Runtime.Serialization;
 using System.IO;
 using System.ComponentModel;
 using System.Xml;
-using System.Data.Objects.DataClasses;
 using System.Collections.Specialized;
 using System.Threading;
 
@@ -105,8 +104,10 @@ namespace gip.core.datamodel
                 {
                     if (_Serializer != null)
                         return _Serializer;
+#if !EFCR
                     if (ACKnownTypes.GetKnownType() != null)
                         _Serializer = new DataContractSerializer(typeof(List<ACPropertyExt>), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+#endif
                     else
                         _Serializer = new DataContractSerializer(typeof(List<ACPropertyExt>));
                     return _Serializer;
@@ -115,6 +116,7 @@ namespace gip.core.datamodel
         }
 
 
+#if !EFCR
         /// <summary>
         /// Gets the database entity.
         /// </summary>
@@ -135,12 +137,13 @@ namespace gip.core.datamodel
                 return _EntityProperty as EntityObject;
             }
         }
+#endif
 
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
 
-        #region public
+#region public
 
         /// <summary>
         /// Deserializes this instance.
@@ -329,7 +332,9 @@ namespace gip.core.datamodel
                 }
                 else
                 {
+#if !EFCR
                     throw new MissingMemberException(String.Format("Class/Entity {0} doesn't have a virtual extended Property with Name {1}. Please extend this Entity with this Propertyname in iPlus development environment.", _ACClass.ACIdentifier, acIdentifier));
+#endif
                 }
             }
             return typeExt;
@@ -396,9 +401,9 @@ namespace gip.core.datamodel
             acCommandMsgList.Add(new ACCommandMsg(acUrlInfo, acComment, acCaption, acUrl, parameterList));
             SetACPropertyExtValue(GetOrCreateACPropertyExtByName("ACCommandMsgList"), acCommandMsgList);
         }
-        #endregion
+#endregion
 
-        #region Private methods
+#region Private methods
         /// <summary>
         /// News the name of the AC property ext by.
         /// </summary>
@@ -489,6 +494,7 @@ namespace gip.core.datamodel
             if (_EntityProperty is ACClassProperty)
             {
                 var entityProperty = _EntityProperty as ACClassProperty;
+#if !EFCR
                 if (entityProperty.ConfigACClass != null && entityProperty.ConfigACClass.ACIdentifier == acName)
                 {
                     ACPropertyExt acPropertyExt = new ACPropertyExt();
@@ -518,7 +524,7 @@ namespace gip.core.datamodel
                     }
                     return acPropertyExt;
                 }
-
+#endif
             }
             return null;
         }
@@ -632,11 +638,11 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region IACObject
+#region IACObject
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
         public string ACIdentifier
@@ -729,6 +735,6 @@ namespace gip.core.datamodel
         {
             return false;
         }
-        #endregion
+#endregion
     }
 }

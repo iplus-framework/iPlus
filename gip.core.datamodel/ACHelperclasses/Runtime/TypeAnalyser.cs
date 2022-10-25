@@ -18,7 +18,6 @@ using System.Text;
 using System.Reflection;
 using System.IO;
 using System.Collections;
-using System.Data.Objects.DataClasses;
 using System.Runtime;
 using System.Runtime.CompilerServices;
 using System.Collections.Concurrent;
@@ -42,13 +41,16 @@ namespace gip.core.datamodel
 
         private static readonly object _Lock = new object();
 
+#if !EFCR
         public static readonly string _TypeName_EntityCollection = typeof(System.Data.Objects.DataClasses.EntityCollection<>).FullName;
+#endif
         public static readonly string _TypeName_IEnumerable = typeof(System.Collections.Generic.IEnumerable<>).FullName;
         public static readonly string _TypeName_GenericList = typeof(System.Collections.Generic.List<>).FullName;
         public static readonly string _TypeName_IQueryable = typeof(System.Linq.IQueryable<>).FullName;
         public static readonly string _TypeName_BindingList = typeof(System.ComponentModel.BindingList<>).FullName;
+#if !EFCR
         public static readonly string _TypeName_ObjectSet = typeof(System.Data.Objects.ObjectSet<>).FullName;
-
+#endif
         public const string _TypeName_Boolean = "System.Boolean";
         public const string _TypeName_Byte = "System.Byte";
         public const string _TypeName_SByte = "System.SByte";
@@ -67,6 +69,7 @@ namespace gip.core.datamodel
         public const string _TypeName_TimeSpan = "System.TimeSpan";
         public const string _TypeName_Guid = "System.Guid";
 
+#if !EFCR
         public static bool IsEnumerable(string fullNameOfGenericType)
         {
             return fullNameOfGenericType == _TypeName_EntityCollection
@@ -75,6 +78,7 @@ namespace gip.core.datamodel
                 || fullNameOfGenericType == _TypeName_IQueryable
                 || fullNameOfGenericType == _TypeName_BindingList;
         }
+#endif
 
         public static bool IsNumericType(Type typeOfProp)
         {
@@ -90,12 +94,12 @@ namespace gip.core.datamodel
                     || (typeOfProp.FullName == TypeAnalyser._TypeName_Double)
                     || (typeOfProp.FullName == TypeAnalyser._TypeName_Single);
         }
-        #endregion
+#endregion
 
 
-        #region Methods
+#region Methods
 
-        #region Type-Resolving
+#region Type-Resolving
         /// <summary>
         /// Gets the type in assembly.
         /// </summary>
@@ -429,10 +433,10 @@ namespace gip.core.datamodel
             }
             return null;
         }
-        #endregion
+#endregion
 
         
-        #region Property-Access through Reflection
+#region Property-Access through Reflection
         public static object GetValue(this object obj, string acUrlOrPropPath)
         {
             if (obj == null || String.IsNullOrEmpty(acUrlOrPropPath))
@@ -493,9 +497,9 @@ namespace gip.core.datamodel
             }
             return pi;
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
 
 #if DIAGNOSE2

@@ -21,6 +21,7 @@ namespace gip.core.datamodel
     /// <summary>
     /// Class ACObjectItemWCheckBox
     /// </summary>
+    #if !EFCR
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACObjectItemWCheckBox'}de{'ACObjectItemWCheckBox'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     // 1 ACCaption
     // 2 IsChecked
@@ -81,4 +82,5 @@ namespace gip.core.datamodel
         #endregion
 
     }
+#endif
 }

@@ -20,9 +20,7 @@ using System.Runtime.Serialization;
 using System.Xml;
 using System.IO;
 using System.ComponentModel;
-using System.Data.Objects.DataClasses;
 using System.Collections;
-using System.Data.Objects;
 
 namespace gip.core.datamodel
 {
@@ -57,12 +55,13 @@ namespace gip.core.datamodel
         /// <param name="reflectedObject">The reflected object.</param>
         /// <param name="acName">Name of the ac.</param>
         /// <returns>IACType.</returns>
+#if !EFCR
         public static IACType ReflectGetACTypeInfo(this IACObject reflectedObject, string acName)
         {
             ACClass typeAsACClass = reflectedObject.ACType as ACClass;
             return typeAsACClass != null ? typeAsACClass.Properties.Where(c => c.ACIdentifier == acName).FirstOrDefault() : null;
         }
-
+#endif
         /// <summary>
         /// Reflects the get AC URL.
         /// </summary>
@@ -132,6 +131,7 @@ namespace gip.core.datamodel
         /// <param name="acUrl">String that adresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
+#if !EFCR
         public static object ReflectACUrlCommand(this IACObject reflectedObject, string acUrl, params Object[] acParameter)
         {
             if (string.IsNullOrEmpty(acUrl))
@@ -351,6 +351,8 @@ namespace gip.core.datamodel
             }
         }
 
+#endif
+
         /// <summary>
         /// Reflects the is enabled AC URL command.
         /// </summary>
@@ -358,6 +360,7 @@ namespace gip.core.datamodel
         /// <param name="acUrl">The ac URL.</param>
         /// <param name="acParameter">The ac parameter.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+#if !EFCR
         public static bool ReflectIsEnabledACUrlCommand(this IACObject reflectedObject, string acUrl, params Object[] acParameter)
         {
             if (string.IsNullOrEmpty(acUrl))
@@ -394,6 +397,7 @@ namespace gip.core.datamodel
                 return false;
             }
         }
+#endif
 
         /// <summary>
         /// Reflects the AC URL command assembly.
@@ -541,10 +545,12 @@ namespace gip.core.datamodel
 
             // Falls AutoEnabled, dann gibt es keine IsEnabled-Methode und das 
             // Komando ist immer verfügbar
+#if !EFCR
             if (acClassMethod.IsAutoenabled)
             {
                 return true;
             }
+#endif
             // Abfragen eines Werts
             // Mögliche Fehlerquellen:
             // 1. Entsprechende IsEnabled-Methode ist nicht vorhanden
@@ -601,6 +607,7 @@ namespace gip.core.datamodel
                             if (path == Const.Value && reflectedObject is IACContainer)
                             {
                                 var acEntityProperty = reflectedObject as IACContainer;
+#if !EFCR
                                 var query = acEntityProperty.ValueTypeACClass.Properties.Where(c => c.ACIdentifier == part);
                                 if (query.Any())
                                 {
@@ -609,10 +616,12 @@ namespace gip.core.datamodel
                                     //path += "[" + part + "]";
                                     rightControlMode = Global.ControlModes.Enabled;
                                 }
+#endif
                             }
                             else if (path == "ConfigValue" && reflectedObject is ACClassProperty)
                             {
                                 var acEntityProperty = reflectedObject as ACClassProperty;
+#if !EFCR
                                 var query = acEntityProperty.ConfigACClass.Properties.Where(c => c.ACIdentifier == part);
                                 if (query.Any())
                                 {
@@ -621,6 +630,7 @@ namespace gip.core.datamodel
                                     //path += "[" + part + "]";
                                     rightControlMode = Global.ControlModes.Enabled;
                                 }
+#endif
                             }
                             else
                             {
@@ -711,6 +721,8 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="reflectedObject">The reflected object.</param>
         /// <returns>Msg.</returns>
+
+#if !EFCR
         public static MsgWithDetails ReflectIsEnabledDelete(this IACObject reflectedObject)
         {
             MsgWithDetails msg = null;
@@ -762,15 +774,17 @@ namespace gip.core.datamodel
                         }
                     }
                 }
+
             }
             return msg;
         }
-
+#endif
         /// <summary>
         /// Reflects the get AC content list.
         /// </summary>
         /// <param name="reflectedObject">The reflected object.</param>
         /// <returns>IEnumerable{IACObject}.</returns>
+#if !EFCR
         public static IEnumerable<IACObject> ReflectGetACContentList(this IACObject reflectedObject)
         {
             ACClass typeAsACClass = reflectedObject.ACType as ACClass;
@@ -791,7 +805,7 @@ namespace gip.core.datamodel
 
             return acContentList;
         }
-
+#endif
         /// <summary>
         /// Reflects the get menu.
         /// </summary>
@@ -805,6 +819,7 @@ namespace gip.core.datamodel
             ACClass classACType = reflectedObject.ACType as ACClass;
             if (classACType != null)
             {
+#if !EFCR
                 var methods = classACType.Methods.Where(c => c.IsInteraction).OrderBy(c => c.SortIndex).ThenBy(c => c.ACCaption);
 
                 foreach (var method in methods)
@@ -828,6 +843,7 @@ namespace gip.core.datamodel
                         }
                     }
                 }
+#endif
             }
             return acMenuItemList;
         }
@@ -885,7 +901,8 @@ namespace gip.core.datamodel
                 //if (acClassProperty.AssemblyQualifiedName == "Item")
                 //    continue;
 
-                // Falls kein Defaultwert gesetzt und Feldd nullable, dann belasse Feld null
+                    // Falls kein Defaultwert gesetzt und Feldd nullable, dann belasse Feld null
+#if !EFCR
                 if (acClassProperty.IsNullable && (acClassProperty.XMLValue == null))
                     continue;
                 PropertyInfo pi = entityType.GetProperty(acClassProperty.ACIdentifier);
@@ -942,6 +959,9 @@ namespace gip.core.datamodel
                     }
 
                 }
+#endif
+
+#if !EFCR
                 else
                 {
                     if (!pi.CanWrite)
@@ -956,6 +976,7 @@ namespace gip.core.datamodel
                         if (!pi.PropertyType.IsValueType && !isString)
                             continue;
                         // Falls Default-Wert gesetzt
+#if !EFCR
                         if (acClassProperty.XMLValue != null)
                         {
                             if (pi.PropertyType.IsEnum)
@@ -963,8 +984,10 @@ namespace gip.core.datamodel
                             else
                                 pi.SetValue(acObject, ACConvert.ChangeType(acClassProperty.XMLValue, pi.PropertyType, true, Database.GlobalDatabase), null);
                         }
+#endif
                         // Falls kein Default-Wert gesetzt und Feld nicht nullbar ist und keine Eingabepflicht besteht,
                         // dann darf das Feld automatisch bestückt werden
+#if !EFCR
                         else if (!acClassProperty.IsNullable && !acClassProperty.MinLength.HasValue)
                         {
                             if (pi.PropertyType.IsEnum)
@@ -988,6 +1011,7 @@ namespace gip.core.datamodel
                                 }
                             }
                         }
+#endif
                     }
                     catch (Exception e)
                     {
@@ -1003,6 +1027,7 @@ namespace gip.core.datamodel
                         // TODO: Erst mal ignorieren, später vielleicht mal ne Korrektur einbauen
                     }
                 }
+#endif
             }
         }
 
@@ -1014,6 +1039,8 @@ namespace gip.core.datamodel
         /// <param name="ose"></param>
         /// <param name="changeLogList"></param>
         /// <param name="database"></param>
+
+#if !EFCR
         public static IList<Msg> CheckACObject(this IACObject acObject, ObjectStateEntry ose, List<Tuple<ACChangeLog, int>> changeLogList, Database database = null)
         {
             if (acObject == null)
@@ -1036,8 +1063,10 @@ namespace gip.core.datamodel
             IEnumerable<string> modifiedProps = ose.GetModifiedProperties();
 
             Type entityType = acObject.GetType();
+
             foreach (ACClassProperty acClassProperty in entitySchema.Properties)
             {
+
                 //if (   acClassProperty.AssemblyQualifiedName == "Item" 
                 //    || (acObject is IACConfig && acClassProperty.ACIdentifier == Const.Value))
                 if (acObject is IACConfig && acClassProperty.ACIdentifier == Const.Value)
@@ -1046,8 +1075,10 @@ namespace gip.core.datamodel
                         ProcessChangeLog(acObject, entitySchema, acClassProperty, modifiedProps, ose, changeLogList);
                     continue;
                 }
-                PropertyInfo pi = entityType.GetProperty(acClassProperty.ACIdentifier);
-                Type typeOfProperty = acClassProperty.ObjectType;
+
+            PropertyInfo pi = entityType.GetProperty(acClassProperty.ACIdentifier);
+
+            Type typeOfProperty = acClassProperty.ObjectType;
 
                 if (pi != null)
                 {
@@ -1059,6 +1090,7 @@ namespace gip.core.datamodel
                     // Keine Enumerationen/Relationship-Attribute überprüfbar
                     if (typeIEnumerable.IsAssignableFrom(typeOfProperty) && !typeString.IsAssignableFrom(typeOfProperty))
                         continue;
+
 
                     Attribute attribute = pi.GetCustomAttribute(typeof(EdmRelationshipNavigationPropertyAttribute));
                     if (attribute != null)
@@ -1090,7 +1122,6 @@ namespace gip.core.datamodel
                     }
 
                     //acClassProperty.AutoRefresh();
-
                     ProcessChangeLog(acObject, entitySchema, acClassProperty, modifiedProps, ose, changeLogList);
                 }
 
@@ -1099,8 +1130,10 @@ namespace gip.core.datamodel
                 {
                     if (pi != null)
                         valueToCheck = pi.GetValue(acObject, null);
+#if !EFCR
                     else
                         valueToCheck = acObject.ACUrlCommand(acClassProperty.ACIdentifier);
+#endif
                 }
                 catch (Exception e)
                 {
@@ -1112,6 +1145,7 @@ namespace gip.core.datamodel
                         Database.Root.Messages.LogException("IACObjectReflectionExtension", "CheckACObject", msg);
                 }
 
+#if !EFCR
                 Global.ControlModesInfo checkInfo = CheckPropertyMinMax(acClassProperty, valueToCheck, acObject, typeOfProperty, database);
                 if (checkInfo.Message != null)
                 {
@@ -1120,10 +1154,14 @@ namespace gip.core.datamodel
                     checkInfo.Message.Source = acObject.GetACUrl();
                     resultList.Add(checkInfo.Message);
                 }
+#endif
             }
             return resultList;
         }
 
+#endif
+
+#if !EFCR
         public static Global.ControlModesInfo CheckPropertyMinMax(ACClassProperty acClassProperty, object valueToCheck, IACObject parentObject, Type typeOfProperty = null, Database databaseForMessageText = null)
         {
             return CheckPropertyMinMax(acClassProperty, valueToCheck, parentObject,
@@ -1131,7 +1169,7 @@ namespace gip.core.datamodel
                                         acClassProperty.IsNullable, acClassProperty.MinLength, acClassProperty.MaxLength,
                                         acClassProperty.MinValue, acClassProperty.MaxValue, databaseForMessageText);
         }
-
+#endif
 
         public static Global.ControlModesInfo CheckPropertyMinMax(ACClassProperty acClassProperty, object valueToCheck, IACObject parentObject, Type typeOfProperty,
                                                                     bool IsNullable, Nullable<int> MinLength, Nullable<int> MaxLength,
@@ -1147,6 +1185,7 @@ namespace gip.core.datamodel
             bool isString = typeof(String).IsAssignableFrom(typeOfProperty);
 
             bool bNotEditableEntityKey = false;
+#if !EFCR
             if (parentObject != null)
             {
                 EntityObject entityObject = parentObject as EntityObject;
@@ -1162,6 +1201,7 @@ namespace gip.core.datamodel
                     }
                 }
             }
+#endif
 
             Global.ControlModesInfo newMode = Global.ControlModesInfo.Enabled;
             if (valueToCheck == null)
@@ -1175,8 +1215,10 @@ namespace gip.core.datamodel
                     if (databaseForMessageText != null)
                         newMode.Message = new Msg
                         {
+#if !EFCR
                             ACIdentifier = acClassProperty.ACIdentifier,
                             Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50000", acClassProperty.ACIdentifier, acClassProperty.ACCaption),
+#endif
                             MessageLevel = eMsgLevel.Error
                         };
                 }
@@ -1186,8 +1228,10 @@ namespace gip.core.datamodel
                     if (databaseForMessageText != null)
                         newMode.Message = new Msg
                         {
+#if !EFCR
                             ACIdentifier = acClassProperty.ACIdentifier,
                             Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50001", acClassProperty.ACIdentifier, acClassProperty.ACCaption, MinLength.Value),
+#endif
                             MessageLevel = eMsgLevel.Error
                         };
                 }
@@ -1216,8 +1260,10 @@ namespace gip.core.datamodel
                         if (databaseForMessageText != null)
                             newMode.Message = new Msg
                             {
+#if !EFCR
                                 ACIdentifier = acClassProperty.ACIdentifier,
                                 Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50001", acClassProperty.ACIdentifier, acClassProperty.ACCaption, MinLength.Value),
+#endif
                                 MessageLevel = eMsgLevel.Error
                             };
                         return newMode;
@@ -1232,8 +1278,10 @@ namespace gip.core.datamodel
                             if (databaseForMessageText != null)
                                 newMode.Message = new Msg
                                 {
+#if !EFCR
                                     ACIdentifier = acClassProperty.ACIdentifier,
                                     Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50002", acClassProperty.ACIdentifier, acClassProperty.ACCaption, MinLength.Value),
+#endif
                                     MessageLevel = eMsgLevel.Error
                                 };
                             return newMode;
@@ -1257,8 +1305,10 @@ namespace gip.core.datamodel
                             if (databaseForMessageText != null)
                                 newMode.Message = new Msg
                                 {
+#if !EFCR
                                     ACIdentifier = acClassProperty.ACIdentifier,
                                     Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50002", acClassProperty.ACIdentifier, acClassProperty.ACCaption, MinLength.Value),
+#endif
                                     MessageLevel = eMsgLevel.Error
                                 };
                             return newMode;
@@ -1299,8 +1349,10 @@ namespace gip.core.datamodel
                         if (databaseForMessageText != null)
                             newMode.Message = new Msg
                             {
+#if !EFCR
                                 ACIdentifier = acClassProperty.ACIdentifier,
                                 Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50003", acClassProperty.ACIdentifier, acClassProperty.ACCaption, acClassProperty.MaxLength.Value),
+#endif
                                 MessageLevel = eMsgLevel.Error
                             };
                     }
@@ -1310,6 +1362,7 @@ namespace gip.core.datamodel
                     }
                 }
                 // Falls Datenbankfeldlänge überschritten
+#if !EFCR
                 if (acClassProperty.DataTypeLength > 0)
                 {
                     string valueString = valueToCheck as String;
@@ -1329,6 +1382,7 @@ namespace gip.core.datamodel
                         newMode = Global.ControlModesInfo.Disabled;
                     }
                 }
+#endif
             }
             else
             {
@@ -1342,6 +1396,7 @@ namespace gip.core.datamodel
                         {
                             typeToConvert = Enum.GetUnderlyingType(typeOfProperty);
                         }
+#if !EFCR
                         if (MinValue.HasValue && ((valueToCheck as IComparable).CompareTo(System.Convert.ChangeType(MinValue, typeToConvert)) < 0))
                         {
                             newMode = Global.ControlModesInfo.EnabledWrong;
@@ -1364,6 +1419,7 @@ namespace gip.core.datamodel
                                     MessageLevel = eMsgLevel.Error
                                 };
                         }
+#endif
                         else if (newMode.Mode != Global.ControlModes.EnabledWrong && bNotEditableEntityKey)
                         {
                             Int64 valueAsInt64 = 0;
@@ -1397,7 +1453,7 @@ namespace gip.core.datamodel
             }
             return newMode;
         }
-
+#if !EFCR
         internal static void ProcessChangeLog(IACObject acObject, ACClass entitySchema, ACClassProperty acClassProperty, IEnumerable<string> modifiedProps, ObjectStateEntry ose,
                                              List<Tuple<ACChangeLog, int>> changeLogs)
         {
@@ -1434,6 +1490,7 @@ namespace gip.core.datamodel
                 }
             }
         }
+#endif
 
         public static IEnumerable<IACConfig> GetConfigByKeyACUrl(this IACObject reflectedObject, string keyACUrl)
         {

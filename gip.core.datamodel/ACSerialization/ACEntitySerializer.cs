@@ -18,7 +18,6 @@ using System.Xml.Linq;
 using System.Reflection;
 using System.Collections;
 using System.Runtime.Serialization;
-using System.Data.Objects.DataClasses;
 using gip.core.datamodel;
 using System.Text.RegularExpressions;
 
@@ -79,6 +78,7 @@ namespace gip.core.datamodel
         /// <param name="folderPath">The folder path.</param>
         /// <param name="withChilds">if set to <c>true</c> [with childs].</param>
         /// <returns>System.String.</returns>
+#if !EFCR
         public XElement SerializeACObject(IACObject acObject, ACQueryDefinition acQueryDefinition, string folderPath, bool withChilds = true)
         {
             if (acObject == null) 
@@ -217,7 +217,7 @@ namespace gip.core.datamodel
 
             return xDoc;
         }
-
+#endif
         #endregion
 
         #region Derialize XML
@@ -228,6 +228,7 @@ namespace gip.core.datamodel
         /// <param name="resource"></param>
         /// <param name="acFSItemParent"></param>
         /// <param name="paht">file name</param>
+#if !EFCR
         public void DeserializeXMLData(IResources resource, ACFSItem acFSItemParent, string paht)
         {
             XElement xDoc = XElement.Load(paht);
@@ -444,6 +445,7 @@ namespace gip.core.datamodel
             }
 
         }
+#endif
 
         #endregion
 
@@ -455,6 +457,7 @@ namespace gip.core.datamodel
         /// <param name="sqlInstanceInfo"></param>
         /// <param name="acQueryDefinitionIdentifier"></param>
         /// <returns></returns>
+#if !EFCR
         public DeserializedSQLDataModel GetDeserializeSQLDataModel(SQLInstanceInfo sqlInstanceInfo, string acQueryDefinitionIdentifier)
         {
             List<IACObject> acObjectList = null;
@@ -580,7 +583,7 @@ namespace gip.core.datamodel
                 }
             }
         }
-
+#endif
         #endregion
 
         #region Helper common mehtods
@@ -592,6 +595,7 @@ namespace gip.core.datamodel
         /// <param name="db"></param>
         /// <param name="acQueryDefACClass"></param>
         /// <returns></returns>
+#if !EFCR
         public static ACQueryDefinition FactoryImportACQueryDefinition(IACEntityObjectContext db, ACClass acQueryDefACClass)
         {
             ACValueList acValueList = new ACValueList();
@@ -601,7 +605,7 @@ namespace gip.core.datamodel
             acQueryDefinition.ACInit(Global.ACStartTypes.Manually);
             return acQueryDefinition;
         }
-
+#endif
         #endregion
 
     }

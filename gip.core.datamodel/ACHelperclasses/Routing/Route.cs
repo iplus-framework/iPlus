@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 
 namespace gip.core.datamodel
 {
+#if !EFCR
     [ACSerializeableInfo]
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Route'}de{'Route'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
@@ -150,6 +151,7 @@ namespace gip.core.datamodel
             foreach(RouteItem newSource in newSources)
             {
                 RouteItem oldSource = oldSources.FirstOrDefault(o => o.Equals(newSource));
+#if !EFCR
                 if (oldSource != null)
                 {
                     var key = CheckForFirstDifferentComponent(newSource.SourceKey, oldSource.SourceKey, oldRoute);
@@ -168,10 +170,12 @@ namespace gip.core.datamodel
                     }
                     return true;
                 }
+#endif
             }
             return false;
         }
 
+#if !EFCR
         private System.Data.EntityKey CheckForFirstDifferentComponent(System.Data.EntityKey newSource, System.Data.EntityKey oldSource, Route oldRoute)
         {
             var newSourceItems = this.Where(c => c.SourceKey == newSource);
@@ -199,7 +203,7 @@ namespace gip.core.datamodel
             }
             return null;
         }
-
+#endif
         public RouteItem GetRouteSource()
         {
             return this.FirstOrDefault(r => !this.Any(t => r.SourceKey == t.TargetKey));
@@ -342,4 +346,5 @@ namespace gip.core.datamodel
 
         #endregion
     }
+#endif
 }

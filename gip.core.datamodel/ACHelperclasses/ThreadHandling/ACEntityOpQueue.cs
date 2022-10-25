@@ -16,9 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Data.Objects;
 using System.Data;
-using System.Data.EntityClient;
 using System.Data.SqlClient;
 
 namespace gip.core.datamodel
@@ -44,9 +42,11 @@ namespace gip.core.datamodel
             : base(instanceName)
         {
             _SaveChangesWithoutValidation = saveChangesWithoutValidation;
+#if !EFCR
             var entityConnection = new EntityConnection(connectionString);
             entityConnection.Open();
             _Context = (T)Activator.CreateInstance(objectContextToCreate, new Object[] { entityConnection });
+#endif
             ACObjectContextManager.Add(_Context, instanceName);
             _AutoOpenClose = false;
         }
@@ -200,10 +200,12 @@ namespace gip.core.datamodel
                 }
             }
 
+#if !EFCR
             if (Context.IsSeparateIPlusContext && Context.ContextIPlus.SeparateConnection != null)
             {
                 using (ACMonitor.Lock(Context.ContextIPlus.QueryLock_1X000))
                 {
+
                     if (Context.ContextIPlus.Connection.State == ConnectionState.Open)
                         done = true;
                     else
@@ -227,6 +229,7 @@ namespace gip.core.datamodel
                     }
                 }
             }
+#endif
 
             return done;
         }
@@ -244,7 +247,9 @@ namespace gip.core.datamodel
                 {
                     try
                     {
+#if !EFCR
                         Context.ContextIPlus.Connection.Close();
+#endif
                         done = true;
                     }
                     catch (Exception e)
@@ -300,6 +305,7 @@ namespace gip.core.datamodel
                 {
                     if (Context.HasModifiedObjectStateEntries())
                     {
+#if !EFCR
                         MsgWithDetails msg = Context.ACSaveChanges(true, SaveOptions.AcceptAllChangesAfterSave, SaveChangesWithoutValidation);
                         if (msg != null)
                         {
@@ -326,6 +332,7 @@ namespace gip.core.datamodel
                         {
                             _SaveChangesRetriesA = 0;
                         }
+#endif
                     }
                 }
                 catch (Exception e)
@@ -350,6 +357,7 @@ namespace gip.core.datamodel
                     {
                         if (Context.ContextIPlus.HasModifiedObjectStateEntries())
                         {
+#if !EFCR
                             MsgWithDetails msg = Context.ContextIPlus.ACSaveChanges(true, SaveOptions.AcceptAllChangesAfterSave, SaveChangesWithoutValidation);
                             if (msg != null)
                             {
@@ -371,6 +379,7 @@ namespace gip.core.datamodel
                             {
                                 _SaveChangesRetriesB = 0;
                             }
+#endif
                         }
                     }
                     catch (Exception e)

@@ -559,7 +559,9 @@ namespace gip.core.datamodel
                 {
                     desc.AppendLine();
                     node.Thread.Suspend();
+#if !EFCR
                     stackTrace = new StackTrace(node.Thread, true);
+#endif
                     desc.AppendFormat("Stacktrace of Thread: {0}, {1}", node.Thread.Name, node.Thread.ManagedThreadId);
                     desc.AppendLine();
                     for (int i = 0; i < stackTrace.FrameCount; i++)

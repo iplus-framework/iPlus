@@ -272,6 +272,7 @@ namespace gip.core.datamodel
         public static ACMenuItemList CreateParentACMenuItem(ACClassMethod method, ACMenuItemList acMenuItemList)
         {
             ACMenuItem parentItem = null;
+#if !EFCR
             if (method.ContextMenuCategoryIndex != null && method.ContextMenuCategoryIndex != (short)Global.ContextMenuCategory.NoCategory)
             {
                 ACValueItem category = Global.ContextMenuCategoryList.FirstOrDefault(c => (short)c.Value == method.ContextMenuCategoryIndex);
@@ -305,16 +306,17 @@ namespace gip.core.datamodel
                         parentItem = acMenuItemList.FirstOrDefault(c => c.ACUrl == category.Value.ToString());
                 }
             }
+#endif
             return acMenuItemList;
         }
 
-        #endregion
+#endregion
 
-        #region Overrides
+#region Overrides
         public override string ToString()
         {
             return string.Format(@"{0}[{1}]", ACUrl, ACIdentifier);
         }
-        #endregion
+#endregion
     }
 }

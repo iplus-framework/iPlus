@@ -37,7 +37,7 @@ namespace gip.core.datamodel
         public DoWorkEventArgs DoWorkEventArgs { get; set; }
 
         #region project
-
+#if !EFCR
         public string ExportProject(ACEntitySerializer aCEntitySerializer, ACProject aCProject, ACQueryDefinition qryACProject, string rootFolder)
         {
             string folderPath = rootFolder + "\\" + aCProject.ACIdentifier;
@@ -68,7 +68,7 @@ namespace gip.core.datamodel
             DoExport(worker, doWorkEventArgs, aCEntitySerializer, qryACProject, qryACClass, aCProject, exportProjectItemRoot, arhiveDir, currentItem, totalItems);
             return subExportFolderName;
         }
-
+#endif
         public void DoPackage(string rootFolder, string subExportFolderName)
         {
             var arhiveDir = Path.Combine(rootFolder, subExportFolderName);
@@ -90,6 +90,7 @@ namespace gip.core.datamodel
         /// <param name="currentItem"></param>
         /// <param name="totalItems"></param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+#if !EFCR
         public bool ExportACClass(ACEntitySerializer aCEntitySerializer, ACQueryDefinition qryACClass, ACClassInfoWithItems projectItem, string folderPath, ref int currentItem, int totalItems)
         {
             if (BackgroundWorker != null && DoWorkEventArgs != null)
@@ -125,6 +126,7 @@ namespace gip.core.datamodel
 
             return returnChild;
         }
+#endif        
         #endregion
 
         #region export class parts
@@ -137,6 +139,7 @@ namespace gip.core.datamodel
         /// <param name="qryACClass"></param>
         /// <param name="folderPath"></param>
         /// <returns></returns>
+#if !EFCR
         public bool ExportACClass(ACEntitySerializer aCEntitySerializer, ACClass aCClass, ACQueryDefinition qryACClass, string folderPath)
         {
             if (!CheckOrCreateDirectory(folderPath))
@@ -459,10 +462,11 @@ namespace gip.core.datamodel
             }
             return true;
         }
-
+#endif
         #endregion
 
         #region Helper methods
+#if !EFCR
         public void ACQueryApplyUseExportFromTime(ACQueryDefinition queryDefinition)
         {
             ACFilterItem updateDateFilterItem = queryDefinition.ACFilterColumns.FirstOrDefault(x => x.ACIdentifier == Const.EntityUpdateDate);
@@ -477,7 +481,7 @@ namespace gip.core.datamodel
                 queryDefinition.ACFilterColumns.Add(updateDateFilterItem);
             }
         }
-
+#endif
         public void WriteAllText(string path, string contents, string acUrl)
         {
             if (IsPathValid(path))

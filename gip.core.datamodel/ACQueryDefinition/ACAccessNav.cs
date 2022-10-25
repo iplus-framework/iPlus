@@ -12,6 +12,7 @@ namespace gip.core.datamodel
     /// <typeparam name="T">Type of a EF-Class</typeparam>
     /// <seealso cref="gip.core.datamodel.ACAccess{T}"/>
     /// <seealso cref="gip.core.datamodel.IAccessNavT{T}"/>
+    #if !EFCR
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACAccessNav'}de{'ACAccessNav'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACAccessNav<T> : ACAccess<T>, IAccessNavT<T> where T : class
     {
@@ -103,7 +104,9 @@ namespace gip.core.datamodel
                 {
                     try
                     {
+#if !EFCR
                         _NavRowCurrent = _NavList.IndexOf(value);
+#endif
                     }
                     catch (Exception e)
                     {
@@ -168,8 +171,10 @@ namespace gip.core.datamodel
             {
                 return _NavRowCurrent;
             }
+#if !EFCR
             set
             {
+
                 if (_NavList.Count >= value + 1)
                 {
                     _NavRowCurrent = value;
@@ -180,17 +185,21 @@ namespace gip.core.datamodel
                     _NavRowCurrent = -1;
                 }
             }
+#endif
         }
+
         #endregion
 
 
         #region Methods
 
         #region override
+#if !EFCR
         protected override void OnPostNavSearch()
         {
             NavigateFirst();
         }
+#endif
         #endregion
 
 
@@ -198,6 +207,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Navigates to the first entry in the NavObjectList-Property.
         /// </summary>
+#if !EFCR
         [ACMethodCommand("Navigation", "en{'First'}de{'Erster'}", (short)MISort.NavigateFirst)]
         public void NavigateFirst()
         {
@@ -355,8 +365,10 @@ namespace gip.core.datamodel
                     acComponent.OnPropertyChanged(property.ACIdentifier);
             }
         }
+#endif
         #endregion
 
         #endregion
     }
+#endif
 }

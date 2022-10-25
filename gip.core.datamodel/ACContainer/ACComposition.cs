@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 
 namespace gip.core.datamodel
 {
+
     /// <summary>
     /// Container für Definition einer Beziehung zwischen einer ACClass und einem IACObject (ValueT) Serialisierbar
     /// Verwendung: Konfiguration im iPlus-Studio
@@ -31,7 +32,7 @@ namespace gip.core.datamodel
     [ACSerializeableInfo()]
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACCompositionObject'}de{'ACCompositionObject'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
-    public class ACComposition : IACContainerT<IACObject>, IACAttach, INotifyPropertyChanged, IACObject
+    public class ACComposition : IACContainerT<IACObject>, IACAttach, INotifyPropertyChanged
     {
         #region IACContainerT
         /// <summary>Gets or sets the encapsulated value of the generic type T</summary>
@@ -304,6 +305,7 @@ namespace gip.core.datamodel
         /// <param name="acUrl">String that adresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
+#if !EFCR
         public object ACUrlCommand(string acUrl, params object[] acParameter)
         {
             return this.ReflectACUrlCommand(acUrl, acParameter);
@@ -319,7 +321,7 @@ namespace gip.core.datamodel
         {
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
-
+#endif
         /// <summary>
         /// Returns a ACUrl relatively to the passed object.
         /// If the passed object is null then the absolute path is returned
@@ -340,11 +342,12 @@ namespace gip.core.datamodel
         /// <param name="path">Relative path from the returned source for WPF-Databinding</param>
         /// <param name="rightControlMode">Information about access rights for the requested object</param>
         /// <returns><c>true</c> if binding could resolved for the passed ACUrl<c>false</c> otherwise</returns>
+#if !EFCR
         public bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode)
         {
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
-
+#endif
         /// <summary>Gets a value indicating whether the encapuslated objects are attached.</summary>
         /// <value>
         ///   <c>true</c> if the encapuslated objects are attached; otherwise, <c>false</c>.</value>
@@ -362,6 +365,7 @@ namespace gip.core.datamodel
             set;
         }
 
+#if !EFCR
         public IACType ACType
         {
             get
@@ -372,6 +376,7 @@ namespace gip.core.datamodel
             {
             }
         }
+#endif
 
 
         public IEnumerable<IACObject> ACContentList
@@ -382,7 +387,7 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
 
         /// <summary>

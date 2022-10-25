@@ -25,6 +25,7 @@ namespace gip.core.datamodel
     /// Container für ein ACClassDesign
     /// Verwendung: Für die Rechteverwaltung im BSOGroup
     /// </summary>
+#if !EFCR
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Rightiteminfo Design'}de{'Rechteinfo Design'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACClassDesignInfo", "en{'ACClassDesignInfo'}de{'ACClassDesignInfo'}", typeof(ACClassDesignInfo), "ACClassDesignInfo", "ValueT\\ACIdentifier", "ValueT\\ACIdentifier")]
     public class ACClassDesignInfo : IACContainerT<ACClassDesign>, INotifyPropertyChanged, IACObject
@@ -106,7 +107,7 @@ namespace gip.core.datamodel
             }
         }
 
-        #region INotifyPropertyChanged Member
+#region INotifyPropertyChanged Member
 
         /// <summary>
         /// Tritt ein, wenn sich ein Eigenschaftswert ändert.
@@ -123,9 +124,9 @@ namespace gip.core.datamodel
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-        #endregion
+#endregion
 
-        #region IACValue Member
+#region IACValue Member
         /// <summary>Gets or sets the encapsulated value as a boxed type</summary>
         /// <value>The boxed value.</value>
         public object Value
@@ -141,6 +142,7 @@ namespace gip.core.datamodel
 
         /// <summary>Metadata (iPlus-Type) of the Value-Property. ATTENTION: ACClass is a EF-Object. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!</summary>
         /// <value>Metadata (iPlus-Type) of the Value-Property as ACClass</value>
+#if !EFCR
         public ACClass ValueTypeACClass 
         {
             get
@@ -148,7 +150,7 @@ namespace gip.core.datamodel
                 return ValueT == null ? null : ValueT.ACType as ACClass;
             }
         }
-
+#endif
         ACClassDesign _ValueT;
         /// <summary>Gets or sets the encapsulated value of the generic type T.
         /// T is ACClassDesign</summary>
@@ -166,17 +168,18 @@ namespace gip.core.datamodel
                 OnPropertyChanged(Const.ValueT);
             }
         }
-        #endregion
+#endregion
 
-        #region IACObject Member
+#region IACObject Member
 
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
+#if !EFCR
         public string ACCaption
         {
             get { return ValueT.ACIdentifier; }
         }
-
+#endif
         /// <summary>
         /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
         /// </summary>
@@ -189,6 +192,7 @@ namespace gip.core.datamodel
             }
         }
 
+#if !EFCR
         /// <summary>
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
         /// </summary>
@@ -227,7 +231,7 @@ namespace gip.core.datamodel
         {
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
-
+#endif
         /// <summary>
         /// Returns the parent object
         /// </summary>
@@ -237,6 +241,7 @@ namespace gip.core.datamodel
             get { return null; }
         }
 
+#if !EFCR
         /// <summary>
         /// Returns a ACUrl relatively to the passed object.
         /// If the passed object is null then the absolute path is returned
@@ -248,13 +253,14 @@ namespace gip.core.datamodel
             return ACIdentifier;
         }
 
+
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
         public string ACIdentifier
         {
             get { return ValueT.ACIdentifier; }
         }
-
+#endif
         /// <summary>
         /// Method that returns a source and path for WPF-Bindings by passing a ACUrl.
         /// </summary>
@@ -269,6 +275,7 @@ namespace gip.core.datamodel
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
 
-        #endregion
+#endregion
     }
+#endif
 }

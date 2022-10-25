@@ -17,7 +17,6 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.Transactions;
-using System.Data.Objects;
 using System.Reflection;
 using System.ComponentModel;
 
@@ -26,6 +25,7 @@ namespace gip.core.datamodel
     /// <summary>
     /// ACFilterItem corresponds to a filter line in the ACQueryDefinition.ACFilterColumns list.
     /// </summary>
+    #if !EFCR
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACFilterItem'}de{'ACFilterItem'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACFilterItem", "en{'ACFilterItem'}de{'ACFilterItem'}", typeof(ACFilterItem), "ACFilterItem", "PropertyName", "PropertyName")]
@@ -285,6 +285,7 @@ namespace gip.core.datamodel
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
         /// </summary>
         /// <value> A nullable list ob IACObjects.</value>
+#if !EFCR
         public IEnumerable<IACObject> ACContentList
         {
             get
@@ -292,7 +293,7 @@ namespace gip.core.datamodel
                 return this.ReflectGetACContentList();
             }
         }
-
+#endif
         /// <summary>
         /// Returns the parent object
         /// </summary>
@@ -353,6 +354,7 @@ namespace gip.core.datamodel
         #endregion
 
         #region ObjectParameter
+#if !EFCR
         public ObjectParameter GetValueAsObjParameter(Type typeOfACQueryDef, string globalSearchWord, string parameterName)
         {
             if (LogicalOperator == Global.LogicalOperators.isNull || LogicalOperator == Global.LogicalOperators.isNotNull)
@@ -394,6 +396,8 @@ namespace gip.core.datamodel
             return parameter;
 
         }
+#endif
+
         #endregion
 
         #region Static
@@ -445,6 +449,7 @@ namespace gip.core.datamodel
         /// <param name="acUrl">String that adresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
+#if !EFCR
         public object ACUrlCommand(string acUrl, params object[] acParameter)
         {
             return this.ReflectACUrlCommand(acUrl, acParameter);
@@ -460,8 +465,7 @@ namespace gip.core.datamodel
         {
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
-
-
+#endif
 
         /// <summary>
         /// Returns a ACUrl relatively to the passed object.
@@ -535,4 +539,5 @@ namespace gip.core.datamodel
         #endregion
 
     }
+#endif
 }

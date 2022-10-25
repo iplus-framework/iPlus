@@ -22,6 +22,7 @@ namespace gip.core.datamodel
     /// <summary>
     /// Class ACValueItemList
     /// </summary>
+    #if !EFCR
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACEnumObjectList'}de{'ACEnumObjectList'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACValueItemList : List<ACValueItem>
     {
@@ -123,5 +124,5 @@ namespace gip.core.datamodel
             }
         }
     }
-
+#endif
 }

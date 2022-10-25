@@ -21,6 +21,7 @@ using System.Transactions;
 
 namespace gip.core.datamodel
 {
+#if !EFCR
     /// <summary>
     /// Container für ein ACClassProperty
     /// Verwendung: Für die Rechteverwaltung im BSOGroup
@@ -258,4 +259,5 @@ namespace gip.core.datamodel
 #endregion
 
     }
+#endif
 }

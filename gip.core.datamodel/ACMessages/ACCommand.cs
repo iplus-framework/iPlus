@@ -43,6 +43,7 @@ namespace gip.core.datamodel
     /// <summary>
     /// Class ACCommand
     /// </summary>
+    #if !EFCR
     [DataContract]
     [ACSerializeableInfo]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACCommand'}de{'ACCommand'}", Global.ACKinds.TACCommand, Global.ACStorableTypes.NotStorable, true, false)]
@@ -82,6 +83,7 @@ namespace gip.core.datamodel
         /// <param name="acUrl">String that adresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
+#if !EFCR
         public object ACUrlCommand(string acUrl, params Object[] acParameter)
         {
             return this.ReflectACUrlCommand(acUrl, acParameter);
@@ -97,7 +99,7 @@ namespace gip.core.datamodel
         {
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
-
+#endif
         /// <summary>
         /// Method that returns a source and path for WPF-Bindings by passing a ACUrl.
         /// </summary>
@@ -282,6 +284,7 @@ namespace gip.core.datamodel
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
         /// </summary>
         /// <value> A nullable list ob IACObjects.</value>
+#if !EFCR
         public IEnumerable<IACObject> ACContentList
         {
             get
@@ -289,7 +292,7 @@ namespace gip.core.datamodel
                 return this.ReflectGetACContentList();
             }
         }
-
+#endif
         #endregion
 
         #region IMenuItem Member
@@ -356,4 +359,5 @@ namespace gip.core.datamodel
         }
         #endregion
     }
+#endif
 }
