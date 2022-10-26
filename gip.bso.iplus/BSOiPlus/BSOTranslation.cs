@@ -187,6 +187,8 @@ namespace gip.bso.iplus
                     else
                         RemoveMandatory();
                     OnPropertyChanged("CurrentProjectItem");
+                    if (AutoGenerateByNavigation)
+                        SearchBg(false);
                 }
             }
         }
@@ -1282,8 +1284,16 @@ namespace gip.bso.iplus
         {
             if (!IsEnabledSearch())
                 return;
+            SearchBg(true);
+        }
+
+        public void SearchBg(bool withProgressBar)
+        {
+            if (!IsEnabledSearch())
+                return;
             BackgroundWorker.RunWorkerAsync(TranslationAutogenerateOption.FetchTranslation);
-            ShowDialog(this, DesignNameProgressBar);
+            if (withProgressBar)
+                ShowDialog(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledSearch()
