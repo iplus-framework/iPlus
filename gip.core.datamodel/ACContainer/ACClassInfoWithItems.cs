@@ -19,8 +19,6 @@ using System.Text;
 using System.ComponentModel;
 using System.Transactions;
 
-
-#if !EFCR
 namespace gip.core.datamodel
 {
     /// <summary>
@@ -30,7 +28,7 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Classinfo'}de{'Klasseninformation'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACClassInfoWithItems : IACContainerWithItemsT<ACClassInfoWithItems, ACClass>, IACObject, INotifyPropertyChanged, IVBDataCheckbox, IACClassDesignProvider, IVBIsVisible, ICloneable
     {
-#region c´tors
+        #region c´tors
         /// <summary>
         /// Initializes a new instance of the <see cref="ACClassInfoWithItems"/> class.
         /// </summary>
@@ -65,9 +63,9 @@ namespace gip.core.datamodel
             SetPresentationOptions(showCaptionInTree, visibilityFilter, checkHandler);
         }
 
-#endregion
+        #endregion
 
-#region Helper Classes for Filtering and Checking
+        #region Helper Classes for Filtering and Checking
         public class VisibilityFilters : ICloneable
         {
             // Inclusion-Properties - If nothing set, then everything ist visible. If one ore more are set, then only those are presented.
@@ -114,9 +112,7 @@ namespace gip.core.datamodel
                        && (
                                   (String.IsNullOrEmpty(SearchText)
                                     || item.ValueT.ACCaption.IndexOf(SearchText, StringComparison.CurrentCultureIgnoreCase) >= 0
-#if !EFCR
                                     || item.ValueT.ACIdentifier.IndexOf(SearchText, StringComparison.CurrentCultureIgnoreCase) >= 0
-#endif
                                   )
                               && (FilterACClass == null || FilterACClass == item.ValueT)
                               && (CustomFilter == null || CustomFilter(item))
@@ -215,9 +211,9 @@ namespace gip.core.datamodel
                 };
             }
         }
-#endregion
+        #endregion
 
-#region Events
+        #region Events
         /// <summary>
         /// Tritt ein, wenn sich ein Eigenschaftswert ändert.
         /// </summary>
@@ -233,11 +229,11 @@ namespace gip.core.datamodel
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-#endregion
+        #endregion
 
-#region Properties
+        #region Properties
 
-#region IACContainer
+        #region IACContainer
 
         ACClass _ValueT = null;
 
@@ -286,9 +282,9 @@ namespace gip.core.datamodel
             }
         }
 
-#endregion
+        #endregion
 
-#region IACContainerWithItems
+        #region IACContainerWithItems
 
         public List<ACClassInfoWithItems> _ItemsT = new List<ACClassInfoWithItems>();
         
@@ -370,11 +366,11 @@ namespace gip.core.datamodel
                 return RootContainerT;
             }
         }
-#endregion
+        #endregion
 
-#region Presentation
+        #region Presentation
 
-#region Visibility
+        #region Visibility
         private bool? _IsVisible;
         public bool IsVisible
         {
@@ -473,9 +469,9 @@ namespace gip.core.datamodel
                 return IsChecked ? Global.ControlModes.Enabled : Global.ControlModes.Hidden;
             }
         }
-#endregion
+        #endregion
 
-#region Check
+        #region Check
         /// <summary>
         /// The _ is checked
         /// </summary>
@@ -546,11 +542,11 @@ namespace gip.core.datamodel
         }
 
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region IACObjectWithBinding Member
+        #region IACObjectWithBinding Member
 
         /// <summary>
         /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
@@ -586,19 +582,16 @@ namespace gip.core.datamodel
 
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
-#if !EFCR
         [ACPropertyInfo(9999)]
         public string ACIdentifier
         {
-
             get
             {
                 if (ValueT == null)
                     return ACCaption;
                 return ValueT.ACIdentifier;
             }
-    }
-#endif
+        }
 
         /// <summary>
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
@@ -612,7 +605,6 @@ namespace gip.core.datamodel
             }
         }
 
-#if !EFCR
         [ACPropertyInfo(9999)]
         public string ItemText
         {
@@ -621,7 +613,7 @@ namespace gip.core.datamodel
                 return ShowCaptionOnParent ? ACCaption : ACIdentifier;
             }
         }
-#endif
+
 
         private bool? _ShowCaption;
         public bool? ShowCaption
@@ -660,9 +652,9 @@ namespace gip.core.datamodel
                 return ParentContainerT.ShowCaptionOnParent;
             }
         }
-#endregion
+        #endregion
 
-#region IVBDataCheckbox Member
+        #region IVBDataCheckbox Member
         private string _DataContentCheckBox;
         /// <summary>
         /// Gets or sets the data content check box.
@@ -700,9 +692,9 @@ namespace gip.core.datamodel
                 OnPropertyChanged("IsEnabled");
             }
         }
-#endregion
+        #endregion
 
-#region Searching
+        #region Searching
         /// <summary>
         /// The _ search class child count
         /// </summary>
@@ -723,9 +715,9 @@ namespace gip.core.datamodel
                 OnPropertyChanged("SearchClassChildCount");
             }
         }
-#endregion
+        #endregion
 
-#region Misc
+        #region Misc
 
         private object _IconState;
         [ACPropertyInfo(999)]
@@ -742,13 +734,13 @@ namespace gip.core.datamodel
             }
         }
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
 
-#region IACContainerWithItems
+        #region IACContainerWithItems
         /// <summary>Adds the specified child-container</summary>
         /// <param name="child">The child-container</param>
         public void Add(IACContainerWithItems child)
@@ -817,9 +809,9 @@ namespace gip.core.datamodel
         }
 
 
-#endregion
+        #endregion
 
-#region IACObjectWithBinding
+        #region IACObjectWithBinding
 
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
@@ -834,7 +826,6 @@ namespace gip.core.datamodel
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
         public object ACUrlCommand(string acUrl, params object[] acParameter)
         {
-#if !EFCR
             if (acUrl == Const.CmdTooltip)
             {
                 if (ValueT != null)
@@ -846,7 +837,7 @@ namespace gip.core.datamodel
                     return Database.Root.Environment.TranslateText(this, "Group") + " " + ACCaption;
                 }
             }
-#endif
+
             return this.ReflectACUrlCommand(acUrl, acParameter);
         }
 
@@ -859,7 +850,6 @@ namespace gip.core.datamodel
         /// <returns>true if ACUrlCommand can be invoked</returns>
         public bool IsEnabledACUrlCommand(string acUrl, params Object[] acParameter)
         {
-#if !EFCR
             if (acUrl == Const.CmdTooltip)
             {
                 if (ValueT != null)
@@ -871,7 +861,7 @@ namespace gip.core.datamodel
                     return true;
                 }
             }
-#endif
+
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
 
@@ -896,17 +886,14 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="rootACObject">Object for creating a realtive path to it</param>
         /// <returns>ACUrl as string</returns>
-#if !EFCR
         public string GetACUrl(IACObject rootACObject = null)
         {
             if (ValueT == null && Value != null)
                 return ((IACObject)Value).GetACUrl(rootACObject);
             else if (ValueT != null)
-
                 return ValueT.GetACUrl(rootACObject);
-                return null;
+            return null;
         }
-#endif
 
         /// <summary>Returns a ACClassDesign for presenting itself on the gui</summary>
         /// <param name="acUsage">Filter for selecting designs that belongs to this ACUsages-Group</param>
@@ -920,9 +907,9 @@ namespace gip.core.datamodel
             return ValueT.GetDesign(ValueT, acUsage, acKind, vbDesignName);
         }
 
-#endregion
+        #endregion
 
-#region Searching & Presentation
+        #region Searching & Presentation
         public Action<ACClassInfoWithItems> AllItemsFunction { get; set; }
 
         public void CallOnAllItems(Action<ACClassInfoWithItems> action)
@@ -939,9 +926,9 @@ namespace gip.core.datamodel
             Filter = visibilityFilter;
             ShowCaption = showCaptionInTree;
         }
-#endregion
+        #endregion
 
-#region Clone
+        #region Clone
         public object Clone()
         {
             return new ACClassInfoWithItems()
@@ -954,9 +941,8 @@ namespace gip.core.datamodel
                 ShowCaption = this.ShowCaption
             };
         }
-#endregion
+        #endregion
 
-#endregion
+        #endregion
     }
 }
-#endif

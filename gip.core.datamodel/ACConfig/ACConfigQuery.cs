@@ -10,10 +10,8 @@ namespace gip.core.datamodel
     {
 
         #region Query Definition
-#if !EFCR
         public static IEnumerable<T> QueryConfigSource(IEnumerable<T> configItemsSource, string preConfigACUrl, string localConfigACUrl, Guid? vbiACClassID)
         {
-            
             return configItemsSource.Where(x =>
                        x.LocalConfigACUrl != null
                     && x.LocalConfigACUrl == localConfigACUrl
@@ -22,9 +20,7 @@ namespace gip.core.datamodel
                 ).OrderByDescending(x => x.PreConfigACUrl)
                 .ThenByDescending(x => x.VBACClass == null ? "" : x.VBACClass.ACIdentifier);
         }
-#endif
 
-#if !EFCR
         public static IEnumerable<T> QueryConfigSource(IEnumerable<T> configItemsSource, string preConfigACUrl, List<string> localConfigACUrlList, Guid? vbiACClassID)
         {
             return configItemsSource.Where(x =>
@@ -35,9 +31,7 @@ namespace gip.core.datamodel
                 .ThenBy(c => c.LocalConfigACUrl)
                 .ThenByDescending(x => x.VBACClass == null ? "" : x.VBACClass.ACIdentifier);
         }
-#endif
 
-#if !EFCR
         public static IEnumerable<T> QueryConfigSourceStart(IEnumerable<T> configItemsSource, string preConfigACUrl, string startsWithLocalConfigACUrl, Guid? vbiACClassID)
         {
             return configItemsSource.Where(x =>
@@ -49,8 +43,6 @@ namespace gip.core.datamodel
             .ThenBy(c => c.LocalConfigACUrl)
             .ThenByDescending(x => x.VBACClass == null ? "" : x.VBACClass.ACIdentifier);
         }
-#endif
-
-#endregion
+        #endregion 
     }
 }

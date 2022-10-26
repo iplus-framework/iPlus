@@ -6,6 +6,7 @@ using System.Text;
 using MXAPI;
 using System.Security.Cryptography;
 using System.IO;
+using System.Data.EntityClient;
 using System.Timers;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -29,10 +30,8 @@ namespace gip.core.datamodel.Licensing
                 throw new SystemException("Only one License-Instance can be created!");
             _SingleInstance = true;
             _VBUser = vbUser;
-#if !EFCR
             _Database = database;
             Initialize(_Database);
-#endif
         }
 
 
@@ -47,10 +46,10 @@ namespace gip.core.datamodel.Licensing
             ReadLicenseTypeFromDongle();
 #endif
         }
-#endregion
+        #endregion
 
 
-#region Private Fields
+        #region Private Fields
         private static bool _SingleInstance = false;
 
         private string _SystemComm = "<RSAKeyValue><Modulus>3ZgedYpQrgIFSvW+77uVEZPObwbCSEtlzbp/hiY9rWK3+kWtopf5AZWweSiZ8+AUVp2jV7WQwsmvdO/kJ/86/U3EcRbNsfJPJDDYwjWdGP3+tG5FB0tGHc/eUlfa762cxm7bf0AZ76zkz19xnzpbNVWSAKquc+0YAhdl7b4jqlBrQ2ydogJkDMLPU1GF8hRTpIzEr951KFA+Ss0opH3JllCQL4WTlOqQDZje9DlUu64hIX8M7vRwHZblHAZtO+MT6bKgP43SYiCYo7KxYDyFpSl1Xh5GQsRL8Qcqhnr+Bq7DlzpUMsErkCWecR4iq0fMnIz7FEpHedYZ1LjDoZTKaQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
@@ -94,17 +93,15 @@ namespace gip.core.datamodel.Licensing
         /// </summary>
         private const string SN_PackLicense = "VBP";
 
-#endregion
+        #endregion
 
 
-#region Properties
-#if !EFCR
+        #region Properties
         private Database _Database;
 
         private string _DatabaseName;
         internal string DatabaseName
         {
-
             get
             {
                 if (_DatabaseName == null)
@@ -112,7 +109,7 @@ namespace gip.core.datamodel.Licensing
                 return _DatabaseName;
             }
         }
-#endif
+
         private Guid? _VarioSystemID;
         private Guid? VarioSystemID
         {
@@ -120,7 +117,7 @@ namespace gip.core.datamodel.Licensing
             {
                 if (!_VarioSystemID.HasValue)
                 {
-#if !EFCR
+
                     using (ACMonitor.Lock(_Database.QueryLock_1X000))
                     {
                         var package = _Database.ACPackage.FirstOrDefault(c => c.ACPackageName == Const.PackName_VarioSystem);
@@ -129,7 +126,6 @@ namespace gip.core.datamodel.Licensing
                             _VarioSystemID = package.ACPackageID;
                         }
                     }
-#endif
                 }
                 return _VarioSystemID;
             }
@@ -142,7 +138,7 @@ namespace gip.core.datamodel.Licensing
             {
                 if (!SystemID.HasValue)
                 {
-#if !EFCR
+
                     using (ACMonitor.Lock(_Database.QueryLock_1X000))
                     {
                         var package = _Database.ACPackage.FirstOrDefault(c => c.ACPackageName == Const.PackName_System);
@@ -151,7 +147,6 @@ namespace gip.core.datamodel.Licensing
                             _SystemID = package.ACPackageID;
                         }
                     }
-#endif
                 }
                 return _SystemID;
             }
@@ -172,7 +167,6 @@ namespace gip.core.datamodel.Licensing
             }
         }
 
-#if !EFCR
         public List<VBSystem> SystemList
         {
             get
@@ -183,7 +177,7 @@ namespace gip.core.datamodel.Licensing
                 }
             }
         }
-#endif
+
         public LicenseType CurrentLicenseType
         {
             get
@@ -292,17 +286,14 @@ namespace gip.core.datamodel.Licensing
             {
                 bool hasVBSystemEntries = false;
 
-#if !EFCR
                 using (ACMonitor.Lock(_Database.QueryLock_1X000))
                 {
                     hasVBSystemEntries = _Database.VBSystem.Any();
                 }
-#endif
                 return CurrentLicenseType > LicenseType.Trial && hasVBSystemEntries;
             }
         }
 
-#if !EFCR
         public string LicensedTo
         {
             get
@@ -315,24 +306,18 @@ namespace gip.core.datamodel.Licensing
                 }
                 if (sys == null)
                 {
-#if !EFCR
                     using (ACMonitor.Lock(_Database.QueryLock_1X000))
                     {
                         sys = _Database.VBSystem.FirstOrDefault(c => c.SystemName == License.SN_PackLicense);
                     }
-#endif
                 }
 
                 if (sys != null)
-#if !EFCR
                     temp = sys.CustomerName;
-#endif
-                    return temp;
+                return temp;
             }
         }
-#endif
 
-#if !EFCR
         public string LicensedToTitle
         {
             get
@@ -342,7 +327,6 @@ namespace gip.core.datamodel.Licensing
                 return string.Format(" - {0} ", LicensedTo);
             }
         }
-#endif
 
         private bool _NeedRestart;
         public bool NeedRestart
@@ -358,13 +342,13 @@ namespace gip.core.datamodel.Licensing
             }
         }
 
-#endregion
+        #endregion
 
 
-#region Methods
+        #region Methods
 
 
-#region Has package license checks
+        #region Has package license checks
         public bool IsPackageLicensed(ACPackage acPackage)
         {
 #if DEBUG
@@ -405,10 +389,10 @@ namespace gip.core.datamodel.Licensing
             return ComponentLicense.False;
 #endif
         }
-#endregion
+        #endregion
 
 
-#region Package reading
+        #region Package reading
         /// <summary>
         /// Reads all package-licenses and fills _AvailablePackages-Member
         /// It iterates all VBSystem-Entries (= customers who sells their own packages) and verifies the license
@@ -426,10 +410,7 @@ namespace gip.core.datamodel.Licensing
 
             using (ACMonitor.Lock(db.QueryLock_1X000))
             {
-#if !EFCR
                 vbSystemList = db.VBSystem.Where(c => c.SystemName == License.SN_PackLicense).ToList();
-#endif
-
             }
 
             foreach (VBSystem vbSys in vbSystemList)
@@ -447,10 +428,8 @@ namespace gip.core.datamodel.Licensing
         /// <returns></returns>
         private bool VerifyAndReadSystemPackages(VBSystem vbSys, Database db)
         {
-#if !EFCR
             if (!VerifyContent(vbSys))
                 return false;
-#endif
 
             if (!CheckDBIntegrity(vbSys, db))
                 return false;
@@ -466,7 +445,7 @@ namespace gip.core.datamodel.Licensing
             OnPropertyChanged("LicensedPackages");
             return true;
         }
-#if !EFCR
+
         private bool VerifyContent(VBSystem vbSys)
         {
             bool result = CSP.Verify(vbSys.GetChecksum(), vbSys.SystemCommon, vbSys.SystemCommonPublic);
@@ -476,7 +455,6 @@ namespace gip.core.datamodel.Licensing
                 return CSP.Verify(vbSys.GetChecksumSigned(), vbSys.SystemCommon1, _SystemComm);
             return result;
         }
-#endif
 
         /// <summary>
         /// Reads the packages for the passed VBSYstem
@@ -489,14 +467,11 @@ namespace gip.core.datamodel.Licensing
         {
             packages = null;
 
-#if !EFCR
             if (!CSP.Verify(vbSys.SystemInternal, vbSys.SystemInternal1, vbSys.SystemInternal2))
                 return false;
-#endif
 
             packages = new List<ACPackage>();
 
-#if !EFCR
             string[] packs = Encoding.UTF8.GetString(vbSys.SystemInternal).Split(',');
             foreach (string pack in packs)
             {
@@ -510,7 +485,6 @@ namespace gip.core.datamodel.Licensing
                     continue;
                 packages.Add(acPack);
             }
-#endif
 
             if (_IsRemoteLoginActive)
             {
@@ -518,9 +492,7 @@ namespace gip.core.datamodel.Licensing
 
                 using (ACMonitor.Lock(db.QueryLock_1X000))
                 {
-#if !EFCR
                     acPack2 = db.ACPackage.FirstOrDefault(c => c.ACPackageName == Const.PackName_VarioDevelopment);
-#endif
                 }
                 if (acPack2 != null)
                     packages.Add(acPack2);
@@ -531,14 +503,11 @@ namespace gip.core.datamodel.Licensing
 
         private bool CheckDBIntegrity(VBSystem vbSys, Database db)
         {
-#if !EFCR
             if (CSP.Verify(Encoding.UTF8.GetBytes(GetDBCode(db)), vbSys.SystemInternal3, vbSys.SystemInternal2))
-#endif
-            return true;
+                return true;
             return false;
         }
 
-#if !EFCR
         public string GetDBCode(Database db)
         {
             string dbName = ((EntityConnection)db.Connection).StoreConnection.Database;
@@ -558,7 +527,6 @@ namespace gip.core.datamodel.Licensing
                 return "";
             return dbInfo.GetCheckSumCode();
         }
-#endif
         #endregion
 
 
@@ -570,7 +538,6 @@ namespace gip.core.datamodel.Licensing
         /// </summary>
         /// <param name="userInfo"></param>
         /// <returns></returns>
-#if !EFCR
         public bool GetUniqueUserInfo(out Tuple<string, string, string> userInfo)
         {
             userInfo = null;
@@ -585,7 +552,7 @@ namespace gip.core.datamodel.Licensing
             userInfo = new Tuple<string, string, string>(ec.StoreConnection.Database, ec.StoreConnection.DataSource, GetDBCode(_Database));
             return true;
         }
-#endif
+
         /// <summary>
         /// CONSUMER-Method
         /// Activates a License on the target system
@@ -622,7 +589,6 @@ namespace gip.core.datamodel.Licensing
                 return false;
             }
 
-#if !EFCR
             VBSystem oldSys = db.VBSystem.FirstOrDefault(c => c.SystemName == License.SN_PackIssuer);
             if (oldSys != null && sysNew.SystemName == License.SN_PackIssuer)
             {
@@ -637,13 +603,12 @@ namespace gip.core.datamodel.Licensing
                 ReadLicenseTypeFromDongle();
                 //_CurrentLicenseType = LicenseType.Developer_Issuer;
             }
-#endif
+
             return true;
         }
 
         private bool CheckActivateLicense(VBSystem sys, string customerName, Database db)
         {
-#if !EFCR
             if (sys.SystemName == License.SN_PackIssuer)
             {
                 if (db.VBSystem.Any() && db.VBSystem.FirstOrDefault().CustomerName == sys.CustomerName)
@@ -658,7 +623,6 @@ namespace gip.core.datamodel.Licensing
             {
                 return VerifyAndReadSystemPackages(sys, db);
             }
-#endif
             return false;
         }
 
@@ -680,16 +644,13 @@ namespace gip.core.datamodel.Licensing
 #endif
             VBSystem sysD = null;
 
-#if !EFCR
             using (ACMonitor.Lock(_Database.QueryLock_1X000))
             {
                 sysD = _Database.VBSystem.FirstOrDefault(c => c.SystemName == License.SN_PackIssuer);
             }
             if (sysD == null)
                 return false;
-#endif
 
-#if !EFCR
             VBSystem sysLicense = new VBSystem();
             sysLicense.VBSystemID = Guid.NewGuid();
             sysLicense.SystemInternal = license.PackageSystem;
@@ -724,7 +685,7 @@ namespace gip.core.datamodel.Licensing
                 string xmlLicense = Encoding.UTF8.GetString(ms.ToArray());
                 File.WriteAllText(string.Format(@"{0}\{1}-license.gip", licenseDir, license.CustomerName), xmlLicense);
             }
-#endif
+
             return true;
         }
 
@@ -737,7 +698,7 @@ namespace gip.core.datamodel.Licensing
 #endif
         }
 
-#if !EFCR
+
         public IEnumerable<string> GetAvailablePackages()
         {
             ReadLicenseTypeFromDongle();
@@ -747,20 +708,17 @@ namespace gip.core.datamodel.Licensing
             if (CurrentLicenseType != LicenseType.Developer_Issuer || string.IsNullOrEmpty(LicensedTo))
                 return null;
 
-#if !EFCR
             using (ACMonitor.Lock(_Database.QueryLock_1X000))
             {
                 return _Database.ACPackage.Where(c => c.ACPackageName != Const.PackName_VarioDevelopment).ToArray()
                                .Where(x => x.ACPackageName.Split('.').FirstOrDefault() == LicensedTo).Select(x => x.ACPackageName);
             }
-#endif
         }
-#endif
 
-        #endregion
+#endregion
 
 
-        #region RemoteLogin
+#region RemoteLogin
 
         private static bool _IsRemoteLoginActive = false;
 
@@ -789,7 +747,6 @@ namespace gip.core.datamodel.Licensing
         /// <returns></returns>
         public static bool VerifyRemoteLogin(string remoteKey, string randomKey, Database db)
         {
-#if !EFCR
             foreach (var sys in db.VBSystem)
             {
                 if (CSP.VerifyDSA(Encoding.UTF8.GetBytes(randomKey), ByteExtension.FromByteStringKey(remoteKey), sys.SystemRemote))
@@ -798,7 +755,6 @@ namespace gip.core.datamodel.Licensing
                     return true;
                 }
             }
-#endif
             return false;
         }
 
@@ -819,9 +775,7 @@ namespace gip.core.datamodel.Licensing
             {
                 try
                 {
-#if !EFCR
                     dsa.FromXmlString(vbSys.SystemRemote);
-#endif
                     var signature = dsa.SignData(Encoding.UTF8.GetBytes(userCode));
                     remoteLoginKey = signature.ToByteStringKey();
                 }
@@ -986,7 +940,6 @@ namespace gip.core.datamodel.Licensing
 #region Encryption and decoding Dongle data
         private bool EvaluateIssuingLicenseFromDongleData(int[] dongleData, VBSystem sys = null)
         {
-#if !EFCR
             if (sys == null)
             {
                 using (ACMonitor.Lock(_Database.QueryLock_1X000))
@@ -994,24 +947,21 @@ namespace gip.core.datamodel.Licensing
                     sys = _Database.VBSystem.FirstOrDefault(c => c.SystemName == License.SN_PackIssuer);
                 }
             }
-#endif
 
             if (sys == null)
                 return false;
 
-#if !EFCR
             if (!CSP.Verify(sys.GetChecksum(), sys.SystemCommon, _SystemComm))
                 return false;
-#endif
+
             byte[] code;
             using (SHA256 sha = SHA256.Create())
             {
                 code = sha.ComputeHash(Encoding.UTF8.GetBytes(UnpackLicense(dongleData).ToByteStringKey()));
             }
-#if !EFCR
+
             if (sys.CustomerName != DecryptString(Encoding.UTF8.GetString(sys.SystemInternal), code))
                 return false;
-#endif
             return true;
         }
 

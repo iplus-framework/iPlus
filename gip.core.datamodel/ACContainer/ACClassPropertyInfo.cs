@@ -120,7 +120,6 @@ namespace gip.core.datamodel
             }
         }
 
-#if !EFCR
         /// <summary>Metadata (iPlus-Type) of the Value-Property. ATTENTION: ACClass is a EF-Object. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!</summary>
         /// <value>Metadata (iPlus-Type) of the Value-Property as ACClass</value>
         public ACClass ValueTypeACClass
@@ -130,7 +129,7 @@ namespace gip.core.datamodel
                 return ValueT == null ? null : ValueT.ACType as ACClass;
             }
         }
-#endif
+
         ACClassProperty _ValueT;
         /// <summary>Gets or sets the encapsulated value of the generic type T.
         /// T is ACClassProperty</summary>
@@ -152,14 +151,13 @@ namespace gip.core.datamodel
 
         #region IACObject Member
 
-#if !EFCR
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         public string ACCaption
         {
             get { return ValueT.ACIdentifier; }
         }
-#endif
+
         /// <summary>
         /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
         /// </summary>
@@ -220,7 +218,6 @@ namespace gip.core.datamodel
             get { return null; }
         }
 
-#if !EFCR
         /// <summary>
         /// Returns a ACUrl relatively to the passed object.
         /// If the passed object is null then the absolute path is returned
@@ -231,16 +228,14 @@ namespace gip.core.datamodel
         {
             return ACIdentifier;
         }
-#endif
 
-#if !EFCR
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
         public string ACIdentifier
         {
             get { return ValueT.ACIdentifier; }
         }
-#endif
+
         /// <summary>
         /// Method that returns a source and path for WPF-Bindings by passing a ACUrl.
         /// </summary>
@@ -255,7 +250,7 @@ namespace gip.core.datamodel
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
 
-#endregion
+        #endregion
 
     }
 }

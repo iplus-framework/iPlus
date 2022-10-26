@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace gip.core.datamodel
 {
-#if !EFCR
     [JsonObject(MemberSerialization.OptIn)]
     public interface IMessage
     {
@@ -18,5 +18,4 @@ namespace gip.core.datamodel
         [JsonProperty]
         DateTime Time { get; set; }
     }
-#endif
 }

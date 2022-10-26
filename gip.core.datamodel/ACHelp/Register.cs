@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace gip.core.datamodel
 {
-#if !EFCR
     [Serializable]
     [JsonObject(MemberSerialization.OptOut)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Register'}de{'Register'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
@@ -45,7 +45,7 @@ namespace gip.core.datamodel
         [ACPropertyInfo(9999, "PhoneNumber", "en{'Phone number'}de{'Telefonnummer'}")]
         public string Phone { get; set; }
 
-    #region Address part will be populated from Map (Bing or Google)
+        #region Address part will be populated from Map (Bing or Google)
         public string StreetNo { get; set; }
         public string Street { get; set; }
         public string PostCode { get; set; }
@@ -54,7 +54,6 @@ namespace gip.core.datamodel
 
         public string Latitude { get; set; }
         public string Longitude { get; set; }
-    #endregion
+        #endregion
     }
-#endif
 }

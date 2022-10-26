@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace gip.core.datamodel
 {
-#if !EFCR
     [Serializable]
     [JsonObject(MemberSerialization.OptIn)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Login'}de{'Login'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
@@ -19,5 +19,4 @@ namespace gip.core.datamodel
         [ACPropertyInfo(9999, "RememberLogin", "en{'Remeber login'}de{'Login speichern'}")]
         public bool RememberLogin { get; set; }
     }
-#endif
 }

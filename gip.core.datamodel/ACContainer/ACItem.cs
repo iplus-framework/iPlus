@@ -20,7 +20,6 @@ namespace gip.core.datamodel
 
         }
 
-#if !EFCR
         public ACItem(ACClassInfoWithItems inputItem, Action<ACClass, ACItem> handleCreationEvent = null)
         {
             if (inputItem.ValueT != null)
@@ -43,13 +42,12 @@ namespace gip.core.datamodel
                     Items.Add(new ACItem(child as ACClassInfoWithItems, handleCreationEvent));
             }
         }
-#endif
         
-#endregion
+        #endregion
 
-#region Properties
+        #region Properties
 
-#region Properties -> Export part
+        #region Properties -> Export part
 
         public string ID { get; set; }
 
@@ -78,7 +76,7 @@ namespace gip.core.datamodel
         [ACPropertyInfo(9999, "Comment", "en{'Comment'}de{'Bemerkung'}")]
         public string Comment { get; set; }
 
-#endregion
+        #endregion
 
         public List<ACItem> Items
         {
@@ -93,17 +91,14 @@ namespace gip.core.datamodel
             }
         }
 
-#endregion
+        #endregion
 
 
-#region Methods
-#if !EFCR
+        #region Methods
         public void ReadACClassData(ACClass acClass)
         {
-            
             try
             {
-
                 ID = acClass.ACClassID.ToString();
                 // ParentID
                 ACIdentifier = acClass.ACIdentifier;
@@ -124,7 +119,6 @@ namespace gip.core.datamodel
 
                 this.Root().Messages.LogException("ReadACClassData", "ReadACClassData", msg);
             }
-
         }
 
         public static string FactoryACUrlComponent(ACClass item)
@@ -136,7 +130,6 @@ namespace gip.core.datamodel
             url = Regex.Replace(url, pattern, "()");
             return url;
         }
-#endif
-#endregion
+        #endregion
     }
 }

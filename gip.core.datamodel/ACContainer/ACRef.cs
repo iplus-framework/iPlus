@@ -17,7 +17,9 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Data.Objects.DataClasses;
 using System.Data;
+using System.Data.Objects;
 
 namespace gip.core.datamodel
 {
@@ -57,11 +59,10 @@ namespace gip.core.datamodel
     /// <seealso cref="System.ICloneable" />
     /// <seealso cref="gip.core.datamodel.IACContainerRef" />
     /// <seealso cref="System.IDisposable" />
-#if !EFCR
     [DataContract]
     public class ACRef<T> : IACContainerT<T>, ICloneable, IACContainerRef, IDisposable where T : IACObject
     {
-#region enums
+        #region enums
         /// <summary>
         /// Behaviour for automatic start and stop of the referenced component.
         /// </summary>
@@ -72,9 +73,9 @@ namespace gip.core.datamodel
             AutoStop = 2,
             AutoStartStop = 3,
         }
-#endregion
+        #endregion
 
-#region c´tors
+        #region c´tors
         /// <summary>
         /// Internal Constructor. Don't use it.
         /// </summary>
@@ -149,14 +150,11 @@ namespace gip.core.datamodel
         {
             InitLockRef();
             this._ParentACObject = parentACObject;
-#if !EFCR
             _ACUrl = acUrl;
             _Mode = mode;
             _IsWeakReference = isWeakReference;
-
             if (autoAttach)
                 Attach();
-#endif
         }
 
         /// <summary>
@@ -194,17 +192,14 @@ namespace gip.core.datamodel
 
         protected virtual void Dispose(bool disposing)
         {
-#if !EFCR
             Detach(disposing == true ? 1 : 2, false);
-#endif
         }
 
-#endregion
+        #endregion
 
-#region Properties
+        #region Properties
 
-#region Serializable
-#if !EFCR
+        #region Serializable
         [IgnoreDataMember]
         protected string _ACUrl = "";
         /// <summary>
@@ -213,7 +208,6 @@ namespace gip.core.datamodel
         [DataMember]
         public string ACUrl
         {
-
             get
             {
                 if (!IsAttached)
@@ -227,15 +221,13 @@ namespace gip.core.datamodel
                 if (ValueT != null && !(ValueT is EntityObject))
                     _ACUrl = this.ValueT.GetACUrl();
                 return _ACUrl;
-
-        }
-        set
+            }
+            set
             {
                 _ACUrl = value;
             }
         }
-#endif
-#if !EFCR
+
         [IgnoreDataMember]
         private EntityKey _EntityKey = null;
         /// <summary>
@@ -263,10 +255,9 @@ namespace gip.core.datamodel
                 _EntityKey = value;
             }
         }
-#endif
-#endregion
+        #endregion
 
-#region Referenced-Object
+        #region Referenced-Object
 
         [IgnoreDataMember]
         private ACMonitorObject _10030_LockRef;
@@ -298,18 +289,14 @@ namespace gip.core.datamodel
         {
             get
             {
-#if !EFCR
                 Attach();
-#endif
                 return _ValueT;
             }
             set
             {
                 if ((object)_ValueT != (object)value)
                 {
-#if !EFCR
                     Detach();
-#endif
                     _ValueT = value;
                     if (_ValueT is IACComponent)
                     {
@@ -381,9 +368,9 @@ namespace gip.core.datamodel
                 return true;
             }
         }
-#endregion
+        #endregion
 
-#region Miscellaneous and Garbage-Collector
+        #region Miscellaneous and Garbage-Collector
         internal static void SetRoot(IRoot root)
         {
             if (_Root == null)
@@ -427,9 +414,9 @@ namespace gip.core.datamodel
                 return _IsWeakReference;
             }
         }
-#endregion
+        #endregion
 
-#region IACObject
+        #region IACObject
 
         [IgnoreDataMember]
         IACObject _ParentACObject = null;
@@ -465,12 +452,10 @@ namespace gip.core.datamodel
         {
             get
             {
-#if !EFCR
                 if (!String.IsNullOrEmpty(ACUrl))
                     return ACUrl;
                 else if (EntityKey != null)
                     return EntityKey.ToString();
-#endif
                 return null;
             }
         }
@@ -501,17 +486,16 @@ namespace gip.core.datamodel
             }
         }
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
 
-#region Attaching and Detaching
+        #region Attaching and Detaching
         /// <summary>
         /// Attaches the referenced object if its in detached state.
         /// </summary>
-#if !EFCR
         public virtual void Attach()
         {
             if (   (_ValueT == null && (!String.IsNullOrEmpty(_ACUrl) || _EntityKey != null))
@@ -812,10 +796,9 @@ namespace gip.core.datamodel
             if (!IsAttached)
                 Attach();
         }
-#endif
-#endregion
+        #endregion
 
-#region IACObject
+        #region IACObject
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
         /// 1. get references to components,
@@ -866,12 +849,11 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="rootACObject">Object for creating a realtive path to it</param>
         /// <returns>ACUrl as string</returns>
-#if !EFCR
         public string GetACUrl(IACObject rootACObject = null)
         {
             return ACUrl;
         }
-#endif
+
         /// <summary>
         /// Method that returns a source and path for WPF-Bindings by passing a ACUrl.
         /// </summary>
@@ -928,10 +910,8 @@ namespace gip.core.datamodel
         public object Clone()
         {
             ACRef<T> newRef = new ACRef<T>();
-#if !EFCR
             newRef._ACUrl = this._ACUrl;
             newRef._EntityKey = this._EntityKey;
-#endif
             newRef._IsWeakReference = this._IsWeakReference;
             newRef._Mode = this._Mode;
             newRef._ParentACObject = this._ParentACObject;
@@ -939,5 +919,4 @@ namespace gip.core.datamodel
             return newRef;
         }
     }
-#endif
 }
