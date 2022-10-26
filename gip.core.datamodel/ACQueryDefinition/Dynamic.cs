@@ -21,7 +21,9 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
 using System.Collections;
+using System.Data.Objects;
 using gip.core.datamodel;
+using System.Data.Objects.DataClasses;
 using System.Runtime.Serialization;
 
 namespace gip.core.datamodel
@@ -528,17 +530,12 @@ namespace gip.core.datamodel
         /// </summary>
         private ClassFactory() {
             AssemblyName name = new AssemblyName("DynamicClasses");
-#if !EFCR
             AssemblyBuilder assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.Run);
-#endif
 #if ENABLE_LINQ_PARTIAL_TRUST
             new ReflectionPermission(PermissionState.Unrestricted).Assert();
 #endif
-            try
-            {
-#if !EFCR
+            try {
                 module = assembly.DefineDynamicModule("Module");
-#endif
             }
             finally {
 #if ENABLE_LINQ_PARTIAL_TRUST
@@ -3591,7 +3588,6 @@ namespace gip.core.datamodel
             return -1;
         }
 
-#if !EFCR
         public static IQueryable<T> AutoMergeOption<T>(this IQueryable<T> source)
         {
             ObjectQuery<T> query = source as ObjectQuery<T>;
@@ -3621,7 +3617,6 @@ namespace gip.core.datamodel
             var path = GetPath(exp);
             return source.Include(path);
         }
-#endif
 
         private static string GetPath(Expression exp)
         {

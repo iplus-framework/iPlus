@@ -18,13 +18,12 @@ namespace gip.core.datamodel
         IACComponent ParentACComponent { get; }
 
 
-#if !EFCR
         /// <summary>
         /// Smart-Pointer to the Parent ACComponent where this instance belongs to.
         /// </summary>
         /// <value>The parent ac component.</value>
         ACRef<IACComponent> ACRef { get; }
-#endif
+
 
         /// <summary>
         /// This method is called from the iPlus-Framework for each member of a ACComponent when a component was recycled from the component-pool (ACInitState.RecycledFromPool) instead of a new creation.

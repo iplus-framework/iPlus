@@ -5,7 +5,6 @@ namespace gip.core.datamodel
 {
     public class ExportCommandExtended: ExportCommand
     {
-#if !EFCR
         public override bool ExportACClassDesign(ACEntitySerializer aCEntitySerializer, ACClass acClass, ACQueryDefinition qryACClassDesign, string folderPath)
         {
             Database database =  acClass.GetObjectContext() as Database;
@@ -31,6 +30,5 @@ namespace gip.core.datamodel
             }
             return true;
         }
-#endif
     }
 }

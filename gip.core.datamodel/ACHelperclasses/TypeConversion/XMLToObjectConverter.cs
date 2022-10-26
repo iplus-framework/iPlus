@@ -18,6 +18,7 @@ using System.Text;
 using System.IO;
 using System.Xml;
 using System.Runtime.Serialization;
+using System.Data.Objects.DataClasses;
 using System.Data;
 using System.Globalization;
 using System.Threading;

@@ -112,14 +112,12 @@ namespace gip.core.datamodel
         [ACPropertyInfo(2, "", "en{'InProcess'}de{'Aktiv'}")]
         Boolean InProcess { get; }
 
-#if !EFCR
         /// <summary>
         /// Gets the executing instance.
         /// </summary>
         /// <value>The executing instance.</value>
         [ACPropertyInfo(9999)]
         ACRef<IACComponent> ExecutingInstance { get; }
-#endif
     }
 }
 

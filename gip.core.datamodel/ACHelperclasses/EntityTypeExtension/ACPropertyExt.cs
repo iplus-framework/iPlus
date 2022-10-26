@@ -103,12 +103,10 @@ namespace gip.core.datamodel
                 if (propertyManager != null)
                 {
                     bool notNullStringObjectForInvariantCulture = value != null && value is String && this.ObjectType != typeof(string);
-#if !EFCR
                     if (propertyManager.EntityObject != null)
                         newValue = ACConvert.ChangeType(value, ObjectType, !notNullStringObjectForInvariantCulture, propertyManager.DatabaseEntity);
                     else
                         newValue = ACConvert.ChangeType(value, ObjectType, true, null);
-#endif
                 }
                 else
                     newValue = ACConvert.ChangeType(value, ObjectType, true, null);
@@ -135,12 +133,10 @@ namespace gip.core.datamodel
 
                 object newValue = null;
                 ACPropertyManager propertyManager = ParentACObject as ACPropertyManager;
-#if !EFCR
                 if (propertyManager != null)
                     newValue = ACConvert.XMLToObject(objectType, xmlValue, true, propertyManager.DatabaseEntity);
                 else
                     newValue = ACConvert.XMLToObject(objectType, xmlValue, true, null);
-#endif
                 lock (Lock)
                 {
                     _Value = newValue;
@@ -158,12 +154,10 @@ namespace gip.core.datamodel
 
             object newValue = null;
             ACPropertyManager propertyManager = ParentACObject as ACPropertyManager;
-#if !EFCR
             if (propertyManager != null)
                 newValue = ACConvert.XMLToObject(objectType, xmlValue, false, propertyManager.DatabaseEntity);
             else
                 newValue = ACConvert.XMLToObject(objectType, xmlValue, false, null);
-#endif
             lock (Lock)
             {
                 _Value = newValue;

@@ -36,7 +36,6 @@ namespace gip.core.datamodel
         /// <param name="acObject">Dieses IACObject ist zu serialisieren</param>
         /// <param name="queryConfiguration">Definition welche Eigenschaften und Unter-ACObjects zu serialisieren sind</param>
         /// <returns>System.String.</returns>
-#if !EFCR
         public static string Serialize(IACObject acObject, ACQueryDefinition queryConfiguration)
         {
             if (acObject == null)
@@ -184,7 +183,7 @@ namespace gip.core.datamodel
             }
 
         }
-#endif
+
         /// <summary>
         /// Serializes the type of the simple.
         /// </summary>
@@ -195,7 +194,7 @@ namespace gip.core.datamodel
         {
             xNode.Add(new XElement(Const.Value, GetValueString(value)));
         }
-#if !EFCR
+
         /// <summary>
         /// Serializes the simple class.
         /// </summary>
@@ -218,7 +217,6 @@ namespace gip.core.datamodel
                 nodeElement.Add(new XElement(acColumn.PropertyName, GetValueString(columnValue)));
             }
         }
-#endif
         #endregion
 
         #region Deserialize
@@ -229,7 +227,6 @@ namespace gip.core.datamodel
         /// <param name="acQueryDefinition">The ac query definition.</param>
         /// <param name="acXML">The ac XML.</param>
         /// <returns>IACObject.</returns>
-#if !EFCR
         public static IACObject Deserialize(IACObject acObject, ACQueryDefinition acQueryDefinition, string acXML)
         {
             if (string.IsNullOrEmpty(acXML))
@@ -349,7 +346,6 @@ namespace gip.core.datamodel
                 }
             }
         }
-#endif
         #endregion
 
         /// <summary>

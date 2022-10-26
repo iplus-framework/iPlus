@@ -22,7 +22,6 @@ namespace gip.core.datamodel
     /// <summary>
     /// Class ACGenericObject
     /// </summary>
-    #if !EFCR
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACGenericObject'}de{'ACGenericObject'}", Global.ACKinds.TACObject, Global.ACStorableTypes.NotStorable, true, false)]
     // 1 ACIdentifier
     // 2 ACCaption
@@ -50,12 +49,10 @@ namespace gip.core.datamodel
             _ACType = acType;
             _ParentACObject = parentACObject;
             _ACIdentifier = acIdentifier;
-#if !EFCR
             if (string.IsNullOrEmpty(_ACIdentifier))
             {
                 _ACIdentifier = TypeACClass.ACIdentifier;
             }
-#endif
         }
 
         /// <summary>
@@ -88,7 +85,6 @@ namespace gip.core.datamodel
             {
                 foreach (var acClass in TypeACClass.Childs.Where(c => c.ACStartType > Global.ACStartTypes.None && c.ACStartType <= startChildMode))
                 {
-#if !EFCR
                     var child = ACActivator.CreateInstance(acClass, acClass, this, null, startChildMode) as IACObjectWithInit;
                     if (child is ACGenericObject)
                     {
@@ -96,7 +92,6 @@ namespace gip.core.datamodel
                         child.ACInit(startChildMode);
                         AddChild(child);
                     }
-#endif
                 }
             }
             return true;
@@ -300,7 +295,6 @@ namespace gip.core.datamodel
         /// <param name="acUrl">String that adresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
-#if !EFCR
         public virtual object ACUrlCommand(string acUrl, params object[] acParameter)
         {
             return this.ReflectACUrlCommand(acUrl, acParameter);
@@ -316,7 +310,7 @@ namespace gip.core.datamodel
         {
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
-#endif
+
         /// <summary>
         /// Callbackmethod if a Exeption occured during ACInit- and ACPostInit-Phase
         /// </summary>
@@ -356,6 +350,4 @@ namespace gip.core.datamodel
         }
 #endregion
     }
-
-#endif
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
+using System.Data.Objects;
 using System.Collections;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -18,7 +19,6 @@ namespace gip.core.datamodel
     /// <typeparam name="T">Type of a EF-Class</typeparam>
     /// <seealso cref="gip.core.datamodel.ACGenericObject"/>
     /// <seealso cref="gip.core.datamodel.IAccessT{T}"/>
-#if !EFCR
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACAccess'}de{'ACAccess'}", Global.ACKinds.TACObject, Global.ACStorableTypes.NotStorable, true, false)]
     [ACClassConstructorInfo(
         new object[] 
@@ -27,13 +27,12 @@ namespace gip.core.datamodel
             new object[] {Const.ACGroup, Global.ParamOption.Required, typeof(String)}
         }
     )]
-
     public class ACAccess<T> : ACGenericObject, IAccessT<T> where T : class
     {
         public delegate IQueryable<T> NavSearchEventHandler(IQueryable<T> result);
         public delegate void NavSearchExecutedEventHandler(object sender, IList<T> result);
 
-    #region c'tors
+        #region c'tors
         public ACAccess(ACClass acType, IACObject content, IACObjectWithInit parentACObject, ACValueList parameter, string acIdentifier = "") :
             this(acType, content, parentACObject, parameter, acIdentifier, null)
         {
@@ -65,17 +64,17 @@ namespace gip.core.datamodel
             _NavACQueryDefinition = null;
             return base.ACDeInit(deleteACClassTask);
         }
-    #endregion
+        #endregion
 
 
-    #region Properties
+        #region Properties
 
         public string ACGroup
         {
             get;
             set;
         }
-#if !EFCR
+
         [ACPropertyInfo(9999)]
         public virtual IACBSO ParentACComponent
         {
@@ -84,7 +83,7 @@ namespace gip.core.datamodel
                 return ParentACObject as IACBSO;
             }
         }
-#endif
+
 
         ACQueryDefinition _NavACQueryDefinition;
         /// <summary>Returns the persistable query</summary>
@@ -145,16 +144,15 @@ namespace gip.core.datamodel
             }
         }
 
-    #endregion
+        #endregion
 
 
-    #region Methods
+        #region Methods
 
-    #region Public
+        #region Public
         /// <summary>Executes a Query according to the filter and sort entries in ACQueryDefinition the result is copied to the NavObjectList.</summary>
         /// <param name="context">Reference to a database context</param>
         /// <returns>True, if query was successful</returns>
-#if !EFCR
         public bool NavSearch(IACEntityObjectContext context)
         {
             if (context == null)
@@ -315,7 +313,7 @@ namespace gip.core.datamodel
         {
             return OneTimeSearchFirstOrDefaultT(searchWord, mergeOption);
         }
-#endif
+
 
         /// <summary>
         /// Copies the given List into the NavList-Property
@@ -356,14 +354,13 @@ namespace gip.core.datamodel
         protected virtual void OnPostNavSearch()
         {
         }
-    #endregion
+        #endregion
 
 
-    #region GUI-Methods
+        #region GUI-Methods
 
         /// <summary>Opens the a dialog (VBBSOQueryDialog) on the gui for the manipulation of the ACQueryDefinition.</summary>
         /// <returns>True, if OK-Button was clicked</returns>
-#if !EFCR
         [ACMethodInteraction("Query", "en{'Configuration'}de{'Konfiguration'}", 9999, false)]
         public bool ShowACQueryDialog()
         {
@@ -378,13 +375,13 @@ namespace gip.core.datamodel
         {
             return (bool)this.ParentACObject.ACUrlCommand("VBBSOQueryDialog!ChangeColumnValues", new object[] { this, column, NavACQueryDefinition });
         }
-#endif
-    #endregion
 
-    #endregion
+        #endregion
+
+        #endregion
 
 
-    #region Events
+        #region Events
 
         /// <summary>
         /// Occurs before query will be executed to the database.
@@ -408,7 +405,6 @@ namespace gip.core.datamodel
             }
         }
 
-    #endregion
+        #endregion
     }
-#endif
 }

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
-#if !EFCR
     [ACClassInfo(Const.PackName_VarioSystem, "", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACFastStartupItem : IACObject
     {
@@ -108,13 +107,10 @@ namespace gip.core.datamodel
         /// <param name="acUrl">String that adresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
-
-#if !EFCR
         public object ACUrlCommand(string acUrl, params object[] acParameter)
         {
             return this.ReflectACUrlCommand(acUrl, acParameter);
         }
-#endif
 
         /// <summary>
         /// Returns a ACUrl relatively to the passed object.
@@ -133,12 +129,9 @@ namespace gip.core.datamodel
         /// <param name="acUrl">String that adresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>true if ACUrlCommand can be invoked</returns>
-#if !EFCR
         public bool IsEnabledACUrlCommand(string acUrl, params object[] acParameter)
         {
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
-#endif
     }
-#endif
 }

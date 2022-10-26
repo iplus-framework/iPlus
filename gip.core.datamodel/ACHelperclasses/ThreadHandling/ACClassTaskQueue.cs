@@ -16,7 +16,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Data.Objects;
 using System.Collections.Concurrent;
+using System.Data.EntityClient;
 
 namespace gip.core.datamodel
 {
@@ -33,9 +35,9 @@ namespace gip.core.datamodel
             _ProgramCache = new ACProgramCache(this);
         }
 
-        #region Precompiled Queries
-#if !EFCR
-        public static readonly Func<Database, Guid, ACProgram> s_cQry_ACProgram =
+#region Precompiled Queries
+
+    public static readonly Func<Database, Guid, ACProgram> s_cQry_ACProgram =
             CompiledQuery.Compile<Database, Guid, ACProgram>(
                 (db, acProgramID) =>
                     db.ACProgram.Where(c => c.ACProgramID == acProgramID).FirstOrDefault()
@@ -67,10 +69,10 @@ namespace gip.core.datamodel
                                 .Include("ACClassWFEdge_TargetACClassWF")
                     .Where(c => c.ACClassWFID == acClassWFID).FirstOrDefault()
             );
-#endif
-        #endregion
 
-        #region TaskQueue
+#endregion
+
+#region TaskQueue
         private static readonly object _LockTaskQueue = new object();
         private static ACClassTaskQueue _TaskQueue = null;
 
@@ -125,7 +127,6 @@ namespace gip.core.datamodel
         /// Gets all property values.
         /// </summary>
         /// <value>All property values.</value>
-#if !EFCR
         public Dictionary<Guid, Dictionary<Guid, ACClassTaskValue[]>> AllPropertyValues
         {
             get
@@ -150,7 +151,6 @@ namespace gip.core.datamodel
                 return _AllPropertyValues;
             }
         }
-#endif
 
         private ConcurrentDictionary<Guid, ACClassProperty> _ACPropertyTypeCache = new ConcurrentDictionary<Guid, ACClassProperty>(5, 1000);
 
@@ -170,7 +170,6 @@ namespace gip.core.datamodel
 #region Methods
         public ACClassTaskValue GetFromAllPropValues(Guid acClassTaskID, Guid acClassPropertyID, Guid? vbUserID)
         {
-#if !EFCR
             if (AllPropertyValues == null)
                 return null;
             Dictionary<Guid, ACClassTaskValue[]> propertyValues = null;
@@ -185,7 +184,6 @@ namespace gip.core.datamodel
                         return values.FirstOrDefault();
                 }
             }
-#endif
             return null;
         }
 
@@ -203,9 +201,7 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(TaskQueue.Context.QueryLock_1X000))
                 {
-#if !EFCR
                     acClassProperty = s_cQry_ACPropertyCache(TaskQueue.Context, acClassPropertyID);
-#endif
                 }
                 if (acClassProperty != null)
                     _ACPropertyTypeCache.TryAdd(acClassPropertyID, acClassProperty);
@@ -220,9 +216,7 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(TaskQueue.Context.QueryLock_1X000))
                 {
-#if !EFCR
                     acClassWF = s_cQry_ACClassWFCache(TaskQueue.Context, acClassWFID);
-#endif
                 }
                 if (acClassWF != null)
                     _ACClassWFCache.TryAdd(acClassWFID, acClassWF);
@@ -242,8 +236,7 @@ namespace gip.core.datamodel
             _TaskQueue = taskQueue;
         }
 
-        #region precompiled Queries
-#if !EFCR
+#region precompiled Queries
         public static readonly Func<Database, Guid, IQueryable<ACProgramLog>> s_cQry_LatestProgramLogs =
             CompiledQuery.Compile<Database, Guid, IQueryable<ACProgramLog>>(
                 (db, acProgramID) =>
@@ -311,11 +304,10 @@ namespace gip.core.datamodel
                     .Where(c => c.ACProgramID == programID && c.ACUrl == acUrl)
                     .OrderBy(c => c.InsertDate)
             );
-#endif
 
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
         ACClassTaskQueue _TaskQueue = null;
         ConcurrentDictionary<Guid, ACProgramCacheEntry> _Programs = new ConcurrentDictionary<Guid, ACProgramCacheEntry>();
         #endregion
@@ -329,7 +321,6 @@ namespace gip.core.datamodel
         /// <param name="lookupOnlyInCache">lookupOnlyInCache</param>
         /// <param name="checkNewerThanParentProgramLog">checkNewerThanParentProgramLog</param>
         /// <returns></returns>
-#if !EFCR
         public ACProgramLog GetCurrentProgramLog(ACProgramLog parentProgramLog, string acUrl, bool lookupOnlyInCache = false, bool checkNewerThanParentProgramLog = true)
         {
             ACProgramCacheEntry cacheEntry = GetCacheEntry(parentProgramLog);
@@ -363,7 +354,7 @@ namespace gip.core.datamodel
             }
             return programLog;
         }
-#endif
+
         /// <summary>
         /// Reads from Cache, If not in Cache it rebuilds by querying dababase
         /// </summary>
@@ -385,7 +376,6 @@ namespace gip.core.datamodel
         /// <param name="acProgramLogID"></param>
         /// <param name="autoLoadCache"></param>
         /// <returns></returns>
-#if !EFCR
         public ACProgramLog GetCurrentProgramLogByLogID(Guid acProgramLogID, bool autoLoadCache = true)
         {
             ACProgramLog programLog = null;
@@ -415,12 +405,11 @@ namespace gip.core.datamodel
                 return cacheEntry.Program;
             return null;
         }
-#endif
+
         /// <summary>
         /// If there was an previous log, it will be replaced and the previous will be returned.
         /// Otherwise the new log will be returned.
         /// </summary>
-#if !EFCR
         public ACProgramLog AddProgramLog(ACProgramLog currentProgramLog, bool autoReplaceExisting = true)
         {
             if (currentProgramLog == null 
@@ -499,14 +488,11 @@ namespace gip.core.datamodel
             return previousLog;
         }
 
-#endif
-
         /// <summary>
         /// Removes ProgramLog from Cache and detaches the Entity
         /// </summary>
         /// <param name="currentProgramLog"></param>
         /// <returns></returns>
-#if !EFCR
         public ACProgramLog RemoveProgramLog(ACProgramLog currentProgramLog)
         {
             if (currentProgramLog == null)
@@ -517,7 +503,6 @@ namespace gip.core.datamodel
                 return null;
 
             ACProgramLog removedLog = cacheEntry.RemoveProgramLog(currentProgramLog);
-
             if (removedLog != null)
             {
                 _TaskQueue.Add(() =>
@@ -556,7 +541,6 @@ namespace gip.core.datamodel
 
             return removedLog;
         }
-#endif
 
         public ACProgramLog RemoveProgramLog(ACProgram acProgram, string acUrl)
         {
@@ -565,12 +549,10 @@ namespace gip.core.datamodel
                 return null;
 
             ACProgramLog removedLog = cacheEntry.RemoveProgramLog(acUrl);
-#if !EFCR
             if (removedLog != null)
             {
                 _TaskQueue.Add(() =>
                 {
-
                     try
                     {
                         if (removedLog.EntityState != System.Data.EntityState.Deleted
@@ -581,7 +563,6 @@ namespace gip.core.datamodel
                             _TaskQueue.Context.Detach(removedLog);
                         }
                     }
-
                     catch (Exception e)
                     {
                         string msg = e.Message;
@@ -593,7 +574,6 @@ namespace gip.core.datamodel
                 }
                 );
             }
-#endif
 
             return removedLog;
         }
@@ -606,7 +586,6 @@ namespace gip.core.datamodel
         public bool RemoveProgram(ACProgram acProgram)
         {
             ACProgramCacheEntry cacheEntry = null;
-#if !EFCR
             if (_Programs.TryRemove(acProgram.ACProgramID, out cacheEntry))
             {
                 _TaskQueue.Add(() => {
@@ -670,7 +649,6 @@ namespace gip.core.datamodel
                 }
                 return true;
             }
-#endif
             return false;
         }
 
@@ -680,7 +658,6 @@ namespace gip.core.datamodel
         /// <param name="parentProgramLogID"></param>
         /// <param name="acUrl"></param>
         /// <returns></returns>
-#if !EFCR
         public IEnumerable<ACProgramLog> GetPreviousLogsFromParentLog(Guid parentProgramLogID, string acUrl)
         {
             using (Database db = new Database())
@@ -690,6 +667,7 @@ namespace gip.core.datamodel
                 return query.ToArray();
             }
         }
+
         /// <summary>
         /// Return DETACHED Entities without change tracking!
         /// </summary>
@@ -705,9 +683,7 @@ namespace gip.core.datamodel
                 return query.ToArray();
             }
         }
-#endif
 
-#if !EFCR
         private ACProgramCacheEntry GetCacheEntry(ACProgramLog anyProgramLog, bool autoCreateIfNotExist = true)
         {
             ACProgram acProgram = null;
@@ -771,14 +747,11 @@ namespace gip.core.datamodel
             return cacheEntry;
         }
 
-#endif
-
         private ACProgramCacheEntry GetCacheEntry(ACProgram acProgram, bool autoCreateIfNotExist = true)
         {
             ACProgramCacheEntry cacheEntry = null;
             if (acProgram == null)
                 return cacheEntry;
-#if !EFCR
             if (!_Programs.TryGetValue(acProgram.ACProgramID, out cacheEntry) && autoCreateIfNotExist)
             {
                 Dictionary<string, ACProgramLog> latestProgramLogs = null;
@@ -813,7 +786,6 @@ namespace gip.core.datamodel
                 }
 #endif
             }
-#endif
             return cacheEntry;
         }
 #endregion
@@ -860,7 +832,6 @@ namespace gip.core.datamodel
                     return null;
                 _LatestProgramLogs.TryGetValue(acUrl, out currentLog);
             }
-#if !EFCR
             if (currentLog != null && parentProgramLog != null && currentLog.ParentACProgramLogID != parentProgramLog.ACProgramLogID)
             {
                 // Dieser Fall tritt tritt bei Workflowschritten auf, die in den vergangenen Workflows einmal ausgeführt worden sind,
@@ -871,7 +842,6 @@ namespace gip.core.datamodel
 //#endif
                 return null;
             }
-#endif
             return currentLog;
         }
 
@@ -917,7 +887,6 @@ namespace gip.core.datamodel
             ACProgramLog currentLog = null;
             lock (_LockLatestPLog)
             {
-#if !EFCR
                 if (_LatestProgramLogs == null)
                     return null;
                 _LatestProgramLogs.TryGetValue(programLog.ACUrl, out currentLog);
@@ -932,7 +901,6 @@ namespace gip.core.datamodel
                     if (!_LatestProgramLogs.Remove(programLog.ACUrl))
                         currentLog = null;
                 }
-#endif
             }
             return currentLog;
         }

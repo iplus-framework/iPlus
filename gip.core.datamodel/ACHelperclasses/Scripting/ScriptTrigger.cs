@@ -111,13 +111,11 @@ namespace gip.core.datamodel
         /// <value>The method return signature.</value>
         public string MethodReturnSignature { get; set; }
 
-#if !EFCR
         public string GetMethodSignatureForACClass(ACClass acClass)
         {
             string name = acClass.ACIdentifier.Substring(0, 1).ToLower() + acClass.ACIdentifier.Substring(1);
             return MethodSignature.Replace(MethodSignatureThisParam, acClass.ObjectType.Name + " " + name);
         }
-#endif
 
         /// <summary>
         /// Gets the name of the method.

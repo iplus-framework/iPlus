@@ -113,9 +113,7 @@ namespace gip.core.datamodel
         /// <param name="maxColumns">The max columns.</param>
         /// <param name="acColumns">The ac columns.</param>
         /// <returns>List{ACColumnItem}.</returns>
-#if !EFCR  
         List<ACColumnItem> GetColumns(int maxColumns = 9999, string acColumns = null);
-#endif
         #endregion
 
 

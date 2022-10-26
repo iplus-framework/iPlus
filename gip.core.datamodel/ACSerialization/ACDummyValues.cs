@@ -9,12 +9,12 @@ namespace gip.core.datamodel
 {
     internal class ACDummyValues
     {
-#if !EFCR
+
         public ACDummyValues(IACEntityObjectContext db)
         {
             LoadUnknowEntries(db);
         }
-#endif
+
         #region Properties
 
         /// <summary>
@@ -101,7 +101,6 @@ namespace gip.core.datamodel
 
         #region Mehtods
 
-#if !EFCR
         public void LoadUnknowEntries(IACEntityObjectContext db)
         {
             var query = db.ContextIPlus.ACClass.Where(c =>     c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.ClassLibrary 
@@ -150,7 +149,6 @@ namespace gip.core.datamodel
             if (newValue == null) return null;
             return new ACFSItemChanges(pi.Name, oldValue, newValue);
         }
-#endif
 
         #endregion
 

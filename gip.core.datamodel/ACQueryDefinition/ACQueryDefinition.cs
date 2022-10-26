@@ -14,6 +14,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data.Objects;
+using System.Data.Objects.DataClasses;
 using System.Runtime.Serialization;
 using System.ComponentModel;
 
@@ -28,7 +30,6 @@ namespace gip.core.datamodel
     /// <seealso cref="gip.core.datamodel.IVBDataCheckbox" />
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     /// <seealso cref="System.ICloneable" />
-    #if !EFCR
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Querydefinition'}de{'Abfragedefinition'}", Global.ACKinds.TACQRY, Global.ACStorableTypes.NotStorable, true, false)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACQueryDefinition.ClassName, "en{'Querydefinition'}de{'Abfragedefinition'}", typeof(ACQueryDefinition), "ACObjectChilds", Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACClassConstructorInfo(
@@ -50,7 +51,7 @@ namespace gip.core.datamodel
         public const string ACQueryDefinitionChildsPropName = "ACQueryDefinitionChilds";
 
         #region c´tors
-#if !EFCR
+
         internal static ACQueryDefinition CreateRootQueryDefinition(ACClass acClassQRYACQueryDefinition)
         {
             ACQueryDefinition qryACQueryDefinition = ACActivator.CreateInstance(acClassQRYACQueryDefinition, acClassQRYACQueryDefinition, null, null) as ACQueryDefinition;
@@ -117,7 +118,6 @@ namespace gip.core.datamodel
             if (TakeCount <= 0 && _DefaultTakeCount > 0)
                 TakeCount = _DefaultTakeCount;
         }
-#endif
 
         /// <summary>
         /// The ACInit method is called directly after construction. 
@@ -136,7 +136,6 @@ namespace gip.core.datamodel
             if (!base.ACInit(startChildMode))
                 return false;
 
-#if !EFCR
             var acClassPropertyList = this.TypeACClass.Properties.ToList();
 
             var acPropertyChildACUrl = acClassPropertyList.Where(c => c.ACIdentifier == Const.ChildACUrlPrefix).First() as ACClassProperty;
@@ -184,7 +183,6 @@ namespace gip.core.datamodel
                 else
                     _RestoredMode = Global.ConfigSaveModes.Computer;
             }
-#endif
 
             ResetQueryStrings();
 
@@ -316,7 +314,6 @@ namespace gip.core.datamodel
         /// List of ACQueryDefinition's that a in a child-relationship to this ACQueryDefinition
         /// </summary>
         /// <value>ACQueryDefinitions for child-relationship</value>
-#if !EFCR
         [DataMember]
         [ACPropertyInfo(8, "", "en{'Queries for child-relationships'}de{'Anfragen für Kind-Beziehungen'}")]
         public IEnumerable<ACQueryDefinition> ACQueryDefinitionChilds
@@ -424,7 +421,7 @@ namespace gip.core.datamodel
                 return _ACFilterColumns;
             }
         }
-#endif
+
 
         [DataMember]
         BindingList<ACSortItem> _ACSortColumns = null;
@@ -536,7 +533,6 @@ namespace gip.core.datamodel
         /// Gets the root AC query definition.
         /// </summary>
         /// <value>The root AC query definition.</value>
-#if !EFCR
         public ACQueryDefinition RootACQueryDefinition
         {
             get
@@ -546,6 +542,7 @@ namespace gip.core.datamodel
                 return this;
             }
         }
+
 
         /// <summary>
         /// Get ACColumns as a comma seperated string
@@ -590,7 +587,7 @@ namespace gip.core.datamodel
                 return collection;
             }
         }
-#endif
+
         private string _OneTimeSearchWord;
         /// <summary>  Searchword, that is used once. After excecuting the search with ACAccess.OneTimeSearchT() this value will be reset to null.</summary>
         /// <value>The one time search word.</value>
@@ -628,7 +625,7 @@ namespace gip.core.datamodel
         #endregion
 
         #region Static Properties
-#if !EFCR
+
         static ACClass _ACClassACAccessNav = null;
         private static ACClass ACClassACAccessNav
         {
@@ -654,7 +651,7 @@ namespace gip.core.datamodel
                 return _ACClassACAccess;
             }
         }
-#endif
+
         #endregion
 
         #region LINQ-Predicate Properties
@@ -751,7 +748,6 @@ namespace gip.core.datamodel
         #endregion
 
         #region Entity-SQL Properties
-#if !EFCR
         public string SelectPartOfEntitySQL
         {
             get
@@ -772,7 +768,7 @@ namespace gip.core.datamodel
                 return queryString;
             }
         }
-#endif
+
         private string _EntitySQL_FromEdit = null;
         /// <summary>Entity-SQL Statemenet, that can be manipulated in the Query-Dialog by the user</summary>
         /// <value>Entity-SQL-string</value>
@@ -790,7 +786,7 @@ namespace gip.core.datamodel
                 OnPropertyChanged("EntitySQL");
             }
         }
-#if !EFCR
+
         private string _EntitySQL_FromItems = null;
         /// <summary>Entity-SQL Where-Clause, that is generated from ACFilterColumns and ACSortColumns</summary>
         /// <value>Entity-SQL-string</value>
@@ -824,7 +820,6 @@ namespace gip.core.datamodel
                 return EntitySQL_FromItems;
             }
         }
-#endif
         #endregion
 
         #endregion
@@ -2170,5 +2165,4 @@ namespace gip.core.datamodel
         #endregion
 
     }
-#endif
 }

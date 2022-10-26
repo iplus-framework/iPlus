@@ -32,12 +32,11 @@ namespace gip.core.datamodel
     /// -Hilfsliste in VBBSOInputbox
     /// -Hilfsliste in BSOiPlusInstall für die Auswahl der Projekte (Verzeichnisse) beim Import
     /// </summary>
-    
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValueItem'}de{'ACValueItem'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     // 1 ACCaption
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACValueItem", "en{'ACValueItem'}de{'ACValueItem'}", typeof(ACValueItem), "ACValueItem", Const.ACCaptionPrefix, Const.ACCaptionPrefix)]
-    public class ACValueItem : IACContainer, INotifyPropertyChanged
+    public class ACValueItem : IACContainer, IACObject, INotifyPropertyChanged
     {
         #region c´tors
         /// <summary>
@@ -209,7 +208,6 @@ namespace gip.core.datamodel
         /// <param name="acUrl">String that adresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
-#if !EFCR
         public object ACUrlCommand(string acUrl, params object[] acParameter)
         {
             return this.ReflectACUrlCommand(acUrl, acParameter);
@@ -225,17 +223,16 @@ namespace gip.core.datamodel
         {
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
-#endif
-/// <summary>
-/// Method that returns a source and path for WPF-Bindings by passing a ACUrl.
-/// </summary>
-/// <param name="acUrl">ACUrl of the Component, Property or Method</param>
-/// <param name="acTypeInfo">Reference to the iPlus-Type (ACClass)</param>
-/// <param name="source">The Source for WPF-Databinding</param>
-/// <param name="path">Relative path from the returned source for WPF-Databinding</param>
-/// <param name="rightControlMode">Information about access rights for the requested object</param>
-/// <returns><c>true</c> if binding could resolved for the passed ACUrl<c>false</c> otherwise</returns>
-#if !EFCR
+
+        /// <summary>
+        /// Method that returns a source and path for WPF-Bindings by passing a ACUrl.
+        /// </summary>
+        /// <param name="acUrl">ACUrl of the Component, Property or Method</param>
+        /// <param name="acTypeInfo">Reference to the iPlus-Type (ACClass)</param>
+        /// <param name="source">The Source for WPF-Databinding</param>
+        /// <param name="path">Relative path from the returned source for WPF-Databinding</param>
+        /// <param name="rightControlMode">Information about access rights for the requested object</param>
+        /// <returns><c>true</c> if binding could resolved for the passed ACUrl<c>false</c> otherwise</returns>
         public bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode)
         {
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
@@ -245,7 +242,6 @@ namespace gip.core.datamodel
         /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
         /// </summary>
         /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
-        
         public IACType ACType
         {
             get
@@ -253,12 +249,12 @@ namespace gip.core.datamodel
                 return this.ReflectACType();
             }
         }
-#endif
+
         public short SortIndex { get; set; }
 
-#endregion
+        #endregion
 
-#region static Properties
+        #region static Properties
         /// <summary>
         /// Gets the key AC identifier.
         /// </summary>
@@ -270,9 +266,9 @@ namespace gip.core.datamodel
                 return "Index";
             }
         }
-#endregion
+        #endregion
 
-#region IACObject Member
+        #region IACObject Member
         /// <summary>
         /// Returns the parent object
         /// </summary>
@@ -286,7 +282,6 @@ namespace gip.core.datamodel
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
         /// </summary>
         /// <value> A nullable list ob IACObjects.</value>
-#if !EFCR
         public IEnumerable<IACObject> ACContentList
         {
             get
@@ -294,10 +289,9 @@ namespace gip.core.datamodel
                 return this.ReflectGetACContentList();
             }
         }
-#endif
-#endregion
+        #endregion
 
-#region INotifyPropertyChanged Members
+        #region INotifyPropertyChanged Members
         /// <summary>
         /// Tritt ein, wenn sich ein Eigenschaftswert ändert.
         /// </summary>
@@ -329,7 +323,7 @@ namespace gip.core.datamodel
                     ParentACObject.ACUrlCommand("!OnPropertyChanged", "ACValueItem\\" + name);
             }
         }
-#endregion
+        #endregion
 
         /// <summary>
         /// Sets the value from string.
@@ -424,4 +418,5 @@ namespace gip.core.datamodel
         //}
 
     }
+
 }

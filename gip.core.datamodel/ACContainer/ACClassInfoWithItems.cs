@@ -19,9 +19,10 @@ using System.Text;
 using System.ComponentModel;
 using System.Transactions;
 
+
+#if !EFCR
 namespace gip.core.datamodel
 {
-#if !EFCR
     /// <summary>
     /// Container mit Items für ein ACClass
     /// Verwendung: Für alle Trees in denen Klassenbäumne dargestellt werden u.a. in BSOiPlusStudio, BSOPartslist
@@ -957,5 +958,5 @@ namespace gip.core.datamodel
 
 #endregion
     }
-#endif
 }
+#endif

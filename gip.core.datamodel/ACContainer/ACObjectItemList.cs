@@ -22,8 +22,6 @@ namespace gip.core.datamodel
     /// <summary>
     /// Class ACObjectItemList
     /// </summary>
-    /// 
-#if !EFCR
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACObjectItemList'}de{'ACObjectItemList'}", Global.ACKinds.TACClass)]
     public class ACObjectItemList : ObservableCollection<ACObjectItem>
     {
@@ -39,5 +37,4 @@ namespace gip.core.datamodel
 
         }
     }
-#endif
 }

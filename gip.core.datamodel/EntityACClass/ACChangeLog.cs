@@ -15,7 +15,6 @@ namespace gip.core.datamodel
     [ACPropertyEntity(999, "ChangeDate", "en{'Changed on'}de{'Geändert am'}")]
     public partial class ACChangeLog
     {
-#if !EFCR
         public static ACChangeLog NewACObject()
         {
             ACChangeLog aCChangeLog = new ACChangeLog();
@@ -29,6 +28,7 @@ namespace gip.core.datamodel
             db.ACChangeLog.AddObject(aCChangeLog);
             return aCChangeLog;
         }
+
         private ACValue _ChangeLogValue;
         [ACPropertyInfo(999, "", "en{'Value'}de{'Wert'}")]
         public ACValue ChangeLogValue
@@ -52,7 +52,6 @@ namespace gip.core.datamodel
                 OnPropertyChanged("ChangeLogValue");
             }
         }
-#endif
     }
 
     [DataContract]

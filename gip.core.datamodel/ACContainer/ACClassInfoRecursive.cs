@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
-#if !EFCR
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Classinfo'}de{'Klasseninformation'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACClassInfoRecursive : ACClassInfoWithItems
     {
@@ -132,5 +131,4 @@ namespace gip.core.datamodel
 
 #endregion
     }
-#endif
 }

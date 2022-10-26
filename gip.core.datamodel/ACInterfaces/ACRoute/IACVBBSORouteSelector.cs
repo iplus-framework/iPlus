@@ -9,13 +9,11 @@ namespace gip.core.datamodel
     public interface IACVBBSORouteSelector
     {
         void GetAvailableRoutes(IEnumerable<ACClass> startComponents, IEnumerable<ACClass> endComponents);
-#if !EFCR
         void EditRoutes(Route route, bool isReadOnly, bool includeReserved, bool includeAllocated);
 
         IEnumerable<Route> RouteResult
         {
             get;
         }
-#endif
     }
 }

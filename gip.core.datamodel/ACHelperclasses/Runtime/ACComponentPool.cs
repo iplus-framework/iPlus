@@ -66,7 +66,6 @@ namespace gip.core.datamodel
             using (ACMonitor.Lock(_10015_LockPool))
             {
                 Queue<PoolReference> poolList;
-#if !EFCR
                 if (_Pool.TryGetValue(acClass.ACClassID, out poolList))
                 {
                     if (poolList.Count <= 0)
@@ -82,7 +81,6 @@ namespace gip.core.datamodel
                             return component;
                     }
                 }
-#endif
             }
             return null;
         }
@@ -109,7 +107,6 @@ namespace gip.core.datamodel
         /// <param name="component">The component.</param>
         /// <param name="ignoreInitState">The ignoreInitState.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
-#if !EFCR
         internal bool Push(IACComponent component, bool ignoreInitState = false)
         {
             if (!CanBePooled(component, ignoreInitState))
@@ -128,7 +125,6 @@ namespace gip.core.datamodel
                 return true;
             }
         }
-#endif
 
         /// <summary>
         /// The _ pool

@@ -11,9 +11,8 @@ namespace gip.core.datamodel
 
         public IACEntityObjectContext InnerDatabase { get; set; }
         public IACEntityObjectContext OuterDatabase { get; set; }
-#if !EFCR
         public ACQueryDefinition ACQueryDefinition { get; set; }
-#endif
+
         public List<IACObject> DeserializedSQLData { get; set; }
 
     }

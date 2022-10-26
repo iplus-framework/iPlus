@@ -25,7 +25,6 @@ namespace gip.core.datamodel
     {
         Database Database { get; }
 
-        IACObject GetChildEntityObject(string className, params string[] filterValues);
         void OnObjectMaterialized(Database db);
     }
 }

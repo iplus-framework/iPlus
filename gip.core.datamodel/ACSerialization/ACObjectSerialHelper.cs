@@ -25,7 +25,7 @@ namespace gip.core.datamodel
         #endregion
 
         #region Type definition and Factory
-#if !EFCR
+
         public static IACObject FactoryACObject(ACFSItem acFSParentItem, string acUrl)
         {
             if (acUrl.StartsWith(Const.ContextDatabase + "\\"))
@@ -81,7 +81,7 @@ namespace gip.core.datamodel
                 }
                 else
                 {
-        #region URL parts
+                    #region URL parts
                     if (acObject == null && acUrl.Contains("\\"))
                     {
                         IACObject tmpIACObject = null;
@@ -121,7 +121,7 @@ namespace gip.core.datamodel
                         }
                         acObject = tmpIACObject;
                     }
-        #endregion
+                    #endregion
                 }
 
                 if (acObject == null)
@@ -149,17 +149,16 @@ namespace gip.core.datamodel
                 || pi.PropertyType.BaseType == typeof(System.Data.Objects.DataClasses.EntityReference)))
                 || !(pi.GetCustomAttributes(typeof(DataMemberAttribute), true).Any() && pi.Name != "EntityKey");// not registred for data operate
         }
-#endif
+
         #endregion
 
         #region Set property
-#if !EFCR
+
         public static List<ACObjectSerialPropertyContainerModel> GetPropertyList(IACObject acObject, bool? onlyKeyMembers)
         {
             List<ACObjectSerialPropertyContainerModel> list = new List<ACObjectSerialPropertyContainerModel>();
-#if !EFCR
             PropertyInfo[] properties = acObject.GetType().GetProperties().Where(pi => !ACObjectSerialHelper.PropertyForIgnore(pi)).ToArray();
-#endif
+
             PropertyInfo keyMemberPropertyInfo = acObject.GetType().GetProperty("KeyACIdentifier");
             string dataIdentifierStr = keyMemberPropertyInfo.GetValue(acObject.GetType(), null) as string;
             string[] dataIdentifiers = dataIdentifierStr.Split(',');
@@ -175,15 +174,13 @@ namespace gip.core.datamodel
                     else
                         keyMembers.Add(dataIdentifier);
                 }
-#if !EFCR
+
                 if (onlyKeyMembers.Value)
                     properties = properties.Where(x => keyMembers.Contains(x.Name)).ToArray();
                 else
                     properties = properties.Where(x => !keyMembers.Contains(x.Name)).ToArray();
-#endif
             }
 
-#if !EFCR
             foreach (PropertyInfo pi in properties)
             {
                 ACObjectSerialPropertyHandlingTypesEnum acObjectPropertyType = GetACObjectPropertyHandlingType(pi, acObject);
@@ -198,9 +195,8 @@ namespace gip.core.datamodel
                 list.FirstOrDefault(x => x.PropertyType == acObjectPropertyType).Properties.Add(pi);
             }
             return list.OrderBy(x => x.PropertyType).ToList();
-#endif
         }
-#endif
+
         public static ACObjectSerialPropertyHandlingTypesEnum GetACObjectPropertyHandlingType(PropertyInfo pi, IACObject acObject)
         {
             ACObjectSerialPropertyHandlingTypesEnum acObjectPropertyType = ACObjectSerialPropertyHandlingTypesEnum.Primitive;
@@ -294,10 +290,8 @@ namespace gip.core.datamodel
                         byte[] newValue = resource.ReadBinary(xValue);
                         if (newValue != null && acClassDesign != null)
                         {
-#if !EFCR
                             changesItem = new ACFSItemChanges("DesignBinary", string.Format("binary[{0}]", acClassDesign.DesignBinary != null ? acClassDesign.DesignBinary.Length : 0), string.Format("binary[{0}]", newValue.Length));
                             acClassDesign.DesignBinary = newValue;
-#endif
                         }
                         break;
                     case ACObjectSerialPropertyHandlingTypesEnum.IACObject:
@@ -322,10 +316,8 @@ namespace gip.core.datamodel
                             if (vOld != null)
                                 oldValue = vOld.GetACUrl();
 
-#if !EFCR
                             ACDummyValues dummyValues = new ACDummyValues(container.DB);
                             changesItem = dummyValues.SetDummyValue(container.DB, pi, acObject);
-#endif
                             if (changesItem == null)
                             {
                                 if (pi.PropertyType.Name.StartsWith("MD") && xValue.IndexOf('\\') == -1)
@@ -367,7 +359,7 @@ namespace gip.core.datamodel
 
             return changesItem;
         }
-#if !EFCR
+
         public static void SetIACObjectProperties(IResources resource, IACEntityObjectContext db, ACFSItemContainer container, ACFSItem acFsItem, bool? setupKeyACIdentifier, List<Msg> msgList)
         {
             ACFSItemChanges itemChange = null;
@@ -398,7 +390,7 @@ namespace gip.core.datamodel
                     }
                 }
         }
-#endif
+
         #endregion
 
     }

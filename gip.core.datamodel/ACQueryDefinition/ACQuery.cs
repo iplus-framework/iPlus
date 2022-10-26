@@ -21,7 +21,9 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
 using System.Collections;
+using System.Data.Objects;
 using gip.core.datamodel;
+using System.Data.Objects.DataClasses;
 using System.Runtime.Serialization;
 
 namespace gip.core.datamodel
@@ -44,7 +46,6 @@ namespace gip.core.datamodel
         /// <param name="queryDefinition">The query definition.</param>
         /// <param name="mergeOption">The merge option.</param>
         /// <returns>IEnumerable.</returns>
-#if !EFCR
         public static IQueryable ACSelect(this IACObject acObject, ACQueryDefinition queryDefinition, MergeOption mergeOption = MergeOption.AppendOnly)
         {
             return acObject.ACSelect(queryDefinition, queryDefinition.ChildACUrl, mergeOption);
@@ -54,7 +55,7 @@ namespace gip.core.datamodel
         {
             return acObject.ACSelect<T>(queryDefinition, queryDefinition.ChildACUrl, mergeOption);
         }
-#endif
+
         /// <summary>
         /// ACs the select.
         /// </summary>
@@ -63,7 +64,6 @@ namespace gip.core.datamodel
         /// <param name="childACUrl">The child AC URL.</param>
         /// <param name="mergeOption">The merge option.</param>
         /// <returns>IEnumerable.</returns>
-#if !EFCR
         public static IQueryable ACSelect(this IACObject acObject, ACQueryDefinition queryDefinition, string childACUrl, MergeOption mergeOption = MergeOption.AppendOnly)
         {
             MethodInfo miDynQuery = _DynQueryMethod.MakeGenericMethod(new Type[] { queryDefinition.QueryType.ObjectType });
@@ -157,9 +157,8 @@ namespace gip.core.datamodel
                 return null;
             }
         }
-#endif
 
-#if !EFCR
+
         public static IQueryable ACSelect(this IEnumerable list, ACQueryDefinition queryDefinition)
         {
             return _DynQueryMethod.MakeGenericMethod(new Type[] { queryDefinition.QueryType.ObjectType }).Invoke(null, new object[] { list, queryDefinition, MergeOption.AppendOnly }) as IQueryable;
@@ -169,7 +168,6 @@ namespace gip.core.datamodel
         {
             return SearchWithDynQuery<T>(list, queryDefinition, mergeOption);
         }
-#endif
         #endregion
 
         #region private Methods
@@ -181,7 +179,6 @@ namespace gip.core.datamodel
         /// <param name="queryDefinition">The query definition.</param>
         /// <param name="mergeOption">The merge option.</param>
         /// <returns>IQueryable{``0}.</returns>
-#if !EFCR
         private static IQueryable<T> SearchWithDynQuery<T>(IEnumerable<T> source, ACQueryDefinition queryDefinition, MergeOption mergeOption)
         {
             var sourceQ = source.AsQueryable();
@@ -256,8 +253,6 @@ namespace gip.core.datamodel
 
             return dynQuery;
         }
-#endif
-
         #endregion
     }
 }

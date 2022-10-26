@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System.Collections.Generic;
 using System.Linq;
+using System.Data.Objects;
 
 namespace gip.core.datamodel
 {
@@ -29,7 +30,7 @@ namespace gip.core.datamodel
         [ACPropertyInfo(9999)]
         IList<T> NavList { get; }
 
-#if !EFCR
+
         /// <summary>Executes a Query according to the filter and sort entries in ACQueryDefinition without changing the NavObjectList. The result is returned directly.</summary>
         /// <param name="searchWord">The search word.</param>
         /// <param name="mergeOption">The merge option.</param>
@@ -42,7 +43,6 @@ namespace gip.core.datamodel
         /// <param name="mergeOption">The merge option.</param>
         /// <returns>The first element oft type T in the result</returns>
         T OneTimeSearchFirstOrDefaultT(string searchWord, MergeOption mergeOption = MergeOption.AppendOnly);
-#endif
     }
 
 }

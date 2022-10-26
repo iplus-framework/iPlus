@@ -24,7 +24,7 @@ using System.Xml.Linq;
 
 namespace gip.core.datamodel
 {
-#if !EFCR
+
     public delegate void ACFSItemChange(ACFSItem aCFSItem, string propertyName, IACObject aCObject, string acObjectPropertyName);
     /// <summary>
     /// Container mit Verzeichnisinformationen (Verzeichnisse/Dateien) Serialisierbar
@@ -34,15 +34,14 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACFSItem'}de{'ACFSItem'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     // 1 ACCaption
     // 2 ACUrlFS
-
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACFSItem", "en{'ACFSItem'}de{'ACFSItem'}", typeof(ACFSItem), "ACFSItem", Const.ACCaptionPrefix, Const.ACCaptionPrefix)]
     public class ACFSItem : IACContainerWithItems, IACObject, INotifyPropertyChanged, IVBDataCheckbox, IVBIsVisible
     {
-    #region event
+        #region event
         public event ACFSItemChange OnACFSItemChange;
-    #endregion
+        #endregion
 
-    #region c´tors
+        #region c´tors
 
         /// <summary>
         /// ACFSItem
@@ -68,9 +67,9 @@ namespace gip.core.datamodel
             IsVisible = true;
         }
 
-    #endregion
+        #endregion
 
-    #region BSO->ACProperty
+        #region BSO->ACProperty
         /// <summary>
         /// The _ is checked
         /// </summary>
@@ -109,7 +108,6 @@ namespace gip.core.datamodel
             }
         }
 
-#if !EFCR
         [ACPropertyInfo(9999, "IsNew", "en{'New'}de{'Neu'}")]
         public bool? IsNew
         {
@@ -119,7 +117,7 @@ namespace gip.core.datamodel
                 return (ACObject as VBEntityObject).EntityState == System.Data.EntityState.Added;
             }
         }
-#endif
+
         /// <summary>
         /// The _ is directory
         /// </summary>
@@ -199,9 +197,9 @@ namespace gip.core.datamodel
             }
         }
 
-    #endregion
+        #endregion
 
-    #region IACContainerWithItems
+        #region IACContainerWithItems
 
         ObservableCollection<IACContainerWithItems> _ACObjectItemList;
         /// <summary>Container-Childs</summary>
@@ -286,9 +284,9 @@ namespace gip.core.datamodel
             return result;
         }
 
-    #endregion
+        #endregion
 
-    #region IACObjectWithBinding Member
+        #region IACObjectWithBinding Member
         /// <summary>
         /// Returns a ACUrl relatively to the passed object.
         /// If the passed object is null then the absolute path is returned
@@ -418,7 +416,6 @@ namespace gip.core.datamodel
         /// <param name="acUrl">String that adresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
-#if !EFCR
         public virtual object ACUrlCommand(string acUrl, params Object[] acParameter)
         {
             return this.ReflectACUrlCommand(acUrl, acParameter);
@@ -434,7 +431,7 @@ namespace gip.core.datamodel
         {
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
-#endif
+
         /// <summary>
         /// Method that returns a source and path for WPF-Bindings by passing a ACUrl.
         /// </summary>
@@ -449,9 +446,9 @@ namespace gip.core.datamodel
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
 
-    #endregion
+        #endregion
 
-    #region IACObjectEntity Members
+        #region IACObjectEntity Members
         /// <summary>
         /// Returns the parent object
         /// </summary>
@@ -467,7 +464,6 @@ namespace gip.core.datamodel
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
         /// </summary>
         /// <value> A nullable list ob IACObjects.</value>
-#if !EFCR
         public IEnumerable<IACObject> ACContentList
         {
             get
@@ -475,7 +471,7 @@ namespace gip.core.datamodel
                 return this.ReflectGetACContentList();
             }
         }
-#endif
+
         /// <summary>
         /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
         /// </summary>
@@ -488,9 +484,9 @@ namespace gip.core.datamodel
             }
         }
 
-    #endregion
+        #endregion
 
-    #region static Properties
+        #region static Properties
         /// <summary>
         /// Gets the key AC identifier.
         /// </summary>
@@ -502,9 +498,9 @@ namespace gip.core.datamodel
                 return Const.ACCaptionPrefix;
             }
         }
-    #endregion
+        #endregion
 
-    #region INotifyPropertyChanged Members
+        #region INotifyPropertyChanged Members
         /// <summary>
         /// Tritt ein, wenn sich ein Eigenschaftswert ändert.
         /// </summary>
@@ -525,9 +521,9 @@ namespace gip.core.datamodel
             if (OnACFSItemChange != null)
                 OnACFSItemChange(this, name, ACObject, null);
         }
-    #endregion
+        #endregion
 
-    #region IACValue
+        #region IACValue
         /// <summary>Gets or sets the encapsulated value as a boxed type</summary>
         /// <value>The boxed value.</value>
         public object Value
@@ -550,9 +546,9 @@ namespace gip.core.datamodel
                 return ACObject == null ? null : ACObject.ACType as ACClass;
             }
         }
-    #endregion
+        #endregion
 
-    #region IVBDataCheckbox Member
+        #region IVBDataCheckbox Member
         /// <summary>
         /// Gets or sets the data content check box.
         /// </summary>
@@ -564,9 +560,9 @@ namespace gip.core.datamodel
         }
 
         public bool IsEnabled { get; set; }
-    #endregion
+        #endregion
 
-    #region Additional members
+        #region Additional members
 
         public bool IsVisible
         {
@@ -607,9 +603,9 @@ namespace gip.core.datamodel
                 _ItemChanges = value;
             }
         }
-    #endregion
+        #endregion
 
-    #region Recursive mehtods
+        #region Recursive mehtods
 
         /// <summary>
         /// Generating child folder item for URL folder structure (zips)
@@ -646,7 +642,6 @@ namespace gip.core.datamodel
 
         public bool UpdateDateFail { get; set; }
 
-#if !EFCR
         public void DeatachAll()
         {
             if (ACObject != null && ACObject is VBEntityObject)
@@ -704,7 +699,7 @@ namespace gip.core.datamodel
                 childFsItem.SetupProperties(msgList);
             }
         }
-#endif
+
 
         /// <summary>
         /// Tree used operation - for hidden list show first as visible - enable tree collapse option
@@ -722,9 +717,9 @@ namespace gip.core.datamodel
                 }
         }
 
-    #endregion
+        #endregion
 
-    #region Operational methods
+        #region Operational methods
 
         /// <summary>
         /// 
@@ -792,7 +787,7 @@ namespace gip.core.datamodel
             return new KeyValuePair<bool, string>(true, propertyValue);
         }
 
-    #endregion
+        #endregion
 
         public override string ToString()
         {
@@ -809,7 +804,7 @@ namespace gip.core.datamodel
         }
 
     }
-#endif
+
     public enum ACFSItemEntityOperation
     {
         None,
