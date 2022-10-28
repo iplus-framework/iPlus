@@ -7,9 +7,16 @@ namespace gip.core.datamodel
     [DataContract]
     public enum SemaphoreEnum : short
     {
-        None,
-        Red,
-        Yellow,
-        Green
+        [EnumMember(Value = "None")]
+        None = 0,
+
+        [EnumMember(Value = "Red")]
+        Red = 1,
+
+        [EnumMember(Value = "Yellow")]
+        Yellow = 2,
+
+        [EnumMember(Value = "Green")]
+        Green = 3
     }
 }
