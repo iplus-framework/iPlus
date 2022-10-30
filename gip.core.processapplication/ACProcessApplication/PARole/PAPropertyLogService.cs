@@ -10,7 +10,7 @@ namespace gip.core.processapplication
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Property logging with OEE'}de{'Eigenschaftsprotokollierung mit OEE'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, true)]
     public class PAPropertyLogService : ACPropertyLogService
     {
-        new public const string ClassName = "PAPropertyLogService";
+        new public const string ClassName = nameof(PAPropertyLogService);
 
         #region c'tors
 
@@ -42,13 +42,7 @@ namespace gip.core.processapplication
 
         protected override void OnPropertyValueChanged(object sender, ACPropertyNetSendEventArgs e)
         {
-            if (e.ForACComponent != null
-                && e.NetValueEventArgs != null
-                && e.NetValueEventArgs.EventType == EventTypes.ValueChangedInSource
-                && (   (e.ForACComponent is PAProcessFunction && e.NetValueEventArgs.ACIdentifier == "ACState")
-                    || (e.ForACComponent is IPAOEEProvider && e.NetValueEventArgs.ACIdentifier == "OperatingMode")
-                    || (e.ForACComponent is IPAOEEProvider && e.NetValueEventArgs.ACIdentifier == "Allocated"))
-                )
+            if (IsOEERelevantProperty(sender, e))
             {
                 // Determines the AvailabilityState
                 IPAOEEProvider oeeProvider = (e.ForACComponent is PAProcessFunction) ? e.ForACComponent.ParentACComponent as IPAOEEProvider : e.ForACComponent as IPAOEEProvider;
@@ -88,6 +82,7 @@ namespace gip.core.processapplication
                             }
                         }
                     }
+                    newAvailabilityState = OnChangingAvailabilityState(newAvailabilityState, oeeProvider, sender, e);
                     oeeProvider.AvailabilityState.ValueT = newAvailabilityState;
                 }
             }
@@ -95,6 +90,22 @@ namespace gip.core.processapplication
             base.OnPropertyValueChanged(sender, e);
         }
 
+        protected virtual bool IsOEERelevantProperty(object sender, ACPropertyNetSendEventArgs e)
+        {
+            return e.ForACComponent != null
+                && e.NetValueEventArgs != null
+                && e.NetValueEventArgs.EventType == EventTypes.ValueChangedInSource
+                && (   (e.ForACComponent is PAProcessFunction && e.NetValueEventArgs.ACIdentifier == Const.ACState)
+                    || (e.ForACComponent is IPAOEEProvider
+                        && (   e.NetValueEventArgs.ACIdentifier == nameof(IPAOEEProvider.OperatingMode)
+                            || e.NetValueEventArgs.ACIdentifier == nameof(IPAOEEProvider.Allocated)))
+                    );
+        }
+
+        protected virtual GlobalProcApp.AvailabilityState OnChangingAvailabilityState(GlobalProcApp.AvailabilityState newAvailabilityState, IPAOEEProvider oeeProvider, object sender, ACPropertyNetSendEventArgs e)
+        {
+            return newAvailabilityState;
+        }
         #endregion
     }
 }
