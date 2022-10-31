@@ -513,11 +513,25 @@ namespace gip.core.datamodel
         {
             if (Database.Root != null && Database.Root.Messages != null)
                 Database.Root.Messages.LogDebug("ACThread", "Join()", String.Format("Joining Thread ID:{0} Name:{1}", ManagedThreadId, Name));
-            this.Thread.Join();
+
+            Exception ex = null;
+            try
+            {
+                this.Thread.Join();
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
             lock (_Lock)
             {
                 if (Database.Root != null && Database.Root.Messages != null)
-                    Database.Root.Messages.LogDebug("ACThread", "Join()", String.Format("Succeeded Thread ID:{0} Name:{1}", ManagedThreadId, Name));
+                {
+                    if (ex != null)
+                        Database.Root.Messages.LogDebug("ACThread", "Join()", String.Format("NOT Succeeded Thread ID:{0} Name:{1} Reason:{2}", ManagedThreadId, Name, ex.Message));
+                    else
+                        Database.Root.Messages.LogDebug("ACThread", "Join()", String.Format("Succeeded Thread ID:{0} Name:{1}", ManagedThreadId, Name));
+                }
                 _ACThreadList.Remove(this);
             }
         }
@@ -532,11 +546,25 @@ namespace gip.core.datamodel
         {
             if (Database.Root != null && Database.Root.Messages != null)
                 Database.Root.Messages.LogDebug("ACThread", "Join(int millisecondsTimeout)", String.Format("Joining Thread ID:{0} Name:{1}", ManagedThreadId, Name));
-            bool result = this.Thread.Join(millisecondsTimeout);
+            Exception ex = null;
+            bool result = true;
+            try
+            {
+                result = this.Thread.Join(millisecondsTimeout);
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
             lock (_Lock)
             {
                 if (Database.Root != null && Database.Root.Messages != null)
-                    Database.Root.Messages.LogDebug("ACThread", "Join(int millisecondsTimeout)", String.Format("Succeeded Thread ID:{0} Name:{1}", ManagedThreadId, Name));
+                {
+                    if (ex != null)
+                        Database.Root.Messages.LogDebug("ACThread", "Join(int millisecondsTimeout)", String.Format("NOT Succeeded Thread ID:{0} Name:{1} Reason:{2}", ManagedThreadId, Name, ex.Message));
+                    else
+                        Database.Root.Messages.LogDebug("ACThread", "Join(int millisecondsTimeout)", String.Format("Succeeded Thread ID:{0} Name:{1}", ManagedThreadId, Name));
+                }
                 _ACThreadList.Remove(this);
             }
             return result;
@@ -551,11 +579,25 @@ namespace gip.core.datamodel
         {
             if (Database.Root != null && Database.Root.Messages != null)
                 Database.Root.Messages.LogDebug("ACThread", "Join(TimeSpan timeout)", String.Format("Joining Thread ID:{0} Name:{1}", ManagedThreadId, Name));
-            bool result = this.Thread.Join(timeout);
+            Exception ex = null;
+            bool result = true;
+            try
+            {
+                result = this.Thread.Join(timeout);
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
             lock (_Lock)
             {
                 if (Database.Root != null && Database.Root.Messages != null)
-                    Database.Root.Messages.LogDebug("ACThread", "Join(TimeSpan timeout)", String.Format("Succeeded Thread ID:{0} Name:{1}", ManagedThreadId, Name));
+                {
+                    if (ex != null)
+                        Database.Root.Messages.LogDebug("ACThread", "Join(TimeSpan timeout)", String.Format("NOT Succeeded Thread ID:{0} Name:{1} Reason:{2}", ManagedThreadId, Name, ex.Message));
+                    else
+                        Database.Root.Messages.LogDebug("ACThread", "Join(TimeSpan timeout)", String.Format("Succeeded Thread ID:{0} Name:{1}", ManagedThreadId, Name));
+                }
                 _ACThreadList.Remove(this);
             }
             return result;
