@@ -121,7 +121,7 @@ namespace gip.core.processapplication
         }
 
 
-        [ACPropertyBindingTarget(441, "Read from PLC", "en{'Allocated by Way'}de{'Belegt von Wegesteuerung'}", "", false, false)] //, RemotePropID = 24)]
+        [ACPropertyBindingTarget(441, "Read from PLC", "en{'Allocated by Way'}de{'Belegt von Wegesteuerung'}", "", false, false, RemotePropID = 24)]
         public IACContainerTNet<BitAccessForAllocatedByWay> AllocatedByWay { get; set; }
 
         [ACPropertyBindingTarget(442, "Read from PLC", "en{'on site turned on'}de{'Vorort eingeschaltet'}", "", false, false, RemotePropID = 25)]
