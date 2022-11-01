@@ -20,6 +20,7 @@ using gip.core.autocomponent;
 using gip.core.manager;
 using System.Reflection;
 using System.Data.Objects;
+using System.Data;
 
 namespace gip.bso.iplus
 {
@@ -1845,6 +1846,315 @@ namespace gip.bso.iplus
                     return false;
             }
         }
+
+        public class RemotePropValidResult
+        {
+            public RemotePropClass Root { get; set; }
+            private Dictionary<ACClass, RemotePropClass> _RemotePropClassDict = new Dictionary<ACClass, RemotePropClass>();
+            public Dictionary<ACClass, RemotePropClass> RemotePropClassDict { get { return _RemotePropClassDict; } }
+            public DataTable ResultAsTable
+            {
+                get
+                {
+                    DataTable dt = new DataTable();
+                    dt.Columns.Add("Class", typeof(string)); // 0
+                    dt.Columns.Add("ClassMaxPropIDSaved", typeof(int)); // 1
+                    dt.Columns.Add("ClassMaxPropIDSuggested", typeof(int)); // 2
+                    dt.Columns.Add("ClassHasRedundantIDs", typeof(bool)); // 3
+                    dt.Columns.Add("ClassHasGapsInSequence", typeof(bool)); // 4
+                    dt.Columns.Add("ClassIsValid", typeof(bool)); // 5
+                    dt.Columns.Add("HasNoProperties", typeof(bool)); // 6
+
+                    dt.Columns.Add("Property", typeof(string)); // 7
+                    dt.Columns.Add("PropIDSaved", typeof(int)); // 8
+                    dt.Columns.Add("PropIDSuggested", typeof(int)); // 9
+                    dt.Columns.Add("PropHasGapsInSequence", typeof(bool)); // 10
+                    dt.Columns.Add("PropIsRedundantID", typeof(bool)); // 11
+                    dt.Columns.Add("IsRedundantIDInHierarchy", typeof(bool)); // 12
+                    dt.Columns.Add("PropIsValid", typeof(bool)); // 13
+                    dt.Columns.Add("PropType", typeof(string)); // 14
+
+                    AddToTable(dt, Root);
+
+                    return dt;
+                }
+            }
+
+            private void AddToTable(DataTable dt, RemotePropClass remotePropClass)
+            {
+                var row = dt.NewRow();
+                row[0] = remotePropClass.AcClass.AssemblyQualifiedName;
+                row[1] = remotePropClass.MaxPropIDSaved;
+                row[2] = remotePropClass.MaxPropIDSuggested;
+                row[3] = remotePropClass.SelfHasRedundantIDs;
+                row[4] = remotePropClass.SelfHasGapsInSequence;
+                row[5] = remotePropClass.SelfIsValid;
+                row[6] = remotePropClass.Properties.Any();
+                row[7] = "";
+                row[8] = 0;
+                row[9] = 0;
+                row[10] = false;
+                row[11] = false;
+                row[12] = true;
+                row[13] = true;
+                row[14] = "";
+                dt.Rows.Add(row);
+
+                foreach (var property in remotePropClass.Properties)
+                {
+                    row = dt.NewRow();
+                    row[0] = remotePropClass.AcClass.AssemblyQualifiedName;
+                    row[1] = remotePropClass.MaxPropIDSaved;
+                    row[2] = remotePropClass.MaxPropIDSuggested;
+                    row[3] = remotePropClass.SelfHasRedundantIDs;
+                    row[4] = remotePropClass.SelfHasGapsInSequence;
+                    row[5] = remotePropClass.SelfIsValid;
+                    row[6] = true;
+                    row[7] = property.AcClassProperty.ACIdentifier;
+                    row[8] = property.PropIDSaved;
+                    row[9] = property.PropIDSuggested;
+                    row[10] = property.HasGapsInSequence;
+                    row[11] = property.IsRedundantID;
+                    row[12] = property.IsRedundantIDInHierarchy;
+                    row[13] = property.IsValid;
+                    row[14] = property.AcClassProperty.ValueTypeACClass.ACIdentifier;
+                    dt.Rows.Add(row);
+                }
+
+                foreach (var child in remotePropClass.Childs)
+                {
+                    AddToTable(dt, child);
+                }
+            }
+        }
+
+        public class RemotePropClass
+        {
+            public RemotePropClass ParentRemoteClass { get; set; }
+            public ACClass AcClass { get; set; }
+            private List<RemoteProp> _Properties = new List<RemoteProp>();
+            public List<RemoteProp> Properties
+            {
+                get
+                {
+                    return _Properties;
+                }
+            }
+
+            private List<RemotePropClass> _Childs = new List<RemotePropClass>();
+            public List<RemotePropClass> Childs
+            {
+                get
+                {
+                    return _Childs;
+                }
+            }
+
+            public int MaxPropIDSaved
+            {
+                get
+                {
+                    return Properties.Any() ? Properties.Max(c => c.PropIDSaved) : 0;
+                }
+            }
+
+            public int MaxPropIDSuggested
+            {
+                get;set;
+            }
+
+            public bool SelfHasRedundantIDs
+            {
+                get
+                {
+                    return Properties.Any(c => c.IsRedundantID);
+                }
+            }
+
+            public bool SelfHasRedundantIDInHierarchy
+            {
+                get
+                {
+                    return Properties.Any(c => c.IsRedundantIDInHierarchy);
+                }
+            }
+
+            public bool SelfHasGapsInSequence
+            {
+                get
+                {
+                    return Properties.Any(c => c.HasGapsInSequence);
+                }
+            }
+
+
+            public bool ChildsHasRedundantIDs
+            {
+                get;set;
+            }
+
+            public bool ChildsHasGapsInSequence
+            {
+                get; set;
+            }
+
+            public bool SelfIsValid
+            {
+                get
+                {
+                    return !SelfHasRedundantIDs && !SelfHasGapsInSequence && !SelfHasRedundantIDInHierarchy;
+                }
+            }
+
+            public bool IsIDUsedInHierarchy(int remoteID)
+            {
+                if (Properties.Where(c => c.PropIDSaved == remoteID).Any())
+                    return true;
+                if (ParentRemoteClass == null)
+                    return false;
+                return ParentRemoteClass.IsIDUsedInHierarchy(remoteID);
+            }
+        }
+
+        public class RemoteProp
+        {
+            public RemotePropClass RemotePropClass { get; set; }
+            public ACClassProperty AcClassProperty { get; set; }
+            public int PropIDSaved
+            {
+                get
+                {
+                    return AcClassProperty.RemotePropID;
+                }
+            }
+
+            public int PropIDSuggested
+            {
+                get; set;
+            }
+
+            public bool HasGapsInSequence
+            {
+                get; set;
+            }
+
+            public bool IsRedundantID
+            {
+                get; set;
+            }
+
+            public bool IsRedundantIDInHierarchy
+            {
+                get; set;
+            }
+
+            public bool IsValid
+            {
+                get
+                {
+                    return !HasGapsInSequence && !IsRedundantID && !IsRedundantIDInHierarchy;
+                }
+            }
+
+        }
+
+        public RemotePropValidResult ValidateRemotePropHierarchy(Database db)
+        {
+            RemotePropValidResult remotePropValidResult = new RemotePropValidResult();
+            IEnumerable<RemoteProp> remoteProps = db.ACClassProperty
+                .Include(c => c.ACClass)
+                .Include(c => c.ACClass.ACClass1_BasedOnACClass)
+                .Where(c => c.RemotePropID > 0 && c.BasedOnACClassPropertyID == c.ACClassPropertyID)
+                .OrderBy(c => c.ACClassID)
+                .ThenBy(c => c.RemotePropID)
+                .Select(c => new RemoteProp() { AcClassProperty = c })
+                .ToArray();
+
+            // 1. Build Model
+            RemotePropClass prevRemoteCass = null;
+            foreach (RemoteProp remoteProp in remoteProps)
+            {
+                RemotePropClass remoteClass = null;
+                if (!remotePropValidResult.RemotePropClassDict.TryGetValue(remoteProp.AcClassProperty.ACClass, out remoteClass))
+                {
+                    remoteClass = new RemotePropClass() { AcClass = remoteProp.AcClassProperty.ACClass };
+                    remotePropValidResult.RemotePropClassDict.Add(remoteProp.AcClassProperty.ACClass, remoteClass);
+                }
+                remoteProp.RemotePropClass = remoteClass;
+                remoteClass.Properties.Add(remoteProp);
+
+                // 1.1 Add Parent-Classes to top
+                if (prevRemoteCass != remoteClass)
+                {
+                    RemotePropClass lastBaseClass = remoteClass;
+                    prevRemoteCass = remoteClass;
+                    ACClass baseACClass = prevRemoteCass.AcClass.ACClass1_BasedOnACClass;
+                    while (baseACClass != null)
+                    {
+                        if (!remotePropValidResult.RemotePropClassDict.TryGetValue(baseACClass, out remoteClass))
+                        {
+                            remoteClass = new RemotePropClass() { AcClass = baseACClass };
+                            remotePropValidResult.RemotePropClassDict.Add(baseACClass, remoteClass);
+                        }
+                        if (lastBaseClass.ParentRemoteClass == null)
+                            lastBaseClass.ParentRemoteClass = remoteClass;
+                        if (!remoteClass.Childs.Contains(lastBaseClass))
+                            remoteClass.Childs.Add(lastBaseClass);
+                        lastBaseClass = remoteClass;
+                        baseACClass = baseACClass.ACClass1_BasedOnACClass;
+                    }
+
+                    if (remotePropValidResult.Root == null)
+                        remotePropValidResult.Root = lastBaseClass;
+
+                }
+            }
+
+            // 2. Validate Hierarchy
+            ValidateRemotePropHierarchy(remotePropValidResult.Root);
+            return remotePropValidResult;
+        }
+
+        private void ValidateRemotePropHierarchy(RemotePropClass classToValidate)
+        {
+            int lastSuggestedMax = classToValidate.ParentRemoteClass != null ? classToValidate.ParentRemoteClass.MaxPropIDSuggested : 0;
+            RemoteProp prevRemoteProp = null;
+            foreach (RemoteProp remoteProp in classToValidate.Properties.OrderBy(c => c.PropIDSaved).ToArray())
+            {
+                lastSuggestedMax++;
+                remoteProp.PropIDSuggested = lastSuggestedMax;
+                if (prevRemoteProp != null)
+                {
+                    if (prevRemoteProp.PropIDSaved == remoteProp.PropIDSaved)
+                        remoteProp.IsRedundantID = true;
+                    if (remoteProp.PropIDSaved != (prevRemoteProp.PropIDSaved + 1))
+                        remoteProp.HasGapsInSequence = true;
+                }
+                remoteProp.IsRedundantIDInHierarchy = classToValidate.ParentRemoteClass.IsIDUsedInHierarchy(remoteProp.PropIDSaved);
+            }
+            classToValidate.MaxPropIDSuggested = lastSuggestedMax;
+            bool selfHasGapsInSequence = classToValidate.SelfHasGapsInSequence;
+            bool childsHasRedundantIDs = classToValidate.ChildsHasRedundantIDs;
+            if (selfHasGapsInSequence || childsHasRedundantIDs)
+            {
+                RemotePropClass parentClass = classToValidate.ParentRemoteClass;
+                while (parentClass != null)
+                {
+                    if (!parentClass.ChildsHasGapsInSequence && selfHasGapsInSequence)
+                        parentClass.ChildsHasGapsInSequence = selfHasGapsInSequence;
+                    if (!parentClass.ChildsHasRedundantIDs && childsHasRedundantIDs)
+                        parentClass.ChildsHasRedundantIDs = childsHasRedundantIDs;
+                    parentClass = parentClass.ParentRemoteClass;
+                }
+            }
+
+            foreach (RemotePropClass child in classToValidate.Childs)
+            {
+                ValidateRemotePropHierarchy(child);
+            }
+        }
+
+
         #endregion
 
         #region Manager->Modify->ACClassMethod

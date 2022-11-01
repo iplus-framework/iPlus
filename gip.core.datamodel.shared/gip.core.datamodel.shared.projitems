@@ -22,6 +22,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\SafeBindingList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\SafeCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\SafeCollections\SafeList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\DateTimeUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Translator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\TypeConversion\ACConvert.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACMessages\eMessageButton.cs" />

@@ -97,7 +97,7 @@ namespace gip.core.autocomponent
         private ACThread _WorkCycleThread;
 
 
-        [ACPropertyInfo(true, 200, DefaultValue = 5000)]
+        [ACPropertyInfo(true, 200, DefaultValue = 0)]
         public int PerfTimeoutStackTrace { get; set; }
 
         [ACPropertyInfo(true, 200, DefaultValue = 0)]
