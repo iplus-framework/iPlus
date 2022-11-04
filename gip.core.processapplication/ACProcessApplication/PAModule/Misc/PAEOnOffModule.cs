@@ -100,8 +100,13 @@ namespace gip.core.processapplication
                 return;
             if (!PreExecute("SwitchOff"))
                 return;
-            ReqIsSwitchedOn.ValueT = false;
+            OnSwitchOff();
             PostExecute("SwitchOff");
+        }
+
+        protected virtual void OnSwitchOff()
+        {
+            ReqIsSwitchedOn.ValueT = false;
         }
 
         public virtual bool IsEnabledSwitchOff()
@@ -118,8 +123,13 @@ namespace gip.core.processapplication
                 return;
             if (!PreExecute("SwitchOn"))
                 return;
-            ReqIsSwitchedOn.ValueT = true;
+            OnSwitchOn();
             PostExecute("SwitchOn");
+        }
+
+        protected virtual void OnSwitchOn()
+        {
+            ReqIsSwitchedOn.ValueT = true;
         }
 
         public virtual bool IsEnabledSwitchOn()
@@ -164,6 +174,13 @@ namespace gip.core.processapplication
             return base.IsEnabledSwitchToMaintenance();
         }
 
+        public override void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)
+        {
+            if (!switchOff)
+                OnSwitchOn();
+            else
+                OnSwitchOff();
+        }
         #endregion
 
         #region Handle execute helpers

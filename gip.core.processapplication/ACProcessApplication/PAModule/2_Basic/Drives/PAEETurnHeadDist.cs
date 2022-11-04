@@ -350,6 +350,57 @@ namespace gip.core.processapplication
                 return _PAPointMatOut20;
             }
         }
+
+        public override void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)
+        {
+            base.ActivateRouteItemOnSimulation(item, switchOff);
+            if (PAPointMatOut01.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 1);
+            else if (PAPointMatOut02.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 2);
+            else if (PAPointMatOut03.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 3);
+            else if (PAPointMatOut04.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 4);
+            else if (PAPointMatOut05.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 5);
+            else if (PAPointMatOut06.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 6);
+            else if (PAPointMatOut07.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 7);
+            else if (PAPointMatOut08.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 8);
+            else if (PAPointMatOut09.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 9);
+            else if (PAPointMatOut10.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 10);
+            else if (PAPointMatOut11.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 11);
+            else if (PAPointMatOut12.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 12);
+            else if (PAPointMatOut13.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 13);
+            else if (PAPointMatOut14.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 14);
+            else if (PAPointMatOut15.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 15);
+            else if (PAPointMatOut16.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 16);
+            else if (PAPointMatOut17.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 17);
+            else if (PAPointMatOut18.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 18);
+            else if (PAPointMatOut19.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 19);
+            else if (PAPointMatOut20.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+                OnSetPositionValues(switchOff ? 0 : 20);
+        }
+
+        private void OnSetPositionValues(int pos)
+        {
+            DesiredPosition.ValueT = (short) pos;
+            Position.ValueT = (short)pos;
+        }
         #endregion
 
         #region Handle execute helpers

@@ -212,6 +212,14 @@ namespace gip.core.processapplication
             ReqPos1Open.ValueT = false;
         }
 
+        public override void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)
+        {
+            if (switchOff)
+                OnSetCloseValues();
+            else
+                OnSetOpenValues();
+        }
+
         #endregion
 
         #region Handle execute helpers
@@ -220,7 +228,6 @@ namespace gip.core.processapplication
         {
             return HandleExecuteACMethod_PAEActuatorBase(out result, acComponent, acMethodName, acClassMethod, acParameter);
         }
-
         #endregion
     }
 
