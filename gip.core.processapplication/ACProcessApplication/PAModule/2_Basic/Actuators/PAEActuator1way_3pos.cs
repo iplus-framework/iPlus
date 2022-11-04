@@ -259,6 +259,14 @@ namespace gip.core.processapplication
             ReqPos2.ValueT = false;
         }
 
+        public override void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)
+        {
+            if (switchOff)
+                OnSetCloseValues();
+            else
+                OnSetPosition1Values();
+        }
+
 
         #endregion
 

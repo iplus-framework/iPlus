@@ -162,6 +162,23 @@ namespace gip.core.processapplication
                 return true;
             return base.IsEnabledAcknowledgeAlarms();
         }
+
+        public abstract void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff);
+
+        #region Simulation
+        public static void ActivateRouteOnSimulation(Route route, bool switchOff)
+        {
+            if (route == null || route.Items == null)
+                return;
+            foreach (RouteItem routeItem in route.Items)
+            {
+                PAEControlModuleBase module = routeItem.SourceACComponent as PAEControlModuleBase;
+                module?.ActivateRouteItemOnSimulation(routeItem, switchOff);
+                module = routeItem.TargetACComponent as PAEControlModuleBase;
+                module?.ActivateRouteItemOnSimulation(routeItem, switchOff);
+            }
+        }
+        #endregion
         #endregion
 
         #region Handle execute helpers

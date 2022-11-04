@@ -1119,7 +1119,7 @@ namespace gip.core.autocomponent
         [ACMethodInfo("", "en{'Add'}de{'Hinzufügen'}", 999, true)]
         public void AddRoute()
         {
-            IACVBBSORouteSelector routeSelector = ParentACComponent.GetChildComponent("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
+            IACVBBSORouteSelector routeSelector = ParentACComponent.ACUrlCommand("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
             if (routeSelector == null)
             {
                 Messages.Error(this, "Route selector is not installed on parent component!!!");
