@@ -55,11 +55,8 @@ namespace gip.core.communication
         }
 
         internal ResendLock _ReSendLocked = ResendLock.Unlocked;
-
         private WriteValueCollection _WriteValues = new WriteValueCollection();
-
-        private bool _IsWriteable = false;
-        private bool _IsReadable = false;
+        //private bool _IsWriteable = false;
 
         #endregion
 
@@ -75,7 +72,7 @@ namespace gip.core.communication
 
         void OnSendValueToOPCServer(object sender, ACPropertyChangedEventArgs e, ACPropertyChangedPhase phase)
         {
-            if (phase == ACPropertyChangedPhase.AfterBroadcast || ACProperty == null || !_IsWriteable)
+            if (phase == ACPropertyChangedPhase.AfterBroadcast || ACProperty == null) // || !_IsWriteable)
                 return;
 
             if (_ReSendLocked >= ResendLock.Locked)
@@ -165,7 +162,7 @@ namespace gip.core.communication
 
         private void ReadValue(DataValue dataValue)
         {
-            if (!_IsReadable || dataValue == null)
+            if (dataValue == null)
                 return;
 
             // Falls Konfigurationsvariable: (Beschreiben von der SPS nicht erlaubt und Target-Property)
@@ -219,20 +216,16 @@ namespace gip.core.communication
 
         internal void ResolveAccess()
         {
-            VariableNode nodeItem = this.Subscription.Session.NodeCache.Find(StartNodeId) as VariableNode;
-            if (nodeItem != null)
-            {
-                if (nodeItem.AccessLevel == AccessLevels.None || nodeItem.AccessLevel == AccessLevels.CurrentReadOrWrite)
-                {
-                    _IsWriteable = true;
-                    _IsReadable = true;
-                }
-                else if (nodeItem.AccessLevel == AccessLevels.CurrentRead)
-                    _IsReadable = true;
-
-                else if (nodeItem.AccessLevel == AccessLevels.CurrentWrite)
-                    _IsWriteable = true;
-            }
+            //VariableNode nodeItem = this.Subscription.Session.NodeCache.Find(StartNodeId) as VariableNode;
+            //if (nodeItem != null)
+            //{
+            //    if (nodeItem.AccessLevel == AccessLevels.None 
+            //        || nodeItem.AccessLevel == AccessLevels.CurrentReadOrWrite
+            //        || nodeItem.AccessLevel == AccessLevels.CurrentWrite)
+            //    {
+            //        _IsWriteable = true;
+            //    }
+            //}
         }
         #endregion
     }
