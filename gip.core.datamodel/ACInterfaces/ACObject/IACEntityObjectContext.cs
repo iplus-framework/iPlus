@@ -19,12 +19,16 @@ using System.Collections;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
-using System.Data.EntityClient;
-using System.Data.Metadata.Edm;
-using System.Data.Objects.DataClasses;
 using System.Linq.Expressions;
 using System.Runtime;
-using System.Data.Objects;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using System.Data.SqlClient;
 
 namespace gip.core.datamodel
 {
@@ -45,14 +49,14 @@ namespace gip.core.datamodel
         /// </summary>
         /// <returns></returns>
         [ACMethodInfo("","",9999)]
-        MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, SaveOptions saveOptions = SaveOptions.AcceptAllChangesAfterSave, bool validationOff = false, bool writeUpdateInfo = true);
+        MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true);
 
         /// <summary>
         /// Invokes ACSaveChanges. If a transaction error occurs ACSaveChanges is called again.
         /// If parameter retries ist not set, then ACObjectContextHelper.C_NumberOfRetriesOnTransError is used to limit the Retry-Loop.
         /// </summary>
         [ACMethodInfo("", "", 9999)]
-        MsgWithDetails ACSaveChangesWithRetry(ushort? retries = null, bool autoSaveContextIPlus = true, SaveOptions saveOptions = SaveOptions.AcceptAllChangesAfterSave, bool validationOff = false, bool writeUpdateInfo = true);
+        MsgWithDetails ACSaveChangesWithRetry(ushort? retries = null, bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true);
 
         /// <summary>
         /// Undoes all changes in the Custom-Database-Context as well as in the iPlus-Context
@@ -103,13 +107,13 @@ namespace gip.core.datamodel
         IList<T> GetChangedEntities<T>(Func<T, bool> selector = null) where T : class;
 
         IList<Msg> CheckChangedEntities();
-
         /// <summary>
-        /// Refreshes the EntityObject if not in modified state. Else it leaves it untouched.
+        /// Refreshes the VBEntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
         /// <param name="entityObject"></param>
         /// <param name="refreshMode"></param>
-        void AutoRefresh(EntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins);
+
+        void AutoRefresh(VBEntityObject entityObject);
 
         /// <summary>
         /// Refreshes all EntityObjects in the EntityCollection if not in modified state. Else it leaves it untouched.
@@ -119,7 +123,8 @@ namespace gip.core.datamodel
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
         /// <param name="refreshMode"></param>
-        void AutoRefresh<T>(EntityCollection<T> entityCollection, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class;
+
+        void AutoRefresh<T>(ICollection<T> entityCollection) where T : class;
 
         /// <summary>
         /// Queries the Database an refreshes the collection if not in modified state. MergeOption.OverwriteChanges
@@ -127,8 +132,8 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        void AutoLoad<T>(EntityCollection<T> entityCollection) where T : class;
-        
+        void AutoLoad<T>(ICollection<T> entityCollection) where T : class;
+
         void ParseException(MsgWithDetails msg, Exception e);
 
         void EnterCS();
@@ -142,12 +147,12 @@ namespace gip.core.datamodel
         /// <returns></returns>
         void DetachAllEntitiesAndDispose(bool detach = false, bool dispose = true);
 
-        void FullDetach(EntityObject obj);
+        void FullDetach(VBEntityObject obj);
 
         event ACChangesEventHandler ACChangesExecuted;
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
         [ACPropertyInfo(9999)]
         bool IsChanged { get; }
 
@@ -158,62 +163,125 @@ namespace gip.core.datamodel
 
         MergeOption RecommendedMergeOption { get; }
 
+#if !EFCR
         EntityConnection SeparateConnection { get; }
+#endif
 
         string UserName { get; set; }
 
-        #endregion
+#endregion
 
+#region DBContext
+
+
+        ChangeTracker ChangeTracker { get; }
+        DatabaseFacade DatabaseFacade { get; }
+
+        RefreshMode RefreshMode { get; }
+        DbContextOptions ContextOptions { get; }
+        int SaveChanges();
+        int SaveChanges(bool acceptAllChangesOnSuccess);
+        void AcceptAllChanges();
+
+        event EventHandler<SavingChangesEventArgs>? SavingChanges;
+        event EventHandler<SavedChangesEventArgs>? SavedChanges;
+        event EventHandler<SaveChangesFailedEventArgs>? SaveChangesFailed;
+
+        void DbContextDispose();
+
+        EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
+        EntityEntry Entry(object entity);
+
+        EntityEntry<TEntity> Add<TEntity>(TEntity entity) where TEntity : class;
+        EntityEntry<TEntity> Attach<TEntity>(TEntity entity) where TEntity : class;
+        EntityEntry<TEntity> Update<TEntity>(TEntity entity) where TEntity : class;
+        EntityEntry<TEntity> Remove<TEntity>(TEntity entity) where TEntity : class;
+
+        EntityEntry Add(object entity);
+        EntityEntry Attach(object entity);
+        EntityEntry Update(object entity);
+        EntityEntry Remove(object entity);
+
+        void AddRange(params object[] entities);
+        void AddRange(IEnumerable<object> entities);
+        void AttachRange(params object[] entities);
+        void AttachRange(IEnumerable<object> entities);
+        void UpdateRange(params object[] entities);
+        void UpdateRange(IEnumerable<object> entities);
+        void RemoveRange(params object[] entities);
+        void RemoveRange(IEnumerable<object> entities);
+
+        DbSet<TEntity> CreateObjectSet<TEntity>() where TEntity : class;
+        DbSet<TEntity> CreateObjectSet<TEntity>(string entitySetName) where TEntity : class;
+
+        object? Find(Type entityType, params object?[]? keyValues);
+        TEntity? Find<TEntity>(params object?[]? keyValues) where TEntity : class;
+
+        #endregion
         #region ObjectContext
+
         int? CommandTimeout { get; set; }
         DbConnection Connection { get; }
-        ObjectContextOptions ContextOptions { get; }
+        //ObjectContextOptions ContextOptions { get; }
+
         string DefaultContainerName { get; set; }
+
+#if !EFCR
         MetadataWorkspace MetadataWorkspace { get; }
-        ObjectStateManager ObjectStateManager { get; }
+#endif
 
+        //ObjectStateManager ObjectStateManager { get; }
+
+#if !EFCR
         event ObjectMaterializedEventHandler ObjectMaterialized;
-        event EventHandler SavingChanges;
+#endif
+        //event EventHandler SavingChanges;
 
 
-        void AcceptAllChanges();
-        void AddObject(string entitySetName, object entity);
+        //void AcceptAllChanges();
+        //void AddObject(string entitySetName, object entity);
+#if !EFCR
         TEntity ApplyCurrentValues<TEntity>(string entitySetName, TEntity currentEntity) where TEntity : class;
         TEntity ApplyOriginalValues<TEntity>(string entitySetName, TEntity originalEntity) where TEntity : class;
-        void Attach(IEntityWithKey entity);
+#endif
+
+//void Attach(IEntityWithKey entity);
+#if !EFCR
         void AttachTo(string entitySetName, object entity);
-        void CreateDatabase();
-        string CreateDatabaseScript();
-        EntityKey CreateEntityKey(string entitySetName, object entity);
-        T CreateObject<T>() where T : class;
-        ObjectSet<TEntity> CreateObjectSet<TEntity>() where TEntity : class;
-        ObjectSet<TEntity> CreateObjectSet<TEntity>(string entitySetName) where TEntity : class;
-        void CreateProxyTypes(IEnumerable<Type> types);
-        ObjectQuery<T> CreateQuery<T>(string queryString, params ObjectParameter[] parameters);
-        bool DatabaseExists();
-        void DeleteDatabase();
-        void DeleteObject(object entity);
-        void Detach(object entity);
-        void DetectChanges();
-        int ExecuteFunction(string functionName, params ObjectParameter[] parameters);
-        ObjectResult<TElement> ExecuteFunction<TElement>(string functionName, params ObjectParameter[] parameters);
-        ObjectResult<TElement> ExecuteFunction<TElement>(string functionName, MergeOption mergeOption, params ObjectParameter[] parameters);
-        int ExecuteStoreCommand(string commandText, params object[] parameters);
-        ObjectResult<TElement> ExecuteStoreQuery<TElement>(string commandText, params object[] parameters);
-        ObjectResult<TEntity> ExecuteStoreQuery<TEntity>(string commandText, string entitySetName, MergeOption mergeOption, params object[] parameters);
-        object GetObjectByKey(EntityKey key);
-        void LoadProperty(object entity, string navigationProperty);
-        void LoadProperty<TEntity>(TEntity entity, Expression<Func<TEntity, object>> selector);
-        void LoadProperty(object entity, string navigationProperty, MergeOption mergeOption);
-        void LoadProperty<TEntity>(TEntity entity, Expression<Func<TEntity, object>> selector, MergeOption mergeOption);
-        void Refresh(RefreshMode refreshMode, IEnumerable collection);
-        void Refresh(RefreshMode refreshMode, object entity);
-        int SaveChanges();
-        int SaveChanges(SaveOptions options);
-        ObjectResult<TElement> Translate<TElement>(DbDataReader reader);
-        ObjectResult<TEntity> Translate<TEntity>(DbDataReader reader, string entitySetName, MergeOption mergeOption);
-        bool TryGetObjectByKey(EntityKey key, out object value);
-        #endregion
+#endif
+
+        //void CreateDatabase();
+        //string CreateDatabaseScript();
+        //EntityKey CreateEntityKey(string entitySetName, object entity);
+        //T CreateObject<T>() where T : class;
+        //ObjectSet<TEntity> CreateObjectSet<TEntity>() where TEntity : class;
+        //ObjectSet<TEntity> CreateObjectSet<TEntity>(string entitySetName) where TEntity : class;
+        //void CreateProxyTypes(IEnumerable<Type> types);
+        //ObjectQuery<T> CreateQuery<T>(string queryString, params ObjectParameter[] parameters);
+        //bool DatabaseExists();
+        //void DeleteDatabase();
+        //void DeleteObject(object entity);
+        //void Detach(object entity);
+        //void DetectChanges();
+        //int ExecuteFunction(string functionName, params ObjectParameter[] parameters);
+        //ObjectResult<TElement> ExecuteFunction<TElement>(string functionName, params ObjectParameter[] parameters);
+        //ObjectResult<TElement> ExecuteFunction<TElement>(string functionName, MergeOption mergeOption, params ObjectParameter[] parameters);
+        //int ExecuteStoreCommand(string commandText, params object[] parameters);
+        //ObjectResult<TElement> ExecuteStoreQuery<TElement>(string commandText, params object[] parameters);
+        //ObjectResult<TEntity> ExecuteStoreQuery<TEntity>(string commandText, string entitySetName, MergeOption mergeOption, params object[] parameters);
+        //object GetObjectByKey(EntityKey key);
+        //void LoadProperty(object entity, string navigationProperty);
+        //void LoadProperty<TEntity>(TEntity entity, Expression<Func<TEntity, object>> selector);
+        //void LoadProperty(object entity, string navigationProperty, MergeOption mergeOption);
+        //void LoadProperty<TEntity>(TEntity entity, Expression<Func<TEntity, object>> selector, MergeOption mergeOption);
+        //void Refresh(RefreshMode refreshMode, IEnumerable collection);
+        //void Refresh(RefreshMode refreshMode, object entity);
+        //int SaveChanges();
+        //int SaveChanges(SaveOptions options);
+        //ObjectResult<TElement> Translate<TElement>(DbDataReader reader);
+        //ObjectResult<TEntity> Translate<TEntity>(DbDataReader reader, string entitySetName, MergeOption mergeOption);
+        //bool TryGetObjectByKey(EntityKey key, out object value);
+#endregion
     }
 
 }

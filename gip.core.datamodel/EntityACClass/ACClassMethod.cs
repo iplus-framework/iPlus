@@ -162,7 +162,7 @@ namespace gip.core.datamodel
                 }
             }
 
-            database.DeleteObject(this);
+            database.Remove(this);
             return null;
         }
 
@@ -990,7 +990,7 @@ namespace gip.core.datamodel
 
         public static string SerializeACMethod(ACMethod acMethod)
         {
-            DataContractSerializer serializer = new DataContractSerializer(typeof(ACMethod), ACKnownTypes.GetKnownType(), 99999999, true, false, null, ACConvert.MyDataContractResolver);
+            DataContractSerializer serializer = new DataContractSerializer(typeof(ACMethod), new DataContractSerializerSettings() { DataContractResolver = ACConvert.MyDataContractResolver, MaxItemsInObjectGraph = 99999999, KnownTypes = ACKnownTypes.GetKnownType(), IgnoreExtensionDataObject = true });
             StringBuilder sb1 = new StringBuilder();
             string result = null;
             using (StringWriter sw1 = new StringWriter(sb1))
@@ -1012,7 +1012,7 @@ namespace gip.core.datamodel
             using (StringReader ms = new StringReader(acMethodXML))
             using (XmlTextReader xmlReader = new XmlTextReader(ms))
             {
-                DataContractSerializer serializer = new DataContractSerializer(typeof(ACMethod), ACKnownTypes.GetKnownType(), 99999999, true, false, null, ACConvert.MyDataContractResolver);
+                DataContractSerializer serializer = new DataContractSerializer(typeof(ACMethod), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, DataContractResolver = ACConvert.MyDataContractResolver });
                 ACMethod acMethod = (ACMethod)serializer.ReadObject(xmlReader);
                 // Clone ACMethod, because Enumerator-Reference will not be Disposed from DataContractSerializer (Bug) therefore the ReadLock will remain
                 //if (acMethod.ParameterValueList is ISafeList)
@@ -1479,6 +1479,7 @@ namespace gip.core.datamodel
         {
             get
             {
+#if !EFCR
                 if (this.EntityState != System.Data.EntityState.Added && !ACClassWF_ACClassMethod.IsLoaded)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1486,6 +1487,7 @@ namespace gip.core.datamodel
                         ACClassWF_ACClassMethod.Load();
                     }
                 }
+#endif
                 return ACClassWF_ACClassMethod.ToList(); // ToList, damit Query Thread-Safe
             }
         }
@@ -1562,7 +1564,7 @@ namespace gip.core.datamodel
                 // @aagincic -> Delete config is removed to up instance where PWOfflineNodeMethod is present - hold info about localConfigACUrl
 
                 ACClassWF_ACClassMethod.Remove(acClassWF);
-                database.DeleteObject(acClassWF);
+                database.Remove(acClassWF);
             }
         }
 
@@ -1626,7 +1628,7 @@ namespace gip.core.datamodel
                     if (acClassWFEdge.ACClassMethod == this)
                     {
                         ACClassWFEdge_ACClassMethod.Remove(acClassWFEdge);
-                        database.DeleteObject(acClassWFEdge);
+                        database.Remove(acClassWFEdge);
                     }
                 }
             }
@@ -1647,10 +1649,10 @@ namespace gip.core.datamodel
         }
 
 
-        #endregion
+#endregion
 
 
-        #region ACClassDesign
+#region ACClassDesign
 
         /// <summary>
         /// Returns all Designs over complete class hierarchy including overridden Designs
@@ -1758,10 +1760,10 @@ namespace gip.core.datamodel
             }
             return acClassDesign;
         }
-        #endregion
+#endregion
 
 
-        #region Misc Properties and Methods
+#region Misc Properties and Methods
 
         bool bRefreshConfig = false;
         partial void OnXMLConfigChanging(global::System.String value)
@@ -1852,10 +1854,10 @@ namespace gip.core.datamodel
             LastReadUpdateACClassWF = UpdateDate;
         }
 
-        #endregion
+#endregion
 
 
-        #region Configuration
+#region Configuration
 
         private string configStoreName;
         public string ConfigStoreName
@@ -1972,8 +1974,10 @@ namespace gip.core.datamodel
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 this.ACClassMethodConfig_ACClassMethod.Remove(acConfig);
+#if !EFCR
                 if (acConfig.EntityState != System.Data.EntityState.Detached)
                     acConfig.DeleteACObject(this.Database, false);
+#endif
             }
         }
 
@@ -2060,7 +2064,7 @@ namespace gip.core.datamodel
             return true;
         }
 
-        #endregion
+#endregion
 
     }
 

@@ -19,7 +19,6 @@ using gip.core.datamodel;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Data;
-using System.Data.Objects.DataClasses;
 using System.Transactions;
 using System.Runtime.Serialization;
 

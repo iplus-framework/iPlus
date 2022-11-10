@@ -17,11 +17,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Runtime.CompilerServices;
-using System.Data.Objects;
 using System.Data;
-using System.Data.EntityClient;
 using System.Reflection;
-using System.Data.Objects.DataClasses;
 using System.Configuration;
 using System.Data.SqlClient;
 
@@ -133,7 +130,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="entityObject">The entity object.</param>
         /// <returns>Database.</returns>
-        public static TContext GetObjectContext<TContext>(this EntityObject entityObject) where TContext : IACEntityObjectContext
+        public static TContext GetObjectContext<TContext>(this VBEntityObject entityObject) where TContext : IACEntityObjectContext
         {
             IACEntityObjectContext databaseContext = GetObjectContext(entityObject);
             if (databaseContext == null)
@@ -141,17 +138,21 @@ namespace gip.core.datamodel
             return (TContext) databaseContext;
         }
 
-        public static IACEntityObjectContext GetObjectContext(this EntityObject entityObject)
+        public static IACEntityObjectContext GetObjectContext(this VBEntityObject entityObject)
         {
+#if !EFCR
             var relationshipManager = ((System.Data.Objects.DataClasses.IEntityWithRelationships)entityObject).RelationshipManager;
             PropertyInfo piWrappedOwner = relationshipManager.GetType().GetProperty("WrappedOwner", BindingFlags.NonPublic | BindingFlags.Instance);
             var wrappedOwner = piWrappedOwner.GetValue(relationshipManager, null);
             var piContext = wrappedOwner.GetType().GetProperty("Context", BindingFlags.Public | BindingFlags.Instance);
             IACEntityObjectContext databaseContext = piContext.GetValue(wrappedOwner, null) as IACEntityObjectContext;
             return databaseContext;
+#else
+            throw new NotImplementedException();
+                #endif
         }
 
-        public static IACEntityObjectContext GetObjectContext(this RelatedEnd entityObject)
+        public static IACEntityObjectContext GetObjectContext<T>(this ICollection<T> entityObject)
         {
             PropertyInfo piWrappedOwner = entityObject.GetType().GetProperty("WrappedOwner", BindingFlags.NonPublic | BindingFlags.Instance);
             var wrappedOwner = piWrappedOwner.GetValue(entityObject, null);
@@ -161,56 +162,66 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Refreshes the EntityObject if not in modified state. Else it leaves it untouched.
+        /// Refreshes the VBEntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
         /// <param name="entityObject"></param>
         /// <param name="refreshMode"></param>
-        public static void AutoRefresh(this EntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins)
+        public static void AutoRefresh(this VBEntityObject entityObject)
         {
-            entityObject.GetObjectContext().AutoRefresh(entityObject, refreshMode);
+            entityObject.GetObjectContext().AutoRefresh(entityObject);
         }
 
-        public static void AutoRefresh(this EntityObject entityObject, IACEntityObjectContext context, RefreshMode refreshMode = RefreshMode.StoreWins)
+        public static void AutoRefresh(this VBEntityObject entityObject, IACEntityObjectContext context)
         {
-            context.AutoRefresh(entityObject, refreshMode);
+            context.AutoRefresh(entityObject);
         }
 
-        public static void Refresh(this EntityObject entityObject, RefreshMode refreshMode)
+        public static void Refresh(this VBEntityObject entityObject)
         {
-            entityObject.GetObjectContext().Refresh(refreshMode,entityObject);
+#if !EFCR
+            entityObject.GetObjectContext().Refresh(entityObject);
+#endif
         }
 
-        public static void Refresh(this EntityObject entityObject, RefreshMode refreshMode, IACEntityObjectContext context)
+        public static void Refresh(this VBEntityObject entityObject, IACEntityObjectContext context)
         {
-            context.Refresh(refreshMode, entityObject);
+#if !EFCR
+            context.Refresh(entityObject);
+#endif
         }
 
-        public static void AutoRefresh<T>(this EntityCollection<T> entityCollection, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
+        public static void AutoRefresh<T>(this ICollection<T> entityCollection) where T : class
         {
-            entityCollection.GetObjectContext().AutoRefresh<T>(entityCollection, refreshMode);
+            entityCollection.GetObjectContext().AutoRefresh<T>(entityCollection);
         }
 
-        public static void AutoRefresh<T>(this EntityCollection<T> entityCollection, IACEntityObjectContext context, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
+        public static void AutoRefresh<T>(this ICollection<T> entityCollection, IACEntityObjectContext context) where T : class
         {
-            context.AutoRefresh<T>(entityCollection, refreshMode);
+            context.AutoRefresh<T>(entityCollection);
         }
 
-        public static void Refresh<T>(this EntityCollection<T> entityCollection, RefreshMode refreshMode) where T : class
+        public static void Refresh<T>(this ICollection<T> entityCollection) where T : class
         {
-            entityCollection.GetObjectContext().Refresh(refreshMode, entityCollection);
+#if !EFCR
+            entityCollection.GetObjectContext().Refresh(entityCollection);
+#endif
+            throw new NotImplementedException();
         }
 
-        public static void Refresh<T>(this EntityCollection<T> entityCollection, RefreshMode refreshMode, IACEntityObjectContext context) where T : class
+        public static void Refresh<T>(this ICollection<T> entityCollection, IACEntityObjectContext context) where T : class
         {
-            context.Refresh(refreshMode, entityCollection);
+#if !EFCR
+            context.Refresh(entityCollection);
+#endif
+            throw new NotImplementedException();
         }
 
-        public static void AutoLoad<T>(this EntityCollection<T> entityCollection) where T : class
+        public static void AutoLoad<T>(this ICollection<T> entityCollection) where T : class
         {
             entityCollection.GetObjectContext().AutoLoad(entityCollection);
         }
 
-        public static void AutoLoad<T>(this EntityCollection<T> entityCollection, IACEntityObjectContext context) where T : class
+        public static void AutoLoad<T>(this ICollection<T> entityCollection, IACEntityObjectContext context) where T : class
         {
             context.AutoLoad(entityCollection);
         }
@@ -446,7 +457,7 @@ namespace gip.core.datamodel
             }
         }
 
-        static public TContext GetOrCreateContext<TContext>(EntityConnection connection, string contextIdentifier = "", Database parentContextIPlus = null) where TContext : IACEntityObjectContext
+        static public TContext GetOrCreateContext<TContext>(IDbConnection connection, string contextIdentifier = "", Database parentContextIPlus = null) where TContext : IACEntityObjectContext
         {
             using (ACMonitor.Lock(_10005_LockContextList))
             {
@@ -472,6 +483,7 @@ namespace gip.core.datamodel
                 _ContextList.Add(new ContextEntry() { ContextIdentifier = contextIdentifier, Context = context });
                 return context;
             }
+            throw new NotImplementedException();
         }
 
         static public bool Add(IACEntityObjectContext context, string contextIdentifier = "")
@@ -568,10 +580,10 @@ namespace gip.core.datamodel
 
         public static string FactoryEntityConnectionString(SQLInstanceInfo serverInfo, bool iPlusContext)
         {
+#if !EFCR
             string connStringID = iPlusContext ? "iPlusV4_Entities" : "iPlusMESV4_Entities";
             ConnectionStringSettings csSettings = System.Configuration.ConfigurationManager.ConnectionStrings[connStringID];
             string originalConnectionString = csSettings.ConnectionString;
-
             var ecsBuilder = new EntityConnectionStringBuilder(originalConnectionString);
             SqlConnectionStringBuilder sqlCsBuilder = new SqlConnectionStringBuilder(ecsBuilder.ProviderConnectionString)
             {
@@ -586,6 +598,8 @@ namespace gip.core.datamodel
             contextConnectionString = contextConnectionString.Replace("Application Name", "App");
             contextConnectionString = contextConnectionString.Replace(@".\\", @".\");
             return contextConnectionString;
+#endif
+            throw new NotImplementedException();
         }
 
         static public IACEntityObjectContext FactoryContext(SQLInstanceInfo serverInfo, bool iPlusContext)

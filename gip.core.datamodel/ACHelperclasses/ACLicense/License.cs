@@ -6,10 +6,11 @@ using System.Text;
 using MXAPI;
 using System.Security.Cryptography;
 using System.IO;
-using System.Data.EntityClient;
 using System.Timers;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using System.Data;
+using System.CodeDom;
 
 namespace gip.core.datamodel.Licensing
 {
@@ -104,8 +105,11 @@ namespace gip.core.datamodel.Licensing
         {
             get
             {
+#if !EFCR
                 if (_DatabaseName == null)
                     _DatabaseName = ((EntityConnection)_Database.Connection).StoreConnection.Database;
+#endif
+                throw new NotImplementedException();
                 return _DatabaseName;
             }
         }
@@ -342,13 +346,13 @@ namespace gip.core.datamodel.Licensing
             }
         }
 
-        #endregion
+#endregion
 
 
-        #region Methods
+#region Methods
 
 
-        #region Has package license checks
+#region Has package license checks
         public bool IsPackageLicensed(ACPackage acPackage)
         {
 #if DEBUG
@@ -389,10 +393,10 @@ namespace gip.core.datamodel.Licensing
             return ComponentLicense.False;
 #endif
         }
-        #endregion
+#endregion
 
 
-        #region Package reading
+#region Package reading
         /// <summary>
         /// Reads all package-licenses and fills _AvailablePackages-Member
         /// It iterates all VBSystem-Entries (= customers who sells their own packages) and verifies the license
@@ -510,27 +514,31 @@ namespace gip.core.datamodel.Licensing
 
         public string GetDBCode(Database db)
         {
+#if !EFCR
             string dbName = ((EntityConnection)db.Connection).StoreConnection.Database;
             if (dbName == null)
                 return "";
             string query = "SELECT d.create_date, d.service_broker_guid, r.database_guid FROM sys.databases d inner join sys.database_recovery_status r on d.database_id = r.database_id WHERE d.name = '-dbName-'";
             query = query.Replace("-dbName-", dbName);
+#endif
 
             DBInfo dbInfo = null;
 
             using (ACMonitor.Lock(db.QueryLock_1X000))
             {
+#if !EFCR
                 var result = db.ExecuteStoreQuery<DBInfo>(query);
                 dbInfo = result.FirstOrDefault();
+#endif
             }
             if (dbInfo == null)
                 return "";
             return dbInfo.GetCheckSumCode();
         }
-        #endregion
+#endregion
 
 
-        #region License Activation & Generation
+#region License Activation & Generation
 
         /// <summary>
         /// Indentifies a iPlus-Installation on a target machine
@@ -545,11 +553,13 @@ namespace gip.core.datamodel.Licensing
             if (_Database == null)
                 return false;
 
+#if !EFCR
             EntityConnection ec = _Database.Connection as EntityConnection;
             if (ec == null || ec.StoreConnection == null || string.IsNullOrEmpty(ec.StoreConnection.Database) || string.IsNullOrEmpty(ec.StoreConnection.DataSource))
                 return false;
 
             userInfo = new Tuple<string, string, string>(ec.StoreConnection.Database, ec.StoreConnection.DataSource, GetDBCode(_Database));
+#endif
             return true;
         }
 

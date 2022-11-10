@@ -1,20 +1,27 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace gip.core.datamodel
 {
+#if !EFCR
     [JsonObject(MemberSerialization.OptIn)]
+#endif
     public class ActionResult
     {
         private List<IMessage> messages;
 
+#if !EFCR
         [JsonProperty]
+#endif
         public bool Success { get; set; }
 
+#if !EFCR
         [JsonProperty]
+#endif
         public string BackURL { get; set; }
 
+#if !EFCR
         [JsonProperty]
+#endif
         public List<IMessage> Messages
         {
             get
@@ -33,7 +40,9 @@ namespace gip.core.datamodel
 
     public class ActionResult<T> : ActionResult, IActionResult<T>
     {
+#if !EFCR
         [JsonProperty]
+#endif
         public T Item { get; set; }
     }
 }

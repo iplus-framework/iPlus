@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Objects;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -29,6 +29,7 @@ namespace gip.core.datamodel
                 IACEntityObjectContext context = (aCFSItem.ACObject as VBEntityObject).GetObjectContext();
                 if (context == null)
                     context = ACObjectContextManager.GetContextFromACUrl(null, aCFSItem.ACObject.ACType.ObjectFullType.FullName);
+#if !EFCR
                 EntityState objectEntityState = entityObject.EntityState;
                 if (objectEntityState != EntityState.Added && context != null)
                 {
@@ -39,6 +40,9 @@ namespace gip.core.datamodel
                         msgWithDetails.AddDetailMessage(checkStateMsg);
                     aCFSItem.UpdateDateFail = checkStateMsg != null;
                 }
+#endif
+                throw new NotImplementedException();
+
             }
         }
 
@@ -88,9 +92,9 @@ namespace gip.core.datamodel
             return msg;
         }
 
-        #endregion
+#endregion
 
-        #region ObjectContext Attach / Deattach
+#region ObjectContext Attach / Deattach
         /// <summary>
         /// Tree operation attach or de-attach to context 
         /// </summary>
@@ -105,9 +109,12 @@ namespace gip.core.datamodel
                 IACEntityObjectContext context = (aCFSItem.ACObject as VBEntityObject).GetObjectContext();
                 if (context == null)
                     context = ACObjectContextManager.GetContextFromACUrl(null, aCFSItem.ACObject.ACType.ObjectFullType.FullName);
+#if !EFCR
                 EntityState objectEntityState = entityObject.EntityState;
+#endif
                 if (context != null)
                 {
+#if !EFCR
                     if (aCFSItem.IsChecked && objectEntityState == EntityState.Detached && (!checkUpdateDate || !aCFSItem.UpdateDateFail))
                     {
                         if (entityObject.EntityKey != null)
@@ -129,13 +136,15 @@ namespace gip.core.datamodel
                     {
                         context.Detach(aCFSItem.ACObject);
                     }
+#endif
+                    throw new NotImplementedException();
                 }
             }
         }
 
-        #endregion
+#endregion
 
-        #region Filter
+#region Filter
 
         public static void Filter(ACFSItem aCFSItem, object[] args)
         {
@@ -165,9 +174,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region Validation
+#region Validation
 
         public static void ReferenceValidation(ACFSItem aCFSItem, object[] args)
         {
@@ -282,9 +291,9 @@ namespace gip.core.datamodel
             
         }
 
-        #endregion
+#endregion
 
-        #region Test
+#region Test
 
         public static void RunSomeCheck(ACFSItem aCFSItem, object[] args)
         {
@@ -298,7 +307,7 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
     }
 }

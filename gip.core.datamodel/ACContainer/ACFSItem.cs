@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -114,7 +115,10 @@ namespace gip.core.datamodel
             get
             {
                 if (ACObject == null) return null;
-                return (ACObject as VBEntityObject).EntityState == System.Data.EntityState.Added;
+#if !EFCR
+                return (ACObject as VBEntityObject).EntityState == EntityState.Added;
+#endif
+                throw new NotImplementedException();
             }
         }
 
@@ -197,9 +201,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region IACContainerWithItems
+#region IACContainerWithItems
 
         ObservableCollection<IACContainerWithItems> _ACObjectItemList;
         /// <summary>Container-Childs</summary>
@@ -284,9 +288,9 @@ namespace gip.core.datamodel
             return result;
         }
 
-        #endregion
+#endregion
 
-        #region IACObjectWithBinding Member
+#region IACObjectWithBinding Member
         /// <summary>
         /// Returns a ACUrl relatively to the passed object.
         /// If the passed object is null then the absolute path is returned
@@ -446,9 +450,9 @@ namespace gip.core.datamodel
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
 
-        #endregion
+#endregion
 
-        #region IACObjectEntity Members
+#region IACObjectEntity Members
         /// <summary>
         /// Returns the parent object
         /// </summary>
@@ -484,9 +488,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region static Properties
+#region static Properties
         /// <summary>
         /// Gets the key AC identifier.
         /// </summary>
@@ -498,9 +502,9 @@ namespace gip.core.datamodel
                 return Const.ACCaptionPrefix;
             }
         }
-        #endregion
+#endregion
 
-        #region INotifyPropertyChanged Members
+#region INotifyPropertyChanged Members
         /// <summary>
         /// Tritt ein, wenn sich ein Eigenschaftswert ändert.
         /// </summary>
@@ -521,9 +525,9 @@ namespace gip.core.datamodel
             if (OnACFSItemChange != null)
                 OnACFSItemChange(this, name, ACObject, null);
         }
-        #endregion
+#endregion
 
-        #region IACValue
+#region IACValue
         /// <summary>Gets or sets the encapsulated value as a boxed type</summary>
         /// <value>The boxed value.</value>
         public object Value
@@ -546,9 +550,9 @@ namespace gip.core.datamodel
                 return ACObject == null ? null : ACObject.ACType as ACClass;
             }
         }
-        #endregion
+#endregion
 
-        #region IVBDataCheckbox Member
+#region IVBDataCheckbox Member
         /// <summary>
         /// Gets or sets the data content check box.
         /// </summary>
@@ -560,9 +564,9 @@ namespace gip.core.datamodel
         }
 
         public bool IsEnabled { get; set; }
-        #endregion
+#endregion
 
-        #region Additional members
+#region Additional members
 
         public bool IsVisible
         {
@@ -603,9 +607,9 @@ namespace gip.core.datamodel
                 _ItemChanges = value;
             }
         }
-        #endregion
+#endregion
 
-        #region Recursive mehtods
+#region Recursive mehtods
 
         /// <summary>
         /// Generating child folder item for URL folder structure (zips)
@@ -649,15 +653,20 @@ namespace gip.core.datamodel
                 IACEntityObjectContext context = (ACObject as VBEntityObject).GetObjectContext();
                 if (context == null)
                     context = ACObjectContextManager.GetContextFromACUrl(null, ACObject.ACType.ObjectFullType.FullName);
-
+#if !EFCR
                 EntityState objectEntityState = (ACObject as VBEntityObject).EntityState;
+#endif
                 if (context != null)
                 {
+#if !EFCR
                     if (objectEntityState != EntityState.Detached)
                     {
                         context.Detach(ACObject);
                     }
+#endif
+                    throw new NotImplementedException();
                 }
+
             }
 
             foreach (var item in Items)
@@ -717,9 +726,9 @@ namespace gip.core.datamodel
                 }
         }
 
-        #endregion
+#endregion
 
-        #region Operational methods
+#region Operational methods
 
         /// <summary>
         /// 
@@ -787,7 +796,7 @@ namespace gip.core.datamodel
             return new KeyValuePair<bool, string>(true, propertyValue);
         }
 
-        #endregion
+#endregion
 
         public override string ToString()
         {

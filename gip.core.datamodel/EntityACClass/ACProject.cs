@@ -116,7 +116,7 @@ namespace gip.core.datamodel
                 acClass.DeleteACObject(database, withCheck);
             }
 
-            database.DeleteObject(this);
+            database.Remove(this);
             return null;
         }
 

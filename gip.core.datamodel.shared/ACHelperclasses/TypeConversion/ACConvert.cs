@@ -18,12 +18,10 @@ using System.Text;
 using System.IO;
 using System.Xml;
 using System.Runtime.Serialization;
-#if NETFRAMEWORK
-using System.Data.Objects.DataClasses;
-#endif
 using System.Data;
 using System.Globalization;
 using System.Threading;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -40,13 +38,13 @@ namespace gip.core.datamodel
         /// <summary>
         /// Gibt ein Objekt vom angegebenen Typ zurück, dessen Wert dem angegebenen Objekt entspricht.
         /// </summary>
-        /// <param name="value">Ein TimeSpan-, oder DateTime-, oder EntityKey-, oder EntityObject-, oder ACQueryDefinition-Objekt
+        /// <param name="value">Ein TimeSpan-, oder DateTime-, oder EntityKey-, oder VBEntityObject-, oder ACQueryDefinition-Objekt
         /// oder ein Objekt, das die System.IConvertible-Schnittstelle implementiert
         /// oder ein serialisierbares ACKnownTypes-Objekt</param>
         /// <param name="conversionType">Der System.Type des zurückzugebenden Objekts.</param>
         /// <param name="invariantCulture">invariantCulture</param>
         /// <param name="database">Referenz zum ObjectContext, falls ein Entity-Objekt attached wird</param>
-        /// <param name="entityAsEntityKey">Falls value ein EntityObject: Soll das EntityObject als EntityKey serialisiert werden oder als ACUrl-String falls value auch ein IACObject ist</param>
+        /// <param name="entityAsEntityKey">Falls value ein VBEntityObject: Soll das VBEntityObject als EntityKey serialisiert werden oder als ACUrl-String falls value auch ein IACObject ist</param>
         /// <param name="xmlIndented">Falls conversionType ein String und value ACKnownTypes-Objekt ist, soll XML-String Einzüge haben</param>
         /// <returns>Ein Objekt, dessen Typ gleich conversionType ist und dessen Wert value entspricht.–
         /// oder –Ein NULL-Verweis (Nothing in Visual Basic), wenn valuenull ist und
@@ -65,14 +63,14 @@ namespace gip.core.datamodel
         /// <summary>
         /// Gibt ein Objekt vom angegebenen Typ zurück, dessen Wert dem angegebenen Objekt entspricht.
         /// </summary>
-        /// <param name="value">Ein TimeSpan-, oder DateTime-, oder EntityKey-, oder EntityObject-, oder ACQueryDefinition-Objekt
+        /// <param name="value">Ein TimeSpan-, oder DateTime-, oder EntityKey-, oder VBEntityObject-, oder ACQueryDefinition-Objekt
         /// oder ein Objekt, das die System.IConvertible-Schnittstelle implementiert
         /// oder ein serialisierbares ACKnownTypes-Objekt</param>
         /// <param name="previouslyConvertedValue">value, der zuvor in den conversionType gewandelt wurde.</param>
         /// <param name="conversionType">Der System.Typ des zurückzugebenden Objekts.</param>
         /// <param name="invariantCulture">invariantCulture</param>
         /// <param name="database">Referenz zum ObjectContext, falls ein Entity-Objekt attached wird</param>
-        /// <param name="entityAsEntityKey">Falls value ein EntityObject: Soll das EntityObject als EntityKey serialisiert werden oder als ACUrl-String falls value auch ein IACObject ist</param>
+        /// <param name="entityAsEntityKey">Falls value ein VBEntityObject: Soll das VBEntityObject als EntityKey serialisiert werden oder als ACUrl-String falls value auch ein IACObject ist</param>
         /// <param name="xmlIndented">Falls conversionType ein String und value ACKnownTypes-Objekt ist, soll XML-String Einzüge haben</param>
         /// <returns>Ein Objekt, dessen Typ gleich conversionType ist und dessen Wert value entspricht.–
         /// oder –Ein NULL-Verweis (Nothing in Visual Basic), wenn valuenull ist und
@@ -152,7 +150,7 @@ namespace gip.core.datamodel
         /// or
         /// EntityKey not convertable to  + conversionType.Name
         /// or
-        /// EntityObject not convertable to  + conversionType.Name
+        /// VBEntityObject not convertable to  + conversionType.Name
         /// or
         /// ACKnownType only convertable to string
         /// or
@@ -190,17 +188,19 @@ namespace gip.core.datamodel
                     //    return Convert.ChangeType(value, conversionType);
                 }
                 // Konvertiere in ein EntityKey
+#if !EFCR
                 else if (typeof(EntityKey).IsAssignableFrom(conversionType))
                 {
                     //throw new InvalidCastException("Null-Value can't be converted to EntityKey");
                     return null;
                 }
-                // Konvertiere in ein EntityObject
-                else if (typeof(EntityObject).IsAssignableFrom(conversionType))
+                // Konvertiere in ein VBEntityObject
+                else if (typeof(VBEntityObject).IsAssignableFrom(conversionType))
                 {
-                    //throw new InvalidCastException("Null-Value can't be converted to EntityObject");
+                    //throw new InvalidCastException("Null-Value can't be converted to VBEntityObject");
                     return null;
                 }
+#endif
                 // Falls ACQueryDefinition
                 else if (typeof(ACQueryDefinition).IsAssignableFrom(conversionType))
                 {
@@ -240,7 +240,7 @@ namespace gip.core.datamodel
                         using (StringReader ms = new StringReader(valueString))
                         using (XmlTextReader xmlReader = new XmlTextReader(ms))
                         {
-                            DataContractSerializer serializer = new DataContractSerializer(conversionType, ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                            DataContractSerializer serializer = new DataContractSerializer(conversionType, new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                             object valueObject = serializer.ReadObject(xmlReader);
                             return valueObject;
                         }
@@ -257,7 +257,7 @@ namespace gip.core.datamodel
                 {
                     return value;
                 }
-                else if (typeof(EntityObject).IsAssignableFrom(conversionType) && value.GetType() == typeof(string))
+                else if (typeof(VBEntityObject).IsAssignableFrom(conversionType) && value.GetType() == typeof(string))
                 {
                     string valueString = value as string;
                     using (ACMonitor.Lock(database.QueryLock_1X000))
@@ -431,9 +431,11 @@ namespace gip.core.datamodel
                                 using (StringReader ms = new StringReader(valueString))
                                 using (XmlTextReader xmlReader = new XmlTextReader(ms))
                                 {
+#if !EFCR
                                     DataContractSerializer serializer = new DataContractSerializer(conversionType, ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
                                     object valueObject = serializer.ReadObject(xmlReader);
                                     return valueObject;
+#endif
                                 }
                             }
                             else
@@ -551,7 +553,7 @@ namespace gip.core.datamodel
                             using (StringReader ms = new StringReader(valueString))
                             using (XmlTextReader xmlReader = new XmlTextReader(ms))
                             {
-                                DataContractSerializer serializer = new DataContractSerializer(conversionType, ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                                DataContractSerializer serializer = new DataContractSerializer(conversionType, new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                                 valueObject = serializer.ReadObject(xmlReader);
                             }
 
@@ -577,10 +579,11 @@ namespace gip.core.datamodel
                     }
                 }
                 // Falls zu konvertierender Wert ein EntityKey ist
+#if !EFCR
                 else if (value is EntityKey)
                 {
-                    // Hole EntityObject über EntityKey
-                    if (typeof(EntityObject).IsAssignableFrom(conversionType))
+                    // Hole VBEntityObject über EntityKey
+                    if (typeof(VBEntityObject).IsAssignableFrom(conversionType))
                     {
                         object result = null;
                         if (database == null)
@@ -616,27 +619,33 @@ namespace gip.core.datamodel
                     else
                         throw new InvalidCastException("EntityKey not convertable to " + conversionType.Name);
                 }
-                // Falls zu konvertierender Wert ein EntityObject ist
-                else if (value is EntityObject)
+#endif
+                // Falls zu konvertierender Wert ein VBEntityObject ist
+                else if (value is VBEntityObject)
                 {
-                    // Hole EntityObject nach entityKey
+#if !EFCR
+                    // Hole VBEntityObject nach entityKey
                     if (typeof(EntityKey).IsAssignableFrom(conversionType))
-                        return (value as EntityObject).EntityKey;
-                    // Serialisiere EntityObject nach String
+                        return (value as VBEntityObject).EntityKey;
+
+                    // Serialisiere VBEntityObject nach String
                     else if (typeof(string).IsAssignableFrom(conversionType))
                     {
                         if (!entityAsEntityKey && (value is IACObject))
                             return (value as IACObject).GetACUrl();
                         else
                         {
-                            if ((value as EntityObject).EntityState == EntityState.Detached)
+                            if ((value as VBEntityObject).EntityState == EntityState.Detached)
                                 return null;
-                            return SerializeObject((value as EntityObject).EntityKey.GetType(), (value as EntityObject).EntityKey, xmlIndented);
+                            return SerializeObject((value as VBEntityObject).EntityKey.GetType(), (value as VBEntityObject).EntityKey, xmlIndented);
                         }
                     }
                     else if (!conversionType.IsAssignableFrom(value.GetType()))
-                        throw new InvalidCastException("EntityObject not convertable to " + conversionType.Name);
+                        throw new InvalidCastException("VBEntityObject not convertable to " + conversionType.Name);
                     return value;
+#endif
+                    throw new NotImplementedException();
+
                 }
 
                 // Falls zu konvertierender Wert ein bekanntes Serialisierbares Objekt ist
@@ -681,38 +690,42 @@ namespace gip.core.datamodel
             {
                 if (xmlIndented)
                     xmlWriter.Formatting = Formatting.Indented;
+#if !EFCR
                 DataContractSerializer serializer = new DataContractSerializer(objectType, ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+#endif
                 if (valueObject is ACMethod)
                 {
                     // Clone ACMethod, because Enumerator-Reference will not be Disposed from DataContractSerializer (Bug) therefore the ReadLock will remain
                     ACMethod acMethod = valueObject as ACMethod;
                     valueObject = acMethod.Clone();
                 }
+#if !EFCR
                 serializer.WriteObject(xmlWriter, valueObject);
+#endif
                 return sw.ToString();
             }
         }
-        #endregion
+#endregion
 
 #else
-        /// <summary>
-        /// Gibt ein Objekt vom angegebenen Typ zurück, dessen Wert dem angegebenen Objekt entspricht.
-        /// </summary>
-        /// <param name="value">Ein TimeSpan-, oder DateTime-, oder EntityKey-, oder EntityObject-, oder ACQueryDefinition-Objekt
-        /// oder ein Objekt, das die System.IConvertible-Schnittstelle implementiert
-        /// oder ein serialisierbares ACKnownTypes-Objekt</param>
-        /// <param name="conversionType">Der System.Type des zurückzugebenden Objekts.</param>
-        /// <param name="invariantCulture">invariantCulture</param>
-        /// <returns>Ein Objekt, dessen Typ gleich conversionType ist und dessen Wert value entspricht.–
-        /// oder –Ein NULL-Verweis (Nothing in Visual Basic), wenn valuenull ist und
-        /// conversionType kein Werttyp ist.</returns>
-        /// <exception cref="System.InvalidCastException">Diese Konvertierung wird nicht unterstützt. – oder –value ist null, und conversionType
-        /// ist ein Werttyp.– oder –value implementiert die System.IConvertible-Schnittstelle
-        /// nicht.</exception>
-        /// <exception cref="System.FormatException">value weist kein von conversionType erkanntes Format auf.</exception>
-        /// <exception cref="System.OverflowException">value stellt eine Zahl dar, die außerhalb des Bereichs von conversionType liegt.</exception>
-        /// <exception cref="System.ArgumentNullException">conversionType ist null</exception>
-        public static object ChangeType(object value, Type conversionType, bool invariantCulture)
+                            /// <summary>
+                            /// Gibt ein Objekt vom angegebenen Typ zurück, dessen Wert dem angegebenen Objekt entspricht.
+                            /// </summary>
+                            /// <param name="value">Ein TimeSpan-, oder DateTime-, oder EntityKey-, oder VBEntityObject-, oder ACQueryDefinition-Objekt
+                            /// oder ein Objekt, das die System.IConvertible-Schnittstelle implementiert
+                            /// oder ein serialisierbares ACKnownTypes-Objekt</param>
+                            /// <param name="conversionType">Der System.Type des zurückzugebenden Objekts.</param>
+                            /// <param name="invariantCulture">invariantCulture</param>
+                            /// <returns>Ein Objekt, dessen Typ gleich conversionType ist und dessen Wert value entspricht.–
+                            /// oder –Ein NULL-Verweis (Nothing in Visual Basic), wenn valuenull ist und
+                            /// conversionType kein Werttyp ist.</returns>
+                            /// <exception cref="System.InvalidCastException">Diese Konvertierung wird nicht unterstützt. – oder –value ist null, und conversionType
+                            /// ist ein Werttyp.– oder –value implementiert die System.IConvertible-Schnittstelle
+                            /// nicht.</exception>
+                            /// <exception cref="System.FormatException">value weist kein von conversionType erkanntes Format auf.</exception>
+                            /// <exception cref="System.OverflowException">value stellt eine Zahl dar, die außerhalb des Bereichs von conversionType liegt.</exception>
+                            /// <exception cref="System.ArgumentNullException">conversionType ist null</exception>
+                            public static object ChangeType(object value, Type conversionType, bool invariantCulture)
         {
             // TODO: IACType Conversion
             if (conversionType == null)

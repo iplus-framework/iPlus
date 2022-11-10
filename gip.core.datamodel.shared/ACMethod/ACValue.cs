@@ -20,8 +20,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 #if NETFRAMEWORK
-using System.Data.Objects.DataClasses;
-using System.Data.Objects;
+
 #endif
 
 namespace gip.core.datamodel
@@ -297,9 +296,9 @@ string _ACCaption;
                 if (value != null)
                 {
 #if NETFRAMEWORK
-                    if (value is EntityObject)
+                    if (value is VBEntityObject)
                     {
-                        EntityObject entity = value as EntityObject;
+                        VBEntityObject entity = value as VBEntityObject;
                         try
                         {
                             Type acRefType = typeof(ACRef<>).MakeGenericType(value.GetType());
@@ -619,16 +618,16 @@ string _ACCaption;
         /// <typeparam name="T"></typeparam>
         /// <param name="queueContext">The queue context.</param>
         /// <returns>``0.</returns>
-        public T EntityT<T>(IACEntityOpQueue queueContext) where T : EntityObject
+        public T EntityT<T>(IACEntityOpQueue queueContext) where T : VBEntityObject
         {
             if (ValueAsRef != null)
             {
-                EntityObject entityObject = null;
+                VBEntityObject entityObject = null;
                 bool reAttach = true;
                 if (ValueAsRef.IsAttached)
                 {
                     reAttach = false;
-                    entityObject = ValueAsRef.Value as EntityObject;
+                    entityObject = ValueAsRef.Value as VBEntityObject;
                     if (entityObject != null)
                     {
                         if (entityObject.GetObjectContext() != queueContext.ObjectContext)
@@ -644,7 +643,7 @@ string _ACCaption;
                         delegate()
                         {
                             ValueAsRef.AttachTo(queueContext.ObjectContext as IACObject);
-                            entityObject = ValueAsRef.Value as EntityObject;
+                            entityObject = ValueAsRef.Value as VBEntityObject;
                         }
                     );
                 }
@@ -661,16 +660,16 @@ string _ACCaption;
         /// <typeparam name="T"></typeparam>
         /// <param name="context">The context.</param>
         /// <returns>``0.</returns>
-        public T EntityT<T>(IACEntityObjectContext context) where T : EntityObject
+        public T EntityT<T>(IACEntityObjectContext context) where T : VBEntityObject
         {
             if (ValueAsRef != null)
             {
-                EntityObject entityObject = null;
+                VBEntityObject entityObject = null;
                 bool reAttach = true;
                 if (ValueAsRef.IsAttached)
                 {
                     reAttach = false;
-                    entityObject = ValueAsRef.Value as EntityObject;
+                    entityObject = ValueAsRef.Value as VBEntityObject;
                     if (entityObject != null)
                     {
                         if (entityObject.GetObjectContext() != context)
@@ -688,7 +687,7 @@ string _ACCaption;
                         try
                         {
                             ValueAsRef.AttachTo(context as IACObject);
-                            entityObject = ValueAsRef.Value as EntityObject;
+                            entityObject = ValueAsRef.Value as VBEntityObject;
                         }
                         catch (Exception e)
                         {

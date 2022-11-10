@@ -19,7 +19,6 @@ using gip.core.datamodel;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Data;
-using System.Data.Objects.DataClasses;
 using System.Transactions;
 using System.Runtime.Serialization;
 
@@ -33,15 +32,20 @@ namespace gip.core.datamodel
         {
         }
 
+#if !EFCR
         public ACConfigStoreInfo(EntityKey configStoreEntity, decimal priority)
         {
             _ConfigStoreEntity = configStoreEntity;
             _Priority = priority;
         }
+#endif
 
+#if !EFCR
         [DataMember(Name="CSE")]
         private EntityKey _ConfigStoreEntity;
+#endif
 
+#if !EFCR
         [IgnoreDataMember]
         [ACPropertyInfo(1, "", "en{'ConfigStoreEntity'}de{'ConfigStoreEntity'}")]
         public EntityKey ConfigStoreEntity
@@ -51,6 +55,7 @@ namespace gip.core.datamodel
                 return _ConfigStoreEntity;
             }
         }
+#endif
 
         [DataMember(Name = "P")]
         private decimal _Priority;
@@ -67,6 +72,7 @@ namespace gip.core.datamodel
 
         public override string ToString()
         {
+#if !EFCR
             if (ConfigStoreEntity != null)
             {
                 string keyValueString = "";
@@ -75,6 +81,7 @@ namespace gip.core.datamodel
                     keyValueString = String.Format("{0}:{1}", firstMember.Key, firstMember.Value.ToString());
                 return String.Format("CSE:{0},P:{1},V:{2}", ConfigStoreEntity.EntitySetName, Priority, keyValueString);
             }
+#endif
             return base.ToString();
         }
     }

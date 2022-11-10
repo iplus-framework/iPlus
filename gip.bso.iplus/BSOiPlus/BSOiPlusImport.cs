@@ -676,7 +676,7 @@ namespace gip.bso.iplus
                 CurrentImportItemRoot.CollectContext(contextList);
                 foreach (IACEntityObjectContext context in contextList)
                 {
-                    MsgWithDetails msg = context.ACSaveChanges(true, System.Data.Objects.SaveOptions.AcceptAllChangesAfterSave, false, false);
+                    MsgWithDetails msg = context.ACSaveChanges(true, false, false);
                     if (msg != null)
                         foreach (var chMsg in msg.MsgDetails)
                             importMsg.AddDetailMessage(chMsg);

@@ -103,7 +103,7 @@ namespace gip.core.datamodel
                 if (propertyManager != null)
                 {
                     bool notNullStringObjectForInvariantCulture = value != null && value is String && this.ObjectType != typeof(string);
-                    if (propertyManager.EntityObject != null)
+                    if (propertyManager.VBEntityObject != null)
                         newValue = ACConvert.ChangeType(value, ObjectType, !notNullStringObjectForInvariantCulture, propertyManager.DatabaseEntity);
                     else
                         newValue = ACConvert.ChangeType(value, ObjectType, true, null);

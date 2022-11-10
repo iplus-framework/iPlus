@@ -16,6 +16,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using gip.core.datamodel;
+using Microsoft.EntityFrameworkCore;
 
 [assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
@@ -122,7 +123,7 @@ namespace gip.core.datamodel
     /// <summary>
     /// 
     /// </summary>
-    public partial class iPlusV4_Entities : ObjectContext
+    public partial class iPlusV4_Entities : DbContext
     {
         #region Constructors
     

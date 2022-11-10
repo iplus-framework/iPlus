@@ -141,7 +141,7 @@ namespace gip.core.datamodel
                 vbGroupRight.DeleteACObject(database, withCheck);
             }
 
-            database.DeleteObject(this);
+            database.Remove(this);
 
             return null;
         }
@@ -963,8 +963,10 @@ namespace gip.core.datamodel
                     this.Safe_ACClass.ACClassConfig_ACClass.Remove(acConfig);
                 else
                     acConfig.ACClass.ACClassConfig_ACClass.Remove(acConfig);
+#if !EFCR
                 if (acConfig.EntityState != System.Data.EntityState.Detached)
                     acConfig.DeleteACObject(this.Database, false);
+#endif
             }
         }
 

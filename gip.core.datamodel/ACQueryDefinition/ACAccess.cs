@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
+#if !EFCR
 using System.Data.Objects;
+#endif
 using System.Collections;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;

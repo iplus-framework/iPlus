@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Objects.DataClasses;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace gip.core.datamodel
@@ -22,16 +22,19 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public static IACConfig GetStoreConfiguration(IEnumerable<IACConfig> configItemsSource, string preConfigACUrl, string localConfigACUrl, bool fetchDeattached, Guid? vbiACClassID)
         {
+#if !EFCR
             var item = 
                 ACConfigQuery<IACConfig>.QueryConfigSource(configItemsSource, preConfigACUrl, localConfigACUrl, vbiACClassID)
-                .Where(x => (x as EntityObject).EntityState != EntityState.Deleted &&
-                    (fetchDeattached || ((x as EntityObject).EntityState != EntityState.Detached) )
+                .Where(x => (x as VBEntityObject).EntityState != EntityState.Deleted &&
+                    (fetchDeattached || ((x as VBEntityObject).EntityState != EntityState.Detached) )
                 )
                 .FirstOrDefault();
             if (item == null)
                 return null;
             else
                 return (IACConfig)item;
+#endif
+            throw new NotImplementedException();
         }
 
 
@@ -47,20 +50,26 @@ namespace gip.core.datamodel
         {
             if (!configItemsSource.Any()) 
                 return null;
+#if !EFCR
             return
                 ACConfigQuery<IACConfig>.QueryConfigSource(configItemsSource, preConfigACUrl, localConfigACUrlList, vbiACClassID)
-                .Where(x =>  (x as EntityObject).EntityState != EntityState.Deleted && (x as EntityObject).EntityState != EntityState.Detached)
+                .Where(x =>  (x as VBEntityObject).EntityState != EntityState.Deleted && (x as VBEntityObject).EntityState != EntityState.Detached)
                 .ToList();
+#endif
+            throw new NotImplementedException();
         }
 
         public static List<IACConfig> GetStoreConfigurationList(IEnumerable<IACConfig> configItemsSource, string preConfigACUrl, string startsWithLocalConfigACUrl, Guid? vbiACClassID)
         {
             if (!configItemsSource.Any()) 
                 return null;
+#if !EFCR
             return
                 ACConfigQuery<IACConfig>.QueryConfigSourceStart(configItemsSource, preConfigACUrl, startsWithLocalConfigACUrl, vbiACClassID)
-                .Where(x => (x as EntityObject).EntityState != EntityState.Deleted && (x as EntityObject).EntityState != EntityState.Detached)
+                .Where(x => (x as VBEntityObject).EntityState != EntityState.Deleted && (x as VBEntityObject).EntityState != EntityState.Detached)
                 .ToList();
+#endif
+            throw new NotImplementedException();
         }
         
 

@@ -68,12 +68,14 @@ namespace gip.core.datamodel
             var query = database.ACClassMessage.Where(c => string.Compare(c.ACIdentifier, acIdentifierMin) >= 0 && string.Compare(c.ACIdentifier, acIdentifierMax) <= 0).Select(c => c.ACIdentifier);
             if (query.Any())
             {
+#if !EFCR
                 string maxName = query.Max();
                 int index;
                 if (!Int32.TryParse(maxName.Substring(maxName.Length - 5), out index))
                     index = 0;
                 index++;
                 return string.Format("{0}{1:D5}", prefix, index);
+#endif
             }
             return acIdentifierMin;
         }

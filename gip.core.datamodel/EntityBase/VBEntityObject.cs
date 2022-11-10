@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -202,7 +203,7 @@ namespace gip.core.datamodel
                             return msg;
                     }
                 }
-                database.DeleteObject(this);
+                database.Remove(this);
             }
             return null;
         }

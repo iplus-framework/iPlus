@@ -17,12 +17,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Runtime.CompilerServices;
-using System.Data.Objects;
 using System.Data;
-using System.Data.EntityClient;
 using System.Reflection;
-using System.Data.Objects.DataClasses;
 using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Win32;
 
 namespace gip.core.datamodel
 {
@@ -36,7 +36,9 @@ namespace gip.core.datamodel
                 throw new ArgumentException("Passed IACObjectContext is not a System.Data.Objects.ObjectContext");
             _ObjectContext.CommandTimeout = ACObjectContextHelper.CommandTimeout;
             _ObjectContext.SavingChanges += Database_SavingChanges;
+#if !EFCR
             _ObjectContext.ObjectMaterialized += Database_ObjectMaterialized;
+
             if (_ObjectContext.SeparateConnection != null)
             {
                 try
@@ -59,6 +61,8 @@ namespace gip.core.datamodel
                 _ObjectContext.Connection.StateChange += new StateChangeEventHandler(Connection_StateChange);
             if (_ObjectContext.SeparateConnection != null)
                 _ObjectContext.SeparateConnection.StoreConnection.StateChange += new StateChangeEventHandler(Connection_StateChange);
+#endif
+            throw new NotImplementedException();
         }
 
         public void Dispose()
@@ -66,16 +70,22 @@ namespace gip.core.datamodel
             if (_ObjectContext == null)
                 return;
             _ObjectContext.SavingChanges -= Database_SavingChanges;
+#if !EFCR
             _ObjectContext.ObjectMaterialized -= Database_ObjectMaterialized;
+#endif
+
+#if !EFCR
             if (_ObjectContext.SeparateConnection != null)
                 _ObjectContext.SeparateConnection.StoreConnection.StateChange -= Connection_StateChange;
             if (_ObjectContext.Connection != null)
                 _ObjectContext.Connection.StateChange -= Connection_StateChange;
+#endif
             _ObjectContext = null;
+            throw new NotImplementedException();
         }
-        #endregion
+#endregion
 
-        #region const
+#region const
         /// <summary>
         /// Duration in ms for Thread.Sleep() after a transaction error occured. DEfault is 100ms.
         /// </summary>
@@ -85,11 +95,11 @@ namespace gip.core.datamodel
         /// Number of Retries if ACSaveChanges fails due to a transaction error. Default is 5
         /// </summary>
         public const int C_NumberOfRetriesOnTransError = 5;
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
 
-        #region private
+#region private
 
         IACEntityObjectContext _ObjectContext;
         private bool _DeactivateEntityCheck = false;
@@ -99,14 +109,14 @@ namespace gip.core.datamodel
         bool _LogModifiedPropertiesToDebugWindow = false;
 #endif
 
-        #endregion
+#endregion
 
-        #region public
-        public ObjectContext ObjectContext
+#region public
+        public DbContext ObjectContext
         {
             get
             {
-                return _ObjectContext as ObjectContext;
+                return _ObjectContext as DbContext;
             }
         }
 
@@ -173,13 +183,13 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
 
-        #region Public
+#region Public
 
         /// <summary>
         /// Saves all changes in the Custom-Database-Context as well as in the iPlus-Context
@@ -188,7 +198,7 @@ namespace gip.core.datamodel
         /// UNSAFE. Use QueryLock_1X000 outside for Custom-Database-Context as well as for the seperate iPlus-Context
         /// </summary>
         /// <returns></returns>
-        public MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, SaveOptions saveOptions = SaveOptions.AcceptAllChangesAfterSave, bool validationOff = false, bool writeUpdateInfo = true)
+        public MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true)
         {
             // Save-Changes on iPlus-Context is allowed if it's not the Clobal-Context.
             if (autoSaveContextIPlus
@@ -197,7 +207,7 @@ namespace gip.core.datamodel
                 && _ObjectContext.IsSeparateIPlusContext
                 && _ObjectContext.ContextIPlus.IsChanged)
             {
-                MsgWithDetails subMessage = _ObjectContext.ContextIPlus.ACSaveChanges(false, saveOptions, validationOff, writeUpdateInfo);
+                MsgWithDetails subMessage = _ObjectContext.ContextIPlus.ACSaveChanges(false, validationOff, writeUpdateInfo);
                 if (subMessage != null)
                     return subMessage;
             }
@@ -214,7 +224,10 @@ namespace gip.core.datamodel
                     }
                 }
 
+#if !EFCR
                 _ObjectContext.SaveChanges(saveOptions);
+#endif
+
                 return null;
             }
             catch (EntityCheckException entityEx)
@@ -267,7 +280,7 @@ namespace gip.core.datamodel
             }
         }
 
-        public MsgWithDetails ACSaveChangesWithRetry(ushort? retries = null, bool autoSaveContextIPlus = true, SaveOptions saveOptions = SaveOptions.AcceptAllChangesAfterSave, bool validationOff = false, bool writeUpdateInfo = true)
+        public MsgWithDetails ACSaveChangesWithRetry(ushort? retries = null, bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true)
         {
             if (   !retries.HasValue 
                 || retries == 0 
@@ -276,7 +289,7 @@ namespace gip.core.datamodel
             MsgWithDetails msg = null;
             for (ushort i = 0; i < retries; i++)
             {
-                msg = ACSaveChanges(autoSaveContextIPlus, saveOptions, validationOff, writeUpdateInfo);
+                msg = ACSaveChanges(autoSaveContextIPlus, validationOff, writeUpdateInfo);
                 if (msg == null)
                     break;
                 Thread.Sleep(C_TimeoutForRetryAfterTransError);
@@ -299,13 +312,14 @@ namespace gip.core.datamodel
                 // 1. Hole manipulierte Objekte
                 try
                 {
-                    var entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Modified);
+                    var entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Modified);
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
                         var entityList = entityStateList.Where(c => c.Entity != null).Select(c => c.Entity);
                         if (entityList != null && entityList.Any())
                             // Leere liste indem die Objekte aus der Datenbank nachgeladen werden (StoreWins)
-                            _ObjectContext.Refresh(System.Data.Objects.RefreshMode.StoreWins, entityList);
+                            throw new NotImplementedException();
+                            //_ObjectContext.Refresh(RefreshMode.StoreWins, entityList);
                     }
                 }
                 catch (Exception e)
@@ -325,14 +339,19 @@ namespace gip.core.datamodel
                 // 2. Hole gelöschte Objekte
                 try
                 {
-                    var entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Deleted);
+#if !EFCR
+                    var entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(EntityState.Deleted);
+#endif
+                    var entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Deleted);
+
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
                         var entityList = entityStateList.Where(c => c.Entity != null).Select(c => c.Entity);
                         if (entityList != null && entityList.Any())
                         {
                             // Lade Objekte aus der Datenbank nach (StoreWins)
-                            _ObjectContext.Refresh(System.Data.Objects.RefreshMode.StoreWins, entityList);
+                            throw new NotImplementedException();
+                            //_ObjectContext.Refresh(RefreshMode.StoreWins, entityList);
                         }
                     }
                 }
@@ -352,22 +371,23 @@ namespace gip.core.datamodel
                 // 5. Hole vom Kontext hinzugefügte Objekte
                 try
                 {
-                    var entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Added);
+#if !EFCR
+                    var entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(EntityState.Added);
+#endif
+                    var entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Added);
+
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
                         var entityStates = entityStateList.ToArray();
-                        foreach (ObjectStateEntry entityState in entityStates)
+                        foreach (EntityEntry entityState in entityStates)
                         {
                             if (entityState.State != EntityState.Detached && entityState.Entity != null)
                             {
                                 try
                                 {
-                                    ObjectStateEntry ose;
-                                    if (_ObjectContext.ObjectStateManager.TryGetObjectStateEntry(entityState.Entity, out ose))
-                                    {
-                                        _ObjectContext.DeleteObject(entityState.Entity);
-                                    }
+                                    _ObjectContext.Remove(entityState.Entity);
                                 }
+
                                 catch (Exception e)
                                 {
                                     string msg = e.Message;
@@ -390,14 +410,19 @@ namespace gip.core.datamodel
                         }
                     }
 
-                    entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Added);
+#if !EFCR
+                    entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(EntityState.Added);
+#endif
+                    entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Added);
+
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
                         var entityList = entityStateList.Where(c => c.Entity != null).Select(c => c.Entity);
                         if (entityList != null && entityList.Any())
                         {
                             // Lade Objekte aus der Datenbank nach (StoreWins)
-                            _ObjectContext.Refresh(System.Data.Objects.RefreshMode.StoreWins, entityList);
+                            throw new NotImplementedException();
+                            //_ObjectContext.Refresh(RefreshMode.StoreWins, entityList);
                         }
                     }
                 }
@@ -448,6 +473,14 @@ namespace gip.core.datamodel
         }
 
 
+        public void Refresh(RefreshMode refreshMode, object entity)
+
+        {
+            (_ObjectContext as DbContext).Entry(entity).Reload();
+        }
+
+
+
         /// <summary>
         /// THREAD-SAFE. Uses QueryLock_1X000
         /// </summary>
@@ -456,11 +489,15 @@ namespace gip.core.datamodel
         {
             try
             {
-                IEnumerable<ObjectStateEntry> entityStateList = null;
+                IEnumerable<EntityEntry> entityStateList = null;
 
                 using (ACMonitor.Lock(_ObjectContext.QueryLock_1X000))
                 {
+#if !EFCR
                     entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(EntityState.Modified | EntityState.Added | EntityState.Deleted);
+#endif
+                    entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Modified || c.State == EntityState.Added || c.State == EntityState.Deleted).ToList();
+
                 }
                 if (entityStateList != null && entityStateList.Any())
                     return true;
@@ -496,7 +533,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public IList<T> GetAddedEntities<T>(Func<T, bool> selector = null) where T : class
         {
-            return GetChangedEntities<T>(System.Data.EntityState.Added, selector);
+            return GetChangedEntities<T>(EntityState.Added, selector);
         }
 
         /// <summary>
@@ -506,7 +543,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public IList<T> GetModifiedEntities<T>(Func<T, bool> selector = null) where T : class
         {
-            return GetChangedEntities<T>(System.Data.EntityState.Modified, selector);
+            return GetChangedEntities<T>(EntityState.Modified, selector);
         }
 
         /// <summary>
@@ -516,7 +553,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public IList<T> GetDeletedEntities<T>(Func<T, bool> selector = null) where T : class
         {
-            return GetChangedEntities<T>(System.Data.EntityState.Deleted, selector);
+            return GetChangedEntities<T>(EntityState.Deleted, selector);
         }
 
         /// <summary>
@@ -526,7 +563,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public IList<T> GetDetachedEntities<T>(Func<T, bool> selector = null) where T : class
         {
-            return GetChangedEntities<T>(System.Data.EntityState.Detached, selector);
+            return GetChangedEntities<T>(EntityState.Detached, selector);
         }
 
         /// <summary>
@@ -536,7 +573,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public IList<T> GetUnchangedEntities<T>(Func<T, bool> selector = null) where T : class
         {
-            return GetChangedEntities<T>(System.Data.EntityState.Unchanged, selector);
+            return GetChangedEntities<T>(EntityState.Unchanged, selector);
         }
 
         /// <summary>
@@ -553,23 +590,32 @@ namespace gip.core.datamodel
         /// THREAD-SAFE. Uses QueryLock_1X000
         /// </summary>
         /// <returns></returns>
-        public IList<T> GetChangedEntities<T>(System.Data.EntityState entityState, Func<T, bool> selector) where T : class
+        public IList<T> GetChangedEntities<T>(EntityState entityState, Func<T, bool> selector) where T : class
         {
             using (ACMonitor.Lock(_ObjectContext.QueryLock_1X000))
             {
+#if !EFCR
                 var query = _ObjectContext.ObjectStateManager.GetObjectStateEntries(entityState)
                                                                 .Where(c => c.Entity is T)
                                                                 .Select(c => c.Entity as T);
+#endif
+                var query = _ObjectContext.ChangeTracker.Entries()
+                    .Where(c => c.State == entityState)
+                    .Where(c => c.Entity is T)
+                    .Select(c => c.Entity as T);
+
                 if (selector != null)
                     query = query.Where(c => selector(c));
                 return query.ToList();
             }
         }
 
+#if !EFCR
         public virtual DbDataRecord GetOriginalValues(EntityKey entityKey)
         {
             return _ObjectContext.ObjectStateManager.GetObjectStateEntry(entityKey).OriginalValues;
         }
+#endif
 
         /// <summary>
         /// UNSAFE. Use QueryLock_1X000 outside
@@ -582,12 +628,13 @@ namespace gip.core.datamodel
             List<Tuple<ACChangeLog, int>> changeLogList = new List<Tuple<ACChangeLog, int>>();
             try
             {
-                IEnumerable<ObjectStateEntry> modified = _ObjectContext.ObjectStateManager.GetObjectStateEntries(EntityState.Modified);
+                IEnumerable<EntityEntry> modified = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Modified);
 #if DEBUG
                 if (_LogModifiedPropertiesToDebugWindow && modified.Any())
                 {
                     foreach (var modifiedItem in modified)
                     {
+#if !EFCR
                         var myObjectState = _ObjectContext.ObjectStateManager.GetObjectStateEntry(modifiedItem.EntityKey);
                         var modifiedProperties = myObjectState.GetModifiedProperties();
                         Console.WriteLine("Modified item: " + modifiedItem.ToString());
@@ -598,11 +645,12 @@ namespace gip.core.datamodel
                                  myObjectState.OriginalValues[propName],
                                  myObjectState.CurrentValues[propName]);
                         }
+#endif
                     }
 
                 }
 #endif
-                foreach (ObjectStateEntry ose in modified)
+                        foreach (EntityEntry ose in modified)
                 {
                     IACObjectEntity o = ose.Entity as IACObjectEntity;
                     if (o != null)
@@ -632,10 +680,10 @@ namespace gip.core.datamodel
                     }
                 }
 
-                IEnumerable<ObjectStateEntry> added = _ObjectContext.ObjectStateManager.GetObjectStateEntries(EntityState.Added);
-                foreach (ObjectStateEntry ose in added)
+                IEnumerable<EntityEntry> added = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Added);
+                foreach (EntityEntry ose in added)
                 {
-                    if (ose.State != System.Data.EntityState.Added)
+                    if (ose.State != EntityState.Added)
                         continue;
                     IACObjectEntity o = ose.Entity as IACObjectEntity;
                     if (o != null)
@@ -665,8 +713,8 @@ namespace gip.core.datamodel
                     }
                 }
 
-                IEnumerable<ObjectStateEntry> deleted = _ObjectContext.ObjectStateManager.GetObjectStateEntries(EntityState.Deleted);
-                foreach (ObjectStateEntry ose in deleted)
+                IEnumerable<EntityEntry> deleted = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Deleted);
+                foreach (EntityEntry ose in deleted)
                 {
                     if (ose.State != EntityState.Deleted)
                         continue;
@@ -701,6 +749,7 @@ namespace gip.core.datamodel
                             {
                                 var changeLogs = db.ACChangeLog.Where(c => c.ACClassID == item.Item1.ACClassID && c.ACClassPropertyID == item.Item1.ACClassPropertyID
                                                                                               && c.EntityKey == item.Item1.EntityKey).OrderBy(x => x.ChangeDate).ToList();
+#if !EFCR
                                 int changeDiff = (changeLogs.Count - item.Item2) + 1;
 
                                 if (changeDiff > 0)
@@ -708,6 +757,7 @@ namespace gip.core.datamodel
                                     for (int i = 0; i < changeDiff; i++)
                                         db.ACChangeLog.DeleteObject(changeLogs[i]);
                                 }
+#endif
                                 db.ACChangeLog.AddObject(item.Item1);
                             }
                         }
@@ -728,12 +778,13 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Refreshes the EntityObject if not in modified state. Else it leaves it untouched.
+        /// Refreshes the VBEntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
         /// <param name="entityObject"></param>
         /// <param name="refreshMode"></param>
-       public void AutoRefresh(EntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins)
+       public void AutoRefresh(VBEntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins)
         {
+#if !EFCR
             if (refreshMode == RefreshMode.StoreWins)
             {
                 if (entityObject.EntityState == EntityState.Unchanged)
@@ -745,6 +796,7 @@ namespace gip.core.datamodel
                     && (entityObject.EntityState != EntityState.Unchanged))
                     this.ObjectContext.Refresh(refreshMode, entityObject);
             }
+#endif
         }
 
         /// Refreshes all EntityObjects in the EntityCollection if not in modified state. Else it leaves it untouched.
@@ -755,18 +807,20 @@ namespace gip.core.datamodel
         /// <param name="entityCollection"></param>
         /// <param name="refreshMode"></param>
         ///</summary>
-        public void AutoRefresh<T>(EntityCollection<T> entityCollection, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
+        public void AutoRefresh<T>(ICollection<T> entityCollection, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
         {
+#if !EFCR
             if (refreshMode == RefreshMode.StoreWins)
             {
-                if (!(entityCollection.Where(c => (c as EntityObject).EntityState == EntityState.Modified || (c as EntityObject).EntityState == EntityState.Added || (c as EntityObject).EntityState == EntityState.Deleted).Any()))
-                    this.ObjectContext.Refresh(refreshMode, entityCollection);
+                if (!(entityCollection.Where(c => (c as VBEntityObject).EntityState == EntityState.Modified || (c as VBEntityObject).EntityState == EntityState.Added || (c as VBEntityObject).EntityState == EntityState.Deleted).Any()))
+                    this._ObjectContext.Refresh(refreshMode, entityCollection);
             }
             else
             {
-                if (entityCollection.Where(c => (c as EntityObject).EntityState == EntityState.Modified || (c as EntityObject).EntityState == EntityState.Added || (c as EntityObject).EntityState == EntityState.Deleted).Any())
-                    this.ObjectContext.Refresh(refreshMode, entityCollection);
+                if (entityCollection.Where(c => (c as VBEntityObject).EntityState == EntityState.Modified || (c as VBEntityObject).EntityState == EntityState.Added || (c as VBEntityObject).EntityState == EntityState.Deleted).Any())
+                    this._ObjectContext.Refresh(refreshMode, entityCollection);
             }
+#endif
         }
 
         /// <summary>
@@ -775,11 +829,12 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        public void AutoLoad<T>(EntityCollection<T> entityCollection) where T : class
+        public void AutoLoad<T>(ICollection<T> entityCollection) where T : class
         {
             try
             {
-                if ((entityCollection.Where(c => (c as EntityObject).EntityState == EntityState.Modified || (c as EntityObject).EntityState == EntityState.Added || (c as EntityObject).EntityState == EntityState.Deleted).Any()))
+#if !EFCR
+                if ((entityCollection.Where(c => (c as VBEntityObject).EntityState == EntityState.Modified || (c as VBEntityObject).EntityState == EntityState.Added || (c as VBEntityObject).EntityState == EntityState.Deleted).Any()))
                 {
                     entityCollection.Load(MergeOption.AppendOnly);
                 }
@@ -787,6 +842,7 @@ namespace gip.core.datamodel
                 {
                     entityCollection.Load(MergeOption.OverwriteChanges);
                 }
+#endif
             }
             catch (Exception e)
             {
@@ -807,9 +863,11 @@ namespace gip.core.datamodel
 
         public static bool IsDisconnectedException(Exception e)
         {
+#if !EFCR
             bool isDisconnectedException = e is EntityException
                                             && e.HResult == Const.EF_HResult_EntityException
                                             && e.Message.IndexOf("Open", 0, StringComparison.OrdinalIgnoreCase) >= 0;
+
             if (isDisconnectedException)
                 return isDisconnectedException;
 
@@ -823,6 +881,8 @@ namespace gip.core.datamodel
                                     && (   (e.InnerException is InvalidOperationException && e.InnerException.HResult == Const.EF_HResult_InvalidOperationException)
                                         || (e.InnerException is System.Data.SqlClient.SqlException && e.InnerException.HResult == Const.EF_HResult_SqlException));
             return isDisconnectedException;
+#endif
+            throw new NotImplementedException();
         }
 
         public static bool IsDisconnectedException(MsgWithDetails msg)
@@ -883,18 +943,22 @@ namespace gip.core.datamodel
             int exceptionType = e.HResult;
             if (exceptionType == 0)
             {
+#if !EFCR
                 if (e is EntityException)
                     exceptionType = Const.EF_HResult_EntityException;
                 else if (e is InvalidOperationException)
                     exceptionType = Const.EF_HResult_InvalidOperationException;
                 else if (e is System.Data.SqlClient.SqlException)
                     exceptionType = Const.EF_HResult_SqlException;
+#endif
+                throw new NotImplementedException();
             }
 
             msg.AddDetailMessage(new Msg { ACIdentifier = "Error", Message = e.Message, Row = exceptionType });
             if (e.InnerException != null)
                 msg.AddDetailMessage(new Msg { ACIdentifier = "Error", Message = e.InnerException.Message, Row = e.InnerException.HResult });
 
+#if !EFCR
             //OptimisticConcurrencyException: Store update, insert, or delete statement affected an unexpected number of rows(0). Entities may have been modified or deleted since entities were loaded.Refresh ObjectStateManager entries.
             if (e is OptimisticConcurrencyException)
             {
@@ -905,8 +969,10 @@ namespace gip.core.datamodel
                     ACIdentifier = "Error",
                     Message = Database.Root.Environment.TranslateMessage(Database.GlobalDatabase, "Error00000"),
                     MessageLevel = eMsgLevel.Error
+               
                 });
             }
+#endif
             if (!string.IsNullOrEmpty(constraint) && !isDisconnectedException)
             {
                 string[] parts = constraint.Split('_');
@@ -984,15 +1050,18 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public void DetachAllEntities()
         {
-            foreach (var objectStateEntry in this.ObjectContext.ObjectStateManager.GetObjectStateEntries(EntityState.Unchanged).ToArray())
+            foreach (var objectStateEntry in this.ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Unchanged).ToArray())
             {
-                this.ObjectContext.Detach(objectStateEntry.Entity);
+#if !EFCR
+                this.ObjectContext.ChangeTracker.Detach(objectStateEntry.Entity);
+#endif
+                this.ObjectContext.Entry(objectStateEntry.Entity).State = EntityState.Detached;
             }
         }
 
-        #endregion
+#endregion
 
-        #region Critical Section
+#region Critical Section
         public void EnterCS()
         {
             EnterCS(false);
@@ -1012,9 +1081,9 @@ namespace gip.core.datamodel
                 _ObjectContext.SavingChanges += Database_SavingChanges;
             ACMonitor.Exit(_ObjectContext.QueryLock_1X000);
         }
-        #endregion
+#endregion
 
-        #region ACUrl
+#region ACUrl
         public object ACUrlCommand(string acUrl, params Object[] acParameter)
         {
             //ACUrlHelper acUrlHelper = new ACUrlHelper(acUrl);
@@ -1077,6 +1146,7 @@ namespace gip.core.datamodel
 
                             using (ACMonitor.Lock(_ObjectContext.QueryLock_1X000))
                             {
+#if !EFCR
                                 ObjectQuery objectQuery = (ObjectQuery)piEntity.GetValue(_ObjectContext, null);
                                 // TODO: @aagincic - handle getting new added items
                                 var resultQuery = objectQuery.Where(filter, filterValues);
@@ -1091,12 +1161,17 @@ namespace gip.core.datamodel
                                         return ((IACObject)resultObject).ACUrlCommand(acUrlHelper.NextACUrl, acParameter);
                                     }
                                 }
+#endif
                             }
                         }
                         else if (string.IsNullOrEmpty(acUrlHelper.NextACUrl))
                         {
+#if !EFCR
                             return (ObjectQuery)piEntity.GetValue(_ObjectContext, null);
+#endif
+
                         }
+                        throw new NotImplementedException();
                         return null;
                     }
                 case ACUrlHelper.UrlKeys.Parent:
@@ -1130,7 +1205,7 @@ namespace gip.core.datamodel
                         }
 
                         IACObject newACObject = miNewACObject.Invoke(entityType, newACobjectMethodParams) as IACObject;
-                        _ObjectContext.AddObject(acName, newACObject);
+                        _ObjectContext.Add(newACObject);
 
                         if (acParameter != null && acParameter.Any())
                         {
@@ -1209,6 +1284,7 @@ namespace gip.core.datamodel
 
                             using (ACMonitor.Lock(_ObjectContext.QueryLock_1X000))
                             {
+#if !EFCR
                                 ObjectQuery objectQuery = (ObjectQuery)piEntity.GetValue(_ObjectContext, null);
                                 var resultQuery = objectQuery.Where(filter, filterValues);
                                 foreach (object resultObject in resultQuery)
@@ -1225,6 +1301,7 @@ namespace gip.core.datamodel
                                         return ((IACObject)resultObject).ACUrlBinding(acUrlHelper.NextACUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
                                     }
                                 }
+#endif
                             }
                         }
                         else
@@ -1356,11 +1433,12 @@ namespace gip.core.datamodel
                     return false; // TODO: Fehlerbehandlung
             }
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Event-Handler
+#region Event-Handler
+#if !EFCR
         void Database_ObjectMaterialized(object sender, ObjectMaterializedEventArgs e)
         {
             IACClassEntity acClassEntity = e.Entity as IACClassEntity;
@@ -1372,6 +1450,7 @@ namespace gip.core.datamodel
                 acClassEntity.OnObjectMaterialized(vbDatabase);
             }
         }
+#endif
 
         void Database_SavingChanges(object sender, System.EventArgs e)
         {
@@ -1413,6 +1492,6 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
     }
 }

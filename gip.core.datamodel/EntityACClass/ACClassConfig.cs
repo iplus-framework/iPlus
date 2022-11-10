@@ -116,7 +116,7 @@ namespace gip.core.datamodel
             MsgWithDetails msg = null;
             if (this.ACClassPropertyRelation != null)
                 this.ACClassPropertyRelation.DeleteACObject(database, withCheck);
-            database.DeleteObject(this);
+            database.Remove(this);
             return msg;
         }
 
@@ -211,6 +211,7 @@ namespace gip.core.datamodel
 
         partial void OnValueTypeACClassIDChanged()
         {
+#if !EFCR
             if (this.EntityState == System.Data.EntityState.Added || this.EntityState == System.Data.EntityState.Modified)
             {
                 ACPropertyExt acPropertyExt = ACProperties.GetOrCreateACPropertyExtByName(Const.Value, false, false);
@@ -226,6 +227,7 @@ namespace gip.core.datamodel
                     }
                 }
             }
+#endif
         }
 
 

@@ -17,9 +17,8 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.Threading;
-using System.Data.Objects.DataClasses;
 using System.Data;
-using System.Data.Objects;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -212,13 +211,15 @@ namespace gip.core.datamodel
             {
                 if (!IsAttached)
                 {
+#if !EFCR
                     if (_EntityKey != null)
                         return "";
+#endif
                     if (!String.IsNullOrEmpty(_ACUrl))
                         return _ACUrl;
                 }
 
-                if (ValueT != null && !(ValueT is EntityObject))
+                if (ValueT != null && !(ValueT is VBEntityObject))
                     _ACUrl = this.ValueT.GetACUrl();
                 return _ACUrl;
             }
@@ -228,10 +229,11 @@ namespace gip.core.datamodel
             }
         }
 
+#if !EFCR
         [IgnoreDataMember]
         private EntityKey _EntityKey = null;
         /// <summary>
-        /// Entity-Key if EntityObject is referenced
+        /// Entity-Key if VBEntityObject is referenced
         /// </summary>
         [DataMember]
         public EntityKey EntityKey
@@ -245,8 +247,8 @@ namespace gip.core.datamodel
                     if (!String.IsNullOrEmpty(_ACUrl))
                         return null;
                 }
-                if (ValueT != null && ValueT is EntityObject)
-                    _EntityKey = (ValueT as EntityObject).EntityKey;
+                if (ValueT != null && ValueT is VBEntityObject)
+                    _EntityKey = (ValueT as VBEntityObject).EntityKey;
                 return _EntityKey;
             }
 
@@ -255,9 +257,10 @@ namespace gip.core.datamodel
                 _EntityKey = value;
             }
         }
-        #endregion
+#endif
+#endregion
 
-        #region Referenced-Object
+#region Referenced-Object
 
         [IgnoreDataMember]
         private ACMonitorObject _10030_LockRef;
@@ -368,9 +371,9 @@ namespace gip.core.datamodel
                 return true;
             }
         }
-        #endregion
+#endregion
 
-        #region Miscellaneous and Garbage-Collector
+#region Miscellaneous and Garbage-Collector
         internal static void SetRoot(IRoot root)
         {
             if (_Root == null)
@@ -414,9 +417,9 @@ namespace gip.core.datamodel
                 return _IsWeakReference;
             }
         }
-        #endregion
+#endregion
 
-        #region IACObject
+#region IACObject
 
         [IgnoreDataMember]
         IACObject _ParentACObject = null;
@@ -454,8 +457,10 @@ namespace gip.core.datamodel
             {
                 if (!String.IsNullOrEmpty(ACUrl))
                     return ACUrl;
+#if !EFCR
                 else if (EntityKey != null)
                     return EntityKey.ToString();
+#endif
                 return null;
             }
         }
@@ -486,24 +491,27 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
 
-        #endregion
+#endregion
 
-        #region Methods
+#endregion
 
-        #region Attaching and Detaching
+#region Methods
+
+#region Attaching and Detaching
         /// <summary>
         /// Attaches the referenced object if its in detached state.
         /// </summary>
         public virtual void Attach()
         {
+#if !EFCR
             if (   (_ValueT == null && (!String.IsNullOrEmpty(_ACUrl) || _EntityKey != null))
-                || (_ValueT != null && _ValueT is EntityObject && (_ValueT as EntityObject).EntityState == EntityState.Detached))
+                || (_ValueT != null && _ValueT is VBEntityObject && (_ValueT as VBEntityObject).EntityState == EntityState.Detached))
             {
                 T valueT;
                 string acUrl;
                 EntityKey entityKey;
+                
 
                 using (ACMonitor.Lock(LockRef_10030))
                 {
@@ -514,7 +522,7 @@ namespace gip.core.datamodel
 
                 bool attachingDone = false;
                 if ((valueT == null && (!String.IsNullOrEmpty(acUrl) || entityKey != null))
-                    || (valueT != null && valueT is EntityObject && (valueT as EntityObject).EntityState == EntityState.Detached))
+                    || (valueT != null && valueT is VBEntityObject && (valueT as VBEntityObject).EntityState == EntityState.Detached))
                 {
                     attachingDone = true;
                     try
@@ -548,13 +556,13 @@ namespace gip.core.datamodel
 
                                             using (ACMonitor.Lock(database.QueryLock_1X000))
                                             {
-                                                if (valueT != null && (valueT as EntityObject).EntityState == EntityState.Detached)
+                                                if (valueT != null && (valueT as VBEntityObject).EntityState == EntityState.Detached)
                                                 {
-                                                    database.Attach(valueT as EntityObject);
+                                                    database.Attach(valueT as VBEntityObject);
                                                     result = valueT;
                                                 }
                                                 else
-                                                    result = database.GetObjectByKey(entityKey);
+                                                    result = database.Find(entityKey);
                                             }
                                         }
                                         else
@@ -567,27 +575,29 @@ namespace gip.core.datamodel
 
                                                 using (ACMonitor.Lock(component.Database.QueryLock_1X000))
                                                 {
-                                                    if (valueT != null && (valueT as EntityObject).EntityState == EntityState.Detached)
+                                                    if (valueT != null && (valueT as VBEntityObject).EntityState == EntityState.Detached)
                                                     {
-                                                        component.Database.Attach(valueT as EntityObject);
+                                                        component.Database.Attach(valueT as VBEntityObject);
                                                         result = valueT;
                                                     }
                                                     else
-                                                        result = component.Database.GetObjectByKey(entityKey);
+                                                        result = component.Database.Find(entityKey);
                                                 }
                                             }
                                             else if (component.Database.ContextIPlus.DefaultContainerName == entityKey.EntityContainerName)
                                             {
+                                                var databaseName = context.Database.GetDbConnection().Database;
+
 
                                                 using (ACMonitor.Lock(component.Database.ContextIPlus.QueryLock_1X000))
                                                 {
-                                                    if (valueT != null && (valueT as EntityObject).EntityState == EntityState.Detached)
+                                                    if (valueT != null && (valueT as VBEntityObject).EntityState == EntityState.Detached)
                                                     {
-                                                        component.Database.ContextIPlus.Attach(valueT as EntityObject);
+                                                        component.Database.ContextIPlus.Attach(valueT as VBEntityObject);
                                                         result = valueT;
                                                     }
                                                     else
-                                                        result = component.Database.ContextIPlus.GetObjectByKey(entityKey);
+                                                        result = component.Database.ContextIPlus.Find(entityKey);
                                                 }
                                             }
                                             else
@@ -598,13 +608,13 @@ namespace gip.core.datamodel
 
                                                     using (ACMonitor.Lock(objectContext.QueryLock_1X000))
                                                     {
-                                                        if (valueT != null && (valueT as EntityObject).EntityState == EntityState.Detached)
+                                                        if (valueT != null && (valueT as VBEntityObject).EntityState == EntityState.Detached)
                                                         {
-                                                            objectContext.Attach(valueT as EntityObject);
+                                                            objectContext.Attach(valueT as VBEntityObject);
                                                             result = valueT;
                                                         }
                                                         else
-                                                            result = objectContext.GetObjectByKey(entityKey);
+                                                            result = objectContext.Find(entityKey);
                                                     }
                                                 }
                                             }
@@ -685,6 +695,8 @@ namespace gip.core.datamodel
                 }
 
             }
+#endif
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -702,13 +714,17 @@ namespace gip.core.datamodel
             {
                 T valueT;
                 string acUrl;
+#if !EFCR
                 EntityKey entityKey;
+#endif
 
                 if (isFinalizing == 2) // Ohne lock weil der Garbage-Collector andere Threds selbst blockiert die Code in diesem Objekt ausführen wollen
                 {
                     valueT = _ValueT;
                     acUrl = _ACUrl;
+#if !EFCR
                     entityKey = _EntityKey;
+#endif
                 }
                 else
                 {
@@ -717,7 +733,9 @@ namespace gip.core.datamodel
                     {
                         valueT = _ValueT;
                         acUrl = _ACUrl;
+#if !EFCR
                         entityKey = _EntityKey;
+#endif
                     }
                 }
 
@@ -729,17 +747,21 @@ namespace gip.core.datamodel
                         bool isShuttingDown = Database.Root != null && (Database.Root.InitState == ACInitState.Destructing || Database.Root.InitState == ACInitState.Destructed);
                         if (isFinalizing <= 1 && ObjectDetaching != null) // Kein auslösen von Detach-Ereginissen aufgrund von Deadlock-Gefahren weil man nicht weiß was der Nutzer implementiert hat
                             ObjectDetaching(this, new EventArgs());
+#if !EFCR
                         if (isFinalizing <= 1 && entityKey == null)
                             acUrl = valueT.GetACUrl();
-                        if (valueT != null && detachFromContext && valueT is EntityObject && !isShuttingDown)
+#endif
+                        if (valueT != null && detachFromContext && valueT is VBEntityObject && !isShuttingDown)
                         {
-                            EntityObject entity = valueT as EntityObject;
+                            VBEntityObject entity = valueT as VBEntityObject;
+#if !EFCR
                             if (entity.EntityState != EntityState.Detached)
                             {
                                 var dbContext = entity.GetObjectContext();
                                 if (dbContext != null)
                                     dbContext.FullDetach(entity);
                             }
+#endif
                         }
                         if (valueT is IACComponent)
                         {
@@ -796,9 +818,9 @@ namespace gip.core.datamodel
             if (!IsAttached)
                 Attach();
         }
-        #endregion
+#endregion
 
-        #region IACObject
+#region IACObject
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
         /// 1. get references to components,
@@ -911,7 +933,9 @@ namespace gip.core.datamodel
         {
             ACRef<T> newRef = new ACRef<T>();
             newRef._ACUrl = this._ACUrl;
+#if !EFCR
             newRef._EntityKey = this._EntityKey;
+#endif
             newRef._IsWeakReference = this._IsWeakReference;
             newRef._Mode = this._Mode;
             newRef._ParentACObject = this._ParentACObject;

@@ -16,9 +16,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Data.Objects;
 using System.Collections.Concurrent;
+#if !EFCR
+using System.Data.Objects;
 using System.Data.EntityClient;
+#endif
 
 namespace gip.core.datamodel
 {
@@ -36,8 +38,7 @@ namespace gip.core.datamodel
         }
 
 #region Precompiled Queries
-
-    public static readonly Func<Database, Guid, ACProgram> s_cQry_ACProgram =
+        public static readonly Func<Database, Guid, ACProgram> s_cQry_ACProgram =
             CompiledQuery.Compile<Database, Guid, ACProgram>(
                 (db, acProgramID) =>
                     db.ACProgram.Where(c => c.ACProgramID == acProgramID).FirstOrDefault()
@@ -69,7 +70,6 @@ namespace gip.core.datamodel
                                 .Include("ACClassWFEdge_TargetACClassWF")
                     .Where(c => c.ACClassWFID == acClassWFID).FirstOrDefault()
             );
-
 #endregion
 
 #region TaskQueue
@@ -304,15 +304,14 @@ namespace gip.core.datamodel
                     .Where(c => c.ACProgramID == programID && c.ACUrl == acUrl)
                     .OrderBy(c => c.InsertDate)
             );
-
 #endregion
 
 #region Properties
         ACClassTaskQueue _TaskQueue = null;
         ConcurrentDictionary<Guid, ACProgramCacheEntry> _Programs = new ConcurrentDictionary<Guid, ACProgramCacheEntry>();
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
         /// <summary>
         /// Reads from Cache, If not in Cache it rebuilds by querying dababase
         /// </summary>
@@ -327,9 +326,11 @@ namespace gip.core.datamodel
             if (cacheEntry == null)
                 return null;
             ACProgramLog programLog = cacheEntry.GetCurrentProgramLog(acUrl, parentProgramLog);
-            if (programLog == null 
+            if (programLog == null
+#if !EFCR
                 && parentProgramLog.EntityState != System.Data.EntityState.Detached 
                 && parentProgramLog.EntityState != System.Data.EntityState.Added
+#endif
                 && !lookupOnlyInCache)
             {
                 _TaskQueue.ProcessAction(() =>
@@ -619,6 +620,7 @@ namespace gip.core.datamodel
                         {
                             foreach (var entry in logsToDetach)
                             {
+
                                 if (entry.ACProgramLog1_ParentACProgramLog != null
                                     && entry.ACProgramLog1_ParentACProgramLog.EntityState != System.Data.EntityState.Deleted
                                     && entry.ACProgramLog1_ParentACProgramLog.EntityState != System.Data.EntityState.Detached)
@@ -634,6 +636,7 @@ namespace gip.core.datamodel
                                         _TaskQueue.Context.ACSaveChanges();
                                     _TaskQueue.Context.Detach(entry);
                                 }
+
                             }
                         }
                         catch (Exception e)
@@ -663,7 +666,9 @@ namespace gip.core.datamodel
             using (Database db = new Database())
             {
                 var query = s_cQry_PreviousLogsFromParent(db, parentProgramLogID, acUrl);
+#if !EFCR
                 query.SetMergeOption(MergeOption.NoTracking);
+#endif
                 return query.ToArray();
             }
         }
@@ -679,7 +684,9 @@ namespace gip.core.datamodel
             using (Database db = new Database())
             {
                 var query = s_cQry_PreviousLogsFromProgram(db, programID, acUrl);
+#if !EFCR
                 query.SetMergeOption(MergeOption.NoTracking);
+#endif
                 return query.ToArray();
             }
         }
