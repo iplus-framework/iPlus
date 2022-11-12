@@ -177,6 +177,7 @@ namespace gip.core.datamodel
             return sb.ToString();
         }
 
+#if NETFRAMEWORK
         public void MonitorActivePerfEvents(int perfTimeoutForStop, IRuntimeDump runtimeDump)
         {
             if (perfTimeoutForStop <= 0)
@@ -205,6 +206,7 @@ namespace gip.core.datamodel
                 }
             }
         }
+#endif
 
 #endregion
 

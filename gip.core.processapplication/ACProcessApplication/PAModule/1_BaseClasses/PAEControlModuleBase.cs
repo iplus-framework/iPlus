@@ -121,7 +121,7 @@ namespace gip.core.processapplication
         }
 
 
-        [ACPropertyBindingTarget(441, "Read from PLC", "en{'Allocated by Way'}de{'Belegt von Wegesteuerung'}", "", false, false)] //, RemotePropID = 24)]
+        [ACPropertyBindingTarget(441, "Read from PLC", "en{'Allocated by Way'}de{'Belegt von Wegesteuerung'}", "", false, false, RemotePropID = 24)]
         public IACContainerTNet<BitAccessForAllocatedByWay> AllocatedByWay { get; set; }
 
         [ACPropertyBindingTarget(442, "Read from PLC", "en{'on site turned on'}de{'Vorort eingeschaltet'}", "", false, false, RemotePropID = 25)]
@@ -162,6 +162,23 @@ namespace gip.core.processapplication
                 return true;
             return base.IsEnabledAcknowledgeAlarms();
         }
+
+        public abstract void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff);
+
+        #region Simulation
+        public static void ActivateRouteOnSimulation(Route route, bool switchOff)
+        {
+            if (route == null || route.Items == null)
+                return;
+            foreach (RouteItem routeItem in route.Items)
+            {
+                PAEControlModuleBase module = routeItem.SourceACComponent as PAEControlModuleBase;
+                module?.ActivateRouteItemOnSimulation(routeItem, switchOff);
+                module = routeItem.TargetACComponent as PAEControlModuleBase;
+                module?.ActivateRouteItemOnSimulation(routeItem, switchOff);
+            }
+        }
+        #endregion
         #endregion
 
         #region Handle execute helpers

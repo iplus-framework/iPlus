@@ -1053,7 +1053,7 @@ namespace gip.bso.iplus
                 if (prevLog != null)
                 {
                     object logValue = ACConvert.XMLToObject(acClassProperty.ObjectType, prevLog.Value, true, db);
-                    resultList.Add(new ACPropertyLogInfo(FromDate, currentLog.EventTime, logValue, ""));
+                    resultList.Add(new ACPropertyLogInfo(FromDate, currentLog.EventTime, logValue, "") { PropertyLog = prevLog });
                 }
             }
             else
@@ -1064,13 +1064,13 @@ namespace gip.bso.iplus
                     ACPropertyLog propLogNext = propLogs[i + 1];
 
                     object logValue = ACConvert.XMLToObject(acClassProperty.ObjectType, propLog.Value, true, db);
-                    resultList.Add(new ACPropertyLogInfo(propLog.EventTime, propLogNext.EventTime, logValue, ""));
+                    resultList.Add(new ACPropertyLogInfo(propLog.EventTime, propLogNext.EventTime, logValue, "") { PropertyLog = propLog });
                 }
             }
 
             ACPropertyLog lastLog = propLogs.LastOrDefault();
             object logValueLast = ACConvert.XMLToObject(acClassProperty.ObjectType, lastLog.Value, true, db);
-            resultList.Add(new ACPropertyLogInfo(lastLog.EventTime, ToDate, logValueLast, ""));
+            resultList.Add(new ACPropertyLogInfo(lastLog.EventTime, ToDate, logValueLast, "") { PropertyLog = lastLog });
 
             return resultList;
         }
@@ -1212,7 +1212,7 @@ namespace gip.bso.iplus
                 return;
 
             DateTime? from = null, to = null;
-            if(_SelectedTimelineMode.Value as string == "2")
+            if (_SelectedTimelineMode.Value as string == "2")
             {
                 from = TimeFrameFrom;
                 to = TimeFrameTo;
@@ -1242,7 +1242,7 @@ namespace gip.bso.iplus
 
                 mainModel.TotalDuration += TimeSpan.FromSeconds(mainModel.Items.Sum(c => c.TotalDuration.TotalSeconds));
 
-                if(mainModel.Items.Any())
+                if (mainModel.Items.Any())
                     items.Add(mainModel);
             }
 

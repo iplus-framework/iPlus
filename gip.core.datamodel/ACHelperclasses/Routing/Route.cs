@@ -236,10 +236,7 @@ namespace gip.core.datamodel
                     continue;
                 var sourceComp = source.SourceACComponent;
                 var targetComp = target.TargetACComponent;
-                if (sourceComp == null && targetComp == null)
-                    continue;
-
-                result += string.Format(" {0} -> {1}{2}", sourceComp.GetACUrl(), targetComp.GetACUrl(), group.Key == last.Key ? "" : ", ");
+                result += string.Format(" {0} -> {1}{2}", sourceComp != null ? sourceComp.GetACUrl() : "NULL", targetComp != null ? targetComp.GetACUrl() : "NULL", group.Key == last.Key ? "" : ", ");
             }
             return string.IsNullOrEmpty(result) ? base.ToString() : result;
 
