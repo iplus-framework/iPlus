@@ -1175,7 +1175,7 @@ namespace gip.bso.iplus
                     config.Expression = item.Item3;
                 }
 
-                Msg msg = configTarget.GetObjectContext().ACSaveChanges();
+                Msg msg = configTarget.Database.ACSaveChanges();
                 if (msg != null)
                     Messages.Msg(msg);
                 else
@@ -1598,7 +1598,7 @@ namespace gip.bso.iplus
                     {
                         //alarmMessenger.ACConfigListCache_Initialize();
                         alarmMessenger.RemoveACConfig(currentConfig);
-                        var msg = alarmMessenger.GetObjectContext().ACSaveChanges();
+                        var msg = alarmMessenger.Database.ACSaveChanges();
                         if (msg != null)
                             Messages.Msg(msg);
                         else 
@@ -1637,7 +1637,7 @@ namespace gip.bso.iplus
                     {
                         //configTarget.ACConfigListCache_Initialize();
                         configTarget.RemoveACConfig(exclusionRule);
-                        var msg = configTarget.GetObjectContext().ACSaveChanges();
+                        var msg = configTarget.Database.ACSaveChanges();
                         if (msg != null)
                             Messages.Msg(msg);
                     }
@@ -1675,7 +1675,7 @@ namespace gip.bso.iplus
                     config.KeyACUrl = CurrentConfigLevel.ValueT.ACUrl;
                     config.Value = alarmSourceID;
                 }
-                Msg msg = CurrentConfigTarget.ValueT.GetObjectContext().ACSaveChanges();
+                Msg msg = CurrentConfigTarget.ValueT.Database.ACSaveChanges();
                 if (msg == null)
                     RebuildAlarmMessengerCache();
                 else
@@ -1743,7 +1743,7 @@ namespace gip.bso.iplus
             config.KeyACUrl = sourceACClass.ACUrl;
             config.Value = alarmMsgID;
 
-            Msg msg = messenger.GetObjectContext().ACSaveChanges();
+            Msg msg = messenger.Database.ACSaveChanges();
             if (msg == null)
                 RebuildAlarmMessengerCache();
             else
@@ -1780,7 +1780,7 @@ namespace gip.bso.iplus
             {
                 //messenger.ACConfigListCache_Initialize();
                 messenger.RemoveACConfig(config);
-                var msg = messenger.GetObjectContext().ACSaveChanges();
+                var msg = messenger.Database.ACSaveChanges();
                 if (msg == null)
                     RebuildAlarmMessengerCache();
                 else
