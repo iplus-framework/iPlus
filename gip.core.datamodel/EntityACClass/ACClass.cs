@@ -1515,9 +1515,7 @@ namespace gip.core.datamodel
             ACClassMethod[] allMethods = null;
             try
             {
-#if !EFCR
-#endif
-                if (!ACClassMethod_ACClass.IsLoaded && ACClassMethod_ACClass.EntityState != EntityState.Added
+                if (!ACClassMethod_ACClass.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
                     ACClassMethod_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
@@ -2059,7 +2057,6 @@ namespace gip.core.datamodel
             ACClassProperty[] allProperties = null;
             try
             {
-#if !EFCR
                 if (!ACClassProperty_ACClass.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
@@ -2074,7 +2071,6 @@ namespace gip.core.datamodel
                 }
                 else
                     allProperties = ACClassProperty_ACClass.ToArray();
-#endif
             }
             catch (Exception e)
             {
@@ -2335,7 +2331,6 @@ namespace gip.core.datamodel
             ACClassDesign[] allDesigns = null;
             try
             {
-#if !EFCR
                 if (!ACClassDesign_ACClass.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
@@ -2348,7 +2343,6 @@ namespace gip.core.datamodel
                 }
                 else
                     allDesigns = ACClassDesign_ACClass.ToArray();
-#endif
             }
             catch (Exception e)
             {
@@ -2474,7 +2468,6 @@ namespace gip.core.datamodel
             ACClassText[] allTexts = null;
             try
             {
-#if !EFCR
                 if (!ACClassText_ACClass.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
@@ -2486,7 +2479,6 @@ namespace gip.core.datamodel
                 }
                 else
                     allTexts = ACClassText_ACClass.ToArray();
-#endif
             }
             catch (Exception e)
             {
@@ -2612,7 +2604,6 @@ namespace gip.core.datamodel
             ACClassMessage[] allMessages = null;
             try
             {
-#if !EFCR
                 if (!ACClassMessage_ACClass.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
@@ -2624,7 +2615,6 @@ namespace gip.core.datamodel
                 }
                 else
                     allMessages = ACClassMessage_ACClass.ToArray();
-#endif
             }
             catch (Exception e)
             {
@@ -3490,10 +3480,8 @@ namespace gip.core.datamodel
                     this.ACClassConfig_ACClass.Remove(acConfig);
                 else
                     acConfig.ACClass.ACClassConfig_ACClass.Remove(acConfig);
-#if !EFCR
                 if (acConfig.EntityState != EntityState.Detached)
                     acConfig.DeleteACObject(this.Database, false);
-#endif
             }
         }
 

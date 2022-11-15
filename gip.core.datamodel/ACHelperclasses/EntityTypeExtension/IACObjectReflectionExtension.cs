@@ -1154,7 +1154,6 @@ namespace gip.core.datamodel
             if (parentObject != null)
             {
                 VBEntityObject entityObject = parentObject as VBEntityObject;
-#if !EFCR
                 if (entityObject != null && entityObject.EntityState != EntityState.Added && entityObject.EntityState != EntityState.Detached)
                 {
                     ACClass saveClass = acClassProperty.Safe_ACClass;
@@ -1166,7 +1165,6 @@ namespace gip.core.datamodel
                         }
                     }
                 }
-#endif
             }
 
             Global.ControlModesInfo newMode = Global.ControlModesInfo.Enabled;

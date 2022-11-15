@@ -183,13 +183,20 @@ namespace gip.core.datamodel
             }
         }
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
 
-#region Public
+        #region Public
+        public DbContextOptionsBuilder OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            return optionsBuilder
+                    .UseSqlServer("Server=.\\;Database=IPCDrives2017Testing;Trusted_Connection=True;Encrypt=False")
+                    //.ReplaceService<IShapedQueryCompilingExpressionVisitorFactory, MyRelationalShapedQueryCompilingExpressionVisitorFactory>()
+                    .AddInterceptors(new ACMaterializationInterceptor());
+        }
 
         /// <summary>
         /// Saves all changes in the Custom-Database-Context as well as in the iPlus-Context
@@ -339,9 +346,6 @@ namespace gip.core.datamodel
                 // 2. Hole gelöschte Objekte
                 try
                 {
-#if !EFCR
-                    var entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(EntityState.Deleted);
-#endif
                     var entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Deleted);
 
                     if ((entityStateList != null) && (entityStateList.Any()))
@@ -371,9 +375,6 @@ namespace gip.core.datamodel
                 // 5. Hole vom Kontext hinzugefügte Objekte
                 try
                 {
-#if !EFCR
-                    var entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(EntityState.Added);
-#endif
                     var entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Added);
 
                     if ((entityStateList != null) && (entityStateList.Any()))
@@ -410,9 +411,6 @@ namespace gip.core.datamodel
                         }
                     }
 
-#if !EFCR
-                    entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(EntityState.Added);
-#endif
                     entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Added);
 
                     if ((entityStateList != null) && (entityStateList.Any()))
@@ -493,9 +491,7 @@ namespace gip.core.datamodel
 
                 using (ACMonitor.Lock(_ObjectContext.QueryLock_1X000))
                 {
-#if !EFCR
-                    entityStateList = _ObjectContext.ObjectStateManager.GetObjectStateEntries(EntityState.Modified | EntityState.Added | EntityState.Deleted);
-#endif
+
                     entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Modified || c.State == EntityState.Added || c.State == EntityState.Deleted).ToList();
 
                 }

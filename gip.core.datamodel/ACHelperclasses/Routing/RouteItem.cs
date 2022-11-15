@@ -301,8 +301,7 @@ namespace gip.core.datamodel
         {
             get
             {
-#if !EFCR
-                if (_Source != null && _Source.EntityState != EntityState.Detached)
+                if (_Source != null && _Source.Database.Entry(_Source).State != EntityState.Detached)
                     return false;
                 if (_Target != null && _Target.EntityState != EntityState.Detached)
                     return false;
@@ -310,8 +309,6 @@ namespace gip.core.datamodel
                     return false;
                 if (_TargetProperty != null && _TargetProperty.EntityState != EntityState.Detached)
                     return false;
-#endif
-                throw new NotImplementedException();
                 return _Source == null && _SourceProperty == null && _Target == null && _TargetProperty == null;
             }
         }
@@ -452,17 +449,22 @@ namespace gip.core.datamodel
 
         public void DetachEntitesFromDbContext()
         {
-#if !EFCR
             if (Source != null && Source.EntityState != EntityState.Detached)
-                Source.Database.Detach(Source);
+                Source.Database.Entry(Source).State = EntityState.Detached;
+                //Source.Database.Detach(Source);
+
             if (Target != null && Target.EntityState != EntityState.Detached)
-                Target.Database.Detach(Target);
+                Target.Database.Entry(Target).State = EntityState.Detached;
+                //Target.Database.Detach(Target);
+
             if (SourceProperty != null && SourceProperty.EntityState != EntityState.Detached)
-                SourceProperty.Database.Detach(SourceProperty);
+                SourceProperty.Context.Entry(this).State = EntityState.Detached;
+                //SourceProperty.Database.Detach(SourceProperty);
+
             if (TargetProperty != null && TargetProperty.EntityState != EntityState.Detached)
-                TargetProperty.Database.Detach(TargetProperty);
-#endif
-            throw new NotImplementedException();
+                TargetProperty.Context.Entry(this).State = EntityState.Detached;
+                //TargetProperty.Database.Detach(TargetProperty);
+
         }
 
 #endregion

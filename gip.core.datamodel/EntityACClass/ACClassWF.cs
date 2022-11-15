@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -119,8 +120,10 @@ namespace gip.core.datamodel
                 var query = entity.ACClassWF1_ParentACClassWF.ACClassWF_ParentACClassWF.ToList()
                     .Where(c => (c.ACClassWFID != entity.ACClassWFID) && (c.ACIdentifierPrefix == acIdentifier))
                     .Select(c => c.ACInstanceNo);
+#if !EFCR
                 if (query.Any())
                     nextInstanceNo = query.Max() + 1;
+#endif
                 entity.ACIdentifier = acIdentifier + "(" + nextInstanceNo.ToString() + ")";
             }
             else
@@ -190,9 +193,9 @@ namespace gip.core.datamodel
                 }
             }
         }
-        #endregion
+#endregion
 
-        #region IACObjectEntity Members
+#region IACObjectEntity Members
 
         /// <summary>
         /// Method for validating values and references in this EF-Object.
@@ -218,9 +221,9 @@ namespace gip.core.datamodel
                 return Const.ACIdentifierPrefix;
             }
         }
-        #endregion
+#endregion
 
-        #region IEntityProperty Members
+#region IEntityProperty Members
 
         bool bRefreshConfig = false;
         partial void OnXMLConfigChanging(global::System.String value)
@@ -236,9 +239,9 @@ namespace gip.core.datamodel
                 ACProperties.Refresh();
         }
 
-        #endregion
+#endregion
 
-        #region IMethodWF Members
+#region IMethodWF Members
 
         /// <summary>
         /// Returns ParentACClassWF or ACClassMethod if root
@@ -294,7 +297,7 @@ namespace gip.core.datamodel
         /// <value>List of edges</value>
         public IEnumerable<IACWorkflowEdge> GetOutgoingWFEdgesInGroup(IACWorkflowContext context)
         {
-            if (this.EntityState != System.Data.EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethod.IsLoaded)
+            if (this.EntityState != EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethod.IsLoaded)
                 ACClassMethod.ACClassWFEdge_ACClassMethod.Load();
             return GetOutgoingWFEdges(context).Where(c => ((ACClassWF)c.ToWFNode).ACClassWF1_ParentACClassWF.ACClassWFID == this.ACClassWF1_ParentACClassWF.ACClassWFID).Select(c => c);
         }
@@ -316,7 +319,7 @@ namespace gip.core.datamodel
         /// <value>List of edges</value>
         public IEnumerable<IACWorkflowEdge> GetIncomingWFEdgesInGroup(IACWorkflowContext context)
         {
-            if (this.EntityState != System.Data.EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethod.IsLoaded)
+            if (this.EntityState != EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethod.IsLoaded)
                 ACClassMethod.ACClassWFEdge_ACClassMethod.Load();
             return GetIncomingWFEdges(context).Where(c => ((ACClassWF)c.FromWFNode).ACClassWF1_ParentACClassWF.ACClassWFID == this.ACClassWF1_ParentACClassWF.ACClassWFID).Select(c => c);
         }
@@ -405,9 +408,9 @@ namespace gip.core.datamodel
             else
                 return ACIdentifier;
         }
-        #endregion
+#endregion
 
-        #region IVisual Members
+#region IVisual Members
 
         /// <summary>
         /// Unique ID of the Workflow Node
@@ -557,9 +560,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region Others
+#region Others
         public Database Database { get; private set; } = null;
 
         void IACClassEntity.OnObjectMaterialized(Database db)
@@ -568,9 +571,9 @@ namespace gip.core.datamodel
                 Database = db;
         }
 
-        #endregion
+#endregion
 
-        #region Clone
+#region Clone
 
         public object Clone()
         {
@@ -622,9 +625,9 @@ namespace gip.core.datamodel
             return clonedObject;
         }
 
-        #endregion
+#endregion
 
-        #region IACConfigURL
+#region IACConfigURL
 
         public string ConfigACUrl
         {
@@ -661,7 +664,7 @@ namespace gip.core.datamodel
         public void RefreshRuleStates()
         {
         }
-        #endregion
+#endregion
 
         public IACObject GetParentACObject(IACObject context)
         {

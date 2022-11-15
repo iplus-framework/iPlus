@@ -29,6 +29,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace gip.core.datamodel
 {

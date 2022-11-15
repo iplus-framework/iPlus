@@ -1435,10 +1435,8 @@ namespace gip.core.datamodel
                     this.Safe_ACClass.ACClassConfig_ACClass.Remove(acConfig);
                 else
                     acConfig.ACClass.ACClassConfig_ACClass.Remove(acConfig);
-#if !EFCR
                 if (acConfig.EntityState != EntityState.Detached)
                     acConfig.DeleteACObject(this.Database, false);
-#endif
             }
         }
 

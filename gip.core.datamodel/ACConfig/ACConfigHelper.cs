@@ -22,7 +22,6 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public static IACConfig GetStoreConfiguration(IEnumerable<IACConfig> configItemsSource, string preConfigACUrl, string localConfigACUrl, bool fetchDeattached, Guid? vbiACClassID)
         {
-#if !EFCR
             var item = 
                 ACConfigQuery<IACConfig>.QueryConfigSource(configItemsSource, preConfigACUrl, localConfigACUrl, vbiACClassID)
                 .Where(x => (x as VBEntityObject).EntityState != EntityState.Deleted &&
@@ -33,7 +32,7 @@ namespace gip.core.datamodel
                 return null;
             else
                 return (IACConfig)item;
-#endif
+
             throw new NotImplementedException();
         }
 
@@ -50,12 +49,10 @@ namespace gip.core.datamodel
         {
             if (!configItemsSource.Any()) 
                 return null;
-#if !EFCR
             return
                 ACConfigQuery<IACConfig>.QueryConfigSource(configItemsSource, preConfigACUrl, localConfigACUrlList, vbiACClassID)
                 .Where(x =>  (x as VBEntityObject).EntityState != EntityState.Deleted && (x as VBEntityObject).EntityState != EntityState.Detached)
                 .ToList();
-#endif
             throw new NotImplementedException();
         }
 
@@ -63,12 +60,10 @@ namespace gip.core.datamodel
         {
             if (!configItemsSource.Any()) 
                 return null;
-#if !EFCR
             return
                 ACConfigQuery<IACConfig>.QueryConfigSourceStart(configItemsSource, preConfigACUrl, startsWithLocalConfigACUrl, vbiACClassID)
                 .Where(x => (x as VBEntityObject).EntityState != EntityState.Deleted && (x as VBEntityObject).EntityState != EntityState.Detached)
                 .ToList();
-#endif
             throw new NotImplementedException();
         }
         

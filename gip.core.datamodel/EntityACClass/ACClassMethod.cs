@@ -19,6 +19,7 @@ using System.Runtime.Serialization;
 using System.IO;
 using System.Xml;
 using System.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -1479,15 +1480,13 @@ namespace gip.core.datamodel
         {
             get
             {
-#if !EFCR
-                if (this.EntityState != System.Data.EntityState.Added && !ACClassWF_ACClassMethod.IsLoaded)
+                if (this.EntityState != EntityState.Added && !ACClassWF_ACClassMethod.IsLoaded)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                     {
                         ACClassWF_ACClassMethod.Load();
                     }
                 }
-#endif
                 return ACClassWF_ACClassMethod.ToList(); // ToList, damit Query Thread-Safe
             }
         }
@@ -1974,10 +1973,8 @@ namespace gip.core.datamodel
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 this.ACClassMethodConfig_ACClassMethod.Remove(acConfig);
-#if !EFCR
-                if (acConfig.EntityState != System.Data.EntityState.Detached)
+                if (acConfig.EntityState != EntityState.Detached)
                     acConfig.DeleteACObject(this.Database, false);
-#endif
             }
         }
 

@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -211,8 +212,7 @@ namespace gip.core.datamodel
 
         partial void OnValueTypeACClassIDChanged()
         {
-#if !EFCR
-            if (this.EntityState == System.Data.EntityState.Added || this.EntityState == System.Data.EntityState.Modified)
+            if (this.EntityState == EntityState.Added || this.EntityState == EntityState.Modified)
             {
                 ACPropertyExt acPropertyExt = ACProperties.GetOrCreateACPropertyExtByName(Const.Value, false, false);
                 if (acPropertyExt != null)
@@ -227,7 +227,6 @@ namespace gip.core.datamodel
                     }
                 }
             }
-#endif
         }
 
 

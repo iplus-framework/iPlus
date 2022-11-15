@@ -70,6 +70,12 @@ namespace gip.core.datamodel
             _GlobalDatabase.InitTypeDictFromSystemNamespace();
         }
 
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            _ObjectContextHelper.OnConfiguring(optionsBuilder);
+        }
+
         public Database()
             : base(ConnectionString)
         {

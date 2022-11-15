@@ -20,6 +20,7 @@ using System.Collections;
 using System.Runtime.Serialization;
 using gip.core.datamodel;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -392,10 +393,8 @@ namespace gip.core.datamodel
             acFsItem.XNode = xNode;
 
             //// Place for define KeyACValue property
-#if !EFCR
-            if ((acObject as VBEntityObject).EntityState == System.Data.EntityState.Added)
+            if ((acObject as VBEntityObject).EntityState == EntityState.Added)
                 ACObjectSerialHelper.SetIACObjectProperties(resource, db, acFSParentItem.Container, acFsItem, true, msgList);
-#endif
             acFsItem.ACObjectACUrl = acObject.GetACUrl();
             acFsItem.ACCaption = acObject.ACIdentifier;
         }
@@ -543,10 +542,8 @@ namespace gip.core.datamodel
             acFsItem.ACObjectACUrl = outerAcObject.GetACUrl();
             acFsItem.ACCaption = outerAcObject.ACIdentifier;
             acFsItem.OuterIACObject = outerAcObject;
-#if !EFCR
-            if ((acObject as VBEntityObject).EntityState == System.Data.EntityState.Added)
+            if ((acObject as VBEntityObject).EntityState == EntityState.Added)
                 ACObjectSerialHelper.SetIACObjectProperties(resource, db, acFSParentItem.Container, acFsItem, true, msgList);
-#endif
         }
 
         /// <summary>

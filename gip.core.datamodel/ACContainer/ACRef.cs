@@ -754,14 +754,12 @@ namespace gip.core.datamodel
                         if (valueT != null && detachFromContext && valueT is VBEntityObject && !isShuttingDown)
                         {
                             VBEntityObject entity = valueT as VBEntityObject;
-#if !EFCR
                             if (entity.EntityState != EntityState.Detached)
                             {
                                 var dbContext = entity.GetObjectContext();
                                 if (dbContext != null)
                                     dbContext.FullDetach(entity);
                             }
-#endif
                         }
                         if (valueT is IACComponent)
                         {

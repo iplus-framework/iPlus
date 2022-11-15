@@ -29,7 +29,6 @@ namespace gip.core.datamodel
                 IACEntityObjectContext context = (aCFSItem.ACObject as VBEntityObject).GetObjectContext();
                 if (context == null)
                     context = ACObjectContextManager.GetContextFromACUrl(null, aCFSItem.ACObject.ACType.ObjectFullType.FullName);
-#if !EFCR
                 EntityState objectEntityState = entityObject.EntityState;
                 if (objectEntityState != EntityState.Added && context != null)
                 {
@@ -40,9 +39,6 @@ namespace gip.core.datamodel
                         msgWithDetails.AddDetailMessage(checkStateMsg);
                     aCFSItem.UpdateDateFail = checkStateMsg != null;
                 }
-#endif
-                throw new NotImplementedException();
-
             }
         }
 
@@ -50,8 +46,10 @@ namespace gip.core.datamodel
         private static Msg CheckUpdateDate(IACEntityObjectContext context, VBEntityObject entityObject, string importFileName, string entityTypeName)
         {
             Msg msg = null;
-            var myObjectState = context.ObjectStateManager.GetObjectStateEntry(entityObject);
-            var modifiedProperties = myObjectState.GetModifiedProperties();
+            var myObjectState = context.ChangeTracker.Entries().Where(c => c.Entity == entityObject);
+            //var modifiedProperties = myObjectState.GetModifiedProperties();
+            var modifiedProperties = context.Entry(entityObject).Properties.Where(c => c.IsModified).Select(c => c.Metadata.Name).ToList();
+
 
             bool localWithGreaterUpdateDate = false;
             bool isSame = false;
@@ -61,8 +59,10 @@ namespace gip.core.datamodel
 
             if (modifiedProperties.Contains(Property_UpdateDate))
             {
-                localRecordTime = (DateTime)myObjectState.OriginalValues[Property_UpdateDate];
-                importedRecordTime = (DateTime)myObjectState.CurrentValues[Property_UpdateDate];
+                //localRecordTime = (DateTime)myObjectState.OriginalValues[Property_UpdateDate];
+                localRecordTime = (DateTime)myObjectState.Select(c => c.OriginalValues[Property_UpdateDate]).FirstOrDefault();
+                //importedRecordTime = (DateTime)myObjectState.CurrentValues[Property_UpdateDate];
+                importedRecordTime = (DateTime)myObjectState.Select(c => c.OriginalValues[Property_UpdateDate]).FirstOrDefault();
 
                 isSame = Math.Abs((localRecordTime - importedRecordTime).TotalMinutes) < 1;
 
@@ -109,14 +109,12 @@ namespace gip.core.datamodel
                 IACEntityObjectContext context = (aCFSItem.ACObject as VBEntityObject).GetObjectContext();
                 if (context == null)
                     context = ACObjectContextManager.GetContextFromACUrl(null, aCFSItem.ACObject.ACType.ObjectFullType.FullName);
-#if !EFCR
                 EntityState objectEntityState = entityObject.EntityState;
-#endif
                 if (context != null)
                 {
-#if !EFCR
                     if (aCFSItem.IsChecked && objectEntityState == EntityState.Detached && (!checkUpdateDate || !aCFSItem.UpdateDateFail))
                     {
+#if !EFCR
                         if (entityObject.EntityKey != null)
                         {
                             VBEntityObject tempObject = (context as ObjectContext).GetObjectByKey(entityObject.EntityKey) as VBEntityObject;
@@ -131,12 +129,13 @@ namespace gip.core.datamodel
                         {
                             context.AttachTo(entityObject.GetType().Name, entityObject);
                         }
+#endif
                     }
                     else if (objectEntityState != EntityState.Detached && (!aCFSItem.IsChecked || (checkUpdateDate && aCFSItem.UpdateDateFail)))
                     {
-                        context.Detach(aCFSItem.ACObject);
+                        //context.Detach(aCFSItem.ACObject);
+                        context.Entry(aCFSItem.ACObject).State = EntityState.Detached;
                     }
-#endif
                     throw new NotImplementedException();
                 }
             }

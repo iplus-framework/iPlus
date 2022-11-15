@@ -115,9 +115,7 @@ namespace gip.core.datamodel
             get
             {
                 if (ACObject == null) return null;
-#if !EFCR
                 return (ACObject as VBEntityObject).EntityState == EntityState.Added;
-#endif
                 throw new NotImplementedException();
             }
         }
@@ -653,20 +651,15 @@ namespace gip.core.datamodel
                 IACEntityObjectContext context = (ACObject as VBEntityObject).GetObjectContext();
                 if (context == null)
                     context = ACObjectContextManager.GetContextFromACUrl(null, ACObject.ACType.ObjectFullType.FullName);
-#if !EFCR
                 EntityState objectEntityState = (ACObject as VBEntityObject).EntityState;
-#endif
                 if (context != null)
                 {
-#if !EFCR
                     if (objectEntityState != EntityState.Detached)
                     {
-                        context.Detach(ACObject);
+                        //context.Detach(ACObject);
+                        context.Entry(ACObject).State = EntityState.Detached;
                     }
-#endif
-                    throw new NotImplementedException();
                 }
-
             }
 
             foreach (var item in Items)
