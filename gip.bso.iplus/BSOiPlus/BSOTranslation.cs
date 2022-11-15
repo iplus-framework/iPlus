@@ -187,6 +187,8 @@ namespace gip.bso.iplus
                     else
                         RemoveMandatory();
                     OnPropertyChanged("CurrentProjectItem");
+                    if (AutoGenerateByNavigation)
+                        SearchBg(false);
                 }
             }
         }
@@ -1282,8 +1284,16 @@ namespace gip.bso.iplus
         {
             if (!IsEnabledSearch())
                 return;
+            SearchBg(true);
+        }
+
+        public void SearchBg(bool withProgressBar)
+        {
+            if (!IsEnabledSearch())
+                return;
             BackgroundWorker.RunWorkerAsync(TranslationAutogenerateOption.FetchTranslation);
-            ShowDialog(this, DesignNameProgressBar);
+            if (withProgressBar)
+                ShowDialog(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledSearch()
@@ -1418,7 +1428,7 @@ namespace gip.bso.iplus
             return !googleApis.Contains(SelectedAutoGenerateOptionEnumVal.Value) || GoogleAPIAvailable;
         }
 
-        [ACMethodInfo("RemoveGeneratedTranslation", "en{'Remove translations from list'}de{'Entferne Übersetzungen in Liste'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("RemoveGeneratedTranslation", "en{'Remove translations from selection'}de{'Entferne Übersetzungen in Auswahl'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void RemoveGeneratedTranslation()
         {
             if (!IsEnabledRemoveGeneratedTranslation())
@@ -1439,7 +1449,7 @@ namespace gip.bso.iplus
 
         #region Methods -> GenerateTranslationAll
 
-        [ACMethodInfo("GenerateTranslationAll", "en{'Translate entire system'}de{'Übersetze gesamtes System'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("GenerateTranslationAll", "en{'Translate entire project'}de{'Übersetze ganzes Projekt'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void GenerateTranslationAll()
         {
             if (!IsEnabledGenerateTranslationAll())
@@ -1471,7 +1481,7 @@ namespace gip.bso.iplus
                 && IsEnabledGoogleApi();
         }
 
-        [ACMethodInfo("RemoveGeneratedTranslationAll", "en{'Remove translations from the entire system'}de{'Entferne Übersetzungen aus gesamten System'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("RemoveGeneratedTranslationAll", "en{'Remove translations from the entire project'}de{'Entferne Übersetzungen aus gesamten Projekt'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void RemoveGeneratedTranslationAll()
         {
             if (!IsEnabledRemoveGeneratedTranslationAll())
@@ -1493,7 +1503,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Method Replace
         /// </summary>
-        [ACMethodInfo("Replace", "en{'Replace in list'}de{'In Liste ersetzen'}", 9999, false, false, true)]
+        [ACMethodInfo("Replace", "en{'Replace selection'}de{'Auswahl ersetzen'}", 9999, false, false, true)]
         public void Replace()
         {
             if (!IsEnabledReplace())
@@ -1514,7 +1524,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Method ReplaceAll
         /// </summary>
-        [ACMethodInfo("ReplaceAll", "en{'Replace in entire system'}de{'Aus gesamten System ersetzen'}", 9999, false, false, true)]
+        [ACMethodInfo("ReplaceAll", "en{'Replace in entire project'}de{'In gesamten Projekt ersetzen'}", 9999, false, false, true)]
         public void ReplaceAll()
         {
             if (!IsEnabledReplaceAll())
@@ -1557,7 +1567,7 @@ namespace gip.bso.iplus
             }
         }
 
-        [ACMethodInfo("ExportTranslations", "en{'Export translations from list'}de{'Exportiere Übersetzungen aus Liste'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("ExportTranslations", "en{'Export selected only'}de{'Exportiere nur Auswahl'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void ExportTranslations()
         {
             if (!IsEnabledExportTranslations())
@@ -1576,7 +1586,7 @@ namespace gip.bso.iplus
                 && (!ExportOnlyForSelectedTargetLanguage || SelectedTargetLanguage != null);
         }
 
-        [ACMethodInfo("ExportTranslations", "en{'Export translations from the entire system'}de{'Exportiere Übersetzungen aus gesamten System'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("ExportTranslations", "en{'Export entire project'}de{'Exportiere gesamtes Projekt'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void ExportTranslationsAll()
         {
             if (!IsEnabledExportTranslationsAll())
@@ -1601,7 +1611,7 @@ namespace gip.bso.iplus
                 && CurrentExportFileName.IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
         }
 
-        [ACMethodInfo("RefreshExportFileTime", "en{'Refresh'}de{'Aktualisierung'}", 611)]
+        [ACMethodInfo("RefreshExportFileTime", "en{'New Filename'}de{'Neuer Dateiname'}", 611)]
         public void RefreshExportFileTime()
         {
             if (!IsEnabledRefreshExportFileTime())

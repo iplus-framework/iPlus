@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using gip.core.datamodel;
-using System.Runtime.Serialization;
-using System.ComponentModel;
+﻿using gip.core.datamodel;
 
 namespace gip.core.processapplication
 {
@@ -100,7 +94,7 @@ namespace gip.core.processapplication
             }
         }
 
-        public const string AvailabilityStatePropName = "AvailabilityState";
+        public const string AvailabilityStatePropName = nameof(IPAOEEProvider.AvailabilityState);
 
         public const string AvailabilityStateGroupName = "en{'Availability state'}de{'Verfügbarkeitsstatus'}";
     }

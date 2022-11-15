@@ -146,12 +146,28 @@ namespace gip.core.autocomponent
 
         private void ProcessLogProperty(ACPropertyNetSendEventArgs args, DateTime eventTime)
         {
-            if(!IsComponentAffectedHierahicallyOneself(args.ForACComponent.ComponentClass) && !IsComponentAffectedHierahically(args.ForACComponent.ACUrl) && 
-               !IsComponentAffectedBasedOn(args.ForACComponent.ComponentClass))
+            if (   !IsComponentAffectedHierahicallyOneself(args.ForACComponent.ComponentClass) 
+                && !IsComponentAffectedHierahically(args.ForACComponent.ACUrl) 
+                && !IsComponentAffectedBasedOn(args.ForACComponent.ComponentClass))
                 return;
 
+            ACProgramLog programLog = null;
+            PABase paComp = args.ForACComponent as PABase;
+            if (paComp != null)
+                programLog = paComp.CurrentProgramLog;
+            else
+            {
+                PAProcessModule pAProcessModule = args.ForACComponent as PAProcessModule;
+                if (pAProcessModule == null)
+                    pAProcessModule = args.ForACComponent.FindParentComponent<PAProcessModule>(c => c is PAProcessModule);
+                programLog = pAProcessModule?.CurrentProgramLog;
+            }
+            Guid? acProgramLogID = null;
+            if (programLog != null)
+                acProgramLogID = programLog.ACProgramLogID;
+
             this.ApplicationManager.ApplicationQueue.Add(() => LogProperty(args.ForACComponent.ComponentClass.ACClassID, args.NetValueEventArgs.ACIdentifier,
-                                                                           args.NetValueEventArgs.ChangedValue, eventTime));
+                                                                           args.NetValueEventArgs.ChangedValue, eventTime, acProgramLogID));
         }
 
         private bool IsComponentAffectedHierahically(string acUrlComponent)
@@ -179,7 +195,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        private void LogProperty(Guid acClassID, string propACIdentifier, object value, DateTime eventTime)
+        private void LogProperty(Guid acClassID, string propACIdentifier, object value, DateTime eventTime, Guid? acProgramLogID = null)
         {
             try
             {
@@ -198,6 +214,7 @@ namespace gip.core.autocomponent
                     propertyLog.ACClassPropertyID = acClassProperty.ACClassPropertyID;
                     propertyLog.EventTime = eventTime;
                     propertyLog.Value = ACConvert.ChangeType(value, typeof(string), true, db) as string;
+                    propertyLog.ACProgramLogID = acProgramLogID;
 
                     db.ACPropertyLog.AddObject(propertyLog);
                     var msg = db.ACSaveChanges();

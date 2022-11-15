@@ -93,11 +93,11 @@ namespace gip.core.autocomponent
             }
         }
 
-        private static ManualResetEvent _ShutdownEvent = new ManualResetEvent(false);
-        private static ACThread _WorkCycleThread;
+        private ManualResetEvent _ShutdownEvent = new ManualResetEvent(false);
+        private ACThread _WorkCycleThread;
 
 
-        [ACPropertyInfo(true, 200, DefaultValue = 5000)]
+        [ACPropertyInfo(true, 200, DefaultValue = 0)]
         public int PerfTimeoutStackTrace { get; set; }
 
         [ACPropertyInfo(true, 200, DefaultValue = 0)]
@@ -183,25 +183,25 @@ namespace gip.core.autocomponent
 
         private void RunWorkCycle()
         {
-            try
+            while (!_ShutdownEvent.WaitOne(500, false))
             {
-                while (!_ShutdownEvent.WaitOne(500, false))
+                try
                 {
                     _WorkCycleThread.StartReportingExeTime();
                     MonitorActivePerfEvents();
                     _WorkCycleThread.StopReportingExeTime();
                 }
-            }
-            catch (Exception e)
-            {
-                //ThreadAbortException
-                Messages.LogException(this.GetACUrl(), "RunWorkCycle()", e.GetType().Name);
-                if (!String.IsNullOrEmpty(e.Message))
+                catch (Exception e)
                 {
-                    Messages.LogException(this.GetACUrl(), "RunWorkCycle()", e.Message);
-                    if (e.InnerException != null && !String.IsNullOrEmpty(e.InnerException.Message))
+                    //ThreadAbortException
+                    Messages.LogException(this.GetACUrl(), "RunWorkCycle()", e.GetType().Name);
+                    if (!String.IsNullOrEmpty(e.Message))
                     {
-                        Messages.LogException(this.GetACUrl(), "RunWorkCycle()", e.InnerException.Message);
+                        Messages.LogException(this.GetACUrl(), "RunWorkCycle()", e.Message);
+                        if (e.InnerException != null && !String.IsNullOrEmpty(e.InnerException.Message))
+                        {
+                            Messages.LogException(this.GetACUrl(), "RunWorkCycle()", e.InnerException.Message);
+                        }
                     }
                 }
             }

@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
 using gip.core.tcShared;
+using ClosedXML.Excel;
 
 namespace gip.bso.tcStudio
 {
@@ -3348,6 +3349,30 @@ namespace gip.bso.tcStudio
 
         #endregion
 
+        #region Validation
+        [ACMethodInfo("", "en{'Validate Remote-Property-IDs'}de{'Validate Remote-Property-IDs'}", 500)]
+        public void ValidateRemotePropertyIDs()
+        {
+            try
+            {
+                using (Database database = new Database())
+                {
+                    var result = this.ProjectManager.ValidateRemotePropHierarchy(database);
+                    string excelPath = string.Format("{0}PropIDValidation_{1:yyyyMMdd_HHmmss}.xlsx", Messages.LogFilePath, DateTime.Now);
+                    XLWorkbook workBook = new XLWorkbook();
+                    var worksheet = workBook.Worksheets.Add(result.ResultAsTable, "Result");
+                    if (worksheet != null)
+                        worksheet.Columns().AdjustToContents();
+                    workBook.SaveAs(excelPath);
+                }
+            }
+            catch (Exception e)
+            {
+                Messages.Exception(this, e.Message, true);
+            }
+        }
+        #endregion
+
         #endregion
 
         #region BgWorker
@@ -3367,6 +3392,7 @@ namespace gip.bso.tcStudio
 
         #endregion
 
+        #region Execute-Helper-Handlers
         /// <summary>Called inside the GetControlModes-Method to get the Global.ControlModes from derivations.
         /// This method should be overriden in the derivations to dynmically control the presentation mode depending on the current value which is bound via VBContent</summary>
         /// <param name="vbControl">A WPF-Control that implements IVBContent</param>
@@ -3386,36 +3412,37 @@ namespace gip.bso.tcStudio
             return cm;
         }
 
-        #region Execute-Helper-Handlers
-
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;
             switch (acMethodName)
             {
-                case "OpenSolutionPath":
+                case nameof(OpenSolutionPath):
                     OpenSolutionPath();
                     return true;
-                case "IsEnabledOpenSolutionPath":
+                case nameof(IsEnabledOpenSolutionPath):
                     result = IsEnabledOpenSolutionPath();
                     return true;
-                case "LoadSolution":
+                case nameof(LoadSolution):
                     LoadSolution();
                     return true;
-                case "IsEnabledLoadSolution":
+                case nameof(IsEnabledLoadSolution):
                     result = IsEnabledLoadSolution();
                     return true;
-                case "UnloadSolution":
+                case nameof(UnloadSolution):
                     UnloadSolution();
                     return true;
-                case "IsEnabledUnloadSolution":
+                case nameof(IsEnabledUnloadSolution):
                     result = IsEnabledUnloadSolution();
                     return true;
-                case "SyncProjects":
+                case nameof(SyncProjects):
                     SyncProjects();
                     return true;
-                case "IsEnabledSyncProjects":
+                case nameof(IsEnabledSyncProjects):
                     result = IsEnabledSyncProjects();
+                    return true;
+                case nameof(ValidateRemotePropertyIDs):
+                    ValidateRemotePropertyIDs();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
