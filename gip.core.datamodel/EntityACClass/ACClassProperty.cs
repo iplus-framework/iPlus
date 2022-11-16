@@ -11,6 +11,7 @@
 // </copyright>
 // <summary></summary>
 // ***********************************************************************
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -175,7 +176,7 @@ namespace gip.core.datamodel
                 vbGroupRight.DeleteACObject(database, withCheck);
             }
 
-            database.DeleteObject(this);
+            database.Remove(this);
             return null;
         }
 
@@ -1434,7 +1435,7 @@ namespace gip.core.datamodel
                     this.Safe_ACClass.ACClassConfig_ACClass.Remove(acConfig);
                 else
                     acConfig.ACClass.ACClassConfig_ACClass.Remove(acConfig);
-                if (acConfig.EntityState != System.Data.EntityState.Detached)
+                if (acConfig.EntityState != EntityState.Detached)
                     acConfig.DeleteACObject(this.Database, false);
             }
         }
@@ -1573,12 +1574,12 @@ namespace gip.core.datamodel
             return true;
         }
 
-        #endregion
+#endregion
 
 
-        #region Misc Properties and Methods
+#region Misc Properties and Methods
 
-        #region XMLValue and ConfigValue
+#region XMLValue and ConfigValue
 
         /// <summary>
         /// Persistable Value auf this Property
@@ -1637,10 +1638,10 @@ namespace gip.core.datamodel
                 ACProperties.Refresh();
         }
 
-        #endregion
+#endregion
 
 
-        #region Internal and Static
+#region Internal and Static
 
         internal static Type GetGenericACPropertyType(Type acPropertyType, Type typeT, Type typeTGeneric = null)
         {
@@ -1721,9 +1722,9 @@ namespace gip.core.datamodel
                 }
             }
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
     }
 }

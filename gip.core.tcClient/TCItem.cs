@@ -38,7 +38,7 @@ namespace gip.core.tcClient
                 if  (propServer.ACType is ACClassProperty)
                 {
                     int remotePropID = ((ACClassProperty)propServer.ACType).RemotePropID;
-                    if(remotePropID == 0)
+                    if (remotePropID == 0)
                     {
                         ACClassProperty baseProp = ((ACClassProperty)propServer.ACType);
                         while (baseProp.ACClassPropertyID != baseProp.ACClassProperty1_BasedOnACClassProperty.ACClassPropertyID)
@@ -50,7 +50,7 @@ namespace gip.core.tcClient
                                 break;
                             }
                         }
-                        if(remotePropID == 0)
+                        if (remotePropID == 0)
                         {
                             ACClass acClass = baseProp.ACClass.ACClass1_BasedOnACClass;
                             while(acClass.ACClass1_BasedOnACClass != null)
@@ -69,7 +69,7 @@ namespace gip.core.tcClient
                     //{
 
                     //}
-                    if(remotePropID > 0 && !TCProperties.ContainsKey(remotePropID))
+                    if (remotePropID > 0 && !TCProperties.ContainsKey(remotePropID))
                     {
                         TCProperty tcProp = new TCProperty(this, propServer, remotePropID);
                         TCProperties.Add(remotePropID, tcProp);

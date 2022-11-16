@@ -124,6 +124,12 @@ namespace gip.core.processapplication
             PostExecute("TurnOnSlow");
         }
 
+        public virtual void OnTurnOnSlow()
+        {
+            ReqSpeedFast.ValueT = false;
+            ReqRunState.ValueT = true;
+        }
+
         public virtual bool IsEnabledTurnOnSlow()
         {
             if (this.TurnOnInterlock.ValueT)
@@ -146,9 +152,14 @@ namespace gip.core.processapplication
                 return;
             if (!PreExecute("TurnOnFast"))
                 return;
+            OnTurnOnFast();
+            PostExecute("TurnOnFast");
+        }
+
+        public virtual void OnTurnOnFast()
+        {
             ReqSpeedFast.ValueT = true;
             ReqRunState.ValueT = true;
-            PostExecute("TurnOnFast");
         }
 
         public virtual bool IsEnabledTurnOnFast()
@@ -170,6 +181,13 @@ namespace gip.core.processapplication
             return false;
         }
 
+        public override void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)
+        {
+            if (!switchOff)
+                OnTurnOnFast();
+            else
+                OnTurnOff();
+        }
         #endregion
 
         #region Handle execute helpers

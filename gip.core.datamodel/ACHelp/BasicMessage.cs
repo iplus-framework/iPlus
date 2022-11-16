@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 
 namespace gip.core.datamodel
 {
     [Serializable]
+#if !EFCR
     [JsonObject(MemberSerialization.OptIn)]
+#endif
     public class BasicMessage: IMessage
     {
         #region ctor's
@@ -17,16 +18,24 @@ namespace gip.core.datamodel
 
         #region properties
 
+#if !EFCR
         [JsonProperty]
+#endif
         public MessageLevelEnum MessageLevel { get; set; }
 
+#if !EFCR
         [JsonProperty]
+#endif
         public string MessageNo { get; set; }
 
+#if !EFCR
         [JsonProperty]
+#endif
         public string Message { get; set; }
 
+#if !EFCR
         [JsonProperty]
+#endif
         public DateTime Time { get; set; }
 
         #endregion

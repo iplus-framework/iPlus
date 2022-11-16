@@ -20,7 +20,9 @@ using System.Runtime.Serialization;
 using System.IO;
 using System.ComponentModel;
 using System.Xml;
+#if !EFCR
 using System.Data.Objects.DataClasses;
+#endif
 using System.Collections.Specialized;
 using System.Threading;
 
@@ -35,7 +37,7 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPropertyManager'}de{'ACPropertyManager'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACPropertyManager : IACObject
     {
-        #region c'tors
+#region c'tors
         /// <summary>
         /// Initializes a new instance of the <see cref="ACPropertyManager"/> class.
         /// </summary>
@@ -46,9 +48,9 @@ namespace gip.core.datamodel
             _ACClass = acClass;
             _EntityProperty = entityProperty;
         }
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
         private bool _IsSerializing = false;
         private readonly object _Lock = new object();
 
@@ -106,7 +108,7 @@ namespace gip.core.datamodel
                     if (_Serializer != null)
                         return _Serializer;
                     if (ACKnownTypes.GetKnownType() != null)
-                        _Serializer = new DataContractSerializer(typeof(List<ACPropertyExt>), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                        _Serializer = new DataContractSerializer(typeof(List<ACPropertyExt>), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                     else
                         _Serializer = new DataContractSerializer(typeof(List<ACPropertyExt>));
                     return _Serializer;
@@ -123,24 +125,24 @@ namespace gip.core.datamodel
         {
             get
             {
-                if (EntityObject == null) return null;
-                return EntityObject.GetObjectContext();
+                if (VBEntityObject == null) return null;
+                return VBEntityObject.GetObjectContext();
             }
         }
 
-        public EntityObject EntityObject
+        public VBEntityObject VBEntityObject
         {
             get
             {
-                return _EntityProperty as EntityObject;
+                return _EntityProperty as VBEntityObject;
             }
         }
 
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
 
-        #region public
+#region public
 
         /// <summary>
         /// Deserializes this instance.
@@ -396,9 +398,9 @@ namespace gip.core.datamodel
             acCommandMsgList.Add(new ACCommandMsg(acUrlInfo, acComment, acCaption, acUrl, parameterList));
             SetACPropertyExtValue(GetOrCreateACPropertyExtByName("ACCommandMsgList"), acCommandMsgList);
         }
-        #endregion
+#endregion
 
-        #region Private methods
+#region Private methods
         /// <summary>
         /// News the name of the AC property ext by.
         /// </summary>
@@ -632,11 +634,11 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region IACObject
+#region IACObject
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
         public string ACIdentifier
@@ -729,6 +731,6 @@ namespace gip.core.datamodel
         {
             return false;
         }
-        #endregion
+#endregion
     }
 }

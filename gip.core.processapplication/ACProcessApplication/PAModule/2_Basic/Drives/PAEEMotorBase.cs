@@ -201,8 +201,13 @@ namespace gip.core.processapplication
                 return;
             if (!PreExecute("TurnOff"))
                 return;
-            ReqRunState.ValueT = false;
+            OnTurnOff();
             PostExecute("TurnOff");
+        }
+
+        protected virtual void OnTurnOff()
+        {
+            ReqRunState.ValueT = false;
         }
 
         public virtual bool IsEnabledTurnOff()

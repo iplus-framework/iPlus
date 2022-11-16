@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace gip.core.communication
 {
@@ -799,6 +800,7 @@ namespace gip.core.communication
             return await Task.FromResult(new WSResponse<string>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
         }
         #endregion
+
         #endregion
 
         #region DELETE
@@ -901,6 +903,167 @@ namespace gip.core.communication
             return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
         }
         #endregion
+
+        #endregion
+
+        #region PATCH
+
+        #region Sync
+        public WSResponse<string> Patch(StringContent content, string relativeUri)
+        {
+            return Patch(content, GetUri(relativeUri));
+        }
+
+        public WSResponse<TResult> Patch<TResult>(StringContent content, string relativeUri)
+        {
+            return Patch<TResult>(content, GetUri(relativeUri));
+        }
+
+        public WSResponse<TResult> Patch<TResult, TParam>(TParam item, string relativeUri)
+        {
+            return Patch<TResult, TParam>(item, GetUri(relativeUri));
+        }
+
+        public WSResponse<string> Patch(StringContent content, Uri uri)
+        {
+            if (Client == null)
+                return new WSResponse<string>(null, new Msg(eMsgLevel.Error, "Disconnected"));
+            try
+            {
+                Task<WSResponse<string>> task = PatchAsync(content, uri);
+                return task.Result;
+            }
+            catch (Exception ex)
+            {
+                string errMsg = "";
+                Exception tmpEx = ex;
+                while (tmpEx != null)
+                {
+                    errMsg += tmpEx.Message;
+                    tmpEx = tmpEx.InnerException;
+                }
+                var msg = new Msg(eMsgLevel.Exception, errMsg);
+                Messages.LogException(this.GetACUrl(), "Patch(20)", ex);
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, errMsg));
+                if (ex is HttpRequestException)
+                    IsConnected.ValueT = false;
+                return new WSResponse<string>(null, msg);
+            }
+        }
+
+        public WSResponse<TResult> Patch<TResult>(StringContent content, Uri uri)
+        {
+            if (Client == null)
+                return new WSResponse<TResult>(default(TResult), new Msg(eMsgLevel.Error, "Disconnected"));
+            try
+            {
+                Task<WSResponse<TResult>> task = PatchAsync<TResult>(content, uri);
+                return task.Result;
+            }
+            catch (Exception ex)
+            {
+                var msg = new Msg(eMsgLevel.Exception, ex.Message);
+                Messages.LogException(this.GetACUrl(), "Patch(30)", ex);
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
+                if (ex is HttpRequestException)
+                    IsConnected.ValueT = false;
+                return new WSResponse<TResult>(msg);
+            }
+        }
+
+        public WSResponse<TResult> Patch<TResult, TParam>(TParam item, Uri uri)
+        {
+            if (Client == null)
+                return new WSResponse<TResult>(default(TResult), new Msg(eMsgLevel.Error, "Disconnected"));
+            try
+            {
+                Task<WSResponse<TResult>> task = PatchAsync<TResult, TParam>(item, uri);
+                return task.Result;
+            }
+            catch (Exception ex)
+            {
+                var msg = new Msg(eMsgLevel.Exception, ex.Message);
+                Messages.LogException(this.GetACUrl(), "Patch(40)", ex);
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
+                if (ex is HttpRequestException)
+                    IsConnected.ValueT = false;
+                return new WSResponse<TResult>(msg);
+            }
+        }
+        #endregion
+
+        #region Async
+
+        protected HttpRequestMessage GetPatchMessage(Uri uri, StringContent content)
+        {
+            HttpMethod method = new HttpMethod("PATCH");
+            HttpRequestMessage request = new HttpRequestMessage(method, uri);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            request.Content = content;
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json-patch+json");
+            return request;
+        }
+
+        protected async Task<WSResponse<TResult>> PatchAsync<TResult, TParam>(TParam item, string uriString)
+        {
+            return await PatchAsync<TResult, TParam>(item, new Uri(uriString, UriKind.Relative));
+        }
+
+        protected async Task<WSResponse<TResult>> PatchAsync<TResult, TParam>(TParam item, Uri uri)
+        {
+            var serializedItem = JsonConvert.SerializeObject(item, DefaultJsonSerializerSettings);
+            using (StringContent content = new StringContent(serializedItem, Encoding.UTF8, "application/json"))
+            {
+                HttpResponseMessage response = null;
+                HttpRequestMessage request = GetPatchMessage(uri, content);
+
+                response = await _Client.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    var result = await Task.Run(() => JsonConvert.DeserializeObject<TResult>(json));
+                    return new WSResponse<TResult>(result, response.StatusCode);
+                }
+                return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode)), response.StatusCode));
+            }
+        }
+
+        protected async Task<WSResponse<TResult>> PatchAsync<TResult>(StringContent content, Uri uri)
+        {
+            HttpResponseMessage response = null;
+            HttpRequestMessage request = GetPatchMessage(uri, content);
+
+            response = await _Client.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string json = await response.Content.ReadAsStringAsync();
+                var result = await Task.Run(() => JsonConvert.DeserializeObject<TResult>(json));
+                return new WSResponse<TResult>(result, response.StatusCode);
+            }
+            return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode)), response.StatusCode));
+        }
+
+        protected async Task<WSResponse<string>> PatchAsync(StringContent content, Uri uri)
+        {
+            HttpResponseMessage response = null;
+            HttpRequestMessage request = GetPatchMessage(uri, content);
+
+            response = await _Client.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string result = await response.Content.ReadAsStringAsync();
+                return new WSResponse<string>(result, response.StatusCode);
+            }
+            return await Task.FromResult(new WSResponse<string>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode)), response.StatusCode));
+        }
+        #endregion
+
 
         #endregion
 

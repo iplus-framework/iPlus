@@ -372,7 +372,7 @@ if(implementedNamespaces.Any())
             if (navProperty.ToEndMember.RelationshipMultiplicity == RelationshipMultiplicity.Many)
             {
 #>
-    <#=code.SpaceAfter(NewModifier(navProperty))#><#=Accessibility.ForProperty(navProperty)#> EntityCollection<<#=MultiSchemaEscape(navProperty.ToEndMember.GetEntityType(), code)#>> <#=code.Escape(navProperty)#>
+    <#=code.SpaceAfter(NewModifier(navProperty))#><#=Accessibility.ForProperty(navProperty)#> ICollection<<#=MultiSchemaEscape(navProperty.ToEndMember.GetEntityType(), code)#>> <#=code.Escape(navProperty)#>
     {
         <#=code.SpaceAfter(Accessibility.ForGetter(navProperty))#>get
         {
@@ -904,7 +904,7 @@ string MultiSchemaEscape(EdmType type, CodeGenerationTools code)
 
 string NewModifier(NavigationProperty navigationProperty)
 {
-    Type baseType = typeof(EntityObject);
+    Type baseType = typeof(VBEntityObject);
     return NewModifier(baseType, navigationProperty.Name);
 }
 
@@ -925,7 +925,7 @@ string NewModifier(EdmProperty property)
     Type baseType;
     if (property.DeclaringType.BuiltInTypeKind == BuiltInTypeKind.EntityType)
     {
-        baseType = typeof(EntityObject);
+        baseType = typeof(VBEntityObject);
     }
     else
     {

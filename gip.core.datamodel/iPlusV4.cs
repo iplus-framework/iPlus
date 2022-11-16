@@ -9,13 +9,11 @@
 
 using System;
 using System.ComponentModel;
-using System.Data.EntityClient;
-using System.Data.Objects;
-using System.Data.Objects.DataClasses;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using gip.core.datamodel;
+using Microsoft.EntityFrameworkCore;
 
 [assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
@@ -122,10 +120,10 @@ namespace gip.core.datamodel
     /// <summary>
     /// 
     /// </summary>
-    public partial class iPlusV4_Entities : ObjectContext
+    public partial class iPlusV4_Entities : DbContext
     {
         #region Constructors
-    
+
         /// <summary>
         /// Initializes a new iPlusV4_Entities object using the connection string found in the 'iPlusV4_Entities' section of the application configuration file.
         /// </summary>
@@ -23166,11 +23164,10 @@ namespace gip.core.datamodel
                 }
             }
         }
-
         #endregion
 
-    }
 
+    }
     #endregion
 
 }

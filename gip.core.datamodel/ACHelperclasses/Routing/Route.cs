@@ -152,10 +152,10 @@ namespace gip.core.datamodel
                 RouteItem oldSource = oldSources.FirstOrDefault(o => o.Equals(newSource));
                 if (oldSource != null)
                 {
+#if !EFCR
                     var key = CheckForFirstDifferentComponent(newSource.SourceKey, oldSource.SourceKey, oldRoute);
                     if (key == null)
                         return true;
-
                     var rItem = this.FirstOrDefault(c => c.SourceKey == key);
                     if (rItem != null)
                         diffComponent = rItem.SourceACComponent;
@@ -166,12 +166,14 @@ namespace gip.core.datamodel
                             return false;
                         diffComponent = rItem.TargetACComponent;
                     }
+#endif
                     return true;
                 }
             }
             return false;
         }
 
+#if !EFCR
         private System.Data.EntityKey CheckForFirstDifferentComponent(System.Data.EntityKey newSource, System.Data.EntityKey oldSource, Route oldRoute)
         {
             var newSourceItems = this.Where(c => c.SourceKey == newSource);
@@ -199,6 +201,7 @@ namespace gip.core.datamodel
             }
             return null;
         }
+#endif
 
         public RouteItem GetRouteSource()
         {
@@ -233,10 +236,7 @@ namespace gip.core.datamodel
                     continue;
                 var sourceComp = source.SourceACComponent;
                 var targetComp = target.TargetACComponent;
-                if (sourceComp == null && targetComp == null)
-                    continue;
-
-                result += string.Format(" {0} -> {1}{2}", sourceComp.GetACUrl(), targetComp.GetACUrl(), group.Key == last.Key ? "" : ", ");
+                result += string.Format(" {0} -> {1}{2}", sourceComp != null ? sourceComp.GetACUrl() : "NULL", targetComp != null ? targetComp.GetACUrl() : "NULL", group.Key == last.Key ? "" : ", ");
             }
             return string.IsNullOrEmpty(result) ? base.ToString() : result;
 

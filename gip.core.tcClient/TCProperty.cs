@@ -39,19 +39,34 @@ namespace gip.core.tcClient
 
         public void SetPropertyValue(object value)
         {
-            Type propValueType = TCNetProperty.PropertyType;
+            try
+            {
+                Type propValueType = TCNetProperty.PropertyType;
 
-            if (propValueType == typeof(bool) && value is byte)
-                TCNetProperty.ChangeValueServer(Convert.ToBoolean(value), true, this);
-
-            else if (value is short && propValueType.IsEnum)
-                TCNetProperty.ChangeValueServer(Enum.ToObject(propValueType, value), true, this);
-
-            else if (value is short && TCNetProperty.ACIdentifier == Const.ACState)
-                TCNetProperty.ChangeValueServer(Enum.ToObject(typeof(TCACState), value).ToString(), true, this);
-
-            else
-                TCNetProperty.ChangeValueServer(value, true, this);
+                if (propValueType == typeof(bool) && value is byte)
+                    TCNetProperty.ChangeValueServer(Convert.ToBoolean(value), true, this);
+                else if (value is short && propValueType.IsEnum)
+                    TCNetProperty.ChangeValueServer(Enum.ToObject(propValueType, value), true, this);
+                else if (value is short && TCNetProperty.ACIdentifier == Const.ACState)
+                    TCNetProperty.ChangeValueServer(Enum.ToObject(typeof(TCACState), value).ToString(), true, this);
+                else if (_BitAccessType.IsAssignableFrom(propValueType))
+                {
+                    IBitAccess clonedBitAccess = null;
+                    if (TCNetProperty.Value != null)
+                        clonedBitAccess = (IBitAccess)(TCNetProperty.Value as IBitAccess).Clone();
+                    if (clonedBitAccess != null)
+                    {
+                        clonedBitAccess.Value = value;
+                        TCNetProperty.ChangeValueServer(clonedBitAccess, true, this);
+                    }
+                }
+                else
+                    TCNetProperty.ChangeValueServer(value, true, this);
+            }
+            catch (Exception ex)
+            {
+                TCNetProperty.ParentACComponent.Messages.LogException(TCNetProperty.GetACUrl(), "TCProperty.cs(SetPropertyValue)", ex);
+            }
         }
 
         public void RemoveValueUpdatedOnReceivalEvent()
@@ -59,37 +74,54 @@ namespace gip.core.tcClient
             TCNetProperty.ValueUpdatedOnReceival -= TCNetProperty_ValueUpdatedOnReceival;
         }
 
+        static Type _BitAccessType = typeof(IBitAccess);
+        static Type _TimeSpanType = typeof(TimeSpan);
+        static Type _DateTimeType = typeof(DateTime);
+
         void TCNetProperty_ValueUpdatedOnReceival(object sender, ACPropertyChangedEventArgs e, ACPropertyChangedPhase phase)
         {
-            if (phase == ACPropertyChangedPhase.AfterBroadcast)
-                return;
-            if (sender == null)
-                return;
-            // Don't resend when new value receive over OnSetValueFromPLC()
-            if (e.ValueEvent.InvokerInfo != null
-                && e.ValueEvent.InvokerInfo == this
-                && e.ValueEvent.EventType == EventTypes.ValueChangedInSource)
-                return;
-
-            object changedValue = e.ValueEvent.ChangedValue;
-            if (TCNetProperty.ACIdentifier == Const.ACState && changedValue is string && !string.IsNullOrEmpty(changedValue.ToString()))
-                changedValue = (short)Enum.Parse(typeof(TCACState), changedValue.ToString());
-
-            if (TCNetProperty.PropertyType.IsEnum)
-                changedValue = (short)e.ValueEvent.ChangedValue;
-            else if (TCNetProperty.PropertyType == typeof(TimeSpan))
-                changedValue = (int)((TimeSpan)e.ValueEvent.ChangedValue).TotalMilliseconds;
-            else if(TCNetProperty.PropertyType == typeof(DateTime))
+            try
             {
-                DateTime eventDT = (DateTime) e.ValueEvent.ChangedValue;
-                if (eventDT != null)
-                {
-                    TimeSpan diff = eventDT - _firstDT;
-                    changedValue = (int)diff.TotalSeconds;
-                }
-            }
+                if (phase == ACPropertyChangedPhase.AfterBroadcast)
+                return;
+                if (sender == null)
+                    return;
+                // Don't resend when new value receive over OnSetValueFromPLC()
+                if (e.ValueEvent.InvokerInfo != null
+                    && e.ValueEvent.InvokerInfo == this
+                    && e.ValueEvent.EventType == EventTypes.ValueChangedInSource)
+                    return;
 
-            _Parent.OnReceivedValueUpdated(TCNetProperty.ACIdentifier, RemotePropID, changedValue);
+                object changedValue = e.ValueEvent.ChangedValue;
+                if (TCNetProperty.ACIdentifier == Const.ACState && changedValue is string && !string.IsNullOrEmpty(changedValue.ToString()))
+                    changedValue = (short)Enum.Parse(typeof(TCACState), changedValue.ToString());
+
+                Type propertyType = TCNetProperty.PropertyType;
+                if (propertyType.IsEnum)
+                    changedValue = (short)e.ValueEvent.ChangedValue;
+                else if (propertyType == _TimeSpanType)
+                    changedValue = (int)((TimeSpan)e.ValueEvent.ChangedValue).TotalMilliseconds;
+                else if (propertyType == _DateTimeType)
+                {
+                    DateTime eventDT = (DateTime)e.ValueEvent.ChangedValue;
+                    if (eventDT != null)
+                    {
+                        TimeSpan diff = eventDT - _firstDT;
+                        changedValue = (int)diff.TotalSeconds;
+                    }
+                }
+                else if (_BitAccessType.IsAssignableFrom(propertyType))
+                {
+                    IBitAccess bitAcc = (IBitAccess)e.ValueEvent.ChangedValue;
+                    changedValue = bitAcc.Value;
+                }
+
+                _Parent.OnReceivedValueUpdated(TCNetProperty.ACIdentifier, RemotePropID, changedValue);
+            }
+            catch (Exception ex)
+            {
+                TCNetProperty.ParentACComponent.Messages.LogException(TCNetProperty.GetACUrl(), "TCProperty.cs(TCNetProperty_ValueUpdatedOnReceival)", ex);
+            }
         }
 
         //todo: implement converter, multiplier and etc....

@@ -18,9 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.Threading;
-using System.Data.Objects.DataClasses;
 using System.Data;
-using System.Data.Objects;
 using System.ComponentModel;
 
 namespace gip.core.datamodel

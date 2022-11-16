@@ -125,9 +125,14 @@ namespace gip.core.processapplication
                 return;
             if (!PreExecute("TurnOnLeft"))
                 return;
+            OnTurnOnLeft();
+            PostExecute("TurnOnLeft");
+        }
+
+        public virtual void OnTurnOnLeft()
+        {
             ReqDirectionLeft.ValueT = true;
             ReqRunState.ValueT = true;
-            PostExecute("TurnOnLeft");
         }
 
         public virtual bool IsEnabledTurnOnLeft()
@@ -155,9 +160,14 @@ namespace gip.core.processapplication
                 return;
             if (!PreExecute("TurnOnRight"))
                 return;
+            OnTurnOnRight();
+            PostExecute("TurnOnRight");
+        }
+
+        public virtual void OnTurnOnRight()
+        {
             ReqDirectionLeft.ValueT = false;
             ReqRunState.ValueT = true;
-            PostExecute("TurnOnRight");
         }
 
         public virtual bool IsEnabledTurnOnRight()
@@ -175,6 +185,14 @@ namespace gip.core.processapplication
                 return false;
             }
             return false;
+        }
+
+        public override void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)
+        {
+            if (!switchOff)
+                OnTurnOnRight();
+            else
+                OnTurnOff();
         }
         #endregion
 

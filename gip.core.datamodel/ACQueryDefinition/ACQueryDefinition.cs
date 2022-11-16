@@ -14,10 +14,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Data.Objects;
-using System.Data.Objects.DataClasses;
 using System.Runtime.Serialization;
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -569,6 +568,7 @@ namespace gip.core.datamodel
             set;
         }
 
+#if !EFCR
         public List<ObjectParameter> FilterParameters
         {
             get
@@ -587,6 +587,7 @@ namespace gip.core.datamodel
                 return collection;
             }
         }
+#endif
 
         private string _OneTimeSearchWord;
         /// <summary>  Searchword, that is used once. After excecuting the search with ACAccess.OneTimeSearchT() this value will be reset to null.</summary>
@@ -622,9 +623,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region Static Properties
+#region Static Properties
 
         static ACClass _ACClassACAccessNav = null;
         private static ACClass ACClassACAccessNav
@@ -652,9 +653,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region LINQ-Predicate Properties
+#region LINQ-Predicate Properties
         private string _LINQPredicateFilterFromEdit = null;
 
         /// <summary>LINQ Where-Clause, that can be manipulated in the Query-Dialog by the user</summary>
@@ -745,9 +746,9 @@ namespace gip.core.datamodel
                 return LINQPredicateOrderBy_FromItems;
             }
         }
-        #endregion
+#endregion
 
-        #region Entity-SQL Properties
+#region Entity-SQL Properties
         public string SelectPartOfEntitySQL
         {
             get
@@ -761,10 +762,13 @@ namespace gip.core.datamodel
                 //return queryString;
                 if (this.QueryContext == null)
                     return "";
-                ObjectContext context = QueryContext as ObjectContext;
+                DbContext context = QueryContext as DbContext;
                 if (context == null)
                     return "";
+#if !EFCR
                 string queryString = "SELECT VALUE c FROM " + context.DefaultContainerName + "." + this.ChildACUrl + " AS c ";
+#endif
+                string queryString = null;
                 return queryString;
             }
         }
@@ -820,19 +824,19 @@ namespace gip.core.datamodel
                 return EntitySQL_FromItems;
             }
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Private Properties
+#region Private Properties
         /// <summary>
         /// The _content
         /// </summary>
         private IACObject _content;
 
-        #endregion
+#endregion
 
-        #region IVBDataCheckbox Member
+#region IVBDataCheckbox Member
         /// <summary>
         /// Gets the data content check box.
         /// </summary>
@@ -857,15 +861,15 @@ namespace gip.core.datamodel
 
         public bool IsEnabled { get; set; }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
 
-        #region public
+#region public
 
-        #region Filter and Sort Mainpulation
+#region Filter and Sort Mainpulation
         /// <summary>
         /// Gets the AC columns.
         /// </summary>
@@ -934,9 +938,9 @@ namespace gip.core.datamodel
             filter.SearchWord = searchWord;
         }
 
-        #endregion
+#endregion
 
-        #region Load/Save
+#region Load/Save
 
         /// <summary>
         /// Loads the stored query from ACClassConfig
@@ -1032,7 +1036,7 @@ namespace gip.core.datamodel
 
                 LocalConfigACUrl = acConfig.LocalConfigACUrl;
 
-                ((EntityObject)acConfig).GetObjectContext().ACSaveChanges();
+                ((VBEntityObject)acConfig).GetObjectContext().ACSaveChanges();
                 return true;
             }
             return false;
@@ -1086,9 +1090,9 @@ namespace gip.core.datamodel
 
             return localConfigACUrl;
         }
-        #endregion
+#endregion
 
-        #region Clone-Methoden
+#region Clone-Methoden
 
         public virtual object Clone()
         {
@@ -1241,9 +1245,9 @@ namespace gip.core.datamodel
             _IsLoadMode = false;
         }
 
-        #endregion
+#endregion
 
-        #region Query-Builder-Methods (LINQ-Predicate / Entity-SQL)
+#region Query-Builder-Methods (LINQ-Predicate / Entity-SQL)
 
         /// <summary>
         /// Rebuilds the LINQPredicateWhere_FromItems, LINQPredicateOrderBy_FromItems, LINQPredicateWhere and LINQPredicateOrderBy-Properties
@@ -1252,8 +1256,10 @@ namespace gip.core.datamodel
         {
             _LINQPredicateWhere_FromItems = "";
             _LINQPredicateOrderBy_FromItems = "";
+#if !EFCR
             List<ObjectParameter> filterValues = null;
             BuildFilter(ref _LINQPredicateWhere_FromItems, ref filterValues, ref _LINQPredicateOrderBy_FromItems, false);
+#endif
             OnPropertyChanged("LINQPredicateWhere_FromItems");
             OnPropertyChanged("LINQPredicateOrderBy_FromItems");
             OnPropertyChanged("LINQPredicateWhere");
@@ -1266,17 +1272,20 @@ namespace gip.core.datamodel
         public void RebuildEntitySQLFromItems()
         {
             string filter = "";
+#if !EFCR
             List<ObjectParameter> filterValues = null;
             string sortOrder = "";
             BuildFilter(ref filter, ref filterValues, ref sortOrder, true);
             int parameterCount = 0;
             if (filterValues != null)
                 parameterCount = filterValues.Count;
-
+#endif
             _EntitySQL_FromItems = SelectPartOfEntitySQL;
             if (!string.IsNullOrEmpty(filter))
                 _EntitySQL_FromItems += "WHERE " + filter;
+#if !EFCR
             _EntitySQL_FromItems += sortOrder;
+#endif
             OnPropertyChanged("EntitySQL_FromItems");
             OnPropertyChanged("EntitySQL");
         }
@@ -1297,7 +1306,7 @@ namespace gip.core.datamodel
             OnPropertyChanged("EntitySQL");
         }
 
-
+#if !EFCR
         /// <summary>
         /// Builds a either a LINQ-Statement or a Entity-SQL-Statement from the ACFilterColumns and ACSortColumns
         /// </summary>
@@ -1311,8 +1320,10 @@ namespace gip.core.datamodel
             filterValues = new List<ObjectParameter>();
             filter = CreateFilterPart(0, ACFilterColumns.Count() - 1, ref filterValues, forEntitySQL);
         }
+#endif
 
 
+#if !EFCR
         private string CreateFilterPart(int indexFrom, int indexTo, ref List<ObjectParameter> filterValueList, bool forEntitySQL = false)
         {
             string filterPart = "";
@@ -1377,7 +1388,10 @@ namespace gip.core.datamodel
             }
             return filterPart;
         }
+#endif
 
+
+#if !EFCR
         /// <summary>
         /// Creates a expression from a fiteritem: [Variable] [Operator] [Wert]
         /// NULL is returned if expression coud not be ctreadted
@@ -1557,7 +1571,7 @@ namespace gip.core.datamodel
             }
             return filterExpression;
         }
-
+#endif
 
         /// <summary>
         /// Creates a logical connective for a expression
@@ -1625,9 +1639,9 @@ namespace gip.core.datamodel
             }
             return orderExpression;
         }
-        #endregion
+#endregion
 
-        #region Value-Methods        
+#region Value-Methods        
         /// <summary>
         /// Reads the SearchWord from a ACFilterItem that matches the propertyname and converts it to the generic datataype.
         /// </summary>
@@ -1875,9 +1889,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region ACAccess
+#region ACAccess
 
         /// <summary>
         /// Creates a Access-instance for executing the query and navigating. 
@@ -1977,13 +1991,13 @@ namespace gip.core.datamodel
             return Activator.CreateInstance(typeToCreate, new Object[] { ACClassACAccess, (IACObject)ACClassACAccess, (IACObjectWithInit)acComponentParent, GetParameterACAccess(acGroup), "", contextForQuery }) as IAccess;
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region private
+#region private
 
-        #region Init-Methods
+#region Init-Methods
         /// <summary>
         /// Inits the AC columns.
         /// </summary>
@@ -2104,9 +2118,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region ACAccess
+#region ACAccess
         private ACValueList GetParameterACAccess(string acGroup)
         {
             ACValueList acValueList = new ACValueList();
@@ -2114,15 +2128,15 @@ namespace gip.core.datamodel
             acValueList.Add(new ACValue(Const.ACGroup, Const.TNameString, "", acGroup));
             return acValueList;
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Eventhandling
+#region Eventhandling
 
-        #region PropertyChanged
+#region PropertyChanged
         /// <summary>
         /// Notifies the property changed.
         /// </summary>
@@ -2160,9 +2174,9 @@ namespace gip.core.datamodel
             ResetQueryStrings();
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
     }
 }

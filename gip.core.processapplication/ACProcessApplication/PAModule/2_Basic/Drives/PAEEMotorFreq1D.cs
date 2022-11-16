@@ -99,6 +99,11 @@ namespace gip.core.processapplication
             PostExecute("TurnOn");
         }
 
+        public virtual void OnTurnOn()
+        {
+            ReqRunState.ValueT = true;
+        }
+
         public virtual bool IsEnabledTurnOn()
         {
             if (this.TurnOnInterlock.ValueT)
@@ -120,6 +125,14 @@ namespace gip.core.processapplication
             ReqSpeed.ValueT = speed;
             TurnOn();
             PostExecute("TurnOnWithSpeed");
+        }
+
+        public override void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)
+        {
+            if (!switchOff)
+                OnTurnOn();
+            else
+                OnTurnOff();
         }
 
         #endregion

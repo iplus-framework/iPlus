@@ -180,6 +180,16 @@ namespace gip.core.communication
             return exception;
         }
 
+        public static string SerializeToXML<T>(T rootNode) where T : class
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(T));
+            using (StringWriter writer = new StringWriter())
+            {
+                serializer.Serialize(writer, rootNode);
+                return writer.ToString();
+            }
+        }
+
         public virtual bool CheckPath(string className, out string xmlFileName, out string archivFileName, out string exportFileName)
         {
             xmlFileName = XMLFileName;

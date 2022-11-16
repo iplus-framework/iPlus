@@ -2,26 +2,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Data.Objects;
-using System.Data.EntityClient;
 using System.Data.SqlClient;
 using System.Reflection;
 using System.Threading;
-using System.Data.Objects.DataClasses;
 using System.Transactions;
 using System.Data;
 using System.Configuration;
 using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.Data.Common;
 
 namespace gip.core.datamodel
 {
     public static class EntityObjectExtension
     {
-        public static TEntityIPlus FromIPlusContext<TEntityIPlus>(this EntityObject entityApp, Database dbIPlus = null) where TEntityIPlus : EntityObject
+        public static TEntityIPlus FromIPlusContext<TEntityIPlus>(this VBEntityObject entityApp, Database dbIPlus = null) where TEntityIPlus : VBEntityObject
         {
             if (entityApp == null)
                 return default(TEntityIPlus);
+#if !EFCR
             EntityKey key = new EntityKey(gip.core.datamodel.Database.GlobalDatabase.DefaultContainerName + "." + entityApp.EntityKey.EntitySetName, entityApp.EntityKey.EntityKeyValues);
+#endif
             //key.EntityContainerName = gip.core.datamodel.Database.GlobalDatabase.DefaultContainerName;
             object obj = null;
             if (dbIPlus == null)
@@ -29,8 +31,11 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(dbIPlus.QueryLock_1X000))
             {
+#if !EFCR
                 if (!dbIPlus.TryGetObjectByKey(key, out obj))
                     return default(TEntityIPlus);
+#endif
+                throw new NotImplementedException();
             }
             return (TEntityIPlus)obj;
         }
@@ -44,7 +49,7 @@ namespace gip.core.datamodel
         /// Diese Managerklasse wird einmal Statisch zur Verfügung gestellt, 
         /// damit alle Instanzen von Database damit arbeiten können.
         /// </summary>
-        #region c'tors
+#region c'tors
         static Database()
         {
             // Keine Ständige Offene Verbindung bei Globaler Datenbank, wegen Transaktionen
@@ -65,6 +70,12 @@ namespace gip.core.datamodel
             _GlobalDatabase.InitTypeDictFromSystemNamespace();
         }
 
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            _ObjectContextHelper.OnConfiguring(optionsBuilder);
+        }
+
         public Database()
             : base(ConnectionString)
         {
@@ -83,39 +94,46 @@ namespace gip.core.datamodel
         }
 
         public Database(bool createSeparateConnection)
+#if !EFCR
             : this(new EntityConnection(ConnectionString))
+#endif
         {
         }
 
+#if !EFCR
         public Database(EntityConnection connection)
             : base(connection)
         {
             _SeparateConnection = connection;
             _ObjectContextHelper = new ACObjectContextHelper(this);
         }
+#endif
 
+#if !EFCR
         protected override void Dispose(bool disposing)
         {
             if (_ObjectContextHelper != null)
                 _ObjectContextHelper.Dispose();
             _ObjectContextHelper = null;
-            base.Dispose(disposing);
+            base.Dispose();
             if (SeparateConnection != null)
                 SeparateConnection.Dispose();
             _SeparateConnection = null;
         }
-        #endregion
+#endif
 
-        #region Properties
+#endregion
 
-        #region Private
+#region Properties
+
+#region Private
         private ACObjectContextHelper _ObjectContextHelper;
         static string _Initials = null;
         static Database _GlobalDatabase = null;
         static internal ACQueryDefinition _QRYACQueryDefinition = null;
-        #endregion
+#endregion
 
-        #region Public Static
+#region Public Static
         public static string ConnectionString
         {
             get
@@ -133,8 +151,10 @@ namespace gip.core.datamodel
                         if (e.InnerException != null && e.InnerException.Message != null)
                             msg += " Inner:" + e.InnerException.Message;
 
+#if !EFCR
                         if (Database.Root != null && Database.Root.Messages != null)
                             Database.Root.Messages.LogException("Database", "ConnectionString", msg);
+#endif
                     }
                 }
                 return "name=iPlusV4_Entities";
@@ -170,6 +190,7 @@ namespace gip.core.datamodel
             }
         }
 
+#if !EFCR
         EntityConnection _SeparateConnection;
         public EntityConnection SeparateConnection
         {
@@ -178,6 +199,7 @@ namespace gip.core.datamodel
                 return _SeparateConnection;
             }
         }
+#endif
 
         private string _UserName;
         public string UserName
@@ -186,12 +208,15 @@ namespace gip.core.datamodel
             {
                 if (!String.IsNullOrEmpty(_UserName))
                     return _UserName;
+#if !EFCR
                 if (Database.Root == null 
                     || !Database.Root.Initialized
                     || Database.Root.Environment == null
                     || Database.Root.Environment.User == null)
                     return "Init";
                 _UserName = Database.Root.Environment.User.Initials;
+#endif
+                throw new NotImplementedException();
                 return _UserName;
             }
             set
@@ -250,8 +275,10 @@ namespace gip.core.datamodel
             {
                 if (_Initials == null)
                 {
+#if !EFCR
                     if (Database.Root == null || !Database.Root.Initialized)
                         return "Init";
+#endif
                     _Initials = Root.Environment.User.Initials;
                 }
                 return _Initials;
@@ -287,9 +314,9 @@ namespace gip.core.datamodel
 
         public event ACChangesEventHandler ACChangesExecuted;
 
-        #endregion
+#endregion
 
-        #region IACUrl Member
+#region IACUrl Member
         /// <summary>
         /// Returns the parent object
         /// </summary>
@@ -298,7 +325,10 @@ namespace gip.core.datamodel
         {
             get
             {
+#if !EFCR
                 return Database.Root;
+#endif
+                throw new NotImplementedException();
             }
         }
 
@@ -355,14 +385,19 @@ namespace gip.core.datamodel
 
 #region public
 
+        public void Refresh(RefreshMode refreshMode, object entity)
+        {
+            _ObjectContextHelper.Refresh(refreshMode, entity);
+        }
+
         /// <summary>
         /// UNSAFE. Use QueryLock_1X000 outside
         /// </summary>
         /// <returns></returns>
         [ACMethodInfo("", "", 9999)]
-        public MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, SaveOptions saveOptions = SaveOptions.AcceptAllChangesAfterSave, bool validationOff = false, bool writeUpdateInfo = true)
+        public MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true)
         {
-            MsgWithDetails result = _ObjectContextHelper.ACSaveChanges(autoSaveContextIPlus, saveOptions, validationOff, writeUpdateInfo);
+            MsgWithDetails result = _ObjectContextHelper.ACSaveChanges(autoSaveContextIPlus, validationOff, writeUpdateInfo);
             if (result == null)
             {
                 if (ACChangesExecuted != null)
@@ -381,9 +416,9 @@ namespace gip.core.datamodel
         /// If parameter retries ist not set, then ACObjectContextHelper.C_NumberOfRetriesOnTransError is used to limit the Retry-Loop.
         /// </summary>
         [ACMethodInfo("", "", 9999)]
-        public MsgWithDetails ACSaveChangesWithRetry(ushort? retries = null, bool autoSaveContextIPlus = true, SaveOptions saveOptions = SaveOptions.AcceptAllChangesAfterSave, bool validationOff = false, bool writeUpdateInfo = true)
+        public MsgWithDetails ACSaveChangesWithRetry(ushort? retries = null, bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true)
         {
-            MsgWithDetails result = _ObjectContextHelper.ACSaveChangesWithRetry(retries, autoSaveContextIPlus, saveOptions, validationOff, writeUpdateInfo);
+            MsgWithDetails result = _ObjectContextHelper.ACSaveChangesWithRetry(retries, autoSaveContextIPlus, validationOff, writeUpdateInfo);
             if (result == null)
             {
                 if (ACChangesExecuted != null)
@@ -443,7 +478,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public IList<T> GetAddedEntities<T>(Func<T, bool> selector = null) where T : class
         {
-            return _ObjectContextHelper.GetChangedEntities<T>(System.Data.EntityState.Added, selector);
+            return _ObjectContextHelper.GetChangedEntities<T>(EntityState.Added, selector);
         }
 
         /// <summary>
@@ -453,7 +488,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public IList<T> GetModifiedEntities<T>(Func<T, bool> selector = null) where T : class
         {
-            return _ObjectContextHelper.GetChangedEntities<T>(System.Data.EntityState.Modified, selector);
+            return _ObjectContextHelper.GetChangedEntities<T>(EntityState.Modified, selector);
         }
 
         /// <summary>
@@ -463,7 +498,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public IList<T> GetDeletedEntities<T>(Func<T, bool> selector = null) where T : class
         {
-            return _ObjectContextHelper.GetChangedEntities<T>(System.Data.EntityState.Deleted, selector);
+            return _ObjectContextHelper.GetChangedEntities<T>(EntityState.Deleted, selector);
         }
 
         /// <summary>
@@ -473,7 +508,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public IList<T> GetDetachedEntities<T>(Func<T, bool> selector = null) where T : class
         {
-            return _ObjectContextHelper.GetChangedEntities<T>(System.Data.EntityState.Detached, selector);
+            return _ObjectContextHelper.GetChangedEntities<T>(EntityState.Detached, selector);
         }
 
         /// <summary>
@@ -483,7 +518,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public IList<T> GetUnchangedEntities<T>(Func<T, bool> selector = null) where T : class
         {
-            return _ObjectContextHelper.GetChangedEntities<T>(System.Data.EntityState.Unchanged, selector);
+            return _ObjectContextHelper.GetChangedEntities<T>(EntityState.Unchanged, selector);
         }
 
         /// <summary>
@@ -506,11 +541,11 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Refreshes the EntityObject if not in modified state. Else it leaves it untouched.
+        /// Refreshes the VBEntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
         /// <param name="entityObject"></param>
         /// <param name="refreshMode"></param>
-        public void AutoRefresh(EntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins)
+        public void AutoRefresh(VBEntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins)
         {
             _ObjectContextHelper.AutoRefresh(entityObject, refreshMode);
         }
@@ -523,7 +558,7 @@ namespace gip.core.datamodel
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
         /// <param name="refreshMode"></param>
-        public void AutoRefresh<T>(EntityCollection<T> entityCollection, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
+        public void AutoRefresh<T>(ICollection<T> entityCollection, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
         {
             _ObjectContextHelper.AutoRefresh<T>(entityCollection, refreshMode);
         }
@@ -534,7 +569,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        public void AutoLoad<T>(EntityCollection<T> entityCollection) where T : class
+        public void AutoLoad<T>(ICollection<T> entityCollection) where T : class
         {
             _ObjectContextHelper.AutoLoad<T>(entityCollection);
         }
@@ -554,7 +589,7 @@ namespace gip.core.datamodel
             _derivationCache.RegisterDerivedClass(baseClassID, derivedClassID, isDerived);
         }
 
-        #region IACUrl Member
+#region IACUrl Member
 
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
@@ -611,9 +646,12 @@ namespace gip.core.datamodel
             return ACIdentifier;
         }
 
-        public void FullDetach(EntityObject obj)
+        public void FullDetach(VBEntityObject obj)
         {
+#if !EFCR
             Detach(obj);
+#endif
+            throw new NotImplementedException();
             // General Problem of ObjectContext-MAnager
             // When a object should be detached, then the object which have a relational relationship will not be detached
             // The Information about the relation are stored in the internal Member _danglingForeignKeys of the ObjectContextManager
@@ -1047,10 +1085,23 @@ namespace gip.core.datamodel
             }
         }
 
+        public DatabaseFacade DatabaseFacade => ((IACEntityObjectContext)ContextIPlus).DatabaseFacade;
+
+        public RefreshMode RefreshMode => ((IACEntityObjectContext)ContextIPlus).RefreshMode;
+
+        public DbContextOptions ContextOptions => ((IACEntityObjectContext)ContextIPlus).ContextOptions;
+
+        public int? CommandTimeout { get => ((IACEntityObjectContext)ContextIPlus).CommandTimeout; set => ((IACEntityObjectContext)ContextIPlus).CommandTimeout = value; }
+
+        public DbConnection Connection => ((IACEntityObjectContext)ContextIPlus).Connection;
+
+        public string DefaultContainerName { get => ((IACEntityObjectContext)ContextIPlus).DefaultContainerName; set => ((IACEntityObjectContext)ContextIPlus).DefaultContainerName = value; }
+
         // Build Cache over Type-System to avoid Deadlocks when quering Global dabatbase
         // see deadlock18.txt
         //private object _DictLock = new object();
         private ConcurrentDictionary<string, ACClass> _TypesAssQlfName = new ConcurrentDictionary<string, ACClass>();
+#if !EFCR
         static readonly Func<Database, string, ACClass> s_cQry_TypesCAssQlfName =
             CompiledQuery.Compile<Database, string, ACClass>(
                 (db, assQName) =>
@@ -1064,8 +1115,10 @@ namespace gip.core.datamodel
                 && c.ParentACClassID == null
                 && c.AssemblyQualifiedName == assQName).FirstOrDefault()
             );
+#endif
 
         private ConcurrentDictionary<string, ACClass> _TypesClassName = new ConcurrentDictionary<string, ACClass>();
+#if !EFCR
         static readonly Func<Database, string, ACClass> s_cQry_TypesClassLibrary =
             CompiledQuery.Compile<Database, string, ACClass>(
                 (db, acIdentifier) =>
@@ -1105,22 +1158,25 @@ namespace gip.core.datamodel
                 .Where(c => (c.ACKindIndex == (Int16)Global.ACKinds.TACBSO || c.ACKindIndex == (Int16)Global.ACKinds.TACBSOGlobal)
                             && c.ACIdentifier == acIdentifier).FirstOrDefault()
             );
+#endif
 
         private ConcurrentDictionary<string, ACClass> _TypesACUrlComp = new ConcurrentDictionary<string, ACClass>();
+#if !EFCR
         static readonly Func<Database, string, ACClass> s_cQry_TypesACUrlComp =
-    CompiledQuery.Compile<Database, string, ACClass>(
-        (db, acUrl) =>
-            db.ACClass.Include("ACClass1_BasedOnACClass")
-                    .Include("ACClass1_ParentACClass")
-                    .Include("ACClass1_PWACClass")
-                    .Include("ACClass1_PWMethodACClass")
-                    .Include("ACClass_BasedOnACClass")
-                    .Include("ACClass_ParentACClass")
-        .Where(c => c.ACURLComponentCached == acUrl).FirstOrDefault()
-    );
-
+            CompiledQuery.Compile<Database, string, ACClass>(
+                (db, acUrl) =>
+                    db.ACClass.Include("ACClass1_BasedOnACClass")
+                        .Include("ACClass1_ParentACClass")
+                        .Include("ACClass1_PWACClass")
+                        .Include("ACClass1_PWMethodACClass")
+                        .Include("ACClass_BasedOnACClass")
+                        .Include("ACClass_ParentACClass")
+            .Where(c => c.ACURLComponentCached == acUrl).FirstOrDefault()
+        );
+#endif
 
         private ConcurrentDictionary<Guid, ACClass> _TypesGuid = new ConcurrentDictionary<Guid, ACClass>(5, 1000);
+#if !EFCR
         static readonly Func<Database, Guid, ACClass> s_cQry_TypesGuid =
             CompiledQuery.Compile<Database, Guid, ACClass>(
                 (db, acClassID) =>
@@ -1132,8 +1188,10 @@ namespace gip.core.datamodel
                             .Include("ACClass_ParentACClass")
                 .Where(c => c.ACClassID == acClassID).FirstOrDefault()
             );
+#endif
 
         private ConcurrentDictionary<Type, ACClass> _ACTypeCache = new ConcurrentDictionary<Type, ACClass>(5, 1000);
+#if !EFCR
         static readonly Func<Database, string, ACClass> s_cQry_TypeCache =
             CompiledQuery.Compile<Database, string, ACClass>(
                 (db, assemblyQualifiedName) =>
@@ -1145,6 +1203,7 @@ namespace gip.core.datamodel
                             .Include("ACClass_ParentACClass")
                             .Where(c => c.AssemblyQualifiedName == assemblyQualifiedName).FirstOrDefault()
             );
+#endif
 
         /// <summary>
         /// Build Cache for primitive Types from System namespace to avoid Deadlocks when quering Global dabatbase
@@ -1201,7 +1260,9 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
+#if !EFCR
                 acClass = s_cQry_TypeCache(this, type.AssemblyQualifiedName);
+#endif
             }
             if (acClass != null)
             {
@@ -1229,7 +1290,9 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
+#if !EFCR
                 acClass = s_cQry_TypeCache(this, genericType.AssemblyQualifiedName);
+#endif
             }
             if (acClass != null)
             {
@@ -1266,11 +1329,13 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
+#if !EFCR
                 acClass = s_cQry_TypesClassLibrary(this, acIdentifier);
                 if (acClass == null)
                     acClass = s_cQry_TypesDBAccess(this, acIdentifier);
                 if (acClass == null)
                     acClass = s_cQry_TypesBSO(this, acIdentifier);
+#endif
             }
             if (acClass != null)
             {
@@ -1311,7 +1376,9 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
+#if !EFCR
                 acClass = s_cQry_TypesGuid(this, acClassID);
+#endif
             }
             if (acClass != null)
             {
@@ -1352,7 +1419,9 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
+#if !EFCR
                 acClass = s_cQry_TypesACUrlComp(this, acUrlComponent);
+#endif
             }
             if (acClass != null)
                 _TypesACUrlComp.TryAdd(acUrlComponent, acClass);
@@ -1360,7 +1429,7 @@ namespace gip.core.datamodel
         }
 
 
-        #endregion
+#endregion
 
         /// <summary>
         /// UNSAFE. Use QueryLock_1X000 outside
@@ -1370,9 +1439,40 @@ namespace gip.core.datamodel
         {
             if (_ObjectContextHelper != null && detach)
                 _ObjectContextHelper.DetachAllEntities();
+#if !EFCR 
             if (dispose)
                 Dispose(true);
+#endif
         }
-        
+
+        public void AutoRefresh(VBEntityObject entityObject)
+        {
+            ((IACEntityObjectContext)ContextIPlus).AutoRefresh(entityObject);
+        }
+
+        public void AutoRefresh<T>(ICollection<T> entityCollection) where T : class
+        {
+            ((IACEntityObjectContext)ContextIPlus).AutoRefresh(entityCollection);
+        }
+
+        public void AcceptAllChanges()
+        {
+            ((IACEntityObjectContext)ContextIPlus).AcceptAllChanges();
+        }
+
+        public void DbContextDispose()
+        {
+            ((IACEntityObjectContext)ContextIPlus).DbContextDispose();
+        }
+
+        public DbSet<TEntity> CreateObjectSet<TEntity>() where TEntity : class
+        {
+            return ((IACEntityObjectContext)ContextIPlus).CreateObjectSet<TEntity>();
+        }
+
+        public DbSet<TEntity> CreateObjectSet<TEntity>(string entitySetName) where TEntity : class
+        {
+            return ((IACEntityObjectContext)ContextIPlus).CreateObjectSet<TEntity>(entitySetName);
+        }
     }
 }

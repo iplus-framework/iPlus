@@ -92,8 +92,13 @@ namespace gip.core.processapplication
                 return;
             if (!PreExecute("TurnOn"))
                 return;
-            ReqRunState.ValueT = true;
+            OnTurnOn();
             PostExecute("TurnOn");
+        }
+
+        protected virtual void OnTurnOn()
+        {
+            ReqRunState.ValueT = true;
         }
 
         public virtual bool IsEnabledTurnOn()
@@ -108,6 +113,15 @@ namespace gip.core.processapplication
             }
             return false;
         }
+
+        public override void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)
+        {
+            if (!switchOff)
+                OnTurnOn();
+            else
+                OnTurnOff();
+        }
+
         #endregion
 
         #region Handle execute helpers

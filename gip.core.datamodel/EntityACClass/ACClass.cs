@@ -18,7 +18,7 @@ using System.Text;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
-using System.Data.Objects;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -313,7 +313,7 @@ namespace gip.core.datamodel
                 acClassPropertyBinding.DeleteACObject(database, withCheck);
             }
 
-            database.DeleteObject(this);
+            database.Remove(this);
             return null;
         }
 
@@ -1515,7 +1515,7 @@ namespace gip.core.datamodel
             ACClassMethod[] allMethods = null;
             try
             {
-                if (!ACClassMethod_ACClass.IsLoaded && EntityState != System.Data.EntityState.Added
+                if (!ACClassMethod_ACClass.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
                     ACClassMethod_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
@@ -1613,9 +1613,9 @@ namespace gip.core.datamodel
             return acClassMethodList;
         }
 
-        #endregion
+#endregion
 
-        #region Signature
+#region Signature
 
         /// <summary>
         /// Returns the Signature of a dynamic parameterized Method or constructor
@@ -1718,16 +1718,16 @@ namespace gip.core.datamodel
             return null;
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
 
-        #region ACClassProperty
+#region ACClassProperty
 
-        #region Public
+#region Public
 
-        #region Properties
+#region Properties
         /// <summary>
         /// Returns all Properties over complete class hierarchy including Points
         /// THREAD-SAFE (QueryLock_1X000)
@@ -1837,9 +1837,9 @@ namespace gip.core.datamodel
                 return Properties.Where(c => c.ACPropUsage >= Global.ACPropUsages.ConnectionPoint && c.ACPropUsage < Global.ACPropUsages.ChangeInfo);
             }
         }
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
 
         /// <summary>
         /// Returns all Properties over complete class hierarchy including Points
@@ -1941,11 +1941,11 @@ namespace gip.core.datamodel
         }
 
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Private
+#region Private
         /// <summary>
         /// UNSAFE: Returns first found Property in class hierarchy.
         /// </summary>
@@ -2057,7 +2057,7 @@ namespace gip.core.datamodel
             ACClassProperty[] allProperties = null;
             try
             {
-                if (!ACClassProperty_ACClass.IsLoaded && EntityState != System.Data.EntityState.Added
+                if (!ACClassProperty_ACClass.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
                     ACClassProperty_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
@@ -2100,14 +2100,14 @@ namespace gip.core.datamodel
                     return;
             }
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
 
-        #region ACClassDesign
+#region ACClassDesign
 
-        #region Public
+#region Public
         /// <summary>
         /// Returns all Designs over complete class hierarchy including overridden Designs
         /// THREAD-SAFE (QueryLock_1X000)
@@ -2282,9 +2282,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region Private
+#region Private
         /// <summary>
         /// UNSAFE: Returns first found Design in class hierarchy.
         /// </summary>
@@ -2331,7 +2331,7 @@ namespace gip.core.datamodel
             ACClassDesign[] allDesigns = null;
             try
             {
-                if (!ACClassDesign_ACClass.IsLoaded && EntityState != System.Data.EntityState.Added
+                if (!ACClassDesign_ACClass.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
                     ACClassDesign_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
@@ -2356,14 +2356,14 @@ namespace gip.core.datamodel
             return allDesigns;
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
 
-        #region ACClassText
+#region ACClassText
 
-        #region public
+#region public
         /// <summary>
         /// Returns all Texts over complete class hierarchy
         /// THREAD-SAFE (QueryLock_1X000)
@@ -2418,9 +2418,9 @@ namespace gip.core.datamodel
             return foundText;
         }
 
-        #endregion
+#endregion
 
-        #region private
+#region private
         /// <summary>
         /// UNSAFE: Returns first found Text in class hierarchy.
         /// </summary>
@@ -2468,7 +2468,7 @@ namespace gip.core.datamodel
             ACClassText[] allTexts = null;
             try
             {
-                if (!ACClassText_ACClass.IsLoaded && EntityState != System.Data.EntityState.Added
+                if (!ACClassText_ACClass.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
                     ACClassText_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
@@ -2491,14 +2491,14 @@ namespace gip.core.datamodel
             }
             return allTexts;
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
 
-        #region ACClassMessage
+#region ACClassMessage
 
-        #region Public
+#region Public
         /// <summary>
         /// Returns all Messages over complete class hierarchy
         /// THREAD-SAFE (QueryLock_1X000)
@@ -2553,9 +2553,9 @@ namespace gip.core.datamodel
         }
 
 
-        #endregion
+#endregion
 
-        #region Private
+#region Private
 
         /// <summary>
         /// UNSAFE: Returns first found ACClassMessage in class hierarchy.
@@ -2604,7 +2604,7 @@ namespace gip.core.datamodel
             ACClassMessage[] allMessages = null;
             try
             {
-                if (!ACClassMessage_ACClass.IsLoaded && EntityState != System.Data.EntityState.Added
+                if (!ACClassMessage_ACClass.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
                     ACClassMessage_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
@@ -2628,12 +2628,12 @@ namespace gip.core.datamodel
             return allMessages;
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
 
-        #region ACClassComposition
+#region ACClassComposition
 
         private bool _PrimaryNavigationqueryChecked = false;
         private ACClass _PrimaryNavigationquery = null;
@@ -2772,10 +2772,10 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
 
-        #region Type-Informations
+#region Type-Informations
 
         /// <summary>
         /// Returns the category of this class
@@ -3025,7 +3025,7 @@ namespace gip.core.datamodel
                     }
                     else
                     {
-                        if (classType.BaseType != null && classType.BaseType.Name == "EntityObject")
+                        if (classType.BaseType != null && classType.BaseType.Name == "VBEntityObject")
                             return new ACClassInfo("", classType.Name, Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true);
                         else
                             return new ACClassInfo("", classType.Name, Global.ACKinds.TACUndefined, Global.ACStorableTypes.NotStorable, true, false);
@@ -3084,10 +3084,10 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
 
-        #region Misc Properties and Methods
+#region Misc Properties and Methods
 
         //#region IACWorkflowObject Member
 
@@ -3126,7 +3126,7 @@ namespace gip.core.datamodel
         //#endregion
 
 
-        #region Rightmanagement
+#region Rightmanagement
         /// <summary>
         /// Determines whether [is any child with rightmanagement].
         /// </summary>
@@ -3185,10 +3185,10 @@ namespace gip.core.datamodel
                 return Global.ControlModes.Enabled;
             return RightManager.GetControlMode(rightItem);
         }
-        #endregion
+#endregion
 
 
-        #region ACParameter
+#region ACParameter
         /// <summary>
         /// Gets or sets the AC parameter.
         /// </summary>
@@ -3241,7 +3241,7 @@ namespace gip.core.datamodel
         /// <returns>System.String.</returns>
         public static string SerializeACClass(ACValueList acValueList)
         {
-            DataContractSerializer serializer = new DataContractSerializer(typeof(ACValueList), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+            DataContractSerializer serializer = new DataContractSerializer(typeof(ACValueList), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
             StringBuilder sb1 = new StringBuilder();
             using (StringWriter sw1 = new StringWriter(sb1))
             using (XmlTextWriter xmlWriter1 = new XmlTextWriter(sw1))
@@ -3263,7 +3263,7 @@ namespace gip.core.datamodel
             using (StringReader ms = new StringReader(acClassXML))
             using (XmlTextReader xmlReader = new XmlTextReader(ms))
             {
-                DataContractSerializer serializer = new DataContractSerializer(typeof(ACValueList), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                DataContractSerializer serializer = new DataContractSerializer(typeof(ACValueList), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                 ACValueList acValueList = (ACValueList)serializer.ReadObject(xmlReader);
                 return acValueList;
             }
@@ -3286,10 +3286,10 @@ namespace gip.core.datamodel
         {
             return ACCaption;
         }
-        #endregion
+#endregion
 
 
-        #region Private Methods
+#region Private Methods
 
         bool bRefreshConfig = false;
         partial void OnXMLConfigChanging(global::System.String value)
@@ -3347,9 +3347,9 @@ namespace gip.core.datamodel
                 child.RefreshChildrenACUrlCacheLocked();
         }
 
-        #endregion
+#endregion
 
-        #region Public methods
+#region Public methods
 
         public void RefreshChildrenACURLCache()
         {
@@ -3359,12 +3359,12 @@ namespace gip.core.datamodel
             OnPropertyChanged("ACUrlComponent");
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
 
-        #region Configuration
+#region Configuration
 
         private string configStoreName;
         public string ConfigStoreName
@@ -3480,7 +3480,7 @@ namespace gip.core.datamodel
                     this.ACClassConfig_ACClass.Remove(acConfig);
                 else
                     acConfig.ACClass.ACClassConfig_ACClass.Remove(acConfig);
-                if (acConfig.EntityState != System.Data.EntityState.Detached)
+                if (acConfig.EntityState != EntityState.Detached)
                     acConfig.DeleteACObject(this.Database, false);
             }
         }
@@ -3573,6 +3573,6 @@ namespace gip.core.datamodel
             return true;
         }
 
-        #endregion
+#endregion
     }
 }

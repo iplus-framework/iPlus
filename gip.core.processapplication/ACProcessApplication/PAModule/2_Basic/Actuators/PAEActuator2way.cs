@@ -234,6 +234,19 @@ namespace gip.core.processapplication
             ReqPos2.ValueT = false;
         }
 
+        public override void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)
+        {
+            if (PAPointMatOut1.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+            {
+                if (!switchOff)
+                    OnSetPosition1Values();
+            }
+            else if (PAPointMatOut2.ConnectionList.Any(c => c.TargetParentComponent == item.TargetACComponent))
+            {
+                if (!switchOff)
+                    OnSetPosition2Values();
+            }
+        }
         #endregion
 
         #region Handle execute helpers

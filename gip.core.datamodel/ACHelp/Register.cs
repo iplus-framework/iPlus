@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 
 namespace gip.core.datamodel
 {
     [Serializable]
+#if !EFCR
     [JsonObject(MemberSerialization.OptOut)]
+#endif
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Register'}de{'Register'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class Register
     {
@@ -32,7 +33,9 @@ namespace gip.core.datamodel
         [ACPropertyInfo(9999, "AddressType", "en{'Address type'}de{'Adresstyp'}")]
         public short AddressTypeID { get; set; }
 
+#if !EFCR
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+#endif
         [ACPropertyInfo(9999, "Address", "en{'Address'}de{'Adresse'}")]
         public string Address { get; set; }
 

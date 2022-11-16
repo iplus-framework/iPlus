@@ -16,6 +16,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace gip.core.datamodel
 {
@@ -202,7 +204,7 @@ namespace gip.core.datamodel
                             return msg;
                     }
                 }
-                database.DeleteObject(this);
+                database.Remove(this);
             }
             return null;
         }
@@ -382,7 +384,29 @@ namespace gip.core.datamodel
         #region private members
         [IgnoreDataMember]
         ACPropertyManager _ACPropertyManager = null;
+
+        IACEntityObjectContext _context;
+
+        public IACEntityObjectContext Context
+        {
+            get
+            {
+                return _context;
+            }
+            set
+            {
+                _context = value;
+            }
+        }
         #endregion end private members
+
+        public EntityState EntityState
+        {
+            get
+            {
+                return _context.Entry(this).State;
+            }
+        }
     }
 }
 

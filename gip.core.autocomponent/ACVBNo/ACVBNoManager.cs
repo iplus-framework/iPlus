@@ -92,7 +92,7 @@ namespace gip.core.autocomponent
             IACVBNoProvider child = FindChildComponents<IACVBNoProvider>(c => c is IACVBNoProvider && (c as IACVBNoProvider).IsHandlerForType(type, entityNoFieldName)).FirstOrDefault();
 
             string nextNo = child == null ? GetNextNo(vbNoConfiguration, formatNewNo) : child.GetNewNo(this, iplusContext, appContext, type, entityNoFieldName, formatNewNo, vbNoConfiguration, invoker);
-            if (iplusContext.ACSaveChanges(true, SaveOptions.AcceptAllChangesAfterSave, true) == null)
+            if (iplusContext.ACSaveChanges(true, true) == null)
                 return nextNo;
             else
             {
@@ -210,7 +210,7 @@ namespace gip.core.autocomponent
             database.VBNoConfiguration.AddObject(noConfiguration);
             if (autoSave)
             {
-                if (database.ACSaveChanges(true, SaveOptions.AcceptAllChangesAfterSave, true) == null)
+                if (database.ACSaveChanges(true, true) == null)
                     return noConfiguration;
                 return
                     null;

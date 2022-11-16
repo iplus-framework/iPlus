@@ -18,9 +18,9 @@ using System.Xml.Linq;
 using System.Reflection;
 using System.Collections;
 using System.Runtime.Serialization;
-using System.Data.Objects.DataClasses;
 using gip.core.datamodel;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -97,11 +97,14 @@ namespace gip.core.datamodel
                     continue;
                 if (pi.PropertyType.IsGenericType)
                 {
+#if !EFCR
                     if (pi.PropertyType.GetInterfaces().Where(c => c.Name == "IEnumerable").Any() ||
-                        pi.PropertyType.BaseType == typeof(System.Data.Objects.DataClasses.EntityReference))
+                        pi.PropertyType.BaseType == typeof(System.Data.Objects.DataClasses.EntityReference)
+                        )
                     {
                         continue;
                     }
+#endif
                 }
                 if (pi.GetCustomAttributes(typeof(DataMemberAttribute), true).Any() && pi.Name != "EntityKey")
                 {
@@ -218,9 +221,9 @@ namespace gip.core.datamodel
             return xDoc;
         }
 
-        #endregion
+#endregion
 
-        #region Derialize XML
+#region Derialize XML
 
         /// <summary>
         /// Deserializing XML file
@@ -390,7 +393,7 @@ namespace gip.core.datamodel
             acFsItem.XNode = xNode;
 
             //// Place for define KeyACValue property
-            if ((acObject as EntityObject).EntityState == System.Data.EntityState.Added)
+            if ((acObject as VBEntityObject).EntityState == EntityState.Added)
                 ACObjectSerialHelper.SetIACObjectProperties(resource, db, acFSParentItem.Container, acFsItem, true, msgList);
             acFsItem.ACObjectACUrl = acObject.GetACUrl();
             acFsItem.ACCaption = acObject.ACIdentifier;
@@ -445,9 +448,9 @@ namespace gip.core.datamodel
 
         }
 
-        #endregion
+#endregion
 
-        #region Deserialize SQL
+#region Deserialize SQL
 
         /// <summary>
         /// 
@@ -539,7 +542,7 @@ namespace gip.core.datamodel
             acFsItem.ACObjectACUrl = outerAcObject.GetACUrl();
             acFsItem.ACCaption = outerAcObject.ACIdentifier;
             acFsItem.OuterIACObject = outerAcObject;
-            if ((acObject as EntityObject).EntityState == System.Data.EntityState.Added)
+            if ((acObject as VBEntityObject).EntityState == EntityState.Added)
                 ACObjectSerialHelper.SetIACObjectProperties(resource, db, acFSParentItem.Container, acFsItem, true, msgList);
         }
 
@@ -581,9 +584,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region Helper common mehtods
+#region Helper common mehtods
 
         /// <summary>
         /// Factory ACQueryDef with config defined for Import
@@ -602,7 +605,7 @@ namespace gip.core.datamodel
             return acQueryDefinition;
         }
 
-        #endregion
+#endregion
 
     }
 }

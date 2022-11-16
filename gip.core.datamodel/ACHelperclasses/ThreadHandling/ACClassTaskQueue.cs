@@ -16,9 +16,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Data.Objects;
 using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore;
+#if !EFCR
+using System.Data.Objects;
 using System.Data.EntityClient;
+#endif
 
 namespace gip.core.datamodel
 {
@@ -35,9 +38,9 @@ namespace gip.core.datamodel
             _ProgramCache = new ACProgramCache(this);
         }
 
-#region Precompiled Queries
-
-    public static readonly Func<Database, Guid, ACProgram> s_cQry_ACProgram =
+        #region Precompiled Queries
+#if !EFCR
+        public static readonly Func<Database, Guid, ACProgram> s_cQry_ACProgram =
             CompiledQuery.Compile<Database, Guid, ACProgram>(
                 (db, acProgramID) =>
                     db.ACProgram.Where(c => c.ACProgramID == acProgramID).FirstOrDefault()
@@ -69,7 +72,7 @@ namespace gip.core.datamodel
                                 .Include("ACClassWFEdge_TargetACClassWF")
                     .Where(c => c.ACClassWFID == acClassWFID).FirstOrDefault()
             );
-
+#endif
 #endregion
 
 #region TaskQueue
@@ -201,7 +204,9 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(TaskQueue.Context.QueryLock_1X000))
                 {
+#if !EFCR
                     acClassProperty = s_cQry_ACPropertyCache(TaskQueue.Context, acClassPropertyID);
+#endif
                 }
                 if (acClassProperty != null)
                     _ACPropertyTypeCache.TryAdd(acClassPropertyID, acClassProperty);
@@ -216,7 +221,9 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(TaskQueue.Context.QueryLock_1X000))
                 {
+#if !EFCR
                     acClassWF = s_cQry_ACClassWFCache(TaskQueue.Context, acClassWFID);
+#endif
                 }
                 if (acClassWF != null)
                     _ACClassWFCache.TryAdd(acClassWFID, acClassWF);
@@ -237,6 +244,7 @@ namespace gip.core.datamodel
         }
 
 #region precompiled Queries
+#if !EFCR
         public static readonly Func<Database, Guid, IQueryable<ACProgramLog>> s_cQry_LatestProgramLogs =
             CompiledQuery.Compile<Database, Guid, IQueryable<ACProgramLog>>(
                 (db, acProgramID) =>
@@ -304,15 +312,15 @@ namespace gip.core.datamodel
                     .Where(c => c.ACProgramID == programID && c.ACUrl == acUrl)
                     .OrderBy(c => c.InsertDate)
             );
-
+#endif
 #endregion
 
 #region Properties
         ACClassTaskQueue _TaskQueue = null;
         ConcurrentDictionary<Guid, ACProgramCacheEntry> _Programs = new ConcurrentDictionary<Guid, ACProgramCacheEntry>();
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
         /// <summary>
         /// Reads from Cache, If not in Cache it rebuilds by querying dababase
         /// </summary>
@@ -327,14 +335,16 @@ namespace gip.core.datamodel
             if (cacheEntry == null)
                 return null;
             ACProgramLog programLog = cacheEntry.GetCurrentProgramLog(acUrl, parentProgramLog);
-            if (programLog == null 
-                && parentProgramLog.EntityState != System.Data.EntityState.Detached 
-                && parentProgramLog.EntityState != System.Data.EntityState.Added
+            if (programLog == null
+                && parentProgramLog.EntityState != EntityState.Detached 
+                && parentProgramLog.EntityState != EntityState.Added
                 && !lookupOnlyInCache)
             {
                 _TaskQueue.ProcessAction(() =>
                 {
+#if !EFCR
                     programLog = s_cQry_LatestProgramLogByParent(_TaskQueue.Context, parentProgramLog.ACProgramLogID, acUrl);
+#endif
                     if (programLog != null && checkNewerThanParentProgramLog)
                     {
                         // Programlog was not created, it's a older one
@@ -381,7 +391,9 @@ namespace gip.core.datamodel
             ACProgramLog programLog = null;
             _TaskQueue.ProcessAction(() =>
             {
+#if !EFCR
                 programLog = s_cQry_ProgramLogByLogID(_TaskQueue.Context, acProgramLogID);
+#endif
             });
             if (programLog == null)
                 return null;
@@ -417,8 +429,8 @@ namespace gip.core.datamodel
                 return null;
 
 #if !DIAGNOSE
-            if (currentProgramLog.EntityState == System.Data.EntityState.Deleted
-                || (currentProgramLog.EntityState == System.Data.EntityState.Detached && currentProgramLog.NewACProgramForQueue == null))
+            if (currentProgramLog.EntityState == EntityState.Deleted
+                || (currentProgramLog.EntityState == EntityState.Detached && currentProgramLog.NewACProgramForQueue == null))
 #else
             if (   currentProgramLog.EntityState == System.Data.EntityState.Deleted
                 || currentProgramLog.EntityState == System.Data.EntityState.Detached)
@@ -465,12 +477,13 @@ namespace gip.core.datamodel
                     {
                         try
                         {
-                            if (previousLog.EntityState != System.Data.EntityState.Deleted
-                                && previousLog.EntityState != System.Data.EntityState.Detached)
+                            if (previousLog.EntityState != EntityState.Deleted
+                                && previousLog.EntityState != EntityState.Detached)
                             {
-                                if (previousLog.EntityState != System.Data.EntityState.Unchanged)
+                                if (previousLog.EntityState != EntityState.Unchanged)
                                     _TaskQueue.Context.ACSaveChanges();
-                                _TaskQueue.Context.Detach(previousLog);
+                                //_TaskQueue.Context.Detach(previousLog);
+                                _TaskQueue.Context.Entry(previousLog).State = EntityState.Detached;
                             }
                         }
                         catch (Exception e)
@@ -509,21 +522,23 @@ namespace gip.core.datamodel
                 {
                     try
                     {
-                        if (currentProgramLog.EntityState != System.Data.EntityState.Deleted
-                            && currentProgramLog.EntityState != System.Data.EntityState.Detached)
+                        if (currentProgramLog.EntityState != EntityState.Deleted
+                            && currentProgramLog.EntityState != EntityState.Detached)
                         {
-                            if (currentProgramLog.EntityState != System.Data.EntityState.Unchanged)
+                            if (currentProgramLog.EntityState != EntityState.Unchanged)
                                 _TaskQueue.Context.ACSaveChanges();
-                            _TaskQueue.Context.Detach(currentProgramLog);
+                            //_TaskQueue.Context.Detach(currentProgramLog);
+                            _TaskQueue.Context.Entry(currentProgramLog).State = EntityState.Detached ;
                         }
                         if (removedLog != currentProgramLog)
                         {
-                            if (removedLog.EntityState != System.Data.EntityState.Deleted
-                               && removedLog.EntityState != System.Data.EntityState.Detached)
+                            if (removedLog.EntityState != EntityState.Deleted
+                               && removedLog.EntityState != EntityState.Detached)
                             {
-                                if (removedLog.EntityState != System.Data.EntityState.Unchanged)
+                                if (removedLog.EntityState != EntityState.Unchanged)
                                     _TaskQueue.Context.ACSaveChanges();
-                                _TaskQueue.Context.Detach(removedLog);
+                                //_TaskQueue.Context.Detach(removedLog);
+                                _TaskQueue.Context.Entry(removedLog).State = EntityState.Detached;
                             }
                         }
                     }
@@ -555,12 +570,13 @@ namespace gip.core.datamodel
                 {
                     try
                     {
-                        if (removedLog.EntityState != System.Data.EntityState.Deleted
-                            && removedLog.EntityState != System.Data.EntityState.Detached)
+                        if (removedLog.EntityState != EntityState.Deleted
+                            && removedLog.EntityState != EntityState.Detached)
                         {
-                            if (removedLog.EntityState != System.Data.EntityState.Unchanged)
+                            if (removedLog.EntityState != EntityState.Unchanged)
                                 _TaskQueue.Context.ACSaveChanges();
-                            _TaskQueue.Context.Detach(removedLog);
+                            //_TaskQueue.Context.Detach(removedLog);
+                            _TaskQueue.Context.Entry(removedLog).State = EntityState.Detached;
                         }
                     }
                     catch (Exception e)
@@ -591,12 +607,13 @@ namespace gip.core.datamodel
                 _TaskQueue.Add(() => {
                     try
                     {
-                        if (acProgram.EntityState != System.Data.EntityState.Deleted
-                            && acProgram.EntityState != System.Data.EntityState.Detached)
+                        if (acProgram.EntityState != EntityState.Deleted
+                            && acProgram.EntityState != EntityState.Detached)
                         {
-                            if (acProgram.EntityState != System.Data.EntityState.Unchanged)
+                            if (acProgram.EntityState != EntityState.Unchanged)
                                 _TaskQueue.Context.ACSaveChanges();
-                            _TaskQueue.Context.Detach(acProgram);
+                            //_TaskQueue.Context.Detach(acProgram);
+                            _TaskQueue.Context.Entry(acProgram).State = EntityState.Detached;
                         }
                     }
                     catch (Exception e)
@@ -619,21 +636,25 @@ namespace gip.core.datamodel
                         {
                             foreach (var entry in logsToDetach)
                             {
+
                                 if (entry.ACProgramLog1_ParentACProgramLog != null
-                                    && entry.ACProgramLog1_ParentACProgramLog.EntityState != System.Data.EntityState.Deleted
-                                    && entry.ACProgramLog1_ParentACProgramLog.EntityState != System.Data.EntityState.Detached)
+                                    && entry.ACProgramLog1_ParentACProgramLog.EntityState != EntityState.Deleted
+                                    && entry.ACProgramLog1_ParentACProgramLog.EntityState != EntityState.Detached)
                                 {
-                                    if (entry.ACProgramLog1_ParentACProgramLog.EntityState != System.Data.EntityState.Unchanged)
+                                    if (entry.ACProgramLog1_ParentACProgramLog.EntityState != EntityState.Unchanged)
                                         _TaskQueue.Context.ACSaveChanges();
-                                    _TaskQueue.Context.Detach(entry.ACProgramLog1_ParentACProgramLog);
+                                    //_TaskQueue.Context.Detach(entry.ACProgramLog1_ParentACProgramLog);
+                                    _TaskQueue.Context.Entry(entry.ACProgramLog1_ParentACProgramLog).State = EntityState.Detached;
                                 }
-                                if (entry.EntityState != System.Data.EntityState.Deleted
-                                    && entry.EntityState != System.Data.EntityState.Detached)
+                                if (entry.EntityState != EntityState.Deleted
+                                    && entry.EntityState != EntityState.Detached)
                                 {
-                                    if (entry.EntityState != System.Data.EntityState.Unchanged)
+                                    if (entry.EntityState != EntityState.Unchanged)
                                         _TaskQueue.Context.ACSaveChanges();
-                                    _TaskQueue.Context.Detach(entry);
+                                    //_TaskQueue.Context.Detach(entry);
+                                    _TaskQueue.Context.Entry(entry).State = EntityState.Detached;
                                 }
+
                             }
                         }
                         catch (Exception e)
@@ -662,9 +683,12 @@ namespace gip.core.datamodel
         {
             using (Database db = new Database())
             {
+#if !EFCR
                 var query = s_cQry_PreviousLogsFromParent(db, parentProgramLogID, acUrl);
                 query.SetMergeOption(MergeOption.NoTracking);
                 return query.ToArray();
+#endif
+                throw new NotImplementedException();
             }
         }
 
@@ -678,9 +702,12 @@ namespace gip.core.datamodel
         {
             using (Database db = new Database())
             {
+#if !EFCR
                 var query = s_cQry_PreviousLogsFromProgram(db, programID, acUrl);
                 query.SetMergeOption(MergeOption.NoTracking);
                 return query.ToArray();
+#endif
+                throw new NotImplementedException();
             }
         }
 
@@ -725,7 +752,9 @@ namespace gip.core.datamodel
                 {
                     try
                     {
+#if !EFCR
                         latestProgramLogs = s_cQry_LatestProgramLogs(_TaskQueue.Context, acProgramID).ToDictionary(g => g.ACUrl);
+#endif
                     }
                     catch (Exception e)
                     {
@@ -759,7 +788,9 @@ namespace gip.core.datamodel
                 {
                     try
                     {
+#if !EFCR
                         latestProgramLogs = s_cQry_LatestProgramLogs(_TaskQueue.Context, acProgram.ACProgramID).ToDictionary(g => g.ACUrl);
+#endif
                     }
                     catch (Exception e)
                     {

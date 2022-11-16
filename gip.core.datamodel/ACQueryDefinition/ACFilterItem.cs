@@ -17,7 +17,6 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.Transactions;
-using System.Data.Objects;
 using System.Reflection;
 using System.ComponentModel;
 
@@ -352,7 +351,8 @@ namespace gip.core.datamodel
         }
         #endregion
 
-        #region ObjectParameter
+#region ObjectParameter
+#if !EFCR
         public ObjectParameter GetValueAsObjParameter(Type typeOfACQueryDef, string globalSearchWord, string parameterName)
         {
             if (LogicalOperator == Global.LogicalOperators.isNull || LogicalOperator == Global.LogicalOperators.isNotNull)
@@ -394,9 +394,10 @@ namespace gip.core.datamodel
             return parameter;
 
         }
-        #endregion
+#endif
+#endregion
 
-        #region Static
+#region Static
         /// <summary>
         /// Creates the filter item open.
         /// </summary>
@@ -431,9 +432,9 @@ namespace gip.core.datamodel
         {
             return new ACFilterItem(Global.FilterTypes.filter, feld, vergleichsOperator, verknuepfungsOperator, defaultFilter, isConfiguration);
         }
-        #endregion
+#endregion
 
-        #region IACObject Member
+#region IACObject Member
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
         /// 1. get references to components,
@@ -488,11 +489,11 @@ namespace gip.core.datamodel
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
 
-        #endregion
+#endregion
 
-        #endregion  
+#endregion
 
-        #region Event handler
+#region Event handler
         /// <summary>
         /// Notifies the property changed.
         /// </summary>
@@ -532,7 +533,7 @@ namespace gip.core.datamodel
         /// Occurs when [property changed].
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
-        #endregion
+#endregion
 
     }
 }

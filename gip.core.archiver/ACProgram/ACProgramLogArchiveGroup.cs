@@ -39,8 +39,26 @@ namespace gip.core.archiver
             return base.ACDeInit(deleteACClassTask);
         }
 
-        public const string ClassName = "ACProgramLogArchiveGroup";
-        public const string PropNameExportAlarm = "IsExportingAlarm";
+
+        #endregion
+
+        #region Const
+        public const string ClassName = nameof(ACProgramLogArchiveGroup);
+        public const string PropNameExportAlarm = nameof(IsExportingAlarm);
+
+        private const string C_RemoveRefFromPropertyLog =
+                            "UPDATE proplog"
+                            + "SET proplog.ACProgramLogID = null"
+                            + "FROM ACPropertyLog AS proplog"
+                            + "INNER JOIN ACProgramLog proglog ON proglog.ACProgramLogID = proplog.ACProgramLogID"
+                            + "INNER JOIN ACProgram prog ON prog.ACProgramID = proglog.ACProgramID"
+                            + "WHERE prog.ACProgramID = '{0}'";
+
+        private const string C_RemoveParentRefsOfProgramLog =
+                            "UPDATE ACProgramLog SET ParentACProgramLogID = null WHERE ACProgramID = {0}";
+
+        private const string C_DeleteProgramLogs =
+                    "DELETE FROM ACProgramLog WHERE ACProgramID = {0}";
 
         #endregion
 
@@ -93,13 +111,13 @@ namespace gip.core.archiver
             result = null;
             switch (acMethodName)
             {
-                case "RestoreArchivedProgramLog":
+                case nameof(RestoreArchivedProgramLog):
                     result = RestoreArchivedProgramLog(acParameter[0] as String);
                     return true;
-                    case "RestoreArchivedProgramLogs":
+                    case nameof(RestoreArchivedProgramLogs):
                     result = RestoreArchivedProgramLogs((DateTime)acParameter[0]);
                     return true;
-                case "ArchiveProgramLogManual":
+                case nameof(ArchiveProgramLogManual):
                     result = ArchiveProgramLogManual((DateTime)acParameter[0], acParameter[1] as String);
                     return true;
             }
@@ -270,8 +288,9 @@ namespace gip.core.archiver
 
             try
             {
-                db.ExecuteStoreCommand("update ACProgramLog set ParentACProgramLogID = null where ACProgramID = {0}", acProgram.ACProgramID);
-                db.ExecuteStoreCommand("delete from ACProgramLog where ACProgramID = {0}", acProgram.ACProgramID);
+                //db.ExecuteStoreCommand(C_RemoveRefFromPropertyLog, acProgram.ACProgramID);
+                db.ExecuteStoreCommand(C_RemoveParentRefsOfProgramLog, acProgram.ACProgramID);
+                db.ExecuteStoreCommand(C_DeleteProgramLogs, acProgram.ACProgramID);
             }
             catch (Exception ec)
             {
@@ -328,8 +347,9 @@ namespace gip.core.archiver
         {
             try
             {
-                db.ExecuteStoreCommand("update ACProgramLog set ParentACProgramLogID = null where ACProgramID = {0}", acProgram.ACProgramID);
-                db.ExecuteStoreCommand("delete from ACProgramLog where ACProgramID = {0}", acProgram.ACProgramID);
+                //db.ExecuteStoreCommand(C_RemoveRefFromPropertyLog, acProgram.ACProgramID);
+                db.ExecuteStoreCommand(C_RemoveParentRefsOfProgramLog, acProgram.ACProgramID);
+                db.ExecuteStoreCommand(C_DeleteProgramLogs, acProgram.ACProgramID);
                 MsgWithDetails msg = db.ACSaveChanges();
                 if (msg != null)
                 {

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Objects;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -46,8 +46,10 @@ namespace gip.core.datamodel
         private static Msg CheckUpdateDate(IACEntityObjectContext context, VBEntityObject entityObject, string importFileName, string entityTypeName)
         {
             Msg msg = null;
-            var myObjectState = context.ObjectStateManager.GetObjectStateEntry(entityObject);
-            var modifiedProperties = myObjectState.GetModifiedProperties();
+            var myObjectState = context.ChangeTracker.Entries().Where(c => c.Entity == entityObject);
+            //var modifiedProperties = myObjectState.GetModifiedProperties();
+            var modifiedProperties = context.Entry(entityObject).Properties.Where(c => c.IsModified).Select(c => c.Metadata.Name).ToList();
+
 
             bool localWithGreaterUpdateDate = false;
             bool isSame = false;
@@ -57,8 +59,10 @@ namespace gip.core.datamodel
 
             if (modifiedProperties.Contains(Property_UpdateDate))
             {
-                localRecordTime = (DateTime)myObjectState.OriginalValues[Property_UpdateDate];
-                importedRecordTime = (DateTime)myObjectState.CurrentValues[Property_UpdateDate];
+                //localRecordTime = (DateTime)myObjectState.OriginalValues[Property_UpdateDate];
+                localRecordTime = (DateTime)myObjectState.Select(c => c.OriginalValues[Property_UpdateDate]).FirstOrDefault();
+                //importedRecordTime = (DateTime)myObjectState.CurrentValues[Property_UpdateDate];
+                importedRecordTime = (DateTime)myObjectState.Select(c => c.OriginalValues[Property_UpdateDate]).FirstOrDefault();
 
                 isSame = Math.Abs((localRecordTime - importedRecordTime).TotalMinutes) < 1;
 
@@ -88,9 +92,9 @@ namespace gip.core.datamodel
             return msg;
         }
 
-        #endregion
+#endregion
 
-        #region ObjectContext Attach / Deattach
+#region ObjectContext Attach / Deattach
         /// <summary>
         /// Tree operation attach or de-attach to context 
         /// </summary>
@@ -110,6 +114,7 @@ namespace gip.core.datamodel
                 {
                     if (aCFSItem.IsChecked && objectEntityState == EntityState.Detached && (!checkUpdateDate || !aCFSItem.UpdateDateFail))
                     {
+#if !EFCR
                         if (entityObject.EntityKey != null)
                         {
                             VBEntityObject tempObject = (context as ObjectContext).GetObjectByKey(entityObject.EntityKey) as VBEntityObject;
@@ -124,18 +129,21 @@ namespace gip.core.datamodel
                         {
                             context.AttachTo(entityObject.GetType().Name, entityObject);
                         }
+#endif
                     }
                     else if (objectEntityState != EntityState.Detached && (!aCFSItem.IsChecked || (checkUpdateDate && aCFSItem.UpdateDateFail)))
                     {
-                        context.Detach(aCFSItem.ACObject);
+                        //context.Detach(aCFSItem.ACObject);
+                        context.Entry(aCFSItem.ACObject).State = EntityState.Detached;
                     }
+                    throw new NotImplementedException();
                 }
             }
         }
 
-        #endregion
+#endregion
 
-        #region Filter
+#region Filter
 
         public static void Filter(ACFSItem aCFSItem, object[] args)
         {
@@ -165,9 +173,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region Validation
+#region Validation
 
         public static void ReferenceValidation(ACFSItem aCFSItem, object[] args)
         {
@@ -282,9 +290,9 @@ namespace gip.core.datamodel
             
         }
 
-        #endregion
+#endregion
 
-        #region Test
+#region Test
 
         public static void RunSomeCheck(ACFSItem aCFSItem, object[] args)
         {
@@ -298,7 +306,7 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
     }
 }

@@ -154,10 +154,15 @@ namespace gip.core.processapplication
                 return;
             if (!PreExecute("TurnOnSlowLeft"))
                 return;
+            OnTurnOnSlowLeft();
+            PostExecute("TurnOnSlowLeft");
+        }
+
+        public virtual void OnTurnOnSlowLeft()
+        {
             ReqSpeedFast.ValueT = false;
             ReqDirectionLeft.ValueT = true;
             ReqRunState.ValueT = true;
-            PostExecute("TurnOnSlowLeft");
         }
 
         public virtual bool IsEnabledTurnOnSlowLeft()
@@ -194,10 +199,15 @@ namespace gip.core.processapplication
                 return;
             if (!PreExecute("TurnOnSlowRight"))
                 return;
+            OnTurnOnSlowRight();
+            PostExecute("TurnOnSlowRight");
+        }
+
+        public virtual void OnTurnOnSlowRight()
+        {
             ReqSpeedFast.ValueT = false;
             ReqDirectionLeft.ValueT = false;
             ReqRunState.ValueT = true;
-            PostExecute("TurnOnSlowRight");
         }
 
         public virtual bool IsEnabledTurnOnSlowRight()
@@ -234,10 +244,15 @@ namespace gip.core.processapplication
                 return;
             if (!PreExecute("TurnOnFastLeft"))
                 return;
+            OnTurnOnFastLeft();
+            PostExecute("TurnOnFastLeft");
+        }
+
+        public virtual void OnTurnOnFastLeft()
+        {
             ReqSpeedFast.ValueT = true;
             ReqDirectionLeft.ValueT = true;
             ReqRunState.ValueT = true;
-            PostExecute("TurnOnFastLeft");
         }
 
         public virtual bool IsEnabledTurnOnFastLeft()
@@ -277,10 +292,15 @@ namespace gip.core.processapplication
                 return;
             if (!PreExecute("TurnOnFastRight"))
                 return;
+            OnTurnOnFastRight();
+            PostExecute("TurnOnFastRight");
+        }
+
+        public virtual void OnTurnOnFastRight()
+        {
             ReqSpeedFast.ValueT = true;
             ReqDirectionLeft.ValueT = false;
             ReqRunState.ValueT = true;
-            PostExecute("TurnOnFastRight");
         }
 
         public virtual bool IsEnabledTurnOnFastRight()
@@ -313,6 +333,13 @@ namespace gip.core.processapplication
             return false;
         }
 
+        public override void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)
+        {
+            if (!switchOff)
+                OnTurnOnFastRight();
+            else
+                OnTurnOff();
+        }
         #endregion
 
         #region Handle execute helpers

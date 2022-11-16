@@ -22,7 +22,7 @@ namespace gip.core.autocomponent
         public string Bit {get;set;}
     }
 
-    public interface IBitAccess : IBitAccessBase
+    public interface IBitAccess : IBitAccessBase, ICloneable
     {
         List<BitAccessMap> BitAccessMap { get; }
         bool GetBitValue(string Bit);
@@ -411,5 +411,17 @@ namespace gip.core.autocomponent
 
 
         public abstract void SetFromString(string value);
+
+        public object Clone()
+        {
+            IBitAccess newBitAccess = Activator.CreateInstance(this.GetType(), this.ACType) as IBitAccess;
+            if (newBitAccess != null)
+            {
+                if (newBitAccess is ACCustomTypeBase)
+                    CloneCustomProperties((ACCustomTypeBase)newBitAccess);
+                newBitAccess.Value = this.Value;
+            }
+            return newBitAccess;
+        }
     }
 }

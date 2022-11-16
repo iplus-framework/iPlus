@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Threading;
 using System.Data.Objects;
+using System.Security.Claims;
 
 namespace gip.bso.iplus
 {
@@ -451,15 +452,20 @@ namespace gip.bso.iplus
         }
 
 
-        [ACMethodInfo("","en{'Acknowledge'}de{'Quittieren'}",100)]
+        [ACMethodInfo("", "en{'Acknowledge'}de{'Quittieren'}", 100)]
         public void AcknowledgeCurrent()
         {
             IACComponent component = Root.ACUrlCommand(CurrentACMsgAlarm.Source) as IACComponent;
-            if(component != null)
+            if (component != null)
             {
                 MsgList alarmListToAck = new MsgList();
-                alarmListToAck.Add(CurrentACMsgAlarm);
+                var msgAlarm = CurrentACMsgAlarm;
+                alarmListToAck.Add(msgAlarm);
                 component.ACUrlCommand("!AcknowledgeSubAlarmsMsgList", alarmListToAck);
+                using (ACMonitor.Lock(_60201_AppManagerInvokersLock))
+                {
+                    _ACMsgAlarmList.Remove(msgAlarm);
+                }
             }
         }
 
@@ -867,20 +873,27 @@ namespace gip.bso.iplus
             {
                 if (_QueryDone)
                 {
-                    foreach(var item in _QueryResultNew)
+                    using (ACMonitor.Lock(_60201_AppManagerInvokersLock))
                     {
-                        List<Msg> existingAlarms;
-                        if(_QueryResultCache.TryGetValue(item.Key, out existingAlarms))
+                        foreach (var item in _QueryResultNew)
                         {
-                            foreach (Msg alarm in existingAlarms)
-                                _ACMsgAlarmList.Remove(alarm);
-                        }
-                        else
-                            _QueryResultCache.Add(item.Key, null);
+                            List<Msg> existingAlarms;
+                            if (_QueryResultCache.TryGetValue(item.Key, out existingAlarms))
+                            {
+                                foreach (Msg alarm in existingAlarms)
+                                {
+                                    _ACMsgAlarmList.Remove(alarm);
+                                }
+                            }
+                            else
+                                _QueryResultCache.Add(item.Key, null);
 
-                        _QueryResultCache[item.Key] = item.Value;
-                        foreach (Msg alarm in item.Value.OrderBy(c => c.TimeStampOccurred))
-                            _ACMsgAlarmList.Insert(0,alarm);
+                            _QueryResultCache[item.Key] = item.Value;
+                            foreach (Msg alarm in item.Value.OrderBy(c => c.TimeStampOccurred))
+                            {
+                                _ACMsgAlarmList.Insert(0, alarm);
+                            }
+                        }
                     }
 
                     _QueryDone = false;

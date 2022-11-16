@@ -153,7 +153,7 @@ namespace gip.core.ControlScriptSync
                         Message = "Deserialized items: " + item.FileName
                     });
 
-                    MsgWithDetails msgSaveControlScripts = db.ACSaveChanges(true, System.Data.Objects.SaveOptions.AcceptAllChangesAfterSave, false, false);
+                    MsgWithDetails msgSaveControlScripts = db.ACSaveChanges(true, false, false);
                     if (msgSaveControlScripts != null)
                     {
                         Console.WriteLine(string.Format(@"ControlSync Error, File:{0}", item.FileName));

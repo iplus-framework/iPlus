@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -199,7 +200,7 @@ namespace gip.core.datamodel
             using (ACMonitor.Lock(database.QueryLock_1X000))
             {
                 ACProgramConfig_ACProgram.Remove(acConfig);
-                if (acConfig.EntityState != System.Data.EntityState.Detached)
+                if (acConfig.EntityState != EntityState.Detached)
                     acConfig.DeleteACObject(database, false);
             }
         }

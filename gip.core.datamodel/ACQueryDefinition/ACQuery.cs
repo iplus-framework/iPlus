@@ -21,10 +21,9 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
 using System.Collections;
-using System.Data.Objects;
 using gip.core.datamodel;
-using System.Data.Objects.DataClasses;
 using System.Runtime.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -77,10 +76,13 @@ namespace gip.core.datamodel
                     PropertyInfo pi = typeParent.GetProperty(childACUrl);
                     if (pi != null)
                     {
+#if !EFCR
                         if (typeof(ObjectQuery).IsAssignableFrom(pi.PropertyType))
                             return miEntitySQL.Invoke(null, new object[] { acObject, queryDefinition, childACUrl, mergeOption }) as IQueryable;
                         else
                             return miDynQuery.Invoke(null, new object[] { pi.GetValue(acObject, null), queryDefinition, mergeOption }) as IQueryable;
+#endif
+                        throw new NotImplementedException();
                     }
                     else
                     {
@@ -117,6 +119,7 @@ namespace gip.core.datamodel
 
             try
             {
+#if !EFCR
                 if (acObject is ObjectContext)
                 {
                     PropertyInfo pi = typeParent.GetProperty(childACUrl);
@@ -144,6 +147,8 @@ namespace gip.core.datamodel
                         return null;
                     return SearchWithDynQuery<T>(childProp, queryDefinition, mergeOption);
                 }
+#endif
+                throw new NotImplementedException();
             }
             catch (Exception e)
             {
@@ -168,9 +173,9 @@ namespace gip.core.datamodel
         {
             return SearchWithDynQuery<T>(list, queryDefinition, mergeOption);
         }
-        #endregion
+#endregion
 
-        #region private Methods
+#region private Methods
         /// <summary>
         /// Searches the data Q.
         /// </summary>
@@ -185,7 +190,10 @@ namespace gip.core.datamodel
             IQueryable<T> resultQuery = null;
 
             //queryDefinition.QueryContext = context as IACObject;
+
+#if !EFCR
             List<ObjectParameter> parameterList = queryDefinition.FilterParameters;
+
 
             if (string.IsNullOrEmpty(queryDefinition.LINQPredicateWhere) || parameterList == null || parameterList.Count <= 0)
             {
@@ -222,19 +230,23 @@ namespace gip.core.datamodel
                         resultQuery = sourceQ.Where(queryDefinition.LINQPredicateWhere, filterArray).OrderBy(queryDefinition.LINQPredicateOrderBy);
                 }
             }
+#endif
 
+#if !EFCR
             ObjectQuery objectQuery = resultQuery as ObjectQuery;
             if ((objectQuery != null) && (mergeOption != MergeOption.AppendOnly))
                 objectQuery.MergeOption = mergeOption;
-
+#endif
             return resultQuery;
         }
 
         private static IQueryable<T> SearchWithEntitySQL<T>(IACObject context, ACQueryDefinition queryDefinition, string childACUrl, MergeOption mergeOption)
         {
+            //if () / if merge ako ne postoje sve 3 opcije tu postaviti upit
             queryDefinition.QueryContext = context;
 
-            ObjectQuery<T> dynQuery = new ObjectQuery<T>(queryDefinition.EntitySQL, context as ObjectContext, mergeOption);
+#if !EFCR
+            ObjectQuery<T> dynQuery = new ObjectQuery<T>(queryDefinition.EntitySQL, context as DbContext, mergeOption);
             List<ObjectParameter> parameterList = queryDefinition.FilterParameters;
 
             int parameterCount = 0;
@@ -246,13 +258,17 @@ namespace gip.core.datamodel
                     parameterCount++;
                 }
             }
+#endif
 
             // Take Count moved to ACAccess
             //if (queryDefinition.TakeCount > 0)
             //    dynQuery.Parameters.Add(new ObjectParameter("p" + parameterCount.ToString(), queryDefinition.TakeCount));
 
+            throw new NotImplementedException();
+#if !EFCR
             return dynQuery;
+#endif
         }
-        #endregion
+#endregion
     }
 }

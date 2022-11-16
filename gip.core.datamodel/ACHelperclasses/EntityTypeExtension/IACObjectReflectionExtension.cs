@@ -20,9 +20,9 @@ using System.Runtime.Serialization;
 using System.Xml;
 using System.IO;
 using System.ComponentModel;
-using System.Data.Objects.DataClasses;
 using System.Collections;
-using System.Data.Objects;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace gip.core.datamodel
 {
@@ -286,10 +286,10 @@ namespace gip.core.datamodel
                     return reflectedObject.ParentACObject.ACUrlCommand(acUrlHelper.NextACUrl, acParameter);
                 case ACUrlHelper.UrlKeys.Start:
                     {
-                        if (!(reflectedObject is EntityObject) || !string.IsNullOrEmpty(acUrlHelper.NextACUrl))
+                        if (!(reflectedObject is VBEntityObject) || !string.IsNullOrEmpty(acUrlHelper.NextACUrl))
                             return null;
 
-                        EntityObject entityObject = reflectedObject as EntityObject;
+                        VBEntityObject entityObject = reflectedObject as VBEntityObject;
 
                         try
                         {
@@ -335,7 +335,7 @@ namespace gip.core.datamodel
                 case ACUrlHelper.UrlKeys.Stop:
                     {
                         if (reflectedObject is IACObjectEntity)
-                            return (reflectedObject as IACObjectEntity).DeleteACObject((reflectedObject as EntityObject).GetObjectContext<Database>(), false);
+                            return (reflectedObject as IACObjectEntity).DeleteACObject((reflectedObject as VBEntityObject).GetObjectContext<Database>(), false);
                         return null;
                     }
                 case ACUrlHelper.UrlKeys.TranslationText:
@@ -380,7 +380,7 @@ namespace gip.core.datamodel
                     case ACUrlHelper.UrlKeys.Stop:
                         {
                             if (reflectedObject is IACObjectEntity)
-                                return (reflectedObject as IACObjectEntity).IsEnabledDeleteACObject((reflectedObject as EntityObject).GetObjectContext<Database>()) == null;
+                                return (reflectedObject as IACObjectEntity).IsEnabledDeleteACObject((reflectedObject as VBEntityObject).GetObjectContext<Database>()) == null;
                             return false;
                         }
                     default:
@@ -1014,7 +1014,7 @@ namespace gip.core.datamodel
         /// <param name="ose"></param>
         /// <param name="changeLogList"></param>
         /// <param name="database"></param>
-        public static IList<Msg> CheckACObject(this IACObject acObject, ObjectStateEntry ose, List<Tuple<ACChangeLog, int>> changeLogList, Database database = null)
+        public static IList<Msg> CheckACObject(this IACObject acObject, EntityEntry ose, List<Tuple<ACChangeLog, int>> changeLogList, Database database = null)
         {
             if (acObject == null)
                 return null;
@@ -1032,9 +1032,9 @@ namespace gip.core.datamodel
             Type typeIEnumerable = typeof(IEnumerable);
             Type typeString = typeof(String);
             Type typeGuid = typeof(Guid);
-
+#if !EFCR
             IEnumerable<string> modifiedProps = ose.GetModifiedProperties();
-
+#endif
             Type entityType = acObject.GetType();
             foreach (ACClassProperty acClassProperty in entitySchema.Properties)
             {
@@ -1042,8 +1042,10 @@ namespace gip.core.datamodel
                 //    || (acObject is IACConfig && acClassProperty.ACIdentifier == Const.Value))
                 if (acObject is IACConfig && acClassProperty.ACIdentifier == Const.Value)
                 {
-                    if (modifiedProps.Contains(Const.EntityXMLConfig) || (!modifiedProps.Any() && ose.State == System.Data.EntityState.Added))
+#if !EFCR
+                    if (modifiedProps.Contains(Const.EntityXMLConfig) || (!modifiedProps.Any() && ose.State == EntityState.Added))
                         ProcessChangeLog(acObject, entitySchema, acClassProperty, modifiedProps, ose, changeLogList);
+#endif
                     continue;
                 }
                 PropertyInfo pi = entityType.GetProperty(acClassProperty.ACIdentifier);
@@ -1060,6 +1062,7 @@ namespace gip.core.datamodel
                     if (typeIEnumerable.IsAssignableFrom(typeOfProperty) && !typeString.IsAssignableFrom(typeOfProperty))
                         continue;
 
+#if !EFCR
                     Attribute attribute = pi.GetCustomAttribute(typeof(EdmRelationshipNavigationPropertyAttribute));
                     if (attribute != null)
                     {
@@ -1092,6 +1095,7 @@ namespace gip.core.datamodel
                     //acClassProperty.AutoRefresh();
 
                     ProcessChangeLog(acObject, entitySchema, acClassProperty, modifiedProps, ose, changeLogList);
+#endif
                 }
 
                 object valueToCheck = null;
@@ -1149,8 +1153,8 @@ namespace gip.core.datamodel
             bool bNotEditableEntityKey = false;
             if (parentObject != null)
             {
-                EntityObject entityObject = parentObject as EntityObject;
-                if (entityObject != null && entityObject.EntityState != System.Data.EntityState.Added && entityObject.EntityState != System.Data.EntityState.Detached)
+                VBEntityObject entityObject = parentObject as VBEntityObject;
+                if (entityObject != null && entityObject.EntityState != EntityState.Added && entityObject.EntityState != EntityState.Detached)
                 {
                     ACClass saveClass = acClassProperty.Safe_ACClass;
                     if (saveClass != null && !String.IsNullOrEmpty(saveClass.ACFilterColumns))
@@ -1398,7 +1402,7 @@ namespace gip.core.datamodel
             return newMode;
         }
 
-        internal static void ProcessChangeLog(IACObject acObject, ACClass entitySchema, ACClassProperty acClassProperty, IEnumerable<string> modifiedProps, ObjectStateEntry ose,
+        internal static void ProcessChangeLog(IACObject acObject, ACClass entitySchema, ACClassProperty acClassProperty, IEnumerable<string> modifiedProps, EntityEntry ose,
                                              List<Tuple<ACChangeLog, int>> changeLogs)
         {
             if (acClassProperty.ChangeLogMax.HasValue || entitySchema.ChangeLogMax.HasValue)
@@ -1406,18 +1410,22 @@ namespace gip.core.datamodel
 
                 if (modifiedProps.Contains(acClassProperty.ACIdentifier) ||
                    (acClassProperty.ACIdentifier == Const.Value && modifiedProps.Contains(Const.EntityXMLConfig)) ||
-                   (!modifiedProps.Any() && acClassProperty.ACIdentifier == Const.Value && (ose.State == System.Data.EntityState.Added || ose.State == System.Data.EntityState.Deleted)))
+                   (!modifiedProps.Any() && acClassProperty.ACIdentifier == Const.Value && (ose.State == EntityState.Added || ose.State == EntityState.Deleted)))
                 {
                     int changeLogMax = acClassProperty.ChangeLogMax.HasValue ? acClassProperty.ChangeLogMax.Value : entitySchema.ChangeLogMax.Value;
+#if !EFCR
                     Guid entityKey = ose.EntityKey.EntityKeyValues != null ? ((Guid?)ose.EntityKey.EntityKeyValues[0].Value).Value : ose.CurrentValues.GetGuid(0);
+#endif
 
                     ACChangeLog aCChangeLog = ACChangeLog.NewACObject();
                     aCChangeLog.ACClassID = entitySchema.ACClassID;
                     aCChangeLog.ACClassPropertyID = acClassProperty.ACClassPropertyID;
+#if !EFCR
                     aCChangeLog.EntityKey = entityKey;
+#endif
                     aCChangeLog.ChangeDate = DateTime.Now;
 
-                    if (ose.State == System.Data.EntityState.Deleted)
+                    if (ose.State == EntityState.Deleted)
                     {
                         aCChangeLog.Deleted = true;
                         ACChangeLogInfo info = new ACChangeLogInfo() { Info = acObject.ToString(), ACUrl = acObject.GetACUrl() };

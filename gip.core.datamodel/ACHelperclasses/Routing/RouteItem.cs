@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -70,6 +71,7 @@ namespace gip.core.datamodel
         }
 
         #region Serializable
+#if !EFCR
         [IgnoreDataMember]
         private EntityKey _SourceKey = null;
         [DataMember]
@@ -194,7 +196,7 @@ namespace gip.core.datamodel
                 return (Guid)_TargetPropertyKey.EntityKeyValues.FirstOrDefault().Value;
             }
         }
-
+#endif
         [DataMember]
         public int RouteNo
         {
@@ -202,9 +204,9 @@ namespace gip.core.datamodel
             set;
         }
 
-        #endregion
+#endregion
 
-        #region ACComponents
+#region ACComponents
         [IgnoreDataMember]
         private string _ACUrlSourceACComponent;
         [IgnoreDataMember]
@@ -283,7 +285,7 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
         [IgnoreDataMember]
         public bool IsAttached
@@ -299,7 +301,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                if (_Source != null && _Source.EntityState != EntityState.Detached)
+                if (_Source != null && _Source.Database.Entry(_Source).State != EntityState.Detached)
                     return false;
                 if (_Target != null && _Target.EntityState != EntityState.Detached)
                     return false;
@@ -313,7 +315,7 @@ namespace gip.core.datamodel
 
 #endregion
 
-        #region Constructors
+#region Constructors
 
         public RouteItem(ACClassPropertyRelation relation, int routeNo=0)
         {
@@ -345,7 +347,7 @@ namespace gip.core.datamodel
 
 #endregion
 
-        #region Methods
+#region Methods
 
         public override string ToString()
         {
@@ -361,12 +363,13 @@ namespace gip.core.datamodel
             {
                 Detach();
                 object propValue;
+#if !EFCR
                 if (SourceKey != null && _Source == null)
                 {
 
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
-                        Source = context.ContextIPlus.GetObjectByKey(SourceKey) as ACClass;
+                        Source = context.ContextIPlus.Find(SourceKey) as ACClass;
                     }
                     if (Source != null)
                         propValue = SourceACComponent;
@@ -376,7 +379,7 @@ namespace gip.core.datamodel
 
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
-                        Target = context.ContextIPlus.GetObjectByKey(TargetKey) as ACClass;
+                        Target = context.ContextIPlus.Find(TargetKey) as ACClass;
                     }
                     if (Target != null)
                         propValue = TargetACComponent;
@@ -386,7 +389,7 @@ namespace gip.core.datamodel
 
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
-                        SourceProperty = context.ContextIPlus.GetObjectByKey(SourcePropertyKey) as ACClassProperty;
+                        SourceProperty = context.ContextIPlus.Find(SourcePropertyKey) as ACClassProperty;
                     }
                     if (SourceProperty != null)
                         propValue = SourceACPoint;
@@ -396,11 +399,12 @@ namespace gip.core.datamodel
 
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
-                        TargetProperty = context.ContextIPlus.GetObjectByKey(TargetPropertyKey) as ACClassProperty;
+                        TargetProperty = context.ContextIPlus.Find(TargetPropertyKey) as ACClassProperty;
                     }
                     if (TargetProperty != null)
                         propValue = TargetACPoint;
                 }
+#endif
             }
             catch (Exception e)
             {
@@ -411,12 +415,14 @@ namespace gip.core.datamodel
                 if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("RouteItem", "AttachTo", msg);
             }
+            throw new NotImplementedException();
         }
 
         public void Detach(bool detachFromContext = false)
         {
             if (detachFromContext)
                 DetachEntitesFromDbContext();
+#if !EFCR
             if (Source != null)
             {
                 _SourceKey = Source.EntityKey;
@@ -437,30 +443,42 @@ namespace gip.core.datamodel
                 _TargetPropertyKey = TargetProperty.EntityKey;
                 _TargetProperty = null;
             }
+#endif
+            throw new NotImplementedException();
         }
 
         public void DetachEntitesFromDbContext()
         {
             if (Source != null && Source.EntityState != EntityState.Detached)
-                Source.Database.Detach(Source);
+                Source.Database.Entry(Source).State = EntityState.Detached;
+                //Source.Database.Detach(Source);
+
             if (Target != null && Target.EntityState != EntityState.Detached)
-                Target.Database.Detach(Target);
+                Target.Database.Entry(Target).State = EntityState.Detached;
+                //Target.Database.Detach(Target);
+
             if (SourceProperty != null && SourceProperty.EntityState != EntityState.Detached)
-                SourceProperty.Database.Detach(SourceProperty);
+                SourceProperty.Context.Entry(this).State = EntityState.Detached;
+                //SourceProperty.Database.Detach(SourceProperty);
+
             if (TargetProperty != null && TargetProperty.EntityState != EntityState.Detached)
-                TargetProperty.Database.Detach(TargetProperty);
+                TargetProperty.Context.Entry(this).State = EntityState.Detached;
+                //TargetProperty.Database.Detach(TargetProperty);
+
         }
 
-        #endregion
+#endregion
 
         public override bool Equals(object obj)
         {
             bool isEqual = false;
             RouteItem routeItem = obj as RouteItem;
+#if !EFCR
             if(routeItem != null)
                 isEqual = this.SourceKey == routeItem.SourceKey && this.SourcePropertyKey == routeItem.SourcePropertyKey && 
                           this.TargetKey == routeItem.TargetKey && this.TargetPropertyKey == routeItem.TargetPropertyKey;
-
+#endif
+            throw new NotImplementedException();
             return isEqual;
         }
 
@@ -471,6 +489,7 @@ namespace gip.core.datamodel
 
         public object Clone()
         {
+#if !EFCR
             return new RouteItem() { SourceKey = this.SourceKey, 
                 SourcePropertyKey = this.SourcePropertyKey, 
                 TargetKey = this.TargetKey, 
@@ -479,6 +498,8 @@ namespace gip.core.datamodel
                 _ACUrlTargetACComponent = this._ACUrlTargetACComponent,
                 _ACIdentifierSourcePoint = this._ACIdentifierSourcePoint,
                 _ACIdentifierTargetPoint = this._ACIdentifierTargetPoint};
+#endif
+            throw new NotImplementedException();
         }
     }
 }
