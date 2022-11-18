@@ -960,6 +960,24 @@ namespace gip.core.autocomponent
                         }
                         return CreateNewProgramLogResult.ErrorCurrentNoNull;
                     }
+                    ACClassTaskQueue.TaskQueue.Add(() =>
+                    {
+                        if (acMethod != null)
+                        {
+                            string xmlConfig = ACConvert.ObjectToXML(acMethod, true);
+                            if (xmlConfig != null)
+                            {
+                                if (currentLog.XMLConfig != xmlConfig)
+                                    currentLog.XMLConfig = xmlConfig;
+                            }
+                            else
+                            {
+                                if (!String.IsNullOrEmpty(currentLog.XMLConfig))
+                                    currentLog.XMLConfig = "";
+                            }
+                        }
+                    });
+
                     return CreateNewProgramLogResult.CurrentKept;
                 }
             }
@@ -1097,7 +1115,7 @@ namespace gip.core.autocomponent
                                 currentProgramLog.XMLConfig = xmlConfig;
                             else
                             {
-                                if (String.IsNullOrEmpty(currentProgramLog.XMLConfig))
+                                if (!String.IsNullOrEmpty(currentProgramLog.XMLConfig))
                                     currentProgramLog.XMLConfig = "";
                             }
                         }
