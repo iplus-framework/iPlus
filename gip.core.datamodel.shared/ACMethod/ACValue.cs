@@ -838,7 +838,9 @@ string _ACCaption;
                 Type type = this.ObjectType;
                 if (type == null)
                     return false;
-                return (type == typeof(Byte)
+                
+                return (type == typeof(Boolean)
+                    || type == typeof(Byte)
                     || type == typeof(Int16)
                     || type == typeof(Int32)
                     || type == typeof(Int64)
@@ -851,6 +853,7 @@ string _ACCaption;
                     || type == typeof(DateTime)
                     || type == typeof(TimeSpan)
                     || type == typeof(string)
+                    || type.IsEnum
                     );
             }
         }
