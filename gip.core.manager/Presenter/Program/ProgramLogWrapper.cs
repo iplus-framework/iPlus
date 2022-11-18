@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using gip.core.datamodel;
 
 namespace gip.core.manager
@@ -24,6 +25,89 @@ namespace gip.core.manager
             set 
             {
                 _ACProgramLog = value;
+            }
+        }
+
+        [ACPropertyInfo(100, "ProgramLog", "en{'Start time'}de{'Startzeit'}")]
+        public DateTime? StartDate
+        {
+            get
+            {
+                return ACProgramLog.StartDateDST;
+            }
+        }
+
+        [ACPropertyInfo(101, "ProgramLog", "en{'End time'}de{'Endezeit'}")]
+        public DateTime? EndDate
+        {
+            get
+            {
+                return ACProgramLog.EndDateDST;
+            }
+        }
+
+        [ACPropertyInfo(102, "ProgramLog", "en{'Planned start time'}de{'Geplante Startzeit'}")]
+        public DateTime StartDatePlan
+        {
+            get
+            {
+                return ACProgramLog.StartDatePlanDST;
+            }
+        }
+
+        [ACPropertyInfo(103, "ProgramLog", "en{'Planned end time'}de{'Geplante Endezeit'}")]
+        public DateTime EndDatePlan
+        {
+            get
+            {
+                return ACProgramLog.EndDatePlanDST;
+            }
+        }
+
+        [ACPropertyInfo(110, "", "en{'Duration'}de{'Dauer'}")]
+        public TimeSpan Duration
+        {
+            get
+            {
+                return ACProgramLog.Duration;
+            }
+        }
+
+        [ACPropertyInfo(111, "", "en{'Planned Duration'}de{'Geplante Dauer'}")]
+        [IgnoreDataMember]
+        public TimeSpan DurationPlan
+        {
+            get
+            {
+                return ACProgramLog.DurationPlan;
+            }
+        }
+
+        [ACPropertyInfo(112, "", "en{'Duration difference'}de{'Duration difference'}")]
+        public TimeSpan DurationDiff
+        {
+            get
+            {
+                return ACProgramLog.DurationDiff;
+            }
+        }
+
+        [ACPropertyInfo(113, "", "en{'Difference start'}de{'Difference start'}")]
+        public TimeSpan StartDateDiff
+        {
+            get
+            {
+                return ACProgramLog.StartDateDiff;
+            }
+        }
+
+        [ACPropertyInfo(114, "", "en{'Difference end'}de{'Difference end'}")]
+        [IgnoreDataMember]
+        public TimeSpan EndDateDiff
+        {
+            get
+            {
+                return ACProgramLog.EndDateDiff;
             }
         }
 

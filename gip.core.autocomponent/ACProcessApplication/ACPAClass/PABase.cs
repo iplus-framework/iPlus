@@ -689,8 +689,8 @@ namespace gip.core.autocomponent
             if (TimeInfo.ValueT == null)
             {
                 var timeInfo = new PATimeInfo();
-                timeInfo.PlannedTimes.ChangeTime(DateTime.Now, new TimeSpan(0, 1, 0));
-                timeInfo.ActualTimes.ChangeTime(DateTime.Now, new TimeSpan(0, 1, 0));
+                timeInfo.PlannedTimes.ChangeTime(DateTimeUtils.NowDST, new TimeSpan(0, 1, 0));
+                timeInfo.ActualTimes.ChangeTime(DateTimeUtils.NowDST, new TimeSpan(0, 1, 0));
                 TimeInfo.ValueT = timeInfo;
                 return timeInfo;
             }
@@ -711,7 +711,7 @@ namespace gip.core.autocomponent
                     if (TimeInfo.ValueT.ActualTimes.IsNull || !TimeInfo.ValueT.ActualTimes.StartTimeValue.HasValue)
                     {
                         if (ACOperationMode == ACOperationModes.Live)
-                            TimeInfo.ValueT.ActualTimes.ChangeTime(DateTime.Now, TimeSpan.Zero);
+                            TimeInfo.ValueT.ActualTimes.ChangeTime(DateTimeUtils.NowDST, TimeSpan.Zero);
                         else
                             TimeInfo.ValueT.ActualTimes.ChangeTime(CurrentPointInTime, TimeInfo.ValueT.PlannedTimes.Duration);
                     }
@@ -720,7 +720,7 @@ namespace gip.core.autocomponent
                 case ACStateEnum.SMAborted:
                     if (ACOperationMode == ACOperationModes.Live)
                     {
-                        TimeInfo.ValueT.ActualTimes.ChangeTime(TimeInfo.ValueT.ActualTimes.StartTime == DateTime.MinValue ? DateTime.Now : TimeInfo.ValueT.ActualTimes.StartTime, DateTime.Now);
+                        TimeInfo.ValueT.ActualTimes.ChangeTime(TimeInfo.ValueT.ActualTimes.StartTime == DateTime.MinValue ? DateTimeUtils.NowDST : TimeInfo.ValueT.ActualTimes.StartTime, DateTimeUtils.NowDST);
                     }
                     else
                     {
@@ -733,7 +733,7 @@ namespace gip.core.autocomponent
                 default:
                     if (ACOperationMode == ACOperationModes.Live)
                     {
-                        TimeInfo.ValueT.ActualTimes.ChangeTime(TimeInfo.ValueT.ActualTimes.StartTime == DateTime.MinValue || resetStartTime ? DateTime.Now : TimeInfo.ValueT.ActualTimes.StartTime, DateTime.Now);
+                        TimeInfo.ValueT.ActualTimes.ChangeTime(TimeInfo.ValueT.ActualTimes.StartTime == DateTime.MinValue || resetStartTime ? DateTimeUtils.NowDST : TimeInfo.ValueT.ActualTimes.StartTime, DateTimeUtils.NowDST);
                     }
                     break;
             }
@@ -749,7 +749,7 @@ namespace gip.core.autocomponent
             else
             {
                 // TODO: DateTime.Now ersetzen durch zugriff auf Planungsdaten wenn Planung programmiert wird
-                return DateTime.Now;
+                return DateTimeUtils.NowDST;
             }
         }
 
@@ -771,7 +771,7 @@ namespace gip.core.autocomponent
         {
             get
             {
-                DateTime pointInTime = DateTime.Now;
+                DateTime pointInTime = DateTimeUtils.NowDST;
                 if (ACOperationMode != ACOperationModes.Live)
                 {
                     ACPointEventAbsorber eventAbsorber = (Root as ACRoot).EventAbsorber;
