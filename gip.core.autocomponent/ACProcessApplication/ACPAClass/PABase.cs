@@ -960,23 +960,26 @@ namespace gip.core.autocomponent
                         }
                         return CreateNewProgramLogResult.ErrorCurrentNoNull;
                     }
-                    ACClassTaskQueue.TaskQueue.Add(() =>
+                    if (Root != null && Root.Initialized)
                     {
-                        if (acMethod != null)
+                        ACClassTaskQueue.TaskQueue.Add(() =>
                         {
-                            string xmlConfig = ACConvert.ObjectToXML(acMethod, true);
-                            if (xmlConfig != null)
+                            if (acMethod != null)
                             {
-                                if (currentLog.XMLConfig != xmlConfig)
-                                    currentLog.XMLConfig = xmlConfig;
+                                string xmlConfig = ACConvert.ObjectToXML(acMethod, true);
+                                if (xmlConfig != null)
+                                {
+                                    if (currentLog.XMLConfig != xmlConfig)
+                                        currentLog.XMLConfig = xmlConfig;
+                                }
+                                else
+                                {
+                                    if (!String.IsNullOrEmpty(currentLog.XMLConfig))
+                                        currentLog.XMLConfig = "";
+                                }
                             }
-                            else
-                            {
-                                if (!String.IsNullOrEmpty(currentLog.XMLConfig))
-                                    currentLog.XMLConfig = "";
-                            }
-                        }
-                    });
+                        });
+                    }
 
                     return CreateNewProgramLogResult.CurrentKept;
                 }

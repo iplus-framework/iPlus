@@ -495,7 +495,7 @@ namespace gip.bso.iplus
         {
             if (CurrentACClassMethod != null)
             {
-                if (ConfigManagerIPlus.IsActiveWorkflowChanged(this, CurrentACClassMethod, this.Database.ContextIPlus))
+                if (!IgnoreActiveWFValidation && ConfigManagerIPlus.IsActiveWorkflowChanged(this, CurrentACClassMethod, this.Database.ContextIPlus))
                 {
                     Msg msg = new Msg { ACIdentifier = "BSOiPlusWorkflow", Message = Root.Environment.TranslateMessage(this, "Info50017", null), MessageLevel = eMsgLevel.Error };
                     return msg;
@@ -513,6 +513,7 @@ namespace gip.bso.iplus
 
         protected override void OnPostSave()
         {
+            IgnoreActiveWFValidation = false;
             ConfigManagerIPlus.ReloadConfigOnServerIfChanged(this, VisitedMethods, this.Database, true);
             this.VisitedMethods = null;
             //ValidateWF(); //TODO Ivan: Consult with Damir
@@ -1104,6 +1105,23 @@ namespace gip.bso.iplus
             get
             {
                 return false;
+            }
+        }
+
+        private bool _IgnoreActiveWFValidation = false;
+        [ACPropertyInfo(200, "", "en{'Ignore active Workflow Validation'}de{'Ignoriere Überprüfung des aktiven Workflows'}")]
+        public bool IgnoreActiveWFValidation
+        {
+            get
+            {
+                return _IgnoreActiveWFValidation;
+            }
+            set
+            {
+                if (value && !this.Root.Environment.User.IsSuperuser)
+                    return;
+                _IgnoreActiveWFValidation = value;
+                OnPropertyChanged();
             }
         }
 
