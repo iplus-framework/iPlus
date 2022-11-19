@@ -122,7 +122,6 @@ namespace gip.core.autocomponent
 
         #region Properties
 
-        public const string PropNameMaxWeightCapacity = "MaxWeightCapacity";
         [ACPropertyBindingSource(300, "Configuration", "en{'Max. weight capacity [kg]'}de{'Max. Gewicht [kg]'}", "", true, true)]
         public IACContainerTNet<Double> MaxWeightCapacity { get; set; }
 
@@ -141,7 +140,6 @@ namespace gip.core.autocomponent
         [ACPropertyBindingSource(305, "Info", "en{'Last occupation date'}de{'Letzte Belegung am'}", "", false, true)]
         public IACContainerTNet<DateTime> LastOccupation { get; set; }
 
-        public const string PropNameMaxCapacityRepeat = "MaxCapacityRepeat";
         [ACPropertyInfo(350, "Configuration", "en{''Max. repeats of interdis.'}de{'Max. Zwischenentleerungswiederholungen'}", "", true)]
         public short MaxCapacityRepeat
         {
