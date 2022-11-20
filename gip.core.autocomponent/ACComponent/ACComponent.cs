@@ -2542,9 +2542,11 @@ namespace gip.core.autocomponent
                             case "CloseTopDialog":
                                 CloseTopDialog();
                                 return null;
-                            case "ResetConfigValuesCache":
+                            case nameof(ResetConfigValuesCache):
                                 ResetConfigValuesCache();
                                 return null;
+                            //case nameof(IsEnabledResetConfigValuesCache):
+                            //    return IsEnabledResetConfigValuesCache();
                             case "GetGUI":
                                 return GetGUI();
                             case "ACPostInit":
@@ -4600,7 +4602,7 @@ namespace gip.core.autocomponent
         /// This also resets all configuration properties and reloads them from the database (ACPropertyConfigValue&lt;T&gt;).
         /// This method is recursively. It resets also all childs in the application tree.
         /// </summary>
-        [ACMethodInfo("ACComponent", "en{'Reset configuration cache'}de{'Resettiere Konfigurationspuffer'}", 9999)]
+        [ACMethodInfo("ACComponent", "en{'Reset configuration cache'}de{'Resettiere Konfigurationspuffer'}", 1000)]
         public virtual void ResetConfigValuesCache()
         {
             ACClass acTypeFromLiveContext = ACTypeFromLiveContext;
@@ -4619,6 +4621,18 @@ namespace gip.core.autocomponent
                 child.ResetConfigValuesCache();
             }
         }
+
+        //public virtual bool IsEnabledResetConfigValuesCache()
+        //{
+        //    if (Root != null)
+        //    {
+        //        if (Root.CurrentInvokingUser != null)
+        //            return Root.CurrentInvokingUser.IsSuperuser;
+        //        else if (Root.Environment.User != null)
+        //            return Root.Environment.User.IsSuperuser;
+        //    }
+        //    return false;
+        //}
         #endregion
 
 

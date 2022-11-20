@@ -3425,13 +3425,22 @@ namespace gip.core.datamodel
             SafeList<IACConfig> newSafeList = new SafeList<IACConfig>();
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
+                bool reloadExtendedProperties = false;
                 if (ACClassConfig_ACClass.IsLoaded)
                 {
                     ACClassConfig_ACClass.AutoRefresh(this.Database);
                     this.ACClassConfig_ACClass.AutoLoad(this.Database);
+                    reloadExtendedProperties = true;
                 }
                 //newSafeList = new SafeList<IACConfig>(ACClassConfig_ACClass.ToList().Select(x => (IACConfig)x).Where(c => c.KeyACUrl == ACConfigKeyACUrl));
                 newSafeList = new SafeList<IACConfig>(ACClassConfig_ACClass);
+                if (reloadExtendedProperties)
+                {
+                    foreach (ACClassConfig configEntry in newSafeList)
+                    {
+                        configEntry.ACProperties.Refresh();
+                    }
+                }
             }
             using (ACMonitor.Lock(_10020_LockValue))
             {
