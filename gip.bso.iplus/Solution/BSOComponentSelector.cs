@@ -265,6 +265,42 @@ namespace gip.bso.iplus
             set;
         }
 
+
+        protected ACChildInstanceInfo _SelectedChildInstanceInfo;
+        [ACPropertySelected(602, "ChildInstanceInfo")]
+        public ACChildInstanceInfo SelectedChildInstanceInfo
+        {
+            get
+            {
+                return _SelectedChildInstanceInfo;
+            }
+            set
+            {
+                if (_SelectedChildInstanceInfo != value)
+                {
+                    _SelectedChildInstanceInfo = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        protected ACChildInstanceInfo _UserSelectedChildInstanceInfo;
+
+        private IEnumerable<ACChildInstanceInfo> _ChildInstanceInfoList;
+        [ACPropertyList(603, "ChildInstanceInfo")]
+        public IEnumerable<ACChildInstanceInfo> ChildInstanceInfoList
+        {
+            get
+            {
+                return _ChildInstanceInfoList;
+            }
+            set
+            {
+                _ChildInstanceInfoList = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region TreeItemIcon
@@ -457,6 +493,32 @@ namespace gip.bso.iplus
             CheckIcons();
         }
 
+
+        [ACMethodInfo("", "en{'Show component selector'}de{'Show component selector'}", 490)]
+        public ACChildInstanceInfo ShowChildInstanceInfo(IEnumerable<ACChildInstanceInfo> childInstanceInfoList)
+        {
+            _UserSelectedChildInstanceInfo = null;
+            this.ChildInstanceInfoList = childInstanceInfoList;
+            ShowDialog(this, "ACChildInstanceInfo");
+            return _UserSelectedChildInstanceInfo;
+        }
+
+        [ACMethodInfo("", "en{'Use process module'}de{'Prozessmodul übernehmen'}", 491)]
+        public void SelectChildInstanceInfo()
+        {
+            _UserSelectedChildInstanceInfo = SelectedChildInstanceInfo;
+            CloseTopDialog();
+        }
+
+        [ACMethodInfo("", "en{'Cancel'}de{'Abbruch'}", 492)]
+        public void CancelChildInstanceInfo()
+        {
+            _UserSelectedChildInstanceInfo = null;
+            SelectedChildInstanceInfo = null;
+            CloseTopDialog();
+        }
+
+
         /// <summary>Called inside the GetControlModes-Method to get the Global.ControlModes from derivations.
         /// This method should be overriden in the derivations to dynmically control the presentation mode depending on the current value which is bound via VBContent</summary>
         /// <param name="vbControl">A WPF-Control that implements IVBContent</param>
@@ -487,29 +549,38 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"ShowComponentSelector":
+                case nameof(ShowComponentSelector):
                     result = ShowComponentSelector((ACClassInfoWithItems.VisibilityFilters)acParameter[0], acParameter[1] as string, acParameter[2] as string);
                     return true;
-                case"SelectComponent":
+                case nameof(SelectComponent):
                     SelectComponent();
                     return true;
-                case "CancelSelectComponent":
+                case nameof(CancelSelectComponent):
                     CancelSelectComponent();
                     return true;
-                case "OnTreeViewItemExpand":
+                case nameof(OnTreeViewItemExpand):
                     OnTreeViewItemExpand((ACClassInfoWithItems)acParameter[0]);
                     return true;
-                case"SearchClass":
+                case nameof(SearchClass):
                     SearchClass();
                     return true;
-                case"IsEnabledSearchClass":
+                case nameof(IsEnabledSearchClass):
                     result = IsEnabledSearchClass();
                     return true;
-                case"RefreshItems":
+                case nameof(RefreshItems):
                     RefreshItems();
                     return true;
+                case nameof(ShowChildInstanceInfo):
+                    result = ShowChildInstanceInfo(acParameter[0] as IEnumerable<ACChildInstanceInfo>);
+                    return true;
+                case nameof(SelectChildInstanceInfo):
+                    SelectChildInstanceInfo();
+                    return true;
+                case nameof(CancelChildInstanceInfo):
+                    CancelChildInstanceInfo();
+                    return true;
             }
-                return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+           return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
         #endregion
