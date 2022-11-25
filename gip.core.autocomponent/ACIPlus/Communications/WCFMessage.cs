@@ -21,6 +21,7 @@ namespace gip.core.autocomponent
             ACKnownTypes.RegisterKnownMessageType(typeof(ACDisconnect));
             ACKnownTypes.RegisterKnownMessageType(typeof(ACMethodInvocationResult));
             ACKnownTypes.RegisterKnownMessageType(typeof(EntityKey));
+            ACKnownTypes.RegisterKnownMessageType(typeof(ACStartCompOptions));
 
             // Original aus ACPropertyMessages
             ACKnownTypes.RegisterKnownMessageType(typeof(ACPropertyValueMessage));

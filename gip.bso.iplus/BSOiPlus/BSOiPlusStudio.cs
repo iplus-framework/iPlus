@@ -2013,10 +2013,11 @@ namespace gip.bso.iplus
             CloseTopDialog();
         }
 
-       
+
 
         #endregion
 
+        #region Start and Stop
         /// <summary>
         /// Validates the input.
         /// </summary>
@@ -2098,6 +2099,85 @@ namespace gip.bso.iplus
                 return true;
             return false;
         }
+
+        [ACMethodInteraction("ACClass", "en{'Start instance'}de{'Starte Instanz'}", (short)MISort.Start, true, "CurrentProjectItem")]
+        public void StartInstance()
+        {
+            if (CurrentProjectItem == null)
+                return;
+
+            ACClassInfoWithItems parentItem = CurrentProjectItem.ParentContainer as ACClassInfoWithItems;
+            if (parentItem == null)
+                return;
+            ACClass parentClass = parentItem.ValueT as ACClass;
+            if (parentClass == null)
+                return;
+            string acUrlComponent = parentClass.GetACUrlComponent();
+            if (String.IsNullOrEmpty(acUrlComponent))
+                return;
+            ACComponent currentInstance = ACUrlCommand("?" + acUrlComponent) as ACComponent;
+            if (currentInstance != null)
+            {
+                ACComponentProxy proxy = currentInstance as ACComponentProxy;
+                if (proxy != null)
+                {
+                    proxy.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(ACComponent.StartComponent), CurrentProjectItem.ACIdentifier, null, new object[] { }, ACStartCompOptions.Default);
+                    ACClass runtimeType = gip.core.datamodel.Database.GlobalDatabase.GetACType(CurrentProjectItem.ValueT.ACClassID);
+                    if (runtimeType != null)
+                        proxy.StartComponent(CurrentProjectItem.ACIdentifier, null, null);
+                }
+                else
+                    currentInstance.StartComponent(CurrentProjectItem.ACIdentifier, null, null);
+            }
+        }
+
+        public bool IsEnabledStartInstance()
+        {
+            var currentInstance = CurrentACComponent;
+            if (currentInstance != null)
+            {
+                ACComponentProxy proxy = currentInstance as ACComponentProxy;
+                if (proxy != null)
+                {
+                    if (proxy.ConnectionState >= ACObjectConnectionState.Connected)
+                        return false;
+                }
+                else
+                {
+                    if (currentInstance.InitState == ACInitState.Initialized)
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        [ACMethodInteraction("ACClass", "en{'Stop instance'}de{'Stoppe Instanz'}", (short)MISort.Start, true, "CurrentProjectItem")]
+        public void StopInstance()
+        {
+            var currentInstance = CurrentACComponent;
+            if (currentInstance == null)
+                return;
+            ACComponentProxy proxy = currentInstance as ACComponentProxy;
+            if (proxy != null)
+            {
+                if (proxy.ConnectionState >= ACObjectConnectionState.Connected)
+                    proxy.InvokeACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(Stop), null);
+            }
+            else
+            {
+                if (currentInstance.InitState == ACInitState.Initialized)
+                    currentInstance.Stop();
+            }
+        }
+
+        public bool IsEnabledStopInstance()
+        {
+            var currentInstance = CurrentACComponent;
+            if (currentInstance == null)
+                return false;
+            return true;
+        }
+        #endregion
 
         #region DragAndDrop
         /// <summary>
@@ -3550,11 +3630,23 @@ namespace gip.bso.iplus
                 case "ValidateInput":
                     result = ValidateInput((String)acParameter[0], (Object)acParameter[1], (System.Globalization.CultureInfo)acParameter[2]);
                     return true;
-                case "StartBSO":
+                case nameof(StartBSO):
                     StartBSO();
                     return true;
-                case "IsEnabledStartBSO":
+                case nameof(IsEnabledStartBSO):
                     result = IsEnabledStartBSO();
+                    return true;
+                case nameof(StartInstance):
+                    StartInstance();
+                    return true;
+                case nameof(IsEnabledStartInstance):
+                    result = IsEnabledStartInstance();
+                    return true;
+                case nameof(StopInstance):
+                    StopInstance();
+                    return true;
+                case nameof(IsEnabledStopInstance):
+                    result = IsEnabledStopInstance();
                     return true;
                 case "DropACClass":
                     DropACClass((Global.ElementActionType)acParameter[0], (IACInteractiveObject)acParameter[1], (IACInteractiveObject)acParameter[2], (Double)acParameter[3], (Double)acParameter[4]);

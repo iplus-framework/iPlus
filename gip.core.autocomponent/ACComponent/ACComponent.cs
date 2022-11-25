@@ -1101,6 +1101,7 @@ namespace gip.core.autocomponent
             }
         }
 
+
         /// <summary>
         /// Starts/Creates a new Instance as a child of this instance
         /// </summary>
@@ -3113,7 +3114,7 @@ namespace gip.core.autocomponent
 
                     if (acParameter != null && acParameter.Any())
                     {
-                        Type[] paramTypes = acParameter.Select(c => c.GetType()).ToArray();
+                        Type[] paramTypes = acParameter.Select(c => c != null ? c.GetType() : typeof(object)).ToArray();
                         mi = typeOfThis.GetMethod(acClassMethod.AssemblyMethodName, paramTypes);
                     }
                     else
@@ -3143,7 +3144,7 @@ namespace gip.core.autocomponent
 
                         if (acParameter != null && acParameter.Any())
                         {
-                            Type[] paramTypes = acParameter.Select(c => c.GetType()).ToArray();
+                            Type[] paramTypes = acParameter.Select(c => c != null ? c.GetType() : typeof(object)).ToArray();
                             if (acClassMethod != null && acClassMethod.AttachedFromACClassID.HasValue)
                             {
                                 isAttachedMethod = true;
