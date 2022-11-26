@@ -152,7 +152,7 @@ namespace gip.core.autocomponent
         {
             if (parameter != null)
             {
-                var instanceInfo = parameter["ACChildInstanceInfo"] as ACChildInstanceInfo;
+                var instanceInfo = parameter[nameof(ACChildInstanceInfo)] as ACChildInstanceInfo;
                 if (instanceInfo != null)
                 {
                     acIdentifier = instanceInfo.ACIdentifier;
@@ -457,7 +457,7 @@ namespace gip.core.autocomponent
 
         public override IEnumerable<ACChildInstanceInfo> GetChildInstanceInfo(int maxChildDepth, bool onlyWorkflows, string acIdentifier = "")
         {
-            IEnumerable<ACChildInstanceInfo> childsOnServer = RMInvoker.ExecuteMethod("GetChildInstanceInfo", new Object[] { maxChildDepth, onlyWorkflows, acIdentifier }) as IEnumerable<ACChildInstanceInfo>;
+            IEnumerable<ACChildInstanceInfo> childsOnServer = RMInvoker.ExecuteMethod(nameof(GetChildInstanceInfo), new Object[] { maxChildDepth, onlyWorkflows, acIdentifier }) as IEnumerable<ACChildInstanceInfo>;
             if (childsOnServer == null)
                 return null;
 
@@ -474,7 +474,7 @@ namespace gip.core.autocomponent
 
         public override IEnumerable<ACChildInstanceInfo> GetChildInstanceInfo(int maxChildDepth, ChildInstanceInfoSearchParam searchParam)
         {
-            IEnumerable<ACChildInstanceInfo> childsOnServer = RMInvoker.ExecuteMethod("GetChildInstanceInfo", new Object[] { maxChildDepth, searchParam }) as IEnumerable<ACChildInstanceInfo>;
+            IEnumerable<ACChildInstanceInfo> childsOnServer = RMInvoker.ExecuteMethod(nameof(GetChildInstanceInfo), new Object[] { maxChildDepth, searchParam }) as IEnumerable<ACChildInstanceInfo>;
             if (childsOnServer == null)
                 return null;
 
@@ -515,12 +515,12 @@ namespace gip.core.autocomponent
 
         public override PropertyLogListInfo GetArchiveLog(string propertyName, DateTime from, DateTime to)
         {
-            return RMInvoker.ExecuteMethod("GetArchiveLog", new Object[] { propertyName, from, to }) as PropertyLogListInfo;
+            return RMInvoker.ExecuteMethod(nameof(GetArchiveLog), new Object[] { propertyName, from, to }) as PropertyLogListInfo;
         }
 
         public override void RestoreTargetProp(bool onlyUnbound = true)
         {
-            RMInvoker.ExecuteMethod("RestoreTargetProp", new Object[] { onlyUnbound });
+            RMInvoker.ExecuteMethod(nameof(RestoreTargetProp), new Object[] { onlyUnbound });
         }
 
         #region IACMenuBuilder Member
@@ -535,7 +535,7 @@ namespace gip.core.autocomponent
         /// <returns>List of menu entries</returns>
         public override ACMenuItemList GetMenu(string vbContent, string vbControl)
         {
-            ACMenuItemList acMenuItemList = RMInvoker.ExecuteMethod("GetMenu", new Object[] { vbContent, vbControl }) as ACMenuItemList;
+            ACMenuItemList acMenuItemList = RMInvoker.ExecuteMethod(nameof(GetMenu), new Object[] { vbContent, vbControl }) as ACMenuItemList;
             if (acMenuItemList != null)
             {
                 foreach (var acMenuItem in acMenuItemList)
@@ -573,7 +573,7 @@ namespace gip.core.autocomponent
 
             XmlElement xmlReal = doc.CreateElement("Real");
             xmlDump.AppendChild(xmlReal);
-            string xmlResult = RMInvoker.ExecuteMethod("DumpAsXMLString", new Object[] { maxChildDepth }) as string;
+            string xmlResult = RMInvoker.ExecuteMethod(nameof(DumpAsXMLString), new Object[] { maxChildDepth }) as string;
             if (!String.IsNullOrEmpty(xmlResult))
             {
                 XmlDocument doc2 = DumpFromXMLString(xmlResult);
@@ -590,18 +590,18 @@ namespace gip.core.autocomponent
         {
             base.DumpPropertyList(doc, xmlACPropertyList);
 
-            XmlElement xmlConnectionState = xmlACPropertyList["ConnectionState"];
+            XmlElement xmlConnectionState = xmlACPropertyList[nameof(ConnectionState)];
             if (xmlConnectionState == null)
             {
-                xmlConnectionState = doc.CreateElement("ConnectionState");
+                xmlConnectionState = doc.CreateElement(nameof(ConnectionState));
                 xmlConnectionState.InnerText = ConnectionState.ToString();
                 xmlACPropertyList.AppendChild(xmlConnectionState);
             }
 
-            XmlElement xmlSubscriptionState = xmlACPropertyList["SubscriptionState"];
+            XmlElement xmlSubscriptionState = xmlACPropertyList[nameof(SubscriptionState)];
             if (xmlSubscriptionState == null)
             {
-                xmlSubscriptionState = doc.CreateElement("SubscriptionState");
+                xmlSubscriptionState = doc.CreateElement(nameof(SubscriptionState));
                 xmlSubscriptionState.InnerText = ConnectionState.ToString();
                 xmlACPropertyList.AppendChild(xmlSubscriptionState);
             }
@@ -613,14 +613,14 @@ namespace gip.core.autocomponent
         /// <summary>Prints the state of the component to a XPSDocument.</summary>
         public override void PrintSelf()
         {
-            RMInvoker.ExecuteMethod("PrintSelf", new Object[] { });
+            RMInvoker.ExecuteMethod(nameof(PrintSelf), new Object[] { });
         }
         #endregion
 
         #region Configuration
         public override void ResetConfigValuesCache()
         {
-            RMInvoker.ExecuteMethod("ResetConfigValuesCache", new Object[] { });
+            RMInvoker.ExecuteMethod(nameof(ResetConfigValuesCache), new Object[] { });
         }
         #endregion
     }

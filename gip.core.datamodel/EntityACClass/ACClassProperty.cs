@@ -1024,7 +1024,6 @@ namespace gip.core.datamodel
         {
             get
             {
-
                 using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                 {
                     return this.ACClassPropertyRelation_SourceACClassProperty.Where(c => c.ConnectionTypeIndex == (Int16)Global.ConnectionTypes.Binding).Select(c => c);
@@ -1090,7 +1089,6 @@ namespace gip.core.datamodel
         {
             get
             {
-
                 using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                 {
                     return this.ACClassPropertyRelation_SourceACClassProperty.Where(c => c.ConnectionTypeIndex == (Int16)Global.ConnectionTypes.ConnectionPhysical).Select(c => c);

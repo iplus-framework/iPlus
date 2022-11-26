@@ -108,9 +108,11 @@ namespace gip.core.autocomponent
                 return;
             InitState = ACInitState.Reloading;
             Stop();
+            ComponentClass.RefreshCachedMethods();
             Construct(this.ComponentClass, content, parentACObject, parameter, acIdentifier);
-            InitState = ACInitState.Reloaded;
             ACInit();
+            InitState = ACInitState.Reloaded;
+            ACPostInit();
         }
 
 
@@ -958,6 +960,18 @@ namespace gip.core.autocomponent
                 return false;
             return ParentACComponent.StopComponent(this);
         }
+
+        /// <summary>
+        /// Reloads itself
+        /// </summary>
+        [ACMethodInfo("ACComponent", "en{'Reload'}de{'Reload'}", 9999)]
+        public void Reload()
+        {
+            if (ParentACComponent == null)
+                return;
+            Reload(this.Content, ParentACComponent, this.Parameters, this.ACIdentifier);
+        }
+
 
         internal virtual void FinalizeComponent()
         {
@@ -2525,22 +2539,22 @@ namespace gip.core.autocomponent
                     {
                         switch (acMethodName1)
                         {
-                            case "OpenLocalHelp":
+                            case nameof(OpenLocalHelp):
                                 OpenLocalHelp();
                                 return null;
-                            case "BrowseOnlineHelp":
+                            case nameof(BrowseOnlineHelp):
                                 BrowseOnlineHelp();
                                 return null;
-                            case "PrintSelf":
+                            case nameof(PrintSelf):
                                 PrintSelf();
                                 return null;
-                            case "DiagnosticdialogOn":
+                            case nameof(DiagnosticdialogOn):
                                 DiagnosticdialogOn();
                                 return null;
-                            case "ACComponentExplorerOn":
+                            case nameof(ACComponentExplorerOn):
                                 ACComponentExplorerOn();
                                 return null;
-                            case "CloseTopDialog":
+                            case nameof(CloseTopDialog):
                                 CloseTopDialog();
                                 return null;
                             case nameof(ResetConfigValuesCache):
@@ -2548,41 +2562,44 @@ namespace gip.core.autocomponent
                                 return null;
                             //case nameof(IsEnabledResetConfigValuesCache):
                             //    return IsEnabledResetConfigValuesCache();
-                            case "GetGUI":
+                            case nameof(GetGUI):
                                 return GetGUI();
-                            case "ACPostInit":
+                            case nameof(ACPostInit):
                                 return ACPostInit();
-                            case "Stop":
+                            case nameof(Stop):
                                 return Stop();
-                            case "FindParentComponent":
+                            case nameof(Reload):
+                                Reload();
+                                return null;
+                            case nameof(FindParentComponent):
                                 if (acParameter[0] is ACClass)
                                     return FindParentComponent(acParameter[0] as ACClass);
                                 else
                                     return FindParentComponent(acParameter[0] as Type);
-                            case "FindChildComponents":
+                            case nameof(FindChildComponents):
                                 if (acParameter[0] is ACClass)
                                     return FindChildComponents(acParameter[0] as ACClass, (int)acParameter[1]);
                                 else
                                     return FindChildComponents(acParameter[0] as Type, (int)acParameter[1]);
-                            case "StopACComponent":
+                            case nameof(StopComponent):
                                 if (acParameter[0] is string)
                                     return StopComponent(acParameter[0] as string, (bool)acParameter[1]);
                                 else
                                     return StopComponent(acParameter[0] as IACComponent, (bool)acParameter[1]);
                             //case "StartComponent":
                             //    return StartComponent(acParameter[0] as string, acParameter[1], acParameter);
-                            case "GetChildInstanceInfo":
+                            case nameof(GetChildInstanceInfo):
                                 if (acParameter[1] is ChildInstanceInfoSearchParam)
                                     return GetChildInstanceInfo((int)acParameter[0], (ChildInstanceInfoSearchParam)acParameter[1]);
                                 else
                                     return GetChildInstanceInfo((int)acParameter[0], (bool)acParameter[1], acParameter[2] as string);
-                            case "GetACUrl":
+                            case nameof(GetACUrl):
                                 return GetACUrl(acParameter[0] as IACObject);
-                            case "GetMenu":
+                            case nameof(GetMenu):
                                 return GetMenu(acParameter[0] as string, acParameter[1] as string);
-                            case "DumpAsXMLString":
+                            case nameof(DumpAsXMLString):
                                 return DumpAsXMLString((int)acParameter[0]);
-                            case "DumpAsXMLDoc":
+                            case nameof(DumpAsXMLDoc):
                                 return DumpAsXMLDoc((int)acParameter[0]);
                         }
 

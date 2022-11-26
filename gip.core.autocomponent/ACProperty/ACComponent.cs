@@ -272,9 +272,9 @@ namespace gip.core.autocomponent
             }
             else
             {
+                IEnumerable<ACClassProperty> properties = null;
                 if (InitState == ACInitState.Reloading)
                 {
-
                     using (ACMonitor.Lock(LockMemberList_20020))
                     {
                         if (_ACMemberList != null)
@@ -286,11 +286,14 @@ namespace gip.core.autocomponent
                             }
                         }
                     }
+                    properties = ComponentClass.GetProperties(true);
                 }
+                else
+                    properties = ComponentClass.Properties;
 
                 Type typeOfThis = GetType();
 
-                foreach (ACClassProperty acClassProperty in ComponentClass.Properties)
+                foreach (ACClassProperty acClassProperty in properties)
                 {
                     if (acClassProperty.ACPropUsage == Global.ACPropUsages.ConnectionPoint ||
                         acClassProperty.ACPropUsage == Global.ACPropUsages.EventPoint ||

@@ -2066,6 +2066,8 @@ namespace gip.core.datamodel
                                                 .Include(c => c.ACClass)
                                                 .Include(c => c.ACClassProperty1_BasedOnACClassProperty)
                                                 .Include(c => c.ACClassProperty1_ParentACClassProperty)
+                                                .Include(nameof(ACClassProperty.ACClassPropertyRelation_SourceACClassProperty))
+                                                .Include(nameof(ACClassProperty.ACClassPropertyRelation_TargetACClassProperty))
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
                 }

@@ -2161,7 +2161,7 @@ namespace gip.bso.iplus
             if (proxy != null)
             {
                 if (proxy.ConnectionState >= ACObjectConnectionState.Connected)
-                    proxy.InvokeACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(Stop), null);
+                    proxy.InvokeACUrlCommand(proxy.GetACUrl() + ACUrlHelper.Delimiter_InvokeMethod + nameof(Stop), null);
             }
             else
             {
@@ -2171,6 +2171,36 @@ namespace gip.bso.iplus
         }
 
         public bool IsEnabledStopInstance()
+        {
+            var currentInstance = CurrentACComponent;
+            if (currentInstance == null)
+                return false;
+            return true;
+        }
+
+        [ACMethodInteraction("ACClass", "en{'Reload instance'}de{'Instanz neu laden'}", (short)MISort.Start, true, "CurrentProjectItem")]
+        public void ReloadInstance()
+        {
+            var currentInstance = CurrentACComponent;
+            if (currentInstance == null)
+                return;
+            ACComponentProxy proxy = currentInstance as ACComponentProxy;
+            if (proxy != null)
+            {
+                if (proxy.ConnectionState >= ACObjectConnectionState.Connected)
+                {
+                    proxy.InvokeACUrlCommand(proxy.GetACUrl() + ACUrlHelper.Delimiter_InvokeMethod + nameof(Reload), null);
+                    proxy.Reload();
+                }
+            }
+            else
+            {
+                if (currentInstance.InitState == ACInitState.Initialized)
+                    currentInstance.Reload();
+            }
+        }
+
+        public bool IsEnabledReloadInstance()
         {
             var currentInstance = CurrentACComponent;
             if (currentInstance == null)
@@ -3647,6 +3677,12 @@ namespace gip.bso.iplus
                     return true;
                 case nameof(IsEnabledStopInstance):
                     result = IsEnabledStopInstance();
+                    return true;
+                case nameof(ReloadInstance):
+                    ReloadInstance();
+                    return true;
+                case nameof(IsEnabledReloadInstance):
+                    result = IsEnabledReloadInstance();
                     return true;
                 case "DropACClass":
                     DropACClass((Global.ElementActionType)acParameter[0], (IACInteractiveObject)acParameter[1], (IACInteractiveObject)acParameter[2], (Double)acParameter[3], (Double)acParameter[4]);
