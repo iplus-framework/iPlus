@@ -197,7 +197,7 @@ namespace gip.core.autocomponent
 
             if (rResult == null || !rResult.Components.Any())
             {
-                string message = "Can not find a successors according selection rule (" + selectionRuleID + ")";
+                string message = "Can't find successors according selection rule (" + selectionRuleID + ")";
                 if (rResult != null && rResult.Message != null && rResult.Message.MessageLevel == eMsgLevel.Warning)
                     message += "Details: " + rResult.Message.Message;
 
@@ -624,7 +624,7 @@ namespace gip.core.autocomponent
             SelectionRule selectionRule = ACRoutingService.GetSelectionQuery(_SelectionRuleID);
             if (selectionRule == null)
             {
-                Msg msg = new Msg(string.Format("Can not find a selection rule: {0}", _SelectionRuleID), _ACRoutingService, eMsgLevel.Error, "ACRoutingSession", "FindComponents(10)", 555);
+                Msg msg = new Msg(string.Format("Can't find a selection rule: {0}", _SelectionRuleID), _ACRoutingService, eMsgLevel.Error, "ACRoutingSession", "FindComponents(10)", 555);
                 return new RoutingResult(null, false, msg);
             }
 
