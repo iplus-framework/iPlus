@@ -27,9 +27,9 @@ namespace gip.core.datamodel
         {
             get
             {
-                DateTime dt = DateTime.Now;
-                if (dt.IsDaylightSavingTime())
-                    dt = dt.AddHours(-1);
+                DateTime dt = DateTime.UtcNow;
+                TimeZoneInfo localZone = TimeZoneInfo.Local;
+                dt = dt.Add(localZone.BaseUtcOffset);
                 return dt;
             }
         }
@@ -43,6 +43,11 @@ namespace gip.core.datamodel
             {
                 return new DateTimeOffset(NowDST);
             }
+        }
+
+        public static DateTime GetDateTimeDSTCorrected(this DateTime dateTime)
+        {
+            return dateTime.IsDaylightSavingTime() ? dateTime.AddHours(1) : dateTime;
         }
     }
 }

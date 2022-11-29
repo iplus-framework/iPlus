@@ -20,6 +20,13 @@ namespace gip.core.autocomponent
         {
         }
 
+        public override bool ACPostInit()
+        {
+            _RootACComponent = ParentACComponent as ACComponent;
+            CurrentACComponent = ParentACComponent;
+            return base.ACPostInit();
+        }
+
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
             if (_CurrentACComponent != null)
@@ -362,7 +369,9 @@ namespace gip.core.autocomponent
             InstanceInfoList = null;
             ACMemberLiveList = null;
             PropertyValue = null;
-            _RootACComponent = SelectionManager.SelectedACObject as ACComponent;
+            if (   SelectionManager.SelectedACObject != null 
+                || _RootACComponent != ParentACComponent)
+                _RootACComponent = SelectionManager.SelectedACObject as ACComponent;
             _UpdateInstanceInfoList = true;
             OnPropertyChanged("ACUrlInfo");
             base.OnSelectionChanged();

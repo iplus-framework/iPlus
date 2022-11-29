@@ -25,6 +25,8 @@ using System.Runtime.CompilerServices;
 
 namespace gip.core.datamodel
 {
+    [DataContract]
+#if NETFRAMEWORK
     /// <summary>
     /// Container for values that are used in the Parameter- or ResultList of ACMethod and ACEventArgs
     /// </summary>
@@ -32,8 +34,6 @@ namespace gip.core.datamodel
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     /// <seealso cref="System.ICloneable" />
     /// <seealso cref="gip.core.datamodel.IACAttach" />
-    [DataContract]
-#if NETFRAMEWORK
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACValue", "en{'ACValue'}de{'ACValue'}", typeof(ACValue), "ACValue", Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValue'}de{'ACValue'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACValue : IACContainer, INotifyPropertyChanged, ICloneable, IACAttach
@@ -837,7 +837,9 @@ string _ACCaption;
                 Type type = this.ObjectType;
                 if (type == null)
                     return false;
-                return (type == typeof(Byte)
+                
+                return (type == typeof(Boolean)
+                    || type == typeof(Byte)
                     || type == typeof(Int16)
                     || type == typeof(Int32)
                     || type == typeof(Int64)
@@ -850,6 +852,7 @@ string _ACCaption;
                     || type == typeof(DateTime)
                     || type == typeof(TimeSpan)
                     || type == typeof(string)
+                    || type.IsEnum
                     );
             }
         }

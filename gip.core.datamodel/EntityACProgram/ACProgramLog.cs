@@ -11,10 +11,10 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Programlog iPlus'}de{'Programmlog iPlus'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
     [ACPropertyEntity(1, Const.ACUrlPrefix, "en{'ACUrl'}de{'ACUrl'}", "", "", true)]
     [ACPropertyEntity(2, "Message", "en{'Message'}de{'Meldung'}","", "", true)]
-    [ACPropertyEntity(3, "StartDate", "en{'Start date'}de{'Start date'}","", "", true)]
-    [ACPropertyEntity(4, "EndDate", "en{'End date'}de{'End date'}","", "", true)]
-    [ACPropertyEntity(5, "StartDatePlan","en{'Planed start date'}de{'Planed start date'}","", "", true)]
-    [ACPropertyEntity(6, "EndDatePlan", "en{'Planed end date'}de{'Planed end date'}","", "", true)]
+    [ACPropertyEntity(3, "StartDate", "en{'Start time'}de{'Startzeit'}","", "", true)]
+    [ACPropertyEntity(4, "EndDate", "en{'End time'}de{'Endezeit'}","", "", true)]
+    [ACPropertyEntity(5, "StartDatePlan","en{'Planned start time'}de{'Geplante Startzeit'}","", "", true)]
+    [ACPropertyEntity(6, "EndDatePlan", "en{'Planned end time'}de{'Geplante Endezeit'}","", "", true)]
     [ACPropertyEntity(9999, "ACProgramLog1_ParentACProgramLog", "en{'Parent Program.Log'}de{'Eltern-Programm.Log'}", Const.ContextDatabase + "\\" + ACProgramLog.ClassName, "", true)]
     [ACPropertyEntity(9999, ACProgram.ClassName, "en{'Program'}de{'Programm'}", Const.ContextDatabase + "\\" + ACProgram.ClassName, "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACProgramLog.ClassName, "en{'Program.log'}de{'Programm.log'}", typeof(ACProgramLog), ACProgramLog.ClassName, Const.ACUrlPrefix, Const.ACUrlPrefix)]
@@ -151,7 +151,7 @@ namespace gip.core.datamodel
 
         #region Properties
 
-        [ACPropertyInfo(999,"","en{'Duration'}de{'Duration'}")]
+        [ACPropertyInfo(110,"","en{'Duration'}de{'Dauer'}")]
         [IgnoreDataMember]
         public TimeSpan Duration
         {
@@ -165,7 +165,7 @@ namespace gip.core.datamodel
             }
         }
 
-        [ACPropertyInfo(999, "", "en{'Duration'}de{'Duration'}")]
+        [ACPropertyInfo(111, "", "en{'Planned Duration'}de{'Geplante Dauer'}")]
         [IgnoreDataMember]
         public TimeSpan DurationPlan
         {
@@ -179,7 +179,7 @@ namespace gip.core.datamodel
             }
         }
 
-        [ACPropertyInfo(999, "", "en{'Duration difference'}de{'Duration difference'}")]
+        [ACPropertyInfo(112, "", "en{'Duration difference'}de{'Duration difference'}")]
         [IgnoreDataMember]
         public TimeSpan DurationDiff
         {
@@ -189,7 +189,7 @@ namespace gip.core.datamodel
             }
         }
 
-        [ACPropertyInfo(999, "", "en{'Difference start'}de{'Difference start'}")]
+        [ACPropertyInfo(113, "", "en{'Difference start'}de{'Difference start'}")]
         [IgnoreDataMember]
         public TimeSpan StartDateDiff
         {
@@ -201,7 +201,7 @@ namespace gip.core.datamodel
             }
         }
 
-        [ACPropertyInfo(999, "", "en{'Diference end'}de{'Diference end'}")]
+        [ACPropertyInfo(114, "", "en{'Difference end'}de{'Difference end'}")]
         [IgnoreDataMember]
         public TimeSpan EndDateDiff
         {
@@ -212,6 +212,43 @@ namespace gip.core.datamodel
                 return EndDatePlan - EndDate.Value;
             }
         }
+
+        [ACPropertyInfo(100, "ProgramLog", "en{'Start time'}de{'Startzeit'}")]
+        public DateTime? StartDateDST
+        {
+            get
+            {
+                return StartDate.HasValue ? StartDate.Value.GetDateTimeDSTCorrected() : StartDate;
+            }
+        }
+
+        [ACPropertyInfo(101, "ProgramLog", "en{'End time'}de{'Endezeit'}")]
+        public DateTime? EndDateDST
+        {
+            get
+            {
+                return EndDate.HasValue ? EndDate.Value.GetDateTimeDSTCorrected() : EndDate;
+            }
+        }
+
+        [ACPropertyInfo(102, "ProgramLog", "en{'Planned start time'}de{'Geplante Startzeit'}")]
+        public DateTime StartDatePlanDST
+        {
+            get
+            {
+                return StartDatePlan.GetDateTimeDSTCorrected();
+            }
+        }
+
+        [ACPropertyInfo(103, "ProgramLog", "en{'Planned end time'}de{'Geplante Endezeit'}")]
+        public DateTime EndDatePlanDST
+        {
+            get
+            {
+                return EndDatePlan.GetDateTimeDSTCorrected();
+            }
+        }
+
 
         [ACPropertyInfo(999)]
         [IgnoreDataMember]

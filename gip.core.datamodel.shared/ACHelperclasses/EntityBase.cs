@@ -29,12 +29,17 @@ namespace gip.core.datamodel
             if (EqualityComparer<T>.Default.Equals(backingStore, value))
                 return false;
 
+            OnPropertyChanging<T>(value, propertyName, false);
             backingStore = value;
+            OnPropertyChanging<T>(value, propertyName, true);
             onChanged?.Invoke();
             OnPropertyChanged(propertyName);
             return true;
         }
 
+        protected virtual void OnPropertyChanging<T>(T newValue, string propertyName, bool afterChange)
+        {
+        }
 
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;

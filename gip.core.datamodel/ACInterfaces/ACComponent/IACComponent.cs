@@ -89,7 +89,7 @@ namespace gip.core.datamodel
     /// Normal Lifecycle with Stop:     Constructing - Constructed - Initializing - Initialized ... Destructing - Destructed<para />
     /// Dispose to Pool:                ...Initialized - DisposingToPool - DisposedToPool...<para />
     /// Recycle from Pool:              ...DisposedToPool - RecyclingFromPool - RecycledFromPool - Initialized...<para />
-    /// Reload from Definition:         ...Initialized - Reloading - Reloaded - Initialized...<para />
+    /// Reload from Definition:         ...Initialized - Reloading - Reloaded - Initialized... />
     /// </summary>
     [ACSerializeableInfo]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACInitState'}de{'ACInitState'}", Global.ACKinds.TACEnum)]
@@ -461,6 +461,12 @@ namespace gip.core.datamodel
         /// </summary>
         /// <returns>True if stop was successfull</returns>
         bool Stop();
+
+
+        /// <summary>
+        /// Reloads itself
+        /// </summary>
+        void Reload();
 
 
         /// <summary>

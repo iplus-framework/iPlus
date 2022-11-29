@@ -5,6 +5,7 @@ using System.Text;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.Xml;
+using System.Diagnostics;
 
 namespace gip.core.autocomponent
 {
@@ -664,6 +665,23 @@ namespace gip.core.autocomponent
             }
         }
 
+        protected virtual List<PAProcessModule> ScanableProcessModuleList
+        {
+            get
+            {
+                List<PAProcessModule> list = ProcessModuleList;
+                if (list == null || list.Count <= 0)
+                    return new List<PAProcessModule>();
+                list = list.Where(c =>     c.OnGetSemaphoreCapacity() == 0 
+                                        || c.Semaphore.ConnectionListCount <= 0 
+                                        || c.Semaphore.ConnectionListCount < c.OnGetSemaphoreCapacity())
+                           .ToList();
+                List<ACComponent> occupiedModules = TrySemaphore.ConnectionList.Select(c => c.ValueT).ToList();
+                list.RemoveAll(c => occupiedModules.Contains(c));
+                return list;
+            }
+        }
+
 
         /// <summary>
         /// Returns the first element from AvailableProcessModuleList.
@@ -941,29 +959,44 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "GroupComplete":
+                case nameof(GroupComplete):
                     GroupComplete();
                     return true;
-                case ACStateConst.SMRunning:
+                case nameof(SMRunning):
                     SMRunning();
                     return true;
-                case ACStateConst.SMCompleted:
+                case nameof(SMCompleted):
                     SMCompleted();
                     return true;
-                case "ResetSubState":
+                case nameof(ResetSubState):
                     ResetSubState();
                     return true;
-                case "ChangePriority":
+                case nameof(ChangePriority):
                     ChangePriority((short)acParameter[0]);
                     return true;
-                case "OccupyWithPModuleOnScan":
+                case nameof(OccupyWithPModuleOnScan):
                     result = OccupyWithPModuleOnScan(acParameter[0] as string);
                     return true;
-                case Const.IsEnabledPrefix + "GroupComplete":
+                case nameof(IsEnabledGroupComplete):
                     result = IsEnabledGroupComplete();
                     return true;
-                case Const.IsEnabledPrefix + "ResetSubState":
+                case nameof(IsEnabledResetSubState):
                     result = IsEnabledResetSubState();
+                    return true;
+                case nameof(GetScanableProcessModuleList):
+                    result = GetScanableProcessModuleList();
+                    return true;
+                case nameof(CanScanAndOccupyProcessModules):
+                    result = CanScanAndOccupyProcessModules();
+                    return true;
+                case nameof(ReleaseProcessModule):
+                    result = ReleaseProcessModule(acParameter[0] as string);
+                    return true;
+                case nameof(GetReleaseableProcessModuleList):
+                    result = GetReleaseableProcessModuleList();
+                    return true;
+                case nameof(CanReleaseProcessModules):
+                    result = CanReleaseProcessModules();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -974,11 +1007,23 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "SetPriorityClient":
+                case nameof(SetPriorityClient):
                     SetPriorityClient(acComponent);
                     return true;
-                case Const.IsEnabledPrefix + "SetPriorityClient":
+                case nameof(IsEnabledSetPriorityClient):
                     result = IsEnabledSetPriorityClient(acComponent);
+                    return true;
+                case nameof(ShowScanAndOccupyProcessModules):
+                    ShowScanAndOccupyProcessModules(acComponent);
+                    return true;
+                case nameof(IsEnabledShowScanAndOccupyProcessModules):
+                    result = IsEnabledShowScanAndOccupyProcessModules(acComponent);
+                    return true;
+                case nameof(ShowReleaseableProcessModules):
+                    ShowReleaseableProcessModules(acComponent);
+                    return true;
+                case nameof(IsEnabledShowReleaseableProcessModules):
+                    result = IsEnabledShowReleaseableProcessModules(acComponent);
                     return true;
             }
             return HandleExecuteACMethod_PWBaseExecutable(out result, acComponent, acMethodName, acClassMethod, acParameter);
@@ -1268,6 +1313,17 @@ namespace gip.core.autocomponent
             return true;
         }
 
+        [ACMethodInfo("", "en{'Release module'}de{'Gebe Modul frei'}", 300)]
+        public bool ReleaseProcessModule(string acUrlOfPM)
+        {
+            if (string.IsNullOrEmpty(acUrlOfPM))
+                return false;
+            PAProcessModule pm = ACUrlCommand(acUrlOfPM) as PAProcessModule;
+            if (pm == null)
+                return false;
+            return ReleaseProcessModule(pm);
+        }
+
 
         /// <summary>
         /// Subclasses can override OnHandleAvailableProcessModule() to handle the occupation on their own. 
@@ -1440,6 +1496,104 @@ namespace gip.core.autocomponent
             if (CurrentACState == ACStateEnum.SMRunning)
                 return true;
             return false;
+        }
+
+        [ACMethodInfo("", "en{'Scanable process modules'}de{'Scanbare Prozessmodule'}", 340)]
+        public IEnumerable<ACChildInstanceInfo> GetScanableProcessModuleList()
+        {
+            return ScanableProcessModuleList.Select(c => new ACChildInstanceInfo(c)).ToList();
+        }
+
+        [ACMethodInfo("", "en{'CanScanAndOccupyProcessModules'}de{'CanScanAndOccupyProcessModules'}", 341)]
+        public bool CanScanAndOccupyProcessModules()
+        {
+            return OccupationByScan && NeedsAProcessModule && ScanableProcessModuleList.Any();
+        }
+
+        [ACMethodInfo("", "en{'Releaseable process modules'}de{'Freigebbare Prozessmodule'}", 350)]
+        public IEnumerable<ACChildInstanceInfo> GetReleaseableProcessModuleList()
+        {
+            return TrySemaphore.ConnectionList.Select(c => new ACChildInstanceInfo(c.ValueT)).ToList();
+        }
+
+        [ACMethodInfo("", "en{'CanReleaseProcessModules'}de{'CanReleaseProcessModules'}", 351)]
+        public bool CanReleaseProcessModules()
+        {
+            return OccupationByScan && NeedsAProcessModule && TrySemaphore.ConnectionList.Any();
+        }
+
+
+        #endregion
+
+        #region Client-Methods
+        [ACMethodInteractionClient("", "en{'Show scanable process modules and occupy'}de{'Zeige scanbare Prozessmodule und belege'}", 342, true)]
+        public static void ShowScanAndOccupyProcessModules(IACComponent acComponent)
+        {
+            ACComponent _this = acComponent as ACComponent;
+            IEnumerable<ACChildInstanceInfo> childInstanceInfoList = _this.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(GetScanableProcessModuleList), null) as IEnumerable<ACChildInstanceInfo>;
+            if (childInstanceInfoList == null)
+                return;
+
+            ACChildInstanceInfo selectedChildInstanceInfo = null;
+            string bsoName = "BSOComponentSelector(Dialog)";
+            IACBSO childBSO = acComponent.Root.Businessobjects.ACUrlCommand("?" + bsoName) as IACBSO;
+            if (childBSO == null)
+                childBSO = acComponent.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as IACBSO;
+            if (childBSO != null)
+            {
+                selectedChildInstanceInfo = childBSO.ACUrlCommand("!ShowChildInstanceInfo", childInstanceInfoList.OrderBy(c => c.ACIdentifier).ToList()) as ACChildInstanceInfo;
+                childBSO.Stop();
+            }
+            if (selectedChildInstanceInfo == null)
+                return;
+            acComponent.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(OccupyWithPModuleOnScan), selectedChildInstanceInfo.ACUrlParent + ACUrlHelper.Delimiter_DirSeperator + selectedChildInstanceInfo.ACIdentifier);
+        }
+
+        public static bool IsEnabledShowScanAndOccupyProcessModules(IACComponent acComponent)
+        {
+            try
+            {
+                return (bool)acComponent.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(CanScanAndOccupyProcessModules), null);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        [ACMethodInteractionClient("", "en{'Show occupied process modules and release'}de{'Zeige belegte Prozessmodule und gebe frei'}", 352, true)]
+        public static void ShowReleaseableProcessModules(IACComponent acComponent)
+        {
+            ACComponent _this = acComponent as ACComponent;
+            IEnumerable<ACChildInstanceInfo> childInstanceInfoList = _this.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(GetReleaseableProcessModuleList), null) as IEnumerable<ACChildInstanceInfo>;
+            if (childInstanceInfoList == null)
+                return;
+
+            ACChildInstanceInfo selectedChildInstanceInfo = null;
+            string bsoName = "BSOComponentSelector(Dialog)";
+            IACBSO childBSO = acComponent.Root.Businessobjects.ACUrlCommand("?" + bsoName) as IACBSO;
+            if (childBSO == null)
+                childBSO = acComponent.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as IACBSO;
+            if (childBSO != null)
+            {
+                selectedChildInstanceInfo = childBSO.ACUrlCommand("!ShowChildInstanceInfo", childInstanceInfoList.OrderBy(c => c.ACIdentifier).ToList()) as ACChildInstanceInfo;
+                childBSO.Stop();
+            }
+            if (selectedChildInstanceInfo == null)
+                return;
+            acComponent.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(ReleaseProcessModule), selectedChildInstanceInfo.ACUrlParent + ACUrlHelper.Delimiter_DirSeperator + selectedChildInstanceInfo.ACIdentifier);
+        }
+
+        public static bool IsEnabledShowReleaseableProcessModules(IACComponent acComponent)
+        {
+            try
+            {
+                return (bool)acComponent.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(CanReleaseProcessModules), null);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
         #endregion
 

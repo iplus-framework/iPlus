@@ -134,6 +134,15 @@ namespace gip.core.communication
             set
             {
                 _TimeOut = value;
+                try
+                {
+                    if (_Client != null)
+                        _Client.Timeout = _TimeOut > TimeSpan.Zero ? _TimeOut : new TimeSpan(0, 0, 15);
+                }
+                catch (Exception ex)
+                {
+                    Messages.LogException(this.GetACUrl(), "TimeOut.Set", ex);
+                }
                 OnPropertyChanged("TimeOut");
             }
         }

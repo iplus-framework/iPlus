@@ -157,6 +157,11 @@ namespace gip.core.autocomponent
                 var query = ACPointList.Where(c => (c.ACType != null) && (c is PAPoint)).Select(c => c as PAPoint);
                 foreach (PAPoint paPoint in query)
                 {
+                    if (   (this.InitState == ACInitState.Reloading || this.InitState == ACInitState.Reloaded)
+                        && paPoint.ParentACComponent == null)
+                    {
+                        paPoint.RecycleMemberAndAttachTo(this);
+                    }
                     paPoint.ACPostInit();
                 }
             }
