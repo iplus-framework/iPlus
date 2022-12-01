@@ -3288,10 +3288,10 @@ namespace gip.core.datamodel
         {
             return ACCaption;
         }
-#endregion
+        #endregion
 
 
-#region Private Methods
+        #region Private Methods
 
         bool bRefreshConfig = false;
         partial void OnXMLConfigChanging(global::System.String value)

@@ -15,6 +15,7 @@ using System.Xml.Serialization;
 using gip.core.datamodel;
 using Microsoft.EntityFrameworkCore;
 
+/*
 [assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
 
@@ -23171,3 +23172,4 @@ namespace gip.core.datamodel
     #endregion
 
 }
+*/

@@ -34,7 +34,8 @@
     var usings = new List<string>
     {
         "System",
-        "System.Collections.Generic"
+        "System.Collections.Generic",
+        "gip.core.datamodel"
     };
 
     if (Options.UseDataAnnotations)
@@ -47,7 +48,7 @@
     if (!string.IsNullOrEmpty(NamespaceHint))
     {
 #>
-namespace <#= NamespaceHint #>;
+namespace <#= "gip.core.datamodel" #>;
 
 <#
     }
@@ -108,7 +109,12 @@ public partial class <#= EntityType.Name #> : VBEntityObject
         var needsNullable = Options.UseNullableReferenceTypes && property.IsNullable && !property.ClrType.IsValueType;
         var needsInitializer = Options.UseNullableReferenceTypes && !property.IsNullable && !property.ClrType.IsValueType;
 #>
-    public <#= code.Reference(property.ClrType) #><#= needsNullable ? "?" : "" #> <#= property.Name #> { get; set; }<#= needsInitializer ? " = null!;" : "" #>
+    <#=code.Reference(property.ClrType)#><#= needsNullable ? "?" : "" #> _<#= property.Name #>;
+    public <#= code.Reference(property.ClrType) #><#= needsNullable ? "?" : "" #> <#= property.Name #> 
+    { 
+        get { return _<#= property.Name#>; }
+        set { SetProperty<<#=code.Reference(property.ClrType)#><#= needsNullable ? "?" : "" #>>(ref _<#= property.Name#>, value); } 
+    }<#= needsInitializer ? " = null!;" : "" #>
 <#
         firstProperty = false;
     }
@@ -129,42 +135,43 @@ public partial class <#= EntityType.Name #> : VBEntityObject
 
         var targetType = navigation.TargetEntityType.Name;
         string navName = navigation.Name;
+        string relName = "";
         if (navigation.IsCollection)
         {
             if(navName.Contains("Inverse"))
             {
                 string navNameRef = navName.Remove(0,7);
-                string relName = targetType+"_"+navNameRef;
+                relName = targetType+"_"+navNameRef;
+            }
+            else
+            {
+                string pkName = navigation.ForeignKey.PrincipalToDependent.ToString();
+                string pkIdName = pkName.Split("Inverse: ").Last();
+                relName = targetType+"_"+pkIdName;
+            }
 #>
     public virtual ICollection<<#= targetType #>> <#= relName #> { get; } = new List<<#= targetType #>>();
 <#
-            }
-            else if((targetType.Length)+1 == navName.Length)
-            {
-            string fkey = navigation.ForeignKey.PrincipalKey.ToString();
-            string[] fkeyList = fkey.Split(' ', 3);
-            string relNameFK = targetType+"_"+fkeyList[1];
-#>
-    public virtual ICollection<<#= targetType #>> <#= relNameFK #> { get; } = new List<<#= targetType #>>();
-<#
-            }
-            else{
-                string pkName = navigation.ForeignKey.PrincipalToDependent.ToString();
-                string pkIdName = pkName.Split("Inverse: ").Last();
-                string nameWithPk = targetType+"_"+pkIdName;
-#>
-    public virtual ICollection<<#= targetType #>> <#= nameWithPk #> { get; } = new List<<#= targetType #>>();
-<#
-
-        }
         }
         else
         {
             var needsNullable = Options.UseNullableReferenceTypes && !(navigation.ForeignKey.IsRequired && navigation.IsOnDependent);
             var needsInitializer = Options.UseNullableReferenceTypes && navigation.ForeignKey.IsRequired && navigation.IsOnDependent;
+            var navPIdname = targetType+"1_"+navName;
+            if (navigation.Name == "BasedOnACClassProperty")
+            {}
+            if (!(navigation.ForeignKey.IsRequired && navigation.IsOnDependent) && targetType == EntityType.Name || navigation.Name == "BasedOn"+targetType)
+            {
+#>
+    public virtual <#= targetType #><#= needsNullable ? "?" : "" #> <#= navPIdname #> { get; set; }<#= needsInitializer ? " = null!;" : "" #>
+<#
+            }
+            else
+            {
 #>
     public virtual <#= targetType #><#= needsNullable ? "?" : "" #> <#= navigation.Name #> { get; set; }<#= needsInitializer ? " = null!;" : "" #>
 <#
+            }
         }
     }
 

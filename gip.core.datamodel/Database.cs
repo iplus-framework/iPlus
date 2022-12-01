@@ -42,7 +42,7 @@ namespace gip.core.datamodel
     }
 
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Database'}de{'Datenbank'}", Global.ACKinds.TACDBAManager, Global.ACStorableTypes.NotStorable, false, false)]
-    public partial class Database : iPlusV4_Entities, IACEntityObjectContext
+    public partial class Database : iPlusV4Context, IACEntityObjectContext
     {
         public const string ClassName = "Database";
         /// <summary>
