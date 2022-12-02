@@ -111,10 +111,12 @@ namespace gip.bso.iplus
         {
             get
             {
-                if (_ACProjectList == null)
-                    using (Database db = new core.datamodel.Database())
-                        _ACProjectList = db.ACProject.Where(c => c.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application).ToList();
-
+                if (_ACProjectList != null)
+                    return _ACProjectList;
+                using (ACMonitor.Lock(Database.ContextIPlus.QueryLock_1X000))
+                {
+                    _ACProjectList = Database.ContextIPlus.ACProject.Where(c => c.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application).ToList();
+                }
                 return _ACProjectList;
             }
         }

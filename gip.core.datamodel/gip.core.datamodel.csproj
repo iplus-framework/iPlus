@@ -283,6 +283,7 @@
     <Compile Include="EntityBase\VBEntityObject.cs" />
     <Compile Include="EntityLog\ACPropertyLog.cs" />
     <Compile Include="EntityLog\ACPropertyLogRule.cs" />
+    <Compile Include="EntityLog\IACTimeLog.cs" />
     <Compile Include="EntityVB\VBUserSessionInfo.cs" />
     <Compile Include="EntityVB\VBLicense.cs" />
     <Compile Include="EntityVB\VBSystem.cs" />

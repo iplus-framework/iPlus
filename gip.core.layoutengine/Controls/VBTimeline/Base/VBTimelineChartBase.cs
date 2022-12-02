@@ -1,4 +1,5 @@
-﻿using gip.core.datamodel;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using gip.core.datamodel;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ using System.Windows.Threading;
 
 namespace gip.core.layoutengine.timeline
 {
-    public abstract class VBTimelineChartBase : Control, IVBContent, IVBSource
+    public abstract class VBTimelineChartBase : System.Windows.Controls.Control, IVBContent, IVBSource
     {
         #region c'tors
 
@@ -154,7 +155,7 @@ namespace gip.core.layoutengine.timeline
         /// Represents the dependency property key for Items.
         /// </summary>
         private static readonly DependencyPropertyKey ItemsPropertyKey =
-          DependencyProperty.RegisterReadOnly("Items", typeof(IList<object>), typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(null));
+          DependencyProperty.RegisterReadOnly(nameof(Items), typeof(IList<IACTimeLog>), typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(null));
 
         /// <summary>
         /// Represents the dependency property for Items.
@@ -164,9 +165,9 @@ namespace gip.core.layoutengine.timeline
         /// <summary>
         /// Gets or sets the Items.
         /// </summary>
-        public IList<object> Items
+        public IList<IACTimeLog> Items
         {
-            get { return (IList<object>)GetValue(ItemsProperty); }
+            get { return (IList<IACTimeLog>)GetValue(ItemsProperty); }
             internal set { SetValue(ItemsPropertyKey, value); }
         }
 
@@ -217,7 +218,7 @@ namespace gip.core.layoutengine.timeline
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                AddItemInternal(e.NewItems[0]);
+                AddItemInternal(e.NewItems[0] as IACTimeLog);
                 if (MinimumDate == null || MaximumDate == null)
                     SetMinMaxBounds();
                 else
@@ -678,27 +679,27 @@ namespace gip.core.layoutengine.timeline
 
         private void AddItemsInternal(IEnumerable items)
         {
-            foreach (object item in items)
+            foreach (IACTimeLog item in items)
             {
                 AddItemInternal(item);
             }
             SetMinMaxBounds();
         }
 
-        private void AddItemInternal(object item)
+        private void AddItemInternal(IACTimeLog item)
         {
             Items.Add(item);
         }
 
         private void RemoveItemsInternal(IEnumerable items)
         {
-            foreach (object item in items)
+            foreach (IACTimeLog item in items)
             {
                 RemoveItemInternal(item);
             }
         }
 
-        private void RemoveItemInternal(object item)
+        private void RemoveItemInternal(IACTimeLog item)
         {
             Items.Remove(item);
         }
@@ -742,10 +743,16 @@ namespace gip.core.layoutengine.timeline
         {
             if (Items.Any())
             {
-                var minDate = (Items.Min(c => c.GetValue(_VBTimelineView.GanttStart)) as DateTime?).Value;
-                MinimumDate = new DateTime(minDate.Year, minDate.Month, minDate.Day, minDate.Hour, 0, 0);
+                DateTime maxDate = DateTime.Now;
+                DateTime minDate = maxDate.AddDays(-1);
+                var queryMin = this.Items.Where(c => c.StartDate.HasValue);
+                if (queryMin.Any())
+                    minDate = queryMin.Min(c => c.StartDate.Value);
+                var queryMax = this.Items.Where(c => c.EndDate.HasValue);
+                if (queryMax.Any())
+                    maxDate = queryMax.Max(c => c.EndDate.Value);
 
-                var maxDate = (Items.Max(c => c.GetValue(_VBTimelineView.GanttEnd)) as DateTime?).Value.AddHours(1);
+                MinimumDate = new DateTime(minDate.Year, minDate.Month, minDate.Day, minDate.Hour, 0, 0);
                 MaximumDate = new DateTime(maxDate.Year, maxDate.Month, maxDate.Day, maxDate.Hour, 0, 0);
 
                 PART_AxesPanel.InitControl(true);
