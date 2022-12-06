@@ -750,7 +750,7 @@ namespace gip.core.layoutengine.timeline
                     minDate = queryMin.Min(c => c.StartDate.Value);
                 var queryMax = this.Items.Where(c => c.EndDate.HasValue);
                 if (queryMax.Any())
-                    maxDate = queryMax.Max(c => c.EndDate.Value);
+                    maxDate = queryMax.Max(c => c.EndDate.Value).AddHours(1);
 
                 MinimumDate = new DateTime(minDate.Year, minDate.Month, minDate.Day, minDate.Hour, 0, 0);
                 MaximumDate = new DateTime(maxDate.Year, maxDate.Month, maxDate.Day, maxDate.Hour, 0, 0);
