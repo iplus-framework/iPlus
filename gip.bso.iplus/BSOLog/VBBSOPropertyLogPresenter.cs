@@ -1225,7 +1225,9 @@ namespace gip.bso.iplus
             foreach(var item in groupedByDisplayOrder)
             {
                 ACPropertyLogModel model = item.FirstOrDefault(c => c.PropertyLogModelType == ACPropertyLogModelType.Property);
-                if(model != null && string.IsNullOrEmpty(model.ACUrl) && model.ParentACObject  != null)
+                if (model == null)
+                    continue;
+                if (string.IsNullOrEmpty(model.ACUrl) && model.ParentACObject  != null)
                 {
                     var parent = model.ParentACObject as ACPropertyLogModel;
                     if (parent != null)
@@ -1631,7 +1633,7 @@ namespace gip.bso.iplus
                 List<Tuple<bool, Global.Operators>> results = new List<Tuple<bool, Global.Operators>>();
                 DateTime? startDate = null, endDate = null;
                 string caption = null;
-                short displayGroup = 0;
+                //short displayGroup = 0;
 
                 foreach (var item in items)
                 {
@@ -1647,7 +1649,7 @@ namespace gip.bso.iplus
 
                         //if (rule.DisplayGroup > displayGroup)
                         //{
-                            displayGroup = rule.DisplayGroup.Value;
+                            //displayGroup = rule.DisplayGroup.Value;
 
                             if (string.IsNullOrEmpty(rule.StateName))
                             {
