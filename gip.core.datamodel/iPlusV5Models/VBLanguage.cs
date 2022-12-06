@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -91,4 +92,9 @@ public partial class VBLanguage : VBEntityObject
     }
 
     public virtual ICollection<VBUser> VBUser_VBLanguage { get; } = new List<VBUser>();
+
+    public virtual CollectionEntry VBUser_VBLanguageReference
+    {
+        get { return Context.Entry(this).Collection("VBUser_VBLanguage"); }
+    }
 }

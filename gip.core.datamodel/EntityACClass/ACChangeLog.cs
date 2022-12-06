@@ -25,7 +25,7 @@ namespace gip.core.datamodel
         public static ACChangeLog NewACObject(Database db)
         {
             ACChangeLog aCChangeLog = NewACObject();
-            db.ACChangeLog.AddObject(aCChangeLog);
+            db.ACChangeLog.Add(aCChangeLog);
             return aCChangeLog;
         }
 

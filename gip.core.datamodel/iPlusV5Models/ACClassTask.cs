@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -113,13 +114,43 @@ public partial class ACClassTask : VBEntityObject
 
     public virtual ICollection<ACClassTaskValue> ACClassTaskValue_ACClassTask { get; } = new List<ACClassTaskValue>();
 
+    public virtual CollectionEntry ACClassTaskValue_ACClassTaskReference
+    {
+        get { return Context.Entry(this).Collection("ACClassTaskValue_ACClassTask"); }
+    }
+
     public virtual ACProgram ACProgram { get; set; }
 
+    public virtual ReferenceEntry ACProgramReference 
+    { 
+        get { return Context.Entry(this).Reference("ACProgram"); }
+    }
+    
     public virtual ACClassWF ContentACClassWF { get; set; }
 
+    public virtual ReferenceEntry ContentACClassWFReference 
+    { 
+        get { return Context.Entry(this).Reference("ContentACClassWF"); }
+    }
+    
     public virtual ICollection<ACClassTask> ACClassTask_ParentACClassTask { get; } = new List<ACClassTask>();
+
+    public virtual CollectionEntry ACClassTask_ParentACClassTaskReference
+    {
+        get { return Context.Entry(this).Collection("ACClassTask_ParentACClassTask"); }
+    }
 
     public virtual ACClassTask ACClassTask1_ParentACClassTask { get; set; }
 
+    public virtual ReferenceEntry ACClassTask1_ParentACClassTaskReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClassTask1_ParentACClassTask"); }
+    }
+    
     public virtual ACClass TaskTypeACClass { get; set; }
-}
+
+    public virtual ReferenceEntry TaskTypeACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("TaskTypeACClass"); }
+    }
+    }

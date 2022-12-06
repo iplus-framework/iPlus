@@ -193,7 +193,7 @@ namespace gip.core.datamodel
         public DbContextOptionsBuilder OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             return optionsBuilder
-                    .UseSqlServer("Server=.\\;Database=IPCDrives2017Testing;Trusted_Connection=True;Encrypt=False")
+                    .UseSqlServer("Server=.\\;Database=iPlusV4;Trusted_Connection=True;Encrypt=False")
                     //.ReplaceService<IShapedQueryCompilingExpressionVisitorFactory, MyRelationalShapedQueryCompilingExpressionVisitorFactory>()
                     .AddInterceptors(new ACMaterializationInterceptor());
         }
@@ -740,7 +740,7 @@ namespace gip.core.datamodel
                             item.Item1.VBUserID = vbUserID;
 
                             if (item.Item2 == 0)
-                                db.ACChangeLog.AddObject(item.Item1);
+                                db.ACChangeLog.Add(item.Item1);
                             else
                             {
                                 var changeLogs = db.ACChangeLog.Where(c => c.ACClassID == item.Item1.ACClassID && c.ACClassPropertyID == item.Item1.ACClassPropertyID
@@ -754,7 +754,7 @@ namespace gip.core.datamodel
                                         db.ACChangeLog.DeleteObject(changeLogs[i]);
                                 }
 #endif
-                                db.ACChangeLog.AddObject(item.Item1);
+                                db.ACChangeLog.Add(item.Item1);
                             }
                         }
                         db.ACSaveChanges();

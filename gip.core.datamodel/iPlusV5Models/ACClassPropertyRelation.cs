@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -176,17 +177,57 @@ public partial class ACClassPropertyRelation : VBEntityObject
 
     public virtual ICollection<ACClassConfig> ACClassConfig_ACClassPropertyRelation { get; } = new List<ACClassConfig>();
 
+    public virtual CollectionEntry ACClassConfig_ACClassPropertyRelationReference
+    {
+        get { return Context.Entry(this).Collection("ACClassConfig_ACClassPropertyRelation"); }
+    }
+
     public virtual ICollection<ACClassMethodConfig> ACClassMethodConfig_VBiACClassPropertyRelation { get; } = new List<ACClassMethodConfig>();
+
+    public virtual CollectionEntry ACClassMethodConfig_VBiACClassPropertyRelationReference
+    {
+        get { return Context.Entry(this).Collection("ACClassMethodConfig_VBiACClassPropertyRelation"); }
+    }
 
     public virtual ICollection<ACProgramConfig> ACProgramConfig_ACClassPropertyRelation { get; } = new List<ACProgramConfig>();
 
+    public virtual CollectionEntry ACProgramConfig_ACClassPropertyRelationReference
+    {
+        get { return Context.Entry(this).Collection("ACProgramConfig_ACClassPropertyRelation"); }
+    }
+
     public virtual ACClass SourceACClass { get; set; }
 
+    public virtual ReferenceEntry SourceACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("SourceACClass"); }
+    }
+    
     public virtual ACClassProperty SourceACClassProperty { get; set; }
 
+    public virtual ReferenceEntry SourceACClassPropertyReference 
+    { 
+        get { return Context.Entry(this).Reference("SourceACClassProperty"); }
+    }
+    
     public virtual ACClass TargetACClass { get; set; }
 
+    public virtual ReferenceEntry TargetACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("TargetACClass"); }
+    }
+    
     public virtual ACClassProperty TargetACClassProperty { get; set; }
 
+    public virtual ReferenceEntry TargetACClassPropertyReference 
+    { 
+        get { return Context.Entry(this).Reference("TargetACClassProperty"); }
+    }
+    
     public virtual ICollection<VBConfig> VBConfig_ACClassPropertyRelation { get; } = new List<VBConfig>();
+
+    public virtual CollectionEntry VBConfig_ACClassPropertyRelationReference
+    {
+        get { return Context.Entry(this).Collection("VBConfig_ACClassPropertyRelation"); }
+    }
 }

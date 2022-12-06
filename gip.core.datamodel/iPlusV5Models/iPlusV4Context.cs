@@ -39,7 +39,7 @@ public partial class iPlusV4Context : DbContext
 
     public virtual DbSet<ACClassTaskValue> ACClassTaskValue { get; set; }
 
-    public virtual DbSet<ACClassTaskValuePo> ACClassTaskValuePo { get; set; }
+    public virtual DbSet<ACClassTaskValuePos> ACClassTaskValuePo { get; set; }
 
     public virtual DbSet<ACClassText> ACClassText { get; set; }
 
@@ -690,7 +690,7 @@ public partial class iPlusV4Context : DbContext
                 .HasConstraintName("FK_ACClassTaskValue_VBUserID");
         });
 
-        modelBuilder.Entity<ACClassTaskValuePo>(entity =>
+        modelBuilder.Entity<ACClassTaskValuePos>(entity =>
         {
             entity.HasKey(e => e.ACClassTaskValuePosID);
 
@@ -732,7 +732,7 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-            entity.HasOne(d => d.ACClassTaskValue).WithMany(p => p.ACClassTaskValuePo_ACClassTaskValue)
+            entity.HasOne(d => d.ACClassTaskValue).WithMany(p => p.ACClassTaskValuePos_ACClassTaskValue)
                 .HasForeignKey(d => d.ACClassTaskValueID)
                 .HasConstraintName("FK_ACClassTaskValuePos_ACClassTaskValueID");
         });

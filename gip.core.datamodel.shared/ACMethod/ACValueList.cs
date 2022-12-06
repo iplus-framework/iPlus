@@ -387,7 +387,7 @@ namespace gip.core.datamodel
         /// <returns>System.String.</returns>
         public static string SerializeACValueList(ACValueList acValueList)
         {
-            DataContractSerializer serializer = new DataContractSerializer(typeof(ACValueList), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+            DataContractSerializer serializer = new DataContractSerializer(typeof(ACValueList), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
             StringBuilder sb1 = new StringBuilder();
             using (StringWriter sw1 = new StringWriter(sb1))
             using (XmlTextWriter xmlWriter1 = new XmlTextWriter(sw1))
@@ -407,7 +407,7 @@ namespace gip.core.datamodel
             using (StringReader ms = new StringReader(acValueListXML))
             using (XmlTextReader xmlReader = new XmlTextReader(ms))
             {
-                DataContractSerializer serializer = new DataContractSerializer(typeof(ACValueList), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                DataContractSerializer serializer = new DataContractSerializer(typeof(ACValueList), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                 ACValueList acValueList = (ACValueList)serializer.ReadObject(xmlReader);
 
                 return acValueList;

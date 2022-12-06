@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -70,4 +71,9 @@ public partial class ACProgramLogTask : VBEntityObject
     }
 
     public virtual ACProgramLog ACProgramLog { get; set; }
-}
+
+    public virtual ReferenceEntry ACProgramLogReference 
+    { 
+        get { return Context.Entry(this).Reference("ACProgramLog"); }
+    }
+    }

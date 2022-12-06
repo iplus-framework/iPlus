@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -127,15 +128,50 @@ public partial class ACClassMethodConfig : VBEntityObject
 
     public virtual ACClassMethod ACClassMethod { get; set; }
 
+    public virtual ReferenceEntry ACClassMethodReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClassMethod"); }
+    }
+    
     public virtual ACClassWF ACClassWF { get; set; }
 
+    public virtual ReferenceEntry ACClassWFReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClassWF"); }
+    }
+    
     public virtual ICollection<ACClassMethodConfig> ACClassMethodConfig_ParentACClassMethodConfig { get; } = new List<ACClassMethodConfig>();
+
+    public virtual CollectionEntry ACClassMethodConfig_ParentACClassMethodConfigReference
+    {
+        get { return Context.Entry(this).Collection("ACClassMethodConfig_ParentACClassMethodConfig"); }
+    }
 
     public virtual ACClassMethodConfig ACClassMethodConfig1_ParentACClassMethodConfig { get; set; }
 
+    public virtual ReferenceEntry ACClassMethodConfig1_ParentACClassMethodConfigReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClassMethodConfig1_ParentACClassMethodConfig"); }
+    }
+    
     public virtual ACClass VBiACClass { get; set; }
 
+    public virtual ReferenceEntry VBiACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("VBiACClass"); }
+    }
+    
     public virtual ACClassPropertyRelation VBiACClassPropertyRelation { get; set; }
 
+    public virtual ReferenceEntry VBiACClassPropertyRelationReference 
+    { 
+        get { return Context.Entry(this).Reference("VBiACClassPropertyRelation"); }
+    }
+    
     public virtual ACClass ValueTypeACClass { get; set; }
-}
+
+    public virtual ReferenceEntry ValueTypeACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("ValueTypeACClass"); }
+    }
+    }

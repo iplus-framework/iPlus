@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -99,11 +100,36 @@ public partial class ACProgram : VBEntityObject
 
     public virtual ICollection<ACClassTask> ACClassTask_ACProgram { get; } = new List<ACClassTask>();
 
+    public virtual CollectionEntry ACClassTask_ACProgramReference
+    {
+        get { return Context.Entry(this).Collection("ACClassTask_ACProgram"); }
+    }
+
     public virtual ICollection<ACProgramConfig> ACProgramConfig_ACProgram { get; } = new List<ACProgramConfig>();
+
+    public virtual CollectionEntry ACProgramConfig_ACProgramReference
+    {
+        get { return Context.Entry(this).Collection("ACProgramConfig_ACProgram"); }
+    }
 
     public virtual ICollection<ACProgramLog> ACProgramLog_ACProgram { get; } = new List<ACProgramLog>();
 
+    public virtual CollectionEntry ACProgramLog_ACProgramReference
+    {
+        get { return Context.Entry(this).Collection("ACProgramLog_ACProgram"); }
+    }
+
     public virtual ACClassMethod ProgramACClassMethod { get; set; }
 
+    public virtual ReferenceEntry ProgramACClassMethodReference 
+    { 
+        get { return Context.Entry(this).Reference("ProgramACClassMethod"); }
+    }
+    
     public virtual ACClass WorkflowTypeACClass { get; set; }
-}
+
+    public virtual ReferenceEntry WorkflowTypeACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("WorkflowTypeACClass"); }
+    }
+    }

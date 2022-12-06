@@ -145,14 +145,16 @@ namespace gip.core.datamodel
             return
                 (pi.GetIndexParameters().Length != 0)
                 || (pi.PropertyType == typeof(Guid) || pi.PropertyType == typeof(Guid?))
-                || ((pi.PropertyType.IsGenericType) && (pi.PropertyType.GetInterfaces().Where(c => c.Name == "IEnumerable").Any()
+                || ((pi.PropertyType.IsGenericType) && (pi.PropertyType.GetInterfaces().Where(c => c.Name == "IEnumerable").Any()))
+#if !EFCR
                 || pi.PropertyType.BaseType == typeof(System.Data.Objects.DataClasses.EntityReference)))
+#endif
                 || !(pi.GetCustomAttributes(typeof(DataMemberAttribute), true).Any() && pi.Name != "EntityKey");// not registred for data operate
         }
 
-        #endregion
+#endregion
 
-        #region Set property
+#region Set property
 
         public static List<ACObjectSerialPropertyContainerModel> GetPropertyList(IACObject acObject, bool? onlyKeyMembers)
         {
@@ -391,7 +393,7 @@ namespace gip.core.datamodel
                 }
         }
 
-        #endregion
+#endregion
 
     }
 }

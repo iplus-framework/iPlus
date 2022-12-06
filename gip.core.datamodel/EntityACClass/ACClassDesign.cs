@@ -388,20 +388,27 @@ namespace gip.core.datamodel
 
         #endregion
 
-        #region IEntityProperty Members
+#region IEntityProperty Members
 
         bool bRefreshConfig = false;
-        partial void OnXMLConfigChanging(global::System.String value)
+        protected override void OnPropertyChanging<T>(T newValue, string propertyName, bool afterChange)
         {
-            bRefreshConfig = false;
-            if (!(String.IsNullOrEmpty(value) && String.IsNullOrEmpty(XMLConfig)) && value != XMLConfig)
-                bRefreshConfig = true;
-        }
-
-        partial void OnXMLConfigChanged()
-        {
-            if (bRefreshConfig)
-                ACProperties.Refresh();
+            if (propertyName == nameof(XMLConfig))
+            {
+                string xmlConfig = newValue as string;
+                if (afterChange)
+                {
+                    if (bRefreshConfig)
+                        ACProperties.Refresh();
+                }
+                else
+                {
+                    bRefreshConfig = false;
+                    if (!(String.IsNullOrEmpty(xmlConfig) && String.IsNullOrEmpty(XMLConfig)) && xmlConfig != XMLConfig)
+                        bRefreshConfig = true;
+                }
+            }
+            base.OnPropertyChanging(newValue, propertyName, afterChange);
         }
 
         /// <summary>
@@ -421,9 +428,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
         
-        #region ReportHandling
+#region ReportHandling
         /// <summary>
         /// Gets the name of the report file.
         /// </summary>
@@ -505,9 +512,9 @@ namespace gip.core.datamodel
                     File.WriteAllBytes(folderPath + "\\" + ReportFileName, DesignBinary);
             }
         }
-        #endregion
+#endregion
 
-        #region MenuHandling
+#region MenuHandling
         /// <summary>
         /// Gets or sets the menu entry.
         /// </summary>
@@ -841,9 +848,9 @@ namespace gip.core.datamodel
         {
             return null;
         }
-        #endregion
+#endregion
 
-        #region IACValueType Member
+#region IACValueType Member
         /// <summary>
         /// Gets the design.
         /// </summary>
@@ -1066,7 +1073,7 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(acClass.Database.QueryLock_1X000))
                 {
-                    if (acClass.ACClassConfig_ACClass.IsLoaded)
+                    if (acClass.ACClassConfig_ACClassReference.IsLoaded)
                     {
                         acClass.ACClassConfig_ACClass.AutoRefresh(acClass.Database);
                         acClass.ACClassConfig_ACClass.AutoLoad(acClass.Database);
@@ -1084,7 +1091,7 @@ namespace gip.core.datamodel
             SafeList<IACConfig> newSafeList = new SafeList<IACConfig>();
             using (ACMonitor.Lock(this.ACClass.Database.QueryLock_1X000))
             {
-                if (this.ACClass.ACClassConfig_ACClass.IsLoaded)
+                if (this.ACClass.ACClassConfig_ACClassReference.IsLoaded)
                 {
                     this.ACClass.ACClassConfig_ACClass.AutoRefresh(this.ACClass.Database);
                     this.ACClass.ACClassConfig_ACClass.AutoLoad(this.ACClass.Database);
@@ -1099,9 +1106,9 @@ namespace gip.core.datamodel
         }
 
 
-        #endregion
+#endregion
 
-        #region Convention memebers implementation
+#region Convention memebers implementation
 
         public override string ToString()
         {
@@ -1141,9 +1148,9 @@ namespace gip.core.datamodel
             }
         }
 
-        #endregion
+#endregion
 
-        #region Clone
+#region Clone
         public object Clone()
         {
             ACClassDesign clonedObject = new ACClassDesign();
@@ -1173,7 +1180,7 @@ namespace gip.core.datamodel
             clonedObject.BAMLDate = this.BAMLDate;
             return clonedObject;
         }
-        #endregion
+#endregion
 
 
         internal ACClass Safe_ACClass

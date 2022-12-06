@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -78,9 +79,29 @@ public partial class ACClassTaskValue : VBEntityObject
 
     public virtual ACClassProperty ACClassProperty { get; set; }
 
+    public virtual ReferenceEntry ACClassPropertyReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClassProperty"); }
+    }
+    
     public virtual ACClassTask ACClassTask { get; set; }
 
-    public virtual ICollection<ACClassTaskValuePo> ACClassTaskValuePo_ACClassTaskValue { get; } = new List<ACClassTaskValuePo>();
+    public virtual ReferenceEntry ACClassTaskReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClassTask"); }
+    }
+    
+    public virtual ICollection<ACClassTaskValuePos> ACClassTaskValuePos_ACClassTaskValue { get; } = new List<ACClassTaskValuePos>();
+
+    public virtual CollectionEntry ACClassTaskValuePos_ACClassTaskValueReference
+    {
+        get { return Context.Entry(this).Collection("ACClassTaskValuePos_ACClassTaskValue"); }
+    }
 
     public virtual VBUser VBUser { get; set; }
-}
+
+    public virtual ReferenceEntry VBUserReference 
+    { 
+        get { return Context.Entry(this).Reference("VBUser"); }
+    }
+    }

@@ -35,7 +35,8 @@
     {
         "System",
         "System.Collections.Generic",
-        "gip.core.datamodel"
+        "gip.core.datamodel",
+        "Microsoft.EntityFrameworkCore.ChangeTracking"
     };
 
     if (Options.UseDataAnnotations)
@@ -151,27 +152,34 @@ public partial class <#= EntityType.Name #> : VBEntityObject
             }
 #>
     public virtual ICollection<<#= targetType #>> <#= relName #> { get; } = new List<<#= targetType #>>();
+
+    public virtual CollectionEntry <#= relName + "Reference"#>
+    {
+        get { return Context.Entry(this).Collection("<#= relName #>"); }
+    }
 <#
         }
         else
         {
             var needsNullable = Options.UseNullableReferenceTypes && !(navigation.ForeignKey.IsRequired && navigation.IsOnDependent);
             var needsInitializer = Options.UseNullableReferenceTypes && navigation.ForeignKey.IsRequired && navigation.IsOnDependent;
-            var navPIdname = targetType+"1_"+navName;
-            if (navigation.Name == "BasedOnACClassProperty")
-            {}
+            string navPIdname = "";
             if (!(navigation.ForeignKey.IsRequired && navigation.IsOnDependent) && targetType == EntityType.Name || navigation.Name == "BasedOn"+targetType)
             {
-#>
-    public virtual <#= targetType #><#= needsNullable ? "?" : "" #> <#= navPIdname #> { get; set; }<#= needsInitializer ? " = null!;" : "" #>
-<#
+                navPIdname = targetType+"1_"+navName;
             }
             else
             {
-#>
-    public virtual <#= targetType #><#= needsNullable ? "?" : "" #> <#= navigation.Name #> { get; set; }<#= needsInitializer ? " = null!;" : "" #>
-<#
+                navPIdname = navigation.Name;
             }
+        #>
+    public virtual <#= targetType #><#= needsNullable ? "?" : "" #> <#= navPIdname #> { get; set; }<#= needsInitializer ? " = null!;" : "" #>
+
+    public virtual ReferenceEntry<#= needsNullable ? "?" : "" #> <#= navPIdname+"Reference" #> 
+    { 
+        get { Context.Entry(this).Reference("<#=navPIdname#>"); }
+    }<#= needsInitializer ? " = null!;" : "" #>
+    <#
         }
     }
 
@@ -190,6 +198,11 @@ public partial class <#= EntityType.Name #> : VBEntityObject
         }
 #>
     public virtual ICollection<<#= skipNavigation.TargetEntityType.Name #>> <#= skipNavigation.Name #> { get; } = new List<<#= skipNavigation.TargetEntityType.Name #>>();
+
+    public virtual CollectionEntry <#= skipNavigation.Name + "Reference"#>
+    {
+        get { return Context.Entry(this).Collection("<#= skipNavigation.Name #>"); }
+    }
 <#
     }
 #>

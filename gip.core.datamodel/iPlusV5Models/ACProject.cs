@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -141,11 +142,36 @@ public partial class ACProject : VBEntityObject
 
     public virtual ICollection<ACClass> ACClass_ACProject { get; } = new List<ACClass>();
 
+    public virtual CollectionEntry ACClass_ACProjectReference
+    {
+        get { return Context.Entry(this).Collection("ACClass_ACProject"); }
+    }
+
     public virtual ACProject ACProject1_BasedOnACProject { get; set; }
 
+    public virtual ReferenceEntry ACProject1_BasedOnACProjectReference 
+    { 
+        get { return Context.Entry(this).Reference("ACProject1_BasedOnACProject"); }
+    }
+    
     public virtual ICollection<ACProject> ACProject_BasedOnACProject { get; } = new List<ACProject>();
+
+    public virtual CollectionEntry ACProject_BasedOnACProjectReference
+    {
+        get { return Context.Entry(this).Collection("ACProject_BasedOnACProject"); }
+    }
 
     public virtual ACClass PAAppClassAssignmentACClass { get; set; }
 
+    public virtual ReferenceEntry PAAppClassAssignmentACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("PAAppClassAssignmentACClass"); }
+    }
+    
     public virtual ICollection<VBUserACProject> VBUserACProject_ACProject { get; } = new List<VBUserACProject>();
+
+    public virtual CollectionEntry VBUserACProject_ACProjectReference
+    {
+        get { return Context.Entry(this).Collection("VBUserACProject_ACProject"); }
+    }
 }

@@ -17,7 +17,7 @@ namespace gip.core.datamodel
             {
                 OnExportReportProgress(0, string.Format(@"Export ACClassDesign: {0}", (acClassDesign as ACClassDesign).ACIdentifier));
                 ACClassDesign dbDesing = acClassDesign as ACClassDesign;
-                database.ACClassDesign.Detach(dbDesing);
+                database.Entry(dbDesing).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                 string xmlDesign = dbDesing.XMLDesign;
                 dbDesing.XMLDesign = "";
                 XElement element = aCEntitySerializer.SerializeACObject(acClassDesign as IACObject, qryACClassDesign, folderPath, false);

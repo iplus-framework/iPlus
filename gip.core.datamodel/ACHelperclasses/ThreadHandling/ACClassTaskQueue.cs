@@ -442,7 +442,7 @@ namespace gip.core.datamodel
 
             ACProgram acProgram = null;
             if (currentProgramLog.ACProgramReference.IsLoaded)
-                acProgram = currentProgramLog.ACProgramReference.Value;
+                acProgram = (ACProgram) currentProgramLog.ACProgramReference.CurrentValue;
             if (acProgram == null)// && (currentProgramLog.EntityState == System.Data.EntityState.Added || currentProgramLog.EntityState == System.Data.EntityState.Detached))
                 acProgram = currentProgramLog.NewACProgramForQueue;
             if (acProgram == null)
@@ -715,7 +715,7 @@ namespace gip.core.datamodel
         {
             ACProgram acProgram = null;
             if (anyProgramLog.ACProgramReference.IsLoaded)
-                acProgram = anyProgramLog.ACProgramReference.Value;
+                acProgram = (ACProgram) anyProgramLog.ACProgramReference.CurrentValue;
             if (acProgram == null) // && (anyProgramLog.EntityState == System.Data.EntityState.Added || anyProgramLog.EntityState == System.Data.EntityState.Detached))
                 acProgram = anyProgramLog.NewACProgramForQueue;
             if (acProgram == null)

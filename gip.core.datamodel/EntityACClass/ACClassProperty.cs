@@ -603,7 +603,7 @@ namespace gip.core.datamodel
 
                 ACClassProperty basedProperty = null;
                 if (this.ACClassProperty1_BasedOnACClassPropertyReference.IsLoaded)
-                    basedProperty = this.ACClassProperty1_BasedOnACClassPropertyReference.Value;
+                    basedProperty = (ACClassProperty) this.ACClassProperty1_BasedOnACClassPropertyReference.CurrentValue;
                 else
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1475,7 +1475,7 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(acClass.Database.QueryLock_1X000))
                 {
-                    if (acClass.ACClassConfig_ACClass.IsLoaded)
+                    if (acClass.ACClassConfig_ACClassReference.IsLoaded)
                     {
                         acClass.ACClassConfig_ACClass.AutoRefresh(acClass.Database);
                         acClass.ACClassConfig_ACClass.AutoLoad(acClass.Database);
@@ -1493,7 +1493,7 @@ namespace gip.core.datamodel
             SafeList<IACConfig> newSafeList = new SafeList<IACConfig>();
             using (ACMonitor.Lock(this.ACClass.Database.QueryLock_1X000))
             {
-                if (this.ACClass.ACClassConfig_ACClass.IsLoaded)
+                if (this.ACClass.ACClassConfig_ACClassReference.IsLoaded)
                 {
                     this.ACClass.ACClassConfig_ACClass.AutoRefresh(this.ACClass.Database);
                     this.ACClass.ACClassConfig_ACClass.AutoLoad(this.ACClass.Database);
@@ -1623,23 +1623,30 @@ namespace gip.core.datamodel
 
 
         bool bRefreshConfig = false;
-        partial void OnXMLConfigChanging(global::System.String value)
+        protected override void OnPropertyChanging<T>(T newValue, string propertyName, bool afterChange)
         {
-            bRefreshConfig = false;
-            if (!(String.IsNullOrEmpty(value) && String.IsNullOrEmpty(XMLConfig)) && value != XMLConfig)
-                bRefreshConfig = true;
+            if (propertyName == nameof(XMLConfig))
+            {
+                string xmlConfig = newValue as string;
+                if (afterChange)
+                {
+                    if (bRefreshConfig)
+                        ACProperties.Refresh();
+                }
+                else
+                {
+                    bRefreshConfig = false;
+                    if (!(String.IsNullOrEmpty(xmlConfig) && String.IsNullOrEmpty(XMLConfig)) && xmlConfig != XMLConfig)
+                        bRefreshConfig = true;
+                }
+            }
+            base.OnPropertyChanging(newValue, propertyName, afterChange);
         }
 
-        partial void OnXMLConfigChanged()
-        {
-            if (bRefreshConfig)
-                ACProperties.Refresh();
-        }
-
-#endregion
+        #endregion
 
 
-#region Internal and Static
+        #region Internal and Static
 
         internal static Type GetGenericACPropertyType(Type acPropertyType, Type typeT, Type typeTGeneric = null)
         {
@@ -1674,7 +1681,7 @@ namespace gip.core.datamodel
             {
                 ACClass sc = null;
                 if (ACClassReference.IsLoaded)
-                    sc = ACClassReference.Value;
+                    sc = (ACClass) ACClassReference.CurrentValue;
                 if (sc == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1693,7 +1700,7 @@ namespace gip.core.datamodel
             {
                 ACClass sc = null;
                 if (ValueTypeACClassReference.IsLoaded)
-                    sc = ValueTypeACClassReference.Value;
+                    sc = (ACClass) ValueTypeACClassReference.CurrentValue;
                 if (sc == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
 
-public partial class ACClassTaskValuePo : VBEntityObject
+public partial class ACClassTaskValuePos : VBEntityObject
 {
     Guid _ACClassTaskValuePosID;
     public Guid ACClassTaskValuePosID 
@@ -126,4 +127,9 @@ public partial class ACClassTaskValuePo : VBEntityObject
     }
 
     public virtual ACClassTaskValue ACClassTaskValue { get; set; }
-}
+
+    public virtual ReferenceEntry ACClassTaskValueReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClassTaskValue"); }
+    }
+    }

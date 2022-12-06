@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -246,83 +247,288 @@ public partial class ACClass : VBEntityObject
 
     public virtual ICollection<ACChangeLog> ACChangeLog_ACClass { get; } = new List<ACChangeLog>();
 
+    public virtual CollectionEntry ACChangeLog_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACChangeLog_ACClass"); }
+    }
+
     public virtual ICollection<ACClassConfig> ACClassConfig_ACClass { get; } = new List<ACClassConfig>();
+
+    public virtual CollectionEntry ACClassConfig_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassConfig_ACClass"); }
+    }
 
     public virtual ICollection<ACClassConfig> ACClassConfig_ValueTypeACClass { get; } = new List<ACClassConfig>();
 
+    public virtual CollectionEntry ACClassConfig_ValueTypeACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassConfig_ValueTypeACClass"); }
+    }
+
     public virtual ICollection<ACClassDesign> ACClassDesign_ACClass { get; } = new List<ACClassDesign>();
+
+    public virtual CollectionEntry ACClassDesign_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassDesign_ACClass"); }
+    }
 
     public virtual ICollection<ACClassDesign> ACClassDesign_ValueTypeACClass { get; } = new List<ACClassDesign>();
 
+    public virtual CollectionEntry ACClassDesign_ValueTypeACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassDesign_ValueTypeACClass"); }
+    }
+
     public virtual ICollection<ACClassMessage> ACClassMessage_ACClass { get; } = new List<ACClassMessage>();
+
+    public virtual CollectionEntry ACClassMessage_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassMessage_ACClass"); }
+    }
 
     public virtual ICollection<ACClassMethod> ACClassMethod_ACClass { get; } = new List<ACClassMethod>();
 
+    public virtual CollectionEntry ACClassMethod_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassMethod_ACClass"); }
+    }
+
     public virtual ICollection<ACClassMethod> ACClassMethod_AttachedFromACClass { get; } = new List<ACClassMethod>();
+
+    public virtual CollectionEntry ACClassMethod_AttachedFromACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassMethod_AttachedFromACClass"); }
+    }
 
     public virtual ICollection<ACClassMethodConfig> ACClassMethodConfig_VBiACClass { get; } = new List<ACClassMethodConfig>();
 
+    public virtual CollectionEntry ACClassMethodConfig_VBiACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassMethodConfig_VBiACClass"); }
+    }
+
     public virtual ICollection<ACClassMethodConfig> ACClassMethodConfig_ValueTypeACClass { get; } = new List<ACClassMethodConfig>();
+
+    public virtual CollectionEntry ACClassMethodConfig_ValueTypeACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassMethodConfig_ValueTypeACClass"); }
+    }
 
     public virtual ICollection<ACClassMethod> ACClassMethod_PWACClass { get; } = new List<ACClassMethod>();
 
+    public virtual CollectionEntry ACClassMethod_PWACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassMethod_PWACClass"); }
+    }
+
     public virtual ICollection<ACClassMethod> ACClassMethod_ValueTypeACClass { get; } = new List<ACClassMethod>();
+
+    public virtual CollectionEntry ACClassMethod_ValueTypeACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassMethod_ValueTypeACClass"); }
+    }
 
     public virtual ICollection<ACClassProperty> ACClassProperty_ACClass { get; } = new List<ACClassProperty>();
 
+    public virtual CollectionEntry ACClassProperty_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassProperty_ACClass"); }
+    }
+
     public virtual ICollection<ACClassProperty> ACClassProperty_ConfigACClass { get; } = new List<ACClassProperty>();
+
+    public virtual CollectionEntry ACClassProperty_ConfigACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassProperty_ConfigACClass"); }
+    }
 
     public virtual ICollection<ACClassPropertyRelation> ACClassPropertyRelation_SourceACClass { get; } = new List<ACClassPropertyRelation>();
 
+    public virtual CollectionEntry ACClassPropertyRelation_SourceACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassPropertyRelation_SourceACClass"); }
+    }
+
     public virtual ICollection<ACClassPropertyRelation> ACClassPropertyRelation_TargetACClass { get; } = new List<ACClassPropertyRelation>();
+
+    public virtual CollectionEntry ACClassPropertyRelation_TargetACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassPropertyRelation_TargetACClass"); }
+    }
 
     public virtual ICollection<ACClassProperty> ACClassProperty_ValueTypeACClass { get; } = new List<ACClassProperty>();
 
+    public virtual CollectionEntry ACClassProperty_ValueTypeACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassProperty_ValueTypeACClass"); }
+    }
+
     public virtual ICollection<ACClassTask> ACClassTask_TaskTypeACClass { get; } = new List<ACClassTask>();
+
+    public virtual CollectionEntry ACClassTask_TaskTypeACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassTask_TaskTypeACClass"); }
+    }
 
     public virtual ICollection<ACClassText> ACClassText_ACClass { get; } = new List<ACClassText>();
 
+    public virtual CollectionEntry ACClassText_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassText_ACClass"); }
+    }
+
     public virtual ICollection<ACClassWF> ACClassWF_PWACClass { get; } = new List<ACClassWF>();
+
+    public virtual CollectionEntry ACClassWF_PWACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassWF_PWACClass"); }
+    }
 
     public virtual ICollection<ACClassWF> ACClassWF_RefPAACClass { get; } = new List<ACClassWF>();
 
+    public virtual CollectionEntry ACClassWF_RefPAACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClassWF_RefPAACClass"); }
+    }
+
     public virtual ACPackage ACPackage { get; set; }
 
+    public virtual ReferenceEntry ACPackageReference 
+    { 
+        get { return Context.Entry(this).Reference("ACPackage"); }
+    }
+    
     public virtual ICollection<ACProgramConfig> ACProgramConfig_ACClass { get; } = new List<ACProgramConfig>();
+
+    public virtual CollectionEntry ACProgramConfig_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACProgramConfig_ACClass"); }
+    }
 
     public virtual ICollection<ACProgramConfig> ACProgramConfig_ValueTypeACClass { get; } = new List<ACProgramConfig>();
 
+    public virtual CollectionEntry ACProgramConfig_ValueTypeACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACProgramConfig_ValueTypeACClass"); }
+    }
+
     public virtual ICollection<ACProgram> ACProgram_WorkflowTypeACClass { get; } = new List<ACProgram>();
+
+    public virtual CollectionEntry ACProgram_WorkflowTypeACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACProgram_WorkflowTypeACClass"); }
+    }
 
     public virtual ACProject ACProject { get; set; }
 
+    public virtual ReferenceEntry ACProjectReference 
+    { 
+        get { return Context.Entry(this).Reference("ACProject"); }
+    }
+    
     public virtual ICollection<ACProject> ACProject_PAAppClassAssignmentACClass { get; } = new List<ACProject>();
+
+    public virtual CollectionEntry ACProject_PAAppClassAssignmentACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACProject_PAAppClassAssignmentACClass"); }
+    }
 
     public virtual ICollection<ACPropertyLogRule> ACPropertyLogRule_ACClass { get; } = new List<ACPropertyLogRule>();
 
+    public virtual CollectionEntry ACPropertyLogRule_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACPropertyLogRule_ACClass"); }
+    }
+
     public virtual ICollection<ACPropertyLog> ACPropertyLog_ACClass { get; } = new List<ACPropertyLog>();
+
+    public virtual CollectionEntry ACPropertyLog_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACPropertyLog_ACClass"); }
+    }
 
     public virtual ACClass ACClass1_BasedOnACClass { get; set; }
 
+    public virtual ReferenceEntry ACClass1_BasedOnACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClass1_BasedOnACClass"); }
+    }
+    
     public virtual ICollection<ACClass> ACClass_BasedOnACClass { get; } = new List<ACClass>();
+
+    public virtual CollectionEntry ACClass_BasedOnACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClass_BasedOnACClass"); }
+    }
 
     public virtual ICollection<ACClass> ACClass_PWACClass { get; } = new List<ACClass>();
 
+    public virtual CollectionEntry ACClass_PWACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClass_PWACClass"); }
+    }
+
     public virtual ICollection<ACClass> ACClass_PWMethodACClass { get; } = new List<ACClass>();
+
+    public virtual CollectionEntry ACClass_PWMethodACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClass_PWMethodACClass"); }
+    }
 
     public virtual ICollection<ACClass> ACClass_ParentACClass { get; } = new List<ACClass>();
 
+    public virtual CollectionEntry ACClass_ParentACClassReference
+    {
+        get { return Context.Entry(this).Collection("ACClass_ParentACClass"); }
+    }
+
     public virtual ICollection<MsgAlarmLog> MsgAlarmLog_ACClass { get; } = new List<MsgAlarmLog>();
+
+    public virtual CollectionEntry MsgAlarmLog_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("MsgAlarmLog_ACClass"); }
+    }
 
     public virtual ACClass ACClass1_PWACClass { get; set; }
 
+    public virtual ReferenceEntry ACClass1_PWACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClass1_PWACClass"); }
+    }
+    
     public virtual ACClass ACClass1_PWMethodACClass { get; set; }
 
+    public virtual ReferenceEntry ACClass1_PWMethodACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClass1_PWMethodACClass"); }
+    }
+    
     public virtual ACClass ACClass1_ParentACClass { get; set; }
 
+    public virtual ReferenceEntry ACClass1_ParentACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClass1_ParentACClass"); }
+    }
+    
     public virtual ICollection<VBConfig> VBConfig_ACClass { get; } = new List<VBConfig>();
+
+    public virtual CollectionEntry VBConfig_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("VBConfig_ACClass"); }
+    }
 
     public virtual ICollection<VBConfig> VBConfig_ValueTypeACClass { get; } = new List<VBConfig>();
 
+    public virtual CollectionEntry VBConfig_ValueTypeACClassReference
+    {
+        get { return Context.Entry(this).Collection("VBConfig_ValueTypeACClass"); }
+    }
+
     public virtual ICollection<VBGroupRight> VBGroupRight_ACClass { get; } = new List<VBGroupRight>();
+
+    public virtual CollectionEntry VBGroupRight_ACClassReference
+    {
+        get { return Context.Entry(this).Collection("VBGroupRight_ACClass"); }
+    }
 }

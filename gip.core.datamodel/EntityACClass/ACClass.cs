@@ -454,7 +454,7 @@ namespace gip.core.datamodel
             {
                 ACPackage acPackage = null;
                 if (ACPackageReference.IsLoaded)
-                    acPackage = ACPackageReference.Value;
+                    acPackage = (ACPackage) ACPackageReference.CurrentValue;
                 if (acPackage == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -798,7 +798,7 @@ namespace gip.core.datamodel
             {
                 IACObject parentACObject = null;
                 if (ACClass1_ParentACClassReference.IsLoaded)
-                    parentACObject = ACClass1_ParentACClassReference.Value;
+                    parentACObject = (IACObject) ACClass1_ParentACClassReference.CurrentValue;
                 if (parentACObject == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -809,7 +809,7 @@ namespace gip.core.datamodel
                 if (parentACObject != null)
                     return parentACObject;
                 if (ACProjectReference.IsLoaded)
-                    parentACObject = ACProjectReference.Value;
+                    parentACObject = (IACObject) ACProjectReference.CurrentValue;
                 if (parentACObject == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1080,7 +1080,7 @@ namespace gip.core.datamodel
             {
                 ACClass baseClass = null;
                 if (ACClass1_BasedOnACClassReference.IsLoaded)
-                    baseClass = ACClass1_BasedOnACClassReference.Value;
+                    baseClass = (ACClass) ACClass1_BasedOnACClassReference.CurrentValue;
                 if (baseClass == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1103,7 +1103,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                if (this.ACClass_ParentACClass.IsLoaded)
+                if (ACClass_ParentACClassReference.IsLoaded)
                     return this.ACClass_ParentACClass.ToArray();
                 using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                 {
@@ -1269,7 +1269,7 @@ namespace gip.core.datamodel
                     return this;
                 ACClass pwClassRef = null;
                 if (ACClass1_PWACClassReference.IsLoaded)
-                    pwClassRef = ACClass1_PWACClassReference.Value;
+                    pwClassRef = (ACClass) ACClass1_PWACClassReference.CurrentValue;
                 else
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1515,11 +1515,12 @@ namespace gip.core.datamodel
             ACClassMethod[] allMethods = null;
             try
             {
-                if (!ACClassMethod_ACClass.IsLoaded && EntityState != EntityState.Added
+                if (!ACClassMethod_ACClassReference.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
+#if !EFCR
                     ACClassMethod_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
-                    allMethods = ACClassMethod_ACClass.CreateSourceQuery()
+                    allMethods = Context.ACClassMethod_ACClass.CreateSourceQuery()
                                                 .Include(c => c.PWACClass)
                                                 .Include(c => c.ValueTypeACClass)
                                                 .Include(c => c.ACClass)
@@ -1527,6 +1528,8 @@ namespace gip.core.datamodel
                                                 .Include(c => c.AttachedFromACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
+#endif
+                    throw new NotImplementedException();
                 }
                 else
                     allMethods = ACClassMethod_ACClass.ToArray();
@@ -2057,9 +2060,10 @@ namespace gip.core.datamodel
             ACClassProperty[] allProperties = null;
             try
             {
-                if (!ACClassProperty_ACClass.IsLoaded && EntityState != EntityState.Added
+                if (!ACClassProperty_ACClassReference.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
+#if !EFCR
                     ACClassProperty_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
                     allProperties = ACClassProperty_ACClass.CreateSourceQuery()
                                                 .Include(c => c.ValueTypeACClass)
@@ -2070,6 +2074,8 @@ namespace gip.core.datamodel
                                                 .Include(nameof(ACClassProperty.ACClassPropertyRelation_TargetACClassProperty))
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
+#endif
+                    throw new NotImplementedException();
                 }
                 else
                     allProperties = ACClassProperty_ACClass.ToArray();
@@ -2333,15 +2339,18 @@ namespace gip.core.datamodel
             ACClassDesign[] allDesigns = null;
             try
             {
-                if (!ACClassDesign_ACClass.IsLoaded && EntityState != EntityState.Added
+                if (!ACClassDesign_ACClassReference.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
+#if !EFCR
                     ACClassDesign_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
                     allDesigns = ACClassDesign_ACClass.CreateSourceQuery()
                                                 .Include(c => c.ValueTypeACClass)
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
+#endif
+                    throw new NotImplementedException();
                 }
                 else
                     allDesigns = ACClassDesign_ACClass.ToArray();
@@ -2470,14 +2479,17 @@ namespace gip.core.datamodel
             ACClassText[] allTexts = null;
             try
             {
-                if (!ACClassText_ACClass.IsLoaded && EntityState != EntityState.Added
+                if (!ACClassText_ACClassReference.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
+#if !EFCR
                     ACClassText_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
                     allTexts = ACClassText_ACClass.CreateSourceQuery()
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
+#endif
+                    throw new NotImplementedException();
                 }
                 else
                     allTexts = ACClassText_ACClass.ToArray();
@@ -2606,14 +2618,16 @@ namespace gip.core.datamodel
             ACClassMessage[] allMessages = null;
             try
             {
-                if (!ACClassMessage_ACClass.IsLoaded && EntityState != EntityState.Added
+                if (!ACClassMessage_ACClassReference.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
+#if !EFCR
                     ACClassMessage_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
                     allMessages = ACClassMessage_ACClass.CreateSourceQuery()
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
+#endif
                 }
                 else
                     allMessages = ACClassMessage_ACClass.ToArray();
@@ -3270,7 +3284,7 @@ namespace gip.core.datamodel
                 return acValueList;
             }
         }
-
+        
         /// <summary>
         /// Mies the XMLAC class.
         /// </summary>
@@ -3288,23 +3302,34 @@ namespace gip.core.datamodel
         {
             return ACCaption;
         }
-        #endregion
+#endregion
 
 
-        #region Private Methods
+#region Private Methods
 
         bool bRefreshConfig = false;
-        partial void OnXMLConfigChanging(global::System.String value)
+        protected override void OnPropertyChanging<T>(T newValue, string propertyName, bool afterChange)
         {
-            bRefreshConfig = false;
-            if (!(String.IsNullOrEmpty(value) && String.IsNullOrEmpty(XMLConfig)) && value != XMLConfig)
-                bRefreshConfig = true;
-        }
-
-        partial void OnXMLConfigChanged()
-        {
-            if (bRefreshConfig)
-                ACProperties.Refresh();
+            if (propertyName == nameof(XMLConfig))
+            {
+#if DEBUG
+                if (System.Diagnostics.Debugger.IsAttached)
+                    System.Diagnostics.Debugger.Break();
+#endif
+                string xmlConfig = newValue as string;
+                if (afterChange)
+                {
+                    if (bRefreshConfig)
+                        ACProperties.Refresh();
+                }
+                else
+                {
+                    bRefreshConfig = false;
+                    if (!(String.IsNullOrEmpty(xmlConfig) && String.IsNullOrEmpty(XMLConfig)) && xmlConfig != XMLConfig)
+                        bRefreshConfig = true;
+                }
+            }
+            base.OnPropertyChanging(newValue, propertyName, afterChange);
         }
 
         private void UpdateACKindIndex()
@@ -3409,7 +3434,7 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(acClass.Database.QueryLock_1X000))
                 {
-                    if (acClass.ACClassConfig_ACClass.IsLoaded)
+                    if (acClass.ACClassConfig_ACClassReference.IsLoaded)
                     {
                         acClass.ACClassConfig_ACClass.AutoRefresh(acClass.Database);
                         acClass.ACClassConfig_ACClass.AutoLoad(acClass.Database);
@@ -3428,7 +3453,7 @@ namespace gip.core.datamodel
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 bool reloadExtendedProperties = false;
-                if (ACClassConfig_ACClass.IsLoaded)
+                if (ACClassConfig_ACClassReference.IsLoaded)
                 {
                     ACClassConfig_ACClass.AutoRefresh(this.Database);
                     this.ACClassConfig_ACClass.AutoLoad(this.Database);

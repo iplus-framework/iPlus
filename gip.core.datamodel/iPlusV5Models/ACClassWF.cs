@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -120,21 +121,71 @@ public partial class ACClassWF : VBEntityObject
 
     public virtual ACClassMethod ACClassMethod { get; set; }
 
+    public virtual ReferenceEntry ACClassMethodReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClassMethod"); }
+    }
+    
     public virtual ICollection<ACClassMethodConfig> ACClassMethodConfig_ACClassWF { get; } = new List<ACClassMethodConfig>();
+
+    public virtual CollectionEntry ACClassMethodConfig_ACClassWFReference
+    {
+        get { return Context.Entry(this).Collection("ACClassMethodConfig_ACClassWF"); }
+    }
 
     public virtual ICollection<ACClassTask> ACClassTask_ContentACClassWF { get; } = new List<ACClassTask>();
 
+    public virtual CollectionEntry ACClassTask_ContentACClassWFReference
+    {
+        get { return Context.Entry(this).Collection("ACClassTask_ContentACClassWF"); }
+    }
+
     public virtual ICollection<ACClassWFEdge> ACClassWFEdge_SourceACClassWF { get; } = new List<ACClassWFEdge>();
+
+    public virtual CollectionEntry ACClassWFEdge_SourceACClassWFReference
+    {
+        get { return Context.Entry(this).Collection("ACClassWFEdge_SourceACClassWF"); }
+    }
 
     public virtual ICollection<ACClassWFEdge> ACClassWFEdge_TargetACClassWF { get; } = new List<ACClassWFEdge>();
 
+    public virtual CollectionEntry ACClassWFEdge_TargetACClassWFReference
+    {
+        get { return Context.Entry(this).Collection("ACClassWFEdge_TargetACClassWF"); }
+    }
+
     public virtual ICollection<ACClassWF> ACClassWF_ParentACClassWF { get; } = new List<ACClassWF>();
+
+    public virtual CollectionEntry ACClassWF_ParentACClassWFReference
+    {
+        get { return Context.Entry(this).Collection("ACClassWF_ParentACClassWF"); }
+    }
 
     public virtual ACClass PWACClass { get; set; }
 
+    public virtual ReferenceEntry PWACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("PWACClass"); }
+    }
+    
     public virtual ACClassWF ACClassWF1_ParentACClassWF { get; set; }
 
+    public virtual ReferenceEntry ACClassWF1_ParentACClassWFReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClassWF1_ParentACClassWF"); }
+    }
+    
     public virtual ACClass RefPAACClass { get; set; }
 
+    public virtual ReferenceEntry RefPAACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("RefPAACClass"); }
+    }
+    
     public virtual ACClassMethod RefPAACClassMethod { get; set; }
-}
+
+    public virtual ReferenceEntry RefPAACClassMethodReference 
+    { 
+        get { return Context.Entry(this).Reference("RefPAACClassMethod"); }
+    }
+    }

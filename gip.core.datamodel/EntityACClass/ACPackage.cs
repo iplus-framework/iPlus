@@ -68,7 +68,7 @@ namespace gip.core.datamodel
 
             ACPackage acPackage = ACPackage.NewACObject(database, null);
             acPackage.ACPackageName = acPackageName;
-            database.ACPackage.AddObject(acPackage);
+            database.ACPackage.Add(acPackage);
             InsertedPackages.Add(acPackage);
             return acPackage;
         }

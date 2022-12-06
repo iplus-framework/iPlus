@@ -3607,6 +3607,7 @@ namespace gip.core.datamodel
 
         public static IQueryable<T> SetMergeOption<T>(this IQueryable<T> source, MergeOption Option)
         {
+#if !EFCR
             ObjectQuery<T> query = source as ObjectQuery<T>;
             if (query != null)
             {
@@ -3614,6 +3615,8 @@ namespace gip.core.datamodel
                 if (context != null)
                     query.MergeOption = Option;
             }
+#endif
+            throw new NotImplementedException();
             return source;
         }
 

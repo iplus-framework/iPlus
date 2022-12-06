@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace gip.core.datamodel
 {
@@ -97,17 +98,24 @@ namespace gip.core.datamodel
         #region IEntityProperty Members
 
         bool bRefreshConfig = false;
-        partial void OnXMLConfigChanging(global::System.String value)
+        protected override void OnPropertyChanging<T>(T newValue, string propertyName, bool afterChange)
         {
-            bRefreshConfig = false;
-            if (!(String.IsNullOrEmpty(value) && String.IsNullOrEmpty(XMLConfig)) && value != XMLConfig)
-                bRefreshConfig = true;
-        }
-
-        partial void OnXMLConfigChanged()
-        {
-            if (bRefreshConfig)
-                ACProperties.Refresh();
+            if (propertyName == nameof(XMLConfig))
+            {
+                string xmlConfig = newValue as string;
+                if (afterChange)
+                {
+                    if (bRefreshConfig)
+                        ACProperties.Refresh();
+                }
+                else
+                {
+                    bRefreshConfig = false;
+                    if (!(String.IsNullOrEmpty(xmlConfig) && String.IsNullOrEmpty(XMLConfig)) && xmlConfig != XMLConfig)
+                        bRefreshConfig = true;
+                }
+            }
+            base.OnPropertyChanging(newValue, propertyName, afterChange);
         }
 
         #endregion

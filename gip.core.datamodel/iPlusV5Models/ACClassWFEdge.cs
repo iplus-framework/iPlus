@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -92,15 +93,50 @@ public partial class ACClassWFEdge : VBEntityObject
 
     public virtual ACClassMethod ACClassMethod { get; set; }
 
+    public virtual ReferenceEntry ACClassMethodReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClassMethod"); }
+    }
+    
     public virtual ACClassMethod SourceACClassMethod { get; set; }
 
+    public virtual ReferenceEntry SourceACClassMethodReference 
+    { 
+        get { return Context.Entry(this).Reference("SourceACClassMethod"); }
+    }
+    
     public virtual ACClassProperty SourceACClassProperty { get; set; }
 
+    public virtual ReferenceEntry SourceACClassPropertyReference 
+    { 
+        get { return Context.Entry(this).Reference("SourceACClassProperty"); }
+    }
+    
     public virtual ACClassWF SourceACClassWF { get; set; }
 
+    public virtual ReferenceEntry SourceACClassWFReference 
+    { 
+        get { return Context.Entry(this).Reference("SourceACClassWF"); }
+    }
+    
     public virtual ACClassMethod TargetACClassMethod { get; set; }
 
+    public virtual ReferenceEntry TargetACClassMethodReference 
+    { 
+        get { return Context.Entry(this).Reference("TargetACClassMethod"); }
+    }
+    
     public virtual ACClassProperty TargetACClassProperty { get; set; }
 
+    public virtual ReferenceEntry TargetACClassPropertyReference 
+    { 
+        get { return Context.Entry(this).Reference("TargetACClassProperty"); }
+    }
+    
     public virtual ACClassWF TargetACClassWF { get; set; }
-}
+
+    public virtual ReferenceEntry TargetACClassWFReference 
+    { 
+        get { return Context.Entry(this).Reference("TargetACClassWF"); }
+    }
+    }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -120,13 +121,43 @@ public partial class ACProgramConfig : VBEntityObject
 
     public virtual ACClass ACClass { get; set; }
 
+    public virtual ReferenceEntry ACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClass"); }
+    }
+    
     public virtual ACClassPropertyRelation ACClassPropertyRelation { get; set; }
 
+    public virtual ReferenceEntry ACClassPropertyRelationReference 
+    { 
+        get { return Context.Entry(this).Reference("ACClassPropertyRelation"); }
+    }
+    
     public virtual ACProgram ACProgram { get; set; }
 
+    public virtual ReferenceEntry ACProgramReference 
+    { 
+        get { return Context.Entry(this).Reference("ACProgram"); }
+    }
+    
     public virtual ICollection<ACProgramConfig> ACProgramConfig_ParentACProgramConfig { get; } = new List<ACProgramConfig>();
+
+    public virtual CollectionEntry ACProgramConfig_ParentACProgramConfigReference
+    {
+        get { return Context.Entry(this).Collection("ACProgramConfig_ParentACProgramConfig"); }
+    }
 
     public virtual ACProgramConfig ACProgramConfig1_ParentACProgramConfig { get; set; }
 
+    public virtual ReferenceEntry ACProgramConfig1_ParentACProgramConfigReference 
+    { 
+        get { return Context.Entry(this).Reference("ACProgramConfig1_ParentACProgramConfig"); }
+    }
+    
     public virtual ACClass ValueTypeACClass { get; set; }
-}
+
+    public virtual ReferenceEntry ValueTypeACClassReference 
+    { 
+        get { return Context.Entry(this).Reference("ValueTypeACClass"); }
+    }
+    }

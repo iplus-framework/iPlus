@@ -21,7 +21,7 @@ namespace gip.core.datamodel
             VBSystem entity = new VBSystem();
             entity.VBSystemID = Guid.NewGuid();
             entity.SetInsertAndUpdateInfo(database.UserName, database);
-            database.VBSystem.AddObject(entity);
+            database.VBSystem.Add(entity);
             return entity;
         }
 

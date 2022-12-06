@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -57,5 +58,15 @@ public partial class VBGroup : VBEntityObject
 
     public virtual ICollection<VBGroupRight> VBGroupRight_VBGroup { get; } = new List<VBGroupRight>();
 
+    public virtual CollectionEntry VBGroupRight_VBGroupReference
+    {
+        get { return Context.Entry(this).Collection("VBGroupRight_VBGroup"); }
+    }
+
     public virtual ICollection<VBUserGroup> VBUserGroup_VBGroup { get; } = new List<VBUserGroup>();
+
+    public virtual CollectionEntry VBUserGroup_VBGroupReference
+    {
+        get { return Context.Entry(this).Collection("VBUserGroup_VBGroup"); }
+    }
 }

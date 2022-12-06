@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -63,4 +64,9 @@ public partial class ACPackage : VBEntityObject
     }
 
     public virtual ICollection<ACClass> ACClass_ACPackage { get; } = new List<ACClass>();
+
+    public virtual CollectionEntry ACClass_ACPackageReference
+    {
+        get { return Context.Entry(this).Collection("ACClass_ACPackage"); }
+    }
 }

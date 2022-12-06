@@ -106,17 +106,24 @@ namespace gip.core.datamodel
         #region IEntityProperty Members
 
         bool bRefreshConfig = false;
-        partial void OnXMLConfigChanging(global::System.String value)
+        protected override void OnPropertyChanging<T>(T newValue, string propertyName, bool afterChange)
         {
-            bRefreshConfig = false;
-            if (!(String.IsNullOrEmpty(value) && String.IsNullOrEmpty(XMLConfig)) && value != XMLConfig)
-                bRefreshConfig = true;
-        }
-
-        partial void OnXMLConfigChanged()
-        {
-            if (bRefreshConfig)
-                ACProperties.Refresh();
+            if (propertyName == nameof(XMLConfig))
+            {
+                string xmlConfig = newValue as string;
+                if (afterChange)
+                {
+                    if (bRefreshConfig)
+                        ACProperties.Refresh();
+                }
+                else
+                {
+                    bRefreshConfig = false;
+                    if (!(String.IsNullOrEmpty(xmlConfig) && String.IsNullOrEmpty(XMLConfig)) && xmlConfig != XMLConfig)
+                        bRefreshConfig = true;
+                }
+            }
+            base.OnPropertyChanging(newValue, propertyName, afterChange);
         }
 
         #endregion
@@ -255,7 +262,7 @@ namespace gip.core.datamodel
                     var database = Database != null ? Database : this.GetObjectContext<Database>();
                     using (ACMonitor.Lock(database.QueryLock_1X000))
                     {
-                        if (ACProgramConfig_ACProgram.IsLoaded)
+                        if (ACProgramConfig_ACProgramReference.IsLoaded)
                         {
                             ACProgramConfig_ACProgram.AutoRefresh();
                             ACProgramConfig_ACProgram.AutoLoad();

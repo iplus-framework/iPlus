@@ -210,6 +210,7 @@ namespace gip.core.datamodel
             }
         }
 
+#if !EFCR
         partial void OnValueTypeACClassIDChanged()
         {
             if (this.EntityState == EntityState.Added || this.EntityState == EntityState.Modified)
@@ -228,7 +229,7 @@ namespace gip.core.datamodel
                 }
             }
         }
-
+#endif
 
         [ACPropertyInfo(6, "", "en{'Source']de{'Quelle'}")]
         public IACConfigStore ConfigStore
@@ -319,7 +320,7 @@ namespace gip.core.datamodel
             get => null;
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Gets or sets the database.
@@ -434,7 +435,7 @@ namespace gip.core.datamodel
             }
         }
 
-        #region Clone
+#region Clone
 
         public object Clone()
         {
@@ -454,6 +455,6 @@ namespace gip.core.datamodel
             return clonedObject;
         }
 
-        #endregion
+#endregion
     }
 }

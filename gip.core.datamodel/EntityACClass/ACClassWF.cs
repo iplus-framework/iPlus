@@ -221,27 +221,34 @@ namespace gip.core.datamodel
                 return Const.ACIdentifierPrefix;
             }
         }
-#endregion
+        #endregion
 
-#region IEntityProperty Members
+        #region IEntityProperty Members
 
         bool bRefreshConfig = false;
-        partial void OnXMLConfigChanging(global::System.String value)
+        protected override void OnPropertyChanging<T>(T newValue, string propertyName, bool afterChange)
         {
-            bRefreshConfig = false;
-            if (!(String.IsNullOrEmpty(value) && String.IsNullOrEmpty(XMLConfig)) && value != XMLConfig)
-                bRefreshConfig = true;
+            if (propertyName == nameof(XMLConfig))
+            {
+                string xmlConfig = newValue as string;
+                if (afterChange)
+                {
+                    if (bRefreshConfig)
+                        ACProperties.Refresh();
+                }
+                else
+                {
+                    bRefreshConfig = false;
+                    if (!(String.IsNullOrEmpty(xmlConfig) && String.IsNullOrEmpty(XMLConfig)) && xmlConfig != XMLConfig)
+                        bRefreshConfig = true;
+                }
+            }
+            base.OnPropertyChanging(newValue, propertyName, afterChange);
         }
 
-        partial void OnXMLConfigChanged()
-        {
-            if (bRefreshConfig)
-                ACProperties.Refresh();
-        }
+        #endregion
 
-#endregion
-
-#region IMethodWF Members
+        #region IMethodWF Members
 
         /// <summary>
         /// Returns ParentACClassWF or ACClassMethod if root
@@ -297,8 +304,8 @@ namespace gip.core.datamodel
         /// <value>List of edges</value>
         public IEnumerable<IACWorkflowEdge> GetOutgoingWFEdgesInGroup(IACWorkflowContext context)
         {
-            if (this.EntityState != EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethod.IsLoaded)
-                ACClassMethod.ACClassWFEdge_ACClassMethod.Load();
+            if (this.EntityState != EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethodReference.IsLoaded)
+                Context.Entry(ACClassMethod).Reference("ACClassWFEdge_ACClassMethod").Load();
             return GetOutgoingWFEdges(context).Where(c => ((ACClassWF)c.ToWFNode).ACClassWF1_ParentACClassWF.ACClassWFID == this.ACClassWF1_ParentACClassWF.ACClassWFID).Select(c => c);
         }
 
@@ -319,8 +326,8 @@ namespace gip.core.datamodel
         /// <value>List of edges</value>
         public IEnumerable<IACWorkflowEdge> GetIncomingWFEdgesInGroup(IACWorkflowContext context)
         {
-            if (this.EntityState != EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethod.IsLoaded)
-                ACClassMethod.ACClassWFEdge_ACClassMethod.Load();
+            if (this.EntityState != EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethodReference.IsLoaded)
+                ACClassMethod.ACClassWFEdge_ACClassMethodReference.Load();
             return GetIncomingWFEdges(context).Where(c => ((ACClassWF)c.FromWFNode).ACClassWF1_ParentACClassWF.ACClassWFID == this.ACClassWF1_ParentACClassWF.ACClassWFID).Select(c => c);
         }
 

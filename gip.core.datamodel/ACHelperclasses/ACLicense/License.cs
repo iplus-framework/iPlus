@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Data;
 using System.CodeDom;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel.Licensing
 {
@@ -602,10 +603,10 @@ namespace gip.core.datamodel.Licensing
             VBSystem oldSys = db.VBSystem.FirstOrDefault(c => c.SystemName == License.SN_PackIssuer);
             if (oldSys != null && sysNew.SystemName == License.SN_PackIssuer)
             {
-                db.VBSystem.DeleteObject(oldSys);
+                db.Entry(oldSys).State = EntityState.Deleted;
                 db.ACSaveChanges();
             }
-            db.VBSystem.AddObject(sysNew);
+            db.VBSystem.Add(sysNew);
             db.ACSaveChanges();
 
             if (sysNew.SystemName == License.SN_PackIssuer)

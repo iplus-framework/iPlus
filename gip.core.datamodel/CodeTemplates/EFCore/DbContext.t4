@@ -236,8 +236,6 @@ public partial class <#= Options.ContextName #> : DbContext
                 string pkIdName = pkName.Split("Inverse: ").Last();
                 relName = targetType+"_"+pkIdName;
             }
-            if (relName == "ACClassProperty_BasedOnACClassProperty")
-            {}
             if(!(foreignKey.IsRequired) || navPIdname == "BasedOn"+targetType)
             {
                 foreach (var navigation in entityType.GetNavigations())

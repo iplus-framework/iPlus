@@ -85,8 +85,10 @@ namespace gip.core.datamodel
         {
             if (!IsAttached)
                 return null;
-
+#if !EFCR
             return this.Where(s => !this.Any(t => t.TargetKey == s.SourceKey)).Select(c => c.SourceACComponent);
+#endif
+            throw new NotImplementedException();
         }
 
         //public IACComponent GetTargetComponent(Database db)
@@ -126,11 +128,13 @@ namespace gip.core.datamodel
             {
                 foreach (var routeItem in route)
                 {
+#if !EFCR
                     if (!routeItems.Any(c => c.SourceKey == routeItem.SourceKey && c.TargetKey == routeItem.TargetKey))
                     {
                         routeItem.RouteNo = routeNo;
                         routeItems.Add(routeItem);
                     }
+#endif
                 }
                 routeNo++;
             }
@@ -205,22 +209,34 @@ namespace gip.core.datamodel
 
         public RouteItem GetRouteSource()
         {
+#if !EFCR
             return this.FirstOrDefault(r => !this.Any(t => r.SourceKey == t.TargetKey));
+#endif
+            throw new NotImplementedException();
         }
 
         public IEnumerable<RouteItem> GetRouteSources()
         {
+#if !EFCR
             return this.Where(r => !this.Any(t => r.SourceKey == t.TargetKey));
+#endif
+            throw new NotImplementedException();
         }
 
         public RouteItem GetRouteTarget()
         {
+#if !EFCR
             return this.FirstOrDefault(r => !this.Any(t => r.TargetKey == t.SourceKey));
+#endif
+            throw new NotImplementedException();
         }
 
         public IEnumerable<RouteItem> GetRouteTargets()
         {
+#if !EFCR
             return this.Where(r => !this.Any(t => r.TargetKey == t.SourceKey)).ToList();
+#endif
+            throw new NotImplementedException();
         }
 
         public override string ToString()
@@ -252,18 +268,18 @@ namespace gip.core.datamodel
             //}
         }
 
-        #endregion
+#endregion
 
-        #region Private
+#region Private
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
         }
 
-        #endregion
+#endregion
 
-        #region IAttach
+#region IAttach
 
         /// <summary>Attaches the deserialized encapuslated objects to the parent context.</summary>
         /// <param name="parentACObject">The parent context. Normally this is a EF-Context (IACEntityObjectContext).</param>
@@ -321,11 +337,11 @@ namespace gip.core.datamodel
         /// </summary>
         public event EventHandler ObjectAttached;
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Cloning
+#region Cloning
 
         public object Clone()
         {
@@ -340,6 +356,6 @@ namespace gip.core.datamodel
             return clone;
         }
 
-        #endregion
+#endregion
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
@@ -106,17 +107,57 @@ public partial class VBUser : VBEntityObject
 
     public virtual ICollection<ACChangeLog> ACChangeLog_VBUser { get; } = new List<ACChangeLog>();
 
+    public virtual CollectionEntry ACChangeLog_VBUserReference
+    {
+        get { return Context.Entry(this).Collection("ACChangeLog_VBUser"); }
+    }
+
     public virtual ICollection<ACClassTaskValue> ACClassTaskValue_VBUser { get; } = new List<ACClassTaskValue>();
+
+    public virtual CollectionEntry ACClassTaskValue_VBUserReference
+    {
+        get { return Context.Entry(this).Collection("ACClassTaskValue_VBUser"); }
+    }
 
     public virtual ACClassDesign MenuACClassDesign { get; set; }
 
+    public virtual ReferenceEntry MenuACClassDesignReference 
+    { 
+        get { return Context.Entry(this).Reference("MenuACClassDesign"); }
+    }
+    
     public virtual VBLanguage VBLanguage { get; set; }
 
+    public virtual ReferenceEntry VBLanguageReference 
+    { 
+        get { return Context.Entry(this).Reference("VBLanguage"); }
+    }
+    
     public virtual ICollection<VBUserACClassDesign> VBUserACClassDesign_VBUser { get; } = new List<VBUserACClassDesign>();
+
+    public virtual CollectionEntry VBUserACClassDesign_VBUserReference
+    {
+        get { return Context.Entry(this).Collection("VBUserACClassDesign_VBUser"); }
+    }
 
     public virtual ICollection<VBUserACProject> VBUserACProject_VBUser { get; } = new List<VBUserACProject>();
 
+    public virtual CollectionEntry VBUserACProject_VBUserReference
+    {
+        get { return Context.Entry(this).Collection("VBUserACProject_VBUser"); }
+    }
+
     public virtual ICollection<VBUserGroup> VBUserGroup_VBUser { get; } = new List<VBUserGroup>();
 
+    public virtual CollectionEntry VBUserGroup_VBUserReference
+    {
+        get { return Context.Entry(this).Collection("VBUserGroup_VBUser"); }
+    }
+
     public virtual ICollection<VBUserInstance> VBUserInstance_VBUser { get; } = new List<VBUserInstance>();
+
+    public virtual CollectionEntry VBUserInstance_VBUserReference
+    {
+        get { return Context.Entry(this).Collection("VBUserInstance_VBUser"); }
+    }
 }
