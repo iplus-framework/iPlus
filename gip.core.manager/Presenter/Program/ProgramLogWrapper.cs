@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using gip.core.datamodel;
@@ -7,7 +8,7 @@ using gip.core.datamodel;
 namespace gip.core.manager
 {
     [ACClassInfo(Const.PackName_VarioSystem,"en{'ProgramLogWrapper'}de{'ProgramLogWrapper'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, true)]
-    public class ProgramLogWrapper : IACObject
+    public class ProgramLogWrapper : IACTimeLog
     {
         public ProgramLogWrapper()
         {
@@ -35,6 +36,10 @@ namespace gip.core.manager
             {
                 return ACProgramLog.StartDateDST;
             }
+            set
+            {
+
+            }
         }
 
         [ACPropertyInfo(101, "ProgramLog", "en{'End time'}de{'Endezeit'}")]
@@ -43,6 +48,10 @@ namespace gip.core.manager
             get
             {
                 return ACProgramLog.EndDateDST;
+            }
+            set
+            {
+
             }
         }
 
@@ -140,6 +149,8 @@ namespace gip.core.manager
         public bool ChildAlarm = false;
 
         private List<Global.TimelineItemStatus> _Status = new List<Global.TimelineItemStatus>();
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public virtual List<Global.TimelineItemStatus> Status
         {
