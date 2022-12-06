@@ -50,7 +50,7 @@ namespace gip.core.datamodel
             {
                 if (!_PerformanceLog.TryGetValue(id, out performanceStatistic))
                 {
-                    performanceStatistic = new PerformanceStatistic(id);
+                    performanceStatistic = new PerformanceStatistic(id, this);
                     _PerformanceLog.Add(id, performanceStatistic);
                 }
             }

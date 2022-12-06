@@ -178,7 +178,7 @@ namespace gip.core.datamodel
         }
 
 #if NETFRAMEWORK
-        public void MonitorActivePerfEvents(int perfTimeoutForStop, IRuntimeDump runtimeDump)
+        public void MonitorActivePerfEvents(int perfTimeoutForStop, IRuntimeDump runtimeDump, string[] ignoreList, string[] includeList)
         {
             if (perfTimeoutForStop <= 0)
                 return;
@@ -189,7 +189,14 @@ namespace gip.core.datamodel
             }
             if (activeEvents != null && activeEvents.Any())
             {
-                if (activeEvents.Where(c => c.ElapsedMilliseconds > perfTimeoutForStop).Any())
+                if (activeEvents.Where(c =>    c.ElapsedMilliseconds > perfTimeoutForStop 
+                                            && (    c.InstanceName == null 
+                                                || (   !ignoreList.Where(d => c.InstanceName.StartsWith(d)).Any() 
+                                                    && (   !includeList.Any() 
+                                                        || includeList.Where(d => c.InstanceName.StartsWith(d)).Any()))
+                                               )
+                                      )
+                                .Any())
                 {
 #if DEBUG
                     if (System.Diagnostics.Debugger.IsAttached)

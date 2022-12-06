@@ -14,12 +14,29 @@ namespace gip.core.datamodel
         {
             _InCallStack = inCallStack;
         }
+
+        public PerformanceEvent(bool inCallStack, PerformanceStatistic statistic)
+            : base()
+        {
+            _InCallStack = inCallStack;
+            _Statistic = statistic;
+        }
+
         private bool _InCallStack = false;
         public bool InCallStack
         {
             get
             {
                 return _InCallStack;
+            }
+        }
+
+        private PerformanceStatistic _Statistic;
+        public PerformanceStatistic Statistic
+        {
+            get
+            {
+                return _Statistic;
             }
         }
 
@@ -42,6 +59,16 @@ namespace gip.core.datamodel
             set
             {
                 _TimedOut = value;
+            }
+        }
+
+        public string InstanceName
+        {
+            get
+            {
+                if (Statistic == null || Statistic.Instance == null)
+                    return null;
+                return Statistic.Instance.InstanceName;
             }
         }
 
