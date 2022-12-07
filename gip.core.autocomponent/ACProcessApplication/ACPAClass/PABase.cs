@@ -255,11 +255,15 @@ namespace gip.core.autocomponent
                 Regex rgx = new Regex("\\((.*?)\\)");
                 string loggerInstance = String.Format("{0}_{1}", rgx.Replace(this.GetACUrl(), ""), _ACStateMethod.ACIdentifier);
                 PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(loggerInstance, 101) : null;
-
-                InvokeACStateMethod(acClassMethod);
-
-                if (perfEvent != null)
-                    vbDump.PerfLoggerStop(loggerInstance, 101, perfEvent);
+                try
+                {
+                    InvokeACStateMethod(acClassMethod);
+                }
+                finally
+                {
+                    if (perfEvent != null)
+                        vbDump.PerfLoggerStop(loggerInstance, 101, perfEvent);
+                }
             }
         }
 
@@ -656,10 +660,16 @@ namespace gip.core.autocomponent
                         PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(loggerInstance, 100) : null;
 
                         _LastACStateMethod = _ACStateMethod;
-                        InvokeACStateMethod(_ACStateMethod);
 
-                        if (perfEvent != null)
-                            vbDump.PerfLoggerStop(loggerInstance, 100, perfEvent);
+                        try
+                        {
+                            InvokeACStateMethod(_ACStateMethod);
+                        }
+                        finally
+                        {
+                            if (perfEvent != null)
+                                vbDump.PerfLoggerStop(loggerInstance, 100, perfEvent);
+                        }
                     }
                 }
             }
