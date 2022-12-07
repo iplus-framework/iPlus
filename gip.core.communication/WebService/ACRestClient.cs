@@ -61,7 +61,6 @@ namespace gip.core.communication
 
         #endregion
 
-
         #region Properties
         public readonly ACMonitorObject _30210_LockValue = new ACMonitorObject(30210);
 
@@ -185,7 +184,6 @@ namespace gip.core.communication
 
         #endregion
 
-
         #region Points
 
         protected ACPointAsyncRMI _TaskInvocationPoint;
@@ -205,7 +203,6 @@ namespace gip.core.communication
         }
 
         #endregion
-
 
         #region Public 
 
@@ -349,7 +346,6 @@ namespace gip.core.communication
         }
         #endregion
 
-
         #region Connection
         public override bool InitSession()
         {
@@ -422,7 +418,6 @@ namespace gip.core.communication
 
         }
         #endregion
-
 
         #region HTTP
 
@@ -1077,7 +1072,6 @@ namespace gip.core.communication
         #endregion
 
         #endregion
-
 
         #region Alarms
         public override void AcknowledgeAlarms()
