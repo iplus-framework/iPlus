@@ -1,8 +1,10 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office.CustomUI;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.processapplication;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -462,16 +464,22 @@ namespace gip.bso.iplus
             }
         }
 
-        private ACClassProperty _OEERelevantProperty;
+        private static ACClassProperty _OEERelevantProperty;
         /// <summary>
         /// Gets the property which is used for OEE presentation on a PA modules.
         /// </summary>
-        public ACClassProperty OEERelevantProperty
+        public static ACClassProperty OEERelevantProperty
         {
             get
             {
                 if (_OEERelevantProperty == null)
-                    _OEERelevantProperty = Db.ACClassProperty.FirstOrDefault(c => c.ACIdentifier == GlobalProcApp.AvailabilityStatePropName);
+                {
+                    using (Database db = new core.datamodel.Database())
+                    {
+                        _OEERelevantProperty = db.ACClassProperty.Include(c => c.ACClassPropertyRelation_TargetACClassProperty)
+                                                                 .FirstOrDefault(c => c.ACIdentifier == GlobalProcApp.AvailabilityStatePropName);
+                    }
+                }
                 return _OEERelevantProperty;
             }
         }
@@ -697,7 +705,7 @@ namespace gip.bso.iplus
                         {
                             string caption = groupedProp.Key.ObjectType.IsEnum || IsPropertyValueNumeric(groupedProp.Key.ObjectType) ? 
                                              basicModel.PropertyValue.ToString() : groupedProp.Key.ACCaption;
-                            bool isOEEProp = groupedProp.Key == OEERelevantProperty;
+                            bool isOEEProp = groupedProp.Key.ACClassPropertyID == OEERelevantProperty.ACClassPropertyID;
                             if (isOEEProp)
                             {
                                 logModelClass.IsOEERoot = true;
@@ -1182,7 +1190,7 @@ namespace gip.bso.iplus
             return FindOEERoot(parentComponent.ACClass1_ParentACClass, propLogs);
         }
 
-        private bool IsPropertyValueNumeric(Type propertyType)
+        private static bool IsPropertyValueNumeric(Type propertyType)
         {
             switch (Type.GetTypeCode(propertyType))
             {
@@ -1553,7 +1561,7 @@ namespace gip.bso.iplus
                     //}
                 }
 
-                return this.SelectMany(c => c.PropertyLogs).Where(x => x.PropertyValue.Equals(true));
+                return this.SelectMany(c => c.PropertyLogs).Where(c => c.PropertyType != typeof(bool) || c.PropertyValue.Equals(true));
             }
         }
 
@@ -1633,24 +1641,34 @@ namespace gip.bso.iplus
                 List<Tuple<bool, Global.Operators>> results = new List<Tuple<bool, Global.Operators>>();
                 DateTime? startDate = null, endDate = null;
                 string caption = null;
+                bool propValue = false;
+
+                string groupName = Translator.GetTranslation(Rules.FirstOrDefault().GroupName);
                 //short displayGroup = 0;
 
-                foreach (var item in items)
+                if (items.Count == 1)
                 {
+                    var item = items.FirstOrDefault();
+                    bool isOEEProp = false;
+
                     ACClassPropertyRelation rule = Rules.FirstOrDefault(c => c.TargetACClassProperty == item.Item1);
                     if (rule != null && rule.XMLValue != null)
                     {
-                        var result = new Tuple<bool, Global.Operators>(item.Item2 == null ? false : item.Item2.PropertyValue.Equals(ACConvert.XMLToObject(item.Item1.ObjectType, rule.XMLValue, true, null)),
-                                                                      rule.LogicalOperation);
+                        if (rule.LogicalOperation == Global.Operators.none)
+                        {
+                            bool isVisible = !item.Item2.PropertyValue.Equals(ACConvert.XMLToObject(item.Item1.ObjectType, rule.XMLValue, true, null));
+                            if (!isVisible)
+                                return new ACPropertyLogModel(startDate, endDate, false, ACPropertyLogModelType.PropertyLog, 0, caption, typeof(bool), parent, "");
+                        }
+                        caption = item.Item1.ObjectType.IsEnum || IsPropertyValueNumeric(item.Item1.ObjectType) ?
+                          item.Item2.PropertyValue.ToString() : null;
 
-                        results.Add(result);
-                        if (!result.Item1)
-                            continue;
+                        isOEEProp = item.Item1.ACClassPropertyID == OEERelevantProperty.ACClassPropertyID;
+                        if (isOEEProp)
+                            parent.IsOEERoot = true;
 
-                        //if (rule.DisplayGroup > displayGroup)
-                        //{
-                            //displayGroup = rule.DisplayGroup.Value;
-
+                        if (caption == null)
+                        {
                             if (string.IsNullOrEmpty(rule.StateName))
                             {
                                 caption = item.Item1.ACCaption;
@@ -1659,7 +1677,8 @@ namespace gip.bso.iplus
                             }
                             else
                                 caption = Translator.GetTranslation(rule.StateName);
-                        //}
+                        }
+
 
                         if (!startDate.HasValue || startDate < item.Item2.StartDate)
                             startDate = item.Item2.StartDate;
@@ -1667,15 +1686,76 @@ namespace gip.bso.iplus
                         if (!endDate.HasValue || endDate > item.Item2.EndDate)
                             endDate = item.Item2.EndDate;
                     }
+
+                    return new ACPropertyLogModel(startDate, endDate, item.Item2.PropertyValue, ACPropertyLogModelType.PropertyLog, 0, caption, item.Item1.ObjectFullType, parent, groupName);
+                }
+                else
+                { 
+                    foreach (var item in items)
+                    {
+                        ACClassPropertyRelation rule = Rules.FirstOrDefault(c => c.TargetACClassProperty == item.Item1);
+                        if (rule != null && rule.XMLValue != null)
+                        {
+                            bool pValue = false;
+
+                            if (item.Item2 != null)
+                            {
+                                if (rule.LogicalOperation == Global.Operators.none)
+                                {
+                                    pValue = !item.Item2.PropertyValue.Equals(ACConvert.XMLToObject(item.Item1.ObjectType, rule.XMLValue, true, null));
+                                }
+                                else
+                                {
+                                    pValue = item.Item2.PropertyValue.Equals(ACConvert.XMLToObject(item.Item1.ObjectType, rule.XMLValue, true, null));
+                                }
+                            }
+
+                            var result = new Tuple<bool, Global.Operators>(pValue, rule.LogicalOperation);
+
+                            results.Add(result);
+                            if (!result.Item1)
+                                continue;
+
+                            caption = item.Item1.ObjectType.IsEnum || IsPropertyValueNumeric(item.Item1.ObjectType) ?
+                                                 item.Item2.PropertyValue.ToString() : null;
+
+                            //bool isOEEProp = item.Item1.ACClassPropertyID == OEERelevantProperty.ACClassPropertyID;
+                            //if (isOEEProp)
+                            //{
+                            //    parent.IsOEERoot =
+                            //}
+
+                            if (caption == null)
+                            {
+                                if (string.IsNullOrEmpty(rule.StateName))
+                                {
+                                    caption = item.Item1.ACCaption;
+                                    if (item.Item1.ObjectType != typeof(bool))
+                                        caption += ": " + item.Item2.PropertyValue;
+                                }
+                                else
+                                    caption = Translator.GetTranslation(rule.StateName);
+                            }
+
+                            if (!startDate.HasValue || startDate < item.Item2.StartDate)
+                                startDate = item.Item2.StartDate;
+
+                            if (!endDate.HasValue || endDate > item.Item2.EndDate)
+                                endDate = item.Item2.EndDate;
+                        }
+                    }
+
+                    
+                    if (results.All(c => c.Item1))
+                        propValue = true;
+                    else if (results.Any(c => c.Item1 && c.Item2 == Global.Operators.or))
+                        propValue = true;
+
+                     //items.Count == 1 ? items.FirstOrDefault().Item1.ACIdentifier : null;
+
                 }
 
-                bool propValue = false;
-                if (results.All(c => c.Item1))
-                    propValue = true;
-                else if (results.Any(c => c.Item1 && c.Item2 == Global.Operators.or))
-                    propValue = true;
-
-                string groupName = Translator.GetTranslation(Rules.FirstOrDefault().GroupName); //items.Count == 1 ? items.FirstOrDefault().Item1.ACIdentifier : null;
+                
 
                 return new ACPropertyLogModel(startDate, endDate, propValue, ACPropertyLogModelType.PropertyLog, 0, caption, typeof(bool), parent, groupName);
             }
@@ -1954,6 +2034,7 @@ namespace gip.bso.iplus
                     classModel.StartDate = groupedModel.Min(c => c.StartDate);
                     classModel.EndDate = groupedModel.Max(c => c.EndDate);
                     classModel.PropertyLogModelType = ACPropertyLogModelType.Property;
+                    classModel.PropertyType = groupedModel.FirstOrDefault().PropertyType;
                     classModel._ACCaption = groupName;
                 }
                 else
@@ -1975,6 +2056,7 @@ namespace gip.bso.iplus
                         }
                     }
                     hostModel.AddItems(groupedModel);
+                    hostModel.PropertyType = groupedModel.FirstOrDefault().PropertyType;
                     classModel.AddItem(hostModel);
                 }
                 cmIndex++;
@@ -2081,7 +2163,7 @@ namespace gip.bso.iplus
 
                 CalculateOEE(item.Items, timelinePropLogs);
 
-                if (item.IsOEERoot)
+                if (item.PropertyType == typeof(GlobalProcApp.AvailabilityState))
                 {
                     var scheduledTime = item.TotalDuration.TotalSeconds - timelinePropLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog && c.DisplayOrder == item.DisplayOrder &&
                                                                    (((GlobalProcApp.AvailabilityState)c.PropertyValue) == GlobalProcApp.AvailabilityState.Idle ||
