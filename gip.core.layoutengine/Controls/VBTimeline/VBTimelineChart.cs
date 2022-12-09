@@ -46,7 +46,7 @@ namespace gip.core.layoutengine
         /// </summary>
         public VBTimelineChart()
         {
-            Items = new ObservableCollection<object>();
+            Items = new ObservableCollection<IACTimeLog>();
         }
 
         /// <summary>

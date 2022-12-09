@@ -96,6 +96,9 @@
     <None Update="VBControlScripts\2021-09-09 13-06_aaginic.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="VBControlScripts\2022-12-06 13-46_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="BaseManager\PWObjectRoot.cs" />

@@ -110,8 +110,19 @@ namespace gip.core.datamodel
         {
             if (!Active)
                 return false;
-            if (String.IsNullOrWhiteSpace(url) || perfEvent == null)
+            if (perfEvent == null)
                 throw new ArgumentNullException();
+            if (String.IsNullOrWhiteSpace(url))
+            {
+                lock (_LogLock)
+                {
+                    if (perfEvent.IsRunning)
+                        perfEvent.Stop();
+                    _ActivePerfEvents.Remove(perfEvent);
+                }
+                return true;
+            }
+
             PerformanceLoggerInstance performanceLoggerInstance = null;
             lock (_LogLock)
             {
@@ -120,16 +131,15 @@ namespace gip.core.datamodel
             }
             if (performanceLoggerInstance != null)
             {
-                bool added = performanceLoggerInstance.Stop(id, perfEvent);
+                bool stopped = performanceLoggerInstance.Stop(id, perfEvent);
                 _TotalExecutionTime += perfEvent.Elapsed;
-                if (perfEvent != null)
+                lock (_LogLock)
                 {
-                    lock (_LogLock)
-                    {
-                        _ActivePerfEvents.Remove(perfEvent);
-                    }
+                    if (perfEvent.IsRunning)
+                        perfEvent.Stop();
+                    _ActivePerfEvents.Remove(perfEvent);
                 }
-                return added;
+                return stopped;
             }
             return false;
         }
@@ -178,7 +188,7 @@ namespace gip.core.datamodel
         }
 
 #if NETFRAMEWORK
-        public void MonitorActivePerfEvents(int perfTimeoutForStop, IRuntimeDump runtimeDump)
+        public void MonitorActivePerfEvents(int perfTimeoutForStop, IRuntimeDump runtimeDump, string[] ignoreList, string[] includeList)
         {
             if (perfTimeoutForStop <= 0)
                 return;
@@ -189,22 +199,57 @@ namespace gip.core.datamodel
             }
             if (activeEvents != null && activeEvents.Any())
             {
-                if (activeEvents.Where(c => c.ElapsedMilliseconds > perfTimeoutForStop).Any())
+                foreach (var perfEvent in activeEvents)
                 {
-#if DEBUG
-                    if (System.Diagnostics.Debugger.IsAttached)
-                        System.Diagnostics.Debugger.Break();
-                    else
+                    perfEvent.CalculateTimeout(perfTimeoutForStop);
+                }
+
+                var queryTimeOut = activeEvents.Where(c => c.IsTimedOut
+                                            && (c.InstanceName == null
+                                                || (!ignoreList.Where(d => c.InstanceName.StartsWith(d)).Any()
+                                                    && (!includeList.Any()
+                                                        || includeList.Where(d => c.InstanceName.StartsWith(d)).Any()))
+                                               )
+                                      );
+                if (queryTimeOut.Any())
+                {
+                    string timeOutText = DumpEvents(queryTimeOut.OrderByDescending(c => c.ElapsedMilliseconds).ToArray());
+                    if (!String.IsNullOrEmpty(timeOutText))
+                        runtimeDump.Messages.LogWarning(runtimeDump.GetACUrl(), "MonitorActivePerfEvents()", timeOutText);
+
+//#if DEBUG
+//                    if (System.Diagnostics.Debugger.IsAttached)
+//                        System.Diagnostics.Debugger.Break();
+//                    else
+//                        runtimeDump.DumpStackTrace(Thread.CurrentThread);
+//#else
                         runtimeDump.DumpStackTrace(Thread.CurrentThread);
-#else
-                        runtimeDump.DumpStackTrace(Thread.CurrentThread);
-#endif
+//#endif
                     foreach (var perfEvent in activeEvents)
                     {
-                        perfEvent.Restart();
+                        // If there are any Zombies, because a programer has not called Stop() in a finally-block to ensure that the Entry will be removed from watching,
+                        // then remove it
+                        if (perfEvent.RestartWithCounter() >= 6)
+                        {
+                            lock (_LogLock)
+                            {
+                                perfEvent.Stop();
+                                _ActivePerfEvents.Remove(perfEvent);
+                            }
+                        }
                     }
                 }
             }
+        }
+
+        public string DumpEvents(IEnumerable<PerformanceEvent> activeEvents)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var perfEvent in activeEvents)
+            {
+                sb.AppendLine(perfEvent.ToString());
+            }
+            return sb.ToString();
         }
 #endif
 

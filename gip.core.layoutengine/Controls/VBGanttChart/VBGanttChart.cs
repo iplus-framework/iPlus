@@ -62,7 +62,7 @@ namespace gip.core.layoutengine
         /// </summary>
         public VBGanttChart()
         {
-            Items = new ObservableCollection<object>();
+            Items = new ObservableCollection<IACTimeLog>();
             Connections = new ObservableCollection<object>();
         }
 

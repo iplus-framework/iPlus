@@ -252,7 +252,7 @@ namespace gip.core.datamodel
 
 
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PropertyLog Info'}de{'PropertyLog Info'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, true)]
-    public class ACPropertyLogInfo : INotifyPropertyChanged, IACObject
+    public class ACPropertyLogInfo : IACTimeLog
     {
         public ACPropertyLogInfo()
         {
