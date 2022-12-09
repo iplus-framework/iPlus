@@ -9,9 +9,10 @@ namespace gip.core.datamodel
     public class PerformanceStatistic
     {
         #region c'tors
-        public PerformanceStatistic(int id)
+        public PerformanceStatistic(int id, PerformanceLoggerInstance instance)
         {
             _Id = id;
+            _Instance = instance;
         }
         #endregion
 
@@ -29,6 +30,14 @@ namespace gip.core.datamodel
             }
         }
 
+        private PerformanceLoggerInstance _Instance;
+        public PerformanceLoggerInstance Instance
+        {
+            get
+            {
+                return _Instance;
+            }
+        }
         object _LockEvents = new object();
 
         private TimeSpan _TotalExecutionTime;
@@ -80,7 +89,7 @@ namespace gip.core.datamodel
         /// </summary>
         internal PerformanceEvent Start(bool checkCallStack)
         {
-            var perfEvent = new PerformanceEvent(checkCallStack);
+            var perfEvent = new PerformanceEvent(checkCallStack, this);
             perfEvent.Start();
             if (checkCallStack)
             {

@@ -696,12 +696,18 @@ namespace gip.core.autocomponent
             if (acMessage.ACUrl[0] != '&')
             {
                 PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACUrlForLogger, 101) : null;
-                messageResult.MethodResult = Root.ACUrlCommand(acMessage.ACUrl, acMessage.ACParameter);
-                if (perfEvent != null && vbDump != null)
+                try
                 {
-                    vbDump.PerfLoggerStop(ACUrlForLogger, 101, perfEvent);
-                    if (perfEvent.IsTimedOut)
-                        Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 101)", acMessage.ACUrl);
+                    messageResult.MethodResult = Root.ACUrlCommand(acMessage.ACUrl, acMessage.ACParameter);
+                }
+                finally
+                {
+                    if (perfEvent != null && vbDump != null)
+                    {
+                        vbDump.PerfLoggerStop(ACUrlForLogger, 101, perfEvent);
+                        if (perfEvent.IsTimedOut)
+                            Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 101)", acMessage.ACUrl);
+                    }
                 }
                 WCFMessage acMessageResult = WCFMessage.NewACMessage(acMessage.ACUrlRequester, acMessage.ACUrl, acMessage.MethodInvokeRequestID, new Object[] { messageResult });
                 if (!acMessage.ACUrl.Contains("GetChildInstanceInfo"))
@@ -718,22 +724,34 @@ namespace gip.core.autocomponent
             else
             {
                 PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACUrlForLogger, 111) : null;
-                messageResult.MethodResult = Root.IsEnabledACUrlCommand(acMessage.ACUrl.Substring(1), acMessage.ACParameter);
-                if (perfEvent != null && vbDump != null)
+                try
                 {
-                    vbDump.PerfLoggerStop(ACUrlForLogger, 111, perfEvent);
-                    if (perfEvent.IsTimedOut)
-                        Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 111)", acMessage.ACUrl);
+                    messageResult.MethodResult = Root.IsEnabledACUrlCommand(acMessage.ACUrl.Substring(1), acMessage.ACParameter);
+                }
+                finally
+                {
+                    if (perfEvent != null && vbDump != null)
+                    {
+                        vbDump.PerfLoggerStop(ACUrlForLogger, 111, perfEvent);
+                        if (perfEvent.IsTimedOut)
+                            Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 111)", acMessage.ACUrl);
+                    }
                 }
                 WCFMessage acMessageResult = WCFMessage.NewACMessage(acMessage.ACUrlRequester, acMessage.ACUrl.Substring(1), acMessage.MethodInvokeRequestID, new Object[] { messageResult });
                 //Messages.LogDebug(this.GetACUrl(), "WCFServiceChannel.ProcessACMessage()", String.Format("ACMethodInvocationResult: {0} {1}", acMessageResult.ACUrl, acMessageResult.MethodInvokeRequestID));
                 perfEvent = vbDump != null ? vbDump.PerfLoggerStart(ACUrlForLogger, 112) : null;
-                EnqeueMessageForPeer(acMessageResult);
-                if (perfEvent != null && vbDump != null)
+                try
                 {
-                    vbDump.PerfLoggerStop(ACUrlForLogger, 112, perfEvent);
-                    if (perfEvent.IsTimedOut)
-                        Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 112)", acMessage.ACUrl);
+                    EnqeueMessageForPeer(acMessageResult);
+                }
+                finally
+                {
+                    if (perfEvent != null && vbDump != null)
+                    {
+                        vbDump.PerfLoggerStop(ACUrlForLogger, 112, perfEvent);
+                        if (perfEvent.IsTimedOut)
+                            Messages.LogDebug(this.GetACUrl(), "ProcessACMessage(Duration 112)", acMessage.ACUrl);
+                    }
                 }
             }
         }

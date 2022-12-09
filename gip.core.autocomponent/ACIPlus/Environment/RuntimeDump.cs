@@ -100,8 +100,106 @@ namespace gip.core.autocomponent
         [ACPropertyInfo(true, 200, DefaultValue = 0)]
         public int PerfTimeoutStackTrace { get; set; }
 
-        [ACPropertyInfo(true, 200, DefaultValue = 0)]
+        [ACPropertyInfo(true, 201, DefaultValue = 0)]
         public int PerfMonitoringTimeout { get; set; }
+
+
+        private object _LockPerfMonLock = new object();
+        private string[] _PerfMonIgnoreList = new string[] { };
+        protected string[] PerfMonIgnoreList
+        {
+            get
+            {
+                lock (_LockPerfMonLock)
+                {
+                    return _PerfMonIgnoreList;
+                }
+            }
+        }
+
+        private string _PerfMonIgnore;
+        [ACPropertyInfo(true, 202)]
+        public string PerfMonIgnore 
+        {
+            get
+            {
+                return _PerfMonIgnore;
+            }
+            set
+            {
+                _PerfMonIgnore = value;
+                if (String.IsNullOrEmpty(value))
+                {
+                    lock (_LockPerfMonLock)
+                    {
+                        _PerfMonIgnoreList = new string[] { };
+                    }
+                }
+                else
+                {
+                    lock (_LockPerfMonLock)
+                    {
+                        try
+                        {
+                            _PerfMonIgnoreList = value.Split(ACUrlHelper.Delimiter_Translate);
+                        }
+                        catch (Exception ex)
+                        {
+                            Messages.LogException(this.GetACUrl(), "PerfMonIgnore.Split()", ex);
+                            _PerfMonIgnoreList = new string[] { };
+                        }
+                    }
+                }
+            }
+        }
+
+        private string[] _PerfMonIncludeList = new string[] { };
+        protected string[] PerfMonIncludeList
+        {
+            get
+            {
+                lock (_LockPerfMonLock)
+                {
+                    return _PerfMonIncludeList;
+                }
+            }
+        }
+
+        private string _PerfMonInclude;
+        [ACPropertyInfo(true, 202)]
+        public string PerfMonInclude
+        {
+            get
+            {
+                return _PerfMonInclude;
+            }
+            set
+            {
+                _PerfMonInclude = value;
+                if (String.IsNullOrEmpty(value))
+                {
+                    lock (_LockPerfMonLock)
+                    {
+                        _PerfMonIncludeList = new string[] { };
+                    }
+                }
+                else
+                {
+                    lock (_LockPerfMonLock)
+                    {
+                        try
+                        {
+                            _PerfMonIncludeList = value.Split(ACUrlHelper.Delimiter_Translate);
+                        }
+                        catch (Exception ex)
+                        {
+                            Messages.LogException(this.GetACUrl(), "PerfMonInclude.Split()", ex);
+                            _PerfMonIncludeList = new string[] { };
+                        }
+                    }
+                }
+            }
+        }
 
         #endregion
 
@@ -247,7 +345,7 @@ namespace gip.core.autocomponent
         {
             if (PerfLogger == null || !PerfLogger.Active || PerfMonitoringTimeout <= 0)
                 return;
-            PerfLogger.MonitorActivePerfEvents(this.PerfMonitoringTimeout, this);
+            PerfLogger.MonitorActivePerfEvents(this.PerfMonitoringTimeout, this, PerfMonIgnoreList, PerfMonIncludeList);
         }
 #pragma warning disable CS0618
         /// <summary>

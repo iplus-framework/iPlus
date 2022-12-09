@@ -68,27 +68,32 @@ namespace gip.core.webservices
             }
             metad.HttpGetEnabled = true;
 
-            foreach (var endpoint in serviceHost.Description.Endpoints)
+            foreach (ServiceEndpoint endpoint in serviceHost.Description.Endpoints)
             {
-                foreach (var opDescr in endpoint.Contract.Operations)
+                foreach (OperationDescription opDescr in endpoint.Contract.Operations)
                 {
-                    var knownTypes = ACKnownTypes.GetKnownType();
-                    foreach (var knownType in knownTypes)
-                    {
-                        opDescr.KnownTypes.Add(knownType);
-                    }
-                    foreach (IOperationBehavior behavior in opDescr.Behaviors)
-                    {
-                        if (behavior is DataContractSerializerOperationBehavior)
-                        {
-                            DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
-                            //dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
-                            dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
-                        }
-                    }
+                    OnAddKnownTypesToOperationContract(endpoint, opDescr);
                 }
             }
             return serviceHost;
+        }
+
+        protected virtual void OnAddKnownTypesToOperationContract(ServiceEndpoint endpoint, OperationDescription opDescr)
+        {
+            //var knownTypes = ACKnownTypes.GetKnownType();
+            //foreach (var knownType in knownTypes)
+            //{
+            //    opDescr.KnownTypes.Add(knownType);
+            //}
+            //foreach (IOperationBehavior behavior in opDescr.Behaviors)
+            //{
+            //    if (behavior is DataContractSerializerOperationBehavior)
+            //    {
+            //        DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
+            //        //dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
+            //        dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
+            //    }
+            //}
         }
 
         public override Type ServiceType

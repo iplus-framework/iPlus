@@ -602,12 +602,18 @@ namespace gip.core.autocomponent
                     string currentCompACUrl = CurrentACComponent.GetACUrl();
                     RoutingResult sources = null;
                     RoutingResult targets = null;
+                    bool receive = false;
+                    bool deliver = false;
+
                     using (Database db = new datamodel.Database())
                     {
-                        targets = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true);
-
                         if (SelectedFunction != null && SelectedFunction.ComponentClass != null)
                         {
+                            receive = typeof(IPAFuncReceiveMaterial).IsAssignableFrom(SelectedFunction.ACType.ObjectType);
+                            deliver = typeof(IPAFuncDeliverMaterial).IsAssignableFrom(SelectedFunction.ACType.ObjectType);
+                            if (deliver)
+                                targets = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true);
+
                             ACClass funcClass = null;
                             using (ACMonitor.Lock(datamodel.Database.GlobalDatabase.QueryLock_1X000))
                             {
@@ -643,10 +649,8 @@ namespace gip.core.autocomponent
                         }
                     }
 
-                    bool receive = typeof(IPAFuncReceiveMaterial).IsAssignableFrom(SelectedFunction.ACType.ObjectType);
-                    bool deliver = typeof(IPAFuncDeliverMaterial).IsAssignableFrom(SelectedFunction.ACType.ObjectType);
-
-                    if ((!receive && !deliver) || receive && deliver)
+                    if (   (!receive && !deliver) 
+                        || (receive && deliver))
                     {
                         ShowDialog(this, "SourceOrTarget");
                         receive = _CurrentSourceOrTarget != null ? _CurrentSourceOrTarget.Value.ToString() == "Source" : false;

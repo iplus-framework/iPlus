@@ -81,7 +81,7 @@ namespace gip.core.datamodel
             }
         }
 
-        private DateTime _LastRun = DateTime.Now;
+        private DateTime _LastRun = DateTimeUtils.NowDST;
         public DateTime LastRun
         {
             get
@@ -94,7 +94,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                return DateTime.Now - LastRun;
+                return DateTimeUtils.NowDST - LastRun;
             }
         }
 

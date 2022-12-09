@@ -674,8 +674,9 @@ namespace gip.core.autocomponent
                 System.Data.EntityState entityState = System.Data.EntityState.Unchanged;
                 entityState = ContentTask.EntityState;
                 //ACClassTaskQueue.TaskQueue.ProcessAction(() => { entityState = ContentTask.EntityState; });
-                if (entityState != System.Data.EntityState.Unchanged && entityState != System.Data.EntityState.Modified)
-                    return false;
+                //if (entityState != System.Data.EntityState.Unchanged && entityState != System.Data.EntityState.Modified)
+                if (entityState == System.Data.EntityState.Detached || entityState == System.Data.EntityState.Deleted)
+                        return false;
 
 
                 foreach (var child in ACComponentChilds)

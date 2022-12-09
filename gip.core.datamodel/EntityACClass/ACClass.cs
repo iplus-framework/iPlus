@@ -3239,11 +3239,21 @@ namespace gip.core.datamodel
                 if (parameters[0] is ACValueList)
                     return parameters[0] as ACValueList;
                 acValueList = ACParameter;
-                if (acValueList != null && acValueList.Count <= parameters.Count())
+                if (acValueList != null)
                 {
-                    for (int i = 0; i < acValueList.Count(); i++)
+                    if (acValueList.Count >= parameters.Count())
                     {
-                        acValueList[i].Value = parameters[i];
+                        for (int i = 0; i < parameters.Count(); i++)
+                        {
+                            acValueList[i].Value = parameters[i];
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < acValueList.Count; i++)
+                        {
+                            acValueList[i].Value = parameters[i];
+                        }
                     }
                 }
             }

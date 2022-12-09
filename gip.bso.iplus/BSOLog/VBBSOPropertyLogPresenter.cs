@@ -111,10 +111,12 @@ namespace gip.bso.iplus
         {
             get
             {
-                if (_ACProjectList == null)
-                    using (Database db = new core.datamodel.Database())
-                        _ACProjectList = db.ACProject.Where(c => c.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application).ToList();
-
+                if (_ACProjectList != null)
+                    return _ACProjectList;
+                using (ACMonitor.Lock(Database.ContextIPlus.QueryLock_1X000))
+                {
+                    _ACProjectList = Database.ContextIPlus.ACProject.Where(c => c.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application).ToList();
+                }
                 return _ACProjectList;
             }
         }
@@ -1223,7 +1225,9 @@ namespace gip.bso.iplus
             foreach(var item in groupedByDisplayOrder)
             {
                 ACPropertyLogModel model = item.FirstOrDefault(c => c.PropertyLogModelType == ACPropertyLogModelType.Property);
-                if(model != null && string.IsNullOrEmpty(model.ACUrl) && model.ParentACObject  != null)
+                if (model == null)
+                    continue;
+                if (string.IsNullOrEmpty(model.ACUrl) && model.ParentACObject  != null)
                 {
                     var parent = model.ParentACObject as ACPropertyLogModel;
                     if (parent != null)
@@ -1629,7 +1633,7 @@ namespace gip.bso.iplus
                 List<Tuple<bool, Global.Operators>> results = new List<Tuple<bool, Global.Operators>>();
                 DateTime? startDate = null, endDate = null;
                 string caption = null;
-                short displayGroup = 0;
+                //short displayGroup = 0;
 
                 foreach (var item in items)
                 {
@@ -1645,7 +1649,7 @@ namespace gip.bso.iplus
 
                         //if (rule.DisplayGroup > displayGroup)
                         //{
-                            displayGroup = rule.DisplayGroup.Value;
+                            //displayGroup = rule.DisplayGroup.Value;
 
                             if (string.IsNullOrEmpty(rule.StateName))
                             {
