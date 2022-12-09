@@ -20,9 +20,6 @@ using System.Runtime.Serialization;
 using System.IO;
 using System.ComponentModel;
 using System.Xml;
-#if !EFCR
-using System.Data.Objects.DataClasses;
-#endif
 using System.Collections.Specialized;
 using System.Threading;
 

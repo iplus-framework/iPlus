@@ -21,6 +21,7 @@ using System.Data;
 using System.Reflection;
 using System.Configuration;
 using System.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {

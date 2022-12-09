@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
@@ -232,6 +233,7 @@ namespace gip.core.datamodel
 #endif
 
         [ACPropertyInfo(6, "", "en{'Source']de{'Quelle'}")]
+        [NotMapped]
         public IACConfigStore ConfigStore
         {
             get
@@ -250,6 +252,7 @@ namespace gip.core.datamodel
 
         /// <summary>ACClassConfig-Childs</summary>
         /// <value>ACClassConfig-Childs</value>
+        [NotMapped]
         public IEnumerable<IACContainerWithItems> Items
         {
             get
@@ -260,6 +263,7 @@ namespace gip.core.datamodel
 
         /// <summary>Gets the parent container.</summary>
         /// <value>The parent container.</value>
+        [NotMapped]
         public IACContainerWithItems ParentContainer
         {
             get
@@ -270,6 +274,7 @@ namespace gip.core.datamodel
 
         /// <summary>Gets the root container.</summary>
         /// <value>The root container.</value>
+        [NotMapped]
         public IACContainerWithItems RootContainer
         {
             get

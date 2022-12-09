@@ -21,11 +21,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>GIPLicense.tt</DependentUpon>
     </Compile>
-    <Compile Update="GIPLicense.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>GIPLicense.edmx</DependentUpon>
-    </Compile>
     <Compile Update="License.cs">
       <DependentUpon>GIPLicense.tt</DependentUpon>
     </Compile>

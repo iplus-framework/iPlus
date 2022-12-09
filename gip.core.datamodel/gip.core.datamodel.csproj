@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -107,10 +107,9 @@
     <Content Include="appsettings.json" />
   </ItemGroup>
   <PropertyGroup />
-  <PropertyGroup>
-    <PostBuildEvent>copy /Y $(ProjectDir)..\..\..\packages\Matrix\matrix.ini  $(TargetDir)
-copy /Y $(ProjectDir)..\..\..\packages\Matrix\MATRIX32.DLL  $(TargetDir)
-copy /Y $(ProjectDir)..\..\..\packages\Matrix\MATRIX64.DLL  $(TargetDir)</PostBuildEvent>
-  </PropertyGroup>
+  <PropertyGroup />
   <Import Project="..\gip.core.datamodel.shared\gip.core.datamodel.shared.projitems" Label="Shared" />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy /Y $(ProjectDir)..\..\..\packages\Matrix\matrix.ini  $(TargetDir)&#xD;&#xA;copy /Y $(ProjectDir)..\..\..\packages\Matrix\MATRIX32.DLL  $(TargetDir)&#xD;&#xA;copy /Y $(ProjectDir)..\..\..\packages\Matrix\MATRIX64.DLL  $(TargetDir)" />
+  </Target>
 </Project>

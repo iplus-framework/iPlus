@@ -12,6 +12,7 @@ using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Data.Common;
+using Microsoft.Extensions.Options;
 
 namespace gip.core.datamodel
 {
@@ -77,7 +78,7 @@ namespace gip.core.datamodel
         }
 
         public Database()
-            : base(ConnectionString)
+            : base(DbContextOptions(ConnectionString))
         {
             _ObjectContextHelper = new ACObjectContextHelper(this);
         }
@@ -88,7 +89,7 @@ namespace gip.core.datamodel
         }
 
         public Database(string connectionString)
-            : base(connectionString)
+            : base(DbContextOptions(connectionString))
         {
             _ObjectContextHelper = new ACObjectContextHelper(this);
         }
@@ -157,8 +158,16 @@ namespace gip.core.datamodel
 #endif
                     }
                 }
-                return "name=iPlusV4_Entities";
+
+                return ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString;
             }
+        }
+
+        public static DbContextOptions<iPlusV4Context> DbContextOptions(string connectionString)
+        {
+            var dbOptions = new DbContextOptionsBuilder<iPlusV4Context>()
+                    .UseSqlServer(ConfigurationManager.ConnectionStrings[connectionString].ConnectionString).Options;
+            return dbOptions;
         }
 
         /// <summary>
@@ -168,7 +177,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public static string ModifiedConnectionString(string appName)
         {
-            var connString = ConnectionString.Replace("iPlus_db", appName);
+            var connString = ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString.Replace("iPlus_db", appName);
             return connString;
         }
 
@@ -1439,7 +1448,7 @@ namespace gip.core.datamodel
         {
             if (_ObjectContextHelper != null && detach)
                 _ObjectContextHelper.DetachAllEntities();
-#if !EFCR 
+#if !EFCR
             if (dispose)
                 Dispose(true);
 #endif

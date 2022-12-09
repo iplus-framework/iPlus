@@ -19,6 +19,7 @@ using System.IO;
 using System.Xml;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -176,6 +177,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The AC URL.</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string ACUrl
         {
             get
@@ -190,6 +192,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to ACClass</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -519,6 +522,7 @@ namespace gip.core.datamodel
         /// Gets or sets the menu entry.
         /// </summary>
         /// <value>The menu entry.</value>
+        [NotMapped]
         public ACMenuItem MenuEntry
         {
             get

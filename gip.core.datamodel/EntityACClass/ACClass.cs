@@ -19,6 +19,8 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -1737,6 +1739,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>ACClassProperty List</value>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClassProperty> Properties
         {
             get
@@ -1752,6 +1755,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClassProperty> PropertiesCached
         {
             get
@@ -1786,6 +1790,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         /// <value>ACClassProperty List</value>
+        [NotMapped]
         public IEnumerable<IACType> HardcodedProperties
         {
             get
@@ -1799,6 +1804,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         /// <value>ACClassProperty List</value>
+        [NotMapped]
         public IEnumerable<IACType> ExtendedProperties
         {
             get
@@ -1813,6 +1819,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The AC class property top base list.</value>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClassProperty> BaseProperties
         {
             get
@@ -1833,6 +1840,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>ACClassProperty List</value>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClassProperty> Points
         {
             get

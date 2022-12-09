@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel;
@@ -94,11 +95,24 @@ public partial class iPlusV4Context : DbContext
     public virtual DbSet<VBUserInstance> VBUserInstance { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=.\\;Database=iPlusV4;Trusted_Connection=True;Encrypt=False");
+    {
+        optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString);
+    }
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        Type typeVBEntityObject = typeof(VBEntityObject);
+        foreach (Type typetoIgnore in this.GetType().Assembly.GetTypes())
+        {
+            if (!typetoIgnore.IsGenericType
+                && !typetoIgnore.IsValueType
+                && !typetoIgnore.IsEnum
+                && !typeVBEntityObject.IsAssignableFrom(typetoIgnore))
+                modelBuilder.Ignore(typetoIgnore);
+        }
+
         modelBuilder.Entity<ACAssembly>(entity =>
         {
             entity.ToTable("ACAssembly");
