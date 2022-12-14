@@ -362,7 +362,9 @@ namespace gip.core.autocomponent
             DumpStackTrace();
         }
 
-        public void DumpStackTrace(Thread ignoreThread = null)
+        private const string C_IdleMethod = "Int32 WaitOneNative";
+
+        public void DumpStackTrace(Thread ignoreThread = null, bool ignoreIdleThreads = false)
         {
             StackTrace st = new StackTrace(true);
             string trace = st.ToString();
@@ -380,12 +382,19 @@ namespace gip.core.autocomponent
                 for (int i = 0; i < st.FrameCount; i++)
                 {
                     StackFrame sf = st.GetFrame(i);
+                    if (ignoreIdleThreads && i == 0)
+                    {
+                        string methodName = sf.GetMethod().ToString();
+                        if (!String.IsNullOrEmpty(methodName) && methodName.StartsWith(C_IdleMethod))
+                            break;
+                    }
                     builder.AppendLine(stackIndent + "Method: " + sf.GetMethod());
                     builder.AppendLine(stackIndent + "File: " + sf.GetFileName());
                     builder.AppendLine(stackIndent + "Line: " + sf.GetFileLineNumber());
                     stackIndent += "  ";
                 }
-                Messages.LogDebug(this.GetACUrl(), "RuntimeDump.Dump(StackTrace)", String.Format("Thread: {0}, Trace {1}", thread.Name, builder.ToString()));
+                if (!String.IsNullOrEmpty(stackIndent))
+                    Messages.LogDebug(this.GetACUrl(), "RuntimeDump.Dump(StackTrace)", String.Format("Thread: {0}, Trace {1}", thread.Name, builder.ToString()));
 
                 thread.Resume();
             }

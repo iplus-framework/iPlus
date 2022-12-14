@@ -109,7 +109,7 @@ namespace gip.core.autocomponent
             if (ConsistencyCheckWF && WFInitPhase >= WFInstantiatonPhase.NewWF_Creating)
             {
                 int retries = 0;
-                while (ACClassTaskQueue.TaskQueue.IsBusy && retries < 100)
+                while (ACClassTaskQueue.TaskQueue.IsBusy && retries < 200) // Max 20 Seconds
                 {
                     Thread.Sleep(ACClassTaskQueue.TaskQueue.WorkerInterval_ms);
                     retries++;

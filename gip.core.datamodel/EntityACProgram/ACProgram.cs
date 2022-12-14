@@ -251,6 +251,7 @@ namespace gip.core.datamodel
                 SafeList<IACConfig> newSafeList = new SafeList<IACConfig>();
                 try
                 {
+                    List<ACProgramConfig> configList = new List<ACProgramConfig>();
                     var database = Database != null ? Database : this.GetObjectContext<Database>();
                     using (ACMonitor.Lock(database.QueryLock_1X000))
                     {
@@ -259,8 +260,9 @@ namespace gip.core.datamodel
                             ACProgramConfig_ACProgram.AutoRefresh();
                             ACProgramConfig_ACProgram.AutoLoad();
                         }
-                        newSafeList = new SafeList<IACConfig>(ACProgramConfig_ACProgram.ToList().Select(x => (IACConfig)x));
+                        configList = ACProgramConfig_ACProgram.ToList();
                     }
+                    newSafeList = new SafeList<IACConfig>(configList.Select(x => (IACConfig)x));
                 }
                 catch (Exception e)
                 {

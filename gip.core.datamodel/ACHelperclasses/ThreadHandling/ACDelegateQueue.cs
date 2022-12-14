@@ -196,14 +196,18 @@ namespace gip.core.datamodel
         {
             while (!_syncQueue.ExitThreadEvent.WaitOne(_WorkerInterval_ms, false))
             {
-                PerformanceEvent perfEvent = _workerThread.StartReportingExeTime();
-                if (perfEvent != null)
-                    _LastRun = perfEvent.StartTime;
-                Work();
-                _workerThread.StopReportingExeTime();
+                if (CanStartWork())
+                {
+                    PerformanceEvent perfEvent = _workerThread.StartReportingExeTime();
+                    if (perfEvent != null)
+                        _LastRun = perfEvent.StartTime;
 
-                // Warte darauf, dass neue Event ansteht               
-                _syncQueue.NewItemEvent.WaitOne();
+                    Work();
+                    _workerThread.StopReportingExeTime();
+
+                    // Warte darauf, dass neue Event ansteht               
+                    _syncQueue.NewItemEvent.WaitOne();
+                }
                 // Sammle zuerst ein paar Events
                 //Thread.Sleep(_WorkerInterval_ms);
             }
@@ -306,7 +310,6 @@ namespace gip.core.datamodel
         /// <param name="action">The action.</param>
         public void Add(Action action)
         {
-
             using (ACMonitor.Lock(_0_LockDelegateQueue))
             {
                 DelegateQueue.Enqueue(action);
@@ -478,6 +481,11 @@ namespace gip.core.datamodel
         /// <param name="countActions">The count actions.</param>
         protected virtual void OnQueueProcessed(int countActions)
         {
+        }
+
+        protected virtual bool CanStartWork()
+        {
+            return true;
         }
         #endregion
     }

@@ -16,6 +16,6 @@ namespace gip.core.datamodel
 
         bool? PerfLoggerStop(string url, int id, PerformanceEvent perfEvent, int perfTimeoutStackTrace = 0);
 
-        void DumpStackTrace(Thread ignoreThread = null);
+        void DumpStackTrace(Thread ignoreThread = null, bool ignoreIdleThreads = false);
     }
 }

@@ -318,6 +318,13 @@ namespace gip.core.communication
                 return ExecuteMethod(virtualMethodName, complexObj, dbNo, offset, miscParams);
             }
         }
+
+        public static bool IsLocalConnection(string ipAddress)
+        {
+            return String.IsNullOrEmpty(ipAddress)
+                    || ipAddress == "localhost"
+                    || ipAddress == "127.0.0.1";
+        }
         #endregion
 
         #region Event-Handler

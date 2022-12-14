@@ -136,13 +136,15 @@ namespace gip.core.autocomponent
             }
             ACClassTask task = wfComponent.ContentTask;
             wfComponent.Content = null;
-            ACClassTaskQueue.TaskQueue.Add(() =>
-            {
-                if (task.EntityState != System.Data.EntityState.Deleted
-                    && task.EntityState != System.Data.EntityState.Detached)
-                    ACClassTaskQueue.TaskQueue.Context.DeleteObject(task);
-            }
-            );
+            ACClassTaskQueue.TaskQueue.AddACClassTaskForBulkDelete(task);
+
+            //ACClassTaskQueue.TaskQueue.Add(() =>
+            //{
+            //    if (task.EntityState != System.Data.EntityState.Deleted
+            //        && task.EntityState != System.Data.EntityState.Detached)
+            //        ACClassTaskQueue.TaskQueue.Context.DeleteObject(task);
+            //}
+            //);
         }
 
         public static void InitWFChilds(IACComponentPWGroup pwGroup, WFDictionary wfDictionary)

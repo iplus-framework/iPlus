@@ -223,7 +223,7 @@ namespace gip.core.datamodel
 //                    else
 //                        runtimeDump.DumpStackTrace(Thread.CurrentThread);
 //#else
-                        runtimeDump.DumpStackTrace(Thread.CurrentThread);
+                        runtimeDump.DumpStackTrace(Thread.CurrentThread, true);
 //#endif
                     foreach (var perfEvent in activeEvents)
                     {

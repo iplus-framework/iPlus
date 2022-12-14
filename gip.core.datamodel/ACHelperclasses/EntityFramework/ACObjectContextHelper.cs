@@ -85,6 +85,9 @@ namespace gip.core.datamodel
         /// Number of Retries if ACSaveChanges fails due to a transaction error. Default is 5
         /// </summary>
         public const int C_NumberOfRetriesOnTransError = 5;
+
+        public static readonly string SET_READ_UNCOMMITED = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED";
+        public static readonly string SET_READ_COMMITED = "SET TRANSACTION ISOLATION LEVEL READ COMMITTED";
         #endregion
 
         #region Properties
@@ -988,6 +991,16 @@ namespace gip.core.datamodel
             {
                 this.ObjectContext.Detach(objectStateEntry.Entity);
             }
+        }
+
+        public void SetIsolationLevelUncommitedRead()
+        {
+            ObjectContext.ExecuteStoreCommand(SET_READ_UNCOMMITED);
+        }
+
+        public void SetIsolationLevelCommitedRead()
+        {
+            ObjectContext.ExecuteStoreCommand(SET_READ_COMMITED);
         }
 
         #endregion

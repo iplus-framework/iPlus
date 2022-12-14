@@ -19,18 +19,39 @@ using System.Threading;
 using System.Data.Objects;
 using System.Collections.Concurrent;
 using System.Data.EntityClient;
+using System.Xml.Linq;
 
 namespace gip.core.datamodel
 {
+    internal class ACClassTaskDeleteQueue : ACDelegateQueue
+    {
+        internal const string TaskDeleteQueueName = "ACClassTaskDeleteQueue";
+        public ACClassTaskDeleteQueue() : this(RootDbOpQueue.ClassName + "." + TaskDeleteQueueName)
+        {
+        }
+
+        public ACClassTaskDeleteQueue(string instanceName) : base(instanceName)
+        {
+        }
+
+        protected override bool CanStartWork()
+        {
+            // Don't run delete actions when TaksQueue is busy and runs transactions on database to avoid transaction waitings
+            if (DelegateQueueCount > 0 && ACClassTaskQueue.TaskQueue.IsBusy)
+                return false;
+            return true;
+        }
+    }
+
     /// <summary>
     /// Class RootDbOpQueue
     /// </summary>
     public class ACClassTaskQueue : ACEntityOpQueue<Database>
     {
-        public const string ACClassTaskQueuePropName = "ACClassTaskQueue";
+        public const string TaskQueueName = "ACClassTaskQueue";
 
-        internal ACClassTaskQueue()
-            : base(RootDbOpQueue.ClassName + "." + ACClassTaskQueuePropName, new Database(), true, true)
+        internal ACClassTaskQueue(string tqName)
+            : base(RootDbOpQueue.ClassName + "." + tqName, new Database(), true, true)
         {
             _ProgramCache = new ACProgramCache(this);
         }
@@ -98,17 +119,48 @@ namespace gip.core.datamodel
                 {
                     if (_TaskQueue == null)
                     {
-                        _TaskQueue = new ACClassTaskQueue();
+                        _TaskQueue = new ACClassTaskQueue(TaskQueueName);
                     }
                 }
                 return _TaskQueue;
             }
         }
-#endregion
 
-#region Cache
+        private static readonly object _LockTaskDeleteQueue = new object();
+        private static ACClassTaskDeleteQueue _TaskDeleteQueue = null;
+        internal static ACClassTaskDeleteQueue TaskDeleteQueue
+        {
+            get
+            {
+                if (_TaskDeleteQueue != null)
+                    return _TaskDeleteQueue;
+                lock (_LockTaskDeleteQueue)
+                {
+                    if (_TaskDeleteQueue == null)
+                    {
+                        _TaskDeleteQueue = new ACClassTaskDeleteQueue();
+                    }
+                }
+                return _TaskDeleteQueue;
+            }
+        }
 
-#region Properties
+        internal static void StartTaskWorkerThreads()
+        {
+            TaskQueue.StartWorkerThread();
+            TaskDeleteQueue.StartWorkerThread();
+        }
+
+        internal static void StopTaskWorkerThreads()
+        {
+            TaskQueue.StopWorkerThread();
+            TaskDeleteQueue.StopWorkerThread();
+        }
+        #endregion
+
+        #region Cache
+
+        #region Properties
         /// <summary>
         /// Gets or sets a value indicating whether [mass load property values off].
         /// </summary>
@@ -117,6 +169,32 @@ namespace gip.core.datamodel
         {
             get;
             set;
+        }
+
+        public override bool NeedsUncommitedRead
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override System.Transactions.IsolationLevel? DefaultIsolationLevel
+        {
+            get
+            {
+                //return System.Transactions.IsolationLevel.ReadUncommitted;
+                return base.DefaultIsolationLevel;
+            }
+        }
+
+        public override System.Transactions.TransactionScopeOption? DefaultTransactionScopeOption
+        {
+            get
+            {
+                //return System.Transactions.TransactionScopeOption.Required;
+                return base.DefaultTransactionScopeOption;
+            }
         }
 
         /// <summary>
@@ -223,9 +301,89 @@ namespace gip.core.datamodel
             }
             return acClassWF;
         }
-#endregion
 
-#endregion
+        private ACMonitorObject _99000_TaskDeleteLock = new ACMonitorObject(99000);
+        private List<ACClassTask> _TaskListForDeletion = new List<ACClassTask>();
+        public void AddACClassTaskForBulkDelete(ACClassTask acClassTask)
+        {
+            using (ACMonitor.Lock(_99000_TaskDeleteLock))
+            {
+                _TaskListForDeletion.Add(acClassTask);
+            }
+        }
+
+        //protected override bool CanStartWork()
+        //{
+        //    // Don't run delete actions when TaksQueue is busy and runs transactions on database to avoid transaction waitings
+        //    if (TaskDeleteQueue == this && TaskDeleteQueue.DelegateQueueCount > 0 && TaskQueue.IsBusy)
+        //        return false;
+        //    return true;
+        //}
+
+        protected override bool OnStartQueueProcessing(int countActions)
+        {
+            List<ACClassTask> acClassTaskForDelete = null;
+            using (ACMonitor.Lock(_99000_TaskDeleteLock))
+            {
+                if (_TaskListForDeletion.Any())
+                {
+                    acClassTaskForDelete = _TaskListForDeletion.ToList();
+                    _TaskListForDeletion = new List<ACClassTask>();
+                }
+            }
+            if (acClassTaskForDelete != null)
+            {
+                string cmdDelete = String.Format("DELETE FROM ACClassTask WHERE ACClassTaskID IN ({0})", String.Join(",", acClassTaskForDelete.Select(c => "'" + c.ACClassTaskID.ToString() + "'")));
+                Add(() => 
+                {
+                    //Context.ExecuteStoreCommand(cmdDelete);
+                    foreach (ACClassTask t in acClassTaskForDelete)
+                    {
+                        if (t.ACClassTaskValue_ACClassTask.IsLoaded)
+                        {
+                            foreach (ACClassTaskValue v in t.ACClassTaskValue_ACClassTask)
+                            {
+                                if (v.ACClassTaskValuePos_ACClassTaskValue.IsLoaded)
+                                {
+                                    foreach (ACClassTaskValuePos p in v.ACClassTaskValuePos_ACClassTaskValue)
+                                    {
+                                        Context.Detach(p);
+                                    }
+                                }
+                                Context.Detach(v);
+                            }
+                        }
+                        Context.Detach(t);
+                    }
+                }
+                );
+                TaskDeleteQueue.Add(() => 
+                {
+                    for (int i = 0; i < 100; i++)
+                    {
+                        using (Database db2 = new Database())
+                        {
+                            try
+                            {
+                                db2.ExecuteStoreCommand(cmdDelete);
+                                break;
+                            }
+                            catch (Exception e)
+                            {
+                                if (Database.Root != null && Database.Root.Messages != null)
+                                    Database.Root.Messages.LogException("ACEntityOpQueue", "TaskDeleteQueue(10)", e);
+                                Thread.Sleep(100);
+                            }
+                        }
+                    }
+                }
+                );
+            }
+            return base.OnStartQueueProcessing(countActions);
+        }
+        #endregion
+
+        #endregion
 
     }
 

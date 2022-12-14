@@ -141,7 +141,7 @@ namespace gip.core.autocomponent
 
             if (_Root == this)
             {
-                ACClassTaskQueue.TaskQueue.StartWorkerThread();
+                ACClassTaskQueue.StartTaskWorkerThreads();
                 RootDbOpQueue.AppContextQueue.StartWorkerThread();
                 GarbageCollector.Instance.StartWorkerThread();
                 ACDispatchedDelegateQueue.PrintQueue.StartWorkerThreadSTA();
@@ -411,7 +411,7 @@ namespace gip.core.autocomponent
                 Dispatcher.StopWorkerThread();
                 ACDispatchedDelegateQueue.PrintQueue.StopWorkerThread();
                 GarbageCollector.Instance.StopWorkerThread();
-                ACClassTaskQueue.TaskQueue.StopWorkerThread();
+                ACClassTaskQueue.StopTaskWorkerThreads();
                 RootDbOpQueue.AppContextQueue.StopWorkerThread();
             }
 

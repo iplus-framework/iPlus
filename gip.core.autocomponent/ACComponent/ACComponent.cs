@@ -4503,19 +4503,29 @@ namespace gip.core.autocomponent
                     return null;
 
                 ACClass typeFromLiveContext = null;
-                ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                try
                 {
-                    try
-                    {
-                        typeFromLiveContext = ACClassTaskQueue.TaskQueue.Context.ACClass.Where(c => c.ACClassID == acClass.ACClassID).FirstOrDefault();
-                    }
-                    catch (Exception e)
-                    {
-                        Messages.LogException(this.GetACUrl(), "ACTypeFromLiveContext.get", e.Message);
-                        if (e.InnerException != null)
-                            Messages.LogException(this.GetACUrl(), "ACTypeFromLiveContext.get", e.InnerException.Message);
-                    }
-                });
+                    typeFromLiveContext = ACClassTaskQueue.TaskQueue.Context.GetACType(acClass.ACClassID);
+                }
+                catch (Exception e)
+                {
+                    Messages.LogException(this.GetACUrl(), "ACTypeFromLiveContext.get", e.Message);
+                    if (e.InnerException != null)
+                        Messages.LogException(this.GetACUrl(), "ACTypeFromLiveContext.get", e.InnerException.Message);
+                }
+                //ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                //{
+                //    try
+                //    {
+                //        typeFromLiveContext = ACClassTaskQueue.TaskQueue.Context.ACClass.Where(c => c.ACClassID == acClass.ACClassID).FirstOrDefault();
+                //    }
+                //    catch (Exception e)
+                //    {
+                //        Messages.LogException(this.GetACUrl(), "ACTypeFromLiveContext.get", e.Message);
+                //        if (e.InnerException != null)
+                //            Messages.LogException(this.GetACUrl(), "ACTypeFromLiveContext.get", e.InnerException.Message);
+                //    }
+                //});
 
                 using (ACMonitor.Lock(_20015_LockValue))
                 {
