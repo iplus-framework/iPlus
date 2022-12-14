@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -32,6 +33,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get

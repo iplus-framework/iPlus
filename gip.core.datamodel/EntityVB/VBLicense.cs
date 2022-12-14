@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace gip.core.datamodel
@@ -31,6 +32,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -48,6 +50,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(200, "", "en{'Readable License Key'}de{'Lesbarer Lizenzschlüssel'}")]
+        [NotMapped]
         public string ReadableLicenseKey
         {
             get
@@ -59,6 +62,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(201, "", "en{'Assigned Packages'}de{'Zugewiesen Pakete'}")]
+        [NotMapped]
         public string ReadablePackages
         {
             get

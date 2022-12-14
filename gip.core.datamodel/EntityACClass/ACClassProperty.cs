@@ -14,6 +14,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 
@@ -374,6 +375,7 @@ namespace gip.core.datamodel
         /// Primary Key of a Entity in the Database/Table
         /// (Uniqued Identifier of a type in the iPlus-Framework)
         /// </summary>
+        [NotMapped]
         public Guid ACTypeID
         {
             get { return ACClassPropertyID; }
@@ -384,6 +386,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -430,6 +433,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string ACUrl
         {
             get
@@ -444,6 +448,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -522,6 +527,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the category of this property
         /// </summary>
+        [NotMapped]
         public Global.ACKinds ACKind
         {
             get
@@ -538,6 +544,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns a enum which describes how this property is used
         /// </summary>
+        [NotMapped]
         public Global.ACPropUsages ACPropUsage
         {
             get
@@ -555,6 +562,7 @@ namespace gip.core.datamodel
         /// Gets or sets the log refresh rate.
         /// </summary>
         /// <value>The log refresh rate.</value>
+        [NotMapped]
         public Global.MaxRefreshRates LogRefreshRate
         {
             get
@@ -590,6 +598,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public ACClassProperty TopBaseACClassProperty
         {
             get
@@ -648,6 +657,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE  (QueryLock_1X000)
         /// </summary>
         /// <value>The overridden properties.</value>
+        [NotMapped]
         public IEnumerable<ACClassProperty> OverriddenProperties
         {
             get
@@ -674,6 +684,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(2, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -692,6 +703,7 @@ namespace gip.core.datamodel
         /// Tooltip
         /// </summary>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string Tooltip
         {
             get
@@ -744,6 +756,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the AssemblyQualifiedName
         /// </summary>
+        [NotMapped]
         public string AssemblyQualifiedName
         {
             get
@@ -760,6 +773,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the .NET-Type (If type of property value is a generic it returns the inner type)
         /// </summary>
+        [NotMapped]
         public Type ObjectType
         {
             get
@@ -774,6 +788,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the .NET-Type (If type of property value is a generic it returns the outer type)
         /// </summary>
+        [NotMapped]
         public Type ObjectGenericType
         {
             get
@@ -793,6 +808,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the .NET-Type (If type of property value is a generic it returns the outer+inner type)
         /// </summary>
+        [NotMapped]
         public Type ObjectFullType
         {
             get
@@ -819,6 +835,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the .NET-Type  of the parent class in a composition tree
         /// </summary>
+        [NotMapped]
         public Type ObjectTypeParent
         {
             get
@@ -959,6 +976,7 @@ namespace gip.core.datamodel
         /// Only for internal usage
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public ACClass MyCurrentAClassOfProperty
         {
             get;
@@ -971,6 +989,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public ACClassPropertyRelation ACClassPropertyBindingToSource
         {
             get
@@ -1002,6 +1021,7 @@ namespace gip.core.datamodel
         /// Returns the bound Source-Property
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
+        [NotMapped]
         public ACClassProperty ACClassPropertySource
         {
             get
@@ -1021,6 +1041,7 @@ namespace gip.core.datamodel
         /// Returns Source-bindings 
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
+        [NotMapped]
         public IEnumerable<ACClassPropertyRelation> SourceBindingList
         {
             get
@@ -1053,6 +1074,7 @@ namespace gip.core.datamodel
         /// Returns Target-bindings 
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
+        [NotMapped]
         public IEnumerable<ACClassPropertyRelation> TargetBindingList
         {
             get
@@ -1086,6 +1108,7 @@ namespace gip.core.datamodel
         /// Returns physical source-relations
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
+        [NotMapped]
         public IEnumerable<ACClassPropertyRelation> SourceConnectionPhysicalList
         {
             get
@@ -1122,6 +1145,7 @@ namespace gip.core.datamodel
         /// Returns physical target-relations
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
+        [NotMapped]
         public IEnumerable<ACClassPropertyRelation> TargetConnectionPhysicalList
         {
             get
@@ -1264,6 +1288,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>ACClassDesign List</value>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClassDesign> Designs
         {
             get
@@ -1357,6 +1382,7 @@ namespace gip.core.datamodel
 
         #region Configuration
 
+        [NotMapped]
         public string ConfigStoreName
         {
             get
@@ -1372,6 +1398,7 @@ namespace gip.core.datamodel
         /// ACConfigKeyACUrl returns the relative Url to the "main table" in group a group of semantically related tables.
         /// This property is used when NewACConfig() is called. NewACConfig() creates a new IACConfig-Instance and set the IACConfig.KeyACUrl-Property with this ACConfigKeyACUrl.
         /// </summary>
+        [NotMapped]
         public string ACConfigKeyACUrl
         {
             get
@@ -1507,6 +1534,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public decimal OverridingOrder { get; set; }
 
 
@@ -1528,6 +1556,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// A thread-safe and cached list of Configuration-Values of type IACConfig.
         /// </summary>
+        [NotMapped]
         public IEnumerable<IACConfig> ConfigurationEntries
         {
             get
@@ -1583,6 +1612,7 @@ namespace gip.core.datamodel
         /// Persistable Value auf this Property
         /// </summary>
         [ACPropertyInfo(34, "", "en{'Value'}de{'Wert'}")]
+        [NotMapped]
         public object Value
         {
             get
@@ -1603,6 +1633,7 @@ namespace gip.core.datamodel
         /// For example this ist for OPCItemConfig and similar types.
         /// </summary>
         [ACPropertyInfo(9999, "", "en{'Extended Property-Configuration'}de{'Erweiterte Eigenschafts-Konfiguration'}")]
+        [NotMapped]
         public object ConfigValue
         {
             get

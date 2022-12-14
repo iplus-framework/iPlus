@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -29,6 +30,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, Const.ACIdentifierPrefix, "en{'Identifier'}de{'Identifizierer'}","", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassWFEdge.ClassName, "en{'Workflowedge'}de{'Workflowbeziehung'}", typeof(ACClassWFEdge), ACClassWFEdge.ClassName, "", Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassWFEdge>) })]
+    [NotMapped]
     public partial class ACClassWFEdge : IACObjectEntity, IACWorkflowEdge, IACClassEntity, ICloneable
     {
         public const string ClassName = "ACClassWFEdge";
@@ -92,6 +94,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -107,6 +110,7 @@ namespace gip.core.datamodel
         /// Reference to the From-Node (Source)
         /// </summary>
         /// <value>Reference to the From-Node (Source)</value>
+        [NotMapped]
         public IACWorkflowNode FromWFNode
         {
             get
@@ -123,6 +127,7 @@ namespace gip.core.datamodel
         /// Reference to the To-Node (Destination)
         /// </summary>
         /// <value>Reference to the To-Node (Destination)</value>
+        [NotMapped]
         public IACWorkflowNode ToWFNode
         {
             get
@@ -139,6 +144,7 @@ namespace gip.core.datamodel
         /// Gets or sets the type of the connection.
         /// </summary>
         /// <value>The type of the connection.</value>
+        [NotMapped]
         public Global.ConnectionTypes ConnectionType
         {
             get
@@ -157,6 +163,7 @@ namespace gip.core.datamodel
         /// for indentify the connector in the Logical-Tree
         /// </summary>
         /// <value>WPF-x:Name of the FromWFNode + \\ + SourceACClassProperty.ACIdentifier</value>
+        [NotMapped]
         public string SourceACConnector
         {
             get
@@ -188,6 +195,7 @@ namespace gip.core.datamodel
         /// for indentify the connector in the Logical-Tree
         /// </summary>
         /// <value>WPF-x:Name of the ToWFNode + \\ + TargetACClassProperty.ACIdentifier</value>
+        [NotMapped]
         public string TargetACConnector
         {
             get
@@ -222,6 +230,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to ACClassMethod</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -234,6 +243,7 @@ namespace gip.core.datamodel
         /// Unique ID of the Workflow Edge
         /// </summary>
         /// <value>Returns ACClassWFEdgeID</value>
+        [NotMapped]
         public Guid WFObjectID
         {
             get
@@ -254,6 +264,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -271,6 +282,7 @@ namespace gip.core.datamodel
         /// Reference to the parent Workflow-Node that groups more child-nodes together
         /// </summary>
         /// <value>Parent Workflow-Node (Group)</value>
+        [NotMapped]
         public IACWorkflowNode WFGroup
         {
             get
@@ -286,14 +298,16 @@ namespace gip.core.datamodel
         /// Gets or sets the height of the visual.
         /// </summary>
         /// <value>The height of the visual.</value>
+        [NotMapped]
         public double VisualHeight { get; set; }
 
         /// <summary>
         /// Gets or sets the width of the visual.
         /// </summary>
         /// <value>The width of the visual.</value>
+        [NotMapped]
         public double VisualWidth { get; set; }
-#endregion
+        #endregion
 
         #region Others
 
@@ -301,6 +315,7 @@ namespace gip.core.datamodel
         /// ACIdentifier of the FromWFNode
         /// </summary>
         /// <value>ACIdentifier of the FromWFNode</value>
+        [NotMapped]
         public string SourceACName
         {
             get
@@ -313,6 +328,7 @@ namespace gip.core.datamodel
         /// ACIdentifier of the ToWFNode
         /// </summary>
         /// <value>ACIdentifier of the ToWFNode</value>
+        [NotMapped]
         public string TargetACName
         {
             get

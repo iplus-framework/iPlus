@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 
 namespace gip.core.datamodel
@@ -30,6 +31,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The selected Translation</value>
         [ACPropertySelected(9999, "EditTranslation", "en{'TODO: Translation'}de{'TODO: Translation'}")]
+        [NotMapped]
         public TranslationPair SelectedEditTranslation
         {
             get
@@ -53,6 +55,7 @@ namespace gip.core.datamodel
         /// <value>The Translation list</value>
         [ACPropertyList(9999, "EditTranslation")]
         [DataMemberAttribute()]
+        [NotMapped]
         public List<TranslationPair> EditTranslationList
         {
             get

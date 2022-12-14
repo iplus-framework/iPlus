@@ -18,6 +18,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Transactions;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -241,6 +242,7 @@ namespace gip.core.datamodel
         /// T is ACClass</summary>
         /// <value>The encapsulated ACClass</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public ACClass ValueT
         {
             get
@@ -449,6 +451,7 @@ namespace gip.core.datamodel
         /// <summary>Visible Container-Childs</summary>
         /// <value>Visible Container-Childs</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACClassInfoWithItems> VisibleItemsT
         {
             get
@@ -462,6 +465,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The control mode.</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public Global.ControlModes ControlMode
         {
             get
@@ -481,6 +485,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value><c>true</c> if this instance is checked; otherwise, <c>false</c>.</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public bool IsChecked
         {
             get
@@ -564,6 +569,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string ACCaption
         {
             get
@@ -583,6 +589,7 @@ namespace gip.core.datamodel
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string ACIdentifier
         {
             get
@@ -606,6 +613,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string ItemText
         {
             get
@@ -721,6 +729,7 @@ namespace gip.core.datamodel
 
         private object _IconState;
         [ACPropertyInfo(999)]
+        [NotMapped]
         public object IconState
         {
             get

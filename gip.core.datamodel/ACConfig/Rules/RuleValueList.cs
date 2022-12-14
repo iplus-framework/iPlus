@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -16,6 +17,7 @@ namespace gip.core.datamodel
 
         [DataMember]
         [ACPropertyInfo(1, "Items", "en{'Items'}de{'Items'}")]
+        [NotMapped]
         public List<RuleValue> Items { get; set; }
 
         public IEnumerable<ACClass> GetSelectedClasses(ACClassWFRuleTypes ruleType, Database db)

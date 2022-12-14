@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using gipCoreData = gip.core.datamodel;
 
 namespace gip.core.datamodel
@@ -45,6 +46,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -126,6 +128,7 @@ namespace gip.core.datamodel
         #region IACConfig
 
         [ACPropertyInfo(101, Const.PN_ConfigACUrl, "en{'WF Property URL'}de{'WF Eigenschaft URL'}")]
+        [NotMapped]
         public string ConfigACUrl
         {
             get
@@ -137,6 +140,7 @@ namespace gip.core.datamodel
         /// <summary>Gets or sets the encapsulated value as a boxed type</summary>
         /// <value>The boxed value.</value>
         [ACPropertyInfo(9999, "", "en{'Value'}de{'Wert'}")]
+        [NotMapped]
         public object Value
         {
             get
@@ -156,6 +160,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(6, "", "en{'Source']de{'Quelle'}")]
+        [NotMapped]
         public IACConfigStore ConfigStore
         {
             get

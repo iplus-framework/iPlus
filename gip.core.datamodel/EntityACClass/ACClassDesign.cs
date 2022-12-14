@@ -56,6 +56,7 @@ namespace gip.core.datamodel
     [ACDeleteAction("VBGroupRight_ACClassDesign", Global.DeleteAction.CascadeManual)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassDesign.ClassName, "en{'Design'}de{'Design'}", typeof(ACClassDesign), ACClassDesign.ClassName, Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassDesign>) })]
+    [NotMapped]
     public partial class ACClassDesign : IACObjectEntityWithCheckTrans, IACEntityProperty, IACType, IACObjectDesign, IACClassEntity, IACConfigStore, ICloneable
     {
         public const string ClassName = "ACClassDesign";
@@ -308,6 +309,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -323,7 +325,8 @@ namespace gip.core.datamodel
         /// Gets the type of the object.
         /// </summary>
         /// <value>The type of the object.</value>
-        public Type ObjectType 
+        [NotMapped]
+        public Type ObjectType
         {
             get
             {
@@ -337,6 +340,7 @@ namespace gip.core.datamodel
         /// Gets the full type of the object.
         /// </summary>
         /// <value>The full type of the object.</value>
+        [NotMapped]
         public Type ObjectFullType
         {
             get
@@ -349,7 +353,8 @@ namespace gip.core.datamodel
         /// Gets the object type parent.
         /// </summary>
         /// <value>The object type parent.</value>
-        public Type ObjectTypeParent 
+        [NotMapped]
+        public Type ObjectTypeParent
         {
             get
             {
@@ -361,6 +366,7 @@ namespace gip.core.datamodel
         /// Gets the kind of the AC.
         /// </summary>
         /// <value>The kind of the AC.</value>
+        [NotMapped]
         public Global.ACKinds ACKind
         {
             get
@@ -377,6 +383,7 @@ namespace gip.core.datamodel
         /// Gets or sets the AC usage.
         /// </summary>
         /// <value>The AC usage.</value>
+        [NotMapped]
         public Global.ACUsages ACUsage
         {
             get
@@ -418,6 +425,7 @@ namespace gip.core.datamodel
         /// Gets the type AC sort columns.
         /// </summary>
         /// <value>The type AC sort columns.</value>
+        [NotMapped]
         public static string TypeACSortColumns
         {
             get
@@ -438,6 +446,7 @@ namespace gip.core.datamodel
         /// Gets the name of the report file.
         /// </summary>
         /// <value>The name of the report file.</value>
+        [NotMapped]
         public string ReportFileName
         {
             get
@@ -763,6 +772,7 @@ namespace gip.core.datamodel
         /// Primary Key of a Entity in the Database/Table
         /// (Uniqued Identifier of a type in the iPlus-Framework)
         /// </summary>
+        [NotMapped]
         public Guid ACTypeID
         {
             get { return ACClassDesignID; }
@@ -793,6 +803,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(2, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -817,6 +828,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The tooltip.</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string Tooltip
         {
             get
@@ -879,6 +891,7 @@ namespace gip.core.datamodel
         /// <value>My AC class design list.</value>
         /// <exception cref="System.NotImplementedException"></exception>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClassDesign> Designs
         {
             get
@@ -908,6 +921,7 @@ namespace gip.core.datamodel
 
 #region IACConfigStore
 
+        [NotMapped]
         public string ConfigStoreName
         {
             get
@@ -922,6 +936,7 @@ namespace gip.core.datamodel
         /// ACConfigKeyACUrl returns the relative Url to the "main table" in group a group of semantically related tables.
         /// This property is used when NewACConfig() is called. NewACConfig() creates a new IACConfig-Instance and set the IACConfig.KeyACUrl-Property with this ACConfigKeyACUrl.
         /// </summary>
+        [NotMapped]
         public string ACConfigKeyACUrl
         {
             get
@@ -1000,6 +1015,7 @@ namespace gip.core.datamodel
             ClearCacheOfConfigurationEntries();
         }
 
+        [NotMapped]
         public decimal OverridingOrder { get; set; }
 
         private SafeList<IACConfig> _ACConfigListCache;
@@ -1020,6 +1036,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// A thread-safe and cached list of Configuration-Values of type IACConfig.
         /// </summary>
+        [NotMapped]
         public IEnumerable<IACConfig> ConfigurationEntries
         {
             get
@@ -1135,6 +1152,7 @@ namespace gip.core.datamodel
         /// Checks if design compiled (compares BAMLDate with UpdateDate).  
         /// </summary>
         [ACPropertyInfo(14, "IsDesignCompiled", "en{'Compiled'}de{'Kompilieren'}", "", false)]
+        [NotMapped]
         public bool IsDesignCompiled
         {
             get

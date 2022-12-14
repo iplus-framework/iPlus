@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
@@ -57,6 +58,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -129,6 +131,7 @@ namespace gip.core.datamodel
         #endregion
 
         #region properties
+        [NotMapped]
         public Global.ACProgramTypes ACProgramType
         {
             get
@@ -145,6 +148,7 @@ namespace gip.core.datamodel
         #region IACConfigStore
 
         private string configStoreName;
+        [NotMapped]
         public string ConfigStoreName
         {
             get
@@ -161,6 +165,7 @@ namespace gip.core.datamodel
         /// ACConfigKeyACUrl returns the relative Url to the "main table" in group a group of semantically related tables.
         /// This property is used when NewACConfig() is called. NewACConfig() creates a new IACConfig-Instance and set the IACConfig.KeyACUrl-Property with this ACConfigKeyACUrl.
         /// </summary>
+        [NotMapped]
         public string ACConfigKeyACUrl
         {
             get
@@ -233,11 +238,13 @@ namespace gip.core.datamodel
             ClearCacheOfConfigurationEntries();
         }
 
+        [NotMapped]
         public decimal OverridingOrder { get; set; }
 
         /// <summary>
         /// A thread-safe and cached list of Configuration-Values of type IACConfig.
         /// </summary>
+        [NotMapped]
         public IEnumerable<IACConfig> ConfigurationEntries
         {
             get
@@ -332,6 +339,7 @@ namespace gip.core.datamodel
         #endregion
 
         #region IACWorkflow
+        [NotMapped]
         public IACWorkflowNode RootWFNode
         {
             get
@@ -348,6 +356,7 @@ namespace gip.core.datamodel
         /// <value>
         /// XAML-Code for Presentation
         /// </value>
+        [NotMapped]
         public String XMLDesign
         {
             get
@@ -363,6 +372,7 @@ namespace gip.core.datamodel
 
         #region Applicationdata
         [ACPropertyInfo(9999, "en{'Applicationdata'}de{'Anwendungsdaten'}", "gip.core.autocomponent.ApplicationdataConfig", "en{'Applicationdata'}de{'Anwendungsdaten'}")]
+        [NotMapped]
         public ACProgramConfig Applicationdata
         {
             get

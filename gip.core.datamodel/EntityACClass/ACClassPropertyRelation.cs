@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
 namespace gip.core.datamodel
@@ -40,6 +41,7 @@ namespace gip.core.datamodel
     {
         public const string ClassName = "ACClassPropertyRelation";
 
+        [NotMapped]
         public DateTime UpdateTime { get; set; }
         #region New/Delete
         /// <summary>
@@ -154,6 +156,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -169,6 +172,7 @@ namespace gip.core.datamodel
         /// Gets or sets the type of the connection.
         /// </summary>
         /// <value>The type of the connection.</value>
+        [NotMapped]
         public Global.ConnectionTypes ConnectionType
         {
             get
@@ -185,6 +189,7 @@ namespace gip.core.datamodel
         /// Gets or sets the direction.
         /// </summary>
         /// <value>The direction.</value>
+        [NotMapped]
         public gip.core.datamodel.Global.Directions Direction
         {
             get
@@ -201,6 +206,7 @@ namespace gip.core.datamodel
         /// Gets or sets the logical operation.
         /// </summary>
         /// <value>The logical operation.</value>
+        [NotMapped]
         public Global.Operators LogicalOperation
         {
             get
@@ -222,6 +228,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to SourceACClass</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -238,6 +245,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -280,6 +288,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The value.</value>
         [ACPropertyInfo(8, "", "en{'Value'}de{'Wert'}")]
+        [NotMapped]
         public object Value
         {
             get
@@ -302,6 +311,7 @@ namespace gip.core.datamodel
         /// Gets or sets a value indicating whether [late binding need during AC init].
         /// </summary>
         /// <value><c>true</c> if [late binding need during AC init]; otherwise, <c>false</c>.</value>
+        [NotMapped]
         public bool LateBindingNeedDuringACInit
         {
             get
@@ -319,6 +329,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The source AC URL.</value>
         [ACPropertyInfo(9999, "", "en{'Source'}de{'Quelle'}")]
+        [NotMapped]
         public string SourceACUrl
         {
             get
@@ -332,6 +343,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The target AC URL.</value>
         [ACPropertyInfo(9999, "", "en{'Target'}de{'Ziel'}")]
+        [NotMapped]
         public string TargetACUrl
         {
             get
@@ -341,6 +353,7 @@ namespace gip.core.datamodel
         }
         #endregion
 
+        [NotMapped]
         public Database Database { get; private set; } = null;
 
         void IACClassEntity.OnObjectMaterialized(Database db)
@@ -350,6 +363,7 @@ namespace gip.core.datamodel
         }
 
 
+        [NotMapped]
         public bool AreUnitConversionParamsSet
         {
             get

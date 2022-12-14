@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -41,6 +42,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -55,6 +57,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to ACProgramLog</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -76,6 +79,7 @@ namespace gip.core.datamodel
         #region IACObjectEntity Members
 
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get

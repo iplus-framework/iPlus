@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 
 namespace gip.core.datamodel
@@ -43,6 +44,7 @@ namespace gip.core.datamodel
         }
 
         ACProgramLog _NewParentACProgramLogForQueue;
+        [NotMapped]
         public ACProgramLog NewParentACProgramLogForQueue
         {
             get
@@ -56,6 +58,7 @@ namespace gip.core.datamodel
         }
 
         ACProgram _NewACProgramForQueue;
+        [NotMapped]
         public ACProgram NewACProgramForQueue
         {
             get
@@ -87,6 +90,7 @@ namespace gip.core.datamodel
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999)]
         [IgnoreDataMember]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -102,6 +106,7 @@ namespace gip.core.datamodel
         /// <value>Reference to ACProgram</value>
         [ACPropertyInfo(9999)]
         [IgnoreDataMember]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -122,6 +127,7 @@ namespace gip.core.datamodel
 
         #region IACObjectEntity Members
         [IgnoreDataMember]
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -160,6 +166,7 @@ namespace gip.core.datamodel
 
         [ACPropertyInfo(110,"","en{'Duration'}de{'Dauer'}")]
         [IgnoreDataMember]
+        [NotMapped]
         public TimeSpan Duration
         {
             get
@@ -174,6 +181,7 @@ namespace gip.core.datamodel
 
         [ACPropertyInfo(111, "", "en{'Planned Duration'}de{'Geplante Dauer'}")]
         [IgnoreDataMember]
+        [NotMapped]
         public TimeSpan DurationPlan
         {
             get
@@ -188,6 +196,7 @@ namespace gip.core.datamodel
 
         [ACPropertyInfo(112, "", "en{'Duration difference'}de{'Duration difference'}")]
         [IgnoreDataMember]
+        [NotMapped]
         public TimeSpan DurationDiff
         {
             get
@@ -198,6 +207,7 @@ namespace gip.core.datamodel
 
         [ACPropertyInfo(113, "", "en{'Difference start'}de{'Difference start'}")]
         [IgnoreDataMember]
+        [NotMapped]
         public TimeSpan StartDateDiff
         {
             get
@@ -210,6 +220,7 @@ namespace gip.core.datamodel
 
         [ACPropertyInfo(114, "", "en{'Difference end'}de{'Difference end'}")]
         [IgnoreDataMember]
+        [NotMapped]
         public TimeSpan EndDateDiff
         {
             get
@@ -221,6 +232,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(100, "ProgramLog", "en{'Start time'}de{'Startzeit'}")]
+        [NotMapped]
         public DateTime? StartDateDST
         {
             get
@@ -230,6 +242,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(101, "ProgramLog", "en{'End time'}de{'Endezeit'}")]
+        [NotMapped]
         public DateTime? EndDateDST
         {
             get
@@ -239,6 +252,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(102, "ProgramLog", "en{'Planned start time'}de{'Geplante Startzeit'}")]
+        [NotMapped]
         public DateTime StartDatePlanDST
         {
             get
@@ -248,6 +262,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(103, "ProgramLog", "en{'Planned end time'}de{'Geplante Endezeit'}")]
+        [NotMapped]
         public DateTime EndDatePlanDST
         {
             get
@@ -259,6 +274,7 @@ namespace gip.core.datamodel
 
         [ACPropertyInfo(999)]
         [IgnoreDataMember]
+        [NotMapped]
         public ACMethod Value
         {
             get

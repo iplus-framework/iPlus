@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
 namespace gip.core.datamodel
@@ -43,6 +44,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -153,6 +155,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999, "", "en{'Password'}de{'Passwort'}", "", true)]
+        [NotMapped]
         public string CryptPassword
         {
             get

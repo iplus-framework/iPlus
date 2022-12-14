@@ -1,4 +1,6 @@
-﻿namespace gip.core.datamodel
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace gip.core.datamodel
 {
     /// <summary>
     /// @aagincic: until now we don't support generic on GUI - for case select many acconfig items I write such as class
@@ -7,10 +9,12 @@
     public class ACConfigSelected
     {
         [ACPropertyInfo(1, "ACConfig", "en{'ACConfig'}de{'ACConfig'}")]
+        [NotMapped]
         public IACConfig ACConfig { get; set; }
 
 
         [ACPropertyInfo(2, "Selected", "en{'Selected'}de{'Ausgewählt'}")]
+        [NotMapped]
         public bool Selected { get; set; }
     }
 }

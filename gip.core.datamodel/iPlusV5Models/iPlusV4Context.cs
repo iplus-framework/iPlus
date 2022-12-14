@@ -93,7 +93,7 @@ public partial class iPlusV4Context : DbContext
     public virtual DbSet<VBUserGroup> VBUserGroup { get; set; }
 
     public virtual DbSet<VBUserInstance> VBUserInstance { get; set; }
-
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString);
@@ -103,15 +103,6 @@ public partial class iPlusV4Context : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        Type typeVBEntityObject = typeof(VBEntityObject);
-        foreach (Type typetoIgnore in this.GetType().Assembly.GetTypes())
-        {
-            if (!typetoIgnore.IsGenericType
-                && !typetoIgnore.IsValueType
-                && !typetoIgnore.IsEnum
-                && !typeVBEntityObject.IsAssignableFrom(typetoIgnore))
-                modelBuilder.Ignore(typetoIgnore);
-        }
 
         modelBuilder.Entity<ACAssembly>(entity =>
         {

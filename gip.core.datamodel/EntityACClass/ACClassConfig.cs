@@ -170,6 +170,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -182,6 +183,7 @@ namespace gip.core.datamodel
         #region IACConfig
 
         [ACPropertyInfo(101, Const.PN_ConfigACUrl, "en{'WF Property URL'}de{'WF Eigenschaft URL'}")]
+        [NotMapped]
         public string ConfigACUrl
         {
             get
@@ -193,6 +195,7 @@ namespace gip.core.datamodel
         /// <summary>Gets or sets the encapsulated value as a boxed type</summary>
         /// <value>The boxed value.</value>
         [ACPropertyInfo(9999, "", "en{'Value'}de{'Wert'}")]
+        [NotMapped]
         public object Value
         {
             get
@@ -310,6 +313,7 @@ namespace gip.core.datamodel
             return false;
         }
 
+        [NotMapped]
         public ACClass VBACClass
         {
             get
@@ -318,8 +322,10 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public Guid? VBiACClassID { get; set; }
 
+        [NotMapped]
         public Guid? ACClassWFID
         {
             get => null;
@@ -331,6 +337,7 @@ namespace gip.core.datamodel
         /// Gets or sets the database.
         /// </summary>
         /// <value>The database.</value>
+        [NotMapped]
         public Database Database
         {
             get;

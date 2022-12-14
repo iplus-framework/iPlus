@@ -12,6 +12,7 @@
 // <summary></summary>
 // ***********************************************************************
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
 namespace gip.core.datamodel
@@ -73,6 +74,7 @@ namespace gip.core.datamodel
 
         #region Fix referenced for avoiding Task-Queue-Collisions
         ACClassTask _NewParentACClassTaskForQueue;
+        [NotMapped]
         public ACClassTask NewParentACClassTaskForQueue
         {
             get
@@ -87,6 +89,7 @@ namespace gip.core.datamodel
         }
 
         ACProgram _NewACProgramForQueue;
+        [NotMapped]
         public ACProgram NewACProgramForQueue
         {
             get
@@ -101,6 +104,7 @@ namespace gip.core.datamodel
         }
 
         ACClassWF _NewContentACClassWFForQueue;
+        [NotMapped]
         public ACClassWF NewContentACClassWFForQueue
         {
             get
@@ -115,6 +119,7 @@ namespace gip.core.datamodel
         }
 
         ACClass _NewTaskTypeACClassForQueue;
+        [NotMapped]
         public ACClass NewTaskTypeACClassForQueue
         {
             get
@@ -148,6 +153,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get 
@@ -162,6 +168,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to ParentACClassTask</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -195,6 +202,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -258,6 +266,7 @@ namespace gip.core.datamodel
         /// Gets or sets the type of the AC task.
         /// </summary>
         /// <value>The type of the AC task.</value>
+        [NotMapped]
         public Global.ACTaskTypes ACTaskType
         {
             get
@@ -276,6 +285,7 @@ namespace gip.core.datamodel
         /// Gets or sets a value indicating whether this instance is AC component initialized.
         /// </summary>
         /// <value><c>true</c> if this instance is AC component initialized; otherwise, <c>false</c>.</value>
+        [NotMapped]
         public bool IsACComponentInitialized
         {
             get;

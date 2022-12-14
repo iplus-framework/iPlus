@@ -20,6 +20,7 @@ using System.Runtime.Serialization;
 using System.ComponentModel;
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -40,6 +41,7 @@ namespace gip.core.datamodel
     [KnownType(typeof(ACValue))]
     [ACSerializeableInfo]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACMethod'}de{'ACMethod'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
+    [NotMapped]
     public class ACMethod : ACMethodDescriptor, INotifyPropertyChanged, IACObject, IACEntityProperty
 #else
     public class ACMethod : ACMethodDescriptor, INotifyPropertyChanged
@@ -321,6 +323,7 @@ namespace gip.core.datamodel
         /// Gets or sets the database.
         /// </summary>
         /// <value>The database.</value>
+        [NotMapped]
         public virtual IACEntityObjectContext Database
         {
             get
@@ -346,6 +349,7 @@ namespace gip.core.datamodel
 #if NETFRAMEWORK
         [ACPropertyInfo(9999, "", "en{'Parameter'}de{'Parameter'}")]
 #endif
+        [NotMapped]
         public ACValueList ParameterValueList
         {
             get
@@ -389,6 +393,7 @@ namespace gip.core.datamodel
 #if NETFRAMEWORK
         [ACPropertyInfo(9999, "", "en{'Result'}de{'Ergebnis'}")]
 #endif
+        [NotMapped]
         public ACValueList ResultValueList
         {
             get
@@ -426,6 +431,7 @@ namespace gip.core.datamodel
         /// Gets the valid message.
         /// </summary>
         /// <value>The valid message.</value>
+        [NotMapped]
         public MsgWithDetails ValidMessage
         {
             get
@@ -456,6 +462,7 @@ namespace gip.core.datamodel
 #if NETFRAMEWORK
         [ACPropertyInfo(9999, "", "en{'AutoRemove'}de{'AutoRemove'}")]
 #endif
+        [NotMapped]
         public bool AutoRemove
         {
             get
@@ -600,6 +607,7 @@ namespace gip.core.datamodel
 
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
+        [NotMapped]
         public string ACCaption
         {
             get { return ACIdentifier; }
@@ -621,6 +629,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public ACClass TypeAsACClass
         {
             get
@@ -633,6 +642,7 @@ namespace gip.core.datamodel
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
         /// </summary>
         /// <value> A nullable list ob IACObjects.</value>
+        [NotMapped]
         public IEnumerable<IACObject> ACContentList
         {
             get
@@ -672,6 +682,7 @@ namespace gip.core.datamodel
         /// Returns the parent object
         /// </summary>
         /// <value>Reference to the parent object</value>
+        [NotMapped]
         public IACObject ParentACObject
         {
             get { return null; }
@@ -779,6 +790,7 @@ namespace gip.core.datamodel
 
 
 #if NETFRAMEWORK
+        [NotMapped]
         public ACPropertyManager ACProperties
         {
             get { throw new NotImplementedException(); }

@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Data;
 using System.Transactions;
 using System.Runtime.Serialization;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -58,10 +59,12 @@ namespace gip.core.datamodel
 #endif
 
         [DataMember(Name = "P")]
+        [NotMapped]
         private decimal _Priority;
 
         [IgnoreDataMember]
         [ACPropertyInfo(2, "", "en{'Priority'}de{'Priority'}")]
+        [NotMapped]
         public decimal Priority
         {
             get

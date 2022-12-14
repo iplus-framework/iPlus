@@ -12,6 +12,7 @@
 // <summary></summary>
 // ***********************************************************************
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -24,6 +25,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(3, "AssemblyDate", "en{'Date of assembly'}de{'Datum der dll'}","", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACAssembly.ClassName, "en{'Text'}de{'Text'}", typeof(ACAssembly), ACAssembly.ClassName, "AssemblyName", "AssemblyName")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACAssembly>) })]
+    [NotMapped]
     public partial class ACAssembly : IACObjectEntity
     {
         public const string ClassName = "ACAssembly";
@@ -52,6 +54,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The AC URL.</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string ACUrl
         {
             get
@@ -67,6 +70,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -78,6 +82,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(4, "", "en{'Description'}de{'ACCaption'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get

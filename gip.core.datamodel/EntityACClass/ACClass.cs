@@ -450,6 +450,7 @@ namespace gip.core.datamodel
         /// Gets a value indicating whether this instance has licence.
         /// </summary>
         /// <value><c>true</c> if this instance has licence; otherwise, <c>false</c>.</value>
+        [NotMapped]
         public bool IsLicensed
         {
             get
@@ -542,6 +543,7 @@ namespace gip.core.datamodel
         /// Primary Key of a Entity in the Database/Table
         /// (Uniqued Identifier of a type in the iPlus-Framework)
         /// </summary>
+        [NotMapped]
         public Guid ACTypeID
         {
             get { return ACClassID; }
@@ -551,6 +553,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -763,6 +766,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string ACUrl
         {
             get
@@ -778,6 +782,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string ACUrlComponent
         {
             get
@@ -979,6 +984,7 @@ namespace gip.core.datamodel
         /// Returns all derived classes from this class
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
+        [NotMapped]
         public ACClass[] DerivedClassesInProjects
         {
             get
@@ -996,6 +1002,7 @@ namespace gip.core.datamodel
         /// Returns all derived classes from this class
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
+        [NotMapped]
         public List<ACClass> DerivedClasses
         {
             get
@@ -1076,6 +1083,7 @@ namespace gip.core.datamodel
         /// Returns the Base-Class (ACClass1_BasedOnACClass)
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
+        [NotMapped]
         public ACClass BaseClass
         {
             get
@@ -1101,6 +1109,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClass> Childs
         {
             get
@@ -1118,6 +1127,7 @@ namespace gip.core.datamodel
         /// Returns the Class-Hierarchy without interfaces
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
+        [NotMapped]
         public IEnumerable<ACClass> ClassHierarchy
         {
             get
@@ -1136,6 +1146,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClass> ClassHierarchyWithInterfaces
         {
             get
@@ -1166,6 +1177,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public ACClass BaseClassWithASQN
         {
             get
@@ -1189,6 +1201,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClass> AllChildsInHierarchy
         {
             get
@@ -1209,6 +1222,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "en{'Inheritancelevel'}de{'Vererbungstiefe'}", "", false)]
+        [NotMapped]
         public int InheritanceLevel
         {
             get
@@ -1225,6 +1239,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "en{'Assembly-qualified name'}de{'Assembly qualifizierter Name'}", "", true)]
+        [NotMapped]
         public string InheritedASQN
         {
             get
@@ -1239,6 +1254,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public bool IsMultiInstanceInherited
         {
             get
@@ -1253,6 +1269,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public ACClass RelatedWorkflowClass
         {
             get
@@ -1399,6 +1416,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClassMethod> Methods
         {
             get
@@ -1415,6 +1433,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClassMethod> MethodsCached
         {
             get
@@ -2130,6 +2149,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>ACClassDesign List</value>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClassDesign> Designs
         {
             get
@@ -2492,12 +2512,12 @@ namespace gip.core.datamodel
                 {
 #if !EFCR
                     ACClassText_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
-                    allTexts = ACClassText_ACClass.CreateSourceQuery()
+#endif
+                    allTexts = ACClassText_ACClass.AsQueryable()
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
-#endif
-                    throw new NotImplementedException();
+
                 }
                 else
                     allTexts = ACClassText_ACClass.ToArray();
@@ -2526,6 +2546,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         /// <value>ACClassDesign List</value>
+        [NotMapped]
         public IEnumerable<ACClassMessage> Messages
         {
             get
@@ -2631,11 +2652,11 @@ namespace gip.core.datamodel
                 {
 #if !EFCR
                     ACClassMessage_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
-                    allMessages = ACClassMessage_ACClass.CreateSourceQuery()
+#endif
+                    allMessages = ACClassMessage_ACClass.AsQueryable()
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
-#endif
                 }
                 else
                     allMessages = ACClassMessage_ACClass.ToArray();
@@ -2712,6 +2733,7 @@ namespace gip.core.datamodel
         /// Gets my AC class BSO.
         /// </summary>
         /// <value>My AC class BSO.</value>
+        [NotMapped]
         public ACClass ManagingBSO
         {
             get
@@ -2741,6 +2763,7 @@ namespace gip.core.datamodel
         /// Gets my AC class BSO.
         /// </summary>
         /// <value>My AC class BSO.</value>
+        [NotMapped]
         public ACClass ACClassForEnumList
         {
             get
@@ -2764,6 +2787,7 @@ namespace gip.core.datamodel
 
         private bool _ACValueListForEnumChecked = false;
         private ACValueItemList _ACValueListForEnum = null;
+        [NotMapped]
         public ACValueItemList ACValueListForEnum
         {
             get
@@ -2804,6 +2828,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the category of this class
         /// </summary>
+        [NotMapped]
         public Global.ACKinds ACKind
         {
             get
@@ -2822,6 +2847,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Mode which decribes how and when this class will be instanced
         /// </summary>
+        [NotMapped]
         public Global.ACStartTypes ACStartType
         {
             get
@@ -2838,6 +2864,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Information about Persistence-Behaviour
         /// </summary>
+        [NotMapped]
         public Global.ACStorableTypes ACStorableType
         {
             get
@@ -2853,6 +2880,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// ACGroup
         /// </summary>
+        [NotMapped]
         public String ACGroup
         {
             get
@@ -2870,6 +2898,7 @@ namespace gip.core.datamodel
         /// Is this type a Interface
         /// </summary>
         [ACPropertyInfo(9999, "", "en{'Interface'}de{'Schnittstelle'}", "", true)]
+        [NotMapped]
         public bool IsInterface
         {
             get
@@ -2882,6 +2911,7 @@ namespace gip.core.datamodel
         /// Returns a long name over complete derivation-hierarchy
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public string FullClassCaption
         {
             get
@@ -2976,6 +3006,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(2, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -2994,6 +3025,7 @@ namespace gip.core.datamodel
         /// Tooltip
         /// </summary>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string Tooltip
         {
             get
@@ -3022,6 +3054,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Self type
         /// </summary>
+        [NotMapped]
         public ACClass ValueTypeACClass
         {
             get { return this; }
@@ -3030,6 +3063,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// AssemblyACClassInfo
         /// </summary>
+        [NotMapped]
         public ACClassInfo AssemblyACClassInfo
         {
             get
@@ -3062,6 +3096,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the .NET-Type (If Property is a generic it returns the inner type)
         /// </summary>
+        [NotMapped]
         public Type ObjectType
         {
             get
@@ -3089,6 +3124,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the .NET-Type (If Property is a generic it returns the outer+inner type)
         /// </summary>
+        [NotMapped]
         public Type ObjectFullType
         {
             get
@@ -3100,6 +3136,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the .NET-Type  of the parent object in a composition tree
         /// </summary>
+        [NotMapped]
         public Type ObjectTypeParent
         {
             get
@@ -3182,6 +3219,7 @@ namespace gip.core.datamodel
         /// Gets the right manager.
         /// </summary>
         /// <value>The right manager.</value>
+        [NotMapped]
         public ClassRightManager RightManager
         {
             get
@@ -3217,6 +3255,7 @@ namespace gip.core.datamodel
         /// Gets or sets the AC parameter.
         /// </summary>
         /// <value>The AC parameter.</value>
+        [NotMapped]
         public ACValueList ACParameter
         {
             get
@@ -3412,6 +3451,7 @@ namespace gip.core.datamodel
 #region Configuration
 
         private string configStoreName;
+        [NotMapped]
         public string ConfigStoreName
         {
             get
@@ -3429,6 +3469,7 @@ namespace gip.core.datamodel
         /// ACConfigKeyACUrl returns the relative Url to the "main table" in group a group of semantically related tables.
         /// This property is used when NewACConfig() is called. NewACConfig() creates a new IACConfig-Instance and set the IACConfig.KeyACUrl-Property with this ACConfigKeyACUrl.
         /// </summary>
+        [NotMapped]
         public string ACConfigKeyACUrl
         {
             get
@@ -3559,11 +3600,13 @@ namespace gip.core.datamodel
             ClearCacheOfConfigurationEntries();
         }
 
+        [NotMapped]
         public decimal OverridingOrder { get; set; }
 
         /// <summary>
         /// A thread-safe and cached list of Configuration-Values of type IACConfig.
         /// </summary>
+        [NotMapped]
         public IEnumerable<IACConfig> ConfigurationEntries
         {
             get
@@ -3572,6 +3615,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public IEnumerable<IACConfig> ConfigurationEntriesInClassHierarchy
         {
             get

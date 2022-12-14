@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -78,6 +79,7 @@ namespace gip.core.datamodel
         }
 
         ACClassProperty _NewACClassPropertyForQueue;
+        [NotMapped]
         public ACClassProperty NewACClassPropertyForQueue
         {
             get
@@ -91,6 +93,7 @@ namespace gip.core.datamodel
         }
 
         ACClassTask _NewACClassTaskForQueue;
+        [NotMapped]
         public ACClassTask NewACClassTaskForQueue
         {
             get
@@ -120,6 +123,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -142,6 +146,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to ACClassProperty</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -191,6 +196,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -203,6 +209,7 @@ namespace gip.core.datamodel
 
         #region RWLock
         private object _RWLock = new object();
+        [NotMapped]
         public string XMLValueRW
         {
             get

@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -60,6 +61,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The AC URL.</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string ACUrl
         {
             get
@@ -74,6 +76,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to ACClass</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -131,6 +134,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -142,6 +146,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(4, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -176,6 +181,7 @@ namespace gip.core.datamodel
         /// Gets or sets the database.
         /// </summary>
         /// <value>The database.</value>
+        [NotMapped]
         public Database Database
         {
             get;

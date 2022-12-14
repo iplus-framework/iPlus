@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
 namespace gip.core.datamodel
@@ -74,6 +75,7 @@ namespace gip.core.datamodel
         }
 
         private static List<ACPackage> _InsertedPackages;
+        [NotMapped]
         public static List<ACPackage> InsertedPackages
         {
             get
@@ -98,6 +100,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -153,6 +156,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -165,6 +169,7 @@ namespace gip.core.datamodel
 
         #region Helper
 
+        [NotMapped]
         public bool IsLicensed
         {
             get
@@ -183,6 +188,7 @@ namespace gip.core.datamodel
         }
 
         private static List<Tuple<string,short>> _VBPackages;
+        [NotMapped]
         public static List<Tuple<string, short>> VBPackages
         {
             get

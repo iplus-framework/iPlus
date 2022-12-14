@@ -148,9 +148,9 @@ namespace gip.core.datamodel
             var piContext = wrappedOwner.GetType().GetProperty("Context", BindingFlags.Public | BindingFlags.Instance);
             IACEntityObjectContext databaseContext = piContext.GetValue(wrappedOwner, null) as IACEntityObjectContext;
             return databaseContext;
-#else
-            throw new NotImplementedException();
-                #endif
+#endif
+            return entityObject.Context;
+
         }
 
         public static IACEntityObjectContext GetObjectContext<T>(this ICollection<T> entityObject)

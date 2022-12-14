@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -252,6 +253,7 @@ namespace gip.core.datamodel
 
 
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PropertyLog Info'}de{'PropertyLog Info'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, true)]
+    [NotMapped]
     public class ACPropertyLogInfo : IACTimeLog
     {
         public ACPropertyLogInfo()
@@ -271,6 +273,7 @@ namespace gip.core.datamodel
         /// Gets or sets the StartDate.
         /// </summary>
         [ACPropertyInfo(101, "", "en{'Start date'}de{'Startzeitpunkt'}")]
+        [NotMapped]
         public DateTime? StartDate
         {
             get;
@@ -281,6 +284,7 @@ namespace gip.core.datamodel
         /// Gets or sets the EndDate.
         /// </summary>
         [ACPropertyInfo(102, "", "en{'End date'}de{'Endzeitpunkt'}")]
+        [NotMapped]
         public DateTime? EndDate
         {
             get;
@@ -291,6 +295,7 @@ namespace gip.core.datamodel
         /// Gets the Duration. (EndDate - StartDate)
         /// </summary>
         [ACPropertyInfo(103, "", "en{'Duration'}de{'Dauer'}")]
+        [NotMapped]
         public virtual TimeSpan Duration
         {
             get
@@ -308,12 +313,14 @@ namespace gip.core.datamodel
         /// Gets or sets the property value.
         /// </summary>
         [ACPropertyInfo(103, "", "en{'State value'}de{'State value'}")]
+        [NotMapped]
         public object PropertyValue
         {
             get;
             set;
         }
 
+        [NotMapped]
         public ACPropertyLog PropertyLog
         {
             get;
@@ -339,19 +346,23 @@ namespace gip.core.datamodel
 
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
+        [NotMapped]
         public string ACIdentifier { get; set; }
 
+        [NotMapped]
         public string _ACCaption;
 
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(108)]
+        [NotMapped]
         public string ACCaption
         {
             get => _ACCaption;
         }
 
         [ACPropertyInfo(109)]
+        [NotMapped]
         public string ACUrl
         {
             get;
@@ -362,12 +373,14 @@ namespace gip.core.datamodel
         /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
         /// </summary>
         /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
+        [NotMapped]
         public IACType ACType => this.ReflectACType();
 
         /// <summary>
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
         /// </summary>
         /// <value> A nullable list ob IACObjects.</value>
+        [NotMapped]
         public IEnumerable<IACObject> ACContentList
         {
             get
@@ -380,6 +393,7 @@ namespace gip.core.datamodel
         /// Returns the parent object
         /// </summary>
         /// <value>Reference to the parent object</value>
+        [NotMapped]
         public IACObject ParentACObject
         {
             get;
@@ -442,6 +456,7 @@ namespace gip.core.datamodel
     }
 
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PropertyLog Sum'}de{'PropertyLog Sum'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, true)]
+    [NotMapped]
     public class ACPropertyLogSum : ACPropertyLogInfo
     {
         public ACPropertyLogSum() : base()
@@ -459,6 +474,7 @@ namespace gip.core.datamodel
         /// Gets or sets the Duration.
         /// </summary>
         [ACPropertyInfo(103, "", "en{'Duration'}de{'Dauer'}")]
+        [NotMapped]
         public override TimeSpan Duration
         {
             get;

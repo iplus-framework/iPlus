@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -76,6 +77,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -98,6 +100,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to ACClassTaskValue</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -146,6 +149,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -160,6 +164,7 @@ namespace gip.core.datamodel
         /// Gets the state.
         /// </summary>
         /// <value>The state.</value>
+        [NotMapped]
         public PointProcessingState State
         {
             get
@@ -176,6 +181,7 @@ namespace gip.core.datamodel
         /// Gets the sequence no.
         /// </summary>
         /// <value>The sequence no.</value>
+        [NotMapped]
         ulong IACPointEntry.SequenceNo
         {
             get
@@ -188,6 +194,7 @@ namespace gip.core.datamodel
         /// Gets a value indicating whether [auto remove].
         /// </summary>
         /// <value><c>true</c> if [auto remove]; otherwise, <c>false</c>.</value>
+        [NotMapped]
         public bool AutoRemove
         {
             get 
@@ -200,6 +207,7 @@ namespace gip.core.datamodel
         /// Gets the AC method.
         /// </summary>
         /// <value>The AC method.</value>
+        [NotMapped]
         public ACMethod ACMethod
         {
             get 
@@ -212,6 +220,7 @@ namespace gip.core.datamodel
         /// Gets the parameter.
         /// </summary>
         /// <value>The parameter.</value>
+        [NotMapped]
         public ACValueList Parameter
         {
             get 
@@ -229,6 +238,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The executing instance.</value>
         /// <exception cref="System.NotImplementedException"></exception>
+        [NotMapped]
         public ACRef<IACComponent> ExecutingInstance
         {
             get { throw new NotImplementedException(); }
@@ -239,6 +249,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The workflow context.</value>
         /// <exception cref="System.NotImplementedException"></exception>
+        [NotMapped]
         public IACWorkflowContext WorkflowContext
         {
             get { throw new NotImplementedException(); }

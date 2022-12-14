@@ -20,6 +20,7 @@ using System.IO;
 using System.Xml;
 using System.Configuration;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -714,6 +715,7 @@ namespace gip.core.datamodel
         /// Primary Key of a Entity in the Database/Table
         /// (Uniqued Identifier of a type in the iPlus-Framework)
         /// </summary>
+        [NotMapped]
         public Guid ACTypeID
         {
             get { return ACClassMethodID; }
@@ -723,6 +725,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -758,6 +761,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string ACUrl
         {
             get
@@ -773,6 +777,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to ACClass</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -920,6 +925,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// CACHED Signature of this Method
         /// </summary>
+        [NotMapped]
         public ACMethod ACMethod
         {
             get
@@ -1241,6 +1247,7 @@ namespace gip.core.datamodel
         /// Methodtype-Name
         /// </summary>
         [ACPropertyInfo(9999, "", "en{'Methodtype'}de{'Methodentyp'}")]
+        [NotMapped]
         public string MethodCaption
         {
             get
@@ -1278,6 +1285,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the category of this method
         /// </summary>
+        [NotMapped]
         public Global.ACKinds ACKind
         {
             get
@@ -1294,6 +1302,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(2, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -1308,6 +1317,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(3, "", "en{'Description 2'}de{'Bezeichnung 2'}")]
+        [NotMapped]
         public string ACCaptionAttached
         {
             get
@@ -1324,6 +1334,7 @@ namespace gip.core.datamodel
         /// Tooltip
         /// </summary>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string Tooltip
         {
             get
@@ -1352,6 +1363,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the .NET-Type (If return value is a generic it returns the inner type)
         /// </summary>
+        [NotMapped]
         public Type ObjectType
         {
             get
@@ -1364,6 +1376,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the .NET-Type (If return value is a generic it returns the outer+inner type)
         /// </summary>
+        [NotMapped]
         public Type ObjectFullType
         {
             get
@@ -1376,6 +1389,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Returns the .NET-Type  of the parent class in a composition tree
         /// </summary>
+        [NotMapped]
         public Type ObjectTypeParent
         {
             get
@@ -1419,6 +1433,7 @@ namespace gip.core.datamodel
         /// Returns the Root-Node (ACClassWF) of this Workflow-Method
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IACWorkflowNode RootWFNode
         {
             get
@@ -1436,6 +1451,7 @@ namespace gip.core.datamodel
         /// Returns the Type (ACClass) of the Root-Workflownode
         /// </summary>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public ACClass WorkflowTypeACClass
         {
             get
@@ -1476,6 +1492,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClassWF> MethodWFList
         {
             get
@@ -1497,6 +1514,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<IACWorkflowNode> AllWFNodes
         {
             get
@@ -1511,6 +1529,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<IACWorkflowEdge> AllWFEdges
         {
             get
@@ -1659,6 +1678,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>ACClassDesign List</value>
         [ACPropertyInfo(9999, "", "", "", true)]
+        [NotMapped]
         public IEnumerable<ACClassDesign> Designs
         {
             get
@@ -1827,6 +1847,7 @@ namespace gip.core.datamodel
         /// This flag marks the method which will be executed from a VBVisual's double click. It's only enabled for a static and interaction methods. 
         /// </summary>
         [ACPropertyInfo(999, "", "en{'Execute by mouse double click'}de{'Ausführen per Maus-Doppelklick'}", "", true)]
+        [NotMapped]
         public bool ExecuteByMouseDoubleClick
         {
             get => ExecuteByDoubleClick;
@@ -1842,11 +1863,13 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public DateTime? LastReadUpdateACClassWF
         {
             get; set;
         }
 
+        [NotMapped]
         public bool MustRefreshACClassWF
         {
             get
@@ -1866,6 +1889,7 @@ namespace gip.core.datamodel
 #region Configuration
 
         private string configStoreName;
+        [NotMapped]
         public string ConfigStoreName
         {
             get
@@ -1885,6 +1909,7 @@ namespace gip.core.datamodel
         /// ACConfigKeyACUrl returns the relative Url to the "main table" in group a group of semantically related tables.
         /// This property is used when NewACConfig() is called. NewACConfig() creates a new IACConfig-Instance and set the IACConfig.KeyACUrl-Property with this ACConfigKeyACUrl.
         /// </summary>
+        [NotMapped]
         public string ACConfigKeyACUrl
         {
             get
@@ -2004,11 +2029,13 @@ namespace gip.core.datamodel
             ClearCacheOfConfigurationEntries();
         }
 
+        [NotMapped]
         public decimal OverridingOrder { get; set; }
 
         /// <summary>
         /// A thread-safe and cached list of Configuration-Values of type IACConfig.
         /// </summary>
+        [NotMapped]
         public IEnumerable<IACConfig> ConfigurationEntries
         {
             get
@@ -2072,6 +2099,7 @@ namespace gip.core.datamodel
 
     }
 
+    [NotMapped]
     public class NewIDWFNodeModel
     {
         public Guid OriginalACClassWFID { get; set; }
@@ -2080,6 +2108,7 @@ namespace gip.core.datamodel
         public string NewXName { get; set; }
     }
 
+    [NotMapped]
     public class NewIDWFEdgeModel
     {
         public Guid OriginalACClassWFEdgeID { get; set; }

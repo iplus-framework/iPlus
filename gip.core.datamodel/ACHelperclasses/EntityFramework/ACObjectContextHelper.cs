@@ -23,6 +23,7 @@ using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Win32;
+using System.Configuration;
 
 namespace gip.core.datamodel
 {
@@ -34,8 +35,8 @@ namespace gip.core.datamodel
             _ObjectContext = objectContext;
             if (ObjectContext == null)
                 throw new ArgumentException("Passed IACObjectContext is not a System.Data.Objects.ObjectContext");
-            _ObjectContext.CommandTimeout = ACObjectContextHelper.CommandTimeout;
-            _ObjectContext.SavingChanges += Database_SavingChanges;
+            //_ObjectContext.DatabaseFacade.SetCommandTimeout(ACObjectContextHelper.CommandTimeout);
+            //_ObjectContext.SavingChanges += Database_SavingChanges;
 #if !EFCR
             _ObjectContext.ObjectMaterialized += Database_ObjectMaterialized;
 
@@ -62,7 +63,7 @@ namespace gip.core.datamodel
             if (_ObjectContext.SeparateConnection != null)
                 _ObjectContext.SeparateConnection.StoreConnection.StateChange += new StateChangeEventHandler(Connection_StateChange);
 #endif
-            throw new NotImplementedException();
+            
         }
 
         public void Dispose()
@@ -193,7 +194,7 @@ namespace gip.core.datamodel
         public DbContextOptionsBuilder OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             return optionsBuilder
-                    .UseSqlServer("Server=.\\;Database=iPlusV4;Trusted_Connection=True;Encrypt=False")
+                    .UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString)
                     //.ReplaceService<IShapedQueryCompilingExpressionVisitorFactory, MyRelationalShapedQueryCompilingExpressionVisitorFactory>()
                     .AddInterceptors(new ACMaterializationInterceptor());
         }

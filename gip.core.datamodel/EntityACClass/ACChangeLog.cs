@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -31,6 +32,7 @@ namespace gip.core.datamodel
 
         private ACValue _ChangeLogValue;
         [ACPropertyInfo(999, "", "en{'Value'}de{'Wert'}")]
+        [NotMapped]
         public ACValue ChangeLogValue
         {
             get
@@ -58,6 +60,7 @@ namespace gip.core.datamodel
     public struct ACChangeLogInfo
     {
         [DataMember]
+        [NotMapped]
         public string Info
         {
             get;
@@ -65,6 +68,7 @@ namespace gip.core.datamodel
         }
 
         [DataMember]
+        [NotMapped]
         public string ACUrl
         {
             get;
@@ -72,6 +76,7 @@ namespace gip.core.datamodel
         }
 
         [IgnoreDataMember]
+        [NotMapped]
         public string XMLValue
         {
             get

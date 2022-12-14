@@ -221,7 +221,7 @@ namespace gip.core.datamodel
         #endregion
         #region ObjectContext
 
-        int? CommandTimeout { get; set; }
+        //int? CommandTimeout { get; set; } => use Database.SetCommandTimeout(int);
         DbConnection Connection { get; }
         //ObjectContextOptions ContextOptions { get; }
 

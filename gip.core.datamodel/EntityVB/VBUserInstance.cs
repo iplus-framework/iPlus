@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -84,6 +85,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to VBUser</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -156,6 +158,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(20, "", "en{'Session collection'}de{'Sitzungsliste'}")]
+        [NotMapped]
         public IEnumerable<VBUserSessionInfo> Sessions
         {
             get

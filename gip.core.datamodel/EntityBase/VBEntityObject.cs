@@ -18,6 +18,7 @@ using System.Runtime.Serialization;
 using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -40,6 +41,7 @@ namespace gip.core.datamodel
         /// <value>The Unique Identifier as string</value>
         [ACPropertyInfo(9999)]
         [DataMember]
+        [NotMapped]
         public virtual string ACIdentifier
         {
             get
@@ -55,6 +57,7 @@ namespace gip.core.datamodel
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999)]
         [IgnoreDataMember]
+        [NotMapped]
         public virtual string ACCaption
         {
             get
@@ -73,6 +76,7 @@ namespace gip.core.datamodel
         /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
         [ACPropertyInfo(9999)]
         [IgnoreDataMember]
+        [NotMapped]
         public virtual IACType ACType
         {
             get
@@ -86,6 +90,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value> A nullable list ob IACObjects.</value>
         [IgnoreDataMember]
+        [NotMapped]
         public virtual IEnumerable<IACObject> ACContentList
         {
             get
@@ -127,6 +132,7 @@ namespace gip.core.datamodel
         /// <value>Reference to the parent object</value>
         [ACPropertyInfo(9999)]
         [IgnoreDataMember]
+        [NotMapped]
         public virtual IACObject ParentACObject
         {
             get
@@ -283,6 +289,7 @@ namespace gip.core.datamodel
         /// <param name="property">The property.</param>
         /// <returns>System.Object.</returns>
         [IgnoreDataMember]
+        [NotMapped]
         public virtual object this[string property]
         {
             get
@@ -299,6 +306,7 @@ namespace gip.core.datamodel
         /// Property requiered by IACEntityProperty shema - instance properties shuld replace this
         /// </summary>
         [DataMember]
+        [NotMapped]
         public virtual string XMLConfig
         {
             get
@@ -346,6 +354,7 @@ namespace gip.core.datamodel
 
         // ********************************* Processing point *************************** //
         [IgnoreDataMember]
+        [NotMapped]
         public virtual ACPropertyManager ACProperties
         {
             get
@@ -372,6 +381,7 @@ namespace gip.core.datamodel
         //}
 
         [ACPropertyPointConfig(9999, "", typeof(ACComposition), "en{'Bussinessobject'}de{'Bussinessobjekt'}")]
+        [NotMapped]
         public IEnumerable<IACConfig> BussinessobjectList
         {
             get
@@ -383,10 +393,12 @@ namespace gip.core.datamodel
 
         #region private members
         [IgnoreDataMember]
+        [NotMapped]
         ACPropertyManager _ACPropertyManager = null;
 
         IACEntityObjectContext _context;
 
+        [NotMapped]
         public IACEntityObjectContext Context
         {
             get
@@ -400,6 +412,7 @@ namespace gip.core.datamodel
         }
         #endregion end private members
 
+        [NotMapped]
         public EntityState EntityState
         {
             get

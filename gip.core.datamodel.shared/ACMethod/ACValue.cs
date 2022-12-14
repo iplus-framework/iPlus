@@ -19,6 +19,7 @@ using System.Runtime.Serialization;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.ComponentModel.DataAnnotations.Schema;
 #if NETFRAMEWORK
 
 #endif
@@ -36,6 +37,7 @@ namespace gip.core.datamodel
     /// <seealso cref="gip.core.datamodel.IACAttach" />
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACValue", "en{'ACValue'}de{'ACValue'}", typeof(ACValue), "ACValue", Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValue'}de{'ACValue'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
+    [NotMapped]
     public class ACValue : IACContainer, INotifyPropertyChanged, ICloneable, IACAttach
 #else
     public class ACValue : INotifyPropertyChanged
@@ -143,7 +145,8 @@ namespace gip.core.datamodel
 
 #if NETFRAMEWORK
         private bool? _FullSerialization;
-        public bool FullSerialization 
+        [NotMapped]
+        public bool FullSerialization
         {
             get
             {
@@ -167,7 +170,8 @@ namespace gip.core.datamodel
 #if NETFRAMEWORK
         [ACPropertyInfo(10, "", "en{'Propertyname'}de{'Eigenschaftsname'}")]
 #endif
-        public string ACIdentifier 
+        [NotMapped]
+        public string ACIdentifier
         {
             get
             {
@@ -186,6 +190,7 @@ namespace gip.core.datamodel
 #if NETFRAMEWORK
     [ACPropertyInfo(9999)]
 #endif
+        [NotMapped]
         public virtual string ACCaption
         {
             get
@@ -212,6 +217,7 @@ namespace gip.core.datamodel
 string _ACCaption;
 #endif
         [DataMember(Name ="L")]
+        [NotMapped]
         public string Label
         {
             get
@@ -277,6 +283,7 @@ string _ACCaption;
 #if NETFRAMEWORK
         [ACPropertyInfo(20, "", "en{'Value'}de{'Wert'}")]
 #endif
+        [NotMapped]
         public object Value
         {
             get
@@ -349,7 +356,8 @@ string _ACCaption;
 #if NETFRAMEWORK
         [ACPropertyInfo(30, "", "en{'Option'}de{'Option'}")]
 #endif
-        public Global.ParamOption Option 
+        [NotMapped]
+        public Global.ParamOption Option
         {
             get
             {
@@ -372,6 +380,7 @@ string _ACCaption;
         /// </summary>
         /// <value>Metadata (iPlus-Type) of the Value-Property as ACClass</value>
         [ACPropertyInfo(9999, "", "en{'Data Type'}de{'Datentyp'}")]
+        [NotMapped]
         public ACClass ValueTypeACClass
         {
             get 
@@ -393,6 +402,7 @@ string _ACCaption;
         string _DataTypeName;
 #endif
         [DataMember]
+        [NotMapped]
         public string DataTypeName
         {
             get
@@ -424,6 +434,7 @@ string _ACCaption;
         string _AssemblyQualifiedName;
 #endif
         [DataMember(Name = "ASQN")]
+        [NotMapped]
         public string AssemblyQualifiedName
         {
             get
@@ -459,6 +470,7 @@ string _ACCaption;
         /// <value>The type of the generic.</value>
         [DataMember]
         [ACPropertyInfo(50, "", "en{'Generic Type'}de{'Generischer Typ'}")]
+        [NotMapped]
         public string GenericType
         {
             get
@@ -480,6 +492,7 @@ string _ACCaption;
         /// Gets the type of the object.
         /// </summary>
         /// <value>The type of the object.</value>
+        [NotMapped]
         public Type ObjectType
         {
             get
@@ -503,6 +516,7 @@ string _ACCaption;
         /// Gets the type of the object generic.
         /// </summary>
         /// <value>The type of the object generic.</value>
+        [NotMapped]
         public Type ObjectGenericType
         {
             get
@@ -521,6 +535,7 @@ string _ACCaption;
         /// Gets or sets the full type of the object.
         /// </summary>
         /// <value>The full type of the object.</value>
+        [NotMapped]
         public Type ObjectFullType
         {
             get
@@ -582,6 +597,7 @@ string _ACCaption;
         /// The XML value
         /// </summary>
         [DataMember]
+        [NotMapped]
         private object XMLValue;
 
 #if NETFRAMEWORK
@@ -590,6 +606,7 @@ string _ACCaption;
         /// </summary>
         /// <value>The value as ref.</value>
         [IgnoreDataMember]
+        [NotMapped]
         public IACContainerRef ValueAsRef
         {
             get
@@ -717,6 +734,7 @@ string _ACCaption;
         /// </summary>
         /// <value>The is enumerable.</value>
         [DataMember]
+        [NotMapped]
         public Boolean IsEnumerable
         {
             get
@@ -735,6 +753,7 @@ string _ACCaption;
 #endif
 
         [IgnoreDataMember]
+        [NotMapped]
         public bool HasDefaultValue
         {
             get
@@ -882,6 +901,7 @@ string _ACCaption;
         /// <value>The param as boolean.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not Boolean</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public Boolean ParamAsBoolean
         {
             get
@@ -902,6 +922,7 @@ string _ACCaption;
         /// <value>The param as S byte.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not SByte</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public SByte ParamAsSByte
         {
             get
@@ -922,6 +943,7 @@ string _ACCaption;
         /// <value>The param as int16.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not Int16</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public Int16 ParamAsInt16
         {
             get
@@ -942,6 +964,7 @@ string _ACCaption;
         /// <value>The param as int32.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not Int32</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public Int32 ParamAsInt32
         {
             get
@@ -962,6 +985,7 @@ string _ACCaption;
         /// <value>The param as int64.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not Int64</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public Int64 ParamAsInt64
         {
             get
@@ -982,6 +1006,7 @@ string _ACCaption;
         /// <value>The param as U int16.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not UInt16</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public UInt16 ParamAsUInt16
         {
             get
@@ -1002,6 +1027,7 @@ string _ACCaption;
         /// <value>The param as U int32.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not UInt32</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public UInt32 ParamAsUInt32
         {
             get
@@ -1022,6 +1048,7 @@ string _ACCaption;
         /// <value>The param as U int64.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not UInt64</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public UInt64 ParamAsUInt64
         {
             get
@@ -1042,6 +1069,7 @@ string _ACCaption;
         /// <value>The param as single.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not Single</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public Single ParamAsSingle
         {
             get
@@ -1062,6 +1090,7 @@ string _ACCaption;
         /// <value>The param as double.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not Double</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public Double ParamAsDouble
         {
             get
@@ -1082,6 +1111,7 @@ string _ACCaption;
         /// <value>The param as decimal.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not Decimal</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public Decimal ParamAsDecimal
         {
             get
@@ -1102,6 +1132,7 @@ string _ACCaption;
         /// <value>The param as string.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not String</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public String ParamAsString
         {
             get
@@ -1124,6 +1155,7 @@ string _ACCaption;
         /// <value>The param as GUID.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not Guid</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public Guid ParamAsGuid
         {
             get
@@ -1140,6 +1172,7 @@ string _ACCaption;
         /// <value>The param as time span.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not TimeSpan</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public TimeSpan ParamAsTimeSpan
         {
             get
@@ -1157,6 +1190,7 @@ string _ACCaption;
         /// <value>The param as date time.</value>
         /// <exception cref="System.InvalidCastException">Parameter is not DateTime</exception>
         [IgnoreDataMember]
+        [NotMapped]
         public DateTime ParamAsDateTime
         {
             get

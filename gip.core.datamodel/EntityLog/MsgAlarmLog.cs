@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Transactions;
@@ -67,9 +68,10 @@ namespace gip.core.datamodel
                 ACClassID = msgToCopy.SourceComponent.ValueT.ComponentClass.ACClassID;
         }
 
-#endregion
+        #endregion
 
         #region Own Member
+        [NotMapped]
         public eMsgLevel MessageLevel
         {
             get
@@ -84,6 +86,7 @@ namespace gip.core.datamodel
 
         protected string _Source = "";
         [ACPropertyInfo(4, "", "en{'Source'}de{'Quelle'}")]
+        [NotMapped]
         public string Source
         {
             get
@@ -111,6 +114,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(11, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -120,6 +124,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(12, "", "en{'Caption Component'}de{'Bezeichnung Komponente'}")]
+        [NotMapped]
         public String ACCaptionComponent
         {
             get
@@ -130,6 +135,7 @@ namespace gip.core.datamodel
 
 
         [ACPropertyInfo(13, "", "en{'Comment Component'}de{'Kommentar Komponente'}")]
+        [NotMapped]
         public String ACCommentComponent
         {
             get
@@ -168,6 +174,7 @@ namespace gip.core.datamodel
             return null;
         }
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -233,6 +240,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(999,"", "en{'Duration'}de{'Dauer'}")]
+        [NotMapped]
         public string TotalDuration
         {
             get;
@@ -240,6 +248,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(999,"", "en{'Alarms Count'}de{'Anzahl der Alarme'}")]
+        [NotMapped]
         public int AlarmsCount
         {
             get => Alarms != null ? Alarms.Count() : 0;
@@ -247,6 +256,7 @@ namespace gip.core.datamodel
 
         private IEnumerable<MsgAlarmLog> _Alarms;
         [ACPropertyInfo(999, "", "en{'Alarms'}de{'Alarms'}")]
+        [NotMapped]
         public IEnumerable<MsgAlarmLog> Alarms
         {
             get => _Alarms;

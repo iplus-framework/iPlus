@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Data.Common;
 using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -123,18 +124,19 @@ namespace gip.core.datamodel
         }
 #endif
 
-#endregion
+        #endregion
 
-#region Properties
+        #region Properties
 
-#region Private
+        #region Private
         private ACObjectContextHelper _ObjectContextHelper;
         static string _Initials = null;
         static Database _GlobalDatabase = null;
         static internal ACQueryDefinition _QRYACQueryDefinition = null;
-#endregion
+        #endregion
 
-#region Public Static
+        #region Public Static
+        [NotMapped]
         public static string ConnectionString
         {
             get
@@ -166,7 +168,7 @@ namespace gip.core.datamodel
         public static DbContextOptions<iPlusV4Context> DbContextOptions(string connectionString)
         {
             var dbOptions = new DbContextOptionsBuilder<iPlusV4Context>()
-                    .UseSqlServer(ConfigurationManager.ConnectionStrings[connectionString].ConnectionString).Options;
+                    .UseSqlServer(connectionString).Options;
             return dbOptions;
         }
 
@@ -183,6 +185,7 @@ namespace gip.core.datamodel
 
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public Database ContextIPlus
         {
             get
@@ -191,6 +194,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public bool IsSeparateIPlusContext
         {
             get
@@ -211,6 +215,7 @@ namespace gip.core.datamodel
 #endif
 
         private string _UserName;
+        [NotMapped]
         public string UserName
         {
             get
@@ -248,6 +253,7 @@ namespace gip.core.datamodel
         /// Verweise von anderen Instanzen zur GlobalDatabase:
         /// Die Property ACRoot.Database ist ein Verweis zu Database.GlobalDatabase und hat keinen eigenen Kontext
         /// </summary>
+        [NotMapped]
         public static Database GlobalDatabase
         {
             get
@@ -256,6 +262,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public static ACQueryDefinition QRYACQueryDefinition
         {
             get
@@ -270,6 +277,7 @@ namespace gip.core.datamodel
                 _Root = root;
         }
         private static IRoot _Root;
+        [NotMapped]
         public static IRoot Root
         {
             get
@@ -278,6 +286,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public static string Initials
         {
             get
@@ -296,14 +305,15 @@ namespace gip.core.datamodel
 
         private static DerivationCache _derivationCache = new DerivationCache();
 
-#endregion
+        #endregion
 
-#region Public
+        #region Public
         /// <summary>
         /// THREAD-SAFE. Uses QueryLock_1X000
         /// </summary>
         /// <returns></returns>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public bool IsChanged
         {
             get
@@ -312,6 +322,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public MergeOption RecommendedMergeOption
         {
             get
@@ -323,13 +334,14 @@ namespace gip.core.datamodel
 
         public event ACChangesEventHandler ACChangesExecuted;
 
-#endregion
+        #endregion
 
-#region IACUrl Member
+        #region IACUrl Member
         /// <summary>
         /// Returns the parent object
         /// </summary>
         /// <value>Reference to the parent object</value>
+        [NotMapped]
         public IACObject ParentACObject
         {
             get
@@ -344,6 +356,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string ACCaption
         {
             get
@@ -355,6 +368,7 @@ namespace gip.core.datamodel
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public string ACIdentifier
         {
             get
@@ -367,6 +381,7 @@ namespace gip.core.datamodel
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
         /// </summary>
         /// <value> A nullable list ob IACObjects.</value>
+        [NotMapped]
         public IEnumerable<IACObject> ACContentList
         {
             get
@@ -379,6 +394,7 @@ namespace gip.core.datamodel
         /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
         /// </summary>
         /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
+        [NotMapped]
         public IACType ACType
         {
             get
@@ -386,13 +402,13 @@ namespace gip.core.datamodel
                 return this.ReflectACType();
             }
         }
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
 
-#region public
+        #region public
 
         public void Refresh(RefreshMode refreshMode, object entity)
         {
@@ -585,7 +601,7 @@ namespace gip.core.datamodel
 
         public void ParseException(MsgWithDetails msg, Exception e)
         {
-            _ObjectContextHelper.ParseException(msg,e);
+            _ObjectContextHelper.ParseException(msg, e);
         }
 
         public bool? IsDerived(Guid baseClassID, Guid derivedClassID)
@@ -598,7 +614,7 @@ namespace gip.core.datamodel
             _derivationCache.RegisterDerivedClass(baseClassID, derivedClassID, isDerived);
         }
 
-#region IACUrl Member
+        #region IACUrl Member
 
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
@@ -686,11 +702,11 @@ namespace gip.core.datamodel
             {
             }*/
         }
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region Critical Section
+        #region Critical Section
         public void EnterCS()
         {
             _ObjectContextHelper.EnterCS();
@@ -707,6 +723,7 @@ namespace gip.core.datamodel
         }
 
         private ACMonitorObject _10000_QueryLock = new ACMonitorObject(10000);
+        [NotMapped]
         public ACMonitorObject QueryLock_1X000
         {
             get
@@ -714,12 +731,13 @@ namespace gip.core.datamodel
                 return _10000_QueryLock;
             }
         }
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region Listen
+        #region Listen
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> ACKindList
         {
             get
@@ -729,6 +747,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> ACKindCLList
         {
             get
@@ -738,6 +757,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> ACKindPSList
         {
             get
@@ -747,6 +767,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> ACKindMSList
         {
             get
@@ -756,6 +777,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> ACKindDSList
         {
             get
@@ -765,6 +787,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> ACUsageList
         {
             get
@@ -774,6 +797,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> ACPropUsageList
         {
             get
@@ -783,6 +807,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> ACUsageReportList
         {
             get
@@ -792,6 +817,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> ACStartTypeList
         {
             get
@@ -801,6 +827,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> ACStorableTypeList
         {
             get
@@ -810,6 +837,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> ControlModeList
         {
             get
@@ -819,6 +847,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> PropertyControlModeList
         {
             get
@@ -828,6 +857,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> MethodControlModeList
         {
             get
@@ -837,6 +867,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> ACProjectTypeList
         {
             get
@@ -846,6 +877,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClass> WorkflowTypeMethodACClassList
         {
             get
@@ -858,6 +890,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClass> WorkflowInvokerACClassList
         {
             get
@@ -874,14 +907,15 @@ namespace gip.core.datamodel
         /// Liste aller Workflow-Methoden die in einem ACProgram verwendet werden können
         /// </summary>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClassMethod> ProgramMethodList
         {
             get
             {
                 using (ACMonitor.Lock(QueryLock_1X000))
                 {
-                    return ACClassMethod.Where(c => c.ACKindIndex == (short)Global.ACKinds.MSWorkflow 
-                                                 && c.IsSubMethod == false && c.ACClass.ParentACClassID == null 
+                    return ACClassMethod.Where(c => c.ACKindIndex == (short)Global.ACKinds.MSWorkflow
+                                                 && c.IsSubMethod == false && c.ACClass.ParentACClassID == null
                                                  && c.ACClass.ACProject.ACProjectTypeIndex == (Int16)Global.ACProjectTypes.AppDefinition)
                                         .OrderBy(c => c.ACIdentifier);
                 }
@@ -889,6 +923,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClassMethod> ProgramACClassMethodList
         {
             get
@@ -902,20 +937,22 @@ namespace gip.core.datamodel
 
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClassDesign> MenuACClassList
         {
             get
             {
                 using (ACMonitor.Lock(QueryLock_1X000))
                 {
-                    return ACClassDesign.Where(c =>    c.ACKindIndex == (short)Global.ACKinds.DSDesignMenu 
-                                                    && c.ACClass.ACProject.ACProjectTypeIndex == (short) Global.ACProjectTypes.Root)
+                    return ACClassDesign.Where(c => c.ACKindIndex == (short)Global.ACKinds.DSDesignMenu
+                                                    && c.ACClass.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Root)
                                         .OrderBy(c => c.ACIdentifier);
                 }
             }
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClass> PWClassList
         {
             get
@@ -929,6 +966,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClass> PAClassList
         {
             get
@@ -944,6 +982,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClass> PWNodeList
         {
             get
@@ -962,6 +1001,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClass> PWNodeWorkFlowList
         {
             get
@@ -974,6 +1014,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClass> VBControlACClassList
         {
             get
@@ -986,6 +1027,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClass> ConfigACClassList
         {
             get
@@ -998,6 +1040,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClass> AssemblyACClassList
         {
             get
@@ -1010,6 +1053,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IQueryable<ACClass> RoleACClassList
         {
             get
@@ -1023,6 +1067,7 @@ namespace gip.core.datamodel
 
 
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public IEnumerable<ACValueItem> InterpolationMethodList
         {
             get
@@ -1052,6 +1097,7 @@ namespace gip.core.datamodel
 
 
         [ACPropertyInfo(9999, "")]
+        [NotMapped]
         public IEnumerable<ACClassConfig> ApplicationList
         {
             get
@@ -1077,6 +1123,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999, "")]
+        [NotMapped]
         public ACClassConfig DirectoryApplication
         {
             get
@@ -1094,17 +1141,31 @@ namespace gip.core.datamodel
             }
         }
 
-        public DatabaseFacade DatabaseFacade => ((IACEntityObjectContext)ContextIPlus).DatabaseFacade;
+        public DatabaseFacade DatabaseFacade
+        {
+            get { return Database; }
+        }
 
-        public RefreshMode RefreshMode => ((IACEntityObjectContext)ContextIPlus).RefreshMode;
+        public RefreshMode RefreshMode
+        {
+            get { return RefreshMode; }
+        }
 
-        public DbContextOptions ContextOptions => ((IACEntityObjectContext)ContextIPlus).ContextOptions;
+        public DbContextOptions ContextOptions
+        {
+            get { return DbContextOptions(ConnectionString); }
+        }
 
-        public int? CommandTimeout { get => ((IACEntityObjectContext)ContextIPlus).CommandTimeout; set => ((IACEntityObjectContext)ContextIPlus).CommandTimeout = value; }
+        public DbConnection Connection 
+        { 
+            get { return Database.GetDbConnection(); } 
+        }
 
-        public DbConnection Connection => ((IACEntityObjectContext)ContextIPlus).Connection;
-
-        public string DefaultContainerName { get => ((IACEntityObjectContext)ContextIPlus).DefaultContainerName; set => ((IACEntityObjectContext)ContextIPlus).DefaultContainerName = value; }
+        public string DefaultContainerName 
+        { 
+            get;
+            set;
+        }
 
         // Build Cache over Type-System to avoid Deadlocks when quering Global dabatbase
         // see deadlock18.txt

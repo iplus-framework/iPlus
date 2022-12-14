@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
@@ -158,6 +159,7 @@ namespace gip.core.datamodel
         /// Gets the AC instance no.
         /// </summary>
         /// <value>The AC instance no.</value>
+        [NotMapped]
         public Int32 ACInstanceNo
         {
             get
@@ -178,6 +180,7 @@ namespace gip.core.datamodel
         /// Gets the AC identifier prefix.
         /// </summary>
         /// <value>The AC identifier prefix.</value>
+        [NotMapped]
         public string ACIdentifierPrefix
         {
             get
@@ -214,6 +217,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -256,6 +260,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to ParentACClassWF or ACClassMethod if root</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -335,6 +340,7 @@ namespace gip.core.datamodel
         /// Gets the parent AC class.
         /// </summary>
         /// <value>The parent AC class.</value>
+        [NotMapped]
         public ACClass ParentACClass
         {
             get
@@ -350,6 +356,7 @@ namespace gip.core.datamodel
         /// Reference to the parent Workflow-Node that groups more child-nodes together
         /// </summary>
         /// <value>Parent Workflow-Node (Group)</value>
+        [NotMapped]
         public IACWorkflowNode WFGroup
         {
             get
@@ -423,6 +430,7 @@ namespace gip.core.datamodel
         /// Unique ID of the Workflow Node
         /// </summary>
         /// <value>Returns ACClassWFID</value>
+        [NotMapped]
         public Guid WFObjectID
         {
             get { return ACClassWFID; }
@@ -437,6 +445,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(1, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -557,6 +566,7 @@ namespace gip.core.datamodel
         /// Returns a ACUrl, to be able to find this instance in the WPF-Logical-Tree.
         /// </summary>
         /// <value>ACUrl as string</value>
+        [NotMapped]
         public string VisualACUrl
         {
             get
@@ -636,6 +646,7 @@ namespace gip.core.datamodel
 
 #region IACConfigURL
 
+        [NotMapped]
         public string ConfigACUrl
         {
             get
@@ -651,6 +662,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public string PreValueACUrl
         {
             get
@@ -660,6 +672,7 @@ namespace gip.core.datamodel
         }
 
 
+        [NotMapped]
         public string LocalConfigACUrl
         {
             get

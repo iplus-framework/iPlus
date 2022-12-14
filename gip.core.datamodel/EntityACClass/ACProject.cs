@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
 namespace gip.core.datamodel
@@ -132,6 +133,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -192,6 +194,7 @@ namespace gip.core.datamodel
         /// Gets the key AC identifier.
         /// </summary>
         /// <value>The key AC identifier.</value>
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -205,6 +208,7 @@ namespace gip.core.datamodel
         /// Gets the root class.
         /// </summary>
         /// <value>The root class.</value>
+        [NotMapped]
         public ACClass RootClass
         {
             get
@@ -222,6 +226,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The type of the AC project.</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public Global.ACProjectTypes ACProjectType
         {
             get

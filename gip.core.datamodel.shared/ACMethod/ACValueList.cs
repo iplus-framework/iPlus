@@ -21,6 +21,7 @@ using System.Xml;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Threading;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -35,6 +36,7 @@ namespace gip.core.datamodel
     /// </summary>
 #if NETFRAMEWORK
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValueList'}de{'ACValueList'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
+    [NotMapped]
     public class ACValueList : SafeBindingList<ACValue>, IACEntityProperty, ICloneable
 #else
     public class ACValueList : SafeBindingList<ACValue>, ICloneable

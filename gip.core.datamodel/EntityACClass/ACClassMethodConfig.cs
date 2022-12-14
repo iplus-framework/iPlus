@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -54,6 +55,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(9999, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             get
@@ -72,6 +74,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to ACClassMethod</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -109,6 +112,7 @@ namespace gip.core.datamodel
             return null;
         }
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -146,6 +150,7 @@ namespace gip.core.datamodel
         #region Properties
 
         [ACPropertyInfo(999)]
+        [NotMapped]
         public string ParameterACCaption
         {
             get
@@ -183,6 +188,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(999)]
+        [NotMapped]
         public string ComplexValue
         {
             get
@@ -225,6 +231,7 @@ namespace gip.core.datamodel
         #region IACConfig
 
         [ACPropertyInfo(101, Const.PN_ConfigACUrl, "en{'WF Property URL'}de{'WF Eigenschaft URL'}")]
+        [NotMapped]
         public string ConfigACUrl
         {
             get
@@ -236,6 +243,7 @@ namespace gip.core.datamodel
         /// <summary>Gets or sets the encapsulated value as a boxed type</summary>
         /// <value>The boxed value.</value>
         [ACPropertyInfo(9999, "", "en{'Value'}de{'Wert'}")]
+        [NotMapped]
         public object Value
         {
             get
@@ -255,6 +263,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(6, "", "en{'Source']de{'Quelle'}")]
+        [NotMapped]
         public IACConfigStore ConfigStore
         {
             get
@@ -272,10 +281,12 @@ namespace gip.core.datamodel
         }
 
 
+        [NotMapped]
         public IACConfigStore _ACConfigStoreCache = null;
 
         /// <summary>ACClassMethodConfig-Childs</summary>
         /// <value>ACClassMethodConfig-Childs</value>
+        [NotMapped]
         public IEnumerable<IACContainerWithItems> Items
         {
             get
@@ -286,6 +297,7 @@ namespace gip.core.datamodel
 
         /// <summary>Gets the parent container.</summary>
         /// <value>The parent container.</value>
+        [NotMapped]
         public IACContainerWithItems ParentContainer
         {
             get
@@ -296,6 +308,7 @@ namespace gip.core.datamodel
 
         /// <summary>Gets the root container.</summary>
         /// <value>The root container.</value>
+        [NotMapped]
         public IACContainerWithItems RootContainer
         {
             get
@@ -330,6 +343,7 @@ namespace gip.core.datamodel
             return false;
         }
 
+        [NotMapped]
         public ACClass VBACClass
         {
             get
