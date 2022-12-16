@@ -1319,7 +1319,7 @@ namespace gip.core.datamodel
 
                 ACClass result = null;
 
-                if (!_TypesAssQlfName.TryGetValue(acClass.AssemblyQualifiedName, out result))
+                if (!string.IsNullOrEmpty(acClass.AssemblyQualifiedName) && !_TypesAssQlfName.TryGetValue(acClass.AssemblyQualifiedName, out result))
                     _TypesAssQlfName.TryAdd(acClass.AssemblyQualifiedName, acClass);
 
                 Type objectFullType = acClass.ObjectFullType;
