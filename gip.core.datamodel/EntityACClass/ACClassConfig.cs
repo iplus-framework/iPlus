@@ -31,6 +31,7 @@ namespace gip.core.datamodel
     [ACDeleteAction("ACClassConfig_ParentACClassConfig", Global.DeleteAction.CascadeManual)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassConfig.ClassName, "en{'Configuration'}de{'Konfiguration'}", typeof(ACClassConfig), ACClassConfig.ClassName, Const.PN_LocalConfigACUrl, Const.PN_LocalConfigACUrl)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassConfig>) })]
+    [NotMapped]
     public partial class ACClassConfig : ICloneable, IACConfig
     {
         public const string ClassName = "ACClassConfig";
@@ -45,6 +46,7 @@ namespace gip.core.datamodel
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(2, "", "en{'Description'}de{'Bezeichnung'}")]
+        [NotMapped]
         public override string ACCaption
         {
             //get
@@ -79,6 +81,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Reference to ACClass</value>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get

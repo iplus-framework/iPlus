@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(1, "RuleType", "en{'Rule type'}de{'Regeltyp'}")]
     [ACPropertyEntity(3, ACClass.ClassName, "en{'ACClass'}de{'ACClass'}", Database.ClassName + "\\" + ACClass.ClassName)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACPropertyLogRule.ClassName, "en{'ACPropertyLog'}de{'ACPropertyLog'}", typeof(ACPropertyLogRule), ACPropertyLogRule.ClassName, "", "")]
+    [NotMapped]
     public partial class ACPropertyLogRule
     {
         public const string ClassName = "ACPropertyLogRule";

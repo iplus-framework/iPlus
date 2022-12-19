@@ -68,6 +68,7 @@ namespace gip.core.datamodel
     [ACDeleteAction("VBGroupRight_ACClassMethod", Global.DeleteAction.CascadeManual)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassMethod.ClassName, "en{'Method'}de{'Methode'}", typeof(ACClassMethod), ACClassMethod.ClassName, Const.ACIdentifierPrefix, "SortIndex," + Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassMethod>) })]
+    [NotMapped]
     public partial class ACClassMethod : IACObjectEntityWithCheckTrans, IACEntityProperty, IACWorkflowDesignContext, IACType, IACClassEntity, IACConfigStore, ICloneable, IInsertInfo, IUpdateInfo
     {
         public const string ClassName = "ACClassMethod";
@@ -405,6 +406,7 @@ namespace gip.core.datamodel
         }
 
 
+        [NotMapped]
         public Database Database { get; private set; } = null;
 
         void IACClassEntity.OnObjectMaterialized(Database db)
@@ -1165,6 +1167,7 @@ namespace gip.core.datamodel
         /// Returns the methodname if method is hardocded in assembly
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
+        [NotMapped]
         public string AssemblyMethodName
         {
             get
@@ -1195,6 +1198,7 @@ namespace gip.core.datamodel
         /// Gets the assembly method name locked.
         /// </summary>
         /// <value>The assembly method name locked.</value>
+        [NotMapped]
         private string AssemblyMethodNameLocked
         {
             get
@@ -1212,6 +1216,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// THREADS-SAFE but Cached!
         /// </summary>
+        [NotMapped]
         public ACClassMethod BasedOnACClassMethod
         {
             get
@@ -1742,6 +1747,7 @@ namespace gip.core.datamodel
 
 
 
+        [NotMapped]
         private string IconACUrl
         {
             get;
@@ -1888,6 +1894,7 @@ namespace gip.core.datamodel
 
 #region Configuration
 
+        [NotMapped]
         private string configStoreName;
         [NotMapped]
         public string ConfigStoreName
@@ -2044,7 +2051,9 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         private SafeList<IACConfig> _ACConfigListCache = null;
+        [NotMapped]
         private SafeList<IACConfig> ACConfigListCache
         {
             get

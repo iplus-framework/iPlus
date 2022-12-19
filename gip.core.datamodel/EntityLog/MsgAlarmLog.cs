@@ -20,6 +20,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(11, "TranslID", "en{'TranslationID'}de{'ÜbersetzungsID'}", "", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + MsgAlarmLog.ClassName, "en{'AlarmLog'}de{'AlarmLog'}", typeof(MsgAlarmLog), MsgAlarmLog.ClassName, "Source", "Source,TimeStampOccurred")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<MsgAlarmLog>) })]
+    [NotMapped]
     public partial class MsgAlarmLog
     {
         public const string ClassName = "MsgAlarmLog";

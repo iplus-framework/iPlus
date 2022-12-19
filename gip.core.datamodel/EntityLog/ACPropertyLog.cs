@@ -17,6 +17,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(3, ACClass.ClassName, "en{'ACClass'}de{'ACClass'}", Database.ClassName + "\\" + ACClass.ClassName)]
     [ACPropertyEntity(4, ACClassProperty.ClassName, "en{'ACClassProperty'}de{'ACClassProperty'}", Database.ClassName + "\\" + ACClassProperty.ClassName)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACPropertyLog.ClassName, "en{'ACPropertyLog'}de{'ACPropertyLog'}", typeof(ACPropertyLog), ACPropertyLog.ClassName, "", "EventTime")]
+    [NotMapped]
     public partial class ACPropertyLog
     {
         public const string ClassName = "ACPropertyLog";
@@ -490,8 +491,11 @@ namespace gip.core.datamodel
             ACClassProperty = acClassProperty;
             Sum = sum;
         }
+        [NotMapped]
         public ACClass ACClass { get; private set; }
+        [NotMapped]
         public ACClassProperty ACClassProperty { get; private set; }
+        [NotMapped]
         public IEnumerable<ACPropertyLogSum> Sum { get; private set; }
     }
 }

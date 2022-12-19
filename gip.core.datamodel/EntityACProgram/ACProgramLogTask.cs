@@ -14,6 +14,7 @@ namespace gip.core.datamodel
 
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACProgramLogTask.ClassName, "en{'ProgramLogTask'}de{'ProgramLogTask'}", typeof(ACProgramLogTask), ACProgramLogTask.ClassName, "", "")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACProgramLogTask>) })]
+    [NotMapped]
     public partial class ACProgramLogTask
     {
         public const string ClassName = "ACProgramLogTask";

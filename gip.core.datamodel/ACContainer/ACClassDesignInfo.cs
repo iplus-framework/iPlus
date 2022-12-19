@@ -18,7 +18,6 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Transactions;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -46,7 +45,6 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The control mode.</value>
         [ACPropertyInfo(9999, "", "en{'Control Mode'}de{'Steuerelement-Modus'}")]
-        [NotMapped]
         public Global.ControlModes ControlMode
         {
             get
@@ -66,7 +64,6 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value><c>true</c> if this instance is right; otherwise, <c>false</c>.</value>
         [ACPropertyInfo(9999)]
-        [NotMapped]
         public bool IsRight
         {
             get
@@ -85,7 +82,6 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The control mode info.</value>
         [ACPropertyInfo(9999, "", "", Const.ContextDatabase + "\\MethodControlModeList")]
-        [NotMapped]
         public ACValueItem ControlModeInfo
         {
             get

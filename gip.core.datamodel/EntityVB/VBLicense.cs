@@ -12,6 +12,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(4, "SystemDB", "en{'Unique customer code'}de{'Eindeutiger Kundencode'}", "", "", true)]
     [ACPropertyEntity(5, "SystemDS", "en{'Number of licensed sessions'}de{'Anzahl lizenzierter Sitzungen'}", "", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBLicense.ClassName, "en{'License'}de{'Lizenz'}", typeof(VBLicense), VBLicense.ClassName, "CustomerName", "CustomerName")]
+    [NotMapped]
     public partial class VBLicense : IACObjectEntity
     {
         public const string ClassName = "VBLicense";
@@ -41,6 +42,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get

@@ -119,8 +119,7 @@ namespace gip.core.datamodel
 
             try
             {
-#if !EFCR
-                if (acObject is ObjectContext)
+                if (acObject is DbContext)
                 {
                     PropertyInfo pi = typeParent.GetProperty(childACUrl);
                     if (pi != null)
@@ -147,8 +146,6 @@ namespace gip.core.datamodel
                         return null;
                     return SearchWithDynQuery<T>(childProp, queryDefinition, mergeOption);
                 }
-#endif
-                throw new NotImplementedException();
             }
             catch (Exception e)
             {

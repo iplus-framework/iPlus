@@ -24,6 +24,7 @@ namespace gip.core.datamodel
         })
     ]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACProgram>) })]
+    [NotMapped]
     public partial class ACProgram : IACObject, IACWorkflowContext, IACConfigStore, IACClassEntity
     {
         public const string ClassName = "ACProgram";
@@ -96,6 +97,7 @@ namespace gip.core.datamodel
             return null;
         }
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -253,7 +255,9 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         private SafeList<IACConfig> _ACConfigListCache;
+        [NotMapped]
         private SafeList<IACConfig> ACConfigListCache
         {
             get
@@ -329,6 +333,7 @@ namespace gip.core.datamodel
             return true;
         }
 
+        [NotMapped]
         public Database Database { get; private set; } = null;
         public void OnObjectMaterialized(Database db)
         {

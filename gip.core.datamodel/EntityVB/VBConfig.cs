@@ -19,6 +19,7 @@ namespace gip.core.datamodel
     [ACDeleteAction("VBConfig_ParentVBConfig", Global.DeleteAction.CascadeManual)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBConfig.ClassName, "en{'Config'}de{'Konfiguration'}", typeof(VBConfig), VBConfig.ClassName, Const.PN_LocalConfigACUrl, Const.PN_LocalConfigACUrl)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBConfig>) })]
+    [NotMapped]
     public partial class VBConfig : IACConfig
     {
         public const string ClassName = "VBConfig";
@@ -88,6 +89,7 @@ namespace gip.core.datamodel
             return null;
         }
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -178,6 +180,7 @@ namespace gip.core.datamodel
 
         /// <summary>VBConfig-Childs</summary>
         /// <value>VBConfig-Childs</value>
+        [NotMapped]
         public IEnumerable<IACContainerWithItems> Items
         {
             get 
@@ -188,6 +191,7 @@ namespace gip.core.datamodel
 
         /// <summary>Gets the parent container.</summary>
         /// <value>The parent container.</value>
+        [NotMapped]
         public IACContainerWithItems ParentContainer
         {
             get
@@ -198,6 +202,7 @@ namespace gip.core.datamodel
 
         /// <summary>Gets the root container.</summary>
         /// <value>The root container.</value>
+        [NotMapped]
         public IACContainerWithItems RootContainer
         {
             get
@@ -233,6 +238,7 @@ namespace gip.core.datamodel
             return false;
         }
 
+        [NotMapped]
         public gipCoreData.ACClass VBACClass
         {
             get
@@ -241,8 +247,10 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public Guid? VBiACClassID { get; set; }
 
+        [NotMapped]
         public Guid? ACClassWFID
         {
             get

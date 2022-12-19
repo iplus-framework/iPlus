@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel;
@@ -40,7 +39,7 @@ public partial class iPlusV4Context : DbContext
 
     public virtual DbSet<ACClassTaskValue> ACClassTaskValue { get; set; }
 
-    public virtual DbSet<ACClassTaskValuePos> ACClassTaskValuePo { get; set; }
+    public virtual DbSet<ACClassTaskValuePos> ACClassTaskValuePos { get; set; }
 
     public virtual DbSet<ACClassText> ACClassText { get; set; }
 
@@ -93,17 +92,13 @@ public partial class iPlusV4Context : DbContext
     public virtual DbSet<VBUserGroup> VBUserGroup { get; set; }
 
     public virtual DbSet<VBUserInstance> VBUserInstance { get; set; }
-    
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString);
-    }
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=.\\;Database=iPlusV4;Trusted_Connection=True;Encrypt=False");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
         modelBuilder.Entity<ACAssembly>(entity =>
         {
             entity.ToTable("ACAssembly");

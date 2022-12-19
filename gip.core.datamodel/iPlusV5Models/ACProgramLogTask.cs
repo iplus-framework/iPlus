@@ -1,79 +1,96 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using gip.core.datamodel;
 
 namespace gip.core.datamodel;
 
 public partial class ACProgramLogTask : VBEntityObject
 {
+
+    public ACProgramLogTask()
+    {
+    }
+
+    private ACProgramLogTask(ILazyLoader lazyLoader)
+    {
+        LazyLoader = lazyLoader;
+    }
+
+    private ILazyLoader LazyLoader { get; set; }
     Guid _ACProgramLogTaskID;
     public Guid ACProgramLogTaskID 
-    { 
+    {
         get { return _ACProgramLogTaskID; }
-        set { SetProperty<Guid>(ref _ACProgramLogTaskID, value); } 
+        set { SetProperty<Guid>(ref _ACProgramLogTaskID, value); }
     }
 
     Guid _ACProgramLogID;
     public Guid ACProgramLogID 
-    { 
+    {
         get { return _ACProgramLogID; }
-        set { SetProperty<Guid>(ref _ACProgramLogID, value); } 
+        set { SetProperty<Guid>(ref _ACProgramLogID, value); }
     }
 
     string _ACClassMethodXAML;
     public string ACClassMethodXAML 
-    { 
+    {
         get { return _ACClassMethodXAML; }
-        set { SetProperty<string>(ref _ACClassMethodXAML, value); } 
+        set { SetProperty<string>(ref _ACClassMethodXAML, value); }
     }
 
     int _LoopNo;
     public int LoopNo 
-    { 
+    {
         get { return _LoopNo; }
-        set { SetProperty<int>(ref _LoopNo, value); } 
+        set { SetProperty<int>(ref _LoopNo, value); }
     }
 
     string _XMLConfig;
     public string XMLConfig 
-    { 
+    {
         get { return _XMLConfig; }
-        set { SetProperty<string>(ref _XMLConfig, value); } 
+        set { SetProperty<string>(ref _XMLConfig, value); }
     }
 
     string _InsertName;
     public string InsertName 
-    { 
+    {
         get { return _InsertName; }
-        set { SetProperty<string>(ref _InsertName, value); } 
+        set { SetProperty<string>(ref _InsertName, value); }
     }
 
     DateTime _InsertDate;
     public DateTime InsertDate 
-    { 
+    {
         get { return _InsertDate; }
-        set { SetProperty<DateTime>(ref _InsertDate, value); } 
+        set { SetProperty<DateTime>(ref _InsertDate, value); }
     }
 
     string _UpdateName;
     public string UpdateName 
-    { 
+    {
         get { return _UpdateName; }
-        set { SetProperty<string>(ref _UpdateName, value); } 
+        set { SetProperty<string>(ref _UpdateName, value); }
     }
 
     DateTime _UpdateDate;
     public DateTime UpdateDate 
-    { 
+    {
         get { return _UpdateDate; }
-        set { SetProperty<DateTime>(ref _UpdateDate, value); } 
+        set { SetProperty<DateTime>(ref _UpdateDate, value); }
     }
 
-    public virtual ACProgramLog ACProgramLog { get; set; }
+    private ACProgramLog _ACProgramLog;
+    public virtual ACProgramLog ACProgramLog
+    { 
+        get => LazyLoader.Load(this, ref _ACProgramLog);
+        set => _ACProgramLog = value;
+    }
 
     public virtual ReferenceEntry ACProgramLogReference 
-    { 
+    {
         get { return Context.Entry(this).Reference("ACProgramLog"); }
     }
     }

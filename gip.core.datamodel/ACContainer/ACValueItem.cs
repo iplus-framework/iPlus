@@ -20,7 +20,6 @@ using System.Transactions;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -37,7 +36,6 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValueItem'}de{'ACValueItem'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     // 1 ACCaption
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACValueItem", "en{'ACValueItem'}de{'ACValueItem'}", typeof(ACValueItem), "ACValueItem", Const.ACCaptionPrefix, Const.ACCaptionPrefix)]
-    [NotMapped]
     public class ACValueItem : IACContainer, IACObject, INotifyPropertyChanged
     {
         #region c´tors
@@ -98,7 +96,6 @@ namespace gip.core.datamodel
         /// <value>The boxed value.</value>
         [DataMember]
         [ACPropertyInfo(9999)]
-        [NotMapped]
         public object Value
         {
             get
@@ -162,13 +159,11 @@ namespace gip.core.datamodel
         /// The translation-Tupel for ACCaption
         /// </summary>
         [DataMember]
-        [NotMapped]
         string _ACCaptionTranslation;
 
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [ACPropertyInfo(1)]
-        [NotMapped]
         public string ACCaption
         {
             get
@@ -182,7 +177,6 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The AC caption.</value>
         [ACPropertyInfo(9999)]
-        [NotMapped]
         public string ACCaptionTranslation
         {
             get
@@ -304,7 +298,6 @@ namespace gip.core.datamodel
         public event PropertyChangedEventHandler PropertyChanged;
 
         [DefaultValue(false)]
-        [NotMapped]
         public bool OnPropertyChangedNameWithACIdentifier
         {
             get;

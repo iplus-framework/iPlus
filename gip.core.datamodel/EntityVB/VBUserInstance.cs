@@ -38,6 +38,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "VBUser", "en{'User'}de{'Benutzer'}", Const.ContextDatabase + "\\VBUser", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBUserInstance.ClassName, "en{'Userinstance'}de{'Benutzerinstanz'}", typeof(VBUserInstance), VBUserInstance.ClassName, "VBUser\\VBUserName", "VBUser\\VBUserName")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBUserInstance>) })]
+    [NotMapped]
     public partial class VBUserInstance : IACObjectEntity
     {
         public const string ClassName = "VBUserInstance";
@@ -123,6 +124,7 @@ namespace gip.core.datamodel
             return null;
         }
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -135,9 +137,12 @@ namespace gip.core.datamodel
 
         #region SessionInfo
 
+        [NotMapped]
         private ACMonitorObject _20030_LockSessionInfo = new ACMonitorObject(20030);
 
+        [NotMapped]
         private List<VBUserSessionInfo> _Sessions = null;
+        [NotMapped]
         private List<VBUserSessionInfo> SafeSessions
         {
             get

@@ -34,6 +34,7 @@ namespace gip.core.datamodel
     [ACDeleteAction("ACClassTask_ParentACClassTask", Global.DeleteAction.CascadeManual)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassTask.ClassName, "en{'Task'}de{'Task'}", typeof(ACClassTask), ACClassTask.ClassName, Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassTask>) })]
+    [NotMapped]
     public partial class ACClassTask
     {
         public const string ClassName = "ACClassTask";
@@ -73,6 +74,7 @@ namespace gip.core.datamodel
         }
 
         #region Fix referenced for avoiding Task-Queue-Collisions
+        [NotMapped]
         ACClassTask _NewParentACClassTaskForQueue;
         [NotMapped]
         public ACClassTask NewParentACClassTaskForQueue
@@ -88,6 +90,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         ACProgram _NewACProgramForQueue;
         [NotMapped]
         public ACProgram NewACProgramForQueue
@@ -103,6 +106,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         ACClassWF _NewContentACClassWFForQueue;
         [NotMapped]
         public ACClassWF NewContentACClassWFForQueue
@@ -118,6 +122,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         ACClass _NewTaskTypeACClassForQueue;
         [NotMapped]
         public ACClass NewTaskTypeACClassForQueue

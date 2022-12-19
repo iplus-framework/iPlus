@@ -211,6 +211,7 @@ namespace gip.core.datamodel
         /// Gets or sets the database.
         /// </summary>
         /// <value>The database.</value>
+        [NotMapped]
         public Database Database
         {
             get;

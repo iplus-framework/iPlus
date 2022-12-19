@@ -21,6 +21,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(499, Const.EntityUpdateName, Const.EntityTransUpdateName)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassMethodConfig.ClassName, "en{'MaterialWFACClassMethod.config'}de{'MaterialWFACClassMethod.config'}", typeof(ACClassMethodConfig), ACClassMethodConfig.ClassName, Const.PN_LocalConfigACUrl, Const.PN_LocalConfigACUrl)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassMethodConfig>) })]
+    [NotMapped]
     public partial class ACClassMethodConfig : IACConfig
     {
         public const string ClassName = "ACClassMethodConfig";
@@ -124,6 +125,7 @@ namespace gip.core.datamodel
 
         #region IEntityProperty Members
 
+        [NotMapped]
         bool bRefreshConfig = false;
         protected override void OnPropertyChanging<T>(T newValue, string propertyName, bool afterChange)
         {

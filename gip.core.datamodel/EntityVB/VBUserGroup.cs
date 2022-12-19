@@ -10,6 +10,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "VBUser", "en{'User'}de{'Benutzer'}", Const.ContextDatabase + "\\" + VBUser.ClassName, "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBUserGroup.ClassName, "en{'Usergroup'}de{'Benutzergruppe'}", typeof(VBUserGroup), VBUserGroup.ClassName, VBGroup.ClassName + "\\VBGroupName", VBGroup.ClassName + "\\VBGroupName")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBUserGroup>) })]
+    [NotMapped]
     public partial class VBUserGroup : IACObjectEntity
     {
         public const string ClassName = "VBUserGroup";
@@ -88,6 +89,7 @@ namespace gip.core.datamodel
             return null;
         }
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get

@@ -37,6 +37,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "XMLValue", "en{'Value'}de{'Wert'}")]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassPropertyRelation.ClassName, "en{'Propertyrelation'}de{'Eigenschaftsbeziehung'}", typeof(ACClassPropertyRelation), ACClassPropertyRelation.ClassName, "", ACClassPropertyRelation.ClassName + "ID")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassPropertyRelation>) })]
+    [NotMapped]
     public partial class ACClassPropertyRelation : IACObjectEntity, IACClassEntity, ICloneable
     {
         public const string ClassName = "ACClassPropertyRelation";

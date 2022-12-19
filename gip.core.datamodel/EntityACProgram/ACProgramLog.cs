@@ -20,6 +20,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, ACProgram.ClassName, "en{'Program'}de{'Programm'}", Const.ContextDatabase + "\\" + ACProgram.ClassName, "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACProgramLog.ClassName, "en{'Program.log'}de{'Programm.log'}", typeof(ACProgramLog), ACProgramLog.ClassName, Const.ACUrlPrefix, Const.ACUrlPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACProgramLog>) })]
+    [NotMapped]
     public partial class ACProgramLog
     {
         public const string ClassName = "ACProgramLog";
@@ -43,6 +44,7 @@ namespace gip.core.datamodel
             return entity;
         }
 
+        [NotMapped]
         ACProgramLog _NewParentACProgramLogForQueue;
         [NotMapped]
         public ACProgramLog NewParentACProgramLogForQueue
@@ -57,6 +59,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         ACProgram _NewACProgramForQueue;
         [NotMapped]
         public ACProgram NewACProgramForQueue

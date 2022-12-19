@@ -400,6 +400,7 @@ namespace gip.core.datamodel
 
 #region IEntityProperty Members
 
+        [NotMapped]
         bool bRefreshConfig = false;
         protected override void OnPropertyChanging<T>(T newValue, string propertyName, bool afterChange)
         {
@@ -1018,7 +1019,9 @@ namespace gip.core.datamodel
         [NotMapped]
         public decimal OverridingOrder { get; set; }
 
+        [NotMapped]
         private SafeList<IACConfig> _ACConfigListCache;
+        [NotMapped]
         private SafeList<IACConfig> ACConfigListCache
         {
             get
@@ -1140,6 +1143,7 @@ namespace gip.core.datamodel
 
 #region Others
 
+        [NotMapped]
         public Database Database { get; private set; } = null;
 
         void IACClassEntity.OnObjectMaterialized(Database db)

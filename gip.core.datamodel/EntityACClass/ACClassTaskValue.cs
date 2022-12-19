@@ -28,6 +28,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "XMLValue", "en{'Value XML'}de{'Wert XML'}")]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassTaskValue.ClassName, "en{'Propertyvalue'}de{'Eigenschaftswert'}", typeof(ACClassTaskValue), ACClassTaskValue.ClassName, ACClassProperty.ClassName + "\\" + Const.ACIdentifierPrefix, ACClassProperty.ClassName + "\\" + Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassTaskValue>) })]
+    [NotMapped]
     public partial class ACClassTaskValue : IACObjectEntity
     {
         public const string ClassName = "ACClassTaskValue";
@@ -78,6 +79,7 @@ namespace gip.core.datamodel
             return entity;
         }
 
+        [NotMapped]
         ACClassProperty _NewACClassPropertyForQueue;
         [NotMapped]
         public ACClassProperty NewACClassPropertyForQueue
@@ -92,6 +94,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         ACClassTask _NewACClassTaskForQueue;
         [NotMapped]
         public ACClassTask NewACClassTaskForQueue
@@ -208,6 +211,7 @@ namespace gip.core.datamodel
         #endregion
 
         #region RWLock
+        [NotMapped]
         private object _RWLock = new object();
         [NotMapped]
         public string XMLValueRW

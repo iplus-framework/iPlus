@@ -14,6 +14,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, ACClassProperty.ClassName, "en{'ACClassProperty'}de{'de-ACClassProperty'}", Const.ContextDatabase + "\\" + ACClassProperty.ClassName, "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBGroupRight.ClassName, "en{'Usergroupright'}de{'Benutzergruppenrechte'}", typeof(VBGroupRight), VBGroupRight.ClassName, VBGroup.ClassName + "\\VBGroupName", VBGroup.ClassName + "\\VBGroupName")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBGroupRight>) })]
+    [NotMapped]
     public partial class VBGroupRight : IACObjectEntity
     {
         public const string ClassName = "VBGroupRight";
@@ -86,6 +87,7 @@ namespace gip.core.datamodel
         }
 
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
@@ -94,6 +96,7 @@ namespace gip.core.datamodel
             }
         }
         
+        [NotMapped]
         public Global.ControlModes ControlMode
         {
             get

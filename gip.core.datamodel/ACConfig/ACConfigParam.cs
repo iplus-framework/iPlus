@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using gipCoreData = gip.core.datamodel;
 
 namespace gip.core.datamodel
@@ -13,15 +12,12 @@ namespace gip.core.datamodel
     public class ACConfigParam 
     {
         [ACPropertyInfo(1, Const.ACIdentifierPrefix, "en{'Name'}de{'Name'}")]
-        [NotMapped]
         public string ACIdentifier { get; set; }
 
         [ACPropertyInfo(2, Const.ACCaptionPrefix, "en{'Description'}de{'Beschreibung'}")]
-        [NotMapped]
         public string ACCaption { get; set; }
 
         [ACPropertyInfo(3, "DefaultConfiguration", "en{'DefaultConfiguration'}de{'DefaultConfiguration'}")]
-        [NotMapped]
         public IACConfig DefaultConfiguration { get; set; }
 
         public ACClassWF ACClassWF
@@ -34,7 +30,6 @@ namespace gip.core.datamodel
 
         private List<IACConfig> _ConfigurationList;
         [ACPropertyInfo(9999, "ConfigurationList")]
-        [NotMapped]
         public List<IACConfig> ConfigurationList
         {
             get
@@ -50,7 +45,6 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(105)]
-        [NotMapped]
         public gipCoreData.ACClass VBACClass { get; set; }
 
         public Guid? VBiACClassID { get; set; }

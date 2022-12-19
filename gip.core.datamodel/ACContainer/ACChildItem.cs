@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,14 +18,12 @@ namespace gip.core.datamodel
         #region properties
 
         [ACPropertyInfo(9999)]
-        [NotMapped]
         public string InstanceName { get; set; }
 
         public IACComponent ParentComponent { get; set; }
 
         private T value;
         [ACPropertyInfo(9999)]
-        [NotMapped]
         public T Value
         {
             get

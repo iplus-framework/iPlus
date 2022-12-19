@@ -76,6 +76,7 @@ namespace gip.core.datamodel
         })
     ]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClass>) })]
+    [NotMapped]
     public partial class ACClass : IACObjectEntityWithCheckTrans, IACType, IACConfigStore, IACClassEntity, ICloneable
     {
         public const string ClassName = "ACClass";
@@ -799,6 +800,7 @@ namespace gip.core.datamodel
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         [ACPropertyInfo(9999)]
+        [NotMapped]
         public override IACObject ParentACObject
         {
             get
@@ -1426,6 +1428,7 @@ namespace gip.core.datamodel
         }
 
 
+        [NotMapped]
         List<ACClassMethod> _CachedMethodList = null;
         /// <summary>
         /// Returns all Methods over complete class hierarchy
@@ -1539,9 +1542,15 @@ namespace gip.core.datamodel
                 if (!ACClassMethod_ACClassReference.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
-#if !EFCR
-                    ACClassMethod_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
-                    allMethods = Context.ACClassMethod_ACClass.CreateSourceQuery()
+                    //MergeOption.OverwriteChanges
+                    if (forceRefreshFromDB)
+                        ACClassMethod_ACClassReference.EntityEntry.Reload();
+
+                    //MergeOption.AppendOnly
+                    else
+                        ACClassMethod_ACClassReference.Load();
+
+                    allMethods = ACClassMethod_ACClass.AsQueryable()
                                                 .Include(c => c.PWACClass)
                                                 .Include(c => c.ValueTypeACClass)
                                                 .Include(c => c.ACClass)
@@ -1549,8 +1558,6 @@ namespace gip.core.datamodel
                                                 .Include(c => c.AttachedFromACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
-#endif
-                    throw new NotImplementedException();
                 }
                 else
                     allMethods = ACClassMethod_ACClass.ToArray();
@@ -1767,6 +1774,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         List<ACClassProperty> _CachedPropertiesList = null;
         /// <summary>
         /// Returns all Methods over complete class hierarchy
@@ -2090,9 +2098,15 @@ namespace gip.core.datamodel
                 if (!ACClassProperty_ACClassReference.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
-#if !EFCR
-                    ACClassProperty_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
-                    allProperties = ACClassProperty_ACClass.CreateSourceQuery()
+                    //MergeOption.OverwriteChanges
+                    if (forceRefreshFromDB)
+                        ACClassProperty_ACClassReference.EntityEntry.Reload();
+
+                    //MergeOption.AppendOnly
+                    else
+                        ACClassProperty_ACClassReference.Load();
+
+                    allProperties = ACClassProperty_ACClass.AsQueryable()
                                                 .Include(c => c.ValueTypeACClass)
                                                 .Include(c => c.ACClass)
                                                 .Include(c => c.ACClassProperty1_BasedOnACClassProperty)
@@ -2101,8 +2115,6 @@ namespace gip.core.datamodel
                                                 .Include(nameof(ACClassProperty.ACClassPropertyRelation_TargetACClassProperty))
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
-#endif
-                    throw new NotImplementedException();
                 }
                 else
                     allProperties = ACClassProperty_ACClass.ToArray();
@@ -2370,15 +2382,19 @@ namespace gip.core.datamodel
                 if (!ACClassDesign_ACClassReference.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
-#if !EFCR
-                    ACClassDesign_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
-                    allDesigns = ACClassDesign_ACClass.CreateSourceQuery()
+                    //MergeOption.OverwriteChanges
+                    if (forceRefreshFromDB)
+                        ACClassDesign_ACClassReference.EntityEntry.Reload();
+                    
+                    //MergeOption.AppendOnly
+                    else
+                        ACClassDesign_ACClassReference.Load();
+
+                    allDesigns = ACClassDesign_ACClass.AsQueryable()
                                                 .Include(c => c.ValueTypeACClass)
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
-#endif
-                    throw new NotImplementedException();
                 }
                 else
                     allDesigns = ACClassDesign_ACClass.ToArray();
@@ -2395,19 +2411,20 @@ namespace gip.core.datamodel
             return allDesigns;
         }
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
 
-#region ACClassText
+        #region ACClassText
 
-#region public
+        #region public
         /// <summary>
         /// Returns all Texts over complete class hierarchy
         /// THREAD-SAFE (QueryLock_1X000)
         /// </summary>
         /// <value>My AC class text list.</value>
+        [NotMapped]
         public IEnumerable<ACClassText> Texts
         {
             get
@@ -2510,14 +2527,18 @@ namespace gip.core.datamodel
                 if (!ACClassText_ACClassReference.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
-#if !EFCR
-                    ACClassText_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
-#endif
+                    //MergeOption.OverwriteChanges
+                    if (forceRefreshFromDB)
+                        ACClassText_ACClassReference.EntityEntry.Reload();
+
+                    //MergeOption.AppendOnly
+                    else
+                        ACClassText_ACClassReference.Load();
+
                     allTexts = ACClassText_ACClass.AsQueryable()
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
-
                 }
                 else
                     allTexts = ACClassText_ACClass.ToArray();
@@ -2650,9 +2671,14 @@ namespace gip.core.datamodel
                 if (!ACClassMessage_ACClassReference.IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
-#if !EFCR
-                    ACClassMessage_ACClass.Load(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
-#endif
+                    //MergeOption.OverwriteChanges
+                    if (forceRefreshFromDB)
+                        ACClassMessage_ACClassReference.EntityEntry.Reload();
+
+                    //MergeOption.AppendOnly
+                    else
+                        ACClassMessage_ACClassReference.Load();
+
                     allMessages = ACClassMessage_ACClass.AsQueryable()
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
@@ -2680,7 +2706,9 @@ namespace gip.core.datamodel
 
 #region ACClassComposition
 
+        [NotMapped]
         private bool _PrimaryNavigationqueryChecked = false;
+        [NotMapped]
         private ACClass _PrimaryNavigationquery = null;
         /// <summary>
         /// PrimaryNavigationquery
@@ -2728,6 +2756,7 @@ namespace gip.core.datamodel
 
 
         private bool _ManagingBSOChecked = false;
+        [NotMapped]
         private ACClass _ManagingBSO = null;
         /// <summary>
         /// Gets my AC class BSO.

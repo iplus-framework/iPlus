@@ -26,6 +26,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(2, "Comment", "en{'Comment'}de{'Bemerkung'}","", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACPackage.ClassName, "en{'Package'}de{'Packet'}", typeof(ACPackage), ACPackage.ClassName, "ACPackageName", "ACPackageName")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACPackage>) })]
+    [NotMapped]
     public partial class ACPackage : IACObjectEntity
     {
         public const string ClassName = "ACPackage";
@@ -74,6 +75,7 @@ namespace gip.core.datamodel
             return acPackage;
         }
 
+        [NotMapped]
         private static List<ACPackage> _InsertedPackages;
         [NotMapped]
         public static List<ACPackage> InsertedPackages
@@ -187,6 +189,7 @@ namespace gip.core.datamodel
             return tempList;
         }
 
+        [NotMapped]
         private static List<Tuple<string,short>> _VBPackages;
         [NotMapped]
         public static List<Tuple<string, short>> VBPackages

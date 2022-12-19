@@ -19,6 +19,7 @@ namespace gip.core.datamodel
     [ACDeleteAction("ACProgramConfig_ParentACProgramConfig", Global.DeleteAction.CascadeManual)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACProgramConfig.ClassName, "en{'Program.config'}de{'Programm.config'}", typeof(ACProgramConfig), ACProgramConfig.ClassName, Const.PN_LocalConfigACUrl, Const.PN_LocalConfigACUrl)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACProgramConfig>) })]
+    [NotMapped]
     public partial class ACProgramConfig : IACConfig
     {
         public const string ClassName = "ACProgramConfig";

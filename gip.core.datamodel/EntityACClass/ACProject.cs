@@ -56,6 +56,7 @@ namespace gip.core.datamodel
         }
     )]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACProject>) })]
+    [NotMapped]
     public partial class ACProject : IACClassEntity
     {
         public const string ClassName = "ACProject";

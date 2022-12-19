@@ -16,7 +16,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -25,7 +24,6 @@ namespace gip.core.datamodel
     /// Use this class for Methods with return values and which can be called locally or remote (Server-Side).
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    [NotMapped]
     public class ACMethodInfo : Attribute
     {
         /// <summary>
@@ -164,7 +162,6 @@ namespace gip.core.datamodel
     /// The iPlus-Framework automatically passes a instance of ACComponentProxy to this parameter.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    [NotMapped]
     public class ACMethodClient : ACMethodInfo
     {
         /// <summary>
@@ -188,7 +185,6 @@ namespace gip.core.datamodel
     /// This is mostly used for Methods which appears as a button on the GUI.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    [NotMapped]
     public class ACMethodCommand : ACMethodInfo
     {
         /// <summary>
@@ -212,7 +208,6 @@ namespace gip.core.datamodel
     /// This is mostly used for Methods which can be invoked via context menu. You can also use it with a button.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    [NotMapped]
     public class ACMethodInteraction : ACMethodInfo
     {
         /// <summary>
@@ -266,7 +261,6 @@ namespace gip.core.datamodel
     /// Pass the TYPE of the class in the parameter "attachToClass" where this method should be ATTACHED (Similar concept as Extension-Methods in .net)
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    [NotMapped]
     public class ACMethodAttached : ACMethodInfo
     {
         /// <summary>
@@ -294,7 +288,6 @@ namespace gip.core.datamodel
     /// The method should always have this signature: ACMethodEventArgs MethodName(ACMethod acMethod)
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    [NotMapped]
     public class ACMethodAsync : ACMethodInfo
     {
         /// <summary>
@@ -316,7 +309,6 @@ namespace gip.core.datamodel
     /// This is mostly used for Methods which Component has a State-Machine (ACStateEnum ACState)
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    [NotMapped]
     public class ACMethodState : ACMethodInfo
     {
         /// <summary>

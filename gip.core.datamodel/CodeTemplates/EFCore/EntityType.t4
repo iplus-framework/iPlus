@@ -177,7 +177,7 @@ public partial class <#= EntityType.Name #> : VBEntityObject
 
     public virtual ReferenceEntry<#= needsNullable ? "?" : "" #> <#= navPIdname+"Reference" #> 
     { 
-        get { Context.Entry(this).Reference("<#=navPIdname#>"); }
+        get { return Context.Entry(this).Reference("<#=navPIdname#>"); }
     }<#= needsInitializer ? " = null!;" : "" #>
     <#
         }

@@ -14,6 +14,7 @@ namespace gip.core.datamodel
         }
    )]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBGroup>) })]
+    [NotMapped]
     public partial class VBGroup
     {
         public const string ClassName = "VBGroup";
@@ -75,6 +76,7 @@ namespace gip.core.datamodel
             return null;
         }
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get

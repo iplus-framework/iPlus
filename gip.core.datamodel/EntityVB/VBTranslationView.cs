@@ -18,6 +18,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(499, Const.EntityUpdateDate, Const.EntityTransUpdateDate)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBTranslationView.ClassName, "en{'VBTranslationView'}de{'VBTranslationView'}", typeof(VBTranslationView), VBTranslationView.ClassName, "ACIdentifier", "ACIdentifier")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBTranslationView>) })]
+    [NotMapped]
     public partial class VBTranslationView
     {
 
@@ -25,6 +26,7 @@ namespace gip.core.datamodel
 
 
         #region EditTranslation
+        [NotMapped]
         private TranslationPair _SelectedEditTranslation;
         /// <summary>
         /// Selected property for TranslationPair
@@ -48,6 +50,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         private List<TranslationPair> _EditTranslationList;
         /// <summary>
         /// List property for TranslationPair

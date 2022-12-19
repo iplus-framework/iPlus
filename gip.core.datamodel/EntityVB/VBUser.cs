@@ -17,10 +17,14 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "MenuACClassDesign", "en{'Main Menu'}de{'Hauptmenü'}", Const.ContextDatabase + "\\MenuACClassList", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBUser.ClassName, "en{'User'}de{'Benutzer'}", typeof(VBUser), VBUser.ClassName, "VBUserName", "VBUserName")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBUser>) })]
+    [NotMapped]
     public partial class VBUser
     {
+        [NotMapped]
         public const string ClassName = "VBUser";
+        [NotMapped]
         public const string NoColumnName = "VBUserNo";
+        [NotMapped]
         public const string FormatNewNo = null;
 
         #region New/Delete
@@ -108,6 +112,7 @@ namespace gip.core.datamodel
             return null;
         }
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get

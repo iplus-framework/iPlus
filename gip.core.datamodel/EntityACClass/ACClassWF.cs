@@ -35,6 +35,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "ParentACClassWF", "en{'Parent Workflow'}de{'Elternworkflow'}", Const.ContextDatabaseIPlus + "\\" + ACClassWF.ClassName, "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassWF.ClassName, "en{'Workflow'}de{'Workflow'}", typeof(ACClassWF), ACClassWF.ClassName, Const.ACCaptionPrefix, Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassWF>) })]
+    [NotMapped]
     public partial class ACClassWF : IACObjectEntity, IACWorkflowNode, IACEntityProperty, IACClassDesignProvider, IACClassEntity, ICloneable, IACConfigURL
     {
         public const string ClassName = "ACClassWF";
@@ -351,6 +352,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         ACClassWF _GroupACClassWF = null;
         /// <summary>
         /// Reference to the parent Workflow-Node that groups more child-nodes together
@@ -580,6 +582,7 @@ namespace gip.core.datamodel
 #endregion
 
 #region Others
+        [NotMapped]
         public Database Database { get; private set; } = null;
 
         void IACClassEntity.OnObjectMaterialized(Database db)

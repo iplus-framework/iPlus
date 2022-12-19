@@ -11,6 +11,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "XMLDesign", "en{'XMLDesign'}de{'de-XMLDesign'}")]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBUserACClassDesign.ClassName, "en{'Personalized layout'}de{'Personalisiertes Layout'}", typeof(VBUserACClassDesign), VBUserACClassDesign.ClassName, VBUser.ClassName + "\\VBUserName," + ACClassDesign.ClassName + "\\ACIdentifier", ACClassDesign.ClassName + "\\ACIdentifier")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBUserACClassDesign>) })]
+    [NotMapped]
     public partial class VBUserACClassDesign : IACObjectEntity
     {
         public const string ClassName = "VBUserACClassDesign";
@@ -100,6 +101,7 @@ namespace gip.core.datamodel
         }
 
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get

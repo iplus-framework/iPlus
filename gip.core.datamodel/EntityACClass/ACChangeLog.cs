@@ -14,6 +14,7 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "", Global.ACKinds.TACDBA)]
     [ACPropertyEntity(999, VBUser.ClassName, "en{'Changed by'}de{'Geändert von'}")]
     [ACPropertyEntity(999, "ChangeDate", "en{'Changed on'}de{'Geändert am'}")]
+    [NotMapped]
     public partial class ACChangeLog
     {
         public static ACChangeLog NewACObject()
@@ -30,6 +31,7 @@ namespace gip.core.datamodel
             return aCChangeLog;
         }
 
+        [NotMapped]
         private ACValue _ChangeLogValue;
         [ACPropertyInfo(999, "", "en{'Value'}de{'Wert'}")]
         [NotMapped]

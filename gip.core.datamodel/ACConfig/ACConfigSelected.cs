@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
+﻿
 namespace gip.core.datamodel
 {
     /// <summary>
@@ -9,12 +8,10 @@ namespace gip.core.datamodel
     public class ACConfigSelected
     {
         [ACPropertyInfo(1, "ACConfig", "en{'ACConfig'}de{'ACConfig'}")]
-        [NotMapped]
         public IACConfig ACConfig { get; set; }
 
 
         [ACPropertyInfo(2, "Selected", "en{'Selected'}de{'Ausgewählt'}")]
-        [NotMapped]
         public bool Selected { get; set; }
     }
 }

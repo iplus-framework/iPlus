@@ -67,6 +67,7 @@ namespace gip.core.datamodel
             _GlobalDatabase = ACObjectContextManager.GetOrCreateContext<Database>(Const.GlobalDatabase);
 
             ACClass acClassQRYACQueryDefinition = _GlobalDatabase.ACClass.Where(c => c.ACIdentifier == Const.QueryPrefix + ACQueryDefinition.ClassName).First();
+
             _QRYACQueryDefinition = ACQueryDefinition.CreateRootQueryDefinition(acClassQRYACQueryDefinition);
 
             _GlobalDatabase.InitTypeDictFromSystemNamespace();

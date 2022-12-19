@@ -14,6 +14,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(5, "IsDefault", "en{'Default'}de{'Standard'}","", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBLanguage.ClassName, "en{'Language'}de{'Sprache'}", typeof(VBLanguage), VBLanguage.ClassName, "VBNameTrans", "SortIndex")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBLanguage>) })]
+    [NotMapped]
     public partial class VBLanguage
     {
         public const string ClassName = "VBLanguage";
@@ -76,6 +77,7 @@ namespace gip.core.datamodel
 
         #region IACObjectEntity Members
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get

@@ -34,6 +34,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "XMLACMethod", "en{'Method XML'}de{'Methoden XML'}")]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassTaskValuePos.ClassName, "en{'Propertyvalue'}de{'Eigenschaftswert'}", typeof(ACClassTaskValuePos), ACClassTaskValuePos.ClassName, ACClassTaskValue.ClassName + "\\" + ACClassProperty.ClassName + "\\" + Const.ACIdentifierPrefix, ACClassTaskValue.ClassName + "\\" + ACClassProperty.ClassName + "\\" + Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassTaskValuePos>) })]
+    [NotMapped]
     public partial class ACClassTaskValuePos : IACObjectEntity, IACTask
     {
         public const string ClassName = "ACClassTaskValuePos";

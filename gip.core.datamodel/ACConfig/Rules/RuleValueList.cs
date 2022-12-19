@@ -17,7 +17,6 @@ namespace gip.core.datamodel
 
         [DataMember]
         [ACPropertyInfo(1, "Items", "en{'Items'}de{'Items'}")]
-        [NotMapped]
         public List<RuleValue> Items { get; set; }
 
         public IEnumerable<ACClass> GetSelectedClasses(ACClassWFRuleTypes ruleType, Database db)

@@ -26,6 +26,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(5, "IsSystem", "en{'System'}de{'System'}","", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassText.ClassName, "en{'Text'}de{'Text'}", typeof(ACClassText), ACClassText.ClassName, Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassText>) })]
+    [NotMapped]
     public partial class ACClassText : IACObjectEntityWithCheckTrans, ICloneable, IACClassEntity
     {
         public const string ClassName = "ACClassText";

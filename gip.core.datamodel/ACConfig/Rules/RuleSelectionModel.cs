@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -15,7 +14,6 @@ namespace gip.core.datamodel
     public class RuleSelectionModel : INotifyPropertyChanged
     {
         [ACPropertyList(9999, "RuleType")]
-        [NotMapped]
         public RuleInfo[] RuleTypeList
         {
             get { return null; }
@@ -29,7 +27,6 @@ namespace gip.core.datamodel
         public event PropertyChangedEventHandler PropertyChanged;
 
         [ACPropertyCurrent(9999, "RuleType", "en{'Rule'}de{'Rule'}")]
-        [NotMapped]
         public RuleInfo CurrentRuleType
         {
             get

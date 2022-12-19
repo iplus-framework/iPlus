@@ -11,6 +11,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(2, "ProjectNo", "en{'Project number'}de{'Project number'}", "", "", true)]
     [ACPropertyEntity(3, "SystemName", "en{'Systemname'}de{'Systemname'}", "", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBSystem.ClassName, "en{'System'}de{'System'}", typeof(VBSystem), VBSystem.ClassName, "CustomerName", "CustomerName")]
+    [NotMapped]
     public partial class VBSystem : IACObjectEntity
     {
         public const string ClassName = "VBSystem";
@@ -42,6 +43,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public override string ACIdentifier
         {
             get
@@ -58,6 +60,7 @@ namespace gip.core.datamodel
 
         #region IACObjectEntity Members
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get

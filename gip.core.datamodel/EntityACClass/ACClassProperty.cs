@@ -93,6 +93,7 @@ namespace gip.core.datamodel
         }
     )]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassProperty>) })]
+    [NotMapped]
     public partial class ACClassProperty : IACObjectEntityWithCheckTrans, IACEntityProperty, IACType, IACConfigStore, IACClassEntity, ICloneable
     {
         public const string ClassName = "ACClassProperty";
@@ -206,6 +207,7 @@ namespace gip.core.datamodel
         }
 
 
+        [NotMapped]
         public Database Database { get; private set; } = null;
 
         void IACClassEntity.OnObjectMaterialized(Database db)
@@ -769,6 +771,7 @@ namespace gip.core.datamodel
         }
 
 
+        [NotMapped]
         Type _ObjectType = null;
         /// <summary>
         /// Returns the .NET-Type (If type of property value is a generic it returns the inner type)
@@ -804,6 +807,7 @@ namespace gip.core.datamodel
         }
 
 
+        [NotMapped]
         Type _ObjectFullType = null;
         /// <summary>
         /// Returns the .NET-Type (If type of property value is a generic it returns the outer+inner type)
@@ -1538,7 +1542,9 @@ namespace gip.core.datamodel
         public decimal OverridingOrder { get; set; }
 
 
+        [NotMapped]
         private SafeList<IACConfig> _ACConfigListCache;
+        [NotMapped]
         private SafeList<IACConfig> ACConfigListCache
         {
             get

@@ -17,6 +17,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(8, "UsedPrefix", "en{'UsedPrefix'}de{'de-UsedPrefix'}","", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBNoConfiguration.ClassName, "en{'Noconfiguration'}de{'Nummernkonfiguration'}", typeof(VBNoConfiguration), VBNoConfiguration.ClassName, "VBNoConfigurationName", "VBNoConfigurationName")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBNoConfiguration>) })]
+    [NotMapped]
     public partial class VBNoConfiguration
     {
         public const string ClassName = "VBNoConfiguration";
@@ -87,6 +88,7 @@ namespace gip.core.datamodel
             return null;
         }
 
+        [NotMapped]
         static public string KeyACIdentifier
         {
             get
