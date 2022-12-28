@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Data.Common;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace gip.core.datamodel
 {
@@ -584,9 +585,9 @@ namespace gip.core.datamodel
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
         /// <param name="refreshMode"></param>
-        public void AutoRefresh<T>(ICollection<T> entityCollection, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
+        public void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
         {
-            _ObjectContextHelper.AutoRefresh<T>(entityCollection, refreshMode);
+            _ObjectContextHelper.AutoRefresh<T>(entityCollection, entry, refreshMode);
         }
 
         /// <summary>
@@ -595,9 +596,9 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        public void AutoLoad<T>(ICollection<T> entityCollection) where T : class
+        public void AutoLoad<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class
         {
-            _ObjectContextHelper.AutoLoad<T>(entityCollection);
+            _ObjectContextHelper.AutoLoad<T>(entityCollection, entry);
         }
 
         public void ParseException(MsgWithDetails msg, Exception e)
@@ -1172,9 +1173,8 @@ namespace gip.core.datamodel
         // see deadlock18.txt
         //private object _DictLock = new object();
         private ConcurrentDictionary<string, ACClass> _TypesAssQlfName = new ConcurrentDictionary<string, ACClass>();
-#if !EFCR
         static readonly Func<Database, string, ACClass> s_cQry_TypesCAssQlfName =
-            CompiledQuery.Compile<Database, string, ACClass>(
+            EF.CompileQuery<Database, string, ACClass>(
                 (db, assQName) =>
                     db.ACClass.Include("ACClass1_BasedOnACClass")
                             .Include("ACClass1_ParentACClass")
@@ -1186,12 +1186,10 @@ namespace gip.core.datamodel
                 && c.ParentACClassID == null
                 && c.AssemblyQualifiedName == assQName).FirstOrDefault()
             );
-#endif
 
         private ConcurrentDictionary<string, ACClass> _TypesClassName = new ConcurrentDictionary<string, ACClass>();
-#if !EFCR
         static readonly Func<Database, string, ACClass> s_cQry_TypesClassLibrary =
-            CompiledQuery.Compile<Database, string, ACClass>(
+            EF.CompileQuery<Database, string, ACClass>(
                 (db, acIdentifier) =>
                     db.ACClass.Include("ACClass1_BasedOnACClass")
                             .Include("ACClass1_ParentACClass")
@@ -1205,7 +1203,7 @@ namespace gip.core.datamodel
             );
 
         static readonly Func<Database, string, ACClass> s_cQry_TypesDBAccess =
-            CompiledQuery.Compile<Database, string, ACClass>(
+            EF.CompileQuery<Database, string, ACClass>(
                 (db, acIdentifier) =>
                     db.ACClass.Include("ACClass1_BasedOnACClass")
                             .Include("ACClass1_ParentACClass")
@@ -1218,7 +1216,7 @@ namespace gip.core.datamodel
             );
 
         static readonly Func<Database, string, ACClass> s_cQry_TypesBSO =
-            CompiledQuery.Compile<Database, string, ACClass>(
+            EF.CompileQuery<Database, string, ACClass>(
                 (db, acIdentifier) =>
                     db.ACClass.Include("ACClass1_BasedOnACClass")
                             .Include("ACClass1_ParentACClass")
@@ -1229,12 +1227,10 @@ namespace gip.core.datamodel
                 .Where(c => (c.ACKindIndex == (Int16)Global.ACKinds.TACBSO || c.ACKindIndex == (Int16)Global.ACKinds.TACBSOGlobal)
                             && c.ACIdentifier == acIdentifier).FirstOrDefault()
             );
-#endif
 
         private ConcurrentDictionary<string, ACClass> _TypesACUrlComp = new ConcurrentDictionary<string, ACClass>();
-#if !EFCR
         static readonly Func<Database, string, ACClass> s_cQry_TypesACUrlComp =
-            CompiledQuery.Compile<Database, string, ACClass>(
+            EF.CompileQuery<Database, string, ACClass>(
                 (db, acUrl) =>
                     db.ACClass.Include("ACClass1_BasedOnACClass")
                         .Include("ACClass1_ParentACClass")
@@ -1244,12 +1240,10 @@ namespace gip.core.datamodel
                         .Include("ACClass_ParentACClass")
             .Where(c => c.ACURLComponentCached == acUrl).FirstOrDefault()
         );
-#endif
 
         private ConcurrentDictionary<Guid, ACClass> _TypesGuid = new ConcurrentDictionary<Guid, ACClass>(5, 1000);
-#if !EFCR
         static readonly Func<Database, Guid, ACClass> s_cQry_TypesGuid =
-            CompiledQuery.Compile<Database, Guid, ACClass>(
+            EF.CompileQuery<Database, Guid, ACClass>(
                 (db, acClassID) =>
                     db.ACClass.Include("ACClass1_BasedOnACClass")
                             .Include("ACClass1_ParentACClass")
@@ -1259,12 +1253,10 @@ namespace gip.core.datamodel
                             .Include("ACClass_ParentACClass")
                 .Where(c => c.ACClassID == acClassID).FirstOrDefault()
             );
-#endif
 
         private ConcurrentDictionary<Type, ACClass> _ACTypeCache = new ConcurrentDictionary<Type, ACClass>(5, 1000);
-#if !EFCR
         static readonly Func<Database, string, ACClass> s_cQry_TypeCache =
-            CompiledQuery.Compile<Database, string, ACClass>(
+            EF.CompileQuery<Database, string, ACClass>(
                 (db, assemblyQualifiedName) =>
                     db.ACClass.Include("ACClass1_BasedOnACClass")
                             .Include("ACClass1_ParentACClass")
@@ -1274,7 +1266,6 @@ namespace gip.core.datamodel
                             .Include("ACClass_ParentACClass")
                             .Where(c => c.AssemblyQualifiedName == assemblyQualifiedName).FirstOrDefault()
             );
-#endif
 
         /// <summary>
         /// Build Cache for primitive Types from System namespace to avoid Deadlocks when quering Global dabatbase
@@ -1331,9 +1322,7 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
-#if !EFCR
                 acClass = s_cQry_TypeCache(this, type.AssemblyQualifiedName);
-#endif
             }
             if (acClass != null)
             {
@@ -1361,9 +1350,7 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
-#if !EFCR
                 acClass = s_cQry_TypeCache(this, genericType.AssemblyQualifiedName);
-#endif
             }
             if (acClass != null)
             {
@@ -1400,13 +1387,11 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
-#if !EFCR
                 acClass = s_cQry_TypesClassLibrary(this, acIdentifier);
                 if (acClass == null)
                     acClass = s_cQry_TypesDBAccess(this, acIdentifier);
                 if (acClass == null)
                     acClass = s_cQry_TypesBSO(this, acIdentifier);
-#endif
             }
             if (acClass != null)
             {
@@ -1447,9 +1432,7 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
-#if !EFCR
                 acClass = s_cQry_TypesGuid(this, acClassID);
-#endif
             }
             if (acClass != null)
             {
@@ -1490,9 +1473,7 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
-#if !EFCR
                 acClass = s_cQry_TypesACUrlComp(this, acUrlComponent);
-#endif
             }
             if (acClass != null)
                 _TypesACUrlComp.TryAdd(acUrlComponent, acClass);
@@ -1518,12 +1499,12 @@ namespace gip.core.datamodel
 
         public void AutoRefresh(VBEntityObject entityObject)
         {
-            ((IACEntityObjectContext)ContextIPlus).AutoRefresh(entityObject);
+            _ObjectContextHelper.AutoRefresh(entityObject);
         }
 
-        public void AutoRefresh<T>(ICollection<T> entityCollection) where T : class
+        public void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class
         {
-            ((IACEntityObjectContext)ContextIPlus).AutoRefresh(entityCollection);
+            _ObjectContextHelper.AutoRefresh(entityCollection, entry);
         }
 
         public void AcceptAllChanges()

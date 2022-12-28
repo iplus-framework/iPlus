@@ -85,7 +85,7 @@ namespace gip.core.datamodel
         public static ACClassMethod NewACObject(Database database, IACObject parentACObject)
         {
             ACClassMethod entity = new ACClassMethod();
-            entity.Database = database;
+            entity.Context = database;
             entity.ACClassMethodID = Guid.NewGuid();
             entity.ACKind = Global.ACKinds.MSMethodExt;
             entity.ContinueByError = false;
@@ -407,12 +407,17 @@ namespace gip.core.datamodel
 
 
         [NotMapped]
-        public Database Database { get; private set; } = null;
-
-        void IACClassEntity.OnObjectMaterialized(Database db)
+        public Database Database
         {
-            if (Database == null)
-                Database = db;
+            get
+            {
+                return Context as Database;
+            }
+        }
+
+        public override void OnObjectMaterialized(IACEntityObjectContext context)
+        {
+            base.OnObjectMaterialized(context);
             LastReadUpdateACClassWF = UpdateDate;
         }
 
@@ -421,7 +426,7 @@ namespace gip.core.datamodel
         public object Clone()
         {
             ACClassMethod clonedObject = ACClassMethod.NewACObject(this.Database, null);
-            clonedObject.Database = Database;
+            clonedObject.Context = Database;
             clonedObject.ACClassMethodID = this.ACClassMethodID;
             clonedObject.ACClassID = this.ACClassID;
             clonedObject.ACIdentifier = this.ACIdentifier;
@@ -1943,8 +1948,8 @@ namespace gip.core.datamodel
                 {
                     if (acClassMethod.ACClassMethodConfig_ACClassMethodReference.IsLoaded)
                     {
-                        acClassMethod.ACClassMethodConfig_ACClassMethod.AutoRefresh(acClassMethod.Database);
-                        acClassMethod.ACClassMethodConfig_ACClassMethod.AutoLoad(acClassMethod.Database);
+                        acClassMethod.ACClassMethodConfig_ACClassMethod.AutoRefresh(acClassMethod.ACClassMethodConfig_ACClassMethodReference, acClassMethod.Database);
+                        acClassMethod.ACClassMethodConfig_ACClassMethod.AutoLoad(ACClassMethodConfig_ACClassMethodReference, acClassMethod);
                     }
                     return acClassMethod.ACClassMethodConfig_ACClassMethod.ToList().Select(x => (IACConfig)x); //.Where(c => c.KeyACUrl == ACConfigKeyACUrl); Without ACConfigKeyACUrl-Filter because ACClassMethodConfig is a seperate table 
                 }
@@ -1961,8 +1966,8 @@ namespace gip.core.datamodel
             {
                 if (this.ACClassMethodConfig_ACClassMethodReference.IsLoaded)
                 {
-                    this.ACClassMethodConfig_ACClassMethod.AutoRefresh(this.Database);
-                    this.ACClassMethodConfig_ACClassMethod.AutoLoad(this.Database);
+                    this.ACClassMethodConfig_ACClassMethod.AutoRefresh(this.ACClassMethodConfig_ACClassMethodReference, this.Database);
+                    this.ACClassMethodConfig_ACClassMethod.AutoLoad(ACClassMethodConfig_ACClassMethodReference, this);
                 }
                 newSafeList = new SafeList<IACConfig>(this.ACClassMethodConfig_ACClassMethod); //.Where(c => c.KeyACUrl == ACConfigKeyACUrl); Without ACConfigKeyACUrl-Filter because ACClassMethodConfig is a seperate table 
             }

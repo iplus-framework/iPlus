@@ -79,7 +79,7 @@ namespace gip.core.datamodel
         public static ACProject NewACObject(Database database, IACObject parentACObject, string secondaryKey)
         {
             ACProject entity = new ACProject();
-            entity.Database = database;
+            entity.Context = database;
             entity.ACProjectID = Guid.NewGuid();
             entity.DefaultValuesACObject();
             entity.ACProjectType = Global.ACProjectTypes.Application;
@@ -266,12 +266,12 @@ namespace gip.core.datamodel
         #endregion
 
 
-        public Database Database { get; private set; } = null;
-
-        void IACClassEntity.OnObjectMaterialized(Database db)
+        public Database Database
         {
-            if (Database == null)
-                Database = db;
+            get
+            {
+                return Context as Database;
+            }
         }
 
     }

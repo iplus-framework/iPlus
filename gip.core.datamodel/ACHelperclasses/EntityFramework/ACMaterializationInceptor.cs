@@ -22,7 +22,7 @@ namespace gip.core.datamodel
             VBEntityObject entityObject = entity as VBEntityObject;
             if (entityObject == null)
                 return entity;
-            entityObject.Context = materializationData.Context as IACEntityObjectContext;
+            entityObject.OnObjectMaterialized(materializationData.Context as IACEntityObjectContext);
             return entityObject;
         }
 

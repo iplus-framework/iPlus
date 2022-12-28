@@ -275,8 +275,8 @@ namespace gip.core.datamodel
                     {
                         if (ACProgramConfig_ACProgramReference.IsLoaded)
                         {
-                            ACProgramConfig_ACProgram.AutoRefresh();
-                            ACProgramConfig_ACProgram.AutoLoad();
+                            ACProgramConfig_ACProgram.AutoRefresh(ACProgramConfig_ACProgramReference, this);
+                            ACProgramConfig_ACProgram.AutoLoad(ACProgramConfig_ACProgramReference, this);
                         }
                         newSafeList = new SafeList<IACConfig>(ACProgramConfig_ACProgram.ToList().Select(x => (IACConfig)x));
                     }
@@ -334,16 +334,17 @@ namespace gip.core.datamodel
         }
 
         [NotMapped]
-        public Database Database { get; private set; } = null;
-        public void OnObjectMaterialized(Database db)
+        public Database Database
         {
-            if (Database == null)
-                Database = db;
+            get
+            {
+                return Context as Database;
+            }
         }
 
-        #endregion
+#endregion
 
-        #region IACWorkflow
+#region IACWorkflow
         [NotMapped]
         public IACWorkflowNode RootWFNode
         {
@@ -373,9 +374,9 @@ namespace gip.core.datamodel
                 throw new NotSupportedException();
             }
         }
-        #endregion
+#endregion
 
-        #region Applicationdata
+#region Applicationdata
         [ACPropertyInfo(9999, "en{'Applicationdata'}de{'Anwendungsdaten'}", "gip.core.autocomponent.ApplicationdataConfig", "en{'Applicationdata'}de{'Anwendungsdaten'}")]
         [NotMapped]
         public ACProgramConfig Applicationdata
@@ -390,7 +391,7 @@ namespace gip.core.datamodel
                 }
             }
         }
-        #endregion
+#endregion
 
     }
 }

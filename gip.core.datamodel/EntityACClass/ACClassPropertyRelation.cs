@@ -54,7 +54,7 @@ namespace gip.core.datamodel
         public static ACClassPropertyRelation NewACObject(Database database, IACObject parentACObject)
         {
             ACClassPropertyRelation entity = new ACClassPropertyRelation();
-            entity.Database = database;
+            entity.Context = database;
             entity.ACClassPropertyRelationID = Guid.NewGuid();
 
             entity.DefaultValuesACObject();
@@ -355,14 +355,13 @@ namespace gip.core.datamodel
         #endregion
 
         [NotMapped]
-        public Database Database { get; private set; } = null;
-
-        void IACClassEntity.OnObjectMaterialized(Database db)
+        public Database Database
         {
-            if (Database == null)
-                Database = db;
+            get
+            {
+                return Context as Database;
+            }
         }
-
 
         [NotMapped]
         public bool AreUnitConversionParamsSet

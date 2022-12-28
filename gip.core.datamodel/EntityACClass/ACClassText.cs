@@ -42,7 +42,7 @@ namespace gip.core.datamodel
         {
             // Bei Systembelegung gibt es keine Vorbelegung, da hier kein Customizing erwünscht ist
             ACClassText entity = new ACClassText();
-            entity.Database = database;
+            entity.Context = database;
             entity.ACClassTextID = Guid.NewGuid();
             if (parentACObject is ACClass)
             {
@@ -185,16 +185,11 @@ namespace gip.core.datamodel
         [NotMapped]
         public Database Database
         {
-            get;
-            set;
+            get
+            {
+                return Context as Database;
+            }
         }
-
-        public void OnObjectMaterialized(Database db)
-        {
-            if (Database == null)
-                Database = db;
-        }
-
 
         #endregion
 

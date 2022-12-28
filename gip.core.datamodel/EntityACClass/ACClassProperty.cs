@@ -111,7 +111,7 @@ namespace gip.core.datamodel
         public static ACClassProperty NewACObject(Database database, IACObject parentACObject)
         {
             ACClassProperty entity = new ACClassProperty();
-            entity.Database = database;
+            entity.Context = database;
             entity.ACClassPropertyID = Guid.NewGuid();
             entity.DefaultValuesACObject();
             if (parentACObject is ACClass)
@@ -208,14 +208,13 @@ namespace gip.core.datamodel
 
 
         [NotMapped]
-        public Database Database { get; private set; } = null;
-
-        void IACClassEntity.OnObjectMaterialized(Database db)
+        public Database Database
         {
-            if (Database == null)
-                Database = db;
+            get
+            {
+                return Context as Database;
+            }
         }
-
 
         #region Cloning
 
@@ -1508,8 +1507,8 @@ namespace gip.core.datamodel
                 {
                     if (acClass.ACClassConfig_ACClassReference.IsLoaded)
                     {
-                        acClass.ACClassConfig_ACClass.AutoRefresh(acClass.Database);
-                        acClass.ACClassConfig_ACClass.AutoLoad(acClass.Database);
+                        acClass.ACClassConfig_ACClass.AutoRefresh(acClass.ACClassConfig_ACClassReference, acClass.Database);
+                        acClass.ACClassConfig_ACClass.AutoLoad(acClass.ACClassConfig_ACClassReference, acClass);
                     }
                     return acClass.ACClassConfig_ACClass.ToList().Select(x => (IACConfig)x).Where(c => c.KeyACUrl == ACConfigKeyACUrl);
                 }
@@ -1526,8 +1525,8 @@ namespace gip.core.datamodel
             {
                 if (this.ACClass.ACClassConfig_ACClassReference.IsLoaded)
                 {
-                    this.ACClass.ACClassConfig_ACClass.AutoRefresh(this.ACClass.Database);
-                    this.ACClass.ACClassConfig_ACClass.AutoLoad(this.ACClass.Database);
+                    this.ACClass.ACClassConfig_ACClass.AutoRefresh(this.ACClass.ACClassConfig_ACClassReference, this.ACClass.Database);
+                    this.ACClass.ACClassConfig_ACClass.AutoLoad(this.ACClass.ACClassConfig_ACClassReference, this.ACClass);
                 }
                 newSafeList = new SafeList<IACConfig>(this.ACClass.ACClassConfig_ACClass.ToList().Select(x => (IACConfig)x).Where(c => c.KeyACUrl == ACConfigKeyACUrl));
             }

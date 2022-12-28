@@ -93,7 +93,7 @@ namespace gip.core.datamodel
         public static ACClass NewACObject(Database database, IACObject parentACObject)
         {
             ACClass entity = new ACClass();
-            entity.Database = database;
+            entity.Context = database;
             entity.ACClassID = Guid.NewGuid();
             entity.IsAbstract = false;
             entity.AssemblyQualifiedName = "";
@@ -193,12 +193,12 @@ namespace gip.core.datamodel
         }
 
 
-        public Database Database { get; private set; } = null;
-
-        void IACClassEntity.OnObjectMaterialized(Database db)
+        public Database Database
         {
-            if (Database == null)
-                Database = db;
+            get
+            {
+                return Context as Database;
+            }
         }
 
         /// <summary>
@@ -1544,7 +1544,7 @@ namespace gip.core.datamodel
                 {
                     //MergeOption.OverwriteChanges
                     if (forceRefreshFromDB)
-                        ACClassMethod_ACClassReference.EntityEntry.Reload();
+                        ACClassMethod_ACClass.AutoLoad(ACClassMethod_ACClassReference, this);
 
                     //MergeOption.AppendOnly
                     else
@@ -2100,7 +2100,7 @@ namespace gip.core.datamodel
                 {
                     //MergeOption.OverwriteChanges
                     if (forceRefreshFromDB)
-                        ACClassProperty_ACClassReference.EntityEntry.Reload();
+                        ACClassProperty_ACClass.AutoLoad(ACClassProperty_ACClassReference, this);
 
                     //MergeOption.AppendOnly
                     else
@@ -2384,7 +2384,7 @@ namespace gip.core.datamodel
                 {
                     //MergeOption.OverwriteChanges
                     if (forceRefreshFromDB)
-                        ACClassDesign_ACClassReference.EntityEntry.Reload();
+                        ACClassDesign_ACClass.AutoLoad(ACClassDesign_ACClassReference, this);
                     
                     //MergeOption.AppendOnly
                     else
@@ -2529,7 +2529,7 @@ namespace gip.core.datamodel
                 {
                     //MergeOption.OverwriteChanges
                     if (forceRefreshFromDB)
-                        ACClassText_ACClassReference.EntityEntry.Reload();
+                        ACClassText_ACClass.AutoLoad(ACClassText_ACClassReference, this);
 
                     //MergeOption.AppendOnly
                     else
@@ -2673,7 +2673,7 @@ namespace gip.core.datamodel
                 {
                     //MergeOption.OverwriteChanges
                     if (forceRefreshFromDB)
-                        ACClassMessage_ACClassReference.EntityEntry.Reload();
+                        ACClassMessage_ACClass.AutoLoad(ACClassMessage_ACClassReference, this);
 
                     //MergeOption.AppendOnly
                     else
@@ -3524,8 +3524,8 @@ namespace gip.core.datamodel
                 {
                     if (acClass.ACClassConfig_ACClassReference.IsLoaded)
                     {
-                        acClass.ACClassConfig_ACClass.AutoRefresh(acClass.Database);
-                        acClass.ACClassConfig_ACClass.AutoLoad(acClass.Database);
+                        acClass.ACClassConfig_ACClass.AutoRefresh(acClass.ACClassConfig_ACClassReference, acClass.Database);
+                        acClass.ACClassConfig_ACClass.AutoLoad(acClass.ACClassConfig_ACClassReference, acClass);
                     }
                     return acClass.ACClassConfig_ACClass.ToList().Select(x => (IACConfig)x).Where(c => c.KeyACUrl == ACConfigKeyACUrl);
                 }
@@ -3543,8 +3543,8 @@ namespace gip.core.datamodel
                 bool reloadExtendedProperties = false;
                 if (ACClassConfig_ACClassReference.IsLoaded)
                 {
-                    ACClassConfig_ACClass.AutoRefresh(this.Database);
-                    this.ACClassConfig_ACClass.AutoLoad(this.Database);
+                    ACClassConfig_ACClass.AutoRefresh(ACClassConfig_ACClassReference, this.Database);
+                    this.ACClassConfig_ACClass.AutoLoad(ACClassConfig_ACClassReference, this);
                     reloadExtendedProperties = true;
                 }
                 //newSafeList = new SafeList<IACConfig>(ACClassConfig_ACClass.ToList().Select(x => (IACConfig)x).Where(c => c.KeyACUrl == ACConfigKeyACUrl));

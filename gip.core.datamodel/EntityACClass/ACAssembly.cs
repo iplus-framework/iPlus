@@ -41,6 +41,7 @@ namespace gip.core.datamodel
         {
             // Bei Systembelegung gibt es keine Vorbelegung, da hier kein Customizing erwünscht ist
             ACAssembly entity = new ACAssembly();
+            entity.Context = database;
             entity.ACAssemblyID = Guid.NewGuid();
             return entity;
         }

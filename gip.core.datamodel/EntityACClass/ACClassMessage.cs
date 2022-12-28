@@ -43,7 +43,7 @@ namespace gip.core.datamodel
         {
             // Bei Systembelegung gibt es keine Vorbelegung, da hier kein Customizing erwünscht ist
             ACClassMessage entity = new ACClassMessage();
-            entity.Database = database;
+            entity.Context = database;
             entity.ACClassMessageID = Guid.NewGuid();
             entity.BranchNo = 0;
             if (parentACObject is ACClass)
@@ -70,14 +70,12 @@ namespace gip.core.datamodel
             var query = database.ACClassMessage.Where(c => string.Compare(c.ACIdentifier, acIdentifierMin) >= 0 && string.Compare(c.ACIdentifier, acIdentifierMax) <= 0).Select(c => c.ACIdentifier);
             if (query.Any())
             {
-#if !EFCR
                 string maxName = query.Max();
                 int index;
                 if (!Int32.TryParse(maxName.Substring(maxName.Length - 5), out index))
                     index = 0;
                 index++;
                 return string.Format("{0}{1:D5}", prefix, index);
-#endif
             }
             return acIdentifierMin;
         }
@@ -214,14 +212,10 @@ namespace gip.core.datamodel
         [NotMapped]
         public Database Database
         {
-            get;
-            set;
-        }
-
-        public void OnObjectMaterialized(Database db)
-        {
-            if (Database == null)
-                Database = db;
+            get
+            {
+                return Context as Database;
+            }
         }
 
         #endregion

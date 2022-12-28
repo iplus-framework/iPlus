@@ -18,10 +18,6 @@ using System.Text;
 using System.Threading;
 using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
-#if !EFCR
-using System.Data.Objects;
-using System.Data.EntityClient;
-#endif
 
 namespace gip.core.datamodel
 {
@@ -39,27 +35,26 @@ namespace gip.core.datamodel
         }
 
         #region Precompiled Queries
-#if !EFCR
         public static readonly Func<Database, Guid, ACProgram> s_cQry_ACProgram =
-            CompiledQuery.Compile<Database, Guid, ACProgram>(
+            EF.CompileQuery<Database, Guid, ACProgram>(
                 (db, acProgramID) =>
                     db.ACProgram.Where(c => c.ACProgramID == acProgramID).FirstOrDefault()
             );
 
         public static readonly Func<Database, Guid, ACProgramLog> s_cQry_ACProgramLog =
-            CompiledQuery.Compile<Database, Guid, ACProgramLog>(
+            EF.CompileQuery<Database, Guid, ACProgramLog>(
                 (db, acProgramLogID) =>
                     db.ACProgramLog.Where(c => c.ACProgramLogID == acProgramLogID).FirstOrDefault()
             );
 
         static readonly Func<Database, Guid, ACClassProperty> s_cQry_ACPropertyCache =
-            CompiledQuery.Compile<Database, Guid, ACClassProperty>(
+            EF.CompileQuery<Database, Guid, ACClassProperty>(
                 (db, acClassPropertyID) =>
                     db.ACClassProperty.Where(c => c.ACClassPropertyID == acClassPropertyID).FirstOrDefault()
             );
 
         static readonly Func<Database, Guid, ACClassWF> s_cQry_ACClassWFCache =
-            CompiledQuery.Compile<Database, Guid, ACClassWF>(
+            EF.CompileQuery<Database, Guid, ACClassWF>(
                 (db, acClassWFID) =>
                     db.ACClassWF.Include("ACClassMethod")
                                 .Include("RefPAACClass")
@@ -72,7 +67,6 @@ namespace gip.core.datamodel
                                 .Include("ACClassWFEdge_TargetACClassWF")
                     .Where(c => c.ACClassWFID == acClassWFID).FirstOrDefault()
             );
-#endif
 #endregion
 
 #region TaskQueue
@@ -204,9 +198,7 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(TaskQueue.Context.QueryLock_1X000))
                 {
-#if !EFCR
                     acClassProperty = s_cQry_ACPropertyCache(TaskQueue.Context, acClassPropertyID);
-#endif
                 }
                 if (acClassProperty != null)
                     _ACPropertyTypeCache.TryAdd(acClassPropertyID, acClassProperty);
@@ -221,9 +213,7 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(TaskQueue.Context.QueryLock_1X000))
                 {
-#if !EFCR
                     acClassWF = s_cQry_ACClassWFCache(TaskQueue.Context, acClassWFID);
-#endif
                 }
                 if (acClassWF != null)
                     _ACClassWFCache.TryAdd(acClassWFID, acClassWF);
@@ -244,9 +234,8 @@ namespace gip.core.datamodel
         }
 
 #region precompiled Queries
-#if !EFCR
         public static readonly Func<Database, Guid, IQueryable<ACProgramLog>> s_cQry_LatestProgramLogs =
-            CompiledQuery.Compile<Database, Guid, IQueryable<ACProgramLog>>(
+            EF.CompileQuery<Database, Guid, IQueryable<ACProgramLog>>(
                 (db, acProgramID) =>
                     db.ACProgramLog
                     .Include("ACProgram")
@@ -259,7 +248,7 @@ namespace gip.core.datamodel
             );
 
         public static readonly Func<Database, Guid, string, ACProgramLog> s_cQry_LatestProgramLogByParent =
-             CompiledQuery.Compile<Database, Guid, string, ACProgramLog>(
+             EF.CompileQuery<Database, Guid, string, ACProgramLog>(
                 (db, parentACProgramLogID, acUrl) =>
                     db.ACProgramLog
                     .Include("ACProgram")
@@ -271,7 +260,7 @@ namespace gip.core.datamodel
 
 
         public static readonly Func<Database, Guid, string, ACProgramLog> s_cQry_LatestProgramLogByProgramID =
-             CompiledQuery.Compile<Database, Guid, string, ACProgramLog>(
+             EF.CompileQuery<Database, Guid, string, ACProgramLog>(
                 (db, acProgramID, acUrl) =>
                     db.ACProgramLog
                     .Include("ACProgram")
@@ -282,7 +271,7 @@ namespace gip.core.datamodel
             );
 
         public static readonly Func<Database, Guid, ACProgramLog> s_cQry_ProgramLogByLogID =
-             CompiledQuery.Compile<Database, Guid, ACProgramLog>(
+             EF.CompileQuery<Database, Guid, ACProgramLog>(
                 (db, programLogID) =>
                     db.ACProgramLog
                     .Include("ACProgram")
@@ -294,7 +283,7 @@ namespace gip.core.datamodel
 
 
         public static readonly Func<Database, Guid, string, IQueryable<ACProgramLog>> s_cQry_PreviousLogsFromParent =
-             CompiledQuery.Compile<Database, Guid, string, IQueryable<ACProgramLog>>(
+             EF.CompileQuery<Database, Guid, string, IQueryable<ACProgramLog>>(
                 (db, parentACProgramLogID, acUrl) =>
                     db.ACProgramLog
                     .Include("ACProgram")
@@ -304,7 +293,7 @@ namespace gip.core.datamodel
             );
 
         public static readonly Func<Database, Guid, string, IQueryable<ACProgramLog>> s_cQry_PreviousLogsFromProgram =
-             CompiledQuery.Compile<Database, Guid, string, IQueryable<ACProgramLog>>(
+             EF.CompileQuery<Database, Guid, string, IQueryable<ACProgramLog>>(
                 (db, programID, acUrl) =>
                     db.ACProgramLog
                     .Include("ACProgram")
@@ -312,7 +301,6 @@ namespace gip.core.datamodel
                     .Where(c => c.ACProgramID == programID && c.ACUrl == acUrl)
                     .OrderBy(c => c.InsertDate)
             );
-#endif
 #endregion
 
 #region Properties
@@ -342,9 +330,7 @@ namespace gip.core.datamodel
             {
                 _TaskQueue.ProcessAction(() =>
                 {
-#if !EFCR
                     programLog = s_cQry_LatestProgramLogByParent(_TaskQueue.Context, parentProgramLog.ACProgramLogID, acUrl);
-#endif
                     if (programLog != null && checkNewerThanParentProgramLog)
                     {
                         // Programlog was not created, it's a older one
@@ -391,9 +377,7 @@ namespace gip.core.datamodel
             ACProgramLog programLog = null;
             _TaskQueue.ProcessAction(() =>
             {
-#if !EFCR
                 programLog = s_cQry_ProgramLogByLogID(_TaskQueue.Context, acProgramLogID);
-#endif
             });
             if (programLog == null)
                 return null;
@@ -432,8 +416,8 @@ namespace gip.core.datamodel
             if (currentProgramLog.EntityState == EntityState.Deleted
                 || (currentProgramLog.EntityState == EntityState.Detached && currentProgramLog.NewACProgramForQueue == null))
 #else
-            if (   currentProgramLog.EntityState == System.Data.EntityState.Deleted
-                || currentProgramLog.EntityState == System.Data.EntityState.Detached)
+            if (   currentProgramLog.EntityState == EntityState.Deleted
+                || currentProgramLog.EntityState == EntityState.Detached)
 #endif
             {
                 Database.Root.Messages.LogError("ACProgramCache", "AddProgramLog(0)", String.Format("Cant add currentProgramLog {0} because EntityState is {1}", currentProgramLog.ACProgramLogID, currentProgramLog.EntityState));
@@ -683,12 +667,9 @@ namespace gip.core.datamodel
         {
             using (Database db = new Database())
             {
-#if !EFCR
                 var query = s_cQry_PreviousLogsFromParent(db, parentProgramLogID, acUrl);
                 query.SetMergeOption(MergeOption.NoTracking);
                 return query.ToArray();
-#endif
-                throw new NotImplementedException();
             }
         }
 
@@ -702,12 +683,9 @@ namespace gip.core.datamodel
         {
             using (Database db = new Database())
             {
-#if !EFCR
                 var query = s_cQry_PreviousLogsFromProgram(db, programID, acUrl);
                 query.SetMergeOption(MergeOption.NoTracking);
                 return query.ToArray();
-#endif
-                throw new NotImplementedException();
             }
         }
 
@@ -788,9 +766,7 @@ namespace gip.core.datamodel
                 {
                     try
                     {
-#if !EFCR
                         latestProgramLogs = s_cQry_LatestProgramLogs(_TaskQueue.Context, acProgram.ACProgramID).ToDictionary(g => g.ACUrl);
-#endif
                     }
                     catch (Exception e)
                     {

@@ -47,9 +47,8 @@ namespace gip.core.datamodel
         public static readonly string _TypeName_GenericList = typeof(System.Collections.Generic.List<>).FullName;
         public static readonly string _TypeName_IQueryable = typeof(System.Linq.IQueryable<>).FullName;
         public static readonly string _TypeName_BindingList = typeof(System.ComponentModel.BindingList<>).FullName;
-#if !EFCR
-        public static readonly string _TypeName_ObjectSet = typeof(ObjectSet<>).FullName;
-#endif
+        //public static readonly string _TypeName_ObjectSet = typeof(ObjectSet<>).FullName;
+        public static readonly string _TypeName_ObjectSet = typeof(DbSet<>).FullName;
 
 
         public const string _TypeName_Boolean = "System.Boolean";

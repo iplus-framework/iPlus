@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Configuration;
 using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace gip.core.datamodel
 {
@@ -169,7 +170,7 @@ namespace gip.core.datamodel
         /// <param name="refreshMode"></param>
         public static void AutoRefresh(this VBEntityObject entityObject)
         {
-            entityObject.GetObjectContext().AutoRefresh(entityObject);
+            entityObject.Context.AutoRefresh(entityObject); 
         }
 
         public static void AutoRefresh(this VBEntityObject entityObject, IACEntityObjectContext context)
@@ -177,54 +178,30 @@ namespace gip.core.datamodel
             context.AutoRefresh(entityObject);
         }
 
-        public static void Refresh(this VBEntityObject entityObject)
+        public static void AutoRefresh<T>(this ICollection<T> entityCollection, CollectionEntry entry, VBEntityObject entityObject) where T : class
         {
-#if !EFCR
-            entityObject.GetObjectContext().Refresh(entityObject);
-#endif
+            entityObject.Context.AutoRefresh<T>(entityCollection, entry);
         }
 
-        public static void Refresh(this VBEntityObject entityObject, IACEntityObjectContext context)
+        public static void AutoRefresh<T>(this ICollection<T> entityCollection, CollectionEntry entry, IACEntityObjectContext context) where T : class
         {
-#if !EFCR
-            context.Refresh(entityObject);
-#endif
+            context.AutoRefresh<T>(entityCollection, entry);
         }
 
-        public static void AutoRefresh<T>(this ICollection<T> entityCollection) where T : class
+        public static void Refresh<T>(this ICollection<T> entityCollection, CollectionEntry entry, VBEntityObject entityObject) where T : class
         {
-            entityCollection.GetObjectContext().AutoRefresh<T>(entityCollection);
+            entityObject.Context.AutoRefresh(entityCollection, entry);
         }
 
-        public static void AutoRefresh<T>(this ICollection<T> entityCollection, IACEntityObjectContext context) where T : class
+        public static void Refresh<T>(this ICollection<T> entityCollection, CollectionEntry entry, IACEntityObjectContext context) where T : class
         {
-            context.AutoRefresh<T>(entityCollection);
+            context.AutoRefresh<T>(entityCollection, entry);
         }
 
-        public static void Refresh<T>(this ICollection<T> entityCollection) where T : class
+        public static void AutoLoad<T>(this ICollection<T> entityCollection, CollectionEntry entry, VBEntityObject entityObject) where T : class
         {
-#if !EFCR
-            entityCollection.GetObjectContext().Refresh(entityCollection);
-#endif
-            throw new NotImplementedException();
-        }
-
-        public static void Refresh<T>(this ICollection<T> entityCollection, IACEntityObjectContext context) where T : class
-        {
-#if !EFCR
-            context.Refresh(entityCollection);
-#endif
-            throw new NotImplementedException();
-        }
-
-        public static void AutoLoad<T>(this ICollection<T> entityCollection) where T : class
-        {
-            entityCollection.GetObjectContext().AutoLoad(entityCollection);
-        }
-
-        public static void AutoLoad<T>(this ICollection<T> entityCollection, IACEntityObjectContext context) where T : class
-        {
-            context.AutoLoad(entityCollection);
+            //entityCollection.GetObjectContext().AutoLoad(entityCollection);
+            entityObject.Context.AutoLoad(entityCollection, entry);
         }
 
         static public TContext GetContext<TContext>(string contextIdentifier = "") where TContext : IACEntityObjectContext

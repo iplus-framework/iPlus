@@ -431,11 +431,10 @@ namespace gip.core.datamodel
                                 using (StringReader ms = new StringReader(valueString))
                                 using (XmlTextReader xmlReader = new XmlTextReader(ms))
                                 {
-#if !EFCR
-                                    DataContractSerializer serializer = new DataContractSerializer(conversionType, ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+
+                                    DataContractSerializer serializer = new DataContractSerializer(conversionType, new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                                     object valueObject = serializer.ReadObject(xmlReader);
                                     return valueObject;
-#endif
                                 }
                             }
                             else
@@ -690,18 +689,14 @@ namespace gip.core.datamodel
             {
                 if (xmlIndented)
                     xmlWriter.Formatting = Formatting.Indented;
-#if !EFCR
-                DataContractSerializer serializer = new DataContractSerializer(objectType, ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
-#endif
+                DataContractSerializer serializer = new DataContractSerializer(objectType, new DataContractSerializerSettings { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                 if (valueObject is ACMethod)
                 {
                     // Clone ACMethod, because Enumerator-Reference will not be Disposed from DataContractSerializer (Bug) therefore the ReadLock will remain
                     ACMethod acMethod = valueObject as ACMethod;
                     valueObject = acMethod.Clone();
                 }
-#if !EFCR
                 serializer.WriteObject(xmlWriter, valueObject);
-#endif
                 return sw.ToString();
             }
         }

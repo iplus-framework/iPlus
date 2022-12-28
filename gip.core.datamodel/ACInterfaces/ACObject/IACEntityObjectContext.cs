@@ -125,7 +125,7 @@ namespace gip.core.datamodel
         /// <param name="entityCollection"></param>
         /// <param name="refreshMode"></param>
 
-        void AutoRefresh<T>(ICollection<T> entityCollection) where T : class;
+        void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class;
 
         /// <summary>
         /// Queries the Database an refreshes the collection if not in modified state. MergeOption.OverwriteChanges
@@ -133,7 +133,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        void AutoLoad<T>(ICollection<T> entityCollection) where T : class;
+        void AutoLoad<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class;
 
         void ParseException(MsgWithDetails msg, Exception e);
 
@@ -176,7 +176,7 @@ namespace gip.core.datamodel
 
 
         ChangeTracker ChangeTracker { get; }
-        DatabaseFacade DatabaseFacade { get; }
+        DatabaseFacade Database { get ; }
 
         RefreshMode RefreshMode { get; }
         DbContextOptions ContextOptions { get; }

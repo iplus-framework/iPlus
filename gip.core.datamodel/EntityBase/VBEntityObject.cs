@@ -405,12 +405,45 @@ namespace gip.core.datamodel
             {
                 return _context;
             }
-            set
+            protected set
             {
                 _context = value;
             }
         }
         #endregion end private members
+
+        #region Methods
+
+        /// <summary>
+        /// Refreshes the VBEntityObject if not in modified state. Else it leaves it untouched.
+        /// </summary>
+        /// <param name="entityObject"></param>
+        /// <param name="refreshMode"></param>
+        public void AutoRefresh()
+        {
+            this.Context.AutoRefresh(this);
+        }
+
+        public void AutoRefresh(IACEntityObjectContext context)
+        {
+            context.AutoRefresh(this);
+        }
+
+        public void Refresh()
+        {
+#if !EFCR
+            this.Context.Refresh(this);
+#endif
+        }
+
+        public void Refresh(IACEntityObjectContext context)
+        {
+#if !EFCR
+            context.Refresh(this);
+#endif
+        }
+
+        #endregion
 
         [NotMapped]
         public EntityState EntityState
@@ -419,6 +452,11 @@ namespace gip.core.datamodel
             {
                 return _context.Entry(this).State;
             }
+        }
+
+        public virtual void OnObjectMaterialized(IACEntityObjectContext context)
+        {
+            Context = context;
         }
     }
 }

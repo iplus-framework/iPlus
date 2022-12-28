@@ -17,10 +17,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Data;
-#if !EFCR
-using System.Data.Objects;
-using System.Data.EntityClient;
-#endif
 using System.Data.SqlClient;
 
 namespace gip.core.datamodel

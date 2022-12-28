@@ -25,6 +25,5 @@ namespace gip.core.datamodel
     {
         Database Database { get; }
 
-        void OnObjectMaterialized(Database db);
     }
 }

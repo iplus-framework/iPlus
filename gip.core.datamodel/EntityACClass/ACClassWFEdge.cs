@@ -48,7 +48,7 @@ namespace gip.core.datamodel
         public static ACClassWFEdge NewACObject(Database database, IACObject parentACObject, string secondaryKey)
         {
             ACClassWFEdge entity = new ACClassWFEdge();
-            entity.Database = database;
+            entity.Context = database;
             entity.ACClassWFEdgeID = Guid.NewGuid();
             entity.DefaultValuesACObject();
             if (parentACObject is ACClassMethod)
@@ -337,14 +337,13 @@ namespace gip.core.datamodel
             }
         }
 
-        public Database Database { get; private set; } = null;
-
-        void IACClassEntity.OnObjectMaterialized(Database db)
+        public Database Database
         {
-            if (Database == null)
-                Database = db;
+            get
+            {
+                return Context as Database;
+            }
         }
-
 
         #endregion
 

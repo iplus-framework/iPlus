@@ -53,7 +53,7 @@ namespace gip.core.datamodel
         public static ACClassWF NewACObject(Database database, IACObject parentACObject, string secondaryKey)
         {
             ACClassWF entity = new ACClassWF();
-            entity.Database = database;
+            entity.Context = database;
             entity.ACClassWFID = Guid.NewGuid();
             entity.DefaultValuesACObject();
             if (parentACObject is ACClassMethod)
@@ -122,10 +122,8 @@ namespace gip.core.datamodel
                 var query = entity.ACClassWF1_ParentACClassWF.ACClassWF_ParentACClassWF.ToList()
                     .Where(c => (c.ACClassWFID != entity.ACClassWFID) && (c.ACIdentifierPrefix == acIdentifier))
                     .Select(c => c.ACInstanceNo);
-#if !EFCR
                 if (query.Any())
                     nextInstanceNo = query.Max() + 1;
-#endif
                 entity.ACIdentifier = acIdentifier + "(" + nextInstanceNo.ToString() + ")";
             }
             else
@@ -583,17 +581,17 @@ namespace gip.core.datamodel
 
 #region Others
         [NotMapped]
-        public Database Database { get; private set; } = null;
-
-        void IACClassEntity.OnObjectMaterialized(Database db)
+        public Database Database
         {
-            if (Database == null)
-                Database = db;
+            get
+            {
+                return Context as Database;
+            }
         }
 
-#endregion
+        #endregion
 
-#region Clone
+        #region Clone
 
         public object Clone()
         {
@@ -637,7 +635,7 @@ namespace gip.core.datamodel
             clonedObject.PhaseIdentifier = this.PhaseIdentifier;
             clonedObject.Comment = this.Comment;
             clonedObject.XMLConfig = this.XMLConfig;
-            clonedObject.Database = this.Database;
+            clonedObject.Context = this.Database;
             clonedObject.UpdateDate = this.UpdateDate;
             clonedObject.UpdateName = this.UpdateName;
             clonedObject.InsertDate = this.InsertDate;

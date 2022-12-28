@@ -1032,9 +1032,8 @@ namespace gip.core.datamodel
             Type typeIEnumerable = typeof(IEnumerable);
             Type typeString = typeof(String);
             Type typeGuid = typeof(Guid);
-#if !EFCR
-            IEnumerable<string> modifiedProps = ose.GetModifiedProperties();
-#endif
+            //IEnumerable<string> modifiedProps = ose.GetModifiedProperties();
+            IEnumerable<string> modifiedProps = database.Entry(ose).Properties.Where(c => c.IsModified).Select(c => c.Metadata.Name);
             Type entityType = acObject.GetType();
             foreach (ACClassProperty acClassProperty in entitySchema.Properties)
             {
@@ -1042,10 +1041,8 @@ namespace gip.core.datamodel
                 //    || (acObject is IACConfig && acClassProperty.ACIdentifier == Const.Value))
                 if (acObject is IACConfig && acClassProperty.ACIdentifier == Const.Value)
                 {
-#if !EFCR
                     if (modifiedProps.Contains(Const.EntityXMLConfig) || (!modifiedProps.Any() && ose.State == EntityState.Added))
                         ProcessChangeLog(acObject, entitySchema, acClassProperty, modifiedProps, ose, changeLogList);
-#endif
                     continue;
                 }
                 PropertyInfo pi = entityType.GetProperty(acClassProperty.ACIdentifier);

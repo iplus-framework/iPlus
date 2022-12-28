@@ -77,7 +77,7 @@ namespace gip.core.datamodel
         public static ACClassDesign NewACObject(Database database, IACObject parentACObject, string secondaryKey)
         {
             ACClassDesign entity = new ACClassDesign();
-            entity.Database = database;
+            entity.Context = database;
             entity.ACClassDesignID = Guid.NewGuid();
             entity.ACIdentifier = "NewDesign";
             entity.IsRightmanagement = false;
@@ -1099,8 +1099,8 @@ namespace gip.core.datamodel
                 {
                     if (acClass.ACClassConfig_ACClassReference.IsLoaded)
                     {
-                        acClass.ACClassConfig_ACClass.AutoRefresh(acClass.Database);
-                        acClass.ACClassConfig_ACClass.AutoLoad(acClass.Database);
+                        acClass.ACClassConfig_ACClass.AutoRefresh(acClass.ACClassConfig_ACClassReference, acClass.Database);
+                        acClass.ACClassConfig_ACClass.AutoLoad(ACClass.ACClassConfig_ACClassReference, this);
                     }
                     return acClass.ACClassConfig_ACClass.ToList().Select(x => (IACConfig)x).Where(c => c.KeyACUrl == ACConfigKeyACUrl);
                 }
@@ -1117,8 +1117,8 @@ namespace gip.core.datamodel
             {
                 if (this.ACClass.ACClassConfig_ACClassReference.IsLoaded)
                 {
-                    this.ACClass.ACClassConfig_ACClass.AutoRefresh(this.ACClass.Database);
-                    this.ACClass.ACClassConfig_ACClass.AutoLoad(this.ACClass.Database);
+                    this.ACClass.ACClassConfig_ACClass.AutoRefresh(this.ACClass.ACClassConfig_ACClassReference, this.ACClass.Database);
+                    this.ACClass.ACClassConfig_ACClass.AutoLoad(this.ACClass.ACClassConfig_ACClassReference, this);
                 }
                 newSafeList = new SafeList<IACConfig>(this.ACClass.ACClassConfig_ACClass.ToList().Select(x => (IACConfig)x).Where(c => c.KeyACUrl == ACConfigKeyACUrl));
             }
@@ -1144,12 +1144,12 @@ namespace gip.core.datamodel
 #region Others
 
         [NotMapped]
-        public Database Database { get; private set; } = null;
-
-        void IACClassEntity.OnObjectMaterialized(Database db)
+        public Database Database
         {
-            if (Database == null)
-                Database = db;
+            get
+            {
+                return Context as Database;
+            }
         }
 
         /// <summary>

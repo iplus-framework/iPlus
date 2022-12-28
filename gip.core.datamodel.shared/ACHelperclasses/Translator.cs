@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 
@@ -32,6 +33,7 @@ namespace gip.core.datamodel
         /// Gets or sets the default MD language code.
         /// </summary>
         /// <value>The default MD language code.</value>
+        [NotMapped]
         public static string DefaultVBLanguageCode { get; set; }
 
 #if NETFRAMEWORK
