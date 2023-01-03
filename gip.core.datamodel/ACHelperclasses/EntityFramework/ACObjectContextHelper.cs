@@ -795,32 +795,13 @@ namespace gip.core.datamodel
         ///</summary>
         public void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
         {
-            if (refreshMode == RefreshMode.StoreWins)
+            if (entry.CurrentValue == null)
+                return;
+            foreach (var item in entry.CurrentValue)
             {
-                if (!(entityCollection.Where(c => (c as VBEntityObject).EntityState == EntityState.Modified || (c as VBEntityObject).EntityState == EntityState.Added || (c as VBEntityObject).EntityState == EntityState.Deleted).Any()))
-                {
-                    if (entry.CurrentValue != null)
-                    {
-                        foreach (var item in entry.CurrentValue)
-                        {
-                            entry.EntityEntry.Context.Entry(item).Reload();
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (entityCollection.Where(c => (c as VBEntityObject).EntityState == EntityState.Modified || (c as VBEntityObject).EntityState == EntityState.Added || (c as VBEntityObject).EntityState == EntityState.Deleted).Any())
-                {
-                    if (entry.CurrentValue != null)
-                    {
-                        foreach (var item in entry.CurrentValue)
-                        {
-                            if (entry.EntityEntry.Context.Entry(item).State == EntityState.Unchanged)
-                                entry.EntityEntry.Context.Entry(item).Reload();
-                        }
-                    }
-                }
+                if (  (refreshMode == RefreshMode.StoreWins && entry.EntityEntry.Context.Entry(item).State != EntityState.Added)
+                    || entry.EntityEntry.Context.Entry(item).State == EntityState.Unchanged)
+                    entry.EntityEntry.Context.Entry(item).Reload();
             }
         }
 
@@ -832,37 +813,23 @@ namespace gip.core.datamodel
         /// <param name="entityCollection"></param>
         public void AutoLoad<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class
         {
-
             try
             {
-                if ((entityCollection.Where(c => (c as VBEntityObject).EntityState == EntityState.Modified || (c as VBEntityObject).EntityState == EntityState.Added || (c as VBEntityObject).EntityState == EntityState.Deleted).Any()))
+                if (entry.CurrentValue != null)
                 {
-                    //entityCollection.Load(MergeOption.AppendOnly);
-                    if (entry.CurrentValue != null)
+                    foreach (var item in entry.CurrentValue)
                     {
-                        foreach (var item in entry.CurrentValue)
-                        {
-                            if (entry.EntityEntry.Context.Entry(item).State == EntityState.Unchanged)
-                                entry.EntityEntry.Context.Entry(item).Reload();
-                        }
+                        if (entry.EntityEntry.Context.Entry(item).State == EntityState.Unchanged)
+                            entry.EntityEntry.Context.Entry(item).Reload();
                     }
-                    entry.IsLoaded = false;
-                    entry.Load();
                 }
-                else
-                {
-                    //entityCollection.Load(MergeOption.OverwriteChanges);
-                    if (entry.CurrentValue != null)
-                    {
-                         foreach(var item in entry.CurrentValue) 
-                        {
-                            entry.EntityEntry.Context.Entry(item).State = EntityState.Detached;
-                        }
-                        entry.CurrentValue = null;
-                    }
-                    entry.IsLoaded = false;
-                    entry.Load();
-                }
+                // CurrentValue must be set null to recognize if records have been deleted in background. Otherwise the deleted entity-object will not bee remove from the collection.
+                entry.CurrentValue = null;
+                // IsLoaded must be set to null to force entity framework to make a SQL-Select to the Server to load the data.
+                // New records will be added as new entries
+                // Existing entities will not be automatically refreshed if record was modified in the background
+                entry.IsLoaded = false;
+                entry.Load();
             }
             catch (Exception e)
             {
