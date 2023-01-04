@@ -71,7 +71,7 @@ namespace gip.core.datamodel
         }
 
         #region Serializable
-#if !EFCR
+        
         [IgnoreDataMember]
         private EntityKey _SourceKey = null;
         [DataMember]
@@ -196,7 +196,7 @@ namespace gip.core.datamodel
                 return (Guid)_TargetPropertyKey.EntityKeyValues.FirstOrDefault().Value;
             }
         }
-#endif
+
         [DataMember]
         public int RouteNo
         {
@@ -363,13 +363,12 @@ namespace gip.core.datamodel
             {
                 Detach();
                 object propValue;
-#if !EFCR
                 if (SourceKey != null && _Source == null)
                 {
 
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
-                        Source = context.ContextIPlus.Find(SourceKey) as ACClass;
+                        Source = context.ContextIPlus.GetObjectByKey(SourceKey) as ACClass;
                     }
                     if (Source != null)
                         propValue = SourceACComponent;
@@ -379,7 +378,7 @@ namespace gip.core.datamodel
 
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
-                        Target = context.ContextIPlus.Find(TargetKey) as ACClass;
+                        Target = context.ContextIPlus.GetObjectByKey(TargetKey) as ACClass;
                     }
                     if (Target != null)
                         propValue = TargetACComponent;
@@ -389,7 +388,7 @@ namespace gip.core.datamodel
 
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
-                        SourceProperty = context.ContextIPlus.Find(SourcePropertyKey) as ACClassProperty;
+                        SourceProperty = context.ContextIPlus.GetObjectByKey(SourcePropertyKey) as ACClassProperty;
                     }
                     if (SourceProperty != null)
                         propValue = SourceACPoint;
@@ -399,12 +398,11 @@ namespace gip.core.datamodel
 
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
-                        TargetProperty = context.ContextIPlus.Find(TargetPropertyKey) as ACClassProperty;
+                        TargetProperty = context.ContextIPlus.GetObjectByKey(TargetPropertyKey) as ACClassProperty;
                     }
                     if (TargetProperty != null)
                         propValue = TargetACPoint;
                 }
-#endif
             }
             catch (Exception e)
             {
@@ -422,7 +420,6 @@ namespace gip.core.datamodel
         {
             if (detachFromContext)
                 DetachEntitesFromDbContext();
-#if !EFCR
             if (Source != null)
             {
                 _SourceKey = Source.EntityKey;
@@ -443,8 +440,6 @@ namespace gip.core.datamodel
                 _TargetPropertyKey = TargetProperty.EntityKey;
                 _TargetProperty = null;
             }
-#endif
-            throw new NotImplementedException();
         }
 
         public void DetachEntitesFromDbContext()
@@ -473,12 +468,9 @@ namespace gip.core.datamodel
         {
             bool isEqual = false;
             RouteItem routeItem = obj as RouteItem;
-#if !EFCR
             if(routeItem != null)
                 isEqual = this.SourceKey == routeItem.SourceKey && this.SourcePropertyKey == routeItem.SourcePropertyKey && 
                           this.TargetKey == routeItem.TargetKey && this.TargetPropertyKey == routeItem.TargetPropertyKey;
-#endif
-            throw new NotImplementedException();
             return isEqual;
         }
 
@@ -489,7 +481,6 @@ namespace gip.core.datamodel
 
         public object Clone()
         {
-#if !EFCR
             return new RouteItem() { SourceKey = this.SourceKey, 
                 SourcePropertyKey = this.SourcePropertyKey, 
                 TargetKey = this.TargetKey, 
@@ -498,8 +489,6 @@ namespace gip.core.datamodel
                 _ACUrlTargetACComponent = this._ACUrlTargetACComponent,
                 _ACIdentifierSourcePoint = this._ACIdentifierSourcePoint,
                 _ACIdentifierTargetPoint = this._ACIdentifierTargetPoint};
-#endif
-            throw new NotImplementedException();
         }
     }
 }

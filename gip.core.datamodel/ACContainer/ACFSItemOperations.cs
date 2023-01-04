@@ -48,7 +48,7 @@ namespace gip.core.datamodel
             Msg msg = null;
             var myObjectState = context.ChangeTracker.Entries().Where(c => c.Entity == entityObject);
             //var modifiedProperties = myObjectState.GetModifiedProperties();
-            var modifiedProperties = context.Entry(entityObject).Properties.Where(c => c.IsModified).Select(c => c.Metadata.Name).ToList();
+            var modifiedProperties = context.Entry(entityObject).Properties.Where(c => c.IsModified).Select(c => c.Metadata.Name);
 
 
             bool localWithGreaterUpdateDate = false;
@@ -114,12 +114,12 @@ namespace gip.core.datamodel
                 {
                     if (aCFSItem.IsChecked && objectEntityState == EntityState.Detached && (!checkUpdateDate || !aCFSItem.UpdateDateFail))
                     {
-#if !EFCR
+
                         if (entityObject.EntityKey != null)
                         {
-                            VBEntityObject tempObject = (context as ObjectContext).GetObjectByKey(entityObject.EntityKey) as VBEntityObject;
+                            VBEntityObject tempObject = (context as IACEntityObjectContext).GetObjectByKey(entityObject.EntityKey) as VBEntityObject;
                             if (tempObject != null)
-                                context.Detach(tempObject);
+                                context.Entry(tempObject).State = EntityState.Detached;
                         }
                         if (entityObject.EntityKey != null)
                         {
@@ -127,9 +127,10 @@ namespace gip.core.datamodel
                         }
                         else
                         {
+#if !EFCR
                             context.AttachTo(entityObject.GetType().Name, entityObject);
-                        }
 #endif
+                        }
                     }
                     else if (objectEntityState != EntityState.Detached && (!aCFSItem.IsChecked || (checkUpdateDate && aCFSItem.UpdateDateFail)))
                     {

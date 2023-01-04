@@ -310,8 +310,7 @@ namespace gip.core.datamodel
                 {
                     if (Context.HasModifiedObjectStateEntries())
                     {
-#if !EFCR
-                        MsgWithDetails msg = Context.ACSaveChanges(true, SaveOptions.AcceptAllChangesAfterSave, SaveChangesWithoutValidation);
+                        MsgWithDetails msg = Context.ACSaveChanges(true, SaveChangesWithoutValidation);
                         if (msg != null)
                         {
                             if (   ACThread.PerfLogger.Active
@@ -337,7 +336,6 @@ namespace gip.core.datamodel
                         {
                             _SaveChangesRetriesA = 0;
                         }
-#endif
                     }
                 }
                 catch (Exception e)
@@ -362,8 +360,7 @@ namespace gip.core.datamodel
                     {
                         if (Context.ContextIPlus.HasModifiedObjectStateEntries())
                         {
-#if !EFCR
-                            MsgWithDetails msg = Context.ContextIPlus.ACSaveChanges(true, SaveOptions.AcceptAllChangesAfterSave, SaveChangesWithoutValidation);
+                            MsgWithDetails msg = Context.ContextIPlus.ACSaveChanges(true, SaveChangesWithoutValidation);
                             if (msg != null)
                             {
                                 Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(10)", "ContextIPlus.ACSaveChanges failed");
@@ -384,7 +381,6 @@ namespace gip.core.datamodel
                             {
                                 _SaveChangesRetriesB = 0;
                             }
-#endif
                         }
                     }
                     catch (Exception e)

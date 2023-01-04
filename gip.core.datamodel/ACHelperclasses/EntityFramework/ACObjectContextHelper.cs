@@ -39,31 +39,6 @@ namespace gip.core.datamodel
             //_ObjectContext.Database.SetCommandTimeout(ACObjectContextHelper.CommandTimeout);
             //_ObjectContext.SavingChanges += Database_SavingChanges;
 
-#if !EFCR
-            if (_ObjectContext.SeparateConnection != null)
-            {
-                try
-                {
-                    if (_ObjectContext.SeparateConnection.State != ConnectionState.Open)
-                        _ObjectContext.SeparateConnection.Open();
-                }
-                catch (Exception ex)
-                {
-                    if (gip.core.datamodel.Database.Root != null && gip.core.datamodel.Database.Root.Messages != null)
-                    {
-                        gip.core.datamodel.Database.Root.Messages.LogFailure("ACObjectContextHelper", "Construct", ex.Message);
-                        if (ex.InnerException != null)
-                            gip.core.datamodel.Database.Root.Messages.LogFailure("ACObjectContextHelper", "Construct", ex.InnerException.Message);
-                    }
-                    throw ex;
-                }
-            }
-            if (_ObjectContext.Connection != null)
-                _ObjectContext.Connection.StateChange += new StateChangeEventHandler(Connection_StateChange);
-            if (_ObjectContext.SeparateConnection != null)
-                _ObjectContext.SeparateConnection.StoreConnection.StateChange += new StateChangeEventHandler(Connection_StateChange);
-
-#endif
         }
 
         public void Dispose()
@@ -72,14 +47,6 @@ namespace gip.core.datamodel
                 return;
             _ObjectContext.SavingChanges -= Database_SavingChanges;
 
-#if !EFCR
-            if (_ObjectContext.SeparateConnection != null)
-                _ObjectContext.SeparateConnection.StoreConnection.StateChange -= Connection_StateChange;
-            if (_ObjectContext.Connection != null)
-                _ObjectContext.Connection.StateChange -= Connection_StateChange;
-#endif
-            _ObjectContext = null;
-            throw new NotImplementedException();
         }
 #endregion
 
@@ -472,6 +439,11 @@ namespace gip.core.datamodel
             (_ObjectContext as DbContext).Entry(entity).Reload();
         }
 
+        public object GetObjectByKey(EntityKey key)
+        {
+            //ObjectContext.Find<>
+            return ObjectContext.Find(key.EntityType, key.EntityKeyValues.Select(c => c.Value).ToArray());
+        }
 
 
         /// <summary>
@@ -811,7 +783,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        public void AutoLoad<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class
+        public void AutoLoad<T>(ICollection<T> entityCollection, CollectionEntry entry, RefreshMode refreshMode = RefreshMode.ClientWins) where T : class
         {
             try
             {
@@ -819,12 +791,14 @@ namespace gip.core.datamodel
                 {
                     foreach (var item in entry.CurrentValue)
                     {
-                        if (entry.EntityEntry.Context.Entry(item).State == EntityState.Unchanged)
+                        if (  (refreshMode == RefreshMode.StoreWins && entry.EntityEntry.Context.Entry(item).State != EntityState.Added)
+                            || entry.EntityEntry.Context.Entry(item).State == EntityState.Unchanged)
                             entry.EntityEntry.Context.Entry(item).Reload();
                     }
                 }
-                // CurrentValue must be set null to recognize if records have been deleted in background. Otherwise the deleted entity-object will not bee remove from the collection.
-                entry.CurrentValue = null;
+
+                // CurrentValue mustn't be set to null! If CurrentValue is set to null all existing Entries in this Collection are automatically set to deleted state.
+                //entry.CurrentValue = null;
                 // IsLoaded must be set to null to force entity framework to make a SQL-Select to the Server to load the data.
                 // New records will be added as new entries
                 // Existing entities will not be automatically refreshed if record was modified in the background

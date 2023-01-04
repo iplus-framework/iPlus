@@ -730,9 +730,7 @@ namespace gip.core.datamodel
                 {
                     try
                     {
-#if !EFCR
                         latestProgramLogs = s_cQry_LatestProgramLogs(_TaskQueue.Context, acProgramID).ToDictionary(g => g.ACUrl);
-#endif
                     }
                     catch (Exception e)
                     {

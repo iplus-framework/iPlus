@@ -85,10 +85,7 @@ namespace gip.core.datamodel
         {
             if (!IsAttached)
                 return null;
-#if !EFCR
             return this.Where(s => !this.Any(t => t.TargetKey == s.SourceKey)).Select(c => c.SourceACComponent);
-#endif
-            throw new NotImplementedException();
         }
 
         //public IACComponent GetTargetComponent(Database db)
@@ -128,13 +125,11 @@ namespace gip.core.datamodel
             {
                 foreach (var routeItem in route)
                 {
-#if !EFCR
                     if (!routeItems.Any(c => c.SourceKey == routeItem.SourceKey && c.TargetKey == routeItem.TargetKey))
                     {
                         routeItem.RouteNo = routeNo;
                         routeItems.Add(routeItem);
                     }
-#endif
                 }
                 routeNo++;
             }
@@ -156,7 +151,6 @@ namespace gip.core.datamodel
                 RouteItem oldSource = oldSources.FirstOrDefault(o => o.Equals(newSource));
                 if (oldSource != null)
                 {
-#if !EFCR
                     var key = CheckForFirstDifferentComponent(newSource.SourceKey, oldSource.SourceKey, oldRoute);
                     if (key == null)
                         return true;
@@ -170,15 +164,13 @@ namespace gip.core.datamodel
                             return false;
                         diffComponent = rItem.TargetACComponent;
                     }
-#endif
                     return true;
                 }
             }
             return false;
         }
 
-#if !EFCR
-        private System.Data.EntityKey CheckForFirstDifferentComponent(System.Data.EntityKey newSource, System.Data.EntityKey oldSource, Route oldRoute)
+        private EntityKey CheckForFirstDifferentComponent(EntityKey newSource, EntityKey oldSource, Route oldRoute)
         {
             var newSourceItems = this.Where(c => c.SourceKey == newSource);
             var oldSourceItems = oldRoute.Where(c => c.SourceKey == oldSource);
@@ -205,38 +197,24 @@ namespace gip.core.datamodel
             }
             return null;
         }
-#endif
-
         public RouteItem GetRouteSource()
         {
-#if !EFCR
             return this.FirstOrDefault(r => !this.Any(t => r.SourceKey == t.TargetKey));
-#endif
-            throw new NotImplementedException();
         }
 
         public IEnumerable<RouteItem> GetRouteSources()
         {
-#if !EFCR
             return this.Where(r => !this.Any(t => r.SourceKey == t.TargetKey));
-#endif
-            throw new NotImplementedException();
         }
 
         public RouteItem GetRouteTarget()
         {
-#if !EFCR
             return this.FirstOrDefault(r => !this.Any(t => r.TargetKey == t.SourceKey));
-#endif
-            throw new NotImplementedException();
         }
 
         public IEnumerable<RouteItem> GetRouteTargets()
         {
-#if !EFCR
             return this.Where(r => !this.Any(t => r.TargetKey == t.SourceKey)).ToList();
-#endif
-            throw new NotImplementedException();
         }
 
         public override string ToString()

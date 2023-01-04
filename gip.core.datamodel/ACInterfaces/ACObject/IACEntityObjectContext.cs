@@ -221,11 +221,11 @@ namespace gip.core.datamodel
         #endregion
         #region ObjectContext
 
-        //int? CommandTimeout { get; set; } => use Database.SetCommandTimeout(int);
+        //int? CommandTimeout { get; set; } replacement in EF CORE Database.SetCommandTimeout(int);
         DbConnection Connection { get; }
         //ObjectContextOptions ContextOptions { get; }
 
-        string DefaultContainerName { get; set; }
+        //string DefaultContainerName { get; set; }
 
 #if !EFCR
         MetadataWorkspace MetadataWorkspace { get; }
@@ -246,7 +246,7 @@ namespace gip.core.datamodel
         TEntity ApplyOriginalValues<TEntity>(string entitySetName, TEntity originalEntity) where TEntity : class;
 #endif
 
-//void Attach(IEntityWithKey entity);
+        //void Attach(IEntityWithKey entity);
 #if !EFCR
         void AttachTo(string entitySetName, object entity);
 #endif
@@ -270,7 +270,7 @@ namespace gip.core.datamodel
         //int ExecuteStoreCommand(string commandText, params object[] parameters);
         //ObjectResult<TElement> ExecuteStoreQuery<TElement>(string commandText, params object[] parameters);
         //ObjectResult<TEntity> ExecuteStoreQuery<TEntity>(string commandText, string entitySetName, MergeOption mergeOption, params object[] parameters);
-        //object GetObjectByKey(EntityKey key);
+        object GetObjectByKey(EntityKey key);
         //void LoadProperty(object entity, string navigationProperty);
         //void LoadProperty<TEntity>(TEntity entity, Expression<Func<TEntity, object>> selector);
         //void LoadProperty(object entity, string navigationProperty, MergeOption mergeOption);

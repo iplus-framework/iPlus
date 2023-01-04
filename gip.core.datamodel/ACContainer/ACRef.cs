@@ -211,10 +211,8 @@ namespace gip.core.datamodel
             {
                 if (!IsAttached)
                 {
-#if !EFCR
                     if (_EntityKey != null)
                         return "";
-#endif
                     if (!String.IsNullOrEmpty(_ACUrl))
                         return _ACUrl;
                 }
@@ -229,7 +227,6 @@ namespace gip.core.datamodel
             }
         }
 
-#if !EFCR
         [IgnoreDataMember]
         private EntityKey _EntityKey = null;
         /// <summary>
@@ -257,7 +254,6 @@ namespace gip.core.datamodel
                 _EntityKey = value;
             }
         }
-#endif
 #endregion
 
 #region Referenced-Object
@@ -457,10 +453,8 @@ namespace gip.core.datamodel
             {
                 if (!String.IsNullOrEmpty(ACUrl))
                     return ACUrl;
-#if !EFCR
                 else if (EntityKey != null)
                     return EntityKey.ToString();
-#endif
                 return null;
             }
         }
@@ -504,7 +498,6 @@ namespace gip.core.datamodel
         /// </summary>
         public virtual void Attach()
         {
-#if !EFCR
             if (   (_ValueT == null && (!String.IsNullOrEmpty(_ACUrl) || _EntityKey != null))
                 || (_ValueT != null && _ValueT is VBEntityObject && (_ValueT as VBEntityObject).EntityState == EntityState.Detached))
             {
@@ -562,7 +555,7 @@ namespace gip.core.datamodel
                                                     result = valueT;
                                                 }
                                                 else
-                                                    result = database.Find(entityKey);
+                                                    result = database.GetObjectByKey(entityKey);
                                             }
                                         }
                                         else
@@ -570,6 +563,7 @@ namespace gip.core.datamodel
                                             IACComponent component = context as IACComponent;
                                             if (component == null)
                                                 component = ACRef<IACObject>.Root;
+#if !EFCR
                                             if (component.Database.DefaultContainerName == entityKey.EntityContainerName)
                                             {
 
@@ -581,7 +575,7 @@ namespace gip.core.datamodel
                                                         result = valueT;
                                                     }
                                                     else
-                                                        result = component.Database.Find(entityKey);
+                                                        result = component.Database.GetObjectByKey(entityKey);
                                                 }
                                             }
                                             else if (component.Database.ContextIPlus.DefaultContainerName == entityKey.EntityContainerName)
@@ -597,7 +591,7 @@ namespace gip.core.datamodel
                                                         result = valueT;
                                                     }
                                                     else
-                                                        result = component.Database.ContextIPlus.Find(entityKey);
+                                                        result = component.Database.ContextIPlus.GetObjectByKey(entityKey);
                                                 }
                                             }
                                             else
@@ -614,10 +608,11 @@ namespace gip.core.datamodel
                                                             result = valueT;
                                                         }
                                                         else
-                                                            result = objectContext.Find(entityKey);
+                                                            result = objectContext.GetObjectByKey(entityKey);
                                                     }
                                                 }
                                             }
+#endif
                                         }
                                     }
                                     catch (Exception e)
@@ -695,8 +690,6 @@ namespace gip.core.datamodel
                 }
 
             }
-#endif
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -714,17 +707,13 @@ namespace gip.core.datamodel
             {
                 T valueT;
                 string acUrl;
-#if !EFCR
                 EntityKey entityKey;
-#endif
 
                 if (isFinalizing == 2) // Ohne lock weil der Garbage-Collector andere Threds selbst blockiert die Code in diesem Objekt ausführen wollen
                 {
                     valueT = _ValueT;
                     acUrl = _ACUrl;
-#if !EFCR
                     entityKey = _EntityKey;
-#endif
                 }
                 else
                 {
@@ -733,9 +722,7 @@ namespace gip.core.datamodel
                     {
                         valueT = _ValueT;
                         acUrl = _ACUrl;
-#if !EFCR
                         entityKey = _EntityKey;
-#endif
                     }
                 }
 
@@ -747,10 +734,8 @@ namespace gip.core.datamodel
                         bool isShuttingDown = Database.Root != null && (Database.Root.InitState == ACInitState.Destructing || Database.Root.InitState == ACInitState.Destructed);
                         if (isFinalizing <= 1 && ObjectDetaching != null) // Kein auslösen von Detach-Ereginissen aufgrund von Deadlock-Gefahren weil man nicht weiß was der Nutzer implementiert hat
                             ObjectDetaching(this, new EventArgs());
-#if !EFCR
                         if (isFinalizing <= 1 && entityKey == null)
                             acUrl = valueT.GetACUrl();
-#endif
                         if (valueT != null && detachFromContext && valueT is VBEntityObject && !isShuttingDown)
                         {
                             VBEntityObject entity = valueT as VBEntityObject;
@@ -790,7 +775,7 @@ namespace gip.core.datamodel
                     {
                         _ValueT = default(T);
                         _ACUrl = acUrl;
-                        //_EntityKey = entityKey;
+                        _EntityKey = entityKey;
                     }
 
                     if (isFinalizing <= 1 && ObjectDetached != null)  // Kein auslösen von Detach-Ereginissen aufgrund von Deadlock-Gefahren weil man nicht weiß was der Nutzer implementiert hat
@@ -931,9 +916,7 @@ namespace gip.core.datamodel
         {
             ACRef<T> newRef = new ACRef<T>();
             newRef._ACUrl = this._ACUrl;
-#if !EFCR
             newRef._EntityKey = this._EntityKey;
-#endif
             newRef._IsWeakReference = this._IsWeakReference;
             newRef._Mode = this._Mode;
             newRef._ParentACObject = this._ParentACObject;

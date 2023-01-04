@@ -19,6 +19,9 @@ using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
+using Microsoft.IdentityModel.Protocols.WsTrust;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace gip.core.datamodel
 {
@@ -457,6 +460,18 @@ namespace gip.core.datamodel
         public virtual void OnObjectMaterialized(IACEntityObjectContext context)
         {
             Context = context;
+        }
+
+        public EntityKey EntityKey
+        {
+            get
+            {
+                var entry = _context.Entry(this);
+                IKey key = entry.Metadata.FindPrimaryKey();
+                EntityKey ekey = new EntityKey(this.GetType().AssemblyQualifiedName, 
+                                               key.Properties.Select(c => new KeyValuePair<string, object>(c.Name, entry.Property(c.Name).CurrentValue)));
+                return ekey;
+            }
         }
     }
 }

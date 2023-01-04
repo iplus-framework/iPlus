@@ -307,9 +307,9 @@ namespace gip.core.datamodel
 
         private static DerivationCache _derivationCache = new DerivationCache();
 
-        #endregion
+#endregion
 
-        #region Public
+#region Public
         /// <summary>
         /// THREAD-SAFE. Uses QueryLock_1X000
         /// </summary>
@@ -336,9 +336,9 @@ namespace gip.core.datamodel
 
         public event ACChangesEventHandler ACChangesExecuted;
 
-        #endregion
+#endregion
 
-        #region IACUrl Member
+#region IACUrl Member
         /// <summary>
         /// Returns the parent object
         /// </summary>
@@ -348,10 +348,7 @@ namespace gip.core.datamodel
         {
             get
             {
-#if !EFCR
-                return Database.Root;
-#endif
-                throw new NotImplementedException();
+                return Database.Root();
             }
         }
 
@@ -404,13 +401,13 @@ namespace gip.core.datamodel
                 return this.ReflectACType();
             }
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
 
-        #region public
+#region public
 
         public void Refresh(RefreshMode refreshMode, object entity)
         {
@@ -616,7 +613,7 @@ namespace gip.core.datamodel
             _derivationCache.RegisterDerivedClass(baseClassID, derivedClassID, isDerived);
         }
 
-        #region IACUrl Member
+#region IACUrl Member
 
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
@@ -704,11 +701,11 @@ namespace gip.core.datamodel
             {
             }*/
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Critical Section
+#region Critical Section
         public void EnterCS()
         {
             _ObjectContextHelper.EnterCS();
@@ -733,11 +730,11 @@ namespace gip.core.datamodel
                 return _10000_QueryLock;
             }
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Listen
+#region Listen
         [ACPropertyInfo(9999)]
         [NotMapped]
         public IEnumerable<ACValueItem> ACKindList
@@ -1164,9 +1161,8 @@ namespace gip.core.datamodel
         }
 
         public string DefaultContainerName 
-        { 
-            get;
-            set;
+        {
+            get { throw new NotImplementedException(); }
         }
 
         // Build Cache over Type-System to avoid Deadlocks when quering Global dabatbase
@@ -1525,6 +1521,11 @@ namespace gip.core.datamodel
         public DbSet<TEntity> CreateObjectSet<TEntity>(string entitySetName) where TEntity : class
         {
             return ((IACEntityObjectContext)ContextIPlus).CreateObjectSet<TEntity>(entitySetName);
+        }
+
+        public object GetObjectByKey(EntityKey key)
+        {
+            return _ObjectContextHelper.GetObjectByKey(key);
         }
     }
 }
