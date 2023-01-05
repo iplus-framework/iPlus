@@ -108,8 +108,7 @@ namespace gip.core.datamodel
         /// Refreshes the EntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
         /// <param name="entityObject"></param>
-        /// <param name="refreshMode"></param>
-        void AutoRefresh(EntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins);
+        void AutoRefresh(EntityObject entityObject);
 
         /// <summary>
         /// Refreshes all EntityObjects in the EntityCollection if not in modified state. Else it leaves it untouched.
@@ -118,8 +117,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        /// <param name="refreshMode"></param>
-        void AutoRefresh<T>(EntityCollection<T> entityCollection, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class;
+        void AutoRefresh<T>(EntityCollection<T> entityCollection) where T : class;
 
         /// <summary>
         /// Queries the Database an refreshes the collection if not in modified state. MergeOption.OverwriteChanges

@@ -509,10 +509,9 @@ namespace gip.core.datamodel
         /// Refreshes the EntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
         /// <param name="entityObject"></param>
-        /// <param name="refreshMode"></param>
-        public void AutoRefresh(EntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins)
+        public void AutoRefresh(EntityObject entityObject)
         {
-            _ObjectContextHelper.AutoRefresh(entityObject, refreshMode);
+            _ObjectContextHelper.AutoRefresh(entityObject);
         }
 
         /// <summary>
@@ -522,10 +521,9 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        /// <param name="refreshMode"></param>
-        public void AutoRefresh<T>(EntityCollection<T> entityCollection, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
+        public void AutoRefresh<T>(EntityCollection<T> entityCollection) where T : class
         {
-            _ObjectContextHelper.AutoRefresh<T>(entityCollection, refreshMode);
+            _ObjectContextHelper.AutoRefresh<T>(entityCollection);
         }
 
         /// <summary>

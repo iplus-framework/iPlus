@@ -295,7 +295,7 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Property requiered by IACEntityProperty shema - instance properties shuld replace this
+        /// Property requiered by IACEntityProperty shema - instance properties should replace this
         /// </summary>
         [DataMember]
         public virtual string XMLConfig

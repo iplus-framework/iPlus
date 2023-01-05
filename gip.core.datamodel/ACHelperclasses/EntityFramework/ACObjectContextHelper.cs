@@ -734,20 +734,10 @@ namespace gip.core.datamodel
         /// Refreshes the EntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
         /// <param name="entityObject"></param>
-        /// <param name="refreshMode"></param>
-       public void AutoRefresh(EntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins)
+       public void AutoRefresh(EntityObject entityObject)
         {
-            if (refreshMode == RefreshMode.StoreWins)
-            {
-                if (entityObject.EntityState == EntityState.Unchanged)
-                    this.ObjectContext.Refresh(refreshMode, entityObject);
-            }
-            else
-            {
-                if ((entityObject.EntityState != EntityState.Detached)
-                    && (entityObject.EntityState != EntityState.Unchanged))
-                    this.ObjectContext.Refresh(refreshMode, entityObject);
-            }
+            if (entityObject.EntityState == EntityState.Unchanged)
+                this.ObjectContext.Refresh(RefreshMode.StoreWins, entityObject);
         }
 
         /// Refreshes all EntityObjects in the EntityCollection if not in modified state. Else it leaves it untouched.
@@ -756,20 +746,11 @@ namespace gip.core.datamodel
         ///<summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        /// <param name="refreshMode"></param>
         ///</summary>
-        public void AutoRefresh<T>(EntityCollection<T> entityCollection, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
+        public void AutoRefresh<T>(EntityCollection<T> entityCollection) where T : class
         {
-            if (refreshMode == RefreshMode.StoreWins)
-            {
-                if (!(entityCollection.Where(c => (c as EntityObject).EntityState == EntityState.Modified || (c as EntityObject).EntityState == EntityState.Added || (c as EntityObject).EntityState == EntityState.Deleted).Any()))
-                    this.ObjectContext.Refresh(refreshMode, entityCollection);
-            }
-            else
-            {
-                if (entityCollection.Where(c => (c as EntityObject).EntityState == EntityState.Modified || (c as EntityObject).EntityState == EntityState.Added || (c as EntityObject).EntityState == EntityState.Deleted).Any())
-                    this.ObjectContext.Refresh(refreshMode, entityCollection);
-            }
+            if (!(entityCollection.Where(c => (c as EntityObject).EntityState == EntityState.Modified || (c as EntityObject).EntityState == EntityState.Added || (c as EntityObject).EntityState == EntityState.Deleted).Any()))
+                this.ObjectContext.Refresh(RefreshMode.StoreWins, entityCollection);
         }
 
         /// <summary>

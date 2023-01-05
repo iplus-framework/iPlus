@@ -164,15 +164,14 @@ namespace gip.core.datamodel
         /// Refreshes the EntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
         /// <param name="entityObject"></param>
-        /// <param name="refreshMode"></param>
-        public static void AutoRefresh(this EntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins)
+        public static void AutoRefresh(this EntityObject entityObject)
         {
-            entityObject.GetObjectContext().AutoRefresh(entityObject, refreshMode);
+            entityObject.GetObjectContext().AutoRefresh(entityObject);
         }
 
-        public static void AutoRefresh(this EntityObject entityObject, IACEntityObjectContext context, RefreshMode refreshMode = RefreshMode.StoreWins)
+        public static void AutoRefresh(this EntityObject entityObject, IACEntityObjectContext context)
         {
-            context.AutoRefresh(entityObject, refreshMode);
+            context.AutoRefresh(entityObject);
         }
 
         public static void Refresh(this EntityObject entityObject, RefreshMode refreshMode)
@@ -185,14 +184,14 @@ namespace gip.core.datamodel
             context.Refresh(refreshMode, entityObject);
         }
 
-        public static void AutoRefresh<T>(this EntityCollection<T> entityCollection, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
+        public static void AutoRefresh<T>(this EntityCollection<T> entityCollection) where T : class
         {
-            entityCollection.GetObjectContext().AutoRefresh<T>(entityCollection, refreshMode);
+            entityCollection.GetObjectContext().AutoRefresh<T>(entityCollection);
         }
 
-        public static void AutoRefresh<T>(this EntityCollection<T> entityCollection, IACEntityObjectContext context, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
+        public static void AutoRefresh<T>(this EntityCollection<T> entityCollection, IACEntityObjectContext context) where T : class
         {
-            context.AutoRefresh<T>(entityCollection, refreshMode);
+            context.AutoRefresh<T>(entityCollection);
         }
 
         public static void Refresh<T>(this EntityCollection<T> entityCollection, RefreshMode refreshMode) where T : class
