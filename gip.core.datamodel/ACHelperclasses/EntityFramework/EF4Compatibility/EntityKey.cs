@@ -788,8 +788,8 @@ namespace gip.core.datamodel
                     {
                         // EntityContainerName == "iPlusV4_Entities"
                         // assemblyQfName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
-
-                    } assemblyQfName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
+                        assemblyQfName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
+                    }
                 }
 
                 Type type = Type.GetType(assemblyQfName);

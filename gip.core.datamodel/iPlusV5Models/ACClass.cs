@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using gip.core.datamodel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel;
 
@@ -48,7 +49,7 @@ public partial class ACClass : VBEntityObject
     }
 
     string _ACIdentifier;
-    public string ACIdentifier 
+    public override string ACIdentifier 
     {
         get { return _ACIdentifier; }
         set { SetProperty<string>(ref _ACIdentifier, value); }

@@ -24,9 +24,10 @@ namespace gip.core.datamodel
         {
             if (entityApp == null)
                 return default(TEntityIPlus);
-#if !EFCR
+
+            // "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
+            // "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
             EntityKey key = new EntityKey(gip.core.datamodel.Database.GlobalDatabase.DefaultContainerName + "." + entityApp.EntityKey.EntitySetName, entityApp.EntityKey.EntityKeyValues);
-#endif
             //key.EntityContainerName = gip.core.datamodel.Database.GlobalDatabase.DefaultContainerName;
             object obj = null;
             if (dbIPlus == null)
@@ -34,11 +35,8 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(dbIPlus.QueryLock_1X000))
             {
-#if !EFCR
                 if (!dbIPlus.TryGetObjectByKey(key, out obj))
                     return default(TEntityIPlus);
-#endif
-                throw new NotImplementedException();
             }
             return (TEntityIPlus)obj;
         }
@@ -569,9 +567,9 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="entityObject"></param>
         /// <param name="refreshMode"></param>
-        public void AutoRefresh(VBEntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins)
+        public void AutoRefresh(VBEntityObject entityObject)
         {
-            _ObjectContextHelper.AutoRefresh(entityObject, refreshMode);
+            _ObjectContextHelper.AutoRefresh(entityObject);
         }
 
         /// <summary>
@@ -582,9 +580,9 @@ namespace gip.core.datamodel
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
         /// <param name="refreshMode"></param>
-        public void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
+        public void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class
         {
-            _ObjectContextHelper.AutoRefresh<T>(entityCollection, entry, refreshMode);
+            _ObjectContextHelper.AutoRefresh<T>(entityCollection, entry);
         }
 
         /// <summary>
@@ -1145,11 +1143,6 @@ namespace gip.core.datamodel
             get { return Database; }
         }
 
-        public RefreshMode RefreshMode
-        {
-            get { return RefreshMode; }
-        }
-
         public DbContextOptions ContextOptions
         {
             get { return DbContextOptions(ConnectionString); }
@@ -1493,16 +1486,6 @@ namespace gip.core.datamodel
 #endif
         }
 
-        public void AutoRefresh(VBEntityObject entityObject)
-        {
-            _ObjectContextHelper.AutoRefresh(entityObject);
-        }
-
-        public void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class
-        {
-            _ObjectContextHelper.AutoRefresh(entityCollection, entry);
-        }
-
         public void AcceptAllChanges()
         {
             ((IACEntityObjectContext)ContextIPlus).AcceptAllChanges();
@@ -1526,6 +1509,11 @@ namespace gip.core.datamodel
         public object GetObjectByKey(EntityKey key)
         {
             return _ObjectContextHelper.GetObjectByKey(key);
+        }
+
+        public bool TryGetObjectByKey(EntityKey key, out object entity)
+        {
+            return _ObjectContextHelper.TryGetObjectByKey(key, out entity);
         }
     }
 }

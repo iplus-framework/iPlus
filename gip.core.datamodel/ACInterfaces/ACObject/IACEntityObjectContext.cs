@@ -112,8 +112,6 @@ namespace gip.core.datamodel
         /// Refreshes the VBEntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
         /// <param name="entityObject"></param>
-        /// <param name="refreshMode"></param>
-
         void AutoRefresh(VBEntityObject entityObject);
 
         /// <summary>
@@ -123,8 +121,6 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        /// <param name="refreshMode"></param>
-
         void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class;
 
         /// <summary>
@@ -178,7 +174,6 @@ namespace gip.core.datamodel
         ChangeTracker ChangeTracker { get; }
         DatabaseFacade Database { get ; }
 
-        RefreshMode RefreshMode { get; }
         DbContextOptions ContextOptions { get; }
         int SaveChanges();
         int SaveChanges(bool acceptAllChangesOnSuccess);
@@ -271,18 +266,17 @@ namespace gip.core.datamodel
         //ObjectResult<TElement> ExecuteStoreQuery<TElement>(string commandText, params object[] parameters);
         //ObjectResult<TEntity> ExecuteStoreQuery<TEntity>(string commandText, string entitySetName, MergeOption mergeOption, params object[] parameters);
         object GetObjectByKey(EntityKey key);
+        bool TryGetObjectByKey(EntityKey key, out object entity);
         //void LoadProperty(object entity, string navigationProperty);
         //void LoadProperty<TEntity>(TEntity entity, Expression<Func<TEntity, object>> selector);
         //void LoadProperty(object entity, string navigationProperty, MergeOption mergeOption);
         //void LoadProperty<TEntity>(TEntity entity, Expression<Func<TEntity, object>> selector, MergeOption mergeOption);
-        //void Refresh(RefreshMode refreshMode, IEnumerable collection);
-        //void Refresh(RefreshMode refreshMode, object entity);
         //int SaveChanges();
         //int SaveChanges(SaveOptions options);
         //ObjectResult<TElement> Translate<TElement>(DbDataReader reader);
         //ObjectResult<TEntity> Translate<TEntity>(DbDataReader reader, string entitySetName, MergeOption mergeOption);
         //bool TryGetObjectByKey(EntityKey key, out object value);
-#endregion
+        #endregion
     }
 
 }

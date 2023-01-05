@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Windows.Interop;
 
 namespace gip.core.datamodel
 {
@@ -382,13 +383,15 @@ namespace gip.core.datamodel
                     }
                     catch (Exception ec)
                     {
+                        Msg msg = new Msg()
+                        {
+                            MessageLevel = eMsgLevel.Error,
+                            Message = string.Format("Unable set property {0} for {1}! Exception: {2}", pi.Name, acFsItem.ACObjectACUrl, ec.Message)
+                        };
+
                         if (msgList != null)
-                            msgList.Add(new Msg()
-                            {
-                                MessageLevel = eMsgLevel.Error,
-                                Message = string.Format("Unable set property {0} for {1}! Exception: {2}", pi.Name, acFsItem.ACObjectACUrl, ec.Message)
-                            });
-                        throw (ec);
+                            msgList.Add(msg);
+                        throw (new Exception(msg.Message, ec));
                     }
                 }
         }

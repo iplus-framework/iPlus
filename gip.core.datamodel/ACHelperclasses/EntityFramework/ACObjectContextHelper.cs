@@ -434,17 +434,35 @@ namespace gip.core.datamodel
 
 
         public void Refresh(RefreshMode refreshMode, object entity)
-
         {
-            (_ObjectContext as DbContext).Entry(entity).Reload();
+            if (entity == null || _ObjectContext == null)
+                return;
+            EntityEntry entry = _ObjectContext.Entry(entity);
+            if (entry == null) 
+                return;
+            if (   refreshMode == RefreshMode.StoreWins
+                || entry.State == EntityState.Unchanged)
+                entry.Reload();
         }
 
         public object GetObjectByKey(EntityKey key)
         {
-            //ObjectContext.Find<>
             return ObjectContext.Find(key.EntityType, key.EntityKeyValues.Select(c => c.Value).ToArray());
         }
 
+        public bool TryGetObjectByKey(EntityKey key, out object entity)
+        {
+            try
+            {
+                entity = GetObjectByKey(key);
+                return true;
+            }
+            catch (Exception)
+            {
+                entity = null;
+                return false;
+            }
+        }
 
         /// <summary>
         /// THREAD-SAFE. Uses QueryLock_1X000
@@ -739,22 +757,10 @@ namespace gip.core.datamodel
         /// Refreshes the VBEntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
         /// <param name="entityObject"></param>
-        /// <param name="refreshMode"></param>
-       public void AutoRefresh(VBEntityObject entityObject, RefreshMode refreshMode = RefreshMode.StoreWins)
+       public void AutoRefresh(VBEntityObject entityObject)
         {
-            if (refreshMode == RefreshMode.StoreWins)
-            {
-                if (entityObject.EntityState == EntityState.Unchanged)
-                    entityObject.Context.Entry(entityObject).Reload();
-            }
-            else
-            {
-#if !EFCR
-                if ((entityObject.EntityState != EntityState.Detached)
-                    && (entityObject.EntityState != EntityState.Unchanged))
-                    this.ObjectContext.Refresh(refreshMode, entityObject);
-#endif
-            }
+            if (entityObject.EntityState == EntityState.Unchanged)
+                entityObject.Context.Entry(entityObject).Reload();
         }
 
         /// Refreshes all EntityObjects in the EntityCollection if not in modified state. Else it leaves it untouched.
@@ -763,17 +769,16 @@ namespace gip.core.datamodel
         ///<summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        /// <param name="refreshMode"></param>
         ///</summary>
-        public void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry, RefreshMode refreshMode = RefreshMode.StoreWins) where T : class
+        public void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class
         {
             if (entry.CurrentValue == null)
                 return;
             foreach (var item in entry.CurrentValue)
             {
-                if (  (refreshMode == RefreshMode.StoreWins && entry.EntityEntry.Context.Entry(item).State != EntityState.Added)
-                    || entry.EntityEntry.Context.Entry(item).State == EntityState.Unchanged)
-                    entry.EntityEntry.Context.Entry(item).Reload();
+                VBEntityObject entityObj = item as VBEntityObject;
+                if (entityObj != null)
+                    entityObj.AutoRefresh();
             }
         }
 
@@ -783,20 +788,11 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        public void AutoLoad<T>(ICollection<T> entityCollection, CollectionEntry entry, RefreshMode refreshMode = RefreshMode.ClientWins) where T : class
+        public void AutoLoad<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class
         {
             try
             {
-                if (entry.CurrentValue != null)
-                {
-                    foreach (var item in entry.CurrentValue)
-                    {
-                        if (  (refreshMode == RefreshMode.StoreWins && entry.EntityEntry.Context.Entry(item).State != EntityState.Added)
-                            || entry.EntityEntry.Context.Entry(item).State == EntityState.Unchanged)
-                            entry.EntityEntry.Context.Entry(item).Reload();
-                    }
-                }
-
+                AutoRefresh<T>(entityCollection, entry);
                 // CurrentValue mustn't be set to null! If CurrentValue is set to null all existing Entries in this Collection are automatically set to deleted state.
                 //entry.CurrentValue = null;
                 // IsLoaded must be set to null to force entity framework to make a SQL-Select to the Server to load the data.

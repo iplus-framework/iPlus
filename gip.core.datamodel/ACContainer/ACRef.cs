@@ -563,7 +563,9 @@ namespace gip.core.datamodel
                                             IACComponent component = context as IACComponent;
                                             if (component == null)
                                                 component = ACRef<IACObject>.Root;
+
 #if !EFCR
+                                            component.Database.GetType().Namespace == entityKey.EntityType.Namespace
                                             if (component.Database.DefaultContainerName == entityKey.EntityContainerName)
                                             {
 
