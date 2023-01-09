@@ -16,6 +16,7 @@
 <#@ import namespace="Microsoft.EntityFrameworkCore.Design" #>
 <#@ import namespace="Microsoft.Extensions.DependencyInjection" #>
 <#
+    Debugger.Launch();
     if (EntityType.IsSimpleManyToManyJoinEntityType())
     {
         // Don't scaffold these
@@ -36,7 +37,8 @@
         "System",
         "System.Collections.Generic",
         "gip.core.datamodel",
-        "Microsoft.EntityFrameworkCore.ChangeTracking"
+        "Microsoft.EntityFrameworkCore.ChangeTracking",
+        "Microsoft.EntityFrameworkCore.Infrastructure"
     };
 
     if (Options.UseDataAnnotations)
@@ -75,6 +77,17 @@ namespace <#= "gip.core.datamodel" #>;
 #>
 public partial class <#= EntityType.Name #> : VBEntityObject
 {
+
+    public <#= EntityType.Name #>()
+    {
+    }
+
+    private <#= EntityType.Name #>(ILazyLoader lazyLoader)
+    {
+        LazyLoader = lazyLoader;
+    }
+
+    private ILazyLoader LazyLoader { get; set; }
 <#
     var firstProperty = true;
     foreach (var property in EntityType.GetProperties().OrderBy(p => p.GetColumnOrder() ?? -1))
@@ -109,12 +122,13 @@ public partial class <#= EntityType.Name #> : VBEntityObject
 
         var needsNullable = Options.UseNullableReferenceTypes && property.IsNullable && !property.ClrType.IsValueType;
         var needsInitializer = Options.UseNullableReferenceTypes && !property.IsNullable && !property.ClrType.IsValueType;
+        var needsOverride = property.Name == ("ACIdentifier") || property.Name == ("XMLConfig");
 #>
     <#=code.Reference(property.ClrType)#><#= needsNullable ? "?" : "" #> _<#= property.Name #>;
-    public <#= code.Reference(property.ClrType) #><#= needsNullable ? "?" : "" #> <#= property.Name #> 
-    { 
+    public <#= needsOverride ? "override " : "" #><#= code.Reference(property.ClrType) #><#= needsNullable ? "?" : "" #> <#= property.Name #> 
+    {
         get { return _<#= property.Name#>; }
-        set { SetProperty<<#=code.Reference(property.ClrType)#><#= needsNullable ? "?" : "" #>>(ref _<#= property.Name#>, value); } 
+        set { SetProperty<<#=code.Reference(property.ClrType)#><#= needsNullable ? "?" : "" #>>(ref _<#= property.Name#>, value); }
     }<#= needsInitializer ? " = null!;" : "" #>
 <#
         firstProperty = false;
@@ -151,7 +165,12 @@ public partial class <#= EntityType.Name #> : VBEntityObject
                 relName = targetType+"_"+pkIdName;
             }
 #>
-    public virtual ICollection<<#= targetType #>> <#= relName #> { get; } = new List<<#= targetType #>>();
+    private ICollection<<#= targetType #>> _<#= relName #>;
+    public virtual ICollection<<#= targetType #>> <#= relName #>
+    {
+        get => LazyLoader.Load(this, ref _<#= relName #>);
+        set => _<#= relName #> = value;
+    }
 
     public virtual CollectionEntry <#= relName + "Reference"#>
     {
@@ -173,10 +192,15 @@ public partial class <#= EntityType.Name #> : VBEntityObject
                 navPIdname = navigation.Name;
             }
         #>
-    public virtual <#= targetType #><#= needsNullable ? "?" : "" #> <#= navPIdname #> { get; set; }<#= needsInitializer ? " = null!;" : "" #>
+    private <#= targetType #><#= needsNullable ? "?" : "" #> _<#= navPIdname #>;
+    public virtual <#= targetType #><#= needsNullable ? "?" : "" #> <#= navPIdname #>
+    { 
+        get => LazyLoader.Load(this, ref _<#= navPIdname #>);
+        set => _<#= navPIdname #> = value;
+    }<#= needsInitializer ? " = null!;" : "" #>
 
     public virtual ReferenceEntry<#= needsNullable ? "?" : "" #> <#= navPIdname+"Reference" #> 
-    { 
+    {
         get { return Context.Entry(this).Reference("<#=navPIdname#>"); }
     }<#= needsInitializer ? " = null!;" : "" #>
     <#
@@ -197,7 +221,12 @@ public partial class <#= EntityType.Name #> : VBEntityObject
             }
         }
 #>
-    public virtual ICollection<<#= skipNavigation.TargetEntityType.Name #>> <#= skipNavigation.Name #> { get; } = new List<<#= skipNavigation.TargetEntityType.Name #>>();
+    private ICollection<<#= skipNavigation.TargetEntityType.Name #>> _<#= skipNavigation.Name #>;
+    public virtual ICollection<<#= skipNavigation.TargetEntityType.Name #>> <#= skipNavigation.Name #>
+    {
+        get => LazyLoader.Load(this, ref _<#= skipNavigation.Name #>);
+        set => _<#= skipNavigation.Name #> = value;
+    }
 
     public virtual CollectionEntry <#= skipNavigation.Name + "Reference"#>
     {

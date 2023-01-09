@@ -55,7 +55,7 @@ public partial class VBLanguage : VBEntityObject
     }
 
     string _XMLConfig;
-    public string XMLConfig 
+    public override string XMLConfig 
     {
         get { return _XMLConfig; }
         set { SetProperty<string>(ref _XMLConfig, value); }

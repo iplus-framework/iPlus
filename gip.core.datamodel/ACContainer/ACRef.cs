@@ -564,9 +564,8 @@ namespace gip.core.datamodel
                                             if (component == null)
                                                 component = ACRef<IACObject>.Root;
 
-#if !EFCR
-                                            component.Database.GetType().Namespace == entityKey.EntityType.Namespace
-                                            if (component.Database.DefaultContainerName == entityKey.EntityContainerName)
+                                            
+                                            if (component.Database.GetType().Namespace == entityKey.EntityType.Namespace)
                                             {
 
                                                 using (ACMonitor.Lock(component.Database.QueryLock_1X000))
@@ -582,9 +581,6 @@ namespace gip.core.datamodel
                                             }
                                             else if (component.Database.ContextIPlus.DefaultContainerName == entityKey.EntityContainerName)
                                             {
-                                                var databaseName = context.Database.GetDbConnection().Database;
-
-
                                                 using (ACMonitor.Lock(component.Database.ContextIPlus.QueryLock_1X000))
                                                 {
                                                     if (valueT != null && (valueT as VBEntityObject).EntityState == EntityState.Detached)
@@ -598,7 +594,7 @@ namespace gip.core.datamodel
                                             }
                                             else
                                             {
-                                                IACEntityObjectContext objectContext = ACObjectContextManager.Contexts.Where(c => c.DefaultContainerName == entityKey.EntityContainerName).FirstOrDefault();
+                                                IACEntityObjectContext objectContext = ACObjectContextManager.Contexts.Where(c => c.GetType().Namespace == entityKey.EntityType.Namespace).FirstOrDefault();
                                                 if (objectContext != null)
                                                 {
 
@@ -614,7 +610,6 @@ namespace gip.core.datamodel
                                                     }
                                                 }
                                             }
-#endif
                                         }
                                     }
                                     catch (Exception e)

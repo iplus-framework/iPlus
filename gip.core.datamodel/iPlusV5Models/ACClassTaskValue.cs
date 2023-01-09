@@ -120,7 +120,7 @@ public partial class ACClassTaskValue : VBEntityObject
         set => _ACClassTaskValuePos_ACClassTaskValue = value;
     }
 
-    public virtual CollectionEntry ACClassTaskValuePo_ACClassTaskValueReference
+    public virtual CollectionEntry ACClassTaskValuePos_ACClassTaskValueReference
     {
         get { return Context.Entry(this).Collection("ACClassTaskValuePos_ACClassTaskValue"); }
     }

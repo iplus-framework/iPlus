@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using gip.core.datamodel;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel;
 
@@ -182,7 +181,7 @@ public partial class ACClass : VBEntityObject
     }
 
     string _XMLConfig;
-    public string XMLConfig 
+    public override string XMLConfig 
     {
         get { return _XMLConfig; }
         set { SetProperty<string>(ref _XMLConfig, value); }

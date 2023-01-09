@@ -188,7 +188,6 @@ namespace gip.core.datamodel
                     //    return Convert.ChangeType(value, conversionType);
                 }
                 // Konvertiere in ein EntityKey
-#if !EFCR
                 else if (typeof(EntityKey).IsAssignableFrom(conversionType))
                 {
                     //throw new InvalidCastException("Null-Value can't be converted to EntityKey");
@@ -200,7 +199,6 @@ namespace gip.core.datamodel
                     //throw new InvalidCastException("Null-Value can't be converted to VBEntityObject");
                     return null;
                 }
-#endif
                 // Falls ACQueryDefinition
                 else if (typeof(ACQueryDefinition).IsAssignableFrom(conversionType))
                 {
@@ -578,7 +576,6 @@ namespace gip.core.datamodel
                     }
                 }
                 // Falls zu konvertierender Wert ein EntityKey ist
-#if !EFCR
                 else if (value is EntityKey)
                 {
                     // Hole VBEntityObject über EntityKey
@@ -618,11 +615,9 @@ namespace gip.core.datamodel
                     else
                         throw new InvalidCastException("EntityKey not convertable to " + conversionType.Name);
                 }
-#endif
                 // Falls zu konvertierender Wert ein VBEntityObject ist
                 else if (value is VBEntityObject)
                 {
-#if !EFCR
                     // Hole VBEntityObject nach entityKey
                     if (typeof(EntityKey).IsAssignableFrom(conversionType))
                         return (value as VBEntityObject).EntityKey;
@@ -642,9 +637,6 @@ namespace gip.core.datamodel
                     else if (!conversionType.IsAssignableFrom(value.GetType()))
                         throw new InvalidCastException("VBEntityObject not convertable to " + conversionType.Name);
                     return value;
-#endif
-                    throw new NotImplementedException();
-
                 }
 
                 // Falls zu konvertierender Wert ein bekanntes Serialisierbares Objekt ist

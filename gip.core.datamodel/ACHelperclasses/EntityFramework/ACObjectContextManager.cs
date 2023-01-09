@@ -142,16 +142,7 @@ namespace gip.core.datamodel
 
         public static IACEntityObjectContext GetObjectContext(this VBEntityObject entityObject)
         {
-#if !EFCR
-            var relationshipManager = ((System.Data.Objects.DataClasses.IEntityWithRelationships)entityObject).RelationshipManager;
-            PropertyInfo piWrappedOwner = relationshipManager.GetType().GetProperty("WrappedOwner", BindingFlags.NonPublic | BindingFlags.Instance);
-            var wrappedOwner = piWrappedOwner.GetValue(relationshipManager, null);
-            var piContext = wrappedOwner.GetType().GetProperty("Context", BindingFlags.Public | BindingFlags.Instance);
-            IACEntityObjectContext databaseContext = piContext.GetValue(wrappedOwner, null) as IACEntityObjectContext;
-            return databaseContext;
-#endif
             return entityObject.Context;
-
         }
 
         public static IACEntityObjectContext GetObjectContext<T>(this ICollection<T> entityObject)

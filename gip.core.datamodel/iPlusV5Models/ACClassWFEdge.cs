@@ -41,7 +41,7 @@ public partial class ACClassWFEdge : VBEntityObject
     }
 
     string _ACIdentifier;
-    public string ACIdentifier 
+    public override string ACIdentifier 
     {
         get { return _ACIdentifier; }
         set { SetProperty<string>(ref _ACIdentifier, value); }

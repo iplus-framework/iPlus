@@ -27,7 +27,17 @@ namespace gip.core.datamodel
 
             // "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
             // "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
-            EntityKey key = new EntityKey(gip.core.datamodel.Database.GlobalDatabase.DefaultContainerName + "." + entityApp.EntityKey.EntitySetName, entityApp.EntityKey.EntityKeyValues);
+            string assemblyQualifiedName = "";
+            if (entityApp.GetType().Namespace.Contains("gip.core.datamodel"))
+            {
+                assemblyQualifiedName = "gip.core.datamodel." + entityApp.EntityKey.EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
+            }
+            else if (entityApp.GetType().Namespace.Contains("gip.mes.datamodel"))
+            {
+                assemblyQualifiedName = "gip.mes.datamodel." + entityApp.EntityKey.EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
+            }
+
+            EntityKey key = new EntityKey(assemblyQualifiedName, entityApp.EntityKey.EntityKeyValues);
             //key.EntityContainerName = gip.core.datamodel.Database.GlobalDatabase.DefaultContainerName;
             object obj = null;
             if (dbIPlus == null)
@@ -95,14 +105,12 @@ namespace gip.core.datamodel
             _ObjectContextHelper = new ACObjectContextHelper(this);
         }
 
-        public Database(bool createSeparateConnection)
 #if !EFCR
+        public Database(bool createSeparateConnection)
             : this(new EntityConnection(ConnectionString))
-#endif
         {
         }
 
-#if !EFCR
         public Database(EntityConnection connection)
             : base(connection)
         {
@@ -111,31 +119,31 @@ namespace gip.core.datamodel
         }
 #endif
 
-#if !EFCR
-        protected override void Dispose(bool disposing)
+        public override void Dispose()
         {
             if (_ObjectContextHelper != null)
                 _ObjectContextHelper.Dispose();
             _ObjectContextHelper = null;
             base.Dispose();
+#if !EFCR
             if (SeparateConnection != null)
                 SeparateConnection.Dispose();
             _SeparateConnection = null;
-        }
 #endif
+        }
 
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
 
-        #region Private
+#region Private
         private ACObjectContextHelper _ObjectContextHelper;
         static string _Initials = null;
         static Database _GlobalDatabase = null;
         static internal ACQueryDefinition _QRYACQueryDefinition = null;
-        #endregion
+#endregion
 
-        #region Public Static
+#region Public Static
         [NotMapped]
         public static string ConnectionString
         {

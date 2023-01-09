@@ -204,8 +204,8 @@ namespace gip.core.datamodel
                 MsgWithDetails msg = new MsgWithDetails(entityEx.SubMessages) { Source = _ObjectContext.ACIdentifier, MessageLevel = eMsgLevel.Error, ACIdentifier = _ObjectContext.ACIdentifier, Message = Database.Root.Environment.TranslateMessage(Database.GlobalDatabase, "Error00035") };
                 return msg;
             }
-            // TODO: Behandlung von OptimisticConcurrencyException, das ausgelöst wird durch das implizite Ändern des RowVersion-Feldes 
-            //catch (OptimisticConcurrencyException concurrencyException)
+            // TODO: Behandlung von DbUpdateConcurrencyException, das ausgelöst wird durch das implizite Ändern des RowVersion-Feldes 
+            //catch (DbUpdateConcurrencyException concurrencyException)
             //{
             //}
             catch (Exception e)
@@ -287,8 +287,8 @@ namespace gip.core.datamodel
                         var entityList = entityStateList.Where(c => c.Entity != null).Select(c => c.Entity);
                         if (entityList != null && entityList.Any())
                             // Leere liste indem die Objekte aus der Datenbank nachgeladen werden (StoreWins)
-                            throw new NotImplementedException();
-                            //_ObjectContext.Refresh(RefreshMode.StoreWins, entityList);
+                            foreach (EntityEntry entity in entityList)
+                                entity.Reload();
                     }
                 }
                 catch (Exception e)
@@ -820,8 +820,7 @@ namespace gip.core.datamodel
 
         public static bool IsDisconnectedException(Exception e)
         {
-#if !EFCR
-            bool isDisconnectedException = e is EntityException
+            bool isDisconnectedException = (e is DbUpdateException && !(e is DbUpdateConcurrencyException))
                                             && e.HResult == Const.EF_HResult_EntityException
                                             && e.Message.IndexOf("Open", 0, StringComparison.OrdinalIgnoreCase) >= 0;
 
@@ -838,8 +837,6 @@ namespace gip.core.datamodel
                                     && (   (e.InnerException is InvalidOperationException && e.InnerException.HResult == Const.EF_HResult_InvalidOperationException)
                                         || (e.InnerException is System.Data.SqlClient.SqlException && e.InnerException.HResult == Const.EF_HResult_SqlException));
             return isDisconnectedException;
-#endif
-            throw new NotImplementedException();
         }
 
         public static bool IsDisconnectedException(MsgWithDetails msg)
@@ -900,24 +897,20 @@ namespace gip.core.datamodel
             int exceptionType = e.HResult;
             if (exceptionType == 0)
             {
-#if !EFCR
-                if (e is EntityException)
+                if (e is DbUpdateException && !(e is DbUpdateConcurrencyException))
                     exceptionType = Const.EF_HResult_EntityException;
                 else if (e is InvalidOperationException)
                     exceptionType = Const.EF_HResult_InvalidOperationException;
                 else if (e is System.Data.SqlClient.SqlException)
                     exceptionType = Const.EF_HResult_SqlException;
-#endif
-                throw new NotImplementedException();
             }
 
             msg.AddDetailMessage(new Msg { ACIdentifier = "Error", Message = e.Message, Row = exceptionType });
             if (e.InnerException != null)
                 msg.AddDetailMessage(new Msg { ACIdentifier = "Error", Message = e.InnerException.Message, Row = e.InnerException.HResult });
 
-#if !EFCR
-            //OptimisticConcurrencyException: Store update, insert, or delete statement affected an unexpected number of rows(0). Entities may have been modified or deleted since entities were loaded.Refresh ObjectStateManager entries.
-            if (e is OptimisticConcurrencyException)
+            //DbUpdateConcurrencyException: Store update, insert, or delete statement affected an unexpected number of rows(0). Entities may have been modified or deleted since entities were loaded.Refresh ObjectStateManager entries.
+            if (e is DbUpdateConcurrencyException)
             {
                 //Error00000: The changes could not be saved because at the same time another process or user changed the same data and stored it in the database. Please close all tabs or update the relevant database objects and redo the transaction.
                 //Error00000: Die Änderungen konnten nicht gespeichert werden, weil gleichzeitig ein anderer Prozess oder Benutzer die selben Daten verändert und in der Datenbank gespeichert hat. Bitte schließen Sie alle Registerkarten oder aktualisieren Sie die entsprechenden Datenbankobjekte und führen die Transaktion erneut durch.
@@ -929,7 +922,6 @@ namespace gip.core.datamodel
                
                 });
             }
-#endif
             if (!string.IsNullOrEmpty(constraint) && !isDisconnectedException)
             {
                 string[] parts = constraint.Split('_');
@@ -1012,7 +1004,7 @@ namespace gip.core.datamodel
 #if !EFCR
                 this.ObjectContext.ChangeTracker.Detach(objectStateEntry.Entity);
 #endif
-                this.ObjectContext.Entry(objectStateEntry.Entity).State = EntityState.Detached;
+                this.ObjectContext.Entry(objectStateEntry).State = EntityState.Detached;
             }
         }
 

@@ -568,7 +568,6 @@ namespace gip.core.datamodel
             set;
         }
 
-#if !EFCR
         public List<ObjectParameter> FilterParameters
         {
             get
@@ -587,7 +586,6 @@ namespace gip.core.datamodel
                 return collection;
             }
         }
-#endif
 
         private string _OneTimeSearchWord;
         /// <summary>  Searchword, that is used once. After excecuting the search with ACAccess.OneTimeSearchT() this value will be reset to null.</summary>

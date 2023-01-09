@@ -194,10 +194,26 @@ namespace gip.core.datamodel
             }
             set
             {
-                ValidateWritable(_entityContainerName);
-                lock (_nameLookup)
+                if (EntityContainerName.Contains("Version") && EntityContainerName.Contains("Culture") && EntityContainerName.Contains("PublicKeyToken"))
                 {
-                    _entityContainerName = EntityKey.LookupSingletonName(value);
+                    _entityContainerName = EntityContainerName;
+                }
+                else
+                {
+#if DEBUG
+                    // If EFCR Tested, then  remove this code
+                    if (System.Diagnostics.Debugger.IsAttached)
+                        System.Diagnostics.Debugger.Break();
+#endif
+                    if (EntityContainerName == "iPlusMESV4_Entities")
+                    {
+                        _entityContainerName = "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
+                    }
+
+                    else if (EntityContainerName == "iPlusV4_Entities")
+                    {
+                        _entityContainerName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
+                    }
                 }
             }
         }
@@ -292,7 +308,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="obj">the key to compare against this instance</param>
         /// <returns>true if this instance is equal to the given key, and false otherwise</returns>
-        public override bool Equals(object obj)
+        public bool Equals(object obj)
         {
             return InternalEquals(this, obj as EntityKey, compareEntitySets: true);
         }

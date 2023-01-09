@@ -188,7 +188,6 @@ namespace gip.core.datamodel
 
             //queryDefinition.QueryContext = context as IACObject;
 
-#if !EFCR
             List<ObjectParameter> parameterList = queryDefinition.FilterParameters;
 
 
@@ -227,7 +226,6 @@ namespace gip.core.datamodel
                         resultQuery = sourceQ.Where(queryDefinition.LINQPredicateWhere, filterArray).OrderBy(queryDefinition.LINQPredicateOrderBy);
                 }
             }
-#endif
 
 #if !EFCR
             ObjectQuery objectQuery = resultQuery as ObjectQuery;
@@ -242,7 +240,6 @@ namespace gip.core.datamodel
             //if () / if merge ako ne postoje sve 3 opcije tu postaviti upit
             queryDefinition.QueryContext = context;
 
-#if !EFCR
             ObjectQuery<T> dynQuery = new ObjectQuery<T>(queryDefinition.EntitySQL, context as DbContext, mergeOption);
             List<ObjectParameter> parameterList = queryDefinition.FilterParameters;
 
@@ -255,7 +252,6 @@ namespace gip.core.datamodel
                     parameterCount++;
                 }
             }
-#endif
 
             // Take Count moved to ACAccess
             //if (queryDefinition.TakeCount > 0)

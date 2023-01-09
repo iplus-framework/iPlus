@@ -34,7 +34,7 @@ public partial class ACClassProperty : VBEntityObject
     }
 
     string _ACIdentifier;
-    public string ACIdentifier 
+    public override string ACIdentifier 
     {
         get { return _ACIdentifier; }
         set { SetProperty<string>(ref _ACIdentifier, value); }
@@ -314,7 +314,7 @@ public partial class ACClassProperty : VBEntityObject
     }
 
     string _XMLConfig;
-    public string XMLConfig 
+    public override string XMLConfig 
     {
         get { return _XMLConfig; }
         set { SetProperty<string>(ref _XMLConfig, value); }

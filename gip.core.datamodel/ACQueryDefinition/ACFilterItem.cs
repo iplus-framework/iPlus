@@ -19,6 +19,7 @@ using System.Runtime.Serialization;
 using System.Transactions;
 using System.Reflection;
 using System.ComponentModel;
+using Microsoft.Data.SqlClient;
 
 namespace gip.core.datamodel
 {
@@ -352,7 +353,6 @@ namespace gip.core.datamodel
         #endregion
 
 #region ObjectParameter
-#if !EFCR
         public ObjectParameter GetValueAsObjParameter(Type typeOfACQueryDef, string globalSearchWord, string parameterName)
         {
             if (LogicalOperator == Global.LogicalOperators.isNull || LogicalOperator == Global.LogicalOperators.isNotNull)
@@ -394,7 +394,6 @@ namespace gip.core.datamodel
             return parameter;
 
         }
-#endif
 #endregion
 
 #region Static
