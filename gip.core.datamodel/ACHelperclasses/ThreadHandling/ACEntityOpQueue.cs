@@ -18,6 +18,9 @@ using System.Text;
 using System.Threading;
 using System.Data;
 using System.Data.SqlClient;
+using System.Transactions;
+using System.Windows.Interop;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -42,11 +45,9 @@ namespace gip.core.datamodel
             : base(instanceName)
         {
             _SaveChangesWithoutValidation = saveChangesWithoutValidation;
-#if !EFCR
             var entityConnection = new EntityConnection(connectionString);
             entityConnection.Open();
             _Context = (T)Activator.CreateInstance(objectContextToCreate, new Object[] { entityConnection });
-#endif
             ACObjectContextManager.Add(_Context, instanceName);
             _AutoOpenClose = false;
         }
@@ -112,7 +113,6 @@ namespace gip.core.datamodel
         /// The _ auto open close
         /// </summary>
         private bool _AutoOpenClose = true;
-
         public bool AutoOpenClose
         {
             get
@@ -130,6 +130,124 @@ namespace gip.core.datamodel
             }
         }
 
+        private short _UncommitedRead = 0;
+        public virtual bool NeedsUncommitedRead
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public virtual System.Transactions.IsolationLevel? DefaultIsolationLevel
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        public virtual System.Transactions.TransactionScopeOption? DefaultTransactionScopeOption
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        private TransactionScope _TransScope = null;
+
+        private void CreateTransactionScopeIf()
+        {
+            if (DefaultTransactionScopeOption.HasValue || DefaultIsolationLevel.HasValue)
+            {
+                using (ACMonitor.Lock(Context.QueryLock_1X000))
+                {
+                    if (_TransScope == null)
+                    {
+                        if (DefaultTransactionScopeOption.HasValue)
+                        {
+                            if (DefaultIsolationLevel.HasValue)
+                                _TransScope = new TransactionScope(DefaultTransactionScopeOption.Value, new TransactionOptions() { IsolationLevel = DefaultIsolationLevel.Value });
+                            else
+                                _TransScope = new TransactionScope(DefaultTransactionScopeOption.Value);
+                        }
+                        else if (DefaultIsolationLevel.HasValue)
+                            _TransScope = new TransactionScope(System.Transactions.TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = DefaultIsolationLevel.Value });
+                    }
+                }
+            }
+            else
+            {
+                try
+                {
+                    if (NeedsUncommitedRead
+                        && _UncommitedRead != 1
+                        && Context.SeparateConnection != null)
+                    {
+                        SetIsolationLevelUncommitedRead();
+                    }
+                    else if (!NeedsUncommitedRead
+                        && _UncommitedRead != 0
+                        && Context.SeparateConnection != null)
+                    {
+                        SetIsolationLevelCommitedRead();
+                    }
+                }
+                catch 
+                {
+
+                }
+            }
+        }
+
+        private void DisposeTransactionScopeIf()
+        {
+            if (DefaultTransactionScopeOption.HasValue || DefaultIsolationLevel.HasValue)
+            {
+                using (ACMonitor.Lock(Context.QueryLock_1X000))
+                {
+                    if (_TransScope != null)
+                    {
+                        _TransScope.Dispose();
+                        _TransScope = null;
+                    }
+                }
+            }
+        }
+
+        protected void SetIsolationLevelUncommitedRead()
+        {
+            using (ACMonitor.Lock(Context.QueryLock_1X000))
+            {
+                Context.Database.ExecuteSql(ACObjectContextHelper.SET_READ_UNCOMMITED);
+            }
+            if (Context.IsSeparateIPlusContext)
+            {
+                using (ACMonitor.Lock(Context.ContextIPlus.QueryLock_1X000))
+                {
+                    Context.ContextIPlus.Database.ExecuteSql(ACObjectContextHelper.SET_READ_UNCOMMITED);
+                }
+            }
+            _UncommitedRead = 1;
+        }
+
+        protected void SetIsolationLevelCommitedRead()
+        {
+            using (ACMonitor.Lock(Context.QueryLock_1X000))
+            {
+                Context.Database.ExecuteSql(ACObjectContextHelper.SET_READ_COMMITED);
+            }
+            if (Context.IsSeparateIPlusContext)
+            {
+                using (ACMonitor.Lock(Context.ContextIPlus.QueryLock_1X000))
+                {
+                    Context.ContextIPlus.Database.ExecuteSql(ACObjectContextHelper.SET_READ_COMMITED);
+                }
+            }
+            _UncommitedRead = 0;
+        }
+
         /// <summary>
         /// Called when [start queue processing].
         /// </summary>
@@ -138,9 +256,12 @@ namespace gip.core.datamodel
         protected override bool OnStartQueueProcessing(int countActions)
         {
             //EnterCS();
+            bool isOpen = true;
             if (!_AutoOpenClose)
-                return OpenConnection();
-            return true;
+                isOpen = OpenConnection();
+            if (isOpen)
+                CreateTransactionScopeIf();
+            return isOpen;
         }
 
         /// <summary>
@@ -151,15 +272,12 @@ namespace gip.core.datamodel
         {
             using (ACMonitor.Lock(Context.QueryLock_1X000))
             {
-                bool openTemporary = false;
-                if (!_AutoOpenClose && Context.Connection.State != ConnectionState.Open)
-                {
-                    OpenConnection();
-                    openTemporary = true;
-                }
+                bool isOpen = true;
+                if (!_AutoOpenClose)
+                    isOpen = OpenConnection();
                 action();
-                if (openTemporary)
-                    CloseConnection();
+                //if (openTemporary)
+                //    CloseConnection();
 
             }
         }
@@ -172,7 +290,6 @@ namespace gip.core.datamodel
         {
             bool done = false;
 
-#if !EFCR
             if (Context.SeparateConnection != null)
             {
                 using (ACMonitor.Lock(Context.QueryLock_1X000))
@@ -184,6 +301,7 @@ namespace gip.core.datamodel
                         try
                         {
                             Context.Connection.Open();
+                            _UncommitedRead = 0;
                             done = true;
                         }
                         catch (Exception e)
@@ -200,9 +318,7 @@ namespace gip.core.datamodel
                     }
                 }
             }
-#endif
 
-#if !EFCR
             if (Context.IsSeparateIPlusContext && Context.ContextIPlus.SeparateConnection != null)
             {
                 using (ACMonitor.Lock(Context.ContextIPlus.QueryLock_1X000))
@@ -230,9 +346,7 @@ namespace gip.core.datamodel
                     }
                 }
             }
-#endif
 
-            throw new NotImplementedException();
             return done;
         }
 
@@ -243,7 +357,6 @@ namespace gip.core.datamodel
         protected bool CloseConnection()
         {
             bool done = false;
-#if !EFCR
             if (Context.IsSeparateIPlusContext && Context.ContextIPlus.SeparateConnection != null)
             {
                 using (ACMonitor.Lock(Context.ContextIPlus.QueryLock_1X000))
@@ -251,6 +364,7 @@ namespace gip.core.datamodel
                     try
                     {
                         Context.ContextIPlus.Connection.Close();
+                        _UncommitedRead = 0;
                         done = true;
                     }
                     catch (Exception e)
@@ -266,9 +380,7 @@ namespace gip.core.datamodel
                     }
                 }
             }
-#endif
 
-#if !EFCR
             if (Context.SeparateConnection != null)
             {
                 using (ACMonitor.Lock(Context.QueryLock_1X000))
@@ -291,8 +403,6 @@ namespace gip.core.datamodel
                     }
                 }
             }
-#endif
-            throw new NotImplementedException();
             return done;
         }
 
@@ -304,101 +414,143 @@ namespace gip.core.datamodel
         /// <param name="countActions">The count actions.</param>
         protected override void OnQueueProcessed(int countActions)
         {
-            using (ACMonitor.Lock(Context.QueryLock_1X000))
+            //IDisposable cookie1 = null;
+            //IDisposable cookie2 = null;
+            try
             {
-                try
-                {
-                    if (Context.HasModifiedObjectStateEntries())
-                    {
-                        MsgWithDetails msg = Context.ACSaveChanges(true, SaveChangesWithoutValidation);
-                        if (msg != null)
-                        {
-                            if (   ACThread.PerfLogger.Active
-                                && ACObjectContextHelper.IsDisconnectedException(msg)
-                                && Database.Root  != null 
-                                && Database.Root.VBDump != null)
-                                Database.Root.VBDump.DumpStackTrace(Thread.CurrentThread);
-                            Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(0)", "ACSaveChanges failed");
-                            Database.Root.Messages.LogMessageMsg(msg);
-                            if (_SaveChangesRetriesA <= 3 && ACObjectContextHelper.IsDisconnectedException(msg))
-                            {
-                                Add(() => { Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(1)", "Try to exceute ACSaveChanges again"); } );
-                                _SaveChangesRetriesA++;
-                            }
-                            else
-                            {
-                                Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(2)", "ACUndoChanges() invoked, all changes are reverted");
-                                Context.ACUndoChanges();
-                                _SaveChangesRetriesA = 0;
-                            }
-                        }
-                        else
-                        {
-                            _SaveChangesRetriesA = 0;
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Context.ACUndoChanges();
-                    _SaveChangesRetriesA = 0;
-
-                    string msg = e.Message;
-                    if (e.InnerException != null && e.InnerException.Message != null)
-                        msg += " Inner:" + e.InnerException.Message;
-
-                    if (Database.Root != null && Database.Root.Messages != null)
-                        Database.Root.Messages.LogException("ACEntityOpQueue", "OnQueueProcessed", msg);
-                }
-            }
-
-            if (Context.IsSeparateIPlusContext)
-            {
-                using (ACMonitor.Lock(Context.ContextIPlus.QueryLock_1X000))
+                //cookie1 = ACMonitor.Lock(Context.QueryLock_1X000);
+                using (ACMonitor.Lock(Context.QueryLock_1X000))
                 {
                     try
                     {
-                        if (Context.ContextIPlus.HasModifiedObjectStateEntries())
+                        if (Context.HasModifiedObjectStateEntries())
                         {
-                            MsgWithDetails msg = Context.ContextIPlus.ACSaveChanges(true, SaveChangesWithoutValidation);
+                            MsgWithDetails msg = Context.ACSaveChanges(true, SaveChangesWithoutValidation);
                             if (msg != null)
                             {
-                                Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(10)", "ContextIPlus.ACSaveChanges failed");
+                                bool isDisconnected = ACObjectContextHelper.IsDisconnectedException(msg);
+                                if (isDisconnected)
+                                    _UncommitedRead = 0;
+                                if (ACThread.PerfLogger.Active
+                                    && isDisconnected
+                                    && Database.Root != null
+                                    && Database.Root.VBDump != null)
+                                    Database.Root.VBDump.DumpStackTrace(Thread.CurrentThread, true);
+                                Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(0)", "ACSaveChanges failed");
                                 Database.Root.Messages.LogMessageMsg(msg);
-                                if (_SaveChangesRetriesB <= 3 && ACObjectContextHelper.IsDisconnectedException(msg))
+                                if (_SaveChangesRetriesA <= 3 && isDisconnected)
                                 {
-                                    Add(() => { Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(11)", "Try to exceute ACSaveChanges again"); });
-                                    _SaveChangesRetriesB++;
+                                    Add(() => { Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(1)", "Try to exceute ACSaveChanges again"); });
+                                    _SaveChangesRetriesA++;
                                 }
                                 else
                                 {
-                                    Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(12)", "ACUndoChanges() invoked, all changes are reverted");
-                                    Context.ContextIPlus.ACUndoChanges();
-                                    _SaveChangesRetriesB = 0;
+                                    Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(2)", "ACUndoChanges() invoked, all changes are reverted");
+                                    Context.ACUndoChanges();
+                                    _SaveChangesRetriesA = 0;
                                 }
                             }
                             else
                             {
-                                _SaveChangesRetriesB = 0;
+                                _SaveChangesRetriesA = 0;
                             }
                         }
                     }
                     catch (Exception e)
                     {
-                        Context.ContextIPlus.ACUndoChanges();
-                        _SaveChangesRetriesB = 0;
+                        Context.ACUndoChanges();
+                        _SaveChangesRetriesA = 0;
 
                         string msg = e.Message;
                         if (e.InnerException != null && e.InnerException.Message != null)
                             msg += " Inner:" + e.InnerException.Message;
 
                         if (Database.Root != null && Database.Root.Messages != null)
-                            Database.Root.Messages.LogException("ACEntityOpQueue", "OnQueueProcessed(10)", msg);
+                            Database.Root.Messages.LogException("ACEntityOpQueue", "OnQueueProcessed", msg);
+                    }
+                }
+
+                if (Context.IsSeparateIPlusContext)
+                {
+                    //cookie2 = ACMonitor.Lock(Context.ContextIPlus.QueryLock_1X000);
+                    using (ACMonitor.Lock(Context.ContextIPlus.QueryLock_1X000))
+                    {
+                        try
+                        {
+                            if (Context.ContextIPlus.HasModifiedObjectStateEntries())
+                            {
+                                MsgWithDetails msg = Context.ContextIPlus.ACSaveChanges(true, _TransScope == null, SaveChangesWithoutValidation);
+                                if (msg != null)
+                                {
+                                    Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(10)", "ContextIPlus.ACSaveChanges failed");
+                                    Database.Root.Messages.LogMessageMsg(msg);
+                                    bool isDisconnected = ACObjectContextHelper.IsDisconnectedException(msg);
+                                    if (isDisconnected)
+                                        _UncommitedRead = 0;
+                                    if (_SaveChangesRetriesB <= 3 && isDisconnected)
+                                    {
+                                        Add(() => { Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(11)", "Try to exceute ACSaveChanges again"); });
+                                        _SaveChangesRetriesB++;
+                                    }
+                                    else
+                                    {
+                                        Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(12)", "ACUndoChanges() invoked, all changes are reverted");
+                                        Context.ContextIPlus.ACUndoChanges();
+                                        _SaveChangesRetriesB = 0;
+                                    }
+                                }
+                                else
+                                {
+                                    _SaveChangesRetriesB = 0;
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Context.ContextIPlus.ACUndoChanges();
+                            _SaveChangesRetriesB = 0;
+
+                            string msg = e.Message;
+                            if (e.InnerException != null && e.InnerException.Message != null)
+                                msg += " Inner:" + e.InnerException.Message;
+
+                            if (Database.Root != null && Database.Root.Messages != null)
+                                Database.Root.Messages.LogException("ACEntityOpQueue", "OnQueueProcessed(10)", msg);
+                        }
                     }
                 }
             }
-            if (!_AutoOpenClose)
-                CloseConnection();
+            finally
+            {
+                if (   _SaveChangesRetriesA == 0 
+                    && _SaveChangesRetriesB == 0 
+                    && (DefaultTransactionScopeOption.HasValue || DefaultIsolationLevel.HasValue))
+                {
+                    if (_TransScope != null)
+                    {
+                        using (ACMonitor.Lock(Context.QueryLock_1X000))
+                        {
+                            try
+                            {
+                                _TransScope.Complete();
+                                Context.AcceptAllChanges();
+                                _TransScope.Dispose();
+                            }
+                            catch (Exception ex)
+                            {
+                                if (Database.Root != null && Database.Root.Messages != null)
+                                    Database.Root.Messages.LogException("ACEntityOpQueue", "_TransScope", ex);
+                            }
+                            _TransScope = null;
+                        }
+                    }
+                }
+                //cookie1.Dispose();
+                //if (cookie2 != null)
+                //    cookie2.Dispose();
+            }
+            //if (!_AutoOpenClose)
+                //CloseConnection();
         }
 
         /// <summary>

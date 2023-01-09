@@ -934,16 +934,20 @@ namespace gip.core.autocomponent
                 if (acClassTaskValue == null)
                 {
                     IEnumerable<ACClassTaskValue> acClassTaskValues = null;
-                    if (contentTask.ACClassTaskValue_ACClassTask.IsLoaded)
+                    if (   contentTask.ACClassTaskValue_ACClassTask.IsLoaded)
+                        //|| contentTask.EntityState == System.Data.EntityState.Added)
                         acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
                     else
                     {
-                        ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                        if (contentTask.EntityState != System.Data.EntityState.Added)
                         {
-                            acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
-                        });
+                            ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                            {
+                                acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
+                            });
+                        }
                     }
-                    acClassTaskValue = acClassTaskValues.Where(c => c.ACClassPropertyID == ACType.ACTypeID).FirstOrDefault();
+                    acClassTaskValue = acClassTaskValues?.Where(c => c.ACClassPropertyID == ACType.ACTypeID).FirstOrDefault();
                     if (acClassTaskValue == null)
                     {
                         ACClassProperty acClassProperty = ACClassTaskQueue.TaskQueue.GetACClassPropertyFromTaskQueueCache(ACType.ACTypeID);

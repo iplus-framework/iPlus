@@ -136,6 +136,8 @@ namespace gip.core.autocomponent
             }
             ACClassTask task = wfComponent.ContentTask;
             wfComponent.Content = null;
+            //ACClassTaskQueue.TaskQueue.AddACClassTaskForBulkDelete(task);
+
             ACClassTaskQueue.TaskQueue.Add(() =>
             {
                 if (task.EntityState != System.Data.EntityState.Deleted

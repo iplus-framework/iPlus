@@ -247,7 +247,7 @@ namespace gip.core.communication
         {
             get
             {
-                return IPAddress == "localhost" || IPAddress == "127.0.0.1" || IPAddress == "172.0.0.1";
+                return IsLocalConnection(IPAddress);
             }
         }
 

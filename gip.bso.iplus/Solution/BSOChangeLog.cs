@@ -246,6 +246,8 @@ namespace gip.bso.iplus
                 if (deletedEntities.Any(c => c == entityKey))
                     continue;
 
+                string keyName = GetType().Name + "ID";
+
                 KeyValuePair<string, object> kvp = new KeyValuePair<string, object>(SelectedACClass.ACIdentifier+"ID", entityKey);
                 KeyValuePair<string, object>[] kvpList = new KeyValuePair<string, object>[] { kvp };
                 EntityKey eKey = new EntityKey(tmpDatabase.DefaultContainerName + "." + _SelectedACClass.ACIdentifier, kvpList);

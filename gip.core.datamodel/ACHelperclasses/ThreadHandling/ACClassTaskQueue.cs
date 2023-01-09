@@ -21,15 +21,35 @@ using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
+    internal class ACClassTaskDeleteQueue : ACDelegateQueue
+    {
+        internal const string TaskDeleteQueueName = "ACClassTaskDeleteQueue";
+        public ACClassTaskDeleteQueue() : this(RootDbOpQueue.ClassName + "." + TaskDeleteQueueName)
+        {
+        }
+
+        public ACClassTaskDeleteQueue(string instanceName) : base(instanceName)
+        {
+        }
+
+        protected override bool CanStartWork()
+        {
+            // Don't run delete actions when TaksQueue is busy and runs transactions on database to avoid transaction waitings
+            if (DelegateQueueCount > 0 && ACClassTaskQueue.TaskQueue.IsBusy)
+                return false;
+            return true;
+        }
+    }
+
     /// <summary>
     /// Class RootDbOpQueue
     /// </summary>
     public class ACClassTaskQueue : ACEntityOpQueue<Database>
     {
-        public const string ACClassTaskQueuePropName = "ACClassTaskQueue";
+        public const string TaskQueueName = "ACClassTaskQueue";
 
-        internal ACClassTaskQueue()
-            : base(RootDbOpQueue.ClassName + "." + ACClassTaskQueuePropName, new Database(), true, true)
+        internal ACClassTaskQueue(string tqName)
+            : base(RootDbOpQueue.ClassName + "." + tqName, new Database(), true, true)
         {
             _ProgramCache = new ACProgramCache(this);
         }
@@ -67,9 +87,9 @@ namespace gip.core.datamodel
                                 .Include("ACClassWFEdge_TargetACClassWF")
                     .Where(c => c.ACClassWFID == acClassWFID).FirstOrDefault()
             );
-#endregion
+        #endregion
 
-#region TaskQueue
+        #region TaskQueue
         private static readonly object _LockTaskQueue = new object();
         private static ACClassTaskQueue _TaskQueue = null;
 
@@ -95,17 +115,48 @@ namespace gip.core.datamodel
                 {
                     if (_TaskQueue == null)
                     {
-                        _TaskQueue = new ACClassTaskQueue();
+                        _TaskQueue = new ACClassTaskQueue(TaskQueueName);
                     }
                 }
                 return _TaskQueue;
             }
         }
-#endregion
 
-#region Cache
+        private static readonly object _LockTaskDeleteQueue = new object();
+        private static ACClassTaskDeleteQueue _TaskDeleteQueue = null;
+        internal static ACClassTaskDeleteQueue TaskDeleteQueue
+        {
+            get
+            {
+                if (_TaskDeleteQueue != null)
+                    return _TaskDeleteQueue;
+                lock (_LockTaskDeleteQueue)
+                {
+                    if (_TaskDeleteQueue == null)
+                    {
+                        _TaskDeleteQueue = new ACClassTaskDeleteQueue();
+                    }
+                }
+                return _TaskDeleteQueue;
+            }
+        }
 
-#region Properties
+        internal static void StartTaskWorkerThreads()
+        {
+            TaskQueue.StartWorkerThread();
+            TaskDeleteQueue.StartWorkerThread();
+        }
+
+        internal static void StopTaskWorkerThreads()
+        {
+            TaskQueue.StopWorkerThread();
+            TaskDeleteQueue.StopWorkerThread();
+        }
+        #endregion
+
+        #region Cache
+
+        #region Properties
         /// <summary>
         /// Gets or sets a value indicating whether [mass load property values off].
         /// </summary>
@@ -114,6 +165,32 @@ namespace gip.core.datamodel
         {
             get;
             set;
+        }
+
+        public override bool NeedsUncommitedRead
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override System.Transactions.IsolationLevel? DefaultIsolationLevel
+        {
+            get
+            {
+                //return System.Transactions.IsolationLevel.ReadUncommitted;
+                return base.DefaultIsolationLevel;
+            }
+        }
+
+        public override System.Transactions.TransactionScopeOption? DefaultTransactionScopeOption
+        {
+            get
+            {
+                //return System.Transactions.TransactionScopeOption.Required;
+                return base.DefaultTransactionScopeOption;
+            }
         }
 
         /// <summary>
@@ -162,9 +239,9 @@ namespace gip.core.datamodel
             }
         }
 
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
         public ACClassTaskValue GetFromAllPropValues(Guid acClassTaskID, Guid acClassPropertyID, Guid? vbUserID)
         {
             if (AllPropertyValues == null)
@@ -208,7 +285,7 @@ namespace gip.core.datamodel
 
         public ACClassWF GetACClassWFFromTaskQueueCache(Guid acClassWFID)
         {
-            ACClassWF acClassWF= null;
+            ACClassWF acClassWF = null;
             if (!_ACClassWFCache.TryGetValue(acClassWFID, out acClassWF))
             {
                 using (ACMonitor.Lock(TaskQueue.Context.QueryLock_1X000))
@@ -220,9 +297,91 @@ namespace gip.core.datamodel
             }
             return acClassWF;
         }
-#endregion
 
-#endregion
+        private ACMonitorObject _99000_TaskDeleteLock = new ACMonitorObject(99000);
+        private List<ACClassTask> _TaskListForDeletion = new List<ACClassTask>();
+        public void AddACClassTaskForBulkDelete(ACClassTask acClassTask)
+        {
+            using (ACMonitor.Lock(_99000_TaskDeleteLock))
+            {
+                _TaskListForDeletion.Add(acClassTask);
+            }
+        }
+
+        //protected override bool CanStartWork()
+        //{
+        //    // Don't run delete actions when TaksQueue is busy and runs transactions on database to avoid transaction waitings
+        //    if (TaskDeleteQueue == this && TaskDeleteQueue.DelegateQueueCount > 0 && TaskQueue.IsBusy)
+        //        return false;
+        //    return true;
+        //}
+
+        protected override bool OnStartQueueProcessing(int countActions)
+        {
+            List<ACClassTask> acClassTaskForDelete = null;
+            using (ACMonitor.Lock(_99000_TaskDeleteLock))
+            {
+                if (_TaskListForDeletion.Any())
+                {
+                    acClassTaskForDelete = _TaskListForDeletion.ToList();
+                    _TaskListForDeletion = new List<ACClassTask>();
+                }
+            }
+            if (acClassTaskForDelete != null)
+            {
+                string cmdDelete = String.Format("DELETE FROM ACClassTask WHERE ACClassTaskID IN ({0})", String.Join(",", acClassTaskForDelete.Select(c => "'" + c.ACClassTaskID.ToString() + "'")));
+                Add(() =>
+                {
+                    //Context.ExecuteStoreCommand(cmdDelete);
+                    foreach (ACClassTask t in acClassTaskForDelete)
+                    {
+                        if (t.ACClassTaskValue_ACClassTask.IsLoaded)
+                        {
+                            foreach (ACClassTaskValue v in t.ACClassTaskValue_ACClassTask)
+                            {
+                                if (v.ACClassTaskValuePos_ACClassTaskValue.IsLoaded)
+                                {
+                                    foreach (ACClassTaskValuePos p in v.ACClassTaskValuePos_ACClassTaskValue)
+                                    {
+                                        Context.Detach(p);
+                                    }
+                                }
+                                Context.Detach(v);
+                            }
+                        }
+                        //t.Context.Entry(t).State = EntityState.Detached;
+                        Context.Detach(t);
+                    }
+                }
+                );
+                TaskDeleteQueue.Add(() =>
+                {
+                    for (int i = 0; i < 100; i++)
+                    {
+                        using (Database db2 = new Database())
+                        {
+                            try
+                            {
+                                db2.Database.ExecuteSql(cmdDelete);
+                                break;
+                            }
+                            catch (Exception e)
+                            {
+                                if (Database.Root != null && Database.Root.Messages != null)
+                                    Database.Root.Messages.LogException("ACEntityOpQueue", "TaskDeleteQueue(10)", e);
+                                Thread.Sleep(100);
+                            }
+                        }
+                    }
+                }
+                );
+            }
+            return base.OnStartQueueProcessing(countActions);
+        }
+
+        #endregion
+
+        #endregion
 
     }
 
@@ -233,7 +392,7 @@ namespace gip.core.datamodel
             _TaskQueue = taskQueue;
         }
 
-#region precompiled Queries
+        #region precompiled Queries
         public static readonly Func<Database, Guid, IQueryable<ACProgramLog>> s_cQry_LatestProgramLogs =
             EF.CompileQuery<Database, Guid, IQueryable<ACProgramLog>>(
                 (db, acProgramID) =>
@@ -301,14 +460,14 @@ namespace gip.core.datamodel
                     .Where(c => c.ACProgramID == programID && c.ACUrl == acUrl)
                     .OrderBy(c => c.InsertDate)
             );
-#endregion
+        #endregion
 
-#region Properties
+        #region Properties
         ACClassTaskQueue _TaskQueue = null;
         ConcurrentDictionary<Guid, ACProgramCacheEntry> _Programs = new ConcurrentDictionary<Guid, ACProgramCacheEntry>();
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
         /// <summary>
         /// Reads from Cache, If not in Cache it rebuilds by querying dababase
         /// </summary>
@@ -324,7 +483,7 @@ namespace gip.core.datamodel
                 return null;
             ACProgramLog programLog = cacheEntry.GetCurrentProgramLog(acUrl, parentProgramLog);
             if (programLog == null
-                && parentProgramLog.EntityState != EntityState.Detached 
+                && parentProgramLog.EntityState != EntityState.Detached
                 && parentProgramLog.EntityState != EntityState.Added
                 && !lookupOnlyInCache)
             {
@@ -408,7 +567,7 @@ namespace gip.core.datamodel
         /// </summary>
         public ACProgramLog AddProgramLog(ACProgramLog currentProgramLog, bool autoReplaceExisting = true)
         {
-            if (currentProgramLog == null 
+            if (currentProgramLog == null
                 || String.IsNullOrEmpty(currentProgramLog.ACUrl))
                 return null;
 
@@ -426,7 +585,7 @@ namespace gip.core.datamodel
 
             ACProgram acProgram = null;
             if (currentProgramLog.ACProgramReference.IsLoaded)
-                acProgram = (ACProgram) currentProgramLog.ACProgramReference.CurrentValue;
+                acProgram = (ACProgram)currentProgramLog.ACProgramReference.CurrentValue;
             if (acProgram == null)// && (currentProgramLog.EntityState == System.Data.EntityState.Added || currentProgramLog.EntityState == System.Data.EntityState.Detached))
                 acProgram = currentProgramLog.NewACProgramForQueue;
             if (acProgram == null)
@@ -512,7 +671,7 @@ namespace gip.core.datamodel
                             if (currentProgramLog.EntityState != EntityState.Unchanged)
                                 _TaskQueue.Context.ACSaveChanges();
                             //_TaskQueue.Context.Detach(currentProgramLog);
-                            _TaskQueue.Context.Entry(currentProgramLog).State = EntityState.Detached ;
+                            _TaskQueue.Context.Entry(currentProgramLog).State = EntityState.Detached;
                         }
                         if (removedLog != currentProgramLog)
                         {
@@ -693,7 +852,7 @@ namespace gip.core.datamodel
         {
             ACProgram acProgram = null;
             if (anyProgramLog.ACProgramReference.IsLoaded)
-                acProgram = (ACProgram) anyProgramLog.ACProgramReference.CurrentValue;
+                acProgram = (ACProgram)anyProgramLog.ACProgramReference.CurrentValue;
             if (acProgram == null) // && (anyProgramLog.EntityState == System.Data.EntityState.Added || anyProgramLog.EntityState == System.Data.EntityState.Detached))
                 acProgram = anyProgramLog.NewACProgramForQueue;
             if (acProgram == null)
@@ -793,7 +952,7 @@ namespace gip.core.datamodel
             }
             return cacheEntry;
         }
-#endregion
+        #endregion
 
     }
 
@@ -805,7 +964,7 @@ namespace gip.core.datamodel
             _LatestProgramLogs = latestProgramLogs;
         }
 
-#region Properties
+        #region Properties
         private ACProgram _Program;
         public ACProgram Program
         {
@@ -825,9 +984,9 @@ namespace gip.core.datamodel
         //}
 
         private object _LockLatestPLog = new object();
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
         public ACProgramLog GetCurrentProgramLog(string acUrl, ACProgramLog parentProgramLog = null)
         {
             ACProgramLog currentLog = null;
@@ -842,9 +1001,9 @@ namespace gip.core.datamodel
                 // Dieser Fall tritt tritt bei Workflowschritten auf, die in den vergangenen Workflows einmal ausgeführt worden sind,
                 // jedoch in dem aktuellen übersprungen worden sind (z.B. Dosierschritte)
                 // Dadurch ist kein neuer Eintrag vorhanden und es gibt noch immer den alten im Cache
-//#if DEBUG
-//                System.Diagnostics.Debugger.Break();
-//#endif
+                //#if DEBUG
+                //                System.Diagnostics.Debugger.Break();
+                //#endif
                 return null;
             }
             return currentLog;
@@ -877,12 +1036,12 @@ namespace gip.core.datamodel
                     if (returnLog == null)
                         returnLog = programLogToAdd;
                 }
-//                else
-//                {
-//#if DEBUG
-//                    System.Diagnostics.Debugger.Break();
-//#endif
-//                }
+                //                else
+                //                {
+                //#if DEBUG
+                //                    System.Diagnostics.Debugger.Break();
+                //#endif
+                //                }
             }
             return returnLog;
         }
@@ -897,12 +1056,12 @@ namespace gip.core.datamodel
                 _LatestProgramLogs.TryGetValue(programLog.ACUrl, out currentLog);
                 if (currentLog != null)
                 {
-//                    if (currentLog.ACProgramLogID != programLog.ACProgramLogID)
-//                    {
-//#if DEBUG
-//                        System.Diagnostics.Debugger.Break();
-//#endif
-//                    }
+                    //                    if (currentLog.ACProgramLogID != programLog.ACProgramLogID)
+                    //                    {
+                    //#if DEBUG
+                    //                        System.Diagnostics.Debugger.Break();
+                    //#endif
+                    //                    }
                     if (!_LatestProgramLogs.Remove(programLog.ACUrl))
                         currentLog = null;
                 }
@@ -938,6 +1097,6 @@ namespace gip.core.datamodel
             }
             return allLogs;
         }
-#endregion
+        #endregion
     }
 }

@@ -25,24 +25,17 @@ namespace gip.core.datamodel
             if (entityApp == null)
                 return default(TEntityIPlus);
 
-            // "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
-            // "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
-            string assemblyQualifiedName = "";
-            if (entityApp.GetType().Namespace.Contains("gip.core.datamodel"))
-            {
-                assemblyQualifiedName = "gip.core.datamodel." + entityApp.EntityKey.EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
-            }
-            else if (entityApp.GetType().Namespace.Contains("gip.mes.datamodel"))
-            {
-                assemblyQualifiedName = "gip.mes.datamodel." + entityApp.EntityKey.EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
-            }
-
-            EntityKey key = new EntityKey(assemblyQualifiedName, entityApp.EntityKey.EntityKeyValues);
-            //key.EntityContainerName = gip.core.datamodel.Database.GlobalDatabase.DefaultContainerName;
             object obj = null;
             if (dbIPlus == null)
                 dbIPlus = entityApp.GetObjectContext().ContextIPlus;
 
+            Type typeOfTargetContext = dbIPlus.GetType();
+            string fullName = typeOfTargetContext.Namespace + "." + entityApp.EntityKey.EntitySetName;
+            Type typeOfTargetEntity = typeOfTargetContext.Assembly.GetType(fullName);
+            if (typeOfTargetEntity == null)
+                throw new ArgumentException(String.Format("Type {0} not found in assembly {1}", fullName, typeOfTargetContext.Assembly.ToString()));
+
+            EntityKey key = new EntityKey(typeOfTargetEntity, entityApp.EntityKey.EntityKeyValues);
             using (ACMonitor.Lock(dbIPlus.QueryLock_1X000))
             {
                 if (!dbIPlus.TryGetObjectByKey(key, out obj))
@@ -125,6 +118,7 @@ namespace gip.core.datamodel
                 _ObjectContextHelper.Dispose();
             _ObjectContextHelper = null;
             base.Dispose();
+            this.Database.GetDbConnection();
 #if !EFCR
             if (SeparateConnection != null)
                 SeparateConnection.Dispose();
@@ -425,9 +419,9 @@ namespace gip.core.datamodel
         /// </summary>
         /// <returns></returns>
         [ACMethodInfo("", "", 9999)]
-        public MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true)
+        public MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, bool acceptAllChangesOnSuccess = true, bool validationOff = false, bool writeUpdateInfo = true)
         {
-            MsgWithDetails result = _ObjectContextHelper.ACSaveChanges(autoSaveContextIPlus, validationOff, writeUpdateInfo);
+            MsgWithDetails result = _ObjectContextHelper.ACSaveChanges(autoSaveContextIPlus, acceptAllChangesOnSuccess, validationOff, writeUpdateInfo);
             if (result == null)
             {
                 if (ACChangesExecuted != null)
@@ -446,9 +440,9 @@ namespace gip.core.datamodel
         /// If parameter retries ist not set, then ACObjectContextHelper.C_NumberOfRetriesOnTransError is used to limit the Retry-Loop.
         /// </summary>
         [ACMethodInfo("", "", 9999)]
-        public MsgWithDetails ACSaveChangesWithRetry(ushort? retries = null, bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true)
+        public MsgWithDetails ACSaveChangesWithRetry(ushort? retries = null, bool autoSaveContextIPlus = true, bool acceptAllChangesOnSuccess = true, bool validationOff = false, bool writeUpdateInfo = true)
         {
-            MsgWithDetails result = _ObjectContextHelper.ACSaveChangesWithRetry(retries, autoSaveContextIPlus, validationOff, writeUpdateInfo);
+            MsgWithDetails result = _ObjectContextHelper.ACSaveChangesWithRetry(retries, autoSaveContextIPlus, acceptAllChangesOnSuccess, validationOff, writeUpdateInfo);
             if (result == null)
             {
                 if (ACChangesExecuted != null)
@@ -1437,7 +1431,7 @@ namespace gip.core.datamodel
 
                 ACClass result = null;
 
-                if (!_TypesAssQlfName.TryGetValue(acClass.AssemblyQualifiedName, out result))
+                if (!string.IsNullOrEmpty(acClass.AssemblyQualifiedName) && !_TypesAssQlfName.TryGetValue(acClass.AssemblyQualifiedName, out result))
                     _TypesAssQlfName.TryAdd(acClass.AssemblyQualifiedName, acClass);
 
                 Type objectFullType = acClass.ObjectFullType;

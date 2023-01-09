@@ -8,7 +8,7 @@ using gip.core.datamodel;
 namespace gip.core.manager
 {
     [ACClassInfo(Const.PackName_VarioSystem,"en{'ProgramLogWrapper'}de{'ProgramLogWrapper'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, true)]
-    public class ProgramLogWrapper : IACTimeLog
+    public class ProgramLogWrapper : EntityBase, IACTimeLog
     {
         public ProgramLogWrapper()
         {
@@ -149,8 +149,6 @@ namespace gip.core.manager
         public bool ChildAlarm = false;
 
         private List<Global.TimelineItemStatus> _Status = new List<Global.TimelineItemStatus>();
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public virtual List<Global.TimelineItemStatus> Status
         {

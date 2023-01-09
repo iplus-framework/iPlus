@@ -312,16 +312,20 @@ namespace gip.core.autocomponent
 #if !DIAGNOSE
                     // *** TASKPERFOPT NEW ***
                     IEnumerable<ACClassTaskValue> acClassTaskValues = null;
-                    if (contentTask.ACClassTaskValue_ACClassTask.IsLoaded)
+                    if (  contentTask.ACClassTaskValue_ACClassTask.IsLoaded)
+                       //|| contentTask.EntityState == System.Data.EntityState.Added) // To unsafe, if paralelly ACClassTaskQueue is Saving
                         acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
                     else
                     {
-                        ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                        if (contentTask.EntityState != System.Data.EntityState.Added)
                         {
-                            acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
-                        });
+                            ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                            {
+                                acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
+                            });
+                        }
                     }
-                    ACClassTaskValue acClassTaskValue = acClassTaskValues.Where(c => c.ACClassPropertyID == thisACTypeID
+                    ACClassTaskValue acClassTaskValue = acClassTaskValues?.Where(c => c.ACClassPropertyID == thisACTypeID
                                             && c.VBUserID.HasValue
                                             && c.VBUserID == vbUserID).FirstOrDefault();
                     if (acClassTaskValue == null)

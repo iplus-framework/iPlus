@@ -330,6 +330,13 @@ namespace gip.core.reporthandler
             return reportData;
         }
 
+        public static bool IsLocalConnection(string ipAddress)
+        {
+            return String.IsNullOrEmpty(ipAddress)
+                    || ipAddress == "localhost"
+                    || ipAddress == "127.0.0.1";
+        }
+
         /// <summary>
         /// Convert report data to stream
         /// </summary>
@@ -337,6 +344,11 @@ namespace gip.core.reporthandler
         /// <exception cref="NotImplementedException"></exception>
         public virtual bool SendDataToPrinter(byte[] bytes)
         {
+            if (IsLocalConnection(IPAddress))
+            {
+                //IsConnected.ValueT = true;
+                return true;
+            }
             try
             {
                 using (TcpClient tcpClient = new TcpClient(IPAddress, Port))

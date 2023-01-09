@@ -674,10 +674,11 @@ namespace gip.core.autocomponent
                 System.Data.EntityState entityState = System.Data.EntityState.Unchanged;
                 entityState = ContentTask.EntityState;
                 //ACClassTaskQueue.TaskQueue.ProcessAction(() => { entityState = ContentTask.EntityState; });
-                //if (entityState != System.Data.EntityState.Unchanged && entityState != System.Data.EntityState.Modified)
-                if (entityState == System.Data.EntityState.Detached || entityState == System.Data.EntityState.Deleted)
-                        return false;
 
+                // All entities must be saved to database first because when other entites from application-datamodel need references to the ACClassTask from its tables
+                // e.g. task.ProdOrderPartslistPos_ACClassTask. Therefore entityState mus always be Unchanged or modified
+                if (entityState != System.Data.EntityState.Unchanged && entityState != System.Data.EntityState.Modified)
+                    return false;
 
                 foreach (var child in ACComponentChilds)
                 {

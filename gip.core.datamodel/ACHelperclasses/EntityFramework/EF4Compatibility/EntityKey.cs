@@ -88,6 +88,11 @@ namespace gip.core.datamodel
             _isLocked = false;
         }
 
+        public EntityKey(Type typeOfEntity, IEnumerable<KeyValuePair<string, object>> entityKeyValues)
+            : this(typeOfEntity.AssemblyQualifiedName, entityKeyValues)
+        {
+        }
+
         /// <summary>
         /// Constructs an EntityKey with the given key values.
         /// </summary>
@@ -99,6 +104,11 @@ namespace gip.core.datamodel
             CheckKeyValues(entityKeyValues, out _keyNames, out _singletonKeyValue, out _compositeKeyValues);
             AssertCorrectState(null, false);
             _isLocked = true;
+        }
+
+        public EntityKey(Type typeOfEntity, IEnumerable<EntityKeyMember> entityKeyValues)
+            : this(typeOfEntity.AssemblyQualifiedName, entityKeyValues)
+        {
         }
 
         /// <summary>

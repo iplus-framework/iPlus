@@ -60,11 +60,14 @@ namespace gip.core.datamodel
         /// Number of Retries if ACSaveChanges fails due to a transaction error. Default is 5
         /// </summary>
         public const int C_NumberOfRetriesOnTransError = 5;
-#endregion
 
-#region Properties
+        public static readonly FormattableString SET_READ_UNCOMMITED = $"SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED";
+        public static readonly FormattableString SET_READ_COMMITED = $"$SET TRANSACTION ISOLATION LEVEL READ COMMITTED";
+        #endregion
 
-#region private
+        #region Properties
+
+        #region private
 
         IACEntityObjectContext _ObjectContext;
         private bool _DeactivateEntityCheck = false;
@@ -170,7 +173,7 @@ namespace gip.core.datamodel
         /// UNSAFE. Use QueryLock_1X000 outside for Custom-Database-Context as well as for the seperate iPlus-Context
         /// </summary>
         /// <returns></returns>
-        public MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true)
+        public MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, bool acceptAllChangesOnSuccess = true, bool validationOff = false, bool writeUpdateInfo = true)
         {
             // Save-Changes on iPlus-Context is allowed if it's not the Clobal-Context.
             if (autoSaveContextIPlus
@@ -179,7 +182,7 @@ namespace gip.core.datamodel
                 && _ObjectContext.IsSeparateIPlusContext
                 && _ObjectContext.ContextIPlus.IsChanged)
             {
-                MsgWithDetails subMessage = _ObjectContext.ContextIPlus.ACSaveChanges(false, validationOff, writeUpdateInfo);
+                MsgWithDetails subMessage = _ObjectContext.ContextIPlus.ACSaveChanges(false, acceptAllChangesOnSuccess, validationOff, writeUpdateInfo);
                 if (subMessage != null)
                     return subMessage;
             }
@@ -196,7 +199,7 @@ namespace gip.core.datamodel
                     }
                 }
 
-                _ObjectContext.SaveChanges();
+                _ObjectContext.SaveChanges(acceptAllChangesOnSuccess);
                 return null;
             }
             catch (EntityCheckException entityEx)
@@ -249,7 +252,7 @@ namespace gip.core.datamodel
             }
         }
 
-        public MsgWithDetails ACSaveChangesWithRetry(ushort? retries = null, bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true)
+        public MsgWithDetails ACSaveChangesWithRetry(ushort? retries = null, bool autoSaveContextIPlus = true, bool acceptAllChangesOnSuccess = true, bool validationOff = false, bool writeUpdateInfo = true)
         {
             if (   !retries.HasValue 
                 || retries == 0 
@@ -258,7 +261,7 @@ namespace gip.core.datamodel
             MsgWithDetails msg = null;
             for (ushort i = 0; i < retries; i++)
             {
-                msg = ACSaveChanges(autoSaveContextIPlus, validationOff, writeUpdateInfo);
+                msg = ACSaveChanges(autoSaveContextIPlus, acceptAllChangesOnSuccess, validationOff, writeUpdateInfo);
                 if (msg == null)
                     break;
                 Thread.Sleep(C_TimeoutForRetryAfterTransError);
@@ -1008,9 +1011,19 @@ namespace gip.core.datamodel
             }
         }
 
-#endregion
+        public void SetIsolationLevelUncommitedRead()
+        {
+            ObjectContext.Database.ExecuteSql(SET_READ_UNCOMMITED);
+        }
 
-#region Critical Section
+        public void SetIsolationLevelCommitedRead()
+        {
+            ObjectContext.Database.ExecuteSql(SET_READ_COMMITED);
+        }
+
+        #endregion
+
+        #region Critical Section
         public void EnterCS()
         {
             EnterCS(false);

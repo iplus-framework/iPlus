@@ -50,14 +50,14 @@ namespace gip.core.datamodel
         /// </summary>
         /// <returns></returns>
         [ACMethodInfo("","",9999)]
-        MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true);
+        MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, bool acceptAllChangesOnSuccess = true, bool validationOff = false, bool writeUpdateInfo = true);
 
         /// <summary>
         /// Invokes ACSaveChanges. If a transaction error occurs ACSaveChanges is called again.
         /// If parameter retries ist not set, then ACObjectContextHelper.C_NumberOfRetriesOnTransError is used to limit the Retry-Loop.
         /// </summary>
         [ACMethodInfo("", "", 9999)]
-        MsgWithDetails ACSaveChangesWithRetry(ushort? retries = null, bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true);
+        MsgWithDetails ACSaveChangesWithRetry(ushort? retries = null, bool acceptAllChangesOnSuccess = true, bool autoSaveContextIPlus = true, bool validationOff = false, bool writeUpdateInfo = true);
 
         /// <summary>
         /// Undoes all changes in the Custom-Database-Context as well as in the iPlus-Context
