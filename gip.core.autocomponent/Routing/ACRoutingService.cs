@@ -824,7 +824,7 @@ namespace gip.core.autocomponent
                             query = s_cQry_TargetRoutesFromPoint(database, start.ACClassID, startPoint.ACClassPropertyID, (short)Global.ConnectionTypes.LogicalBridge);
 
                             if (!query.Any())
-                                throw new Exception("Broken internal route in " + start.ACClassID);
+                                throw new Exception(String.Format("Broken internal route in {0}, {1}", start.GetACUrlComponent(), start.ACClassID));
                         }
                         else
                         {

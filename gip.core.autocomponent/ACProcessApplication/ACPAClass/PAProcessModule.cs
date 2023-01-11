@@ -54,6 +54,7 @@ namespace gip.core.autocomponent
             AttachedAlarms = new SafeList<Msg>();
 
             _ = AllocationExternal;
+            _ = RouteItemID;
             return true;
         }
 

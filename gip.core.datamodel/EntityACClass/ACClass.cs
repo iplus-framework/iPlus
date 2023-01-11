@@ -3499,7 +3499,7 @@ namespace gip.core.datamodel
             {
                 if (acConfig.ACClass == this)
                     this.ACClassConfig_ACClass.Remove(acConfig);
-                else
+                else if (acConfig.ACClass != null)
                     acConfig.ACClass.ACClassConfig_ACClass.Remove(acConfig);
                 if (acConfig.EntityState != System.Data.EntityState.Detached)
                     acConfig.DeleteACObject(this.Database, false);

@@ -8,7 +8,7 @@ namespace gip.core.datamodel
 {
     public interface IACVBBSORouteSelector
     {
-        void GetAvailableRoutes(IEnumerable<ACClass> startComponents, IEnumerable<ACClass> endComponents);
+        void ShowAvailableRoutes(IEnumerable<ACClass> startComponents, IEnumerable<ACClass> endComponents);
         void EditRoutes(Route route, bool isReadOnly, bool includeReserved, bool includeAllocated);
 
         IEnumerable<Route> RouteResult
