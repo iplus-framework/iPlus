@@ -178,7 +178,7 @@ namespace gip.bso.iplus
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
-        public void GetAvailableRoutes(IEnumerable<ACClass> startComponents, IEnumerable<ACClass> endComponents)
+        public void ShowAvailableRoutes(IEnumerable<ACClass> startComponents, IEnumerable<ACClass> endComponents)
         {
             _RouteResult = null;
             List<ACClassInfoWithItems> start = new List<ACClassInfoWithItems>();

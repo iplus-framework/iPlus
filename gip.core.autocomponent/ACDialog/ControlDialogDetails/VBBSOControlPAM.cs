@@ -1,4 +1,4 @@
-    using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,7 +20,7 @@ namespace gip.core.autocomponent
     public class VBBSOControlPAM : ACBSO
     {
         #region c'tors
-        public VBBSOControlPAM(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
+        public VBBSOControlPAM(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
         }
@@ -51,7 +51,7 @@ namespace gip.core.autocomponent
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
-        {           
+        {
             if (_SelectionManager != null)
             {
                 _SelectionManager.Detach();
@@ -288,7 +288,7 @@ namespace gip.core.autocomponent
                 else
                     CurrentACMethod = null;
             }
-        }       
+        }
         #endregion
 
         #region ACMethod
@@ -561,7 +561,7 @@ namespace gip.core.autocomponent
 
         #region User
 
-        [ACMethodInfo("Start","en{'Start function'}de{'Funktion starten'}", 500, true)]
+        [ACMethodInfo("Start", "en{'Start function'}de{'Funktion starten'}", 500, true)]
         public void Start()
         {
             if (!IsEnabledStart())
@@ -579,8 +579,8 @@ namespace gip.core.autocomponent
             if (SelectedFunction == null || CurrentACMethod == null)
                 return false;
             if (!CurrentACMethod.IsValid())
-                 return false;
-            ACStateEnum acState = (ACStateEnum) SelectedFunction.ACUrlCommand(Const.ACState);
+                return false;
+            ACStateEnum acState = (ACStateEnum)SelectedFunction.ACUrlCommand(Const.ACState);
             if (acState != ACStateEnum.SMIdle)
                 return false;
             return true;
@@ -594,8 +594,9 @@ namespace gip.core.autocomponent
 
             if (typeof(Route).IsAssignableFrom(SelectedACMethodParam.ObjectType))
             {
-                //if (!IsRoutingServiceAvailable)
-                //    return;
+                if (SelectedFunction == null || SelectedFunction.ComponentClass == null)
+                    return;
+
                 IACVBBSORouteSelector routeSelector = ParentACComponent.GetChildComponent("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
                 if (routeSelector != null && IsRoutingServiceAvailable)
                 {
@@ -607,79 +608,104 @@ namespace gip.core.autocomponent
 
                     using (Database db = new datamodel.Database())
                     {
-                        if (SelectedFunction != null && SelectedFunction.ComponentClass != null)
+                        receive = typeof(IPAFuncReceiveMaterial).IsAssignableFrom(SelectedFunction.ComponentClass.ObjectType);
+                        deliver = typeof(IPAFuncDeliverMaterial).IsAssignableFrom(SelectedFunction.ComponentClass.ObjectType);
+
+                        if (   (!receive && !deliver)
+                            || (receive && deliver))
                         {
-                            receive = typeof(IPAFuncReceiveMaterial).IsAssignableFrom(SelectedFunction.ACType.ObjectType);
-                            deliver = typeof(IPAFuncDeliverMaterial).IsAssignableFrom(SelectedFunction.ACType.ObjectType);
-                            if (deliver)
-                                targets = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true);
+                            ShowDialog(this, "SourceOrTarget");
+                            receive = _CurrentSourceOrTarget != null ? _CurrentSourceOrTarget.Value.ToString() == "Source" : false;
+                            deliver = !receive ? true : false;
+                        }
 
-                            ACClass funcClass = null;
-                            using (ACMonitor.Lock(datamodel.Database.GlobalDatabase.QueryLock_1X000))
-                            {
-                                funcClass = db.GetObjectByKey(SelectedFunction.ComponentClass.EntityKey) as ACClass;
-                            }
+                        ACClass funcClass = SelectedFunction.ComponentClass.FromIPlusContext<ACClass>(db);
+                        if (funcClass == null)
+                            return;
 
-                            if (funcClass != null)
+                        if (deliver)
+                        {
+                            ACClassProperty paPointOut = funcClass.GetProperty(Const.PAPointMatOut1);
+                            if (paPointOut != null)
                             {
-                                if (typeof(IPAFuncReceiveMaterial).IsAssignableFrom(funcClass.ObjectType))
+                                IReadOnlyList<Route> routeToRelatedOutPointOfPM = null;
+                                try
                                 {
-                                    ACClassProperty paPointIn = funcClass.GetProperty(Const.PAPointMatIn1);
-                                    if (paPointIn != null)
-                                    {
-                                        var sourcePoint = ACRoutingService.DbSelectRoutesFromPoint(db, funcClass, paPointIn,
-                                                                                                   (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule, null,
-                                                                                                                RouteDirections.Backwards, true);
-                                        Guid sourcePropertyGuid = Guid.Empty;
-                                        RouteItem routeSource = sourcePoint?.FirstOrDefault()?.GetRouteSource();
-                                        if (routeSource != null)
-                                            sourcePropertyGuid = routeSource.SourceProperty.ACClassPropertyID;
-
-                                        if (sourcePropertyGuid != Guid.Empty)
-                                            sources = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, sourcePropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true);
-                                    }
+                                    routeToRelatedOutPointOfPM = ACRoutingService.DbSelectRoutesFromPoint(db, funcClass, paPointOut,
+                                                                                                (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule, null,
+                                                                                                            RouteDirections.Forwards, true);
                                 }
-                                else
-                                    sources = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true);
+                                catch (Exception ex)
+                                {
+                                    this.Messages.Exception(this, ex.Message, true);
+                                }
+                                if (routeToRelatedOutPointOfPM != null)
+                                {
+                                    Guid targetPropertyGuid = Guid.Empty;
+                                    RouteItem routeTarget = routeToRelatedOutPointOfPM.LastOrDefault()?.GetRouteTarget();
+                                    if (routeTarget != null)
+                                        targetPropertyGuid = routeTarget.TargetProperty.ACClassPropertyID;
+                                    if (targetPropertyGuid != Guid.Empty)
+                                        targets = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, targetPropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true);
+                                }
+                                if (targets == null)
+                                    targets = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true);
+                                if (targets != null)
+                                {
+                                    if (targets.Message != null)
+                                        Messages.Msg(targets.Message);
+                                    else
+                                    {
+                                        _IsRouteServiceActive = true;
+                                        ShowAvailableRoutesAndSelect(new ACClass[] { CurrentACComponent.ACType as ACClass }, targets.Routes.Select(c => c.LastOrDefault().Target));
+                                    }
+                                    _IsRouteServiceActive = false;
+                                    return;
+                                }
                             }
                         }
-                        else
+                        else // receive
                         {
-                            sources = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true);
-                        }
-                    }
+                            ACClassProperty paPointIn = funcClass.GetProperty(Const.PAPointMatIn1);
+                            if (paPointIn != null)
+                            {
+                                IReadOnlyList<Route> routeToRelatedInPointOfPM = null;
+                                try
+                                {
+                                    routeToRelatedInPointOfPM = ACRoutingService.DbSelectRoutesFromPoint(db, funcClass, paPointIn,
+                                                                                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule, null,
+                                                                                                        RouteDirections.Backwards, true);
+                                }
+                                catch (Exception ex)
+                                {
+                                    this.Messages.Exception(this, ex.Message, true);
+                                }
 
-                    if (   (!receive && !deliver) 
-                        || (receive && deliver))
-                    {
-                        ShowDialog(this, "SourceOrTarget");
-                        receive = _CurrentSourceOrTarget != null ? _CurrentSourceOrTarget.Value.ToString() == "Source" : false;
-                        deliver = !receive ? true : false;
-                    }
-
-                    if (receive && sources != null)
-                    {
-                        if (sources.Message != null)
-                            Messages.Msg(sources.Message);
-                        else
-                        {
-                            _IsRouteServiceActive = true;
-                            SetRoute(sources.Routes.Select(c => c.FirstOrDefault().Source)?.Distinct(), new ACClass[] { CurrentACComponent.ACType as ACClass });
+                                if (routeToRelatedInPointOfPM != null)
+                                {
+                                    Guid sourcePropertyGuid = Guid.Empty;
+                                    RouteItem routeSource = routeToRelatedInPointOfPM.FirstOrDefault()?.GetRouteSource();
+                                    if (routeSource != null)
+                                        sourcePropertyGuid = routeSource.SourceProperty.ACClassPropertyID;
+                                    if (sourcePropertyGuid != Guid.Empty)
+                                        sources = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, sourcePropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true);
+                                }
+                            }
+                            if (sources == null)
+                                sources = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true);
+                            if (sources != null)
+                            {
+                                if (sources.Message != null)
+                                    Messages.Msg(sources.Message);
+                                else
+                                {
+                                    _IsRouteServiceActive = true;
+                                    ShowAvailableRoutesAndSelect(sources.Routes.Select(c => c.FirstOrDefault().Source)?.Distinct(), new ACClass[] { CurrentACComponent.ACType as ACClass });
+                                }
+                                _IsRouteServiceActive = false;
+                                return;
+                            }
                         }
-                        _IsRouteServiceActive = false;
-                        return;
-                    }
-                    else if (deliver && targets != null)
-                    {
-                        if (targets.Message != null)
-                            Messages.Msg(targets.Message);
-                        else
-                        {
-                            _IsRouteServiceActive = true;
-                            SetRoute(new ACClass[] { CurrentACComponent.ACType as ACClass }, targets.Routes.Select(c => c.LastOrDefault().Target));
-                        }
-                        _IsRouteServiceActive = false;
-                        return;
                     }
                 }
                 ShowDialog(this, "EditComplexValueDialog");
@@ -727,10 +753,10 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        private void SetRoute(IEnumerable<ACClass> start, IEnumerable<ACClass> end)
+        private void ShowAvailableRoutesAndSelect(IEnumerable<ACClass> start, IEnumerable<ACClass> end)
         {
             IACVBBSORouteSelector routeSelector = ParentACComponent.GetChildComponent("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
-            routeSelector.GetAvailableRoutes(start, end);
+            routeSelector.ShowAvailableRoutes(start, end);
 
             if (routeSelector.RouteResult == null)
                 return;
@@ -762,7 +788,7 @@ namespace gip.core.autocomponent
             return base.OnGetControlModes(vbControl);
         }
 
-        [ACMethodInfo("","en{'Ok'}de{'Ok'}",999)]
+        [ACMethodInfo("", "en{'Ok'}de{'Ok'}", 999)]
         public void EditComplexValueOk()
         {
             string sourceACIdentifier = null;
@@ -805,7 +831,7 @@ namespace gip.core.autocomponent
             CloseTopDialog();
         }
 
-        [ACMethodInfo("","en{'Select'}de{'Select'}",999,true)]
+        [ACMethodInfo("", "en{'Select'}de{'Select'}", 999, true)]
         public void SelectSourceOrTarget()
         {
             _CurrentSourceOrTarget = CurrentSourceOrTargetComponent;
@@ -917,7 +943,7 @@ namespace gip.core.autocomponent
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
-        
+
         #endregion
 
         #endregion

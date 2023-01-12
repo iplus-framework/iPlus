@@ -1149,7 +1149,7 @@ namespace gip.core.autocomponent
             }
 
             _IsChangeRuleTypeLocked = true;
-            routeSelector.GetAvailableRoutes(startCompsACUrl, endCompsACUrl);
+            routeSelector.ShowAvailableRoutes(startCompsACUrl, endCompsACUrl);
 
             if (routeSelector.RouteResult == null)
             {

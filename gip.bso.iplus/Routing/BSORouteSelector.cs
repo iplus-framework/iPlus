@@ -294,7 +294,7 @@ namespace gip.bso.iplus
             if (routeSelector == null)
                 return;
 
-            routeSelector.GetAvailableRoutes(SourceComponentsList.Select(c => c.ValueT), TargetComponentsList.Select(c => c.ValueT));
+            routeSelector.ShowAvailableRoutes(SourceComponentsList.Select(c => c.ValueT), TargetComponentsList.Select(c => c.ValueT));
 
             //if (routeSelector.RouteResult != null && oldRoute != null)
             //{

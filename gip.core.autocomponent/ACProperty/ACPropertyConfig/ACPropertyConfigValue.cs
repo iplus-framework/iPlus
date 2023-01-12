@@ -21,7 +21,8 @@ namespace gip.core.autocomponent
             _DefaultValue = defaultValue;
             using (ACMonitor.Lock(_ACComponent.LockMemberList_20020))
             {
-                _ACComponent.ACPropertyConfigValueList.Add(this);
+                if (!_ACComponent.ACPropertyConfigValueList.Where(c => c.ACIdentifier == configACIdentifier).Any())
+                    _ACComponent.ACPropertyConfigValueList.Add(this);
             }
         }
 
