@@ -606,13 +606,6 @@ namespace gip.core.datamodel
             }
         }
 
-#if !EFCR
-        public virtual DbDataRecord GetOriginalValues(EntityKey entityKey)
-        {
-            return _ObjectContext.Entry(entityKey).OriginalValues;
-        }
-#endif
-
         /// <summary>
         /// UNSAFE. Use QueryLock_1X000 outside
         /// </summary>
@@ -1014,18 +1007,24 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public void DetachAllEntities()
         {
-            foreach (var objectStateEntry in this.ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Unchanged).ToArray())
+            foreach (EntityEntry objectStateEntry in this.ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Unchanged).ToArray())
             {
-#if !EFCR
-                this.ObjectContext.ChangeTracker.Detach(objectStateEntry.Entity);
-#endif
-                this.Detach(objectStateEntry);
+                objectStateEntry.State = EntityState.Detached;
+                InformVBEntityObjectOnDetach(objectStateEntry.Entity);
             }
         }
 
         public void Detach(object entity)
         {
             ObjectContext.Entry(entity).State = EntityState.Detached;
+            InformVBEntityObjectOnDetach(entity);
+        }
+
+        private void InformVBEntityObjectOnDetach(object entity)
+        {
+            VBEntityObject entityObj = entity as VBEntityObject;
+            if (entityObj != null)
+                entityObj.OnDetached();
         }
 
         public void SetIsolationLevelUncommitedRead()

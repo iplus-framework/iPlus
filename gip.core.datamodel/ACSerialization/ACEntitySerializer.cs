@@ -21,6 +21,7 @@ using System.Runtime.Serialization;
 using gip.core.datamodel;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace gip.core.datamodel
 {
@@ -97,14 +98,13 @@ namespace gip.core.datamodel
                     continue;
                 if (pi.PropertyType.IsGenericType)
                 {
-#if !EFCR
-                    if (pi.PropertyType.GetInterfaces().Where(c => c.Name == "IEnumerable").Any() ||
-                        pi.PropertyType.BaseType == typeof(System.Data.Objects.DataClasses.EntityReference)
+                    if (   pi.PropertyType.GetInterfaces().Where(c => c.Name == "IEnumerable").Any() 
+                        || pi.PropertyType.BaseType == typeof(ReferenceEntry)
+                        || pi.PropertyType.BaseType == typeof(CollectionEntry)
                         )
                     {
                         continue;
                     }
-#endif
                 }
                 if (pi.GetCustomAttributes(typeof(DataMemberAttribute), true).Any() && pi.Name != "EntityKey")
                 {

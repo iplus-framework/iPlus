@@ -1059,9 +1059,7 @@ namespace gip.core.datamodel
                     if (typeIEnumerable.IsAssignableFrom(typeOfProperty) && !typeString.IsAssignableFrom(typeOfProperty))
                         continue;
 
-#if !EFCR
-                    Attribute attribute = pi.GetCustomAttribute(typeof(EdmRelationshipNavigationPropertyAttribute));
-                    if (attribute != null)
+                    if (!string.IsNullOrEmpty(acClassProperty.ACSource))
                     {
                         string propNameWithID = acClassProperty.ACIdentifier;
                         int uPos = acClassProperty.ACIdentifier.LastIndexOf("_");
@@ -1092,7 +1090,6 @@ namespace gip.core.datamodel
                     //acClassProperty.AutoRefresh();
 
                     ProcessChangeLog(acObject, entitySchema, acClassProperty, modifiedProps, ose, changeLogList);
-#endif
                 }
 
                 object valueToCheck = null;
@@ -1410,32 +1407,31 @@ namespace gip.core.datamodel
                    (!modifiedProps.Any() && acClassProperty.ACIdentifier == Const.Value && (ose.State == EntityState.Added || ose.State == EntityState.Deleted)))
                 {
                     int changeLogMax = acClassProperty.ChangeLogMax.HasValue ? acClassProperty.ChangeLogMax.Value : entitySchema.ChangeLogMax.Value;
-#if !EFCR
-                    Guid entityKey = ose.EntityKey.EntityKeyValues != null ? ((Guid?)ose.EntityKey.EntityKeyValues[0].Value).Value : ose.CurrentValues.GetGuid(0);
-#endif
 
-                    ACChangeLog aCChangeLog = ACChangeLog.NewACObject();
-                    aCChangeLog.ACClassID = entitySchema.ACClassID;
-                    aCChangeLog.ACClassPropertyID = acClassProperty.ACClassPropertyID;
-#if !EFCR
-                    aCChangeLog.EntityKey = entityKey;
-#endif
-                    aCChangeLog.ChangeDate = DateTime.Now;
-
-                    if (ose.State == EntityState.Deleted)
+                    VBEntityObject eObj = acObject as VBEntityObject;
+                    if (eObj != null && eObj.EntityKey != null && eObj.EntityKey.EntityKeyValues != null)
                     {
-                        aCChangeLog.Deleted = true;
-                        ACChangeLogInfo info = new ACChangeLogInfo() { Info = acObject.ToString(), ACUrl = acObject.GetACUrl() };
-                        aCChangeLog.XMLValue = info.XMLValue;
-                    }
-                    else
-                    {
-                        aCChangeLog.Deleted = false;
-                        object changedValue = acObject.GetValue(acClassProperty.ACIdentifier);
-                        aCChangeLog.XMLValue = changedValue != null ? ACConvert.ObjectToXML(changedValue, true) : "";
-                    }
+                        Guid entityKey = (Guid)eObj.EntityKey.EntityKeyValues[0].Value;
+                        ACChangeLog aCChangeLog = ACChangeLog.NewACObject();
+                        aCChangeLog.ACClassID = entitySchema.ACClassID;
+                        aCChangeLog.ACClassPropertyID = acClassProperty.ACClassPropertyID;
+                        aCChangeLog.EntityKey = entityKey;
+                        aCChangeLog.ChangeDate = DateTime.Now;
 
-                    changeLogs.Add(new Tuple<ACChangeLog, int>(aCChangeLog, changeLogMax));
+                        if (ose.State == EntityState.Deleted)
+                        {
+                            aCChangeLog.Deleted = true;
+                            ACChangeLogInfo info = new ACChangeLogInfo() { Info = acObject.ToString(), ACUrl = acObject.GetACUrl() };
+                            aCChangeLog.XMLValue = info.XMLValue;
+                        }
+                        else
+                        {
+                            aCChangeLog.Deleted = false;
+                            object changedValue = acObject.GetValue(acClassProperty.ACIdentifier);
+                            aCChangeLog.XMLValue = changedValue != null ? ACConvert.ObjectToXML(changedValue, true) : "";
+                        }
+                        changeLogs.Add(new Tuple<ACChangeLog, int>(aCChangeLog, changeLogMax));
+                    }
                 }
             }
         }

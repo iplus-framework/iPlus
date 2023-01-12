@@ -106,7 +106,7 @@ namespace gip.core.datamodel
             if (aCFSItem.ACObject != null && aCFSItem.ACObject is VBEntityObject)
             {
                 VBEntityObject entityObject = aCFSItem.ACObject as VBEntityObject;
-                IACEntityObjectContext context = (aCFSItem.ACObject as VBEntityObject).GetObjectContext();
+                IACEntityObjectContext context = (aCFSItem.ACObject as VBEntityObject).Context;
                 if (context == null)
                     context = ACObjectContextManager.GetContextFromACUrl(null, aCFSItem.ACObject.ACType.ObjectFullType.FullName);
                 EntityState objectEntityState = entityObject.EntityState;
@@ -114,22 +114,12 @@ namespace gip.core.datamodel
                 {
                     if (aCFSItem.IsChecked && objectEntityState == EntityState.Detached && (!checkUpdateDate || !aCFSItem.UpdateDateFail))
                     {
-
                         if (entityObject.EntityKey != null)
                         {
                             VBEntityObject tempObject = (context as IACEntityObjectContext).GetObjectByKey(entityObject.EntityKey) as VBEntityObject;
                             if (tempObject != null)
                                 context.Detach(tempObject);
-                        }
-                        if (entityObject.EntityKey != null)
-                        {
                             context.Attach(entityObject);
-                        }
-                        else
-                        {
-#if !EFCR
-                            context.AttachTo(entityObject.GetType().Name, entityObject);
-#endif
                         }
                     }
                     else if (objectEntityState != EntityState.Detached && (!aCFSItem.IsChecked || (checkUpdateDate && aCFSItem.UpdateDateFail)))

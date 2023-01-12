@@ -433,12 +433,19 @@ namespace gip.core.datamodel
 
         public void Refresh()
         {
-            this.Context.AutoRefresh(this);
+            if (this.Context != null)
+                this.Context.AutoRefresh(this);
         }
 
         public void Refresh(IACEntityObjectContext context)
         {
-            context.AutoRefresh(this);
+            if (context != null)
+                context.AutoRefresh(this);
+        }
+
+        internal void OnDetached()
+        {
+            _context = null;
         }
 
         #endregion
@@ -448,7 +455,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                return _context.Entry(this).State;
+                return _context != null ? _context.Entry(this).State : EntityState.Detached;
             }
         }
 

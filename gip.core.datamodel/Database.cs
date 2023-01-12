@@ -43,6 +43,20 @@ namespace gip.core.datamodel
             }
             return (TEntityIPlus)obj;
         }
+
+        public static DbContextOptions<T> DbContextOptions<T>(string connectionString) where T : DbContext
+        {
+            var dbOptions = new DbContextOptionsBuilder<T>()
+                    .UseSqlServer(connectionString).Options;
+            return dbOptions;
+        }
+
+        public static DbContextOptions<T> DbContextOptions<T>(DbConnection connection) where T : DbContext
+        {
+            var dbOptions = new DbContextOptionsBuilder<T>()
+                    .UseSqlServer(connection).Options;
+            return dbOptions;
+        }
     }
 
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Database'}de{'Datenbank'}", Global.ACKinds.TACDBAManager, Global.ACStorableTypes.NotStorable, false, false)]
@@ -76,7 +90,7 @@ namespace gip.core.datamodel
         }
 
         public Database()
-            :base(DbContextOptions(ConnectionString))
+            : base(EntityObjectExtension.DbContextOptions<iPlusV4Context>(ConnectionString))
         {
             _ObjectContextHelper = new ACObjectContextHelper(this);
         }
@@ -87,7 +101,7 @@ namespace gip.core.datamodel
         }
 
         public Database(string connectionString)
-            :base(DbContextOptions(connectionString))
+            : base(EntityObjectExtension.DbContextOptions<iPlusV4Context>(connectionString))
         {
             _ObjectContextHelper = new ACObjectContextHelper(this);
         }
@@ -98,7 +112,7 @@ namespace gip.core.datamodel
         }
 
         public Database(DbConnection connection)
-            :base(DbContextOptions(connection))
+            : base(EntityObjectExtension.DbContextOptions<iPlusV4Context>(connection))
         {
             _SeparateConnection = connection;
             _ObjectContextHelper = new ACObjectContextHelper(this);
@@ -153,20 +167,6 @@ namespace gip.core.datamodel
 
                 return ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString;
             }
-        }
-
-        public static DbContextOptions<iPlusV4Context> DbContextOptions(string connectionString)
-        {
-            var dbOptions = new DbContextOptionsBuilder<iPlusV4Context>()
-                    .UseSqlServer(connectionString).Options;
-            return dbOptions;
-        }
-
-        public static DbContextOptions<iPlusV4Context> DbContextOptions(DbConnection connection)
-        {
-            var dbOptions = new DbContextOptionsBuilder<iPlusV4Context>()
-                    .UseSqlServer(connection).Options;
-            return dbOptions;
         }
 
         /// <summary>
@@ -389,13 +389,33 @@ namespace gip.core.datamodel
                 return this.ReflectACType();
             }
         }
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
 
-#region public
+        #region public
+
+        public override EntityEntry Attach(object entity)
+        {
+            return base.Attach(entity);
+        }
+
+        public override EntityEntry<TEntity> Attach<TEntity>(TEntity entity)
+        {
+            return base.Attach(entity);
+        }
+
+        public override void AttachRange(IEnumerable<object> entities)
+        {
+            base.AttachRange(entities);
+        }
+
+        public override void AttachRange(params object[] entities)
+        {
+            base.AttachRange(entities);
+        }
 
         public void Refresh(RefreshMode refreshMode, object entity)
         {
@@ -660,10 +680,8 @@ namespace gip.core.datamodel
 
         public void FullDetach(VBEntityObject obj)
         {
-#if !EFCR
             Detach(obj);
-#endif
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
             // General Problem of ObjectContext-MAnager
             // When a object should be detached, then the object which have a relational relationship will not be detached
             // The Information about the relation are stored in the internal Member _danglingForeignKeys of the ObjectContextManager
@@ -1128,21 +1146,6 @@ namespace gip.core.datamodel
             }
         }
 
-        public DatabaseFacade DatabaseFacade
-        {
-            get { return Database; }
-        }
-
-        public DbContextOptionsBuilder ContextOptionsBuilder
-        {
-            get;
-        }
-
-        public DbContextOptions ContextOptions
-        {
-            get { return DbContextOptions(ConnectionString); }
-        }
-
         public DbConnection Connection 
         { 
             get { return Database.GetDbConnection(); } 
@@ -1475,10 +1478,8 @@ namespace gip.core.datamodel
         {
             if (_ObjectContextHelper != null && detach)
                 _ObjectContextHelper.DetachAllEntities();
-#if !EFCR
             if (dispose)
-                Dispose(true);
-#endif
+                Dispose();
         }
 
         public void Detach(object entity)

@@ -157,32 +157,31 @@ namespace gip.core.datamodel
 
         [ACPropertyInfo(9999)]
         Database ContextIPlus { get; }
-
         bool IsSeparateIPlusContext { get; }
-
         MergeOption RecommendedMergeOption { get; }
-
         DbConnection SeparateConnection { get; }
-
         string UserName { get; set; }
+        DbConnection Connection { get; }
 
-#endregion
+        // Comptibility to legacy code that uses EntityKey from EF4
+        object GetObjectByKey(EntityKey key);
+        bool TryGetObjectByKey(EntityKey key, out object entity);
 
-#region DBContext
+        #endregion
 
+        #region DBContext
 
         ChangeTracker ChangeTracker { get; }
-        DatabaseFacade Database { get ; }
 
-        DbContextOptions ContextOptions { get; }
-        DbContextOptionsBuilder ContextOptionsBuilder { get; }
         int SaveChanges();
         int SaveChanges(bool acceptAllChangesOnSuccess);
         void AcceptAllChanges();
 
+#nullable enable
         event EventHandler<SavingChangesEventArgs>? SavingChanges;
         event EventHandler<SavedChangesEventArgs>? SavedChanges;
         event EventHandler<SaveChangesFailedEventArgs>? SaveChangesFailed;
+        DatabaseFacade Database { get; }
 
         void DbContextDispose();
 
@@ -213,67 +212,8 @@ namespace gip.core.datamodel
 
         object? Find(Type entityType, params object?[]? keyValues);
         TEntity? Find<TEntity>(params object?[]? keyValues) where TEntity : class;
+#nullable disable
 
-        #endregion
-        #region ObjectContext
-
-        //int? CommandTimeout { get; set; } replacement in EF CORE Database.SetCommandTimeout(int);
-        DbConnection Connection { get; }
-        //ObjectContextOptions ContextOptions { get; }
-
-        //string DefaultContainerName { get; set; }
-
-        //MetadataWorkspace MetadataWorkspace { get; }
-
-        //ObjectStateManager ObjectStateManager { get; }
-
-        //event ObjectMaterializedEventHandler ObjectMaterialized;
-
-        //event EventHandler SavingChanges;
-
-
-        //void AcceptAllChanges();
-        //void AddObject(string entitySetName, object entity);
-        
-        //TEntity ApplyCurrentValues<TEntity>(string entitySetName, TEntity currentEntity) where TEntity : class;
-        //TEntity ApplyOriginalValues<TEntity>(string entitySetName, TEntity originalEntity) where TEntity : class;
-
-        //void Attach(IEntityWithKey entity);
-
-#if !EFCR
-        void AttachTo(string entitySetName, object entity);
-#endif
-
-        //void CreateDatabase();
-        //string CreateDatabaseScript();
-        //EntityKey CreateEntityKey(string entitySetName, object entity);
-        //T CreateObject<T>() where T : class;
-        //ObjectSet<TEntity> CreateObjectSet<TEntity>() where TEntity : class;
-        //ObjectSet<TEntity> CreateObjectSet<TEntity>(string entitySetName) where TEntity : class;
-        //void CreateProxyTypes(IEnumerable<Type> types);
-        //ObjectQuery<T> CreateQuery<T>(string queryString, params ObjectParameter[] parameters);
-        //bool DatabaseExists();
-        //void DeleteDatabase();
-        //void DeleteObject(object entity);
-        //void Detach(object entity);
-        //void DetectChanges();
-        //int ExecuteFunction(string functionName, params ObjectParameter[] parameters);
-        //ObjectResult<TElement> ExecuteFunction<TElement>(string functionName, params ObjectParameter[] parameters);
-        //ObjectResult<TElement> ExecuteFunction<TElement>(string functionName, MergeOption mergeOption, params ObjectParameter[] parameters);
-        //int ExecuteStoreCommand(string commandText, params object[] parameters);
-        //ObjectResult<TElement> ExecuteStoreQuery<TElement>(string commandText, params object[] parameters);
-        //ObjectResult<TEntity> ExecuteStoreQuery<TEntity>(string commandText, string entitySetName, MergeOption mergeOption, params object[] parameters);
-        object GetObjectByKey(EntityKey key);
-        bool TryGetObjectByKey(EntityKey key, out object entity);
-        //void LoadProperty(object entity, string navigationProperty);
-        //void LoadProperty<TEntity>(TEntity entity, Expression<Func<TEntity, object>> selector);
-        //void LoadProperty(object entity, string navigationProperty, MergeOption mergeOption);
-        //void LoadProperty<TEntity>(TEntity entity, Expression<Func<TEntity, object>> selector, MergeOption mergeOption);
-        //int SaveChanges();
-        //int SaveChanges(SaveOptions options);
-        //ObjectResult<TElement> Translate<TElement>(DbDataReader reader);
-        //ObjectResult<TEntity> Translate<TEntity>(DbDataReader reader, string entitySetName, MergeOption mergeOption);
-        //bool TryGetObjectByKey(EntityKey key, out object value);
         #endregion
     }
 

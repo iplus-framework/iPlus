@@ -16,7 +16,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
-using System.Windows.Forms.Integration;
+//using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Markup;
@@ -422,13 +422,13 @@ namespace Fluent
 
             if (frameworkElement != null)
             {
-                if ((parent is WindowsFormsHost || parent is WebBrowser) &&
-                    frameworkElement.Visibility != Visibility.Collapsed)
-                {
-                    collapsedElements.Add(frameworkElement, frameworkElement.Visibility);
-                    frameworkElement.Visibility = Visibility.Collapsed;
-                    return;
-                }
+                //if ((parent is WindowsFormsHost || parent is WebBrowser) &&
+                //    frameworkElement.Visibility != Visibility.Collapsed)
+                //{
+                //    collapsedElements.Add(frameworkElement, frameworkElement.Visibility);
+                //    frameworkElement.Visibility = Visibility.Collapsed;
+                //    return;
+                //}
             }
 
             // Traverse visual tree

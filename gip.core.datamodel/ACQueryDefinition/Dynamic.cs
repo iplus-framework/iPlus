@@ -528,17 +528,14 @@ namespace gip.core.datamodel
         /// </summary>
         private ClassFactory() {
             AssemblyName name = new AssemblyName("DynamicClasses");
-#if !EFCR
-            AssemblyBuilder assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.Run);
-#endif
+            AssemblyBuilder assembly = AssemblyBuilder.DefineDynamicAssembly(name, AssemblyBuilderAccess.Run);
+            //AssemblyBuilder assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.Run);
 #if ENABLE_LINQ_PARTIAL_TRUST
             new ReflectionPermission(PermissionState.Unrestricted).Assert();
 #endif
-            try {
-#if !EFCR
+            try 
+            {
                 module = assembly.DefineDynamicModule("Module");
-#endif
-                throw new NotImplementedException();
             }
             finally {
 #if ENABLE_LINQ_PARTIAL_TRUST

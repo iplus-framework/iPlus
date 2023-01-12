@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -147,9 +148,8 @@ namespace gip.core.datamodel
                 (pi.GetIndexParameters().Length != 0)
                 || (pi.PropertyType == typeof(Guid) || pi.PropertyType == typeof(Guid?))
                 || ((pi.PropertyType.IsGenericType) && (pi.PropertyType.GetInterfaces().Where(c => c.Name == "IEnumerable").Any()))
-#if !EFCR
-                || pi.PropertyType.BaseType == typeof(System.Data.Objects.DataClasses.EntityReference)))
-#endif
+                || pi.PropertyType.BaseType == typeof(ReferenceEntry)
+                || pi.PropertyType.BaseType == typeof(CollectionEntry)
                 || !(pi.GetCustomAttributes(typeof(DataMemberAttribute), true).Any() && pi.Name != "EntityKey");// not registred for data operate
         }
 

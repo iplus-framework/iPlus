@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Text.RegularExpressions;
 using gip.core.dbsyncer.model;
 using gip.core.dbsyncer.helper;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.dbsyncer.Command
 {

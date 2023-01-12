@@ -223,6 +223,8 @@ namespace gip.core.datamodel
                 }
             }
 
+            // Hot to get a IQueryable from a Collection-Property: https://github.com/dotnet/efcore/issues/12893
+            // This is not possible in EF7 - maybe in future versions https://github.com/dotnet/efcore/issues/16491
 #if !EFCR
             ObjectQuery objectQuery = resultQuery as ObjectQuery;
             if ((objectQuery != null) && (mergeOption != MergeOption.AppendOnly))

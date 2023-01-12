@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
@@ -217,26 +218,28 @@ namespace gip.core.datamodel
             }
         }
 
-#if !EFCR
-        partial void OnValueTypeACClassIDChanged()
+        protected override void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
-            if (this.EntityState == EntityState.Added || this.EntityState == EntityState.Modified)
+            if (propertyName == nameof(ValueTypeACClassID))
             {
-                ACPropertyExt acPropertyExt = ACProperties.GetOrCreateACPropertyExtByName(Const.Value, false, false);
-                if (acPropertyExt != null)
+                if (this.EntityState == EntityState.Added || this.EntityState == EntityState.Modified)
                 {
-                    if (acPropertyExt.ObjectType != null && ValueTypeACClass != null)
+                    ACPropertyExt acPropertyExt = ACProperties.GetOrCreateACPropertyExtByName(Const.Value, false, false);
+                    if (acPropertyExt != null)
                     {
-                        if (acPropertyExt.ObjectType != ValueTypeACClass.ObjectType)
+                        if (acPropertyExt.ObjectType != null && ValueTypeACClass != null)
                         {
-                            acPropertyExt.Value = null;
-                            acPropertyExt.ObjectType = ValueTypeACClass.ObjectType;
+                            if (acPropertyExt.ObjectType != ValueTypeACClass.ObjectType)
+                            {
+                                acPropertyExt.Value = null;
+                                acPropertyExt.ObjectType = ValueTypeACClass.ObjectType;
+                            }
                         }
                     }
                 }
             }
+            base.OnPropertyChanged(propertyName);
         }
-#endif
 
         [ACPropertyInfo(6, "", "en{'Source']de{'Quelle'}")]
         [NotMapped]
