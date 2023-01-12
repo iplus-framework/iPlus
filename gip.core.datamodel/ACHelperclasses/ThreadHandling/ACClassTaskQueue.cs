@@ -329,17 +329,17 @@ namespace gip.core.datamodel
             }
             if (acClassTaskForDelete != null)
             {
-                string cmdDelete = String.Format("DELETE FROM ACClassTask WHERE ACClassTaskID IN ({0})", String.Join(",", acClassTaskForDelete.Select(c => "'" + c.ACClassTaskID.ToString() + "'")));
+                FormattableString cmdDelete = $"DELETE FROM ACClassTask WHERE ACClassTaskID IN ({String.Join(",", acClassTaskForDelete.Select(c => "'" + c.ACClassTaskID.ToString() + "'"))})";
                 Add(() =>
                 {
                     //Context.ExecuteStoreCommand(cmdDelete);
                     foreach (ACClassTask t in acClassTaskForDelete)
                     {
-                        if (t.ACClassTaskValue_ACClassTask.IsLoaded)
+                        if (t.ACClassTaskValue_ACClassTaskReference.IsLoaded)
                         {
                             foreach (ACClassTaskValue v in t.ACClassTaskValue_ACClassTask)
                             {
-                                if (v.ACClassTaskValuePos_ACClassTaskValue.IsLoaded)
+                                if (v.ACClassTaskValuePos_ACClassTaskValueReference.IsLoaded)
                                 {
                                     foreach (ACClassTaskValuePos p in v.ACClassTaskValuePos_ACClassTaskValue)
                                     {
@@ -349,7 +349,6 @@ namespace gip.core.datamodel
                                 Context.Detach(v);
                             }
                         }
-                        //t.Context.Entry(t).State = EntityState.Detached;
                         Context.Detach(t);
                     }
                 }
@@ -379,9 +378,9 @@ namespace gip.core.datamodel
             return base.OnStartQueueProcessing(countActions);
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
     }
 
@@ -392,7 +391,7 @@ namespace gip.core.datamodel
             _TaskQueue = taskQueue;
         }
 
-        #region precompiled Queries
+#region precompiled Queries
         public static readonly Func<Database, Guid, IQueryable<ACProgramLog>> s_cQry_LatestProgramLogs =
             EF.CompileQuery<Database, Guid, IQueryable<ACProgramLog>>(
                 (db, acProgramID) =>
@@ -460,14 +459,14 @@ namespace gip.core.datamodel
                     .Where(c => c.ACProgramID == programID && c.ACUrl == acUrl)
                     .OrderBy(c => c.InsertDate)
             );
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
         ACClassTaskQueue _TaskQueue = null;
         ConcurrentDictionary<Guid, ACProgramCacheEntry> _Programs = new ConcurrentDictionary<Guid, ACProgramCacheEntry>();
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
         /// <summary>
         /// Reads from Cache, If not in Cache it rebuilds by querying dababase
         /// </summary>
@@ -952,7 +951,7 @@ namespace gip.core.datamodel
             }
             return cacheEntry;
         }
-        #endregion
+#endregion
 
     }
 
@@ -964,7 +963,7 @@ namespace gip.core.datamodel
             _LatestProgramLogs = latestProgramLogs;
         }
 
-        #region Properties
+#region Properties
         private ACProgram _Program;
         public ACProgram Program
         {
@@ -984,9 +983,9 @@ namespace gip.core.datamodel
         //}
 
         private object _LockLatestPLog = new object();
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
         public ACProgramLog GetCurrentProgramLog(string acUrl, ACProgramLog parentProgramLog = null)
         {
             ACProgramLog currentLog = null;
@@ -1097,6 +1096,6 @@ namespace gip.core.datamodel
             }
             return allLogs;
         }
-        #endregion
+#endregion
     }
 }

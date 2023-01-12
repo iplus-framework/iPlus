@@ -119,7 +119,7 @@ namespace gip.core.datamodel
                         {
                             VBEntityObject tempObject = (context as IACEntityObjectContext).GetObjectByKey(entityObject.EntityKey) as VBEntityObject;
                             if (tempObject != null)
-                                context.Entry(tempObject).State = EntityState.Detached;
+                                context.Detach(tempObject);
                         }
                         if (entityObject.EntityKey != null)
                         {
@@ -134,8 +134,7 @@ namespace gip.core.datamodel
                     }
                     else if (objectEntityState != EntityState.Detached && (!aCFSItem.IsChecked || (checkUpdateDate && aCFSItem.UpdateDateFail)))
                     {
-                        //context.Detach(aCFSItem.ACObject);
-                        context.Entry(aCFSItem.ACObject).State = EntityState.Detached;
+                        context.Detach(aCFSItem.ACObject);
                     }
                     throw new NotImplementedException();
                 }

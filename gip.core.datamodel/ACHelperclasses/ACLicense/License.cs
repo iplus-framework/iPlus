@@ -12,6 +12,7 @@ using System.Runtime.Serialization;
 using System.Data;
 using System.CodeDom;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 
 namespace gip.core.datamodel.Licensing
 {
@@ -106,11 +107,8 @@ namespace gip.core.datamodel.Licensing
         {
             get
             {
-#if !EFCR
                 if (_DatabaseName == null)
-                    _DatabaseName = ((EntityConnection)_Database.Connection).StoreConnection.Database;
-#endif
-                throw new NotImplementedException();
+                    _DatabaseName = ((DbConnection)_Database.Connection).Database;
                 return _DatabaseName;
             }
         }
@@ -515,13 +513,11 @@ namespace gip.core.datamodel.Licensing
 
         public string GetDBCode(Database db)
         {
-#if !EFCR
-            string dbName = ((EntityConnection)db.Connection).StoreConnection.Database;
+            string dbName = ((DbConnection)db.Connection).Database;
             if (dbName == null)
                 return "";
             string query = "SELECT d.create_date, d.service_broker_guid, r.database_guid FROM sys.databases d inner join sys.database_recovery_status r on d.database_id = r.database_id WHERE d.name = '-dbName-'";
             query = query.Replace("-dbName-", dbName);
-#endif
 
             DBInfo dbInfo = null;
 
@@ -554,13 +550,11 @@ namespace gip.core.datamodel.Licensing
             if (_Database == null)
                 return false;
 
-#if !EFCR
-            EntityConnection ec = _Database.Connection as EntityConnection;
-            if (ec == null || ec.StoreConnection == null || string.IsNullOrEmpty(ec.StoreConnection.Database) || string.IsNullOrEmpty(ec.StoreConnection.DataSource))
+            DbConnection ec = _Database.Connection as DbConnection;
+            if (ec == null || ec == null || string.IsNullOrEmpty(ec.Database) || string.IsNullOrEmpty(ec.DataSource))
                 return false;
 
-            userInfo = new Tuple<string, string, string>(ec.StoreConnection.Database, ec.StoreConnection.DataSource, GetDBCode(_Database));
-#endif
+            userInfo = new Tuple<string, string, string>(ec.Database, ec.DataSource, GetDBCode(_Database));
             return true;
         }
 

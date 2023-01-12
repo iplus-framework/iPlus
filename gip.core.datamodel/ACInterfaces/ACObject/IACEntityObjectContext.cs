@@ -133,6 +133,8 @@ namespace gip.core.datamodel
 
         void ParseException(MsgWithDetails msg, Exception e);
 
+        void Detach(object entity);
+
         void EnterCS();
         void EnterCS(bool DeactivateEntityCheck);
         void LeaveCS();
@@ -160,9 +162,7 @@ namespace gip.core.datamodel
 
         MergeOption RecommendedMergeOption { get; }
 
-#if !EFCR
-        EntityConnection SeparateConnection { get; }
-#endif
+        DbConnection SeparateConnection { get; }
 
         string UserName { get; set; }
 
@@ -175,6 +175,7 @@ namespace gip.core.datamodel
         DatabaseFacade Database { get ; }
 
         DbContextOptions ContextOptions { get; }
+        DbContextOptionsBuilder ContextOptionsBuilder { get; }
         int SaveChanges();
         int SaveChanges(bool acceptAllChangesOnSuccess);
         void AcceptAllChanges();
@@ -222,26 +223,23 @@ namespace gip.core.datamodel
 
         //string DefaultContainerName { get; set; }
 
-#if !EFCR
-        MetadataWorkspace MetadataWorkspace { get; }
-#endif
+        //MetadataWorkspace MetadataWorkspace { get; }
 
         //ObjectStateManager ObjectStateManager { get; }
 
-#if !EFCR
-        event ObjectMaterializedEventHandler ObjectMaterialized;
-#endif
+        //event ObjectMaterializedEventHandler ObjectMaterialized;
+
         //event EventHandler SavingChanges;
 
 
         //void AcceptAllChanges();
         //void AddObject(string entitySetName, object entity);
-#if !EFCR
-        TEntity ApplyCurrentValues<TEntity>(string entitySetName, TEntity currentEntity) where TEntity : class;
-        TEntity ApplyOriginalValues<TEntity>(string entitySetName, TEntity originalEntity) where TEntity : class;
-#endif
+        
+        //TEntity ApplyCurrentValues<TEntity>(string entitySetName, TEntity currentEntity) where TEntity : class;
+        //TEntity ApplyOriginalValues<TEntity>(string entitySetName, TEntity originalEntity) where TEntity : class;
 
         //void Attach(IEntityWithKey entity);
+
 #if !EFCR
         void AttachTo(string entitySetName, object entity);
 #endif

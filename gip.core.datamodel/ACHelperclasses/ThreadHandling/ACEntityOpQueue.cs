@@ -21,6 +21,7 @@ using System.Data.SqlClient;
 using System.Transactions;
 using System.Windows.Interop;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 
 namespace gip.core.datamodel
 {
@@ -45,7 +46,7 @@ namespace gip.core.datamodel
             : base(instanceName)
         {
             _SaveChangesWithoutValidation = saveChangesWithoutValidation;
-            var entityConnection = new EntityConnection(connectionString);
+            SqlConnection entityConnection = new SqlConnection(connectionString);
             entityConnection.Open();
             _Context = (T)Activator.CreateInstance(objectContextToCreate, new Object[] { entityConnection });
             ACObjectContextManager.Add(_Context, instanceName);
@@ -289,7 +290,6 @@ namespace gip.core.datamodel
         protected bool OpenConnection()
         {
             bool done = false;
-
             if (Context.SeparateConnection != null)
             {
                 using (ACMonitor.Lock(Context.QueryLock_1X000))
@@ -380,7 +380,6 @@ namespace gip.core.datamodel
                     }
                 }
             }
-
             if (Context.SeparateConnection != null)
             {
                 using (ACMonitor.Lock(Context.QueryLock_1X000))

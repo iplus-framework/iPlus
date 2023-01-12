@@ -433,16 +433,12 @@ namespace gip.core.datamodel
 
         public void Refresh()
         {
-#if !EFCR
-            this.Context.Refresh(this);
-#endif
+            this.Context.AutoRefresh(this);
         }
 
         public void Refresh(IACEntityObjectContext context)
         {
-#if !EFCR
-            context.Refresh(this);
-#endif
+            context.AutoRefresh(this);
         }
 
         #endregion

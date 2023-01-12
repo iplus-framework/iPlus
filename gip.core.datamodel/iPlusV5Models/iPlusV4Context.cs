@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel;
@@ -95,7 +96,7 @@ public partial class iPlusV4Context : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-
+        optionsBuilder.AddInterceptors(new ACMaterializationInterceptor());
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

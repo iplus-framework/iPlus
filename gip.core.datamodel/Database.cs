@@ -49,7 +49,7 @@ namespace gip.core.datamodel
     public partial class Database : iPlusV4Context, IACEntityObjectContext
     {
         public const string ClassName = "Database";
-        /// <summary>
+        /// <summary> 
         /// Diese Managerklasse wird einmal Statisch zur Verfügung gestellt, 
         /// damit alle Instanzen von Database damit arbeiten können.
         /// </summary>
@@ -75,14 +75,8 @@ namespace gip.core.datamodel
             _GlobalDatabase.InitTypeDictFromSystemNamespace();
         }
 
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            _ObjectContextHelper.OnConfiguring(optionsBuilder);
-        }
-
         public Database()
-            : base(DbContextOptions(ConnectionString))
+            :base(DbContextOptions(ConnectionString))
         {
             _ObjectContextHelper = new ACObjectContextHelper(this);
         }
@@ -93,24 +87,22 @@ namespace gip.core.datamodel
         }
 
         public Database(string connectionString)
-            : base(DbContextOptions(connectionString))
+            :base(DbContextOptions(connectionString))
         {
             _ObjectContextHelper = new ACObjectContextHelper(this);
         }
 
-#if !EFCR
         public Database(bool createSeparateConnection)
-            : this(new EntityConnection(ConnectionString))
+            : this(new SqlConnection(ConnectionString))
         {
         }
 
-        public Database(EntityConnection connection)
-            : base(connection)
+        public Database(DbConnection connection)
+            :base(DbContextOptions(connection))
         {
             _SeparateConnection = connection;
             _ObjectContextHelper = new ACObjectContextHelper(this);
         }
-#endif
 
         public override void Dispose()
         {
@@ -119,11 +111,9 @@ namespace gip.core.datamodel
             _ObjectContextHelper = null;
             base.Dispose();
             this.Database.GetDbConnection();
-#if !EFCR
             if (SeparateConnection != null)
                 SeparateConnection.Dispose();
             _SeparateConnection = null;
-#endif
         }
 
 #endregion
@@ -156,10 +146,8 @@ namespace gip.core.datamodel
                         if (e.InnerException != null && e.InnerException.Message != null)
                             msg += " Inner:" + e.InnerException.Message;
 
-#if !EFCR
-                        if (Database.Root != null && Database.Root.Messages != null)
-                            Database.Root.Messages.LogException("Database", "ConnectionString", msg);
-#endif
+                        if (gip.core.datamodel.Database.Root != null && gip.core.datamodel.Database.Root.Messages != null)
+                            gip.core.datamodel.Database.Root.Messages.LogException("Database", "ConnectionString", msg);
                     }
                 }
 
@@ -171,6 +159,13 @@ namespace gip.core.datamodel
         {
             var dbOptions = new DbContextOptionsBuilder<iPlusV4Context>()
                     .UseSqlServer(connectionString).Options;
+            return dbOptions;
+        }
+
+        public static DbContextOptions<iPlusV4Context> DbContextOptions(DbConnection connection)
+        {
+            var dbOptions = new DbContextOptionsBuilder<iPlusV4Context>()
+                    .UseSqlServer(connection).Options;
             return dbOptions;
         }
 
@@ -205,16 +200,14 @@ namespace gip.core.datamodel
             }
         }
 
-#if !EFCR
-        EntityConnection _SeparateConnection;
-        public EntityConnection SeparateConnection
+        DbConnection _SeparateConnection;
+        public DbConnection SeparateConnection
         {
             get
             {
                 return _SeparateConnection;
             }
         }
-#endif
 
         private string _UserName;
         [NotMapped]
@@ -224,15 +217,12 @@ namespace gip.core.datamodel
             {
                 if (!String.IsNullOrEmpty(_UserName))
                     return _UserName;
-#if !EFCR
                 if (Database.Root == null 
-                    || !Database.Root.Initialized
-                    || Database.Root.Environment == null
-                    || Database.Root.Environment.User == null)
+                    || !gip.core.datamodel.Database.Root.Initialized
+                    || gip.core.datamodel.Database.Root.Environment == null
+                    || gip.core.datamodel.Database.Root.Environment.User == null)
                     return "Init";
-                _UserName = Database.Root.Environment.User.Initials;
-#endif
-                throw new NotImplementedException();
+                _UserName = gip.core.datamodel.Database.Root.Environment.User.Initials;
                 return _UserName;
             }
             set
@@ -295,10 +285,8 @@ namespace gip.core.datamodel
             {
                 if (_Initials == null)
                 {
-#if !EFCR
-                    if (Database.Root == null || !Database.Root.Initialized)
+                    if (gip.core.datamodel.Database.Root == null || !gip.core.datamodel.Database.Root.Initialized)
                         return "Init";
-#endif
                     _Initials = Root.Environment.User.Initials;
                 }
                 return _Initials;
@@ -1145,6 +1133,11 @@ namespace gip.core.datamodel
             get { return Database; }
         }
 
+        public DbContextOptionsBuilder ContextOptionsBuilder
+        {
+            get;
+        }
+
         public DbContextOptions ContextOptions
         {
             get { return DbContextOptions(ConnectionString); }
@@ -1486,6 +1479,11 @@ namespace gip.core.datamodel
             if (dispose)
                 Dispose(true);
 #endif
+        }
+
+        public void Detach(object entity)
+        {
+            _ObjectContextHelper.Detach(entity);
         }
 
         public void AcceptAllChanges()

@@ -50,7 +50,7 @@ namespace gip.core.datamodel
         }
 #endregion
 
-#region const
+        #region const
         /// <summary>
         /// Duration in ms for Thread.Sleep() after a transaction error occured. DEfault is 100ms.
         /// </summary>
@@ -158,13 +158,25 @@ namespace gip.core.datamodel
 #region Methods
 
 #region Public
+        /*
         public DbContextOptionsBuilder OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            return optionsBuilder
-                    .UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString)
-                    //.ReplaceService<IShapedQueryCompilingExpressionVisitorFactory, MyRelationalShapedQueryCompilingExpressionVisitorFactory>()
+            if (dbconnection != null)
+            {
+                return optionsBuilder
+                    .UseSqlServer(dbconnection)
+                    //.ReplaceService<IShapedQueryCompilingExpressionVisitorFactory, MyRelationalShapedQueryCompilingExpressionVisitorFactory
                     .AddInterceptors(new ACMaterializationInterceptor());
+            }
+            else
+            {
+                return optionsBuilder
+                    //.ReplaceService<IShapedQueryCompilingExpressionVisitorFactory, MyRelationalShapedQueryCompilingExpressionVisitorFactory
+                    .AddInterceptors(new ACMaterializationInterceptor());
+            }
+                
         }
+        */
 
         /// <summary>
         /// Saves all changes in the Custom-Database-Context as well as in the iPlus-Context
@@ -597,7 +609,7 @@ namespace gip.core.datamodel
 #if !EFCR
         public virtual DbDataRecord GetOriginalValues(EntityKey entityKey)
         {
-            return _ObjectContext.ObjectStateManager.GetObjectStateEntry(entityKey).OriginalValues;
+            return _ObjectContext.Entry(entityKey).OriginalValues;
         }
 #endif
 
@@ -1007,8 +1019,13 @@ namespace gip.core.datamodel
 #if !EFCR
                 this.ObjectContext.ChangeTracker.Detach(objectStateEntry.Entity);
 #endif
-                this.ObjectContext.Entry(objectStateEntry).State = EntityState.Detached;
+                this.Detach(objectStateEntry);
             }
+        }
+
+        public void Detach(object entity)
+        {
+            ObjectContext.Entry(entity).State = EntityState.Detached;
         }
 
         public void SetIsolationLevelUncommitedRead()
@@ -1021,9 +1038,9 @@ namespace gip.core.datamodel
             ObjectContext.Database.ExecuteSql(SET_READ_COMMITED);
         }
 
-        #endregion
+#endregion
 
-        #region Critical Section
+#region Critical Section
         public void EnterCS()
         {
             EnterCS(false);

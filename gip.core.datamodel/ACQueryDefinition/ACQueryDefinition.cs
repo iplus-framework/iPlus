@@ -763,9 +763,7 @@ namespace gip.core.datamodel
                 DbContext context = QueryContext as DbContext;
                 if (context == null)
                     return "";
-#if !EFCR
-                string queryString = "SELECT VALUE c FROM " + context.DefaultContainerName + "." + this.ChildACUrl + " AS c ";
-#endif
+                //string queryString = "SELECT VALUE c FROM " + context.DefaultContainerName + "." + this.ChildACUrl + " AS c ";
                 string queryString = null;
                 return queryString;
             }
@@ -1254,10 +1252,8 @@ namespace gip.core.datamodel
         {
             _LINQPredicateWhere_FromItems = "";
             _LINQPredicateOrderBy_FromItems = "";
-#if !EFCR
             List<ObjectParameter> filterValues = null;
             BuildFilter(ref _LINQPredicateWhere_FromItems, ref filterValues, ref _LINQPredicateOrderBy_FromItems, false);
-#endif
             OnPropertyChanged("LINQPredicateWhere_FromItems");
             OnPropertyChanged("LINQPredicateOrderBy_FromItems");
             OnPropertyChanged("LINQPredicateWhere");
@@ -1270,20 +1266,16 @@ namespace gip.core.datamodel
         public void RebuildEntitySQLFromItems()
         {
             string filter = "";
-#if !EFCR
             List<ObjectParameter> filterValues = null;
             string sortOrder = "";
             BuildFilter(ref filter, ref filterValues, ref sortOrder, true);
             int parameterCount = 0;
             if (filterValues != null)
                 parameterCount = filterValues.Count;
-#endif
             _EntitySQL_FromItems = SelectPartOfEntitySQL;
             if (!string.IsNullOrEmpty(filter))
                 _EntitySQL_FromItems += "WHERE " + filter;
-#if !EFCR
             _EntitySQL_FromItems += sortOrder;
-#endif
             OnPropertyChanged("EntitySQL_FromItems");
             OnPropertyChanged("EntitySQL");
         }
@@ -1304,7 +1296,6 @@ namespace gip.core.datamodel
             OnPropertyChanged("EntitySQL");
         }
 
-#if !EFCR
         /// <summary>
         /// Builds a either a LINQ-Statement or a Entity-SQL-Statement from the ACFilterColumns and ACSortColumns
         /// </summary>
@@ -1318,10 +1309,8 @@ namespace gip.core.datamodel
             filterValues = new List<ObjectParameter>();
             filter = CreateFilterPart(0, ACFilterColumns.Count() - 1, ref filterValues, forEntitySQL);
         }
-#endif
 
 
-#if !EFCR
         private string CreateFilterPart(int indexFrom, int indexTo, ref List<ObjectParameter> filterValueList, bool forEntitySQL = false)
         {
             string filterPart = "";
@@ -1386,10 +1375,8 @@ namespace gip.core.datamodel
             }
             return filterPart;
         }
-#endif
 
 
-#if !EFCR
         /// <summary>
         /// Creates a expression from a fiteritem: [Variable] [Operator] [Wert]
         /// NULL is returned if expression coud not be ctreadted
@@ -1569,7 +1556,6 @@ namespace gip.core.datamodel
             }
             return filterExpression;
         }
-#endif
 
         /// <summary>
         /// Creates a logical connective for a expression

@@ -656,8 +656,7 @@ namespace gip.core.datamodel
                 {
                     if (objectEntityState != EntityState.Detached)
                     {
-                        //context.Detach(ACObject);
-                        context.Entry(ACObject).State = EntityState.Detached;
+                        context.Detach(ACObject);
                     }
                 }
             }

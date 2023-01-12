@@ -76,13 +76,10 @@ namespace gip.core.datamodel
                     PropertyInfo pi = typeParent.GetProperty(childACUrl);
                     if (pi != null)
                     {
-#if !EFCR
-                        if (typeof(ObjectQuery).IsAssignableFrom(pi.PropertyType))
-                            return miEntitySQL.Invoke(null, new object[] { acObject, queryDefinition, childACUrl, mergeOption }) as IQueryable;
-                        else
-                            return miDynQuery.Invoke(null, new object[] { pi.GetValue(acObject, null), queryDefinition, mergeOption }) as IQueryable;
-#endif
-                        throw new NotImplementedException();
+                        //if (typeof(ObjectQuery).IsAssignableFrom(pi.PropertyType))
+                        //    return miEntitySQL.Invoke(null, new object[] { acObject, queryDefinition, childACUrl, mergeOption }) as IQueryable;
+                        //else
+                        return miDynQuery.Invoke(null, new object[] { pi.GetValue(acObject, null), queryDefinition, mergeOption }) as IQueryable;
                     }
                     else
                     {
@@ -187,7 +184,6 @@ namespace gip.core.datamodel
             IQueryable<T> resultQuery = null;
 
             //queryDefinition.QueryContext = context as IACObject;
-
             List<ObjectParameter> parameterList = queryDefinition.FilterParameters;
 
 
@@ -237,6 +233,7 @@ namespace gip.core.datamodel
 
         private static IQueryable<T> SearchWithEntitySQL<T>(IACObject context, ACQueryDefinition queryDefinition, string childACUrl, MergeOption mergeOption)
         {
+            /*
             //if () / if merge ako ne postoje sve 3 opcije tu postaviti upit
             queryDefinition.QueryContext = context;
 
@@ -256,11 +253,11 @@ namespace gip.core.datamodel
             // Take Count moved to ACAccess
             //if (queryDefinition.TakeCount > 0)
             //    dynQuery.Parameters.Add(new ObjectParameter("p" + parameterCount.ToString(), queryDefinition.TakeCount));
+            */
 
             throw new NotImplementedException();
-#if !EFCR
-            return dynQuery;
-#endif
+
+            //return dynQuery;
         }
 #endregion
     }
