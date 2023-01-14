@@ -261,6 +261,7 @@
         public const string CmdHighlightVBControl = "^HighlightVBControl";
         public const string CmdHighlightContentACObject = "^HighlightContentACObject";
         public const string CmdPrintScreenToImage = "^PrintScreenToImage";
+        public const string CmdPrintScreenToIcon = "^CmdPrintScreenToIcon";
         public const string CmdPrintScreenToClipboard = "^CmdPrintScreenToClipboard";
         public const string CmdExportDesignToFile = "^CmdExportDesignToFile";
         public const string CmdFindGUI = "^CmdFindGUI";

@@ -798,6 +798,27 @@ namespace gip.bso.iplus
                 return false;
             return true;
         }
+
+        [ACMethodCommand("", "en{'Generate Icon'}de{'Generiere Ikone'}", 401, true)]
+        public void GenerateIcon()
+        {
+            if (!IsEnabledGenerateIcon())
+                return;
+            BroadcastToVBControls(Const.CmdPrintScreenToIcon, "*TabOverview", this, "CurrentVisualACClass_0");
+        }
+
+        public bool IsEnabledGenerateIcon()
+        {
+            return CurrentACClassDesign != null && CurrentACClassDesign.ACUsage == Global.ACUsages.DUIcon;
+        }
+
+        protected void OnIconGenerated(byte[] bytes)
+        {
+            if (!IsEnabledGenerateIcon())
+                return;
+            if (bytes != null && bytes.Length > 0)
+                CurrentACClassDesign.DesignBinary = bytes;
+        }
         #endregion
 
         /// <summary>

@@ -62,7 +62,7 @@ namespace gip.core.layoutengine.Helperclasses
             if (obj is FrameworkElement)
             {
                 FrameworkElement partObj = obj as FrameworkElement;
-                if (partObj.GetType() == type)
+                if (type.IsAssignableFrom(partObj.GetType()))
                     return partObj;
             }
             for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
