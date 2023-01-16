@@ -237,6 +237,8 @@ namespace gip.bso.iplus
             this._PropertyRelationToList = null;
             this._RelationACClassList = null;
             this._SearchClassText = null;
+            this._SearchPLADProjectItem = null;
+            this._SearchPLADProjectItem = null;
             this._SelectedACClassDesign = null;
             this._SelectedACClassHierarchy = null;
             this._SelectedACClassMethod = null;
@@ -258,6 +260,19 @@ namespace gip.bso.iplus
             BSOiPlusStudio clone = base.Clone() as BSOiPlusStudio;
             clone.CurrentACClass = this.CurrentACClass;
             return clone;
+        }
+
+        public override object ACUrlCommand(string acUrl, params object[] acParameter)
+        {
+            if (acUrl == Const.CmdPrintScreenToIcon)
+            {
+                byte[] result = (byte[])acParameter[0];
+                if (result != null)
+                    OnIconGenerated(result);
+                return null;
+            }
+            else
+                return base.ACUrlCommand(acUrl, acParameter);
         }
         #endregion
 
@@ -948,6 +963,8 @@ namespace gip.bso.iplus
                     ShowBGModule = false;
                     ShowACClass = null;
                     SearchClassText = null;
+                    SearchPLADProjectItem = null;
+                    SearchPLADProjectItem = null;
                 //}
 
                 ShowGroup = !(CurrentACProject != null && (CurrentACProject.ACProjectType == Global.ACProjectTypes.Application || CurrentACProject.ACProjectType == Global.ACProjectTypes.AppDefinition));
@@ -993,11 +1010,12 @@ namespace gip.bso.iplus
         }
 
         private bool _LockRefreshProjectTree = false;
-        private void RefreshProjectTree(bool forceRebuildTree = false)
+        private void RefreshProjectTree(bool forceRebuildTree = false, bool onlyClassLibrary = false)
         {
             if (_LockRefreshProjectTree)
                 return;
-            ProjectManager.RefreshProjectTree(ProjectTreePresentationMode, ProjectTreeVisibilityFilter, null, forceRebuildTree);
+            if (!onlyClassLibrary)
+                ProjectManager.RefreshProjectTree(ProjectTreePresentationMode, ProjectTreeVisibilityFilter, null, forceRebuildTree);
             if (_PLCProjectManager != null)
                 _PLCProjectManager.RefreshProjectTree(CLProjectPresentationMode, CLProjectVisibilityFilter, null, forceRebuildTree);
         }
@@ -1269,7 +1287,11 @@ namespace gip.bso.iplus
         {
             get
             {
-                ACClassInfoWithItems.VisibilityFilters filter = new ACClassInfoWithItems.VisibilityFilters();
+                ACClassInfoWithItems.VisibilityFilters filter
+                    = new ACClassInfoWithItems.VisibilityFilters()
+                    {
+                        SearchText = this.SearchCLProjectItem
+                    };
                 return filter;
             }
         }
@@ -1346,6 +1368,32 @@ namespace gip.bso.iplus
                 }
             }
         }
+
+        /// <summary>
+        /// The _ search class text
+        /// </summary>
+        string _SearchCLProjectItem = "";
+        /// <summary>
+        /// Gets or sets the search class text.
+        /// </summary>
+        /// <value>The search class text.</value>
+        [ACPropertyInfo(9999, "CLProjectItem", "en{'Search Class'}de{'Suche Klasse'}")]
+        public string SearchCLProjectItem
+        {
+            get
+            {
+                return _SearchCLProjectItem;
+            }
+            set
+            {
+                if (_SearchCLProjectItem != value)
+                {
+                    _SearchCLProjectItem = value;
+                    OnPropertyChanged();
+                    RefreshProjectTree(true, true);
+                }
+            }
+        }
         #endregion
 
         #region ProjectLibraryAppDefinition
@@ -1354,7 +1402,11 @@ namespace gip.bso.iplus
         {
             get
             {
-                ACClassInfoWithItems.VisibilityFilters filter = new ACClassInfoWithItems.VisibilityFilters();
+                ACClassInfoWithItems.VisibilityFilters filter
+                    = new ACClassInfoWithItems.VisibilityFilters()
+                    {
+                        SearchText = this.SearchPLADProjectItem
+                    };
                 return filter;
             }
         }
@@ -1430,6 +1482,32 @@ namespace gip.bso.iplus
                 {
                     _CurrentPLADProjectItem = value;
                     OnPropertyChanged("CurrentPLADProjectItem");
+                }
+            }
+        }
+
+        /// <summary>
+        /// The _ search class text
+        /// </summary>
+        string _SearchPLADProjectItem = "";
+        /// <summary>
+        /// Gets or sets the search class text.
+        /// </summary>
+        /// <value>The search class text.</value>
+        [ACPropertyInfo(9999, "CLProjectItem", "en{'Search Class'}de{'Suche Klasse'}")]
+        public string SearchPLADProjectItem
+        {
+            get
+            {
+                return _SearchPLADProjectItem;
+            }
+            set
+            {
+                if (_SearchPLADProjectItem != value)
+                {
+                    _SearchPLADProjectItem = value;
+                    OnPropertyChanged();
+                    RefreshPLADProjectTree();
                 }
             }
         }
@@ -3740,6 +3818,12 @@ namespace gip.bso.iplus
                     return true;
                 case "IsEnabledImportBitmap":
                     result = IsEnabledImportBitmap();
+                    return true;
+                case nameof(GenerateIcon):
+                    GenerateIcon();
+                    return true;
+                case nameof(IsEnabledGenerateIcon):
+                    result = IsEnabledGenerateIcon();
                     return true;
                 case "CompileACClassDesign":
                     CompileACClassDesign();

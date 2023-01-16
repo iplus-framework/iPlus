@@ -269,14 +269,26 @@ namespace gip.core.layoutengine
                             {
                                 if (needBitmap && (acClassDesign.ACKind == Global.ACKinds.DSBitmapResource) && (acClassDesign.DesignBinary != null))
                                 {
-                                    BitmapImage bitmapImage = new BitmapImage();
-                                    bitmapImage.BeginInit();
-                                    bitmapImage.StreamSource = new MemoryStream(acClassDesign.DesignBinary);
-                                    bitmapImage.EndInit();
+                                    try
+                                    {
+                                        BitmapImage bitmapImage = new BitmapImage();
+                                        bitmapImage.BeginInit();
+                                        bitmapImage.StreamSource = new MemoryStream(acClassDesign.DesignBinary);
+                                        bitmapImage.EndInit();
 
-                                    if (wpfApplication != null)
-                                        wpfApplication.Resources.Add(strResKey, bitmapImage);
-                                    return bitmapImage;
+                                        if (wpfApplication != null)
+                                            wpfApplication.Resources.Add(strResKey, bitmapImage);
+                                        return bitmapImage;
+                                    }
+                                    catch(Exception e) 
+                                    {
+                                        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                                        {
+                                            datamodel.Database.Root.Messages.LogException("VBStaticResourceExtension", "ProvideValue(20)", e);
+                                            datamodel.Database.Root.Messages.LogException("VBStaticResourceExtension", "ProvideValue(21)", String.Format("Can't create icon for {0}. Invalid Binary", acClassDesign.GetACUrl()));
+                                        }
+                                        return new BitmapImage(new Uri("pack://application:,,,/gip.core.layoutengine;component/Images/QuestionMark.JPG", UriKind.Absolute));
+                                    }
                                 }
                                 else if (needBrush && !String.IsNullOrEmpty(acClassDesign.XMLDesign))
                                 {

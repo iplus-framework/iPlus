@@ -757,13 +757,21 @@ namespace gip.core.layoutengine
                     || !(acUrlMessage.ACParameter[0] is IACComponent)
                     || acUrlMessage.TargetVBContent != this.VBContent)
                     return;
+                byte[] result = null;
                 switch (acUrlMessage.ACUrl)
                 {
                     case Const.CmdPrintScreenToImage:
-                        byte[] result = PrintScreenToImage();
+                        result = PrintScreenToImage(acUrlMessage.ACParameter);
                         if (result != null)
                         {
                             (acUrlMessage.ACParameter[0] as IACComponent).ACUrlCommand(Const.CmdPrintScreenToImage, result);
+                        }
+                        break;
+                    case Const.CmdPrintScreenToIcon:
+                        result = PrintScreenToIcon(acUrlMessage.ACParameter);
+                        if (result != null)
+                        {
+                            (acUrlMessage.ACParameter[0] as IACComponent).ACUrlCommand(Const.CmdPrintScreenToIcon, result);
                         }
                         break;
                     case Const.CmdPrintScreenToClipboard:
@@ -1229,43 +1237,69 @@ namespace gip.core.layoutengine
         /// Create screen shot and resize image to 370x250
         /// </summary>
         /// <returns>Image in byte array</returns>
-        public byte[] PrintScreenToImage()
+        public byte[] PrintScreenToImage(object[] parameters)
         {
+            return PrintScreenAndRezize(370, 250, parameters);
+        }
+
+
+        public byte[] PrintScreenToIcon(object[] parameters)
+        {
+            return PrintScreenAndRezize(32, 32, parameters);
+        }
+
+        private byte[] PrintScreenAndRezize(double width, double height, object[] parameters)
+        {
+            string vbContentChild = null;
+            if (parameters != null && parameters.Count() > 1)
+                vbContentChild = parameters[1] as string;
             UIElement uiElement = this.Content as UIElement;
-            ScrollViewer scrollViewer = null;
-            VBCanvas vbCanvas = null;
+
+            Canvas canvas = null;
             byte[] arr = new byte[] { 0 };
+            if (!String.IsNullOrEmpty(vbContentChild))
+            {
+                UIElement childFound = VBVisualTreeHelper.FindObjectInLogicalAndVisualTree(uiElement, vbContentChild) as UIElement;
+                if (childFound == null)
+                    return arr;
+                uiElement = childFound;
+            }
 
-            if (uiElement is VBCanvas)
-                vbCanvas = uiElement as VBCanvas;
-
+            if (uiElement is Canvas)
+                canvas = uiElement as Canvas;
             else if (uiElement is ScrollViewer)
-                scrollViewer = uiElement as ScrollViewer;
+            {
+                ScrollViewer scrollViewer = uiElement as ScrollViewer;
+                if (scrollViewer.Content is Canvas)
+                    canvas = scrollViewer.Content as Canvas;
+            }
+            else if (uiElement is VBVisual)
+            {
+                VBVisual vbVisual = uiElement as VBVisual;
+                canvas = VBVisualTreeHelper.FindChildObjectInVisualTree(vbVisual.Content as UIElement, typeof(Canvas)) as Canvas;
+            }
 
-            if (scrollViewer != null && scrollViewer.Content is VBCanvas)
-                vbCanvas = scrollViewer.Content as VBCanvas;
 
-            if (vbCanvas != null && !Double.IsNaN(vbCanvas.Width) && !Double.IsNaN(vbCanvas.Height))
+            if (canvas != null && !Double.IsNaN(canvas.Width) && !Double.IsNaN(canvas.Height))
             {
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    vbCanvas.Arrange(new Rect(vbCanvas.RenderSize));
-                    RenderTargetBitmap rtb = new RenderTargetBitmap((int)vbCanvas.Width, (int)vbCanvas.Height, 96, 96, PixelFormats.Pbgra32);
-                    rtb.Render(vbCanvas);
+                    canvas.Arrange(new Rect(canvas.RenderSize));
+                    RenderTargetBitmap rtb = new RenderTargetBitmap((int)canvas.Width, (int)canvas.Height, 96, 96, PixelFormats.Pbgra32);
+                    rtb.Render(canvas);
                     PngBitmapEncoder encoder = new PngBitmapEncoder();
-                    TransformedBitmap targetBitmap = new TransformedBitmap(rtb, new ScaleTransform(370 / vbCanvas.Width, 250 / vbCanvas.Height));
+                    TransformedBitmap targetBitmap = new TransformedBitmap(rtb, new ScaleTransform(width / canvas.Width, height / canvas.Height));
                     encoder.Frames.Add(BitmapFrame.Create(targetBitmap));
                     encoder.Save(stream);
                     arr = stream.ToArray();
-                    double widthPoint = (((FrameworkElement)vbCanvas.Parent).ActualWidth - vbCanvas.Width) / 2;
-                    double heighPoint = (((FrameworkElement)vbCanvas.Parent).ActualHeight - vbCanvas.Height) / 2;
+                    double widthPoint = (((FrameworkElement)canvas.Parent).ActualWidth - canvas.Width) / 2;
+                    double heighPoint = (((FrameworkElement)canvas.Parent).ActualHeight - canvas.Height) / 2;
                     if (widthPoint > 0 && heighPoint > 0)
-                        vbCanvas.Arrange(new Rect(new System.Windows.Point(widthPoint, heighPoint), vbCanvas.RenderSize));
+                        canvas.Arrange(new Rect(new System.Windows.Point(widthPoint, heighPoint), canvas.RenderSize));
                 }
             }
             return arr;
         }
-
 
         /// <summary>
         /// Create screen shot and resize image to 370x250

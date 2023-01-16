@@ -241,10 +241,20 @@ namespace gip.core.layoutengine
                 return;
             if ((ACClassDesign.ACKind == Global.ACKinds.DSBitmapResource) && (ACClassDesign.DesignBinary != null))
             {
-                BitmapImage bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = new MemoryStream(ACClassDesign.DesignBinary);
-                bitmapImage.EndInit();
+                BitmapImage bitmapImage = null;
+                try
+                {
+                    bitmapImage = new BitmapImage();
+                    bitmapImage.BeginInit();
+                    bitmapImage.StreamSource = new MemoryStream(ACClassDesign.DesignBinary);
+                    bitmapImage.EndInit();
+                }
+                catch (Exception e)
+                {
+                    this.Root().Messages.LogException("VBImage", "UpdateImage()", VBContent);
+                    this.Root().Messages.LogException("VBImage", "UpdateImage()", String.Format("Can't create icon for {0}. Invalid Binary", ACClassDesign.GetACUrl()));
+                    bitmapImage = new BitmapImage(new Uri("pack://application:,,,/gip.core.layoutengine;component/Images/QuestionMark.JPG", UriKind.Absolute));
+                }
                 this.Source = bitmapImage;
             }
             else
