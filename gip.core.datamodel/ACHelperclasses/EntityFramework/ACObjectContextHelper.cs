@@ -36,9 +36,10 @@ namespace gip.core.datamodel
             _ObjectContext = objectContext;
             if (ObjectContext == null)
                 throw new ArgumentException("Passed IACObjectContext is not a System.Data.Objects.ObjectContext");
-            //_ObjectContext.Database.SetCommandTimeout(ACObjectContextHelper.CommandTimeout);
-            //_ObjectContext.SavingChanges += Database_SavingChanges;
-
+            _ObjectContext.Database.SetCommandTimeout(ACObjectContextHelper.CommandTimeout);
+#if !EFCR
+            _ObjectContext.SavingChanges += Database_SavingChanges;
+#endif
         }
 
         public void Dispose()
@@ -50,7 +51,7 @@ namespace gip.core.datamodel
         }
 #endregion
 
-        #region const
+#region const
         /// <summary>
         /// Duration in ms for Thread.Sleep() after a transaction error occured. DEfault is 100ms.
         /// </summary>
@@ -63,11 +64,11 @@ namespace gip.core.datamodel
 
         public static readonly FormattableString SET_READ_UNCOMMITED = $"SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED";
         public static readonly FormattableString SET_READ_COMMITED = $"$SET TRANSACTION ISOLATION LEVEL READ COMMITTED";
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
 
-        #region private
+#region private
 
         IACEntityObjectContext _ObjectContext;
         private bool _DeactivateEntityCheck = false;

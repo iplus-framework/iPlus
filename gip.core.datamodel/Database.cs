@@ -124,7 +124,6 @@ namespace gip.core.datamodel
                 _ObjectContextHelper.Dispose();
             _ObjectContextHelper = null;
             base.Dispose();
-            this.Database.GetDbConnection();
             if (SeparateConnection != null)
                 SeparateConnection.Dispose();
             _SeparateConnection = null;
@@ -399,21 +398,35 @@ namespace gip.core.datamodel
 
         public override EntityEntry Attach(object entity)
         {
+            VBEntityObject vbobj = entity as VBEntityObject;
+            vbobj.Context = this;
             return base.Attach(entity);
         }
 
         public override EntityEntry<TEntity> Attach<TEntity>(TEntity entity)
         {
+            VBEntityObject vbobj = entity as VBEntityObject;
+            vbobj.Context = this;
             return base.Attach(entity);
         }
 
         public override void AttachRange(IEnumerable<object> entities)
         {
+            foreach (var entity in entities)
+            {
+                VBEntityObject vbobj = entity as VBEntityObject;
+                vbobj.Context = this;
+            }
             base.AttachRange(entities);
         }
 
         public override void AttachRange(params object[] entities)
         {
+            foreach (var entity in entities)
+            {
+                VBEntityObject vbobj = entity as VBEntityObject;
+                vbobj.Context = this;
+            }
             base.AttachRange(entities);
         }
 

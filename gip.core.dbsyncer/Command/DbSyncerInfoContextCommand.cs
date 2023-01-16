@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
@@ -8,6 +7,9 @@ using System.Xml.Serialization;
 using gip.core.dbsyncer.model;
 using gip.core.dbsyncer.helper;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
+using Microsoft.Data.SqlClient;
 
 namespace gip.core.dbsyncer.Command
 {
@@ -23,7 +25,7 @@ namespace gip.core.dbsyncer.Command
             bool isInitialDbSync = false;
             try
             {
-                db.Database.SqlQuery<DateTime?>(SQLScripts.CheckDbSyncerInfoExist).FirstOrDefault<DateTime?>();
+                db.Database.SqlQuery<DateTime?>(FormattableStringFactory.Create(SQLScripts.CheckDbSyncerInfoExist)).FirstOrDefault<DateTime?>();
             }
             catch (SqlException cc)
             {
@@ -41,7 +43,7 @@ namespace gip.core.dbsyncer.Command
 
         public static bool IsOldDBStructurePresent(DbContext db)
         {
-            return db.Database.SqlQuery<int?>(SQLScripts.CheckDbSyncerInfoExist_OLD).FirstOrDefault() > 0;
+            return db.Database.SqlQuery<int?>(FormattableStringFactory.Create(SQLScripts.CheckDbSyncerInfoExist_OLD)).FirstOrDefault() > 0;
         }
 
         /// <summary>
@@ -95,7 +97,7 @@ namespace gip.core.dbsyncer.Command
 
         public static List<DbSyncerInfoContext> DatabaseContexts(DbContext db)
         {
-            return db.Database.SqlQuery<DbSyncerInfoContext>(SQLScripts.DbSyncerInfoContextSelect).ToList<DbSyncerInfoContext>();
+            return db.Database.SqlQuery<DbSyncerInfoContext>(FormattableStringFactory.Create(SQLScripts.DbSyncerInfoContextSelect)).ToList<DbSyncerInfoContext>();
         }
 
         /// <summary>
@@ -120,7 +122,7 @@ namespace gip.core.dbsyncer.Command
             try
             {
                 sql = string.Format(SQLScripts.DbSyncerInfoContextInsert, dbInfoContext.DbSyncerInfoContextID, dbInfoContext.Name, dbInfoContext.ConnectionName, dbInfoContext.Order);
-                db.Database.ExecuteSqlCommand(sql);
+                db.Database.ExecuteSql(FormattableStringFactory.Create(sql));
             }
             catch (SqlException sqlException)
             {

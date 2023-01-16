@@ -408,7 +408,7 @@ namespace gip.core.datamodel
             {
                 return _context;
             }
-            protected set
+            set
             {
                 _context = value;
             }

@@ -3614,7 +3614,9 @@ namespace gip.core.datamodel
             }
 #endif
             throw new NotImplementedException();
+#if !EFCR
             return source;
+#endif
         }
 
 #if !EFCR

@@ -1,8 +1,8 @@
 ﻿using gip.core.dbsyncer.Command;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.dbsyncer.model
 {

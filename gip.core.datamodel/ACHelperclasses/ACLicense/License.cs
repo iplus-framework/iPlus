@@ -516,17 +516,15 @@ namespace gip.core.datamodel.Licensing
             string dbName = ((DbConnection)db.Connection).Database;
             if (dbName == null)
                 return "";
-            string query = "SELECT d.create_date, d.service_broker_guid, r.database_guid FROM sys.databases d inner join sys.database_recovery_status r on d.database_id = r.database_id WHERE d.name = '-dbName-'";
-            query = query.Replace("-dbName-", dbName);
-
+            FormattableString query = $"SELECT d.create_date, d.service_broker_guid, r.database_guid FROM sys.databases d inner join sys.database_recovery_status r on d.database_id = r.database_id WHERE d.name = '{dbName}'";
+            //query = query.Replace("-dbName-", dbName);
             DBInfo dbInfo = null;
 
             using (ACMonitor.Lock(db.QueryLock_1X000))
             {
-#if !EFCR
-                var result = db.ExecuteStoreQuery<DBInfo>(query);
+                //var result = db.ExecuteStoreQuery<DBInfo>(query);
+                var result = db.Database.SqlQuery<DBInfo>(query);
                 dbInfo = result.FirstOrDefault();
-#endif
             }
             if (dbInfo == null)
                 return "";
@@ -982,15 +980,15 @@ namespace gip.core.datamodel.Licensing
 
         private static string DecryptString(string cipherText, byte[] pass)
         {
-            RijndaelManaged rijndaelCipher = new RijndaelManaged();
-            rijndaelCipher.Padding = PaddingMode.PKCS7;
-            rijndaelCipher.Key = pass;
-            rijndaelCipher.IV = pass.Take(rijndaelCipher.BlockSize / 8).ToArray();
+            Aes aesCipher = Aes.Create();
+            aesCipher.Padding = PaddingMode.PKCS7;
+            aesCipher.Key = pass;
+            aesCipher.IV = pass.Take(aesCipher.BlockSize / 8).ToArray();
 
             MemoryStream memoryStream = new MemoryStream();
-            ICryptoTransform rijndaelDecryptor = rijndaelCipher.CreateDecryptor();
+            ICryptoTransform aesDecryptor = aesCipher.CreateDecryptor();
             string plainText = String.Empty;
-            using (VBCryptoStream cryptoStream = new VBCryptoStream(memoryStream, rijndaelDecryptor, CryptoStreamMode.Write))
+            using (VBCryptoStream cryptoStream = new VBCryptoStream(memoryStream, aesDecryptor, CryptoStreamMode.Write))
             {
                 byte[] cipherBytes = Convert.FromBase64String(cipherText);
                 cryptoStream.Write(cipherBytes, 0, cipherBytes.Length);

@@ -17,7 +17,7 @@ namespace gip.core.datamodel.Licensing
                 try
                 {
                     csp.FromXmlString(key);
-                    return csp.VerifyData(content, new SHA256CryptoServiceProvider(), signature);
+                    return csp.VerifyData(content, SHA256.Create(), signature);
                 }
                 catch (Exception e)
                 {
@@ -63,7 +63,7 @@ namespace gip.core.datamodel.Licensing
             {
                 info.PrivateKey = rsa.ToXmlString(true);
                 info.PublicKey = rsa.ToXmlString(false);
-                info.Signature = rsa.SignData(content, new SHA256CryptoServiceProvider());
+                info.Signature = rsa.SignData(content, SHA256.Create());
             }
             return info;
         }
@@ -76,7 +76,7 @@ namespace gip.core.datamodel.Licensing
                 rsa.FromXmlString(privateKey);
                 info.PrivateKey = rsa.ToXmlString(true);
                 info.PublicKey = rsa.ToXmlString(false);
-                info.Signature = rsa.SignData(content, new SHA256CryptoServiceProvider());
+                info.Signature = rsa.SignData(content, SHA256.Create());
             }
             return info;
         }

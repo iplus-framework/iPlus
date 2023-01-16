@@ -2,10 +2,11 @@
 using gip.core.dbsyncer.model;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
+using Microsoft.Data.SqlClient;
 
 namespace gip.core.dbsyncer.Command
 {
@@ -16,7 +17,7 @@ namespace gip.core.dbsyncer.Command
             string version = "";
             try
             {
-                List<DBSyncerVersion> versionList = db.Database.SqlQuery<DBSyncerVersion>(SQLScripts.DBSyncerVersionSelect).ToList<DBSyncerVersion>();
+                List<DBSyncerVersion> versionList = db.Database.SqlQuery<DBSyncerVersion>(FormattableStringFactory.Create(SQLScripts.DBSyncerVersionSelect)).ToList<DBSyncerVersion>();
                 if (versionList != null && versionList.Any())
                     version = versionList.OrderByDescending(c => c.UpdateDate).FirstOrDefault().Version;
             }
@@ -34,7 +35,7 @@ namespace gip.core.dbsyncer.Command
             string sql = string.Format(SQLScripts.DBSyncerVersionInsert, version);
             try
             {
-                db.Database.ExecuteSqlCommand(sql);
+                db.Database.ExecuteSql(FormattableStringFactory.Create(sql));
             }
             catch (SqlException sqlException)
             {

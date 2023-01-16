@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using gip.core.dbsyncer.model;
 using gip.core.dbsyncer.Command;
-using System.Data.Entity;
 using gip.core.dbsyncer.helper;
 using System.IO;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.dbsyncer
 {
@@ -40,7 +40,7 @@ namespace gip.core.dbsyncer
             List<BaseSyncMessage> msgList = new List<BaseSyncMessage>();
             try
             {
-                using (DbContext db = new DbContext(connectionString))
+                using (DbContext db = new DbContext(new DbContextOptionsBuilder().UseSqlServer(connectionString).Options))
                 {
 
                     if (OnStatusChange != null)
@@ -135,7 +135,7 @@ namespace gip.core.dbsyncer
                         {
                             // Prepare connection string for DBContext -> context.ConnectionName -> extract app.config connection  string
                             string contextConnectionString = DbSyncerSettings.GetDefaultConnectionString(DbSyncerSettings.ConfigCurrentDir, dbInfoContext.ConnectionName);
-                            using (DbContext contextDb = new DbContext(contextConnectionString))
+                            using (DbContext contextDb = new DbContext(new DbContextOptionsBuilder().UseSqlServer(contextConnectionString).Options))
                             {
                                 foreach (ScriptFileInfo fileInfo in dbInfoContextHelper.UpdateNeededFiles)
                                 {

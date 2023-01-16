@@ -34,7 +34,7 @@ namespace gip.core.datamodel
         /// <returns>System.String.</returns>
         public static string GetMd5Hash(string input)
         {
-            MD5CryptoServiceProvider md5Hasher = new MD5CryptoServiceProvider();
+            MD5 md5Hasher = MD5.Create();
             byte[] data = md5Hasher.ComputeHash(Encoding.Default.GetBytes(input));
             StringBuilder sBuilder = new StringBuilder();
             for (int i = 0; i < data.Length; i++)
@@ -61,14 +61,15 @@ namespace gip.core.datamodel
         }
         #endregion
 
-        #region Rijndael
+        #region Aes / old Rijndael
 
-        static byte[] RijndaelEncrypt(byte[] clearData, byte[] Key, byte[] IV)
+        static byte[] AesEncrypt(byte[] clearData, byte[] Key, byte[] IV)
         {
             MemoryStream ms = new MemoryStream();
-            Rijndael alg = Rijndael.Create();
+            Aes alg = Aes.Create();
 
             // Algorithm. Rijndael is available on all platforms.
+            // Rjindael is now obsolete. Use Aes instead, the functionality is the same
 
             alg.Key = Key;
             alg.IV = IV;
@@ -82,10 +83,10 @@ namespace gip.core.datamodel
             return encryptedData;
         }
 
-        static byte[] RijndaelDecrypt(byte[] cipherData, byte[] Key, byte[] IV)
+        static byte[] AesDecrypt(byte[] cipherData, byte[] Key, byte[] IV)
         {
             MemoryStream ms = new MemoryStream();
-            Rijndael alg = Rijndael.Create();
+            Aes alg = Aes.Create();
             alg.Key = Key;
             alg.IV = IV;
             CryptoStream cs = new CryptoStream(ms, alg.CreateDecryptor(), CryptoStreamMode.Write);
@@ -101,7 +102,7 @@ namespace gip.core.datamodel
         /// <param name="clearText"></param>
         /// <param name="Password"></param>
         /// <returns></returns>
-        public static string RijndaelEncrypt(string clearText, string Password)
+        public static string AesEncrypt(string clearText, string Password)
         {
             byte[] clearBytes = System.Text.Encoding.Unicode.GetBytes(clearText);
             PasswordDeriveBytes pdb = new PasswordDeriveBytes(Password,
@@ -112,7 +113,7 @@ namespace gip.core.datamodel
             //Rijndael key length is 256bit = 32bytes) and then 16 bytes for the IV.
             // IV should always be the block size, which is by default 16 bytes (128 bit) for Rijndael.
 
-            byte[] encryptedData = RijndaelEncrypt(clearBytes, pdb.GetBytes(32), pdb.GetBytes(16));
+            byte[] encryptedData = AesEncrypt(clearBytes, pdb.GetBytes(32), pdb.GetBytes(16));
             string rez = Convert.ToBase64String(encryptedData);
             return rez;
         }
@@ -123,12 +124,12 @@ namespace gip.core.datamodel
         /// <param name="cipherText"></param>
         /// <param name="Password"></param>
         /// <returns></returns>
-        public static string RijndaelDecrypt(string cipherText, string Password)
+        public static string AesDecrypt(string cipherText, string Password)
         {
             byte[] cipherBytes = Convert.FromBase64String(cipherText);
             PasswordDeriveBytes pdb = new PasswordDeriveBytes(Password,
             new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-            byte[] decryptedData = RijndaelDecrypt(cipherBytes, pdb.GetBytes(32), pdb.GetBytes(16));
+            byte[] decryptedData = AesDecrypt(cipherBytes, pdb.GetBytes(32), pdb.GetBytes(16));
             return System.Text.Encoding.Unicode.GetString(decryptedData);
         }
 

@@ -1550,7 +1550,8 @@ namespace gip.core.datamodel
                     else
                         ACClassMethod_ACClassReference.Load();
 
-                    allMethods = ACClassMethod_ACClass.AsQueryable()
+                    allMethods = Context.Entry(this).Collection(c => c.ACClassMethod_ACClass)
+                                                .Query()
                                                 .Include(c => c.PWACClass)
                                                 .Include(c => c.ValueTypeACClass)
                                                 .Include(c => c.ACClass)
@@ -1558,6 +1559,7 @@ namespace gip.core.datamodel
                                                 .Include(c => c.AttachedFromACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
+                    
                 }
                 else
                     allMethods = ACClassMethod_ACClass.ToArray();
@@ -2106,7 +2108,8 @@ namespace gip.core.datamodel
                     else
                         ACClassProperty_ACClassReference.Load();
 
-                    allProperties = ACClassProperty_ACClass.AsQueryable()
+                    allProperties = Context.Entry(this).Collection(c => c.ACClassProperty_ACClass)
+                                                .Query()
                                                 .Include(c => c.ValueTypeACClass)
                                                 .Include(c => c.ACClass)
                                                 .Include(c => c.ACClassProperty1_BasedOnACClassProperty)
@@ -2390,7 +2393,8 @@ namespace gip.core.datamodel
                     else
                         ACClassDesign_ACClassReference.Load();
 
-                    allDesigns = ACClassDesign_ACClass.AsQueryable()
+                    allDesigns = Context.Entry(this).Collection(c => c.ACClassDesign_ACClass)
+                                                .Query()
                                                 .Include(c => c.ValueTypeACClass)
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
@@ -2535,7 +2539,8 @@ namespace gip.core.datamodel
                     else
                         ACClassText_ACClassReference.Load();
 
-                    allTexts = ACClassText_ACClass.AsQueryable()
+                    allTexts = Context.Entry(this).Collection(c => c.ACClassText_ACClass)
+                                                .Query()
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
@@ -2679,7 +2684,8 @@ namespace gip.core.datamodel
                     else
                         ACClassMessage_ACClassReference.Load();
 
-                    allMessages = ACClassMessage_ACClass.AsQueryable()
+                    allMessages = Context.Entry(this).Collection(c => c.ACClassMessage_ACClass)
+                                                .Query()
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();

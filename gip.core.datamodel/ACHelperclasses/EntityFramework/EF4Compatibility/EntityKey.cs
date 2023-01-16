@@ -318,7 +318,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="obj">the key to compare against this instance</param>
         /// <returns>true if this instance is equal to the given key, and false otherwise</returns>
-        public bool Equals(object obj)
+        public override bool Equals(object obj)
         {
             return InternalEquals(this, obj as EntityKey, compareEntitySets: true);
         }
@@ -569,6 +569,75 @@ namespace gip.core.datamodel
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Returns a value-based hash code, to allow EntityKey to be used in hash tables.
+        /// </summary>
+        /// <returns>the hash value of this EntityKey</returns>
+        public override int GetHashCode()
+        {
+            int hashCode = _hashCode;
+            if (0 == hashCode)
+            {
+                _containsByteArray = false;
+
+                if (RequiresDeserialization)
+                {
+                    DeserializeMembers();
+                }
+
+                if (_entitySetName != null)
+                {
+                    hashCode = _entitySetName.GetHashCode();
+                }
+                if (_entityContainerName != null)
+                {
+                    hashCode ^= _entityContainerName.GetHashCode();
+                }
+
+                // If the key is not temporary, determine a hash code based on the value(s) within the key.
+                if (null != _singletonKeyValue)
+                {
+                    hashCode = AddHashValue(hashCode, _singletonKeyValue);
+                }
+                else if (null != _compositeKeyValues)
+                {
+                    for (int i = 0, n = _compositeKeyValues.Length; i < n; i++)
+                    {
+                        hashCode = AddHashValue(hashCode, _compositeKeyValues[i]);
+                    }
+                }
+                else
+                {
+                    // If the key is temporary, use default hash code
+                    hashCode = base.GetHashCode();
+                }
+
+                // cache the hash code if we are a locked or fully specified EntityKey
+                if (_isLocked || (!String.IsNullOrEmpty(_entitySetName) &&
+                                  !String.IsNullOrEmpty(_entityContainerName) &&
+                                  (_singletonKeyValue != null || _compositeKeyValues != null)))
+                {
+                    _hashCode = hashCode;
+                }
+            }
+            return hashCode;
+        }
+
+        private int AddHashValue(int hashCode, object keyValue)
+        {
+            byte[] byteArrayValue = keyValue as byte[];
+            if (null != byteArrayValue)
+            {
+                hashCode ^= ByValueEqualityComparer.ComputeBinaryHashCode(byteArrayValue);
+                _containsByteArray = true;
+                return hashCode;
+            }
+            else
+            {
+                return hashCode ^ keyValue.GetHashCode();
+            }
         }
 
         #endregion
@@ -928,10 +997,15 @@ namespace gip.core.datamodel
         #endregion
 
         #region Fields
+        /*
         private volatile bool _hasForeignKeyRelationships;
         private volatile bool _hasIndependentRelationships;
+        */
         #endregion
 
+        #region properties
+
+        #endregion
     }
 
     public abstract class EntitySetBase

@@ -8,6 +8,8 @@ using gip.core.dbsyncer.model;
 using gip.core.dbsyncer.helper;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
+using Microsoft.Data.SqlClient;
 
 namespace gip.core.dbsyncer.Command
 {
@@ -54,7 +56,8 @@ namespace gip.core.dbsyncer.Command
         /// <returns></returns>
         public static DateTime? DatabaseMaxScriptDate(DbContext db, DbSyncerInfoContext dbInfoContext)
         {
-            return db.Database.SqlQuery<DateTime?>(string.Format(SQLScripts.MaxScriptDate, dbInfoContext.DbSyncerInfoContextID.Trim())).FirstOrDefault<DateTime?>();
+            string sql = string.Format(SQLScripts.MaxScriptDate, dbInfoContext.DbSyncerInfoContextID.Trim());
+            return db.Database.SqlQuery<DateTime?>(FormattableStringFactory.Create(sql)).FirstOrDefault<DateTime?>();
         }
         #endregion database informations
 
@@ -74,7 +77,7 @@ namespace gip.core.dbsyncer.Command
                 if (updateFile.FileName != "InitialScript.sql")
                 {
                     DbSyncerInfo dbInfo = updateFile.GetDbInfo();
-                    db.Database.ExecuteSqlCommand(dbInfo.ToInsertSql());
+                    db.Database.ExecuteSql(FormattableStringFactory.Create(dbInfo.ToInsertSql()));
                 }
             }
             catch (SqlException sqlException)
@@ -111,7 +114,7 @@ namespace gip.core.dbsyncer.Command
             {
                 string sqlContent = updateFile.GetSqlContent();
                 DbSyncerInfo dbInfo = updateFile.GetDbInfo();
-                db.Database.ExecuteSqlCommand(dbInfo.ToDeleteSql());
+                db.Database.ExecuteSql(FormattableStringFactory.Create(dbInfo.ToDeleteSql()));
             }
             catch (SqlException sqlException)
             {
@@ -166,11 +169,11 @@ namespace gip.core.dbsyncer.Command
                     }
                 }
                 prepraredSQL = String.Join(Environment.NewLine, lines);
-                var oldTimeout = db.Database.CommandTimeout;
-                db.Database.CommandTimeout = 60 * 5;
+                var oldTimeout = db.Database.GetCommandTimeout;
+                db.Database.SetCommandTimeout(60 * 5);
                 if (!string.IsNullOrEmpty(prepraredSQL))
-                    db.Database.ExecuteSqlCommand(prepraredSQL);
-                db.Database.CommandTimeout = oldTimeout;
+                    db.Database.ExecuteSql(FormattableStringFactory.Create(prepraredSQL));
+                db.Database.SetCommandTimeout(oldTimeout());
             }
         }
 
