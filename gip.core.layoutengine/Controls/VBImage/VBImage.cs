@@ -251,8 +251,8 @@ namespace gip.core.layoutengine
                 }
                 catch (Exception e)
                 {
-                    this.Root().Messages.LogException("VBImage", "UpdateImage()", VBContent);
-                    this.Root().Messages.LogException("VBImage", "UpdateImage()", String.Format("Can't create icon for {0}. Invalid Binary", ACClassDesign.GetACUrl()));
+                    this.Root().Messages.LogException("VBImage", "UpdateImage()", e);
+                    this.Root().Messages.LogException("VBImage", "UpdateImage()", String.Format("Can't create icon for {0} at VBContent {1}. Invalid Binary", ACClassDesign.GetACUrl(), VBContent));
                     bitmapImage = new BitmapImage(new Uri("pack://application:,,,/gip.core.layoutengine;component/Images/QuestionMark.JPG", UriKind.Absolute));
                 }
                 this.Source = bitmapImage;
