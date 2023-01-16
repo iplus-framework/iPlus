@@ -13,7 +13,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using gip.core.datamodel;
 using System.Reflection;
-using System.Data.Objects.DataClasses;
 using System.Collections;
 using System.ComponentModel;
 
@@ -53,13 +52,13 @@ namespace gip.core.layoutengine
 
             if (_ACValue.ValueTypeACClass != null)
             {
-                if (_ACValue.Value != null && _ACValue.Value is EntityObject)
+                if (_ACValue.Value != null && _ACValue.Value is VBEntityObject)
                 {
                     isComboBox = true;
                     if (typeDatabase == null)
-                        typeDatabase = (_ACValue.Value as EntityObject).GetObjectContext() as Database;
+                        typeDatabase = (_ACValue.Value as VBEntityObject).GetObjectContext() as Database;
                 }
-                else if ((_ACValue.ValueTypeACClass.ObjectType != null) && (typeof(EntityObject).IsAssignableFrom(_ACValue.ValueTypeACClass.ObjectType)))
+                else if ((_ACValue.ValueTypeACClass.ObjectType != null) && (typeof(VBEntityObject).IsAssignableFrom(_ACValue.ValueTypeACClass.ObjectType)))
                 {
                     isComboBox = true;
                 }
@@ -139,8 +138,8 @@ namespace gip.core.layoutengine
                      {
                          IACEntityObjectContext database = null;
                          ACQueryDefinition queryDef = this.Root().Queries.CreateQueryByClass(null, queryACClass, queryACClass.ACIdentifier, true);
-                         if (_ACValue.Value != null && _ACValue.Value is EntityObject)
-                             database = (_ACValue.Value as EntityObject).GetObjectContext();
+                         if (_ACValue.Value != null && _ACValue.Value is VBEntityObject)
+                             database = (_ACValue.Value as VBEntityObject).GetObjectContext();
                          else
                              database = _ACValue.ValueTypeACClass.Database;
                          var result = database.ACSelect(queryDef);

@@ -22,6 +22,7 @@ using System.Runtime;
 using System.Runtime.CompilerServices;
 using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -431,10 +432,16 @@ namespace gip.core.datamodel
             }
             return null;
         }
-#endregion
+        #endregion
 
-        
-#region Property-Access through Reflection
+
+        #region Property-Access through Reflection
+        public static bool IsDatabaseField(this PropertyInfo pi)
+        {
+            return (  (pi.PropertyType.IsValueType || typeof(string).IsAssignableFrom(pi.PropertyType))
+                    && pi.GetCustomAttribute(typeof(NotMappedAttribute)) != null);
+        }
+
         public static object GetValue(this object obj, string acUrlOrPropPath)
         {
             if (obj == null || String.IsNullOrEmpty(acUrlOrPropPath))

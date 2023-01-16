@@ -538,7 +538,7 @@ namespace gip.core.layoutengine
                                             initObject = BSOACComponent;
 
                                         bool isObjectSet = ((dsPath.StartsWith("Database.") || (dsSource != null && dsSource is IACEntityObjectContext))
-                                                        && (dsACTypeInfo is ACClassProperty && (dsACTypeInfo as ACClassProperty).GenericType == typeof(System.Data.Objects.ObjectSet<>).FullName));
+                                                        && (dsACTypeInfo is ACClassProperty && (dsACTypeInfo as ACClassProperty).GenericType == typeof(Microsoft.EntityFrameworkCore.DbSet<>).FullName));
                                         if (initObject != null && isObjectSet)
                                             ACAccess = queryDef.NewAccess("VBComboBox", initObject, dsSource as IACObject);
                                         else

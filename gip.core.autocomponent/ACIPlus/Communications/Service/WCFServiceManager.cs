@@ -13,6 +13,7 @@ using System.Threading;
 using System.ServiceModel.Channels;
 using gip.core.datamodel;
 using System.ServiceModel.Description;
+using CoreWCF;
 
 namespace gip.core.autocomponent
 {
@@ -93,7 +94,7 @@ namespace gip.core.autocomponent
             {
                 if (_useNetTCPBinding)
                 {
-                    NetTcpBinding netTcpBinding = new NetTcpBinding();
+                    CoreWCF.NetTcpBinding netTcpBinding = new CoreWCF.NetTcpBinding();
                     if (netTcpBinding.ReaderQuotas != null)
                         netTcpBinding.ReaderQuotas.MaxStringContentLength = WCFServiceManager.MaxStringLength;
                     netTcpBinding.MaxBufferSize = WCFServiceManager.MaxBufferSize;
@@ -228,8 +229,8 @@ namespace gip.core.autocomponent
         }
 
 
-        private ServiceHost _serviceHost = null;
-        internal ServiceHost ServiceHost
+        private ServiceHostBase _serviceHost = null;
+        internal ServiceHostBase ServiceHost
         {
             get
             {

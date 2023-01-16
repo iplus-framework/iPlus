@@ -31,46 +31,9 @@
     <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI_Srv\Interface\ACPointAsyncRMIHelper.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Subscription_Client\Interface\IACPointEventSubscr.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI_Srv\BaseClasses\ACPointNetStorableAsyncRMIBase.cs" />
-    <Compile Include="ACPoint\Implementations\5_Task\Task_Srv\Proxy\ACPointTaskProxy.cs" />
-    <Compile Include="ACPoint\Implementations\5_Task\Task_Srv\Real\ACPointTask.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\Subscription_Client\Interface\IACPointAsyncRMISubscr.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\Subscription_Client\BaseClasses\ACPointAsyncRMISubscrWrap.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\Subscription_Client\BaseClasses\ACPointNetStorableAsyncRMISubscrBase.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Event_Srv\BaseClasses\ACPointNetStorableEventBase.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI_Srv\Proxy\ACPointNetAsyncRMIProxy.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\Subscription_Client\Proxy\ACPointNetAsyncRMISubscrProxy.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI_Srv\Proxy\ACPointAsyncRMIProxy.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\Subscription_Client\Proxy\ACPointAsyncRMISubscrProxy.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI_Srv\Real\ACPointNetAsyncRMI.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\Subscription_Client\Real\ACPointNetAsyncRMISubscrBase.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI_Srv\Real\ACPointAsyncRMI.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\Subscription_Client\Real\ACPointAsyncRMISubscr.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Subscription_Client\BaseClasses\ACPointEventSubscrWrap.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Subscription_Client\BaseClasses\ACPointNetStorableEventSubscrBase.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Event_Srv\Proxy\ACPointNetEventProxy.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Subscription_Client\Proxy\ACPointNetEventSubscrProxy.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Event_Srv\Proxy\ACPointEventProxy.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Subscription_Client\Proxy\ACPointEventSubscrProxy.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Event_Srv\Real\ACPointNetEventBase.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Subscription_Client\Real\ACPointNetEventSubscrBase.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Event_Srv\Real\ACPointEvent.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Subscription_Client\Real\ACPointEventSubscr.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Event_Srv\Interface\IACPointEvent.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI_Srv\Interface\IACPointAsyncRMI.cs" />
-    <Compile Include="ACPoint\Implementations\3_Event\Event_Srv\BaseClasses\ACPointEventWrap.cs" />
-    <Compile Include="ACPoint\Implementations\4_AsyncRMI\AsyncRMI_Srv\BaseClasses\ACPointAsyncRMIWrap.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ACPoint\Implementations\5_Task\Task_Srv\Interface\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\gip.core.ControlScriptSync\gip.core.ControlScriptSync.csproj" />
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
     <ProjectReference Include="..\gip.core.dbsyncer\gip.core.dbsyncer.csproj" />
-    <ProjectReference Include="..\gip.core.layoutengine\gip.core.layoutengine.csproj" />
     <ProjectReference Include="..\gip.ext.graphics\gip.ext.graphics.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -133,6 +96,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="CoreWCF.NetTcp" Version="1.3.1" />
+    <PackageReference Include="CoreWCF.Primitives" Version="1.3.1" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
     <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.355802">

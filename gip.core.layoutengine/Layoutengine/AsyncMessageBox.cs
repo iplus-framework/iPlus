@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows;
-using System.Runtime.Remoting.Messaging;
+//using System.Runtime.Remoting.Messaging;
 
 namespace gip.core.layoutengine
 {
@@ -53,13 +53,13 @@ namespace gip.core.layoutengine
             return MessageBox.Show(strMessage, strCaption, enmButton, enmImage);
         }
 
-        public static MessageBoxResult EndMessageBoxAsync(IAsyncResult result)
-        {
-            // Retrieve the delegate.
-            AsyncResult asyncResult = (AsyncResult)result;
-            ShowMessageBoxDelegate caller = (ShowMessageBoxDelegate)asyncResult.AsyncDelegate;
+        //public static MessageBoxResult EndMessageBoxAsync(IAsyncResult result)
+        //{
+        //    // Retrieve the delegate.
+        //    AsyncResult asyncResult = (AsyncResult)result;
+        //    ShowMessageBoxDelegate caller = (ShowMessageBoxDelegate)asyncResult.AsyncDelegate;
 
-            return caller.EndInvoke(asyncResult);
-        }
+        //    return caller.EndInvoke(asyncResult);
+        //}
     }
 }

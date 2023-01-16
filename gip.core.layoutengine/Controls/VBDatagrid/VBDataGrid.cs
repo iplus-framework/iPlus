@@ -13,7 +13,6 @@ using System.Collections;
 using System.Runtime.Serialization;
 using gip.core.layoutengine.Helperclasses;
 using gip.core.datamodel;
-using System.Data.Objects.DataClasses;
 using System.Reflection;
 using System.Data;
 using ClosedXML.Excel;
@@ -433,7 +432,7 @@ namespace gip.core.layoutengine
                     if (initObject == null)
                         initObject = BSOACComponent;
                     bool isObjectSet = ((pathOfBindingForItmSrc.StartsWith("Database.") || (sourceOfBindingForItmSrc != null && sourceOfBindingForItmSrc is IACEntityObjectContext))
-                                        && (_ItemsSourceACTypeInfo is ACClassProperty && (_ItemsSourceACTypeInfo as ACClassProperty).GenericType == typeof(System.Data.Objects.ObjectSet<>).FullName));
+                                        && (_ItemsSourceACTypeInfo is ACClassProperty && (_ItemsSourceACTypeInfo as ACClassProperty).GenericType == typeof(Microsoft.EntityFrameworkCore.DbSet<>).FullName));
                     if (initObject != null && isObjectSet)
                         _ACAccess = queryDef.NewAccess("VBDataGrid", initObject);
                     else
@@ -2689,10 +2688,12 @@ namespace gip.core.layoutengine
                         && !String.IsNullOrEmpty(iGridColumn.VBContent))
                     {
                         Type entityType = iGridColumn.ColACType.ACClass.ObjectType;
-                        if (entityType != null && typeof(EntityObject).IsAssignableFrom(entityType))
+                        if (entityType != null && typeof(VBEntityObject).IsAssignableFrom(entityType))
                         {
+                            //[NotMapped]
                             PropertyInfo propInfo = entityType.GetProperty(iGridColumn.ColACType.ACIdentifier);
-                            if (propInfo != null && propInfo.GetCustomAttributes(typeof(EdmScalarPropertyAttribute), false).Any())
+
+                            if (propInfo != null && propInfo.IsDatabaseField())
                             {
                                 if (!sortColumnsCleared)
                                 {
