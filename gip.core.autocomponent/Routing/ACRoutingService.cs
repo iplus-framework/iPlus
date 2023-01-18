@@ -1,7 +1,7 @@
 using gip.core.datamodel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Objects;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -192,7 +192,7 @@ namespace gip.core.autocomponent
 
         #region Precompiled Queries
         public static readonly Func<Database, Guid, short, IQueryable<ACClassPropertyRelation>> s_cQry_TargetRoutes =
-        CompiledQuery.Compile<Database, Guid, short, IQueryable<ACClassPropertyRelation>>(
+        EF.CompileQuery<Database, Guid, short, IQueryable<ACClassPropertyRelation>>(
             (ctx, targetID, connectionType) => from c in ctx.ACClassPropertyRelation
                                                where c.TargetACClassID == targetID
                                                       && c.ConnectionTypeIndex == connectionType
@@ -200,7 +200,7 @@ namespace gip.core.autocomponent
         );
 
         public static readonly Func<Database, Guid, Guid, short, IQueryable<ACClassPropertyRelation>> s_cQry_TargetRoutesFromPoint =
-        CompiledQuery.Compile<Database, Guid, Guid, short, IQueryable<ACClassPropertyRelation>>(
+        EF.CompileQuery<Database, Guid, Guid, short, IQueryable<ACClassPropertyRelation>>(
             (ctx, targetID, targetPropertyID, connectionType) => from c in ctx.ACClassPropertyRelation
                                                                  where c.TargetACClassID == targetID
                                                                         && c.TargetACClassPropertyID == targetPropertyID
@@ -209,7 +209,7 @@ namespace gip.core.autocomponent
         );
 
         public static readonly Func<Database, Guid, short, IQueryable<ACClassPropertyRelation>> s_cQry_SourceRoutes =
-        CompiledQuery.Compile<Database, Guid, short, IQueryable<ACClassPropertyRelation>>(
+        EF.CompileQuery<Database, Guid, short, IQueryable<ACClassPropertyRelation>>(
             (ctx, sourceID, connectionType) => from c in ctx.ACClassPropertyRelation
                                                where c.SourceACClassID == sourceID
                                                       && c.ConnectionTypeIndex == connectionType
@@ -217,7 +217,7 @@ namespace gip.core.autocomponent
         );
 
         public static readonly Func<Database, Guid, Guid, short, IQueryable<ACClassPropertyRelation>> s_cQry_SourceRoutesFromPoint =
-        CompiledQuery.Compile<Database, Guid, Guid, short, IQueryable<ACClassPropertyRelation>>(
+        EF.CompileQuery<Database, Guid, Guid, short, IQueryable<ACClassPropertyRelation>>(
             (ctx, sourceID, sourcePropertyID, connectionType) => from c in ctx.ACClassPropertyRelation
                                                                  where c.SourceACClassID == sourceID
                                                                          && c.SourceACClassPropertyID == sourcePropertyID

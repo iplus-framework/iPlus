@@ -1,7 +1,6 @@
 ﻿using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
-using System.Data.Objects;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -53,7 +52,7 @@ namespace gip.core.autocomponent
                 {
                     try
                     {
-                        ACTypeFromLiveContext.ACClassConfig_ACClass.Load(MergeOption.OverwriteChanges);
+                        ACTypeFromLiveContext.ACClassConfig_ACClass.AutoLoad(ACTypeFromLiveContext.ACClassConfig_ACClassReference, ACTypeFromLiveContext);
                         var query = ACTypeFromLiveContext.ACClassConfig_ACClass.Where(c => c.KeyACUrl == keyACUrl);
                         if (query.Any())
                             result = query.ToList();

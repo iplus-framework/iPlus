@@ -1,10 +1,9 @@
 using gip.core.autocomponent;
 using gip.core.datamodel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Objects;
-using System.Data.Objects.DataClasses;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -264,13 +263,13 @@ namespace gip.core.autocomponent
                 foreach (ACConfigStoreInfo configStoreInfo in rmiResult)
                 {
                     IACConfigStore dbConfigStoreItem = null;
-                    if (db.DefaultContainerName == configStoreInfo.ConfigStoreEntity.EntityContainerName)
+                    if (db.GetType().Namespace == configStoreInfo.ConfigStoreEntity.EntityType.Namespace)
                         dbConfigStoreItem = GetObjectFromContext(db, configStoreInfo);
                     else if (db.ContextIPlus.DefaultContainerName == configStoreInfo.ConfigStoreEntity.EntityContainerName)
                         dbConfigStoreItem = GetObjectFromContext(db.ContextIPlus, configStoreInfo);
                     else if (!String.IsNullOrEmpty(configStoreInfo.ConfigStoreEntity.EntityContainerName))
                     {
-                        IACEntityObjectContext objectContext = ACObjectContextManager.Contexts.Where(c => c.DefaultContainerName == configStoreInfo.ConfigStoreEntity.EntityContainerName).FirstOrDefault();
+                        IACEntityObjectContext objectContext = ACObjectContextManager.Contexts.Where(c => c.GetType().Namespace == configStoreInfo.ConfigStoreEntity.EntityType.Namespace).FirstOrDefault();
                         if (objectContext != null)
                             dbConfigStoreItem = GetObjectFromContext(objectContext, configStoreInfo);
                     }
@@ -344,7 +343,7 @@ namespace gip.core.autocomponent
             if (configStore == null) return new List<RuleValue>();
             IACConfig configItem = ACConfigHelper.GetStoreConfiguration(configStore.ConfigurationEntries, preConfigACUrl, localConfigACUrl, false, null);
             RuleValueList ruleValueList = null;
-            if (configItem != null && (configItem as EntityObject).EntityState != EntityState.Detached)
+            if (configItem != null && (configItem as VBEntityObject).EntityState != EntityState.Detached)
                 ruleValueList = (RuleValueList)configItem[RuleValueList.ClassName];
             if (ruleValueList == null)
                 return new List<RuleValue>();

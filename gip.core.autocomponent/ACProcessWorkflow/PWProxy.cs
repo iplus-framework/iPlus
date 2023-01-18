@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using gip.core.datamodel;
-using System.Data.Objects;
 using System.Xml;
 using System.IO;
 using System.Runtime.Serialization;
@@ -223,7 +222,7 @@ namespace gip.core.autocomponent
                     return null;
                 ACClassMethod acClassMethodOfContentWF = null;
                 if (contentACClassWF.ACClassMethodReference.IsLoaded)
-                    acClassMethodOfContentWF = contentACClassWF.ACClassMethodReference.Value;
+                    acClassMethodOfContentWF = contentACClassWF.ACClassMethodReference.CurrentValue as ACClassMethod;
                 if (acClassMethodOfContentWF == null)
                 {
                     using (ACMonitor.Lock(this.ContextLockForACClassWF))
@@ -392,7 +391,7 @@ namespace gip.core.autocomponent
 
                 ACProgram acProgram = null;
                 if (contentTask.ACProgramReference.IsLoaded)
-                    acProgram = contentTask.ACProgramReference.Value;
+                    acProgram = contentTask.ACProgramReference.CurrentValue as ACProgram;
                 if (acProgram == null)
                     ACClassTaskQueue.TaskQueue.ProcessAction(() => { acProgram = contentTask.ACProgram; });
                 if (acProgram != null)

@@ -6,7 +6,6 @@ using gip.core.datamodel;
 using System.Linq.Expressions;
 using System.ComponentModel;
 using System.Reflection;
-using System.Data.Objects.DataClasses;
 using System.Data;
 using System.IO;
 
@@ -1031,8 +1030,8 @@ namespace gip.core.autocomponent
                 return null;
 
             object current = currentProperty.GetValue(accessPrimary);
-            if (current == null || !(current is IACObject) || !(current is EntityObject)
-                || ((IACObject)current).ACType == null || ((EntityObject)current).EntityKey == null || ((EntityObject)current).EntityKey.EntityKeyValues == null)
+            if (current == null || !(current is IACObject) || !(current is VBEntityObject)
+                || ((IACObject)current).ACType == null || ((VBEntityObject)current).EntityKey == null || ((VBEntityObject)current).EntityKey.EntityKeyValues == null)
                 return null;
 
             if (ChangeLogBSO == null)
@@ -1040,12 +1039,12 @@ namespace gip.core.autocomponent
 
             ACValueList param = new ACValueList();
             param.Add(new ACValue("ACClassID", ((((IACObject)current).ACType as ACClass).ACClassID)));
-            param.Add(new ACValue("EntityKey", ((EntityObject)current).EntityKey.EntityKeyValues[0].Value));
+            param.Add(new ACValue("EntityKey", ((VBEntityObject)current).EntityKey.EntityKeyValues[0].Value));
             bool? isEnabled = ChangeLogBSO.ExecuteMethod("IsEnabledLogForClass", param[0].Value, param[1].Value) as bool?;
             if (!isEnabled.HasValue || !isEnabled.Value)
                 return null;
 
-            param.Add(new ACValue("Database", ((EntityObject)current).GetObjectContext()));
+            param.Add(new ACValue("Database", ((VBEntityObject)current).GetObjectContext()));
 
             var acclassText = this.ComponentClass.GetText("ChangeLogMenuText");
             string menuCaption;
@@ -1075,7 +1074,7 @@ namespace gip.core.autocomponent
                 targetEntity = ACUrlCommand(entityACUrl);
             }
 
-            if (targetEntity == null || !(targetEntity is IACObject) || !(targetEntity is EntityObject))
+            if (targetEntity == null || !(targetEntity is IACObject) || !(targetEntity is VBEntityObject))
                 return null;
 
             ACClass typeAsACClass = (targetEntity as IACObject).ACType as ACClass;
@@ -1083,7 +1082,7 @@ namespace gip.core.autocomponent
             if (acClassProperty == null)
                 return null;
 
-            EntityKey entityKey = ((EntityObject)targetEntity).EntityKey;
+            EntityKey entityKey = ((VBEntityObject)targetEntity).EntityKey;
             if (entityKey == null || entityKey.EntityKeyValues == null || !entityKey.EntityKeyValues.Any())
                 return null;
 

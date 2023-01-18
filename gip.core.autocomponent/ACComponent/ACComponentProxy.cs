@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 using gip.core.datamodel;
 using System.Reflection;
-using System.Data.Objects;
 using System.Xml;
 using System.IO;
 using System.Collections.Concurrent;

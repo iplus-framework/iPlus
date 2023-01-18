@@ -9,8 +9,8 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Reflection;
-using Microsoft.Isam.Esent.Collections.Generic;
 using gip.core.datamodel;
+using Microsoft.Isam.Esent.Collections.Generic;
 
 namespace gip.core.autocomponent
 {

@@ -9,13 +9,13 @@ using System.Text;
 using System.Timers;
 using System.Linq;
 using System.Threading;
-using System.ServiceModel;
 using System.Xml;
 using System.Runtime.Serialization;
 using System.ServiceModel.Channels;
 using gip.core.datamodel;
 using System.Transactions;
 using System.ServiceModel.Description;
+using CoreWCF;
 
 namespace gip.core.autocomponent
 {

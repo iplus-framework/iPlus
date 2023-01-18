@@ -6,8 +6,7 @@ using gip.core.datamodel;
 using System.ComponentModel;
 using System.Xml;
 using System.Runtime.Serialization;
-using System.Data.Objects.DataClasses;
-using Microsoft.Isam.Esent.Interop;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
 {
@@ -207,7 +206,7 @@ namespace gip.core.autocomponent
                     {
                         ACClassTask acClassTask = value as ACClassTask;
                         if (acClassTask.ContentACClassWFReference.IsLoaded)
-                            _ContentACClassWF = acClassTask.ContentACClassWFReference.Value;
+                            _ContentACClassWF = acClassTask.ContentACClassWFReference.CurrentValue as ACClassWF;
                         if (_ContentACClassWF == null) // && (acClassTask.EntityState == System.Data.EntityState.Added || acClassTask.EntityState == System.Data.EntityState.Detached))
                             _ContentACClassWF = acClassTask.NewContentACClassWFForQueue;
                         if (_ContentACClassWF == null)
@@ -237,7 +236,7 @@ namespace gip.core.autocomponent
                     {
                         ACClassTask acClassTask = Content as ACClassTask;
                         if (acClassTask.ContentACClassWFReference.IsLoaded)
-                            _ContentACClassWF = acClassTask.ContentACClassWFReference.Value;
+                            _ContentACClassWF = acClassTask.ContentACClassWFReference.CurrentValue as ACClassWF;
                         if (_ContentACClassWF == null)// && (acClassTask.EntityState == System.Data.EntityState.Added || acClassTask.EntityState == System.Data.EntityState.Detached))
                             _ContentACClassWF = acClassTask.NewContentACClassWFForQueue;
                         if (_ContentACClassWF == null)
@@ -257,7 +256,7 @@ namespace gip.core.autocomponent
                     return null;
                 ACClassMethod aCClassMethod = null;
                 if (contentACClassWF.RefPAACClassMethodReference.IsLoaded)
-                    aCClassMethod = contentACClassWF.RefPAACClassMethodReference.Value;
+                    aCClassMethod = contentACClassWF.RefPAACClassMethodReference.CurrentValue as ACClassMethod;
                 if (aCClassMethod == null)
                 {
                     using (ACMonitor.Lock(this.ContextLockForACClassWF))
@@ -278,7 +277,7 @@ namespace gip.core.autocomponent
                     return null;
                 ACClass refACClassOfContentWF = null;
                 if (contentACClassWF.RefPAACClassReference.IsLoaded)
-                    refACClassOfContentWF = contentACClassWF.RefPAACClassReference.Value;
+                    refACClassOfContentWF = contentACClassWF.RefPAACClassReference.CurrentValue as ACClass;
                 if (refACClassOfContentWF == null)
                 {
                     using (ACMonitor.Lock(this.ContextLockForACClassWF))
@@ -299,7 +298,7 @@ namespace gip.core.autocomponent
                     return null;
                 ACClassMethod acClassMethodOfContentWF = null;
                 if (contentACClassWF.ACClassMethodReference.IsLoaded)
-                    acClassMethodOfContentWF = contentACClassWF.ACClassMethodReference.Value;
+                    acClassMethodOfContentWF = contentACClassWF.ACClassMethodReference.CurrentValue as ACClassMethod;
                 if (acClassMethodOfContentWF == null)
                 {
                     using (ACMonitor.Lock(this.ContextLockForACClassWF))
@@ -320,7 +319,7 @@ namespace gip.core.autocomponent
                     return null;
                 ACClass pwACClassOfContentW = null;
                 if (contentACClassWF.PWACClassReference.IsLoaded)
-                    pwACClassOfContentW = contentACClassWF.PWACClassReference.Value;
+                    pwACClassOfContentW = contentACClassWF.PWACClassReference.CurrentValue as ACClass;
                 if (pwACClassOfContentW == null)
                 {
                     using (ACMonitor.Lock(this.ContextLockForACClassWF))
@@ -615,7 +614,7 @@ namespace gip.core.autocomponent
 
                 ACProgram acProgram = null;
                 if (contentTask.ACProgramReference.IsLoaded)
-                    acProgram = contentTask.ACProgramReference.Value;
+                    acProgram = contentTask.ACProgramReference.CurrentValue as ACProgram;
                 if (acProgram == null)// && (contentTask.EntityState == System.Data.EntityState.Added || contentTask.EntityState == System.Data.EntityState.Detached))
                     acProgram = contentTask.NewACProgramForQueue;
                 if (acProgram == null)
@@ -628,7 +627,7 @@ namespace gip.core.autocomponent
                 if (contentACClassWF == null)
                     return null;
                 if (contentACClassWF.ACClassMethodReference.IsLoaded)
-                    wfContext = contentACClassWF.ACClassMethodReference.Value;
+                    wfContext = contentACClassWF.ACClassMethodReference.CurrentValue as ACClassMethod;
                 if (wfContext == null)
                 {
                     using (ACMonitor.Lock(this.ContextLockForACClassWF))
@@ -671,13 +670,13 @@ namespace gip.core.autocomponent
                 if (ContentTask == null || WFInitPhase == WFInstantiatonPhase.NewWF_Creating)
                     return false;
 
-                System.Data.EntityState entityState = System.Data.EntityState.Unchanged;
+                EntityState entityState = EntityState.Unchanged;
                 entityState = ContentTask.EntityState;
                 //ACClassTaskQueue.TaskQueue.ProcessAction(() => { entityState = ContentTask.EntityState; });
 
                 // All entities must be saved to database first because when other entites from application-datamodel need references to the ACClassTask from its tables
                 // e.g. task.ProdOrderPartslistPos_ACClassTask. Therefore entityState mus always be Unchanged or modified
-                if (entityState != System.Data.EntityState.Unchanged && entityState != System.Data.EntityState.Modified)
+                if (entityState != EntityState.Unchanged && entityState != EntityState.Modified)
                     return false;
 
                 foreach (var child in ACComponentChilds)
@@ -982,8 +981,8 @@ namespace gip.core.autocomponent
             if (stores != null)
             {
                 return stores
-                        .Where(c => c is EntityObject)
-                        .Select(c => new ACConfigStoreInfo((c as EntityObject).EntityKey, c.OverridingOrder)).ToList();
+                        .Where(c => c is VBEntityObject)
+                        .Select(c => new ACConfigStoreInfo((c as VBEntityObject).EntityKey, c.OverridingOrder)).ToList();
             }
             return new List<ACConfigStoreInfo>();
         }

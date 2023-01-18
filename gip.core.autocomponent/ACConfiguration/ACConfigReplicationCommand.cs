@@ -1,8 +1,8 @@
 ﻿using gip.core.datamodel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Objects.DataClasses;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -119,7 +119,7 @@ namespace gip.core.autocomponent
                     List<RuleValue> sourceRuleValueList = RulesCommand.ReadIACConfig(originalConfigItem);
                     IACConfig targetConfigItem = ACConfigHelper.GetStoreConfiguration(configStore.ConfigurationEntries, targetNode.PreACUrl, targetNode.ContentACClassWF.ConfigACUrl + @"\Rules\" + ruleTypeName, false, null);
                         
-                    if(targetConfigItem != null && (originalConfigItem as EntityObject).EntityState == EntityState.Deleted)
+                    if(targetConfigItem != null && (originalConfigItem as VBEntityObject).EntityState == EntityState.Deleted)
                     {
                         (targetConfigItem as VBEntityObject).DeleteACObject(db, false);
                     }
@@ -160,7 +160,7 @@ namespace gip.core.autocomponent
         {
             IACConfig targetConfigItem = ACConfigHelper.GetStoreConfiguration(configStore.ConfigurationEntries, preACUrl, localConfigACUrl + @"\" + acIdentifier, false, null);
 
-            if(targetConfigItem != null && (originalConfigItem as EntityObject).EntityState == EntityState.Deleted)
+            if(targetConfigItem != null && (originalConfigItem as VBEntityObject).EntityState == EntityState.Deleted)
             {
                 (targetConfigItem as VBEntityObject).DeleteACObject(db, false);
             }

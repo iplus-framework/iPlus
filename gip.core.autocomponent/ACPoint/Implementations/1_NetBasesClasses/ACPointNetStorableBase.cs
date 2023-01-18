@@ -9,7 +9,7 @@ using System.Xml;
 using System.Threading;
 using gip.core.datamodel;
 using System.Text.RegularExpressions;
-using Microsoft.Database.Isam;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
 {
@@ -64,8 +64,8 @@ namespace gip.core.autocomponent
                     {
                         try
                         {
-                            if (taskValue.EntityState != System.Data.EntityState.Deleted
-                                && taskValue.EntityState != System.Data.EntityState.Detached)
+                            if (taskValue.EntityState != EntityState.Deleted
+                                && taskValue.EntityState != EntityState.Detached)
                                 ACClassTaskQueue.TaskQueue.Context.Detach(taskValue);
                         }
                         catch (Exception e)
@@ -236,7 +236,7 @@ namespace gip.core.autocomponent
                     using (StringReader ms = new StringReader(valueXML))
                     using (XmlTextReader xmlReader = new XmlTextReader(ms))
                     {
-                        DataContractSerializer serializer = new DataContractSerializer(typeof(List<W>), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                        DataContractSerializer serializer = new DataContractSerializer(typeof(List<W>), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                         _LocalStorage = (List<W>)serializer.ReadObject(xmlReader);
                     }
 
@@ -312,12 +312,12 @@ namespace gip.core.autocomponent
 #if !DIAGNOSE
                     // *** TASKPERFOPT NEW ***
                     IEnumerable<ACClassTaskValue> acClassTaskValues = null;
-                    if (  contentTask.ACClassTaskValue_ACClassTask.IsLoaded)
+                    if (  contentTask.ACClassTaskValue_ACClassTaskReference.IsLoaded)
                        //|| contentTask.EntityState == System.Data.EntityState.Added) // To unsafe, if paralelly ACClassTaskQueue is Saving
                         acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
                     else
                     {
-                        if (contentTask.EntityState != System.Data.EntityState.Added)
+                        if (contentTask.EntityState != EntityState.Added)
                         {
                             ACClassTaskQueue.TaskQueue.ProcessAction(() =>
                             {
@@ -412,7 +412,7 @@ namespace gip.core.autocomponent
                         {
                             if (xmlIndented)
                                 xmlWriter.Formatting = Formatting.Indented;
-                            DataContractSerializer serializer = new DataContractSerializer(typeof(List<W>), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                            DataContractSerializer serializer = new DataContractSerializer(typeof(List<W>), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                             serializer.WriteObject(xmlWriter, _LocalStorage);
                             valueXML = sw.ToString();
                         }
@@ -473,8 +473,8 @@ namespace gip.core.autocomponent
                     ACClassTaskQueue.TaskQueue.Add(() =>
                         {
                             if (acClassTaskValue != null &&
-                                acClassTaskValue.EntityState != System.Data.EntityState.Deleted
-                                && acClassTaskValue.EntityState != System.Data.EntityState.Detached)
+                                acClassTaskValue.EntityState != EntityState.Deleted
+                                && acClassTaskValue.EntityState != EntityState.Detached)
                             {
                                 //#if DEBUG
                                 //                                if (!String.IsNullOrEmpty(_ACClassTaskValue.XMLValue) && valueXML.Length < _ACClassTaskValue.XMLValue.Length)

@@ -1,12 +1,12 @@
 using gip.core.datamodel;
 using gip.core.datamodel.ACContainer;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
-using System.Data.Objects;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -148,7 +148,7 @@ namespace gip.core.autocomponent
                     && parentACComponent.ContentTask != null
                     && parentACComponent.ACOperationMode == ACOperationModes.Live)
                 {
-                    if (parentACComponent.ContentTask.EntityState != System.Data.EntityState.Detached)
+                    if (parentACComponent.ContentTask.EntityState != EntityState.Detached)
                     {
                         ACClassTaskQueue.TaskQueue.ProcessAction(() =>
                         {
@@ -329,7 +329,7 @@ namespace gip.core.autocomponent
                         // Falls childs überhaupt perisistiert werden können: ContentTask darf nicht null sein 
                         if (this.ContentTask != null)
                         {
-                            if (ContentTask.EntityState != System.Data.EntityState.Detached)
+                            if (ContentTask.EntityState != EntityState.Detached)
                             {
                                 ACClassTaskQueue.TaskQueue.ProcessAction(() =>
                                 {
@@ -348,7 +348,7 @@ namespace gip.core.autocomponent
                                     acClassTaskChild.ACTaskType = Global.ACTaskTypes.ModelTask;
                                     acClassTaskChild.IsDynamic = false;
                                     acClassTaskChild.ACIdentifier = acClassOfChild.ACIdentifier;
-                                    ACClassTaskQueue.TaskQueue.Context.ACClassTask.AddObject(acClassTaskChild);
+                                    ACClassTaskQueue.TaskQueue.Context.ACClassTask.Add(acClassTaskChild);
                                 });
                             }
                             //else
@@ -378,7 +378,7 @@ namespace gip.core.autocomponent
                 {
                     IEnumerable<ACClassTask> subTasks = null;
                     IEnumerable<SafeTaskType> querySafeTaskType = null;
-                    if (ContentTask.EntityState != System.Data.EntityState.Detached)
+                    if (ContentTask.EntityState != EntityState.Detached)
                     {
                         ACClassTaskQueue.TaskQueue.ProcessAction(() =>
                         {
@@ -1235,7 +1235,7 @@ namespace gip.core.autocomponent
 
         #region precompiled queries
         private static readonly Func<Database, Guid, string, ACClassTask> s_cQry_ContentTaskByIdentifier =
-            CompiledQuery.Compile<Database, Guid, string, ACClassTask>(
+            EF.CompileQuery<Database, Guid, string, ACClassTask>(
                 (db, parentTaskID, acIdentifier) =>
                     db.ACClassTask
                                     .Include("ContentACClassWF")
@@ -1266,7 +1266,7 @@ namespace gip.core.autocomponent
             );
 
         private static readonly Func<Database, Guid, Guid, ACClassTask> s_cQry_ContentTaskByClassID =
-            CompiledQuery.Compile<Database, Guid, Guid, ACClassTask>(
+            EF.CompileQuery<Database, Guid, Guid, ACClassTask>(
                 (db, taskID, classID) =>
                     db.ACClassTask
                                     .Include("ContentACClassWF")
@@ -1298,7 +1298,7 @@ namespace gip.core.autocomponent
             );
 
         private static readonly Func<Database, Guid, IEnumerable<ACClassTask>> s_cQry_SubTasks =
-            CompiledQuery.Compile<Database, Guid, IEnumerable<ACClassTask>>(
+            EF.CompileQuery<Database, Guid, IEnumerable<ACClassTask>>(
                 (db, taskID) =>
                     db.ACClassTask
                                     .Include("ContentACClassWF")

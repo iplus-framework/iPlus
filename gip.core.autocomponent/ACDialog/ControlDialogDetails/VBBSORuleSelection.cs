@@ -1,8 +1,8 @@
 ﻿using gip.core.datamodel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Objects.DataClasses;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -281,7 +281,7 @@ namespace gip.core.autocomponent.ACDialog.ControlDialogDetails
                     IACConfig currentStoreConfigItem = ACConfigHelper.GetStoreConfiguration(CurrentConfigStore.ConfigurationEntries, item.PreConfigACUrl, rulePropertyACUrl, false, null);
                     if (!newRuleValueList.Any())
                     {
-                        if (currentStoreConfigItem != null && (currentStoreConfigItem as EntityObject).EntityState != EntityState.Detached)
+                        if (currentStoreConfigItem != null && (currentStoreConfigItem as VBEntityObject).EntityState != EntityState.Detached)
                         {
                             (currentStoreConfigItem as VBEntityObject).DeleteACObject(Database, false);
                         }

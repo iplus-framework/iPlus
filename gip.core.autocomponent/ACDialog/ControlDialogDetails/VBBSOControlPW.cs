@@ -3,9 +3,8 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using gip.core.datamodel;
-using System.Data.Objects.DataClasses;
 using System.Data;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
 {
@@ -1004,7 +1003,7 @@ namespace gip.core.autocomponent
             // VarioConfigManager.GetConfiguration(new List<IACConfigStore>() { CurrentPWInfo.CurrentConfigStore }, preConfigACUrl, localConfigACUrl);
             if (!newRuleValueList.Any())
             {
-                if (currentStoreConfigItem != null && (currentStoreConfigItem as EntityObject).EntityState != EntityState.Detached)
+                if (currentStoreConfigItem != null && (currentStoreConfigItem as VBEntityObject).EntityState != EntityState.Detached)
                 {
                     //CurrentPWInfo.CurrentConfigStore.ConfigurationEntries.Remove(currentStoreConfigItem);
                     //(currentStoreConfigItem as VBEntityObject).DeleteACObject(Database, false);
@@ -1439,7 +1438,7 @@ namespace gip.core.autocomponent
                 SelectedPWNodeParamValue != null &&
                 SelectedPWNodeParamValue.DefaultConfiguration != null &&
                 // check if we are on right place where IACConfig is defined
-                (SelectedPWNodeParamValue.DefaultConfiguration as EntityObject).EntityState == EntityState.Unchanged &&
+                (SelectedPWNodeParamValue.DefaultConfiguration as VBEntityObject).EntityState == EntityState.Unchanged &&
                  SelectedPWNodeParamValue.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl() &&
                  // check is there candidate for replication 
                  AllHistoryPWNodeParamValueList != null &&
@@ -1472,7 +1471,7 @@ namespace gip.core.autocomponent
                 SelectedPAFunctionParamValue != null &&
                 SelectedPAFunctionParamValue.DefaultConfiguration != null &&
                 // selected param should be allready saved into database and selection is on right setup place - where in this case PAF parameter is defined
-                (SelectedPAFunctionParamValue.DefaultConfiguration as EntityObject).EntityState == EntityState.Unchanged &&
+                (SelectedPAFunctionParamValue.DefaultConfiguration as VBEntityObject).EntityState == EntityState.Unchanged &&
                  SelectedPAFunctionParamValue.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl() &&
                  // check is any param selected for replication
                  AllHistoryPAFunctionParamValueList != null &&
@@ -1779,9 +1778,9 @@ namespace gip.core.autocomponent
 
             List<IACConfig> updatedConfigItems = CurrentPWInfo.CurrentConfigStore.ConfigurationEntries.ToList()
                 .Where(x =>
-                (x as EntityObject).EntityState == System.Data.EntityState.Modified ||
-                (x as EntityObject).EntityState == System.Data.EntityState.Deleted ||
-                (x as EntityObject).EntityState == System.Data.EntityState.Added)
+                (x as VBEntityObject).EntityState == EntityState.Modified ||
+                (x as VBEntityObject).EntityState == EntityState.Deleted ||
+                (x as VBEntityObject).EntityState == EntityState.Added)
                 .ToList();
 
             var multiSelect = VBControlMultiselect;

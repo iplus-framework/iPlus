@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.ServiceModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Net.Sockets;
@@ -11,6 +10,7 @@ using System.Timers;
 using System.Net;
 using System.Threading;
 using gip.core.datamodel;
+using CoreWCF;
 
 namespace gip.core.autocomponent
 {

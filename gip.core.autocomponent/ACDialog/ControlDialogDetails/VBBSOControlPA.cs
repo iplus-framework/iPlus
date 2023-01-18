@@ -7,7 +7,6 @@ using System.Timers;
 using System.Threading;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
-using System.Data.Objects;
 
 namespace gip.core.autocomponent
 {

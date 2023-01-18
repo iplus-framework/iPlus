@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using gip.core.datamodel;
-using System.Data.Objects;
 
 namespace gip.core.autocomponent
 {
@@ -115,7 +114,7 @@ namespace gip.core.autocomponent
             {
                 ACClassTaskQueue.TaskQueue.ProcessAction(() => 
                 {
-                    ACTypeFromLiveContext.ACClassConfig_ACClass.Load(MergeOption.OverwriteChanges);
+                    ACTypeFromLiveContext.ACClassConfig_ACClass.AutoLoad(ACTypeFromLiveContext.ACClassConfig_ACClassReference, ACTypeFromLiveContext);
                     classConfigCache = ACTypeFromLiveContext.ACClassConfig_ACClass.Where(c => c.KeyACUrl == null).ToArray();
                 });
             }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using gip.core.datamodel;
-using System.Data.Objects;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
 {
@@ -31,7 +31,7 @@ namespace gip.core.autocomponent
                     if (parentTask.ACProgramID.HasValue)
                     {
                         if (parentTask.ACProgramReference.IsLoaded)
-                            acProgram = parentTask.ACProgramReference.Value;
+                            acProgram = parentTask.ACProgramReference.CurrentValue as ACProgram;
                         if (acProgram == null)// && (parentTask.EntityState == System.Data.EntityState.Added || parentTask.EntityState == System.Data.EntityState.Detached))
                             acProgram = parentTask.NewACProgramForQueue;
                         if (acProgram == null)
@@ -77,7 +77,7 @@ namespace gip.core.autocomponent
                     ACClassTaskQueue.TaskQueue.Add(() => 
                     {
                         acClassTask.PublishToChangeTrackerInQueue();
-                        ACClassTaskQueue.TaskQueue.Context.ACClassTask.AddObject(acClassTask); 
+                        ACClassTaskQueue.TaskQueue.Context.ACClassTask.Add(acClassTask); 
                     });
                     // *** TASKPERFOPT NEW END ***
 #else
@@ -140,9 +140,9 @@ namespace gip.core.autocomponent
 
             ACClassTaskQueue.TaskQueue.Add(() =>
             {
-                if (task.EntityState != System.Data.EntityState.Deleted
-                    && task.EntityState != System.Data.EntityState.Detached)
-                    ACClassTaskQueue.TaskQueue.Context.DeleteObject(task);
+                if (task.EntityState != EntityState.Deleted
+                    && task.EntityState != EntityState.Detached)
+                    ACClassTaskQueue.TaskQueue.Context.Entry(task).State = EntityState.Deleted;
             }
             );
         }
@@ -162,7 +162,7 @@ namespace gip.core.autocomponent
                 try
                 {
                     mustRefreshACClassWF = pwGroupComponent.ContentACClassWF.ACClassMethod != null && pwGroupComponent.ContentACClassWF.ACClassMethod.MustRefreshACClassWF;
-                    bool childsLoaded = pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.IsLoaded;
+                    bool childsLoaded = pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWFReference.IsLoaded;
 
                     if (mustRefreshACClassWF || !childsLoaded)
                     {
@@ -171,8 +171,8 @@ namespace gip.core.autocomponent
                             // Nachladen, falls Workflow von Client verändert worden ist
                             if (mustRefreshACClassWF || !childsLoaded)
                             {
-                                pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.AutoRefresh();
-                                pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.AutoLoad();
+                                //pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.AutoRefresh();
+                                pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.AutoLoad(pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWFReference, pwGroupComponent.ContentACClassWF);
                             }
                             wfChilds = pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF.ToArray();
                             if (mustRefreshACClassWF && wfChilds != null && wfChilds.Any())

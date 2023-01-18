@@ -1,11 +1,11 @@
 ﻿using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
-using System.Data.Objects;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
 {
@@ -33,12 +33,12 @@ namespace gip.core.autocomponent
 
         #region PrecompiledQueries
         static readonly Func<Database, Guid, IQueryable<VBNoConfiguration>> s_cQry_ConfigID =
-            CompiledQuery.Compile<Database, Guid, IQueryable<VBNoConfiguration>>(
+            EF.CompileQuery<Database, Guid, IQueryable<VBNoConfiguration>>(
             (ctx, noConfigurationID) => from c in ctx.VBNoConfiguration where c.VBNoConfigurationID == noConfigurationID select c
         );
 
         static readonly Func<Database, string, IQueryable<VBNoConfiguration>> s_cQry_ConfigName =
-            CompiledQuery.Compile<Database, string, IQueryable<VBNoConfiguration>>(
+            EF.CompileQuery<Database, string, IQueryable<VBNoConfiguration>>(
             (ctx, noConfigurationName) => from c in ctx.VBNoConfiguration where c.VBNoConfigurationName == noConfigurationName select c
         );
         #endregion
@@ -207,7 +207,7 @@ namespace gip.core.autocomponent
         public VBNoConfiguration NewNoConfiguration(Database database, bool autoSave)
         {
             VBNoConfiguration noConfiguration = VBNoConfiguration.NewACObject(database, null);
-            database.VBNoConfiguration.AddObject(noConfiguration);
+            database.VBNoConfiguration.Add(noConfiguration);
             if (autoSave)
             {
                 if (database.ACSaveChanges(true, true) == null)

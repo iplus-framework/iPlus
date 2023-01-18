@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Reflection;
-using System.Data.Objects.DataClasses;
 using gip.core.datamodel;
 using System.Windows.Markup;
 using System.Collections.ObjectModel;
-using System.Data.Metadata.Edm;
-using System.Data.Objects;
 using gip.core.ControlScriptSync;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
 {
@@ -89,28 +87,28 @@ namespace gip.core.autocomponent
 
 
         static readonly Func<Database, String, IQueryable<ACClass>> s_compiledQueryACClass_AssemblyName =
-        CompiledQuery.Compile<Database, String, IQueryable<ACClass>>(
+        EF.CompileQuery<Database, String, IQueryable<ACClass>>(
             (ctx, assemblyQualifiedName) => from c in ctx.ACClass where c.AssemblyQualifiedName == assemblyQualifiedName select c
         );
 
         static readonly Func<Database, String, IQueryable<ACClass>> s_compiledQueryACClass_StartsWithAssemblyName =
-        CompiledQuery.Compile<Database, String, IQueryable<ACClass>>(
+        EF.CompileQuery<Database, String, IQueryable<ACClass>>(
             (ctx, name) => from c in ctx.ACClass where c.AssemblyQualifiedName.StartsWith(name) select c
         );
 
         static readonly Func<Database, IQueryable<ACClass>> s_compiledQueryACClass_CheckAssemblyName =
-        CompiledQuery.Compile<Database, IQueryable<ACClass>>(
+        EF.CompileQuery<Database, IQueryable<ACClass>>(
             (ctx) => from c in ctx.ACClass where !string.IsNullOrEmpty(c.AssemblyQualifiedName) && !c.AssemblyQualifiedName.StartsWith("System.") select c
         );
 
 
         public static readonly Func<Database, string, gip.core.datamodel.ACClass> s_cQry_ACClassIdentifier =
-       CompiledQuery.Compile<Database, string, gip.core.datamodel.ACClass>(
+       EF.CompileQuery<Database, string, gip.core.datamodel.ACClass>(
            (ctx, acIdentifier) => ctx.ACClass.Where(c => c.ACIdentifier == acIdentifier).FirstOrDefault()
        );
 
         public static readonly Func<Database, string, IQueryable<gip.core.datamodel.ACClass>> s_cQry_GetAvailableModulesAsACClass =
-        CompiledQuery.Compile<Database, string, IQueryable<gip.core.datamodel.ACClass>>(
+        EF.CompileQuery<Database, string, IQueryable<gip.core.datamodel.ACClass>>(
             (ctx, acIdentifier) => ctx.ACClass.Where(c => (c.BasedOnACClassID.HasValue
                                                             && (c.ACClass1_BasedOnACClass.ACIdentifier == acIdentifier // 1. Ableitungsstufe
                                                                 || (c.ACClass1_BasedOnACClass.BasedOnACClassID.HasValue
@@ -309,7 +307,7 @@ namespace gip.core.autocomponent
                             acAssembly.LastReflectionDate = DateTime.Now;
                             acAssembly.AssemblyDate = lastWriteTime;
                             acAssembly.SHA1 = assemblyHashValue;
-                            _Database.ACAssembly.AddObject(acAssembly);
+                            _Database.ACAssembly.Add(acAssembly);
                         }
                         else
                         {
@@ -654,7 +652,7 @@ namespace gip.core.autocomponent
                 }
 
 
-                _Database.ACClass.AddObject(acClass);
+                _Database.ACClass.Add(acClass);
                 _CheckedAssemblyACClassList.Add(acClass.AssemblyQualifiedName, acClass);
                 if (acProject.ACProjectType == Global.ACProjectTypes.Root)
                     acClass.ACClass1_ParentACClass = GetManagerACClass(acClass.ACKind, dotNETType);
@@ -733,7 +731,7 @@ namespace gip.core.autocomponent
 
                 if (dotNETType.BaseType != null
                     && dotNETType.BaseType.Name != typeof(object).Name
-                    && dotNETType.BaseType.Name != typeof(EntityObject).Name
+                    && dotNETType.BaseType.Name != typeof(VBEntityObject).Name
                     && (acClass.ACClass1_BasedOnACClass == null || acClass.ACClass1_BasedOnACClass.ACIdentifier != dotNETType.BaseType.Name))
                 {
                     updateIfExists = true;
@@ -1435,7 +1433,7 @@ namespace gip.core.autocomponent
                     // Update ACMethod (Method parameters) and virtual methods, if any
                     InsertOrUpdateMethodParameters(ClassType, ClassMethod, Method);
 
-                    if (ClassMethod.EntityState != System.Data.EntityState.Unchanged)
+                    if (ClassMethod.EntityState != EntityState.Unchanged)
                     {
                         ClassMethod.UpdateDate = DateTime.Now;
                         ClassMethod.UpdateName = ACRoot.SRoot.CurrentInvokingUser.VBUserName;
@@ -1443,7 +1441,7 @@ namespace gip.core.autocomponent
                 }
 
                 // If class is not added, delete obsolete methods from the class methods list
-                if (acClass.EntityState != System.Data.EntityState.Added)
+                if (acClass.EntityState != EntityState.Added)
                 {
                     ACClassMethod[] Items = acClass.ACClassMethod_ACClass.Where(c => (c.ACKindIndex == (short)Global.ACKinds.MSMethod
                                                                                       || c.ACKindIndex == (short)Global.ACKinds.MSMethodPrePost
@@ -1689,7 +1687,7 @@ namespace gip.core.autocomponent
                 }
             }
 
-            if (ChildClassMethod.EntityState != System.Data.EntityState.Unchanged)
+            if (ChildClassMethod.EntityState != EntityState.Unchanged)
             {
                 ChildClassMethod.UpdateDate = DateTime.Now;
                 ChildClassMethod.UpdateName = ACRoot.SRoot.CurrentInvokingUser.VBUserName;
@@ -1970,7 +1968,7 @@ namespace gip.core.autocomponent
                 {
                     acClassProperty = ACClassProperty.NewACObject(_Database, acClass);
                     acClassProperty.ConfigACClass = null;
-                    _Database.ACClassProperty.AddObject(acClassProperty);
+                    _Database.ACClassProperty.Add(acClassProperty);
                     acClassProperty.ACIdentifier = propertyInfo.Name.Length > 100 ? propertyInfo.Name.Substring(0, 100) : propertyInfo.Name;
                     acClassProperty.ACKind = Global.ACKinds.PSProperty;
                     acClassProperty.IsStatic = propertyInfo.GetAccessors(true)[0].IsStatic;
@@ -2186,7 +2184,7 @@ namespace gip.core.autocomponent
                     if (acClassProperty.GenericType == TypeAnalyser._TypeName_EntityCollection)
                     {
                         Global.DeleteAction deleteAction = Global.DeleteAction.None;
-                        ObjectContext context = FindOrCreateObjectContext(classType);
+                        DbContext context = FindOrCreateObjectContext(classType);
                         if (context != null)
                         {
                             Type tDatabase = context.GetType();
@@ -2198,7 +2196,7 @@ namespace gip.core.autocomponent
                             var navP = entitySet.ElementType.NavigationProperties.Where(c => c.Name == acClassProperty.ACIdentifier).First();
                             switch (navP.FromEndMember.DeleteBehavior)
                             {
-                                case OperationAction.None:
+                                case DeleteBehavior.None:
                                     {
                                         ACDeleteAction acDeleteAction = acClassProperty.ACClass.ObjectType
                                             .GetCustomAttributes(typeof(ACDeleteAction), false)
@@ -2210,7 +2208,7 @@ namespace gip.core.autocomponent
                                             deleteAction = Global.DeleteAction.None;
                                     }
                                     break;
-                                case OperationAction.Cascade:
+                                case DeleteBehavior.Cascade:
                                     deleteAction = Global.DeleteAction.Cascade;
                                     break;
                                 case OperationAction.Restrict:
@@ -2440,7 +2438,7 @@ namespace gip.core.autocomponent
                     childACClass.ACStartType = Global.ACStartTypes.Manually;
                     childACClass.IsRightmanagement = basedOnAcclass.IsRightmanagement;
 
-                    _Database.ACClass.AddObject(childACClass);
+                    _Database.ACClass.Add(childACClass);
                 }
             }
         }
@@ -2760,7 +2758,7 @@ namespace gip.core.autocomponent
             if (acPropertyChildACUrl.ACClass != acClass)
             {
                 acPropertyChildACUrl = ACClassProperty.NewACClassProperty(_Database, acClass, acPropertyChildACUrl);
-                _Database.ACClassProperty.AddObject(acPropertyChildACUrl);
+                _Database.ACClassProperty.Add(acPropertyChildACUrl);
             }
             if (acPropertyChildACUrl.XMLValue != acQueryInfo.ChildACUrl)
                 acPropertyChildACUrl.XMLValue = acQueryInfo.ChildACUrl;
@@ -2769,7 +2767,7 @@ namespace gip.core.autocomponent
             if (acPropertyQueryType.ACClass != acClass)
             {
                 acPropertyQueryType = ACClassProperty.NewACClassProperty(_Database, acClass, acPropertyQueryType);
-                _Database.ACClassProperty.AddObject(acPropertyQueryType);
+                _Database.ACClassProperty.Add(acPropertyQueryType);
             }
             string acUrl = _Database.GetACType(acQueryInfo.QueryType).GetACUrl();
             if (acPropertyQueryType.XMLValue != acUrl)
@@ -2779,7 +2777,7 @@ namespace gip.core.autocomponent
             if (acPropertyRootObject.ACClass != acClass)
             {
                 acPropertyRootObject = ACClassProperty.NewACClassProperty(_Database, acClass, acPropertyRootObject);
-                _Database.ACClassProperty.AddObject(acPropertyRootObject);
+                _Database.ACClassProperty.Add(acPropertyRootObject);
             }
             if (acPropertyRootObject.XMLValue != rootObject.FullName)
                 acPropertyRootObject.XMLValue = rootObject.FullName;
@@ -2970,17 +2968,17 @@ namespace gip.core.autocomponent
         #endregion
 
         #region IACClassManager
-        private ObjectContext FindOrCreateObjectContext(Type forEntityType)
+        private DbContext FindOrCreateObjectContext(Type forEntityType)
         {
             IACEntityObjectContext context = _ObjectContexts.Where(c => c.GetType().Assembly == forEntityType.Assembly).FirstOrDefault();
             if (context != null)
-                return context as ObjectContext;
+                return context as DbContext;
             Type typeContext = forEntityType.Assembly.GetTypes().Where(c => typeof(IACEntityObjectContext).IsAssignableFrom(c)).FirstOrDefault();
             if (typeContext == null)
                 return null;
             context = Activator.CreateInstance(typeContext) as IACEntityObjectContext;
             _ObjectContexts.Add(context);
-            return context as ObjectContext;
+            return context as DbContext;
         }
         #endregion
 
