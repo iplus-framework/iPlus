@@ -500,16 +500,20 @@ namespace gip.bso.iplus
             {
                 if (!_ScriptEngine.Compile())
                 {
+                    StringBuilder stringBuilder = new StringBuilder();
                     // TODO: Im Grid darstellen
                     if (_ScriptEngine.CompileErrors.Any())
                     {
-                        string message = string.Format("{0}\n{1}\n\nZeile {2}\tSpalte {3}",
-                            _ScriptEngine.CompileErrors[0].ACIdentifier,
-                            _ScriptEngine.CompileErrors[0].Message,
-                            _ScriptEngine.CompileErrors[0].Row,
-                            _ScriptEngine.CompileErrors[0].Column);
-                        Messages.Error(this, "Message00001", false, message);
+                        foreach (var error in _ScriptEngine.CompileErrors) 
+                        {
+                            stringBuilder.AppendLine(string.Format("{0}\n{1}\nRow {2}\tColumn {3}",
+                            error.ACIdentifier,
+                            error.Message,
+                            error.Row,
+                            error.Column));
+                        }
                     }
+                    Messages.Error(this, "Message00001", false, stringBuilder.ToString());
                 }
             }
             catch (Exception e)

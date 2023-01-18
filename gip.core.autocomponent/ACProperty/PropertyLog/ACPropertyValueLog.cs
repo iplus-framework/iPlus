@@ -11,6 +11,7 @@ using System.Xml.Serialization;
 using System.Reflection;
 using Microsoft.Isam.Esent.Collections.Generic;
 using gip.core.datamodel;
+using System.Globalization;
 
 namespace gip.core.autocomponent
 {
@@ -87,6 +88,8 @@ namespace gip.core.autocomponent
                 PropertyLogDict[stamp] = value;
         }
 
+        private const string C_DT_FormatPrefix = "yyyyMM";
+
         internal PropertyLogListInfo GetValues(DateTime from, DateTime to)
         {
             PropertyLogListInfo pLInfo = null;
@@ -112,11 +115,17 @@ namespace gip.core.autocomponent
                             {
                                 foreach (var fileDict in dirInfos)
                                 {
-                                    if (   (from >= fileDict.CreationTime
-                                            && from < fileDict.CreationTime.AddMonths(1))
-                                        || (to >= fileDict.CreationTime
-                                            && to < fileDict.CreationTime.AddMonths(1))
-                                        || (from < fileDict.CreationTime && to > fileDict.CreationTime.AddMonths(1)))
+                                    DateTime fileMonth;
+                                    if (!DateTime.TryParseExact(fileDict.Name.Substring(0,6), C_DT_FormatPrefix, CultureInfo.InvariantCulture, DateTimeStyles.None, out fileMonth))
+                                        continue;
+
+                                    //if (   (from >= fileDict.CreationTime
+                                    //        && from < fileDict.CreationTime.AddMonths(1))
+                                    //    || (to >= fileDict.CreationTime
+                                    //        && to < fileDict.CreationTime.AddMonths(1))
+                                    //    || (from < fileDict.CreationTime && to > fileDict.CreationTime.AddMonths(1)))
+                                    if (   (from.Month == fileMonth.Month && from.Year == fileMonth.Year)
+                                        || (to.Month == fileMonth.Month && to.Year == fileMonth.Year))
                                     {
                                         if (PropertyLogDict.DatabasePath == fileDict.FullName)
                                             continue;
@@ -319,7 +328,7 @@ namespace gip.core.autocomponent
         {
             if (String.IsNullOrEmpty(PathOfDirectory))
                 return "";
-            return PathOfDirectory + "\\" + stamp.ToString("yyyyMM") + "." + _property2Log.ACIdentifier + ".edb";
+            return PathOfDirectory + "\\" + stamp.ToString(C_DT_FormatPrefix) + "." + _property2Log.ACIdentifier + ".edb";
         }
 
         private void DeleteOldDictionaries(DateTime stamp)

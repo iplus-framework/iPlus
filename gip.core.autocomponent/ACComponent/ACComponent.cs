@@ -1594,7 +1594,7 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return ACType.ACCaption;
+                return ACType?.ACCaption;
             }
         }
         #endregion

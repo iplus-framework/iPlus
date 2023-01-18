@@ -231,7 +231,7 @@ namespace gip.core.datamodel
 
             entity.Sourcecode = "/// <Precompiler>\n";
             //entity.Sourcecode += "/// refassembly C:\\Program Files\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.0\\System.Core.dll;\n";
-
+            entity.Sourcecode += "/// refassembly netstandard.dll;\n";
             entity.Sourcecode += "/// refassembly " + acClass.ObjectType.Assembly.ManifestModule.Name + ";\n";
             entity.Sourcecode += "using System.Linq;\n";
             entity.Sourcecode += "using " + acClass.ObjectType.Namespace + ";\n";
