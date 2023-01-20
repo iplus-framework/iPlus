@@ -54,7 +54,7 @@ namespace gip.core.datamodel
         /// <param name="acObject">The ac object.</param>
         /// <param name="caption">The caption.</param>
         /// <param name="acURLRelative">The ac URL relative.</param>
-        public ACObjectItem(IACObject acObject, string caption = null, string acURLRelative = "")
+        public ACObjectItem(IACObject acObject, string caption = null, string acURLRelative = "", string acIdentifier = null)
         {
             ACObject = acObject;
             ACCaption = caption;
@@ -292,6 +292,7 @@ namespace gip.core.datamodel
         /// Gets or sets the AC URL relative.
         /// </summary>
         /// <value>The AC URL relative.</value>
+        [ACPropertyInfo(4)]
         public string ACUrlRelative
         {
             get
@@ -305,7 +306,7 @@ namespace gip.core.datamodel
         }
 
         private string _acurl;
-        [ACPropertyInfo(1)]
+        [ACPropertyInfo(3)]
         public string ACUrl
         {
             get
@@ -324,7 +325,7 @@ namespace gip.core.datamodel
         string _ACIdentifier;
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
-        [ACPropertyInfo(9999)]
+        [ACPropertyInfo(2)]
         public string ACIdentifier
         {
             get

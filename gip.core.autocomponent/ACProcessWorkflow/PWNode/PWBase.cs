@@ -954,6 +954,11 @@ namespace gip.core.autocomponent
 
             // 1. Get reference to local service instance of IACConfigProvider
             ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
+            if (serviceInstance == null)
+            {
+                Messages.LogError(this.GetACUrl(), String.Format("GetConfigForACMethod(0)"), "serviceInstance is null");
+                return false;
+            }
 
             PWGroup pwGroup = this as PWGroup;
             if (pwGroup == null)

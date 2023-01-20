@@ -79,6 +79,7 @@ namespace gip.core.datamodel
             // Filter/Exclusion-Properties:
             public ACClass FilterACClass { get; set; }
             public string SearchText { get; set; }
+            public string SearchACUrlComponent { get; set; }
             public Func<ACClassInfoWithItems, bool> CustomFilter { get; set; }
 
 
@@ -114,6 +115,9 @@ namespace gip.core.datamodel
                                     || item.ValueT.ACCaption.IndexOf(SearchText, StringComparison.CurrentCultureIgnoreCase) >= 0
                                     || item.ValueT.ACIdentifier.IndexOf(SearchText, StringComparison.CurrentCultureIgnoreCase) >= 0
                                   )
+                              && (     String.IsNullOrEmpty(SearchACUrlComponent)
+                                    || item.ValueT.ACUrlComponent.IndexOf(SearchACUrlComponent, StringComparison.CurrentCultureIgnoreCase) >= 0
+                                  )
                               && (FilterACClass == null || FilterACClass == item.ValueT)
                               && (CustomFilter == null || CustomFilter(item))
                               && (IncludeTypes == null || IncludeTypes.Where(c => c.IsAssignableFrom(item.ValueT.ObjectType)).Any())
@@ -132,6 +136,7 @@ namespace gip.core.datamodel
                         || IncludeLibraryClasses
                         || FilterACClass != null
                         || !String.IsNullOrEmpty(SearchText)
+                        || !String.IsNullOrEmpty(SearchACUrlComponent)
                         || CustomFilter != null
                         || IncludeTypes != null;
                 }
@@ -148,6 +153,7 @@ namespace gip.core.datamodel
                         && IncludeProcessFunctions == filter.IncludeProcessFunctions
                         && IncludeLibraryClasses == filter.IncludeLibraryClasses
                         && SearchText == filter.SearchText
+                        && SearchACUrlComponent == filter.SearchACUrlComponent
                         && FilterACClass == filter.FilterACClass
                         && CustomFilter == filter.CustomFilter
                         && IncludeTypes == filter.IncludeTypes;
@@ -169,6 +175,7 @@ namespace gip.core.datamodel
                     IncludeLibraryClasses = this.IncludeLibraryClasses,
                     FilterACClass = this.FilterACClass,
                     SearchText = this.SearchText,
+                    SearchACUrlComponent = this.SearchACUrlComponent,
                     CustomFilter = this.CustomFilter,
                     IncludeTypes = this.IncludeTypes
                 };
@@ -590,6 +597,17 @@ namespace gip.core.datamodel
                 if (ValueT == null)
                     return ACCaption;
                 return ValueT.ACIdentifier;
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        public string ACUrlComponent
+        {
+            get
+            {
+                if (ValueT == null)
+                    return ACCaption;
+                return ValueT.ACUrlComponent;
             }
         }
 

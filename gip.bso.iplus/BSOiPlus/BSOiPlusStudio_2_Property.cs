@@ -20,6 +20,7 @@ using gip.core.manager;
 using gip.core.autocomponent;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using DocumentFormat.OpenXml.Drawing;
 
 namespace gip.bso.iplus
 {
@@ -377,9 +378,14 @@ namespace gip.bso.iplus
                 if (CurrentACClassProperty == null)
                     return null;
                 _PropertyRelationToList = new List<ACObjectItem>();
-                foreach (var acClassPropertyRelation in CurrentACClassProperty.ACClassPropertyRelation_SourceACClassProperty.Where(c => c.SourceACClass.ACClassID == CurrentACClass.ACClassID))
+                foreach (ACClassPropertyRelation acClassPropertyRelation in CurrentACClassProperty.ACClassPropertyRelation_SourceACClassProperty
+                                                                            .Where(c => c.SourceACClass.ACClassID == CurrentACClass.ACClassID)
+                                                                            .AsEnumerable()
+                                                                            .OrderBy(c => c.ConnectionTypeIndex)
+                                                                            .ThenBy(c => c.SourceACClass.GetACUrlComponent()))
                 {
-                    _PropertyRelationToList.Add(new ACObjectItem(acClassPropertyRelation, acClassPropertyRelation.TargetACClass.GetACUrlComponent() + "\\" + acClassPropertyRelation.TargetACClassProperty.ACIdentifier));
+                    _PropertyRelationToList.Add(new ACObjectItem(acClassPropertyRelation, acClassPropertyRelation.ConnectionType.ToString()) 
+                                                    { ACUrl = String.Format("{0}\\{1}", acClassPropertyRelation.TargetACClass.GetACUrlComponent(), acClassPropertyRelation.TargetACClassProperty.ACIdentifier) });
                 }
                 return _PropertyRelationToList;
             }
@@ -426,9 +432,14 @@ namespace gip.bso.iplus
                 if (CurrentACClassProperty == null)
                     return null;
                 _PropertyRelationFromList = new List<ACObjectItem>();
-                foreach (var acClassPropertyRelation in CurrentACClassProperty.ACClassPropertyRelation_TargetACClassProperty.Where(c => c.TargetACClass.ACClassID == CurrentACClass.ACClassID))
-                {
-                    _PropertyRelationFromList.Add(new ACObjectItem(acClassPropertyRelation, acClassPropertyRelation.SourceACClass.GetACUrlComponent() + "\\" + acClassPropertyRelation.SourceACClassProperty.ACIdentifier));
+                foreach (ACClassPropertyRelation acClassPropertyRelation in CurrentACClassProperty.ACClassPropertyRelation_TargetACClassProperty
+                                                        .Where(c => c.TargetACClass.ACClassID == CurrentACClass.ACClassID)
+                                                        .AsEnumerable()
+                                                        .OrderBy(c => c.ConnectionTypeIndex)
+                                                        .ThenBy(c => c.SourceACClass.GetACUrlComponent()))
+                {                    
+                    _PropertyRelationFromList.Add(new ACObjectItem(acClassPropertyRelation, acClassPropertyRelation.ConnectionType.ToString())
+                    { ACUrl = String.Format("{0}\\{1}", acClassPropertyRelation.SourceACClass.GetACUrlComponent(), acClassPropertyRelation.SourceACClassProperty.ACIdentifier) });
                 }
                 return _PropertyRelationFromList;
             }
@@ -589,19 +600,33 @@ namespace gip.bso.iplus
             {
                 bool changed = PBProjectManager.CurrentACProject != value;
                 if (changed)
-                    PBProjectManager.LoadACProject(value, PBProjectPresentationMode, PBProjectVisibilityFilter);
-                //OnPropertyChanged("CurrentPBSourceItemRoot");
+                {
+                    _SearchPBSourceItem = null;
+                    OnPropertyChanged(nameof(SearchPBSourceItem));
+                    _SearchACUrlPBSourceItem = null;
+                    OnPropertyChanged(nameof(SearchACUrlPBSourceItem));
+                    RefreshPBSourceProjectTree(value);
+                }
                 CurrentPBSourceItem = null;
                 CurrentPBSourceACClass = null;
             }
         }
 
+        private void RefreshPBSourceProjectTree(ACProject newProject)
+        {
+            if (PBProjectManager != null)
+                PBProjectManager.LoadACProject(newProject != null ? newProject : PBProjectManager.CurrentACProject, PBProjectPresentationMode, PBProjectVisibilityFilter);
+        }
 
         protected ACClassInfoWithItems.VisibilityFilters PBProjectVisibilityFilter
         {
             get
             {
-                ACClassInfoWithItems.VisibilityFilters filter = new ACClassInfoWithItems.VisibilityFilters();
+                ACClassInfoWithItems.VisibilityFilters filter = new ACClassInfoWithItems.VisibilityFilters()
+                            { 
+                                    SearchText = this.SearchPBSourceItem,
+                                    SearchACUrlComponent = this.SearchACUrlPBSourceItem
+                };
                 return filter;
             }
         }
@@ -657,6 +682,58 @@ namespace gip.bso.iplus
                         }
                         OnPropertyChanged("CurrentPBSourceItem");
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// The _ search class text
+        /// </summary>
+        string _SearchPBSourceItem = "";
+        /// <summary>
+        /// Gets or sets the search class text.
+        /// </summary>
+        /// <value>The search class text.</value>
+        [ACPropertyInfo(9999, "CLProjectItem", "en{'Search Class'}de{'Suche Klasse'}")]
+        public string SearchPBSourceItem
+        {
+            get
+            {
+                return _SearchPBSourceItem;
+            }
+            set
+            {
+                if (_SearchPBSourceItem != value)
+                {
+                    _SearchPBSourceItem = value;
+                    OnPropertyChanged();
+                    RefreshPBSourceProjectTree(null);
+                }
+            }
+        }
+
+        /// <summary>
+        /// The _ search class text
+        /// </summary>
+        string _SearchACUrlPBSourceItem = "";
+        /// <summary>
+        /// Gets or sets the search class text.
+        /// </summary>
+        /// <value>The search class text.</value>
+        [ACPropertyInfo(9999, "CLProjectItem", "en{'Search ACUrl'}de{'Suche ACUrl'}")]
+        public string SearchACUrlPBSourceItem
+        {
+            get
+            {
+                return _SearchACUrlPBSourceItem;
+            }
+            set
+            {
+                if (_SearchACUrlPBSourceItem != value)
+                {
+                    _SearchACUrlPBSourceItem = value;
+                    OnPropertyChanged();
+                    RefreshPBSourceProjectTree(null);
                 }
             }
         }
