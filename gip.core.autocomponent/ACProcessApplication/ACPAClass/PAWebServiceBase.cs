@@ -2,12 +2,19 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.ServiceModel;
-using System.ServiceModel.Description;
-using System.ServiceModel.Dispatcher;
 using System.Text;
 using System.Text.RegularExpressions;
 using gip.core.datamodel;
+using CoreWCF;
+using CoreWCF.Dispatcher;
+using CoreWCF.Channels;
+using CoreWCF.Description;
+using CoreWCF.Configuration;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore;
+using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
 
 namespace gip.core.autocomponent
 {
@@ -59,8 +66,16 @@ namespace gip.core.autocomponent
         #endregion
 
         #region Properties, Range 200
-        private ServiceHost _SvcHost = null;
-        public ServiceHost SvcHost
+
+        public const int HTTP_PORT = 8088;
+        public const int HTTPS_PORT = 8443;
+        public const int NETTCP_PORT = 8089;
+
+        SyncQueueEvents _syncHostStart;
+        ACThread _ACHostStartThread = null;
+
+        private IWebHost _SvcHost = null;
+        public IWebHost SvcHost
         {
             get
             {
@@ -149,7 +164,39 @@ namespace gip.core.autocomponent
         /// _SvcHost.UnknownMessageReceived += _SvcHost_UnknownMessageReceived;
         /// </summary>
         /// <returns></returns>
-        public abstract ServiceHost CreateService();
+        public IWebHost CreateService()
+        {
+            _SvcHost = WebHost.CreateDefaultBuilder()
+                .UseKestrel(options =>
+                {
+                    options.ListenAnyIP(HTTP_PORT);
+                    options.ListenAnyIP(HTTPS_PORT, listenOptions =>
+                    {
+                        listenOptions.UseHttps();
+                        if (Debugger.IsAttached)
+                        {
+                            listenOptions.UseConnectionLogging();
+                        }
+                    });
+                })
+
+                .ConfigureServices(services =>
+                {
+                    services.AddServiceModelServices()
+                   .AddServiceModelMetadata()
+                   .AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>();
+                })
+                .Configure(app =>
+                {
+                    app.UseServiceModel(builder =>
+                    {
+                        builder.AddServiceEndpoint<WCFService, IWCFService>(new NetTcpBinding(), );
+                    });
+                })
+                .Build();
+
+            return _SvcHost;
+        }
 
         #endregion
 
@@ -210,7 +257,11 @@ namespace gip.core.autocomponent
                     _SvcHost.UnknownMessageReceived += _SvcHost_UnknownMessageReceived;
 
                     if (_SvcHost.State != CommunicationState.Opened)
-                        _SvcHost.Open();
+                    {
+                        _ACHostStartThread = new ACThread(StartHost);
+                        _ACHostStartThread.Name = "ACUrl:" + this.GetACUrl() + ";StartHost();";
+                        _ACHostStartThread.Start();
+                    }
                 }
             }
             catch (Exception e)
@@ -220,6 +271,11 @@ namespace gip.core.autocomponent
                     Messages.LogException(GetACUrl(), "StartService()", e.InnerException.Message);
                 StopService();
             }
+        }
+
+        public void StartHost()
+        {
+            _SvcHost.Start();
         }
 
         protected void _SvcHost_Opened(object sender, EventArgs e)
@@ -346,7 +402,7 @@ namespace gip.core.autocomponent
             return false;
         }
 
-        public void ProvideFault(Exception error, System.ServiceModel.Channels.MessageVersion version, ref System.ServiceModel.Channels.Message fault)
+        public void ProvideFault(Exception error, MessageVersion version, ref Message fault)
         {
             ReportServiceAlarm(error.Message);
         }
@@ -376,20 +432,20 @@ namespace gip.core.autocomponent
             _ServiceACUrl = serviceACUrl;
         }
 
-        public void ApplyDispatchBehavior(ServiceEndpoint endpoint, EndpointDispatcher endpointDispatcher)
+        public void ApplyDispatchBehavior(CoreWCF.Description.ServiceEndpoint endpoint, EndpointDispatcher endpointDispatcher)
         {
             endpointDispatcher.ChannelDispatcher.ErrorHandlers.Add(new PAWebServiceBaseErrorHandler(_ServiceACUrl));
         }
 
-        public void AddBindingParameters(ServiceEndpoint endpoint, System.ServiceModel.Channels.BindingParameterCollection bindingParameters)
+        public void AddBindingParameters(CoreWCF.Description.ServiceEndpoint endpoint, BindingParameterCollection bindingParameters)
         {
         }
 
-        public void ApplyClientBehavior(ServiceEndpoint endpoint, ClientRuntime clientRuntime)
+        public void ApplyClientBehavior(CoreWCF.Description.ServiceEndpoint endpoint, ClientRuntime clientRuntime)
         {
         }
 
-        public void Validate(ServiceEndpoint endpoint)
+        public void Validate(CoreWCF.Description.ServiceEndpoint endpoint)
         {
         }
     }

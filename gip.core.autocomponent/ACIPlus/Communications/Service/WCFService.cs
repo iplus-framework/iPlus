@@ -11,6 +11,7 @@ using System.Net;
 using System.Threading;
 using gip.core.datamodel;
 using CoreWCF;
+using CoreWCF.Channels;
 
 namespace gip.core.autocomponent
 {
@@ -39,16 +40,16 @@ namespace gip.core.autocomponent
                     _acServiceObject = serviceManager.StartComponent("WCFServiceChannel", null, new object[] { this }) as WCFServiceChannel;
                 }
             }
-            _currentChannel = OperationContext.Current.Channel;
+            _currentChannel = OperationContext.Current.GetCallbackChannel<IContextChannel>();
             if (OperationContext.Current.IncomingMessageProperties != null && OperationContext.Current.IncomingMessageProperties.Values != null)
             {
                 foreach (object value in OperationContext.Current.IncomingMessageProperties.Values)
                 {
-                    if (value is System.ServiceModel.Channels.RemoteEndpointMessageProperty)
+                    if (value is RemoteEndpointMessageProperty)
                     {
                         try
                         {
-                            System.ServiceModel.Channels.RemoteEndpointMessageProperty endpointProp = value as System.ServiceModel.Channels.RemoteEndpointMessageProperty;
+                            RemoteEndpointMessageProperty endpointProp = value as RemoteEndpointMessageProperty;
                             if (!String.IsNullOrEmpty(endpointProp.Address))
                             {
                                 // IPV6-Adresse:

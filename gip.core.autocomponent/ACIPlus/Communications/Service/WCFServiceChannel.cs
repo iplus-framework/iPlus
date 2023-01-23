@@ -775,7 +775,7 @@ namespace gip.core.autocomponent
                 return "";
             try
             {
-                DataContractSerializer Serializer = new DataContractSerializer(typeof(WCFMessage), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                DataContractSerializer Serializer = new DataContractSerializer(typeof(WCFMessage), new DataContractSerializerSettings(){ KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                 StringBuilder sb = new StringBuilder();
                 using (StringWriter sw = new StringWriter(sb))
                 using (XmlTextWriter xmlWriter = new XmlTextWriter(sw))

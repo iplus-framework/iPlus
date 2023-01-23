@@ -11,11 +11,11 @@ using System.Linq;
 using System.Threading;
 using System.Xml;
 using System.Runtime.Serialization;
-using System.ServiceModel.Channels;
 using gip.core.datamodel;
 using System.Transactions;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
-using CoreWCF;
 
 namespace gip.core.autocomponent
 {
@@ -464,9 +464,11 @@ namespace gip.core.autocomponent
             // Service Endpoint
             if (_useHttpConnection)
             {
+                /*
                 WSDualHttpBinding wsDualHttpBinding = new WSDualHttpBinding();
                 wsDualHttpBinding.MessageEncoding = System.ServiceModel.WSMessageEncoding.Text;
                 _serviceOfPeer = new WCFClient(_instanceContext, wsDualHttpBinding, _endPoint);
+                */
             }
             else
             {
@@ -597,7 +599,7 @@ namespace gip.core.autocomponent
         {
             if (_ConnectionOn == true)
             {
-                if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerDuplexChannel != null))
+                if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerChannel != null))
                 {
                     //System.Runtime.Remoting.Proxies.RealProxy realProxy = _serviceOfPeer.InnerDuplexChannel as System.Runtime.Remoting.Proxies.RealProxy;
                     //if (realProxy != null)
@@ -752,7 +754,7 @@ namespace gip.core.autocomponent
         {
             _ConnectionOn = false;
 
-            if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerDuplexChannel != null))
+            if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerChannel != null))
             {
                 if (_serviceOfPeer.State != CommunicationState.Closed)
                 {
@@ -809,12 +811,12 @@ namespace gip.core.autocomponent
         {
             if (_serviceOfPeer == null)
                 return;
-            if (_serviceOfPeer.InnerDuplexChannel != null)
+            if (_serviceOfPeer.InnerChannel != null)
             {
                 //_serviceOfPeer.InnerDuplexChannel.Opening -= Channel_Opening;
-                _serviceOfPeer.InnerDuplexChannel.Opened -= Channel_Opened;
-                _serviceOfPeer.InnerDuplexChannel.Faulted -= Channel_Faulted;
-                _serviceOfPeer.InnerDuplexChannel.Closing -= Channel_Closing;
+                _serviceOfPeer.InnerChannel.Opened -= Channel_Opened;
+                _serviceOfPeer.InnerChannel.Faulted -= Channel_Faulted;
+                _serviceOfPeer.InnerChannel.Closing -= Channel_Closing;
                 //_serviceOfPeer.InnerDuplexChannel.Closed -= Channel_Closed;
             }
             _serviceOfPeer = null;
@@ -826,12 +828,12 @@ namespace gip.core.autocomponent
         {
             if (_serviceOfPeer == null)
                 return;
-            if (_serviceOfPeer.InnerDuplexChannel != null)
+            if (_serviceOfPeer.InnerChannel != null)
             {
                 //_serviceOfPeer.InnerDuplexChannel.Opening += Channel_Opening;
-                _serviceOfPeer.InnerDuplexChannel.Opened += Channel_Opened;
-                _serviceOfPeer.InnerDuplexChannel.Faulted += Channel_Faulted;
-                _serviceOfPeer.InnerDuplexChannel.Closing += Channel_Closing;
+                _serviceOfPeer.InnerChannel.Opened += Channel_Opened;
+                _serviceOfPeer.InnerChannel.Faulted += Channel_Faulted;
+                _serviceOfPeer.InnerChannel.Closing += Channel_Closing;
                 //_serviceOfPeer.InnerDuplexChannel.Closed += Channel_Closed;
             }
         }
@@ -874,7 +876,7 @@ namespace gip.core.autocomponent
             // Falls Verbindung zu Server getrennt war und der gerade versucht wird die Verbindung neu aufzubauen, verwerfe Request
             if ((_ReconnectThread != null) || (_serviceOfPeer == null))
                 throw new ACWCFException(Root.Environment.TranslateMessage(this, "Error00036"), ACWCFException.WCFErrorCode.Disconnected);
-            else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerDuplexChannel != null))
+            else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerChannel != null))
             {
                 if ((_serviceOfPeer.State != CommunicationState.Opened) && (_serviceOfPeer.State != CommunicationState.Created))
                     throw new ACWCFException(Root.Environment.TranslateMessage(this, "Error00036"), ACWCFException.WCFErrorCode.Disconnected);
@@ -893,7 +895,7 @@ namespace gip.core.autocomponent
             // Falls Verbindung zu Server getrennt war und der gerade versucht wird ddie Verbindung neu aufzubauen, verwerfe Request
             if ((_ReconnectThread != null) || (_serviceOfPeer == null))
                 return false;
-            else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerDuplexChannel != null))
+            else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerChannel != null))
             {
                 if ((_serviceOfPeer.State != CommunicationState.Opened) && (_serviceOfPeer.State != CommunicationState.Created))
                     return false;
@@ -952,7 +954,7 @@ namespace gip.core.autocomponent
             // Falls Verbindung zu Server getrennt war und der gerade versucht wird ddie Verbindung neu aufzubauen, verwerfe Request
             if ((_ReconnectThread != null) || (_serviceOfPeer == null))
                 return;
-            else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerDuplexChannel != null))
+            else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerChannel != null))
             {
                 if ((_serviceOfPeer.State != CommunicationState.Opened) && (_serviceOfPeer.State != CommunicationState.Created))
                     return;
@@ -994,7 +996,7 @@ namespace gip.core.autocomponent
                     _resendSubscriptionInfo = true;
                     return;
                 }
-                else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerDuplexChannel != null))
+                else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerChannel != null))
                 {
                     if ((_serviceOfPeer.State != CommunicationState.Opened) && (_serviceOfPeer.State != CommunicationState.Created))
                     {

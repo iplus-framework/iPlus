@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.ServiceModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Net.Sockets;
@@ -10,10 +9,18 @@ using System.IO;
 using System.Timers;
 using System.Net;
 using System.Threading;
-using System.ServiceModel.Channels;
 using gip.core.datamodel;
-using System.ServiceModel.Description;
+using Microsoft.AspNetCore.Hosting;
+using CoreWCF.IdentityModel.Protocols.WSTrust;
+using Microsoft.AspNetCore;
+using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Builder;
+using CoreWCF.Configuration;
+using CoreWCF.Description;
 using CoreWCF;
+using CoreWCF.Channels;
 
 namespace gip.core.autocomponent
 {
@@ -24,6 +31,10 @@ namespace gip.core.autocomponent
         public const int MaxBufferSize = 4194304; // 2^22 byte
         public const int MaxItemsInObjectGraph = Int32.MaxValue;
         public const int MaxStringLength = 1048576; // 2^20 byte
+
+        public const int HTTP_PORT = 8088;
+        public const int HTTPS_PORT = 8443;
+        public const int NETTCP_PORT = 8089;
 
         bool _useHttpConnection = false;
         bool _useIPV6 = false;
@@ -36,6 +47,9 @@ namespace gip.core.autocomponent
 
         SyncQueueEvents _syncDispatchPoints;
         ACThread _ACPDispatchPointsThread = null;
+
+        SyncQueueEvents _syncHostStart;
+        ACThread _ACHostStartThread = null;
 
         #endregion
 
@@ -81,68 +95,100 @@ namespace gip.core.autocomponent
             _nameResolutionOn = this.Root.Environment.UserInstance.NameResolutionOn;
 
             // Host generieren
-            _serviceHost = new ServiceHost(typeof(WCFService), endpointUri);
+            //_serviceHost = new ServiceHost(typeof(WCFService), endpointUri);
 
-            // Service Endpoint
-            if (_useHttpConnection)
-            {
-                WSDualHttpBinding wsDualHttpBinding = new WSDualHttpBinding();
-                wsDualHttpBinding.MessageEncoding = System.ServiceModel.WSMessageEncoding.Text;
-                _serviceHost.AddServiceEndpoint(typeof(IWCFService), wsDualHttpBinding, endpointUri);
-            }
-            else
-            {
-                if (_useNetTCPBinding)
+            _host = WebHost.CreateDefaultBuilder()
+                .UseKestrel(options =>
                 {
-                    CoreWCF.NetTcpBinding netTcpBinding = new CoreWCF.NetTcpBinding();
-                    if (netTcpBinding.ReaderQuotas != null)
-                        netTcpBinding.ReaderQuotas.MaxStringContentLength = WCFServiceManager.MaxStringLength;
-                    netTcpBinding.MaxBufferSize = WCFServiceManager.MaxBufferSize;
-                    netTcpBinding.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
-                    //netTcpBinding.ConnectionBufferSize = WCFServiceManager.MaxBufferSize / 8;
-                    netTcpBinding.MaxBufferPoolSize = WCFServiceManager.MaxBufferSize;
-                    netTcpBinding.ReceiveTimeout = WCFServiceManager.ReceiveTimeout;
-                    _serviceHost.AddServiceEndpoint(typeof(IWCFService), netTcpBinding, endpointUri);
+                    options.ListenAnyIP(HTTP_PORT);
+                    options.ListenAnyIP(HTTPS_PORT, listenOptions =>
+                    {
+                        listenOptions.UseHttps();
+                        if (Debugger.IsAttached)
+                        {
+                            listenOptions.UseConnectionLogging();
+                        }
+                    });
+                })
 
-                    // When to use reliable session
-                    // http://msdn.microsoft.com/en-us/library/ms733136(v=vs.110).aspx
-                    //if (netTcpBinding.ReliableSession != null)
-                    //    netTcpBinding.ReliableSession.Enabled = true;
-                }
-                else
+                .ConfigureServices(services =>
                 {
-                    CustomBinding netTcpBinding = new CustomBinding();
-                    TcpTransportBindingElement tcpTransport = new TcpTransportBindingElement();
-
-                    if (_useTextEncoding)
+                    services.AddServiceModelServices()
+                    .AddServiceModelMetadata()
+                    .AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>();
+                })
+                .Configure(app =>
+                {
+                    app.UseServiceModel(builder =>
                     {
-                        TextMessageEncodingBindingElement textMessageEncoding = new TextMessageEncodingBindingElement();
-                        netTcpBinding.Elements.Add(textMessageEncoding);
-                        if (textMessageEncoding.ReaderQuotas != null)
-                            textMessageEncoding.ReaderQuotas.MaxStringContentLength = WCFServiceManager.MaxStringLength;
-                    }
-                    else
-                    {
-                        BinaryMessageEncodingBindingElement binaryMessageEncoding = new BinaryMessageEncodingBindingElement();
-                        netTcpBinding.Elements.Add(binaryMessageEncoding);
-                        if (binaryMessageEncoding.ReaderQuotas != null)
-                            binaryMessageEncoding.ReaderQuotas.MaxStringContentLength = WCFServiceManager.MaxStringLength;
-                    }
-                    tcpTransport.MaxBufferSize = WCFServiceManager.MaxBufferSize;
-                    tcpTransport.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
-                    tcpTransport.ConnectionBufferSize = WCFServiceManager.MaxBufferSize / 8;
-                    tcpTransport.MaxBufferPoolSize = WCFServiceManager.MaxBufferSize;
-                    netTcpBinding.Elements.Add(tcpTransport);
-                    netTcpBinding.ReceiveTimeout = WCFServiceManager.ReceiveTimeout;
+                        // Service Endpoint
 
-                    _serviceHost.AddServiceEndpoint(typeof(IWCFService), netTcpBinding, endpointUri);
-                }
-            }
+                        if (_useHttpConnection)
+                        {
+                            /*
+                            WSDualHttpBinding wsDualHttpBinding = new WSDualHttpBinding();
+                            wsDualHttpBinding.MessageEncoding = System.ServiceModel.WSMessageEncoding.Text;
+                            _serviceHost.AddServiceEndpoint(typeof(IWCFService), wsDualHttpBinding, endpointUri);
+                            */
+                            throw new NotImplementedException();
+                        }
+                        else
+                        {
+                            if (_useNetTCPBinding)
+                            {
+                                NetTcpBinding netTcpBinding = new NetTcpBinding();
+                                if (netTcpBinding.ReaderQuotas != null)
+                                    netTcpBinding.ReaderQuotas.MaxStringContentLength = WCFServiceManager.MaxStringLength;
+                                netTcpBinding.MaxBufferSize = WCFServiceManager.MaxBufferSize;
+                                netTcpBinding.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
+                                //netTcpBinding.ConnectionBufferSize = WCFServiceManager.MaxBufferSize / 8;
+                                netTcpBinding.MaxBufferPoolSize = WCFServiceManager.MaxBufferSize;
+                                netTcpBinding.ReceiveTimeout = WCFServiceManager.ReceiveTimeout;
+                                builder.AddServiceEndpoint<WCFService>(typeof(IWCFService), netTcpBinding, endpointUri);
 
-            ContractDescription cd = _serviceHost.Description.Endpoints[0].Contract;
+                                // When to use reliable session
+                                // http://msdn.microsoft.com/en-us/library/ms733136(v=vs.110).aspx
+                                //if (netTcpBinding.ReliableSession != null)
+                                //    netTcpBinding.ReliableSession.Enabled = true;
+                            }
+                            else
+                            {
+                                CustomBinding netTcpBinding = new CustomBinding();
+                                TcpTransportBindingElement tcpTransport = new TcpTransportBindingElement();
+
+                                if (_useTextEncoding)
+                                {
+                                    TextMessageEncodingBindingElement textMessageEncoding = new TextMessageEncodingBindingElement();
+                                    netTcpBinding.Elements.Add(textMessageEncoding);
+                                    if (textMessageEncoding.ReaderQuotas != null)
+                                        textMessageEncoding.ReaderQuotas.MaxStringContentLength = WCFServiceManager.MaxStringLength;
+                                }
+                                else
+                                {
+                                    BinaryMessageEncodingBindingElement binaryMessageEncoding = new BinaryMessageEncodingBindingElement();
+                                    netTcpBinding.Elements.Add(binaryMessageEncoding);
+                                    if (binaryMessageEncoding.ReaderQuotas != null)
+                                        binaryMessageEncoding.ReaderQuotas.MaxStringContentLength = WCFServiceManager.MaxStringLength;
+                                }
+                                tcpTransport.MaxBufferSize = WCFServiceManager.MaxBufferSize;
+                                tcpTransport.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
+                                tcpTransport.ConnectionBufferSize = WCFServiceManager.MaxBufferSize / 8;
+                                tcpTransport.MaxBufferPoolSize = WCFServiceManager.MaxBufferSize;
+                                netTcpBinding.Elements.Add(tcpTransport);
+                                netTcpBinding.ReceiveTimeout = WCFServiceManager.ReceiveTimeout;
+
+                                builder.AddServiceEndpoint<WCFService>(typeof(IWCFService), netTcpBinding, endpointUri);
+                            }
+                        }
+                    });
+                })
+                .UseNetTcp(NETTCP_PORT)
+                .Build();
+
+            ContractDescription cd = _host.Description.Endpoints[0].Contract;
             foreach (OperationDescription opDescr in cd.Operations)
             {
-                foreach (IOperationBehavior behavior in opDescr.Behaviors)
+                foreach (IOperationBehavior behavior in opDescr.OperationBehaviors)
                 {
                     if (behavior is DataContractSerializerOperationBehavior)
                     {
@@ -179,16 +225,16 @@ namespace gip.core.autocomponent
                 _ACPDispatchPointsThread = null;
             }
             _ACPDispatchToProxies = null;
-            _serviceHost.Close();
+            host.StopAsync();
 
             if (!base.ACDeInit(deleteACClassTask))
                 return false;
             OnPropertyChanged("WCFServiceChannelList");
             return true;
         }
-        #endregion
+#endregion
 
-        #region public members
+#region public members
         public override bool IsPoolable
         {
             get
@@ -229,12 +275,12 @@ namespace gip.core.autocomponent
         }
 
 
-        private ServiceHostBase _serviceHost = null;
-        internal ServiceHostBase ServiceHost
+        private IWebHost _host = null;
+        internal IWebHost host
         {
             get
             {
-                return _serviceHost;
+                return _host;
             }
         }
 
@@ -384,9 +430,11 @@ namespace gip.core.autocomponent
         {
             if (ACOperationMode != ACOperationModes.Live)
                 return;
-            if (ServiceHost.State != CommunicationState.Opened)
+            if (host.State != CommunicationState.Opened)
             {
-                ServiceHost.Open();
+                _ACHostStartThread = new ACThread(StartHost);
+                _ACHostStartThread.Name = "ACUrl:" + this.GetACUrl() + ";StartHost();";
+                _ACHostStartThread.Start();
 
                 // Initialisiere Event-Verteiler
                 _syncDispatch = new SyncQueueEvents();
@@ -511,9 +559,9 @@ namespace gip.core.autocomponent
             }
         }
 
-#endregion
+        #endregion
 
-#region private methods
+        #region private methods
         internal IACComponent GetProjectForObject(IACComponent forACComponent)
         {
             if (forACComponent == null)
@@ -683,6 +731,14 @@ namespace gip.core.autocomponent
                 _ACPDispatchPointsThread.StopReportingExeTime();
             }
             _syncDispatchPoints.ThreadTerminated();
+        }
+
+        public void StartHost()
+        {
+            while (!_syncHostStart.ExitThreadEvent.WaitOne(0, false))
+            {
+                host.Start();
+            }
         }
 
         public void ShutdownClients()

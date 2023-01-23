@@ -10,6 +10,7 @@ using System.Timers;
 using System.Linq;
 using System.Threading;
 using System.ServiceModel;
+using CoreWCF;
 using System.Xml;
 using System.Runtime.Serialization;
 using System.ServiceModel.Channels;
@@ -25,27 +26,27 @@ namespace gip.core.autocomponent
         #endregion
 
         #region c'tors
-        public WCFClient(InstanceContext callbackInstance) : 
+        public WCFClient(System.ServiceModel.InstanceContext callbackInstance) : 
                 base(callbackInstance)
         {
         }
         
-        public WCFClient(InstanceContext callbackInstance, string endpointConfigurationName) : 
+        public WCFClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
                 base(callbackInstance, endpointConfigurationName)
         {
         }
         
-        public WCFClient(InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
+        public WCFClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress)
         {
         }
         
-        public WCFClient(InstanceContext callbackInstance, string endpointConfigurationName, EndpointAddress remoteAddress) : 
+        public WCFClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress)
         {
         }
         
-        public WCFClient(InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, EndpointAddress remoteAddress) : 
+        public WCFClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, binding, remoteAddress)
         {
         }
@@ -63,7 +64,8 @@ namespace gip.core.autocomponent
                     // Timeout wegen asnchronen Bearbeitungsprozessen:
                     // Falls eine ACURl-Command-Aufruf auf Serverseite lange dauert, würde die WCF (Aufrufer meist der Client) den Kanal schliessen
                     // durch auslösen des Events Closing. Das hat zur Folge, dass StopACObject aufgerufen wird.
-                    InnerDuplexChannel.OperationTimeout = new TimeSpan(0, 0, 30);
+                    //InnerDuplexChannel.OperationTimeout = new TimeSpan(0, 0, 30);
+                    InnerChannel.OperationTimeout = new TimeSpan(0, 0, 30);
                     _TimeOutSet = true;
                 }
 
