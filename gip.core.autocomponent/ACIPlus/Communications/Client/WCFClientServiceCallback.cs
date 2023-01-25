@@ -16,7 +16,7 @@ using CoreWCF;
 
 namespace gip.core.autocomponent
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession, ConcurrencyMode = ConcurrencyMode.Multiple, MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph)]
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class WCFClientServiceCallback : IWCFServiceCallback
     {
         private WCFClientChannel _WCFClientChannel = null;

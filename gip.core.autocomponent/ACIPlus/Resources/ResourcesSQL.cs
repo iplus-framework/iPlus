@@ -135,7 +135,7 @@ namespace gip.core.autocomponent
             }
 
             SQLInstanceInfo sqlInstanceInfo = result.FirstOrDefault(x => x.ServerName == elements[0] && x.Database == elements[1]);
-            sqlInstanceInfo.Password = ACCrypt.RijndaelDecrypt(sqlInstanceInfo.Password, ResourcesSQL.Hash);
+            sqlInstanceInfo.Password = ACCrypt.AesDecrypt(sqlInstanceInfo.Password, ResourcesSQL.Hash);
             return new Tuple<SQLInstanceInfo, string>(sqlInstanceInfo, elements[2]);
         }
 

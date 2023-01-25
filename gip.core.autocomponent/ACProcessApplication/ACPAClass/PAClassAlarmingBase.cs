@@ -584,7 +584,7 @@ namespace gip.core.autocomponent
                     {
                         MsgAlarmLog newAlarmDB = MsgAlarmLog.NewMsgAlarmLog(db, newAlarm);
                         OnNewMsgAlarmLogCreated(newAlarmDB);
-                        db.MsgAlarmLog.AddObject(newAlarmDB);
+                        db.MsgAlarmLog.Add(newAlarmDB);
                         db.ACSaveChanges();
                     }
                 }

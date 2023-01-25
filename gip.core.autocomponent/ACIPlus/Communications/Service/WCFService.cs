@@ -15,7 +15,7 @@ using CoreWCF.Channels;
 
 namespace gip.core.autocomponent
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession, ConcurrencyMode = ConcurrencyMode.Multiple, MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph)]
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession, ConcurrencyMode = ConcurrencyMode.Multiple)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'WCFService'}de{'WCFService'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class WCFService : IWCFService
     {

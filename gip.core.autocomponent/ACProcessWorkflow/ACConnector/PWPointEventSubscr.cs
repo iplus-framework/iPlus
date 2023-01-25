@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using gip.core.datamodel;
 using System.Runtime.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
 {
@@ -74,7 +75,7 @@ namespace gip.core.autocomponent
                         try
                         {
                             bool mustRefreshEdges = pwNode.ContentACClassWF.ACClassMethod.MustRefreshACClassWF;
-                            bool edgesLoaded = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.IsLoaded;
+                            bool edgesLoaded = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference.IsLoaded;
                             IEnumerable<ACClassWFEdge> edgesArray = null;
                             if (mustRefreshEdges || !edgesLoaded)
                             {
@@ -82,8 +83,8 @@ namespace gip.core.autocomponent
                                 {
                                     if (edgesLoaded)
                                     {
-                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
-                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad();
+                                        //pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
+                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad(pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference);
                                     }
                                     else
                                         pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.Load();
@@ -220,7 +221,7 @@ namespace gip.core.autocomponent
                         try
                         {
                             bool mustRefreshEdges = pwNode.ContentACClassWF.ACClassMethod.MustRefreshACClassWF;
-                            bool edgesLoaded = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.IsLoaded;
+                            bool edgesLoaded = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference.IsLoaded;
                             IEnumerable<ACClassWFEdge> edgesArray = null;
                             if (mustRefreshEdges || !edgesLoaded)
                             {
@@ -229,7 +230,7 @@ namespace gip.core.autocomponent
                                 {
                                     if (edgesLoaded)
                                     {
-                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
+                                        //pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
                                         pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad();
                                     }
                                     else

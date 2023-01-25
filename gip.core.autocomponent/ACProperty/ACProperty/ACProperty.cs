@@ -13,6 +13,7 @@ using System.Reflection;
 using gip.core.datamodel;
 using System.Threading;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
 {
@@ -146,8 +147,8 @@ namespace gip.core.autocomponent
                     {
                         try 
                         { 
-                            if (taskValue.EntityState != System.Data.EntityState.Deleted
-                                && taskValue.EntityState != System.Data.EntityState.Detached)
+                            if (taskValue.EntityState != EntityState.Deleted
+                                && taskValue.EntityState != EntityState.Detached)
                                 ACClassTaskQueue.TaskQueue.Context.Detach(taskValue);
                         }
                         catch (Exception e)
@@ -572,7 +573,7 @@ namespace gip.core.autocomponent
                         {
                             if (xmlIndented)
                                 xmlWriter.Formatting = Formatting.Indented;
-                            DataContractSerializer serializer = new DataContractSerializer(typeof(T), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                            DataContractSerializer serializer = new DataContractSerializer(typeof(T), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                             serializer.WriteObject(xmlWriter, this.ValueT);
                             valueXML = sw.ToString();
                         }
@@ -869,7 +870,7 @@ namespace gip.core.autocomponent
                         using (StringReader ms = new StringReader(valueXML))
                         using (XmlTextReader xmlReader = new XmlTextReader(ms))
                         {
-                            DataContractSerializer serializer = new DataContractSerializer(typeof(T), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                            DataContractSerializer serializer = new DataContractSerializer(typeof(T), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                             this.ValueT = (T)serializer.ReadObject(xmlReader);
                         }
                         restored = true;
@@ -934,12 +935,12 @@ namespace gip.core.autocomponent
                 if (acClassTaskValue == null)
                 {
                     IEnumerable<ACClassTaskValue> acClassTaskValues = null;
-                    if (   contentTask.ACClassTaskValue_ACClassTask.IsLoaded)
+                    if (   contentTask.ACClassTaskValue_ACClassTaskReference.IsLoaded)
                         //|| contentTask.EntityState == System.Data.EntityState.Added)
                         acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
                     else
                     {
-                        if (contentTask.EntityState != System.Data.EntityState.Added)
+                        if (contentTask.EntityState != EntityState.Added)
                         {
                             ACClassTaskQueue.TaskQueue.ProcessAction(() =>
                             {
@@ -998,8 +999,8 @@ namespace gip.core.autocomponent
                                 contentTask.ACClassTaskValue_ACClassTask.Add(acClassTaskValue);
                             }
                             if (acClassTaskValue != null
-                                && acClassTaskValue.EntityState != System.Data.EntityState.Deleted
-                                && acClassTaskValue.EntityState != System.Data.EntityState.Detached)
+                                && acClassTaskValue.EntityState != EntityState.Deleted
+                                && acClassTaskValue.EntityState != EntityState.Detached)
                                 acClassTaskValue.XMLValue = valueXML;
                         }
                     );

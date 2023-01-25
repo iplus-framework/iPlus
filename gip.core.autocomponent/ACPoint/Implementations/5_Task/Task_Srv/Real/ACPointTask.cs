@@ -7,6 +7,7 @@ using gip.core.datamodel;
 using System.IO;
 using System.Xml;
 using System.Threading;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
 {
@@ -46,7 +47,7 @@ namespace gip.core.autocomponent
                 ACClassTaskValue taskValue = this.ACClassTaskValue;
                 if (taskValue != null)
                 {
-                    if (   !taskValue.ACClassTaskValuePos_ACClassTaskValue.IsLoaded
+                    if (   !taskValue.ACClassTaskValuePos_ACClassTaskValueReference.IsLoaded
                         || taskValue.ACClassTaskValuePos_ACClassTaskValue.Any())
                     {
                         ACClassTaskQueue.TaskQueue.Add(() => 
@@ -55,8 +56,8 @@ namespace gip.core.autocomponent
                             {
                                 foreach (var pos in taskValue.ACClassTaskValuePos_ACClassTaskValue.ToArray())
                                 {
-                                    if (pos.EntityState != System.Data.EntityState.Deleted
-                                        && pos.EntityState != System.Data.EntityState.Detached)
+                                    if (pos.EntityState != EntityState.Deleted
+                                        && pos.EntityState != EntityState.Detached)
                                         ACClassTaskQueue.TaskQueue.Context.Detach(pos);
                                 }
                             }
@@ -140,7 +141,7 @@ namespace gip.core.autocomponent
                                 using (StringWriter sw = new StringWriter(sb))
                                 using (XmlTextWriter xmlWriter = new XmlTextWriter(sw))
                                 {
-                                    DataContractSerializer serializer = new DataContractSerializer(typeof(ACMethod), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                                    DataContractSerializer serializer = new DataContractSerializer(typeof(ACMethod), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                                     IEnumerable<IACTask> diffTasks = taskValue.ACClassTaskValuePos_ACClassTaskValue
                                                                             .Select(c => c as IACTask)
                                                                             .Except(copyLocalStorage, new ACPointTaskEqualityComparer())
@@ -327,7 +328,7 @@ namespace gip.core.autocomponent
                     if (acClassTaskValue != null)
                     {
                         ACClassTaskValuePosSafeWrapper[] taskValuePositions = null;
-                        if (acClassTaskValue.ACClassTaskValuePos_ACClassTaskValue.IsLoaded)
+                        if (acClassTaskValue.ACClassTaskValuePos_ACClassTaskValueReference.IsLoaded)
                             taskValuePositions = acClassTaskValue.ACClassTaskValuePos_ACClassTaskValue.Select(c => new ACClassTaskValuePosSafeWrapper(c)).ToArray();
                         else
                         {
@@ -339,7 +340,7 @@ namespace gip.core.autocomponent
 
                         if (taskValuePositions != null && taskValuePositions.Any())
                         {
-                            DataContractSerializer serializer = new DataContractSerializer(typeof(ACMethod), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                            DataContractSerializer serializer = new DataContractSerializer(typeof(ACMethod), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                             foreach (var taskValuePos in taskValuePositions)
                             {
                                 if (!String.IsNullOrEmpty(taskValuePos.XMLACMethod))

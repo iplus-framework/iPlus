@@ -149,7 +149,7 @@ namespace gip.core.autocomponent
                             using (StringReader ms = new StringReader(xmlValue2))
                             using (XmlTextReader xmlReader = new XmlTextReader(ms))
                             {
-                                DataContractSerializer serializer = new DataContractSerializer(typeof(List<ACPointAsyncRMIWrap<T>>), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                                DataContractSerializer serializer = new DataContractSerializer(typeof(List<ACPointAsyncRMIWrap<T>>), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999,  IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                                 _UnsentAsyncRMI = (List<ACPointAsyncRMIWrap<T>>)serializer.ReadObject(xmlReader);
                             }
                             if (_UnsentAsyncRMI != null && _UnsentAsyncRMI.Any())
@@ -213,7 +213,7 @@ namespace gip.core.autocomponent
                         using (StringWriter sw = new StringWriter(sb))
                         using (XmlTextWriter xmlWriter = new XmlTextWriter(sw))
                         {
-                            DataContractSerializer serializer = new DataContractSerializer(typeof(List<ACPointAsyncRMIWrap<T>>), ACKnownTypes.GetKnownType(), 99999999, true, true, null, ACConvert.MyDataContractResolver);
+                            DataContractSerializer serializer = new DataContractSerializer(typeof(List<ACPointAsyncRMIWrap<T>>), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
                             serializer.WriteObject(xmlWriter, _UnsentAsyncRMI);
                             valueXML = sw.ToString();
                         }

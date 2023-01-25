@@ -15,6 +15,9 @@ using Microsoft.AspNetCore;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
+using System.Collections;
+using System.Reflection;
 
 namespace gip.core.autocomponent
 {
@@ -74,12 +77,35 @@ namespace gip.core.autocomponent
         SyncQueueEvents _syncHostStart;
         ACThread _ACHostStartThread = null;
 
-        private IWebHost _SvcHost = null;
-        public IWebHost SvcHost
+        private IWebHost _Host = null;
+        public IWebHost Host
         {
             get
             {
-                return _SvcHost;
+                return _Host;
+            }
+        }
+
+        public ServiceHostBase _SvcHost
+        {
+            get
+            {
+                var engineProperty = Host.Services.GetType().GetField("_engine", BindingFlags.NonPublic | BindingFlags.Instance);
+                var engine = engineProperty.GetValue(Host.Services);
+                var rootProperty = engine.GetType().GetProperty("Root");
+                var root = rootProperty.GetValue(engine);
+                var resolvedServiceProperty = root.GetType().GetProperty("ResolvedServices", BindingFlags.NonPublic | BindingFlags.Instance);
+                var resolvedService = resolvedServiceProperty.GetValue(root);
+                var resolvedServiceValues = resolvedService.GetType().GetProperty("Values");
+                IEnumerable serviceValueIenumerable = resolvedServiceValues.GetValue(resolvedService) as IEnumerable;
+                foreach (Object obj in serviceValueIenumerable)
+                {
+                    if (obj.ToString().Contains("CoreWCF.ServiceHostObjectModel") && !obj.ToString().Contains("Logger"))
+                    {
+                        return obj as ServiceHostBase;
+                    }
+                }
+                return null;
             }
         }
 
@@ -166,7 +192,7 @@ namespace gip.core.autocomponent
         /// <returns></returns>
         public IWebHost CreateService()
         {
-            _SvcHost = WebHost.CreateDefaultBuilder()
+            _Host = WebHost.CreateDefaultBuilder()
                 .UseKestrel(options =>
                 {
                     options.ListenAnyIP(HTTP_PORT);
@@ -190,12 +216,12 @@ namespace gip.core.autocomponent
                 {
                     app.UseServiceModel(builder =>
                     {
-                        builder.AddServiceEndpoint<WCFService, IWCFService>(new NetTcpBinding(), );
+                        builder.AddServiceEndpoint<WCFService, IWCFService>(new NetTcpBinding(), NETTCP_PORT);
                     });
                 })
                 .Build();
 
-            return _SvcHost;
+            return _Host;
         }
 
         #endregion
@@ -249,7 +275,7 @@ namespace gip.core.autocomponent
 
             try
             {
-                _SvcHost = CreateService();
+                _Host = CreateService();
                 if (_SvcHost != null)
                 {
                     _SvcHost.Opened += _SvcHost_Opened;
@@ -275,7 +301,15 @@ namespace gip.core.autocomponent
 
         public void StartHost()
         {
-            _SvcHost.Start();
+            //_SvcHost.Start();
+            _ACHostStartThread = new ACThread(StartHost);
+            _ACHostStartThread.Name = "ACUrl:" + this.GetACUrl() + ";StartHost();";
+            _ACHostStartThread.Start();
+        }
+
+        public void HostStarting()
+        {
+            _Host.Start();
         }
 
         protected void _SvcHost_Opened(object sender, EventArgs e)
@@ -283,7 +317,7 @@ namespace gip.core.autocomponent
             this.CommState.ValueT = (int)_SvcHost.State;
         }
 
-        protected void _SvcHost_UnknownMessageReceived(object sender, System.ServiceModel.UnknownMessageReceivedEventArgs e)
+        protected void _SvcHost_UnknownMessageReceived(object sender, UnknownMessageReceivedEventArgs e)
         {
             this.CommState.ValueT = (int)_SvcHost.State;
             if (e != null)
@@ -314,7 +348,7 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledStartService()
         {
-            return _SvcHost == null;
+            return _Host == null;
         }
 
         [ACMethodInteraction("Watching", "en{'Stop Webservice'}de{'Stoppe Webdienst'}", 200, true)]
@@ -333,9 +367,10 @@ namespace gip.core.autocomponent
                 }
                 if (_SvcHost.State == CommunicationState.Opened)
                 {
-                    _SvcHost.Close();
+                    //_SvcHost.Close();
+                    _Host.StopAsync();
                 }
-                _SvcHost = null;
+                _Host = null;
             }
             catch (Exception e)
             {
@@ -347,7 +382,7 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledStopService()
         {
-            return _SvcHost != null;
+            return _Host != null;
         }
 
         public override void AcknowledgeAlarms()

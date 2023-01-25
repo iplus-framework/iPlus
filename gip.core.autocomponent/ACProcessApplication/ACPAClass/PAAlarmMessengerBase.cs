@@ -171,8 +171,8 @@ namespace gip.core.autocomponent
                     IEnumerable<ACClassConfig> configs = null;
                     using (ACMonitor.Lock(acClass.Database.QueryLock_1X000))
                     {
-                        acClass.ACClassConfig_ACClass.AutoRefresh(acClass.Database);
-                        acClass.ACClassConfig_ACClass.AutoLoad(acClass.Database);
+                        //acClass.ACClassConfig_ACClass.AutoRefresh(acClass.Database);
+                        acClass.ACClassConfig_ACClass.AutoLoad(acClass.ACClassConfig_ACClassReference, acClass);
                         configs = acClass.ACClassConfig_ACClass.Where(c => c.LocalConfigACUrl == SaveConfigPropName).ToList();
                     }
                     if (configs != null && configs.Any())
@@ -206,7 +206,7 @@ namespace gip.core.autocomponent
                     IEnumerable<ACClassConfig> configsExclusion = null;
                     using (ACMonitor.Lock(acClass.Database.QueryLock_1X000))
                     {
-                        acClass.ACClassConfig_ACClass.AutoRefresh(acClass.Database);
+                        acClass.ACClassConfig_ACClass.AutoRefresh(acClass.ACClassConfig_ACClassReference, acClass.Database);
                         configsExclusion = acClass.ACClassConfig_ACClass.Where(c => c.LocalConfigACUrl == SaveExclusionConfigPropName && c.Value != null).ToArray();
                     }
                     if (configsExclusion != null && configsExclusion.Any())

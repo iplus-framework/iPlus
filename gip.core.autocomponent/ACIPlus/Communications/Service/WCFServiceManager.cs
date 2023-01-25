@@ -21,6 +21,8 @@ using CoreWCF.Configuration;
 using CoreWCF.Description;
 using CoreWCF;
 using CoreWCF.Channels;
+using System.Collections;
+using System.Reflection;
 
 namespace gip.core.autocomponent
 {
@@ -48,7 +50,6 @@ namespace gip.core.autocomponent
         SyncQueueEvents _syncDispatchPoints;
         ACThread _ACPDispatchPointsThread = null;
 
-        SyncQueueEvents _syncHostStart;
         ACThread _ACHostStartThread = null;
 
         #endregion
@@ -96,7 +97,6 @@ namespace gip.core.autocomponent
 
             // Host generieren
             //_serviceHost = new ServiceHost(typeof(WCFService), endpointUri);
-
             _host = WebHost.CreateDefaultBuilder()
                 .UseKestrel(options =>
                 {
@@ -185,7 +185,7 @@ namespace gip.core.autocomponent
                 .UseNetTcp(NETTCP_PORT)
                 .Build();
 
-            ContractDescription cd = _host.Description.Endpoints[0].Contract;
+            ContractDescription cd = serviceHost.Description.Endpoints[0].Contract;
             foreach (OperationDescription opDescr in cd.Operations)
             {
                 foreach (IOperationBehavior behavior in opDescr.OperationBehaviors)
@@ -281,6 +281,29 @@ namespace gip.core.autocomponent
             get
             {
                 return _host;
+            }
+        }
+
+        public ServiceHostBase serviceHost
+        {
+            get
+            {
+                var engineProperty = _host.Services.GetType().GetField("_engine", BindingFlags.NonPublic | BindingFlags.Instance);
+                var engine = engineProperty.GetValue(host.Services);
+                var rootProperty = engine.GetType().GetProperty("Root");
+                var root = rootProperty.GetValue(engine);
+                var resolvedServiceProperty = root.GetType().GetProperty("ResolvedServices", BindingFlags.NonPublic | BindingFlags.Instance);
+                var resolvedService = resolvedServiceProperty.GetValue(root);
+                var resolvedServiceValues = resolvedService.GetType().GetProperty("Values");
+                IEnumerable serviceValueIenumerable = resolvedServiceValues.GetValue(resolvedService) as IEnumerable;
+                foreach (Object obj in serviceValueIenumerable)
+                {
+                    if (obj.ToString().Contains("CoreWCF.ServiceHostObjectModel") && !obj.ToString().Contains("Logger"))
+                    {
+                        return obj as ServiceHostBase;
+                    }
+                }
+                return null;
             }
         }
 
@@ -430,7 +453,7 @@ namespace gip.core.autocomponent
         {
             if (ACOperationMode != ACOperationModes.Live)
                 return;
-            if (host.State != CommunicationState.Opened)
+            if (serviceHost.State != CommunicationState.Opened)
             {
                 _ACHostStartThread = new ACThread(StartHost);
                 _ACHostStartThread.Name = "ACUrl:" + this.GetACUrl() + ";StartHost();";
@@ -735,10 +758,10 @@ namespace gip.core.autocomponent
 
         public void StartHost()
         {
-            while (!_syncHostStart.ExitThreadEvent.WaitOne(0, false))
-            {
-                host.Start();
-            }
+            //while (!_syncHostStart.ExitThreadEvent.WaitOne(0, false))
+            //{
+            host.Start();
+            //}
         }
 
         public void ShutdownClients()

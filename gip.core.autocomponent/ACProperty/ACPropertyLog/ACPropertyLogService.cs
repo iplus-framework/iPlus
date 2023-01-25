@@ -1,4 +1,5 @@
 ﻿using gip.core.datamodel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -216,7 +217,7 @@ namespace gip.core.autocomponent
                     propertyLog.Value = ACConvert.ChangeType(value, typeof(string), true, db) as string;
                     propertyLog.ACProgramLogID = acProgramLogID;
 
-                    db.ACPropertyLog.AddObject(propertyLog);
+                    db.ACPropertyLog.Add(propertyLog);
                     var msg = db.ACSaveChanges();
                     if (msg != null)
                         Messages.LogError(this.GetACUrl(), "LogProperty(20)", msg.Message);

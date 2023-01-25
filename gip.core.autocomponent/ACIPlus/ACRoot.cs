@@ -12,6 +12,7 @@ using System.Net.Sockets;
 using System.Threading;
 using gip.core.datamodel;
 using System.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
 {

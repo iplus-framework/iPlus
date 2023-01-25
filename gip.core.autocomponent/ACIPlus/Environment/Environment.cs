@@ -128,7 +128,7 @@ namespace gip.core.autocomponent
                         acClassText.ACIdentifier = acIdentifier;
                         acClassText.ACCaption = "en:" + acIdentifier;
                         acClassText.ACCaption = "de:" + acIdentifier;
-                        context.ACClassText.AddObject(acClassText);
+                        context.ACClassText.Add(acClassText);
                         context.ACSaveChanges();
                     }
                 }

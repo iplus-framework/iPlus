@@ -8,6 +8,7 @@ using gip.core.datamodel.Licensing;
 using gip.core.dbsyncer;
 using gip.core.dbsyncer.Messages;
 using System.IO;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
 {

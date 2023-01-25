@@ -301,7 +301,7 @@ namespace gip.core.autocomponent
                             {
                                 ACClassPropertyRelation binding = ACClassPropertyRelation.NewACClassPropertyRelation(db, classOfSource, propOfSource.TopBaseACClassProperty, classOfTarget, propOfTarget.TopBaseACClassProperty);
                                 binding.ConnectionType = Global.ConnectionTypes.Binding;
-                                db.ACClassPropertyRelation.AddObject(binding);
+                                db.ACClassPropertyRelation.Add(binding);
                                 db.ACSaveChanges();
                             }
                         }
