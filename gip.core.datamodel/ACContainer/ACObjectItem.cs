@@ -54,6 +54,7 @@ namespace gip.core.datamodel
         /// <param name="acObject">The ac object.</param>
         /// <param name="caption">The caption.</param>
         /// <param name="acURLRelative">The ac URL relative.</param>
+        /// <param name="acIdentifier">The ac URL relative.</param>
         public ACObjectItem(IACObject acObject, string caption = null, string acURLRelative = "", string acIdentifier = null)
         {
             ACObject = acObject;
