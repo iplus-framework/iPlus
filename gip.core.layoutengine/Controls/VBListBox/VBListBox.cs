@@ -1,21 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using gip.core.datamodel;
 using gip.core.layoutengine.Helperclasses;
-using System.Transactions;
 using System.Reflection;
 using System.ComponentModel;
+using System.Windows.Threading;
 
 namespace gip.core.layoutengine
 {
@@ -31,6 +26,7 @@ namespace gip.core.layoutengine
         #region c'tors
         string _DataShowColumns;
         string _DataChilds;
+        private DispatcherTimer _cyclickDataRefreshDispTimer;
 
         private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
             new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
@@ -244,6 +240,27 @@ namespace gip.core.layoutengine
             DependencyProperty.Register("IsEnabledScrollIntoView", typeof(bool), typeof(VBListBox), new PropertyMetadata(false));
 
 
+        #region xx = > CyclicDataRefresh
+
+        /// <summary>
+        /// Determines is cyclic refresh enabled or disabled.The value (integer) in this property determines the interval of cyclic execution in miliseconds.   
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Bestimmt, ob die zyklische Aktualisier aktiviert oder deaktiviert ist. Der Wert (Integer) in dieser Eigenschaft bestimmt das Intervall der zyklischen Ausführung in Millisekunden.
+        /// </summary>
+        [Category("VBControl")]
+        public int CyclicDataRefresh
+        {
+            get { return (int)GetValue(CyclicDataRefreshProperty); }
+            set { SetValue(CyclicDataRefreshProperty, value); }
+        }
+
+        /// <summary>
+        /// Represents the dependency property for CyclicDataRefresh.
+        /// </summary>
+        public static readonly DependencyProperty CyclicDataRefreshProperty = DependencyProperty.Register(nameof(CyclicDataRefresh), typeof(int), typeof(VBListBox));
+
+        #endregion
 
         #region Layout
         /// <summary>
@@ -555,6 +572,25 @@ namespace gip.core.layoutengine
             {
                 Focus();
                 //MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+            }
+
+            if (ReadLocalValue(CyclicDataRefreshProperty) != DependencyProperty.UnsetValue)
+            {
+                if(CyclicDataRefresh > 0)
+                {
+                    _cyclickDataRefreshDispTimer = new DispatcherTimer();
+                    _cyclickDataRefreshDispTimer.Tick += new EventHandler(cyclickDataRefreshDispTimer_CanExecute);
+                    _cyclickDataRefreshDispTimer.Interval = new TimeSpan(0, 0, 0, 0, CyclicDataRefresh);
+                    _cyclickDataRefreshDispTimer.Start();
+                }
+            }
+        }
+
+        private void cyclickDataRefreshDispTimer_CanExecute(object sender, EventArgs e)
+        {
+            if(DataContext != null && DataContext is ICyclicRefreshableCollection)
+            {
+                (DataContext as ICyclicRefreshableCollection).Refresh();
             }
         }
 

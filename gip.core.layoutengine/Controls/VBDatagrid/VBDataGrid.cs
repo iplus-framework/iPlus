@@ -17,6 +17,7 @@ using System.Data.Objects.DataClasses;
 using System.Reflection;
 using System.Data;
 using ClosedXML.Excel;
+using System.Windows.Threading;
 
 namespace gip.core.layoutengine
 {
@@ -131,6 +132,7 @@ namespace gip.core.layoutengine
         string _DataChilds;
         bool _Enabled = false;
         List<DataGridColumn> _ColumnsFromXAML = new List<DataGridColumn>();
+        private DispatcherTimer _cyclickDataRefreshDispTimer;
 
         #region c'tors
         private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> {
@@ -304,6 +306,29 @@ namespace gip.core.layoutengine
                 SetValue(VBSumColumnsProperty, value);
             }
         }
+
+        #region xx = > CyclicDataRefresh
+
+        /// <summary>
+        /// Determines is cyclic refresh enabled or disabled.The value (integer) in this property determines the interval of cyclic execution in miliseconds.   
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Bestimmt, ob die zyklische Aktualisier aktiviert oder deaktiviert ist. Der Wert (Integer) in dieser Eigenschaft bestimmt das Intervall der zyklischen Ausführung in Millisekunden.
+        /// </summary>
+        [Category("VBControl")]
+        public int CyclicDataRefresh
+        {
+            get { return (int)GetValue(CyclicDataRefreshProperty); }
+            set { SetValue(CyclicDataRefreshProperty, value); }
+        }
+
+        /// <summary>
+        /// Represents the dependency property for CyclicDataRefresh.
+        /// </summary>
+        public static readonly DependencyProperty CyclicDataRefreshProperty = DependencyProperty.Register(nameof(CyclicDataRefresh), typeof(int), typeof(VBDataGrid));
+
+        #endregion
+
         #endregion
 
         #region Loaded Event
@@ -551,6 +576,25 @@ namespace gip.core.layoutengine
             {
                 IsSumEnabled = true;
                 CreateSumProperties();
+            }
+
+            if (ReadLocalValue(CyclicDataRefreshProperty) != DependencyProperty.UnsetValue)
+            {
+                if(CyclicDataRefresh> 0)
+                {
+                    _cyclickDataRefreshDispTimer = new DispatcherTimer();
+                    _cyclickDataRefreshDispTimer.Tick += new EventHandler(cyclickDataRefreshDispTimer_CanExecute);
+                    _cyclickDataRefreshDispTimer.Interval = new TimeSpan(0, 0, 0, 0, CyclicDataRefresh);
+                    _cyclickDataRefreshDispTimer.Start();
+                }
+            }
+        }
+
+        private void cyclickDataRefreshDispTimer_CanExecute(object sender, EventArgs e)
+        {
+            if (DataContext != null && DataContext is ICyclicRefreshableCollection)
+            {
+                (DataContext as ICyclicRefreshableCollection).Refresh();
             }
         }
 

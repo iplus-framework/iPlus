@@ -121,6 +121,7 @@
     <Compile Include="ACHelperclasses\ACLicense\CSP.cs" />
     <Compile Include="ACHelperclasses\ACLicense\DBInfo.cs" />
     <Compile Include="ACHelperclasses\Runtime\TypeResolver.cs" />
+    <Compile Include="ACInterfaces\ACDesign\ICyclicRefreshableCollection.cs" />
     <Compile Include="ACInterfaces\ACEntity\IImageInfo.cs" />
     <Compile Include="ACInterfaces\ACEntity\IScheduledOrder.cs" />
     <Compile Include="ACInterfaces\ACEntity\MDTrans.cs" />
