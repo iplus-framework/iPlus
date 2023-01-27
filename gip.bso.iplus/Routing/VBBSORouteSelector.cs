@@ -150,6 +150,30 @@ namespace gip.bso.iplus
             }
         }
 
+        private bool _AllowProcessModuleInRoute = true;
+        [ACPropertyInfo(406, "", "en{'Allow process module in route'}de{'Prozessmodul in Route zulassen'}")]
+        public bool AllowProcessModuleInRoute
+        {
+            get => _AllowProcessModuleInRoute;
+            set
+            {
+                _AllowProcessModuleInRoute = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string SelectionRuleID
+        {
+            get;
+            set;
+        }
+
+        private object[] SelectionRuleParams
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Methods
@@ -178,7 +202,7 @@ namespace gip.bso.iplus
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
-        public void ShowAvailableRoutes(IEnumerable<ACClass> startComponents, IEnumerable<ACClass> endComponents)
+        public void ShowAvailableRoutes(IEnumerable<ACClass> startComponents, IEnumerable<ACClass> endComponents, string selectionRuleID = null, object[] selectionRuleParams = null, bool allowProcessModuleInRoute = true)
         {
             _RouteResult = null;
             List<ACClassInfoWithItems> start = new List<ACClassInfoWithItems>();
@@ -198,6 +222,54 @@ namespace gip.bso.iplus
 
             StartComponents = start;
             EndComponents = end;
+
+            if (!AllowProcessModuleInRoute)
+            {
+                SelectionRuleID = selectionRuleID;
+                SelectionRuleParams = selectionRuleParams;
+            }
+            else
+            {
+                SelectionRuleID = null;
+                SelectionRuleParams = null;
+            }
+
+            SelectedStartComponent = StartComponents.FirstOrDefault();
+            SelectedEndComponent = EndComponents.FirstOrDefault();
+
+            if (_CurrentRouteMode != null && SelectedRouteMode == null)
+                SelectedRouteMode = _CurrentRouteMode;
+
+            ShowDialog(this, "Mainlayout");
+        }
+
+        public void ShowAvailableRoutes(IEnumerable<Tuple<ACClass,ACClassProperty>> startPoints, IEnumerable<Tuple<ACClass, ACClassProperty>> endPoints, string selectionRuleID = null, object[] selectionRuleParams = null, bool allowProcessModuleInRoute = true)
+        {
+            _RouteResult = null;
+            List<ACClassInfoWithItems> start = new List<ACClassInfoWithItems>();
+            List<ACClassInfoWithItems> end = new List<ACClassInfoWithItems>();
+
+            if (startPoints != null && startPoints.Any())
+            {
+                foreach (Tuple<ACClass, ACClassProperty> startPoint in startPoints.OrderBy(c => c.Item1.ACCaption))
+                    start.Add(new ACClassInfoWithItems(startPoint.Item1));
+            }
+
+            if (endPoints != null && endPoints.Any())
+            {
+                foreach (Tuple<ACClass, ACClassProperty> endPoint in endPoints.OrderBy(c => c.Item1.ACCaption))
+                    end.Add(new ACClassInfoWithItems(endPoint.Item1));
+            }
+
+            StartPoints = startPoints;
+            EndPoints = endPoints;
+
+            StartComponents = start;
+            EndComponents = end;
+
+            AllowProcessModuleInRoute = allowProcessModuleInRoute;
+            SelectionRuleID = selectionRuleID;
+            SelectionRuleParams = selectionRuleParams;
 
             SelectedStartComponent = StartComponents.FirstOrDefault();
             SelectedEndComponent = EndComponents.FirstOrDefault();
@@ -274,7 +346,7 @@ namespace gip.bso.iplus
             return true;
         }
 
-        private bool GetRoutes(IEnumerable<string> sourceComponentsList, IEnumerable<string> targetComponentsList, bool includeReserved, bool includeAllocated, bool isForEditor = false)
+        private bool GetRoutes(IEnumerable<string> sourceComponentsList, IEnumerable<string> targetComponentsList, bool includeReserved, bool includeAllocated, bool isForEditor = false, string selectionRuleID = null, object[] selectionRuleParams = null)
         {
             SourceComponentsList = sourceComponentsList;
             TargetComponentsList = targetComponentsList;
@@ -291,10 +363,18 @@ namespace gip.bso.iplus
             SelectedRoutingPaths = new List<ACRoutingPath>();
             SelectedActiveRoutingPaths.Clear();
 
+            var tempStartPoints = StartPoints?.ToList();
+            var tempEndPoints = EndPoints?.ToList();
+
             foreach (string startComp in SourceComponentsList)
             {
                 foreach (string endComp in TargetComponentsList)
-                    FindRoutes(startComp, endComp, includeReserved, includeAllocated, isForEditor);
+                {
+                    Tuple<ACClass, ACClassProperty> sourcePoint = tempStartPoints?.FirstOrDefault(c => c.Item1.ACUrlComponent == startComp);
+                    Tuple<ACClass, ACClassProperty> targetPoint = tempEndPoints?.FirstOrDefault(c => c.Item1.ACUrlComponent == endComp);
+
+                    FindRoutes(startComp, sourcePoint?.Item2?.ACClassPropertyID, endComp, targetPoint?.Item2?.ACClassPropertyID, includeReserved, includeAllocated, isForEditor, selectionRuleID, selectionRuleParams);
+                }
             }
 
             if (!AvailableRoutes.Any())
@@ -309,7 +389,7 @@ namespace gip.bso.iplus
             return true;
         }
 
-        private void FindRoutes(string startComponent, string endComponent, bool includeReserved, bool includeAllocated, bool isForEditor = false)
+        private void FindRoutes(string startComponent, Guid? startPointID, string endComponent, Guid? endPointID, bool includeReserved, bool includeAllocated, bool isForEditor = false, string selectionRuleID = null, object[] selectionRuleParams = null)
         {
             if (startComponent == null || endComponent == null)
                 return;
@@ -318,8 +398,9 @@ namespace gip.bso.iplus
             if (MaximumRouteAlternatives > -1 && MaximumRouteAlternatives < 11)
                 maxRouteAlt = MaximumRouteAlternatives;
 
-            var buildRouteResult = ACUrlCommand(string.Format("{0}!BuildAvailableRoutes", RoutingServiceACUrl.StartsWith("\\") ? RoutingServiceACUrl : "\\" + RoutingServiceACUrl),
-                                    startComponent, endComponent, maxRouteAlt, includeReserved, includeAllocated, isForEditor) as Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>>;
+            var buildRouteResult = ACUrlCommand(string.Format("{0}!"+nameof(ACRoutingService.BuildAvailableRoutesFromPoints), RoutingServiceACUrl.StartsWith("\\") ? RoutingServiceACUrl : "\\" + RoutingServiceACUrl),
+                                                startComponent, startPointID, endComponent, endPointID, maxRouteAlt, includeReserved, 
+                                                includeAllocated, isForEditor, selectionRuleID, selectionRuleParams) as Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>>;
             if (buildRouteResult == null)
                 return;
 
@@ -501,7 +582,6 @@ namespace gip.bso.iplus
                             }
                         }
 
-
                         if (rPath != null)
                             SetActiveRoutes(components, routePath, rPath);
 
@@ -678,6 +758,12 @@ namespace gip.bso.iplus
             }
         }
 
+        private IEnumerable<Tuple<ACClass, ACClassProperty>> StartPoints
+        {
+            get;
+            set;
+        }
+
         private ACClassInfoWithItems _SelectedEndComponent;
         [ACPropertySelected(408, "EndComponent")]
         public ACClassInfoWithItems SelectedEndComponent
@@ -701,6 +787,12 @@ namespace gip.bso.iplus
                 _EndComponents = value;
                 OnPropertyChanged("EndComponents");
             }
+        }
+
+        private IEnumerable<Tuple<ACClass, ACClassProperty>> EndPoints
+        {
+            get;
+            set;
         }
 
         private ACValueItem _CurrentRouteMode;
@@ -789,8 +881,14 @@ namespace gip.bso.iplus
                 end = new string[] { SelectedEndComponent.ValueT.ACUrlComponent };
             }
 
+            if (AllowProcessModuleInRoute)
+            {
+                SelectionRuleID = null;
+                SelectionRuleParams = null;
+            }
+
             _CurrentRouteMode = SelectedRouteMode;
-            if (!GetRoutes(start, end, true, true))
+            if (!GetRoutes(start, end, true, true, false, SelectionRuleID, SelectionRuleParams))
                 return;
 
             ShowRoute();

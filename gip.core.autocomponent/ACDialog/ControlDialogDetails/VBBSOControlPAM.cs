@@ -629,6 +629,7 @@ namespace gip.core.autocomponent
                             if (paPointOut != null)
                             {
                                 IReadOnlyList<Route> routeToRelatedOutPointOfPM = null;
+                                ACClassProperty paModulePointOut = null;
                                 try
                                 {
                                     routeToRelatedOutPointOfPM = ACRoutingService.DbSelectRoutesFromPoint(db, funcClass, paPointOut,
@@ -642,9 +643,13 @@ namespace gip.core.autocomponent
                                 if (routeToRelatedOutPointOfPM != null)
                                 {
                                     Guid targetPropertyGuid = Guid.Empty;
+                                    
                                     RouteItem routeTarget = routeToRelatedOutPointOfPM.LastOrDefault()?.GetRouteTarget();
                                     if (routeTarget != null)
-                                        targetPropertyGuid = routeTarget.TargetProperty.ACClassPropertyID;
+                                    {
+                                        paModulePointOut = routeTarget.TargetProperty;
+                                        targetPropertyGuid = paModulePointOut == null ? Guid.Empty : paModulePointOut.ACClassPropertyID;
+                                    }
                                     if (targetPropertyGuid != Guid.Empty)
                                         targets = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, targetPropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true);
                                 }
@@ -657,7 +662,9 @@ namespace gip.core.autocomponent
                                     else
                                     {
                                         _IsRouteServiceActive = true;
-                                        ShowAvailableRoutesAndSelect(new ACClass[] { CurrentACComponent.ACType as ACClass }, targets.Routes.Select(c => c.LastOrDefault().Target));
+                                        var targetItems = targets.Routes.Select(c => c.LastOrDefault().Target)?.Distinct().Select(c => new Tuple<ACClass, ACClassProperty>(c, null));
+                                        ShowAvailableRoutesAndSelect(new Tuple<ACClass, ACClassProperty>[] { new Tuple<ACClass, ACClassProperty>(CurrentACComponent.ACType as ACClass, paModulePointOut) }, targetItems,
+                                                                     PAProcessModule.SelRuleID_ProcessModule_Deselector, null, false);
                                     }
                                     _IsRouteServiceActive = false;
                                     return;
@@ -667,6 +674,7 @@ namespace gip.core.autocomponent
                         else // receive
                         {
                             ACClassProperty paPointIn = funcClass.GetProperty(Const.PAPointMatIn1);
+                            ACClassProperty paModulePointIn = null;
                             if (paPointIn != null)
                             {
                                 IReadOnlyList<Route> routeToRelatedInPointOfPM = null;
@@ -686,7 +694,10 @@ namespace gip.core.autocomponent
                                     Guid sourcePropertyGuid = Guid.Empty;
                                     RouteItem routeSource = routeToRelatedInPointOfPM.FirstOrDefault()?.GetRouteSource();
                                     if (routeSource != null)
-                                        sourcePropertyGuid = routeSource.SourceProperty.ACClassPropertyID;
+                                    {
+                                        paModulePointIn = routeSource.SourceProperty;
+                                        sourcePropertyGuid = paModulePointIn == null ? Guid.Empty : paModulePointIn.ACClassPropertyID;
+                                    }
                                     if (sourcePropertyGuid != Guid.Empty)
                                         sources = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, sourcePropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true);
                                 }
@@ -700,7 +711,9 @@ namespace gip.core.autocomponent
                                 else
                                 {
                                     _IsRouteServiceActive = true;
-                                    ShowAvailableRoutesAndSelect(sources.Routes.Select(c => c.FirstOrDefault().Source)?.Distinct(), new ACClass[] { CurrentACComponent.ACType as ACClass });
+                                    var sourceItems = sources.Routes.Select(c => c.FirstOrDefault().Source)?.Distinct().Select(c => new Tuple<ACClass, ACClassProperty>(c, null));
+                                    ShowAvailableRoutesAndSelect(sourceItems, new Tuple<ACClass, ACClassProperty>[] { new Tuple<ACClass, ACClassProperty>(CurrentACComponent.ACType as ACClass, paModulePointIn) }, 
+                                                                 PAProcessModule.SelRuleID_ProcessModule_Deselector, null, false);
                                 }
                                 _IsRouteServiceActive = false;
                                 return;
@@ -757,6 +770,19 @@ namespace gip.core.autocomponent
         {
             IACVBBSORouteSelector routeSelector = ParentACComponent.GetChildComponent("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
             routeSelector.ShowAvailableRoutes(start, end);
+
+            if (routeSelector.RouteResult == null)
+                return;
+
+            var routes = routeSelector.RouteResult;
+            Route route = routes.FirstOrDefault();
+            SelectedACMethodParam.Value = route;
+        }
+
+        private void ShowAvailableRoutesAndSelect(IEnumerable<Tuple<ACClass, ACClassProperty>> start, IEnumerable<Tuple<ACClass, ACClassProperty>> end, string selectionRuleID = null, object[] selectionRuleParams = null, bool allowProcessModuleInRoute = true)
+        {
+            IACVBBSORouteSelector routeSelector = ParentACComponent.GetChildComponent("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
+            routeSelector.ShowAvailableRoutes(start, end, selectionRuleID, selectionRuleParams, allowProcessModuleInRoute);
 
             if (routeSelector.RouteResult == null)
                 return;

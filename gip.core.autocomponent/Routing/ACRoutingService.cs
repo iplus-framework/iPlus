@@ -281,6 +281,10 @@ namespace gip.core.autocomponent
                 case MN_BuildAvailableRoutes:
                     result = BuildAvailableRoutes(acParameter[0] as string, acParameter[1] as string, (int)acParameter[2], (bool)acParameter[3], (bool)acParameter[4], (bool)acParameter[5]);
                     return true;
+                case nameof(BuildAvailableRoutesFromPoints):
+                    result = BuildAvailableRoutesFromPoints(acParameter[0] as string, acParameter[1] as Guid?, acParameter[2] as string, acParameter[3] as Guid?, (int)acParameter[4], (bool)acParameter[5], (bool)acParameter[6], (bool)acParameter[7],
+                                                            acParameter[8] as string, acParameter[9] as object[]);
+                    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
@@ -1047,6 +1051,36 @@ namespace gip.core.autocomponent
 
             return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent), new ACRoutingVertex(endComponent), maxRouteAlternatives, includeReserved, 
                                                           includeAllocated, isForEditor);
+        }
+
+        [ACMethodInfo("", "", 301, true)]
+        public Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>> BuildAvailableRoutesFromPoints(string startComponentACUrl, Guid? startPointID, string endComponentACUrl, Guid? endPointID, int maxRouteAlternatives,
+                                                                                 bool includeReserved, bool includeAllocated, bool isForEditor = false, string selectionRuleID = null, object[] selectionRuleParams = null)
+        {
+            var startComponent = ACUrlCommand(startComponentACUrl) as ACComponent;
+            var endComponent = ACUrlCommand(endComponentACUrl) as ACComponent;
+
+            if (startComponent == null || endComponent == null)
+                return null;
+
+            if (startPointID.HasValue && endPointID.HasValue)
+            {
+                return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, startPointID.Value), new ACRoutingVertex(endComponent, endPointID.Value), maxRouteAlternatives, includeReserved,
+                                                          includeAllocated, isForEditor, selectionRuleID, selectionRuleParams);
+            }
+            else if (startPointID.HasValue && !endPointID.HasValue)
+            {
+                return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, startPointID.Value), new ACRoutingVertex(endComponent), maxRouteAlternatives, includeReserved,
+                                                          includeAllocated, isForEditor, selectionRuleID, selectionRuleParams);
+            }
+            else if (!startPointID.HasValue && endPointID.HasValue)
+            {
+                return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent), new ACRoutingVertex(endComponent, endPointID.Value), maxRouteAlternatives, includeReserved,
+                                                          includeAllocated, isForEditor, selectionRuleID, selectionRuleParams);
+            }
+
+            return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent), new ACRoutingVertex(endComponent), maxRouteAlternatives, includeReserved,
+                                                          includeAllocated, isForEditor, selectionRuleID, selectionRuleParams);
         }
 
         /// <summary>Searches a route from start components to end components.</summary>
