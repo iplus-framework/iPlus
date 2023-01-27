@@ -29,6 +29,7 @@ namespace gip.core.datamodel
             Sequence = index;
             TreeQuantityRatio = treeQuantityRatio;
             IsEnabled = true;
+            Parent = parent;
         }
 
         #endregion
@@ -330,6 +331,13 @@ namespace gip.core.datamodel
                     item.BuildTreeList(list);
             }
             return list;
+        }
+
+        public void DoAction(Action<ExpandBase> action)
+        {
+            action(this);
+            foreach(ExpandBase child in Children)
+                action(child);
         }
 
         #endregion

@@ -106,8 +106,11 @@ namespace gip.core.autocomponent
         #region Methods
 
         public Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>> BuildRoutes(ACRoutingVertex startVertex, ACRoutingVertex endVertex, int maxRouteAlternatives,
-                                                                               bool includeReserved, bool includeAllocated, bool isForEditor = false)
+                                                                               bool includeReserved, bool includeAllocated, bool isForEditor = false, string selectionRuleID = null, object[] selectionRuleParams = null)
         {
+            _SelectionRuleID = selectionRuleID;
+            _SelectionRuleParams = selectionRuleParams != null ? selectionRuleParams : new object[] { };
+
             BuildAvailableRoutes(startVertex, endVertex, maxRouteAlternatives, includeReserved, includeAllocated, isForEditor);
             return new Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>>(RoutingVertexList.Values.Where(c => c.Distance != int.MinValue).ToList(), PathsHeap);
         }

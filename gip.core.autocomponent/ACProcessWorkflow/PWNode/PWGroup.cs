@@ -1555,7 +1555,7 @@ namespace gip.core.autocomponent
             {
                 return (bool)acComponent.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(CanScanAndOccupyProcessModules), null);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -1590,7 +1590,7 @@ namespace gip.core.autocomponent
             {
                 return (bool)acComponent.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(CanReleaseProcessModules), null);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }

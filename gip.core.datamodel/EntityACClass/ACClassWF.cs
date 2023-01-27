@@ -457,7 +457,7 @@ namespace gip.core.datamodel
                     caption = RefPAACClassMethod.ACCaptionAttached;
                 if (String.IsNullOrEmpty(caption) && RefPAACClass != null)
                     caption = RefPAACClass.ACCaption;
-                if (String.IsNullOrEmpty(caption))
+                if (String.IsNullOrEmpty(caption) && PWACClass != null)
                     caption = PWACClass.ACCaption;
                 if (!String.IsNullOrEmpty(this.Comment))
                     caption += Environment.NewLine + this.Comment;
