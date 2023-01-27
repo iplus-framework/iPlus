@@ -571,7 +571,7 @@ namespace gip.core.layoutengine
             if (acClassDesign != null)
             {
                 tbInfoDesignFullName.Text = acClassDesign.ACIdentifier;
-                tbInfoClassName.Text = acClassDesign.ACClass.ACIdentifier;
+                tbInfoClassName.Text = acClassDesign.ACClass?.ACIdentifier;
                 tblCaption.Text = acClassDesign.ACCaption;
                 tblCaptionTranslation.Text = acClassDesign.ACCaptionTranslation;
                 tbInsertDate.Text = acClassDesign.InsertDate.ToString();

@@ -608,7 +608,7 @@ namespace gip.core.manager
                 string componentACUrl = param.FirstOrDefault(c => c.ACIdentifier == "ComponentACUrl").Value.ToString();
                 DateTime from = DateTime.Parse(param.FirstOrDefault(c => c.ACIdentifier == "SearchFrom").Value.ToString());
                 DateTime to = DateTime.Parse(param.FirstOrDefault(c => c.ACIdentifier == "SearchTo").Value.ToString());
-                if (componentACUrl != null && from != null && to != null)
+                if (componentACUrl != null)
                     ShowLogFromVBBSOControlPA(componentACUrl, from, to);
             }
         }
