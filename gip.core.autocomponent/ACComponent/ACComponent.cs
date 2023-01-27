@@ -30,7 +30,7 @@ namespace gip.core.autocomponent
     /// <seealso cref="gip.core.datamodel.IACMenuBuilder" />
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACComponent", "en{'ACComponent'}de{'ACComponent'}", typeof(ACComponent), "ACComponentChilds", Const.ACCaptionPrefix, Const.ACCaptionPrefix)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass ACComponent'}de{'Basisklasse ACComponent'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, true, true)]
-    public abstract partial class ACComponent : IACComponent, INotifyPropertyChanged, IComparable, IACClassDesignProvider, IACMenuBuilder
+    public abstract partial class ACComponent : VBEntityObject, IACComponent, INotifyPropertyChanged, IComparable, IACClassDesignProvider, IACMenuBuilder
     {
 
         #region c´tors

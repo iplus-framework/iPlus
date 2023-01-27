@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
 namespace gip.core.autocomponent
 {
@@ -190,8 +191,8 @@ namespace gip.core.autocomponent
         {
             if (database == null)
                 return null;
-            ObjectQuery<VBNoConfiguration> query = (ObjectQuery<VBNoConfiguration>)s_cQry_ConfigName(database, entityNoFieldName);
-            query.MergeOption = MergeOption.OverwriteChanges;
+            IQueryable<VBNoConfiguration> query = (IQueryable<VBNoConfiguration>)s_cQry_ConfigName(database, entityNoFieldName);
+            //query.MergeOption = MergeOption.OverwriteChanges;
             return query.FirstOrDefault();
         }
 
@@ -199,8 +200,8 @@ namespace gip.core.autocomponent
         {
             if (database == null)
                 return null;
-            ObjectQuery<VBNoConfiguration> query = (ObjectQuery<VBNoConfiguration>)s_cQry_ConfigID(database, noConfigurationID);
-            query.MergeOption = MergeOption.OverwriteChanges;
+            IQueryable<VBNoConfiguration> query = (IQueryable<VBNoConfiguration>)s_cQry_ConfigID(database, noConfigurationID);
+            //query.MergeOption = MergeOption.OverwriteChanges;
             return query.FirstOrDefault();
         }
 

@@ -7,6 +7,9 @@ using gip.core.datamodel.Licensing;
 using System.IO;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
+using System.Data.Common;
 
 namespace gip.core.autocomponent
 {
@@ -387,7 +390,8 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return (((System.Data.EntityClient.EntityConnection)(((System.Data.Objects.ObjectContext)(gip.core.datamodel.Database.GlobalDatabase)).Connection)).StoreConnection).Database;
+                //return (((System.Data.EntityClient.EntityConnection)(((System.Data.Objects.ObjectContext)(gip.core.datamodel.Database.GlobalDatabase)).Connection)).StoreConnection).Database;
+                return (((DbConnection)(((DbContext)(gip.core.datamodel.Database.GlobalDatabase)).Database.GetDbConnection()))).Database;
             }
         }
 
@@ -413,10 +417,10 @@ namespace gip.core.autocomponent
         {
             get
             {
-                System.Data.EntityClient.EntityConnection entityConnection = gip.core.datamodel.Database.GlobalDatabase.Connection as System.Data.EntityClient.EntityConnection;
+                DbConnection entityConnection = gip.core.datamodel.Database.GlobalDatabase.Connection as DbConnection;
                 if (entityConnection != null)
                 {
-                    return new SqlConnectionStringBuilder(entityConnection.StoreConnection.ConnectionString);
+                    return new SqlConnectionStringBuilder(entityConnection.ConnectionString);
                 }
                 return null;
             }
@@ -495,9 +499,11 @@ namespace gip.core.autocomponent
                         return null;
                     using (ACMonitor.Lock(Database.ContextIPlus.QueryLock_1X000))
                     {
-                        var cntQuery = Database.ContextIPlus.ExecuteStoreQuery<int>(C_SQL_SysProcProgram, sqlConnectionInfo.ApplicationName, sqlConnectionInfo.InitialCatalog);
+                        FormattableString cntQueryStringSysProcProgram = FormattableStringFactory.Create(C_SQL_SysProcProgram, sqlConnectionInfo.ApplicationName, sqlConnectionInfo.InitialCatalog);
+                        var cntQuery = Database.ContextIPlus.Database.SqlQuery<int>(cntQueryStringSysProcProgram);
                         int countAppConnections = cntQuery.FirstOrDefault();
-                        cntQuery = Database.ContextIPlus.ExecuteStoreQuery<int>(C_SQL_SysProc, sqlConnectionInfo.InitialCatalog);
+                        FormattableString cntQueryStringSysProc = FormattableStringFactory.Create(C_SQL_SysProc, sqlConnectionInfo.InitialCatalog);
+                        cntQuery = Database.ContextIPlus.Database.SqlQuery<int>(cntQueryStringSysProc);
                         int countDBConnections = cntQuery.FirstOrDefault();
                         if (countAppConnections != countDBConnections)
                             Messages.LogDebug(this.GetACUrl(), "GetDBConnectionCount(10)", String.Format("countAppConnections {0} and countDBConnections {1} are different! Maybe someone has opened a SQL-Connection from another program than iPlus or the Application-Name in the Connectionstrings are different in some clients!", countAppConnections, countDBConnections));

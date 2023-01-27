@@ -6,14 +6,14 @@ using gip.core.datamodel;
 
 namespace gip.core.datamodel;
 
-public partial class VBSystemColumn : VBEntityObject
+public partial class VBSystemColumns : VBEntityObject
 {
 
-    public VBSystemColumn()
+    public VBSystemColumns()
     {
     }
 
-    private VBSystemColumn(ILazyLoader lazyLoader)
+    private VBSystemColumns(ILazyLoader lazyLoader)
     {
         LazyLoader = lazyLoader;
     }

@@ -18,7 +18,7 @@ namespace gip.core.datamodel
             get;
         }
 
-        string[] FindMatchingUrls(FindMatchingUrlsParam queryParam);
+        //string[] FindMatchingUrls(FindMatchingUrlsParam queryParam);
 
         Dictionary<string, object> GetACComponentACMemberValues(Dictionary<string, string> acUrl_AcMemberIdentifiers);
     }

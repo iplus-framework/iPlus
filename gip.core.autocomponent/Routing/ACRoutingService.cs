@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
@@ -1538,7 +1539,8 @@ namespace gip.core.autocomponent
                                                               .Max(c => c.LastManipulationDT);
                     TimeSpan diff = DateTime.Now - last;
                     if (diff.TotalDays > 1)
-                        db.udpRestoreLastManipulationDT((int)diff.TotalDays);
+                        //db.udpRestoreLastManipulationDT((int)diff.TotalDays);
+                        db.Database.ExecuteSql(FormattableStringFactory.Create("[dbo].[udpRestoreLastManipulationDT] @p0", (int)diff.TotalDays));
                 }
             }
             catch (Exception e)

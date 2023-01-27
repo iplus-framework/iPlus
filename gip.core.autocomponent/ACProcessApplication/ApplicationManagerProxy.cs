@@ -108,9 +108,9 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case gip.core.autocomponent.ApplicationManager.MN_FindMatchingUrls:
-                    result = FindMatchingUrls(acParameter[0] as FindMatchingUrlsParam);
-                    return true;
+                //case gip.core.autocomponent.ApplicationManager.MN_FindMatchingUrls:
+                //    result = FindMatchingUrls(acParameter[0] as FindMatchingUrlsParam);
+                //    return true;
                 case gip.core.autocomponent.ApplicationManager.MN_GetACComponentACMemberValues:
                     result = GetACComponentACMemberValues(acParameter[0] as Dictionary<string, string>);
                     return true;
@@ -118,20 +118,20 @@ namespace gip.core.autocomponent
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
-        public string[] FindMatchingUrls(FindMatchingUrlsParam queryParam)
-        {
-            if (queryParam == null)
-                return null;
-            byte[] data;
-            using (var stream = new MemoryStream())
-            {
-                BinaryFormatter bf = new BinaryFormatter();
-                bf.Serialize(stream, queryParam);
-                stream.Flush();
-                data = stream.ToArray();
-            }
-            return RMInvoker.ExecuteMethod(gip.core.autocomponent.ApplicationManager.MN_FindMatchingUrlsSerial, new Object[] { data }) as string[];
-        }
+        //public string[] FindMatchingUrls(FindMatchingUrlsParam queryParam)
+        //{
+        //    if (queryParam == null)
+        //        return null;
+        //    byte[] data;
+        //    using (var stream = new MemoryStream())
+        //    {
+        //        BinaryFormatter bf = new BinaryFormatter();
+        //        bf.Serialize(stream, queryParam);
+        //        stream.Flush();
+        //        data = stream.ToArray();
+        //    }
+        //    return RMInvoker.ExecuteMethod(gip.core.autocomponent.ApplicationManager.MN_FindMatchingUrlsSerial, new Object[] { data }) as string[];
+        //}
 
         public Dictionary<string, object> GetACComponentACMemberValues(Dictionary<string, string> acUrl_AcMemberIdentifiers)
         {

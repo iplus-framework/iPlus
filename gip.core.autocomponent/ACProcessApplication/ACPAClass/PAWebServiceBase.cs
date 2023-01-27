@@ -86,12 +86,13 @@ namespace gip.core.autocomponent
             }
         }
 
-        public ServiceHostBase _SvcHost
+        private ServiceHostBase _SvcHost;
+        public ServiceHostBase SvcHost
         {
             get
             {
-                var engineProperty = Host.Services.GetType().GetField("_engine", BindingFlags.NonPublic | BindingFlags.Instance);
-                var engine = engineProperty.GetValue(Host.Services);
+                var engineProperty = _Host.Services.GetType().GetField("_engine", BindingFlags.NonPublic | BindingFlags.Instance);
+                var engine = engineProperty.GetValue(_Host.Services);
                 var rootProperty = engine.GetType().GetProperty("Root");
                 var root = rootProperty.GetValue(engine);
                 var resolvedServiceProperty = root.GetType().GetProperty("ResolvedServices", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -102,10 +103,10 @@ namespace gip.core.autocomponent
                 {
                     if (obj.ToString().Contains("CoreWCF.ServiceHostObjectModel") && !obj.ToString().Contains("Logger"))
                     {
-                        return obj as ServiceHostBase;
+                        _SvcHost = obj as ServiceHostBase;
                     }
                 }
-                return null;
+                return _SvcHost;
             }
         }
 
@@ -190,39 +191,7 @@ namespace gip.core.autocomponent
         /// _SvcHost.UnknownMessageReceived += _SvcHost_UnknownMessageReceived;
         /// </summary>
         /// <returns></returns>
-        public IWebHost CreateService()
-        {
-            _Host = WebHost.CreateDefaultBuilder()
-                .UseKestrel(options =>
-                {
-                    options.ListenAnyIP(HTTP_PORT);
-                    options.ListenAnyIP(HTTPS_PORT, listenOptions =>
-                    {
-                        listenOptions.UseHttps();
-                        if (Debugger.IsAttached)
-                        {
-                            listenOptions.UseConnectionLogging();
-                        }
-                    });
-                })
-
-                .ConfigureServices(services =>
-                {
-                    services.AddServiceModelServices()
-                   .AddServiceModelMetadata()
-                   .AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>();
-                })
-                .Configure(app =>
-                {
-                    app.UseServiceModel(builder =>
-                    {
-                        builder.AddServiceEndpoint<WCFService, IWCFService>(new NetTcpBinding(), NETTCP_PORT);
-                    });
-                })
-                .Build();
-
-            return _Host;
-        }
+        public abstract IWebHost CreateService();
 
         #endregion
 

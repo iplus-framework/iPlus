@@ -4,13 +4,19 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.ServiceModel.Description;
-using System.ServiceModel.Dispatcher;
-using System.ServiceModel.Web;
+using CoreWCF;
+using CoreWCF.Channels;
+using CoreWCF.Description;
+using CoreWCF.Dispatcher;
+using CoreWCF.Web;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore;
+using System.Diagnostics;
+using CoreWCF.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
 
 namespace gip.core.webservices
 {
@@ -27,7 +33,7 @@ namespace gip.core.webservices
 
         #region Implementation
 
-        public override ServiceHost CreateService()
+        public override IWebHost CreateService()
         {
             // Kommando um http-Service bei Windows freizuschalten
             // >netsh http add urlacl url=http://+:8730/ user="\Everyone"
@@ -38,47 +44,74 @@ namespace gip.core.webservices
             // Kommando um alle Einträge anzuzeigen:
             // >netsh http show urlacl
 
-            int servicePort = ServicePort;
-            if (servicePort <= 0)
-            {
-                servicePort = 8730;
-                ServicePort = servicePort;
-            }
-
-            string strUri = String.Format("http://{0}:{1}/", this.Root.Environment.UserInstance.Hostname, servicePort);
-            Uri uri = new Uri(strUri);
-            WebServiceHost serviceHost = new WebServiceHost(ServiceType, uri);
-            serviceHost.Authorization.ServiceAuthorizationManager = new WSRestAuthorizationManager();
-            WebHttpBinding httpBinding = new WebHttpBinding() { ContentTypeMapper = new WSJsonServiceContentTypeMapper(), AllowCookies = true };
-            httpBinding.MaxReceivedMessageSize = int.MaxValue;
-            httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
-            httpBinding.MaxBufferSize = int.MaxValue;
-            //httpBinding.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
-            httpBinding.MaxBufferPoolSize = int.MaxValue;
-
-            ServiceEndpoint serviceEndpoint = serviceHost.AddServiceEndpoint(ServiceInterfaceType, httpBinding, "");
-            if (serviceEndpoint != null)
-                serviceEndpoint.EndpointBehaviors.Add(new PAWebServiceBaseErrorBehavior(this.GetACUrl()));
-
-            ServiceMetadataBehavior metad = serviceHost.Description.Behaviors.Find<ServiceMetadataBehavior>();
-            if (metad == null)
-            {
-                metad = new ServiceMetadataBehavior();
-                serviceHost.Description.Behaviors.Add(metad);
-            }
-            metad.HttpGetEnabled = true;
-
-            foreach (ServiceEndpoint endpoint in serviceHost.Description.Endpoints)
-            {
-                foreach (OperationDescription opDescr in endpoint.Contract.Operations)
+            IWebHost _host = WebHost.CreateDefaultBuilder()
+                .UseKestrel(options =>
                 {
-                    OnAddKnownTypesToOperationContract(endpoint, opDescr);
-                }
-            }
-            return serviceHost;
+                    options.ListenAnyIP(HTTP_PORT);
+                    options.ListenAnyIP(HTTPS_PORT, listenOptions =>
+                    {
+                        listenOptions.UseHttps();
+                        if (Debugger.IsAttached)
+                        {
+                            listenOptions.UseConnectionLogging();
+                        }
+                    });
+                })
+                .ConfigureServices(services =>
+                {
+                    services.AddServiceModelServices()
+                    .AddServiceModelMetadata()
+                    .AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>();
+                })
+                .Configure(app =>
+                {
+                    app.UseServiceModel(builder =>
+                    {
+                        int servicePort = ServicePort;
+                        if (servicePort <= 0)
+                        {
+                            servicePort = 8730;
+                            ServicePort = servicePort;
+                        }
+
+                        string strUri = String.Format("http://{0}:{1}/", this.Root.Environment.UserInstance.Hostname, servicePort);
+                        Uri uri = new Uri(strUri);
+                        WebServiceHost serviceHost = new WebServiceHost(ServiceType, uri);
+                        builder.Authorization.ServiceAuthorizationManager = new WSRestAuthorizationManager();
+                        WebHttpBinding httpBinding = new WebHttpBinding() { ContentTypeMapper = new WSJsonServiceContentTypeMapper() };
+                        //Can't enable AllowCookies in httpBinding, not updated in CoreWCF; AllowCookies = true
+                        httpBinding.MaxReceivedMessageSize = int.MaxValue;
+                        httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
+                        httpBinding.MaxBufferSize = int.MaxValue;
+                        //httpBinding.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
+                        httpBinding.MaxBufferPoolSize = int.MaxValue;
+
+                        var serviceEndpoint = builder.AddServiceEndpoint<CoreWebService>(ServiceInterfaceType, httpBinding, "");
+                        if (serviceEndpoint != null)
+                            builder.AddServiceEndpoint<CoreWebService>(new PAWebServiceBaseErrorBehavior(this.GetACUrl()));
+
+                        ServiceMetadataBehavior metad = serviceHost.Description.Behaviors.Find<ServiceMetadataBehavior>();
+                        if (metad == null)
+                        {
+                            metad = new ServiceMetadataBehavior();
+                            serviceHost.Description.Behaviors.Add(metad);
+                        }
+                        metad.HttpGetEnabled = true;
+
+                        foreach (CoreWCF.Description.ServiceEndpoint endpoint in serviceHost.Description.Endpoints)
+                        {
+                            foreach (OperationDescription opDescr in endpoint.Contract.Operations)
+                            {
+                                OnAddKnownTypesToOperationContract(endpoint, opDescr);
+                            }
+                        }
+                    });
+                })
+                .Build();
+            return _host;
         }
 
-        protected virtual void OnAddKnownTypesToOperationContract(ServiceEndpoint endpoint, OperationDescription opDescr)
+        protected virtual void OnAddKnownTypesToOperationContract(CoreWCF.Description.ServiceEndpoint endpoint, OperationDescription opDescr)
         {
             //var knownTypes = ACKnownTypes.GetKnownType();
             //foreach (var knownType in knownTypes)

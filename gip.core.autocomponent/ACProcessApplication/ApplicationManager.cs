@@ -338,12 +338,12 @@ namespace gip.core.autocomponent
                 case "ReloadConfig":
                     ReloadConfig((Guid)acParameter[0]);
                     return true;
-                case MN_FindMatchingUrls:
-                    result = FindMatchingUrls(acParameter[0] as FindMatchingUrlsParam);
-                    return true;
-                case MN_FindMatchingUrlsSerial:
-                    result = FindMatchingUrlsSerial(acParameter[0] as byte[]);
-                    return true;
+                //case MN_FindMatchingUrls:
+                //    result = FindMatchingUrls(acParameter[0] as FindMatchingUrlsParam);
+                //    return true;
+                //case MN_FindMatchingUrlsSerial:
+                //    result = FindMatchingUrlsSerial(acParameter[0] as byte[]);
+                //    return true;
                 case MN_GetACComponentACMemberValues:
                     result = GetACComponentACMemberValues(acParameter[0] as Dictionary<string, string>);
                     return true;
@@ -547,28 +547,28 @@ namespace gip.core.autocomponent
                 RefreshHasAlarms();
         }
 
-        public const string MN_FindMatchingUrlsSerial = "FindMatchingUrlsSerial";
-        [ACMethodInfo("", "en{'Find components serialized'}de{'Finde Komponenten serialisiert'}", 301, false)]
-        public string[] FindMatchingUrlsSerial(byte[] queryData)
-        {
-            if (queryData == null)
-                return null;
-            FindMatchingUrlsParam deserializedQueryParam;
-            using (var stream = new MemoryStream(queryData))
-            {
-                BinaryFormatter bf = new BinaryFormatter();
-                deserializedQueryParam = (FindMatchingUrlsParam)bf.Deserialize(stream);
-            }
-            return FindMatchingUrls(deserializedQueryParam);
-        }
+        //public const string MN_FindMatchingUrlsSerial = "FindMatchingUrlsSerial";
+        //[ACMethodInfo("", "en{'Find components serialized'}de{'Finde Komponenten serialisiert'}", 301, false)]
+        //public string[] FindMatchingUrlsSerial(byte[] queryData)
+        //{
+        //    if (queryData == null)
+        //        return null;
+        //    FindMatchingUrlsParam deserializedQueryParam;
+        //    using (var stream = new MemoryStream(queryData))
+        //    {
+        //        BinaryFormatter bf = new BinaryFormatter();
+        //        deserializedQueryParam = (FindMatchingUrlsParam)bf.Deserialize(stream);
+        //    }
+        //    return FindMatchingUrls(deserializedQueryParam);
+        //}
 
-        public const string MN_FindMatchingUrls = "FindMatchingUrls";
-        [ACMethodInfo("", "en{'Find components'}de{'Finde Komponenten'}", 300, false)]
-        public string[] FindMatchingUrls(FindMatchingUrlsParam queryParam)
-        {
-            if (queryParam == null || queryParam.Query == null) return null;
-            return ACCompUrlDict.Where(c => queryParam.Query(c.Value.ValueT)).Select(c => c.Key).ToArray();
-        }
+        //public const string MN_FindMatchingUrls = "FindMatchingUrls";
+        //[ACMethodInfo("", "en{'Find components'}de{'Finde Komponenten'}", 300, false)]
+        //public string[] FindMatchingUrls(FindMatchingUrlsParam queryParam)
+        //{
+        //    if (queryParam == null || queryParam.Query == null) return null;
+        //    return ACCompUrlDict.Where(c => queryParam.Query(c.Value.ValueT)).Select(c => c.Key).ToArray();
+        //}
 
         public const string MN_GetACComponentACMemberValues = "GetACComponentACMemberValues";
         [ACMethodInfo("", "en{'Query Propertyvalues from components'}de{'Abfrage Eigenschaftswerte von Komponenten'}", 302, false)]

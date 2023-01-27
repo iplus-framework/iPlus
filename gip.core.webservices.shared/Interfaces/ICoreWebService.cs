@@ -1,8 +1,8 @@
 ﻿using gip.core.autocomponent;
 using System;
 #if NETFRAMEWORK
-using System.ServiceModel;
-using System.ServiceModel.Web;
+using CoreWCF;
+using CoreWCF.Web;
 #elif NETSTANDARD
 using System.Threading.Tasks;
 #endif

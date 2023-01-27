@@ -302,6 +302,7 @@ Global
 		gip.core.webservices.shared\gip.core.webservices.shared.projitems*{0c232936-48b8-4ccd-951e-8ad3d439d264}*SharedItemsImports = 13
 		gip.core.datamodel.shared\gip.core.datamodel.shared.projitems*{16fb4111-5110-46e5-851d-38a4d7522f85}*SharedItemsImports = 5
 		gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems*{6d353dd2-970b-45bb-9ab6-d23a28e0233f}*SharedItemsImports = 13
+		gip.core.webservices.shared\gip.core.webservices.shared.projitems*{7931f65b-3c2a-4db9-a5a6-4bc5b4d12c00}*SharedItemsImports = 5
 		gip.core.datamodel.shared\gip.core.datamodel.shared.projitems*{fe279fba-181f-4d15-bbe8-8820caf186b2}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

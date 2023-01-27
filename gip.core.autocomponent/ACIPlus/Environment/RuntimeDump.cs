@@ -370,34 +370,36 @@ namespace gip.core.autocomponent
             string trace = st.ToString();
             Messages.LogDebug(this.GetACUrl(), "RuntimeDump.Dump(StackTrace)", trace);
 
-            foreach (ACThread thread in ACThread.ACThreadList)
-            {
-                if (ignoreThread != null && thread.Thread == ignoreThread)
-                    continue;
-                StringBuilder builder = new StringBuilder();
-                thread.Suspend();
-                st = new StackTrace(thread.Thread, true);
-                //trace = st.ToString();
-                string stackIndent = "";
-                for (int i = 0; i < st.FrameCount; i++)
-                {
-                    StackFrame sf = st.GetFrame(i);
-                    if (ignoreIdleThreads && i == 0)
-                    {
-                        string methodName = sf.GetMethod().ToString();
-                        if (!String.IsNullOrEmpty(methodName) && methodName.StartsWith(C_IdleMethod))
-                            break;
-                    }
-                    builder.AppendLine(stackIndent + "Method: " + sf.GetMethod());
-                    builder.AppendLine(stackIndent + "File: " + sf.GetFileName());
-                    builder.AppendLine(stackIndent + "Line: " + sf.GetFileLineNumber());
-                    stackIndent += "  ";
-                }
-                if (!String.IsNullOrEmpty(stackIndent))
-                    Messages.LogDebug(this.GetACUrl(), "RuntimeDump.Dump(StackTrace)", String.Format("Thread: {0}, Trace {1}", thread.Name, builder.ToString()));
+            //Solution https://github.com/dotnet/runtime/issues/80555#issuecomment-1386817390
 
-                thread.Resume();
-            }
+            //foreach (ACThread thread in ACThread.ACThreadList)
+            //{
+            //    if (ignoreThread != null && thread.Thread == ignoreThread)
+            //        continue;
+            //    StringBuilder builder = new StringBuilder();
+            //    thread.Suspend();
+            //    st = new StackTrace(thread.Thread, true);
+            //    //trace = st.ToString();
+            //    string stackIndent = "";
+            //    for (int i = 0; i < st.FrameCount; i++)
+            //    {
+            //        StackFrame sf = st.GetFrame(i);
+            //        if (ignoreIdleThreads && i == 0)
+            //        {
+            //            string methodName = sf.GetMethod().ToString();
+            //            if (!String.IsNullOrEmpty(methodName) && methodName.StartsWith(C_IdleMethod))
+            //                break;
+            //        }
+            //        builder.AppendLine(stackIndent + "Method: " + sf.GetMethod());
+            //        builder.AppendLine(stackIndent + "File: " + sf.GetFileName());
+            //        builder.AppendLine(stackIndent + "Line: " + sf.GetFileLineNumber());
+            //        stackIndent += "  ";
+            //    }
+            //    if (!String.IsNullOrEmpty(stackIndent))
+            //        Messages.LogDebug(this.GetACUrl(), "RuntimeDump.Dump(StackTrace)", String.Format("Thread: {0}, Trace {1}", thread.Name, builder.ToString()));
+
+            //    thread.Resume();
+            //}
         }
 #pragma warning restore CS0618
 

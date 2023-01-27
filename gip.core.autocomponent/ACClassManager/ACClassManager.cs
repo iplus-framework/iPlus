@@ -2192,38 +2192,40 @@ namespace gip.core.autocomponent
                             var objectSet = pi1.GetValue(context, null);
                             PropertyInfo pi2 = objectSet.GetType().GetProperty("EntitySet");
                             var entitySet = pi2.GetValue(objectSet, null) as EntitySet;
-
-                            var navP = entitySet.ElementType.NavigationProperties.Where(c => c.Name == acClassProperty.ACIdentifier).First();
-                            switch (navP.FromEndMember.DeleteBehavior)
-                            {
-                                case DeleteBehavior.None:
-                                    {
-                                        ACDeleteAction acDeleteAction = acClassProperty.ACClass.ObjectType
-                                            .GetCustomAttributes(typeof(ACDeleteAction), false)
-                                            .Where(c => ((ACDeleteAction)c).ACIdentifier == acClassProperty.ACIdentifier)
-                                            .FirstOrDefault() as ACDeleteAction;
-                                        if (acDeleteAction != null)
-                                            deleteAction = acDeleteAction.DeleteAction;
-                                        else
-                                            deleteAction = Global.DeleteAction.None;
-                                    }
-                                    break;
-                                case DeleteBehavior.Cascade:
-                                    deleteAction = Global.DeleteAction.Cascade;
-                                    break;
-                                case OperationAction.Restrict:
-                                    {
-                                        ACDeleteAction acDeleteAction = acClassProperty.ACClass.ObjectType
-                                            .GetCustomAttributes(typeof(ACDeleteAction), false)
-                                            .Where(c => ((ACDeleteAction)c).ACIdentifier == acClassProperty.ACIdentifier)
-                                            .FirstOrDefault() as ACDeleteAction;
-                                        if (acDeleteAction != null)
-                                            deleteAction = acDeleteAction.DeleteAction;
-                                        else
-                                            deleteAction = Global.DeleteAction.None;
-                                    }
-                                    break;
-                            }
+                            //var navP = entitySet.ElementType.NavigationProperties.Where(c => c.Name == acClassProperty.ACIdentifier).First();
+                            //switch (navP.FromEndMember.DeleteBehavior)
+                            //{
+                            //    case DeleteBehavior.NoAction:
+                            //    case DeleteBehavior.ClientCascade:
+                            //    case DeleteBehavior.ClientNoAction:
+                            //    case DeleteBehavior.SetNull:
+                            //        {
+                            //            ACDeleteAction acDeleteAction = acClassProperty.ACClass.ObjectType
+                            //                .GetCustomAttributes(typeof(ACDeleteAction), false)
+                            //                .Where(c => ((ACDeleteAction)c).ACIdentifier == acClassProperty.ACIdentifier)
+                            //                .FirstOrDefault() as ACDeleteAction;
+                            //            if (acDeleteAction != null)
+                            //                deleteAction = acDeleteAction.DeleteAction;
+                            //            else
+                            //                deleteAction = Global.DeleteAction.None;
+                            //        }
+                            //        break;
+                            //    case DeleteBehavior.Cascade:
+                            //        deleteAction = Global.DeleteAction.Cascade;
+                            //        break;
+                            //    case DeleteBehavior.Restrict:
+                            //        {
+                            //            ACDeleteAction acDeleteAction = acClassProperty.ACClass.ObjectType
+                            //                .GetCustomAttributes(typeof(ACDeleteAction), false)
+                            //                .Where(c => ((ACDeleteAction)c).ACIdentifier == acClassProperty.ACIdentifier)
+                            //                .FirstOrDefault() as ACDeleteAction;
+                            //            if (acDeleteAction != null)
+                            //                deleteAction = acDeleteAction.DeleteAction;
+                            //            else
+                            //                deleteAction = Global.DeleteAction.None;
+                            //        }
+                            //        break;
+                            //}
                             if (acClassProperty.DeleteActionIndex != (Int16)deleteAction)
                                 acClassProperty.DeleteActionIndex = (Int16)deleteAction;
                         }

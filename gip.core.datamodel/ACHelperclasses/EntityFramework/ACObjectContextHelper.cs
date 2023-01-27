@@ -1125,6 +1125,9 @@ namespace gip.core.datamodel
 
                             using (ACMonitor.Lock(_ObjectContext.QueryLock_1X000))
                             {
+#if !EFCR
+#endif
+                                //No replacement for ObjectQuery, used IQueryable instead
                                 IQueryable objectQuery = (IQueryable)piEntity.GetValue(_ObjectContext, null);
                                 // TODO: @aagincic - handle getting new added items
                                 var resultQuery = objectQuery.Where(filter, filterValues);
@@ -1257,6 +1260,9 @@ namespace gip.core.datamodel
 
                             using (ACMonitor.Lock(_ObjectContext.QueryLock_1X000))
                             {
+#if !EFCR
+#endif
+                                //No replacement for ObjectQuery, used IQueryable instead
                                 IQueryable objectQuery = (IQueryable)piEntity.GetValue(_ObjectContext, null);
                                 var resultQuery = objectQuery.Where(filter, filterValues);
                                 foreach (object resultObject in resultQuery)

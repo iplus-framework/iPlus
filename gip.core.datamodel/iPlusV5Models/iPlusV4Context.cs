@@ -80,7 +80,7 @@ public partial class iPlusV4Context : DbContext
 
     public virtual DbSet<VBSystem> VBSystem { get; set; }
 
-    public virtual DbSet<VBSystemColumn> VBSystemColumn { get; set; }
+    public virtual DbSet<VBSystemColumns> VBSystemColumns { get; set; }
 
     public virtual DbSet<VBTranslationView> VBTranslationView { get; set; }
 
@@ -1449,7 +1449,7 @@ public partial class iPlusV4Context : DbContext
             entity.Property(e => e.SystemRemote).IsUnicode(false);
         });
 
-        modelBuilder.Entity<VBSystemColumn>(entity =>
+        modelBuilder.Entity<VBSystemColumns>(entity =>
         {
             entity
                 .HasNoKey()

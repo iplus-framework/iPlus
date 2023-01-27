@@ -567,14 +567,16 @@ namespace gip.core.autocomponent
             {
                 var query = Database.ContextIPlus.MsgAlarmLog.Where(c => c.TimeStampOccurred >= SearchFrom && c.TimeStampOccurred <= SearchTo && c.ACClass != null && 
                                                                          c.ACClassID == currentComponentClassID).AsQueryable();
-                (query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
+                //TODO EFCore not implemented
+                //(query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
                 _MsgAlarmLogList = query.ToList();
             }
             else
             {
                 var query = Database.ContextIPlus.MsgAlarmLog.Where(c => c.TimeStampOccurred >= SearchFrom && c.TimeStampOccurred <= SearchTo).AsQueryable();
 
-                (query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
+                //TODO EFCore not implemented
+                //(query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
                 _MsgAlarmLogList = query.ToList().Where(c => (c.ACClass != null && c.ACClass.ACUrlComponent.StartsWith(acUrl)) || 
                                                              (c.ACProgramLog != null && c.ACProgramLog.ACUrl.StartsWith(acUrl)));
             }
