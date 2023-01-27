@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using Microsoft.Build.BuildEngine;
-using Microsoft.Build.Framework;
+//using Microsoft.Build.BuildEngine;
+//using Microsoft.Build.Framework;
 using System.Xml.Linq;
 using gip.core.datamodel;
 

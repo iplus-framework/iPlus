@@ -4,7 +4,6 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.EntityClient;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -46,7 +45,7 @@ namespace gip.bso.iplus
                 foreach (var item in tmpList)
                 {
                     if (!string.IsNullOrEmpty(item.Password))
-                        item.Password = ACCrypt.RijndaelEncrypt(item.Password, ResourcesSQL.Hash);
+                        item.Password = ACCrypt.AesEncrypt(item.Password, ResourcesSQL.Hash);
                 }
                 tmpList = tmpList.Where(item =>
                     !string.IsNullOrEmpty(item.ServerName) &&
@@ -213,10 +212,12 @@ namespace gip.bso.iplus
         {
             List<SQLInstanceInfo> tmpList = SQLConnectionList.ToList();
             if (tmpList != null)
+            {
                 foreach (var item in tmpList)
                 {
-                    item.Password = ACCrypt.RijndaelDecrypt(item.Password, ResourcesSQL.Hash);
+                    item.Password = ACCrypt.AesDecrypt(item.Password, ResourcesSQL.Hash);
                 }
+            }
             return tmpList;
         }
 

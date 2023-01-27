@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -39,35 +39,23 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="combit.ListLabel17, Version=17.3.4478.22246, Culture=neutral, PublicKeyToken=a7a30592cb4a94be, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\combit.ListLabel17.dll</HintPath>
-    </Reference>
     <Reference Include="ICSharpCode.AvalonEdit, Version=5.0.3.0, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\packages\RoslynPad\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
-    <Reference Include="ReachFramework" />
     <Reference Include="RoslynPad.Editor.Windows, Version=1.0.6.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\packages\RoslynPad\RoslynPad.Editor.Windows.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data.Services.Client" />
-    <Reference Include="System.Printing" />
     <Reference Update="System.Runtime.Serialization">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Speech" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Windows" />
     <Reference Update="System.Xml.Linq">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="LLClasses\VBListLabel.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <EmbeddedResource Include="VBXMLEditorSchemas\VBRSchema.xsd">
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -564,6 +552,9 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="BarcodeLib" Version="2.4.0" />
+    <PackageReference Include="ESCPOS" Version="1.2.3" />
+    <PackageReference Include="QRCoder.Xaml" Version="1.4.3" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="System.Reflection.Context" Version="6.0.0" />
     <PackageReference Include="EntityFramework" Version="6.4.4" />
@@ -579,7 +570,6 @@
     <Compile Remove="FlowDocEditor\Editor\Dialogs\StartupDialog.xaml.cs" />
     <Compile Remove="FlowDoc\Document\Chart\BarChart2D.cs" />
     <Compile Remove="FlowDoc\InlineBoolValue.cs" />
-    <Compile Remove="LLObjectDataProvider\ObjectDataProvider2.cs" />
     <Page Remove="FlowDocEditor\Editor\Dialogs\LoadFileDialog.xaml" />
     <Page Remove="FlowDocEditor\Editor\Dialogs\MessageBoxDialog.xaml" />
     <Page Remove="FlowDocEditor\Editor\Dialogs\SaveFileDialog.xaml" />

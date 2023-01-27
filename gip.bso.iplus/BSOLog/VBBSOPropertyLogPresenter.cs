@@ -8,7 +8,6 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data.Objects;
 using System.Linq;
 
 namespace gip.bso.iplus

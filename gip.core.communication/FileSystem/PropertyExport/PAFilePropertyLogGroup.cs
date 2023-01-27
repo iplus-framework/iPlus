@@ -7,7 +7,6 @@ using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.IO;
 using System.Diagnostics;
-using System.Data.Objects;
 
 namespace gip.core.communication
 {
@@ -270,7 +269,7 @@ namespace gip.core.communication
                 {
                     try
                     {
-                        ACTypeFromLiveContext.ACClassConfig_ACClass.Load(MergeOption.OverwriteChanges);
+                        ACTypeFromLiveContext.ACClassConfig_ACClass.AutoLoad(ACTypeFromLiveContext.ACClassConfig_ACClassReference, ACTypeFromLiveContext);
                         var query = ACTypeFromLiveContext.ACClassConfig_ACClass.Where(c => c.KeyACUrl == keyACUrl);
                         if (query.Any())
                             result = query.ToList();

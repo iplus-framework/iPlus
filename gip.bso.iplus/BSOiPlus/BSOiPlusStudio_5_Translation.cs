@@ -20,7 +20,6 @@ using System.IO;
 using gip.core.datamodel;
 using gip.core.manager;
 using gip.core.autocomponent;
-using System.Data.Objects.DataClasses;
 
 namespace gip.bso.iplus
 {
@@ -678,7 +677,7 @@ namespace gip.bso.iplus
                 ACClassText acClassText = ACClassText.NewACObject(Database.ContextIPlus, CurrentACClass);
                 acClassText.ACIdentifier = CurrentNewACIdentifier;
                 acClassText.ACCaption = CurrentNewMessage;
-                Database.ContextIPlus.ACClassText.AddObject(acClassText);
+                Database.ContextIPlus.ACClassText.Add(acClassText);
                 ACSaveChanges();
                 _ACTranslationList.Add(acClassText);
                 OnPropertyChanged("ACTranslationList");
@@ -689,7 +688,7 @@ namespace gip.bso.iplus
                 ACClassMessage acClassMessage = ACClassMessage.NewACObject(Database.ContextIPlus, CurrentACClass);
                 acClassMessage.ACIdentifier = CurrentNewACIdentifier;
                 acClassMessage.ACCaption = CurrentNewMessage;
-                Database.ContextIPlus.ACClassMessage.AddObject(acClassMessage);
+                Database.ContextIPlus.ACClassMessage.Add(acClassMessage);
                 ACSaveChanges();
                 _ACTranslationList.Add(acClassMessage);
                 OnPropertyChanged("ACTranslationList");

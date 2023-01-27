@@ -37,8 +37,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.chart", "gip.ext.ch
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.designer", "gip.ext.designer\Project\gip.ext.designer.csproj", "{78CC29AC-CC79-4355-B1F2-97936DF198AC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.opctoolbox", "gip.ext.opctoolbox\gip.ext.opctoolbox.csproj", "{BB162D04-7C12-4700-AB7D-9D1A5B823E2E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.widgets", "gip.ext.widgets\Project\gip.ext.widgets.csproj", "{8035765F-D51F-4A0C-A746-2FD100E19419}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.xamldom", "gip.ext.xamldom\Project\gip.ext.xamldom.csproj", "{88DA149F-21B2-48AB-82C4-28FB6BDFD783}"
@@ -147,10 +145,6 @@ Global
 		{78CC29AC-CC79-4355-B1F2-97936DF198AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78CC29AC-CC79-4355-B1F2-97936DF198AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78CC29AC-CC79-4355-B1F2-97936DF198AC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BB162D04-7C12-4700-AB7D-9D1A5B823E2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BB162D04-7C12-4700-AB7D-9D1A5B823E2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BB162D04-7C12-4700-AB7D-9D1A5B823E2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB162D04-7C12-4700-AB7D-9D1A5B823E2E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8035765F-D51F-4A0C-A746-2FD100E19419}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8035765F-D51F-4A0C-A746-2FD100E19419}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8035765F-D51F-4A0C-A746-2FD100E19419}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -265,7 +259,6 @@ Global
 		{1B33DCDB-80FD-4029-AA95-E1760FA3EADF} = {2089D22B-FC62-4E94-8776-093570EA4032}
 		{25779059-D15F-48CD-88BD-7DEA111A2036} = {B8BA799D-B3ED-4E8B-A22F-E0A099A48862}
 		{78CC29AC-CC79-4355-B1F2-97936DF198AC} = {B8BA799D-B3ED-4E8B-A22F-E0A099A48862}
-		{BB162D04-7C12-4700-AB7D-9D1A5B823E2E} = {B8BA799D-B3ED-4E8B-A22F-E0A099A48862}
 		{8035765F-D51F-4A0C-A746-2FD100E19419} = {B8BA799D-B3ED-4E8B-A22F-E0A099A48862}
 		{88DA149F-21B2-48AB-82C4-28FB6BDFD783} = {B8BA799D-B3ED-4E8B-A22F-E0A099A48862}
 		{889DAD2E-8E03-4A47-9A24-8EE759B37A70} = {B8BA799D-B3ED-4E8B-A22F-E0A099A48862}
@@ -303,6 +296,7 @@ Global
 		gip.core.datamodel.shared\gip.core.datamodel.shared.projitems*{16fb4111-5110-46e5-851d-38a4d7522f85}*SharedItemsImports = 5
 		gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems*{6d353dd2-970b-45bb-9ab6-d23a28e0233f}*SharedItemsImports = 13
 		gip.core.webservices.shared\gip.core.webservices.shared.projitems*{7931f65b-3c2a-4db9-a5a6-4bc5b4d12c00}*SharedItemsImports = 5
+		gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems*{893d3b1b-dc55-4684-8b5d-941f1049151b}*SharedItemsImports = 5
 		gip.core.datamodel.shared\gip.core.datamodel.shared.projitems*{fe279fba-181f-4d15-bbe8-8820caf186b2}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

@@ -5,6 +5,7 @@ using System.Text;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.Xml;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.manager
 {
@@ -28,14 +29,11 @@ namespace gip.core.manager
         {
             if (ContentACClassWF == null)
                 return false;
-            if(ContentACClassWF.EntityState != System.Data.EntityState.Added)
+            if (ContentACClassWF.EntityState != EntityState.Added)
             {
-                ContentACClassWF.ACClassWF_ParentACClassWF.AutoRefresh();
-                ContentACClassWF.ACClassWF_ParentACClassWF.AutoLoad();
-                ContentACClassWF.ACClassWFEdge_SourceACClassWF.AutoRefresh();
-                ContentACClassWF.ACClassWFEdge_SourceACClassWF.AutoLoad();
-                ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
-                ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad();
+                ContentACClassWF.ACClassWF_ParentACClassWF.AutoLoad(ContentACClassWF.ACClassWF_ParentACClassWFReference, ContentACClassWF);
+                ContentACClassWF.ACClassWFEdge_SourceACClassWF.AutoLoad(ContentACClassWF.ACClassWFEdge_SourceACClassWFReference, ContentACClassWF);
+                ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad(ContentACClassWF.ACClassWFEdge_TargetACClassWFReference, ContentACClassWF);
             }
             foreach (var childACClassWF in ContentACClassWF.ACClassWF_ParentACClassWF)
             {

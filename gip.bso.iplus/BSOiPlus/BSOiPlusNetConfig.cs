@@ -5,8 +5,6 @@ using System.Text;
 using System.Collections.ObjectModel;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using System.Data.Objects;
-
 namespace gip.bso.iplus
 {
     /// <summary>

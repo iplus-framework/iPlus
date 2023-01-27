@@ -22,9 +22,9 @@ using System.ComponentModel;
 using gip.core.datamodel;
 using gip.core.manager;
 using gip.core.autocomponent;
-using System.Data.Objects.SqlClient;
 using gip.core.datamodel.ACContainer;
 using ClosedXML.Excel;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.bso.iplus
 {
@@ -1551,14 +1551,14 @@ namespace gip.bso.iplus
             _acClassList = Database.GetAddedEntities<ACClass>();
             foreach (var newACClass in _acClassList.ToArray())
             {
-                if (newACClass.ACClass1_ParentACClass != null && newACClass.ACClass1_ParentACClass.EntityState == System.Data.EntityState.Added)
+                if (newACClass.ACClass1_ParentACClass != null && newACClass.ACClass1_ParentACClass.EntityState == EntityState.Added)
                 {
                     _acClassList.Remove(newACClass);
                 }
             }
 
             _moveInfoList = new List<ACProjectManager.MoveInfo>();
-            foreach (var stateEntry in Database.ContextIPlus.ObjectStateManager.GetObjectStateEntries(System.Data.EntityState.Modified).Where(c => c.Entity is ACClass).Select(c => c))
+            foreach (var stateEntry in Database.ContextIPlus.ChangeTracker.Entries<ACClass>().Where(c => c.Entity is ACClass).Select(c => c))
             {
                 if (stateEntry.GetModifiedProperties().Where(c => c == "ParentACClassID").Any())
                 {

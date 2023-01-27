@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Softing.OPCToolbox.Client;
-using Softing.OPCToolbox;
+//using Softing.OPCToolbox.Client;
+//using Softing.OPCToolbox;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.ComponentModel;
@@ -54,91 +54,91 @@ namespace gip.core.communication
     /// der VarioBatch-Interpreter oder gar im Anwendungsquellcode Anpassungen notwendig sind. 
     /// </summary>
 
-    public class OPCClientSoftingDaItem : DaItem
-    {
-        public OPCClientSoftingDaItem(IACPropertyNetServer acProperty, string opcAddr, DaSubscription parentSubscription)
-            : base(opcAddr, parentSubscription)
-        {
-            _ACProperty = acProperty;
-            if ((_ACProperty.Value != null) && (_ACProperty.Value is ACCustomTypeBase))
-                RequestedDatatype = (_ACProperty.Value as ACCustomTypeBase).TypeOfValueT;
-            else
-                RequestedDatatype = acProperty.ACType.ObjectType;
-            _ACProperty.ValueUpdatedOnReceival += OnSendValueToOPCServer;
-        }
+    //public class OPCClientSoftingDaItem : DaItem
+    //{
+    //    public OPCClientSoftingDaItem(IACPropertyNetServer acProperty, string opcAddr, DaSubscription parentSubscription)
+    //        : base(opcAddr, parentSubscription)
+    //    {
+    //        _ACProperty = acProperty;
+    //        if ((_ACProperty.Value != null) && (_ACProperty.Value is ACCustomTypeBase))
+    //            RequestedDatatype = (_ACProperty.Value as ACCustomTypeBase).TypeOfValueT;
+    //        else
+    //            RequestedDatatype = acProperty.ACType.ObjectType;
+    //        _ACProperty.ValueUpdatedOnReceival += OnSendValueToOPCServer;
+    //    }
 
-        private IACPropertyNetServer _ACProperty;
-        public IACPropertyNetServer ACProperty
-        {
-            get
-            {
-                return _ACProperty;
-            }
-        }
+    //    private IACPropertyNetServer _ACProperty;
+    //    public IACPropertyNetServer ACProperty
+    //    {
+    //        get
+    //        {
+    //            return _ACProperty;
+    //        }
+    //    }
 
-        public void DeInitOPC()
-        {
-            if (_ACProperty != null)
-            {
-                _ACProperty.ValueUpdatedOnReceival -= OnSendValueToOPCServer;
-                _ACProperty = null;
-            }
-        }
+    //    public void DeInitOPC()
+    //    {
+    //        if (_ACProperty != null)
+    //        {
+    //            _ACProperty.ValueUpdatedOnReceival -= OnSendValueToOPCServer;
+    //            _ACProperty = null;
+    //        }
+    //    }
 
-        public enum ResendLock
-        {
-            Unlocked = 0,
-            Locked = 1,
-            ResendDone = 2
-        }
+    //    public enum ResendLock
+    //    {
+    //        Unlocked = 0,
+    //        Locked = 1,
+    //        ResendDone = 2
+    //    }
 
-        internal ResendLock _ReSendLocked = ResendLock.Unlocked;
+    //    internal ResendLock _ReSendLocked = ResendLock.Unlocked;
 
-        void OnSendValueToOPCServer(object sender, ACPropertyChangedEventArgs e, ACPropertyChangedPhase phase)
-        {
-            if (phase == ACPropertyChangedPhase.AfterBroadcast)
-                return;
-            if (ACProperty == null)
-                return;
-            if (_ReSendLocked >= ResendLock.Locked)
-            {
-                if (e.ValueEvent.InvokerInfo != null && e.ValueEvent.InvokerInfo is ValueQT)
-                    return;
-                else if ((ACProperty.Value != null) && ACProperty.Value is ACCustomTypeBase && (ACProperty.Value as ACCustomTypeBase).Value == this.ValueQT.Data)
-                    return;
-                else if (ACProperty.Value == this.ValueQT.Data)
-                    return;
-                else
-                    _ReSendLocked = ResendLock.ResendDone;
-            }
-            ValueQT valueQT = new ValueQT();
-            int result;
-            ExecutionOptions executionOptions = new ExecutionOptions();
-            EnumQuality quality = new EnumQuality();
+    //    void OnSendValueToOPCServer(object sender, ACPropertyChangedEventArgs e, ACPropertyChangedPhase phase)
+    //    {
+    //        if (phase == ACPropertyChangedPhase.AfterBroadcast)
+    //            return;
+    //        if (ACProperty == null)
+    //            return;
+    //        if (_ReSendLocked >= ResendLock.Locked)
+    //        {
+    //            if (e.ValueEvent.InvokerInfo != null && e.ValueEvent.InvokerInfo is ValueQT)
+    //                return;
+    //            else if ((ACProperty.Value != null) && ACProperty.Value is ACCustomTypeBase && (ACProperty.Value as ACCustomTypeBase).Value == this.ValueQT.Data)
+    //                return;
+    //            else if (ACProperty.Value == this.ValueQT.Data)
+    //                return;
+    //            else
+    //                _ReSendLocked = ResendLock.ResendDone;
+    //        }
+    //        ValueQT valueQT = new ValueQT();
+    //        int result;
+    //        ExecutionOptions executionOptions = new ExecutionOptions();
+    //        EnumQuality quality = new EnumQuality();
 
-            if ((ACProperty.Value != null) && ACProperty.Value is ACCustomTypeBase)
-                valueQT.SetData((ACProperty.Value as ACCustomTypeBase).Value, quality, DateTime.Now);
-            else
-                valueQT.SetData(ACProperty.Value, quality, DateTime.Now);
+    //        if ((ACProperty.Value != null) && ACProperty.Value is ACCustomTypeBase)
+    //            valueQT.SetData((ACProperty.Value as ACCustomTypeBase).Value, quality, DateTime.Now);
+    //        else
+    //            valueQT.SetData(ACProperty.Value, quality, DateTime.Now);
 
-            Write(valueQT, out result, executionOptions);
+    //        Write(valueQT, out result, executionOptions);
 
-            if (ResultCode.FAILED(result))
-            {
-                 //TODO: Fehlerbehandlung
-            }
-        }
+    //        if (ResultCode.FAILED(result))
+    //        {
+    //             //TODO: Fehlerbehandlung
+    //        }
+    //    }
 
-        internal bool _Ready = false;
-        internal bool QualitySwitchedToGood()
-        {
-            if (this.ValueQT.Quality == EnumQuality.GOOD && !_Ready)
-            {
-                _Ready = true;
-                return true;
-            }
-            return false;
-        }
-    }
+    //    internal bool _Ready = false;
+    //    internal bool QualitySwitchedToGood()
+    //    {
+    //        if (this.ValueQT.Quality == EnumQuality.GOOD && !_Ready)
+    //        {
+    //            _Ready = true;
+    //            return true;
+    //        }
+    //        return false;
+    //    }
+    //}
 
 }

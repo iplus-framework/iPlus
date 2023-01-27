@@ -19,7 +19,6 @@ using System.Data;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.manager;
-using System.Data.Objects;
 using System.Text.RegularExpressions;
 
 namespace gip.bso.iplus

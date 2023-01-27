@@ -40,16 +40,16 @@ namespace Document.Editor
             try
             {
                 //if (My.Computer.Network.IsAvailable)
-                {
-                    Microsoft.DetectedLanguage froml = new Microsoft.DetectedLanguage();
-                    Microsoft.Language tol = new Microsoft.Language();
-                    froml.Code = FromBox.Items[FromBox.SelectedIndex].ToString();
-                    tol.Code = ToBox.Items[ToBox.SelectedIndex].ToString();
-                    Semagsoft.Translator.TranslatorHelper translator = new Semagsoft.Translator.TranslatorHelper();
-                    string transres = translator.Translate(intContent, froml, tol);
-                    TranslatedText.Content = transres;
-                    OKButton.IsEnabled = true;
-                }
+                //{
+                //    Microsoft.DetectedLanguage froml = new Microsoft.DetectedLanguage();
+                //    Microsoft.Language tol = new Microsoft.Language();
+                //    froml.Code = FromBox.Items[FromBox.SelectedIndex].ToString();
+                //    tol.Code = ToBox.Items[ToBox.SelectedIndex].ToString();
+                //    Semagsoft.Translator.TranslatorHelper translator = new Semagsoft.Translator.TranslatorHelper();
+                //    string transres = translator.Translate(intContent, froml, tol);
+                //    TranslatedText.Content = transres;
+                //    OKButton.IsEnabled = true;
+                //}
                 //else
                 //{
                 //    MessageBoxDialog m = new MessageBoxDialog("No Internet Found", "Error", null, null);

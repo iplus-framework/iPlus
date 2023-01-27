@@ -1,7 +1,7 @@
 using gip.core.autocomponent;
 using gip.core.communication.modbus;
 using gip.core.datamodel;
-using Modbus.Device;
+using NModbus.Device;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

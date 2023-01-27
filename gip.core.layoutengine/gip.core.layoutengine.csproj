@@ -51,9 +51,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\packages\RoslynPad\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Build" />
-    <Reference Include="Microsoft.Build.Engine" />
-    <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.CodeAnalysis, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\packages\RoslynPad\Microsoft.CodeAnalysis.dll</HintPath>
@@ -65,10 +62,6 @@
     <Reference Include="Microsoft.Maps.MapControl.WPF">
       <HintPath>Controls\VBBingMap\Microsoft.Maps.MapControl.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="PresentationFramework.Aero" />
     <Reference Include="QuickGraph, Version=3.2.40122.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\packages\QuickGraph\QuickGraph.dll</HintPath>
@@ -85,12 +78,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\packages\RoslynPad\RoslynPad.Roslyn.Windows.dll</HintPath>
     </Reference>
-    <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\RoslynPad\System.Collections.Immutable.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Printing" />
-    <Reference Include="System.Transactions" />
     <Reference Update="System.Xml.Linq">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>

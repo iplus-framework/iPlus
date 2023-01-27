@@ -19,7 +19,6 @@ using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.manager;
 using System.Reflection;
-using System.Data.Objects;
 using System.Data;
 
 namespace gip.bso.iplus

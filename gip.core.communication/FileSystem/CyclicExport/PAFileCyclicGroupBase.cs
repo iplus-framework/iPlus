@@ -7,7 +7,6 @@ using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.IO;
 using System.Diagnostics;
-using System.Data.Objects;
 
 namespace gip.core.communication
 {

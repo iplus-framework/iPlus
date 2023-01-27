@@ -939,7 +939,7 @@ namespace gip.core.reporthandler
 
 
 
-            Database.ContextIPlus.ACClassDesign.AddObject(newDesign);
+            Database.ContextIPlus.ACClassDesign.Add(newDesign);
             _ACClassDesignList.Add(newDesign);
             _ACClassDesignList = _ACClassDesignList.ToList();
             OnPropertyChanged("ACClassDesignList");

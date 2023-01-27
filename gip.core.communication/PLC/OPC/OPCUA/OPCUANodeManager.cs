@@ -1515,7 +1515,7 @@ namespace gip.core.communication
             uint attributeId,
             ExtensionObject requestedFilter,
             out DataChangeFilter filter,
-            out Range range)
+            out Opc.Ua.Range range)
         {
             filter = null;
             range = null;
@@ -1570,7 +1570,7 @@ namespace gip.core.communication
                     return StatusCodes.BadMonitoredItemFilterUnsupported;
                 }
 
-                range = euRange.Value as Range;
+                range = euRange.Value as Opc.Ua.Range;
 
                 if (range == null)
                 {

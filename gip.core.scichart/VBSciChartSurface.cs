@@ -627,7 +627,7 @@ namespace gip.core.scichart
         /// <param name="to">Show archive to date.</param>
         public void InitializeChartArchive(DateTime from, DateTime to, Global.InterpolationMethod interpolation = Global.InterpolationMethod.None, int? range = null, double? decay = null)
         {
-            if (!DisplayAsArchive || PropertyLogItems == null || from == null || to == null)
+            if (!DisplayAsArchive || PropertyLogItems == null)
                 return;
 
             _Initialized = true;
@@ -1039,8 +1039,7 @@ namespace gip.core.scichart
             if (axisBase != null)
             {
                 ValueSource valueSource = DependencyPropertyHelper.GetValueSource(axisBase, AxisBase.AutoRangeProperty);
-                if ((valueSource == null)
-                    || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+                if ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style))
                 {
                     axis.AutoRange = AutoRange.Always; // this.DisplayAsArchive ? AutoRange.Once : AutoRange.Always;
                 }

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -34,47 +34,20 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.IdentityModel" />
-    <Reference Include="System.IdentityModel.Selectors" />
-    <Reference Include="System.Security" />
+    <Compile Remove="Print\**" />
+    <EmbeddedResource Remove="Print\**" />
+    <None Remove="Print\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Update="System.Xml.Linq">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ACComponents\S7TCPItem.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ACComponents\S7TCPService.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ACComponents\S7TCPSession.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ACComponents\S7TCPSubscr.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\Reading\S7TCPPollingPlan.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\Reading\S7TCPPollingPlanEntry.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\S7TCPDataBlock.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\S7TCPDataBlockItems.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\S7TCPDataBlocksRAM.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\Sending\S7TCPItems2SendEntry.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\Sending\S7TCPItems2SendQueue.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\HelperClasses\Sending\S7TCPItemsSendPackage.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ProtocolImpl\Conversion.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ProtocolImpl\Enums.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ProtocolImpl\ItemSyntaxResolver.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\ProtocolImpl\PLC.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Byte.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Counter.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\DInt.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Real.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\DWord.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Int.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\String.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Struct.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Timer.cs" />
-    <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP%28RFC1006%29\Types\Word.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\gip.bso.iplus\gip.bso.iplus.csproj" />
     <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj" />
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
     <ProjectReference Include="..\gip.core.reporthandler\gip.core.reporthandler.csproj" />
-    <ProjectReference Include="..\gip.ext.opctoolbox\gip.ext.opctoolbox.csproj" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -113,22 +86,29 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Print\" />
+    <PackageReference Include="NModbus" Version="3.0.72" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Opc.Ua.Client">
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Client.1.4.366.38\lib\netstandard2.1\Opc.Ua.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Opc.Ua.Configuration">
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Configuration.1.4.366.38\lib\netstandard2.1\Opc.Ua.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Opc.Ua.Core">
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Core.1.4.366.38\lib\netstandard2.1\Opc.Ua.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Opc.Ua.Security.Certificates">
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Security.Certificates.1.4.366.38\lib\netstandard2.1\Opc.Ua.Security.Certificates.dll</HintPath>
+    </Reference>
+    <Reference Include="Opc.Ua.Server">
+      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Server.1.4.366.38\lib\netstandard2.1\Opc.Ua.Server.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Update="OPCUAServer.Config.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="EntityFramework" Version="6.4.4" />
-    <PackageReference Include="System.ServiceModel.Duplex" Version="4.8.1" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.8.1" />
-    <PackageReference Include="System.ServiceModel.Federation" Version="4.8.1" />
-    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
   </ItemGroup>
   <PropertyGroup />
 </Project>

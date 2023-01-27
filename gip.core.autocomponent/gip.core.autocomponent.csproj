@@ -113,6 +113,11 @@
     <Compile Remove="ACIPlus\Communications\Helperclasses\SyncQueueEvents.cs" />
     <Compile Remove="ACThreadHandling\ACEntityOpQueue.cs" />
   </ItemGroup>
-  <PropertyGroup />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants);NETFRAMEWORK</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);NETFRAMEWORK</DefineConstants>
+  </PropertyGroup>
+  <Import Project="..\gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems" Label="Shared" />
 </Project>

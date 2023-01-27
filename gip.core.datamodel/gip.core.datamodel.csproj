@@ -19,7 +19,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>..\bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFRAMEWORK</DefineConstants>
+    <DefineConstants>TRACE;NETFRAMEWORK;EFCR</DefineConstants>
     <DocumentationFile>..\bin\Release\gip.core.datamodel.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>

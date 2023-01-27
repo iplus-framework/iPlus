@@ -8,7 +8,6 @@ using gip.core.datamodel;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Threading;
-using System.Data.Objects;
 using System.Security.Claims;
 
 namespace gip.bso.iplus
@@ -974,6 +973,6 @@ namespace gip.bso.iplus
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
-#endregion
+        #endregion
     }
 }

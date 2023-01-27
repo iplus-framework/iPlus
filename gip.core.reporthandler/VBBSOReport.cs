@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Data.Objects.DataClasses;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using combit.ListLabel17;
 using System.IO;
 using gip.core.reporthandler.Flowdoc;
 using System.Windows.Xps.Packaging;
@@ -41,12 +39,12 @@ namespace gip.core.reporthandler
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
-            if (_LL != null)
-            {
-                UnSubscribeToLLEvents();
-                _LL.Dispose();
-                _LL = null;
-            }
+            //if (_LL != null)
+            //{
+            //    UnSubscribeToLLEvents();
+            //    _LL.Dispose();
+            //    _LL = null;
+            //}
             _PrintServerList = null;
             //if (_SR != null)
             //{
@@ -174,7 +172,7 @@ namespace gip.core.reporthandler
             }
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
             {
-                RunLL(false, LlPrintMode.Export);
+                //RunLL(false, LlPrintMode.Export);
             }
             else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
             {
@@ -197,7 +195,7 @@ namespace gip.core.reporthandler
             }
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
             {
-                RunLL(false, LlPrintMode.Preview);
+                //RunLL(false, LlPrintMode.Preview);
             }
             else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
             {
@@ -218,7 +216,7 @@ namespace gip.core.reporthandler
             }
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
             {
-                RunLL(true);
+                //RunLL(true);
             }
             else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
             {
@@ -286,20 +284,20 @@ namespace gip.core.reporthandler
         #endregion
 
         #region public
-        private VBListLabel _LL;
-        public VBListLabel LL
-        {
-            get
-            {
-                return _LL;
-            }
-        }
+        //private VBListLabel _LL;
+        //public VBListLabel LL
+        //{
+        //    get
+        //    {
+        //        return _LL;
+        //    }
+        //}
 
-        public LlPrintMode PrintMode
-        {
-            get;
-            set;
-        }
+        //public LlPrintMode PrintMode
+        //{
+        //    get;
+        //    set;
+        //}
         #endregion
 
         #region overrideable
@@ -318,52 +316,38 @@ namespace gip.core.reporthandler
             }
         }
 
-        /// <summary>
-        /// In List & Label werden zwei Arten von Datenfeldern grundlegend unterschieden: 
-        /// Es gibt Datenfelder, die pro gedruckter Seite (bzw. pro Etikett oder Karteikarte) 
-        /// nur einmal mit Daten gefüllt werden (sprich: von Ihrer Anwendung mit Echtdateninhalt angemeldet werden), 
-        /// dies sind in der List & Label Terminologie "Variablen". 
-        /// Dem gegenüber stehen die Datenfelder, welche mehrfach auf einer Seite mit unterschiedlichen Daten gefüllt werden, 
-        /// zum Beispiel die einzelnen Datenfelder einer Postenliste einer Rechnung. 
-        /// Diese Datenfelder werden in der List & Label Terminologie "Felder" genannt. 
-        /// Diese Felder stehen nur in Tabellenobjekten, Kreuztabellenobjekten und im Berichtscontainer zur Verfügung.
-        /// Demzufolge gibt es in Etiketten- und Karteikartenprojekten lediglich Variablen, 
-        /// während in Listenprojekten sowohl Variablen als auch Felder vorkommen können. 
-        /// Für den Druck einer Rechnung würde eine Anwendung typischerweise die Rechnungskopfdaten wie Empfänger-Name und -Adresse und die Belegnummer als Variablen anmelden, 
-        /// hingegen die Postendaten wie Stückzahl, Artikelnummer, Stückpreis etc. als Felder.
-        /// </summary>
-        protected virtual LlProject ProjectType
-        {
-            get
-            {
-                if (CurrentACClassDesign == null)
-                    return LlProject.List;
-                else if (CurrentACClassDesign.ACUsage == Global.ACUsages.DULLLabel)
-                    return LlProject.Label;
+        //protected virtual LlProject ProjectType
+        //{
+        //    get
+        //    {
+        //        if (CurrentACClassDesign == null)
+        //            return LlProject.List;
+        //        else if (CurrentACClassDesign.ACUsage == Global.ACUsages.DULLLabel)
+        //            return LlProject.Label;
 
-                else if (CurrentACClassDesign.ACUsage == Global.ACUsages.DULLFilecard)
-                    return LlProject.Card;
-                else
-                    //if (CurrentACClassDesign.ACUsage == Global.ACUsages.DUList
-                    //|| CurrentACClassDesign.ACUsage == Global.ACUsages.DUReport
-                    //|| CurrentACClassDesign.ACUsage == Global.ACUsages.DUOverview)
-                    return LlProject.List;
-            }
-        }
+        //        else if (CurrentACClassDesign.ACUsage == Global.ACUsages.DULLFilecard)
+        //            return LlProject.Card;
+        //        else
+        //            //if (CurrentACClassDesign.ACUsage == Global.ACUsages.DUList
+        //            //|| CurrentACClassDesign.ACUsage == Global.ACUsages.DUReport
+        //            //|| CurrentACClassDesign.ACUsage == Global.ACUsages.DUOverview)
+        //            return LlProject.List;
+        //    }
+        //}
 
-        protected virtual bool IsReportWithVariables
-        {
-            get
-            {
-                if (ProjectType == LlProject.List && CurrentACClassDesign != null)
-                {
-                    if (CurrentACClassDesign.ACUsage == Global.ACUsages.DULLReport
-                        || CurrentACClassDesign.ACUsage == Global.ACUsages.DULLList)
-                        return true;
-                }
-                return false;
-            }
-        }
+        //protected virtual bool IsReportWithVariables
+        //{
+        //    get
+        //    {
+        //        if (ProjectType == LlProject.List && CurrentACClassDesign != null)
+        //        {
+        //            if (CurrentACClassDesign.ACUsage == Global.ACUsages.DULLReport
+        //                || CurrentACClassDesign.ACUsage == Global.ACUsages.DULLList)
+        //                return true;
+        //        }
+        //        return false;
+        //    }
+        //}
 
         private ACPropertyConfigValue<int> _MaxRecursionDepthConfig;
         [ACPropertyConfig("en{'Maximum recursion depth for Object Provider'}de{'Maximale rekursionstiefe für Object-Provider'}")]
@@ -411,178 +395,178 @@ namespace gip.core.reporthandler
         #region Methods
 
         #region overridable
-        protected virtual VBListLabel OnCreateLLInstance()
-        {
-            LlLanguage language = LlLanguage.English;
-            switch (this.Root.Environment.VBLanguageCode.ToUpper())
-            {
-                case "DE":
-                    language = LlLanguage.German;
-                    break;
-                case "EN":
-                    language = LlLanguage.English;
-                    break;
-                case "FR":
-                    language = LlLanguage.French;
-                    break;
-                case "IT":
-                    language = LlLanguage.Italian;
-                    break;
-                case "ES":
-                    language = LlLanguage.Spanish;
-                    break;
-                case "RU":
-                    language = LlLanguage.Russian;
-                    break;
-                default:
-                    language = LlLanguage.English;
-                    break;
-            }
+        //protected virtual VBListLabel OnCreateLLInstance()
+        //{
+        //    LlLanguage language = LlLanguage.English;
+        //    switch (this.Root.Environment.VBLanguageCode.ToUpper())
+        //    {
+        //        case "DE":
+        //            language = LlLanguage.German;
+        //            break;
+        //        case "EN":
+        //            language = LlLanguage.English;
+        //            break;
+        //        case "FR":
+        //            language = LlLanguage.French;
+        //            break;
+        //        case "IT":
+        //            language = LlLanguage.Italian;
+        //            break;
+        //        case "ES":
+        //            language = LlLanguage.Spanish;
+        //            break;
+        //        case "RU":
+        //            language = LlLanguage.Russian;
+        //            break;
+        //        default:
+        //            language = LlLanguage.English;
+        //            break;
+        //    }
 
-            VBListLabel instance = new VBListLabel(language, true);
-            instance.LicensingInfo = "/BfwD";
-            return instance;
-        }
+        //    VBListLabel instance = new VBListLabel(language, true);
+        //    instance.LicensingInfo = "/BfwD";
+        //    return instance;
+        //}
         #endregion
 
         #region Protected
-        protected void SubscribeToLLEvents()
-        {
-            if (_LL == null || _LLEventsSubscribed)
-                return;
-            _LLEventsSubscribed = true;
-            _LL.AutoDefineField += new AutoDefineElementHandler(OnLL_AutoDefineField);
-            _LL.AutoDefineNewLine += new AutoDefineNewLineHandler(OnLL_AutoDefineNewLine);
-            _LL.AutoDefineNewPage += new AutoDefineNewPageHandler(OnLL_AutoDefineNewPage);
-            _LL.AutoDefineTable += new AutoDefineDataItemHandler(OnLL_AutoDefineTable);
-            _LL.AutoDefineTableRelation += new AutoDefineDataItemHandler(OnLL_AutoDefineTableRelation);
-            _LL.AutoDefineTableSortOrder += new AutoDefineDataItemHandler(OnLL_AutoDefineTableSortOrder);
-            _LL.AutoDefineVariable += new AutoDefineElementHandler(OnLL_AutoDefineVariable);
-            _LL.DefinePrintOptions += new DefinePrintOptionsHandler(OnLL_DefinePrintOptions);
-            _LL.DesignerPrintJob += new DesignerPrintJobHandler(OnLL_DesignerPrintJob);
-            _LL.DrawObject += new DrawObjectHandler(OnLL_DrawObject);
-            _LL.DrawPage += new DrawPageHandler(OnLL_DrawPage);
-            _LL.DrawProject += new DrawProjectHandler(OnLL_DrawProject);
-            _LL.DrawTableField += new DrawTableFieldHandler(OnLL_DrawTableField);
-            _LL.DrawTableLine += new DrawTableLineHandler(OnLL_DrawTableLine);
-            _LL.Evaluate += new EvaluateHandler(OnLL_Evaluate);
-        }
+        //protected void SubscribeToLLEvents()
+        //{
+        //    if (_LL == null || _LLEventsSubscribed)
+        //        return;
+        //    _LLEventsSubscribed = true;
+        //    _LL.AutoDefineField += new AutoDefineElementHandler(OnLL_AutoDefineField);
+        //    _LL.AutoDefineNewLine += new AutoDefineNewLineHandler(OnLL_AutoDefineNewLine);
+        //    _LL.AutoDefineNewPage += new AutoDefineNewPageHandler(OnLL_AutoDefineNewPage);
+        //    _LL.AutoDefineTable += new AutoDefineDataItemHandler(OnLL_AutoDefineTable);
+        //    _LL.AutoDefineTableRelation += new AutoDefineDataItemHandler(OnLL_AutoDefineTableRelation);
+        //    _LL.AutoDefineTableSortOrder += new AutoDefineDataItemHandler(OnLL_AutoDefineTableSortOrder);
+        //    _LL.AutoDefineVariable += new AutoDefineElementHandler(OnLL_AutoDefineVariable);
+        //    _LL.DefinePrintOptions += new DefinePrintOptionsHandler(OnLL_DefinePrintOptions);
+        //    _LL.DesignerPrintJob += new DesignerPrintJobHandler(OnLL_DesignerPrintJob);
+        //    _LL.DrawObject += new DrawObjectHandler(OnLL_DrawObject);
+        //    _LL.DrawPage += new DrawPageHandler(OnLL_DrawPage);
+        //    _LL.DrawProject += new DrawProjectHandler(OnLL_DrawProject);
+        //    _LL.DrawTableField += new DrawTableFieldHandler(OnLL_DrawTableField);
+        //    _LL.DrawTableLine += new DrawTableLineHandler(OnLL_DrawTableLine);
+        //    _LL.Evaluate += new EvaluateHandler(OnLL_Evaluate);
+        //}
 
-        protected void UnSubscribeToLLEvents()
-        {
-            if (_LL == null || !_LLEventsSubscribed)
-                return;
-            _LLEventsSubscribed = false;
-            _LL.AutoDefineField -= OnLL_AutoDefineField;
-            _LL.AutoDefineNewLine -= OnLL_AutoDefineNewLine;
-            _LL.AutoDefineNewPage -= OnLL_AutoDefineNewPage;
-            _LL.AutoDefineTable -= OnLL_AutoDefineTable;
-            _LL.AutoDefineTableRelation -= OnLL_AutoDefineTableRelation;
-            _LL.AutoDefineTableSortOrder -= OnLL_AutoDefineTableSortOrder;
-            _LL.AutoDefineVariable -= OnLL_AutoDefineVariable;
-            _LL.DefinePrintOptions -= OnLL_DefinePrintOptions;
-            _LL.DesignerPrintJob -= OnLL_DesignerPrintJob;
-            _LL.DrawObject -= OnLL_DrawObject;
-            _LL.DrawPage -= OnLL_DrawPage;
-            _LL.DrawProject -= OnLL_DrawProject;
-            _LL.DrawTableField -= OnLL_DrawTableField;
-            _LL.DrawTableLine -= OnLL_DrawTableLine;
-            _LL.Evaluate -= OnLL_Evaluate;
-        }
+        //protected void UnSubscribeToLLEvents()
+        //{
+        //    if (_LL == null || !_LLEventsSubscribed)
+        //        return;
+        //    _LLEventsSubscribed = false;
+        //    _LL.AutoDefineField -= OnLL_AutoDefineField;
+        //    _LL.AutoDefineNewLine -= OnLL_AutoDefineNewLine;
+        //    _LL.AutoDefineNewPage -= OnLL_AutoDefineNewPage;
+        //    _LL.AutoDefineTable -= OnLL_AutoDefineTable;
+        //    _LL.AutoDefineTableRelation -= OnLL_AutoDefineTableRelation;
+        //    _LL.AutoDefineTableSortOrder -= OnLL_AutoDefineTableSortOrder;
+        //    _LL.AutoDefineVariable -= OnLL_AutoDefineVariable;
+        //    _LL.DefinePrintOptions -= OnLL_DefinePrintOptions;
+        //    _LL.DesignerPrintJob -= OnLL_DesignerPrintJob;
+        //    _LL.DrawObject -= OnLL_DrawObject;
+        //    _LL.DrawPage -= OnLL_DrawPage;
+        //    _LL.DrawProject -= OnLL_DrawProject;
+        //    _LL.DrawTableField -= OnLL_DrawTableField;
+        //    _LL.DrawTableLine -= OnLL_DrawTableLine;
+        //    _LL.Evaluate -= OnLL_Evaluate;
+        //}
 
-        protected void RunLL(bool designer, LlPrintMode printMode = LlPrintMode.Normal)
-        {
-            object data = SourceDataForObjectProvider;
-            if (data == null)
-                return;
+        //protected void RunLL(bool designer, LlPrintMode printMode = LlPrintMode.Normal)
+        //{
+        //    object data = SourceDataForObjectProvider;
+        //    if (data == null)
+        //        return;
 
-            ObjectDataProvider objectDataProvider = null;
-            try
-            {
-                if (this.ACQueryDefinitionRoot != null)
-                    objectDataProvider = new ObjectDataProvider(data, this.ACQueryDefinitionRoot, MaxRecursionDepthObjectProvider);
-                else
-                    objectDataProvider = new ObjectDataProvider(data, MaxRecursionDepthObjectProvider);
-                objectDataProvider.HandleEnumerableProperty += new EventHandler<LLHandleEnumerablePropertyEventArgs>(OnHandleObjectProviderEnumerableProperty);
+        //    ObjectDataProvider objectDataProvider = null;
+        //    try
+        //    {
+        //        if (this.ACQueryDefinitionRoot != null)
+        //            objectDataProvider = new ObjectDataProvider(data, this.ACQueryDefinitionRoot, MaxRecursionDepthObjectProvider);
+        //        else
+        //            objectDataProvider = new ObjectDataProvider(data, MaxRecursionDepthObjectProvider);
+        //        objectDataProvider.HandleEnumerableProperty += new EventHandler<LLHandleEnumerablePropertyEventArgs>(OnHandleObjectProviderEnumerableProperty);
 
-                if (_LL == null)
-                    _LL = OnCreateLLInstance();
-                SubscribeToLLEvents();
-                LL.DataSource = objectDataProvider;
+        //        if (_LL == null)
+        //            _LL = OnCreateLLInstance();
+        //        SubscribeToLLEvents();
+        //        LL.DataSource = objectDataProvider;
 
-                if (this.IsReportWithVariables)
-                {
-                    if (ACQueryDefinitionRoot != null)
-                        LL.DataMember = ACQueryDefinitionRoot.ChildACUrl;
-                    else
-                        LL.DataMember = objectDataProvider.RootTableName;
-                    LL.AutoMasterMode = LlAutoMasterMode.AsVariables;
-                }
+        //        if (this.IsReportWithVariables)
+        //        {
+        //            if (ACQueryDefinitionRoot != null)
+        //                LL.DataMember = ACQueryDefinitionRoot.ChildACUrl;
+        //            else
+        //                LL.DataMember = objectDataProvider.RootTableName;
+        //            LL.AutoMasterMode = LlAutoMasterMode.AsVariables;
+        //        }
 
-                using (MemoryStream memStream = new MemoryStream())
-                {
-                    if (CurrentACClassDesign.DesignBinary != null && CurrentACClassDesign.DesignBinary.Any())
-                    {
-                        using (MemoryStream memStream2 = new MemoryStream(CurrentACClassDesign.DesignBinary, true))
-                        {
-                            memStream.Write(CurrentACClassDesign.DesignBinary, 0, (int)memStream2.Length);
-                            memStream.Seek(0, SeekOrigin.Begin);
-                        }
-                    }
+        //        using (MemoryStream memStream = new MemoryStream())
+        //        {
+        //            if (CurrentACClassDesign.DesignBinary != null && CurrentACClassDesign.DesignBinary.Any())
+        //            {
+        //                using (MemoryStream memStream2 = new MemoryStream(CurrentACClassDesign.DesignBinary, true))
+        //                {
+        //                    memStream.Write(CurrentACClassDesign.DesignBinary, 0, (int)memStream2.Length);
+        //                    memStream.Seek(0, SeekOrigin.Begin);
+        //                }
+        //            }
 
-                    if (designer)
-                    {
-                        LL.Design(this.ProjectType, memStream);
-                        CurrentACClassDesign.DesignBinary = memStream.GetBuffer();
-                    }
-                    else
-                    {
-                        LL.AutoDestination = printMode;
-                        if (WithDialog)
-                            LL.AutoBoxType = LlBoxType.StandardAbort;
-                        else
-                        {
-                            LL.AutoShowSelectFile = false;
-                            LL.AutoShowPrintOptions = false;
-                        }
-                        if (!string.IsNullOrEmpty(PrinterName))
-                            LL.Print(memStream, ProjectType, PrinterName);
-                        else
-                            LL.Print(ProjectType, memStream);
-                    }
-                }
-            }
+        //            if (designer)
+        //            {
+        //                LL.Design(this.ProjectType, memStream);
+        //                CurrentACClassDesign.DesignBinary = memStream.GetBuffer();
+        //            }
+        //            else
+        //            {
+        //                LL.AutoDestination = printMode;
+        //                if (WithDialog)
+        //                    LL.AutoBoxType = LlBoxType.StandardAbort;
+        //                else
+        //                {
+        //                    LL.AutoShowSelectFile = false;
+        //                    LL.AutoShowPrintOptions = false;
+        //                }
+        //                if (!string.IsNullOrEmpty(PrinterName))
+        //                    LL.Print(memStream, ProjectType, PrinterName);
+        //                else
+        //                    LL.Print(ProjectType, memStream);
+        //            }
+        //        }
+        //    }
 
-            catch (ListLabelException e /*LlException*/)
-            {
-                string msg = e.Message;
-                if (e.InnerException != null && e.InnerException.Message != null)
-                    msg += " Inner:" + e.InnerException.Message;
+        //    catch (ListLabelException e /*LlException*/)
+        //    {
+        //        string msg = e.Message;
+        //        if (e.InnerException != null && e.InnerException.Message != null)
+        //            msg += " Inner:" + e.InnerException.Message;
 
-                this.Root().Messages.LogException("VBBSOReport", "RunLL", msg);
-                // Catch Exceptions
-                //MessageBox.Show("Information: " + LlException.Message + "\n\nThis information was generated by a List & Label custom exception.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception e /*e*/)
-            {
-                string msg = e.Message;
-                if (e.InnerException != null && e.InnerException.Message != null)
-                    msg += " Inner:" + e.InnerException.Message;
+        //        this.Root().Messages.LogException("VBBSOReport", "RunLL", msg);
+        //        Catch Exceptions
+        //        MessageBox.Show("Information: " + LlException.Message + "\n\nThis information was generated by a List & Label custom exception.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //    }
+        //    catch (Exception e /*e*/)
+        //    {
+        //        string msg = e.Message;
+        //        if (e.InnerException != null && e.InnerException.Message != null)
+        //            msg += " Inner:" + e.InnerException.Message;
 
-                this.Root().Messages.LogException("VBBSOReport", "RunLL(10)", msg);
-            }
-            finally
-            {
-                if (objectDataProvider != null)
-                    objectDataProvider.HandleEnumerableProperty -= OnHandleObjectProviderEnumerableProperty;
-                if (_LL != null)
-                {
-                    UnSubscribeToLLEvents();
-                    _LL.Dispose();
-                    _LL = null;
-                }
-            }
-        }
+        //        this.Root().Messages.LogException("VBBSOReport", "RunLL(10)", msg);
+        //    }
+        //    finally
+        //    {
+        //        if (objectDataProvider != null)
+        //            objectDataProvider.HandleEnumerableProperty -= OnHandleObjectProviderEnumerableProperty;
+        //        if (_LL != null)
+        //        {
+        //            UnSubscribeToLLEvents();
+        //            _LL.Dispose();
+        //            _LL = null;
+        //        }
+        //    }
+        //}
 
         //private void GetStiBusinessObjectData(ACQueryDefinition qry, IACObject parent, List<StiBusinessObjectData> dataList)
         //{
@@ -701,82 +685,82 @@ namespace gip.core.reporthandler
 
         #region Event callbacks
 
-        protected virtual void OnHandleObjectProviderEnumerableProperty(object sender, LLHandleEnumerablePropertyEventArgs e)
-        {
-            if (!typeof(EntityObject).IsAssignableFrom(e.ObjectType)
-                && e.ObjectType.Namespace == "gip.core.datamodel")
-                e.CancelRecursion = true;
-            else if (e.PropertyPath.IndexOf("ACType") >= 0
-                || e.PropertyPath.IndexOf(ACClass.ClassName) >= 0
-                || e.PropertyPath.IndexOf("ObjectType") >= 0
-                || e.PropertyPath.IndexOf("ObjectFullType") >= 0
-                || e.PropertyPath.IndexOf("ParentACObject") >= 0
-                || e.PropertyPath.IndexOf("ACContent") >= 0
-                || e.PropertyPath.IndexOf("ACProperty") >= 0
-                || e.PropertyPath.IndexOf("DocumentationList") >= 0
-                || e.PropertyPath.IndexOf("Businessobject") >= 0)
-                e.CancelRecursion = true;
-        }
+        //protected virtual void OnHandleObjectProviderEnumerableProperty(object sender, LLHandleEnumerablePropertyEventArgs e)
+        //{
+        //    if (!typeof(EntityObject).IsAssignableFrom(e.ObjectType)
+        //        && e.ObjectType.Namespace == "gip.core.datamodel")
+        //        e.CancelRecursion = true;
+        //    else if (e.PropertyPath.IndexOf("ACType") >= 0
+        //        || e.PropertyPath.IndexOf(ACClass.ClassName) >= 0
+        //        || e.PropertyPath.IndexOf("ObjectType") >= 0
+        //        || e.PropertyPath.IndexOf("ObjectFullType") >= 0
+        //        || e.PropertyPath.IndexOf("ParentACObject") >= 0
+        //        || e.PropertyPath.IndexOf("ACContent") >= 0
+        //        || e.PropertyPath.IndexOf("ACProperty") >= 0
+        //        || e.PropertyPath.IndexOf("DocumentationList") >= 0
+        //        || e.PropertyPath.IndexOf("Businessobject") >= 0)
+        //        e.CancelRecursion = true;
+        //}
 
-        protected virtual void OnLL_Evaluate(object sender, EvaluateEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_Evaluate(object sender, EvaluateEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_DrawTableLine(object sender, DrawTableLineEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_DrawTableLine(object sender, DrawTableLineEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_DrawTableField(object sender, DrawTableFieldEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_DrawTableField(object sender, DrawTableFieldEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_DrawProject(object sender, DrawProjectEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_DrawProject(object sender, DrawProjectEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_DrawPage(object sender, DrawPageEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_DrawPage(object sender, DrawPageEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_DrawObject(object sender, DrawObjectEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_DrawObject(object sender, DrawObjectEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_DesignerPrintJob(object sender, DesignerPrintJobEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_DesignerPrintJob(object sender, DesignerPrintJobEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_DefinePrintOptions(object sender, EventArgs e)
-        {
-        }
+        //protected virtual void OnLL_DefinePrintOptions(object sender, EventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_AutoDefineVariable(object sender, AutoDefineElementEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_AutoDefineVariable(object sender, AutoDefineElementEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_AutoDefineTableSortOrder(object sender, AutoDefineDataItemEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_AutoDefineTableSortOrder(object sender, AutoDefineDataItemEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_AutoDefineTableRelation(object sender, AutoDefineDataItemEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_AutoDefineTableRelation(object sender, AutoDefineDataItemEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_AutoDefineTable(object sender, AutoDefineDataItemEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_AutoDefineTable(object sender, AutoDefineDataItemEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_AutoDefineNewPage(object sender, AutoDefineNewPageEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_AutoDefineNewPage(object sender, AutoDefineNewPageEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_AutoDefineNewLine(object sender, AutoDefineNewLineEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_AutoDefineNewLine(object sender, AutoDefineNewLineEventArgs e)
+        //{
+        //}
 
-        protected virtual void OnLL_AutoDefineField(object sender, AutoDefineElementEventArgs e)
-        {
-        }
+        //protected virtual void OnLL_AutoDefineField(object sender, AutoDefineElementEventArgs e)
+        //{
+        //}
         #endregion
 
         #endregion

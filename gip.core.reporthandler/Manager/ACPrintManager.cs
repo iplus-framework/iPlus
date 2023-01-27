@@ -2,7 +2,6 @@
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
-using System.Data.Objects;
 using System.Drawing.Printing;
 using System.Linq;
 
@@ -81,7 +80,7 @@ namespace gip.core.reporthandler
                 {
                     try
                     {
-                        ACTypeFromLiveContext.ACClassConfig_ACClass.Load(MergeOption.OverwriteChanges);
+                        ACTypeFromLiveContext.ACClassConfig_ACClass.AutoLoad(ACTypeFromLiveContext.ACClassConfig_ACClassReference, ACTypeFromLiveContext);
                         var query = ACTypeFromLiveContext.ACClassConfig_ACClass.Where(c => c.KeyACUrl == Const_KeyACUrl_ConfiguredPrintersConfig);
                         if (query.Any())
                             result = query.ToList();
@@ -340,7 +339,7 @@ namespace gip.core.reporthandler
 
             aCClassConfig.KeyACUrl = ACPrintManager.Const_KeyACUrl_ConfiguredPrintersConfig;
             aCClassConfig.Value = printerToAssign;
-            db.ACClassConfig.AddObject(aCClassConfig);
+            db.ACClassConfig.Add(aCClassConfig);
             return db.ACSaveChanges();
         }
 

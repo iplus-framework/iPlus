@@ -84,7 +84,7 @@ namespace gip.core.autocomponent
                                     if (edgesLoaded)
                                     {
                                         //pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
-                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad(pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference, pwNode);
+                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad(pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference, pwNode.ContentACClassWF);
                                     }
                                     else
                                         pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference.Load();
@@ -231,7 +231,7 @@ namespace gip.core.autocomponent
                                     if (edgesLoaded)
                                     {
                                         //pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
-                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad(pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference, pwNode);
+                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad(pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference, pwNode.ContentACClassWF);
                                     }
                                     else
                                         pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference.Load();

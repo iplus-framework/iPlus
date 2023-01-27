@@ -1192,7 +1192,7 @@ namespace gip.core.manager
             acClassWF.Comment = fromACClassWF.Comment;
             acClassWF.XMLConfig = fromACClassWF.XMLConfig;
 
-            Database.ContextIPlus.ACClassWF.AddObject(acClassWF);
+            Database.ContextIPlus.ACClassWF.Add(acClassWF);
 
             methodWFList.Add(fromACClassWF, acClassWF);
 
@@ -1216,7 +1216,7 @@ namespace gip.core.manager
                 acClassWFEdgeNew.SourceACClassProperty = acClassWFEdge.SourceACClassProperty;
                 acClassWFEdgeNew.TargetACClassProperty = acClassWFEdge.TargetACClassProperty;
                 acClassWFEdgeNew.ConnectionType = acClassWFEdge.ConnectionType;
-                Database.ContextIPlus.ACClassWFEdge.AddObject(acClassWFEdgeNew);
+                Database.ContextIPlus.ACClassWFEdge.Add(acClassWFEdgeNew);
                 AddToVisualChangeList(acClassWFEdgeNew, VBDesigner.LayoutActionType.InsertEdge, acClassWFEdgeNew.SourceACConnector, acClassWFEdgeNew.TargetACConnector);
             }
 
