@@ -1310,7 +1310,12 @@ namespace gip.core.autocomponent
                 return false;
             _ProcessModuleChanged?.Invoke(this, new ProcessModuleChangedArgs(module, true));
             module.RefreshOrderInfo();
+            OnProcessModuleReleased(module);
             return true;
+        }
+
+        protected virtual void OnProcessModuleReleased(PAProcessModule module)
+        {
         }
 
         [ACMethodInfo("", "en{'Release module'}de{'Gebe Modul frei'}", 300)]
