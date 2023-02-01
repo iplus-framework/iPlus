@@ -1,6 +1,7 @@
 using gip.core.autocomponent;
 using gip.core.communication.modbus;
 using gip.core.datamodel;
+using NModbus;
 using NModbus.Device;
 using System;
 using System.Collections.Generic;
@@ -186,8 +187,8 @@ namespace gip.core.communication
             }
         }
 
-        ModbusIpMaster _PLCConn = null;
-        public ModbusIpMaster PLCConn
+        IModbusMaster _PLCConn = null;
+        public IModbusMaster PLCConn
         {
             get
             {
@@ -379,7 +380,8 @@ namespace gip.core.communication
             }
             using (ACMonitor.Lock(_11900_SocketLockObj))
             {
-                _PLCConn = ModbusIpMaster.CreateIp(_TCPClient);
+                var factory = new ModbusFactory();
+                _PLCConn = factory.CreateMaster(_TCPClient);
             }
             return _TCPClient.Connected;
         }
