@@ -615,7 +615,7 @@ namespace gip.bso.iplus
             CurrentNewACClassDesign.UpdateVBControlACClass(Database.ContextIPlus);
 
             CurrentACClassDesign = CurrentNewACClassDesign;
-            Database.ContextIPlus.ACClassDesign.AddObject(CurrentACClassDesign);
+            Database.ContextIPlus.ACClassDesign.Add(CurrentACClassDesign);
             UpdateDesign();
             //_ACClassDesignList = null;
             if(_ACClassDesignList != null)
@@ -723,7 +723,7 @@ namespace gip.bso.iplus
             duplDesign.ACIdentifier = GetDuplicatedDesignACIdentifier();
 
             CurrentACClassDesign = duplDesign;
-            Database.ContextIPlus.ACClassDesign.AddObject(duplDesign);
+            Database.ContextIPlus.ACClassDesign.Add(duplDesign);
 
             if (_ACClassDesignList != null)
                 _ACClassDesignList.Insert(0, CurrentACClassDesign);

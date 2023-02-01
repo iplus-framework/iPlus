@@ -797,7 +797,7 @@ namespace gip.bso.iplus
             CurrentNewACClassMethod.UpdateParamListFromACClassConstructor(CurrentNewWFRootACClass);
 
             CurrentACClass.AddNewACClassMethod(CurrentNewACClassMethod);
-            Database.ContextIPlus.ACClassMethod.AddObject(CurrentNewACClassMethod);
+            Database.ContextIPlus.ACClassMethod.Add(CurrentNewACClassMethod);
 
             _ACClassMethodList = null;
             OnPropertyChanged("ACClassMethodList");

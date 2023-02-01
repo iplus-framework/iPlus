@@ -457,7 +457,7 @@ namespace gip.bso.iplus
                             xaml += LayoutHelper.VBGridAdd("<vb:VBCheckBox Grid.Row=\"7\" ACCaption=\"Primary\" VBContent=\"CurrentPointConfig\\Value\\IsPrimary\" DisabledModes=\"Disabled\"></vb:VBCheckBox>");
                             break;
                         default:
-                            if (typeof(System.Data.Objects.DataClasses.EntityObject).IsAssignableFrom(CurrentPointConfig.ValueTypeACClass.ObjectType))
+                            if (typeof(VBEntityObject).IsAssignableFrom(CurrentPointConfig.ValueTypeACClass.ObjectType))
                             {
                                 xaml += LayoutHelper.VBGridAdd("<vb:VBComboBox VBContent=\"CurrentPointConfig\\Value\"  Grid.Row=\"4\" ACCaption=\"" + CurrentPointConfig.LocalConfigACUrl + "\" VBSource=\"" + Const.ContextDatabase + "\\" + CurrentPointConfig.ValueTypeACClass.ObjectType.Name + "\"></vb:VBComboBox>");
                             }

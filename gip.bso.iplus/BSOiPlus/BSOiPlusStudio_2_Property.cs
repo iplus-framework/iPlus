@@ -21,6 +21,7 @@ using gip.core.autocomponent;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using DocumentFormat.OpenXml.Drawing;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.bso.iplus
 {
@@ -1349,7 +1350,7 @@ namespace gip.bso.iplus
                 switch (e.PropertyName)
                 {
                     case Const.ACIdentifierPrefix:
-                        if (string.IsNullOrEmpty(CurrentACClassProperty.ACCaption) || CurrentACClassProperty.EntityState == System.Data.EntityState.Added)
+                        if (string.IsNullOrEmpty(CurrentACClassProperty.ACCaption) || CurrentACClassProperty.EntityState == EntityState.Added)
                         {
                             CurrentACClassProperty.ACCaption = CurrentACClassProperty.ACIdentifier;
                             CurrentACClassProperty.OnEntityPropertyChanged(Const.ACCaptionPrefix);
@@ -1363,7 +1364,7 @@ namespace gip.bso.iplus
             {
                 CurrentACClassProperty.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(CurrentACClassProperty_PropertyChanged);
             }
-            if (acClassProperty == null && CurrentACClassProperty != null && CurrentACClassProperty.EntityState == System.Data.EntityState.Added && e.PropertyName == "ACIdentifier")
+            if (acClassProperty == null && CurrentACClassProperty != null && CurrentACClassProperty.EntityState == EntityState.Added && e.PropertyName == "ACIdentifier")
             {
                 //OnPropertyChanged("CurrentACClassProperty");
             }

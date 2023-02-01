@@ -264,7 +264,7 @@ namespace gip.bso.iplus
         {
             if (!PreExecute("New")) return;
             CurrentLanguage = VBLanguage.NewACObject(Db, null);
-            Db.VBLanguage.AddObject(CurrentLanguage);
+            Db.VBLanguage.Add(CurrentLanguage);
             AccessPrimary.NavList.Add(CurrentLanguage);
             OnPropertyChanged("LanguageList");
             OnPropertyChanged("CurrentLanguage");

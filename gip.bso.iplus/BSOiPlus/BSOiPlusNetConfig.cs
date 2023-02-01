@@ -100,7 +100,8 @@ namespace gip.bso.iplus
 
         IQueryable<VBUserInstance> _AccessPrimary_NavSearchExecuting(IQueryable<VBUserInstance> result)
         {
-            ObjectQuery<VBUserInstance> query = result as ObjectQuery<VBUserInstance>;
+            //Replaced ObjectQuery with IQueryable
+            IQueryable<VBUserInstance> query = result as IQueryable<VBUserInstance>;
             if (query != null)
                 result = query.Where(c => c.VBUser.VBUserACProject_VBUser.Where(d => d.IsServer).Any());
             return result;

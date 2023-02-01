@@ -1560,7 +1560,7 @@ namespace gip.bso.iplus
             _moveInfoList = new List<ACProjectManager.MoveInfo>();
             foreach (var stateEntry in Database.ContextIPlus.ChangeTracker.Entries<ACClass>().Where(c => c.Entity is ACClass).Select(c => c))
             {
-                if (stateEntry.GetModifiedProperties().Where(c => c == "ParentACClassID").Any())
+                if (stateEntry.Properties.Where(c => c.IsModified).Where(c => c.Metadata.Name == "ParentACClassID").Any())
                 {
                     Guid parentACClassID = (Guid)stateEntry.OriginalValues["ParentACClassID"];
                     ACProjectManager.MoveInfo moveInfo = new ACProjectManager.MoveInfo();
@@ -1593,7 +1593,7 @@ namespace gip.bso.iplus
                 foreach (var acClassDesignID in _acClassDesignIDList)
                 {
                     var acClassDesign1 = Root.Database.ContextIPlus.ACClassDesign.Where(c => c.ACClassDesignID == acClassDesignID).First();
-                    Root.Database.ContextIPlus.Refresh(System.Data.Objects.RefreshMode.StoreWins, acClassDesign1);
+                    Root.Database.ContextIPlus.Refresh(RefreshMode.StoreWins, acClassDesign1);
                 }
             }
 
@@ -3063,13 +3063,13 @@ namespace gip.bso.iplus
             string findPattern = String.Format("%{0}%", wordToFind);
             if (bso.ACIdentifier.Contains("Script"))
             {
-                var query = Database.ContextIPlus.ACClassMethod.Where(c => (SqlFunctions.PatIndex(findPattern, c.Sourcecode) > 0)
+                var query = Database.ContextIPlus.ACClassMethod.Where(c => (EF.Functions.Like(c.Sourcecode, findPattern) == true)
                                                                 && c.ACClass.ACProjectID == CurrentACProject.ACProjectID);
                 return query;
             }
             else if (bso.ACIdentifier.Contains("XML"))
             {
-                var query = Database.ContextIPlus.ACClassDesign.Where(c => (SqlFunctions.PatIndex(findPattern, c.XMLDesign) > 0)
+                var query = Database.ContextIPlus.ACClassDesign.Where(c => (EF.Functions.Like(c.XMLDesign, findPattern) == true)
                                                                 && c.ACClass.ACProjectID == CurrentACProject.ACProjectID);
                 return query;
             }

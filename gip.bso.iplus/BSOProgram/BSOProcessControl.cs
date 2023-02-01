@@ -18,6 +18,7 @@ using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.manager;
 using System.Threading;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.bso.iplus
 {
@@ -556,7 +557,7 @@ namespace gip.bso.iplus
         {
             if (SelectedACTask == null)
                 return;
-            SelectedACTask.ACClassTask_ParentACClassTask.AutoRefresh(this.Database.ContextIPlus);
+            SelectedACTask.ACClassTask_ParentACClassTask.AutoRefresh(SelectedACTask.ACClassTask_ParentACClassTaskReference, SelectedACTask);
             if (!IsEnabledDeleteWorkflow())
                 return;
             bool? loaded = IsLoadedOnServer(SelectedACTask);
@@ -590,10 +591,10 @@ namespace gip.bso.iplus
         protected virtual MsgWithDetails DeleteACTasksOfWF(List<ACClassTask> deleteList, ACClassTask acClassTask)
         {
             MsgWithDetails msg = null;
-            if (acClassTask.ACClassTask_ParentACClassTask.IsLoaded)
+            if (acClassTask.ACClassTask_ParentACClassTaskReference.IsLoaded)
             {
-                acClassTask.ACClassTask_ParentACClassTask.AutoRefresh(this.Database.ContextIPlus);
-                acClassTask.ACClassTask_ParentACClassTask.AutoLoad(this.Database.ContextIPlus);
+                //acClassTask.ACClassTask_ParentACClassTask.AutoRefresh(this.Database.ContextIPlus);
+                acClassTask.ACClassTask_ParentACClassTask.AutoLoad(acClassTask.ACClassTask_ParentACClassTaskReference, acClassTask);
             }
             foreach (var childTask in acClassTask.ACClassTask_ParentACClassTask.ToArray())
             {

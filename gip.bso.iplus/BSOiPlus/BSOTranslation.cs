@@ -2,6 +2,7 @@
 using gip.core.datamodel;
 using Google.Api.Gax.ResourceNames;
 using Google.Cloud.Translate.V3;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Newtonsoft.Json;
 using System;
@@ -11,6 +12,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Input;
 
@@ -1893,8 +1895,7 @@ namespace gip.bso.iplus
                 acProjectID = CurrentACProject.ACProjectID;
             using (Database database = new core.datamodel.Database())
             {
-                list = database
-                   .udpTranslation(
+                list = database.VBTranslationView.FromSql(FormattableStringFactory.Create("udpTranslation @p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7",
                         acProjectID,
                         FilterMandatoryClassID,
                         FilterOnlyACClassTables,
@@ -1902,7 +1903,7 @@ namespace gip.bso.iplus
                         FilterClassACIdentifier,
                         FilterACIdentifier,
                         FilterTranslation,
-                        FilterNotHaveInTranslation)
+                        FilterNotHaveInTranslation))
                    .ToList();
             }
 
@@ -2024,11 +2025,10 @@ namespace gip.bso.iplus
         private IMDTrans GetMDObjectItem(Database database, VBTranslationView translationItem)
         {
             MDTrans resultItem = null;
-            string sql = "select MDKey, MDNameTrans from {0} where MDKey='{{0}}'";
-            sql = string.Format(sql, translationItem.TableName);
-            sql = string.Format(sql, translationItem.ACIdentifier);
+            string sql = "select MDKey, MDNameTrans from {0} where MDKey='{1}'";
+            FormattableString sqlFormatted = FormattableStringFactory.Create(sql, translationItem.TableName, translationItem.ACIdentifier);
 
-            var result = database.ExecuteStoreQuery<MDTrans>(sql);
+            var result = database.Database.SqlQuery<MDTrans>(sqlFormatted);
             if (result != null)
                 resultItem = result.FirstOrDefault();
 
@@ -2039,8 +2039,8 @@ namespace gip.bso.iplus
         {
             string sql = "update {0} set MDNameTrans='{1}' where MDKey='{2}'";
             string translation = translationItem.TranslationValue.Replace("'", "''");
-            sql = string.Format(sql, translationItem.TableName, translation, translationItem.ACIdentifier);
-            database.ExecuteStoreCommand(sql);
+            FormattableString sqlFormatted = FormattableStringFactory.Create(sql, translationItem.TableName, translation, translationItem.ACIdentifier);
+            database.Database.ExecuteSql(sqlFormatted);
         }
 
         #endregion
@@ -2529,16 +2529,15 @@ namespace gip.bso.iplus
             }
             using (Database database = new core.datamodel.Database())
             {
-                list = database
-                   .udpTranslation(
-                        acProjectID,
-                        null,
+                list = database.VBTranslationView.FromSql(FormattableStringFactory.Create("udpTranslation @p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7",
+                          acProjectID,
+                          null,
                           filterOnlyACClassTables,
                           filterOnlyMDTables,
                           null,
                           null,
                           haveInTranslation,
-                          notHaveInTranslation)
+                          notHaveInTranslation))
                       .ToList();
             }
 

@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml.Office.CustomUI;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.processapplication;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.CodeDom;
 using System.Collections.Generic;
@@ -954,7 +955,7 @@ namespace gip.bso.iplus
             var query = Db.MsgAlarmLog.Where(c => c.TimeStampOccurred >= FromDate && c.TimeStampOccurred <= ToDate).AsQueryable();
             string acUrl = SelectedPropertyLog.ACUrl;
 
-            (query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
+            //(query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
             AlarmsSubAlarmsList = query.ToList().Where(c => (c.ACClass != null && c.ACClass.ACUrlComponent.StartsWith(acUrl)) ||
                                                          (c.ACProgramLog != null && c.ACProgramLog.ACUrl.StartsWith(acUrl)));
 

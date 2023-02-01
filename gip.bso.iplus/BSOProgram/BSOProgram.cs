@@ -473,7 +473,7 @@ namespace gip.bso.iplus
         /// </summary>
         private void InitNewACProgram()
         {
-            Database.ContextIPlus.ACProgram.AddObject(CurrentNewACProgram);
+            Database.ContextIPlus.ACProgram.Add(CurrentNewACProgram);
 
             OnPropertyChanged("ACProgramList");
 

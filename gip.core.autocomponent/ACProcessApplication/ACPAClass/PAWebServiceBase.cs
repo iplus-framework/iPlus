@@ -77,22 +77,15 @@ namespace gip.core.autocomponent
         SyncQueueEvents _syncHostStart;
         ACThread _ACHostStartThread = null;
 
-        private IWebHost _Host = null;
-        public IWebHost Host
-        {
-            get
-            {
-                return _Host;
-            }
-        }
+        public IWebHost Host{ get; set; }
 
         private ServiceHostBase _SvcHost;
         public ServiceHostBase SvcHost
         {
             get
             {
-                var engineProperty = _Host.Services.GetType().GetField("_engine", BindingFlags.NonPublic | BindingFlags.Instance);
-                var engine = engineProperty.GetValue(_Host.Services);
+                var engineProperty = Host.Services.GetType().GetField("_engine", BindingFlags.NonPublic | BindingFlags.Instance);
+                var engine = engineProperty.GetValue(Host.Services);
                 var rootProperty = engine.GetType().GetProperty("Root");
                 var root = rootProperty.GetValue(engine);
                 var resolvedServiceProperty = root.GetType().GetProperty("ResolvedServices", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -244,7 +237,7 @@ namespace gip.core.autocomponent
 
             try
             {
-                _Host = CreateService();
+                Host = CreateService();
                 if (_SvcHost != null)
                 {
                     _SvcHost.Opened += _SvcHost_Opened;
@@ -278,7 +271,7 @@ namespace gip.core.autocomponent
 
         public void HostStarting()
         {
-            _Host.Start();
+            Host.Start();
         }
 
         protected void _SvcHost_Opened(object sender, EventArgs e)
@@ -317,7 +310,7 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledStartService()
         {
-            return _Host == null;
+            return Host == null;
         }
 
         [ACMethodInteraction("Watching", "en{'Stop Webservice'}de{'Stoppe Webdienst'}", 200, true)]
@@ -337,9 +330,9 @@ namespace gip.core.autocomponent
                 if (_SvcHost.State == CommunicationState.Opened)
                 {
                     //_SvcHost.Close();
-                    _Host.StopAsync();
+                    Host.StopAsync();
                 }
-                _Host = null;
+                Host = null;
             }
             catch (Exception e)
             {
@@ -351,7 +344,7 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledStopService()
         {
-            return _Host != null;
+            return Host != null;
         }
 
         public override void AcknowledgeAlarms()

@@ -555,10 +555,10 @@ namespace gip.bso.iplus
             LoadEntity<ACClassMethod>(requery, () => SelectedACClassMethod, () => CurrentACClassMethod, c => CurrentACClassMethod = c,
                         Database.ContextIPlus.ACClassMethod
                         .Where(c => c.ACClassMethodID == SelectedACClassMethod.ACClassMethodID));
-            if (CurrentACClassMethod != null && CurrentACClassMethod.ACClassWF_ACClassMethod.IsLoaded)
+            if (CurrentACClassMethod != null && CurrentACClassMethod.ACClassWF_ACClassMethodReference.IsLoaded)
             {
-                CurrentACClassMethod.ACClassWF_ACClassMethod.AutoRefresh(Database.ContextIPlus);
-                CurrentACClassMethod.ACClassWF_ACClassMethod.AutoLoad(Database.ContextIPlus);
+                //CurrentACClassMethod.ACClassWF_ACClassMethod.AutoRefresh(Database.ContextIPlus);
+                CurrentACClassMethod.ACClassWF_ACClassMethod.AutoLoad(CurrentACClassMethod.ACClassWF_ACClassMethodReference, CurrentACClassMethod);
             }
             PostExecute("Load");
         }
@@ -600,7 +600,7 @@ namespace gip.bso.iplus
             CurrentNewACClassMethod.UpdateParamListFromACClassConstructor(CurrentNewWFRootACClass);
 
             CurrentACClass.AddNewACClassMethod(CurrentNewACClassMethod);
-            Database.ContextIPlus.ACClassMethod.AddObject(CurrentNewACClassMethod);
+            Database.ContextIPlus.ACClassMethod.Add(CurrentNewACClassMethod);
 
             _ACClassMethodList = null;
 
@@ -747,7 +747,7 @@ namespace gip.bso.iplus
             ACProgram program = ACProgram.NewACObject(this.Database.ContextIPlus, null, secondaryKey);
             program.ProgramACClassMethod = CurrentACClassMethod;
             program.WorkflowTypeACClass = CurrentACClassMethod.WorkflowTypeACClass;
-            this.Database.ContextIPlus.ACProgram.AddObject(program);
+            this.Database.ContextIPlus.ACProgram.Add(program);
             if (ACSaveChanges())
             {
                 ACValue paramProgram = acMethod.ParameterValueList.GetACValue(ACProgram.ClassName);
@@ -1034,7 +1034,7 @@ namespace gip.bso.iplus
                 if(dbNode != null)
                 {
                     CurrentACClassMethod.ACClassWF_ACClassMethod.Remove(dbNode);
-                    Database.ContextIPlus.ACClassWF.DeleteObject(dbNode);
+                    Database.ContextIPlus.ACClassWF.Remove(dbNode);
                     //Msg msg = Database.ACSaveChanges();
                     //if (msg != null)
                     //    Messages.Msg(msg);
@@ -1056,7 +1056,7 @@ namespace gip.bso.iplus
                     if (dbEdge != null)
                     {
                         CurrentACClassMethod.ACClassWFEdge_ACClassMethod.Remove(dbEdge);
-                        Database.ContextIPlus.ACClassWFEdge.DeleteObject(dbEdge);
+                        Database.ContextIPlus.ACClassWFEdge.Remove(dbEdge);
                         //Msg msg = Database.ACSaveChanges();
                         //if (msg != null)
                         //    Messages.Msg(msg);

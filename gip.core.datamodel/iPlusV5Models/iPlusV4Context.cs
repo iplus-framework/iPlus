@@ -1482,6 +1482,7 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.MandatoryACURLCached).IsUnicode(false);
             entity.Property(e => e.TableName)
                 .IsRequired()
                 .HasMaxLength(7)

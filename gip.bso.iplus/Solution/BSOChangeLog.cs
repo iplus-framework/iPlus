@@ -250,7 +250,7 @@ namespace gip.bso.iplus
 
                 KeyValuePair<string, object> kvp = new KeyValuePair<string, object>(SelectedACClass.ACIdentifier+"ID", entityKey);
                 KeyValuePair<string, object>[] kvpList = new KeyValuePair<string, object>[] { kvp };
-                EntityKey eKey = new EntityKey(tmpDatabase.DefaultContainerName + "." + _SelectedACClass.ACIdentifier, kvpList);
+                EntityKey eKey = new EntityKey(tmpDatabase.GetType().Namespace + "." + _SelectedACClass.ACIdentifier, kvpList);
                 object result;
                 try
                 {
@@ -555,7 +555,8 @@ namespace gip.bso.iplus
             if(e.Argument.ToString() == "RefreshChangeLogs")
             {
                 CurrentProgressInfo.TotalProgress.ProgressText = Root.Environment.TranslateText(this, "RefreshProgress");
-                Database.Refresh(System.Data.Objects.RefreshMode.StoreWins, Db.ACChangeLog);
+                // TODO: DatabaseRefresh not implemented
+                //Database.Refresh(RefreshMode.StoreWins, Db.ACChangeLog);
                 OnPropertyChanged("ACClassList");
                 CurrentProgressInfo.Complete();
             }

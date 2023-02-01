@@ -19,7 +19,9 @@ using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.manager;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Runtime.CompilerServices;
 
 namespace gip.bso.iplus
 {
@@ -98,7 +100,7 @@ namespace gip.bso.iplus
 
         #region Precompiled-Queries
         protected static readonly Func<Database, Guid, IQueryable<ACClass>> s_cQry_AllClassesFromProject =
-        CompiledQuery.Compile<Database, Guid, IQueryable<ACClass>>(
+        EF.CompileQuery<Database, Guid, IQueryable<ACClass>>(
             (ctx, projectID) => ctx.ACClass.Include("ACClass1_ParentACClass")
                                  .Include("ACClass_ParentACClass")
                                  .Include("ACClass1_BasedOnACClass")
@@ -108,7 +110,7 @@ namespace gip.bso.iplus
         );
 
         protected static readonly Func<Database, Guid, IQueryable<ACClass>> s_cQry_AllClassesFromProjectWithRights =
-        CompiledQuery.Compile<Database, Guid, IQueryable<ACClass>>(
+        EF.CompileQuery<Database, Guid, IQueryable<ACClass>>(
             (ctx, projectID) => ctx.ACClass.Include("ACClass1_ParentACClass")
                                  .Include("ACClass_ParentACClass")
                                  .Include("ACClass1_BasedOnACClass")
@@ -472,7 +474,7 @@ namespace gip.bso.iplus
             var query1 = Database.ACProject.Where(c => c.ACProjectName == acProject.ACProjectName);
             if (query1.Any())
                 return false;
-            Database.ACProject.AddObject(acProject);
+            Database.ACProject.Add(acProject);
             if (acProject.ACProject1_BasedOnACProject != null)
             {
                 var query = acProject.ACProject1_BasedOnACProject.ACClass_ACProject.Where(c => c.ACClass1_ParentACClass == null);
@@ -532,7 +534,7 @@ namespace gip.bso.iplus
             acClass.ACPackage = acClassModelServer.ACPackage;
             acClass.ACClass1_PWACClass = ACProjectClassLibrary.ACClass_ACProject.Where(c => c.ACIdentifier == PWGroup.PWClassName && c.ACKindIndex == (short)Global.ACKinds.TPWGroup).FirstOrDefault();
 
-            Database.ACClass.AddObject(acClass);
+            Database.ACClass.Add(acClass);
             return true;
         }
 
@@ -856,7 +858,7 @@ namespace gip.bso.iplus
         /// <returns>ACClassInfoWithItems.</returns>
         public ACClassInfoWithItems InsertProjectItem(ACClass acClass, ACClassInfoWithItems parentProjectItem)
         {
-            Database.ACClass.AddObject(acClass);
+            Database.ACClass.Add(acClass);
             ACClassInfoWithItems projectItem = null;
             if (this.MapClassToItem.TryGetValue(acClass, out projectItem))
                 return projectItem;
@@ -997,7 +999,7 @@ namespace gip.bso.iplus
                             break;
                     }
                 }
-                Database.ACClass.AddObject(acClass);
+                Database.ACClass.Add(acClass);
                 GenerateChildAppClasses(acProject, acClass, acClassTemplate.Childs);
             }
         }
@@ -1574,7 +1576,7 @@ namespace gip.bso.iplus
         /// <param name="model"></param>
         public void CloneClassTree(ACClass rootACClass, string userID, CloneDialogModel model)
         {
-            Database.udpACClassClone(rootACClass.ACClassID, model.ACIdentifier,
+            Database.Database.ExecuteSql(FormattableStringFactory.Create("udpACClassClone @p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9", rootACClass.ACClassID, model.ACIdentifier,
                 model.IsCloneACClassProperty,
                 model.IsCloneACClassMethod,
                 model.IsCloneACClassDesign,
@@ -1582,7 +1584,8 @@ namespace gip.bso.iplus
                 model.IsCloneACClassText,
                 model.IsCloneACClassMessage,
                 model.IsCloneACClassPropertyRelation,
-                userID);
+                userID));
+
 
         }
 
@@ -1702,7 +1705,7 @@ namespace gip.bso.iplus
                 {
                     ACClassProperty acClassPropertyNew = ACClassProperty.NewACClassProperty(Database, acClass, acClassProperty);
                     acClassPropertyNew.ACUrlCommand(propertyName, value);
-                    Database.ACClassProperty.AddObject(acClassPropertyNew);
+                    Database.ACClassProperty.Add(acClassPropertyNew);
                     UpdateDerivedACClassProperty(acClassPropertyNew.ACClass, acClassPropertyNew, propertyName, value, valueOld);
                     return acClass.Properties.Where(c => c.ACIdentifier == acClassProperty.ACIdentifier).First();
                 }
@@ -2505,7 +2508,7 @@ namespace gip.bso.iplus
             string secondaryKey = ACRoot.SRoot.NoManager.GetNewNo(Database, typeof(ACClassDesign), ACClassDesign.NoColumnName, ACClassDesign.FormatNewNo, null);
             ACClassDesign acClassMenu = ACClassDesign.NewACObject(Database, acClass, secondaryKey);
             acClassMenu.ACKind = Global.ACKinds.DSDesignMenu;
-            Database.ACClassDesign.AddObject(acClassMenu);
+            Database.ACClassDesign.Add(acClassMenu);
             return acClassMenu;
         }
 
@@ -2638,7 +2641,7 @@ namespace gip.bso.iplus
         {
             string secondaryKey = ACRoot.SRoot.NoManager.GetNewNo(Database, typeof(ACClassDesign), ACClassDesign.NoColumnName, ACClassDesign.FormatNewNo, null);
             ACClassDesign acClassDesign = ACClassDesign.NewACClassDesignVisualisation(Database, parentACClass, secondaryKey);
-            Database.ACClassDesign.AddObject(acClassDesign);
+            Database.ACClassDesign.Add(acClassDesign);
             return acClassDesign;
         }
 
@@ -2719,7 +2722,7 @@ namespace gip.bso.iplus
         {
             ACClass newACClass = ACClass.NewACObjectWithBaseclass(Database, acProject, acClass);
             newACClass.ACClass1_ParentACClass = parentACClass;
-            Database.ACClass.AddObject(newACClass);
+            Database.ACClass.Add(newACClass);
 
             if (acClass.Childs != null)
             {
@@ -2821,7 +2824,7 @@ namespace gip.bso.iplus
                     acClassTask.ACTaskType = acTaskType;
                     acClassTask.IsDynamic = false;
                     acClassTask.ACIdentifier = acClass.ACIdentifier;
-                    Database.ACClassTask.AddObject(acClassTask);
+                    Database.ACClassTask.Add(acClassTask);
                 }
                 else
                 {
@@ -2838,7 +2841,7 @@ namespace gip.bso.iplus
                     acClassTaskTest.IsDynamic = false;
                     acClassTaskTest.IsTestmode = true;
                     acClassTaskTest.ACIdentifier = Const.ACRootProjectNameTest;
-                    Database.ACClassTask.AddObject(acClassTaskTest);
+                    Database.ACClassTask.Add(acClassTaskTest);
                 }
                 else
                 {
@@ -2859,7 +2862,7 @@ namespace gip.bso.iplus
                         acClassTaskTest.IsDynamic = false;
                         acClassTaskTest.IsTestmode = acClassTaskParent.IsTestmode;
                         acClassTaskTest.ACIdentifier = acClass.ACIdentifier;
-                        Database.ACClassTask.AddObject(acClassTaskTest);
+                        Database.ACClassTask.Add(acClassTaskTest);
                     }
                     else
                     {

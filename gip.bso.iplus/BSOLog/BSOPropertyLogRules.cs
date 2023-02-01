@@ -438,7 +438,7 @@ namespace gip.bso.iplus
                 }
 
                 ACPropertyLogRule propLogRule = ACPropertyLogRule.NewACObject(db, componentClass, Global.PropertyLogRuleType.ProjectHierarchyOneself);
-                db.ACPropertyLogRule.AddObject(propLogRule);
+                db.ACPropertyLogRule.Add(propLogRule);
                 var msg = db.ACSaveChanges();
 
                 if (msg != null)
@@ -486,7 +486,7 @@ namespace gip.bso.iplus
                 ACPropertyLogRule propLogRule = db.ACPropertyLogRule.FirstOrDefault(c => c.ACClassID == componentClass.ACClassID);
                 if (propLogRule != null)
                 {
-                    db.ACPropertyLogRule.DeleteObject(propLogRule);
+                    db.ACPropertyLogRule.Remove(propLogRule);
                     var msg = db.ACSaveChanges();
                     if (msg != null)
                     {
@@ -636,14 +636,14 @@ namespace gip.bso.iplus
             if (storedRules != null)
             {
                 foreach (var propLogRule in storedRules)
-                    Db.ACPropertyLogRule.DeleteObject(propLogRule);
+                    Db.ACPropertyLogRule.Remove(propLogRule);
             }
 
             foreach (var ruleClass in result)
             {
                 ACPropertyLogRule rule = ACPropertyLogRule.NewACObject(Db, ruleClass.Item1);
                 rule.RuleType = (short)ruleClass.Item2;
-                Db.ACPropertyLogRule.AddObject(rule);
+                Db.ACPropertyLogRule.Add(rule);
             }
 
             Db.ACSaveChanges();
@@ -701,13 +701,13 @@ namespace gip.bso.iplus
             if (storedRules != null)
             {
                 foreach (var propLogRule in storedRules.ToArray())
-                    Db.ACPropertyLogRule.DeleteObject(propLogRule);
+                    Db.ACPropertyLogRule.Remove(propLogRule);
             }
 
             foreach (var ruleClass in result)
             {
                 ACPropertyLogRule rule = ACPropertyLogRule.NewACObject(Db, ruleClass.Item1, Global.PropertyLogRuleType.BasedOn);
-                Db.ACPropertyLogRule.AddObject(rule);
+                Db.ACPropertyLogRule.Add(rule);
             }
 
             var msg = Db.ACSaveChanges();

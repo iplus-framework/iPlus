@@ -91,7 +91,7 @@ namespace gip.bso.iplus
                         _vbUserACClassDesign.ACIdentifier = "ACFavorite";
                         _vbUserACClassDesign.VBUserID = Root.Environment.User.VBUserID;
                         _vbUserACClassDesign.XMLDesign = "";
-                        Db.VBUserACClassDesign.AddObject(_vbUserACClassDesign);
+                        Db.VBUserACClassDesign.Add(_vbUserACClassDesign);
                         Db.ACSaveChanges();
                     }
                 }

@@ -595,7 +595,7 @@ namespace gip.core.datamodel.Licensing
             VBSystem oldSys = db.VBSystem.FirstOrDefault(c => c.SystemName == License.SN_PackIssuer);
             if (oldSys != null && sysNew.SystemName == License.SN_PackIssuer)
             {
-                db.Entry(oldSys).State = EntityState.Deleted;
+                db.Remove(oldSys);
                 db.ACSaveChanges();
             }
             db.VBSystem.Add(sysNew);

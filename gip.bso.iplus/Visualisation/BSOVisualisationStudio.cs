@@ -26,7 +26,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Input;
-using System.Data.Objects.SqlClient;
 
 namespace gip.bso.iplus
 {
@@ -722,7 +721,7 @@ namespace gip.bso.iplus
                 defaultVisualisation.ACClassDesignID = CurrentVisualisation.ACClassDesignID;
                 defaultVisualisation.XMLDesign = "";
                 defaultVisualisation.ACIdentifier = "DefaultVisualisation";
-                Database.ContextIPlus.VBUserACClassDesign.AddObject(defaultVisualisation);
+                Database.ContextIPlus.VBUserACClassDesign.Add(defaultVisualisation);
             }
             Database.ContextIPlus.ACSaveChanges();
         }

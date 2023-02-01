@@ -5,6 +5,7 @@ using System.Text;
 using gip.core.datamodel;
 using gip.core.manager;
 using gip.core.autocomponent;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.bso.iplus
 {

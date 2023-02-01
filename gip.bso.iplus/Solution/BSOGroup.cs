@@ -967,7 +967,7 @@ namespace gip.bso.iplus
         public void New()
         {
             CurrentGroup = VBGroup.NewACObject(Db, null);
-            Db.VBGroup.AddObject(CurrentGroup);
+            Db.VBGroup.Add(CurrentGroup);
             ACState = Const.SMNew;
             AccessPrimary.NavList.Add(CurrentGroup);
             OnPropertyChanged("GroupList");

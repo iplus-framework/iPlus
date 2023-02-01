@@ -56,7 +56,7 @@ namespace gip.bso.iplus
         {
             string secondaryKey = ACRoot.SRoot.NoManager.GetNewNo(Database, typeof(VBUser), VBUser.NoColumnName, VBUser.FormatNewNo, null);
             VBUser user = VBUser.NewACObject(Database, null, secondaryKey);
-            Database.VBUser.AddObject(user);
+            Database.VBUser.Add(user);
             _ = VBUserInstance.NewACObject(Database, user);
             return user;
         }

@@ -142,7 +142,7 @@ namespace gip.core.autocomponent
             {
                 if (task.EntityState != EntityState.Deleted
                     && task.EntityState != EntityState.Detached)
-                    ACClassTaskQueue.TaskQueue.Context.Entry(task).State = EntityState.Deleted;
+                    ACClassTaskQueue.TaskQueue.Context.Remove(task);
             }
             );
         }

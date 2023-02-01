@@ -538,7 +538,7 @@ namespace gip.bso.iplus
                 query = query.Where(c => (c.ACClass != null && c.ACClass.ACURLComponentCached == AlarmSourceText) ||
                                          (c.ACProgramLog != null && c.ACProgramLog.ACUrl == AlarmSourceText)).AsQueryable();
 
-            (query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
+            //(query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
 
             _MsgAlarmLogList = query.OrderByDescending(c => c.TimeStampOccurred).ToList();
             OnPropertyChanged("MsgAlarmLogList");

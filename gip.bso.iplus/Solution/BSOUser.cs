@@ -667,7 +667,7 @@ namespace gip.bso.iplus
                 return;
             VBUserGroup userGroup = VBUserGroup.NewACObject(Db, CurrentUser);
             userGroup.VBGroup = Db.VBGroup.Where(c => c.VBGroupID == SelectedGroup.VBGroupID).Select(c => c).First();
-            Db.VBUserGroup.AddObject(userGroup);
+            Db.VBUserGroup.Add(userGroup);
             OnPropertyChanged("GroupList");
             OnPropertyChanged("UserGroupList");
         }
@@ -725,7 +725,7 @@ namespace gip.bso.iplus
             VBUserACProject userACProject = VBUserACProject.NewVBUserACProject(Db, SelectedUser, Db.ACProject.Where(c => c.ACProjectID == SelectedACProject.ACProjectID).Select(c => c).First());
             //userACProject.ACProject = Database.ACProject.Where(c => c.ACProjectID == SelectedACProject.ACProjectID).Select(c => c).First();
             userACProject.VBUser = SelectedUser;
-            Db.VBUserACProject.AddObject(userACProject);
+            Db.VBUserACProject.Add(userACProject);
             OnPropertyChanged("ACProjectList");
             OnPropertyChanged("VBUserACProjectList");
         }
@@ -834,7 +834,7 @@ namespace gip.bso.iplus
                 vBUserInstance.UseTextEncoding = prevUserInstance.UseTextEncoding;
             }
 
-            _BSODatabase.VBUser.AddObject(clonedUser);
+            _BSODatabase.VBUser.Add(clonedUser);
             ACSaveChanges();
             OnPropertyChanged("UserList");
             SelectedUser = clonedUser;
