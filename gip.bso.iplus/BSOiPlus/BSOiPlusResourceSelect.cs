@@ -4,11 +4,9 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.EntityClient;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -176,7 +174,7 @@ namespace gip.bso.iplus
                     {
                         try
                         {
-                            ACQueryDatabase = ACObjectContextManager.FactoryContext(SelectedSQLInstanceInfo, true) as Database;
+                            ACQueryDatabase = ACObjectContextManager.FactoryContext(SelectedSQLInstanceInfo) as Database;
                         }
                         catch (Exception e)
                         {

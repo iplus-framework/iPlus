@@ -587,15 +587,16 @@ namespace gip.core.datamodel
             return contextConnectionString;
         }
 
-        static public IACEntityObjectContext FactoryContext(SQLInstanceInfo serverInfo, bool iPlusContext)
+        static public IACEntityObjectContext FactoryContext(SQLInstanceInfo serverInfo)
         {
             string iPlusConnString = FactoryEntityConnectionString(serverInfo, true);
-            Database db = Activator.CreateInstance(TypeAnalyser.GetTypeInAssembly("gip.core.datamodel.Database"), iPlusConnString) as Database;
+            Type coreDbType = typeof(Database);
+            Database db = Activator.CreateInstance(TypeAnalyser.GetTypeInAssembly(coreDbType.FullName), iPlusConnString) as Database;
             IACEntityObjectContext context = db;
-            if(!iPlusContext)
+            if(!string.IsNullOrEmpty(serverInfo.MESContextFullName))
             {
                 string databaseAppConnString = FactoryEntityConnectionString(serverInfo, false);
-                context = Activator.CreateInstance(TypeAnalyser.GetTypeInAssembly("gip.mes.datamodel.DatabaseApp"), databaseAppConnString, db) as IACEntityObjectContext;
+                context = Activator.CreateInstance(TypeAnalyser.GetTypeInAssembly(serverInfo.MESContextFullName), databaseAppConnString, db) as IACEntityObjectContext;
             }
             return context;
         }

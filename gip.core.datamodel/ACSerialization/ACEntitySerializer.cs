@@ -459,7 +459,7 @@ namespace gip.core.datamodel
         {
             List<IACObject> acObjectList = null;
             bool iPlusContext = acQueryDefinitionIdentifier.StartsWith("acQueryACUrl");
-            IACEntityObjectContext dbOuterDatabase = ACObjectContextManager.FactoryContext(sqlInstanceInfo, iPlusContext);
+            IACEntityObjectContext dbOuterDatabase = ACObjectContextManager.FactoryContext(sqlInstanceInfo);
             ACClass qryACClass = dbOuterDatabase.ContextIPlus.ACClass.FirstOrDefault(x => x.ACIdentifier == acQueryDefinitionIdentifier);
             ACQueryDefinition acQueryDefinition = FactoryImportACQueryDefinition(dbOuterDatabase, qryACClass);
             IEnumerable query = dbOuterDatabase.ACSelect(acQueryDefinition);
