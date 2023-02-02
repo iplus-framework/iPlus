@@ -64,12 +64,12 @@ namespace gip.core.reporthandler
         {
             bool baseReturn = base.ACPostInit();
 
-            _ = _IPAddress;
-            _ = _Port;
-            _ = _SendTimeout;
-            _ = _ReceiveTimeout;
-            _ = _PrintTries;
-            _ = _CodePage;
+            _ = IPAddress;
+            _ = Port;
+            _ = SendTimeout;
+            _ = ReceiveTimeout;
+            _ = PrintTries;
+            _ = CodePage;
 
             return baseReturn;
         }
