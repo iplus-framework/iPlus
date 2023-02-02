@@ -28,7 +28,7 @@ namespace gip.core.autocomponent
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
             bool result = base.ACInit(startChildMode);
-            _ = _RemoteConnString.ValueT;
+            _ = RemoteConnString;
             return result;
         }
         #endregion

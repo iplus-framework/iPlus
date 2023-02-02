@@ -73,9 +73,9 @@ namespace gip.bso.iplus
                 return false;
             _UserManager = new ACUserManager(Db, Root);
 
-            _ = _StartDelimiterString.ValueT;
-            _ = _EndDelimiterDesignString.ValueT;
-            _ = _EndDelimiterFavoritesString.ValueT;
+            _ = StartDelimiterString;
+            _ = EndDelimiterDesignString;
+            _ = EndDelimiterFavoritesString;
 
             Search();
             return true;
