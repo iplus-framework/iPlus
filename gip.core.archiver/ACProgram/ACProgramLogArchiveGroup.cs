@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization;
 using gip.core.autocomponent;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.archiver
 {
@@ -289,8 +290,8 @@ namespace gip.core.archiver
             try
             {
                 //db.ExecuteStoreCommand(C_RemoveRefFromPropertyLog, acProgram.ACProgramID);
-                db.ExecuteStoreCommand(C_RemoveParentRefsOfProgramLog, acProgram.ACProgramID);
-                db.ExecuteStoreCommand(C_DeleteProgramLogs, acProgram.ACProgramID);
+                db.Database.ExecuteSqlRaw(C_RemoveParentRefsOfProgramLog, acProgram.ACProgramID);
+                db.Database.ExecuteSqlRaw(C_DeleteProgramLogs, acProgram.ACProgramID);
             }
             catch (Exception ec)
             {
@@ -348,8 +349,8 @@ namespace gip.core.archiver
             try
             {
                 //db.ExecuteStoreCommand(C_RemoveRefFromPropertyLog, acProgram.ACProgramID);
-                db.ExecuteStoreCommand(C_RemoveParentRefsOfProgramLog, acProgram.ACProgramID);
-                db.ExecuteStoreCommand(C_DeleteProgramLogs, acProgram.ACProgramID);
+                db.Database.ExecuteSqlRaw(C_RemoveParentRefsOfProgramLog, acProgram.ACProgramID);
+                db.Database.ExecuteSqlRaw(C_DeleteProgramLogs, acProgram.ACProgramID);
                 MsgWithDetails msg = db.ACSaveChanges();
                 if (msg != null)
                 {
@@ -483,7 +484,7 @@ namespace gip.core.archiver
                             {
                                 if (String.IsNullOrEmpty(log.XMLConfig))
                                     log.ACProperties.Serialize();
-                                db.AddToACProgramLog(log);
+                                db.ACProgramLog.Add(log);
                             }
                         }
                         MsgWithDetails msg = db.ACSaveChanges();
@@ -644,7 +645,7 @@ namespace gip.core.archiver
 
             try
             {
-                db.ExecuteStoreCommand("delete MsgAlarmLog from MsgAlarmLog al inner join ACProgramLog pl on pl.ACProgramLogID = al.ACProgramLogID inner join ACProgram p on p.ACProgramID = pl.ACProgramID where pl.ACProgramID = {0}", acProgram.ACProgramID);
+                db.Database.ExecuteSqlRaw("delete MsgAlarmLog from MsgAlarmLog al inner join ACProgramLog pl on pl.ACProgramLogID = al.ACProgramLogID inner join ACProgram p on p.ACProgramID = pl.ACProgramID where pl.ACProgramID = {0}", acProgram.ACProgramID);
             }
             catch (Exception ec)
             {
@@ -680,7 +681,7 @@ namespace gip.core.archiver
                         foreach (MsgAlarmLog log in logs)
                         {
                             if (!db.MsgAlarmLog.Any(c => c.ACProgramLogID == log.ACProgramLogID))
-                                db.MsgAlarmLog.AddObject(log);
+                                db.MsgAlarmLog.Add(log);
                         }
                         Msg msg = db.ACSaveChanges();
                         if (msg != null)
