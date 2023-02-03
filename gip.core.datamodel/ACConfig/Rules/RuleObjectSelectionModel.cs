@@ -12,7 +12,31 @@ namespace gip.core.datamodel
         public string ConfigStoreURL { get; set; }
         public string PreACUrl { get; set; }
         public string PAFRulePropertyACUrl { get; set; }
-        public List<object> AvailableValues { get; set; }
-        public List<object> SelectedValues { get; set; }
+
+        private List<object> _AvailableValues;
+        public List<object> AvailableValues
+        {
+            get
+            {
+                return _AvailableValues;
+            }
+            set
+            {
+                _AvailableValues = value;
+            }
+        }
+
+        private List<object> _SelectedValues;
+        public List<object> SelectedValues 
+        {
+            get
+            {
+                return _SelectedValues;
+            }
+            set
+            {
+                _SelectedValues = value;
+            }
+        }
     }
 }

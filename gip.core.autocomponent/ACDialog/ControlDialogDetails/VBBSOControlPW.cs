@@ -858,8 +858,8 @@ namespace gip.core.autocomponent
                         InitRoutingValues();
                     else
                     {
-                        OnPropertyChanged("SelectedValues");
-                        OnPropertyChanged("AvailableValues");
+                        OnPropertyChanged(nameof(SelectedValues));
+                        OnPropertyChanged(nameof(AvailableValues));
                     }
                 }
             }
@@ -891,11 +891,12 @@ namespace gip.core.autocomponent
         {
             get
             {
-                if (RuleObjectSelection == null || CurrentPAFRulePropertyACUrl == null || CurrentRuleType == null) return null;
+                if (RuleObjectSelection == null || CurrentPAFRulePropertyACUrl == null || CurrentRuleType == null) 
+                    return null;
                 return RuleObjectSelection.FirstOrDefault(x =>
-                    x.PAFRulePropertyACUrl == CurrentPAFRulePropertyACUrl &&
-                    x.RuleInfo.ConfigStoreUrl == CurrentRuleType.ConfigStoreUrl &&
-                    x.RuleInfo.RuleType == CurrentRuleType.RuleType);
+                            x.PAFRulePropertyACUrl == CurrentPAFRulePropertyACUrl &&
+                            x.RuleInfo.ConfigStoreUrl == CurrentRuleType.ConfigStoreUrl &&
+                            x.RuleInfo.RuleType == CurrentRuleType.RuleType);
             }
         }
 
@@ -903,7 +904,8 @@ namespace gip.core.autocomponent
         {
             get
             {
-                if (RuleObjectSelected == null) return null;
+                if (RuleObjectSelected == null) 
+                    return null;
                 return RuleObjectSelected.AvailableValues;
             }
         }
@@ -912,14 +914,16 @@ namespace gip.core.autocomponent
         {
             get
             {
-                if (RuleObjectSelected == null) return null;
+                if (RuleObjectSelected == null) 
+                    return null;
                 return RuleObjectSelected.SelectedValues;
             }
         }
 
         public void LoadRuleObjectSelectItem()
         {
-            if (CurrentPAFRulePropertyACUrl == null || _CurrentRuleType == null) return;
+            if (CurrentPAFRulePropertyACUrl == null || _CurrentRuleType == null) 
+                return;
             if (RuleObjectSelected == null)
             {
                 var currentACClassWF = Database.ContextIPlus.ACClassWF.FirstOrDefault(x => x.ACClassWFID == _CurrentACClassWF.ACClassWFID);
@@ -1165,6 +1169,8 @@ namespace gip.core.autocomponent
             RuleValuesList = _RuleValuesList.ToList();
             RuleObjectSelected.AvailableValues = RuleValuesList.Select(x => x.Value).ToList();
             RuleObjectSelected.SelectedValues = RuleValuesList.Select(x => x.Value).ToList();
+            OnPropertyChanged(nameof(AvailableValues));
+            OnPropertyChanged(nameof(SelectedValues));
             _IsChangeRuleTypeLocked = false;
         }
 
@@ -1186,6 +1192,8 @@ namespace gip.core.autocomponent
                 RuleValuesList = _RuleValuesList.ToList();
                 RuleObjectSelected.AvailableValues = RuleValuesList.Select(x => x.Value).ToList();
                 RuleObjectSelected.SelectedValues = RuleValuesList.Select(x => x.Value).ToList();
+                OnPropertyChanged(nameof(AvailableValues));
+                OnPropertyChanged(nameof(SelectedValues));
             }
         }
 
@@ -1235,6 +1243,8 @@ namespace gip.core.autocomponent
 
             RuleObjectSelected.AvailableValues = RuleValuesList.Select(x => x.Value).ToList();
             RuleObjectSelected.SelectedValues = RuleValuesList.Select(x => x.Value).ToList();
+            OnPropertyChanged(nameof(AvailableValues));
+            OnPropertyChanged(nameof(SelectedValues));
             _IsChangeRuleTypeLocked = false;
         }
 
