@@ -32,7 +32,7 @@ namespace gip.core.reporthandler
         {
             if (!base.ACInit(startChildMode))
                 return false;
-            _ = _QueuedPrinting.ValueT;
+            _ = QueuedPrinting;
             return true;
         }
         #endregion
