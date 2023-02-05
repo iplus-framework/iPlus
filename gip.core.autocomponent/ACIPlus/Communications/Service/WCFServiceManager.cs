@@ -185,19 +185,20 @@ namespace gip.core.autocomponent
                 .UseNetTcp(NETTCP_PORT)
                 .Build();
 
-            ContractDescription cd = serviceHost.Description.Endpoints[0].Contract;
-            foreach (OperationDescription opDescr in cd.Operations)
-            {
-                foreach (IOperationBehavior behavior in opDescr.OperationBehaviors)
-                {
-                    if (behavior is DataContractSerializerOperationBehavior)
-                    {
-                        DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
-                        dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
-                        dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
-                    }
-                }
-            }
+            // TODO serviceHost must me started to get serviceHost
+            //ContractDescription cd = serviceHost.Description.Endpoints[0].Contract;
+            //foreach (OperationDescription opDescr in cd.Operations)
+            //{
+            //    foreach (IOperationBehavior behavior in opDescr.OperationBehaviors)
+            //    {
+            //        if (behavior is DataContractSerializerOperationBehavior)
+            //        {
+            //            DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
+            //            dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
+            //            dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
+            //        }
+            //    }
+            //}
 
             return result;
         }
@@ -225,7 +226,7 @@ namespace gip.core.autocomponent
                 _ACPDispatchPointsThread = null;
             }
             _ACPDispatchToProxies = null;
-            host.StopAsync();
+            _host.StopAsync();
 
             if (!base.ACDeInit(deleteACClassTask))
                 return false;
@@ -289,7 +290,7 @@ namespace gip.core.autocomponent
             get
             {
                 var engineProperty = _host.Services.GetType().GetField("_engine", BindingFlags.NonPublic | BindingFlags.Instance);
-                var engine = engineProperty.GetValue(host.Services);
+                var engine = engineProperty.GetValue(_host.Services);
                 var rootProperty = engine.GetType().GetProperty("Root");
                 var root = rootProperty.GetValue(engine);
                 var resolvedServiceProperty = root.GetType().GetProperty("ResolvedServices", BindingFlags.NonPublic | BindingFlags.Instance);

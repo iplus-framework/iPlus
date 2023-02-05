@@ -270,7 +270,7 @@ namespace gip.core.reporthandler
         public static List<PrinterInfo> GetPrintServers(Database database)
         {
             ACClass basePrintServerClass = database.GetACType(typeof(ACPrintServerBase));
-            IQueryable<ACClass> queryClasses = ACClassManager.s_cQry_GetAvailableModulesAsACClass(database, basePrintServerClass.ACIdentifier);
+            var queryClasses = ACClassManager.s_cQry_GetAvailableModulesAsACClass(database, basePrintServerClass.ACIdentifier);
             List<PrinterInfo> printServers = new List<PrinterInfo>();
             if (queryClasses != null && queryClasses.Any())
             {

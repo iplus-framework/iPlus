@@ -78,8 +78,8 @@ namespace gip.core.datamodel
                 (db, acClassWFID) =>
                     db.ACClassWF.Include("ACClassMethod")
                                 .Include("RefPAACClass")
-                                .Include("RefPAACClassMethod")
-                                .Include("RefPAACClassMethod.AttachedFromACClass")
+                                //.Include("RefPAACClassMethod")
+                                //.Include("RefPAACClassMethod.AttachedFromACClass")
                                 .Include("ACClassWF1_ParentACClassWF")
                                 .Include("ACClassWF_ParentACClassWF")
                                 .Include("PWACClass")

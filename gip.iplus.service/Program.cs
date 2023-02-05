@@ -1,9 +1,13 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging.Configuration;
+using Microsoft.Extensions.Logging.EventLog;
+using Microsoft.Extensions.Hosting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace gip.iplus.service
 {
@@ -44,12 +48,35 @@ namespace gip.iplus.service
         /// </summary>
         static void Main()
         {
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[] 
-			{ 
-				new Service1() 
-			};
-            ServiceBase.Run(ServicesToRun);
+   //         ServiceBase[] ServicesToRun;
+   //         ServicesToRun = new ServiceBase[] 
+			//{ 
+			//	new Service1() 
+			//};
+   //         ServiceBase.Run(ServicesToRun);
+
+            using IHost host = Host.CreateDefaultBuilder()
+            .UseWindowsService(options =>
+            {
+                options.ServiceName = ".iPlus Service";
+            })
+            .ConfigureServices(services =>
+            {
+                LoggerProviderOptions.RegisterProviderOptions<
+                    EventLogSettings, EventLogLoggerProvider>(services);
+
+                services.AddSingleton<Service1>();
+                services.AddHostedService<IPlusBackgroundService>();
+            })
+            .ConfigureLogging((context, logging) =>
+            {
+                // See: https://github.com/dotnet/runtime/issues/47303
+                logging.AddConfiguration(
+                    context.Configuration.GetSection("Logging"));
+            })
+            .Build();
+
+            //await host.RunAsync();
         }
     }
 }

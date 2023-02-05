@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CoreWCF;
+using System.ServiceModel;
 using gip.core.datamodel;
 
 namespace gip.core.autocomponent
