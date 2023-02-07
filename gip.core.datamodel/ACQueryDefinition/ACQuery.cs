@@ -118,18 +118,18 @@ namespace gip.core.datamodel
             {
                 if (acObject is DbContext)
                 {
-                    PropertyInfo pi = typeParent.GetProperty(childACUrl);
-                    if (pi != null)
-                    {
-                        return SearchWithEntitySQL<T>(acObject, queryDefinition, childACUrl, mergeOption);
-                    }
-                    else
-                    {
+                    //PropertyInfo pi = typeParent.GetProperty(childACUrl);
+                    //if (pi != null)
+                    //{
+                    //    return SearchWithEntitySQL<T>(acObject, queryDefinition, childACUrl, mergeOption);
+                    //}
+                    //else
+                    //{
                         IEnumerable<T> childProp = acObject.ACUrlCommand(childACUrl) as IEnumerable<T>;
                         if (childProp == null)
                             return null;
                         return SearchWithDynQuery<T>(childProp, queryDefinition, mergeOption);
-                    }
+                    //}
                 }
                 else
                 {

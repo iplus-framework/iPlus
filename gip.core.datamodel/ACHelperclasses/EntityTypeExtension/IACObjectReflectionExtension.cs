@@ -1033,7 +1033,7 @@ namespace gip.core.datamodel
             Type typeString = typeof(String);
             Type typeGuid = typeof(Guid);
             //IEnumerable<string> modifiedProps = ose.GetModifiedProperties();
-            IEnumerable<string> modifiedProps = database.Entry(ose).Properties.Where(c => c.IsModified).Select(c => c.Metadata.Name);
+            IEnumerable<string> modifiedProps = ose.Properties.Where(c => c.IsModified).Select(c => c.Metadata.Name);
             Type entityType = acObject.GetType();
             foreach (ACClassProperty acClassProperty in entitySchema.Properties)
             {
