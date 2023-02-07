@@ -667,9 +667,14 @@ namespace gip.core.layoutengine
                             {
                                 if (dsSource != null && dsSource is IACEntityObjectContext)
                                 {
-                                    var result = (dsSource as IACEntityObjectContext).ACSelect(ACQueryDefinition, dsPath);
+                                    IQueryable result = (dsSource as IACEntityObjectContext).ACSelect(ACQueryDefinition, dsPath);
                                     Binding binding = new Binding();
-                                    binding.Source = result;
+                                    System.Collections.ArrayList arrayList = new System.Collections.ArrayList();
+                                    foreach (object entry in result)
+                                    {
+                                        arrayList.Add(entry);
+                                    }
+                                    binding.Source = arrayList;
                                     SetBinding(ComboBox.ItemsSourceProperty, binding);
                                     //this.ItemsSource = result;
                                 }
