@@ -588,9 +588,9 @@ namespace gip.core.layoutengine
 
         private void cyclickDataRefreshDispTimer_CanExecute(object sender, EventArgs e)
         {
-            if(DataContext != null && DataContext is ICyclicRefreshableCollection)
+            if(ItemsSource != null && ItemsSource is ICyclicRefreshableCollection)
             {
-                (DataContext as ICyclicRefreshableCollection).Refresh();
+                (ItemsSource as ICyclicRefreshableCollection).Refresh();
             }
         }
 
