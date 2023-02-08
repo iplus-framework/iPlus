@@ -1,7 +1,10 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using gip.core.autocomponent;
+using gip.core.datamodel;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -11,24 +14,41 @@ namespace gip.iplus.service
 {
     internal class IPlusBackgroundService : BackgroundService
     {
-        private readonly Service1 iPlusService;
+        private readonly iPlusService _iPlusService;
         private readonly ILogger<IPlusBackgroundService> _logger;
 
         public IPlusBackgroundService(
-            Service1 jokeService,
+            iPlusService iPlusService,
             ILogger<IPlusBackgroundService> logger) =>
-            (iPlusService, _logger) = (jokeService, logger);
+            (_iPlusService, _logger) = (iPlusService, logger);
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            string[] args = System.Environment.GetCommandLineArgs();
             try
             {
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    //string joke = _jokeService.GetJoke();
-                    //_logger.LogWarning("{Joke}", joke);
+                    AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(iPlusService.CurrentDomain_UnhandledException);
 
-                    //await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                    if (args == null || args.Count() <= 0)
+                        args = System.Environment.GetCommandLineArgs();
+                    CommandLineHelper cmdHelper = new CommandLineHelper(args);
+                    bool WCFOff = args.Contains("/WCFOff");
+                    bool simulation = args.Contains("/Simulation");
+
+                    ACStartUpRoot startUpManager = new ACStartUpRoot();
+
+                    String errorMsg = "";
+                    // 1. Datenbankverbindung herstellen
+                    if (startUpManager.LoginUser(cmdHelper.LoginUser, cmdHelper.LoginPassword, false, false, ref errorMsg, WCFOff, simulation) != 1)
+                    {
+                        string source = "Vario iPlus Service";
+                        if (!EventLog.SourceExists(source))
+                            EventLog.CreateEventSource(source, "Application");
+                        EventLog.WriteEntry(source, errorMsg, EventLogEntryType.Information);
+                        return;
+                    }
                 }
             }
             catch (Exception ex)
@@ -43,7 +63,10 @@ namespace gip.iplus.service
                 //
                 // In order for the Windows Service Management system to leverage configured
                 // recovery options, we need to terminate the process with a non-zero exit code.
-                Environment.Exit(1);
+                
+                if (ACRoot.SRoot != null)
+                    ACRoot.SRoot.ACDeInit();
+                System.Environment.Exit(1);
             }
         }
     }

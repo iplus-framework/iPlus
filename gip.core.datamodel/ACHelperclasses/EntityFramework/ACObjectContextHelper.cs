@@ -420,7 +420,7 @@ namespace gip.core.datamodel
                  * dass nur die Änderungen im Objektkontext beibehalten werden, 
                  * selbst wenn in der Datenquelle andere Änderungen durchgeführt wurden.
                  */
-                _ObjectContext.AcceptAllChanges();
+                _ObjectContext.ChangeTracker.AcceptAllChanges();
             }
             catch (Exception e)
             {

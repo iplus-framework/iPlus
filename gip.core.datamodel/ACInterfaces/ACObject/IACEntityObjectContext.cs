@@ -175,15 +175,12 @@ namespace gip.core.datamodel
 
         int SaveChanges();
         int SaveChanges(bool acceptAllChangesOnSuccess);
-        void AcceptAllChanges();
 
 #nullable enable
         event EventHandler<SavingChangesEventArgs>? SavingChanges;
         event EventHandler<SavedChangesEventArgs>? SavedChanges;
         event EventHandler<SaveChangesFailedEventArgs>? SaveChangesFailed;
         DatabaseFacade Database { get; }
-
-        void DbContextDispose();
 
         EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
         EntityEntry Entry(object entity);

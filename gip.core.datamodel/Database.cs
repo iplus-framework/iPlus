@@ -1502,12 +1502,7 @@ namespace gip.core.datamodel
 
         public void AcceptAllChanges()
         {
-            ((IACEntityObjectContext)ContextIPlus).AcceptAllChanges();
-        }
-
-        public void DbContextDispose()
-        {
-            ((IACEntityObjectContext)ContextIPlus).DbContextDispose();
+            ((IACEntityObjectContext)ContextIPlus).ChangeTracker.AcceptAllChanges();
         }
 
         public DbSet<TEntity> CreateObjectSet<TEntity>() where TEntity : class

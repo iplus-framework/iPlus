@@ -100,7 +100,7 @@ namespace gip.core.datamodel
         /// <param name="entityKeyValues">The key-value pairs that identify the entity</param>
         public EntityKey(string qualifiedEntitySetName, IEnumerable<KeyValuePair<string, object>> entityKeyValues)
         {
-            _entityContainerName = qualifiedEntitySetName;
+            GetEntitySetName(qualifiedEntitySetName, out _entitySetName, out _entityContainerName);
             CheckKeyValues(entityKeyValues, out _keyNames, out _singletonKeyValue, out _compositeKeyValues);
             AssertCorrectState(null, false);
             _isLocked = true;
@@ -711,24 +711,43 @@ namespace gip.core.datamodel
 
         internal static void GetEntitySetName(string qualifiedEntitySetName, out string entitySet, out string container)
         {
+            if (qualifiedEntitySetName.Contains("Version") && qualifiedEntitySetName.Contains("Culture") && qualifiedEntitySetName.Contains("PublicKeyToken"))
+            {
+                string[] resultQfName = qualifiedEntitySetName.Split(',');
+                qualifiedEntitySetName = resultQfName[0];
+            }
+
             entitySet = null;
             container = null;
             EntityUtil.CheckStringArgument(qualifiedEntitySetName, "qualifiedEntitySetName");
 
             string[] result = qualifiedEntitySetName.Split('.');
-            if (result.Length != 2)
+            if (result.Length != 4 && result.Length != 2)
             {
-                throw new NotImplementedException();
+                throw new ArgumentException("InvalidQualifiedEntitySetName", qualifiedEntitySetName);
             }
 
-            container = result[0];
-            entitySet = result[1];
+            if (result.Length == 4)
+            {
+                container = result[0] + "." + result[1] + "." + result[2];
+                entitySet = result[3];
+            }
+            else if (result.Length == 2)
+            {
+                container = result[0];
+                entitySet = result[1];
+            }
+            else
+            {
+                throw new ArgumentException("InvalidQualifiedEntitySetName", qualifiedEntitySetName);
+            }
+
 
             // both parts must be non-empty
             if (container == null || container.Length == 0 ||
                 entitySet == null || entitySet.Length == 0)
             {
-                throw new NotImplementedException();
+                throw new ArgumentException("InvalidQualifiedEntitySetName", qualifiedEntitySetName);
             }
 
         }
@@ -798,7 +817,7 @@ namespace gip.core.datamodel
         {
             if (_isLocked || instance != null)
             {
-                throw new NotImplementedException();
+                throw new ArgumentException("Cannot change Entity Key", instance.ToString());
             }
         }
 
@@ -1294,6 +1313,10 @@ namespace gip.core.datamodel
             CheckArgumentNull(value, parameterName);
 
             // Throw ArgumentException when string is empty
+            if (value.Length == 0)
+            {
+                throw new ArgumentException("InvalidStringArgument", parameterName);
+            }
 
         }
 

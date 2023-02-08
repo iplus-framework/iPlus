@@ -532,7 +532,7 @@ namespace gip.core.datamodel
                             try
                             {
                                 _TransScope.Complete();
-                                Context.AcceptAllChanges();
+                                Context.ChangeTracker.AcceptAllChanges();
                                 _TransScope.Dispose();
                             }
                             catch (Exception ex)
