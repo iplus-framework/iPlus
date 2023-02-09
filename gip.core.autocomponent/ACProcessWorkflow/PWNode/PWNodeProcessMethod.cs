@@ -151,7 +151,8 @@ namespace gip.core.autocomponent
                 {
                     ACMethod paramMethod = null;
                     PAProcessModule module = null;
-                    if (ParentPWGroup.NeedsAProcessModule && (ACOperationMode == ACOperationModes.Live || ACOperationMode == ACOperationModes.Simulation))
+                    if (   ParentPWGroup.NeedsAProcessModule 
+                        && (ACOperationMode == ACOperationModes.Live || ACOperationMode == ACOperationModes.Simulation))
                         module = ParentPWGroup.AccessedProcessModule;
                     if (ParentPWGroup.WithoutPM || RunWithoutInvokingFunction)
                     {
@@ -165,7 +166,7 @@ namespace gip.core.autocomponent
                         return;
                     }
                     // Testmode
-                    else
+                    else if (module == null)
                         module = ParentPWGroup.ProcessModuleForTestmode;
 
                     if (module == null)
