@@ -753,8 +753,18 @@ namespace gip.core.autocomponent
             if (isForEditor)
                 return true;
 
-            if (edge.IsDeactivated || (edge.SourceParent is PAClassPhysicalBase && ((PAClassPhysicalBase)edge.SourceParent).OperatingMode.ValueT > Global.OperatingMode.Manual) ||
-                                      (edge.TargetParent is PAClassPhysicalBase && ((PAClassPhysicalBase)edge.TargetParent).OperatingMode.ValueT > Global.OperatingMode.Manual))
+            if (   edge.IsDeactivated 
+                || (    edge.SourceParent is PAClassPhysicalBase 
+                    && (   ((PAClassPhysicalBase)edge.SourceParent).OperatingMode.ValueT == Global.OperatingMode.Maintenance 
+                        || (!_ACRoutingService.IgnoreInactiveModules && ((PAClassPhysicalBase)edge.SourceParent).OperatingMode.ValueT == Global.OperatingMode.Inactive)
+                       )
+                   )
+                || (    edge.TargetParent is PAClassPhysicalBase 
+                    && (   ((PAClassPhysicalBase)edge.TargetParent).OperatingMode.ValueT == Global.OperatingMode.Maintenance
+                        || (!_ACRoutingService.IgnoreInactiveModules && ((PAClassPhysicalBase)edge.TargetParent).OperatingMode.ValueT == Global.OperatingMode.Inactive)
+                       )
+                   )
+                )
                 return false;
 
             BitAccessForAllocatedByWay allocatedSource = edge.IsAllocated(false);

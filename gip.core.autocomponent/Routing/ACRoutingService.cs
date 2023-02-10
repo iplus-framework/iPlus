@@ -251,6 +251,13 @@ namespace gip.core.autocomponent
             set;
         }
 
+        [ACPropertyInfo(true, 302, "", "en{'Ignore inactive modules'}de{'Ignoriere inaktive Module'}")]
+        public bool IgnoreInactiveModules
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Methods
