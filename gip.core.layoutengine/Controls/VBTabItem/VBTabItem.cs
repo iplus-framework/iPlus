@@ -491,15 +491,23 @@ namespace gip.core.layoutengine
         protected override void OnSelected(RoutedEventArgs e)
         {
             base.OnSelected(e);
-            if (!string.IsNullOrEmpty(VBContent))
+            try
             {
-                if (ContextACObject != null)
-                    (ContextACObject as IACComponent).ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.TabItemActivated));
+                if (!string.IsNullOrEmpty(VBContent))
+                {
+                    if (ContextACObject != null)
+                        (ContextACObject as IACComponent).ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.TabItemActivated));
+                }
+                this.Focus();
+                UIElement parentUIElement = Parent as UIElement;
+                if (parentUIElement != null)
+                    parentUIElement.Focus();
             }
-            this.Focus();
-            UIElement parentUIElement = Parent as UIElement;
-            if (parentUIElement != null)
-                parentUIElement.Focus();
+            catch(Exception ec)
+            {
+                
+            }
+            
         }
 
         public static readonly DependencyProperty WithVisibleCloseButtonProperty
