@@ -547,11 +547,11 @@ namespace gip.core.communication
         {
             try
             {
-                DirectoryInfo targetDir = new DirectoryInfo(ForwardDir);
+                DirectoryInfo targetDir = new DirectoryInfo(destinationDirPath);
                 if (!targetDir.Exists)
                     return false;
                 FileInfo fileInfo = new FileInfo(file);
-                string destinationFilePath = Path.Combine(ForwardDir, fileInfo.Name);
+                string destinationFilePath = Path.Combine(destinationDirPath, fileInfo.Name);
                 File.Copy(file, destinationFilePath);
                 return true;
             }
