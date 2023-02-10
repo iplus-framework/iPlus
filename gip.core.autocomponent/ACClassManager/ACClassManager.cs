@@ -86,18 +86,18 @@ namespace gip.core.autocomponent
         #region PrecompiledQueries
 
 
-        static readonly Func<Database, String, IQueryable<ACClass>> s_compiledQueryACClass_AssemblyName =
-        EF.CompileQuery<Database, String, IQueryable<ACClass>>(
+        static readonly Func<Database, String, IEnumerable<ACClass>> s_compiledQueryACClass_AssemblyName =
+        EF.CompileQuery<Database, String, IEnumerable<ACClass>>(
             (ctx, assemblyQualifiedName) => from c in ctx.ACClass where c.AssemblyQualifiedName == assemblyQualifiedName select c
         );
 
-        static readonly Func<Database, String, IQueryable<ACClass>> s_compiledQueryACClass_StartsWithAssemblyName =
-        EF.CompileQuery<Database, String, IQueryable<ACClass>>(
+        static readonly Func<Database, String, IEnumerable<ACClass>> s_compiledQueryACClass_StartsWithAssemblyName =
+        EF.CompileQuery<Database, String, IEnumerable<ACClass>>(
             (ctx, name) => from c in ctx.ACClass where c.AssemblyQualifiedName.StartsWith(name) select c
         );
 
-        static readonly Func<Database, IQueryable<ACClass>> s_compiledQueryACClass_CheckAssemblyName =
-        EF.CompileQuery<Database, IQueryable<ACClass>>(
+        static readonly Func<Database, IEnumerable<ACClass>> s_compiledQueryACClass_CheckAssemblyName =
+        EF.CompileQuery<Database, IEnumerable<ACClass>>(
             (ctx) => from c in ctx.ACClass where !string.IsNullOrEmpty(c.AssemblyQualifiedName) && !c.AssemblyQualifiedName.StartsWith("System.") select c
         );
 
@@ -107,8 +107,8 @@ namespace gip.core.autocomponent
            (ctx, acIdentifier) => ctx.ACClass.Where(c => c.ACIdentifier == acIdentifier).FirstOrDefault()
        );
 
-        public static readonly Func<Database, string, IQueryable<gip.core.datamodel.ACClass>> s_cQry_GetAvailableModulesAsACClass =
-        EF.CompileQuery<Database, string, IQueryable<gip.core.datamodel.ACClass>>(
+        public static readonly Func<Database, string, IEnumerable<gip.core.datamodel.ACClass>> s_cQry_GetAvailableModulesAsACClass =
+        EF.CompileQuery<Database, string, IEnumerable<gip.core.datamodel.ACClass>>(
             (ctx, acIdentifier) => ctx.ACClass.Where(c => (c.BasedOnACClassID.HasValue
                                                             && (c.ACClass1_BasedOnACClass.ACIdentifier == acIdentifier // 1. Ableitungsstufe
                                                                 || (c.ACClass1_BasedOnACClass.BasedOnACClassID.HasValue

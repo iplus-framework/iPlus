@@ -440,8 +440,8 @@ namespace gip.core.datamodel
             );
 
 
-        public static readonly Func<Database, Guid, string, IQueryable<ACProgramLog>> s_cQry_PreviousLogsFromParent =
-             EF.CompileQuery<Database, Guid, string, IQueryable<ACProgramLog>>(
+        public static readonly Func<Database, Guid, string, IEnumerable<ACProgramLog>> s_cQry_PreviousLogsFromParent =
+             EF.CompileQuery<Database, Guid, string, IEnumerable<ACProgramLog>>(
                 (db, parentACProgramLogID, acUrl) =>
                     db.ACProgramLog
                     .Include("ACProgram")
@@ -450,8 +450,8 @@ namespace gip.core.datamodel
                     .OrderBy(c => c.InsertDate)
             );
 
-        public static readonly Func<Database, Guid, string, IQueryable<ACProgramLog>> s_cQry_PreviousLogsFromProgram =
-             EF.CompileQuery<Database, Guid, string, IQueryable<ACProgramLog>>(
+        public static readonly Func<Database, Guid, string, IEnumerable<ACProgramLog>> s_cQry_PreviousLogsFromProgram =
+             EF.CompileQuery<Database, Guid, string, IEnumerable<ACProgramLog>>(
                 (db, programID, acUrl) =>
                     db.ACProgramLog
                     .Include("ACProgram")
@@ -826,7 +826,7 @@ namespace gip.core.datamodel
             using (Database db = new Database())
             {
                 var query = s_cQry_PreviousLogsFromParent(db, parentProgramLogID, acUrl);
-                query.SetMergeOption(MergeOption.NoTracking);
+                query.AsQueryable().SetMergeOption(MergeOption.NoTracking);
                 return query.ToArray();
             }
         }
@@ -842,7 +842,7 @@ namespace gip.core.datamodel
             using (Database db = new Database())
             {
                 var query = s_cQry_PreviousLogsFromProgram(db, programID, acUrl);
-                query.SetMergeOption(MergeOption.NoTracking);
+                query.AsQueryable().SetMergeOption(MergeOption.NoTracking);
                 return query.ToArray();
             }
         }

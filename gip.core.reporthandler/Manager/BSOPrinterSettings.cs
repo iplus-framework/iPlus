@@ -572,7 +572,7 @@ namespace gip.core.reporthandler
             List<ACItem> machines = new List<ACItem>();
 
             ACClass acClassPAClassPhysicalBase = database.GetACType(typeof(PAProcessModule));
-            IQueryable<ACClass> queryClasses = ACClassManager.s_cQry_GetAvailableModulesAsACClass(database, acClassPAClassPhysicalBase.ACIdentifier);
+            IEnumerable<ACClass> queryClasses = ACClassManager.s_cQry_GetAvailableModulesAsACClass(database, acClassPAClassPhysicalBase.ACIdentifier);
             if (queryClasses != null && queryClasses.Any())
             {
                 ACClass[] aCClasses = queryClasses.ToArray();

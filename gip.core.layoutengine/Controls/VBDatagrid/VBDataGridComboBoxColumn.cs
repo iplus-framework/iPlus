@@ -338,7 +338,12 @@ namespace gip.core.layoutengine
                     var lastPath = dscPath.Substring(9);
                     var database = pi.GetValue(dscSource, null) as IACObject;
                     var result = database.ACSelect(ACQueryDefinition, lastPath);
-                    this.ItemsSource = result;
+                    System.Collections.ArrayList arrayList = new System.Collections.ArrayList();
+                    foreach (object entry in result)
+                    {
+                        arrayList.Add(entry);
+                    }
+                    this.ItemsSource = arrayList;
                 }
                 else
                 {

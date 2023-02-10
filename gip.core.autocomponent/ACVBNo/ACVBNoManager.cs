@@ -33,13 +33,13 @@ namespace gip.core.autocomponent
         #endregion
 
         #region PrecompiledQueries
-        static readonly Func<Database, Guid, IQueryable<VBNoConfiguration>> s_cQry_ConfigID =
-            EF.CompileQuery<Database, Guid, IQueryable<VBNoConfiguration>>(
+        static readonly Func<Database, Guid, IEnumerable<VBNoConfiguration>> s_cQry_ConfigID =
+            EF.CompileQuery<Database, Guid, IEnumerable<VBNoConfiguration>>(
             (ctx, noConfigurationID) => from c in ctx.VBNoConfiguration where c.VBNoConfigurationID == noConfigurationID select c
         );
 
-        static readonly Func<Database, string, IQueryable<VBNoConfiguration>> s_cQry_ConfigName =
-            EF.CompileQuery<Database, string, IQueryable<VBNoConfiguration>>(
+        static readonly Func<Database, string, IEnumerable<VBNoConfiguration>> s_cQry_ConfigName =
+            EF.CompileQuery<Database, string, IEnumerable<VBNoConfiguration>>(
             (ctx, noConfigurationName) => from c in ctx.VBNoConfiguration where c.VBNoConfigurationName == noConfigurationName select c
         );
         #endregion
@@ -191,7 +191,8 @@ namespace gip.core.autocomponent
         {
             if (database == null)
                 return null;
-            IQueryable<VBNoConfiguration> query = (IQueryable<VBNoConfiguration>)s_cQry_ConfigName(database, entityNoFieldName);
+            //Originally query was of IQueryable Type but EF.CompileQuery's return type cannot be of IQueryable, use IEnumerable instead. https://github.com/dotnet/efcore/issues/27657
+            IEnumerable<VBNoConfiguration> query = s_cQry_ConfigName(database, entityNoFieldName);
             //query.MergeOption = MergeOption.OverwriteChanges;
             return query.FirstOrDefault();
         }
@@ -200,7 +201,8 @@ namespace gip.core.autocomponent
         {
             if (database == null)
                 return null;
-            IQueryable<VBNoConfiguration> query = (IQueryable<VBNoConfiguration>)s_cQry_ConfigID(database, noConfigurationID);
+            //Originally query was of IQueryable Type but EF.CompileQuery's return type cannot be of IQueryable, use IEnumerable instead. https://github.com/dotnet/efcore/issues/27657
+            IEnumerable<VBNoConfiguration> query = s_cQry_ConfigID(database, noConfigurationID);
             //query.MergeOption = MergeOption.OverwriteChanges;
             return query.FirstOrDefault();
         }

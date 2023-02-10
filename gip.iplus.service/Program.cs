@@ -61,6 +61,11 @@ using Microsoft.Extensions.Logging;
 
 //}
 
+
+
+// The sevice is created by using method sc.exe create "iPlusService" binpath="Path/to/exe"
+// The service is started by using method sc. exe start "iPlusService" 
+
 using IHost host = Host.CreateDefaultBuilder()
     .UseWindowsService(options =>
     {

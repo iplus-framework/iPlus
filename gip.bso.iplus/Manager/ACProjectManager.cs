@@ -99,8 +99,8 @@ namespace gip.bso.iplus
 
 
         #region Precompiled-Queries
-        protected static readonly Func<Database, Guid, IQueryable<ACClass>> s_cQry_AllClassesFromProject =
-        EF.CompileQuery<Database, Guid, IQueryable<ACClass>>(
+        protected static readonly Func<Database, Guid, IEnumerable<ACClass>> s_cQry_AllClassesFromProject =
+        EF.CompileQuery<Database, Guid, IEnumerable<ACClass>>(
             (ctx, projectID) => ctx.ACClass.Include("ACClass1_ParentACClass")
                                  .Include("ACClass_ParentACClass")
                                  .Include("ACClass1_BasedOnACClass")
@@ -109,8 +109,8 @@ namespace gip.bso.iplus
                                  .Where(c => c.ACProjectID == projectID)
         );
 
-        protected static readonly Func<Database, Guid, IQueryable<ACClass>> s_cQry_AllClassesFromProjectWithRights =
-        EF.CompileQuery<Database, Guid, IQueryable<ACClass>>(
+        protected static readonly Func<Database, Guid, IEnumerable<ACClass>> s_cQry_AllClassesFromProjectWithRights =
+        EF.CompileQuery<Database, Guid, IEnumerable<ACClass>>(
             (ctx, projectID) => ctx.ACClass.Include("ACClass1_ParentACClass")
                                  .Include("ACClass_ParentACClass")
                                  .Include("ACClass1_BasedOnACClass")

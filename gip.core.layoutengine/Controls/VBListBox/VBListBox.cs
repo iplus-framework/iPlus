@@ -521,8 +521,13 @@ namespace gip.core.layoutengine
                     if (dsSource != null && dsSource is IACEntityObjectContext)
                     {
                         var result = (dsSource as IACEntityObjectContext).ACSelect(ACQueryDefinition, dsPath);
+                        System.Collections.ArrayList arrayList = new System.Collections.ArrayList();
+                        foreach (object entry in result)
+                        {
+                            arrayList.Add(entry);
+                        }
                         Binding binding = new Binding();
-                        binding.Source = result;
+                        binding.Source = arrayList;
                         SetBinding(ComboBox.ItemsSourceProperty, binding);
                     }
                     else
@@ -533,7 +538,12 @@ namespace gip.core.layoutengine
                         var lastPath = dsPath.Substring(9);
                         var database = pi.GetValue(dsSource, null) as IACObject;
                         var result = database.ACSelect(ACQueryDefinition, lastPath);
-                        this.ItemsSource = result;
+                        System.Collections.ArrayList arrayList = new System.Collections.ArrayList();
+                        foreach (object entry in result)
+                        {
+                            arrayList.Add(entry);
+                        }
+                        this.ItemsSource = arrayList;
                     }
                 }
             }

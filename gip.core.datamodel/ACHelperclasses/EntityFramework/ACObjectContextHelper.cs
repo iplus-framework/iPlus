@@ -300,10 +300,8 @@ namespace gip.core.datamodel
                     var entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Modified);
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
-                        var entityList = entityStateList.Where(c => c.Entity != null).Select(c => c.Entity);
-                        if (entityList != null && entityList.Any())
                             // Leere liste indem die Objekte aus der Datenbank nachgeladen werden (StoreWins)
-                            foreach (EntityEntry entity in entityList)
+                            foreach (EntityEntry entity in entityStateList)
                                 entity.Reload();
                     }
                 }

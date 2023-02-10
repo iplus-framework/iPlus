@@ -320,11 +320,11 @@ namespace gip.bso.iplus
         }
 
         [ACPropertyList(526, "BSOMenuOrganization")]
-        public IEnumerable<ACClassDesign> MenuList
+        public List<ACClassDesign> MenuList
         {
             get
             {
-                return Db.ACClassDesign.Where(c => c.ACKindIndex == (short)Global.ACKinds.DSDesignMenu);
+                return Db.ACClassDesign.Where(c => c.ACKindIndex == (short)Global.ACKinds.DSDesignMenu).ToList();
             }
         }
         #endregion
@@ -392,11 +392,11 @@ namespace gip.bso.iplus
         /// </summary>
         /// <value>The AC project list.</value>
         [ACPropertyList(515, "ACProject")]
-        public IEnumerable<ACProject> ACProjectList
+        public List<ACProject> ACProjectList
         {
             get
             {
-                return Db.ACProject.OrderBy(c => c.ACProjectTypeIndex).ThenBy(c => c.ACProjectName);
+                return Db.ACProject.OrderBy(c => c.ACProjectTypeIndex).ThenBy(c => c.ACProjectName).ToList();
             }
         }
 
