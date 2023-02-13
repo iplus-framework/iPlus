@@ -6,7 +6,7 @@ using gip.core.datamodel;
 
 namespace gip.core.datamodel;
 
-public partial class VBLanguage : VBEntityObject
+public partial class VBLanguage : VBEntityObject , IInsertInfo, IUpdateInfo
 {
 
     public VBLanguage()

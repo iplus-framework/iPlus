@@ -140,17 +140,17 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.ACChangeLog_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.ACChangeLog_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACChangeLog_ACClass");
 
-            entity.HasOne(d => d.ACClassProperty).WithMany(p => p.ACChangeLog_ACClassProperty)
+           entity.HasOne(d => d.ACClassProperty).WithMany(p => p.ACChangeLog_ACClassProperty)
                 .HasForeignKey(d => d.ACClassPropertyID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACChangeLog_ACClassProperty");
 
-            entity.HasOne(d => d.VBUser).WithMany(p => p.ACChangeLog_VBUser)
+           entity.HasOne(d => d.VBUser).WithMany(p => p.ACChangeLog_VBUser)
                 .HasForeignKey(d => d.VBUserID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACChangeLog_VBUser");
@@ -211,28 +211,28 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-            entity.HasOne(d => d.ACPackage).WithMany(p => p.ACClass_ACPackage)
+           entity.HasOne(d => d.ACPackage).WithMany(p => p.ACClass_ACPackage)
                 .HasForeignKey(d => d.ACPackageID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClass_ACPackageID");
 
-            entity.HasOne(d => d.ACProject).WithMany(p => p.ACClass_ACProject)
+           entity.HasOne(d => d.ACProject).WithMany(p => p.ACClass_ACProject)
                 .HasForeignKey(d => d.ACProjectID)
                 .HasConstraintName("FK_ACClass_ACProjectID");
 
-            entity.HasOne(d => d.ACClass1_BasedOnACClass).WithMany(p => p.ACClass_BasedOnACClass)
+           entity.HasOne(d => d.ACClass1_BasedOnACClass).WithMany(p => p.ACClass_BasedOnACClass)
                 .HasForeignKey(d => d.BasedOnACClassID)
                 .HasConstraintName("FK_ACClass_BasedOnACClassID");
 
-            entity.HasOne(d => d.ACClass1_PWACClass).WithMany(p => p.ACClass_PWACClass)
+           entity.HasOne(d => d.ACClass1_PWACClass).WithMany(p => p.ACClass_PWACClass)
                 .HasForeignKey(d => d.PWACClassID)
                 .HasConstraintName("FK_ACClass_PWACClassID");
 
-            entity.HasOne(d => d.ACClass1_PWMethodACClass).WithMany(p => p.ACClass_PWMethodACClass)
+           entity.HasOne(d => d.ACClass1_PWMethodACClass).WithMany(p => p.ACClass_PWMethodACClass)
                 .HasForeignKey(d => d.PWMethodACClassID)
                 .HasConstraintName("FK_ACClass_PWMethodACClassID");
 
-            entity.HasOne(d => d.ACClass1_ParentACClass).WithMany(p => p.ACClass_ParentACClass)
+           entity.HasOne(d => d.ACClass1_ParentACClass).WithMany(p => p.ACClass_ParentACClass)
                 .HasForeignKey(d => d.ParentACClassID)
                 .HasConstraintName("FK_ACClass_ParentACClassID");
         });
@@ -269,19 +269,19 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassConfig_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassConfig_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .HasConstraintName("FK_ACClassConfig_ACClassID");
 
-            entity.HasOne(d => d.ACClassPropertyRelation).WithMany(p => p.ACClassConfig_ACClassPropertyRelation)
+           entity.HasOne(d => d.ACClassPropertyRelation).WithMany(p => p.ACClassConfig_ACClassPropertyRelation)
                 .HasForeignKey(d => d.ACClassPropertyRelationID)
                 .HasConstraintName("FK_ACClassConfig_ACClassPropertyRelationID");
 
-            entity.HasOne(d => d.ACClassConfig1_ParentACClassConfig).WithMany(p => p.ACClassConfig_ParentACClassConfig)
+           entity.HasOne(d => d.ACClassConfig1_ParentACClassConfig).WithMany(p => p.ACClassConfig_ParentACClassConfig)
                 .HasForeignKey(d => d.ParentACClassConfigID)
                 .HasConstraintName("FK_ACClassConfig_ParentACClassConfigID");
 
-            entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.ACClassConfig_ValueTypeACClass)
+           entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.ACClassConfig_ValueTypeACClass)
                 .HasForeignKey(d => d.ValueTypeACClassID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassConfig_ValueTypeACClassID");
@@ -324,11 +324,11 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassDesign_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassDesign_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .HasConstraintName("FK_ACClassDesign_ACClassID");
 
-            entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.ACClassDesign_ValueTypeACClass)
+           entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.ACClassDesign_ValueTypeACClass)
                 .HasForeignKey(d => d.ValueTypeACClassID)
                 .HasConstraintName("FK_ACClassDesign_ValueTypeACClassID");
         });
@@ -356,7 +356,7 @@ public partial class iPlusV4Context : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassMessage_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassMessage_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .HasConstraintName("FK_ACClassMessage_ACClassID");
         });
@@ -404,23 +404,23 @@ public partial class iPlusV4Context : DbContext
             entity.Property(e => e.XMLConfig).HasColumnType("text");
             entity.Property(e => e.XMLDesign).HasColumnType("text");
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassMethod_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassMethod_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .HasConstraintName("FK_ACClassMethod_ACClassID");
 
-            entity.HasOne(d => d.AttachedFromACClass).WithMany(p => p.ACClassMethod_AttachedFromACClass)
+           entity.HasOne(d => d.AttachedFromACClass).WithMany(p => p.ACClassMethod_AttachedFromACClass)
                 .HasForeignKey(d => d.AttachedFromACClassID)
                 .HasConstraintName("FK_ACClassMethod_AttachedFromACClass");
 
-            entity.HasOne(d => d.PWACClass).WithMany(p => p.ACClassMethod_PWACClass)
+           entity.HasOne(d => d.PWACClass).WithMany(p => p.ACClassMethod_PWACClass)
                 .HasForeignKey(d => d.PWACClassID)
                 .HasConstraintName("FK_ACClassMethod_PWACClassID");
 
-            entity.HasOne(d => d.ACClassMethod1_ParentACClassMethod).WithMany(p => p.ACClassMethod_ParentACClassMethod)
+           entity.HasOne(d => d.ACClassMethod1_ParentACClassMethod).WithMany(p => p.ACClassMethod_ParentACClassMethod)
                 .HasForeignKey(d => d.ParentACClassMethodID)
                 .HasConstraintName("FK_ACClassMethod_ParentACClassMethodID");
 
-            entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.ACClassMethod_ValueTypeACClass)
+           entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.ACClassMethod_ValueTypeACClass)
                 .HasForeignKey(d => d.ValueTypeACClassID)
                 .HasConstraintName("FK_ACClassMethod_ValueTypeACClassID");
         });
@@ -449,29 +449,29 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-            entity.HasOne(d => d.ACClassMethod).WithMany(p => p.ACClassMethodConfig_ACClassMethod)
+           entity.HasOne(d => d.ACClassMethod).WithMany(p => p.ACClassMethodConfig_ACClassMethod)
                 .HasForeignKey(d => d.ACClassMethodID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassMethodConfig_ACClassMethodID");
 
-            entity.HasOne(d => d.ACClassWF).WithMany(p => p.ACClassMethodConfig_ACClassWF)
+           entity.HasOne(d => d.ACClassWF).WithMany(p => p.ACClassMethodConfig_ACClassWF)
                 .HasForeignKey(d => d.ACClassWFID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_ACClassMethodConfig_ACClassWFID");
 
-            entity.HasOne(d => d.ACClassMethodConfig1_ParentACClassMethodConfig).WithMany(p => p.ACClassMethodConfig_ParentACClassMethodConfig)
+           entity.HasOne(d => d.ACClassMethodConfig1_ParentACClassMethodConfig).WithMany(p => p.ACClassMethodConfig_ParentACClassMethodConfig)
                 .HasForeignKey(d => d.ParentACClassMethodConfigID)
                 .HasConstraintName("FK_ACClassMethodConfig_ParentACClassMethodConfigID");
 
-            entity.HasOne(d => d.VBiACClass).WithMany(p => p.ACClassMethodConfig_VBiACClass)
+           entity.HasOne(d => d.VBiACClass).WithMany(p => p.ACClassMethodConfig_VBiACClass)
                 .HasForeignKey(d => d.VBiACClassID)
                 .HasConstraintName("FK_ACClassMethodConfig_VBiACClassID");
 
-            entity.HasOne(d => d.VBiACClassPropertyRelation).WithMany(p => p.ACClassMethodConfig_VBiACClassPropertyRelation)
+           entity.HasOne(d => d.VBiACClassPropertyRelation).WithMany(p => p.ACClassMethodConfig_VBiACClassPropertyRelation)
                 .HasForeignKey(d => d.VBiACClassPropertyRelationID)
                 .HasConstraintName("FK_ACClassMethodConfig_VBiACClassPropertyRelationID");
 
-            entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.ACClassMethodConfig_ValueTypeACClass)
+           entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.ACClassMethodConfig_ValueTypeACClass)
                 .HasForeignKey(d => d.ValueTypeACClassID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassMethodConfig_ValueTypeACClassID");
@@ -527,24 +527,24 @@ public partial class iPlusV4Context : DbContext
             entity.Property(e => e.XMLConfig).HasColumnType("text");
             entity.Property(e => e.XMLValue).HasColumnType("text");
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassProperty_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassProperty_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .HasConstraintName("FK_ACClassProperty_ACClassID");
 
-            entity.HasOne(d => d.ACClassProperty1_BasedOnACClassProperty).WithMany(p => p.ACClassProperty_BasedOnACClassProperty)
+           entity.HasOne(d => d.ACClassProperty1_BasedOnACClassProperty).WithMany(p => p.ACClassProperty_BasedOnACClassProperty)
                 .HasForeignKey(d => d.BasedOnACClassPropertyID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassProperty_BasedOnACClassPropertyID");
 
-            entity.HasOne(d => d.ConfigACClass).WithMany(p => p.ACClassProperty_ConfigACClass)
+           entity.HasOne(d => d.ConfigACClass).WithMany(p => p.ACClassProperty_ConfigACClass)
                 .HasForeignKey(d => d.ConfigACClassID)
                 .HasConstraintName("FK_ACClassProperty_ConfigACClassID");
 
-            entity.HasOne(d => d.ACClassProperty1_ParentACClassProperty).WithMany(p => p.ACClassProperty_ParentACClassProperty)
+           entity.HasOne(d => d.ACClassProperty1_ParentACClassProperty).WithMany(p => p.ACClassProperty_ParentACClassProperty)
                 .HasForeignKey(d => d.ParentACClassPropertyID)
                 .HasConstraintName("FK_ACClassProperty_ParentACClassPropertyID");
 
-            entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.ACClassProperty_ValueTypeACClass)
+           entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.ACClassProperty_ValueTypeACClass)
                 .HasForeignKey(d => d.ValueTypeACClassID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassProperty_ValueTypeACClassID");
@@ -584,20 +584,20 @@ public partial class iPlusV4Context : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.XMLValue).HasColumnType("text");
 
-            entity.HasOne(d => d.SourceACClass).WithMany(p => p.ACClassPropertyRelation_SourceACClass)
+           entity.HasOne(d => d.SourceACClass).WithMany(p => p.ACClassPropertyRelation_SourceACClass)
                 .HasForeignKey(d => d.SourceACClassID)
                 .HasConstraintName("FK_ACClassPropertyRelation_SourceACClassID");
 
-            entity.HasOne(d => d.SourceACClassProperty).WithMany(p => p.ACClassPropertyRelation_SourceACClassProperty)
+           entity.HasOne(d => d.SourceACClassProperty).WithMany(p => p.ACClassPropertyRelation_SourceACClassProperty)
                 .HasForeignKey(d => d.SourceACClassPropertyID)
                 .HasConstraintName("FK_ACClassPropertyRelation_SourceACClassPropertyID");
 
-            entity.HasOne(d => d.TargetACClass).WithMany(p => p.ACClassPropertyRelation_TargetACClass)
+           entity.HasOne(d => d.TargetACClass).WithMany(p => p.ACClassPropertyRelation_TargetACClass)
                 .HasForeignKey(d => d.TargetACClassID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassPropertyRelation_TargetACClassID");
 
-            entity.HasOne(d => d.TargetACClassProperty).WithMany(p => p.ACClassPropertyRelation_TargetACClassProperty)
+           entity.HasOne(d => d.TargetACClassProperty).WithMany(p => p.ACClassPropertyRelation_TargetACClassProperty)
                 .HasForeignKey(d => d.TargetACClassPropertyID)
                 .HasConstraintName("FK_ACClassPropertyRelation_TargetACClassPropertyID");
         });
@@ -632,19 +632,19 @@ public partial class iPlusV4Context : DbContext
             entity.Property(e => e.XMLACMethod).IsUnicode(false);
             entity.Property(e => e.XMLConfig).HasColumnType("text");
 
-            entity.HasOne(d => d.ACProgram).WithMany(p => p.ACClassTask_ACProgram)
+           entity.HasOne(d => d.ACProgram).WithMany(p => p.ACClassTask_ACProgram)
                 .HasForeignKey(d => d.ACProgramID)
                 .HasConstraintName("FK_ACClassTask_ACProgramID");
 
-            entity.HasOne(d => d.ContentACClassWF).WithMany(p => p.ACClassTask_ContentACClassWF)
+           entity.HasOne(d => d.ContentACClassWF).WithMany(p => p.ACClassTask_ContentACClassWF)
                 .HasForeignKey(d => d.ContentACClassWFID)
                 .HasConstraintName("FK_ACClassTask_ContentACClassWFID");
 
-            entity.HasOne(d => d.ACClassTask1_ParentACClassTask).WithMany(p => p.ACClassTask_ParentACClassTask)
+           entity.HasOne(d => d.ACClassTask1_ParentACClassTask).WithMany(p => p.ACClassTask_ParentACClassTask)
                 .HasForeignKey(d => d.ParentACClassTaskID)
                 .HasConstraintName("FK_ACClassTask_ParentACClassTaskID");
 
-            entity.HasOne(d => d.TaskTypeACClass).WithMany(p => p.ACClassTask_TaskTypeACClass)
+           entity.HasOne(d => d.TaskTypeACClass).WithMany(p => p.ACClassTask_TaskTypeACClass)
                 .HasForeignKey(d => d.TaskTypeACClassID)
                 .HasConstraintName("FK_ACClassTask_TaskTypeACClassID");
         });
@@ -677,16 +677,16 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-            entity.HasOne(d => d.ACClassProperty).WithMany(p => p.ACClassTaskValue_ACClassProperty)
+           entity.HasOne(d => d.ACClassProperty).WithMany(p => p.ACClassTaskValue_ACClassProperty)
                 .HasForeignKey(d => d.ACClassPropertyID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassTaskValue_ACClassPropertyID");
 
-            entity.HasOne(d => d.ACClassTask).WithMany(p => p.ACClassTaskValue_ACClassTask)
+           entity.HasOne(d => d.ACClassTask).WithMany(p => p.ACClassTaskValue_ACClassTask)
                 .HasForeignKey(d => d.ACClassTaskID)
                 .HasConstraintName("FK_ACClassTaskValue_ACClassTaskID");
 
-            entity.HasOne(d => d.VBUser).WithMany(p => p.ACClassTaskValue_VBUser)
+           entity.HasOne(d => d.VBUser).WithMany(p => p.ACClassTaskValue_VBUser)
                 .HasForeignKey(d => d.VBUserID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_ACClassTaskValue_VBUserID");
@@ -734,7 +734,7 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-            entity.HasOne(d => d.ACClassTaskValue).WithMany(p => p.ACClassTaskValuePos_ACClassTaskValue)
+           entity.HasOne(d => d.ACClassTaskValue).WithMany(p => p.ACClassTaskValuePos_ACClassTaskValue)
                 .HasForeignKey(d => d.ACClassTaskValueID)
                 .HasConstraintName("FK_ACClassTaskValuePos_ACClassTaskValueID");
         });
@@ -762,7 +762,7 @@ public partial class iPlusV4Context : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassText_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassText_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .HasConstraintName("FK_ACClassText_ACClassID");
         });
@@ -803,24 +803,24 @@ public partial class iPlusV4Context : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.ACClassMethod).WithMany(p => p.ACClassWF_ACClassMethod)
+           entity.HasOne(d => d.ACClassMethod).WithMany(p => p.ACClassWF_ACClassMethod)
                 .HasForeignKey(d => d.ACClassMethodID)
                 .HasConstraintName("FK_ACClassWF_ACClassMethodID");
 
-            entity.HasOne(d => d.PWACClass).WithMany(p => p.ACClassWF_PWACClass)
+           entity.HasOne(d => d.PWACClass).WithMany(p => p.ACClassWF_PWACClass)
                 .HasForeignKey(d => d.PWACClassID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassWF_PWACClassID");
 
-            entity.HasOne(d => d.ACClassWF1_ParentACClassWF).WithMany(p => p.ACClassWF_ParentACClassWF)
+           entity.HasOne(d => d.ACClassWF1_ParentACClassWF).WithMany(p => p.ACClassWF_ParentACClassWF)
                 .HasForeignKey(d => d.ParentACClassWFID)
                 .HasConstraintName("FK_ACClassWF_ParentACClassWFID");
 
-            entity.HasOne(d => d.RefPAACClass).WithMany(p => p.ACClassWF_RefPAACClass)
+           entity.HasOne(d => d.RefPAACClass).WithMany(p => p.ACClassWF_RefPAACClass)
                 .HasForeignKey(d => d.RefPAACClassID)
                 .HasConstraintName("FK_ACClassWF_RefPAACClassID");
 
-            entity.HasOne(d => d.RefPAACClassMethod).WithMany(p => p.ACClassWF_RefPAACClassMethod)
+           entity.HasOne(d => d.RefPAACClassMethod).WithMany(p => p.ACClassWF_RefPAACClassMethod)
                 .HasForeignKey(d => d.RefPAACClassMethodID)
                 .HasConstraintName("FK_ACClassWF_RefPAACClassMethodID");
         });
@@ -852,34 +852,34 @@ public partial class iPlusV4Context : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.ACClassMethod).WithMany(p => p.ACClassWFEdge_ACClassMethod)
+           entity.HasOne(d => d.ACClassMethod).WithMany(p => p.ACClassWFEdge_ACClassMethod)
                 .HasForeignKey(d => d.ACClassMethodID)
                 .HasConstraintName("FK_ACClassWFEdge_ACClassMethodID");
 
-            entity.HasOne(d => d.SourceACClassMethod).WithMany(p => p.ACClassWFEdge_SourceACClassMethod)
+           entity.HasOne(d => d.SourceACClassMethod).WithMany(p => p.ACClassWFEdge_SourceACClassMethod)
                 .HasForeignKey(d => d.SourceACClassMethodID)
                 .HasConstraintName("FK_ACClassWFEdge_SourceACClassMethodID");
 
-            entity.HasOne(d => d.SourceACClassProperty).WithMany(p => p.ACClassWFEdge_SourceACClassProperty)
+           entity.HasOne(d => d.SourceACClassProperty).WithMany(p => p.ACClassWFEdge_SourceACClassProperty)
                 .HasForeignKey(d => d.SourceACClassPropertyID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassWFEdge_SourceACClassPropertyID");
 
-            entity.HasOne(d => d.SourceACClassWF).WithMany(p => p.ACClassWFEdge_SourceACClassWF)
+           entity.HasOne(d => d.SourceACClassWF).WithMany(p => p.ACClassWFEdge_SourceACClassWF)
                 .HasForeignKey(d => d.SourceACClassWFID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassWFEdge_SourceACClassWFID");
 
-            entity.HasOne(d => d.TargetACClassMethod).WithMany(p => p.ACClassWFEdge_TargetACClassMethod)
+           entity.HasOne(d => d.TargetACClassMethod).WithMany(p => p.ACClassWFEdge_TargetACClassMethod)
                 .HasForeignKey(d => d.TargetACClassMethodID)
                 .HasConstraintName("FK_ACClassWFEdge_TargetACClassMethodID");
 
-            entity.HasOne(d => d.TargetACClassProperty).WithMany(p => p.ACClassWFEdge_TargetACClassProperty)
+           entity.HasOne(d => d.TargetACClassProperty).WithMany(p => p.ACClassWFEdge_TargetACClassProperty)
                 .HasForeignKey(d => d.TargetACClassPropertyID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassWFEdge_TargetACClassPropertyID");
 
-            entity.HasOne(d => d.TargetACClassWF).WithMany(p => p.ACClassWFEdge_TargetACClassWF)
+           entity.HasOne(d => d.TargetACClassWF).WithMany(p => p.ACClassWFEdge_TargetACClassWF)
                 .HasForeignKey(d => d.TargetACClassWFID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassWFEdge_TargetACClassWFID");
@@ -938,11 +938,11 @@ public partial class iPlusV4Context : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.XMLConfig).HasColumnType("text");
 
-            entity.HasOne(d => d.ProgramACClassMethod).WithMany(p => p.ACProgram_ProgramACClassMethod)
+           entity.HasOne(d => d.ProgramACClassMethod).WithMany(p => p.ACProgram_ProgramACClassMethod)
                 .HasForeignKey(d => d.ProgramACClassMethodID)
                 .HasConstraintName("FK_ACProgram_ProgramACClassMethodID");
 
-            entity.HasOne(d => d.WorkflowTypeACClass).WithMany(p => p.ACProgram_WorkflowTypeACClass)
+           entity.HasOne(d => d.WorkflowTypeACClass).WithMany(p => p.ACProgram_WorkflowTypeACClass)
                 .HasForeignKey(d => d.WorkflowTypeACClassID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACProgram_WorkflowTypeACClassID");
@@ -982,23 +982,23 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.ACProgramConfig_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.ACProgramConfig_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .HasConstraintName("FK_ACProgramConfig_ACClassID");
 
-            entity.HasOne(d => d.ACClassPropertyRelation).WithMany(p => p.ACProgramConfig_ACClassPropertyRelation)
+           entity.HasOne(d => d.ACClassPropertyRelation).WithMany(p => p.ACProgramConfig_ACClassPropertyRelation)
                 .HasForeignKey(d => d.ACClassPropertyRelationID)
                 .HasConstraintName("FK_ACProgramConfig_ACClassPropertyRelationID");
 
-            entity.HasOne(d => d.ACProgram).WithMany(p => p.ACProgramConfig_ACProgram)
+           entity.HasOne(d => d.ACProgram).WithMany(p => p.ACProgramConfig_ACProgram)
                 .HasForeignKey(d => d.ACProgramID)
                 .HasConstraintName("FK_ACProgramConfig_ACProgramID");
 
-            entity.HasOne(d => d.ACProgramConfig1_ParentACProgramConfig).WithMany(p => p.ACProgramConfig_ParentACProgramConfig)
+           entity.HasOne(d => d.ACProgramConfig1_ParentACProgramConfig).WithMany(p => p.ACProgramConfig_ParentACProgramConfig)
                 .HasForeignKey(d => d.ParentACProgramConfigID)
                 .HasConstraintName("FK_ACProgramConfig_ParentACProgramConfigID");
 
-            entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.ACProgramConfig_ValueTypeACClass)
+           entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.ACProgramConfig_ValueTypeACClass)
                 .HasForeignKey(d => d.ValueTypeACClassID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACProgramConfig_ValueTypeACClassID");
@@ -1036,11 +1036,11 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-            entity.HasOne(d => d.ACProgram).WithMany(p => p.ACProgramLog_ACProgram)
+           entity.HasOne(d => d.ACProgram).WithMany(p => p.ACProgramLog_ACProgram)
                 .HasForeignKey(d => d.ACProgramID)
                 .HasConstraintName("FK_ACProgramLog_ACProgramID");
 
-            entity.HasOne(d => d.ACProgramLog1_ParentACProgramLog).WithMany(p => p.ACProgramLog_ParentACProgramLog)
+           entity.HasOne(d => d.ACProgramLog1_ParentACProgramLog).WithMany(p => p.ACProgramLog_ParentACProgramLog)
                 .HasForeignKey(d => d.ParentACProgramLogID)
                 .HasConstraintName("FK_ACProgramLog_ParentACProgramLogID");
         });
@@ -1065,7 +1065,7 @@ public partial class iPlusV4Context : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.XMLConfig).HasColumnType("text");
 
-            entity.HasOne(d => d.ACProgramLog).WithMany(p => p.ACProgramLogTask_ACProgramLog)
+           entity.HasOne(d => d.ACProgramLog).WithMany(p => p.ACProgramLogTask_ACProgramLog)
                 .HasForeignKey(d => d.ACProgramLogID)
                 .HasConstraintName("FK_ACProgramLogTask_ACProgramLogID");
         });
@@ -1102,11 +1102,11 @@ public partial class iPlusV4Context : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.XMLConfig).HasColumnType("text");
 
-            entity.HasOne(d => d.ACProject1_BasedOnACProject).WithMany(p => p.ACProject_BasedOnACProject)
+           entity.HasOne(d => d.ACProject1_BasedOnACProject).WithMany(p => p.ACProject_BasedOnACProject)
                 .HasForeignKey(d => d.BasedOnACProjectID)
                 .HasConstraintName("FK_ACProject_BasedOnACProjectID");
 
-            entity.HasOne(d => d.PAAppClassAssignmentACClass).WithMany(p => p.ACProject_PAAppClassAssignmentACClass)
+           entity.HasOne(d => d.PAAppClassAssignmentACClass).WithMany(p => p.ACProject_PAAppClassAssignmentACClass)
                 .HasForeignKey(d => d.PAAppClassAssignmentACClassID)
                 .HasConstraintName("FK_ACProject_PAAppClassAssignmentACClassID");
         });
@@ -1121,11 +1121,11 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.ACPropertyLog_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.ACPropertyLog_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .HasConstraintName("FK_ACPropertyLog_ACClass");
 
-            entity.HasOne(d => d.ACClassProperty).WithMany(p => p.ACPropertyLog_ACClassProperty)
+           entity.HasOne(d => d.ACClassProperty).WithMany(p => p.ACPropertyLog_ACClassProperty)
                 .HasForeignKey(d => d.ACClassPropertyID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACPropertyLog_ACClassProperty");
@@ -1147,7 +1147,7 @@ public partial class iPlusV4Context : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.ACPropertyLogRule_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.ACPropertyLogRule_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .HasConstraintName("FK_ACPropertyLogRule_ACClass");
         });
@@ -1189,12 +1189,12 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.MsgAlarmLog_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.MsgAlarmLog_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_MsgAlarmLog_ACClass");
 
-            entity.HasOne(d => d.ACProgramLog).WithMany(p => p.MsgAlarmLog_ACProgramLog)
+           entity.HasOne(d => d.ACProgramLog).WithMany(p => p.MsgAlarmLog_ACProgramLog)
                 .HasForeignKey(d => d.ACProgramLogID)
                 .HasConstraintName("FK_MsgAlarmLog_ACProgramLogID");
         });
@@ -1231,19 +1231,19 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.VBConfig_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.VBConfig_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .HasConstraintName("FK_VBConfig_ACClassID");
 
-            entity.HasOne(d => d.ACClassPropertyRelation).WithMany(p => p.VBConfig_ACClassPropertyRelation)
+           entity.HasOne(d => d.ACClassPropertyRelation).WithMany(p => p.VBConfig_ACClassPropertyRelation)
                 .HasForeignKey(d => d.ACClassPropertyRelationID)
                 .HasConstraintName("FK_VBConfig_ACClassPropertyRelationID");
 
-            entity.HasOne(d => d.VBConfig1_ParentVBConfig).WithMany(p => p.VBConfig_ParentVBConfig)
+           entity.HasOne(d => d.VBConfig1_ParentVBConfig).WithMany(p => p.VBConfig_ParentVBConfig)
                 .HasForeignKey(d => d.ParentVBConfigID)
                 .HasConstraintName("FK_VBConfig_ParentVBConfigID");
 
-            entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.VBConfig_ValueTypeACClass)
+           entity.HasOne(d => d.ValueTypeACClass).WithMany(p => p.VBConfig_ValueTypeACClass)
                 .HasForeignKey(d => d.ValueTypeACClassID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_VBConfig_ValueTypeACClassID");
@@ -1289,23 +1289,23 @@ public partial class iPlusV4Context : DbContext
 
             entity.Property(e => e.VBGroupRightID).ValueGeneratedNever();
 
-            entity.HasOne(d => d.ACClassDesign).WithMany(p => p.VBGroupRight_ACClassDesign)
+           entity.HasOne(d => d.ACClassDesign).WithMany(p => p.VBGroupRight_ACClassDesign)
                 .HasForeignKey(d => d.ACClassDesignID)
                 .HasConstraintName("FK_VBGroupRight_ACClassDesignID");
 
-            entity.HasOne(d => d.ACClass).WithMany(p => p.VBGroupRight_ACClass)
+           entity.HasOne(d => d.ACClass).WithMany(p => p.VBGroupRight_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .HasConstraintName("FK_VBGroupRight_ACClassID");
 
-            entity.HasOne(d => d.ACClassMethod).WithMany(p => p.VBGroupRight_ACClassMethod)
+           entity.HasOne(d => d.ACClassMethod).WithMany(p => p.VBGroupRight_ACClassMethod)
                 .HasForeignKey(d => d.ACClassMethodID)
                 .HasConstraintName("FK_VBGroupRight_ACClassMethodID");
 
-            entity.HasOne(d => d.ACClassProperty).WithMany(p => p.VBGroupRight_ACClassProperty)
+           entity.HasOne(d => d.ACClassProperty).WithMany(p => p.VBGroupRight_ACClassProperty)
                 .HasForeignKey(d => d.ACClassPropertyID)
                 .HasConstraintName("FK_VBGroupRight_ACClassPropertyID");
 
-            entity.HasOne(d => d.VBGroup).WithMany(p => p.VBGroupRight_VBGroup)
+           entity.HasOne(d => d.VBGroup).WithMany(p => p.VBGroupRight_VBGroup)
                 .HasForeignKey(d => d.VBGroupID)
                 .HasConstraintName("FK_VBGroupRight_VBGroupID");
         });
@@ -1532,11 +1532,11 @@ public partial class iPlusV4Context : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.XMLConfig).HasColumnType("text");
 
-            entity.HasOne(d => d.MenuACClassDesign).WithMany(p => p.VBUser_MenuACClassDesign)
+           entity.HasOne(d => d.MenuACClassDesign).WithMany(p => p.VBUser_MenuACClassDesign)
                 .HasForeignKey(d => d.MenuACClassDesignID)
                 .HasConstraintName("FK_VBUser_MenuACClassDesignID");
 
-            entity.HasOne(d => d.VBLanguage).WithMany(p => p.VBUser_VBLanguage)
+           entity.HasOne(d => d.VBLanguage).WithMany(p => p.VBUser_VBLanguage)
                 .HasForeignKey(d => d.VBLanguageID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_VBUser_MDLanguageID");
@@ -1568,12 +1568,12 @@ public partial class iPlusV4Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-            entity.HasOne(d => d.ACClassDesign).WithMany(p => p.VBUserACClassDesign_ACClassDesign)
+           entity.HasOne(d => d.ACClassDesign).WithMany(p => p.VBUserACClassDesign_ACClassDesign)
                 .HasForeignKey(d => d.ACClassDesignID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_VBUserACClassDesign_ACClassDesignID");
 
-            entity.HasOne(d => d.VBUser).WithMany(p => p.VBUserACClassDesign_VBUser)
+           entity.HasOne(d => d.VBUser).WithMany(p => p.VBUserACClassDesign_VBUser)
                 .HasForeignKey(d => d.VBUserID)
                 .HasConstraintName("FK_VBUserACClassDesign_VBUserID");
         });
@@ -1598,11 +1598,11 @@ public partial class iPlusV4Context : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.ACProject).WithMany(p => p.VBUserACProject_ACProject)
+           entity.HasOne(d => d.ACProject).WithMany(p => p.VBUserACProject_ACProject)
                 .HasForeignKey(d => d.ACProjectID)
                 .HasConstraintName("FK_VBUserACProject_ACProjectID");
 
-            entity.HasOne(d => d.VBUser).WithMany(p => p.VBUserACProject_VBUser)
+           entity.HasOne(d => d.VBUser).WithMany(p => p.VBUserACProject_VBUser)
                 .HasForeignKey(d => d.VBUserID)
                 .HasConstraintName("FK_VBUserACProject_VBUserID");
         });
@@ -1627,11 +1627,11 @@ public partial class iPlusV4Context : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.VBGroup).WithMany(p => p.VBUserGroup_VBGroup)
+           entity.HasOne(d => d.VBGroup).WithMany(p => p.VBUserGroup_VBGroup)
                 .HasForeignKey(d => d.VBGroupID)
                 .HasConstraintName("FK_VBUserGroup_VBGroupID");
 
-            entity.HasOne(d => d.VBUser).WithMany(p => p.VBUserGroup_VBUser)
+           entity.HasOne(d => d.VBUser).WithMany(p => p.VBUserGroup_VBUser)
                 .HasForeignKey(d => d.VBUserID)
                 .HasConstraintName("FK_VBUserGroup_VBUserID");
         });
@@ -1668,7 +1668,7 @@ public partial class iPlusV4Context : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.VBUser).WithMany(p => p.VBUserInstance_VBUser)
+           entity.HasOne(d => d.VBUser).WithMany(p => p.VBUserInstance_VBUser)
                 .HasForeignKey(d => d.VBUserID)
                 .HasConstraintName("FK_VBUserInstance_VBUserID");
         });

@@ -6,7 +6,7 @@ using gip.core.datamodel;
 
 namespace gip.core.datamodel;
 
-public partial class MsgAlarmLog : VBEntityObject
+public partial class MsgAlarmLog : VBEntityObject , IInsertInfo, IUpdateInfo
 {
 
     public MsgAlarmLog()

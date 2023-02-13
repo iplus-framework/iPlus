@@ -47,37 +47,6 @@
     <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.AvalonEdit, Version=5.0.3.0, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\RoslynPad\ICSharpCode.AvalonEdit.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CodeAnalysis, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\RoslynPad\Microsoft.CodeAnalysis.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CodeAnalysis.Workspaces, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\RoslynPad\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Maps.MapControl.WPF">
-      <HintPath>Controls\VBBingMap\Microsoft.Maps.MapControl.WPF.dll</HintPath>
-    </Reference>
-    <Reference Include="QuickGraph, Version=3.2.40122.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\QuickGraph\QuickGraph.dll</HintPath>
-    </Reference>
-    <Reference Include="RoslynPad.Editor.Windows, Version=1.1.0.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\RoslynPad\RoslynPad.Editor.Windows.dll</HintPath>
-    </Reference>
-    <Reference Include="RoslynPad.Roslyn, Version=3.0.0.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\RoslynPad\RoslynPad.Roslyn.dll</HintPath>
-    </Reference>
-    <Reference Include="RoslynPad.Roslyn.Windows, Version=3.0.0.0, Culture=neutral, PublicKeyToken=fc793a00266884fb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\RoslynPad\RoslynPad.Roslyn.Windows.dll</HintPath>
-    </Reference>
     <Reference Update="System.Xml.Linq">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -208,7 +177,14 @@
     <Resource Include="Images\iPlusIconDesktop.ico" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AvalonEdit" Version="6.2.0.78" />
     <PackageReference Include="ClosedXML" Version="0.100.3" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.4.0" />
+    <PackageReference Include="QuickGraphCore" Version="1.0.0" />
+    <PackageReference Include="RoslynPad.Editor.Windows" Version="4.4.0" />
+    <PackageReference Include="RoslynPad.Roslyn" Version="4.4.0" />
+    <PackageReference Include="RoslynPad.Roslyn.Windows" Version="4.4.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="4.10.0" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="4.10.0" />

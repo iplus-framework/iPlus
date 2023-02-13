@@ -6,7 +6,7 @@ using gip.core.datamodel;
 
 namespace gip.core.datamodel;
 
-public partial class ACClassTaskValuePos : VBEntityObject
+public partial class ACClassTaskValuePos : VBEntityObject, IInsertInfo, IUpdateInfo
 {
 
     public ACClassTaskValuePos()

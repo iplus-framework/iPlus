@@ -69,7 +69,7 @@ namespace gip.core.datamodel
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassMethod.ClassName, "en{'Method'}de{'Methode'}", typeof(ACClassMethod), ACClassMethod.ClassName, Const.ACIdentifierPrefix, "SortIndex," + Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassMethod>) })]
     [NotMapped]
-    public partial class ACClassMethod : IACObjectEntityWithCheckTrans, IACEntityProperty, IACWorkflowDesignContext, IACType, IACClassEntity, IACConfigStore, ICloneable, IInsertInfo, IUpdateInfo
+    public partial class ACClassMethod : IACObjectEntityWithCheckTrans, IACEntityProperty, IACWorkflowDesignContext, IACType, IACClassEntity, IACConfigStore, ICloneable
     {
         public const string ClassName = "ACClassMethod";
         public readonly ACMonitorObject _10020_LockValue = new ACMonitorObject(10020);

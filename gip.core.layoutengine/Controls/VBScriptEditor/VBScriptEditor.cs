@@ -25,6 +25,7 @@ using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Editing;
 using Microsoft.CodeAnalysis.Rename;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 namespace gip.core.layoutengine
 {
@@ -220,7 +221,7 @@ namespace gip.core.layoutengine
                     try
                     {
                         if(_roslynHost != null)
-                            _docId = this.Initialize(_roslynHost, _classificationHighlightColors, AppContext.BaseDirectory, this.VBText);
+                            _docId = this.InitializeAsync(_roslynHost, _classificationHighlightColors, AppContext.BaseDirectory, this.VBText, SourceCodeKind.Regular).Result;
                     }
                     catch (Exception e)
                     {

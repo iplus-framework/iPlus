@@ -6,7 +6,7 @@ using gip.core.datamodel;
 
 namespace gip.core.datamodel;
 
-public partial class ACProject : VBEntityObject
+public partial class ACProject : VBEntityObject , IInsertInfo, IUpdateInfo
 {
 
     public ACProject()

@@ -6,7 +6,7 @@ using gip.core.datamodel;
 
 namespace gip.core.datamodel;
 
-public partial class VBSystem : VBEntityObject
+public partial class VBSystem : VBEntityObject 
 {
 
     public VBSystem()

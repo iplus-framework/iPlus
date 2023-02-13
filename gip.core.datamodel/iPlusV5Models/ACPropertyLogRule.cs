@@ -6,7 +6,7 @@ using gip.core.datamodel;
 
 namespace gip.core.datamodel;
 
-public partial class ACPropertyLogRule : VBEntityObject
+public partial class ACPropertyLogRule : VBEntityObject , IInsertInfo, IUpdateInfo
 {
 
     public ACPropertyLogRule()
