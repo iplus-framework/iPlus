@@ -18,6 +18,14 @@ namespace gip.core.autocomponent
 
         int CountRunDosings { get; }
 
+        IACContainerTNet<Int32> IterationCount { get; }
+
+        PWGroup ParentPWGroup { get; }
+
+        int ComponentsSeqFrom { get; }
+        
+        int ComponentsSeqTo { get; }
+
         bool HasDosedComponents(out double sumQuantity);
 
         bool HasOpenDosings(out double sumQuantity);
