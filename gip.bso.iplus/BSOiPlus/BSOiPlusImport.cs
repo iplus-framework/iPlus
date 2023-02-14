@@ -387,7 +387,9 @@ namespace gip.bso.iplus
 
         public bool IsEnabledInspectImport()
         {
-            return !BackgroundWorker.IsBusy && Directory.Exists(ImportSourcePath);
+            return 
+                !BackgroundWorker.IsBusy
+                && !string.IsNullOrEmpty(ImportSourcePath);
         }
 
         /// <summary>
@@ -566,7 +568,7 @@ namespace gip.bso.iplus
                 try
                 {
                     DateTime startTime = DateTime.Now;
-                    int gipNrFiles = CalculateGipFileNr();
+                    int gipNrFiles = CalculateGipFileNr(ImportSourcePath);
 
                     IResources rootResources = ResourceFactory.Factory(ImportSourcePath, this);
                     worker.ProgressInfo.OnlyTotalProgress = true;
@@ -625,26 +627,31 @@ namespace gip.bso.iplus
             return model;
         }
 
-        private int CalculateGipFileNr()
+        private int CalculateGipFileNr(string path)
         {
-            DirectoryInfo di = new DirectoryInfo(ImportSourcePath);
-            int nrFiles = di.GetFiles("*.gip", SearchOption.AllDirectories).Count();
-
-            try
+            int nrFiles = 0;
+            
+            if(Directory.Exists(path))
             {
-                List<string> zipNames = di.GetFiles("*.zip").Select(c => c.FullName).ToList();
-                foreach (var zipName in zipNames)
+                DirectoryInfo di = new DirectoryInfo(path);
+                nrFiles = di.GetFiles("*.gip", SearchOption.AllDirectories).Count();
+
+                try
                 {
-                    using (ZipArchive zip = ZipFile.OpenRead(zipName))
+                    List<string> zipNames = di.GetFiles("*.zip").Select(c => c.FullName).ToList();
+                    foreach (var zipName in zipNames)
                     {
-                        int countZipGipEntries = zip.Entries.Where(c => c.FullName.EndsWith(".gip")).Count();
-                        nrFiles = nrFiles + countZipGipEntries;
+                        using (ZipArchive zip = ZipFile.OpenRead(zipName))
+                        {
+                            int countZipGipEntries = zip.Entries.Where(c => c.FullName.EndsWith(".gip")).Count();
+                            nrFiles = nrFiles + countZipGipEntries;
+                        }
                     }
                 }
-            }
-            catch (Exception ec)
-            {
-                Root.Messages.LogException(GetACUrl(), "CalculateGipFileNr", ec);
+                catch (Exception ec)
+                {
+                    Root.Messages.LogException(GetACUrl(), "CalculateGipFileNr", ec);
+                }
             }
 
             return nrFiles;
