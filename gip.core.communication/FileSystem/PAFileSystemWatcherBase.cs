@@ -8,7 +8,6 @@ using gip.core.autocomponent;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
-using System.IO;
 
 namespace gip.core.communication
 {

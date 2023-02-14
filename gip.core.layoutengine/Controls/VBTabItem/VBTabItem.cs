@@ -503,11 +503,9 @@ namespace gip.core.layoutengine
                 if (parentUIElement != null)
                     parentUIElement.Focus();
             }
-            catch(Exception ec)
-            {
-                
-            }
-            
+            catch (Exception)
+            {                
+            }            
         }
 
         public static readonly DependencyProperty WithVisibleCloseButtonProperty
