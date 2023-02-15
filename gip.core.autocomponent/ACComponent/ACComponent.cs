@@ -3737,7 +3737,7 @@ namespace gip.core.autocomponent
                 _ACClassMethodsCached = ComponentClass.MethodsCached.ToArray();
         }
 
-        public virtual bool PreExecute(string acMethod)
+        public virtual bool PreExecute([CallerMemberName] string acMethod = "")
         {
             Msg result = PreExecuteMsg(acMethod);
             return result == null;
@@ -3745,14 +3745,14 @@ namespace gip.core.autocomponent
 
         public virtual Msg PreExecuteMsg(string acMethod)
         {
-            if (ScriptEngine == null)
+            if (ScriptEngine == null || String.IsNullOrEmpty(acMethod))
                 return null;
             return ScriptEngine.TriggerScript(ScriptTrigger.Type.PreExecute, acMethod, new object[] { this }) as Msg;
         }
 
-        public virtual void PostExecute(string acMethod)
+        public virtual void PostExecute([CallerMemberName] string acMethod = "")
         {
-            if (ScriptEngine == null)
+            if (ScriptEngine == null || String.IsNullOrEmpty(acMethod))
                 return;
             ScriptEngine.TriggerScript(ScriptTrigger.Type.PostExecute, acMethod, new object[] { this });
         }
