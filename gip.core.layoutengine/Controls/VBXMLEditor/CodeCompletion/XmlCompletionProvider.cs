@@ -8,6 +8,7 @@ using System.Linq;
 using System.Xml;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace gip.core.layoutengine.CodeCompletion
 {
@@ -118,21 +119,22 @@ namespace gip.core.layoutengine.CodeCompletion
         /// <param name="filename">The path of code completion schema file.</param>
         public void LoadSchema(string filename)
         {
-            Func<Exception> doLoad = () => LoadSchemaFromFile(filename);
-            doLoad.BeginInvoke((result) =>
-            {
-                var ex = doLoad.EndInvoke(result);
-                if (ex != null)
-                {
-                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null)
-                        datamodel.Database.Root.Messages.Warning(datamodel.Database.Root, "Fail to load schema. Exception: " + ex.Message, true);
+            Task.Run(() => { LoadSchemaFromFile(filename); });
+//            Func<Exception> doLoad = () => LoadSchemaFromFile(filename);
+//            doLoad.BeginInvoke((result) =>
+//            {
+//                var ex = doLoad.EndInvoke(result);
+//                if (ex != null)
+//                {
+//                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null)
+//                        datamodel.Database.Root.Messages.Warning(datamodel.Database.Root, "Fail to load schema. Exception: " + ex.Message, true);
 
 
-#if DEBUG
-                    Debug.WriteLine(ex);
-#endif
-                }
-            }, null);
+//#if DEBUG
+//                    Debug.WriteLine(ex);
+//#endif
+//                }
+//            }, null);
         }
 
         private Exception LoadSchemaFromFile(string filename)

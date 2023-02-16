@@ -31,6 +31,16 @@ namespace gip.core.datamodel
     /// </summary>
     public static class IACObjectReflectionExtension
     {
+        public static System.Collections.ArrayList AsArrayList(this IQueryable query)
+        {
+            System.Collections.ArrayList arrayList = new System.Collections.ArrayList();
+            foreach (object entry in query)
+            {
+                arrayList.Add(entry);
+            }
+            return arrayList;
+        }
+
         /// <summary>
         /// Gets the type of the AC.
         /// </summary>

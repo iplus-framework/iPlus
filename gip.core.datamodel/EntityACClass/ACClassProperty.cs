@@ -37,7 +37,7 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Property'}de{'Eigenschaft'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
     [ACPropertyEntity(1, Const.ACIdentifierPrefix, "en{'Property Name/ID'}de{'Eigenschaftsname/ID'}", "", "", true)]
     [ACPropertyEntity(3, "ACIdentifierKey", "en{'Key'}de{'Schlüssel'}", "", "", true)]
-    [ACPropertyEntity(4, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(4, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(5, Const.ACGroup, "en{'Group'}de{'Gruppe'}", "", "", true)]
     [ACPropertyEntity(6, Const.ACKindIndex, "en{'Propertytype'}de{'Eigenschaftsart'}", typeof(Global.ACKinds), Const.ContextDatabaseIPlus + "\\ACKindPSList", "", true, DefaultValue = (short)Global.ACKinds.PSPropertyExt)]
     [ACPropertyEntity(7, "ValueTypeACClass", "en{'Data Type'}de{'Datentyp'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]

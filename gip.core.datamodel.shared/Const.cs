@@ -52,6 +52,7 @@
         public const string QueryPrefix = "QRY";
         public const string MN_NewACObject = "NewACObject";
         public const string MN_GetEnumList = "GetEnumList";
+        public const string DBSetAsEnumerablePostfix = "List";
 
         public const string PN_KeyACUrl = "KeyACUrl";
         public const string PN_LocalConfigACUrl = "LocalConfigACUrl";

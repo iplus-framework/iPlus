@@ -669,12 +669,7 @@ namespace gip.core.layoutengine
                                 {
                                     IQueryable result = (dsSource as IACEntityObjectContext).ACSelect(ACQueryDefinition, dsPath);
                                     Binding binding = new Binding();
-                                    System.Collections.ArrayList arrayList = new System.Collections.ArrayList();
-                                    foreach (object entry in result)
-                                    {
-                                        arrayList.Add(entry);
-                                    }
-                                    binding.Source = arrayList;
+                                    binding.Source = result.AsArrayList();
                                     SetBinding(ComboBox.ItemsSourceProperty, binding);
                                     //this.ItemsSource = result;
                                 }
@@ -687,12 +682,7 @@ namespace gip.core.layoutengine
                                     var database = pi.GetValue(dsSource, null) as IACObject;
                                     IQueryable result = database.ACSelect(ACQueryDefinition, lastPath);
                                     Binding binding = new Binding();
-                                    System.Collections.ArrayList arrayList = new System.Collections.ArrayList();
-                                    foreach (object entry in result)
-                                    {
-                                        arrayList.Add(entry);
-                                    }
-                                    binding.Source = arrayList;
+                                    binding.Source = result.AsArrayList();
                                     SetBinding(ComboBox.ItemsSourceProperty, binding);
                                     //this.ItemsSource = result;
                                 }
