@@ -31,6 +31,20 @@ namespace gip.core.datamodel
     /// </summary>
     public static class IACObjectReflectionExtension
     {
+        public static void SynchronizeCollections<T>(this IEnumerable<T> newResult, ICollection<T> prevResult)
+        {
+            foreach (var oldEntry in prevResult.ToArray())
+            {
+                if (newResult.Contains(oldEntry))
+                    prevResult.Remove(oldEntry);
+            }
+            foreach (var newEntry in newResult)
+            {
+                if (prevResult.Contains(newEntry))
+                    prevResult.Add(newEntry);
+            }
+        }
+
         public static System.Collections.ArrayList AsArrayList(this IQueryable query)
         {
             System.Collections.ArrayList arrayList = new System.Collections.ArrayList();
