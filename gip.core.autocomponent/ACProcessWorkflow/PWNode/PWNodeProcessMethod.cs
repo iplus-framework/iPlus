@@ -100,6 +100,35 @@ namespace gip.core.autocomponent
         #endregion
 
         #region Virtual
+        public PAProcessFunction GetResponsibleProcessFunc()
+        {
+            core.datamodel.ACClassMethod refPAACClassMethod = RefACClassMethodOfContentWF;
+            if (refPAACClassMethod == null)
+                return null;
+            ACMethod acMethod = refPAACClassMethod.TypeACSignature();
+            if (acMethod == null)
+                return null;
+            PAProcessModule module = null;
+            if (ParentPWGroup.NeedsAProcessModule && (ACOperationMode == ACOperationModes.Live || ACOperationMode == ACOperationModes.Simulation))
+                module = ParentPWGroup.AccessedProcessModule;
+            // Testmode
+            else
+                module = ParentPWGroup.ProcessModuleForTestmode;
+            if (module == null)
+                return null;
+
+            return GetResponsibleProcessFunc(module, acMethod);
+        }
+
+        protected PAProcessFunction GetResponsibleProcessFunc(PAProcessModule module, ACMethod acMethod)
+        {
+            PAProcessFunction pAProcessFunction = null;
+            if (module == null)
+                return null;
+            module.GetACStateOfFunction(acMethod.ACIdentifier, out pAProcessFunction);
+            return pAProcessFunction;
+        }
+
         protected virtual PAProcessFunction CanStartProcessFunc(PAProcessModule module, ACMethod acMethod, params object[] acParameter)
         {
             PAProcessFunction pAProcessFunction = null;
