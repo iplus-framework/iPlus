@@ -16,7 +16,6 @@
 <#@ import namespace="Microsoft.EntityFrameworkCore.Design" #>
 <#@ import namespace="Microsoft.Extensions.DependencyInjection" #>
 <#
-    Debugger.Launch();
     if (EntityType.IsSimpleManyToManyJoinEntityType())
     {
         // Don't scaffold these
@@ -188,9 +187,17 @@ public partial class <#= EntityType.Name #> : VBEntityObject <#= setInsertUpdate
         set => _<#= relName #> = value;
     }
 
+    public bool <#= relName #>_IsLoaded
+    {
+        get
+        {
+            return <#= relName #> != null;
+        }
+    }
+
     public virtual CollectionEntry <#= relName + "Reference"#>
     {
-        get { return Context.Entry(this).Collection("<#= relName #>"); }
+        get { return Context.Entry(this).Collection(c => c.<#= relName #>); }
     }
 <#
         }
@@ -246,7 +253,7 @@ public partial class <#= EntityType.Name #> : VBEntityObject <#= setInsertUpdate
 
     public virtual CollectionEntry <#= skipNavigation.Name + "Reference"#>
     {
-        get { return Context.Entry(this).Collection("<#= skipNavigation.Name #>"); }
+        get { return Context.Entry(this).Collections(c => c.<#= skipNavigation.Name #>); }
     }
 <#
     }

@@ -110,8 +110,16 @@ public partial class VBLanguage : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBUser_VBLanguage = value;
     }
 
+    public bool VBUser_VBLanguage_IsLoaded
+    {
+        get
+        {
+            return VBUser_VBLanguage != null;
+        }
+    }
+
     public virtual CollectionEntry VBUser_VBLanguageReference
     {
-        get { return Context.Entry(this).Collection("VBUser_VBLanguage"); }
+        get { return Context.Entry(this).Collection(c => c.VBUser_VBLanguage); }
     }
 }

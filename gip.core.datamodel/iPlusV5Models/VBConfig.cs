@@ -131,6 +131,14 @@ public partial class VBConfig : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClass = value;
     }
 
+    public bool ACClass_IsLoaded
+    {
+        get
+        {
+            return ACClass != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassReference 
     {
         get { return Context.Entry(this).Reference("ACClass"); }
@@ -141,6 +149,14 @@ public partial class VBConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ACClassPropertyRelation);
         set => _ACClassPropertyRelation = value;
+    }
+
+    public bool ACClassPropertyRelation_IsLoaded
+    {
+        get
+        {
+            return ACClassPropertyRelation != null;
+        }
     }
 
     public virtual ReferenceEntry ACClassPropertyRelationReference 
@@ -155,9 +171,17 @@ public partial class VBConfig : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBConfig_ParentVBConfig = value;
     }
 
+    public bool VBConfig_ParentVBConfig_IsLoaded
+    {
+        get
+        {
+            return VBConfig_ParentVBConfig != null;
+        }
+    }
+
     public virtual CollectionEntry VBConfig_ParentVBConfigReference
     {
-        get { return Context.Entry(this).Collection("VBConfig_ParentVBConfig"); }
+        get { return Context.Entry(this).Collection(c => c.VBConfig_ParentVBConfig); }
     }
 
     private VBConfig _VBConfig1_ParentVBConfig;
@@ -165,6 +189,14 @@ public partial class VBConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _VBConfig1_ParentVBConfig);
         set => _VBConfig1_ParentVBConfig = value;
+    }
+
+    public bool VBConfig1_ParentVBConfig_IsLoaded
+    {
+        get
+        {
+            return VBConfig1_ParentVBConfig != null;
+        }
     }
 
     public virtual ReferenceEntry VBConfig1_ParentVBConfigReference 
@@ -177,6 +209,14 @@ public partial class VBConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ValueTypeACClass);
         set => _ValueTypeACClass = value;
+    }
+
+    public bool ValueTypeACClass_IsLoaded
+    {
+        get
+        {
+            return ValueTypeACClass != null;
+        }
     }
 
     public virtual ReferenceEntry ValueTypeACClassReference 

@@ -935,7 +935,7 @@ namespace gip.core.autocomponent
                 if (acClassTaskValue == null)
                 {
                     IEnumerable<ACClassTaskValue> acClassTaskValues = null;
-                    if (   contentTask.ACClassTaskValue_ACClassTaskReference.IsLoaded)
+                    if (   contentTask.ACClassTaskValue_ACClassTask_IsLoaded)
                         //|| contentTask.EntityState == System.Data.EntityState.Added)
                         acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
                     else

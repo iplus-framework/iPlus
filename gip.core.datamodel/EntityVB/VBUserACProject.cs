@@ -6,10 +6,10 @@ namespace gip.core.datamodel
 {
     /// <summary>Table that stores which application projects are assigned to a user.</summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Userproject'}de{'Benutzerprojekt'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(1, ACProject.ClassName, "en{'Project'}de{'Projekt'}", Const.ContextDatabase + "\\" + ACProject.ClassName, "", true)]
+    [ACPropertyEntity(1, ACProject.ClassName, "en{'Project'}de{'Projekt'}", Const.ContextDatabase + "\\" + ACProject.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(2, "IsClient", "en{'Client'}de{'Client'}","", "", true)]
     [ACPropertyEntity(3, "IsServer", "en{'Server'}de{'Server'}","", "", true)]
-    [ACPropertyEntity(9999, "VBUser", "en{'User'}de{'Benutzer'}", Const.ContextDatabase + "\\VBUser", "", true)]
+    [ACPropertyEntity(9999, "VBUser", "en{'User'}de{'Benutzer'}", Const.ContextDatabase + "\\VBUserList", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBUserACProject.ClassName, "en{'Userproject'}de{'Benutzerprojekt'}", typeof(VBUserACProject), VBUserACProject.ClassName, ACProject.ClassName + "\\ACProjectName", ACProject.ClassName + "\\ACProjectName")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBUserACProject>) })]
     [NotMapped]

@@ -41,7 +41,7 @@ public partial class ACChangeLog : VBEntityObject
     }
 
     Guid _EntityKey;
-    new public Guid EntityKey 
+    public Guid EntityKey 
     {
         get { return _EntityKey; }
         set { SetProperty<Guid>(ref _EntityKey, value); }
@@ -82,6 +82,14 @@ public partial class ACChangeLog : VBEntityObject
         set => _ACClass = value;
     }
 
+    public bool ACClass_IsLoaded
+    {
+        get
+        {
+            return ACClass != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassReference 
     {
         get { return Context.Entry(this).Reference("ACClass"); }
@@ -94,6 +102,14 @@ public partial class ACChangeLog : VBEntityObject
         set => _ACClassProperty = value;
     }
 
+    public bool ACClassProperty_IsLoaded
+    {
+        get
+        {
+            return ACClassProperty != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassPropertyReference 
     {
         get { return Context.Entry(this).Reference("ACClassProperty"); }
@@ -104,6 +120,14 @@ public partial class ACChangeLog : VBEntityObject
     { 
         get => LazyLoader.Load(this, ref _VBUser);
         set => _VBUser = value;
+    }
+
+    public bool VBUser_IsLoaded
+    {
+        get
+        {
+            return VBUser != null;
+        }
     }
 
     public virtual ReferenceEntry VBUserReference 

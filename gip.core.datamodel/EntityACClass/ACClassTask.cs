@@ -22,15 +22,15 @@ namespace gip.core.datamodel
     /// the last state of the process (all object states before the last shutdown) can be restored again.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACComp.-Instance DB'}de{'ACComp.-Instanz DB'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(1, "TaskTypeACClass", "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(1, "TaskTypeACClass", "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(2, Const.ACIdentifierPrefix, "en{'Task-ID'}de{'Task-ID'}", "", "", true)]
     [ACPropertyEntity(3, Const.ACState, "en{'State'}de{'Status'}", "", "", false)]
     [ACPropertyEntity(4, "IsTestmode", "en{'Testmode'}de{'Testmodus'}", "", "", false)]
     [ACPropertyEntity(5, "IsDynamic", "en{'Dynamic'}de{'Dynamisch'}", "", "", false)]
     [ACPropertyEntity(9999, "ACTaskTypeIndex", "en{'Index'}de{'Index'}", typeof(Global.ACTaskTypes), "", "", true)]
-    [ACPropertyEntity(9999, "ParentACClassTask", "en{'Parent Task'}de{'Elterntask'}", Const.ContextDatabaseIPlus + "\\" + ACClassTask.ClassName, "", true)]
-    [ACPropertyEntity(9999, "ContentACClassWF", "en{'Workflow Content'}de{'Workflowinhalt'}", Const.ContextDatabaseIPlus + "\\" + ACClassWF.ClassName, "", true)]
-    [ACPropertyEntity(9999, ACProgram.ClassName, "en{'Program'}de{'Programm'}", Const.ContextDatabaseIPlus + "\\" + ACProgram.ClassName, "", true)]
+    [ACPropertyEntity(9999, "ParentACClassTask", "en{'Parent Task'}de{'Elterntask'}", Const.ContextDatabaseIPlus + "\\" + ACClassTask.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(9999, "ContentACClassWF", "en{'Workflow Content'}de{'Workflowinhalt'}", Const.ContextDatabaseIPlus + "\\" + ACClassWF.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(9999, ACProgram.ClassName, "en{'Program'}de{'Programm'}", Const.ContextDatabaseIPlus + "\\" + ACProgram.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACDeleteAction("ACClassTask_ParentACClassTask", Global.DeleteAction.CascadeManual)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassTask.ClassName, "en{'Task'}de{'Task'}", typeof(ACClassTask), ACClassTask.ClassName, Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassTask>) })]
@@ -179,7 +179,7 @@ namespace gip.core.datamodel
             get
             {
                 ACClassTask parentTask = null;
-                if (ACClassTask1_ParentACClassTaskReference.IsLoaded)
+                if (ACClassTask1_ParentACClassTask_IsLoaded)
                     parentTask = (ACClassTask) ACClassTask1_ParentACClassTaskReference.CurrentValue;
                 if (parentTask == null)
                     parentTask = NewParentACClassTaskForQueue;

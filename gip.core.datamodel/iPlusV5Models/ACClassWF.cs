@@ -138,6 +138,14 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClassMethod = value;
     }
 
+    public bool ACClassMethod_IsLoaded
+    {
+        get
+        {
+            return ACClassMethod != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassMethodReference 
     {
         get { return Context.Entry(this).Reference("ACClassMethod"); }
@@ -150,9 +158,17 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClassMethodConfig_ACClassWF = value;
     }
 
+    public bool ACClassMethodConfig_ACClassWF_IsLoaded
+    {
+        get
+        {
+            return ACClassMethodConfig_ACClassWF != null;
+        }
+    }
+
     public virtual CollectionEntry ACClassMethodConfig_ACClassWFReference
     {
-        get { return Context.Entry(this).Collection("ACClassMethodConfig_ACClassWF"); }
+        get { return Context.Entry(this).Collection(c => c.ACClassMethodConfig_ACClassWF); }
     }
 
     private ICollection<ACClassTask> _ACClassTask_ContentACClassWF;
@@ -162,9 +178,17 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClassTask_ContentACClassWF = value;
     }
 
+    public bool ACClassTask_ContentACClassWF_IsLoaded
+    {
+        get
+        {
+            return ACClassTask_ContentACClassWF != null;
+        }
+    }
+
     public virtual CollectionEntry ACClassTask_ContentACClassWFReference
     {
-        get { return Context.Entry(this).Collection("ACClassTask_ContentACClassWF"); }
+        get { return Context.Entry(this).Collection(c => c.ACClassTask_ContentACClassWF); }
     }
 
     private ICollection<ACClassWFEdge> _ACClassWFEdge_SourceACClassWF;
@@ -174,9 +198,17 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClassWFEdge_SourceACClassWF = value;
     }
 
+    public bool ACClassWFEdge_SourceACClassWF_IsLoaded
+    {
+        get
+        {
+            return ACClassWFEdge_SourceACClassWF != null;
+        }
+    }
+
     public virtual CollectionEntry ACClassWFEdge_SourceACClassWFReference
     {
-        get { return Context.Entry(this).Collection("ACClassWFEdge_SourceACClassWF"); }
+        get { return Context.Entry(this).Collection(c => c.ACClassWFEdge_SourceACClassWF); }
     }
 
     private ICollection<ACClassWFEdge> _ACClassWFEdge_TargetACClassWF;
@@ -186,9 +218,17 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClassWFEdge_TargetACClassWF = value;
     }
 
+    public bool ACClassWFEdge_TargetACClassWF_IsLoaded
+    {
+        get
+        {
+            return ACClassWFEdge_TargetACClassWF != null;
+        }
+    }
+
     public virtual CollectionEntry ACClassWFEdge_TargetACClassWFReference
     {
-        get { return Context.Entry(this).Collection("ACClassWFEdge_TargetACClassWF"); }
+        get { return Context.Entry(this).Collection(c => c.ACClassWFEdge_TargetACClassWF); }
     }
 
     private ICollection<ACClassWF> _ACClassWF_ParentACClassWF;
@@ -198,9 +238,17 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClassWF_ParentACClassWF = value;
     }
 
+    public bool ACClassWF_ParentACClassWF_IsLoaded
+    {
+        get
+        {
+            return ACClassWF_ParentACClassWF != null;
+        }
+    }
+
     public virtual CollectionEntry ACClassWF_ParentACClassWFReference
     {
-        get { return Context.Entry(this).Collection("ACClassWF_ParentACClassWF"); }
+        get { return Context.Entry(this).Collection(c => c.ACClassWF_ParentACClassWF); }
     }
 
     private ACClass _PWACClass;
@@ -208,6 +256,14 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _PWACClass);
         set => _PWACClass = value;
+    }
+
+    public bool PWACClass_IsLoaded
+    {
+        get
+        {
+            return PWACClass != null;
+        }
     }
 
     public virtual ReferenceEntry PWACClassReference 
@@ -222,6 +278,14 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClassWF1_ParentACClassWF = value;
     }
 
+    public bool ACClassWF1_ParentACClassWF_IsLoaded
+    {
+        get
+        {
+            return ACClassWF1_ParentACClassWF != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassWF1_ParentACClassWFReference 
     {
         get { return Context.Entry(this).Reference("ACClassWF1_ParentACClassWF"); }
@@ -234,6 +298,14 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _RefPAACClass = value;
     }
 
+    public bool RefPAACClass_IsLoaded
+    {
+        get
+        {
+            return RefPAACClass != null;
+        }
+    }
+
     public virtual ReferenceEntry RefPAACClassReference 
     {
         get { return Context.Entry(this).Reference("RefPAACClass"); }
@@ -244,6 +316,14 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _RefPAACClassMethod);
         set => _RefPAACClassMethod = value;
+    }
+
+    public bool RefPAACClassMethod_IsLoaded
+    {
+        get
+        {
+            return RefPAACClassMethod != null;
+        }
     }
 
     public virtual ReferenceEntry RefPAACClassMethodReference 

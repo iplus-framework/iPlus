@@ -75,6 +75,14 @@ public partial class VBUserGroup : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBGroup = value;
     }
 
+    public bool VBGroup_IsLoaded
+    {
+        get
+        {
+            return VBGroup != null;
+        }
+    }
+
     public virtual ReferenceEntry VBGroupReference 
     {
         get { return Context.Entry(this).Reference("VBGroup"); }
@@ -85,6 +93,14 @@ public partial class VBUserGroup : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _VBUser);
         set => _VBUser = value;
+    }
+
+    public bool VBUser_IsLoaded
+    {
+        get
+        {
+            return VBUser != null;
+        }
     }
 
     public virtual ReferenceEntry VBUserReference 

@@ -21,8 +21,8 @@ namespace gip.core.datamodel
     /// ACClassTaskValue stores the values of persistable properties.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Taskvalue'}de{'Taskwert'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(1, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
-    [ACPropertyEntity(2, ACClassProperty.ClassName, "en{'Property'}de{'Eigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName, "", true)]
+    [ACPropertyEntity(1, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(2, ACClassProperty.ClassName, "en{'Property'}de{'Eigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9999, "User", "en{'User'}de{'Benutzer'}", Const.ContextDatabaseIPlus + "\\VBUser", "", true)]
     [ACPropertyEntity(9999, "XMLValue2", "en{'Value XML2'}de{'Wert XML2'}")]
     [ACPropertyEntity(9999, "XMLValue", "en{'Value XML'}de{'Wert XML'}")]

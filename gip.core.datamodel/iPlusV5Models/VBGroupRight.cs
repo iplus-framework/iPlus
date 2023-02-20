@@ -75,6 +75,14 @@ public partial class VBGroupRight : VBEntityObject
         set => _ACClass = value;
     }
 
+    public bool ACClass_IsLoaded
+    {
+        get
+        {
+            return ACClass != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassReference 
     {
         get { return Context.Entry(this).Reference("ACClass"); }
@@ -85,6 +93,14 @@ public partial class VBGroupRight : VBEntityObject
     { 
         get => LazyLoader.Load(this, ref _ACClassDesign);
         set => _ACClassDesign = value;
+    }
+
+    public bool ACClassDesign_IsLoaded
+    {
+        get
+        {
+            return ACClassDesign != null;
+        }
     }
 
     public virtual ReferenceEntry ACClassDesignReference 
@@ -99,6 +115,14 @@ public partial class VBGroupRight : VBEntityObject
         set => _ACClassMethod = value;
     }
 
+    public bool ACClassMethod_IsLoaded
+    {
+        get
+        {
+            return ACClassMethod != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassMethodReference 
     {
         get { return Context.Entry(this).Reference("ACClassMethod"); }
@@ -111,6 +135,14 @@ public partial class VBGroupRight : VBEntityObject
         set => _ACClassProperty = value;
     }
 
+    public bool ACClassProperty_IsLoaded
+    {
+        get
+        {
+            return ACClassProperty != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassPropertyReference 
     {
         get { return Context.Entry(this).Reference("ACClassProperty"); }
@@ -121,6 +153,14 @@ public partial class VBGroupRight : VBEntityObject
     { 
         get => LazyLoader.Load(this, ref _VBGroup);
         set => _VBGroup = value;
+    }
+
+    public bool VBGroup_IsLoaded
+    {
+        get
+        {
+            return VBGroup != null;
+        }
     }
 
     public virtual ReferenceEntry VBGroupReference 

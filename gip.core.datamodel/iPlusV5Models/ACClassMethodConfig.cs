@@ -145,6 +145,14 @@ public partial class ACClassMethodConfig : VBEntityObject , IInsertInfo, IUpdate
         set => _ACClassMethod = value;
     }
 
+    public bool ACClassMethod_IsLoaded
+    {
+        get
+        {
+            return ACClassMethod != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassMethodReference 
     {
         get { return Context.Entry(this).Reference("ACClassMethod"); }
@@ -155,6 +163,14 @@ public partial class ACClassMethodConfig : VBEntityObject , IInsertInfo, IUpdate
     { 
         get => LazyLoader.Load(this, ref _ACClassWF);
         set => _ACClassWF = value;
+    }
+
+    public bool ACClassWF_IsLoaded
+    {
+        get
+        {
+            return ACClassWF != null;
+        }
     }
 
     public virtual ReferenceEntry ACClassWFReference 
@@ -169,9 +185,17 @@ public partial class ACClassMethodConfig : VBEntityObject , IInsertInfo, IUpdate
         set => _ACClassMethodConfig_ParentACClassMethodConfig = value;
     }
 
+    public bool ACClassMethodConfig_ParentACClassMethodConfig_IsLoaded
+    {
+        get
+        {
+            return ACClassMethodConfig_ParentACClassMethodConfig != null;
+        }
+    }
+
     public virtual CollectionEntry ACClassMethodConfig_ParentACClassMethodConfigReference
     {
-        get { return Context.Entry(this).Collection("ACClassMethodConfig_ParentACClassMethodConfig"); }
+        get { return Context.Entry(this).Collection(c => c.ACClassMethodConfig_ParentACClassMethodConfig); }
     }
 
     private ACClassMethodConfig _ACClassMethodConfig1_ParentACClassMethodConfig;
@@ -179,6 +203,14 @@ public partial class ACClassMethodConfig : VBEntityObject , IInsertInfo, IUpdate
     { 
         get => LazyLoader.Load(this, ref _ACClassMethodConfig1_ParentACClassMethodConfig);
         set => _ACClassMethodConfig1_ParentACClassMethodConfig = value;
+    }
+
+    public bool ACClassMethodConfig1_ParentACClassMethodConfig_IsLoaded
+    {
+        get
+        {
+            return ACClassMethodConfig1_ParentACClassMethodConfig != null;
+        }
     }
 
     public virtual ReferenceEntry ACClassMethodConfig1_ParentACClassMethodConfigReference 
@@ -193,6 +225,14 @@ public partial class ACClassMethodConfig : VBEntityObject , IInsertInfo, IUpdate
         set => _VBiACClass = value;
     }
 
+    public bool VBiACClass_IsLoaded
+    {
+        get
+        {
+            return VBiACClass != null;
+        }
+    }
+
     public virtual ReferenceEntry VBiACClassReference 
     {
         get { return Context.Entry(this).Reference("VBiACClass"); }
@@ -205,6 +245,14 @@ public partial class ACClassMethodConfig : VBEntityObject , IInsertInfo, IUpdate
         set => _VBiACClassPropertyRelation = value;
     }
 
+    public bool VBiACClassPropertyRelation_IsLoaded
+    {
+        get
+        {
+            return VBiACClassPropertyRelation != null;
+        }
+    }
+
     public virtual ReferenceEntry VBiACClassPropertyRelationReference 
     {
         get { return Context.Entry(this).Reference("VBiACClassPropertyRelation"); }
@@ -215,6 +263,14 @@ public partial class ACClassMethodConfig : VBEntityObject , IInsertInfo, IUpdate
     { 
         get => LazyLoader.Load(this, ref _ValueTypeACClass);
         set => _ValueTypeACClass = value;
+    }
+
+    public bool ValueTypeACClass_IsLoaded
+    {
+        get
+        {
+            return ValueTypeACClass != null;
+        }
     }
 
     public virtual ReferenceEntry ValueTypeACClassReference 

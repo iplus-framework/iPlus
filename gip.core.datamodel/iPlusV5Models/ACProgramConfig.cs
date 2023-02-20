@@ -138,6 +138,14 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClass = value;
     }
 
+    public bool ACClass_IsLoaded
+    {
+        get
+        {
+            return ACClass != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassReference 
     {
         get { return Context.Entry(this).Reference("ACClass"); }
@@ -148,6 +156,14 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ACClassPropertyRelation);
         set => _ACClassPropertyRelation = value;
+    }
+
+    public bool ACClassPropertyRelation_IsLoaded
+    {
+        get
+        {
+            return ACClassPropertyRelation != null;
+        }
     }
 
     public virtual ReferenceEntry ACClassPropertyRelationReference 
@@ -162,6 +178,14 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACProgram = value;
     }
 
+    public bool ACProgram_IsLoaded
+    {
+        get
+        {
+            return ACProgram != null;
+        }
+    }
+
     public virtual ReferenceEntry ACProgramReference 
     {
         get { return Context.Entry(this).Reference("ACProgram"); }
@@ -174,9 +198,17 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACProgramConfig_ParentACProgramConfig = value;
     }
 
+    public bool ACProgramConfig_ParentACProgramConfig_IsLoaded
+    {
+        get
+        {
+            return ACProgramConfig_ParentACProgramConfig != null;
+        }
+    }
+
     public virtual CollectionEntry ACProgramConfig_ParentACProgramConfigReference
     {
-        get { return Context.Entry(this).Collection("ACProgramConfig_ParentACProgramConfig"); }
+        get { return Context.Entry(this).Collection(c => c.ACProgramConfig_ParentACProgramConfig); }
     }
 
     private ACProgramConfig _ACProgramConfig1_ParentACProgramConfig;
@@ -184,6 +216,14 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ACProgramConfig1_ParentACProgramConfig);
         set => _ACProgramConfig1_ParentACProgramConfig = value;
+    }
+
+    public bool ACProgramConfig1_ParentACProgramConfig_IsLoaded
+    {
+        get
+        {
+            return ACProgramConfig1_ParentACProgramConfig != null;
+        }
     }
 
     public virtual ReferenceEntry ACProgramConfig1_ParentACProgramConfigReference 
@@ -196,6 +236,14 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ValueTypeACClass);
         set => _ValueTypeACClass = value;
+    }
+
+    public bool ValueTypeACClass_IsLoaded
+    {
+        get
+        {
+            return ValueTypeACClass != null;
+        }
     }
 
     public virtual ReferenceEntry ValueTypeACClassReference 

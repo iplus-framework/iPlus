@@ -279,7 +279,7 @@ namespace gip.core.autocomponent
             ACClassTask contentTask = ContentTask;
             if (contentTask != null)
             {
-                if (contentTask.ACProgramReference.IsLoaded)
+                if (contentTask.ACProgram_IsLoaded)
                     currentACProgram = contentTask.ACProgramReference.CurrentValue as ACProgram;
                 if (currentACProgram == null)// && contentTask.EntityState == System.Data.EntityState.Added)
                     currentACProgram = contentTask.NewACProgramForQueue;

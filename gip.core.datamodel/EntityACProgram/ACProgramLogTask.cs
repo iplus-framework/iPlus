@@ -10,7 +10,7 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ProgramLog-Task'}de{'ProgramLog-Task'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
 
     [ACPropertyEntity(1, "ACClassMethodXAML", "en{'Method XAML'}de{'Methoden XAML'}","", "", true)]
-    [ACPropertyEntity(9999, "ACProgramLog", "en{'Program.Log'}de{'ACProgramm.Log'}", Const.ContextDatabase + "\\" + ACProgramLog.ClassName, "", true)]
+    [ACPropertyEntity(9999, "ACProgramLog", "en{'Program.Log'}de{'ACProgramm.Log'}", Const.ContextDatabase + "\\" + ACProgramLog.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
 
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACProgramLogTask.ClassName, "en{'ProgramLogTask'}de{'ProgramLogTask'}", typeof(ACProgramLogTask), ACProgramLogTask.ClassName, "", "")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACProgramLogTask>) })]

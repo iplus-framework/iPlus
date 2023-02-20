@@ -749,11 +749,405 @@ namespace gip.core.datamodel
                 return _10000_QueryLock;
             }
         }
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region Listen
+        #region DBSetList
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACAssembly> ACAssemblyList
+        {
+            get
+            {
+                return ACAssembly.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACChangeLog> ACChangeLogList
+        {
+            get
+            {
+                return ACChangeLog.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClass> ACClassList
+        {
+            get
+            {
+                return ACClass.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassConfig> ACClassConfigList
+        {
+            get
+            {
+                return ACClassConfig.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassDesign> ACClassDesignList
+        {
+            get
+            {
+                return ACClassDesign.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassMessage> ACClassMessageList
+        {
+            get
+            {
+                return ACClassMessage.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassMethod> ACClassMethodList
+        {
+            get
+            {
+                return ACClassMethod.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassMethodConfig> ACClassMethodConfigList
+        {
+            get
+            {
+                return ACClassMethodConfig.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassProperty> ACClassPropertyList
+        {
+            get
+            {
+                return ACClassProperty.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassPropertyRelation> ACClassPropertyRelationList
+        {
+            get
+            {
+                return ACClassPropertyRelation.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassTask> ACClassTaskList
+        {
+            get
+            {
+                return ACClassTask.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassTaskValue> ACClassTaskValueList
+        {
+            get
+            {
+                return ACClassTaskValue.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassTaskValuePos> ACClassTaskValuePosList
+        {
+            get
+            {
+                return ACClassTaskValuePos.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassText> ACClassTextList
+        {
+            get
+            {
+                return ACClassText.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassWF> ACClassWFList
+        {
+            get
+            {
+                return ACClassWF.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACClassWFEdge> ACClassWFEdgeList
+        {
+            get
+            {
+                return ACClassWFEdge.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACPackage> ACPackageList
+        {
+            get
+            {
+                return ACPackage.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACProgram> ACProgramList
+        {
+            get
+            {
+                return ACProgram.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACProgramConfig> ACProgramConfigList
+        {
+            get
+            {
+                return ACProgramConfig.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACProgramLog> ACProgramLogList
+        {
+            get
+            {
+                return ACProgramLog.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACProgramLogTask> ACProgramLogTaskList
+        {
+            get
+            {
+                return ACProgramLogTask.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACProject> ACProjectList
+        {
+            get
+            {
+                return ACProject.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACPropertyLog> ACPropertyLogList
+        {
+            get
+            {
+                return ACPropertyLog.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<ACPropertyLogRule> ACPropertyLogRuleList
+        {
+            get
+            {
+                return ACPropertyLogRule.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<MsgAlarmLog> MsgAlarmLogList
+        {
+            get
+            {
+                return MsgAlarmLog.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBConfig> VBConfigList
+        {
+            get
+            {
+                return VBConfig.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBGroup> VBGroupList
+        {
+            get
+            {
+                return VBGroup.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBGroupRight> VBGroupRightList
+        {
+            get
+            {
+                return VBGroupRight.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBLanguage> VBLanguageList
+        {
+            get
+            {
+                return VBLanguage.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBLicense> VBLicenseList
+        {
+            get
+            {
+                return VBLicense.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBNoConfiguration> VBNoConfigurationList
+        {
+            get
+            {
+                return VBNoConfiguration.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBSystem> VBSystemList
+        {
+            get
+            {
+                return VBSystem.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBSystemColumns> VBSystemColumnsList
+        {
+            get
+            {
+                return VBSystemColumns.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBTranslationView> VBTranslationViewList
+        {
+            get
+            {
+                return VBTranslationView.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBUser> VBUserList
+        {
+            get
+            {
+                return VBUser.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBUserACClassDesign> VBUserACClassDesignList
+        {
+            get
+            {
+                return VBUserACClassDesign.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBUserACProject> VBUserACProjectList
+        {
+            get
+            {
+                return VBUserACProject.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBUserGroup> VBUserGroupList
+        {
+            get
+            {
+                return VBUserGroup.ToArray();
+            }
+        }
+
+        [ACPropertyInfo(9999)]
+        [NotMapped]
+        public IEnumerable<VBUserInstance> VBUserInstanceList
+        {
+            get
+            {
+                return VBUserInstance.ToArray();
+            }
+        }
+
+        #endregion
+
+        #region Listen
         [ACPropertyInfo(9999)]
         [NotMapped]
         public IEnumerable<ACValueItem> ACKindList

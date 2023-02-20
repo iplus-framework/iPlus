@@ -23,10 +23,10 @@ namespace gip.core.datamodel
     /// Entries in the ACClassPropertyRelation table are mainly added by iPlus development environment.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Propertyrelation'}de{'Eigenschaftsbeziehung'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(1, "SourceACClass", "en{'Source Class'}de{'Quellklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
-    [ACPropertyEntity(2, "SourceACClassProperty", "en{'Source Property'}de{'Quelleigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName, "", true)]
-    [ACPropertyEntity(3, "TargetACClass", "en{'Target Class'}de{'Zielklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
-    [ACPropertyEntity(4, "TargetACClassProperty", "en{'Target Property'}de{'Zieleigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName, "", true)]
+    [ACPropertyEntity(1, "SourceACClass", "en{'Source Class'}de{'Quellklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(2, "SourceACClassProperty", "en{'Source Property'}de{'Quelleigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(3, "TargetACClass", "en{'Target Class'}de{'Zielklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(4, "TargetACClassProperty", "en{'Target Property'}de{'Zieleigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(5, "ConnectionTypeIndex", "en{'Index'}de{'Index'}", typeof(Global.ConnectionTypes), "", "", true)]
     [ACPropertyEntity(6, "DirectionIndex", "en{'Direction'}de{'Richtung'}", typeof(Global.Directions), "", "", true)]
     [ACPropertyEntity(7, "LogicalOperationIndex", "en{'Logical Operator'}de{'Verknüpfungsoperator'}", typeof(Global.Operators), "", "", true)]

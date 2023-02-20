@@ -24,7 +24,7 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Project'}de{'Projekt'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
     [ACPropertyEntity(1, "ACProjectName", "en{'Projectname'}de{'Projektname'}","", "", true)]
     [ACPropertyEntity(2, "ACProjectTypeIndex", "en{'Projecttype'}de{'Projecttype'}", typeof(Global.ACProjectTypes), "", "", true)]
-    [ACPropertyEntity(3, "ACProject1_BasedOnACProject", "en{'Baseproject'}de{'Basisprojekt'}", Const.ContextDatabaseIPlus + "\\" + ACProject.ClassName, "", true)]
+    [ACPropertyEntity(3, "ACProject1_BasedOnACProject", "en{'Baseproject'}de{'Basisprojekt'}", Const.ContextDatabaseIPlus + "\\" + ACProject.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(4, "IsEnabled", "en{'Enabled'}de{'Aktiv'}","", "", true)]
     [ACPropertyEntity(5, "IsGlobal", "en{'Global'}de{'Global'}","", "", true)]
     [ACPropertyEntity(6, "IsWorkflowEnabled", "en{'Workflow'}de{'Workflow'}","", "", true)]
@@ -34,7 +34,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(10, "IsDataAccess", "en{'Dataaccess'}de{'Dataaccess'}","", "", true)]
     [ACPropertyEntity(11, "Comment", "en{'Comment'}de{'Bemerkung'}","", "", true)]
     [ACPropertyEntity(12, "ACProjectNo", "en{'Projectnumber'}de{'Projektnummer'}","", "", true)]
-    [ACPropertyEntity(9999, "BasedOnACProject", "en{'Based on Project'}de{'Basiert auf Projekt'}", Const.ContextDatabaseIPlus + "\\" + ACProject.ClassName, "", true)]
+    [ACPropertyEntity(9999, "BasedOnACProject", "en{'Based on Project'}de{'Basiert auf Projekt'}", Const.ContextDatabaseIPlus + "\\" + ACProject.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACProject.ClassName, "en{'Project'}de{'Projekt'}", typeof(ACProject), ACProject.ClassName, "ACProjectName", "ACProjectTypeIndex,ACProjectName", new object[]
         {
             new object[] {Const.QueryPrefix + ACClass.ClassName, "en{'Class'}de{'Klasse'}", typeof(ACClass), ACClass.ClassName + "_" + ACProject.ClassName, Const.ACCaptionPrefix + "," + Const.ACIdentifierPrefix, Const.ACIdentifierPrefix, new object[]

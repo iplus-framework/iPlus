@@ -138,6 +138,14 @@ public partial class ACClassConfig : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClass = value;
     }
 
+    public bool ACClass_IsLoaded
+    {
+        get
+        {
+            return ACClass != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassReference 
     {
         get { return Context.Entry(this).Reference("ACClass"); }
@@ -148,6 +156,14 @@ public partial class ACClassConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ACClassPropertyRelation);
         set => _ACClassPropertyRelation = value;
+    }
+
+    public bool ACClassPropertyRelation_IsLoaded
+    {
+        get
+        {
+            return ACClassPropertyRelation != null;
+        }
     }
 
     public virtual ReferenceEntry ACClassPropertyRelationReference 
@@ -162,9 +178,17 @@ public partial class ACClassConfig : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClassConfig_ParentACClassConfig = value;
     }
 
+    public bool ACClassConfig_ParentACClassConfig_IsLoaded
+    {
+        get
+        {
+            return ACClassConfig_ParentACClassConfig != null;
+        }
+    }
+
     public virtual CollectionEntry ACClassConfig_ParentACClassConfigReference
     {
-        get { return Context.Entry(this).Collection("ACClassConfig_ParentACClassConfig"); }
+        get { return Context.Entry(this).Collection(c => c.ACClassConfig_ParentACClassConfig); }
     }
 
     private ACClassConfig _ACClassConfig1_ParentACClassConfig;
@@ -172,6 +196,14 @@ public partial class ACClassConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ACClassConfig1_ParentACClassConfig);
         set => _ACClassConfig1_ParentACClassConfig = value;
+    }
+
+    public bool ACClassConfig1_ParentACClassConfig_IsLoaded
+    {
+        get
+        {
+            return ACClassConfig1_ParentACClassConfig != null;
+        }
     }
 
     public virtual ReferenceEntry ACClassConfig1_ParentACClassConfigReference 
@@ -184,6 +216,14 @@ public partial class ACClassConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ValueTypeACClass);
         set => _ValueTypeACClass = value;
+    }
+
+    public bool ValueTypeACClass_IsLoaded
+    {
+        get
+        {
+            return ValueTypeACClass != null;
+        }
     }
 
     public virtual ReferenceEntry ValueTypeACClassReference 

@@ -124,9 +124,17 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACChangeLog_VBUser = value;
     }
 
+    public bool ACChangeLog_VBUser_IsLoaded
+    {
+        get
+        {
+            return ACChangeLog_VBUser != null;
+        }
+    }
+
     public virtual CollectionEntry ACChangeLog_VBUserReference
     {
-        get { return Context.Entry(this).Collection("ACChangeLog_VBUser"); }
+        get { return Context.Entry(this).Collection(c => c.ACChangeLog_VBUser); }
     }
 
     private ICollection<ACClassTaskValue> _ACClassTaskValue_VBUser;
@@ -136,9 +144,17 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClassTaskValue_VBUser = value;
     }
 
+    public bool ACClassTaskValue_VBUser_IsLoaded
+    {
+        get
+        {
+            return ACClassTaskValue_VBUser != null;
+        }
+    }
+
     public virtual CollectionEntry ACClassTaskValue_VBUserReference
     {
-        get { return Context.Entry(this).Collection("ACClassTaskValue_VBUser"); }
+        get { return Context.Entry(this).Collection(c => c.ACClassTaskValue_VBUser); }
     }
 
     private ACClassDesign _MenuACClassDesign;
@@ -146,6 +162,14 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _MenuACClassDesign);
         set => _MenuACClassDesign = value;
+    }
+
+    public bool MenuACClassDesign_IsLoaded
+    {
+        get
+        {
+            return MenuACClassDesign != null;
+        }
     }
 
     public virtual ReferenceEntry MenuACClassDesignReference 
@@ -160,6 +184,14 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBLanguage = value;
     }
 
+    public bool VBLanguage_IsLoaded
+    {
+        get
+        {
+            return VBLanguage != null;
+        }
+    }
+
     public virtual ReferenceEntry VBLanguageReference 
     {
         get { return Context.Entry(this).Reference("VBLanguage"); }
@@ -172,9 +204,17 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBUserACClassDesign_VBUser = value;
     }
 
+    public bool VBUserACClassDesign_VBUser_IsLoaded
+    {
+        get
+        {
+            return VBUserACClassDesign_VBUser != null;
+        }
+    }
+
     public virtual CollectionEntry VBUserACClassDesign_VBUserReference
     {
-        get { return Context.Entry(this).Collection("VBUserACClassDesign_VBUser"); }
+        get { return Context.Entry(this).Collection(c => c.VBUserACClassDesign_VBUser); }
     }
 
     private ICollection<VBUserACProject> _VBUserACProject_VBUser;
@@ -184,9 +224,17 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBUserACProject_VBUser = value;
     }
 
+    public bool VBUserACProject_VBUser_IsLoaded
+    {
+        get
+        {
+            return VBUserACProject_VBUser != null;
+        }
+    }
+
     public virtual CollectionEntry VBUserACProject_VBUserReference
     {
-        get { return Context.Entry(this).Collection("VBUserACProject_VBUser"); }
+        get { return Context.Entry(this).Collection(c => c.VBUserACProject_VBUser); }
     }
 
     private ICollection<VBUserGroup> _VBUserGroup_VBUser;
@@ -196,9 +244,17 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBUserGroup_VBUser = value;
     }
 
+    public bool VBUserGroup_VBUser_IsLoaded
+    {
+        get
+        {
+            return VBUserGroup_VBUser != null;
+        }
+    }
+
     public virtual CollectionEntry VBUserGroup_VBUserReference
     {
-        get { return Context.Entry(this).Collection("VBUserGroup_VBUser"); }
+        get { return Context.Entry(this).Collection(c => c.VBUserGroup_VBUser); }
     }
 
     private ICollection<VBUserInstance> _VBUserInstance_VBUser;
@@ -208,8 +264,16 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBUserInstance_VBUser = value;
     }
 
+    public bool VBUserInstance_VBUser_IsLoaded
+    {
+        get
+        {
+            return VBUserInstance_VBUser != null;
+        }
+    }
+
     public virtual CollectionEntry VBUserInstance_VBUserReference
     {
-        get { return Context.Entry(this).Collection("VBUserInstance_VBUser"); }
+        get { return Context.Entry(this).Collection(c => c.VBUserInstance_VBUser); }
     }
 }

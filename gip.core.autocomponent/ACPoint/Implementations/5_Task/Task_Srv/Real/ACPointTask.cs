@@ -47,7 +47,7 @@ namespace gip.core.autocomponent
                 ACClassTaskValue taskValue = this.ACClassTaskValue;
                 if (taskValue != null)
                 {
-                    if (   !taskValue.ACClassTaskValuePos_ACClassTaskValueReference.IsLoaded
+                    if (   !taskValue.ACClassTaskValuePos_ACClassTaskValue_IsLoaded
                         || taskValue.ACClassTaskValuePos_ACClassTaskValue.Any())
                     {
                         ACClassTaskQueue.TaskQueue.Add(() => 
@@ -328,7 +328,7 @@ namespace gip.core.autocomponent
                     if (acClassTaskValue != null)
                     {
                         ACClassTaskValuePosSafeWrapper[] taskValuePositions = null;
-                        if (acClassTaskValue.ACClassTaskValuePos_ACClassTaskValueReference.IsLoaded)
+                        if (acClassTaskValue.ACClassTaskValuePos_ACClassTaskValue_IsLoaded)
                             taskValuePositions = acClassTaskValue.ACClassTaskValuePos_ACClassTaskValue.Select(c => new ACClassTaskValuePosSafeWrapper(c)).ToArray();
                         else
                         {

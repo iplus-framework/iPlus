@@ -23,7 +23,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(1, Const.ACIdentifierPrefix, "en{'Message-ID'}de{'Meldungs-ID'}", "", "", true)]
     [ACPropertyEntity(2, "ACCaptionTranslation", "en{'Translation'}de{'Übersetzung'}","", "", true)]
     [ACPropertyEntity(3, "ACIdentifierKey", "en{'Key'}de{'Schlüssel'}","", "", true)]
-    [ACPropertyEntity(4, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(4, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(5, "IsSystem", "en{'System'}de{'System'}","", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassMessage.ClassName, "en{'Text'}de{'Text'}", typeof(ACClassMessage), ACClassMessage.ClassName, Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassMessage>) })]

@@ -26,13 +26,13 @@ namespace gip.core.datamodel
     [ACPropertyEntity(2, Const.ACIdentifierPrefix, "en{'Identifier'}de{'Identifizierer'}", "", "", true)]
     [ACPropertyEntity(3, "XName", "en{'XName'}de{'XName'}", "", "", true)]
     [ACPropertyEntity(4, "ACInstanceNo", "en{'Instance No'}de{'Instanznr'}", "", "", true)]
-    [ACPropertyEntity(5, "ACClassMethod", "Method'}de{'Methode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName, "", true)]
-    [ACPropertyEntity(6, "PWACClass", "en{'Workflowclass'}de{'Workflowklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
-    [ACPropertyEntity(7, "RefPAACClass", "en{'Application Class'}de{'Anwendungsklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
-    [ACPropertyEntity(8, "RefPAACClassMethod", "en{'Application Method'}de{'Anwendungsmethode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName, "", true)]
+    [ACPropertyEntity(5, "ACClassMethod", "Method'}de{'Methode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(6, "PWACClass", "en{'Workflowclass'}de{'Workflowklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(7, "RefPAACClass", "en{'Application Class'}de{'Anwendungsklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(8, "RefPAACClassMethod", "en{'Application Method'}de{'Anwendungsmethode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9, "PhaseIdentifier", "en{'Phase'}de{'Phase'}", "", "", true)]
     [ACPropertyEntity(10, "Comment", "en{'Comment'}de{'Bemerkung'}", "", "", true)]
-    [ACPropertyEntity(9999, "ParentACClassWF", "en{'Parent Workflow'}de{'Elternworkflow'}", Const.ContextDatabaseIPlus + "\\" + ACClassWF.ClassName, "", true)]
+    [ACPropertyEntity(9999, "ParentACClassWF", "en{'Parent Workflow'}de{'Elternworkflow'}", Const.ContextDatabaseIPlus + "\\" + ACClassWF.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassWF.ClassName, "en{'Workflow'}de{'Workflow'}", typeof(ACClassWF), ACClassWF.ClassName, Const.ACCaptionPrefix, Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassWF>) })]
     [NotMapped]
@@ -308,7 +308,7 @@ namespace gip.core.datamodel
         /// <value>List of edges</value>
         public IEnumerable<IACWorkflowEdge> GetOutgoingWFEdgesInGroup(IACWorkflowContext context)
         {
-            if (this.EntityState != EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethodReference.IsLoaded)
+            if (this.EntityState != EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethod_IsLoaded)
                 Context.Entry(ACClassMethod).Reference("ACClassWFEdge_ACClassMethod").Load();
             return GetOutgoingWFEdges(context).Where(c => ((ACClassWF)c.ToWFNode).ACClassWF1_ParentACClassWF.ACClassWFID == this.ACClassWF1_ParentACClassWF.ACClassWFID).Select(c => c);
         }
@@ -330,7 +330,7 @@ namespace gip.core.datamodel
         /// <value>List of edges</value>
         public IEnumerable<IACWorkflowEdge> GetIncomingWFEdgesInGroup(IACWorkflowContext context)
         {
-            if (this.EntityState != EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethodReference.IsLoaded)
+            if (this.EntityState != EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethod_IsLoaded)
                 ACClassMethod.ACClassWFEdge_ACClassMethodReference.Load();
             return GetIncomingWFEdges(context).Where(c => ((ACClassWF)c.FromWFNode).ACClassWF1_ParentACClassWF.ACClassWFID == this.ACClassWF1_ParentACClassWF.ACClassWFID).Select(c => c);
         }

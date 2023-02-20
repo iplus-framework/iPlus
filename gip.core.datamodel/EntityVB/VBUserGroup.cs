@@ -6,8 +6,8 @@ namespace gip.core.datamodel
 {
     /// <summary>Table for assigning users to a group.</summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Usergroup'}de{'Benutzergruppe'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(1, "VBGroup", "en{'Usergroup'}de{'Benutzergruppe'}", Const.ContextDatabase + "\\" + VBGroup.ClassName, "", true)]
-    [ACPropertyEntity(9999, "VBUser", "en{'User'}de{'Benutzer'}", Const.ContextDatabase + "\\" + VBUser.ClassName, "", true)]
+    [ACPropertyEntity(1, "VBGroup", "en{'Usergroup'}de{'Benutzergruppe'}", Const.ContextDatabase + "\\" + VBGroup.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(9999, "VBUser", "en{'User'}de{'Benutzer'}", Const.ContextDatabase + "\\" + VBUser.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBUserGroup.ClassName, "en{'Usergroup'}de{'Benutzergruppe'}", typeof(VBUserGroup), VBUserGroup.ClassName, VBGroup.ClassName + "\\VBGroupName", VBGroup.ClassName + "\\VBGroupName")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBUserGroup>) })]
     [NotMapped]

@@ -159,9 +159,17 @@ public partial class ACProject : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClass_ACProject = value;
     }
 
+    public bool ACClass_ACProject_IsLoaded
+    {
+        get
+        {
+            return ACClass_ACProject != null;
+        }
+    }
+
     public virtual CollectionEntry ACClass_ACProjectReference
     {
-        get { return Context.Entry(this).Collection("ACClass_ACProject"); }
+        get { return Context.Entry(this).Collection(c => c.ACClass_ACProject); }
     }
 
     private ACProject _ACProject1_BasedOnACProject;
@@ -169,6 +177,14 @@ public partial class ACProject : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ACProject1_BasedOnACProject);
         set => _ACProject1_BasedOnACProject = value;
+    }
+
+    public bool ACProject1_BasedOnACProject_IsLoaded
+    {
+        get
+        {
+            return ACProject1_BasedOnACProject != null;
+        }
     }
 
     public virtual ReferenceEntry ACProject1_BasedOnACProjectReference 
@@ -183,9 +199,17 @@ public partial class ACProject : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACProject_BasedOnACProject = value;
     }
 
+    public bool ACProject_BasedOnACProject_IsLoaded
+    {
+        get
+        {
+            return ACProject_BasedOnACProject != null;
+        }
+    }
+
     public virtual CollectionEntry ACProject_BasedOnACProjectReference
     {
-        get { return Context.Entry(this).Collection("ACProject_BasedOnACProject"); }
+        get { return Context.Entry(this).Collection(c => c.ACProject_BasedOnACProject); }
     }
 
     private ACClass _PAAppClassAssignmentACClass;
@@ -193,6 +217,14 @@ public partial class ACProject : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _PAAppClassAssignmentACClass);
         set => _PAAppClassAssignmentACClass = value;
+    }
+
+    public bool PAAppClassAssignmentACClass_IsLoaded
+    {
+        get
+        {
+            return PAAppClassAssignmentACClass != null;
+        }
     }
 
     public virtual ReferenceEntry PAAppClassAssignmentACClassReference 
@@ -207,8 +239,16 @@ public partial class ACProject : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBUserACProject_ACProject = value;
     }
 
+    public bool VBUserACProject_ACProject_IsLoaded
+    {
+        get
+        {
+            return VBUserACProject_ACProject != null;
+        }
+    }
+
     public virtual CollectionEntry VBUserACProject_ACProjectReference
     {
-        get { return Context.Entry(this).Collection("VBUserACProject_ACProject"); }
+        get { return Context.Entry(this).Collection(c => c.VBUserACProject_ACProject); }
     }
 }

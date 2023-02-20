@@ -201,6 +201,14 @@ public partial class VBUserInstance : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBUser = value;
     }
 
+    public bool VBUser_IsLoaded
+    {
+        get
+        {
+            return VBUser != null;
+        }
+    }
+
     public virtual ReferenceEntry VBUserReference 
     {
         get { return Context.Entry(this).Reference("VBUser"); }

@@ -9,7 +9,7 @@ namespace gip.core.datamodel
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPropertyLogRule'}de{'ACPropertyLogRule'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true, "", "")]
     [ACPropertyEntity(1, "RuleType", "en{'Rule type'}de{'Regeltyp'}")]
-    [ACPropertyEntity(3, ACClass.ClassName, "en{'ACClass'}de{'ACClass'}", Database.ClassName + "\\" + ACClass.ClassName)]
+    [ACPropertyEntity(3, ACClass.ClassName, "en{'ACClass'}de{'ACClass'}", Database.ClassName + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACPropertyLogRule.ClassName, "en{'ACPropertyLog'}de{'ACPropertyLog'}", typeof(ACPropertyLogRule), ACPropertyLogRule.ClassName, "", "")]
     [NotMapped]
     public partial class ACPropertyLogRule

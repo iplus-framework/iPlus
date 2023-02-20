@@ -89,6 +89,14 @@ public partial class ACProgramLogTask : VBEntityObject , IInsertInfo, IUpdateInf
         set => _ACProgramLog = value;
     }
 
+    public bool ACProgramLog_IsLoaded
+    {
+        get
+        {
+            return ACProgramLog != null;
+        }
+    }
+
     public virtual ReferenceEntry ACProgramLogReference 
     {
         get { return Context.Entry(this).Reference("ACProgramLog"); }

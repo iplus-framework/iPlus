@@ -152,6 +152,14 @@ public partial class ACProgramLog : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACProgram = value;
     }
 
+    public bool ACProgram_IsLoaded
+    {
+        get
+        {
+            return ACProgram != null;
+        }
+    }
+
     public virtual ReferenceEntry ACProgramReference 
     {
         get { return Context.Entry(this).Reference("ACProgram"); }
@@ -164,9 +172,17 @@ public partial class ACProgramLog : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACProgramLogTask_ACProgramLog = value;
     }
 
+    public bool ACProgramLogTask_ACProgramLog_IsLoaded
+    {
+        get
+        {
+            return ACProgramLogTask_ACProgramLog != null;
+        }
+    }
+
     public virtual CollectionEntry ACProgramLogTask_ACProgramLogReference
     {
-        get { return Context.Entry(this).Collection("ACProgramLogTask_ACProgramLog"); }
+        get { return Context.Entry(this).Collection(c => c.ACProgramLogTask_ACProgramLog); }
     }
 
     private ICollection<ACProgramLog> _ACProgramLog_ParentACProgramLog;
@@ -176,9 +192,17 @@ public partial class ACProgramLog : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACProgramLog_ParentACProgramLog = value;
     }
 
+    public bool ACProgramLog_ParentACProgramLog_IsLoaded
+    {
+        get
+        {
+            return ACProgramLog_ParentACProgramLog != null;
+        }
+    }
+
     public virtual CollectionEntry ACProgramLog_ParentACProgramLogReference
     {
-        get { return Context.Entry(this).Collection("ACProgramLog_ParentACProgramLog"); }
+        get { return Context.Entry(this).Collection(c => c.ACProgramLog_ParentACProgramLog); }
     }
 
     private ICollection<MsgAlarmLog> _MsgAlarmLog_ACProgramLog;
@@ -188,9 +212,17 @@ public partial class ACProgramLog : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _MsgAlarmLog_ACProgramLog = value;
     }
 
+    public bool MsgAlarmLog_ACProgramLog_IsLoaded
+    {
+        get
+        {
+            return MsgAlarmLog_ACProgramLog != null;
+        }
+    }
+
     public virtual CollectionEntry MsgAlarmLog_ACProgramLogReference
     {
-        get { return Context.Entry(this).Collection("MsgAlarmLog_ACProgramLog"); }
+        get { return Context.Entry(this).Collection(c => c.MsgAlarmLog_ACProgramLog); }
     }
 
     private ACProgramLog _ACProgramLog1_ParentACProgramLog;
@@ -198,6 +230,14 @@ public partial class ACProgramLog : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ACProgramLog1_ParentACProgramLog);
         set => _ACProgramLog1_ParentACProgramLog = value;
+    }
+
+    public bool ACProgramLog1_ParentACProgramLog_IsLoaded
+    {
+        get
+        {
+            return ACProgramLog1_ParentACProgramLog != null;
+        }
     }
 
     public virtual ReferenceEntry ACProgramLog1_ParentACProgramLogReference 

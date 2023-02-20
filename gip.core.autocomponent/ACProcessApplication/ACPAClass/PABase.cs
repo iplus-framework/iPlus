@@ -1007,7 +1007,7 @@ namespace gip.core.autocomponent
 #if !DIAGNOSE
 
                 // *** TASKPERFOPT NEW ***
-                if (parentProgramLog.ACProgramReference.IsLoaded)
+                if (parentProgramLog.ACProgram_IsLoaded)
                     acProgram = parentProgramLog.ACProgramReference.CurrentValue as ACProgram;
                 // This is a critical section, while ACTaskQueue is maybe accessing the database and contect and a Call of DeferredLoad() could be time crititcal.
                 // Therfore access temporary cached NewACProgramForQueue

@@ -89,6 +89,14 @@ public partial class VBUserACProject : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACProject = value;
     }
 
+    public bool ACProject_IsLoaded
+    {
+        get
+        {
+            return ACProject != null;
+        }
+    }
+
     public virtual ReferenceEntry ACProjectReference 
     {
         get { return Context.Entry(this).Reference("ACProject"); }
@@ -99,6 +107,14 @@ public partial class VBUserACProject : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _VBUser);
         set => _VBUser = value;
+    }
+
+    public bool VBUser_IsLoaded
+    {
+        get
+        {
+            return VBUser != null;
+        }
     }
 
     public virtual ReferenceEntry VBUserReference 

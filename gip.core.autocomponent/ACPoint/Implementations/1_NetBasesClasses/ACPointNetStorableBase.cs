@@ -312,7 +312,7 @@ namespace gip.core.autocomponent
 #if !DIAGNOSE
                     // *** TASKPERFOPT NEW ***
                     IEnumerable<ACClassTaskValue> acClassTaskValues = null;
-                    if (  contentTask.ACClassTaskValue_ACClassTaskReference.IsLoaded)
+                    if (  contentTask.ACClassTaskValue_ACClassTask_IsLoaded)
                        //|| contentTask.EntityState == System.Data.EntityState.Added) // To unsafe, if paralelly ACClassTaskQueue is Saving
                         acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
                     else

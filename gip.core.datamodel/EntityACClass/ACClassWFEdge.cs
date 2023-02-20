@@ -21,12 +21,12 @@ namespace gip.core.datamodel
     /// ACClassWFEdge describes the relationship between Workflow-Nodes.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Workflowedge'}de{'Workflowbeziehung'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(1, "SourceACClassWF", "en{'Source Workflow'}de{'Quellworkflow'}", Const.ContextDatabaseIPlus + "\\" + ACClassWF.ClassName, "", true)]
-    [ACPropertyEntity(2, "SourceACClassProperty", "en{'Source Property'}de{'Quelleigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName, "", true)]
-    [ACPropertyEntity(3, "TargetACClassWF", "en{'Target Workflow'}de{'Zielworkflow'}", Const.ContextDatabaseIPlus + "\\" + ACClassWF.ClassName, "", true)]
-    [ACPropertyEntity(4, "TargetACClassProperty", "en{'Target Property'}de{'Zieleigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName, "", true)]
+    [ACPropertyEntity(1, "SourceACClassWF", "en{'Source Workflow'}de{'Quellworkflow'}", Const.ContextDatabaseIPlus + "\\" + ACClassWF.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(2, "SourceACClassProperty", "en{'Source Property'}de{'Quelleigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(3, "TargetACClassWF", "en{'Target Workflow'}de{'Zielworkflow'}", Const.ContextDatabaseIPlus + "\\" + ACClassWF.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(4, "TargetACClassProperty", "en{'Target Property'}de{'Zieleigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(5, "ConnectionTypeIndex", "en{'Connectiontype'}de{'Verbindungsart'}", typeof(Global.ConnectionTypes), "", "", true)]
-    [ACPropertyEntity(9999, "ACClassMethod", "en{'Method'}de{'Methode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName, "", true)]
+    [ACPropertyEntity(9999, "ACClassMethod", "en{'Method'}de{'Methode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9999, Const.ACIdentifierPrefix, "en{'Identifier'}de{'Identifizierer'}","", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassWFEdge.ClassName, "en{'Workflowedge'}de{'Workflowbeziehung'}", typeof(ACClassWFEdge), ACClassWFEdge.ClassName, "", Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassWFEdge>) })]

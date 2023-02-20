@@ -14,8 +14,8 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPropertyLog'}de{'ACPropertyLog'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true, "", "")]
     [ACPropertyEntity(1, "EventTime", "en{'Event time'}de{'Ereigniszeit'}")]
     [ACPropertyEntity(2, "Value","en{'Value'}de{'Wert'}")]
-    [ACPropertyEntity(3, ACClass.ClassName, "en{'ACClass'}de{'ACClass'}", Database.ClassName + "\\" + ACClass.ClassName)]
-    [ACPropertyEntity(4, ACClassProperty.ClassName, "en{'ACClassProperty'}de{'ACClassProperty'}", Database.ClassName + "\\" + ACClassProperty.ClassName)]
+    [ACPropertyEntity(3, ACClass.ClassName, "en{'ACClass'}de{'ACClass'}", Database.ClassName + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix)]
+    [ACPropertyEntity(4, ACClassProperty.ClassName, "en{'ACClassProperty'}de{'ACClassProperty'}", Database.ClassName + "\\" + ACClassProperty.ClassName + Const.DBSetAsEnumerablePostfix)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACPropertyLog.ClassName, "en{'ACPropertyLog'}de{'ACPropertyLog'}", typeof(ACPropertyLog), ACPropertyLog.ClassName, "", "EventTime")]
     [NotMapped]
     public partial class ACPropertyLog

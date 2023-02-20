@@ -96,6 +96,14 @@ public partial class ACClassMessage : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClass = value;
     }
 
+    public bool ACClass_IsLoaded
+    {
+        get
+        {
+            return ACClass != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassReference 
     {
         get { return Context.Entry(this).Reference("ACClass"); }

@@ -39,10 +39,10 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "ACCaptionTranslation", "en{'Translation'}de{'Übersetzung'}", "", "", true)]
     [ACPropertyEntity(9999, "AssemblyQualifiedName", "en{'Assembly-qualified name'}de{'Assembly qualifizierter Name'}", "", "", true)]
     [ACPropertyEntity(9999, "IsMultiInstance", "en{'Multiinstance'}de{'Mehrf.Instanzen'}", "", "", true)]
-    [ACPropertyEntity(9999, ACPackage.ClassName, "en{'Package'}de{'Paket'}", Const.ContextDatabaseIPlus + "\\" + ACPackage.ClassName, "", true)]
+    [ACPropertyEntity(9999, ACPackage.ClassName, "en{'Package'}de{'Paket'}", Const.ContextDatabaseIPlus + "\\" + ACPackage.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9999, "ACStartTypeIndex", "en{'Starttype'}de{'ACStarttyp'}", typeof(Global.ACStartTypes), Const.ContextDatabaseIPlus + "\\ACStartTypeList", "", true)]
     [ACPropertyEntity(9999, "ACStorableTypeIndex", "en{'Persistence'}de{'Persistierung'}", typeof(Global.ACStorableTypes), Const.ContextDatabaseIPlus + "\\ACStorableTypeList", "", true)]
-    [ACPropertyEntity(9999, ACProject.ClassName, "en{'Project'}de{'Projekt'}", Const.ContextDatabaseIPlus + "\\" + ACProject.ClassName, "", true)]
+    [ACPropertyEntity(9999, ACProject.ClassName, "en{'Project'}de{'Projekt'}", Const.ContextDatabaseIPlus + "\\" + ACProject.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9999, "Comment", "en{'Comment'}de{'Bemerkung'}", "", "", true)]
     [ACPropertyEntity(9999, "IsAssembly", "en{'Assemblyclass'}de{'Assemblyklasse'}", "", "", true)]
     [ACPropertyEntity(9999, "IsAbstract", "en{'Abstract'}de{'Abstrakt'}", "", "Nicht instanziierbare Klasse")]
@@ -50,9 +50,9 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "IsStatic", "en{'Static'}de{'Statisch'}", "", "", true)]
     [ACPropertyEntity(9999, "ACClass1_PWACClass", "en{'Workflowclass'}de{'Workflowklasse'}", Const.ContextDatabaseIPlus + "\\PWClassList", "", true)]
     [ACPropertyEntity(9999, "ACClass1_PWMethodACClass", "en{'Workflowmethodtype'}de{'Workflowmethodentyp'}", Const.ContextDatabaseIPlus + "\\WorkflowTypeMethodACClassList", "", true)]
-    [ACPropertyEntity(9999, "ACClass1_BasedOnACClass", "en{'Baseclass'}de{'Basisklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(9999, "ACClass1_BasedOnACClass", "en{'Baseclass'}de{'Basisklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9999, "SortIndex", "en{'Sortindex'}de{'Sortierung'}", "", "", true)]
-    [ACPropertyEntity(9999, "ACClass1_ParentACClass", "en{'Parent Class'}de{'Elternklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(9999, "ACClass1_ParentACClass", "en{'Parent Class'}de{'Elternklasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9999, "ChangeLogMax", "en{'Max change logs'}de{'Max Änderungsprotokolle'}", "", "", true)]
     [ACDeleteAction("ACClassComposition_CompositionACClass", Global.DeleteAction.CascadeManual)]
     [ACDeleteAction("ACClassPropertyValue_ACClass", Global.DeleteAction.CascadeManual)]
@@ -457,7 +457,7 @@ namespace gip.core.datamodel
             get
             {
                 ACPackage acPackage = null;
-                if (ACPackageReference.IsLoaded)
+                if (ACPackage_IsLoaded)
                     acPackage = (ACPackage) ACPackageReference.CurrentValue;
                 if (acPackage == null)
                 {
@@ -806,7 +806,7 @@ namespace gip.core.datamodel
             get
             {
                 IACObject parentACObject = null;
-                if (ACClass1_ParentACClassReference.IsLoaded)
+                if (ACClass1_ParentACClass_IsLoaded)
                     parentACObject = (IACObject) ACClass1_ParentACClassReference.CurrentValue;
                 if (parentACObject == null)
                 {
@@ -817,7 +817,7 @@ namespace gip.core.datamodel
                 }
                 if (parentACObject != null)
                     return parentACObject;
-                if (ACProjectReference.IsLoaded)
+                if (ACProject_IsLoaded)
                     parentACObject = (IACObject) ACProjectReference.CurrentValue;
                 if (parentACObject == null)
                 {
@@ -1091,7 +1091,7 @@ namespace gip.core.datamodel
             get
             {
                 ACClass baseClass = null;
-                if (ACClass1_BasedOnACClassReference.IsLoaded)
+                if (ACClass1_BasedOnACClass_IsLoaded)
                     baseClass = (ACClass) ACClass1_BasedOnACClassReference.CurrentValue;
                 if (baseClass == null)
                 {
@@ -1116,7 +1116,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                if (ACClass_ParentACClassReference.IsLoaded)
+                if (ACClass_ParentACClass_IsLoaded)
                     return this.ACClass_ParentACClass.ToArray();
                 using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                 {
@@ -1289,7 +1289,7 @@ namespace gip.core.datamodel
                     ACKind == Global.ACKinds.TPWNodeStatic)
                     return this;
                 ACClass pwClassRef = null;
-                if (ACClass1_PWACClassReference.IsLoaded)
+                if (ACClass1_PWACClass_IsLoaded)
                     pwClassRef = (ACClass) ACClass1_PWACClassReference.CurrentValue;
                 else
                 {
@@ -1539,7 +1539,7 @@ namespace gip.core.datamodel
             ACClassMethod[] allMethods = null;
             try
             {
-                if (!ACClassMethod_ACClassReference.IsLoaded && EntityState != EntityState.Added
+                if (!ACClassMethod_ACClass_IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
                     //MergeOption.OverwriteChanges
@@ -2097,28 +2097,43 @@ namespace gip.core.datamodel
             ACClassProperty[] allProperties = null;
             try
             {
-                if (!ACClassProperty_ACClassReference.IsLoaded && EntityState != EntityState.Added
-                    || forceRefreshFromDB)
+                if (!ACClassProperty_ACClass_IsLoaded && EntityState != EntityState.Added
+                || forceRefreshFromDB)
                 {
-                    //MergeOption.OverwriteChanges
-                    if (forceRefreshFromDB)
-                        ACClassProperty_ACClass.AutoLoad(ACClassProperty_ACClassReference, this);
-
-                    //MergeOption.AppendOnly
-                    else
-                        ACClassProperty_ACClassReference.Load();
-
+                    bool wasLoaded = ACClassProperty_ACClass_IsLoaded;
                     allProperties = Context.Entry(this).Collection(c => c.ACClassProperty_ACClass)
-                                                .Query()
-                                                .Include(c => c.ValueTypeACClass)
-                                                .Include(c => c.ACClass)
-                                                .Include(c => c.ACClassProperty1_BasedOnACClassProperty)
-                                                .Include(c => c.ACClassProperty1_ParentACClassProperty)
-                                                .Include(nameof(ACClassProperty.ACClassPropertyRelation_SourceACClassProperty))
-                                                .Include(nameof(ACClassProperty.ACClassPropertyRelation_TargetACClassProperty))
-                                                .OrderBy(c => c.ACIdentifier)
-                                                .ToArray();
-                }
+                    .Query()
+                    .Include(c => c.ValueTypeACClass)
+                    .Include(c => c.ACClass)
+                    .Include(c => c.ACClassProperty1_BasedOnACClassProperty)
+                    .Include(c => c.ACClassProperty1_ParentACClassProperty)
+                    .Include(nameof(ACClassProperty.ACClassPropertyRelation_SourceACClassProperty))
+                    .Include(nameof(ACClassProperty.ACClassPropertyRelation_TargetACClassProperty))
+                    .OrderBy(c => c.ACIdentifier)
+                    .ToArray();
+                    //MergeOption.OverwriteChanges
+                    if (wasLoaded && forceRefreshFromDB)
+                    {
+                        // Alternative to prevent a second roundtrip to database:
+                        //allProperties.SynchronizeCollections<ACClassProperty>(ACClassProperty_ACClass);
+                        //_ = ACClassProperty_ACClass;
+                        // Is this then Necessary?
+                        ACClassProperty_ACClass.AutoLoad(ACClassProperty_ACClassReference, this);
+                        allProperties = ACClassProperty_ACClass.ToArray();
+                        //allProperties.SynchronizeCollections<ACClassProperty>(ACClassProperty_ACClass);
+                    }                     ////MergeOption.AppendOnly
+                    //else
+                    //    ACClassProperty_ACClassReference.Load();                     //allProperties = Context.Entry(this).Collection(c => c.ACClassProperty_ACClass)
+                    //                            .Query()
+                    //                            .Include(c => c.ValueTypeACClass)
+                    //                            .Include(c => c.ACClass)
+                    //                            .Include(c => c.ACClassProperty1_BasedOnACClassProperty)
+                    //                            .Include(c => c.ACClassProperty1_ParentACClassProperty)
+                    //                            .Include(nameof(ACClassProperty.ACClassPropertyRelation_SourceACClassProperty))
+                    //                            .Include(nameof(ACClassProperty.ACClassPropertyRelation_TargetACClassProperty))
+                    //                            .OrderBy(c => c.ACIdentifier)
+                    //                            .ToArray();
+                }
                 else
                     allProperties = ACClassProperty_ACClass.ToArray();
             }
@@ -2126,9 +2141,7 @@ namespace gip.core.datamodel
             {
                 string msg = e.Message;
                 if (e.InnerException != null && e.InnerException.Message != null)
-                    msg += " Inner:" + e.InnerException.Message;
-
-                if (Database.Root != null && Database.Root.Messages != null)
+                    msg += " Inner:" + e.InnerException.Message; if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("ACClass", "LoadPropertyListWithRelations", msg);
             }
             return allProperties;
@@ -2382,7 +2395,7 @@ namespace gip.core.datamodel
             ACClassDesign[] allDesigns = null;
             try
             {
-                if (!ACClassDesign_ACClassReference.IsLoaded && EntityState != EntityState.Added
+                if (!ACClassDesign_ACClass_IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
                     //MergeOption.OverwriteChanges
@@ -2528,7 +2541,7 @@ namespace gip.core.datamodel
             ACClassText[] allTexts = null;
             try
             {
-                if (!ACClassText_ACClassReference.IsLoaded && EntityState != EntityState.Added
+                if (!ACClassText_ACClass_IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
                     //MergeOption.OverwriteChanges
@@ -2673,7 +2686,7 @@ namespace gip.core.datamodel
             ACClassMessage[] allMessages = null;
             try
             {
-                if (!ACClassMessage_ACClassReference.IsLoaded && EntityState != EntityState.Added
+                if (!ACClassMessage_ACClass_IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
                     //MergeOption.OverwriteChanges
@@ -3528,9 +3541,9 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(acClass.Database.QueryLock_1X000))
                 {
-                    if (acClass.ACClassConfig_ACClassReference.IsLoaded)
+                    if (acClass.ACClassConfig_ACClass_IsLoaded)
                     {
-                        acClass.ACClassConfig_ACClass.AutoRefresh(acClass.ACClassConfig_ACClassReference, acClass.Database);
+                        //acClass.ACClassConfig_ACClass.AutoRefresh(acClass.ACClassConfig_ACClassReference, acClass.Database);
                         acClass.ACClassConfig_ACClass.AutoLoad(acClass.ACClassConfig_ACClassReference, acClass);
                     }
                     return acClass.ACClassConfig_ACClass.ToList().Select(x => (IACConfig)x).Where(c => c.KeyACUrl == ACConfigKeyACUrl);
@@ -3547,9 +3560,9 @@ namespace gip.core.datamodel
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 bool reloadExtendedProperties = false;
-                if (ACClassConfig_ACClassReference.IsLoaded)
+                if (ACClassConfig_ACClass_IsLoaded)
                 {
-                    ACClassConfig_ACClass.AutoRefresh(ACClassConfig_ACClassReference, this.Database);
+                    //ACClassConfig_ACClass.AutoRefresh(ACClassConfig_ACClassReference, this.Database);
                     this.ACClassConfig_ACClass.AutoLoad(ACClassConfig_ACClassReference, this);
                     reloadExtendedProperties = true;
                 }

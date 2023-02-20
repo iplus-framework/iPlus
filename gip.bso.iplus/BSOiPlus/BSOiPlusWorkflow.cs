@@ -555,7 +555,7 @@ namespace gip.bso.iplus
             LoadEntity<ACClassMethod>(requery, () => SelectedACClassMethod, () => CurrentACClassMethod, c => CurrentACClassMethod = c,
                         Database.ContextIPlus.ACClassMethod
                         .Where(c => c.ACClassMethodID == SelectedACClassMethod.ACClassMethodID));
-            if (CurrentACClassMethod != null && CurrentACClassMethod.ACClassWF_ACClassMethodReference.IsLoaded)
+            if (CurrentACClassMethod != null && CurrentACClassMethod.ACClassWF_ACClassMethod_IsLoaded)
             {
                 //CurrentACClassMethod.ACClassWF_ACClassMethod.AutoRefresh(Database.ContextIPlus);
                 CurrentACClassMethod.ACClassWF_ACClassMethod.AutoLoad(CurrentACClassMethod.ACClassWF_ACClassMethodReference, CurrentACClassMethod);

@@ -222,6 +222,14 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClass = value;
     }
 
+    public bool ACClass_IsLoaded
+    {
+        get
+        {
+            return ACClass != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassReference 
     {
         get { return Context.Entry(this).Reference("ACClass"); }
@@ -234,9 +242,17 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBGroupRight_ACClassDesign = value;
     }
 
+    public bool VBGroupRight_ACClassDesign_IsLoaded
+    {
+        get
+        {
+            return VBGroupRight_ACClassDesign != null;
+        }
+    }
+
     public virtual CollectionEntry VBGroupRight_ACClassDesignReference
     {
-        get { return Context.Entry(this).Collection("VBGroupRight_ACClassDesign"); }
+        get { return Context.Entry(this).Collection(c => c.VBGroupRight_ACClassDesign); }
     }
 
     private ICollection<VBUserACClassDesign> _VBUserACClassDesign_ACClassDesign;
@@ -246,9 +262,17 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBUserACClassDesign_ACClassDesign = value;
     }
 
+    public bool VBUserACClassDesign_ACClassDesign_IsLoaded
+    {
+        get
+        {
+            return VBUserACClassDesign_ACClassDesign != null;
+        }
+    }
+
     public virtual CollectionEntry VBUserACClassDesign_ACClassDesignReference
     {
-        get { return Context.Entry(this).Collection("VBUserACClassDesign_ACClassDesign"); }
+        get { return Context.Entry(this).Collection(c => c.VBUserACClassDesign_ACClassDesign); }
     }
 
     private ICollection<VBUser> _VBUser_MenuACClassDesign;
@@ -258,9 +282,17 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBUser_MenuACClassDesign = value;
     }
 
+    public bool VBUser_MenuACClassDesign_IsLoaded
+    {
+        get
+        {
+            return VBUser_MenuACClassDesign != null;
+        }
+    }
+
     public virtual CollectionEntry VBUser_MenuACClassDesignReference
     {
-        get { return Context.Entry(this).Collection("VBUser_MenuACClassDesign"); }
+        get { return Context.Entry(this).Collection(c => c.VBUser_MenuACClassDesign); }
     }
 
     private ACClass _ValueTypeACClass;
@@ -268,6 +300,14 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ValueTypeACClass);
         set => _ValueTypeACClass = value;
+    }
+
+    public bool ValueTypeACClass_IsLoaded
+    {
+        get
+        {
+            return ValueTypeACClass != null;
+        }
     }
 
     public virtual ReferenceEntry ValueTypeACClassReference 

@@ -40,7 +40,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(4, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(5, Const.ACGroup, "en{'Group'}de{'Gruppe'}", "", "", true)]
     [ACPropertyEntity(6, Const.ACKindIndex, "en{'Propertytype'}de{'Eigenschaftsart'}", typeof(Global.ACKinds), Const.ContextDatabaseIPlus + "\\ACKindPSList", "", true, DefaultValue = (short)Global.ACKinds.PSPropertyExt)]
-    [ACPropertyEntity(7, "ValueTypeACClass", "en{'Data Type'}de{'Datentyp'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(7, "ValueTypeACClass", "en{'Data Type'}de{'Datentyp'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(8, "SortIndex", "en{'Sortindex'}de{'Sortierung'}", "", "", true)]
     [ACPropertyEntity(9, "IsInteraction", "en{'Interaction Property'}de{'Interaktionseigenschaft'}", "", "", true)]
     [ACPropertyEntity(10, "IsRightmanagement", "en{'Rights Management'}de{'Rechteverwaltung'}", "", "", true)]
@@ -64,7 +64,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(28, "IsSerializable", "en{'Serializable'}de{'Serialisierbar'}", "", "", true)]
     [ACPropertyEntity(29, "IsEnumerable", "en{'Enumerable'}de{'Enumerierbar'}", "", "", true)]
     [ACPropertyEntity(30, "Comment", "en{'Comment'}de{'Bemerkung'}", "", "", true)]
-    [ACPropertyEntity(31, "ACClassProperty1_BasedOnACClassProperty", "en{'Based On Property'}de{'Basiert auf Eigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName, "", true)]
+    [ACPropertyEntity(31, "ACClassProperty1_BasedOnACClassProperty", "en{'Based On Property'}de{'Basiert auf Eigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(32, "ACSource", "en{'Source'}de{'Quelle'}", "", "", true)]
     [ACPropertyEntity(33, "CallbackMethodName", "en{'Callback Method'}de{'Rückrufmethode'}", "", "", true)]
     [ACPropertyEntity(34, "LogFilter", "en{'Log Filter'}de{'Log Filter'}", "", "", true)]
@@ -76,7 +76,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "ConfigACClass", "en{'Configuration'}de{'Konfiguration'}", Const.ContextDatabaseIPlus + "\\ConfigACClassList", "", true)]
     [ACPropertyEntity(9999, "IsContent", "en{'Content'}de{'Inhalt'}", "", "", true)]
     [ACPropertyEntity(9999, "MDTextGroup", "en{'Textroup'}de{'Textgruppe'}", Const.ContextDatabaseIPlus + "\\MDTextGroup", "", true)]
-    [ACPropertyEntity(9999, "ParentACClassProperty", "en{'Parent Property'}de{'Elterneigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName, "", true)]
+    [ACPropertyEntity(9999, "ParentACClassProperty", "en{'Parent Property'}de{'Elterneigenschaft'}", Const.ContextDatabaseIPlus + "\\" + ACClassProperty.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9999, "DeleteActionIndex", "en{'Delete Action'}de{'Löschaktion'}", "", "", true, DefaultValue = (short)Global.DeleteAction.None)]
     [ACPropertyEntity(9999, "ChangeLogMax", "en{'Max change logs'}de{'Max Änderungsprotokolle'}", "", "Null - change log off, 0 - unlimited change logs, n - log last n changes", true)]
     [ACPropertyEntity(9999, "LogBufferSize", "en{'Log buffer size'}de{'Größe des Log-Puffers'}", "", "", true)]
@@ -612,7 +612,7 @@ namespace gip.core.datamodel
                     return this;
 
                 ACClassProperty basedProperty = null;
-                if (this.ACClassProperty1_BasedOnACClassPropertyReference.IsLoaded)
+                if (this.ACClassProperty1_BasedOnACClassProperty_IsLoaded)
                     basedProperty = (ACClassProperty) this.ACClassProperty1_BasedOnACClassPropertyReference.CurrentValue;
                 else
                 {
@@ -1505,7 +1505,7 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(acClass.Database.QueryLock_1X000))
                 {
-                    if (acClass.ACClassConfig_ACClassReference.IsLoaded)
+                    if (acClass.ACClassConfig_ACClass_IsLoaded)
                     {
                         acClass.ACClassConfig_ACClass.AutoRefresh(acClass.ACClassConfig_ACClassReference, acClass.Database);
                         acClass.ACClassConfig_ACClass.AutoLoad(acClass.ACClassConfig_ACClassReference, acClass);
@@ -1523,7 +1523,7 @@ namespace gip.core.datamodel
             SafeList<IACConfig> newSafeList = new SafeList<IACConfig>();
             using (ACMonitor.Lock(this.ACClass.Database.QueryLock_1X000))
             {
-                if (this.ACClass.ACClassConfig_ACClassReference.IsLoaded)
+                if (this.ACClass.ACClassConfig_ACClass_IsLoaded)
                 {
                     this.ACClass.ACClassConfig_ACClass.AutoRefresh(this.ACClass.ACClassConfig_ACClassReference, this.ACClass.Database);
                     this.ACClass.ACClassConfig_ACClass.AutoLoad(this.ACClass.ACClassConfig_ACClassReference, this.ACClass);
@@ -1716,7 +1716,7 @@ namespace gip.core.datamodel
             get
             {
                 ACClass sc = null;
-                if (ACClassReference.IsLoaded)
+                if (ACClass_IsLoaded)
                     sc = (ACClass) ACClassReference.CurrentValue;
                 if (sc == null)
                 {
@@ -1735,7 +1735,7 @@ namespace gip.core.datamodel
             get
             {
                 ACClass sc = null;
-                if (ValueTypeACClassReference.IsLoaded)
+                if (ValueTypeACClass_IsLoaded)
                     sc = (ACClass) ValueTypeACClassReference.CurrentValue;
                 if (sc == null)
                 {

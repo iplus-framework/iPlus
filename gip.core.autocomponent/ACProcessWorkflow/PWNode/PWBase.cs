@@ -205,7 +205,7 @@ namespace gip.core.autocomponent
                     else if (value is ACClassTask)
                     {
                         ACClassTask acClassTask = value as ACClassTask;
-                        if (acClassTask.ContentACClassWFReference.IsLoaded)
+                        if (acClassTask.ContentACClassWF_IsLoaded)
                             _ContentACClassWF = acClassTask.ContentACClassWFReference.CurrentValue as ACClassWF;
                         if (_ContentACClassWF == null) // && (acClassTask.EntityState == System.Data.EntityState.Added || acClassTask.EntityState == System.Data.EntityState.Detached))
                             _ContentACClassWF = acClassTask.NewContentACClassWFForQueue;
@@ -235,7 +235,7 @@ namespace gip.core.autocomponent
                     else if (Content is ACClassTask)
                     {
                         ACClassTask acClassTask = Content as ACClassTask;
-                        if (acClassTask.ContentACClassWFReference.IsLoaded)
+                        if (acClassTask.ContentACClassWF_IsLoaded)
                             _ContentACClassWF = acClassTask.ContentACClassWFReference.CurrentValue as ACClassWF;
                         if (_ContentACClassWF == null)// && (acClassTask.EntityState == System.Data.EntityState.Added || acClassTask.EntityState == System.Data.EntityState.Detached))
                             _ContentACClassWF = acClassTask.NewContentACClassWFForQueue;
@@ -255,7 +255,7 @@ namespace gip.core.autocomponent
                 if (contentACClassWF == null)
                     return null;
                 ACClassMethod aCClassMethod = null;
-                if (contentACClassWF.RefPAACClassMethodReference.IsLoaded)
+                if (contentACClassWF.RefPAACClassMethod_IsLoaded)
                     aCClassMethod = contentACClassWF.RefPAACClassMethodReference.CurrentValue as ACClassMethod;
                 if (aCClassMethod == null)
                 {
@@ -276,7 +276,7 @@ namespace gip.core.autocomponent
                 if (contentACClassWF == null)
                     return null;
                 ACClass refACClassOfContentWF = null;
-                if (contentACClassWF.RefPAACClassReference.IsLoaded)
+                if (contentACClassWF.RefPAACClass_IsLoaded)
                     refACClassOfContentWF = contentACClassWF.RefPAACClassReference.CurrentValue as ACClass;
                 if (refACClassOfContentWF == null)
                 {
@@ -297,7 +297,7 @@ namespace gip.core.autocomponent
                 if (contentACClassWF == null)
                     return null;
                 ACClassMethod acClassMethodOfContentWF = null;
-                if (contentACClassWF.ACClassMethodReference.IsLoaded)
+                if (contentACClassWF.ACClassMethod_IsLoaded)
                     acClassMethodOfContentWF = contentACClassWF.ACClassMethodReference.CurrentValue as ACClassMethod;
                 if (acClassMethodOfContentWF == null)
                 {
@@ -318,7 +318,7 @@ namespace gip.core.autocomponent
                 if (contentACClassWF == null)
                     return null;
                 ACClass pwACClassOfContentW = null;
-                if (contentACClassWF.PWACClassReference.IsLoaded)
+                if (contentACClassWF.PWACClass_IsLoaded)
                     pwACClassOfContentW = contentACClassWF.PWACClassReference.CurrentValue as ACClass;
                 if (pwACClassOfContentW == null)
                 {
@@ -613,7 +613,7 @@ namespace gip.core.autocomponent
                     return null;
 
                 ACProgram acProgram = null;
-                if (contentTask.ACProgramReference.IsLoaded)
+                if (contentTask.ACProgram_IsLoaded)
                     acProgram = contentTask.ACProgramReference.CurrentValue as ACProgram;
                 if (acProgram == null)// && (contentTask.EntityState == System.Data.EntityState.Added || contentTask.EntityState == System.Data.EntityState.Detached))
                     acProgram = contentTask.NewACProgramForQueue;
@@ -626,7 +626,7 @@ namespace gip.core.autocomponent
                 ACClassWF contentACClassWF = ContentACClassWF;
                 if (contentACClassWF == null)
                     return null;
-                if (contentACClassWF.ACClassMethodReference.IsLoaded)
+                if (contentACClassWF.ACClassMethod_IsLoaded)
                     wfContext = contentACClassWF.ACClassMethodReference.CurrentValue as ACClassMethod;
                 if (wfContext == null)
                 {

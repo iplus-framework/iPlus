@@ -221,7 +221,7 @@ namespace gip.core.autocomponent
                 if (contentACClassWF == null)
                     return null;
                 ACClassMethod acClassMethodOfContentWF = null;
-                if (contentACClassWF.ACClassMethodReference.IsLoaded)
+                if (contentACClassWF.ACClassMethod_IsLoaded)
                     acClassMethodOfContentWF = contentACClassWF.ACClassMethodReference.CurrentValue as ACClassMethod;
                 if (acClassMethodOfContentWF == null)
                 {
@@ -390,7 +390,7 @@ namespace gip.core.autocomponent
                     return null;
 
                 ACProgram acProgram = null;
-                if (contentTask.ACProgramReference.IsLoaded)
+                if (contentTask.ACProgram_IsLoaded)
                     acProgram = contentTask.ACProgramReference.CurrentValue as ACProgram;
                 if (acProgram == null)
                     ACClassTaskQueue.TaskQueue.ProcessAction(() => { acProgram = contentTask.ACProgram; });

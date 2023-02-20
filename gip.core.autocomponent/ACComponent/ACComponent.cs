@@ -177,7 +177,7 @@ namespace gip.core.autocomponent
 
             if (ContentTask != null)
             {
-                if (ContentTask.TaskTypeACClassReference.IsLoaded)
+                if (ContentTask.TaskTypeACClass_IsLoaded)
                 {
                     using (ACMonitor.Lock(_20015_LockValue))
                     {

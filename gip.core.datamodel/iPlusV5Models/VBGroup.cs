@@ -75,9 +75,17 @@ public partial class VBGroup : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBGroupRight_VBGroup = value;
     }
 
+    public bool VBGroupRight_VBGroup_IsLoaded
+    {
+        get
+        {
+            return VBGroupRight_VBGroup != null;
+        }
+    }
+
     public virtual CollectionEntry VBGroupRight_VBGroupReference
     {
-        get { return Context.Entry(this).Collection("VBGroupRight_VBGroup"); }
+        get { return Context.Entry(this).Collection(c => c.VBGroupRight_VBGroup); }
     }
 
     private ICollection<VBUserGroup> _VBUserGroup_VBGroup;
@@ -87,8 +95,16 @@ public partial class VBGroup : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _VBUserGroup_VBGroup = value;
     }
 
+    public bool VBUserGroup_VBGroup_IsLoaded
+    {
+        get
+        {
+            return VBUserGroup_VBGroup != null;
+        }
+    }
+
     public virtual CollectionEntry VBUserGroup_VBGroupReference
     {
-        get { return Context.Entry(this).Collection("VBUserGroup_VBGroup"); }
+        get { return Context.Entry(this).Collection(c => c.VBUserGroup_VBGroup); }
     }
 }

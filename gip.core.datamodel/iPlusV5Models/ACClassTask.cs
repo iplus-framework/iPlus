@@ -131,9 +131,17 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClassTaskValue_ACClassTask = value;
     }
 
+    public bool ACClassTaskValue_ACClassTask_IsLoaded
+    {
+        get
+        {
+            return ACClassTaskValue_ACClassTask != null;
+        }
+    }
+
     public virtual CollectionEntry ACClassTaskValue_ACClassTaskReference
     {
-        get { return Context.Entry(this).Collection("ACClassTaskValue_ACClassTask"); }
+        get { return Context.Entry(this).Collection(c => c.ACClassTaskValue_ACClassTask); }
     }
 
     private ACProgram _ACProgram;
@@ -141,6 +149,14 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ACProgram);
         set => _ACProgram = value;
+    }
+
+    public bool ACProgram_IsLoaded
+    {
+        get
+        {
+            return ACProgram != null;
+        }
     }
 
     public virtual ReferenceEntry ACProgramReference 
@@ -155,6 +171,14 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ContentACClassWF = value;
     }
 
+    public bool ContentACClassWF_IsLoaded
+    {
+        get
+        {
+            return ContentACClassWF != null;
+        }
+    }
+
     public virtual ReferenceEntry ContentACClassWFReference 
     {
         get { return Context.Entry(this).Reference("ContentACClassWF"); }
@@ -167,9 +191,17 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClassTask_ParentACClassTask = value;
     }
 
+    public bool ACClassTask_ParentACClassTask_IsLoaded
+    {
+        get
+        {
+            return ACClassTask_ParentACClassTask != null;
+        }
+    }
+
     public virtual CollectionEntry ACClassTask_ParentACClassTaskReference
     {
-        get { return Context.Entry(this).Collection("ACClassTask_ParentACClassTask"); }
+        get { return Context.Entry(this).Collection(c => c.ACClassTask_ParentACClassTask); }
     }
 
     private ACClassTask _ACClassTask1_ParentACClassTask;
@@ -177,6 +209,14 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ACClassTask1_ParentACClassTask);
         set => _ACClassTask1_ParentACClassTask = value;
+    }
+
+    public bool ACClassTask1_ParentACClassTask_IsLoaded
+    {
+        get
+        {
+            return ACClassTask1_ParentACClassTask != null;
+        }
     }
 
     public virtual ReferenceEntry ACClassTask1_ParentACClassTaskReference 
@@ -189,6 +229,14 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _TaskTypeACClass);
         set => _TaskTypeACClass = value;
+    }
+
+    public bool TaskTypeACClass_IsLoaded
+    {
+        get
+        {
+            return TaskTypeACClass != null;
+        }
     }
 
     public virtual ReferenceEntry TaskTypeACClassReference 

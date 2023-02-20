@@ -6,8 +6,8 @@ namespace gip.core.datamodel
 {
     /// <summary>Stores XAML for a user. It's used whne the user uses the snapshot-icon to store his last opened business objects. At the next logon his last snapshot will be restored.</summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'personalized layout'}de{'Personalisiertes Layout'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(1, "VBUser", "en{'User'}de{'Benutzer'}", Const.ContextDatabase + "\\" + VBUser.ClassName, "", true)]
-    [ACPropertyEntity(2, "ACClassDesign", "en{'Design'}de{'Design'}", Const.ContextDatabase + "\\ACClassDesign", "", true)]
+    [ACPropertyEntity(1, "VBUser", "en{'User'}de{'Benutzer'}", Const.ContextDatabase + "\\" + VBUser.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(2, "ACClassDesign", "en{'Design'}de{'Design'}", Const.ContextDatabase + "\\ACClassDesignList", "", true)]
     [ACPropertyEntity(9999, "XMLDesign", "en{'XMLDesign'}de{'de-XMLDesign'}")]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBUserACClassDesign.ClassName, "en{'Personalized layout'}de{'Personalisiertes Layout'}", typeof(VBUserACClassDesign), VBUserACClassDesign.ClassName, VBUser.ClassName + "\\VBUserName," + ACClassDesign.ClassName + "\\ACIdentifier", ACClassDesign.ClassName + "\\ACIdentifier")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBUserACClassDesign>) })]

@@ -30,7 +30,7 @@ namespace gip.core.autocomponent
                     // *** TASKPERFOPT NEW ***
                     if (parentTask.ACProgramID.HasValue)
                     {
-                        if (parentTask.ACProgramReference.IsLoaded)
+                        if (parentTask.ACProgram_IsLoaded)
                             acProgram = parentTask.ACProgramReference.CurrentValue as ACProgram;
                         if (acProgram == null)// && (parentTask.EntityState == System.Data.EntityState.Added || parentTask.EntityState == System.Data.EntityState.Detached))
                             acProgram = parentTask.NewACProgramForQueue;
@@ -162,7 +162,7 @@ namespace gip.core.autocomponent
                 try
                 {
                     mustRefreshACClassWF = pwGroupComponent.ContentACClassWF.ACClassMethod != null && pwGroupComponent.ContentACClassWF.ACClassMethod.MustRefreshACClassWF;
-                    bool childsLoaded = pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWFReference.IsLoaded;
+                    bool childsLoaded = pwGroupComponent.ContentACClassWF.ACClassWF_ParentACClassWF_IsLoaded;
 
                     if (mustRefreshACClassWF || !childsLoaded)
                     {

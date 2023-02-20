@@ -145,6 +145,14 @@ public partial class MsgAlarmLog : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClass = value;
     }
 
+    public bool ACClass_IsLoaded
+    {
+        get
+        {
+            return ACClass != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassReference 
     {
         get { return Context.Entry(this).Reference("ACClass"); }
@@ -155,6 +163,14 @@ public partial class MsgAlarmLog : VBEntityObject , IInsertInfo, IUpdateInfo
     { 
         get => LazyLoader.Load(this, ref _ACProgramLog);
         set => _ACProgramLog = value;
+    }
+
+    public bool ACProgramLog_IsLoaded
+    {
+        get
+        {
+            return ACProgramLog != null;
+        }
     }
 
     public virtual ReferenceEntry ACProgramLogReference 

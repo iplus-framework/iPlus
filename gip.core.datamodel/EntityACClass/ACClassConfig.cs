@@ -25,7 +25,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(1, Const.PN_PreConfigACUrl, "en{'Parent WF URL'}de{'WF Eltern-URL'}", "", "", true)]
     [ACPropertyEntity(2, Const.PN_LocalConfigACUrl, "en{'Property URL'}de{'Eigenschafts-URL'}", "", "", true)]
     [ACPropertyEntity(3, "XMLValue", "en{'Value'}de{'Wert'}")]
-    [ACPropertyEntity(4, "ValueTypeACClass", "en{'Datatype'}de{'Datentyp'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(4, "ValueTypeACClass", "en{'Datatype'}de{'Datentyp'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(5, "Expression", "en{'Expression'}de{'Ausdruck'}", "", "", true)]
     [ACPropertyEntity(6, "Comment", "en{'Comment'}de{'Bemerkung'}", "", "", true)]
     [ACPropertyEntity(100, Const.PN_KeyACUrl, "en{'Key'}de{'Schlüssel'}", "", "", true)]

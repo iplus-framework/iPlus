@@ -110,6 +110,14 @@ public partial class ACClassWFEdge : VBEntityObject
         set => _ACClassMethod = value;
     }
 
+    public bool ACClassMethod_IsLoaded
+    {
+        get
+        {
+            return ACClassMethod != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassMethodReference 
     {
         get { return Context.Entry(this).Reference("ACClassMethod"); }
@@ -120,6 +128,14 @@ public partial class ACClassWFEdge : VBEntityObject
     { 
         get => LazyLoader.Load(this, ref _SourceACClassMethod);
         set => _SourceACClassMethod = value;
+    }
+
+    public bool SourceACClassMethod_IsLoaded
+    {
+        get
+        {
+            return SourceACClassMethod != null;
+        }
     }
 
     public virtual ReferenceEntry SourceACClassMethodReference 
@@ -134,6 +150,14 @@ public partial class ACClassWFEdge : VBEntityObject
         set => _SourceACClassProperty = value;
     }
 
+    public bool SourceACClassProperty_IsLoaded
+    {
+        get
+        {
+            return SourceACClassProperty != null;
+        }
+    }
+
     public virtual ReferenceEntry SourceACClassPropertyReference 
     {
         get { return Context.Entry(this).Reference("SourceACClassProperty"); }
@@ -144,6 +168,14 @@ public partial class ACClassWFEdge : VBEntityObject
     { 
         get => LazyLoader.Load(this, ref _SourceACClassWF);
         set => _SourceACClassWF = value;
+    }
+
+    public bool SourceACClassWF_IsLoaded
+    {
+        get
+        {
+            return SourceACClassWF != null;
+        }
     }
 
     public virtual ReferenceEntry SourceACClassWFReference 
@@ -158,6 +190,14 @@ public partial class ACClassWFEdge : VBEntityObject
         set => _TargetACClassMethod = value;
     }
 
+    public bool TargetACClassMethod_IsLoaded
+    {
+        get
+        {
+            return TargetACClassMethod != null;
+        }
+    }
+
     public virtual ReferenceEntry TargetACClassMethodReference 
     {
         get { return Context.Entry(this).Reference("TargetACClassMethod"); }
@@ -170,6 +210,14 @@ public partial class ACClassWFEdge : VBEntityObject
         set => _TargetACClassProperty = value;
     }
 
+    public bool TargetACClassProperty_IsLoaded
+    {
+        get
+        {
+            return TargetACClassProperty != null;
+        }
+    }
+
     public virtual ReferenceEntry TargetACClassPropertyReference 
     {
         get { return Context.Entry(this).Reference("TargetACClassProperty"); }
@@ -180,6 +228,14 @@ public partial class ACClassWFEdge : VBEntityObject
     { 
         get => LazyLoader.Load(this, ref _TargetACClassWF);
         set => _TargetACClassWF = value;
+    }
+
+    public bool TargetACClassWF_IsLoaded
+    {
+        get
+        {
+            return TargetACClassWF != null;
+        }
     }
 
     public virtual ReferenceEntry TargetACClassWFReference 

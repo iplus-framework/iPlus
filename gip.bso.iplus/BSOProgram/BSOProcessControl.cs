@@ -591,7 +591,7 @@ namespace gip.bso.iplus
         protected virtual MsgWithDetails DeleteACTasksOfWF(List<ACClassTask> deleteList, ACClassTask acClassTask)
         {
             MsgWithDetails msg = null;
-            if (acClassTask.ACClassTask_ParentACClassTaskReference.IsLoaded)
+            if (acClassTask.ACClassTask_ParentACClassTask_IsLoaded)
             {
                 //acClassTask.ACClassTask_ParentACClassTask.AutoRefresh(this.Database.ContextIPlus);
                 acClassTask.ACClassTask_ParentACClassTask.AutoLoad(acClassTask.ACClassTask_ParentACClassTaskReference, acClassTask);

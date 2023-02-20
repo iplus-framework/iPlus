@@ -274,7 +274,7 @@ namespace gip.core.datamodel
                     var database = Database != null ? Database : this.GetObjectContext<Database>();
                     using (ACMonitor.Lock(database.QueryLock_1X000))
                     {
-                        if (ACProgramConfig_ACProgramReference.IsLoaded)
+                        if (ACProgramConfig_ACProgram_IsLoaded)
                         {
                             ACProgramConfig_ACProgram.AutoRefresh(ACProgramConfig_ACProgramReference, this);
                             ACProgramConfig_ACProgram.AutoLoad(ACProgramConfig_ACProgramReference, this);

@@ -68,6 +68,14 @@ public partial class ACPropertyLog : VBEntityObject
         set => _ACClass = value;
     }
 
+    public bool ACClass_IsLoaded
+    {
+        get
+        {
+            return ACClass != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassReference 
     {
         get { return Context.Entry(this).Reference("ACClass"); }
@@ -78,6 +86,14 @@ public partial class ACPropertyLog : VBEntityObject
     { 
         get => LazyLoader.Load(this, ref _ACClassProperty);
         set => _ACClassProperty = value;
+    }
+
+    public bool ACClassProperty_IsLoaded
+    {
+        get
+        {
+            return ACClassProperty != null;
+        }
     }
 
     public virtual ReferenceEntry ACClassPropertyReference 

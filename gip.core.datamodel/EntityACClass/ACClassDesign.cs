@@ -32,7 +32,7 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Design'}de{'Design'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
     [ACPropertyEntity(1, Const.ACIdentifierPrefix, "en{'Design Name/ID'}de{'Designname/ID'}", "", "", true)]
     [ACPropertyEntity(3, "ACIdentifierKey", "en{'Key'}de{'Schlüssel'}","", "", true)]
-    [ACPropertyEntity(4, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(4, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(5, Const.ACGroup, "en{'Group'}de{'Gruppe'}","", "", true)]
     [ACPropertyEntity(6, Const.ACKindIndex, "en{'Design Type'}de{'Designart'}", typeof(Global.ACKinds), Const.ContextDatabaseIPlus + "\\ACKindDSList", "", true)]
     [ACPropertyEntity(7, "ACUsageIndex", "en{'Usage'}de{'Verwendung'}", typeof(Global.ACUsages), Const.ContextDatabaseIPlus + "\\ACUsageList", "", true)]
@@ -1097,7 +1097,7 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(acClass.Database.QueryLock_1X000))
                 {
-                    if (acClass.ACClassConfig_ACClassReference.IsLoaded)
+                    if (acClass.ACClassConfig_ACClass_IsLoaded)
                     {
                         acClass.ACClassConfig_ACClass.AutoRefresh(acClass.ACClassConfig_ACClassReference, acClass.Database);
                         acClass.ACClassConfig_ACClass.AutoLoad(ACClass.ACClassConfig_ACClassReference, this);
@@ -1115,7 +1115,7 @@ namespace gip.core.datamodel
             SafeList<IACConfig> newSafeList = new SafeList<IACConfig>();
             using (ACMonitor.Lock(this.ACClass.Database.QueryLock_1X000))
             {
-                if (this.ACClass.ACClassConfig_ACClassReference.IsLoaded)
+                if (this.ACClass.ACClassConfig_ACClass_IsLoaded)
                 {
                     this.ACClass.ACClassConfig_ACClass.AutoRefresh(this.ACClass.ACClassConfig_ACClassReference, this.ACClass.Database);
                     this.ACClass.ACClassConfig_ACClass.AutoLoad(this.ACClass.ACClassConfig_ACClassReference, this);

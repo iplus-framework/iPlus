@@ -6,7 +6,7 @@ using gip.core.datamodel;
 
 namespace gip.core.datamodel;
 
-public partial class ACClassTaskValuePos : VBEntityObject, IInsertInfo, IUpdateInfo
+public partial class ACClassTaskValuePos : VBEntityObject , IInsertInfo, IUpdateInfo
 {
 
     public ACClassTaskValuePos()
@@ -143,6 +143,14 @@ public partial class ACClassTaskValuePos : VBEntityObject, IInsertInfo, IUpdateI
     { 
         get => LazyLoader.Load(this, ref _ACClassTaskValue);
         set => _ACClassTaskValue = value;
+    }
+
+    public bool ACClassTaskValue_IsLoaded
+    {
+        get
+        {
+            return ACClassTaskValue != null;
+        }
     }
 
     public virtual ReferenceEntry ACClassTaskValueReference 

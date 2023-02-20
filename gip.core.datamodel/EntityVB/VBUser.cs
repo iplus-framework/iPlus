@@ -12,7 +12,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(3, "Initials", "en{'Initials'}de{'Initialen'}","", "", true)]
     [ACPropertyEntity(4, "AllowChangePW", "en{'Can change password'}de{'Darf Passwort ändern'}","", "", true)]
     [ACPropertyEntity(5, "IsSuperuser", "en{'Has unrestricted rights'}de{'Hat uneingeschränkte Rechte'}","", "", true)]
-    [ACPropertyEntity(6, "VBLanguage", "en{'Language'}de{'Sprache'}", Const.ContextDatabase + "\\" + VBLanguage.ClassName, "", true)]
+    [ACPropertyEntity(6, "VBLanguage", "en{'Language'}de{'Sprache'}", Const.ContextDatabase + "\\" + VBLanguage.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9999, "Password", "en{'Password'}de{'Passwort'}","", "", true)]
     [ACPropertyEntity(9999, "MenuACClassDesign", "en{'Main Menu'}de{'Hauptmenü'}", Const.ContextDatabase + "\\MenuACClassList", "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBUser.ClassName, "en{'User'}de{'Benutzer'}", typeof(VBUser), VBUser.ClassName, "VBUserName", "VBUserName")]

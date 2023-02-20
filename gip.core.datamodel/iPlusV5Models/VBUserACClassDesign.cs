@@ -89,6 +89,14 @@ public partial class VBUserACClassDesign : VBEntityObject , IInsertInfo, IUpdate
         set => _ACClassDesign = value;
     }
 
+    public bool ACClassDesign_IsLoaded
+    {
+        get
+        {
+            return ACClassDesign != null;
+        }
+    }
+
     public virtual ReferenceEntry ACClassDesignReference 
     {
         get { return Context.Entry(this).Reference("ACClassDesign"); }
@@ -99,6 +107,14 @@ public partial class VBUserACClassDesign : VBEntityObject , IInsertInfo, IUpdate
     { 
         get => LazyLoader.Load(this, ref _VBUser);
         set => _VBUser = value;
+    }
+
+    public bool VBUser_IsLoaded
+    {
+        get
+        {
+            return VBUser != null;
+        }
     }
 
     public virtual ReferenceEntry VBUserReference 

@@ -335,11 +335,11 @@ namespace gip.core.datamodel
                     //Context.ExecuteStoreCommand(cmdDelete);
                     foreach (ACClassTask t in acClassTaskForDelete)
                     {
-                        if (t.ACClassTaskValue_ACClassTaskReference.IsLoaded)
+                        if (t.ACClassTaskValue_ACClassTask_IsLoaded)
                         {
                             foreach (ACClassTaskValue v in t.ACClassTaskValue_ACClassTask)
                             {
-                                if (v.ACClassTaskValuePos_ACClassTaskValueReference.IsLoaded)
+                                if (v.ACClassTaskValuePos_ACClassTaskValue_IsLoaded)
                                 {
                                     foreach (ACClassTaskValuePos p in v.ACClassTaskValuePos_ACClassTaskValue)
                                     {
@@ -583,7 +583,7 @@ namespace gip.core.datamodel
             }
 
             ACProgram acProgram = null;
-            if (currentProgramLog.ACProgramReference.IsLoaded)
+            if (currentProgramLog.ACProgram_IsLoaded)
                 acProgram = (ACProgram)currentProgramLog.ACProgramReference.CurrentValue;
             if (acProgram == null)// && (currentProgramLog.EntityState == System.Data.EntityState.Added || currentProgramLog.EntityState == System.Data.EntityState.Detached))
                 acProgram = currentProgramLog.NewACProgramForQueue;
@@ -850,7 +850,7 @@ namespace gip.core.datamodel
         private ACProgramCacheEntry GetCacheEntry(ACProgramLog anyProgramLog, bool autoCreateIfNotExist = true)
         {
             ACProgram acProgram = null;
-            if (anyProgramLog.ACProgramReference.IsLoaded)
+            if (anyProgramLog.ACProgram_IsLoaded)
                 acProgram = (ACProgram)anyProgramLog.ACProgramReference.CurrentValue;
             if (acProgram == null) // && (anyProgramLog.EntityState == System.Data.EntityState.Added || anyProgramLog.EntityState == System.Data.EntityState.Detached))
                 acProgram = anyProgramLog.NewACProgramForQueue;

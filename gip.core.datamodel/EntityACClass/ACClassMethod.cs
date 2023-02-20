@@ -34,7 +34,7 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Method'}de{'Methode'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
     [ACPropertyEntity(1, Const.ACIdentifierPrefix, "en{'Method Name/ID'}de{'Methodenname/ID'}", "", "", true)]
     [ACPropertyEntity(3, "ACIdentifierKey", "en{'Key'}de{'Schlüssel'}", "", "", true)]
-    [ACPropertyEntity(4, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(4, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(5, Const.ACGroup, "en{'Group'}de{'Gruppe'}", "", "", true)]
     [ACPropertyEntity(6, Const.ACKindIndex, "en{'Method Type'}de{'Methodenart'}", typeof(Global.ACKinds), Const.ContextDatabaseIPlus + "\\ACKindMSList", "", true)]
     [ACPropertyEntity(7, "SortIndex", "en{'Sortindex'}de{'Sortierung'}", "", "", true)]
@@ -51,7 +51,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(18, "IsSystem", "en{'System'}de{'System'}", "", "", true)]
     [ACPropertyEntity(19, "ContextMenuCategoryIndex", "en{'Contextmenu Category'}de{'Kontextmenükategorie'}", "", "", true)]
     [ACPropertyEntity(20, "IsRPCEnabled", "en{'Is RPC Enabled'}de{'Ist RPC aktiviert'}", "", "", true)]
-    [ACPropertyEntity(21, "AttachedFromACClass", "en{'Attached from Class'}de{'Angehängt von der Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(21, "AttachedFromACClass", "en{'Attached from Class'}de{'Angehängt von der Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(22, "IsStatic", "en{'Static'}de{'Statisch'}", "", "", true)]
     [ACPropertyEntity(22, "ExecuteByDoubleClick", "en{'Execute by DoubleClick'}de{'Ausführen mit DoubleClick'}", "", "", true)]
     [ACPropertyEntity(496, Const.EntityInsertDate, Const.EntityTransInsertDate)]
@@ -62,8 +62,8 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "PWACClass", "en{'Workflowclass'}de{'Workflowklasse'}", Const.ContextDatabaseIPlus + "\\PWNodeList", "", true)]
     [ACPropertyEntity(9999, "Sourcecode", "en{'Sourcecode'}de{'Quellcode'}", "", "", true)]
     [ACPropertyEntity(9999, "InteractionVBContent", "en{'Interaction Content'}de{'Interaktionsinhalt'}", "", "", true)]
-    [ACPropertyEntity(9999, "ValueTypeACClass", "en{'Data Type'}de{'Datentyp'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
-    [ACPropertyEntity(9999, "ACClassMethod1_ParentACClassMethod", "en{'Parent Method'}de{'Elternmethode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName, "", true)]
+    [ACPropertyEntity(9999, "ValueTypeACClass", "en{'Data Type'}de{'Datentyp'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(9999, "ACClassMethod1_ParentACClassMethod", "en{'Parent Method'}de{'Elternmethode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9999, "XMLACMethod", "en{'Method Definition'}de{'Methodendefinition'}")]
     [ACDeleteAction("VBGroupRight_ACClassMethod", Global.DeleteAction.CascadeManual)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassMethod.ClassName, "en{'Method'}de{'Methode'}", typeof(ACClassMethod), ACClassMethod.ClassName, Const.ACIdentifierPrefix, "SortIndex," + Const.ACIdentifierPrefix)]
@@ -1233,7 +1233,7 @@ namespace gip.core.datamodel
                 }
 
                 ACClassMethod basedOnACClassMethod = null;
-                if (ACClassMethod1_ParentACClassMethodReference.IsLoaded)
+                if (ACClassMethod1_ParentACClassMethod_IsLoaded)
                     basedOnACClassMethod = (ACClassMethod) ACClassMethod1_ParentACClassMethodReference.CurrentValue;
                 if (basedOnACClassMethod == null)
                 {
@@ -1470,7 +1470,7 @@ namespace gip.core.datamodel
                 var acClassWF = RootWFNode as ACClassWF;
                 if (acClassWF != null)
                 {
-                    if (acClassWF.PWACClassReference.IsLoaded)
+                    if (acClassWF.PWACClass_IsLoaded)
                         workflowTypeACClass = (ACClass) acClassWF.PWACClassReference.CurrentValue;
                     if (workflowTypeACClass == null)
                     {
@@ -1482,7 +1482,7 @@ namespace gip.core.datamodel
                 }
                 else
                 {
-                    if (PWACClassReference.IsLoaded)
+                    if (PWACClass_IsLoaded)
                         workflowTypeACClass = (ACClass) PWACClassReference.CurrentValue;
                     if (workflowTypeACClass == null)
                     {
@@ -1822,7 +1822,7 @@ namespace gip.core.datamodel
             get
             {
                 ACClass sc = null;
-                if (ACClassReference.IsLoaded)
+                if (ACClass_IsLoaded)
                     sc = (ACClass) ACClassReference.CurrentValue;
                 if (sc == null)
                 {
@@ -1841,7 +1841,7 @@ namespace gip.core.datamodel
             get
             {
                 ACClass sc = null;
-                if (ValueTypeACClassReference.IsLoaded)
+                if (ValueTypeACClass_IsLoaded)
                     sc = (ACClass) ValueTypeACClassReference.CurrentValue;
                 if (sc == null)
                 {
@@ -1946,7 +1946,7 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(acClassMethod.Database.QueryLock_1X000))
                 {
-                    if (acClassMethod.ACClassMethodConfig_ACClassMethodReference.IsLoaded)
+                    if (acClassMethod.ACClassMethodConfig_ACClassMethod_IsLoaded)
                     {
                         acClassMethod.ACClassMethodConfig_ACClassMethod.AutoRefresh(acClassMethod.ACClassMethodConfig_ACClassMethodReference, acClassMethod.Database);
                         acClassMethod.ACClassMethodConfig_ACClassMethod.AutoLoad(ACClassMethodConfig_ACClassMethodReference, acClassMethod);
@@ -1964,7 +1964,7 @@ namespace gip.core.datamodel
             SafeList<IACConfig> newSafeList = new SafeList<IACConfig>();
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
-                if (this.ACClassMethodConfig_ACClassMethodReference.IsLoaded)
+                if (this.ACClassMethodConfig_ACClassMethod_IsLoaded)
                 {
                     this.ACClassMethodConfig_ACClassMethod.AutoRefresh(this.ACClassMethodConfig_ACClassMethodReference, this.Database);
                     this.ACClassMethodConfig_ACClassMethod.AutoLoad(ACClassMethodConfig_ACClassMethodReference, this);

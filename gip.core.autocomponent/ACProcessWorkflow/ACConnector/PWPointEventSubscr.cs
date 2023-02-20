@@ -75,7 +75,7 @@ namespace gip.core.autocomponent
                         try
                         {
                             bool mustRefreshEdges = pwNode.ContentACClassWF.ACClassMethod.MustRefreshACClassWF;
-                            bool edgesLoaded = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference.IsLoaded;
+                            bool edgesLoaded = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF_IsLoaded;
                             IEnumerable<ACClassWFEdge> edgesArray = null;
                             if (mustRefreshEdges || !edgesLoaded)
                             {
@@ -119,10 +119,10 @@ namespace gip.core.autocomponent
                                     .ToArray();
                                 foreach (var edge in edgesArray)
                                 {
-                                    if (   !edge.SourceACClassWFReference.IsLoaded
-                                        || !edge.TargetACClassWFReference.IsLoaded
-                                        || !edge.SourceACClassPropertyReference.IsLoaded
-                                        || !edge.TargetACClassPropertyReference.IsLoaded)
+                                    if (   !edge.SourceACClassWF_IsLoaded
+                                        || !edge.TargetACClassWF_IsLoaded
+                                        || !edge.SourceACClassProperty_IsLoaded
+                                        || !edge.TargetACClassProperty_IsLoaded)
                                     {
                                         mustRefreshEdges = true;
                                         break;
@@ -221,7 +221,7 @@ namespace gip.core.autocomponent
                         try
                         {
                             bool mustRefreshEdges = pwNode.ContentACClassWF.ACClassMethod.MustRefreshACClassWF;
-                            bool edgesLoaded = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference.IsLoaded;
+                            bool edgesLoaded = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF_IsLoaded;
                             IEnumerable<ACClassWFEdge> edgesArray = null;
                             if (mustRefreshEdges || !edgesLoaded)
                             {
@@ -265,10 +265,10 @@ namespace gip.core.autocomponent
                                     .ToArray();
                                 foreach (var edge in edgesArray)
                                 {
-                                    if (!edge.SourceACClassWFReference.IsLoaded
-                                        || !edge.TargetACClassWFReference.IsLoaded
-                                        || !edge.SourceACClassPropertyReference.IsLoaded
-                                        || !edge.TargetACClassPropertyReference.IsLoaded)
+                                    if (!edge.SourceACClassWF_IsLoaded
+                                        || !edge.TargetACClassWF_IsLoaded
+                                        || !edge.SourceACClassProperty_IsLoaded
+                                        || !edge.TargetACClassProperty_IsLoaded)
                                     {
                                         mustRefreshEdges = true;
                                         break;

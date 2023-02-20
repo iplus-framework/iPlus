@@ -6,12 +6,12 @@ namespace gip.core.datamodel
 {
     /// <summary>Table that stores the rights for using ACComponents an their Properties, Methods and Designs.</summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Usergroupright'}de{'Benutzergruppenrechte'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(1, "VBGroup", "en{'Usergroup'}de{'Benutzergruppe'}", Const.ContextDatabase + "\\" + VBGroup.ClassName, "", true)]
-    [ACPropertyEntity(2, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabase + "\\" + ACClass.ClassName, "", true)]
+    [ACPropertyEntity(1, "VBGroup", "en{'Usergroup'}de{'Benutzergruppe'}", Const.ContextDatabase + "\\" + VBGroup.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(2, ACClass.ClassName, "en{'Class'}de{'Klasse'}", Const.ContextDatabase + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(3, "ControlModeIndex", "en{'ControlModeIndex'}de{'de-ControlModeIndex'}", typeof(Global.ControlModes), "", "", true)]
-    [ACPropertyEntity(9999, "ACClassDesign", "en{'Design'}de{'Design'}", Const.ContextDatabase + "\\" + ACClassDesign.ClassName + "List", "", true)]
-    [ACPropertyEntity(9999, "ACClassMethod", "en{'Method'}de{'Methode'}", Const.ContextDatabase + "\\" + ACClassMethod.ClassName, "", true)]
-    [ACPropertyEntity(9999, ACClassProperty.ClassName, "en{'ACClassProperty'}de{'de-ACClassProperty'}", Const.ContextDatabase + "\\" + ACClassProperty.ClassName, "", true)]
+    [ACPropertyEntity(9999, "ACClassDesign", "en{'Design'}de{'Design'}", Const.ContextDatabase + "\\" + ACClassDesign.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(9999, "ACClassMethod", "en{'Method'}de{'Methode'}", Const.ContextDatabase + "\\" + ACClassMethod.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
+    [ACPropertyEntity(9999, ACClassProperty.ClassName, "en{'ACClassProperty'}de{'de-ACClassProperty'}", Const.ContextDatabase + "\\" + ACClassProperty.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBGroupRight.ClassName, "en{'Usergroupright'}de{'Benutzergruppenrechte'}", typeof(VBGroupRight), VBGroupRight.ClassName, VBGroup.ClassName + "\\VBGroupName", VBGroup.ClassName + "\\VBGroupName")]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBGroupRight>) })]
     [NotMapped]

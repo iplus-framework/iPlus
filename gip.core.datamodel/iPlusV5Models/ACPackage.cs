@@ -82,8 +82,16 @@ public partial class ACPackage : VBEntityObject , IInsertInfo, IUpdateInfo
         set => _ACClass_ACPackage = value;
     }
 
+    public bool ACClass_ACPackage_IsLoaded
+    {
+        get
+        {
+            return ACClass_ACPackage != null;
+        }
+    }
+
     public virtual CollectionEntry ACClass_ACPackageReference
     {
-        get { return Context.Entry(this).Collection("ACClass_ACPackage"); }
+        get { return Context.Entry(this).Collection(c => c.ACClass_ACPackage); }
     }
 }
