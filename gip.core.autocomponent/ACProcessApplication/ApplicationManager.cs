@@ -8,6 +8,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters;
+using System.Net;
+using System.Windows.Interop;
 
 namespace gip.core.autocomponent
 {
@@ -369,42 +371,28 @@ namespace gip.core.autocomponent
                 while (!_ShutdownEvent.WaitOne(100, false))
                 {
                     _WorkCycleThread.StartReportingExeTime();
-                    ProjectThreadWakedUpAfter100ms();
+                    try
+                    {
+                        ProjectThreadWakedUpAfter100ms();
+                    }
+                    catch (Exception ex) 
+                    {
+                        Msg msg = new Msg(eMsgLevel.Exception, ex.Message);
+                        if (IsAlarmActive(CurrentAlarmsInProject, msg.Message) == null)
+                        {
+                            Messages.LogException(this.GetACUrl(), nameof(RunWorkCycle) + "(10)", ex);
+                            Messages.LogException(this.GetACUrl(), nameof(RunWorkCycle) + "(20)", ex.StackTrace);
+                        }
+                        OnNewAlarmOccurred(CurrentAlarmsInProject, msg, true);
+                    }
                     _WorkCycleThread.StopReportingExeTime();
                 }
             }
             catch (Exception e)
             {
-                //ThreadAbortException
-                Messages.LogException(this.GetACUrl(), "RunWorkCycle()", e.GetType().Name);
-                if (!String.IsNullOrEmpty(e.Message))
-                {
-                    Messages.LogException(this.GetACUrl(), "RunWorkCycle()", e.Message);
-                    if (e.InnerException != null && !String.IsNullOrEmpty(e.InnerException.Message))
-                    {
-                        Messages.LogException(this.GetACUrl(), "RunWorkCycle()", e.InnerException.Message);
-                    }
-                }
+                Messages.LogException(this.GetACUrl(), nameof(RunWorkCycle) + "(30)", e);
+                Messages.LogException(this.GetACUrl(), nameof(RunWorkCycle) + "(40)", e.StackTrace);
             }
-            //try
-            //{
-            //    StringBuilder desc = new StringBuilder();
-            //    StackTrace stackTrace = new StackTrace(_WorkCycleThread.Thread, true);
-            //    for (int i = 0; i < stackTrace.FrameCount; i++)
-            //    {
-            //        StackFrame sf = stackTrace.GetFrame(i);
-            //        desc.AppendFormat(" Method: {0}", sf.GetMethod());
-            //        desc.AppendFormat(" File: {0}", sf.GetFileName());
-            //        desc.AppendFormat(" Line Number: {0}", sf.GetFileLineNumber());
-            //        desc.AppendLine();
-            //    }
-
-            //    string stackDesc = desc.ToString();
-            //    Messages.LogException("App.CurrentDomain_UnhandledException", "Stacktrace", stackDesc);
-            //}
-            //catch (Exception)
-            //{
-            //}
         }
 
         private DateTime? _LastWakeupTime = null;
