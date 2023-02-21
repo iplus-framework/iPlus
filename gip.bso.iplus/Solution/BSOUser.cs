@@ -374,9 +374,6 @@ namespace gip.bso.iplus
                 if (CurrentUser == null)
                     return null;
                 List<ACProject> bsos = new List<ACProject>();
-
-
-
                 foreach (var ACProject in Db.ACProject.Where(c => c.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application
                                                                                     || c.ACProjectTypeIndex == (short)Global.ACProjectTypes.Service)
                                                                          .OrderBy(c => c.ACProjectName))
@@ -718,15 +715,7 @@ namespace gip.bso.iplus
         [ACMethodInteraction("ACProject", "en{'>'}de{'>'}", 504, true, "SelectedACProject")]
         public void AssignACProject()
         {
-            if (CurrentUserInstance == null || SelectedACProject == null)
-                return;
-            if (CurrentUserInstance.VBUser.VBUserACProject_VBUser.Where(c => c.ACProject.ACProjectID == SelectedACProject.ACProjectID).Any())
-                return;
-            // Norbert: Warum muss CurrentUserInstance übergeben weren, wenn userACProject gesetzt werden muss??
-            VBUserACProject userACProject = VBUserACProject.NewVBUserACProject(Db, SelectedUser, Db.ACProject.Where(c => c.ACProjectID == SelectedACProject.ACProjectID).Select(c => c).First());
-            //userACProject.ACProject = Database.ACProject.Where(c => c.ACProjectID == SelectedACProject.ACProjectID).Select(c => c).First();
-            userACProject.VBUser = SelectedUser;
-            Db.VBUserACProject.AddObject(userACProject);
+            AssignProject(SelectedACProject);
             OnPropertyChanged("ACProjectList");
             OnPropertyChanged("VBUserACProjectList");
         }
@@ -740,6 +729,37 @@ namespace gip.bso.iplus
             return CurrentUserInstance != null && SelectedACProject != null;
         }
 
+        [ACMethodInteraction("ACProject", "en{'>>'}de{'>>'}", 504, true, "SelectedACProject")]
+        public void AssignAllACProject()
+        {
+            var unAssignedProjects = ACProjectList.ToList();
+            if (!unAssignedProjects.Any())
+                return;
+            foreach (var project in unAssignedProjects)
+            {
+                AssignProject(project);
+            }
+            OnPropertyChanged("ACProjectList");
+            OnPropertyChanged("VBUserACProjectList");
+        }
+
+        public bool IsEnabledAssignAllACProject()
+        {
+            return IsEnabledAssignACProject();
+        }
+
+        private void AssignProject(ACProject acProject)
+        {
+            if (CurrentUserInstance == null || acProject == null)
+                return;
+            if (CurrentUserInstance.VBUser.VBUserACProject_VBUser.Where(c => c.ACProject.ACProjectID == acProject.ACProjectID).Any())
+                return;
+            VBUserACProject userACProject = VBUserACProject.NewVBUserACProject(Db, SelectedUser, Db.ACProject.Where(c => c.ACProjectID == acProject.ACProjectID).Select(c => c).First());
+            userACProject.VBUser = SelectedUser;
+            Db.VBUserACProject.AddObject(userACProject);
+        }
+
+
         /// <summary>
         /// Unassigns the AC project.
         /// </summary>
@@ -748,15 +768,7 @@ namespace gip.bso.iplus
         {
             if (CurrentUserInstance == null || SelectedAssignedVBUserACProject == null)
                 return;
-
-            var VBUserACProject = CurrentUserInstance.VBUser.VBUserACProject_VBUser.Where(c => c.VBUserACProjectID == SelectedAssignedVBUserACProject.VBUserACProjectID).First();
-            Msg msg = VBUserACProject.DeleteACObject(Db, true);
-            if (msg != null)
-            {
-                Messages.Msg(msg);
-                return;
-            }
-
+            UnAssignProject(SelectedAssignedVBUserACProject);
             OnPropertyChanged("ACProjectList");
             OnPropertyChanged("VBUserACProjectList");
         }
@@ -770,9 +782,41 @@ namespace gip.bso.iplus
             return CurrentUser != null && SelectedAssignedVBUserACProject != null;
         }
 
+        [ACMethodInteraction("ACProject", "en{'<<'}de{'<<'}", 505, true, "SelectedAssignedVBUserACProject")]
+        public void UnassignAllACProject()
+        {
+            var assignedProjects = VBUserACProjectList.ToList();
+            if (!assignedProjects.Any())
+                return;
+            foreach (var project in assignedProjects)
+            {
+                UnAssignProject(project);
+            }
+            OnPropertyChanged("ACProjectList");
+            OnPropertyChanged("VBUserACProjectList");
+        }
 
-        [ACMethodInteraction("UserClone", "en{'Clone'}de{'Klonen'}", (short)MISort.New, true, "SelectedUser", Global.ACKinds.MSMethodPrePost)]
+        public bool IsEnabledUnassignAllACProject()
+        {
+            return IsEnabledUnassignACProject();
+        }
 
+        private void UnAssignProject(VBUserACProject userACProject)
+        {
+            if (CurrentUserInstance == null || userACProject == null)
+                return;
+
+            var VBUserACProject = CurrentUserInstance.VBUser.VBUserACProject_VBUser.Where(c => c.VBUserACProjectID == userACProject.VBUserACProjectID).First();
+            Msg msg = VBUserACProject.DeleteACObject(Db, true);
+            if (msg != null)
+            {
+                Messages.Msg(msg);
+                return;
+            }
+        }
+
+
+        [ACMethodInteraction("UserClone", "en{'Clone'}de{'Duplizieren'}", (short)MISort.New, true, "SelectedUser", Global.ACKinds.MSMethodPrePost)]
         public void UserClone()
         {
             if (!IsEnabledUserClone())
@@ -925,65 +969,77 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "Save":
+                case nameof(Save):
                     Save();
                     return true;
-                case "IsEnabledSave":
+                case nameof(IsEnabledSave):
                     result = IsEnabledSave();
                     return true;
-                case "UndoSave":
+                case nameof(UndoSave):
                     UndoSave();
                     return true;
-                case "IsEnabledUndoSave":
+                case nameof(IsEnabledUndoSave):
                     result = IsEnabledUndoSave();
                     return true;
-                case "Load":
+                case nameof(Load):
                     Load(acParameter.Count() == 1 ? (Boolean)acParameter[0] : false);
                     return true;
-                case "IsEnabledLoad":
+                case nameof(IsEnabledLoad):
                     result = IsEnabledLoad();
                     return true;
-                case "New":
+                case nameof(New):
                     New();
                     return true;
-                case "IsEnabledNew":
+                case nameof(IsEnabledNew):
                     result = IsEnabledNew();
                     return true;
-                case "Delete":
+                case nameof(Delete):
                     Delete();
                     return true;
-                case "IsEnabledDelete":
+                case nameof(IsEnabledDelete):
                     result = IsEnabledDelete();
                     return true;
-                case "Search":
+                case nameof(Search):
                     Search();
                     return true;
-                case "AssignGroup":
+                case nameof(AssignGroup):
                     AssignGroup();
                     return true;
-                case "IsEnabledAssignGroup":
+                case nameof(IsEnabledAssignGroup):
                     result = IsEnabledAssignGroup();
                     return true;
-                case "UnassignGroup":
+                case nameof(UnassignGroup):
                     UnassignGroup();
                     return true;
-                case "IsEnabledUnassignGroup":
+                case nameof(IsEnabledUnassignGroup):
                     result = IsEnabledUnassignGroup();
                     return true;
-                case "AssignACProject":
+                case nameof(AssignACProject):
                     AssignACProject();
                     return true;
-                case "IsEnabledAssignACProject":
+                case nameof(IsEnabledAssignACProject):
                     result = IsEnabledAssignACProject();
                     return true;
-                case "UnassignACProject":
+                case nameof(UnassignACProject):
                     UnassignACProject();
                     return true;
-                case "UserClone":
+                case nameof(UserClone):
                     UserClone();
                     return true;
-                case "IsEnabledUnassignACProject":
+                case nameof(IsEnabledUnassignACProject):
                     result = IsEnabledUnassignACProject();
+                    return true;
+                case nameof(AssignAllACProject):
+                    AssignAllACProject();
+                    return true;
+                case nameof(IsEnabledAssignAllACProject):
+                    result = IsEnabledAssignAllACProject();
+                    return true;
+                case nameof(UnassignAllACProject):
+                    UnassignAllACProject();
+                    return true;
+                case nameof(IsEnabledUnassignAllACProject):
+                    result = IsEnabledUnassignAllACProject();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
