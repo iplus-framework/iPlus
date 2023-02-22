@@ -133,6 +133,7 @@ namespace gip.core.autocomponent
             if (TrySemaphore != null && TrySemaphore.ConnectionListCount > 0)
                 TrySemaphore.RemoveAll();
             base.Recycle(content, parentACObject, parameter, acIdentifier);
+            CurrentACSubState = 0;
         }
 
         #endregion
