@@ -124,7 +124,14 @@ namespace gip.core.datamodel
             }
 
             if (entity.ACClass != null)
-                entity.SortIndex = Convert.ToInt16(entity.ACClass.Properties.Where(c => c.SortIndex < 9999).Max(c => c.SortIndex) + 1);
+            {
+                //entity.SortIndex = Convert.ToInt16(entity.ACClass.Properties.Where(c => c.SortIndex < 9999).Max(c => c.SortIndex) + 1);
+                int sortIndex = 0;
+                var query = entity.ACClass.Properties.Where(c => c.SortIndex < 9999);
+                if (query.Any())
+                    sortIndex = query.Max(c => c.SortIndex);
+                sortIndex++;
+            }
             entity.ACClassProperty1_BasedOnACClassProperty = entity;
             entity.IsRPCEnabled = false;
             entity.RemotePropID = 0;

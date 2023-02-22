@@ -77,6 +77,10 @@ namespace iPlusV5CompiledModels
                 unicode: false);
             updateName.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(ACPropertyLogRule).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
             var key = runtimeEntityType.AddKey(
                 new[] { aCPropertyLogRuleID });
             runtimeEntityType.SetPrimaryKey(key);
@@ -100,14 +104,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClass),
                 propertyInfo: typeof(ACPropertyLogRule).GetProperty("ACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACPropertyLogRule).GetField("<ACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACPropertyLogRule).GetField("_ACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var aCPropertyLogRuleACClass = principalEntityType.AddNavigation("ACPropertyLogRule_ACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACPropertyLogRule>),
                 propertyInfo: typeof(ACClass).GetProperty("ACPropertyLogRule_ACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClass).GetField("<ACPropertyLogRule_ACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClass).GetField("_ACPropertyLogRule_ACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_ACPropertyLogRule_ACClass");
             return runtimeForeignKey;

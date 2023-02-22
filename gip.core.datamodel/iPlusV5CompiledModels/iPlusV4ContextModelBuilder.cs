@@ -44,7 +44,7 @@ namespace iPlusV5CompiledModels
             var vBLicense = VBLicenseEntityType.Create(this);
             var vBNoConfiguration = VBNoConfigurationEntityType.Create(this);
             var vBSystem = VBSystemEntityType.Create(this);
-            var vBSystemColumn = VBSystemColumnEntityType.Create(this);
+            var vBSystemColumns = VBSystemColumnsEntityType.Create(this);
             var vBTranslationView = VBTranslationViewEntityType.Create(this);
             var vBUser = VBUserEntityType.Create(this);
             var vBUserACClassDesign = VBUserACClassDesignEntityType.Create(this);
@@ -97,7 +97,6 @@ namespace iPlusV5CompiledModels
             ACClassTaskValueEntityType.CreateForeignKey3(aCClassTaskValue, vBUser);
             ACClassTaskValuePosEntityType.CreateForeignKey1(aCClassTaskValuePos, aCClassTaskValue);
             ACClassTextEntityType.CreateForeignKey1(aCClassText, aCClass);
-            ACClassTextEntityType.CreateForeignKey2(aCClassText, aCClass);
             ACClassWFEntityType.CreateForeignKey1(aCClassWF, aCClassMethod);
             ACClassWFEntityType.CreateForeignKey2(aCClassWF, aCClass);
             ACClassWFEntityType.CreateForeignKey3(aCClassWF, aCClassWF);
@@ -178,7 +177,7 @@ namespace iPlusV5CompiledModels
             VBLicenseEntityType.CreateAnnotations(vBLicense);
             VBNoConfigurationEntityType.CreateAnnotations(vBNoConfiguration);
             VBSystemEntityType.CreateAnnotations(vBSystem);
-            VBSystemColumnEntityType.CreateAnnotations(vBSystemColumn);
+            VBSystemColumnsEntityType.CreateAnnotations(vBSystemColumns);
             VBTranslationViewEntityType.CreateAnnotations(vBTranslationView);
             VBUserEntityType.CreateAnnotations(vBUser);
             VBUserACClassDesignEntityType.CreateAnnotations(vBUserACClassDesign);
@@ -186,7 +185,7 @@ namespace iPlusV5CompiledModels
             VBUserGroupEntityType.CreateAnnotations(vBUserGroup);
             VBUserInstanceEntityType.CreateAnnotations(vBUserInstance);
 
-            AddAnnotation("ProductVersion", "7.0.0");
+            AddAnnotation("ProductVersion", "7.0.2");
             AddAnnotation("Relational:MaxIdentifierLength", 128);
             AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
         }

@@ -206,7 +206,7 @@ namespace gip.core.autocomponent
                     {
                         ACClassTask acClassTask = value as ACClassTask;
                         if (acClassTask.ContentACClassWF_IsLoaded)
-                            _ContentACClassWF = acClassTask.ContentACClassWFReference.CurrentValue as ACClassWF;
+                            _ContentACClassWF = acClassTask.ContentACClassWF as ACClassWF;
                         if (_ContentACClassWF == null) // && (acClassTask.EntityState == System.Data.EntityState.Added || acClassTask.EntityState == System.Data.EntityState.Detached))
                             _ContentACClassWF = acClassTask.NewContentACClassWFForQueue;
                         if (_ContentACClassWF == null)

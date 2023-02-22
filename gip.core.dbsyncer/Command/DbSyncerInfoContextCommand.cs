@@ -25,7 +25,9 @@ namespace gip.core.dbsyncer.Command
             bool isInitialDbSync = false;
             try
             {
-                db.Database.SqlQuery<DateTime?>(FormattableStringFactory.Create(SQLScripts.CheckDbSyncerInfoExist)).FirstOrDefault<DateTime?>();
+                var result = db.Database.SqlQuery<DateTime>(FormattableStringFactory.Create(SQLScripts.CheckDbSyncerInfoExist)).AsEnumerable<DateTime>();
+                if (!result.Any())
+                    isInitialDbSync = true;
             }
             catch (SqlException cc)
             {
@@ -43,7 +45,7 @@ namespace gip.core.dbsyncer.Command
 
         public static bool IsOldDBStructurePresent(DbContext db)
         {
-            return db.Database.SqlQuery<int?>(FormattableStringFactory.Create(SQLScripts.CheckDbSyncerInfoExist_OLD)).FirstOrDefault() > 0;
+            return db.Database.SqlQuery<int>(FormattableStringFactory.Create(SQLScripts.CheckDbSyncerInfoExist_OLD)).ToArray().FirstOrDefault() > 0;
         }
 
         /// <summary>

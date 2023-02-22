@@ -91,6 +91,10 @@ namespace iPlusV5CompiledModels
                 fieldInfo: typeof(VBUserACProject).GetField("_VBUserID", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             vBUserID.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(VBUserACProject).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
             var key = runtimeEntityType.AddKey(
                 new[] { vBUserACProjectID });
             runtimeEntityType.SetPrimaryKey(key);
@@ -119,14 +123,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACProject),
                 propertyInfo: typeof(VBUserACProject).GetProperty("ACProject", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUserACProject).GetField("<ACProject>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUserACProject).GetField("_ACProject", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBUserACProjectACProject = principalEntityType.AddNavigation("VBUserACProject_ACProject",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBUserACProject>),
                 propertyInfo: typeof(ACProject).GetProperty("VBUserACProject_ACProject", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACProject).GetField("<VBUserACProject_ACProject>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACProject).GetField("_VBUserACProject_ACProject", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBUserACProject_ACProjectID");
             return runtimeForeignKey;
@@ -145,14 +151,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(VBUser),
                 propertyInfo: typeof(VBUserACProject).GetProperty("VBUser", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUserACProject).GetField("<VBUser>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUserACProject).GetField("_VBUser", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBUserACProjectVBUser = principalEntityType.AddNavigation("VBUserACProject_VBUser",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBUserACProject>),
                 propertyInfo: typeof(VBUser).GetProperty("VBUserACProject_VBUser", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUser).GetField("<VBUserACProject_VBUser>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUser).GetField("_VBUserACProject_VBUser", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBUserACProject_VBUserID");
             return runtimeForeignKey;

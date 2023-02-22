@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using gip.core.datamodel;
 
@@ -130,11 +131,15 @@ namespace iPlusV5CompiledModels
             var xMLConfig = runtimeEntityType.AddProperty(
                 "XMLConfig",
                 typeof(string),
-                propertyInfo: typeof(VBUser).GetProperty("XMLConfig", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(VBEntityObject).GetProperty("XMLConfig", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(VBUser).GetField("_XMLConfig", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             xMLConfig.AddAnnotation("Relational:ColumnType", "text");
             xMLConfig.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(VBUser).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var key = runtimeEntityType.AddKey(
                 new[] { vBUserID });
@@ -162,14 +167,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClassDesign),
                 propertyInfo: typeof(VBUser).GetProperty("MenuACClassDesign", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUser).GetField("<MenuACClassDesign>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUser).GetField("_MenuACClassDesign", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBUserMenuACClassDesign = principalEntityType.AddNavigation("VBUser_MenuACClassDesign",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBUser>),
                 propertyInfo: typeof(ACClassDesign).GetProperty("VBUser_MenuACClassDesign", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassDesign).GetField("<VBUser_MenuACClassDesign>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassDesign).GetField("_VBUser_MenuACClassDesign", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBUser_MenuACClassDesignID");
             return runtimeForeignKey;
@@ -187,14 +194,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(VBLanguage),
                 propertyInfo: typeof(VBUser).GetProperty("VBLanguage", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUser).GetField("<VBLanguage>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUser).GetField("_VBLanguage", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBUserVBLanguage = principalEntityType.AddNavigation("VBUser_VBLanguage",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBUser>),
                 propertyInfo: typeof(VBLanguage).GetProperty("VBUser_VBLanguage", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBLanguage).GetField("<VBUser_VBLanguage>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBLanguage).GetField("_VBUser_VBLanguage", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBUser_MDLanguageID");
             return runtimeForeignKey;

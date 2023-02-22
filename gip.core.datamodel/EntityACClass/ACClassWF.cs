@@ -309,7 +309,7 @@ namespace gip.core.datamodel
         public IEnumerable<IACWorkflowEdge> GetOutgoingWFEdgesInGroup(IACWorkflowContext context)
         {
             if (this.EntityState != EntityState.Added && !ACClassMethod.ACClassWFEdge_ACClassMethod_IsLoaded)
-                Context.Entry(ACClassMethod).Reference("ACClassWFEdge_ACClassMethod").Load();
+                ACClassMethod.ACClassWFEdge_ACClassMethodReference.Load();
             return GetOutgoingWFEdges(context).Where(c => ((ACClassWF)c.ToWFNode).ACClassWF1_ParentACClassWF.ACClassWFID == this.ACClassWF1_ParentACClassWF.ACClassWFID).Select(c => c);
         }
 

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using gip.core.datamodel;
 
@@ -79,6 +80,10 @@ namespace iPlusV5CompiledModels
                 unicode: false);
             xMLValue.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(ACChangeLog).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
             var key = runtimeEntityType.AddKey(
                 new[] { aCChangeLogID });
             runtimeEntityType.SetPrimaryKey(key);
@@ -107,14 +112,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClass),
                 propertyInfo: typeof(ACChangeLog).GetProperty("ACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACChangeLog).GetField("<ACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACChangeLog).GetField("_ACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var aCChangeLogACClass = principalEntityType.AddNavigation("ACChangeLog_ACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACChangeLog>),
                 propertyInfo: typeof(ACClass).GetProperty("ACChangeLog_ACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClass).GetField("<ACChangeLog_ACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClass).GetField("_ACChangeLog_ACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_ACChangeLog_ACClass");
             return runtimeForeignKey;
@@ -132,14 +139,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClassProperty),
                 propertyInfo: typeof(ACChangeLog).GetProperty("ACClassProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACChangeLog).GetField("<ACClassProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACChangeLog).GetField("_ACClassProperty", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var aCChangeLogACClassProperty = principalEntityType.AddNavigation("ACChangeLog_ACClassProperty",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACChangeLog>),
                 propertyInfo: typeof(ACClassProperty).GetProperty("ACChangeLog_ACClassProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassProperty).GetField("<ACChangeLog_ACClassProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassProperty).GetField("_ACChangeLog_ACClassProperty", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_ACChangeLog_ACClassProperty");
             return runtimeForeignKey;
@@ -157,14 +166,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(VBUser),
                 propertyInfo: typeof(ACChangeLog).GetProperty("VBUser", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACChangeLog).GetField("<VBUser>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACChangeLog).GetField("_VBUser", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var aCChangeLogVBUser = principalEntityType.AddNavigation("ACChangeLog_VBUser",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACChangeLog>),
                 propertyInfo: typeof(VBUser).GetProperty("ACChangeLog_VBUser", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUser).GetField("<ACChangeLog_VBUser>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUser).GetField("_ACChangeLog_VBUser", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_ACChangeLog_VBUser");
             return runtimeForeignKey;

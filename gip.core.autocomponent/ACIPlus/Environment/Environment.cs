@@ -501,10 +501,10 @@ namespace gip.core.autocomponent
                     {
                         FormattableString cntQueryStringSysProcProgram = FormattableStringFactory.Create(C_SQL_SysProcProgram, sqlConnectionInfo.ApplicationName, sqlConnectionInfo.InitialCatalog);
                         var cntQuery = Database.ContextIPlus.Database.SqlQuery<int>(cntQueryStringSysProcProgram);
-                        int countAppConnections = cntQuery.FirstOrDefault();
+                        int countAppConnections = cntQuery.AsEnumerable().FirstOrDefault();
                         FormattableString cntQueryStringSysProc = FormattableStringFactory.Create(C_SQL_SysProc, sqlConnectionInfo.InitialCatalog);
                         cntQuery = Database.ContextIPlus.Database.SqlQuery<int>(cntQueryStringSysProc);
-                        int countDBConnections = cntQuery.FirstOrDefault();
+                        int countDBConnections = cntQuery.AsEnumerable().FirstOrDefault();
                         if (countAppConnections != countDBConnections)
                             Messages.LogDebug(this.GetACUrl(), "GetDBConnectionCount(10)", String.Format("countAppConnections {0} and countDBConnections {1} are different! Maybe someone has opened a SQL-Connection from another program than iPlus or the Application-Name in the Connectionstrings are different in some clients!", countAppConnections, countDBConnections));
                         return countDBConnections;

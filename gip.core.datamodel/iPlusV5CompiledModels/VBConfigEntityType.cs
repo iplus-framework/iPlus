@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using gip.core.datamodel;
 
@@ -131,14 +132,6 @@ namespace iPlusV5CompiledModels
                 unicode: false);
             updateName.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
-            var vBiACClassID = runtimeEntityType.AddProperty(
-                "VBiACClassID",
-                typeof(Guid?),
-                propertyInfo: typeof(VBConfig).GetProperty("VBiACClassID", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBConfig).GetField("<VBiACClassID>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            vBiACClassID.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
-
             var valueTypeACClassID = runtimeEntityType.AddProperty(
                 "ValueTypeACClassID",
                 typeof(Guid),
@@ -149,10 +142,14 @@ namespace iPlusV5CompiledModels
             var xMLConfig = runtimeEntityType.AddProperty(
                 "XMLConfig",
                 typeof(string),
-                propertyInfo: typeof(VBConfig).GetProperty("XMLConfig", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(VBEntityObject).GetProperty("XMLConfig", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(VBConfig).GetField("_XMLConfig", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             xMLConfig.AddAnnotation("Relational:ColumnType", "text");
             xMLConfig.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(VBConfig).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var key = runtimeEntityType.AddKey(
                 new[] { vBConfigID });
@@ -188,14 +185,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClass),
                 propertyInfo: typeof(VBConfig).GetProperty("ACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBConfig).GetField("<ACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBConfig).GetField("_ACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBConfigACClass = principalEntityType.AddNavigation("VBConfig_ACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBConfig>),
                 propertyInfo: typeof(ACClass).GetProperty("VBConfig_ACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClass).GetField("<VBConfig_ACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClass).GetField("_VBConfig_ACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBConfig_ACClassID");
             return runtimeForeignKey;
@@ -212,14 +211,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClassPropertyRelation),
                 propertyInfo: typeof(VBConfig).GetProperty("ACClassPropertyRelation", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBConfig).GetField("<ACClassPropertyRelation>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBConfig).GetField("_ACClassPropertyRelation", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBConfigACClassPropertyRelation = principalEntityType.AddNavigation("VBConfig_ACClassPropertyRelation",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBConfig>),
                 propertyInfo: typeof(ACClassPropertyRelation).GetProperty("VBConfig_ACClassPropertyRelation", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassPropertyRelation).GetField("<VBConfig_ACClassPropertyRelation>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassPropertyRelation).GetField("_VBConfig_ACClassPropertyRelation", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBConfig_ACClassPropertyRelationID");
             return runtimeForeignKey;
@@ -236,14 +237,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(VBConfig),
                 propertyInfo: typeof(VBConfig).GetProperty("VBConfig1_ParentVBConfig", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBConfig).GetField("<VBConfig1_ParentVBConfig>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBConfig).GetField("_VBConfig1_ParentVBConfig", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBConfigParentVBConfig = principalEntityType.AddNavigation("VBConfig_ParentVBConfig",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBConfig>),
                 propertyInfo: typeof(VBConfig).GetProperty("VBConfig_ParentVBConfig", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBConfig).GetField("<VBConfig_ParentVBConfig>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBConfig).GetField("_VBConfig_ParentVBConfig", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBConfig_ParentVBConfigID");
             return runtimeForeignKey;
@@ -261,14 +264,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClass),
                 propertyInfo: typeof(VBConfig).GetProperty("ValueTypeACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBConfig).GetField("<ValueTypeACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBConfig).GetField("_ValueTypeACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBConfigValueTypeACClass = principalEntityType.AddNavigation("VBConfig_ValueTypeACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBConfig>),
                 propertyInfo: typeof(ACClass).GetProperty("VBConfig_ValueTypeACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClass).GetField("<VBConfig_ValueTypeACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClass).GetField("_VBConfig_ValueTypeACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBConfig_ValueTypeACClassID");
             return runtimeForeignKey;

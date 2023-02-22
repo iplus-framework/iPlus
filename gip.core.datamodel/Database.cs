@@ -753,7 +753,7 @@ namespace gip.core.datamodel
 
         #endregion
 
-        #region DBSetList
+        #region DBSetToList
 
         [ACPropertyInfo(9999)]
         [NotMapped]

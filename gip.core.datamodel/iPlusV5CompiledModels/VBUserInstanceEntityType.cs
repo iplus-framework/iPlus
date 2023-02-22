@@ -214,6 +214,10 @@ namespace iPlusV5CompiledModels
                 fieldInfo: typeof(VBUserInstance).GetField("_VBUserID", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             vBUserID.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(VBUserInstance).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
             var key = runtimeEntityType.AddKey(
                 new[] { vBUserInstanceID });
             runtimeEntityType.SetPrimaryKey(key);
@@ -238,14 +242,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(VBUser),
                 propertyInfo: typeof(VBUserInstance).GetProperty("VBUser", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUserInstance).GetField("<VBUser>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUserInstance).GetField("_VBUser", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBUserInstanceVBUser = principalEntityType.AddNavigation("VBUserInstance_VBUser",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBUserInstance>),
                 propertyInfo: typeof(VBUser).GetProperty("VBUserInstance_VBUser", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUser).GetField("<VBUserInstance_VBUser>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUser).GetField("_VBUserInstance_VBUser", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBUserInstance_VBUserID");
             return runtimeForeignKey;

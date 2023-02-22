@@ -39,7 +39,7 @@ namespace iPlusV5CompiledModels
             var aCIdentifier = runtimeEntityType.AddProperty(
                 "ACIdentifier",
                 typeof(string),
-                propertyInfo: typeof(ACClassWF).GetProperty("ACIdentifier", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(VBEntityObject).GetProperty("ACIdentifier", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ACClassWF).GetField("_ACIdentifier", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 maxLength: 100,
                 unicode: false);
@@ -139,7 +139,7 @@ namespace iPlusV5CompiledModels
             var xMLConfig = runtimeEntityType.AddProperty(
                 "XMLConfig",
                 typeof(string),
-                propertyInfo: typeof(ACClassWF).GetProperty("XMLConfig", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(VBEntityObject).GetProperty("XMLConfig", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ACClassWF).GetField("_XMLConfig", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             xMLConfig.AddAnnotation("Relational:ColumnType", "text");
@@ -155,9 +155,9 @@ namespace iPlusV5CompiledModels
                 unicode: false);
             xName.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
-            var database = runtimeEntityType.AddServiceProperty(
-                "Database",
-                propertyInfo: typeof(ACClassWF).GetProperty("Database", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(ACClassWF).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var key = runtimeEntityType.AddKey(
                 new[] { aCClassWFID });
@@ -199,14 +199,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClassMethod),
                 propertyInfo: typeof(ACClassWF).GetProperty("ACClassMethod", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassWF).GetField("<ACClassMethod>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassWF).GetField("_ACClassMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var aCClassWFACClassMethod = principalEntityType.AddNavigation("ACClassWF_ACClassMethod",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassWF>),
                 propertyInfo: typeof(ACClassMethod).GetProperty("ACClassWF_ACClassMethod", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassMethod).GetField("<ACClassWF_ACClassMethod>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassMethod).GetField("_ACClassWF_ACClassMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_ACClassWF_ACClassMethodID");
             return runtimeForeignKey;
@@ -224,14 +226,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClass),
                 propertyInfo: typeof(ACClassWF).GetProperty("PWACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassWF).GetField("<PWACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassWF).GetField("_PWACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var aCClassWFPWACClass = principalEntityType.AddNavigation("ACClassWF_PWACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassWF>),
                 propertyInfo: typeof(ACClass).GetProperty("ACClassWF_PWACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClass).GetField("<ACClassWF_PWACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClass).GetField("_ACClassWF_PWACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_ACClassWF_PWACClassID");
             return runtimeForeignKey;
@@ -248,14 +252,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClassWF),
                 propertyInfo: typeof(ACClassWF).GetProperty("ACClassWF1_ParentACClassWF", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassWF).GetField("<ACClassWF1_ParentACClassWF>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassWF).GetField("_ACClassWF1_ParentACClassWF", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var aCClassWFParentACClassWF = principalEntityType.AddNavigation("ACClassWF_ParentACClassWF",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassWF>),
                 propertyInfo: typeof(ACClassWF).GetProperty("ACClassWF_ParentACClassWF", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassWF).GetField("<ACClassWF_ParentACClassWF>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassWF).GetField("_ACClassWF_ParentACClassWF", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_ACClassWF_ParentACClassWFID");
             return runtimeForeignKey;
@@ -272,14 +278,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClass),
                 propertyInfo: typeof(ACClassWF).GetProperty("RefPAACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassWF).GetField("<RefPAACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassWF).GetField("_RefPAACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var aCClassWFRefPAACClass = principalEntityType.AddNavigation("ACClassWF_RefPAACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassWF>),
                 propertyInfo: typeof(ACClass).GetProperty("ACClassWF_RefPAACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClass).GetField("<ACClassWF_RefPAACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClass).GetField("_ACClassWF_RefPAACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_ACClassWF_RefPAACClassID");
             return runtimeForeignKey;
@@ -296,14 +304,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClassMethod),
                 propertyInfo: typeof(ACClassWF).GetProperty("RefPAACClassMethod", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassWF).GetField("<RefPAACClassMethod>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassWF).GetField("_RefPAACClassMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var aCClassWFRefPAACClassMethod = principalEntityType.AddNavigation("ACClassWF_RefPAACClassMethod",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassWF>),
                 propertyInfo: typeof(ACClassMethod).GetProperty("ACClassWF_RefPAACClassMethod", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassMethod).GetField("<ACClassWF_RefPAACClassMethod>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassMethod).GetField("_ACClassWF_RefPAACClassMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_ACClassWF_RefPAACClassMethodID");
             return runtimeForeignKey;

@@ -142,6 +142,10 @@ namespace iPlusV5CompiledModels
                 unicode: false);
             systemRemote.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(VBSystem).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
             var key = runtimeEntityType.AddKey(
                 new[] { vBSystemID });
             runtimeEntityType.SetPrimaryKey(key);

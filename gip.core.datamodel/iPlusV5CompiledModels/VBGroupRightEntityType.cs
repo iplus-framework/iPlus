@@ -60,12 +60,6 @@ namespace iPlusV5CompiledModels
                 nullable: true);
             aCClassPropertyID.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
-            var controlMode = runtimeEntityType.AddProperty(
-                "ControlMode",
-                typeof(Global.ControlModes),
-                propertyInfo: typeof(VBGroupRight).GetProperty("ControlMode", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-            controlMode.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
-
             var controlModeIndex = runtimeEntityType.AddProperty(
                 "ControlModeIndex",
                 typeof(short),
@@ -79,6 +73,10 @@ namespace iPlusV5CompiledModels
                 propertyInfo: typeof(VBGroupRight).GetProperty("VBGroupID", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(VBGroupRight).GetField("_VBGroupID", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             vBGroupID.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(VBGroupRight).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var key = runtimeEntityType.AddKey(
                 new[] { vBGroupRightID });
@@ -118,14 +116,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClassDesign),
                 propertyInfo: typeof(VBGroupRight).GetProperty("ACClassDesign", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBGroupRight).GetField("<ACClassDesign>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBGroupRight).GetField("_ACClassDesign", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBGroupRightACClassDesign = principalEntityType.AddNavigation("VBGroupRight_ACClassDesign",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBGroupRight>),
                 propertyInfo: typeof(ACClassDesign).GetProperty("VBGroupRight_ACClassDesign", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassDesign).GetField("<VBGroupRight_ACClassDesign>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassDesign).GetField("_VBGroupRight_ACClassDesign", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBGroupRight_ACClassDesignID");
             return runtimeForeignKey;
@@ -144,14 +144,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClass),
                 propertyInfo: typeof(VBGroupRight).GetProperty("ACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBGroupRight).GetField("<ACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBGroupRight).GetField("_ACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBGroupRightACClass = principalEntityType.AddNavigation("VBGroupRight_ACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBGroupRight>),
                 propertyInfo: typeof(ACClass).GetProperty("VBGroupRight_ACClass", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClass).GetField("<VBGroupRight_ACClass>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClass).GetField("_VBGroupRight_ACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBGroupRight_ACClassID");
             return runtimeForeignKey;
@@ -168,14 +170,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClassMethod),
                 propertyInfo: typeof(VBGroupRight).GetProperty("ACClassMethod", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBGroupRight).GetField("<ACClassMethod>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBGroupRight).GetField("_ACClassMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBGroupRightACClassMethod = principalEntityType.AddNavigation("VBGroupRight_ACClassMethod",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBGroupRight>),
                 propertyInfo: typeof(ACClassMethod).GetProperty("VBGroupRight_ACClassMethod", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassMethod).GetField("<VBGroupRight_ACClassMethod>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassMethod).GetField("_VBGroupRight_ACClassMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBGroupRight_ACClassMethodID");
             return runtimeForeignKey;
@@ -192,14 +196,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClassProperty),
                 propertyInfo: typeof(VBGroupRight).GetProperty("ACClassProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBGroupRight).GetField("<ACClassProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBGroupRight).GetField("_ACClassProperty", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBGroupRightACClassProperty = principalEntityType.AddNavigation("VBGroupRight_ACClassProperty",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBGroupRight>),
                 propertyInfo: typeof(ACClassProperty).GetProperty("VBGroupRight_ACClassProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassProperty).GetField("<VBGroupRight_ACClassProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassProperty).GetField("_VBGroupRight_ACClassProperty", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBGroupRight_ACClassPropertyID");
             return runtimeForeignKey;
@@ -218,14 +224,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(VBGroup),
                 propertyInfo: typeof(VBGroupRight).GetProperty("VBGroup", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBGroupRight).GetField("<VBGroup>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBGroupRight).GetField("_VBGroup", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBGroupRightVBGroup = principalEntityType.AddNavigation("VBGroupRight_VBGroup",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBGroupRight>),
                 propertyInfo: typeof(VBGroup).GetProperty("VBGroupRight_VBGroup", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBGroup).GetField("<VBGroupRight_VBGroup>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBGroup).GetField("_VBGroupRight_VBGroup", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBGroupRight_VBGroupID");
             return runtimeForeignKey;

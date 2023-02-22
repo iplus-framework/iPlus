@@ -47,7 +47,7 @@ namespace gip.core.dbsyncer.helper
                     if (!string.IsNullOrEmpty(defaultConnectionString))
                     {
                         defaultConnectionString = defaultConnectionString.Replace(Environment.NewLine, "").Replace("        ", "");
-                        defaultConnectionString = DbSyncerSettings.ConnectionStringRemoveEntityPart(defaultConnectionString);
+                        //defaultConnectionString = DbSyncerSettings.ConnectionStringRemoveEntityPart(defaultConnectionString);
                     }
                 }
                 catch (Exception ec)

@@ -39,7 +39,7 @@ namespace iPlusV5CompiledModels
             var aCIdentifier = runtimeEntityType.AddProperty(
                 "ACIdentifier",
                 typeof(string),
-                propertyInfo: typeof(ACClassTaskValuePos).GetProperty("ACIdentifier", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(VBEntityObject).GetProperty("ACIdentifier", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ACClassTaskValuePos).GetField("_ACIdentifier", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 maxLength: 50,
                 unicode: false);
@@ -152,6 +152,10 @@ namespace iPlusV5CompiledModels
             xMLACMethod.AddAnnotation("Relational:ColumnType", "text");
             xMLACMethod.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(ACClassTaskValuePos).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
             var key = runtimeEntityType.AddKey(
                 new[] { aCClassTaskValuePosID });
             runtimeEntityType.SetPrimaryKey(key);
@@ -180,14 +184,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClassTaskValue),
                 propertyInfo: typeof(ACClassTaskValuePos).GetProperty("ACClassTaskValue", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassTaskValuePos).GetField("<ACClassTaskValue>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassTaskValuePos).GetField("_ACClassTaskValue", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var aCClassTaskValuePosACClassTaskValue = principalEntityType.AddNavigation("ACClassTaskValuePos_ACClassTaskValue",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassTaskValuePos>),
                 propertyInfo: typeof(ACClassTaskValue).GetProperty("ACClassTaskValuePos_ACClassTaskValue", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassTaskValue).GetField("<ACClassTaskValuePos_ACClassTaskValue>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassTaskValue).GetField("_ACClassTaskValuePos_ACClassTaskValue", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_ACClassTaskValuePos_ACClassTaskValueID");
             return runtimeForeignKey;

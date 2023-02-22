@@ -107,6 +107,7 @@ namespace gip.core.datamodel
             entity.XMLConfig = "";
             entity.SortIndex = 9999;
             entity.BranchNo = 0;
+
             //entity.ACPackage = ACPackage.DefaultACPackage(database);
 
             if (parentACObject is ACProject)
@@ -2115,7 +2116,7 @@ namespace gip.core.datamodel
                     if (wasLoaded && forceRefreshFromDB)
                     {
                         // Alternative to prevent a second roundtrip to database:
-                        //allProperties.SynchronizeCollections<ACClassProperty>(ACClassProperty_ACClass);
+                        allProperties.SynchronizeCollections<ACClassProperty>(ACClassProperty_ACClass);
                         //_ = ACClassProperty_ACClass;
                         // Is this then Necessary?
                         ACClassProperty_ACClass.AutoLoad(ACClassProperty_ACClassReference, this);

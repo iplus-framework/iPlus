@@ -98,7 +98,7 @@ public partial class iPlusV4Context : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(new ACMaterializationInterceptor());
+        optionsBuilder.AddInterceptors(new ACMaterializationInterceptor()).UseModel(iPlusV5CompiledModels.iPlusV4ContextModel.Instance);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

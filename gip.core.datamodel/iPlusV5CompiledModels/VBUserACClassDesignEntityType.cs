@@ -40,7 +40,7 @@ namespace iPlusV5CompiledModels
             var aCIdentifier = runtimeEntityType.AddProperty(
                 "ACIdentifier",
                 typeof(string),
-                propertyInfo: typeof(VBUserACClassDesign).GetProperty("ACIdentifier", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(VBEntityObject).GetProperty("ACIdentifier", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(VBUserACClassDesign).GetField("_ACIdentifier", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true,
                 maxLength: 200,
@@ -96,6 +96,10 @@ namespace iPlusV5CompiledModels
             xMLDesign.AddAnnotation("Relational:ColumnType", "text");
             xMLDesign.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(VBUserACClassDesign).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
             var key = runtimeEntityType.AddKey(
                 new[] { vBUserACClassDesignID });
             runtimeEntityType.SetPrimaryKey(key);
@@ -123,14 +127,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACClassDesign),
                 propertyInfo: typeof(VBUserACClassDesign).GetProperty("ACClassDesign", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUserACClassDesign).GetField("<ACClassDesign>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUserACClassDesign).GetField("_ACClassDesign", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBUserACClassDesignACClassDesign = principalEntityType.AddNavigation("VBUserACClassDesign_ACClassDesign",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBUserACClassDesign>),
                 propertyInfo: typeof(ACClassDesign).GetProperty("VBUserACClassDesign_ACClassDesign", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACClassDesign).GetField("<VBUserACClassDesign_ACClassDesign>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACClassDesign).GetField("_VBUserACClassDesign_ACClassDesign", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBUserACClassDesign_ACClassDesignID");
             return runtimeForeignKey;
@@ -149,14 +155,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(VBUser),
                 propertyInfo: typeof(VBUserACClassDesign).GetProperty("VBUser", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUserACClassDesign).GetField("<VBUser>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUserACClassDesign).GetField("_VBUser", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBUserACClassDesignVBUser = principalEntityType.AddNavigation("VBUserACClassDesign_VBUser",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBUserACClassDesign>),
                 propertyInfo: typeof(VBUser).GetProperty("VBUserACClassDesign_VBUser", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUser).GetField("<VBUserACClassDesign_VBUser>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUser).GetField("_VBUserACClassDesign_VBUser", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBUserACClassDesign_VBUserID");
             return runtimeForeignKey;

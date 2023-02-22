@@ -35,12 +35,12 @@ namespace gip.core.datamodel
         {
             foreach (var oldEntry in prevResult.ToArray())
             {
-                if (newResult.Contains(oldEntry))
+                if (!newResult.Contains(oldEntry))
                     prevResult.Remove(oldEntry);
             }
             foreach (var newEntry in newResult)
             {
-                if (prevResult.Contains(newEntry))
+                if (!prevResult.Contains(newEntry))
                     prevResult.Add(newEntry);
             }
         }

@@ -163,10 +163,14 @@ namespace iPlusV5CompiledModels
             var xMLConfig = runtimeEntityType.AddProperty(
                 "XMLConfig",
                 typeof(string),
-                propertyInfo: typeof(ACProgramLog).GetProperty("XMLConfig", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(VBEntityObject).GetProperty("XMLConfig", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ACProgramLog).GetField("_XMLConfig", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             xMLConfig.AddAnnotation("Relational:ColumnType", "text");
             xMLConfig.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(ACProgramLog).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var key = runtimeEntityType.AddKey(
                 new[] { aCProgramLogID });
@@ -196,14 +200,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACProgram),
                 propertyInfo: typeof(ACProgramLog).GetProperty("ACProgram", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACProgramLog).GetField("<ACProgram>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACProgramLog).GetField("_ACProgram", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var aCProgramLogACProgram = principalEntityType.AddNavigation("ACProgramLog_ACProgram",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACProgramLog>),
                 propertyInfo: typeof(ACProgram).GetProperty("ACProgramLog_ACProgram", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACProgram).GetField("<ACProgramLog_ACProgram>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACProgram).GetField("_ACProgramLog_ACProgram", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_ACProgramLog_ACProgramID");
             return runtimeForeignKey;
@@ -220,14 +226,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(ACProgramLog),
                 propertyInfo: typeof(ACProgramLog).GetProperty("ACProgramLog1_ParentACProgramLog", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACProgramLog).GetField("<ACProgramLog1_ParentACProgramLog>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACProgramLog).GetField("_ACProgramLog1_ParentACProgramLog", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var aCProgramLogParentACProgramLog = principalEntityType.AddNavigation("ACProgramLog_ParentACProgramLog",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACProgramLog>),
                 propertyInfo: typeof(ACProgramLog).GetProperty("ACProgramLog_ParentACProgramLog", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ACProgramLog).GetField("<ACProgramLog_ParentACProgramLog>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ACProgramLog).GetField("_ACProgramLog_ParentACProgramLog", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_ACProgramLog_ParentACProgramLogID");
             return runtimeForeignKey;

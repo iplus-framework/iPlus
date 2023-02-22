@@ -77,6 +77,10 @@ namespace iPlusV5CompiledModels
                 fieldInfo: typeof(VBUserGroup).GetField("_VBUserID", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             vBUserID.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var lazyLoader = runtimeEntityType.AddServiceProperty(
+                "LazyLoader",
+                propertyInfo: typeof(VBUserGroup).GetProperty("LazyLoader", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
             var key = runtimeEntityType.AddKey(
                 new[] { vBUserGroupID });
             runtimeEntityType.SetPrimaryKey(key);
@@ -105,14 +109,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(VBGroup),
                 propertyInfo: typeof(VBUserGroup).GetProperty("VBGroup", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUserGroup).GetField("<VBGroup>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUserGroup).GetField("_VBGroup", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBUserGroupVBGroup = principalEntityType.AddNavigation("VBUserGroup_VBGroup",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBUserGroup>),
                 propertyInfo: typeof(VBGroup).GetProperty("VBUserGroup_VBGroup", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBGroup).GetField("<VBUserGroup_VBGroup>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBGroup).GetField("_VBUserGroup_VBGroup", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBUserGroup_VBGroupID");
             return runtimeForeignKey;
@@ -131,14 +137,16 @@ namespace iPlusV5CompiledModels
                 onDependent: true,
                 typeof(VBUser),
                 propertyInfo: typeof(VBUserGroup).GetProperty("VBUser", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUserGroup).GetField("<VBUser>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUserGroup).GetField("_VBUser", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             var vBUserGroupVBUser = principalEntityType.AddNavigation("VBUserGroup_VBUser",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<VBUserGroup>),
                 propertyInfo: typeof(VBUser).GetProperty("VBUserGroup_VBUser", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(VBUser).GetField("<VBUserGroup_VBUser>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(VBUser).GetField("_VBUserGroup_VBUser", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
 
             runtimeForeignKey.AddAnnotation("Relational:Name", "FK_VBUserGroup_VBUserID");
             return runtimeForeignKey;

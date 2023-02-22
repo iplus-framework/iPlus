@@ -1507,11 +1507,11 @@ namespace gip.core.datamodel
         {
             get
             {
-                if (this.EntityState != EntityState.Added && !Context.Entry(this).Reference("ACClassWF_ACClassMethod").IsLoaded)
+                if (this.EntityState != EntityState.Added && !ACClassWF_ACClassMethod_IsLoaded)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                     {
-                        Context.Entry(this).Reference("ACClassWF_ACClassMethod").Load();
+                        ACClassWF_ACClassMethodReference.Load();
                     }
                 }
                 return ACClassWF_ACClassMethod.ToList(); // ToList, damit Query Thread-Safe
