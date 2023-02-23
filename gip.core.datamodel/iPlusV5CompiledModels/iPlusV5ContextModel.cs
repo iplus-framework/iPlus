@@ -8,18 +8,18 @@ using gip.core.datamodel;
 
 namespace iPlusV5CompiledModels
 {
-    [DbContext(typeof(iPlusV4Context))]
-    public partial class iPlusV4ContextModel : RuntimeModel
+    [DbContext(typeof(iPlusV5Context))]
+    public partial class iPlusV5ContextModel : RuntimeModel
     {
-        static iPlusV4ContextModel()
+        static iPlusV5ContextModel()
         {
-            var model = new iPlusV4ContextModel();
+            var model = new iPlusV5ContextModel();
             model.Initialize();
             model.Customize();
             _instance = model;
         }
 
-        private static iPlusV4ContextModel _instance;
+        private static iPlusV5ContextModel _instance;
         public static IModel Instance => _instance;
 
         partial void Initialize();

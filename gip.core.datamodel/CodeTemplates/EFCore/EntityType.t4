@@ -16,12 +16,8 @@
 <#@ import namespace="Microsoft.EntityFrameworkCore.Design" #>
 <#@ import namespace="Microsoft.Extensions.DependencyInjection" #>
 <#
+    Debugger.Launch();
     if (EntityType.IsSimpleManyToManyJoinEntityType())
-    {
-        // Don't scaffold these
-        return "";
-    }
-    if ((EntityType.Name).Substring(0, 1) == "@")
     {
         // Don't scaffold these
         return "";
@@ -89,15 +85,24 @@ namespace <#= "gip.core.datamodel" #>;
         setInsertUpdateInterface = true;
     }
 
+    string entityTypeNewName = "";
+    if ((EntityType.Name).Substring(0, 1) == "@")
+    {
+        entityTypeNewName = EntityType.Name.Remove(0,1);
+    }
+    else
+    {
+        entityTypeNewName = EntityType.Name;
+    }
 #>
-public partial class <#= EntityType.Name #> : VBEntityObject <#= setInsertUpdateInterface ? ", IInsertInfo, IUpdateInfo" : "" #>
+public partial class <#= entityTypeNewName #> : VBEntityObject <#= setInsertUpdateInterface ? ", IInsertInfo, IUpdateInfo" : "" #>
 {
 
-    public <#= EntityType.Name #>()
+    public <#= entityTypeNewName #>()
     {
     }
 
-    private <#= EntityType.Name #>(ILazyLoader lazyLoader)
+    private <#= entityTypeNewName #>(ILazyLoader lazyLoader)
     {
         LazyLoader = lazyLoader;
     }
@@ -164,6 +169,8 @@ public partial class <#= EntityType.Name #> : VBEntityObject <#= setInsertUpdate
         }
 
         var targetType = navigation.TargetEntityType.Name;
+        if (targetType.Contains("@"))
+            targetType = targetType.Remove(0,1);
         string navName = navigation.Name;
         string relName = "";
         if (navigation.IsCollection)
@@ -178,6 +185,10 @@ public partial class <#= EntityType.Name #> : VBEntityObject <#= setInsertUpdate
                 string pkName = navigation.ForeignKey.PrincipalToDependent.ToString();
                 string pkIdName = pkName.Split("Inverse: ").Last();
                 relName = targetType+"_"+pkIdName;
+            }
+            if (relName.Contains("@"))
+            {
+                relName = relName.Remove(0,1);
             }
 #>
     private ICollection<<#= targetType #>> _<#= relName #>;
@@ -221,6 +232,14 @@ public partial class <#= EntityType.Name #> : VBEntityObject <#= setInsertUpdate
         get => LazyLoader.Load(this, ref _<#= navPIdname #>);
         set => _<#= navPIdname #> = value;
     }<#= needsInitializer ? " = null!;" : "" #>
+
+    public bool <#= navPIdname #>_IsLoaded
+    {
+        get
+        {
+            return <#= navPIdname #> != null;
+        }
+    }
 
     public virtual ReferenceEntry<#= needsNullable ? "?" : "" #> <#= navPIdname+"Reference" #> 
     {

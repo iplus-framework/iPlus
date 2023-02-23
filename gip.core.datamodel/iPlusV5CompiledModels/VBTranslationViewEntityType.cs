@@ -58,8 +58,7 @@ namespace iPlusV5CompiledModels
                 typeof(string),
                 propertyInfo: typeof(VBTranslationView).GetProperty("MandatoryACURLCached", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(VBTranslationView).GetField("_MandatoryACURLCached", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true,
-                unicode: false);
+                nullable: true);
             mandatoryACURLCached.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var mandatoryID = runtimeEntityType.AddProperty(

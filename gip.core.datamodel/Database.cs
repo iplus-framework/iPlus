@@ -60,7 +60,7 @@ namespace gip.core.datamodel
     }
 
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Database'}de{'Datenbank'}", Global.ACKinds.TACDBAManager, Global.ACStorableTypes.NotStorable, false, false)]
-    public partial class Database : iPlusV4Context, IACEntityObjectContext
+    public partial class Database : iPlusV5Context, IACEntityObjectContext
     {
         public const string ClassName = "Database";
         /// <summary> 
@@ -90,7 +90,7 @@ namespace gip.core.datamodel
         }
 
         public Database()
-            : base(EntityObjectExtension.DbContextOptions<iPlusV4Context>(ConnectionString))
+            : base(EntityObjectExtension.DbContextOptions<iPlusV5Context>(ConnectionString))
         {
             _ObjectContextHelper = new ACObjectContextHelper(this);
         }
@@ -101,7 +101,7 @@ namespace gip.core.datamodel
         }
 
         public Database(string connectionString)
-            : base(EntityObjectExtension.DbContextOptions<iPlusV4Context>(connectionString))
+            : base(EntityObjectExtension.DbContextOptions<iPlusV5Context>(connectionString))
         {
             _ObjectContextHelper = new ACObjectContextHelper(this);
         }
@@ -112,7 +112,7 @@ namespace gip.core.datamodel
         }
 
         public Database(DbConnection connection)
-            : base(EntityObjectExtension.DbContextOptions<iPlusV4Context>(connection))
+            : base(EntityObjectExtension.DbContextOptions<iPlusV5Context>(connection))
         {
             _SeparateConnection = connection;
             _ObjectContextHelper = new ACObjectContextHelper(this);

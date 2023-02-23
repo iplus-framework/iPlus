@@ -17,7 +17,7 @@ namespace gip.core.dbsyncer.Command
             string version = "";
             try
             {
-                List<DBSyncerVersion> versionList = db.Database.SqlQuery<DBSyncerVersion>(FormattableStringFactory.Create(SQLScripts.DBSyncerVersionSelect)).ToList<DBSyncerVersion>();
+                IEnumerable<DBSyncerVersion> versionList = db.Database.SqlQuery<DBSyncerVersion>(FormattableStringFactory.Create(SQLScripts.DBSyncerVersionSelect)).AsEnumerable<DBSyncerVersion>();
                 if (versionList != null && versionList.Any())
                     version = versionList.OrderByDescending(c => c.UpdateDate).FirstOrDefault().Version;
             }

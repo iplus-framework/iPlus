@@ -68,7 +68,16 @@ public partial class <#= Options.ContextName #> : DbContext
 <#
     foreach (var entityType in Model.GetEntityTypes().Where(e => !e.IsSimpleManyToManyJoinEntityType()))
     {
-    if ((entityType.Name).Substring(0, 1) != "@"){
+    if ((entityType.Name).Substring(0, 1) == "@"){
+
+#>
+    public virtual DbSet<<#= entityType.Name.Remove(0,1) #>> <#= entityType.Name.Remove(0,1) #> { get; set; }
+
+<#
+    } 
+    
+    else
+    {
 #>
     public virtual DbSet<<#= entityType.Name #>> <#= entityType.Name #> { get; set; }
 
@@ -110,10 +119,17 @@ public partial class <#= Options.ContextName #> : DbContext
     }
 
     StringBuilder mainEnvironment;
+    string entityTypeNewName = "";
     foreach (var entityType in Model.GetEntityTypes().Where(e => !e.IsSimpleManyToManyJoinEntityType()))
     {        
-        if ((entityType.Name).Substring(0, 1) != "@")
+        if ((entityType.Name).Substring(0, 1) == "@")
         {
+            entityTypeNewName = entityType.Name.Remove(0,1);
+        }
+        else
+        {
+            entityTypeNewName = entityType.Name;
+        }
         // Save all previously generated code, and start generating into a new temporary environment
         mainEnvironment = GenerationEnvironment;
         GenerationEnvironment = new StringBuilder();
@@ -125,7 +141,7 @@ public partial class <#= Options.ContextName #> : DbContext
 
         var anyEntityTypeConfiguration = false;
 #>
-        modelBuilder.Entity<<#= entityType.Name #>>(entity =>
+        modelBuilder.Entity<<#= entityTypeNewName #>>(entity =>
         {
 <#
         var key = entityType.FindPrimaryKey();
@@ -220,10 +236,10 @@ public partial class <#= Options.ContextName #> : DbContext
             {
                 WriteLine("");
             }
-                        string navName = foreignKey.PrincipalToDependent.Name;
+            string navName = foreignKey.PrincipalToDependent.Name;
             string relName = navName;
             string navPIdname = foreignKey.DependentToPrincipal.Name;
-            string targetType = entityType.Name;
+            string targetType = entityTypeNewName;
             if(navName.Contains("Inverse"))
             {
                 string navNameRef = navName.Remove(0,7);
@@ -342,7 +358,6 @@ public partial class <#= Options.ContextName #> : DbContext
 
         // Resume generating code into the main environment
         GenerationEnvironment = mainEnvironment;
-        }
     }
 
     foreach (var sequence in Model.GetSequences())

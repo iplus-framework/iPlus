@@ -102,6 +102,9 @@
   <ItemGroup>
     <Content Include="appsettings.json" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\gip.core.dbsyncer\gip.core.dbsyncer.csproj" />
+  </ItemGroup>
   <PropertyGroup />
   <PropertyGroup />
   <Import Project="..\gip.core.datamodel.shared\gip.core.datamodel.shared.projitems" Label="Shared" />

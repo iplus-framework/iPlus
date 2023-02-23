@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace iPlusV5CompiledModels
 {
-    public partial class iPlusV4ContextModel
+    public partial class iPlusV5ContextModel
     {
         partial void Initialize()
         {
@@ -36,6 +36,10 @@ namespace iPlusV5CompiledModels
             var aCProject = ACProjectEntityType.Create(this);
             var aCPropertyLog = ACPropertyLogEntityType.Create(this);
             var aCPropertyLogRule = ACPropertyLogRuleEntityType.Create(this);
+            var controlScriptSyncInfo = ControlScriptSyncInfoEntityType.Create(this);
+            var dBSyncerVersion = DBSyncerVersionEntityType.Create(this);
+            var dbSyncerInfo = DbSyncerInfoEntityType.Create(this);
+            var dbSyncerInfoContext = DbSyncerInfoContextEntityType.Create(this);
             var msgAlarmLog = MsgAlarmLogEntityType.Create(this);
             var vBConfig = VBConfigEntityType.Create(this);
             var vBGroup = VBGroupEntityType.Create(this);
@@ -124,6 +128,7 @@ namespace iPlusV5CompiledModels
             ACPropertyLogEntityType.CreateForeignKey1(aCPropertyLog, aCClass);
             ACPropertyLogEntityType.CreateForeignKey2(aCPropertyLog, aCClassProperty);
             ACPropertyLogRuleEntityType.CreateForeignKey1(aCPropertyLogRule, aCClass);
+            DbSyncerInfoEntityType.CreateForeignKey1(dbSyncerInfo, dbSyncerInfoContext);
             MsgAlarmLogEntityType.CreateForeignKey1(msgAlarmLog, aCClass);
             MsgAlarmLogEntityType.CreateForeignKey2(msgAlarmLog, aCProgramLog);
             VBConfigEntityType.CreateForeignKey1(vBConfig, aCClass);
@@ -169,6 +174,10 @@ namespace iPlusV5CompiledModels
             ACProjectEntityType.CreateAnnotations(aCProject);
             ACPropertyLogEntityType.CreateAnnotations(aCPropertyLog);
             ACPropertyLogRuleEntityType.CreateAnnotations(aCPropertyLogRule);
+            ControlScriptSyncInfoEntityType.CreateAnnotations(controlScriptSyncInfo);
+            DBSyncerVersionEntityType.CreateAnnotations(dBSyncerVersion);
+            DbSyncerInfoEntityType.CreateAnnotations(dbSyncerInfo);
+            DbSyncerInfoContextEntityType.CreateAnnotations(dbSyncerInfoContext);
             MsgAlarmLogEntityType.CreateAnnotations(msgAlarmLog);
             VBConfigEntityType.CreateAnnotations(vBConfig);
             VBGroupEntityType.CreateAnnotations(vBGroup);

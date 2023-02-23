@@ -127,7 +127,7 @@ namespace gip.core.datamodel
         bool bRefreshConfig = false;
         protected override void OnPropertyChanging<T>(T newValue, string propertyName, bool afterChange)
         {
-            using (var context = new iPlusV4Context())
+            using (var context = new iPlusV5Context())
             {
                 if (propertyName == nameof(XMLConfig))
                 {
