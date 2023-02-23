@@ -268,7 +268,7 @@
     <SolidColorBrush x:Key="CheckBoxPressFocusContentFillAero" Color="#FF700000"/>
 
     <LinearGradientBrush x:Key="CheckBoxPressPressedBgAero" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
-        <GradientStop Color="#FF727272" Offset="0"/>
+        <GradientStop Color="#444444" Offset="0"/>
         <GradientStop Color="#FFB2B2B2" Offset="0.2"/>
         <GradientStop Color="#FFC2C2C2" Offset="0.8"/>
         <GradientStop Color="#FFE2E2E2" Offset="1"/>
