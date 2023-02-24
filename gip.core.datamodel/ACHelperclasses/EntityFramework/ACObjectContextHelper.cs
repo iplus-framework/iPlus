@@ -638,7 +638,7 @@ namespace gip.core.datamodel
 
                 }
 #endif
-                        foreach (EntityEntry ose in modified)
+                foreach (EntityEntry ose in modified)
                 {
                     IACObjectEntity o = ose.Entity as IACObjectEntity;
                     if (o != null)

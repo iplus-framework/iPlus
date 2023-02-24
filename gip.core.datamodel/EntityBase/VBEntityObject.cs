@@ -466,6 +466,7 @@ namespace gip.core.datamodel
             Context = context;
         }
 
+        [NotMapped]
         public EntityKey EntityKey
         {
             get

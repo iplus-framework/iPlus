@@ -3418,10 +3418,10 @@ namespace gip.core.datamodel
         {
             if (propertyName == nameof(XMLConfig))
             {
-#if DEBUG
-                if (System.Diagnostics.Debugger.IsAttached)
-                    System.Diagnostics.Debugger.Break();
-#endif
+//#if DEBUG
+//                if (System.Diagnostics.Debugger.IsAttached)
+//                    System.Diagnostics.Debugger.Break();
+//#endif
                 string xmlConfig = newValue as string;
                 if (afterChange)
                 {

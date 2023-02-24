@@ -862,13 +862,15 @@ namespace gip.bso.iplus
                         return Database.ContextIPlus.ACClass.Where(c =>    c.ACProject.ACProjectTypeIndex == (short) Global.ACProjectTypes.ClassLibrary
                                                                         && c.ACKindIndex == (short) Global.ACKinds.TPWGroup
                                                                         && !c.IsAbstract)
-                                                            .OrderBy(c => c.ACIdentifier);
+                                                            .OrderBy(c => c.ACIdentifier)
+                                                            .ToList();
                     case Global.ACKinds.TPAProcessModule:
                     case Global.ACKinds.TPAProcessFunction:
                         return Database.ContextIPlus.ACClass.Where(c =>    c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.ClassLibrary 
                                                                         && c.ACKindIndex == (short) Global.ACKinds.TPWMethod
                                                                         && !c.IsAbstract)
-                                                            .OrderBy(c => c.ACIdentifier);
+                                                            .OrderBy(c => c.ACIdentifier)
+                                                            .ToList();
                     default:
                         return null;
                 }
