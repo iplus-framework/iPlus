@@ -22,6 +22,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using Microsoft.IdentityModel.Protocols.WsTrust;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System.Xml.Serialization;
 
 namespace gip.core.datamodel
 {
@@ -402,6 +403,7 @@ namespace gip.core.datamodel
         IACEntityObjectContext _context;
 
         [NotMapped]
+        [XmlIgnore]
         public IACEntityObjectContext Context
         {
             get

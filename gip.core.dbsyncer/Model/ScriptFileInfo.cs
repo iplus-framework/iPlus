@@ -28,7 +28,7 @@ namespace gip.core.dbsyncer.model
         /// </summary>
         /// <param name="context"></param>
         /// <param name="fi"></param>
-        public ScriptFileInfo(DbSyncerInfoContext context, FileInfo fi)
+        public ScriptFileInfo(gip.core.datamodel.DbSyncerInfoContext context, FileInfo fi)
         {
             Context = context;
             FileName = fi.Name;
@@ -46,7 +46,7 @@ namespace gip.core.dbsyncer.model
         }
 
 
-        public ScriptFileInfo(DbSyncerInfoContext context, FileInfo fi, string rootFolder)
+        public ScriptFileInfo(gip.core.datamodel.DbSyncerInfoContext context, FileInfo fi, string rootFolder)
             :this(context,fi)
         {
             RootFolder = rootFolder;
@@ -69,7 +69,7 @@ namespace gip.core.dbsyncer.model
         /// <summary>
         /// Context reference
         /// </summary>
-        public DbSyncerInfoContext Context { get; set; }
+        public gip.core.datamodel.DbSyncerInfoContext Context { get; set; }
 
         #endregion
 

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using gip.core.dbsyncer.model;
 using gip.core.dbsyncer.helper;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.SqlClient;
+using gip.core.datamodel;
+using gip.core.dbsyncer.model;
 
 namespace gip.core.dbsyncer.Command
 {
@@ -38,7 +38,7 @@ namespace gip.core.dbsyncer.Command
         /// Generate list of available files
         /// </summary>
         /// <returns></returns>
-        public static List<ScriptFileInfo> FileAvailableVersions(DbSyncerInfoContext dbInfoContext, string rootFolder)
+        public static List<ScriptFileInfo> FileAvailableVersions(gip.core.datamodel.DbSyncerInfoContext dbInfoContext, string rootFolder)
         {
             DirectoryInfo scriptDir = new DirectoryInfo(DbSyncerSettings.GetScriptFolderPath(dbInfoContext.DbSyncerInfoContextID, rootFolder));
             List<FileInfo> fileNames = scriptDir.GetFiles().ToList().Where(x => x.Extension.ToLower() == ".sql" && x.Name.StartsWith("dbsync_")).OrderBy(c => c.Name).ToList();
@@ -54,10 +54,10 @@ namespace gip.core.dbsyncer.Command
         /// Check version into database
         /// </summary>
         /// <returns></returns>
-        public static DateTime? DatabaseMaxScriptDate(DbContext db, DbSyncerInfoContext dbInfoContext)
+        public static DateTime? DatabaseMaxScriptDate(DbContext db, gip.core.datamodel.DbSyncerInfoContext dbInfoContext)
         {
             string sql = string.Format(SQLScripts.MaxScriptDate, dbInfoContext.DbSyncerInfoContextID.Trim());
-            return db.Database.SqlQuery<DateTime?>(FormattableStringFactory.Create(sql)).FirstOrDefault<DateTime?>();
+            return db.Database.SqlQuery<DateTime>(FormattableStringFactory.Create(sql)).ToArray().FirstOrDefault<DateTime>();
         }
         #endregion database informations
 
@@ -76,7 +76,7 @@ namespace gip.core.dbsyncer.Command
                 UpdateSqlContent(db, sqlContent, ref prepraredSQL);
                 if (updateFile.FileName != "InitialScript.sql")
                 {
-                    DbSyncerInfo dbInfo = updateFile.GetDbInfo();
+                    gip.core.dbsyncer.model.DbSyncerInfo dbInfo = updateFile.GetDbInfo();
                     db.Database.ExecuteSql(FormattableStringFactory.Create(dbInfo.ToInsertSql()));
                 }
             }
@@ -113,7 +113,7 @@ namespace gip.core.dbsyncer.Command
             try
             {
                 string sqlContent = updateFile.GetSqlContent();
-                DbSyncerInfo dbInfo = updateFile.GetDbInfo();
+                gip.core.dbsyncer.model.DbSyncerInfo dbInfo = updateFile.GetDbInfo();
                 db.Database.ExecuteSql(FormattableStringFactory.Create(dbInfo.ToDeleteSql()));
             }
             catch (SqlException sqlException)

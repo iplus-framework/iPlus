@@ -491,7 +491,7 @@ namespace gip.core.autocomponent
                     _UpdateRequiredList.Clear();
                     foreach (var acClassInfo in updateRequiredList)
                     {
-                        InsertOrUpdateValueTypeACClass(acClassInfo.TypeOfACClass, true, false);
+                         InsertOrUpdateValueTypeACClass(acClassInfo.TypeOfACClass, true, false);
                     }
                 }
 

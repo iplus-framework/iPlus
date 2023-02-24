@@ -7,17 +7,18 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.SqlClient;
+using gip.core.datamodel;
 
 namespace gip.core.dbsyncer.Command
 {
     public class DBSyncerVersionCommand
     {
-        public static string GetLatestVersion(DbContext db)
+        public static string GetLatestVersion(iPlusV5Context db)
         {
             string version = "";
             try
             {
-                IEnumerable<DBSyncerVersion> versionList = db.Database.SqlQuery<DBSyncerVersion>(FormattableStringFactory.Create(SQLScripts.DBSyncerVersionSelect)).AsEnumerable<DBSyncerVersion>();
+                IEnumerable<gip.core.datamodel.DBSyncerVersion> versionList = db.DBSyncerVersion.FromSql<gip.core.datamodel.DBSyncerVersion>(FormattableStringFactory.Create(SQLScripts.DBSyncerVersionSelect)).AsEnumerable<gip.core.datamodel.DBSyncerVersion>();
                 if (versionList != null && versionList.Any())
                     version = versionList.OrderByDescending(c => c.UpdateDate).FirstOrDefault().Version;
             }

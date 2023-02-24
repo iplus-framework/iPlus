@@ -5,7 +5,7 @@
     /// </summary>
     public static class SQLScripts
     {
-        public static string MaxScriptDate              = @"select max(ScriptDate) from [dbo].[@DbSyncerInfo] where rtrim(DbSyncerInfoContextID) = '{0}';";
+        public static string MaxScriptDate              = @"select max(ScriptDate) from [dbo].[@DbSyncerInfo] where rtrim(DbSyncerInfoContextID) = '{0}'";
         public static string CheckDbSyncerInfoExist     = @"select max(ScriptDate) from [dbo].[@DbSyncerInfo];";
         public static string CheckDbSyncerInfoExist_OLD = @"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'DbInfo'";
         public static string DbSyncerInfoContextSelect  = @"select * from  [dbo].[@DbSyncerInfoContext] order by [Order];";

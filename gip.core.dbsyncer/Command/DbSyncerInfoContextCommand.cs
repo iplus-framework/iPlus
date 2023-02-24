@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
@@ -54,7 +53,7 @@ namespace gip.core.dbsyncer.Command
         /// <returns></returns>
         public static ScriptFileInfo InitialScript(string rootFolder)
         {
-            DbSyncerInfoContext context = new DbSyncerInfoContext() { DbSyncerInfoContextID = DbSyncerSettings.IPlusContext, ConnectionName = DbSyncerSettings.DefaultConnectionStringName };
+            gip.core.datamodel.DbSyncerInfoContext context = new gip.core.datamodel.DbSyncerInfoContext() { DbSyncerInfoContextID = DbSyncerSettings.IPlusContext, ConnectionName = DbSyncerSettings.DefaultConnectionStringName };
             ScriptFileInfo scrInfo = new ScriptFileInfo(context, new FileInfo(DbSyncerSettings.InitialSQLScriptName), rootFolder);
             return scrInfo;
         }
@@ -80,36 +79,36 @@ namespace gip.core.dbsyncer.Command
 
         #region DBContexts
 
-        public static List<DbSyncerInfoContext> FileContexts(string rootFolder)
+        public static List<gip.core.dbsyncer.model.DbSyncerInfoContext> FileContexts(string rootFolder)
         {
-            List<DbSyncerInfoContext> list = new List<DbSyncerInfoContext>();
+            List<gip.core.dbsyncer.model.DbSyncerInfoContext> list = new List<gip.core.dbsyncer.model.DbSyncerInfoContext>();
             DirectoryInfo dirInfo = new DirectoryInfo(DbSyncerSettings.GetScriptFolderPath(null, rootFolder));
             List<DirectoryInfo> subDirs = dirInfo.GetDirectories().ToList();
             foreach (DirectoryInfo subDirInfo in subDirs)
             {
                 string infoFile = subDirInfo.FullName + @"\info.xml";
                 FileStream st = new FileStream(infoFile, FileMode.Open);
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(DbSyncerInfoContext));
-                DbSyncerInfoContext contextInfo = (DbSyncerInfoContext)xmlSerializer.Deserialize(st);
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(gip.core.dbsyncer.model.DbSyncerInfoContext));
+                gip.core.dbsyncer.model.DbSyncerInfoContext contextInfo = (gip.core.dbsyncer.model.DbSyncerInfoContext)xmlSerializer.Deserialize(st);
                 list.Add(contextInfo);
                 st.Close();
             }
             return list;
         }
 
-        public static List<DbSyncerInfoContext> DatabaseContexts(DbContext db)
+        public static List<gip.core.datamodel.DbSyncerInfoContext> DatabaseContexts(gip.core.datamodel.iPlusV5Context db)
         {
-            return db.Database.SqlQuery<DbSyncerInfoContext>(FormattableStringFactory.Create(SQLScripts.DbSyncerInfoContextSelect)).ToList<DbSyncerInfoContext>();
+            return db.DbSyncerInfoContext.FromSql<gip.core.datamodel.DbSyncerInfoContext>(FormattableStringFactory.Create(SQLScripts.DbSyncerInfoContextSelect)).ToList<gip.core.datamodel.DbSyncerInfoContext>();
         }
 
         /// <summary>
         /// Build a list of missing contexts
         /// </summary>
         /// <returns></returns>
-        public static List<DbSyncerInfoContext> MissingContexts(DbContext db, string rootFolder)
+        public static List<gip.core.dbsyncer.model.DbSyncerInfoContext> MissingContexts(gip.core.datamodel.iPlusV5Context db, string rootFolder)
         {
-            List<DbSyncerInfoContext> fileContexts = FileContexts(rootFolder);
-            List<DbSyncerInfoContext> dbContexts = DatabaseContexts(db);
+            List<gip.core.dbsyncer.model.DbSyncerInfoContext> fileContexts = FileContexts(rootFolder);
+            List<gip.core.datamodel.DbSyncerInfoContext> dbContexts = DatabaseContexts(db);
             fileContexts.RemoveAll(x => dbContexts.Select(n => n.DbSyncerInfoContextID.Trim()).Contains(x.DbSyncerInfoContextID.Trim()));
             return fileContexts;
         }
@@ -118,7 +117,7 @@ namespace gip.core.dbsyncer.Command
         /// Inserting new context info into database
         /// </summary>
         /// <param name="dbInfoContext"></param>
-        public static void InsertContext(DbContext db, DbSyncerInfoContext dbInfoContext)
+        public static void InsertContext(gip.core.datamodel.iPlusV5Context db, gip.core.dbsyncer.model.DbSyncerInfoContext dbInfoContext)
         {
             string sql = "";
             try

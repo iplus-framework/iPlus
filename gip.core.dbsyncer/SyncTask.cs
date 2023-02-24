@@ -8,6 +8,7 @@ using gip.core.dbsyncer.Command;
 using gip.core.dbsyncer.helper;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
+using gip.core.datamodel;
 
 namespace gip.core.dbsyncer
 {
@@ -40,7 +41,7 @@ namespace gip.core.dbsyncer
             List<BaseSyncMessage> msgList = new List<BaseSyncMessage>();
             try
             {
-                using (DbContext db = new DbContext(new DbContextOptionsBuilder().UseSqlServer(connectionString).Options))
+                using (iPlusV5Context db = new iPlusV5Context(new DbContextOptionsBuilder<iPlusV5Context>().UseSqlServer(connectionString).Options))
                 {
 
                     if (OnStatusChange != null)
@@ -103,14 +104,14 @@ namespace gip.core.dbsyncer
                     {
                         OnStatusChange(new ProgressMessage() { Success = true, Message = "Check for context registration..." });
                     }
-                    List<DbSyncerInfoContext> notRegistredContext = DbSyncerInfoContextCommand.MissingContexts(db, dbScriptRootFolder);
+                    List<model.DbSyncerInfoContext> notRegistredContext = DbSyncerInfoContextCommand.MissingContexts(db, dbScriptRootFolder);
                     if (notRegistredContext.Any())
                     {
                         if (OnStatusChange != null)
                         {
                             OnStatusChange(new ProgressMessage() { Success = true, Message = string.Format("Register next context: {0}", String.Join(", ", notRegistredContext.Select(x => x.DbSyncerInfoContextID).ToArray()).TrimEnd(", ".ToCharArray())) });
                         }
-                        foreach (DbSyncerInfoContext dbInfoContext in notRegistredContext)
+                        foreach (model.DbSyncerInfoContext dbInfoContext in notRegistredContext)
                         {
                             DbSyncerInfoContextCommand.InsertContext(db, dbInfoContext);
                         }
@@ -127,8 +128,8 @@ namespace gip.core.dbsyncer
                     }
 
                     // 3. Execute Sync per Context
-                    List<DbSyncerInfoContext> dbInfoContextList = DbSyncerInfoContextCommand.DatabaseContexts(db);
-                    foreach (DbSyncerInfoContext dbInfoContext in dbInfoContextList)
+                    List<gip.core.datamodel.DbSyncerInfoContext> dbInfoContextList = DbSyncerInfoContextCommand.DatabaseContexts(db);
+                    foreach (gip.core.datamodel.DbSyncerInfoContext dbInfoContext in dbInfoContextList)
                     {
                         DBContextHelper dbInfoContextHelper = new DBContextHelper(db, dbInfoContext, dbScriptRootFolder);
                         if (dbInfoContextHelper.IsUpdateNeeded)

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using gip.core.datamodel;
 
 namespace gip.core.dbsyncer
 {
@@ -32,7 +33,7 @@ namespace gip.core.dbsyncer
 
         #endregion
 
-        public Dictionary<string, string> GetMissingVersions(DbContext db)
+        public Dictionary<string, string> GetMissingVersions(iPlusV5Context db)
         {
             bool match = false;
             Dictionary<string, string> missingVersion = new Dictionary<string, string>();
