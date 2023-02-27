@@ -33,7 +33,7 @@ namespace gip.core.dbsyncer
 
         #endregion
 
-        public Dictionary<string, string> GetMissingVersions(iPlusV5Context db)
+        public Dictionary<string, string> GetMissingVersions(Database db)
         {
             bool match = false;
             Dictionary<string, string> missingVersion = new Dictionary<string, string>();

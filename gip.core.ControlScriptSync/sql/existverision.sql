@@ -1,1 +1,1 @@
-﻿SELECT count(*) FROM [dbo].[@ControlScriptSyncInfo] where VersionTime = {0};
+﻿SELECT count(*) FROM [dbo].[@ControlScriptSyncInfo] where VersionTime = {0}

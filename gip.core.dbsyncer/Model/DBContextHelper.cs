@@ -17,7 +17,7 @@ namespace gip.core.dbsyncer.model
         /// Doing job to define should be and what will be updated in context
         /// </summary>
         /// <param name="dbInfoContext"></param>
-        public DBContextHelper(gip.core.datamodel.iPlusV5Context db, gip.core.datamodel.DbSyncerInfoContext dbInfoContext, string rootFolder)
+        public DBContextHelper(gip.core.datamodel.Database db, gip.core.datamodel.DbSyncerInfoContext dbInfoContext, string rootFolder)
         {
             FileAvailableVersions = DbSyncerInfoCommand.FileAvailableVersions(dbInfoContext, rootFolder);
             DatabaseMaxScriptDate = DbSyncerInfoCommand.DatabaseMaxScriptDate(db, dbInfoContext);

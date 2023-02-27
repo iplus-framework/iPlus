@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using System.Reflection;
 using System.Web;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
@@ -18,6 +19,7 @@ namespace gip.core.datamodel
     /// </summary>
     [DebuggerDisplay("{ConcatKeyValue()}")]
     [DataContract(IsReference = true)]
+    [NotMapped]
     public sealed class EntityKey : IEquatable<EntityKey>
     {
         // The implementation of EntityKey is optimized for the following common cases:
@@ -918,6 +920,7 @@ namespace gip.core.datamodel
     /// </summary>
     [DataContract]
     [Serializable]
+    [NotMapped]
     public class EntityKeyMember
     {
         private string _keyName;
@@ -997,6 +1000,7 @@ namespace gip.core.datamodel
 
     }
 
+    [NotMapped]
     public class EntitySet : EntitySetBase
     {
         #region Constructors

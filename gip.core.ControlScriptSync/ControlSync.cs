@@ -61,7 +61,7 @@ namespace gip.core.ControlScriptSync
                 return false;
             }
 
-            ControlScriptSyncInfo currentVersion = vBSQLCommand.MaxVersion();
+            datamodel.ControlScriptSyncInfo currentVersion = vBSQLCommand.MaxVersion();
             if (currentVersion != null)
             {
                 OnMessage(new SyncMessage()

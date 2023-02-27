@@ -1,1 +1,1 @@
-﻿SELECT * FROM [dbo].[@ControlScriptSyncInfo];
+﻿SELECT * FROM [dbo].[@ControlScriptSyncInfo]

@@ -41,7 +41,7 @@ namespace gip.core.dbsyncer
             List<BaseSyncMessage> msgList = new List<BaseSyncMessage>();
             try
             {
-                using (iPlusV5Context db = new iPlusV5Context(new DbContextOptionsBuilder<iPlusV5Context>().UseSqlServer(connectionString).Options))
+                using (Database db = new Database(connectionString))
                 {
 
                     if (OnStatusChange != null)

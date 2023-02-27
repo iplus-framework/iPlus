@@ -1,9 +1,11 @@
 ﻿using gip.core.ControlScriptSync.VBSettings;
+using gip.core.datamodel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace gip.core.ControlScriptSync.sql
@@ -50,21 +52,21 @@ namespace gip.core.ControlScriptSync.sql
         public void Create()
         {
             string sql = VBSQLResource.Create;
-            using (DbContext db = new DbContext(ConnectionString))
+            using (Database db = new Database(ConnectionString))
             {
-                db.Database.ExecuteSqlCommand(sql);
+                db.Database.ExecuteSql(FormattableStringFactory.Create(sql));
             }
         }
 
-        public ControlScriptSyncInfo MaxVersion()
+        public datamodel.ControlScriptSyncInfo MaxVersion()
         {
-            ControlScriptSyncInfo maxVersion = null;
+            datamodel.ControlScriptSyncInfo maxVersion = null;
             string sql = VBSQLResource.MaxVersion;
             try
             {
-                using (DbContext db = new DbContext(ConnectionString))
+                using (Database db = new Database(ConnectionString))
                 {
-                    var query = db.Database.SqlQuery<ControlScriptSyncInfo>(sql);
+                    var query = db.ControlScriptSyncInfo.FromSql<datamodel.ControlScriptSyncInfo>(FormattableStringFactory.Create(sql));
                     // NOTE: aagincic: Exception of first ran is usual because table VBControlScriptInfo not exist
                     // TODO: aagincic: change this behavior to excecute without exception on first run
                     if(query.Any())
@@ -87,15 +89,15 @@ namespace gip.core.ControlScriptSync.sql
         }
 
 
-        public List<ControlScriptSyncInfo> AllVersions()
+        public List<datamodel.ControlScriptSyncInfo> AllVersions()
         {
-            List<ControlScriptSyncInfo> allVersions = null;
+            List<datamodel.ControlScriptSyncInfo> allVersions = null;
             string sql = VBSQLResource.AllVersions;
             try
             {
-                using (DbContext db = new DbContext(ConnectionString))
+                using (Database db = new Database(ConnectionString))
                 {
-                    var query = db.Database.SqlQuery<ControlScriptSyncInfo>(sql);
+                    var query = db.ControlScriptSyncInfo.FromSql<datamodel.ControlScriptSyncInfo>(FormattableStringFactory.Create(sql));
                     if (query.Any())
                         allVersions = query.ToList();
                 }
@@ -104,7 +106,7 @@ namespace gip.core.ControlScriptSync.sql
             {
                 Create();
                 allVersions = AllVersions();
-
+                 
                 string msg = e.Message;
                 if (e.InnerException != null && e.InnerException.Message != null)
                     msg += " Inner:" + e.InnerException.Message;
@@ -119,9 +121,9 @@ namespace gip.core.ControlScriptSync.sql
         {
             string sql = VBSQLResource.Insert;
             sql = string.Format(sql, string.Format("convert(datetime, '{0}', 120)",version.ToString(ControlSyncSettings.DateSQLFormat)), string.Format("convert(datetime, '{0}', 120)",DateTime.Now.ToString(ControlSyncSettings.DateSQLFormat)), updateAuthor);
-            using (DbContext db = new DbContext(ConnectionString))
+            using (Database db = new Database(ConnectionString))
             {
-                db.Database.ExecuteSqlCommand(sql);
+                db.Database.ExecuteSql(FormattableStringFactory.Create(sql));
             }
         }
 
@@ -130,9 +132,9 @@ namespace gip.core.ControlScriptSync.sql
             bool existversion = false;
             string sql = VBSQLResource.ExistVersion;
             sql = string.Format(sql, string.Format("convert(datetime, '{0}', 120)", version.ToString(ControlSyncSettings.DateSQLFormat)), string.Format("convert(datetime, '{0}', 120)", DateTime.Now.ToString(ControlSyncSettings.DateSQLFormat)));
-            using (DbContext db = new DbContext(ConnectionString))
+            using (Database db = new Database(ConnectionString))
             {
-                DbRawSqlQuery<int> result = db.Database.SqlQuery<int>(sql);
+                IEnumerable<int> result = db.Database.SqlQuery<int>(FormattableStringFactory.Create(sql)).ToArray();
                 int count = result.FirstOrDefault();
                 existversion = count > 0;
             }

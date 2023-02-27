@@ -13,7 +13,7 @@ namespace gip.core.dbsyncer.Command
 {
     public class DBSyncerVersionCommand
     {
-        public static string GetLatestVersion(iPlusV5Context db)
+        public static string GetLatestVersion(Database db)
         {
             string version = "";
             try
