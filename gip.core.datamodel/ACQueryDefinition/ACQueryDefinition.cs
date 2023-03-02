@@ -1032,7 +1032,8 @@ namespace gip.core.datamodel
 
                 LocalConfigACUrl = acConfig.LocalConfigACUrl;
 
-                ((VBEntityObject)acConfig).GetObjectContext().ACSaveChanges();
+                //((VBEntityObject)acConfig).GetObjectContext().ACSaveChanges();
+                ((gip.core.datamodel.ACClassConfig)acConfig).ACClass.Context.ACSaveChanges();
                 return true;
             }
             return false;

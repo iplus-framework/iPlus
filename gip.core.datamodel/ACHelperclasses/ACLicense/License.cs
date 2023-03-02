@@ -13,6 +13,8 @@ using System.Data;
 using System.CodeDom;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
+using System.Collections;
+using System.Reflection;
 
 namespace gip.core.datamodel.Licensing
 {
@@ -516,15 +518,46 @@ namespace gip.core.datamodel.Licensing
             string dbName = ((DbConnection)db.Connection).Database;
             if (dbName == null)
                 return "";
-            FormattableString query = $"SELECT d.create_date, d.service_broker_guid, r.database_guid FROM sys.databases d inner join sys.database_recovery_status r on d.database_id = r.database_id WHERE d.name = '{dbName}'";
-            //query = query.Replace("-dbName-", dbName);
+            string query = $"SELECT d.create_date, d.service_broker_guid, r.database_guid FROM sys.databases d inner join sys.database_recovery_status r on d.database_id = r.database_id WHERE d.name = '-dbName-'";
+            query = query.Replace("-dbName-", dbName);
             DBInfo dbInfo = null;
-
             using (ACMonitor.Lock(db.QueryLock_1X000))
             {
                 //var result = db.ExecuteStoreQuery<DBInfo>(query);
-                var result = db.Database.SqlQuery<DBInfo>(query);
-                dbInfo = result.FirstOrDefault();
+                //var result = db.Database.SqlQuery<DBInfo>(query);
+                //dbInfo = result.FirstOrDefault();
+
+                DateTime time = DateTime.Now;
+                Guid dbGuid = Guid.Empty;
+                Guid serviceBrokerGuid = Guid.Empty;
+                int counter = 0;
+                using (var command = db.Database.GetDbConnection().CreateCommand())
+                {
+                    command.CommandText = query;
+                    db.Database.OpenConnection();
+                    using (var dbResult = command.ExecuteReader())
+                    {
+                        foreach (var dbValues in dbResult)
+                        {
+                            IEnumerable values = dbValues.GetType().GetField("_values", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(dbValues) as IEnumerable;
+                            foreach (var value in values)
+                            {
+                                counter++;
+                                if (value.ToString().Contains(":"))
+                                    time = (DateTime)value;
+
+                                if (counter == 2)
+                                    dbGuid = (Guid)value;
+
+                                if (counter == 3)
+                                    serviceBrokerGuid = (Guid)value;
+                            }
+
+                            if (!dbGuid.Equals(serviceBrokerGuid) && time != DateTime.Now)
+                                dbInfo = new DBInfo(time, serviceBrokerGuid, dbGuid);
+                        }
+                    }
+                }
             }
             if (dbInfo == null)
                 return "";

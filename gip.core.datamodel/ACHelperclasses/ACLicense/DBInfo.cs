@@ -7,8 +7,15 @@ using System.Security.Cryptography;
 
 namespace gip.core.datamodel.Licensing
 {
-    internal class DBInfo
+    public class DBInfo
     {
+        public DBInfo(DateTime create_date, Guid service_broker_guid, Guid database_guid)
+        {
+            this.create_date = create_date;
+            this.service_broker_guid = service_broker_guid;
+            this.database_guid = database_guid;
+        }
+        
         public DateTime create_date
         {
             get;

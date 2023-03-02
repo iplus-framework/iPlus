@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -399,7 +400,7 @@ namespace gip.bso.iplus
         {
             get
             {
-                return Database.ContextIPlus.ACProject.OrderBy(c => c.ACProjectTypeIndex).ThenBy(c => c.ACProjectName);
+                return Database.ContextIPlus.ACProject.OrderBy(c => c.ACProjectTypeIndex).ThenBy(c => c.ACProjectName).ToList();
             }
         }
 
@@ -2026,11 +2027,37 @@ namespace gip.bso.iplus
         {
             MDTrans resultItem = null;
             string sql = "select MDKey, MDNameTrans from {0} where MDKey='{1}'";
-            FormattableString sqlFormatted = FormattableStringFactory.Create(sql, translationItem.TableName, translationItem.ACIdentifier);
+            sql = string.Format(sql, translationItem.TableName, translationItem.ACIdentifier);
 
-            var result = database.Database.SqlQuery<MDTrans>(sqlFormatted);
-            if (result != null)
-                resultItem = result.FirstOrDefault();
+            //FormattableString sqlFormatted = FormattableStringFactory.Create(sql, translationItem.TableName, translationItem.ACIdentifier);
+            //var result = database.Database.SqlQuery<MDTrans>(sqlFormatted);
+            //if (result != null)
+            //    resultItem = result.FirstOrDefault();
+
+            string nameTrans = null;
+            string mdKey = null;
+            using (var command = database.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = sql;
+                database.Database.OpenConnection();
+                using (var dbResult = command.ExecuteReader())
+                {
+                    foreach (var dbValues in dbResult)
+                    {
+                        IEnumerable values = dbValues.GetType().GetField("_values", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(dbValues) as IEnumerable;
+                        foreach (string value in values)
+                        {
+                            if (value.Contains("en"))
+                                nameTrans = value;
+
+                            else
+                                mdKey = value;
+                        }
+                        if (mdKey != null && nameTrans != null)
+                            resultItem = new MDTrans(nameTrans, mdKey);
+                    }
+                }
+            }
 
             return resultItem;
         }

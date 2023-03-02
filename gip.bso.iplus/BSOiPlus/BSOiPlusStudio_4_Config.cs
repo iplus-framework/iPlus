@@ -62,7 +62,7 @@ namespace gip.bso.iplus
         {
             get
             {
-                return Database.ContextIPlus.ACClass.Where(c => c.ACKindIndex == (Int16)Global.ACKinds.TACQRY || c.ACKindIndex == (Int16)Global.ACKinds.TACBSO).OrderBy(c => c.ACIdentifier);
+                return Database.ContextIPlus.ACClass.Where(c => c.ACKindIndex == (Int16)Global.ACKinds.TACQRY || c.ACKindIndex == (Int16)Global.ACKinds.TACBSO).OrderBy(c => c.ACIdentifier).ToList();
             }
         }
 

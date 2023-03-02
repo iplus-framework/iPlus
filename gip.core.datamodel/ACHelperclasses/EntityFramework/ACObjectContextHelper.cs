@@ -333,8 +333,9 @@ namespace gip.core.datamodel
                         {
                             // Lade Objekte aus der Datenbank nach (StoreWins)
                             //_ObjectContext.Refresh(entityList);
-                            foreach (EntityEntry entity in entityList)
-                                entity.Reload();
+                            foreach (VBEntityObject entity in entityList)
+                                entity.AutoRefresh();
+                                //entity.Reload();
                         }
                     }
                 }

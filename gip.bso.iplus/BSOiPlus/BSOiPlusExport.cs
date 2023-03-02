@@ -638,7 +638,7 @@ namespace gip.bso.iplus
         {
             get
             {
-                return Database.ContextIPlus.ACProject.OrderBy(c => c.ACProjectTypeIndex).ThenBy(c => c.ACProjectName);
+                return Database.ContextIPlus.ACProject.OrderBy(c => c.ACProjectTypeIndex).ThenBy(c => c.ACProjectName).ToList();
             }
         }
 

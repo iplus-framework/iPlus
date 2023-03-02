@@ -34,9 +34,7 @@ namespace gip.core.autocomponent
         public const int MaxItemsInObjectGraph = Int32.MaxValue;
         public const int MaxStringLength = 1048576; // 2^20 byte
 
-        public const int HTTP_PORT = 8088;
         public const int HTTPS_PORT = 8443;
-        public const int NETTCP_PORT = 8089;
 
         bool _useHttpConnection = false;
         bool _useIPV6 = false;
@@ -144,6 +142,7 @@ namespace gip.core.autocomponent
                                 //netTcpBinding.ConnectionBufferSize = WCFServiceManager.MaxBufferSize / 8;
                                 netTcpBinding.MaxBufferPoolSize = WCFServiceManager.MaxBufferSize;
                                 netTcpBinding.ReceiveTimeout = WCFServiceManager.ReceiveTimeout;
+                                builder.AddService<WCFService>();
                                 builder.AddServiceEndpoint<WCFService>(typeof(IWCFService), netTcpBinding, endpointUri);
 
                                 // When to use reliable session
@@ -177,6 +176,7 @@ namespace gip.core.autocomponent
                                 netTcpBinding.Elements.Add(tcpTransport);
                                 netTcpBinding.ReceiveTimeout = WCFServiceManager.ReceiveTimeout;
 
+                                builder.AddService<WCFService>();
                                 builder.AddServiceEndpoint<WCFService>(typeof(IWCFService), netTcpBinding, endpointUri);
                             }
                         }
@@ -185,17 +185,20 @@ namespace gip.core.autocomponent
                 .UseNetTcp(NETTCP_PORT)
                 .Build();
 
-            // TODO serviceHost must me started to get serviceHost
-            //ContractDescription cd = serviceHost.Description.Endpoints[0].Contract;
-            //foreach (OperationDescription opDescr in cd.Operations)
+            // TODO serviceHost must be started to get serviceHost, Moved to HostStart()
+            //if (serviceHost != null)
             //{
-            //    foreach (IOperationBehavior behavior in opDescr.OperationBehaviors)
+            //    ContractDescription cd = serviceHost.Description.Endpoints[0].Contract;
+            //    foreach (OperationDescription opDescr in cd.Operations)
             //    {
-            //        if (behavior is DataContractSerializerOperationBehavior)
+            //        foreach (IOperationBehavior behavior in opDescr.OperationBehaviors)
             //        {
-            //            DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
-            //            dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
-            //            dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
+            //            if (behavior is DataContractSerializerOperationBehavior)
+            //            {
+            //                DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
+            //                dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
+            //                dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
+            //            }
             //        }
             //    }
             //}
@@ -233,9 +236,9 @@ namespace gip.core.autocomponent
             OnPropertyChanged("WCFServiceChannelList");
             return true;
         }
-#endregion
+        #endregion
 
-#region public members
+        #region public members
         public override bool IsPoolable
         {
             get
@@ -275,6 +278,24 @@ namespace gip.core.autocomponent
             }
         }
 
+        //public const int HTTP_PORT = 8088;
+        //public const int NETTCP_PORT = 8002;
+
+        public int HTTP_PORT
+        {
+            get
+            {
+                return this.Root.Environment.UserInstance.ServicePortHTTP;
+            }
+        }
+
+        public int NETTCP_PORT
+        {
+            get
+            {
+                return this.Root.Environment.UserInstance.ServicePortTCP;
+            }
+        }
 
         private IWebHost _host = null;
         internal IWebHost host
@@ -289,19 +310,17 @@ namespace gip.core.autocomponent
         {
             get
             {
-                var engineProperty = _host.Services.GetType().GetField("_engine", BindingFlags.NonPublic | BindingFlags.Instance);
-                var engine = engineProperty.GetValue(_host.Services);
-                var rootProperty = engine.GetType().GetProperty("Root");
-                var root = rootProperty.GetValue(engine);
-                var resolvedServiceProperty = root.GetType().GetProperty("ResolvedServices", BindingFlags.NonPublic | BindingFlags.Instance);
-                var resolvedService = resolvedServiceProperty.GetValue(root);
-                var resolvedServiceValues = resolvedService.GetType().GetProperty("Values");
-                IEnumerable serviceValueIenumerable = resolvedServiceValues.GetValue(resolvedService) as IEnumerable;
-                foreach (Object obj in serviceValueIenumerable)
+                var realizedServicesProperty = _host.Services.GetType().GetField("_realizedServices", BindingFlags.NonPublic | BindingFlags.Instance);
+                IEnumerable realizedServices = realizedServicesProperty.GetValue(_host.Services) as IEnumerable;
+                foreach (Object obj in realizedServices)
                 {
                     if (obj.ToString().Contains("CoreWCF.ServiceHostObjectModel") && !obj.ToString().Contains("Logger"))
                     {
-                        return obj as ServiceHostBase;
+                        var objValues = obj.GetType().GetProperty("Value");
+                        var objValue = objValues.GetValue(obj);
+                        var serviceHostVal = objValue.GetType().GetProperty("Target").GetValue(objValue);
+                        var serviceHostBase = serviceHostVal.GetType().GetField("value").GetValue(serviceHostVal) as ServiceHostBase;
+                        return serviceHostBase;
                     }
                 }
                 return null;
@@ -454,7 +473,7 @@ namespace gip.core.autocomponent
         {
             if (ACOperationMode != ACOperationModes.Live)
                 return;
-            if (serviceHost.State != CommunicationState.Opened)
+            if (serviceHost == null || serviceHost.State != CommunicationState.Opened)
             {
                 _ACHostStartThread = new ACThread(StartHost);
                 _ACHostStartThread.Name = "ACUrl:" + this.GetACUrl() + ";StartHost();";
@@ -762,6 +781,23 @@ namespace gip.core.autocomponent
             //while (!_syncHostStart.ExitThreadEvent.WaitOne(0, false))
             //{
             host.Start();
+
+            if (serviceHost != null)
+            {
+                ContractDescription cd = serviceHost.Description.Endpoints[0].Contract;
+                foreach (OperationDescription opDescr in cd.Operations)
+                {
+                    foreach (IOperationBehavior behavior in opDescr.OperationBehaviors)
+                    {
+                        if (behavior is DataContractSerializerOperationBehavior)
+                        {
+                            DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
+                            dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
+                            dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
+                        }
+                    }
+                }
+            }
             //}
         }
 

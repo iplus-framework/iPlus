@@ -363,7 +363,7 @@ namespace gip.bso.iplus
                 //Neue Projekte können nur vom Typ Anwendung oder Anwendungstyp sein
                 //Global.ACProjectTypes.ACAppDefinition;
                 //Global.ACProjectTypes.ACApplication
-                return Database.ContextIPlus.ACProjectTypeList.Where(c => (Global.ACProjectTypes)c.Value == Global.ACProjectTypes.AppDefinition || (Global.ACProjectTypes)c.Value == Global.ACProjectTypes.Application);
+                return Database.ContextIPlus.ACProjectTypeList.Where(c => (Global.ACProjectTypes)c.Value == Global.ACProjectTypes.AppDefinition || (Global.ACProjectTypes)c.Value == Global.ACProjectTypes.Application).ToList();
             }
         }
 

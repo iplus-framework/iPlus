@@ -48,7 +48,7 @@ public partial class VBTranslationView : VBEntityObject
     }
 
     string _MandatoryACURLCached;
-    public string MandatoryACURLCached 
+    public string MandatoryACURLCached
     {
         get { return _MandatoryACURLCached; }
         set { SetProperty<string>(ref _MandatoryACURLCached, value); }
