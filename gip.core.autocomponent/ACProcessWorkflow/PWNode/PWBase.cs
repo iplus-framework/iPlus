@@ -206,7 +206,7 @@ namespace gip.core.autocomponent
                     {
                         ACClassTask acClassTask = value as ACClassTask;
                         if (acClassTask.ContentACClassWF_IsLoaded)
-                            _ContentACClassWF = acClassTask.ContentACClassWF as ACClassWF;
+                            _ContentACClassWF = acClassTask.ContentACClassWF;
                         if (_ContentACClassWF == null) // && (acClassTask.EntityState == System.Data.EntityState.Added || acClassTask.EntityState == System.Data.EntityState.Detached))
                             _ContentACClassWF = acClassTask.NewContentACClassWFForQueue;
                         if (_ContentACClassWF == null)
@@ -236,7 +236,7 @@ namespace gip.core.autocomponent
                     {
                         ACClassTask acClassTask = Content as ACClassTask;
                         if (acClassTask.ContentACClassWF_IsLoaded)
-                            _ContentACClassWF = acClassTask.ContentACClassWFReference.CurrentValue as ACClassWF;
+                            _ContentACClassWF = acClassTask.ContentACClassWF;
                         if (_ContentACClassWF == null)// && (acClassTask.EntityState == System.Data.EntityState.Added || acClassTask.EntityState == System.Data.EntityState.Detached))
                             _ContentACClassWF = acClassTask.NewContentACClassWFForQueue;
                         if (_ContentACClassWF == null)
@@ -256,7 +256,7 @@ namespace gip.core.autocomponent
                     return null;
                 ACClassMethod aCClassMethod = null;
                 if (contentACClassWF.RefPAACClassMethod_IsLoaded)
-                    aCClassMethod = contentACClassWF.RefPAACClassMethodReference.CurrentValue as ACClassMethod;
+                    aCClassMethod = contentACClassWF.RefPAACClassMethod;
                 if (aCClassMethod == null)
                 {
                     using (ACMonitor.Lock(this.ContextLockForACClassWF))
@@ -277,7 +277,7 @@ namespace gip.core.autocomponent
                     return null;
                 ACClass refACClassOfContentWF = null;
                 if (contentACClassWF.RefPAACClass_IsLoaded)
-                    refACClassOfContentWF = contentACClassWF.RefPAACClassReference.CurrentValue as ACClass;
+                    refACClassOfContentWF = contentACClassWF.RefPAACClass;
                 if (refACClassOfContentWF == null)
                 {
                     using (ACMonitor.Lock(this.ContextLockForACClassWF))
@@ -298,7 +298,7 @@ namespace gip.core.autocomponent
                     return null;
                 ACClassMethod acClassMethodOfContentWF = null;
                 if (contentACClassWF.ACClassMethod_IsLoaded)
-                    acClassMethodOfContentWF = contentACClassWF.ACClassMethodReference.CurrentValue as ACClassMethod;
+                    acClassMethodOfContentWF = contentACClassWF.ACClassMethod;
                 if (acClassMethodOfContentWF == null)
                 {
                     using (ACMonitor.Lock(this.ContextLockForACClassWF))
@@ -319,7 +319,7 @@ namespace gip.core.autocomponent
                     return null;
                 ACClass pwACClassOfContentW = null;
                 if (contentACClassWF.PWACClass_IsLoaded)
-                    pwACClassOfContentW = contentACClassWF.PWACClassReference.CurrentValue as ACClass;
+                    pwACClassOfContentW = contentACClassWF.PWACClass;
                 if (pwACClassOfContentW == null)
                 {
                     using (ACMonitor.Lock(this.ContextLockForACClassWF))
@@ -614,7 +614,7 @@ namespace gip.core.autocomponent
 
                 ACProgram acProgram = null;
                 if (contentTask.ACProgram_IsLoaded)
-                    acProgram = contentTask.ACProgramReference.CurrentValue as ACProgram;
+                    acProgram = contentTask.ACProgram;
                 if (acProgram == null)// && (contentTask.EntityState == System.Data.EntityState.Added || contentTask.EntityState == System.Data.EntityState.Detached))
                     acProgram = contentTask.NewACProgramForQueue;
                 if (acProgram == null)
@@ -627,7 +627,7 @@ namespace gip.core.autocomponent
                 if (contentACClassWF == null)
                     return null;
                 if (contentACClassWF.ACClassMethod_IsLoaded)
-                    wfContext = contentACClassWF.ACClassMethodReference.CurrentValue as ACClassMethod;
+                    wfContext = contentACClassWF.ACClassMethod;
                 if (wfContext == null)
                 {
                     using (ACMonitor.Lock(this.ContextLockForACClassWF))

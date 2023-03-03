@@ -459,7 +459,7 @@ namespace gip.core.datamodel
             {
                 ACPackage acPackage = null;
                 if (ACPackage_IsLoaded)
-                    acPackage = (ACPackage) ACPackageReference.CurrentValue;
+                    acPackage = ACPackage;
                 if (acPackage == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -808,7 +808,7 @@ namespace gip.core.datamodel
             {
                 IACObject parentACObject = null;
                 if (ACClass1_ParentACClass_IsLoaded)
-                    parentACObject = (IACObject) ACClass1_ParentACClassReference.CurrentValue;
+                    parentACObject = ACClass1_ParentACClass;
                 if (parentACObject == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -819,7 +819,7 @@ namespace gip.core.datamodel
                 if (parentACObject != null)
                     return parentACObject;
                 if (ACProject_IsLoaded)
-                    parentACObject = (IACObject) ACProjectReference.CurrentValue;
+                    parentACObject = ACProject;
                 if (parentACObject == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1093,7 +1093,7 @@ namespace gip.core.datamodel
             {
                 ACClass baseClass = null;
                 if (ACClass1_BasedOnACClass_IsLoaded)
-                    baseClass = (ACClass) ACClass1_BasedOnACClassReference.CurrentValue;
+                    baseClass = ACClass1_BasedOnACClass;
                 if (baseClass == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1291,7 +1291,7 @@ namespace gip.core.datamodel
                     return this;
                 ACClass pwClassRef = null;
                 if (ACClass1_PWACClass_IsLoaded)
-                    pwClassRef = (ACClass) ACClass1_PWACClassReference.CurrentValue;
+                    pwClassRef = ACClass1_PWACClass;
                 else
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1543,23 +1543,34 @@ namespace gip.core.datamodel
                 if (!ACClassMethod_ACClass_IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
+                    bool wasLoaded = ACClassMethod_ACClass_IsLoaded;
+                    allMethods = Context.Entry(this).Collection(c => c.ACClassMethod_ACClass)
+                            .Query()
+                            .Include(c => c.PWACClass)
+                            .Include(c => c.ValueTypeACClass)
+                            .Include(c => c.ACClass)
+                            .Include(c => c.ACClassMethod1_ParentACClassMethod)
+                            .Include(c => c.AttachedFromACClass)
+                            .OrderBy(c => c.ACIdentifier)
+                            .ToArray();
+
                     //MergeOption.OverwriteChanges
-                    if (forceRefreshFromDB)
-                        ACClassMethod_ACClass.AutoLoad(ACClassMethod_ACClassReference, this);
+                    if (wasLoaded && forceRefreshFromDB)
+                        allMethods.SynchronizeCollections<ACClassMethod>(ACClassMethod_ACClass);
 
                     //MergeOption.AppendOnly
-                    else
-                        ACClassMethod_ACClassReference.Load();
+                    //else
+                    //    ACClassMethod_ACClassReference.Load();
 
-                    allMethods = Context.Entry(this).Collection(c => c.ACClassMethod_ACClass)
-                                                .Query()
-                                                .Include(c => c.PWACClass)
-                                                .Include(c => c.ValueTypeACClass)
-                                                .Include(c => c.ACClass)
-                                                .Include(c => c.ACClassMethod1_ParentACClassMethod)
-                                                .Include(c => c.AttachedFromACClass)
-                                                .OrderBy(c => c.ACIdentifier)
-                                                .ToArray();
+                    //allMethods = Context.Entry(this).Collection(c => c.ACClassMethod_ACClass)
+                    //                            .Query()
+                    //                            .Include(c => c.PWACClass)
+                    //                            .Include(c => c.ValueTypeACClass)
+                    //                            .Include(c => c.ACClass)
+                    //                            .Include(c => c.ACClassMethod1_ParentACClassMethod)
+                    //                            .Include(c => c.AttachedFromACClass)
+                    //                            .OrderBy(c => c.ACIdentifier)
+                    //                            .ToArray();
                     
                 }
                 else
@@ -2119,8 +2130,8 @@ namespace gip.core.datamodel
                         allProperties.SynchronizeCollections<ACClassProperty>(ACClassProperty_ACClass);
                         //_ = ACClassProperty_ACClass;
                         // Is this then Necessary?
-                        ACClassProperty_ACClass.AutoLoad(ACClassProperty_ACClassReference, this);
-                        allProperties = ACClassProperty_ACClass.ToArray();
+                        //ACClassProperty_ACClass.AutoLoad(ACClassProperty_ACClassReference, this);
+                        //allProperties = ACClassProperty_ACClass.ToArray();
                         //allProperties.SynchronizeCollections<ACClassProperty>(ACClassProperty_ACClass);
                     }                     ////MergeOption.AppendOnly
                     //else
@@ -2399,20 +2410,27 @@ namespace gip.core.datamodel
                 if (!ACClassDesign_ACClass_IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
-                    //MergeOption.OverwriteChanges
-                    if (forceRefreshFromDB)
-                        ACClassDesign_ACClass.AutoLoad(ACClassDesign_ACClassReference, this);
-                    
-                    //MergeOption.AppendOnly
-                    else
-                        ACClassDesign_ACClassReference.Load();
-
+                    bool wasLoaded = ACClassDesign_ACClass_IsLoaded;
                     allDesigns = Context.Entry(this).Collection(c => c.ACClassDesign_ACClass)
                                                 .Query()
                                                 .Include(c => c.ValueTypeACClass)
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
+                    //MergeOption.OverwriteChanges
+                    if (wasLoaded & forceRefreshFromDB)
+                        allDesigns.SynchronizeCollections<ACClassDesign>(ACClassDesign_ACClass);
+
+                    //MergeOption.AppendOnly
+                    //else
+                    //    ACClassDesign_ACClassReference.Load();
+
+                    //allDesigns = Context.Entry(this).Collection(c => c.ACClassDesign_ACClass)
+                    //                            .Query()
+                    //                            .Include(c => c.ValueTypeACClass)
+                    //                            .Include(c => c.ACClass)
+                    //                            .OrderBy(c => c.ACIdentifier)
+                    //                            .ToArray();
                 }
                 else
                     allDesigns = ACClassDesign_ACClass.ToArray();
@@ -2545,19 +2563,24 @@ namespace gip.core.datamodel
                 if (!ACClassText_ACClass_IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
-                    //MergeOption.OverwriteChanges
-                    if (forceRefreshFromDB)
-                        ACClassText_ACClass.AutoLoad(ACClassText_ACClassReference, this);
-
-                    //MergeOption.AppendOnly
-                    else
-                        ACClassText_ACClassReference.Load();
-
+                    bool wasLoaded = ACClassText_ACClass_IsLoaded;
                     allTexts = Context.Entry(this).Collection(c => c.ACClassText_ACClass)
                                                 .Query()
                                                 .Include(c => c.ACClass)
                                                 .OrderBy(c => c.ACIdentifier)
                                                 .ToArray();
+                    //MergeOption.OverwriteChanges
+                    if (wasLoaded & forceRefreshFromDB)
+                        allTexts.SynchronizeCollections<ACClassText>(ACClassText_ACClass);
+                    //MergeOption.AppendOnly
+                    //else
+                    //    ACClassText_ACClassReference.Load();
+
+                    //allTexts = Context.Entry(this).Collection(c => c.ACClassText_ACClass)
+                    //                            .Query()
+                    //                            .Include(c => c.ACClass)
+                    //                            .OrderBy(c => c.ACIdentifier)
+                    //                            .ToArray();
                 }
                 else
                     allTexts = ACClassText_ACClass.ToArray();
@@ -2690,19 +2713,24 @@ namespace gip.core.datamodel
                 if (!ACClassMessage_ACClass_IsLoaded && EntityState != EntityState.Added
                     || forceRefreshFromDB)
                 {
-                    //MergeOption.OverwriteChanges
-                    if (forceRefreshFromDB)
-                        ACClassMessage_ACClass.AutoLoad(ACClassMessage_ACClassReference, this);
-
-                    //MergeOption.AppendOnly
-                    else
-                        ACClassMessage_ACClassReference.Load();
-
+                    bool wasLoaded = ACClassMessage_ACClass_IsLoaded;
                     allMessages = Context.Entry(this).Collection(c => c.ACClassMessage_ACClass)
-                                                .Query()
-                                                .Include(c => c.ACClass)
-                                                .OrderBy(c => c.ACIdentifier)
-                                                .ToArray();
+                            .Query()
+                            .Include(c => c.ACClass)
+                            .OrderBy(c => c.ACIdentifier)
+                            .ToArray();
+                    //MergeOption.OverwriteChanges
+                    if (wasLoaded & forceRefreshFromDB)
+                        allMessages.SynchronizeCollections<ACClassMessage>(ACClassMessage_ACClass);
+                    //MergeOption.AppendOnly
+                    //else
+                    //    ACClassMessage_ACClassReference.Load();
+
+                    //allMessages = Context.Entry(this).Collection(c => c.ACClassMessage_ACClass)
+                    //                            .Query()
+                    //                            .Include(c => c.ACClass)
+                    //                            .OrderBy(c => c.ACIdentifier)
+                    //                            .ToArray();
                 }
                 else
                     allMessages = ACClassMessage_ACClass.ToArray();

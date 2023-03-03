@@ -1234,7 +1234,7 @@ namespace gip.core.datamodel
 
                 ACClassMethod basedOnACClassMethod = null;
                 if (ACClassMethod1_ParentACClassMethod_IsLoaded)
-                    basedOnACClassMethod = (ACClassMethod) ACClassMethod1_ParentACClassMethodReference.CurrentValue;
+                    basedOnACClassMethod = ACClassMethod1_ParentACClassMethod;
                 if (basedOnACClassMethod == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1471,7 +1471,7 @@ namespace gip.core.datamodel
                 if (acClassWF != null)
                 {
                     if (acClassWF.PWACClass_IsLoaded)
-                        workflowTypeACClass = (ACClass) acClassWF.PWACClassReference.CurrentValue;
+                        workflowTypeACClass = acClassWF.PWACClass;
                     if (workflowTypeACClass == null)
                     {
                         using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1483,7 +1483,7 @@ namespace gip.core.datamodel
                 else
                 {
                     if (PWACClass_IsLoaded)
-                        workflowTypeACClass = (ACClass) PWACClassReference.CurrentValue;
+                        workflowTypeACClass = PWACClass;
                     if (workflowTypeACClass == null)
                     {
                         using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1823,7 +1823,7 @@ namespace gip.core.datamodel
             {
                 ACClass sc = null;
                 if (ACClass_IsLoaded)
-                    sc = (ACClass) ACClassReference.CurrentValue;
+                    sc = this.ACClass;
                 if (sc == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1842,7 +1842,7 @@ namespace gip.core.datamodel
             {
                 ACClass sc = null;
                 if (ValueTypeACClass_IsLoaded)
-                    sc = (ACClass) ValueTypeACClassReference.CurrentValue;
+                    sc = this.ValueTypeACClass;
                 if (sc == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1948,7 +1948,7 @@ namespace gip.core.datamodel
                 {
                     if (acClassMethod.ACClassMethodConfig_ACClassMethod_IsLoaded)
                     {
-                        acClassMethod.ACClassMethodConfig_ACClassMethod.AutoRefresh(acClassMethod.ACClassMethodConfig_ACClassMethodReference, acClassMethod.Database);
+                        //acClassMethod.ACClassMethodConfig_ACClassMethod.AutoRefresh(acClassMethod.ACClassMethodConfig_ACClassMethodReference, acClassMethod.Database);
                         acClassMethod.ACClassMethodConfig_ACClassMethod.AutoLoad(ACClassMethodConfig_ACClassMethodReference, acClassMethod);
                     }
                     return acClassMethod.ACClassMethodConfig_ACClassMethod.ToList().Select(x => (IACConfig)x); //.Where(c => c.KeyACUrl == ACConfigKeyACUrl); Without ACConfigKeyACUrl-Filter because ACClassMethodConfig is a seperate table 
@@ -1966,7 +1966,7 @@ namespace gip.core.datamodel
             {
                 if (this.ACClassMethodConfig_ACClassMethod_IsLoaded)
                 {
-                    this.ACClassMethodConfig_ACClassMethod.AutoRefresh(this.ACClassMethodConfig_ACClassMethodReference, this.Database);
+                    //this.ACClassMethodConfig_ACClassMethod.AutoRefresh(this.ACClassMethodConfig_ACClassMethodReference, this.Database);
                     this.ACClassMethodConfig_ACClassMethod.AutoLoad(ACClassMethodConfig_ACClassMethodReference, this);
                 }
                 newSafeList = new SafeList<IACConfig>(this.ACClassMethodConfig_ACClassMethod); //.Where(c => c.KeyACUrl == ACConfigKeyACUrl); Without ACConfigKeyACUrl-Filter because ACClassMethodConfig is a seperate table 

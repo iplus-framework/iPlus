@@ -31,7 +31,7 @@ namespace gip.core.autocomponent
                     if (parentTask.ACProgramID.HasValue)
                     {
                         if (parentTask.ACProgram_IsLoaded)
-                            acProgram = parentTask.ACProgramReference.CurrentValue as ACProgram;
+                            acProgram = parentTask.ACProgram;
                         if (acProgram == null)// && (parentTask.EntityState == System.Data.EntityState.Added || parentTask.EntityState == System.Data.EntityState.Detached))
                             acProgram = parentTask.NewACProgramForQueue;
                         if (acProgram == null)

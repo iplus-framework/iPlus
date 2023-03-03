@@ -620,7 +620,7 @@ namespace gip.core.datamodel
 
                 ACClassProperty basedProperty = null;
                 if (this.ACClassProperty1_BasedOnACClassProperty_IsLoaded)
-                    basedProperty = (ACClassProperty) this.ACClassProperty1_BasedOnACClassPropertyReference.CurrentValue;
+                    basedProperty = this.ACClassProperty1_BasedOnACClassProperty;
                 else
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1514,7 +1514,7 @@ namespace gip.core.datamodel
                 {
                     if (acClass.ACClassConfig_ACClass_IsLoaded)
                     {
-                        acClass.ACClassConfig_ACClass.AutoRefresh(acClass.ACClassConfig_ACClassReference, acClass.Database);
+                        //acClass.ACClassConfig_ACClass.AutoRefresh(acClass.ACClassConfig_ACClassReference, acClass.Database);
                         acClass.ACClassConfig_ACClass.AutoLoad(acClass.ACClassConfig_ACClassReference, acClass);
                     }
                     return acClass.ACClassConfig_ACClass.ToList().Select(x => (IACConfig)x).Where(c => c.KeyACUrl == ACConfigKeyACUrl);
@@ -1532,7 +1532,7 @@ namespace gip.core.datamodel
             {
                 if (this.ACClass.ACClassConfig_ACClass_IsLoaded)
                 {
-                    this.ACClass.ACClassConfig_ACClass.AutoRefresh(this.ACClass.ACClassConfig_ACClassReference, this.ACClass.Database);
+                    //this.ACClass.ACClassConfig_ACClass.AutoRefresh(this.ACClass.ACClassConfig_ACClassReference, this.ACClass.Database);
                     this.ACClass.ACClassConfig_ACClass.AutoLoad(this.ACClass.ACClassConfig_ACClassReference, this.ACClass);
                 }
                 newSafeList = new SafeList<IACConfig>(this.ACClass.ACClassConfig_ACClass.ToList().Select(x => (IACConfig)x).Where(c => c.KeyACUrl == ACConfigKeyACUrl));
@@ -1724,7 +1724,7 @@ namespace gip.core.datamodel
             {
                 ACClass sc = null;
                 if (ACClass_IsLoaded)
-                    sc = (ACClass) ACClassReference.CurrentValue;
+                    sc = this.ACClass;
                 if (sc == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
@@ -1743,7 +1743,7 @@ namespace gip.core.datamodel
             {
                 ACClass sc = null;
                 if (ValueTypeACClass_IsLoaded)
-                    sc = (ACClass) ValueTypeACClassReference.CurrentValue;
+                    sc = this.ValueTypeACClass;
                 if (sc == null)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))

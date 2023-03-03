@@ -81,21 +81,24 @@ namespace gip.core.autocomponent
                             {
                                 using (ACMonitor.Lock(pwNode.ContextLockForACClassWF))
                                 {
-                                    if (edgesLoaded)
-                                    {
-                                        //pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
-                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad(pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference, pwNode.ContentACClassWF);
-                                    }
-                                    else
-                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference.Load();
-
-                                    edgesArray = pwNode.ContentACClassWF.Database.ACClassWFEdge
+                                    edgesArray = pwNode.ContentACClassWF.Database.Entry(pwNode).Collection(c => c.ContentACClassWF.ACClassWFEdge_TargetACClassWF)
+                                        .Query()
                                         .Include(c => c.SourceACClassWF)
                                         .Include(c => c.TargetACClassWF)
                                         .Include(c => c.SourceACClassProperty)
                                         .Include(c => c.TargetACClassProperty)
                                         .Where(c => c.TargetACClassWFID == pwNode.ContentACClassWF.ACClassWFID)
                                         .ToArray();
+
+                                    if (edgesLoaded && mustRefreshEdges)
+                                    {
+                                        edgesArray.SynchronizeCollections<ACClassWFEdge>(pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF);
+                                        //pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
+                                        //pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad(pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference, pwNode.ContentACClassWF);
+                                    }
+                                    //else
+                                    //    pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference.Load();
+
 
                                     //edges = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.CreateSourceQuery()
                                     //    .Include(c => c.SourceACClassWF)
@@ -228,21 +231,25 @@ namespace gip.core.autocomponent
 
                                 using (ACMonitor.Lock(pwNode.ContextLockForACClassWF))
                                 {
-                                    if (edgesLoaded)
-                                    {
-                                        //pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
-                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad(pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference, pwNode.ContentACClassWF);
-                                    }
-                                    else
-                                        pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference.Load();
-
-                                    edgesArray = pwNode.ContentACClassWF.Database.ACClassWFEdge
+                                    edgesArray = pwNode.ContentACClassWF.Database.Entry(pwNode).Collection(c => c.ContentACClassWF.ACClassWFEdge_TargetACClassWF)
+                                        .Query()
                                         .Include(c => c.SourceACClassWF)
                                         .Include(c => c.TargetACClassWF)
                                         .Include(c => c.SourceACClassProperty)
                                         .Include(c => c.TargetACClassProperty)
                                         .Where(c => c.TargetACClassWFID == pwNode.ContentACClassWF.ACClassWFID)
                                         .ToArray();
+
+                                    if (edgesLoaded && mustRefreshEdges)
+                                    {
+                                        edgesArray.SynchronizeCollections<ACClassWFEdge>(pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF);
+                                        //pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoRefresh();
+                                        //pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad(pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference, pwNode.ContentACClassWF);
+                                    }
+                                    //else
+                                    //    pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWFReference.Load();
+
+
                                     //edges = pwNode.ContentACClassWF.ACClassWFEdge_TargetACClassWF.CreateSourceQuery()
                                     //    .Include(c => c.SourceACClassWF)
                                     //    .Include(c => c.TargetACClassWF)

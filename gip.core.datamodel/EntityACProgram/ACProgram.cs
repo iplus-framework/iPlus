@@ -276,7 +276,7 @@ namespace gip.core.datamodel
                     {
                         if (ACProgramConfig_ACProgram_IsLoaded)
                         {
-                            ACProgramConfig_ACProgram.AutoRefresh(ACProgramConfig_ACProgramReference, this);
+                            //ACProgramConfig_ACProgram.AutoRefresh(ACProgramConfig_ACProgramReference, this);
                             ACProgramConfig_ACProgram.AutoLoad(ACProgramConfig_ACProgramReference, this);
                         }
                         configList = ACProgramConfig_ACProgram.ToList();

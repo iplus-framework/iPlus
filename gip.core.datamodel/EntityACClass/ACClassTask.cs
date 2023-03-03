@@ -180,7 +180,7 @@ namespace gip.core.datamodel
             {
                 ACClassTask parentTask = null;
                 if (ACClassTask1_ParentACClassTask_IsLoaded)
-                    parentTask = (ACClassTask) ACClassTask1_ParentACClassTaskReference.CurrentValue;
+                    parentTask = ACClassTask1_ParentACClassTask;
                 if (parentTask == null)
                     parentTask = NewParentACClassTaskForQueue;
                 if (parentTask == null)

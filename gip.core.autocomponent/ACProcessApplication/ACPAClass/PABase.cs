@@ -1008,7 +1008,7 @@ namespace gip.core.autocomponent
 
                 // *** TASKPERFOPT NEW ***
                 if (parentProgramLog.ACProgram_IsLoaded)
-                    acProgram = parentProgramLog.ACProgramReference.CurrentValue as ACProgram;
+                    acProgram = parentProgramLog.ACProgram;
                 // This is a critical section, while ACTaskQueue is maybe accessing the database and contect and a Call of DeferredLoad() could be time crititcal.
                 // Therfore access temporary cached NewACProgramForQueue
                 if (acProgram == null)// && (parentProgramLog.EntityState == System.Data.EntityState.Added || parentProgramLog.EntityState == System.Data.EntityState.Detached))
