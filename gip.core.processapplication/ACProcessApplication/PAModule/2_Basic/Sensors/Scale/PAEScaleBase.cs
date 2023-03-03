@@ -118,11 +118,9 @@ namespace gip.core.processapplication
         {
             get
             {
-                if (WeightRemovedBin.HasValue)
-                {
-                    return ActualValue.ValueT <= WeightRemovedBin.Value && !NotStandStill.ValueT;
-                }
-                return null;
+                if (!WeightRemovedBin.HasValue)
+                    return null;
+                return ActualValue.ValueT <= WeightRemovedBin.Value && !NotStandStill.ValueT;
             }
         }
 
@@ -130,11 +128,9 @@ namespace gip.core.processapplication
         {
             get
             {
-                if (WeightPlacedBin.HasValue)
-                {
-                    return ActualValue.ValueT >= WeightPlacedBin.Value && !NotStandStill.ValueT;
-                }
-                return null;
+                if (!WeightPlacedBin.HasValue)
+                    return null;
+                return ActualValue.ValueT >= WeightPlacedBin.Value && !NotStandStill.ValueT;
             }
         }
 
