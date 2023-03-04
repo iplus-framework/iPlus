@@ -269,7 +269,7 @@ namespace gip.core.autocomponent
                 {
                     paramMethod.ACIdentifier = refPAACClassMethod.ACIdentifier;
                 }
-                if (!(bool)ExecuteMethod("GetConfigForACMethod", paramMethod, true))
+                if (!(bool)ExecuteMethod(nameof(GetConfigForACMethod), paramMethod, true))
                     return false;
 
                 RecalcTimeInfo();

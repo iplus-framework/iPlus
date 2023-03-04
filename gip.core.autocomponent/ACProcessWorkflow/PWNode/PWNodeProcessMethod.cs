@@ -88,6 +88,26 @@ namespace gip.core.autocomponent
             }
         }
 
+        public virtual ACMethod NewACMethodPAFWithConfiguration()
+        {
+            if (InitState < ACInitState.Reloading
+                || InitState >= ACInitState.Destructing)
+            {
+                Messages.LogError(this.GetACUrl(), "NewACMethodWithConfiguration(10)", "Access to early: InitState is not Initialized");
+                Messages.LogError(this.GetACUrl(), "NewACMethodWithConfiguration(11)", System.Environment.StackTrace);
+                return null;
+            }
+
+            core.datamodel.ACClassMethod refPAACClassMethod = RefACClassMethodOfContentWF;
+            if (refPAACClassMethod == null)
+                return null;
+
+            ACMethod paramMethod = refPAACClassMethod.TypeACSignature();
+            if (!(bool)ExecuteMethod(nameof(GetConfigForACMethod), paramMethod, true))
+                return null;
+            return paramMethod;
+        }
+
         #endregion
 
         #region Methods
@@ -204,7 +224,7 @@ namespace gip.core.autocomponent
                         return;
                     }
                     paramMethod = refPAACClassMethod.TypeACSignature();
-                    if (!(bool)ExecuteMethod("GetConfigForACMethod", paramMethod, true))
+                    if (!(bool)ExecuteMethod(nameof(GetConfigForACMethod), paramMethod, true))
                     {
                         // TODO: Meldung
                         return;

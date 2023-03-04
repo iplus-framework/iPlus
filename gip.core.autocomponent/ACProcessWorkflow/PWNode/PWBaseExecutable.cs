@@ -173,7 +173,7 @@ namespace gip.core.autocomponent
             ACMethod acMethod = NewACMethod();
             if (acMethod != null)
             {
-                ExecuteMethod("GetConfigForACMethod", acMethod, false);
+                ExecuteMethod(nameof(GetConfigForACMethod), acMethod, false);
             }
             return acMethod;
         }
