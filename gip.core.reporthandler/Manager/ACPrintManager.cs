@@ -1,10 +1,12 @@
-﻿using gip.core.autocomponent;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using gip.core.autocomponent;
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Data.Objects;
 using System.Drawing.Printing;
 using System.Linq;
+using System.Reflection;
 
 namespace gip.core.reporthandler
 {
@@ -68,7 +70,6 @@ namespace gip.core.reporthandler
             }
         }
 
-
         #region Properties -> ConfiguredPrinters
 
         [ACPropertyPointConfig(9999, "", typeof(PrinterInfo), "en{'Configured printers'}de{'Konfigurierte Drucker'}")]
@@ -113,13 +114,25 @@ namespace gip.core.reporthandler
             Msg msg = null;
             try
             {
+                var vbDump = Root.VBDump;
+                  
+                PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(GetPrintingInfo), 100);
+
                 PAPrintInfo printInfo = GetPrintingInfo(pAOrderInfo, vbUserName);
                 if (printInfo == null)
                 {
                     // Error50488: Can't print because no printer was configured for printing. Open the businessobject for printer settings and assign a printer!
-                    msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1010, "Error50488");
+                    msg = new Msg(this, eMsgLevel.Error, C_ClassName, nameof(Print), 1010, "Error50488");
                     return msg;
                 }
+
+                vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(GetPrintingInfo), 100, pEvent);
+
+                //if (EnablePrintLogging)
+                //{
+                //    string msgLog = pEvent.InstanceName + " " + pEvent.Elapsed + pAOrderInfo != null ? pAOrderInfo.ToString() : "";
+                //    Messages.LogMessageMsg(new Msg(msgLog, this, eMsgLevel.Info, nameof(ACPrintManager), nameof(Print), 140));
+                //}
 
 
                 if (String.IsNullOrEmpty(printInfo.PrinterInfo.PrinterACUrl))
@@ -148,6 +161,8 @@ namespace gip.core.reporthandler
                             // TODO: @aagincic place for implement BSO Pool
                             try
                             {
+                                pEvent = vbDump.PerfLoggerStart(this.GetACUrl() + "!InstanceBSO", 110);
+
                                 bsoACClass = Root.Database.ContextIPlus.GetACType(acIdentifier);
                                 bso = StartComponent(bsoACClass, bsoACClass,
                                     new ACValueList()
@@ -155,6 +170,14 @@ namespace gip.core.reporthandler
                                             new ACValue(Const.ParamSeperateContext, typeof(bool), true),
                                             new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
                                     }) as ACBSO;
+
+                                vbDump?.PerfLoggerStop(this.GetACUrl() + "!InstanceBSO", 110, pEvent);
+
+                                //if (EnablePrintLogging)
+                                //{
+                                //    string msgLog = pEvent.InstanceName + " " + pEvent.Elapsed + pAOrderInfo != null ? pAOrderInfo.ToString() : "";
+                                //    Messages.LogMessageMsg(new Msg(msgLog, this, eMsgLevel.Info, nameof(ACPrintManager), nameof(Print), 184));
+                                //}
 
                                 if (bso == null)
                                 {

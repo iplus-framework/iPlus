@@ -4900,6 +4900,7 @@ namespace gip.core.autocomponent
 
 
         #region Printing
+
         /// <summary>Prints the state of the component to a XPSDocument.</summary>
         [ACMethodInteraction("", "en{'Print'}de{'Drucken'}", (short)MISort.PrintSelf, false, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.Utilities)]
         public virtual void PrintSelf()
@@ -4969,7 +4970,11 @@ namespace gip.core.autocomponent
                 if (acReportComp != null)
                 {
                     bool cloneInstantiated = false;
+
+                    var vbDump = Root.VBDump;
+                    PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(ReportData.BuildReportData), 150);
                     ReportData reportData = ReportData.BuildReportData(out cloneInstantiated, selectMode, this, queryDefinition, design, preventClone);
+                    vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(ReportData.BuildReportData), 150, pEvent);
                     Msg msg = null;
 
                     if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
@@ -5002,7 +5007,10 @@ namespace gip.core.autocomponent
                         // do work here when calling thread is STA
                         // this removes the overhead of creating
                         // a new thread when it is not necessary
+
+                        pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(acReportComp.Print), 160);
                         msg = acReportComp.Print(design, withDialog, printerName, reportData, numberOfCopies, maxPrintJobsInSpooler);
+                        vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(acReportComp.Print), 160, pEvent);
                     }
 
                     if (cloneInstantiated)
