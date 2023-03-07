@@ -103,6 +103,7 @@ namespace gip.core.datamodel
         public EntityKey(string qualifiedEntitySetName, IEnumerable<KeyValuePair<string, object>> entityKeyValues)
         {
             GetEntitySetName(qualifiedEntitySetName, out _entitySetName, out _entityContainerName);
+            _entityContainerName = qualifiedEntitySetName;
             CheckKeyValues(entityKeyValues, out _keyNames, out _singletonKeyValue, out _compositeKeyValues);
             AssertCorrectState(null, false);
             _isLocked = true;
@@ -120,7 +121,9 @@ namespace gip.core.datamodel
         /// <param name="entityKeyValues">The key-value pairs that identify the entity</param>
         public EntityKey(string qualifiedEntitySetName, IEnumerable<EntityKeyMember> entityKeyValues)
         {
+            GetEntitySetName(qualifiedEntitySetName, out _entitySetName, out _entityContainerName);
             _entityContainerName = qualifiedEntitySetName;
+            EntityUtil.CheckArgumentNull(entityKeyValues, "entityKeyValues");
             CheckKeyValues(new KeyValueReader(entityKeyValues), out _keyNames, out _singletonKeyValue, out _compositeKeyValues);
             AssertCorrectState(null, false);
             _isLocked = true;
@@ -134,11 +137,15 @@ namespace gip.core.datamodel
         /// <param name="keyValue">The key value that identifies the entity</param>
         public EntityKey(string qualifiedEntitySetName, string keyName, object keyValue)
         {
+            GetEntitySetName(qualifiedEntitySetName, out _entitySetName, out _entityContainerName);
+            _entityContainerName = qualifiedEntitySetName;
+            EntityUtil.CheckStringArgument(keyName, "keyName");
+            EntityUtil.CheckArgumentNull(keyValue, "keyValue");
 
             _keyNames = new string[1];
             _keyNames[0] = keyName;
             _singletonKeyValue = keyValue;
-            _entityContainerName = qualifiedEntitySetName;
+
             AssertCorrectState(null, false);
             _isLocked = true;
         }
@@ -157,6 +164,7 @@ namespace gip.core.datamodel
             Debug.Assert(entitySet != null, "entitySet is null");
 
             _entitySetName = entitySet.Name;
+
             AssertCorrectState(entitySet, false);
             _isLocked = true;
         }
@@ -169,6 +177,7 @@ namespace gip.core.datamodel
         internal EntityKey(string qualifiedEntitySetName)
         {
             GetEntitySetName(qualifiedEntitySetName, out _entitySetName, out _entityContainerName);
+            _entityContainerName = qualifiedEntitySetName;
             _isLocked = true;
         }
 
@@ -206,25 +215,38 @@ namespace gip.core.datamodel
             }
             set
             {
-                if (EntityContainerName.Contains("Version") && EntityContainerName.Contains("Culture") && EntityContainerName.Contains("PublicKeyToken"))
+                ValidateWritable(_entityContainerName);
+                lock (_nameLookup)
                 {
-                    _entityContainerName = EntityContainerName;
-                }
-                else
-                {
-#if DEBUG
-                    // If EFCR Tested, then  remove this code
-                    if (System.Diagnostics.Debugger.IsAttached)
-                        System.Diagnostics.Debugger.Break();
-#endif
-                    if (EntityContainerName == "iPlusMESV4_Entities")
+                    if (value != null && value.Contains("Version") && value.Contains("Culture") && value.Contains("PublicKeyToken"))
                     {
-                        _entityContainerName = "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
+                        _entityContainerName = EntityKey.LookupSingletonName(value);
                     }
 
-                    else if (EntityContainerName == "iPlusV4_Entities")
+                    else
                     {
-                        _entityContainerName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
+                        if (EntityContainerName != null && EntityContainerName.Contains("Version") && EntityContainerName.Contains("Culture") && EntityContainerName.Contains("PublicKeyToken"))
+                        {
+                            _entityContainerName = EntityContainerName;
+                        }
+
+                        else
+                        {
+                            if (EntityContainerName == "iPlusMESV4_Entities")
+                            {
+                                _entityContainerName = "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
+                            }
+
+                            else if (EntityContainerName == "iPlusV4_Entities")
+                            {
+                                _entityContainerName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
+                            }
+
+                            else
+                            {
+                                _entityContainerName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
+                            }
+                        }
                     }
                 }
             }
@@ -879,7 +901,7 @@ namespace gip.core.datamodel
             {
                 string assemblyQfName = "";
                 // Testiraj je EntityContainerName u formatu od AssembyQualifiedName Primjer: gip.bso.manufacturing.BSOProcessControlVB, gip.bso.manufacturing, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-                if (EntityContainerName.Contains("Version") && EntityContainerName.Contains("Culture") && EntityContainerName.Contains("PublicKeyToken"))
+                if (EntityContainerName.Contains("Version") && EntityContainerName.Contains("Culture") && EntityContainerName.Contains("PublicKeyToken") && EntityContainerName.Contains(EntitySetName))
                 {
                     // Ako da
                     // assemblyQfName = EntityContainerName;

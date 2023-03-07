@@ -152,7 +152,7 @@ namespace gip.bso.iplus
         {
             get
             {
-                return AccessPrimary.NavList.Where(c => c.ACProjectTypeIndex == (Int16)Global.ACProjectTypes.AppDefinition && c.IsWorkflowEnabled).OrderBy(c => c.ACProjectName);
+                return AccessPrimary.NavList.Where(c => c.ACProjectTypeIndex == (Int16)Global.ACProjectTypes.AppDefinition && c.IsWorkflowEnabled).OrderBy(c => c.ACProjectName).ToList();
             }
         }
         #endregion

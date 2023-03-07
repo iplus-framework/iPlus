@@ -35,11 +35,9 @@ namespace gip.core.datamodel
         {
             _ObjectContext = objectContext;
             if (ObjectContext == null)
-                throw new ArgumentException("Passed IACObjectContext is not a System.Data.Objects.ObjectContext");
+                throw new ArgumentException("Passed IACObjectContext is not a gip.core.datamodel.Database");
             _ObjectContext.Database.SetCommandTimeout(ACObjectContextHelper.CommandTimeout);
-#if !EFCR
             _ObjectContext.SavingChanges += Database_SavingChanges;
-#endif
         }
 
         public void Dispose()
@@ -159,25 +157,6 @@ namespace gip.core.datamodel
 #region Methods
 
 #region Public
-        /*
-        public DbContextOptionsBuilder OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (dbconnection != null)
-            {
-                return optionsBuilder
-                    .UseSqlServer(dbconnection)
-                    //.ReplaceService<IShapedQueryCompilingExpressionVisitorFactory, MyRelationalShapedQueryCompilingExpressionVisitorFactory
-                    .AddInterceptors(new ACMaterializationInterceptor());
-            }
-            else
-            {
-                return optionsBuilder
-                    //.ReplaceService<IShapedQueryCompilingExpressionVisitorFactory, MyRelationalShapedQueryCompilingExpressionVisitorFactory
-                    .AddInterceptors(new ACMaterializationInterceptor());
-            }
-                
-        }
-        */
 
         /// <summary>
         /// Saves all changes in the Custom-Database-Context as well as in the iPlus-Context

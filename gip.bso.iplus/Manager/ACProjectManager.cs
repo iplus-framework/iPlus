@@ -3254,7 +3254,7 @@ namespace gip.bso.iplus
                 if (_PBSourceProjectList == null)
                 {
                     _PBSourceProjectList = Database.ACProject.Where(c => c.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application
-                                                                      || c.ACProjectTypeIndex == (short)Global.ACProjectTypes.Service);
+                                                                      || c.ACProjectTypeIndex == (short)Global.ACProjectTypes.Service).ToList();
                 }
 
                 return _PBSourceProjectList;
