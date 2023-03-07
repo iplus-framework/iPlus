@@ -730,9 +730,9 @@ namespace gip.core.autocomponent
             if (msg != null)
                 return msg;
 
-            pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(GetDesignForPrinting), 130);
+            //pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(GetDesignForPrinting), 130);
             ACClassDesign printDesign = GetDesignForPrinting(printerName, designName, paOrderInfo);
-            vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(GetDesignForPrinting), 130, pEvent);
+            //vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(GetDesignForPrinting), 130, pEvent);
             //if (EnablePrintLogging)
             //{
             //    string msgLog = pEvent.InstanceName + " " + pEvent.Elapsed + paOrderInfo != null ? paOrderInfo.ToString() : "";

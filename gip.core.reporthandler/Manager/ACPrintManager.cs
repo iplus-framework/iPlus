@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using System;
@@ -395,7 +396,13 @@ namespace gip.core.reporthandler
             PrinterInfo printerInfo = OnGetPrinterInfo(pAOrderInfo, vbUserName);
             if (printerInfo == null)
                 return null;
+
+            var vbDump = Root.VBDump;
+            PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(OnResolveBSOForOrderInfo), 230);
             ACClass bsoClass = OnResolveBSOForOrderInfo(pAOrderInfo);
+
+            vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(OnResolveBSOForOrderInfo), 230, pEvent);
+
             if (bsoClass == null)
             {
                 // TODO error
@@ -415,7 +422,11 @@ namespace gip.core.reporthandler
             List<PrinterInfo> configuredPrinters = null;
             using (Database database = new core.datamodel.Database())
             {
+                var vbDump = Root.VBDump;
+
+                PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(ACPrintManager.GetConfiguredPrinters), 200);
                 configuredPrinters = ACPrintManager.GetConfiguredPrinters(database, ComponentClass.ACClassID, false);
+                vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(ACPrintManager.GetConfiguredPrinters), 200, pEvent);
 
                 if (!string.IsNullOrEmpty(vbUserName))
                 {
@@ -428,8 +439,10 @@ namespace gip.core.reporthandler
                     }
                 }
 
+                pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(ACPrintManager.GetConfiguredPrinters) + ".GetACClass", 210);
                 if (aCClassID != null)
                     aCClass = database.ACClass.FirstOrDefault(c => c.ACClassID == aCClassID);
+                vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(ACPrintManager.GetConfiguredPrinters) + ".GetACClass", 210, pEvent);
             }
             if (configuredPrinters == null || !configuredPrinters.Any())
                 return null;
@@ -439,6 +452,8 @@ namespace gip.core.reporthandler
 
         protected virtual ACClass OnResolveBSOForOrderInfo(PAOrderInfo pAOrderInfo)
         {
+            var vbDump = Root.VBDump;
+            PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(ACPrintManager) + "." + nameof(OnResolveBSOForOrderInfo), 240);
             if (pAOrderInfo == null)
                 return null;
             PAOrderInfoEntry entry = pAOrderInfo.Entities.FirstOrDefault();
@@ -447,11 +462,17 @@ namespace gip.core.reporthandler
             ACClass entityClass = entry.EntityACType;
             if (entityClass == null)
                 return entityClass;
-            return entityClass.ManagingBSO;
+            ACClass result = entityClass.ManagingBSO;
+            vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(ACPrintManager) + "." + nameof(OnResolveBSOForOrderInfo), 240, pEvent);
+
+            return result;
         }
 
         protected PrinterInfo GetPrinterInfoFromMachine(gip.core.datamodel.ACClass acClass, List<PrinterInfo> configuredPrinters, bool useFirstOrDefaultIfNotFoundForClass)
         {
+            var vbDump = Root.VBDump;
+            PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(GetPrinterInfoFromMachine), 220);
+
             PrinterInfo printerInfo = null;
             if (configuredPrinters == null || !configuredPrinters.Any())
                 return printerInfo;
@@ -459,6 +480,9 @@ namespace gip.core.reporthandler
                 printerInfo = configuredPrinters.FirstOrDefault(c => c.MachineACUrl == acClass.ACURLComponentCached);
             if (printerInfo == null && useFirstOrDefaultIfNotFoundForClass)
                 printerInfo = configuredPrinters.FirstOrDefault();
+
+            vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(GetPrinterInfoFromMachine), 220, pEvent);
+
             return printerInfo;
         }
 

@@ -4956,14 +4956,14 @@ namespace gip.core.autocomponent
                                        ACQueryDefinition queryDefinition = null, int maxPrintJobsInSpooler = 0, bool preventClone = false)
         {
             if (design == null)
-                return new Msg("The parameter design is null!", this, eMsgLevel.Error, "ACComponent", "PrintDesign(10)", 4622);
+                return new Msg("The parameter design is null!", this, eMsgLevel.Error, nameof(ACComponent), nameof(PrintDesign) + "(10)", 4622);
 
             try
             {
                 string acClassName = "VBBSOReport";
                 gip.core.datamodel.ACClass acClass = GetACClassFromACClassName(ref acClassName);
                 if (acClass == null)
-                    return new Msg("The parameter design is null!", this, eMsgLevel.Error, "ACComponent", "PrintDesign(20)", 4639);
+                    return new Msg("The parameter design is null!", this, eMsgLevel.Error, nameof(ACComponent), nameof(PrintDesign) + "(20)", 4639);
 
                 IReportHandler acReportComp = StartComponent(acClass, acClass, null, Global.ACStartTypes.Automatic) as IReportHandler;
 
@@ -4971,10 +4971,10 @@ namespace gip.core.autocomponent
                 {
                     bool cloneInstantiated = false;
 
-                    var vbDump = Root.VBDump;
-                    PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(ReportData.BuildReportData), 150);
+                    //var vbDump = Root.VBDump;
+                    //PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(ReportData.BuildReportData), 150);
                     ReportData reportData = ReportData.BuildReportData(out cloneInstantiated, selectMode, this, queryDefinition, design, preventClone);
-                    vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(ReportData.BuildReportData), 150, pEvent);
+                    //vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(ReportData.BuildReportData), 150, pEvent);
                     Msg msg = null;
 
                     if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
@@ -5008,9 +5008,9 @@ namespace gip.core.autocomponent
                         // this removes the overhead of creating
                         // a new thread when it is not necessary
 
-                        pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(acReportComp.Print), 160);
+                        //pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(acReportComp.Print), 160);
                         msg = acReportComp.Print(design, withDialog, printerName, reportData, numberOfCopies, maxPrintJobsInSpooler);
-                        vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(acReportComp.Print), 160, pEvent);
+                        //vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(acReportComp.Print), 160, pEvent);
                     }
 
                     if (cloneInstantiated)
@@ -5025,7 +5025,7 @@ namespace gip.core.autocomponent
             catch(Exception e)
             {
                 Messages.LogException(this.GetACUrl(), "ACComponent.PrintDesign()", e.Message);
-                return new Msg(e.Message, this, eMsgLevel.Error, "ACComponent", "PrintDesign(30)", 4676);
+                return new Msg(e.Message, this, eMsgLevel.Error, nameof(ACComponent), nameof(PrintDesign) + "(30)", 4676);
             }
             return null;
         }
