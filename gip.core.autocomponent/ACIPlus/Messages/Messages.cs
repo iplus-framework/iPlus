@@ -324,16 +324,19 @@ namespace gip.core.autocomponent
         /// <param name="source">Information about the source where this method was called. Always pass the ACUrl of a ACComponent.</param>
         /// <param name="acName">Unique information about the position in the code where this method was called. Recommendation: "Methodname(Number)"</param>
         /// <param name="ex">Exception</param>
-        public void LogException(string source, string acName, Exception ex)
+        /// <param name="withStackTrace">With Stack Trace</param>
+        public void LogException(string source, string acName, Exception ex, bool withStackTrace = false)
         {
-            string message = @"";
+            StringBuilder sb = new StringBuilder();
             Exception tmpEc = ex;
             while (tmpEc != null)
             {
-                message += tmpEc.Message;
+                sb.AppendLine(tmpEc.Message);
                 tmpEc = tmpEc.InnerException;
             }
-            LogMessage(eMsgLevel.Exception, source, acName, message);
+            if (withStackTrace)
+                sb.AppendLine(ex.StackTrace);
+            LogMessage(eMsgLevel.Exception, source, acName, sb.ToString());
         }
 
 
