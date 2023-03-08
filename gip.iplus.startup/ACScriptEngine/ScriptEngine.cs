@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.CodeDom;
-using System.CodeDom.Compiler;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Emit;
 using System.Reflection;
 using System.Linq;
+using System.IO;
 
 namespace gip.iplus.startup
 {
@@ -57,7 +60,9 @@ namespace gip.iplus.startup
         private static Dictionary<Guid, ScriptEngine> _RealEngines = new Dictionary<Guid, ScriptEngine>();
 
         #region Private Members
-        internal CompilerResults myResults;
+        internal EmitResult emitResult;
+        internal CSharpCompilation compilation;
+        internal SyntaxTree compileUnit;
         List<string> mAsemblies;
         List<string> mNamespaces;
         ScriptList mScripts;
@@ -117,33 +122,40 @@ namespace gip.iplus.startup
                 script.Sourcecode = CommentPrecompilerRegion(script.Sourcecode);
             }
 
-            CodeDomProvider provider = new Microsoft.CSharp.CSharpCodeProvider();
-            CompilerParameters parms = new CompilerParameters();
+            //CodeDomProvider provider = new Microsoft.CSharp.CSharpCodeProvider();
+            //CompilerParameters parms = new CompilerParameters();
 
             // Configure parameters
-            parms.GenerateExecutable = false;
-            parms.GenerateInMemory = true;
-            parms.IncludeDebugInformation = false;
+            //parms.GenerateExecutable = false;
+            //parms.GenerateInMemory = true;
+            //parms.IncludeDebugInformation = false;
 
-            Assembly a = Assembly.GetExecutingAssembly();
+            Assembly execAssembly = Assembly.GetExecutingAssembly();
             PortableExecutableKinds peKind;
             ImageFileMachine machine;
-            a.ManifestModule.GetPEKind(out peKind, out machine);
+            Platform compilerPlatform = Platform.X64;
+            execAssembly.ManifestModule.GetPEKind(out peKind, out machine);
             if ((peKind & PortableExecutableKinds.Required32Bit) == PortableExecutableKinds.Required32Bit)
-                parms.CompilerOptions = "/platform:x86";
+                compilerPlatform = Platform.X86;
             else if ((peKind & PortableExecutableKinds.PE32Plus) == PortableExecutableKinds.PE32Plus)
-                parms.CompilerOptions = "/platform:x64";
+                compilerPlatform = Platform.X64;
+
+            CSharpCompilationOptions compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
+                                           optimizationLevel: OptimizationLevel.Release,
+                                           platform: compilerPlatform,
+                                           assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default);
 
             // TODO: Add references Should these be configurable?
             string dotNetPath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
 
-            parms.ReferencedAssemblies.Add(dotNetPath + "System.dll");
-            parms.ReferencedAssemblies.Add(dotNetPath + "WPF\\PresentationCore.dll");
-            parms.ReferencedAssemblies.Add(dotNetPath + "WPF\\WindowsBase.dll");
-            parms.ReferencedAssemblies.Add(dotNetPath + "System.Core.dll");
-            parms.ReferencedAssemblies.Add(dotNetPath + "System.Data.dll");
-            parms.ReferencedAssemblies.Add(dotNetPath + "System.Data.Entity.dll");
-            parms.ReferencedAssemblies.Add(dotNetPath + "System.Runtime.dll");
+            var references = new List<MetadataReference>();
+            references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.dll"));
+            //references.Add(MetadataReference.CreateFromFile(dotNetPath + "WPF\\PresentationCore.dll"));
+            references.Add(MetadataReference.CreateFromFile(dotNetPath + "WindowsBase.dll"));
+            references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Core.dll"));
+            references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Data.dll"));
+            //references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Data.Entity.dll"));
+            references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Runtime.dll"));
             foreach (Assembly classAssembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 try
@@ -153,8 +165,8 @@ namespace gip.iplus.startup
                         || classAssembly.EntryPoint != null
                         || String.IsNullOrEmpty(classAssembly.Location))
                         continue;
-                    if (!parms.ReferencedAssemblies.Contains(classAssembly.Location))
-                        parms.ReferencedAssemblies.Add(classAssembly.Location);
+                    if (!references.Any(c => c.Display == classAssembly.Location))
+                        references.Add(MetadataReference.CreateFromFile(classAssembly.Location));
                 }
                 catch (Exception e)
                 {
@@ -178,25 +190,37 @@ namespace gip.iplus.startup
                 string assemblyNameAndPath = AppContext.BaseDirectory + refAssemblyTemp;
                 if (!System.IO.File.Exists(assemblyNameAndPath))
                     assemblyNameAndPath = System.IO.Path.Combine(dotNetPath, refAssemblyTemp);
-                if (!parms.ReferencedAssemblies.OfType<string>().Any(c => System.IO.Path.GetFileName(c) == refAssemblyTemp))
-                    parms.ReferencedAssemblies.Add(assemblyNameAndPath);
+                if (!references.OfType<string>().Any(c => System.IO.Path.GetFileName(c) == refAssemblyTemp))
+                    references.Add(MetadataReference.CreateFromFile(assemblyNameAndPath));
             }
 
             try
             {
                 // Get the code
-                CodeCompileUnit compileUnit = GetCode();
+                compileUnit = GetCode();
                 // Compile the code
 
-                myResults = provider.CompileAssemblyFromDom(parms, compileUnit);
+                //myResults = provider.CompileAssemblyFromDom(parms, compileUnit);
 
-                if (myResults.Errors.Count > 0)
+                compilation = CSharpCompilation.Create(execAssembly.FullName,
+                                            new[] { compileUnit },
+                                            references,
+                                            compilationOptions);
+
+                MemoryStream ms = new MemoryStream();
+                emitResult = compilation.Emit(ms);
+
+                if (!emitResult.Success)
                 {
                     // There are errors
                     mCompileErrors = new List<string>();
-                    foreach (CompilerError err in myResults.Errors)
+                    foreach (Diagnostic err in emitResult.Diagnostics)
                     {
-                        mCompileErrors.Add(String.Format("Error at Row {0}, Column {1}, ErrorNumber {2}, Message {3}", err.Line, err.Column, err.ErrorNumber, err.ErrorText));
+                        mCompileErrors.Add(String.Format("Error at Row {0}, Column {1}, ErrorNumber {2}, Message {3}", 
+                            err.Location.GetLineSpan().StartLinePosition.Line + 1,
+                            err.Location.GetLineSpan().StartLinePosition.Character,
+                            err.Id,
+                            err.GetMessage()));
                     }
                     myIsCompiled = false;
                     return false;
@@ -220,36 +244,49 @@ namespace gip.iplus.startup
 
         #region Private Methods
         /// <summary>
-        /// This method creates the <see cref="CodeCompileUnit"/> containing the actual C# code that will be compiled.
+        /// This method creates the <see cref="SyntaxTree"/> containing the actual C# code that will be compiled.
         /// </summary>
-        /// <returns>A <see cref="CodeCompileUnit"/> containing the code to be compiled.</returns>
-        private CodeCompileUnit GetCode()
+        /// <returns>A <see cref="SyntaxTree"/> containing the code to be compiled.</returns>
+        private SyntaxTree GetCode()
         {
             // Create a new CodeCompileUnit to contain the program graph
-            CodeCompileUnit compileUnit = new CodeCompileUnit();
+            //CodeCompileUnit compileUnit = new CodeCompileUnit();
             // Declare a new namespace 
-            CodeNamespace rulesScript = new CodeNamespace("RulesScript");
+            //CodeNamespace rulesScript = new CodeNamespace("RulesScript");
+            NamespaceDeclarationSyntax rulesScript = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName("RulesScript"));
             // Add the new namespace to the compile unit.
-            compileUnit.Namespaces.Add(rulesScript);
+            //compileUnit.Namespaces.Add(rulesScript);
 
             // Add the new namespace using for the required namespaces.
-            rulesScript.Imports.Add(new CodeNamespaceImport("System"));
+            //rulesScript.Imports.Add(new CodeNamespaceImport("System"));
+            rulesScript = rulesScript.AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System")));
+
             foreach (string mynamespace in mNamespaces)
             {
-                rulesScript.Imports.Add(new CodeNamespaceImport(mynamespace));
+                rulesScript = rulesScript.AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(mynamespace)));
             }
 
             // Declare a new type called ScriptFunctions.
-            CodeTypeDeclaration scriptFunctions = new CodeTypeDeclaration("ScriptFunctions");
+            //CodeTypeDeclaration scriptFunctions = new CodeTypeDeclaration("ScriptFunctions");
+            TypeDeclarationSyntax scriptFunctions = SyntaxFactory.ClassDeclaration("ScriptFunctions")
+                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
 
             // Add the code here
-            CodeSnippetTypeMember mem = new CodeSnippetTypeMember(mScripts.ToString());
-            scriptFunctions.Members.Add(mem);
+            //CodeSnippetTypeMember mem = new CodeSnippetTypeMember(mScripts.ToString());
+            //scriptFunctions.Members.Add(mem);
+
+            SyntaxTree tree = CSharpSyntaxTree.ParseText(mScripts.ToString());
+            CompilationUnitSyntax root = (CompilationUnitSyntax)tree.GetRoot();
+            SyntaxList<MemberDeclarationSyntax> members = scriptFunctions.Members.AddRange(root.Members);
+            scriptFunctions = scriptFunctions.WithMembers(members);
 
             // Add the type to the namespace
-            rulesScript.Types.Add(scriptFunctions);
+            rulesScript = rulesScript.AddMembers(scriptFunctions);
 
-            return compileUnit;
+            // Create a new CodeCompileUnit to contain the program graph
+            CompilationUnitSyntax compileUnit = SyntaxFactory.CompilationUnit().AddMembers(rulesScript);
+
+            return CSharpSyntaxTree.Create(compileUnit);
         }
         #endregion
 

@@ -61,8 +61,9 @@ namespace gip.iplus.startup
             }
 			if (!myEngine.IsCompiled) throw new ApplicationException("Function has not been compiled");
 
-			Type t = myEngine.myResults.CompiledAssembly.GetType("RulesScript.ScriptFunctions");
-			MethodInfo info = t.GetMethod(this.ACMethodName);
+            //Type t = myEngine.myResults.CompiledAssembly.GetType("RulesScript.ScriptFunctions");
+            Type t = myEngine.compilation.GetSemanticModel(myEngine.compileUnit).Compilation.GetTypeByMetadataName("RulesScript.ScriptFunctions").GetType();
+            MethodInfo info = t.GetMethod(this.ACMethodName);
 			object o = null;
 			if (parms == null) parms = new object[0];
             try

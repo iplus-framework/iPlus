@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using System.Linq;
 using gip.core.datamodel;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace gip.core.autocomponent
 {
@@ -66,8 +67,8 @@ namespace gip.core.autocomponent
                 myEngine.Compile();
             }
 			if (!myEngine.IsCompiled) throw new ApplicationException("Function has not been compiled");
-
-			Type t = myEngine.myResults.CompiledAssembly.GetType("RulesScript.ScriptFunctions");
+            //Type t = myEngine.myResults.CompiledAssembly.GetType("RulesScript.ScriptFunctions");
+            Type t = myEngine.compilation.GetSemanticModel(myEngine.compileUnit).Compilation.GetTypeByMetadataName("RulesScript.ScriptFunctions").GetType();
 			MethodInfo info = t.GetMethod(this.ACMethodName);
 			object o = null;
 			if (parms == null) parms = new object[0];
