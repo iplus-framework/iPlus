@@ -609,6 +609,9 @@ namespace gip.iplus.client
 
             return null;
         }
+
+        VBDesignerService _VBDesignerService = new VBDesignerService();
+        public IVBDesignerService DesignerService { get { return _VBDesignerService; } }
         #endregion
 
         #region IACUrl Member

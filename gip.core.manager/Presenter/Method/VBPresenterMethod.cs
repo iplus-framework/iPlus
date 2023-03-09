@@ -2,9 +2,6 @@ using System.Linq;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.Collections.Generic;
-using System.Windows.Markup;
-using System.Windows.Controls;
-using System.Windows;
 using System;
 
 namespace gip.core.manager
@@ -137,49 +134,9 @@ namespace gip.core.manager
         /// <returns></returns>
         public Msg GetPresenterElements(out List<string> result)
         {
-            result = new List<string>();
-
-            string xaml = PresenterACWorkflowNode.XMLDesign;
-            if (string.IsNullOrEmpty(xaml))
-                return null;
-            
-            try
-            {
-                Canvas root = XamlReader.Parse(xaml) as Canvas;
-                if (root != null)
-                    GetElements(root, result);
-            }
-            catch (Exception e)
-            {
-                return new Msg(eMsgLevel.Exception, e.Message);
-            }
-            result = result.Where(c => !string.IsNullOrEmpty(c)).ToList();
-            return null;
-        }
-
-        private void GetElements(FrameworkElement item, List<string> results)
-        {
-            if (item == null)
-                return;
-
-            results.Add(item.Name);
-
-            ContentControl contentControl = item as ContentControl;
-            if (contentControl != null && contentControl.Content != null)
-            {
-                GetElements(contentControl.Content as FrameworkElement, results);
-            }
-            else
-            {
-                Canvas canvas = item as Canvas;
-                if(canvas != null && canvas.Children.Count > 0)
-                {
-                    foreach (var child in canvas.Children)
-                    {
-                        GetElements(child as FrameworkElement, results);
-                    }
-                }
-            }
+            if (Root == null || Root.RootPageWPF == null || Root.RootPageWPF.DesignerService == null)
+                throw new MemberAccessException("DesignerService is null");
+            return Root.RootPageWPF.DesignerService.GetPresenterElements(out result, PresenterACWorkflowNode.XMLDesign);
         }
 
         #region Sub-Methods
