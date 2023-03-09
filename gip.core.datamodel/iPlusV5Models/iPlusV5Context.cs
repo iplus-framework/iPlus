@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace gip.core.datamodel;
 
@@ -103,7 +104,7 @@ public partial class iPlusV5Context : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(new ACMaterializationInterceptor()).UseModel(iPlusV5CompiledModels.iPlusV5ContextModel.Instance);
+        optionsBuilder.AddInterceptors(new ACMaterializationInterceptor()).UseModel(iPlusV5CompiledModels.iPlusV5ContextModel.Instance).ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
     }
 
 
