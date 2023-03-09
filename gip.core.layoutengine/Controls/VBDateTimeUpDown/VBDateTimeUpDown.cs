@@ -669,6 +669,8 @@ namespace gip.core.layoutengine
             //this only occurs when the user manually type in a value for the Value Property
             if (info == null)
                 info = _dateTimeInfoList[0];
+            if (info == null)
+                return;
 
             int digitPosition = _keyPressedCounterInSel;
             DateTime dtValue = (DateTime)Value;
@@ -842,7 +844,7 @@ namespace gip.core.layoutengine
 
             _lastEnteredDigit = digit;
             //we loose our selection when the Value is set so we need to reselect it without firing the selection changed event
-            TextBox.Select(info.StartPosition, info.Length);
+            TextBox?.Select(info.StartPosition, info.Length);
             _fireSelectionChangedEvent = true;
             if (goToNextSel)
                 PerformKeyboardSelection(1);

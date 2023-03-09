@@ -1728,6 +1728,8 @@ namespace gip.bso.iplus
         public ACClassProperty UpdateACClassProperty(ACClass acClass, ACClassProperty acClassProperty, string propertyName)
         {
             // TODO: Ableitungen abgleichen
+            if (propertyName == nameof(IInsertInfo.InsertName) || propertyName == nameof(IInsertInfo.InsertDate) || propertyName == nameof(IUpdateInfo.UpdateName) || propertyName == nameof(IUpdateInfo.UpdateDate))
+                return acClassProperty;
             ACClassProperty basedOnACClassProperty = acClassProperty.ACClassProperty1_BasedOnACClassProperty;
             ACClass acTypeOfACClassProperty = Database.GlobalDatabase.GetACType(typeof(ACClassProperty)) as ACClass;
             IACType acType = acTypeOfACClassProperty.ReflectGetACTypeInfo(propertyName);

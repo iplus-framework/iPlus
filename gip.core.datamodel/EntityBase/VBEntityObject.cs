@@ -352,7 +352,7 @@ namespace gip.core.datamodel
                     OnPropertyChanged(propName);
                 }
             }
-            else
+            else if(!string.IsNullOrEmpty(property))
                 OnPropertyChanged(property);
         }
 

@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -70,7 +69,7 @@ namespace gip.bso.iplus
                 SQLMode();
                 Tuple<SQLInstanceInfo, string> selectedSQLItem = ResourcesSQL.DBUrlDecode(path);
                 SelectedSQLInstanceInfo = selectedSQLItem.Item1;
-                ACClass selectedACQueryDef = ACQueryDatabase.ACClass.FirstOrDefault(x => x.ACClass1_BasedOnACClass.ACIdentifier == ACQueryDefinition.ClassName && x.ACIdentifier == selectedSQLItem.Item2);
+                ACClass selectedACQueryDef = ACQueryDatabase.ContextIPlus.ACClass.FirstOrDefault(x => x.ACClass1_BasedOnACClass.ACIdentifier == ACQueryDefinition.ClassName && x.ACIdentifier == selectedSQLItem.Item2);
                 if (!SQLACQueryDefList.Contains(selectedACQueryDef))
                 {
                     SQLACQueryDefList.Add(selectedACQueryDef);
@@ -175,7 +174,7 @@ namespace gip.bso.iplus
                     {
                         try
                         {
-                            ACQueryDatabase = ACObjectContextManager.FactoryContext(SelectedSQLInstanceInfo, true) as Database;
+                            ACQueryDatabase = ACObjectContextManager.FactoryContext(SelectedSQLInstanceInfo);
                         }
                         catch (Exception e)
                         {
@@ -297,7 +296,7 @@ namespace gip.bso.iplus
 
         #region SQLACQueryDef
 
-        public Database ACQueryDatabase { get; set; }
+        public IACEntityObjectContext ACQueryDatabase { get; set; }
 
 
         #region SQLACQueryDef -> SelectList
@@ -345,7 +344,9 @@ namespace gip.bso.iplus
             if (SelectedSQLInstanceInfo == null) return null;
             string acQueryDefClassName = FilterACQueryName ?? "";
             string typeName = FilterACQueryObjectTypeName ?? "";
-            return ACQueryDatabase.ACClass
+            return ACQueryDatabase
+                    .ContextIPlus
+                    .ACClass
                     .Where(x => x.ACClass1_BasedOnACClass.ACIdentifier == ACQueryDefinition.ClassName)
                     .Where(x =>
                         (acQueryDefClassName == "" || x.ACIdentifier.Contains(acQueryDefClassName)) &&

@@ -3,9 +3,7 @@ using gip.core.reporthandler.Flowdoc;
 using System.Windows.Documents;
 using System;
 using System.Threading;
-
-using static ESCPOS.Commands;
-using static gip.core.reporthandler.ESCPosExt;
+using gip.core.reporthandler;
 using ESCPOS;
 using ESCPOS.Utils;
 using System.Windows;
@@ -308,13 +306,13 @@ namespace gip.core.reporthandler
                 if (inlineBarcode.BarcodeWidth >= 2 && inlineBarcode.BarcodeWidth <= 10)
                     qRCodeSizeExt = (QRCodeSizeExt)inlineBarcode.BarcodeWidth;
                 printContext.Main = printContext.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Center), Commands.SelectPrintMode(PrintMode.Reset),
-                    PrintQRCodeExt(barcodeValue, QRCodeModel.Model1, QRCodeCorrection.Percent30, qRCodeSizeExt));
+                    ESCPosExt.PrintQRCodeExt(barcodeValue, QRCodeModel.Model1, QRCodeCorrection.Percent30, qRCodeSizeExt));
             }
             else
             {
                 BarCodeType barCodeType = BarCodeType.EAN8;
                 if (Enum.TryParse(inlineBarcode.BarcodeType.ToString(), out barCodeType))
-                    printContext.Main = printContext.Main.Add(Commands.LF, PrintBarCode(barCodeType, barcodeValue));
+                    printContext.Main = printContext.Main.Add(Commands.LF, Commands.PrintBarCode(barCodeType, barcodeValue));
             }
             printContext.Main = printContext.Main.Add(Commands.LF, Commands.LF, Commands.LF, Commands.LF, Commands.LF);
         }
@@ -327,13 +325,19 @@ namespace gip.core.reporthandler
             printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
         }
 
-        public override void OnRednerRun(PrintContext printContext, Run run)
+        public override void OnRenderRun(PrintContext printContext, Run run)
         {
             SetPrintFormat(printContext, run, null);
             PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
             PrintFormattedText(printContext, defaultPrintFormat, run.Text);
             printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
         }
+
+        public override void OnRenderLineBreak(PrintContext printContext, LineBreak lineBreak)
+        {
+            printContext.Main = printContext.Main.Add(Commands.LF);
+        }
+
         #endregion
 
 
@@ -389,8 +393,8 @@ namespace gip.core.reporthandler
         {
             Tuple<Justification, CharSizeWidth, CharSizeHeight> format = GetESCFormat(defaultPrintFormat);
             printContext.Main = printContext.Main.Add(Commands.SelectPrintMode(PrintMode.Reset));
-            printContext.Main = printContext.Main.Add(SelectCharSize(format.Item2, format.Item3));
-            printContext.Main = printContext.Main.Add(Commands.LF, SelectJustification(format.Item1), printContext.Encoding.GetBytes(text));
+            printContext.Main = printContext.Main.Add(Commands.SelectCharSize(format.Item2, format.Item3));
+            printContext.Main = printContext.Main.Add(Commands.LF, Commands.SelectJustification(format.Item1), printContext.Encoding.GetBytes(text));
         }
 
         #endregion

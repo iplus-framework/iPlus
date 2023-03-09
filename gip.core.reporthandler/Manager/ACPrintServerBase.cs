@@ -64,12 +64,12 @@ namespace gip.core.reporthandler
         {
             bool baseReturn = base.ACPostInit();
 
-            _ = _IPAddress;
-            _ = _Port;
-            _ = _SendTimeout;
-            _ = _ReceiveTimeout;
-            _ = _PrintTries;
-            _ = _CodePage;
+            _ = IPAddress;
+            _ = Port;
+            _ = SendTimeout;
+            _ = ReceiveTimeout;
+            _ = PrintTries;
+            _ = CodePage;
 
             return baseReturn;
         }
@@ -570,7 +570,10 @@ namespace gip.core.reporthandler
                 else if (inline is InlineBoolValue)
                     OnRenderInlineBoolValue(printContext, (InlineBoolValue)inline);
                 else if (inline is Run)
-                    OnRednerRun(printContext, (Run)inline);
+                    OnRenderRun(printContext, (Run)inline);
+                else if (inline is LineBreak)
+                    OnRenderLineBreak(printContext, (LineBreak)inline);
+
             }
             OnRenderParagraphFooter(printContext, paragraph);
         }
@@ -591,8 +594,9 @@ namespace gip.core.reporthandler
 
         public abstract void OnRenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue);
 
-        public abstract void OnRednerRun(PrintContext printContext, Run run);
+        public abstract void OnRenderRun(PrintContext printContext, Run run);
 
+        public abstract void OnRenderLineBreak(PrintContext printContext, LineBreak lineBreak);
         #endregion
 
         #endregion

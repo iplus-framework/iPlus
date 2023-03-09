@@ -273,10 +273,11 @@ namespace gip.core.datamodel
             MsgWithDetails msgWithDetails = null;
             try
             {
+                IEnumerable<EntityEntry> trackedEntries = _ObjectContext.ChangeTracker.Entries();
                 // 1. Hole manipulierte Objekte
                 try
                 {
-                    var entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Modified);
+                    var entityStateList = trackedEntries.Where(c => c.State == EntityState.Modified);
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
                         var entityList = entityStateList.Where(c => c.Entity != null).Select(c => c.Entity);
@@ -303,7 +304,7 @@ namespace gip.core.datamodel
                 // 2. Hole gelöschte Objekte
                 try
                 {
-                    var entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Deleted);
+                    var entityStateList = trackedEntries.Where(c => c.State == EntityState.Deleted);
 
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
@@ -334,7 +335,7 @@ namespace gip.core.datamodel
                 // 5. Hole vom Kontext hinzugefügte Objekte
                 try
                 {
-                    var entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Added);
+                    var entityStateList = trackedEntries.Where(c => c.State == EntityState.Added);
 
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
@@ -370,7 +371,7 @@ namespace gip.core.datamodel
                         }
                     }
 
-                    entityStateList = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Added);
+                    entityStateList = trackedEntries.Where(c => c.State == EntityState.Added);
 
                     if ((entityStateList != null) && (entityStateList.Any()))
                     {
@@ -599,7 +600,8 @@ namespace gip.core.datamodel
             List<Tuple<ACChangeLog, int>> changeLogList = new List<Tuple<ACChangeLog, int>>();
             try
             {
-                IEnumerable<EntityEntry> modified = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Modified);
+                IEnumerable<EntityEntry> trackedEntries = _ObjectContext.ChangeTracker.Entries();
+                IEnumerable<EntityEntry> modified = trackedEntries.Where(c => c.State == EntityState.Modified);
 #if DEBUG
                 if (_LogModifiedPropertiesToDebugWindow && modified.Any())
                 {
@@ -648,7 +650,7 @@ namespace gip.core.datamodel
                     }
                 }
 
-                IEnumerable<EntityEntry> added = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Added);
+                IEnumerable<EntityEntry> added = trackedEntries.Where(c => c.State == EntityState.Added);
                 foreach (EntityEntry ose in added)
                 {
                     if (ose.State != EntityState.Added)
@@ -681,7 +683,7 @@ namespace gip.core.datamodel
                     }
                 }
 
-                IEnumerable<EntityEntry> deleted = _ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Deleted);
+                IEnumerable<EntityEntry> deleted = trackedEntries.Where(c => c.State == EntityState.Deleted);
                 foreach (EntityEntry ose in deleted)
                 {
                     if (ose.State != EntityState.Deleted)

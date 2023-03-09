@@ -88,6 +88,26 @@ namespace gip.core.autocomponent
             }
         }
 
+        public virtual ACMethod NewACMethodPAFWithConfiguration()
+        {
+            if (InitState < ACInitState.Reloading
+                || InitState >= ACInitState.Destructing)
+            {
+                Messages.LogError(this.GetACUrl(), "NewACMethodWithConfiguration(10)", "Access to early: InitState is not Initialized");
+                Messages.LogError(this.GetACUrl(), "NewACMethodWithConfiguration(11)", System.Environment.StackTrace);
+                return null;
+            }
+
+            core.datamodel.ACClassMethod refPAACClassMethod = RefACClassMethodOfContentWF;
+            if (refPAACClassMethod == null)
+                return null;
+
+            ACMethod paramMethod = refPAACClassMethod.TypeACSignature();
+            if (!(bool)ExecuteMethod(nameof(GetConfigForACMethod), paramMethod, true))
+                return null;
+            return paramMethod;
+        }
+
         #endregion
 
         #region Methods
@@ -100,6 +120,35 @@ namespace gip.core.autocomponent
         #endregion
 
         #region Virtual
+        public PAProcessFunction GetResponsibleProcessFunc()
+        {
+            core.datamodel.ACClassMethod refPAACClassMethod = RefACClassMethodOfContentWF;
+            if (refPAACClassMethod == null)
+                return null;
+            ACMethod acMethod = refPAACClassMethod.TypeACSignature();
+            if (acMethod == null)
+                return null;
+            PAProcessModule module = null;
+            if (ParentPWGroup.NeedsAProcessModule && (ACOperationMode == ACOperationModes.Live || ACOperationMode == ACOperationModes.Simulation))
+                module = ParentPWGroup.AccessedProcessModule;
+            // Testmode
+            else
+                module = ParentPWGroup.ProcessModuleForTestmode;
+            if (module == null)
+                return null;
+
+            return GetResponsibleProcessFunc(module, acMethod);
+        }
+
+        protected PAProcessFunction GetResponsibleProcessFunc(PAProcessModule module, ACMethod acMethod)
+        {
+            PAProcessFunction pAProcessFunction = null;
+            if (module == null)
+                return null;
+            module.GetACStateOfFunction(acMethod.ACIdentifier, out pAProcessFunction);
+            return pAProcessFunction;
+        }
+
         protected virtual PAProcessFunction CanStartProcessFunc(PAProcessModule module, ACMethod acMethod, params object[] acParameter)
         {
             PAProcessFunction pAProcessFunction = null;
@@ -151,7 +200,8 @@ namespace gip.core.autocomponent
                 {
                     ACMethod paramMethod = null;
                     PAProcessModule module = null;
-                    if (ParentPWGroup.NeedsAProcessModule && (ACOperationMode == ACOperationModes.Live || ACOperationMode == ACOperationModes.Simulation))
+                    if (   ParentPWGroup.NeedsAProcessModule 
+                        && (ACOperationMode == ACOperationModes.Live || ACOperationMode == ACOperationModes.Simulation))
                         module = ParentPWGroup.AccessedProcessModule;
                     if (ParentPWGroup.WithoutPM || RunWithoutInvokingFunction)
                     {
@@ -165,7 +215,7 @@ namespace gip.core.autocomponent
                         return;
                     }
                     // Testmode
-                    else
+                    else if (module == null)
                         module = ParentPWGroup.ProcessModuleForTestmode;
 
                     if (module == null)
@@ -174,7 +224,7 @@ namespace gip.core.autocomponent
                         return;
                     }
                     paramMethod = refPAACClassMethod.TypeACSignature();
-                    if (!(bool)ExecuteMethod("GetConfigForACMethod", paramMethod, true))
+                    if (!(bool)ExecuteMethod(nameof(GetConfigForACMethod), paramMethod, true))
                     {
                         // TODO: Meldung
                         return;

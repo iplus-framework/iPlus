@@ -643,8 +643,12 @@ namespace gip.core.autocomponent
 
                 using (ACMonitor.Lock(Database.QueryLock_1X000))
                 {
-                    _inPointList = _CurrentInPoint.ACClassPropertyRelation_TargetACClass.Where(c => c.ConnectionTypeIndex == (short)Global.ConnectionTypes.ConnectionPhysical || c.ConnectionTypeIndex == (short)Global.ConnectionTypes.DynamicConnection)
-                        .Join(Database.ContextIPlus.ACClass, x => x.SourceACClassID, y => y.ACClassID, (x, y) => new { y }).Select(x => x.y)
+                    _inPointList = _CurrentInPoint.ACClassPropertyRelation_TargetACClass
+                        .Where(c => c.ConnectionTypeIndex == (short)Global.ConnectionTypes.ConnectionPhysical || c.ConnectionTypeIndex == (short)Global.ConnectionTypes.DynamicConnection)
+                        .Join(Database.ContextIPlus.ACClass, x => x.SourceACClassID, y => y.ACClassID, (x, y) => new { y })
+                        .Select(x => x.y)
+                        .AsEnumerable()
+                        .Where(c => c.ACKind == Global.ACKinds.TPAProcessModule)
                         .OrderBy(c => c.ACIdentifier);
                 }
                 return _inPointList;
@@ -757,8 +761,12 @@ namespace gip.core.autocomponent
 
                 using (ACMonitor.Lock(Database.QueryLock_1X000))
                 {
-                    _OutPointList = _CurrentOutPoint.ACClassPropertyRelation_SourceACClass.Where(c => c.ConnectionTypeIndex == (short)Global.ConnectionTypes.ConnectionPhysical || c.ConnectionTypeIndex == (short)Global.ConnectionTypes.DynamicConnection)
-                        .Join(Database.ContextIPlus.ACClass, x => x.TargetACClassID, y => y.ACClassID, (x, y) => new { y }).Select(x => x.y)
+                    _OutPointList = _CurrentOutPoint.ACClassPropertyRelation_SourceACClass
+                        .Where(c => c.ConnectionTypeIndex == (short)Global.ConnectionTypes.ConnectionPhysical || c.ConnectionTypeIndex == (short)Global.ConnectionTypes.DynamicConnection)
+                        .Join(Database.ContextIPlus.ACClass, x => x.TargetACClassID, y => y.ACClassID, (x, y) => new { y })
+                        .Select(x => x.y)
+                        .AsEnumerable()
+                        .Where(c => c.ACKind == Global.ACKinds.TPAProcessModule)
                         .OrderBy(c => c.ACIdentifier);
                 }
                 return _OutPointList;

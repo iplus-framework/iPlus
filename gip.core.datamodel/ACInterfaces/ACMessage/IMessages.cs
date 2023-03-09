@@ -177,7 +177,8 @@ namespace gip.core.datamodel
         /// <param name="source">Information about the source where this method was called. Always pass the ACUrl of a ACComponent.</param>
         /// <param name="acName">Unique information about the position in the code where this method was called. Recommendation: "Methodname(Number)"</param>
         /// <param name="ex">Exception</param>
-        void LogException(string source, string acName, Exception ex);
+        /// <param name="withStackTrace">With Stack Trace</param>
+        void LogException(string source, string acName, Exception ex, bool withStackTrace = false);
 
 
         /// <summary>Writes a Failure-Message to the Logfile. Usage: "An failure occurred that could be successful if you try again."</summary>

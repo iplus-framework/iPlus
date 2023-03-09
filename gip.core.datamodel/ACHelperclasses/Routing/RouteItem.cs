@@ -361,6 +361,11 @@ namespace gip.core.datamodel
 
             try
             {
+                if (   _Source != null && _Source.Database == context
+                    && _Target != null && _Target.Database == context
+                    && _SourceProperty != null && _SourceProperty.Database == context
+                    && _TargetProperty != null && _SourceProperty.Database == context)
+                    return;
                 Detach();
                 object propValue;
                 if (SourceKey != null && _Source == null)
@@ -375,7 +380,6 @@ namespace gip.core.datamodel
                 }
                 if (TargetKey != null && _Target == null)
                 {
-
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
                         Target = context.ContextIPlus.GetObjectByKey(TargetKey) as ACClass;

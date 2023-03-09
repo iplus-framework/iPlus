@@ -689,7 +689,7 @@ namespace gip.core.autocomponent
         /// <value>
         /// The first available process module.
         /// </value>
-        protected virtual PAProcessModule FirstAvailableProcessModule
+        public virtual PAProcessModule FirstAvailableProcessModule
         {
             get
             {
@@ -708,10 +708,10 @@ namespace gip.core.autocomponent
         {
             get
             {
-                List<PAProcessModule> list = ProcessModuleList;
-                if (list.Count <= 0)
+                List<PAProcessModule> list = AvailableProcessModuleList;
+                if (list == null)
                     return null;
-                return list.First();
+                return list.FirstOrDefault();
             }
         }
 
@@ -1310,7 +1310,12 @@ namespace gip.core.autocomponent
                 return false;
             _ProcessModuleChanged?.Invoke(this, new ProcessModuleChangedArgs(module, true));
             module.RefreshOrderInfo();
+            OnProcessModuleReleased(module);
             return true;
+        }
+
+        protected virtual void OnProcessModuleReleased(PAProcessModule module)
+        {
         }
 
         [ACMethodInfo("", "en{'Release module'}de{'Gebe Modul frei'}", 300)]

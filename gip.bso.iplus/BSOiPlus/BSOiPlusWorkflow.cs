@@ -25,6 +25,7 @@ using gip.core.manager;
 using System.Threading;
 using System.ComponentModel;
 using System.Data;
+using System.Windows.Media.Media3D;
 
 namespace gip.bso.iplus
 {

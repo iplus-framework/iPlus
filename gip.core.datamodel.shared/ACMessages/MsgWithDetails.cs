@@ -210,7 +210,21 @@ namespace gip.core.datamodel
                 return;
             if (_MsgDetails == null)
                 _MsgDetails = new ObservableCollection<Msg>();
-            _MsgDetails.Add(msg);
+            if (msg is MsgWithDetails)
+            {
+                MsgWithDetails tmpMsg = msg as MsgWithDetails;
+                if (tmpMsg.MsgDetails != null)
+                {
+                    foreach (Msg chMsg in tmpMsg.MsgDetails)
+                    {
+                        _MsgDetails.Add(chMsg);
+                    }
+                }
+            }
+            else
+            {
+                _MsgDetails.Add(msg);
+            }
         }
 
         /// <summary>

@@ -381,10 +381,6 @@
             <Trigger Property="OperatingMode" Value="Maintenance">
                 <Setter TargetName="OpModeBack" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderBrushMaint}" />
             </Trigger>
-            <Trigger Property="OperatingMode" Value="InActive">
-                <Setter TargetName="RunModeLeft" Property="Fill" Value="Black" />
-                <Setter TargetName="RunModeRight" Property="Fill" Value="Black" />
-            </Trigger>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
                     <Condition Property="Pos1" Value="True"/>
@@ -423,6 +419,10 @@
             <Trigger Property="FaultState" Value="AlarmOrFault">
                 <Setter TargetName="RunModeLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushFault}" />
                 <Setter TargetName="RunModeRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushFault}" />
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="InActive">
+                <Setter TargetName="RunModeLeft" Property="Fill" Value="Black" />
+                <Setter TargetName="RunModeRight" Property="Fill" Value="Black" />
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>

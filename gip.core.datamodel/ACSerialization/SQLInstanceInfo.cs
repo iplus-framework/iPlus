@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
@@ -28,6 +24,11 @@ namespace gip.core.datamodel
         [ACPropertyInfo(4, "Password", "en{'Password'}de{'Kennwort'}")]
         public string Password { get; set; }
 
-       
+
+        [DataMember]
+        [ACPropertyInfo(5, "MESContextFullName", "en{'MES (or custom) Context Fullname'}de{'MES (oder benutzerdefinierter) Kontext Vollständiger Name'}")]
+        public string MESContextFullName { get; set; }
+
+
     }
 }

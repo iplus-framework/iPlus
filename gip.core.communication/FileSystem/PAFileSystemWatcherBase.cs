@@ -76,6 +76,13 @@ namespace gip.core.communication
             set;
         }
 
+        [ACPropertyInfo(true, 212, "Configuration", "en{'Forward to directory'}de{'Weiterleiten in Verzeichnis'}", "", true)]
+        public string ForwardDir
+        {
+            get;
+            set;
+        }
+
         [ACPropertyBindingSource(203, "Error", "en{'Watching Alarm'}de{'Überwachungs Alarm'}", "", false, false)]
         public IACContainerTNet<PANotifyState> IsWatchingAlarm { get; set; }
 
@@ -490,6 +497,25 @@ namespace gip.core.communication
             //if (indexOfBackSlash >= 0)
             //    fileNameWithoutPath = fileNameWithoutPath.Substring(indexOfBackSlash + 1);
             //return fileNameWithoutPath;
+        }
+
+        public bool ForwardFile(string file, string destinationDirPath)
+        {
+            try
+            {
+                DirectoryInfo targetDir = new DirectoryInfo(destinationDirPath);
+                if (!targetDir.Exists)
+                    return false;
+                FileInfo fileInfo = new FileInfo(file);
+                string destinationFilePath = System.IO.Path.Combine(destinationDirPath, fileInfo.Name);
+                File.Copy(file, destinationFilePath);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Messages.LogException(this.GetACUrl(), "PAXMLDocImporterBase.MoveOrDeleteFile(0)", e);
+            }
+            return false;
         }
 
         public event EventHandler ProjectWorkCycleR5sec;

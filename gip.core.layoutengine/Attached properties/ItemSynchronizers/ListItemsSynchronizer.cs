@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Collections.Specialized;
+using System.Collections.ObjectModel;
 
 namespace gip.core.layoutengine
 {
@@ -77,7 +78,6 @@ namespace gip.core.layoutengine
 
                 case SynchronizationModes.TargetToSource:
                     _Source.Clear();
-
                     foreach (object item in _Target)
                     {
                         _Source.Add(item);

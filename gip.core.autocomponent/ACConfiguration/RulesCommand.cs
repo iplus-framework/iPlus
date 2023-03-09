@@ -315,7 +315,7 @@ namespace gip.core.autocomponent
                                                                                                 instance, routeSource.SourceProperty, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, new object[] { },
                                                                                                 (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
                                                                                                 null,
-                                                                                                0, true, true, false, false, 3);
+                                                                                                0, true, true, false, false, 3, false, true);
                                     if (routeResult.Routes != null && routeResult.Routes.Any())
                                         routes.AddRange(routeResult.Routes);
                                 }
@@ -326,7 +326,7 @@ namespace gip.core.autocomponent
                                                                                                 instance, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, new object[] { },
                                                                                                 (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
                                                                                                 null,
-                                                                                                0, true, true, false, false, 3);
+                                                                                                0, true, true, false, false, 3, false, true);
                                 if (routeResult.Routes != null && routeResult.Routes.Any())
                                     routes.AddRange(routeResult.Routes);
                             }
@@ -348,7 +348,7 @@ namespace gip.core.autocomponent
                                                                 instance, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, new object[] { },
                                                                 (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
                                                                 null,
-                                                                0, true, true, false, false, 3);
+                                                                0, true, true, false, false, 3, false, true);
                             if (routeResult.Routes != null && routeResult.Routes.Any())
                                 routes.AddRange(routeResult.Routes);
                         }
@@ -425,7 +425,7 @@ namespace gip.core.autocomponent
                                                                                                 instance, routeSource.SourceProperty, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, new object[] { },
                                                                                                 (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
                                                                                                 null,
-                                                                                                0, true, true, false, false, 3);
+                                                                                                0, true, true, false, false, 3, false, true);
                                     if (routeResult.Routes != null && routeResult.Routes.Any())
                                         routes.AddRange(routeResult.Routes);
                                 }
@@ -436,7 +436,7 @@ namespace gip.core.autocomponent
                                                                                                 instance, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, new object[] { },
                                                                                                 (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
                                                                                                 null,
-                                                                                                0, true, true, false, false, 3);
+                                                                                                0, true, true, false, false, 3, false, true);
                                 if (routeResult.Routes != null && routeResult.Routes.Any())
                                     routes.AddRange(routeResult.Routes);
                             }
@@ -464,7 +464,7 @@ namespace gip.core.autocomponent
                                                                 instance, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, new object[] { },
                                                                 (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
                                                                 null,
-                                                                0, true, true, false, false, 3);
+                                                                0, true, true, false, false, 3, false, true);
                             if (routeResult.Routes != null && routeResult.Routes.Any())
                                 routes.AddRange(routeResult.Routes);
                         }

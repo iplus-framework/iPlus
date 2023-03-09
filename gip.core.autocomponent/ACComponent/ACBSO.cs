@@ -715,10 +715,29 @@ namespace gip.core.autocomponent
         /// <returns></returns>
         public virtual Msg PrintByOrderInfo(PAOrderInfo paOrderInfo, string printerName, short numberOfCopies, string designName = null, int maxPrintJobsInSpooler = 0, bool preventClone = true)
         {
+            var vbDump = Root.VBDump;
+
+            PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(FilterByOrderInfo), 120);
             Msg msg = FilterByOrderInfo(paOrderInfo);
+            vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(FilterByOrderInfo), 120, pEvent);
+            //if (EnablePrintLogging)
+            //{
+            //    string msgLog = pEvent.InstanceName + " " + pEvent.Elapsed + paOrderInfo != null ? paOrderInfo.ToString() : "";
+            //    Messages.LogMessageMsg(new Msg(msgLog, this, eMsgLevel.Info, nameof(ACBSO), nameof(PrintByOrderInfo), 735));
+            //}
+
             if (msg != null)
                 return msg;
+
+            //pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(GetDesignForPrinting), 130);
             ACClassDesign printDesign = GetDesignForPrinting(printerName, designName, paOrderInfo);
+            //vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(GetDesignForPrinting), 130, pEvent);
+            //if (EnablePrintLogging)
+            //{
+            //    string msgLog = pEvent.InstanceName + " " + pEvent.Elapsed + paOrderInfo != null ? paOrderInfo.ToString() : "";
+            //    Messages.LogMessageMsg(new Msg(msgLog, this, eMsgLevel.Info, nameof(ACBSO), nameof(PrintByOrderInfo), 746));
+            //}
+
             if (printDesign == null)
             {
                 // TODO Translate

@@ -26,10 +26,10 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "ReinterpretGate":
+                case nameof(ReinterpretGate):
                     ReinterpretGate();
                     return true;
-                case "IsEnabledReinterpretGate":
+                case nameof(IsEnabledReinterpretGate):
                     result = IsEnabledReinterpretGate();
                     return true;
             }

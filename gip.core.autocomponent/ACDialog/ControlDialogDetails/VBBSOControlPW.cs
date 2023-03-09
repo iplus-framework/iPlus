@@ -857,8 +857,8 @@ namespace gip.core.autocomponent
                         InitRoutingValues();
                     else
                     {
-                        OnPropertyChanged("SelectedValues");
-                        OnPropertyChanged("AvailableValues");
+                        OnPropertyChanged(nameof(SelectedValues));
+                        OnPropertyChanged(nameof(AvailableValues));
                     }
                 }
             }
@@ -890,11 +890,12 @@ namespace gip.core.autocomponent
         {
             get
             {
-                if (RuleObjectSelection == null || CurrentPAFRulePropertyACUrl == null || CurrentRuleType == null) return null;
+                if (RuleObjectSelection == null || CurrentPAFRulePropertyACUrl == null || CurrentRuleType == null)
+                    return null;
                 return RuleObjectSelection.FirstOrDefault(x =>
-                    x.PAFRulePropertyACUrl == CurrentPAFRulePropertyACUrl &&
-                    x.RuleInfo.ConfigStoreUrl == CurrentRuleType.ConfigStoreUrl &&
-                    x.RuleInfo.RuleType == CurrentRuleType.RuleType);
+                            x.PAFRulePropertyACUrl == CurrentPAFRulePropertyACUrl &&
+                            x.RuleInfo.ConfigStoreUrl == CurrentRuleType.ConfigStoreUrl &&
+                            x.RuleInfo.RuleType == CurrentRuleType.RuleType);
             }
         }
 
@@ -902,7 +903,8 @@ namespace gip.core.autocomponent
         {
             get
             {
-                if (RuleObjectSelected == null) return null;
+                if (RuleObjectSelected == null)
+                    return null;
                 return RuleObjectSelected.AvailableValues;
             }
         }
@@ -911,14 +913,16 @@ namespace gip.core.autocomponent
         {
             get
             {
-                if (RuleObjectSelected == null) return null;
+                if (RuleObjectSelected == null)
+                    return null;
                 return RuleObjectSelected.SelectedValues;
             }
         }
 
         public void LoadRuleObjectSelectItem()
         {
-            if (CurrentPAFRulePropertyACUrl == null || _CurrentRuleType == null) return;
+            if (CurrentPAFRulePropertyACUrl == null || _CurrentRuleType == null)
+                return;
             if (RuleObjectSelected == null)
             {
                 var currentACClassWF = Database.ContextIPlus.ACClassWF.FirstOrDefault(x => x.ACClassWFID == _CurrentACClassWF.ACClassWFID);
@@ -1164,6 +1168,8 @@ namespace gip.core.autocomponent
             RuleValuesList = _RuleValuesList.ToList();
             RuleObjectSelected.AvailableValues = RuleValuesList.Select(x => x.Value).ToList();
             RuleObjectSelected.SelectedValues = RuleValuesList.Select(x => x.Value).ToList();
+            OnPropertyChanged(nameof(AvailableValues));
+            OnPropertyChanged(nameof(SelectedValues));
             _IsChangeRuleTypeLocked = false;
         }
 
@@ -1185,6 +1191,8 @@ namespace gip.core.autocomponent
                 RuleValuesList = _RuleValuesList.ToList();
                 RuleObjectSelected.AvailableValues = RuleValuesList.Select(x => x.Value).ToList();
                 RuleObjectSelected.SelectedValues = RuleValuesList.Select(x => x.Value).ToList();
+                OnPropertyChanged(nameof(AvailableValues));
+                OnPropertyChanged(nameof(SelectedValues));
             }
         }
 
@@ -1234,6 +1242,8 @@ namespace gip.core.autocomponent
 
             RuleObjectSelected.AvailableValues = RuleValuesList.Select(x => x.Value).ToList();
             RuleObjectSelected.SelectedValues = RuleValuesList.Select(x => x.Value).ToList();
+            OnPropertyChanged(nameof(AvailableValues));
+            OnPropertyChanged(nameof(SelectedValues));
             _IsChangeRuleTypeLocked = false;
         }
 
@@ -1523,70 +1533,10 @@ namespace gip.core.autocomponent
                         if (configOfSimilarNode != null)
                             configOfSimilarNode.Value = thisConfigEntry.Value;
                     }
-                    //similarNode.MandatoryConfigStores
-                    //foreach (ACConfigParam thisConfigParam in PWNodeParamValueList)
-                    //{
-                    //    if (   thisConfigParam.DefaultConfiguration != null
-                    //        && thisConfigParam.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl())
-                    //    {
-                    //        similarNode.CurrentConfigStore.ConfigurationEntries;
-                    //    }
-                    //    //thisConfigParam.ConfigurationList
-                    //}
+
                 }
             }
-
-            //CopyConfigToSimilarNodes_Old();
-            //CopyConfigToSimilarNodes_New();
         }
-
-        //public void CopyConfigToSimilarNodes_Old()
-        //{
-        //    List<IACComponentPWNode> rootNodes = new List<IACComponentPWNode>();
-        //    if (IsCopyNodeConfigOnParentLevel)
-        //    {
-        //        if (CurrentPWInfo.ParentRootWFNode != null && CurrentPWInfo.ParentRootWFNode.ParentRootWFNode != null)
-        //        {
-        //            rootNodes = CurrentPWInfo.ParentRootWFNode.ParentRootWFNode.FindChildComponents<IACComponentPWNode>(c =>
-        //                           (c is IACComponentPWNode)
-        //                        && (c as IACComponentPWNode).ContentACClassWF.PWACClassID == CurrentPWInfo.ParentRootWFNode.ContentACClassWF.PWACClassID);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        rootNodes.Add(CurrentPWInfo.ParentRootWFNode);
-        //    }
-        //    List<IACComponentPWNode> similarNodes = GetSimilarNodes(rootNodes, CurrentPWInfo);
-
-        //    if (similarNodes != null && similarNodes.Any())
-        //    {
-        //        CopyNodeConfigToList(CurrentPWInfo, similarNodes);
-        //    }
-        //}
-
-        //public void CopyConfigToSimilarNodes_New()
-        //{
-        //    IACComponentPWNode rootNode = null;
-        //    if (IsCopyNodeConfigOnParentLevel)
-        //    {
-        //        rootNode = CurrentPWInfo;
-        //        while (rootNode.ParentRootWFNode != null)
-        //            rootNode = rootNode.ParentRootWFNode;
-        //    }
-        //    else
-        //    {
-        //        rootNode = CurrentPWInfo.ParentRootWFNode;
-        //    }
-        //    List<WF_WrapForConfig> sameMethodNodes = GetAllSameMethodNodes
-        //        (rootNode.ContentACClassWF,
-        //        null, // CurrentPWInfo.ContentACClassWF.RefPAACClassID, 
-        //        CurrentPWInfo.ContentACClassWF.RefPAACClassMethodID,
-        //        CurrentPWInfo.PreValueACUrl);
-        //    if (sameMethodNodes != null && sameMethodNodes.Any())
-        //    {
-        //        WriteConfigToNodes(CurrentPWInfo.CurrentConfigStore, CurrentPWInfo.ContentACClassWF, sameMethodNodes);
-        //    }
-        //}
 
         public bool IsEnabledCopyConfigToSimilarNodes()
         {
@@ -1720,7 +1670,10 @@ namespace gip.core.autocomponent
                         rootPlanningNode
                        .ContentACClassWF
                        .ACClassWF_ParentACClassWF
-                       .Where(c => c.ACClassMethodID == methodType.ACClassMethodID && c.PWACClass.ACIdentifier == "PWNodeProcessWorkflowVB")
+                       .Where(c =>
+                                    c.ACClassMethodID == methodType.ACClassMethodID
+                                    && c.PWACClass.ACIdentifier == "PWNodeProcessWorkflowVB"
+                                    && c.ACClassWFID != CurrentPWInfo?.ContentACClassWF?.ACClassWFID)
                        .ToArray();
                 }
 
@@ -1728,30 +1681,41 @@ namespace gip.core.autocomponent
                 //  SelectedPWNodeParamValue.DefaultConfiguration.ConfigStore.GetACUrl() != CurrentPWInfo.CurrentConfigStore.GetACUrl()
                 if (sameTypeRootMethods != null)
                 {
-                    List<ACConfigParam> allHereOverridenParams = PWNodeParamValueList.Where(c => c.DefaultConfiguration != null && c.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl()).ToList();
-
+                    //List<ACConfigParam> allHereOverridenParams = PWNodeParamValueList.Where(c => c.DefaultConfiguration != null && c.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl()).ToList();
+                    List<IACConfig> allHereOverridenParams =
+                        CurrentPWInfo
+                        .CurrentConfigStore.ConfigurationEntries
+                        .Where(c => c.ACClassWFID == CurrentPWInfo.ContentACClassWF.ACClassWFID)
+                        .ToList();
                     foreach (ACClassWF rootNodeGroup in sameTypeRootMethods)
                     {
-                        foreach (ACConfigParam configParam in allHereOverridenParams)
+                        foreach (IACConfig configParam in allHereOverridenParams)
                         {
                             string preConfigACUrl = null;
                             string localConfigACUrl = null;
                             if (isSubWF)
                             {
                                 preConfigACUrl = rootNodeGroup.ConfigACUrl + "\\";
-                                localConfigACUrl = configParam.DefaultConfiguration.LocalConfigACUrl;
+                                localConfigACUrl = configParam.LocalConfigACUrl;
                             }
                             else
                             {
-                                localConfigACUrl = configParam.DefaultConfiguration.LocalConfigACUrl.Replace(CurrentACClassWF.ConfigACUrl, rootNodeGroup.ConfigACUrl);
+                                if(configParam.LocalConfigACUrl.Contains("SMStarting"))
+                                {
+                                    localConfigACUrl = configParam.LocalConfigACUrl.Replace(CurrentACClassWF.ConfigACUrl, rootNodeGroup.ConfigACUrl);
+                                }
+                                else
+                                {
+                                    localConfigACUrl = configParam.LocalConfigACUrl.Replace(CurrentPAFunctionURL, rootNodeGroup.ConfigACUrl + @"\" + rootNodeGroup.RefPAACClassMethod.ACIdentifier);
+                                }
                             }
                             WriteConfigToNodes(
                             CurrentPWInfo.CurrentConfigStore,
                             CurrentPWInfo.ContentACClassWF,
                             preConfigACUrl,
                             localConfigACUrl,
-                            configParam.DefaultConfiguration.ValueTypeACClass.ACClassID,
-                            configParam.DefaultConfiguration.Value);
+                            configParam.ValueTypeACClass.ACClassID,
+                            configParam.Value);
                         }
                     }
                 }

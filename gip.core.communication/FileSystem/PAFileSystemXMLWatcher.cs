@@ -58,6 +58,7 @@ namespace gip.core.communication
             set;
         }
 
+
         private ACDelegateQueue _DelegateQueue = null;
         public ACDelegateQueue DelegateQueue
         {
@@ -129,6 +130,9 @@ namespace gip.core.communication
 
             if (!importerFound)
             {
+                if (!String.IsNullOrWhiteSpace(ForwardDir))
+                    ForwardFile(fileName, ForwardDir);
+
                 Messages.LogDebug("ACFileSystemXMLWatcher.AnalyzeContentBeforeRaising(): ", "Importer Not Found", fileName);
                 if (!DeleteUnknownFile)
                 {

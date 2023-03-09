@@ -1,9 +1,12 @@
-﻿using gip.core.autocomponent;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using gip.core.autocomponent;
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
 using System.Linq;
+using System.Reflection;
 
 namespace gip.core.reporthandler
 {
@@ -31,7 +34,7 @@ namespace gip.core.reporthandler
         {
             if (!base.ACInit(startChildMode))
                 return false;
-            _ = _QueuedPrinting.ValueT;
+            _ = QueuedPrinting;
             return true;
         }
         #endregion
@@ -66,7 +69,6 @@ namespace gip.core.reporthandler
                 _QueuedPrinting.ValueT = value;
             }
         }
-
 
         #region Properties -> ConfiguredPrinters
 
@@ -112,13 +114,25 @@ namespace gip.core.reporthandler
             Msg msg = null;
             try
             {
+                var vbDump = Root.VBDump;
+                  
+                PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(GetPrintingInfo), 100);
+
                 PAPrintInfo printInfo = GetPrintingInfo(pAOrderInfo, vbUserName);
                 if (printInfo == null)
                 {
                     // Error50488: Can't print because no printer was configured for printing. Open the businessobject for printer settings and assign a printer!
-                    msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1010, "Error50488");
+                    msg = new Msg(this, eMsgLevel.Error, C_ClassName, nameof(Print), 1010, "Error50488");
                     return msg;
                 }
+
+                vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(GetPrintingInfo), 100, pEvent);
+
+                //if (EnablePrintLogging)
+                //{
+                //    string msgLog = pEvent.InstanceName + " " + pEvent.Elapsed + pAOrderInfo != null ? pAOrderInfo.ToString() : "";
+                //    Messages.LogMessageMsg(new Msg(msgLog, this, eMsgLevel.Info, nameof(ACPrintManager), nameof(Print), 140));
+                //}
 
 
                 if (String.IsNullOrEmpty(printInfo.PrinterInfo.PrinterACUrl))
@@ -147,6 +161,8 @@ namespace gip.core.reporthandler
                             // TODO: @aagincic place for implement BSO Pool
                             try
                             {
+                                pEvent = vbDump.PerfLoggerStart(this.GetACUrl() + "!InstanceBSO", 110);
+
                                 bsoACClass = Root.Database.ContextIPlus.GetACType(acIdentifier);
                                 bso = StartComponent(bsoACClass, bsoACClass,
                                     new ACValueList()
@@ -154,6 +170,14 @@ namespace gip.core.reporthandler
                                             new ACValue(Const.ParamSeperateContext, typeof(bool), true),
                                             new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
                                     }) as ACBSO;
+
+                                vbDump?.PerfLoggerStop(this.GetACUrl() + "!InstanceBSO", 110, pEvent);
+
+                                //if (EnablePrintLogging)
+                                //{
+                                //    string msgLog = pEvent.InstanceName + " " + pEvent.Elapsed + pAOrderInfo != null ? pAOrderInfo.ToString() : "";
+                                //    Messages.LogMessageMsg(new Msg(msgLog, this, eMsgLevel.Info, nameof(ACPrintManager), nameof(Print), 184));
+                                //}
 
                                 if (bso == null)
                                 {
@@ -371,7 +395,13 @@ namespace gip.core.reporthandler
             PrinterInfo printerInfo = OnGetPrinterInfo(pAOrderInfo, vbUserName);
             if (printerInfo == null)
                 return null;
+
+            var vbDump = Root.VBDump;
+            PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(OnResolveBSOForOrderInfo), 230);
             ACClass bsoClass = OnResolveBSOForOrderInfo(pAOrderInfo);
+
+            vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(OnResolveBSOForOrderInfo), 230, pEvent);
+
             if (bsoClass == null)
             {
                 // TODO error
@@ -391,7 +421,11 @@ namespace gip.core.reporthandler
             List<PrinterInfo> configuredPrinters = null;
             using (Database database = new core.datamodel.Database())
             {
+                var vbDump = Root.VBDump;
+
+                PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(ACPrintManager.GetConfiguredPrinters), 200);
                 configuredPrinters = ACPrintManager.GetConfiguredPrinters(database, ComponentClass.ACClassID, false);
+                vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(ACPrintManager.GetConfiguredPrinters), 200, pEvent);
 
                 if (!string.IsNullOrEmpty(vbUserName))
                 {
@@ -404,8 +438,10 @@ namespace gip.core.reporthandler
                     }
                 }
 
+                pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(ACPrintManager.GetConfiguredPrinters) + ".GetACClass", 210);
                 if (aCClassID != null)
                     aCClass = database.ACClass.FirstOrDefault(c => c.ACClassID == aCClassID);
+                vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(ACPrintManager.GetConfiguredPrinters) + ".GetACClass", 210, pEvent);
             }
             if (configuredPrinters == null || !configuredPrinters.Any())
                 return null;
@@ -415,6 +451,8 @@ namespace gip.core.reporthandler
 
         protected virtual ACClass OnResolveBSOForOrderInfo(PAOrderInfo pAOrderInfo)
         {
+            var vbDump = Root.VBDump;
+            PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(ACPrintManager) + "." + nameof(OnResolveBSOForOrderInfo), 240);
             if (pAOrderInfo == null)
                 return null;
             PAOrderInfoEntry entry = pAOrderInfo.Entities.FirstOrDefault();
@@ -423,11 +461,17 @@ namespace gip.core.reporthandler
             ACClass entityClass = entry.EntityACType;
             if (entityClass == null)
                 return entityClass;
-            return entityClass.ManagingBSO;
+            ACClass result = entityClass.ManagingBSO;
+            vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(ACPrintManager) + "." + nameof(OnResolveBSOForOrderInfo), 240, pEvent);
+
+            return result;
         }
 
         protected PrinterInfo GetPrinterInfoFromMachine(gip.core.datamodel.ACClass acClass, List<PrinterInfo> configuredPrinters, bool useFirstOrDefaultIfNotFoundForClass)
         {
+            var vbDump = Root.VBDump;
+            PerformanceEvent pEvent = vbDump?.PerfLoggerStart(this.GetACUrl() + "!" + nameof(GetPrinterInfoFromMachine), 220);
+
             PrinterInfo printerInfo = null;
             if (configuredPrinters == null || !configuredPrinters.Any())
                 return printerInfo;
@@ -435,6 +479,9 @@ namespace gip.core.reporthandler
                 printerInfo = configuredPrinters.FirstOrDefault(c => c.MachineACUrl == acClass.ACURLComponentCached);
             if (printerInfo == null && useFirstOrDefaultIfNotFoundForClass)
                 printerInfo = configuredPrinters.FirstOrDefault();
+
+            vbDump?.PerfLoggerStop(this.GetACUrl() + "!" + nameof(GetPrinterInfoFromMachine), 220, pEvent);
+
             return printerInfo;
         }
 

@@ -797,19 +797,19 @@ namespace gip.core.autocomponent
                 case ACStateConst.TMReset:
                     Reset();
                     return true;
-                case "GetPAOrderInfo":
+                case nameof(GetPAOrderInfo):
                     result = GetPAOrderInfo();
                     return true;
-                case "GetACConfigStoreInfo":
+                case nameof(GetACConfigStoreInfo):
                     result = GetACConfigStoreInfo();
                     return true;
-                case "AreChildsOfTypeCompleted":
+                case nameof(AreChildsOfTypeCompleted):
                     result = AreChildsOfTypeCompleted(acParameter[0] as ACRef<ACClass>);
                     return true;
                 case Const.IsEnabledPrefix + ACStateConst.TMReset:
                     result = IsEnabledReset();
                     return true;
-                case "GetConfigForACMethod":
+                case nameof(GetConfigForACMethod):
                     if (acParameter.Count() > 2)
                     {
                         object[] dynParam = new object[acParameter.Count() - 2];
@@ -821,7 +821,7 @@ namespace gip.core.autocomponent
                     else
                         result = GetConfigForACMethod(acParameter[0] as ACMethod, (bool)acParameter[1]);
                     return true;
-                case "AfterConfigForACMethodIsSet":
+                case nameof(AfterConfigForACMethodIsSet):
                     if (acParameter.Count() > 2)
                     {
                         object[] dynParam = new object[acParameter.Count() - 2];
