@@ -57,14 +57,17 @@ namespace gip.core.autocomponent
                     {
                         XElement xDoc = XElement.Parse(fileContent);
                         serializer.DeserializeXML(this, db, folderRootFSFolderItem, xDoc, null, "\\Resources\\" + path + @"\" + item.FullName);
+#if EFCR
                         if (MsgObserver != null && serializer.MsgList.Any())
                             System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
                             {
                                 serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
                             }));
+#endif
                     }
                     catch (Exception ec)
                     {
+#if EFCR
                         if (MsgObserver != null)
                         {
                             System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
@@ -76,6 +79,7 @@ namespace gip.core.autocomponent
                                 });
                             }));
                         }
+#endif
                     }
 
                     if (VBProgress != null)
@@ -87,11 +91,11 @@ namespace gip.core.autocomponent
             return rootACObjectItem;
         }
 
-        #endregion
+#endregion
 
-        #region Content Operations
+#region Content Operations
 
-        #region Content Operations -> Read
+#region Content Operations -> Read
 
         public override string ReadText(string filename)
         {
@@ -139,9 +143,9 @@ namespace gip.core.autocomponent
             //return null;
         }
 
-        #endregion
+#endregion
 
-        #region Content Operations -> Write
+#region Content Operations -> Write
 
         public override bool WriteText(string filename, string text)
         {
@@ -176,9 +180,9 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        #endregion
+#endregion
 
-        #region Content Operations -> Folder operations
+#region Content Operations -> Folder operations
 
         public override bool CreateDir(string path)
         {
@@ -195,9 +199,9 @@ namespace gip.core.autocomponent
             throw new NotImplementedException();
         }
 
-        #endregion
+#endregion
 
-        #region Content Operations -> File operations
+#region Content Operations -> File operations
 
         public override bool CopyFile(string sourceFilename, string destFilename, bool overwrite = false)
         {
@@ -214,11 +218,11 @@ namespace gip.core.autocomponent
             throw new NotImplementedException();
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Helper methods
+#region Helper methods
 
         public StreamReader GetStreamReader(string filename, Encoding encoding)
         {
@@ -238,6 +242,6 @@ namespace gip.core.autocomponent
             return new Tuple<string, string>(zipFile, entryFullName);
         }
 
-        #endregion
+#endregion
     }
 }

@@ -16,7 +16,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Windows.Threading;
 
 namespace gip.core.datamodel
 {
@@ -502,13 +501,19 @@ namespace gip.core.datamodel
 
         public override void ProcessAction(Action action)
         {
+            // TODO: Printing of Flow-documents needs Dispatcher. Temporarily deisabled to enable Linux
+#if !EFCR
             var currentDispatcher = Dispatcher.CurrentDispatcher;
             if (currentDispatcher != null)
                 currentDispatcher.Invoke(DispatcherPriority.Normal, action);
+#else
+            base.ProcessAction(action);
+#endif
         }
 
         protected override void OnQueueProcessed(int countActions)
         {
+#if !EFCR
             //Dispatcher.ExitAllFrames();
             try
             {
@@ -520,10 +525,11 @@ namespace gip.core.datamodel
             {
             }
             GC.Collect();
+#endif
             base.OnQueueProcessed(countActions);
         }
 
-        #region Properties
+#region Properties
         private static ACDispatchedDelegateQueue _PrintQueue = null;
         public static ACDispatchedDelegateQueue PrintQueue
         {
@@ -534,6 +540,6 @@ namespace gip.core.datamodel
                 return _PrintQueue;
             }
         }
-        #endregion
+#endregion
     }
 }

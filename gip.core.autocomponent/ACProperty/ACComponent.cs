@@ -11,7 +11,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Windows;
-using System.Windows.Data;
 using System.Xml;
 
 namespace gip.core.autocomponent

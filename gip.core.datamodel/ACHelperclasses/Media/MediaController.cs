@@ -4,7 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Windows.Media.Imaging;
 
 namespace gip.core.datamodel
 {

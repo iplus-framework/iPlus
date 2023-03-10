@@ -50,16 +50,20 @@ namespace gip.core.autocomponent
                         {
                             XElement xDoc = XElement.Parse(File.ReadAllText(file));
                             serializer.DeserializeXML(this, db, rootACObjectItem, xDoc, null, "\\Resources\\" + file);
+
+#if EFCR
                             if (MsgObserver != null && serializer.MsgList.Any())
                                 System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
                                 {
                                     serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
                                 }));
+#endif
                         }
                         catch (Exception ec)
                         {
                             if (MsgObserver != null)
                             {
+#if EFCR
                                System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
                                {
                                    MsgObserver.SendMessage(new Msg()
@@ -68,6 +72,7 @@ namespace gip.core.autocomponent
                                        Message = string.Format(@"ResourcesRoot({0}): Unable to deserialize file: {1}! Exception: {2}", path, file, ec.Message)
                                    });
                                }));
+#endif
                             }
                         }
                     }
@@ -97,7 +102,7 @@ namespace gip.core.autocomponent
             return rootACObjectItem;
         }
 
-        #endregion
+#endregion
 
     }
 }

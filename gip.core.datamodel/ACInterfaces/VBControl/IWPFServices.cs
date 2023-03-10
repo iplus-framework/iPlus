@@ -13,6 +13,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace gip.core.datamodel
 {
@@ -21,5 +22,7 @@ namespace gip.core.datamodel
         IVBDesignerService DesignerService { get; }
 
         IVBFlowDocService FlowDocService { get; }
+
+        void AddXamlNamespacesFromAssembly(Assembly classAssembly);
     }
 }

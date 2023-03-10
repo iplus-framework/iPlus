@@ -45,6 +45,7 @@ namespace gip.core.autocomponent
             {
                 if (MsgObserver != null)
                 {
+#if EFCR
                     System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
                     {
                         MsgObserver.SendMessage(new Msg()
@@ -53,6 +54,7 @@ namespace gip.core.autocomponent
                             Message = string.Format(@"ResourcesSQL({0}): Unable to decode path! Exception:{1}", path, ec.Message)
                         });
                     }));
+#endif
                 }
                 return rootACObjectItem;
             }
@@ -64,16 +66,19 @@ namespace gip.core.autocomponent
             try
             {
                 result = serializer.GetDeserializeSQLDataModel(sqlInstanceInfo, acQueryDefinitionIdentifier);
+#if EFCR
                 if (MsgObserver != null && serializer.MsgList.Any())
                     System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
                     {
                         serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
                     }));
+#endif
             }
             catch (Exception ec)
             {
                 if (MsgObserver != null)
                 {
+#if EFCR
                     System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
                     {
                         MsgObserver.SendMessage(new Msg()
@@ -82,6 +87,7 @@ namespace gip.core.autocomponent
                             Message = string.Format(@"ResourcesSQL({0}): Unable to fetch external list! External connection string:{1}. Exception:{2}", path, result.OuterDatabase.Connection.ConnectionString, ec.Message)
                         });
                     }));
+#endif
                 }
                 return rootACObjectItem;
             }
@@ -106,9 +112,9 @@ namespace gip.core.autocomponent
 
 
 
-        #endregion
+#endregion
 
-        #region HelperMethods
+#region HelperMethods
 
         public static string DBUrlEncode(SQLInstanceInfo instanceInfo, ACClass acQueryDefinition)
         {
@@ -139,15 +145,15 @@ namespace gip.core.autocomponent
             return new Tuple<SQLInstanceInfo, string>(sqlInstanceInfo, elements[2]);
         }
 
-        #endregion
+#endregion
 
 
-        #region overrides
+#region overrides
         public override string ReadText(string filename)
         {
             return null;
         }
-        #endregion
+#endregion
 
     }
 }

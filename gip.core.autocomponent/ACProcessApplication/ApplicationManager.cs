@@ -9,7 +9,6 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters;
 using System.Net;
-using System.Windows.Interop;
 
 namespace gip.core.autocomponent
 {

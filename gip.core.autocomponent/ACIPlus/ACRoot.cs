@@ -28,7 +28,8 @@ namespace gip.core.autocomponent
             new object[] { Const.StartupParamPropPersistenceOff,   Global.ParamOption.Optional, typeof(Boolean) },
             new object[] { Const.StartupParamWCFOff,               Global.ParamOption.Optional, typeof(Boolean) },
             new object[] { Const.StartupParamSimulation,             Global.ParamOption.Optional, typeof(Boolean) },
-            new object[] { Const.StartupParamFullscreen,             Global.ParamOption.Optional, typeof(Boolean) }
+            new object[] { Const.StartupParamFullscreen,             Global.ParamOption.Optional, typeof(Boolean) }//,
+            //new object[] { Const.StartupParamWPFServices,             Global.ParamOption.Optional, typeof(IWPFServices) }
         }
     )]
     public class ACRoot : ACBSO, IRoot
@@ -104,6 +105,11 @@ namespace gip.core.autocomponent
             if (ParameterValue(Const.StartupParamFullscreen) != null)
             {
                 Fullscreen = (bool)ParameterValue(Const.StartupParamFullscreen);
+            }
+
+            if (ParameterValue(Const.StartupParamWPFServices) != null)
+            {
+                WPFServices = (IWPFServices)ParameterValue(Const.StartupParamWPFServices);
             }
 
             _TypeNameOfAppContext = new ACPropertyConfigValue<string>(this, "TypeNameOfAppContext", "");

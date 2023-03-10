@@ -272,28 +272,8 @@ namespace gip.core.autocomponent
                 foreach (ACFileItem acFileItem in ACFileItems.OrderBy(c => c.LastManipulationDate))
                 {
                     Assembly classAssembly = Assembly.LoadFrom(acFileItem.Filename);
-                    object[] xmlnsAttributes = classAssembly.GetCustomAttributes(typeof(XmlnsDefinitionAttribute), true);
-                    object[] xmlnsPrefixAttributes = classAssembly.GetCustomAttributes(typeof(XmlnsPrefixAttribute), true);
-                    if (xmlnsAttributes != null && xmlnsPrefixAttributes != null && xmlnsAttributes.Any() && xmlnsPrefixAttributes.Any())
-                    {
-                        bool bAdded = false;
-                        foreach (XmlnsPrefixAttribute prefixAttr in xmlnsPrefixAttributes)
-                        {
-                            var queryAttr = xmlnsAttributes.Where(c => ((XmlnsDefinitionAttribute)c).XmlNamespace == prefixAttr.XmlNamespace);
-                            if (queryAttr.Any())
-                            {
-                                if (!bAdded)
-                                {
-                                    ACxmlnsResolver.Assemblies.Add(classAssembly);
-                                    bAdded = true;
-                                }
-                                XmlnsDefinitionAttribute xmlnsDef = (XmlnsDefinitionAttribute)queryAttr.First();
-                                if (!ACxmlnsResolver.NamespacesDict.ContainsKey(prefixAttr.Prefix))
-                                    ACxmlnsResolver.NamespacesDict.Add(prefixAttr.Prefix, new ACxmlnsInfo(classAssembly, prefixAttr.XmlNamespace, xmlnsDef.ClrNamespace, prefixAttr.Prefix));
-                            }
-                        }
-                    }
-
+                    if (Database.Root != null && Database.Root.WPFServices != null)
+                        Database.Root.WPFServices.AddXamlNamespacesFromAssembly(classAssembly);
                     if (bUpdateInDB)
                     {
                         DateTime lastWriteTime = File.GetLastWriteTime(acFileItem.Filename);

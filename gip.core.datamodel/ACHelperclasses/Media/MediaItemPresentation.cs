@@ -2,8 +2,6 @@
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace gip.core.datamodel
 {
@@ -34,8 +32,10 @@ namespace gip.core.datamodel
 
         #endregion
 
-        #region BitMap
+#region BitMap
 
+        // TODO: Migrate MEdia-classes to another assembly
+#if !EFCR
         private ImageSource _Image;
         public ImageSource Image
         {
@@ -63,10 +63,11 @@ namespace gip.core.datamodel
                 OnPropertyChanged("ImageThumb");
             }
         }
+#endif
 
-        #endregion
+#endregion
 
-        #region presentation
+#region presentation
 
         [ACPropertyInfo(5, "Name", "en{'Name'}de{'Name'}")]
         public string Name { get; set; }
@@ -81,11 +82,14 @@ namespace gip.core.datamodel
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
         public void LoadImage(bool isImage)
         {
+            // TODO: No reference to WPF allowed!
+
+#if !EFCR
             if (!string.IsNullOrEmpty(ThumbPath))
             {
                 BitmapImage imageThumb = new BitmapImage();
@@ -104,6 +108,7 @@ namespace gip.core.datamodel
                 image.EndInit();
                 Image = image;
             }
+#endif
         }
 
         public bool ThumbExistAndIsNotGeneric()
@@ -117,7 +122,7 @@ namespace gip.core.datamodel
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
-        #endregion
+#endregion
 
 
     }

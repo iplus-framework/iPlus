@@ -318,6 +318,7 @@
         public const string StartupParamRegisterACObjects = "RegisterACObjects";
         public const string StartupParamFullscreen = "Fullscreen";
         public const string StartupParamAutologin = "Autologin";
+        public const string StartupParamWPFServices = "WPFServices";
 
         /// <summary>
         /// Parameter for disabling Persistence of Property-Values. It's used for persistable Target-Properties 

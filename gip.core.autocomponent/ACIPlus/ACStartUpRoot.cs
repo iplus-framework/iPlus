@@ -127,10 +127,10 @@ namespace gip.core.autocomponent
                 acValueList.Add(new ACValue(Const.StartupParamWCFOff, typeof(Boolean), wcfOff));
                 acValueList.Add(new ACValue(Const.StartupParamSimulation, typeof(Boolean), simulation));
                 acValueList.Add(new ACValue(Const.StartupParamFullscreen, typeof(Boolean), fullscreen));
+                acValueList.Add(new ACValue(Const.StartupParamWPFServices, typeof(IWPFServices), _IWPFServices));
 
                 ACConvert.MyDataContractResolver = new WCFDataContractResolver();
                 ACRoot root = ACActivator.CreateInstance(typeACClass, acClassTask, null, acValueList, Global.ACStartTypes.Automatic, null, "", true) as ACRoot;
-                root.WPFServices = _IWPFServices;
                 root.ACPostInit();
                 root.OnStartupSucceeded();
 

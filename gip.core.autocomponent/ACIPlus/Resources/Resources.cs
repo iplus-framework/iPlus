@@ -68,12 +68,14 @@ namespace gip.core.autocomponent
                     {
                         XElement xDoc = XElement.Parse(File.ReadAllText(file));
                         serializer.DeserializeXML(this, db, rootACObjectItem, xDoc, null, "\\Resources\\" + file);
+#if EFCR
                         if (System.Windows.Application.Current != null)
                             System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
                             {
                                 if (serializer.MsgList.Any() && MsgObserver != null)
                                     serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
                             }));
+#endif
                     }
                     catch (Exception ec)
                     {
@@ -379,20 +381,20 @@ namespace gip.core.autocomponent
                 return false;
             }
         }
-        #endregion
+#endregion
 
 
-        #endregion
+#endregion
 
-        #region Progress and messages
+#region Progress and messages
 
         public IMsgObserver MsgObserver { get; set; }
 
         public IVBProgress VBProgress { get; set; }
 
-        #endregion
+#endregion
 
-        #region Helper methods
+#region Helper methods
 
         public virtual void SetupProperties(ACFSItem rootACObjectItem)
         {
@@ -400,21 +402,23 @@ namespace gip.core.autocomponent
             rootACObjectItem.SetupProperties(tmpMsgList);
             if (MsgObserver != null)
             {
+#if EFCR
                 if (System.Windows.Application.Current != null)
                     System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
                     {
                         foreach (Msg msg in tmpMsgList)
                             MsgObserver.SendMessage(msg);
                     }));
+#endif
             }
         }
 
-        #endregion
+#endregion
 
-        #region private members
+#region private members
 
         private string initialPath;
-        #endregion
+#endregion
 
     }
 }

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media.Animation;
 using System.Xml.XPath;
 
 namespace gip.core.autocomponent

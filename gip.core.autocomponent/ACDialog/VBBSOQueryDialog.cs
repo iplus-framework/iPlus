@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using gip.core.datamodel;
-using System.Windows.Input;
 
 
 namespace gip.core.autocomponent
@@ -1036,6 +1035,8 @@ namespace gip.core.autocomponent
         #endregion
 
         #region EventHandling
+        // TODO: Remove WPF-Dependencies
+#if EFCR
         [ACMethodInfo("", "en{'Key event'}de{'Tastatur Ereignis'}", 9999, false)]
         public void OnKeyEvent(KeyEventArgs e)
         {
@@ -1048,6 +1049,11 @@ namespace gip.core.autocomponent
                 }
             }
         }
+#else
+        public void OnKeyEvent(object e)
+        {
+        }
+#endif
         #endregion
 
         #region DragAndDrop
@@ -1467,7 +1473,8 @@ namespace gip.core.autocomponent
                     result = IsEnabledDeleteConfig();
                     return true;
                 case"OnKeyEvent":
-                    OnKeyEvent((KeyEventArgs)acParameter[0]);
+                    //OnKeyEvent((KeyEventArgs)acParameter[0]);
+                    OnKeyEvent(acParameter[0]);
                     return true;
                 case"IsEnabledACActionToTarget":
                     result = IsEnabledACActionToTarget((IACInteractiveObject)acParameter[0], (ACActionArgs)acParameter[1]);
