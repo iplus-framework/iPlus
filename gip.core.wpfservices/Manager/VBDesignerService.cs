@@ -7,11 +7,49 @@ using gip.core.datamodel;
 using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Markup;
+using gip.ext.design;
+using gip.core.layoutengine;
+using gip.ext.designer.Controls;
+using gip.core.manager;
+using static gip.core.manager.VBDesigner;
+using System.Windows.Media;
+using System.ComponentModel.Design;
+using System.Collections.Concurrent;
 
 namespace gip.core.wpfservices
 {
     public class VBDesignerService : IVBDesignerService
     {
+        public VBDesignerService() 
+        {
+        }
+
+        private ConcurrentDictionary<IACComponent, IVBComponentDesignManagerProxy> _DesignManagerProxies = new ConcurrentDictionary<IACComponent, IVBComponentDesignManagerProxy>();
+
+        public IVBComponentDesignManagerProxy GetDesignMangerProxy(IACComponent component)
+        {
+            IVBComponentDesignManagerProxy proxy = null;
+            if (!_DesignManagerProxies.TryGetValue(component, out proxy))
+            {
+                if (component is VBDesignerWorkflowMethod)
+                    proxy = new VBDesignerWorkflowMethodProxy(component);
+                else if (component is VBDesignerWorkflow)
+                    proxy = new VBDesignerWorkflowProxy(component);
+                else if (component is VBDesignerXAML)
+                    proxy = new VBDesignerXAMLProxy(component);
+                if (proxy != null)
+                    _DesignManagerProxies.TryAdd(component, proxy);
+            }
+            return proxy;
+        }
+
+        public void RemoveDesignMangerProxy(IACComponent component)
+        {
+            IVBComponentDesignManagerProxy proxy = null;
+            if (_DesignManagerProxies.ContainsKey(component))
+                _DesignManagerProxies.Remove(component, out proxy);
+        }
+
         #region VBPresenterMethod
         public Msg GetPresenterElements(out List<string> result, string xaml)
         {
@@ -59,5 +97,6 @@ namespace gip.core.wpfservices
             }
         }
         #endregion
+
     }
 }

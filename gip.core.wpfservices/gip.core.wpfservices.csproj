@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
     <ProjectReference Include="..\gip.core.layoutengine\gip.core.layoutengine.csproj" />
+    <ProjectReference Include="..\gip.core.manager\gip.core.manager.csproj" />
   </ItemGroup>
 
 </Project>

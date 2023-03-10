@@ -2804,7 +2804,7 @@ namespace gip.core.autocomponent
 
                 if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("ACClassManager", "InsertOrUpdateACClassQuery", msg);
-                throw e;
+                throw new Exception(e.Message, e);
             }
         }
         #endregion

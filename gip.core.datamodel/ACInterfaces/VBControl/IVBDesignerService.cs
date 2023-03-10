@@ -13,11 +13,25 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 
 namespace gip.core.datamodel
 {
+    public interface IVBComponentDesignManagerProxy
+    {
+        void UpdateVisual();
+        IACInteractiveObject GetVBDesignEditor(IACComponent component);
+    }
+
     public interface IVBDesignerService
     {
+        #region VBPresenterMethod
         Msg GetPresenterElements(out List<string> result, string xaml);
+        #endregion
+
+        #region VBDesigner
+        IVBComponentDesignManagerProxy GetDesignMangerProxy(IACComponent component);
+        void RemoveDesignMangerProxy(IACComponent component);
+        #endregion
     }
 }

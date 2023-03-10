@@ -34,11 +34,19 @@ namespace gip.core.manager
         {
             if (_AvailableElementList == null)
                 _AvailableElementList = new ObservableCollection<IACObject>();
-            return base.ACInit(startChildMode);
+            bool initialized = base.ACInit(startChildMode);
+            if (initialized)
+                _WPFProxy = Root?.WPFServices?.DesignerService?.GetDesignMangerProxy(this);
+            return initialized;
         }
 
         public override bool ACPostInit()
         {
+            if (_WPFProxy != null)
+            {
+                Root?.WPFServices?.DesignerService?.RemoveDesignMangerProxy(this);
+                _WPFProxy = null;
+            }
             _IsToolSelection = true;
             return base.ACPostInit();
         }
@@ -69,6 +77,16 @@ namespace gip.core.manager
         #endregion
 
         #region IACComponentDesignManager Member
+        IVBComponentDesignManagerProxy _WPFProxy;
+        protected IVBComponentDesignManagerProxy WPFProxy
+        {
+            get 
+            {
+                return _WPFProxy;
+            }
+        }
+
+
         public virtual void InitDesignManager(string vbContentDesign)
         {
             _VBContentDesign = vbContentDesign;
@@ -676,7 +694,7 @@ namespace gip.core.manager
         #endregion
 
         #region Design Editor
-        VBDesignEditor _VBDesignEditor;
+        IACInteractiveObject _VBDesignEditor;
         /// <summary>
         /// The Designer-Control that enables the graphically designing of the gui.
         /// (Manipulates also the XAML-Code)
@@ -688,19 +706,8 @@ namespace gip.core.manager
             {
                 if (_VBDesignEditor != null)
                     return _VBDesignEditor;
-                if (this.VBDesign != null)
-                {
-                    if ((this.VBDesign.Content != null) && (this.VBDesign.Content is VBDesignEditor))
-                        return (this.VBDesign.Content as VBDesignEditor);
-                }
-                if (ParentACComponent != null && ParentACComponent.ReferencePoint != null)
-                {
-
-                    var query = ParentACComponent.ReferencePoint.ConnectionList.Where(c => c is VBDesignEditor);
-                    if (query.Any())
-                        _VBDesignEditor = query.First() as VBDesignEditor;
-                }
-                return null;
+                _VBDesignEditor = WPFProxy?.GetVBDesignEditor(this);
+                return _VBDesignEditor;
             }
         }
 
@@ -746,7 +753,7 @@ namespace gip.core.manager
                 CurrentAvailableElement = null;
             }
         }
-#endregion
+        #endregion
 
         internal static bool AddItemWithDefaultSize(DesignItem container, DesignItem createdItem, Rect position)
         {
@@ -801,7 +808,7 @@ namespace gip.core.manager
         }
 
         List<VisualInfo> _VisualChangeList = new List<VisualInfo>();
-        protected List<VisualInfo> VisualChangeList
+        public List<VisualInfo> VisualChangeList
         {
             get
             {

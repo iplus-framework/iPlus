@@ -44,12 +44,9 @@ namespace gip.core.manager
                 (ParentACComponent as ACComponent).ACSaveChangesExecuted += ParentComponent_ACSaveChangesExecuted;
                 if (ParentACComponent.Database != null)
                     ParentACComponent.Database.ACChangesExecuted += ParentACComponentDatabase_ACChangesExecuted;
-            }
-           
+            }           
             return base.ACInit(startChildMode);
         }
-
-
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
@@ -1352,47 +1349,9 @@ namespace gip.core.manager
         /// </summary>
         protected override void UpdateVisual()
         {
-            List<DesignItem> changedItems = new List<DesignItem>();
-
-            ChangeGroup changeGroup = null;
-
-            // Einfügen von WFEdge (Vor WF, da diese für die Layoutberechnung benötigt werden
-            foreach (var change in VisualChangeList)            //foreach (var change in VisualChangeList.Where(c => !c.IsDelete))
-            {
-                if (change.LayoutAction != VBDesigner.LayoutActionType.InsertEdge) continue;
-                if (changeGroup == null)
-                {
-                    changeGroup = this.DesignSurface.DesignContext.OpenGroup("Cut " + changedItems.Count + " elements", changedItems);
-                }
-
-                DesignItem designItem = CreateVBEdgeDesignItem(change, this.DesignSurface.DesignContext);
-            }
-
-            if (changeGroup != null)
-                changeGroup.Commit();
-        }
-
-        public DesignItem CreateVBEdgeDesignItem(VisualInfo visualInfo, DesignContext designContext)
-        {
-            DesignItem vbCanvas = designContext.RootItem.ContentProperty.Value;
-
-            String fromXName = visualInfo.ACUrl;
-            String toXName = visualInfo.ACUrl2;
-
-            VBEdge newInstance = (VBEdge)vbCanvas.Context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(typeof(VBEdge), null);
-            DesignItem item = vbCanvas.Context.Services.Component.RegisterComponentForDesigner(newInstance);
-            if ((item != null) && (item.View != null))
-            {
-                DrawShapesAdornerBase.ApplyDefaultPropertiesToItemS(item);
-                item.Properties[VBEdge.ACName1Property].SetValue(fromXName);
-                item.Properties[VBEdge.ACName2Property].SetValue(toXName);
-            }
-            //item.Properties[VBEdge.NameProperty].SetValue(acVisualEdge.ACIdentifier);
-            //            item.Properties[VBEdge.VBContentProperty].SetValue(RootACUrl + "\\" + acVisualEdge.GetACUrl(acVisualEdge.ParentACObject));
-
-            AddItemWithDefaultSize(vbCanvas, item, new Rect());
-
-            return item;
+            if (WPFProxy == null)
+                throw new MemberAccessException("DesignerService is null. This method could only be used from WPF-applications");
+            WPFProxy.UpdateVisual();
         }
 
         #endregion

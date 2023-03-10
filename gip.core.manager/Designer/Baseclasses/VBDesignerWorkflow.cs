@@ -667,7 +667,7 @@ namespace gip.core.manager
 
                 if (change.VisualObject is IACWorkflowEdge)
                 {
-                    DesignItem designItem = CreateVBEdgeDesignItem(change, change.VisualObject as IACWorkflowEdge, this.DesignSurface.DesignContext);
+                    CreateVBEdgeDesignItem(change, change.VisualObject as IACWorkflowEdge, this.DesignSurface.DesignContext);
                 }
             }
 
@@ -683,7 +683,7 @@ namespace gip.core.manager
                 if (change.VisualObject is IACWorkflowNode)
                 {
                     DesignItem designItemParent = null;
-                    DesignItem designItem = CreateVBVisualDesignItem(change, change.VisualObject as IACWorkflowNode, this.DesignSurface.DesignContext, out designItemParent);
+                    CreateVBVisualDesignItem(change, change.VisualObject as IACWorkflowNode, this.DesignSurface.DesignContext, out designItemParent);
                     this.DesignSurface.UpdateLayout();
                 }
             }
@@ -702,27 +702,30 @@ namespace gip.core.manager
         /// </returns>
         public DesignItem CreateVBEdgeDesignItem(VisualInfo visualInfo, IACWorkflowEdge acVisualEdge, DesignContext designContext)
         {
-            DesignItem vbCanvas = designContext.RootItem;
+            // TODO Mario:
+            //WPFProxy?.CreateVBEdgeDesignItem();
+            //DesignItem vbCanvas = designContext.RootItem;
 
-            String fromXName = acVisualEdge.SourceACConnector;
-            String toXName = acVisualEdge.TargetACConnector;
+            //String fromXName = acVisualEdge.SourceACConnector;
+            //String toXName = acVisualEdge.TargetACConnector;
 
-            VBEdge newInstance = (VBEdge)vbCanvas.Context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(typeof(VBEdge), null);
-            DesignItem item = vbCanvas.Context.Services.Component.RegisterComponentForDesigner(newInstance);
-            if ((item != null) && (item.View != null))
-            {
-                DrawShapesAdornerBase.ApplyDefaultPropertiesToItemS(item);
-                item.Properties[VBEdge.ACName1Property].SetValue(fromXName);
-                item.Properties[VBEdge.ACName2Property].SetValue(toXName);
-            }
-            item.Properties[VBEdge.NameProperty].SetValue(acVisualEdge.ACIdentifier);
-            item.Properties[VBEdge.VBContentProperty].SetValue(Const.VBPresenter_SelectedWFContext + "\\" + acVisualEdge.GetACUrl(acVisualEdge.ParentACObject));
-            item.Properties[VBEdge.StrokeProperty].SetValue(new SolidColorBrush(Colors.White));
-            item.Properties[VBEdge.StrokeThicknessProperty].SetValue(1.5);
+            //VBEdge newInstance = (VBEdge)vbCanvas.Context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(typeof(VBEdge), null);
+            //DesignItem item = vbCanvas.Context.Services.Component.RegisterComponentForDesigner(newInstance);
+            //if ((item != null) && (item.View != null))
+            //{
+            //    DrawShapesAdornerBase.ApplyDefaultPropertiesToItemS(item);
+            //    item.Properties[VBEdge.ACName1Property].SetValue(fromXName);
+            //    item.Properties[VBEdge.ACName2Property].SetValue(toXName);
+            //}
+            //item.Properties[VBEdge.NameProperty].SetValue(acVisualEdge.ACIdentifier);
+            //item.Properties[VBEdge.VBContentProperty].SetValue(Const.VBPresenter_SelectedWFContext + "\\" + acVisualEdge.GetACUrl(acVisualEdge.ParentACObject));
+            //item.Properties[VBEdge.StrokeProperty].SetValue(new SolidColorBrush(Colors.White));
+            //item.Properties[VBEdge.StrokeThicknessProperty].SetValue(1.5);
 
-            AddItemWithDefaultSize(vbCanvas, item, new Rect());
+            //AddItemWithDefaultSize(vbCanvas, item, new Rect());
 
-            return item;
+            //return item;
+            return null;
         }
 
         /// <summary>Erzeugen einer VBVisual anhand eines WF-Datensatzes
