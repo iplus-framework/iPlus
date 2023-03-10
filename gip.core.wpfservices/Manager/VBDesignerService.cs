@@ -8,10 +8,11 @@ using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Markup;
 
-namespace gip.core.layoutengine.Helperclasses
+namespace gip.core.wpfservices
 {
     public class VBDesignerService : IVBDesignerService
     {
+        #region VBPresenterMethod
         public Msg GetPresenterElements(out List<string> result, string xaml)
         {
             result = new List<string>();
@@ -57,5 +58,6 @@ namespace gip.core.layoutengine.Helperclasses
                 }
             }
         }
+        #endregion
     }
 }

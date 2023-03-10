@@ -95,6 +95,8 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "gip.core.autocomponent.shar
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "gip.core.sql", "gip.core.sql\gip.core.sql.sqlproj", "{746E71A0-CC5A-4A1F-BE03-76AFCF9FAB12}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.wpfservices", "gip.core.wpfservices\gip.core.wpfservices.csproj", "{532B4637-BE34-4271-AA50-2733AFB82CE6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -243,6 +245,10 @@ Global
 		{746E71A0-CC5A-4A1F-BE03-76AFCF9FAB12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{746E71A0-CC5A-4A1F-BE03-76AFCF9FAB12}.Release|Any CPU.Build.0 = Release|Any CPU
 		{746E71A0-CC5A-4A1F-BE03-76AFCF9FAB12}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{532B4637-BE34-4271-AA50-2733AFB82CE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{532B4637-BE34-4271-AA50-2733AFB82CE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{532B4637-BE34-4271-AA50-2733AFB82CE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{532B4637-BE34-4271-AA50-2733AFB82CE6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -287,6 +293,7 @@ Global
 		{FE279FBA-181F-4D15-BBE8-8820CAF186B2} = {4A180E41-9761-46E2-ACA3-4BD41764496C}
 		{6D353DD2-970B-45BB-9AB6-D23A28E0233F} = {2089D22B-FC62-4E94-8776-093570EA4032}
 		{746E71A0-CC5A-4A1F-BE03-76AFCF9FAB12} = {4A180E41-9761-46E2-ACA3-4BD41764496C}
+		{532B4637-BE34-4271-AA50-2733AFB82CE6} = {2089D22B-FC62-4E94-8776-093570EA4032}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {98B3D62C-99C4-441A-BDBB-AA6225B4CF1C}

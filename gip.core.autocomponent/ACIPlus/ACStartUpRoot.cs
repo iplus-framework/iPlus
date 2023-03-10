@@ -14,6 +14,12 @@ namespace gip.core.autocomponent
 {
     public class ACStartUpRoot
     {
+        public ACStartUpRoot(IWPFServices wpfServices) 
+        {
+            _IWPFServices = wpfServices;
+        }
+
+
         public short LoginUser(string userName, string password, bool registerACObjects, bool propPersistenceOff, ref String errorMsg, bool wcfOff = false, bool simulation = false, bool fullscreen = false)
         {
             try
@@ -124,6 +130,7 @@ namespace gip.core.autocomponent
 
                 ACConvert.MyDataContractResolver = new WCFDataContractResolver();
                 ACRoot root = ACActivator.CreateInstance(typeACClass, acClassTask, null, acValueList, Global.ACStartTypes.Automatic, null, "", true) as ACRoot;
+                root.WPFServices = _IWPFServices;
                 root.ACPostInit();
                 root.OnStartupSucceeded();
 
@@ -269,5 +276,7 @@ namespace gip.core.autocomponent
                 return Database.GlobalDatabase;
             }
         }
+
+        private IWPFServices _IWPFServices;
     }
 }

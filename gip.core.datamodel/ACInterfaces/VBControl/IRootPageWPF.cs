@@ -165,7 +165,5 @@ namespace gip.core.datamodel
         void SwitchFullScreen();
 
         FocusBSOResult FocusBSO(IACBSO bso);
-
-        IVBDesignerService DesignerService { get; }
     }
 }

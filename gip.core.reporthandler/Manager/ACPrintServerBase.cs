@@ -11,7 +11,6 @@ using System.Windows.Threading;
 using System.Threading;
 using System.IO;
 using gip.core.layoutengine;
-using System.Xaml;
 
 namespace gip.core.reporthandler
 {

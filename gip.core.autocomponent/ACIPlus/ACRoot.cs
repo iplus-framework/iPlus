@@ -593,6 +593,8 @@ namespace gip.core.autocomponent
                 return LocalServiceObjects.NoManager;
             }
         }
+
+        public IWPFServices WPFServices { get; internal set; }
         #endregion
 
         #region IACInteractiveObject

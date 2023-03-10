@@ -276,7 +276,7 @@ namespace gip.core.communication
                     new LocalizedText(info)));
             }
 
-            ACStartUpRoot startUpRoot = new ACStartUpRoot();
+            ACStartUpRoot startUpRoot = new ACStartUpRoot(null);
             string errorMessage = "";
             VBUser vbUser = startUpRoot.CheckLogin(userName, password, ref errorMessage);
             if (vbUser == null)

@@ -134,9 +134,9 @@ namespace gip.core.manager
         /// <returns></returns>
         public Msg GetPresenterElements(out List<string> result)
         {
-            if (Root == null || Root.RootPageWPF == null || Root.RootPageWPF.DesignerService == null)
+            if (Root == null || Root.WPFServices == null || Root.WPFServices.DesignerService == null)
                 throw new MemberAccessException("DesignerService is null");
-            return Root.RootPageWPF.DesignerService.GetPresenterElements(out result, PresenterACWorkflowNode.XMLDesign);
+            return Root.WPFServices.DesignerService.GetPresenterElements(out result, PresenterACWorkflowNode.XMLDesign);
         }
 
         #region Sub-Methods

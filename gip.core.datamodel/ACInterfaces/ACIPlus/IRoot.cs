@@ -46,6 +46,8 @@
             set;
         }
 
+        IWPFServices WPFServices { get; }
+
         #endregion
 
         #region Client-Side-Send-Methods

@@ -26,7 +26,10 @@ namespace gip.iplus.console
             bool WCFOff = args.Contains("/WCFOff");
             bool simulation = args.Contains("/Simulation");
 
-            ACStartUpRoot startUpManager = new ACStartUpRoot();
+            // TODO: Two different Implementaions for Linux or Windows-Platform
+            //ACStartUpRoot startUpManager = new ACStartUpRoot(new WPFServices());
+            // If Linux, then pass null
+            ACStartUpRoot startUpManager = new ACStartUpRoot(null);
 
             String errorMsg = "";
             // 1. Datenbankverbindung herstellen

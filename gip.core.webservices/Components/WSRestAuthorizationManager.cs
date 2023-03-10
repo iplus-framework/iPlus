@@ -32,7 +32,7 @@ namespace gip.core.webservices
                 };
 
 
-                ACStartUpRoot startUpRoot = new ACStartUpRoot();
+                ACStartUpRoot startUpRoot = new ACStartUpRoot(null);
                 string errorMessage = "";
                 bool loggedIn = startUpRoot.CheckLogin(user.Name, user.Password, ref errorMessage) != null;
                 if (loggedIn)
