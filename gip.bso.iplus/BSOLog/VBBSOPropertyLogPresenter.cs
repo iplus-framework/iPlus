@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Office.CustomUI;
+using DocumentFormat.OpenXml.Wordprocessing;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.processapplication;
@@ -15,7 +16,7 @@ namespace gip.bso.iplus
 {
     /// <summary>
     /// Presenter for the Equipment analysis (OEE)
-    /// </summary>
+    /// </summary>fACPropertyLogModel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Equipment Analysis (OEE)'}de{'Geräteanalyse (OEE)'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true)]
     public class VBBSOPropertyLogPresenter : ACBSO
     {
@@ -580,7 +581,7 @@ namespace gip.bso.iplus
         {
             get
             {
-                return Database as Database;
+                return Database.ContextIPlus as Database;
             }
         }
 
@@ -656,9 +657,9 @@ namespace gip.bso.iplus
             _TreeViewList = new List<ACPropertyLogModel>();
             int displayOrder = 0;
 
-            IEnumerable<ACPropertyLog> relevantLogs = DoFilter(Db, from, to, project, componentClassID);
+            IEnumerable<ACPropertyLog_ACProgramLog> relevantLogs = ACPropertyLog.GetLogs(Db, from, to, project?.ACProjectID, componentClassID, SearchText);
 
-            var groupedByClass = relevantLogs.GroupBy(c => c.ACClass);
+            var groupedByClass = relevantLogs.GroupBy(c => c.PropertyLog.ACClass);
             if (oeeMode == OEEMode.PAM)
                 groupedByClass = groupedByClass.Where(c => typeof(IPAOEEProvider).IsAssignableFrom(c.Key.ObjectType));
             foreach (var groupedItem in groupedByClass.OrderBy(c => c.Key.ACUrlComponent))
@@ -668,7 +669,7 @@ namespace gip.bso.iplus
                     PropertyLogModelType = ACPropertyLogModelType.Property,
                     ACUrl = groupedItem.Key.ACUrlComponent,
                     _ACCaption = groupedItem.Key.ACUrlComponent,
-                    DisplayOrder = displayOrder
+                    DisplayOrder = displayOrder,
                 };
                 propertyLogs.Add(logModelClass);
 
@@ -682,7 +683,7 @@ namespace gip.bso.iplus
                     }
                 }
 
-                var groupedByProp = groupedItem.GroupBy(c => c.ACClassProperty);
+                var groupedByProp = groupedItem.GroupBy(c => c.PropertyLog.ACClassProperty);
 
                 if (groupedByProp.Count() > 1)
                 {
@@ -697,23 +698,23 @@ namespace gip.bso.iplus
                     var groupedProp = groupedByProp.FirstOrDefault();
                     if (groupedProp != null)
                     {
-                        var basicPropModels = DetermineBasicPropLogModels(groupedItem.Key, groupedProp.Key, groupedProp, Db);
-                        if (!basicPropModels.Any())
+                        List<ACPropertyLogInfo> propertyLogInfos = DetermineBasicPropLogModels(groupedItem.Key, groupedProp.Key, groupedProp, Db);
+                        if (!propertyLogInfos.Any())
                             continue;
 
-                        foreach (var basicModel in basicPropModels)
+                        foreach (ACPropertyLogInfo propertyLogInfo in propertyLogInfos)
                         {
                             string caption = groupedProp.Key.ObjectType.IsEnum || IsPropertyValueNumeric(groupedProp.Key.ObjectType) ? 
-                                             basicModel.PropertyValue.ToString() : groupedProp.Key.ACCaption;
+                                             propertyLogInfo.PropertyValue.ToString() : groupedProp.Key.ACCaption;
                             bool isOEEProp = groupedProp.Key.ACClassPropertyID == OEERelevantProperty.ACClassPropertyID;
                             if (isOEEProp)
                             {
                                 logModelClass.IsOEERoot = true;
-                                if (basicModel.PropertyValue.Equals(ACConvert.ChangeType(HiddenOEEState.XMLValue, groupedProp.Key.ObjectType, true, null)))
+                                if (propertyLogInfo.PropertyValue.Equals(ACConvert.ChangeType(HiddenOEEState.XMLValue, groupedProp.Key.ObjectType, true, null)))
                                     continue;
                             }
 
-                            ACPropertyLogModel propLog = CreateACPropertyLogModel(basicModel.StartDate, basicModel.EndDate, basicModel.PropertyValue, groupedProp.Key, 
+                            ACPropertyLogModel propLog = CreateACPropertyLogModel(propertyLogInfo, groupedProp.Key, 
                                                                                   groupedItem.Key, displayOrder, caption, false, logModelClass);
                             if (propLog == null)
                                 continue;
@@ -740,7 +741,7 @@ namespace gip.bso.iplus
             return propertyLogs;
         }
 
-        private IEnumerable<ACPropertyLogModel> DetermineCompactModelView(IEnumerable<IGrouping<ACClassProperty, ACPropertyLog>> groupedPropertyLogs, ACClass currentComponent, Database db,
+        private IEnumerable<ACPropertyLogModel> DetermineCompactModelView(IEnumerable<IGrouping<ACClassProperty, ACPropertyLog_ACProgramLog>> groupedPropertyLogs, ACClass currentComponent, Database db,
                                                                           ACPropertyLogModel parent)
         {
             List<Tuple<ACClassProperty, List<ACPropertyLogInfo>>> basicPropLogModels = new List<Tuple<ACClassProperty, List<ACPropertyLogInfo>>>();
@@ -759,7 +760,9 @@ namespace gip.bso.iplus
                                                                                                  currentComponent.IsDerivedClassFrom(c.SourceACClass)).Select(p => p.SourceACClassProperty);
 
                 foreach (var point in points)
+                {
                     comapactModels.CreateComapctModelByPoint(point, item);
+                }
             }
 
             return comapactModels.DeterminePropertyLogs(parent);
@@ -774,15 +777,15 @@ namespace gip.bso.iplus
             List<ACPropertyLogModel> propertyLogs = new List<ACPropertyLogModel>();
             _TreeViewList = new List<ACPropertyLogModel>();
 
-            IEnumerable<ACPropertyLog> relevantLogs = DoFilter(Db, from, to, project, componentClassID);
+            IEnumerable<ACPropertyLog_ACProgramLog> relevantLogs = ACPropertyLog.GetLogs(Db, from, to, project?.ACProjectID, componentClassID, SearchText);
 
-            var groupedByClass = relevantLogs.GroupBy(c => c.ACClass);
+            var groupedByClass = relevantLogs.GroupBy(c => c.PropertyLog.ACClass);
 
             foreach (var groupedItem in groupedByClass)
             {
                 ACPropertyLogModel logModelClass = CreateTreeViewModel(groupedItem.Key, groupedItem.Key, propertyLogs);
 
-                var groupedByProp = groupedItem.GroupBy(c => c.ACClassProperty);
+                var groupedByProp = groupedItem.GroupBy(c => c.PropertyLog.ACClassProperty);
 
                 foreach (var groupedProp in groupedByProp.OrderBy(c => c.Key.ACCaption))
                 {
@@ -797,14 +800,13 @@ namespace gip.bso.iplus
                     propertyLogs.Add(logModelProp);
                     logModelClass.AddItem(logModelProp);
 
-                    var basicPropLogModels = DetermineBasicPropLogModels(groupedItem.Key, groupedProp.Key, groupedProp, Db);
-                    if (!basicPropLogModels.Any())
+                    List<ACPropertyLogInfo> propertyLogInfos = DetermineBasicPropLogModels(groupedItem.Key, groupedProp.Key, groupedProp, Db);
+                    if (!propertyLogInfos.Any())
                         continue;
 
-                    foreach (var basicPropLogModel in basicPropLogModels)
+                    foreach (ACPropertyLogInfo propertyLogInfo in propertyLogInfos)
                     {
-                        ACPropertyLogModel propLog = CreateACPropertyLogModel(basicPropLogModel.StartDate, basicPropLogModel.EndDate, basicPropLogModel.PropertyValue, 
-                                                                              groupedProp.Key, groupedItem.Key, 0, groupedProp.Key.ObjectType != typeof(bool) ? basicPropLogModel.PropertyValue.ToString() : null);
+                        ACPropertyLogModel propLog = CreateACPropertyLogModel(propertyLogInfo, groupedProp.Key, groupedItem.Key, 0, groupedProp.Key.ObjectType != typeof(bool) ? propertyLogInfo.PropertyValue.ToString() : null);
                         if (propLog == null)
                             continue;
 
@@ -952,12 +954,17 @@ namespace gip.bso.iplus
             if (!IsEnabledShowAllAlarms())
                 return;
 
-            var query = Db.MsgAlarmLog.Where(c => c.TimeStampOccurred >= FromDate && c.TimeStampOccurred <= ToDate).AsQueryable();
+            var query = Db.MsgAlarmLog
+                            .Include(c => c.ACClass)
+                            .Include(c => c.ACProgramLog)
+                            .Where(c => c.TimeStampOccurred >= FromDate && c.TimeStampOccurred <= ToDate)
+                            .AsQueryable();
             string acUrl = SelectedPropertyLog.ACUrl;
 
             (query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
-            AlarmsSubAlarmsList = query.ToList().Where(c => (c.ACClass != null && c.ACClass.ACUrlComponent.StartsWith(acUrl)) ||
-                                                         (c.ACProgramLog != null && c.ACProgramLog.ACUrl.StartsWith(acUrl)));
+            AlarmsSubAlarmsList = query.AsEnumerable()
+                                        .Where(c =>    (c.ACClass != null && c.ACClass.ACUrlComponent.StartsWith(acUrl)) 
+                                                    || (c.ACProgramLog != null && c.ACProgramLog.ACUrl.StartsWith(acUrl)));
 
             ShowDialog(this, "AlarmsAll");
         }
@@ -994,14 +1001,19 @@ namespace gip.bso.iplus
         [ACMethodInfo("","en{'GO'}de{'GO'}",406)]
         public void GoToNextValue()
         {
-            var nextPropLog = ACPropertyLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog &&
-                                                        c.ACCaption == SelectedTimelineValue.Value.ToString() &&
-                                                        c.DisplayOrder == SelectedPropertyLog.DisplayOrder &&
-                                                        c.StartDate > _LastSelectedDateTime).OrderBy(x => x.StartDate).FirstOrDefault();
+            var nextPropLog = ACPropertyLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog
+                                                        && c.ACCaption == SelectedTimelineValue.Value.ToString()
+                                                        && c.DisplayOrder == SelectedPropertyLog.DisplayOrder
+                                                        && c.StartDate > _LastSelectedDateTime)
+                                            .OrderBy(x => x.StartDate)
+                                            .FirstOrDefault();
 
             if(nextPropLog == null)
-                nextPropLog = ACPropertyLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog && c.ACCaption == SelectedTimelineValue.Value.ToString() &&
-                                                        c.DisplayOrder == SelectedPropertyLog.DisplayOrder).OrderBy(x => x.StartDate).FirstOrDefault();
+                nextPropLog = ACPropertyLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog 
+                                                        && c.ACCaption == SelectedTimelineValue.Value.ToString()
+                                                        && c.DisplayOrder == SelectedPropertyLog.DisplayOrder)
+                                            .OrderBy(x => x.StartDate)
+                                            .FirstOrDefault();
 
             if (nextPropLog != null)
             {
@@ -1019,9 +1031,12 @@ namespace gip.bso.iplus
 
         #region Methods => Private
 
-        private ACPropertyLogModel CreateACPropertyLogModel(DateTime? startDate, DateTime? endDate, object propertyValue, ACClassProperty acClassProperty, ACClass acClass, 
+        private ACPropertyLogModel CreateACPropertyLogModel(ACPropertyLogInfo propertyLogInfo, ACClassProperty acClassProperty, ACClass acClass, 
                                                            int displayOrder, string caption, bool skipRuleCheck = false, ACPropertyLogModel logModelClass = null)
         {
+            //propertyLogInfo.StartDate, propertyLogInfo.EndDate, propertyLogInfo.PropertyValue
+            //DateTime? startDate, DateTime? endDate, object propertyValue,
+
             IEnumerable<ACClassPropertyRelation> rules = acClassProperty.ACClassPropertyRelation_TargetACClassProperty.Where(c => acClass.IsDerivedClassFrom(c.SourceACClass));
 
             if (!skipRuleCheck)
@@ -1030,57 +1045,62 @@ namespace gip.bso.iplus
                     return null;
 
                 ACClassPropertyRelation inverseRule = rules.FirstOrDefault(c => c.LogicalOperationIndex == (short)Global.LogicalOperators.none);
-                if (inverseRule != null && ACConvert.XMLToObject(acClassProperty.ObjectType, inverseRule.XMLValue, true, null).Equals(propertyValue))
+                if (inverseRule != null && ACConvert.XMLToObject(acClassProperty.ObjectType, inverseRule.XMLValue, true, null).Equals(propertyLogInfo.PropertyValue))
                     return null;
 
-                if (inverseRule == null && !rules.Any(c => ACConvert.XMLToObject(acClassProperty.ObjectType, c.XMLValue, true, null).Equals(propertyValue)))
+                if (inverseRule == null && !rules.Any(c => ACConvert.XMLToObject(acClassProperty.ObjectType, c.XMLValue, true, null).Equals(propertyLogInfo.PropertyValue)))
                     return null;
             }
 
             if (logModelClass != null && rules != null && rules.Any())
                 logModelClass._ACCaption = Translator.GetTranslation(rules.FirstOrDefault().GroupName);
 
-            return new ACPropertyLogModel(startDate, endDate, propertyValue, ACPropertyLogModelType.PropertyLog, displayOrder, caption, acClassProperty.ObjectType, null,
-                                          acClassProperty.ACIdentifier);
+            return new ACPropertyLogModel(propertyLogInfo, ACPropertyLogModelType.PropertyLog, displayOrder, caption, acClassProperty.ObjectType, null, acClassProperty.ACIdentifier);
         }
 
-        private List<ACPropertyLogInfo> DetermineBasicPropLogModels(ACClass acClass, ACClassProperty acClassProperty, IEnumerable<ACPropertyLog> propertyLogs, Database db)
+        private List<ACPropertyLogInfo> DetermineBasicPropLogModels(ACClass acClass, ACClassProperty acClassProperty, IEnumerable<ACPropertyLog_ACProgramLog> propertyLogs, Database db)
         {
             List<ACPropertyLogInfo> resultList = new List<ACPropertyLogInfo>();
 
-            var propLogs = propertyLogs.OrderBy(c => c.EventTime).ToArray();
+            var propLogs = propertyLogs.OrderBy(c => c.PropertyLog.EventTime).ToArray();
             int propLogsCount = propLogs.Count();
 
             if (propLogsCount == 1)
             {
-                ACPropertyLog currentLog = propLogs.FirstOrDefault();
-                DateTime dateTime = currentLog.EventTime.AddMilliseconds(-2);
-                ACPropertyLog prevLog = db.ACPropertyLog.Where(c => c.ACClassID == currentLog.ACClassID && c.ACClassPropertyID == currentLog.ACClassPropertyID 
-                                                                                                        && c.EventTime < dateTime)
-                                                        .OrderByDescending(x => x.EventTime)
+                ACPropertyLog_ACProgramLog currentLog = propLogs.FirstOrDefault();
+                DateTime dateTime = currentLog.PropertyLog.EventTime.AddMilliseconds(-2);
+                ACPropertyLog_ACProgramLog prevLog = db.ACPropertyLog
+                                                        .Include(c => c.ACClass.ACClass1_ParentACClass.ACClass1_ParentACClass)
+                                                        .Include(c => c.ACClassProperty)
+                                                        .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog })
+                                                        .Where(c =>    c.propLog.ACClassID == currentLog.PropertyLog.ACClassID 
+                                                                    && c.propLog.ACClassPropertyID == currentLog.PropertyLog.ACClassPropertyID 
+                                                                    && c.propLog.EventTime < dateTime)
+                                                        .OrderByDescending(x => x.propLog.EventTime)
+                                                        .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.propLog, ProgramLog = c.programLog })
                                                         .FirstOrDefault();
 
                 if (prevLog != null)
                 {
-                    object logValue = ACConvert.XMLToObject(acClassProperty.ObjectType, prevLog.Value, true, db);
-                    resultList.Add(new ACPropertyLogInfo(FromDate, currentLog.EventTime, logValue, "") { PropertyLog = prevLog });
+                    object logValue = ACConvert.XMLToObject(acClassProperty.ObjectType, prevLog.PropertyLog.Value, true, db);
+                    resultList.Add(new ACPropertyLogInfo(FromDate, currentLog.PropertyLog.EventTime, logValue, "") { PropertyLog = prevLog.PropertyLog, ProgramLog = prevLog.ProgramLog });
                 }
             }
             else
             {
                 for (int i = 0; i < propLogsCount - 1; i++)
                 {
-                    ACPropertyLog propLog = propLogs[i];
-                    ACPropertyLog propLogNext = propLogs[i + 1];
+                    ACPropertyLog_ACProgramLog propLog = propLogs[i];
+                    ACPropertyLog_ACProgramLog propLogNext = propLogs[i + 1];
 
-                    object logValue = ACConvert.XMLToObject(acClassProperty.ObjectType, propLog.Value, true, db);
-                    resultList.Add(new ACPropertyLogInfo(propLog.EventTime, propLogNext.EventTime, logValue, "") { PropertyLog = propLog });
+                    object logValue = ACConvert.XMLToObject(acClassProperty.ObjectType, propLog.PropertyLog.Value, true, db);
+                    resultList.Add(new ACPropertyLogInfo(propLog.PropertyLog.EventTime, propLogNext.PropertyLog.EventTime, logValue, "") { PropertyLog = propLog.PropertyLog, ProgramLog = propLog.ProgramLog });
                 }
             }
 
-            ACPropertyLog lastLog = propLogs.LastOrDefault();
-            object logValueLast = ACConvert.XMLToObject(acClassProperty.ObjectType, lastLog.Value, true, db);
-            resultList.Add(new ACPropertyLogInfo(lastLog.EventTime, ToDate, logValueLast, "") { PropertyLog = lastLog });
+            ACPropertyLog_ACProgramLog lastLog = propLogs.LastOrDefault();
+            object logValueLast = ACConvert.XMLToObject(acClassProperty.ObjectType, lastLog.PropertyLog.Value, true, db);
+            resultList.Add(new ACPropertyLogInfo(lastLog.PropertyLog.EventTime, ToDate, logValueLast, "") { PropertyLog = lastLog.PropertyLog, ProgramLog = lastLog.ProgramLog });
 
             return resultList;
         }
@@ -1110,33 +1130,6 @@ namespace gip.bso.iplus
                 displayOrder++;
                 UpdateDisplayOrderRecursive(item.Items, timelineItems, ref displayOrder);
             }
-        }
-
-        private IEnumerable<ACPropertyLog> DoFilter(Database db, DateTime from, DateTime to, ACProject project, Guid? componentClassID)
-        {
-            IEnumerable<ACPropertyLog> relevantLogs = db.ACPropertyLog.Where(c => c.EventTime > from && c.EventTime < to).AsQueryable();
-            if (project != null)
-                relevantLogs = relevantLogs.Where(c => c.ACClass.ACProjectID == project.ACProjectID);
-
-            relevantLogs = relevantLogs.ToArray();
-
-            if (componentClassID != null && componentClassID != Guid.Empty)
-            {
-                ACClass compClass = db.ACClass.FirstOrDefault(c => c.ACClassID == componentClassID.Value);
-                if (compClass != null)
-                    relevantLogs = relevantLogs.Where(c => c.ACClassID == componentClassID || c.ACClass?.ParentACClassID == componentClassID  // Show logs of child components
-                                                                                           || c.ACClass?.ACClass1_ParentACClass?.ParentACClassID == componentClassID
-                                                                                           || c.ACClass?.ACClass1_ParentACClass?.ACClass1_ParentACClass?.ParentACClassID == componentClassID);
-            }
-
-            if (!String.IsNullOrEmpty(SearchText))
-            {
-                string searchText = SearchText.ToLower();
-                relevantLogs = relevantLogs.Where(c => c.ACClass.ACUrl.ToLower().Contains(searchText) || c.ACClassProperty.ACCaption.ToLower().Contains(searchText) ||
-                                                       c.ACClassProperty.ACIdentifier.ToLower().Contains(searchText));
-            }
-
-            return relevantLogs;
         }
 
         private void DoCompactFilter()
@@ -1658,7 +1651,7 @@ namespace gip.bso.iplus
                         {
                             bool isVisible = !item.Item2.PropertyValue.Equals(ACConvert.XMLToObject(item.Item1.ObjectType, rule.XMLValue, true, null));
                             if (!isVisible)
-                                return new ACPropertyLogModel(startDate, endDate, false, ACPropertyLogModelType.PropertyLog, 0, caption, typeof(bool), parent, "");
+                                return new ACPropertyLogModel(ACPropertyLogModelType.PropertyLog, startDate, endDate, false, 0, caption, typeof(bool), parent, "");
                         }
                         caption = item.Item1.ObjectType.IsEnum || IsPropertyValueNumeric(item.Item1.ObjectType) ?
                           item.Item2.PropertyValue.ToString() : null;
@@ -1687,7 +1680,7 @@ namespace gip.bso.iplus
                             endDate = item.Item2.EndDate;
                     }
 
-                    return new ACPropertyLogModel(startDate, endDate, item.Item2.PropertyValue, ACPropertyLogModelType.PropertyLog, 0, caption, item.Item1.ObjectFullType, parent, groupName);
+                    return new ACPropertyLogModel(ACPropertyLogModelType.PropertyLog, startDate, endDate, item.Item2.PropertyValue, 0, caption, item.Item1.ObjectFullType, parent, groupName);
                 }
                 else
                 { 
@@ -1757,7 +1750,7 @@ namespace gip.bso.iplus
 
                 
 
-                return new ACPropertyLogModel(startDate, endDate, propValue, ACPropertyLogModelType.PropertyLog, 0, caption, typeof(bool), parent, groupName);
+                return new ACPropertyLogModel(ACPropertyLogModelType.PropertyLog, startDate, endDate, propValue, 0, caption, typeof(bool), parent, groupName);
             }
         }
 
@@ -1782,28 +1775,12 @@ namespace gip.bso.iplus
         {
         }
 
-        /// <summary>
-        /// Creates a new instance of a ACPropertyLogModel.
-        /// </summary>
-        /// <param name="start">The start date time for propertylog model.</param>
-        /// <param name="end">The end date time for propertylog model.</param>
-        /// <param name="propertyValue">The property value parameter.</param>
-        /// <param name="modelType">The propertylog model type.</param>
-        /// <param name="displayOrder">The display order paramter. It's used for display order in timline control.</param>
-        /// <param name="acCaption">The acCaption parameter.</param>
-        /// <param name="propertyType">The .NET type of a property.</param>
-        /// <param name="parent">The parent object parameter.</param>
-        public ACPropertyLogModel(DateTime? start, DateTime? end, object propertyValue, ACPropertyLogModelType modelType, int displayOrder = 0, string acCaption = null,
-                                  Type propertyType = null, IACObject parent = null) : base(start, end, propertyValue, acCaption)
+
+        public ACPropertyLogModel(ACPropertyLogInfo basedOn, ACPropertyLogModelType modelType, int displayOrder = 0, string acCaption = null, Type propertyType = null, IACObject parent = null, string groupName = null)
+                                : this(modelType, basedOn.StartDate, basedOn.EndDate, basedOn.PropertyValue, displayOrder, acCaption, propertyType, parent, groupName)
         {
-            StartDate = start;
-            EndDate = end;
-            PropertyValue = propertyValue;
-            PropertyLogModelType = modelType;
-            DisplayOrder = displayOrder;
-            _ACCaption = acCaption;
-            PropertyType = propertyType;
-            ParentACObject = parent;
+            PropertyLog = basedOn.PropertyLog;
+            ProgramLog = basedOn.ProgramLog;
         }
 
         /// <summary>Creates a new instance of a ACPropertyLogModel.</summary>
@@ -1816,17 +1793,13 @@ namespace gip.bso.iplus
         /// <param name="propertyType">The .NET type of a property.</param>
         /// <param name="parent">The parent object parameter.</param>
         /// <param name="groupName"></param>
-        public ACPropertyLogModel(DateTime? start, DateTime? end, object propertyValue, ACPropertyLogModelType modelType, int displayOrder = 0, string acCaption = null,
-                                  Type propertyType = null, IACObject parent = null, string groupName = null) : base(start, end, propertyValue, acCaption)
+        public ACPropertyLogModel(ACPropertyLogModelType modelType,  DateTime? start, DateTime? end, object propertyValue, int displayOrder = 0, string acCaption = null,
+                                  Type propertyType = null, IACObject parent = null, string groupName = null) 
+                                : base(start, end, propertyValue, acCaption, parent)
         {
-            StartDate = start;
-            EndDate = end;
-            PropertyValue = propertyValue;
             PropertyLogModelType = modelType;
             DisplayOrder = displayOrder;
-            _ACCaption = acCaption;
             PropertyType = propertyType;
-            ParentACObject = parent;
             GroupName = groupName;
         }
 
@@ -1907,13 +1880,55 @@ namespace gip.bso.iplus
 
         }
 
+        #region OEE
+
+        #region Quality
+        public double TotalScrap
+        {
+            get; set;
+        }
+
+        [ACPropertyInfo(106, "", "en{'Quality [%]'}de{'Qualität [%]'}")]
+        public double Quality
+        {
+            get; set;
+        }
+        #endregion
+
+        #region Performance
+        public double TotalQuantity
+        {
+            get; set;
+        }
+
+        public double StdQuantityPerHour
+        {
+            get; set;
+        }
+
+        [ACPropertyInfo(106, "", "en{'Performance [%]'}de{'Leistung [%]'}")]
+        public double Performance
+        {
+            get; set;
+        }
+        #endregion
+
+        #region Availability
+        [ACPropertyInfo(106, "", "en{'Availability [%]'}de{'Verfügbarkeit [%]'}")]
+        public double Availability
+        {
+            get;
+            set;
+        }
+        #endregion
+
         /// <summary>
         /// Gets or sets the Overall Equipment Effectiveness.
         /// </summary>
         [ACPropertyInfo(106, "", "en{'OEE'}de{'OEE'}")]
         public double OEE
         {
-            get;
+            get; // = Quality * Performance * Availability
             set;
         }
 
@@ -1925,6 +1940,7 @@ namespace gip.bso.iplus
             get;
             set;
         }
+        #endregion
 
         /// <summary>
         /// Gets or sets the PropertyType.
@@ -2041,8 +2057,8 @@ namespace gip.bso.iplus
                 {
                     displayOrder++;
 
-                    ACPropertyLogModel hostModel = new ACPropertyLogModel(groupedModel.Min(c => c.StartDate), groupedModel.Max(c => c.EndDate), null,
-                                                                          ACPropertyLogModelType.Property, displayOrder, groupName, null, classModel);
+                    ACPropertyLogModel hostModel = new ACPropertyLogModel(ACPropertyLogModelType.Property, groupedModel.Min(c => c.StartDate), groupedModel.Max(c => c.EndDate), null,
+                                                                          displayOrder, groupName, null, classModel);
                     result.Add(hostModel);
                     foreach (ACPropertyLogModel cm in groupedModel)
                     {
@@ -2131,7 +2147,7 @@ namespace gip.bso.iplus
 
             foreach (MsgAlarmLog alarm in Alarms)
             {
-                ACPropertyLogModel propLogAlarm = new ACPropertyLogModel(alarm.TimeStampOccurred, alarm.TimeStampAcknowledged, true, ACPropertyLogModelType.PropertyLogAlarm,
+                ACPropertyLogModel propLogAlarm = new ACPropertyLogModel(ACPropertyLogModelType.PropertyLogAlarm, alarm.TimeStampOccurred, alarm.TimeStampAcknowledged, true,
                                                                          DisplayOrder, "Alarm", null, this.ParentACObject);
 
                 if ((alarm.TimeStampAcknowledged - alarm.TimeStampOccurred).TotalSeconds > 1)
@@ -2165,22 +2181,28 @@ namespace gip.bso.iplus
 
                 if (item.PropertyType == typeof(GlobalProcApp.AvailabilityState))
                 {
-                    var scheduledTime = item.TotalDuration.TotalSeconds - timelinePropLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog && c.DisplayOrder == item.DisplayOrder &&
-                                                                   (((GlobalProcApp.AvailabilityState)c.PropertyValue) == GlobalProcApp.AvailabilityState.Idle ||
-                                                                    ((GlobalProcApp.AvailabilityState)c.PropertyValue) == GlobalProcApp.AvailabilityState.Maintenance ||
-                                                                    ((GlobalProcApp.AvailabilityState)c.PropertyValue) == GlobalProcApp.AvailabilityState.Retooling ||
-                                                                    ((GlobalProcApp.AvailabilityState)c.PropertyValue) == GlobalProcApp.AvailabilityState.ScheduledBreak)).Sum(x => x.Duration.TotalSeconds);
+                    var scheduledTime = item.TotalDuration.TotalSeconds - timelinePropLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog 
+                                                                                                    && c.DisplayOrder == item.DisplayOrder 
+                                                                                                    && (   (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.Idle 
+                                                                                                        || (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.Maintenance 
+                                                                                                        || (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.Retooling 
+                                                                                                        || (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.ScheduledBreak))
+                        .Sum(x => x.Duration.TotalSeconds);
 
-                    var unscheduledTime = timelinePropLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog && c.DisplayOrder == item.DisplayOrder &&
-                                                     ((GlobalProcApp.AvailabilityState)c.PropertyValue) == GlobalProcApp.AvailabilityState.UnscheduledBreak).Sum(x => x.Duration.TotalSeconds);
+                    var unscheduledTime = timelinePropLogs.Where(c =>   c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog 
+                                                                     && c.DisplayOrder == item.DisplayOrder 
+                                                                     && (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.UnscheduledBreak)
+                                                           .Sum(x => x.Duration.TotalSeconds);
 
                     var operatingTime = scheduledTime - unscheduledTime;
 
-                    item.OEE = Math.Round((operatingTime / scheduledTime) * 100, 2);
+                    item.Availability = Math.Round((operatingTime / scheduledTime) * 100, 2);
+                    item.OEE = item.Availability;
                 }
                 else
                 {
-                    item.OEE = Math.Round(((item.TotalDuration - item.TotalAlarmDuration).TotalSeconds / item.TotalDuration.TotalSeconds) * 100, 2);
+                    item.Availability = Math.Round(((item.TotalDuration - item.TotalAlarmDuration).TotalSeconds / item.TotalDuration.TotalSeconds) * 100, 2);
+                    item.OEE = item.Availability;
                 }
 
             }
