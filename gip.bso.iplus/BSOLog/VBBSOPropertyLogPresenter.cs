@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Objects;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace gip.bso.iplus
 {
@@ -58,7 +59,7 @@ namespace gip.bso.iplus
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
             _TreeViewList = null;
-            _SelectedProprertyLogAlarm = null;
+            _SelectedItemInTimeline = null;
             _UpdatedPropertyLogs = null;
             _AlarmsList = null;
             _OEERelevantProperty = null;
@@ -283,6 +284,19 @@ namespace gip.bso.iplus
             }
         }
 
+        private ACPropertyLogModel _SelectedItemInTimeline = null;
+        public ACPropertyLogModel SelectedItemInTimeline
+        {
+            get
+            {
+                return _SelectedItemInTimeline;
+            }
+            set
+            {
+                _SelectedItemInTimeline = value;
+                OnPropertyChanged();
+            }
+        }
 
         #endregion
 
@@ -547,7 +561,6 @@ namespace gip.bso.iplus
         private List<ACPropertyLogModel> _TreeViewList = new List<ACPropertyLogModel>();
         private int _DisplayOrder = 0;
         private bool _IsCompactFilterAvailable = false;
-        private ACPropertyLogModel _SelectedProprertyLogAlarm = null;
         private enum OEEMode : byte { None = 0, PAM = 10, All = 20 }
         private List<ACPropertyLogModel> _UpdatedPropertyLogs;
         private DateTime? _LastSelectedDateTime = new DateTime();
@@ -945,7 +958,7 @@ namespace gip.bso.iplus
         /// <returns>True if is enabled, otherwise false.</returns>
         public bool IsEnabledShowAlarms()
         {
-            return _SelectedProprertyLogAlarm != null && _SelectedProprertyLogAlarm.Alarms != null && _SelectedProprertyLogAlarm.Alarms.Any();
+            return SelectedItemInTimeline != null && SelectedItemInTimeline.Alarms != null && SelectedItemInTimeline.Alarms.Any();
         }
 
         [ACMethodInteraction("", "en{'Show alarms/subalarms for this component'}de{'Zeigt Alarme/Subalarme für diese Komponente an.'}", 403, true, "SelectedPropertyLog")]
@@ -1411,9 +1424,9 @@ namespace gip.bso.iplus
         {
             if (actionArgs.ElementAction == Global.ElementActionType.ContextMenu && actionArgs.DropObject != null)
             {
-                _SelectedProprertyLogAlarm = actionArgs.DropObject.ContextACObject as ACPropertyLogModel;
-                if (_SelectedProprertyLogAlarm != null && _SelectedProprertyLogAlarm.Alarms != null)
-                    AlarmsList = _SelectedProprertyLogAlarm.Alarms.ToArray();
+                SelectedItemInTimeline = actionArgs.DropObject.ContextACObject as ACPropertyLogModel;
+                if (SelectedItemInTimeline != null && SelectedItemInTimeline.Alarms != null)
+                    AlarmsList = SelectedItemInTimeline.Alarms.ToArray();
                 else
                     AlarmsList = null;
             }
@@ -1651,7 +1664,7 @@ namespace gip.bso.iplus
                         {
                             bool isVisible = !item.Item2.PropertyValue.Equals(ACConvert.XMLToObject(item.Item1.ObjectType, rule.XMLValue, true, null));
                             if (!isVisible)
-                                return new ACPropertyLogModel(ACPropertyLogModelType.PropertyLog, startDate, endDate, false, 0, caption, typeof(bool), parent, "");
+                                return new ACPropertyLogModel(item.Item2, ACPropertyLogModelType.PropertyLog, 0, caption, typeof(bool), parent, "") { StartDate = startDate, EndDate = endDate };
                         }
                         caption = item.Item1.ObjectType.IsEnum || IsPropertyValueNumeric(item.Item1.ObjectType) ?
                           item.Item2.PropertyValue.ToString() : null;
@@ -1680,7 +1693,7 @@ namespace gip.bso.iplus
                             endDate = item.Item2.EndDate;
                     }
 
-                    return new ACPropertyLogModel(ACPropertyLogModelType.PropertyLog, startDate, endDate, item.Item2.PropertyValue, 0, caption, item.Item1.ObjectFullType, parent, groupName);
+                    return new ACPropertyLogModel(item.Item2, ACPropertyLogModelType.PropertyLog, 0, caption, item.Item1.ObjectFullType, parent, groupName) { StartDate = startDate, EndDate = endDate };
                 }
                 else
                 { 
@@ -1747,10 +1760,8 @@ namespace gip.bso.iplus
                      //items.Count == 1 ? items.FirstOrDefault().Item1.ACIdentifier : null;
 
                 }
-
-                
-
-                return new ACPropertyLogModel(ACPropertyLogModelType.PropertyLog, startDate, endDate, propValue, 0, caption, typeof(bool), parent, groupName);
+            
+                return new ACPropertyLogModel(ACPropertyLogModelType.PropertyLog, startDate, endDate, propValue, 0, caption, typeof(bool), parent, groupName) { StartDate = startDate, EndDate = endDate };
             }
         }
 
@@ -1777,7 +1788,8 @@ namespace gip.bso.iplus
 
 
         public ACPropertyLogModel(ACPropertyLogInfo basedOn, ACPropertyLogModelType modelType, int displayOrder = 0, string acCaption = null, Type propertyType = null, IACObject parent = null, string groupName = null)
-                                : this(modelType, basedOn.StartDate, basedOn.EndDate, basedOn.PropertyValue, displayOrder, acCaption, propertyType, parent, groupName)
+                                : this(modelType, basedOn.StartDate, basedOn.EndDate, basedOn.PropertyValue, displayOrder, 
+                                      acCaption != null ? acCaption : basedOn.ACCaption, propertyType, parent, groupName)
         {
             PropertyLog = basedOn.PropertyLog;
             ProgramLog = basedOn.ProgramLog;
