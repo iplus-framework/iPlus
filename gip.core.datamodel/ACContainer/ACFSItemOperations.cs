@@ -126,7 +126,6 @@ namespace gip.core.datamodel
                     {
                         context.Detach(aCFSItem.ACObject);
                     }
-                    throw new NotImplementedException();
                 }
             }
         }

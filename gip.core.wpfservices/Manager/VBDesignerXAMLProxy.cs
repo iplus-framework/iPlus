@@ -42,12 +42,32 @@ namespace gip.core.wpfservices
                     changeGroup = vbDesigner.DesignSurface.DesignContext.OpenGroup("Cut " + changedItems.Count + " elements", changedItems);
                 }
 
-                // TODO Mario
-                //DesignItem designItem = CreateVBEdgeDesignItem(change, vbDesigner.DesignSurface.DesignContext);
+                CreateVBEdgeDesignItem(change, vbDesigner.DesignSurface.DesignContext);
             }
 
             if (changeGroup != null)
                 changeGroup.Commit();
+        }
+
+        public void CreateVBEdgeDesignItem(VisualInfo visualInfo, DesignContext designContext)
+        {
+            DesignItem vbCanvas = designContext.RootItem.ContentProperty.Value;
+
+            String fromXName = visualInfo.ACUrl;
+            String toXName = visualInfo.ACUrl2;
+
+            VBEdge newInstance = (VBEdge)vbCanvas.Context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(typeof(VBEdge), null);
+            DesignItem item = vbCanvas.Context.Services.Component.RegisterComponentForDesigner(newInstance);
+            if ((item != null) && (item.View != null))
+            {
+                DrawShapesAdornerBase.ApplyDefaultPropertiesToItemS(item);
+                item.Properties[VBEdge.ACName1Property].SetValue(fromXName);
+                item.Properties[VBEdge.ACName2Property].SetValue(toXName);
+            }
+            //item.Properties[VBEdge.NameProperty].SetValue(acVisualEdge.ACIdentifier);
+            //            item.Properties[VBEdge.VBContentProperty].SetValue(RootACUrl + "\\" + acVisualEdge.GetACUrl(acVisualEdge.ParentACObject));
+
+            AddItemWithDefaultSize(vbCanvas, item, new Rect());
         }
     }
 }

@@ -1351,20 +1351,6 @@ namespace gip.core.manager
             }
         }
 
-        public override DesignItem CreateVBVisualDesignItem(VisualInfo visualInfo, IACWorkflowNode acVisualWF, DesignContext designContext, out DesignItem designItemParent)
-        {
-            DesignItem item = base.CreateVBVisualDesignItem(visualInfo, acVisualWF, designContext, out designItemParent);
-            if (UseAutoLayoutElements)
-                WFLayoutCalculator.WFLayoutGroup(visualInfo.LayoutAction, designContext, designItemParent, item);
-            else
-            {
-                //TODO: place on the edge, between elements
-            }
-
-
-            return item;
-        }
-
         protected override void UpdateVisual()
         {
             base.UpdateVisual();

@@ -13,7 +13,7 @@ using gip.ext.designer.Controls;
 using gip.core.manager;
 using static gip.core.manager.VBDesigner;
 using System.Windows.Media;
-using System.ComponentModel.Design;
+using gip.ext.designer;
 
 namespace gip.core.wpfservices
 {
@@ -24,6 +24,8 @@ namespace gip.core.wpfservices
             _DesignerComp = component;
         }
 
+        #region properties
+
         private IACComponent _DesignerComp;
         public T Designer<T>() where T : VBDesigner
         {
@@ -31,6 +33,8 @@ namespace gip.core.wpfservices
                 return null;
             return _DesignerComp as T;
         }
+
+        #endregion
 
         public abstract void UpdateVisual();
 
@@ -69,6 +73,5 @@ namespace gip.core.wpfservices
                 return false;
             }
         }
-
     }
 }

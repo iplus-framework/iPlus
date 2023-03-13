@@ -163,7 +163,7 @@ namespace gip.core.datamodel
         string UserName { get; set; }
         DbConnection Connection { get; }
 
-        // Comptibility to legacy code that uses EntityKey from EF4
+        // Compatibility to legacy code that uses EntityKey from EF4
         object GetObjectByKey(EntityKey key);
         bool TryGetObjectByKey(EntityKey key, out object entity);
 

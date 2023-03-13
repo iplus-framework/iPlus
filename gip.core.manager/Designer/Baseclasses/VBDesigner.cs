@@ -86,7 +86,6 @@ namespace gip.core.manager
             }
         }
 
-
         public virtual void InitDesignManager(string vbContentDesign)
         {
             _VBContentDesign = vbContentDesign;
@@ -755,27 +754,6 @@ namespace gip.core.manager
         }
         #endregion
 
-        internal static bool AddItemWithDefaultSize(DesignItem container, DesignItem createdItem, Rect position)
-        {
-            //Rect position = new Rect();
-            PlacementOperation operation = PlacementOperation.TryStartInsertNewComponents(
-                container,
-                new DesignItem[] { createdItem },
-                new Rect[] { position },
-                PlacementType.AddItem
-            );
-            if (operation != null)
-            {
-                container.Services.Selection.SetSelectedComponents(new DesignItem[] { createdItem });
-                operation.Commit();
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         //public void SetDesignPanel(object designPanel)
         //{
         //    _DesignPanel = designPanel as DesignPanel;
@@ -789,6 +767,7 @@ namespace gip.core.manager
         //        return _DesignPanel;
         //    }
         //}
+
         public enum LayoutActionType : short
         {
             Insert = 0,

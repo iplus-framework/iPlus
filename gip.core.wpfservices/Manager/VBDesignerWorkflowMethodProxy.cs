@@ -22,5 +22,23 @@ namespace gip.core.wpfservices
         public VBDesignerWorkflowMethodProxy(IACComponent component) : base(component)
         {
         }
+
+        public override DesignItem CreateVBVisualDesignItem(VisualInfo visualInfo, IACWorkflowNode acVisualWF, DesignContext designContext, out DesignItem designItemParent)
+        {
+            DesignItem item = base.CreateVBVisualDesignItem(visualInfo, acVisualWF, designContext, out designItemParent);
+
+            VBDesignerWorkflowMethod vbDesigner = Designer<VBDesignerWorkflowMethod>();
+            if (vbDesigner == null)
+                return null;
+
+            if (vbDesigner.UseAutoLayoutElements)
+                vbDesigner.WFLayoutCalculator.WFLayoutGroup(visualInfo.LayoutAction, designContext, designItemParent, item);
+            else
+            {
+                //TODO: place on the edge, between elements
+            }
+
+            return item;
+        }
     }
 }
