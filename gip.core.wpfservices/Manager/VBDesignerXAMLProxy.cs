@@ -14,6 +14,7 @@ using gip.core.manager;
 using static gip.core.manager.VBDesigner;
 using System.Windows.Media;
 using System.ComponentModel.Design;
+using gip.ext.designer.Services;
 
 namespace gip.core.wpfservices
 {
@@ -68,6 +69,66 @@ namespace gip.core.wpfservices
             //            item.Properties[VBEdge.VBContentProperty].SetValue(RootACUrl + "\\" + acVisualEdge.GetACUrl(acVisualEdge.ParentACObject));
 
             AddItemWithDefaultSize(vbCanvas, item, new Rect());
+        }
+
+        public override IEnumerable<IACObject> GetAvailableTools()
+        {
+            VBDesignerXAML vbDesigner = Designer<VBDesignerXAML>();
+            if (vbDesigner == null)
+                return null;
+
+            ACObjectItemList objectLayoutEntrys = new ACObjectItemList();
+            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(vbDesigner, "Pointer"), PointerTool.Instance, "DesignPointer"));
+            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(vbDesigner, "Connector"), new ConnectTool(vbDesigner), "DesignConnector"));
+            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(vbDesigner, "Line"), new DrawingToolForLine(), "DesignLine"));
+            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(vbDesigner, "Rectangle"), new DrawingToolForRectangle(), "DesignRect"));
+            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(vbDesigner, "Ellipse"), new DrawingToolForEllipse(), "DesignEllipse"));
+            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(vbDesigner, "Polyline"), new DrawingToolForPolyline(), "DesignPolyline"));
+            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(vbDesigner, "Polygon"), new DrawingToolForPolygon(), "DesignPolygon"));
+            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(vbDesigner, "EditPoints"), new DrawingToolEditPoints(), "DesignEditPoints"));
+            return objectLayoutEntrys;
+        }
+
+        public new void ACActionToTargetLogic(IACInteractiveObject oldTargetVBDataObject, ACActionArgs oldActionArgs, out IACInteractiveObject targetVBDataObject, out ACActionArgs actionArgs)
+        {
+            actionArgs = oldActionArgs;
+            targetVBDataObject = oldTargetVBDataObject;
+
+            VBDesignerXAML vbDesigner = Designer<VBDesignerXAML>();
+            if (vbDesigner == null)
+                return;
+
+            if (targetVBDataObject is IBindingDropHandler)
+            {
+                IBindingDropHandler dropHandler = targetVBDataObject as IBindingDropHandler;
+                var query = actionArgs.DropObject.ACContentList.Where(c => c is ACObjectItem);
+                if (query.Any())
+                {
+                    ACObjectItem currentTool = query.First() as ACObjectItem;
+                    string vbContent = vbDesigner.BuildVBContentFromACUrl(currentTool.ACUrlRelative, currentTool.ACObject);
+                    if (!String.IsNullOrEmpty(vbContent))
+                    {
+                        if (currentTool.ACObject is ACClassMethod)
+                        {
+                            int methodSign = vbContent.IndexOf('!');
+                            bool isGlobalFunc = false;
+                            if (methodSign > 0)
+                            {
+                                string left = vbContent.Substring(0, methodSign);
+                                string urlOfEnvManager = vbDesigner.Root.Environment.GetACUrl();
+                                urlOfEnvManager = urlOfEnvManager.Replace("\\", "");
+                                isGlobalFunc = left.Contains(urlOfEnvManager);
+                            }
+                            dropHandler.AddOrUpdateBindingWithMethod(vbContent, isGlobalFunc, currentTool.ACObject);
+                        }
+                        else
+                        {
+                            dropHandler.AddOrUpdateBindingWithProperty(vbContent, currentTool.ACObject);
+                        }
+                        actionArgs.Handled = true;
+                    }
+                }
+            }
         }
     }
 }

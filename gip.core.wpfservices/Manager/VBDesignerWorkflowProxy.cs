@@ -15,6 +15,7 @@ using static gip.core.manager.VBDesigner;
 using System.Windows.Media;
 using System.ComponentModel.Design;
 using gip.ext.designer;
+using gip.ext.designer.Services;
 
 namespace gip.core.wpfservices
 {
@@ -292,6 +293,49 @@ namespace gip.core.wpfservices
             }
 
             return null;
+        }
+
+        public override IEnumerable<IACObject> GetAvailableTools()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected virtual void CreateWFEdge(VBEdge newVBEdge, VBConnector targetConnector)
+        {
+        }
+
+        public new void ACActionToTargetLogic(IACInteractiveObject oldTargetVBDataObject, ACActionArgs oldActionArgs, out IACInteractiveObject targetVBDataObject, out ACActionArgs actionArgs)
+        {
+            actionArgs = oldActionArgs;
+            targetVBDataObject = oldTargetVBDataObject;
+
+            VBDesignerWorkflow vbDesigner = Designer<VBDesignerWorkflow>();
+            if (vbDesigner == null)
+                return;
+
+            IACWorkflowNode rControlClass = null;
+            switch (actionArgs.ElementAction)
+            {
+                case Global.ElementActionType.Move:
+                    rControlClass = vbDesigner.LayoutAction(vbDesigner.CurrentDesignWF, actionArgs.DropObject, actionArgs.X, actionArgs.Y);
+                    break;
+                case Global.ElementActionType.Drop:
+                    rControlClass = vbDesigner.ElementAction(vbDesigner.CurrentDesignWF, actionArgs.DropObject, targetVBDataObject, actionArgs.X, actionArgs.Y);
+                    if (rControlClass != null)
+                    {
+                        vbDesigner.DroppedElement(rControlClass);
+                        actionArgs.Handled = true;
+                    }
+                    break;
+                case Global.ElementActionType.Line:
+                    VBEdge newVBEdge = actionArgs.DropObject as VBEdge;
+                    if (newVBEdge != null)
+                    {
+                        CreateWFEdge(newVBEdge, targetVBDataObject as VBConnector);
+                        actionArgs.Handled = true;
+                    }
+                    break;
+            }
         }
     }
 }

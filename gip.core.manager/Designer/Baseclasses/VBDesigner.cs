@@ -82,6 +82,8 @@ namespace gip.core.manager
         {
             get 
             {
+                if (_WPFProxy == null)
+                    _WPFProxy = Root?.WPFServices?.DesignerService?.GetDesignMangerProxy(this);
                 return _WPFProxy;
             }
         }
@@ -872,55 +874,12 @@ namespace gip.core.manager
         /// <param name="reverseToXaml">if set to <c>true</c> [reverse to xaml].</param>
         public virtual void OnDesignerLoaded(IVBContent designEditor, bool reverseToXaml)
         {
-            if (!reverseToXaml)
-            {
-                VBPresenter vbPresenter = this.ParentACComponent as VBPresenter;
-                if (vbPresenter != null && vbPresenter.RoutingLogic != null)
-                {
-                    vbPresenter.RoutingLogic.ClearVB();
-                    VBDesignEditor vbDesignEditor = designEditor as VBDesignEditor;
-                    if (vbDesignEditor != null)
-                    {
-                        DesignContext designContext = vbDesignEditor.DesignSurface.DesignContext;
-                        if (designContext != null)
-                        {
-                            var designItemEdges = designContext.Services.Component.DesignItems.Where(c => c.View is VBEdge);
-                            vbPresenter.RoutingLogic.InitWithDesignItems(designContext.RootItem,
-                                designContext.Services.Component.DesignItems.Where(c => c.View is VBVisual || c.View is VBVisualGroup).Select(x => x.View).OfType<FrameworkElement>().ToList(),
-                                designItemEdges.Select(c => c.View).OfType<FrameworkElement>(), designItemEdges);
-                        }
-                    }
-                }
-            }
+            WPFProxy.OnDesignerLoaded(designEditor, reverseToXaml);
         }
 
         public void CloseDockableWindow(IACObject window)
         {
-            if (window is VBDockingContainerToolWindowVB)
-            {
-                VBDockingContainerToolWindow vbDockingContainerToolWindow = window as VBDockingContainerToolWindow;
-                if (vbDockingContainerToolWindow != null)
-                {
-                    if (vbDockingContainerToolWindow.VBDockingPanel != null)
-                    {
-                        if (vbDockingContainerToolWindow.VBDockingPanel is VBDockingPanelToolWindow)
-                        {
-                            VBDockingPanelToolWindow VBDockingPanel = vbDockingContainerToolWindow.VBDockingPanel as VBDockingPanelToolWindow;
-                            if (VBDockingPanel != null && VBDockingPanel.State != VBDockingPanelState.AutoHide)
-                                VBDockingPanel.ChangeState(VBDockingPanelState.Hidden);
-                            window.ACUrlCommand(Const.CmdClose);
-                        }
-                        else if (vbDockingContainerToolWindow.VBDockingPanel is VBDockingPanelTabbedDoc)
-                        {
-                            VBDockingPanelTabbedDoc VBDockingPanel = ((VBDockingContainerToolWindow)window).VBDockingPanel as VBDockingPanelTabbedDoc;
-                            if (VBDockingPanel != null)
-                                VBDockingPanel.RemoveDockingContainerToolWindow((VBDockingContainerBase)window);
-                        }
-                    }
-                }
-            }
-            else if (window != null)
-                window.ACUrlCommand(Const.CmdClose);
+            WPFProxy.CloseDockableWindow(window);
         }
 
         //TODO Ivan: routinglogic getbounds method - fix (problem with width and height)
@@ -929,19 +888,7 @@ namespace gip.core.manager
         [ACMethodInfo("WF", "en{'Recalc edge routes'}de{'Verbindungslinien berechnen'}", 500, true)]
         public virtual void RecalcEdgeRouting()
         {
-            OnDesignerLoaded(VBDesignEditor as VBDesignEditor, false);
-            VBPresenter vbPresenter = this.ParentACComponent as VBPresenter;
-            if (vbPresenter != null && vbPresenter.RoutingLogic != null)
-            {
-                UIElement rootCanvas = null;
-                if (vbPresenter.RoutingLogic.RootDesignItem.View is VBCanvas)
-                    rootCanvas = vbPresenter.RoutingLogic.RootDesignItem.View;
-                else if (vbPresenter.RoutingLogic.RootDesignItem.View is VBScrollViewer)
-                    rootCanvas = ((VBScrollViewer)vbPresenter.RoutingLogic.RootDesignItem.View).Content as UIElement;
-                if (rootCanvas != null)
-                    vbPresenter.RoutingLogic.CalculateEdgeRoute(rootCanvas);
-            }
-            DesignPanel.Focus();
+            WPFProxy.RecalcEdgeRouting();
         }
 
         /// <summary>

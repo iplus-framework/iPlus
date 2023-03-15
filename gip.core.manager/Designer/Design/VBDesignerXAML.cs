@@ -146,16 +146,7 @@ namespace gip.core.manager
 
         public override IEnumerable<IACObject> GetAvailableTools()
         {
-            ACObjectItemList objectLayoutEntrys = new ACObjectItemList();
-            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(this, "Pointer"), PointerTool.Instance, "DesignPointer"));
-            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(this, "Connector"), new ConnectTool(this), "DesignConnector"));
-            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(this, "Line"), new DrawingToolForLine(), "DesignLine"));
-            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(this, "Rectangle"), new DrawingToolForRectangle(), "DesignRect"));
-            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(this, "Ellipse"), new DrawingToolForEllipse(), "DesignEllipse"));
-            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(this, "Polyline"), new DrawingToolForPolyline(), "DesignPolyline"));
-            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(this, "Polygon"), new DrawingToolForPolygon(), "DesignPolygon"));
-            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(this, "EditPoints"), new DrawingToolEditPoints(), "DesignEditPoints"));
-            return objectLayoutEntrys;
+            return WPFProxy.GetAvailableTools();
         }
 
         private void InsertObjectLayouts(ObservableCollection<IACObject> objectLayoutEntrys, string layoutGroup, IEnumerable<ACClassDesign> acClassDesigns)
@@ -445,37 +436,7 @@ namespace gip.core.manager
         /// <param name="actionArgs">Information about the type of interaction and the source.</param>
         public override void ACActionToTarget(IACInteractiveObject targetVBDataObject, ACActionArgs actionArgs)
         {
-            if (targetVBDataObject is IBindingDropHandler)
-            {
-                IBindingDropHandler dropHandler = targetVBDataObject as IBindingDropHandler;
-                var query = actionArgs.DropObject.ACContentList.Where(c => c is ACObjectItem);
-                if (query.Any())
-                {
-                    ACObjectItem currentTool = query.First() as ACObjectItem;
-                    string vbContent = this.BuildVBContentFromACUrl(currentTool.ACUrlRelative, currentTool.ACObject);
-                    if (!String.IsNullOrEmpty(vbContent))
-                    {
-                        if (currentTool.ACObject is ACClassMethod)
-                        {
-                            int methodSign = vbContent.IndexOf('!');
-                            bool isGlobalFunc = false;
-                            if (methodSign > 0)
-                            {
-                                string left = vbContent.Substring(0, methodSign);
-                                string urlOfEnvManager = this.Root.Environment.GetACUrl();
-                                urlOfEnvManager = urlOfEnvManager.Replace("\\", "");
-                                isGlobalFunc = left.Contains(urlOfEnvManager);
-                            }
-                            dropHandler.AddOrUpdateBindingWithMethod(vbContent, isGlobalFunc, currentTool.ACObject);
-                        }
-                        else
-                        {
-                            dropHandler.AddOrUpdateBindingWithProperty(vbContent, currentTool.ACObject);
-                        }
-                        actionArgs.Handled = true;
-                    }
-                }
-            }
+            WPFProxy.ACActionToTargetLogic(targetVBDataObject, actionArgs, out targetVBDataObject, out actionArgs);
             base.ACActionToTarget(targetVBDataObject, actionArgs);
         }
 

@@ -20,6 +20,11 @@ namespace gip.core.datamodel
     public interface IVBComponentDesignManagerProxy
     {
         void UpdateVisual();
+        void CloseDockableWindow(IACObject window);
+        void OnDesignerLoaded(IVBContent designEditor, bool reverseToXaml);
+        void RecalcEdgeRouting();
+        void ACActionToTargetLogic(IACInteractiveObject oldTargetVBDataObject, ACActionArgs oldActionArgs, out IACInteractiveObject targetVBDataObject, out ACActionArgs actionArgs);
+        IEnumerable<IACObject> GetAvailableTools();
         IACInteractiveObject GetVBDesignEditor(IACComponent component);
     }
 

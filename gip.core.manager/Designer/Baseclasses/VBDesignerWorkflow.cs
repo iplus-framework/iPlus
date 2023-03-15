@@ -220,9 +220,6 @@ namespace gip.core.manager
         #endregion
 
         #region CreateEdge
-        protected virtual void CreateWFEdge(VBEdge newVBEdge, VBConnector targetConnector)
-        {
-        }
 
         public void WFCreateWFEdge(IACWorkflowObject visualItemFrom, ACClassProperty sourceACClassProperty, IACWorkflowObject visualItemTo, ACClassProperty targetACClassProperty)
         {
@@ -238,7 +235,7 @@ namespace gip.core.manager
             }
         }
 
-        protected IACWorkflowEdge CreateWFEdge(IACWorkflowDesignContext vbWorkflow, IACWorkflowNode visualClassFrom, ACClassProperty sourceACClassProperty, IACWorkflowNode visualClassTo, ACClassProperty targetACClassProperty, gip.core.datamodel.Global.ConnectionTypes connectionType)
+        public IACWorkflowEdge CreateWFEdge(IACWorkflowDesignContext vbWorkflow, IACWorkflowNode visualClassFrom, ACClassProperty sourceACClassProperty, IACWorkflowNode visualClassTo, ACClassProperty targetACClassProperty, gip.core.datamodel.Global.ConnectionTypes connectionType)
         {
             IACWorkflowEdge newEdge = vbWorkflow.CreateNewEdge(Database.ContextIPlus);
             if (newEdge == null)
@@ -461,29 +458,7 @@ namespace gip.core.manager
         /// <param name="actionArgs">Information about the type of interaction and the source.</param>
         public override void ACActionToTarget(IACInteractiveObject targetVBDataObject, ACActionArgs actionArgs)
         {
-            IACWorkflowNode rControlClass = null;
-            switch (actionArgs.ElementAction)
-            {
-                case Global.ElementActionType.Move:
-                    rControlClass = LayoutAction(CurrentDesignWF, actionArgs.DropObject, actionArgs.X, actionArgs.Y);
-                    break;
-                case Global.ElementActionType.Drop:
-                    rControlClass = ElementAction(CurrentDesignWF, actionArgs.DropObject, targetVBDataObject, actionArgs.X, actionArgs.Y);
-                    if (rControlClass != null)
-                    {
-                        DroppedElement(rControlClass);
-                        actionArgs.Handled = true;
-                    }
-                    break;
-                case Global.ElementActionType.Line:
-                    VBEdge newVBEdge = actionArgs.DropObject as VBEdge;
-                    if (newVBEdge != null)
-                    {
-                        CreateWFEdge(newVBEdge, targetVBDataObject as VBConnector);
-                        actionArgs.Handled = true;
-                    }
-                    break;
-            }
+            WPFProxy.ACActionToTargetLogic(targetVBDataObject, actionArgs, out targetVBDataObject, out actionArgs);
             base.ACActionToTarget(targetVBDataObject, actionArgs);
         }
 
@@ -620,102 +595,6 @@ namespace gip.core.manager
             WPFProxy.UpdateVisual();
         }
 
-        DesignItem GetDesignItemWF(string acUrl)
-        {
-            DesignItem designItem = DesignPanel.Context.RootItem;
-            var acUrlList = acUrl.Split('\\');
-            foreach (var acUrlPart in acUrlList)
-            {
-                designItem = FindDesignItemWF(designItem, acUrlPart);
-                if (designItem == null)
-                    return null;
-            }
-            return designItem;
-        }
-
-        DesignItem FindDesignItemWF(DesignItem designItem, string acUrl)
-        {
-            switch (designItem.View.GetType().Name)
-            {
-                case Const.VBVisual_ClassName:
-                    {
-                        VBVisual vbVisual = designItem.View as VBVisual;
-                        if (vbVisual.VBContent == acUrl)
-                            return designItem;
-                        return null;
-                    }
-                case Const.VBVisualGroup_ClassName:
-                    {
-                        VBVisualGroup vbVisualGroup = designItem.View as VBVisualGroup;
-                        if (vbVisualGroup.VBContent == acUrl)
-                            return designItem;
-                    }
-                    break;
-            }
-            if (designItem.ContentProperty != null)
-            {
-                if (designItem.ContentProperty.IsCollection)
-                {
-                    var collection = designItem.ContentProperty.CollectionElements;
-                    foreach (var content in collection)
-                    {
-                        var designItemResult = FindDesignItemWF(content, acUrl);
-                        if (designItemResult != null)
-                            return designItemResult;
-                    }
-                }
-                else
-                {
-                    if (designItem.ContentProperty.Value != null)
-                    {
-                        var content = designItem.ContentProperty.Value;
-                        return FindDesignItemWF(content, acUrl);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        DesignItem GetDesignItemWFEdge(string vbConnectorSource, string vbConnectorTarget)
-        {
-            DesignItem designItem = DesignPanel.Context.RootItem;
-
-            return FindDesignItemWFEdge(DesignPanel.Context.RootItem, vbConnectorSource, vbConnectorTarget);
-        }
-
-        DesignItem FindDesignItemWFEdge(DesignItem designItem, string vbConnectorSource, string vbConnectorTarget)
-        {
-            if (designItem.View.GetType().Name == "VBEdge")
-            {
-                VBEdge vbEdge = designItem.View as VBEdge;
-                if (vbEdge.VBConnectorSource == vbConnectorSource && vbEdge.VBConnectorTarget == vbConnectorTarget)
-                    return designItem;
-            }
-            if (designItem.ContentProperty != null)
-            {
-                if (designItem.ContentProperty.IsCollection)
-                {
-                    var collection = designItem.ContentProperty.CollectionElements;
-                    foreach (var content in collection)
-                    {
-                        var designItemResult = FindDesignItemWFEdge(content, vbConnectorSource, vbConnectorTarget);
-                        if (designItemResult != null)
-                            return designItemResult;
-                    }
-                }
-                else
-                {
-                    if (designItem.ContentProperty.Value != null)
-                    {
-                        var content = designItem.ContentProperty.Value;
-                        return FindDesignItemWFEdge(content, vbConnectorSource, vbConnectorTarget);
-                    }
-                }
-            }
-
-            return null;
-        }
         #endregion
 
         protected override void ParentPropertyChanged(string propertyName)

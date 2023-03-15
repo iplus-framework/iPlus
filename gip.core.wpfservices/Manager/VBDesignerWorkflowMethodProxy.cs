@@ -14,6 +14,7 @@ using gip.core.manager;
 using static gip.core.manager.VBDesigner;
 using System.Windows.Media;
 using System.ComponentModel.Design;
+using gip.ext.designer.Services;
 
 namespace gip.core.wpfservices
 {
@@ -39,6 +40,25 @@ namespace gip.core.wpfservices
             }
 
             return item;
+        }
+
+
+        public override IEnumerable<IACObject> GetAvailableTools()
+        {
+            VBDesignerWorkflowMethod vbDesigner = Designer<VBDesignerWorkflowMethod>();
+            if (vbDesigner == null)
+                return null;
+
+            ACObjectItemList objectLayoutEntrys = new ACObjectItemList();
+            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(vbDesigner, "Pointer"), PointerTool.Instance, "DesignPointer"));
+            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(vbDesigner, "Connector"), new ConnectTool(vbDesigner), "DesignConnector"));
+            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(vbDesigner, "EditPoints"), new DrawingToolEditPoints(), "DesignEditPoints"));
+            return objectLayoutEntrys;
+        }
+
+        protected override void CreateWFEdge(VBEdge newVBEdge, VBConnector targetConnector)
+        {
+            // TODO: - Moved from VBDesignerWorkflowMethod and method was not implemented
         }
     }
 }

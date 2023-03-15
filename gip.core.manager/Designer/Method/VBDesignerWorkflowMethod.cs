@@ -1223,11 +1223,6 @@ namespace gip.core.manager
             return true;
         }
 
-        protected override void CreateWFEdge(VBEdge newVBEdge, VBConnector targetConnector)
-        {
-            // TODO:
-        }
-
         #endregion
 
         #region IACComponentDesignManager
@@ -1406,11 +1401,7 @@ namespace gip.core.manager
 
         public override IEnumerable<IACObject> GetAvailableTools()
         {
-            ACObjectItemList objectLayoutEntrys = new ACObjectItemList();
-            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(this, "Pointer"), PointerTool.Instance, "DesignPointer"));
-            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(this, "Connector"), new ConnectTool(this), "DesignConnector"));
-            objectLayoutEntrys.Add(new DesignManagerToolItem(gip.core.datamodel.Database.Root.Environment.TranslateText(this, "EditPoints"), new DrawingToolEditPoints(), "DesignEditPoints"));
-            return objectLayoutEntrys;
+            return WPFProxy.GetAvailableTools();
         }
         #endregion
 
