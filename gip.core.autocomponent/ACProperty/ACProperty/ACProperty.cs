@@ -1358,7 +1358,7 @@ namespace gip.core.autocomponent
                     {
                         if (this.PropertyInfo.GenericType == typeof(ACRef<>).FullName
                             || this.PropertyInfo.GenericType == typeof(IACContainerT<>).FullName)
-                            path = "ValueT.ValueT";
+                            path = Const.ValueT + ACUrlHelper.Delimiter_RelativePath + Const.ValueT;
                     }
                 }
                 // Sonst reales Objekt
@@ -1368,13 +1368,22 @@ namespace gip.core.autocomponent
                 else if ((ACType.ACKind == Global.ACKinds.PSPropertyExt)
                         || (PropertyAccessor == null))
                 {
-                    source = this;
-                    path = Const.ValueT;
+                    // If Attached Property in a Businessobject
+                    if (this.PropertyInfo.IsProxyProperty && !(this is IACPropertyNetBase))
+                    {
+                        source = ParentACComponent;
+                        path = ACType.GetACPath(true) + ACUrlHelper.Delimiter_RelativePath + Const.ValueT;
+                    }
+                    else
+                    {
+                        source = this;
+                        path = Const.ValueT;
+                    }
                     if (!String.IsNullOrEmpty(this.PropertyInfo.GenericType))
                     {
                         if (this.PropertyInfo.GenericType == typeof(ACRef<>).FullName
                             || this.PropertyInfo.GenericType == typeof(IACContainerT<>).FullName)
-                            path = "ValueT.ValueT";
+                            path = Const.ValueT + ACUrlHelper.Delimiter_RelativePath + Const.ValueT;
                     }
                 }
                 // Sonst Zugriff per getter/setter-Methode im realen Objekt
