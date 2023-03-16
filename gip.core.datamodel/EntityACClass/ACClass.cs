@@ -3127,24 +3127,6 @@ namespace gip.core.datamodel
 
         //#endregion
 
-        private bool _IsSelected;
-        [ACPropertyInfo(999, nameof(IsSelected), Const.Select)]
-        public bool IsSelected
-        {
-            get
-            {
-                return _IsSelected;
-            }
-            set
-            {
-                if (_IsSelected != value)
-                {
-                    _IsSelected = value;
-                    OnPropertyChanged(nameof(IsSelected));
-                }
-            }
-        }
-
         #region Rightmanagement
         /// <summary>
         /// Determines whether [is any child with rightmanagement].
