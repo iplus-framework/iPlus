@@ -166,13 +166,13 @@ namespace gip.core.autocomponent
             var newMethod = NewACMethodWithConfiguration();
             CreateNewProgramLog(newMethod, true);
 
-            StartTime.ValueT = DateTime.Now;
+            StartTime.ValueT = DateTimeUtils.NowDST;
             WaitingTime.ValueT = new TimeSpan(0, 0, new Random().Next(5, 15));
 
             RecalcTimeInfo();
             WaitingTime.ValueT = GetPlannedDuration();
             EndTime.ValueT = StartTime.ValueT + WaitingTime.ValueT;
-            RemainingTime.ValueT = EndTime.ValueT - DateTime.Now;
+            RemainingTime.ValueT = EndTime.ValueT - DateTimeUtils.NowDST;
             ElapsedTime.ValueT = TimeSpan.Zero;
 
             if (ACOperationMode == ACOperationModes.Live)
@@ -208,7 +208,7 @@ namespace gip.core.autocomponent
             base.Pause();
             if (CurrentACState == ACStateEnum.SMPaused)
             {
-                LastPauseTime.ValueT = DateTime.Now;
+                LastPauseTime.ValueT = DateTimeUtils.NowDST;
             }
         }
 
@@ -219,7 +219,7 @@ namespace gip.core.autocomponent
             {
                 if (LastPauseTime.ValueT != null && LastPauseTime.ValueT > DateTime.MinValue)
                 {
-                    TimeSpan pauseDuration = DateTime.Now - LastPauseTime.ValueT;
+                    TimeSpan pauseDuration = DateTimeUtils.NowDST - LastPauseTime.ValueT;
                     SumPausingTimes.ValueT = SumPausingTimes.ValueT + pauseDuration;
                     EndTime.ValueT = EndTime.ValueT + pauseDuration;
                 }
@@ -302,11 +302,11 @@ namespace gip.core.autocomponent
             }
             else if (CurrentACState >= ACStateEnum.SMRunning && CurrentACState <= ACStateEnum.SMCompleted)
             {
-                RemainingTime.ValueT = EndTime.ValueT - DateTime.Now;
+                RemainingTime.ValueT = EndTime.ValueT - DateTimeUtils.NowDST;
                 if (SumPausingTimes.ValueT != null && SumPausingTimes.ValueT > TimeSpan.Zero)
-                    ElapsedTime.ValueT = DateTime.Now - StartTime.ValueT - SumPausingTimes.ValueT;
+                    ElapsedTime.ValueT = DateTimeUtils.NowDST - StartTime.ValueT - SumPausingTimes.ValueT;
                 else
-                    ElapsedTime.ValueT = DateTime.Now - StartTime.ValueT;
+                    ElapsedTime.ValueT = DateTimeUtils.NowDST - StartTime.ValueT;
             }
 
             if (   RemainingTime.ValueT < TimeSpan.Zero
