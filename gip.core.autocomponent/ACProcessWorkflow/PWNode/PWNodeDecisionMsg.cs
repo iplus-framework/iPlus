@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using gip.core.datamodel;
+using static gip.core.datamodel.Global;
 
 namespace gip.core.autocomponent
 {
@@ -23,6 +24,8 @@ namespace gip.core.autocomponent
             paramTranslation.Add("MessageText", "en{'Question text'}de{'Abfragetext'}");
             method.ParameterValueList.Add(new ACValue("PasswordDlg", typeof(bool), false, Global.ParamOption.Required));
             paramTranslation.Add("PasswordDlg", "en{'With password dialogue'}de{'Mit Passwort-Dialog'}");
+            method.ParameterValueList.Add(new ACValue("ForceEventPoint", typeof(ushort), 0, Global.ParamOption.Required));
+            paramTranslation.Add("ForceEventPoint", "en{'Raise Event [Off=0], [Below=1], [Sideward=2]'}de{'Erzwinge Ereignis [Aus=0], [Unten=1], [Seitlich/Else=2]'}");
             var wrapper = new ACMethodWrapper(method, "en{'Configuration'}de{'Konfiguration'}", typeof(PWNodeDecisionMsg), paramTranslation, null);
             ACMethod.RegisterVirtualMethod(typeof(PWNodeDecisionMsg), ACStateConst.SMStarting, wrapper);
 
@@ -122,6 +125,11 @@ namespace gip.core.autocomponent
         [ACMethodState("en{'Executing'}de{'Ausführend'}", 20, true)]
         public override void SMStarting()
         {
+            if (String.IsNullOrEmpty(CMessageText) && ForceEventPoint > 0)
+            {
+                base.SMStarting();
+                return;
+            }
             if (NeedsPasswordDlg != null)
                 NeedsPasswordDlg.ValueT = CPasswordDlg;
             RefreshNodeInfoOnModule();
@@ -149,6 +157,7 @@ namespace gip.core.autocomponent
         [ACMethodState("en{'Running'}de{'Läuft'}", 30, true)]
         public virtual void SMRunning()
         {
+            AlarmsAsText.ValueT = CMessageText;
         }
 
 
@@ -166,6 +175,7 @@ namespace gip.core.autocomponent
                 }
             }
         }
+
         #endregion
 
         #region Planning and Testing
@@ -288,6 +298,31 @@ namespace gip.core.autocomponent
             return isAllowed;
         }
 
+
+        [ACMethodInfo("", "en{'Messagebox'}de{'Abfragedialog'}", 302, false)]
+        public virtual void OnMessageBoxResult(MsgResult result)
+        {
+            if (result == MsgResult.Yes)
+            {
+                if (OutIsRepeat)
+                    RaiseOutEventAndComplete();
+                else
+                    RaiseElseEventAndComplete();
+            }
+            else if (result == MsgResult.No)
+            {
+                if (OutIsRepeat)
+                    RaiseElseEventAndComplete();
+                else
+                    RaiseOutEventAndComplete();
+            }
+        }
+
+        public bool IsEnabledOnMessageBoxResult()
+        {
+            return IsEnabledComplete();
+        }
+
         #endregion
 
 
@@ -315,17 +350,23 @@ namespace gip.core.autocomponent
                 case ACStateConst.SMRunning:
                     SMRunning();
                     return true;
-                case "Repeat":
+                case nameof(Repeat):
                     Repeat();
                     return true;
-                case Const.IsEnabledPrefix + "Repeat":
+                case nameof(IsEnabledRepeat):
                     result = IsEnabledRepeat();
                     return true;
-                case "Complete":
+                case nameof(Complete):
                     Complete();
                     return true;
-                case Const.IsEnabledPrefix + "Complete":
+                case nameof(IsEnabledComplete):
                     result = IsEnabledComplete();
+                    return true;
+                case nameof(OnMessageBoxResult):
+                    OnMessageBoxResult((MsgResult)acParameter[0]);
+                    return true;
+                case nameof(IsEnabledOnMessageBoxResult):
+                    result = IsEnabledOnMessageBoxResult();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
