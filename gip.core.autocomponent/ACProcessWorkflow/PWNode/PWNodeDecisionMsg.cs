@@ -125,7 +125,7 @@ namespace gip.core.autocomponent
         [ACMethodState("en{'Executing'}de{'Ausführend'}", 20, true)]
         public override void SMStarting()
         {
-            if (String.IsNullOrEmpty(CMessageText) && ForceEventPoint > 0)
+            if (ForceEventPoint > 0)
             {
                 base.SMStarting();
                 return;
