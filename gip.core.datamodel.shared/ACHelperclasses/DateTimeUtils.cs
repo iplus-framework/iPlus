@@ -21,7 +21,7 @@ namespace gip.core.datamodel
     public static class DateTimeUtils
     {
         /// <summary>
-        /// Returns the local time without daylight saving time
+        /// Returns the local time without daylight saving time (Wintertime)
         /// </summary>
         public static DateTime NowDST
         {
@@ -45,8 +45,16 @@ namespace gip.core.datamodel
             }
         }
 
+        public static DateTime GetWinterTime(this DateTime dateTime)
+        {
+            if (dateTime.IsDaylightSavingTime())
+                return dateTime.AddHours(-1);
+            return dateTime;
+        }
+
         /// <summary>
-        /// This Method is for comparing DateTime-entries if time switches back for one hour from summertime to wintertime
+        /// This Method is for correcting Times, that are stored in the database without daylight savings (e.g. ProgramLog) and should be
+        /// displayed on the screen with the daylight svaing offset.
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
