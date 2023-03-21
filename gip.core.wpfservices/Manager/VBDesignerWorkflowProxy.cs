@@ -35,13 +35,13 @@ namespace gip.core.wpfservices
 
             ChangeGroup changeGroup = null;
             // Löschen von WF und WFEdge
-            foreach (var change in vbDesigner.VisualChangeList)
+            foreach (var change in VisualChangeList)
             {
                 if (change.LayoutAction != LayoutActionType.Delete && change.LayoutAction != LayoutActionType.DeleteEdge) continue;
 
                 if (changeGroup == null)
                 {
-                    changeGroup = vbDesigner.DesignSurface.DesignContext.OpenGroup("Cut " + changedItems.Count + " elements", changedItems);
+                    changeGroup = DesignSurface.DesignContext.OpenGroup("Cut " + changedItems.Count + " elements", changedItems);
                 }
                 if (change.VisualObject is IACWorkflowEdge)
                 {
@@ -71,40 +71,42 @@ namespace gip.core.wpfservices
             }
 
             // Einfügen von WFEdge (Vor WF, da diese für die Layoutberechnung benötigt werden
-            foreach (var change in vbDesigner.VisualChangeList)            //foreach (var change in VisualChangeList.Where(c => !c.IsDelete))
+            foreach (var change in VisualChangeList)            //foreach (var change in VisualChangeList.Where(c => !c.IsDelete))
             {
                 if (change.LayoutAction != LayoutActionType.InsertEdge) continue;
                 if (changeGroup == null)
                 {
-                    changeGroup = vbDesigner.DesignSurface.DesignContext.OpenGroup("Cut " + changedItems.Count + " elements", changedItems);
+                    changeGroup = DesignSurface.DesignContext.OpenGroup("Cut " + changedItems.Count + " elements", changedItems);
                 }
 
                 if (change.VisualObject is IACWorkflowEdge)
                 {
-                    CreateVBEdgeDesignItem(change.VisualObject as IACWorkflowEdge, vbDesigner.DesignSurface.DesignContext);
+                    CreateVBEdgeDesignItem(change.VisualObject as IACWorkflowEdge, DesignSurface.DesignContext);
                 }
             }
 
             // Einfügen von WF
-            foreach (var change in vbDesigner.VisualChangeList)            //foreach (var change in VisualChangeList.Where(c => !c.IsDelete))
+            foreach (var change in VisualChangeList)            //foreach (var change in VisualChangeList.Where(c => !c.IsDelete))
             {
                 if (change.LayoutAction != LayoutActionType.Insert) continue;
                 if (changeGroup == null)
                 {
-                    changeGroup = vbDesigner.DesignSurface.DesignContext.OpenGroup("Cut " + changedItems.Count + " elements", changedItems);
+                    changeGroup = DesignSurface.DesignContext.OpenGroup("Cut " + changedItems.Count + " elements", changedItems);
                 }
 
                 if (change.VisualObject is IACWorkflowNode)
                 {
                     DesignItem designItemParent = null;
-                    CreateVBVisualDesignItem(change, change.VisualObject as IACWorkflowNode, vbDesigner.DesignSurface.DesignContext, out designItemParent);
-                    vbDesigner.DesignSurface.UpdateLayout();
+                    CreateVBVisualDesignItem(change, change.VisualObject as IACWorkflowNode, DesignSurface.DesignContext, out designItemParent);
+                    DesignSurface.UpdateLayout();
                 }
             }
 
             if (changeGroup != null)
                 changeGroup.Commit();
         }
+
+        #region DesignItem
 
         public void CreateVBEdgeDesignItem(IACWorkflowEdge acVisualEdge, object designContextObj)
         {
@@ -192,11 +194,7 @@ namespace gip.core.wpfservices
 
         DesignItem GetDesignItemWF(string acUrl)
         {
-            VBDesignerWorkflow vbDesigner = Designer<VBDesignerWorkflow>();
-            if (vbDesigner == null)
-                return null;
-
-            DesignItem designItem = vbDesigner.DesignPanel.Context.RootItem;
+            DesignItem designItem = DesignPanel.Context.RootItem;
             var acUrlList = acUrl.Split('\\');
             foreach (var acUrlPart in acUrlList)
             {
@@ -253,13 +251,8 @@ namespace gip.core.wpfservices
 
         DesignItem GetDesignItemWFEdge(string vbConnectorSource, string vbConnectorTarget)
         {
-            VBDesignerWorkflow vbDesigner = Designer<VBDesignerWorkflow>();
-            if (vbDesigner == null)
-                return null;
-
-            DesignItem designItem = vbDesigner.DesignPanel.Context.RootItem;
-
-            return FindDesignItemWFEdge(vbDesigner.DesignPanel.Context.RootItem, vbConnectorSource, vbConnectorTarget);
+            DesignItem designItem = DesignPanel.Context.RootItem;
+            return FindDesignItemWFEdge(DesignPanel.Context.RootItem, vbConnectorSource, vbConnectorTarget);
         }
 
         DesignItem FindDesignItemWFEdge(DesignItem designItem, string vbConnectorSource, string vbConnectorTarget)
@@ -295,6 +288,8 @@ namespace gip.core.wpfservices
             return null;
         }
 
+        #endregion
+
         public override IEnumerable<IACObject> GetAvailableTools()
         {
             throw new NotImplementedException();
@@ -304,7 +299,7 @@ namespace gip.core.wpfservices
         {
         }
 
-        public new void ACActionToTargetLogic(IACInteractiveObject oldTargetVBDataObject, ACActionArgs oldActionArgs, out IACInteractiveObject targetVBDataObject, out ACActionArgs actionArgs)
+        public override void ACActionToTargetLogic(IACInteractiveObject oldTargetVBDataObject, ACActionArgs oldActionArgs, out IACInteractiveObject targetVBDataObject, out ACActionArgs actionArgs)
         {
             actionArgs = oldActionArgs;
             targetVBDataObject = oldTargetVBDataObject;

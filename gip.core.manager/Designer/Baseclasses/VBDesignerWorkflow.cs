@@ -1,17 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using gip.core.layoutengine;
-using gip.ext.design;
-using gip.ext.designer;
-using gip.core.layoutengine.Helperclasses;
-using gip.ext.designer.Controls;
+using System.ComponentModel;
 
 namespace gip.core.manager
 {
@@ -123,6 +115,19 @@ namespace gip.core.manager
                     _WFLayoutCalculator = new WFLayoutCalculator();
                 }
                 return _WFLayoutCalculator;
+            }
+        }
+
+        IVBWFLayoutCalculatorProxy _WFLayoutCalculatorProxy = null;
+        public IVBWFLayoutCalculatorProxy WFLayoutCalculatorProxy
+        {
+            get
+            {
+                if (_WFLayoutCalculatorProxy == null)
+                {
+                    _WFLayoutCalculatorProxy = Root.WPFServices.WFLayoutCalculatorService.GetWFLayoutCalculatorProxy(this);
+                }
+                return _WFLayoutCalculatorProxy;
             }
         }
 
@@ -246,7 +251,7 @@ namespace gip.core.manager
             newEdge.TargetACClassProperty = targetACClassProperty;
             newEdge.ConnectionType = connectionType;
             vbWorkflow.AddEdge(newEdge);
-            AddToVisualChangeList(newEdge, VBDesigner.LayoutActionType.InsertEdge, newEdge.SourceACConnector, newEdge.TargetACConnector);
+            WPFProxy.AddToVisualChangeList(newEdge, ((short)LayoutActionType.InsertEdge), newEdge.SourceACConnector, newEdge.TargetACConnector);
             return newEdge;
         }
         #endregion

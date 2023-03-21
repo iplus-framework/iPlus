@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections.ObjectModel;
-using System.Windows;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using gip.core.layoutengine;
-using gip.ext.designer.Services;
 using System.Data;
-using gip.ext.design;
 
 namespace gip.core.manager
 {
@@ -110,6 +106,14 @@ namespace gip.core.manager
             {
                 _UseAutoLayoutElements = value;
                 OnPropertyChanged("UseAutoLayoutElements");
+            }
+        }
+
+        protected IVBComponentDesignManagerWorkflowMethod WPFProxyWorkflowMethod
+        {
+            get
+            {
+                return WPFProxy as IVBComponentDesignManagerWorkflowMethod;
             }
         }
 
@@ -486,7 +490,7 @@ namespace gip.core.manager
         public override IACWorkflowNode DoModifyAction(IACWorkflowDesignContext visualMain, IACInteractiveObject dropObject, IACInteractiveObject targetVBDataObject, double x, double y)
         {
             // TODO: VisualChangeList
-            VisualChangeList.Clear();
+            WPFProxyWorkflowMethod.ClearVisualChangeList();
             // Erst mal prüfen, ob erlaubt (Sicher ist sicher)
             if (!IsEnabledModifyAction(visualMain, dropObject, targetVBDataObject, x, y))
                 return null;
@@ -524,85 +528,7 @@ namespace gip.core.manager
         /// <returns></returns>
         public override bool DoInsertRoot(IACWorkflowDesignContext vbWorkflow, ACClass methodACClass)
         {
-            VisualChangeList.Clear();
-
-            ACClassMethod rootACClassMethod = vbWorkflow as ACClassMethod;
-
-            if (rootACClassMethod.RootWFNode != null)
-                return true;
-
-            ACClassMethod acClassMethod = vbWorkflow as ACClassMethod;
-            ACClassWF rootMethodWF = CreateGroupClass(rootACClassMethod, methodACClass, rootACClassMethod.ACClass, null, null);
-
-            string vbContent;
-            string controlName;
-            double top = 0;
-            double left = 0;
-
-            string xmlDesign = "<vb:VBCanvas Enabled=\"true\" Width=\"1024\" Height=\"768\" HorizontalAlignment=\"Left\" VerticalAlignment=\"Top\">\n";
-
-            foreach (var visualInfo in VisualChangeList.Where(c => c.LayoutAction == VBDesigner.LayoutActionType.Insert))
-            {
-                IACWorkflowNode acVisualWF = visualInfo.VisualObject as IACWorkflowNode;
-                switch (acVisualWF.PWACClass.ACKind)
-                {
-                    case Global.ACKinds.TPWMethod:
-                        vbContent = Const.VBPresenter_SelectedRootWFNode;
-                        controlName = Const.VBVisualGroup_ClassName;
-                        break;
-                    case Global.ACKinds.TPWNodeStart:
-                        vbContent = acVisualWF.ACIdentifier;
-                        controlName = Const.VBVisual_ClassName;
-                        break;
-                    case Global.ACKinds.TPWNodeEnd:
-                    default:
-                        vbContent = acVisualWF.ACIdentifier;
-                        controlName = Const.VBVisual_ClassName;
-                        break;
-                }
-                xmlDesign += string.Format("<vb:{6} VBContent=\"{0}\" Height=\"{1}\" Width=\"{2}\" Canvas.Top=\"{3}\" Canvas.Left=\"{4}\" Name=\"{5}\">\n",
-                    vbContent,       // VBContent
-                    visualInfo.Position.Height,    // Height
-                    visualInfo.Position.Width,     // Width
-                    top,       // Top
-                    left,      // Left
-                    acVisualWF.XName,
-                    controlName);
-
-                switch (acVisualWF.PWACClass.ACKind)
-                {
-                    case Global.ACKinds.TPWMethod:
-                        xmlDesign += "<vb:VBCanvasInGroup>\n";
-                        top = WFLayoutCalculator.TopSpace;
-                        left = WFLayoutCalculator.LeftSpace;
-                        break;
-                    case Global.ACKinds.TPWNodeStart:
-                        top += visualInfo.Position.Height + WFLayoutCalculator.VertSpace;
-                        xmlDesign += "</vb:" + Const.VBVisual_ClassName + ">\n";
-                        break;
-                    default:
-                        xmlDesign += "</vb:" + Const.VBVisual_ClassName + ">\n";
-                        break;
-                }
-            }
-
-            xmlDesign += "</vb:VBCanvasInGroup>\n";
-            xmlDesign += "</vb:" + Const.VBVisualGroup_ClassName + ">\n";
-
-            foreach (var acClassWFEdge in acClassMethod.ACClassWFEdge_ACClassMethod)
-            {
-                xmlDesign += string.Format("<vb:VBEdge VBContent=\"{0}\" VBConnectorSource=\"{1}\" VBConnectorTarget=\"{2}\" x:Name=\"{3}\" {4}></vb:VBEdge>\n",
-                    Const.VBPresenter_SelectedWFContext + "\\" + acClassWFEdge.GetACUrl(acClassMethod),                            // VBContent
-                    acClassWFEdge.SourceACConnector,                      // VBConnectorSource
-                    acClassWFEdge.TargetACConnector,                      // VBConnectorTarget
-                    acClassWFEdge.XName,
-                     "Stroke=\"#FFFFFFFF\" StrokeThickness=\"1.5\" StrokeDashCap=\"Flat\" StrokeDashOffset=\"0\" StrokeEndLineCap=\"Flat\" StrokeLineJoin=\"Miter\" StrokeMiterLimit=\"10\" StrokeStartLineCap=\"Flat\"");
-            }
-
-            xmlDesign += "</vb:VBCanvas>\n";
-
-            acClassMethod.XMLDesign = xmlDesign;
-            return true;
+            return WPFProxyWorkflowMethod.DoInsertRoot(vbWorkflow, methodACClass);
         }
         #endregion
 
@@ -665,7 +591,7 @@ namespace gip.core.manager
             return null;
         }
 
-        ACClassWF CreateGroupClass(ACClassMethod rootACClassMethod, ACClass pwACClass, ACClass paACClass, ACClass parentACClass, IACWorkflowNode groupVisualClass)
+        public ACClassWF CreateGroupClass(ACClassMethod rootACClassMethod, ACClass pwACClass, ACClass paACClass, ACClass parentACClass, IACWorkflowNode groupVisualClass)
         {
             ACClassWF groupClass = CreateNewMethodWF(rootACClassMethod, Database.ContextIPlus, pwACClass, paACClass, null, groupVisualClass);
 
@@ -712,7 +638,7 @@ namespace gip.core.manager
 
                 string outConnName = visualTargetEdge.SourceACClassProperty.ACIdentifier, inConnName = visualTargetEdge.TargetACClassProperty.ACIdentifier;
 
-                AddToVisualChangeList(visualTargetEdge, VBDesigner.LayoutActionType.DeleteEdge, visualTargetEdge.SourceACConnector, visualTargetEdge.TargetACConnector);
+                WPFProxyWorkflowMethod.AddToVisualChangeList(visualTargetEdge, (short)VBDesigner.LayoutActionType.DeleteEdge, visualTargetEdge.SourceACConnector, visualTargetEdge.TargetACConnector);
                 visualTargetEdge.DeleteACObject(Database.ContextIPlus, false);
                 rootACClassMethod.ACClassWFEdge_ACClassMethod.Remove(visualTargetEdge);
 
@@ -825,7 +751,7 @@ namespace gip.core.manager
         public override bool DeleteVBVisual()
         {
             // TODO: VisualChangeList
-            VisualChangeList.Clear();
+            WPFProxyWorkflowMethod.ClearVisualChangeList();
             if (!IsEnabledDeleteVBVisual())
                 return false;
             if (!(CurrentDesign is ACClassMethod))
@@ -879,7 +805,7 @@ namespace gip.core.manager
             {
                 configProvider.DeleteConfigNode(db, acClassWF.ACClassWFID);
             }
-            AddToVisualChangeList(acClassWF, VBDesigner.LayoutActionType.Delete, acClassWF.VisualACUrl);
+            WPFProxyWorkflowMethod.AddToVisualChangeList(acClassWF, (short)VBDesigner.LayoutActionType.Delete, acClassWF.VisualACUrl);
             vbWorkflow.DeleteNode(Database.ContextIPlus, acClassWF, ""/*pwObjectNode.ConfigACUrl*/);
 
             return true;
@@ -898,7 +824,7 @@ namespace gip.core.manager
                 var edge1 = vbVisualWF.GetIncomingWFEdges(vbWorkflow).ElementAt(0);
                 fromClasss.Add(edge1.FromWFNode);
                 fromPoints.Add(edge1.SourceACClassProperty);
-                AddToVisualChangeList(edge1, VBDesigner.LayoutActionType.DeleteEdge, edge1.SourceACConnector, edge1.TargetACConnector);
+                WPFProxyWorkflowMethod.AddToVisualChangeList(edge1, (short)VBDesigner.LayoutActionType.DeleteEdge, edge1.SourceACConnector, edge1.TargetACConnector);
                 vbWorkflow.DeleteEdge(Database.ContextIPlus, edge1);
             }
             // Alle unteren Kanten löschen
@@ -907,7 +833,7 @@ namespace gip.core.manager
                 var edge2 = vbVisualWF.GetOutgoingWFEdges(vbWorkflow).ElementAt(0);
                 toClasss.Add(edge2.ToWFNode);
                 toPoints.Add(edge2.TargetACClassProperty);
-                AddToVisualChangeList(edge2, VBDesigner.LayoutActionType.DeleteEdge, edge2.SourceACConnector, edge2.TargetACConnector);
+                WPFProxyWorkflowMethod.AddToVisualChangeList(edge2, (short)VBDesigner.LayoutActionType.DeleteEdge, edge2.SourceACConnector, edge2.TargetACConnector);
                 vbWorkflow.DeleteEdge(Database.ContextIPlus, edge2);
             }
 
@@ -929,7 +855,7 @@ namespace gip.core.manager
                 if (isFromDesinger)
                 {
                     IACWorkflowNode visualClass = ((IACWorkflowObject)vbEdge.FromWFNode).WFGroup;
-                    AddToVisualChangeList(vbEdge, VBDesigner.LayoutActionType.DeleteEdge, vbEdge.SourceACConnector, vbEdge.TargetACConnector);
+                    WPFProxyWorkflowMethod.AddToVisualChangeList(vbEdge, (short)VBDesigner.LayoutActionType.DeleteEdge, vbEdge.SourceACConnector, vbEdge.TargetACConnector);
                     IACObjectEntity edgeAsEntity = vbEdge as IACObjectEntity;
                     if (edgeAsEntity != null)
                         edgeAsEntity.DeleteACObject(Database.ContextIPlus, false);
@@ -1176,7 +1102,7 @@ namespace gip.core.manager
             acClassWF = ACClassWF.NewACClassWF(database, rootACClassMethod, pwACClass, paACClass, paACClassMethod, groupVisualClass, secondaryKey);
             var acClassDesign = acClassWF.PWACClass.GetDesign(acClassWF.PWACClass, Global.ACUsages.DUControl, Global.ACKinds.DSDesignLayout);
             rootACClassMethod.AddNode(acClassWF);
-            AddToVisualChangeList(acClassWF, VBDesigner.LayoutActionType.Insert, "", "", new Rect(0, 0, acClassDesign.VisualWidth, acClassDesign.VisualHeight));
+            WPFProxyWorkflowMethod.AddToVisualChangeListRectParam(acClassWF, (short)VBDesigner.LayoutActionType.Insert, acClassDesign.VisualWidth, acClassDesign.VisualHeight, "", "");
             return acClassWF;
         }
 
@@ -1217,7 +1143,7 @@ namespace gip.core.manager
                 acClassWFEdgeNew.TargetACClassProperty = acClassWFEdge.TargetACClassProperty;
                 acClassWFEdgeNew.ConnectionType = acClassWFEdge.ConnectionType;
                 Database.ContextIPlus.ACClassWFEdge.Add(acClassWFEdgeNew);
-                AddToVisualChangeList(acClassWFEdgeNew, VBDesigner.LayoutActionType.InsertEdge, acClassWFEdgeNew.SourceACConnector, acClassWFEdgeNew.TargetACConnector);
+                WPFProxyWorkflowMethod.AddToVisualChangeList(acClassWFEdgeNew, (short)VBDesigner.LayoutActionType.InsertEdge, acClassWFEdgeNew.SourceACConnector, acClassWFEdgeNew.TargetACConnector);
             }
 
             return true;
@@ -1234,7 +1160,7 @@ namespace gip.core.manager
         /// <param name="targetVBConnector">The target VB connector.</param>
         public override void CreateEdge(IVBConnector sourceVBConnector, IVBConnector targetVBConnector)
         {
-            VisualChangeList.Clear();
+            WPFProxyWorkflowMethod.ClearVisualChangeList();
             IACWorkflowNode sourceVBVisual = sourceVBConnector.ParentACObject as IACWorkflowNode;
             if (sourceVBVisual == null)
             {
@@ -1348,12 +1274,7 @@ namespace gip.core.manager
 
         protected override void UpdateVisual()
         {
-            base.UpdateVisual();
-            if (VBDesignEditor is VBDesignEditor)
-            {
-                ((VBDesignEditor)VBDesignEditor).SaveToXAML();
-                ((VBDesignEditor)VBDesignEditor).RefreshViewFromXAML();
-            }
+            WPFProxyWorkflowMethod.UpdateVisual();
         }
 
         //private void FillWFDesign(IACObjectDesignWF vbWorkflow, string rootPath, ACClassWF acClassWF, ref string wfDesignXAML)
@@ -1401,7 +1322,7 @@ namespace gip.core.manager
 
         public override IEnumerable<IACObject> GetAvailableTools()
         {
-            return WPFProxy.GetAvailableTools();
+            return WPFProxyWorkflowMethod.GetAvailableTools();
         }
         #endregion
 

@@ -3,14 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections.ObjectModel;
-using System.Windows;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using gip.core.layoutengine;
-using gip.ext.design;
-using gip.ext.designer;
-using System.Windows.Media;
-using System.Windows.Controls;
 
 namespace gip.core.manager
 {
@@ -68,7 +62,7 @@ namespace gip.core.manager
             _AvailableElementList = null;
             _CurrentAvailableTool = null;
             _SelectedAvailableTool = null;
-            _ToolService = null;
+            WPFProxy.DeInitToolService();
             _VBDesignEditor = null;
             _CurrentDesignContext = null;
             return result;
@@ -169,16 +163,6 @@ namespace gip.core.manager
             }
         }
 
-        public VBDesign VBDesign
-        {
-            get
-            {
-                if ((VBDesignControl != null) && (VBDesignControl is VBDesign))
-                    return (VBDesignControl as VBDesign);
-                return null;
-            }
-        }
-
         /// <summary>
         /// When the XAML-Code is loaded, the logical tree is assigned to the Content-Property of the VBDesignControl.
         /// When the user selects a child from this logical tree, which is a IVBContent, then this property contains a reference to it.
@@ -255,12 +239,7 @@ namespace gip.core.manager
         /// <param name="dockingManagerName">Name of the parent docking manager.</param>
         public virtual void ShowDesignManager(string dockingManagerName = "")
         {
-            if (VBDesignControl == null || !(VBDesignControl is VBDesign))
-                return;
-
-            _VBDesignEditor = null;
-            ((VBDesign)VBDesignControl).IsDesignerActive = true;
-            IsDesignMode = true;
+            WPFProxy.ShowDesignManager(dockingManagerName);
         }
 
         /// <summary>
@@ -268,11 +247,7 @@ namespace gip.core.manager
         /// </summary>
         public virtual void HideDesignManager()
         {
-            if (VBDesignControl == null || !(VBDesignControl is VBDesign))
-                return;
-
-            ((VBDesign)VBDesignControl).IsDesignerActive = false;
-            IsDesignMode = false;
+            WPFProxy.HideDesignManager();
         }
 
         private bool _IsDesignMode;
@@ -489,26 +464,7 @@ namespace gip.core.manager
 
                 if (/*IsToolSelection && */ToolService != null)
                 {
-                    ITool newTool = null;
-                    if (_CurrentAvailableElement is DesignManagerToolItem)
-                    {
-                        newTool = (_CurrentAvailableElement as DesignManagerToolItem).CreateControlTool;
-                    }
-                    else if (value != null && value.ACObject != null)
-                    {
-                        bool isTool = true;
-                        if (value.ACObject is NodeInfo)
-                        {
-                            NodeInfo nodeInfo = value.ACObject as NodeInfo;
-                            if (nodeInfo.PAACClass != null && nodeInfo.PWACClass == null && nodeInfo.PAACClass.ACKind == Global.ACKinds.TACApplicationManager)
-                                isTool = false;
-                        }
-                        if (isTool)
-                        {
-                            newTool = DesignManagerControlTool.CreateNewInstance(this, value.ACObject, value.ACUrlRelative);
-                        }
-                    }
-                    (ToolService as IToolService).CurrentTool = newTool ?? (ToolService as IToolService).PointerTool;
+                    WPFProxy.CurrentAvailableElementIsToolSelection(ToolService, _CurrentAvailableElement, value);
                 }
             }
         }
@@ -564,16 +520,7 @@ namespace gip.core.manager
 
                 if (ToolService != null)
                 {
-                    ITool newTool = null;
-                    if (_CurrentAvailableTool is DesignManagerToolItem)
-                    {
-                        newTool = (_CurrentAvailableTool as DesignManagerToolItem).CreateControlTool;
-                    }
-                    else if (value != null && value.ACObject != null)
-                    {
-                        newTool = DesignManagerControlTool.CreateNewInstance(this, value.ACObject, value.ACUrlRelative);
-                    }
-                    (ToolService as IToolService).CurrentTool = newTool ?? (ToolService as IToolService).PointerTool;
+                    WPFProxy.CurrentAvailableElement(ToolService, _CurrentAvailableTool, value);
                 }
             }
         }
@@ -604,8 +551,7 @@ namespace gip.core.manager
 
         public virtual void OnCurrentAvailableToolChanged()
         {
-            if(DesignPanel != null)
-                DesignPanel.Focus();
+            WPFProxy.OnCurrentAvailableToolChanged();
         }
 
         public abstract IEnumerable<IACObject> GetAvailableTools();
@@ -614,29 +560,10 @@ namespace gip.core.manager
         #region Tool Service
         protected void ReloadToolService()
         {
-            IToolService newService = null;
-            if ((this.VBDesignEditor != null)
-                && (this.DesignSurface != null)
-                && (this.DesignSurface.DesignContext != null))
-            {
-                newService = this.DesignSurface.DesignContext.Services.Tool;
-            }
-            bool changed = false;
-            if (_ToolService != newService)
-            {
-                if (_ToolService != null)
-                    _ToolService.CurrentToolChanged -= OnCurrentToolChanged;
-                changed = true;
-                _ToolService = newService;
-            }
-            if (changed && (_ToolService != null))
-            {
-                _ToolService.CurrentToolChanged += OnCurrentToolChanged;
-                OnCurrentToolChanged(null, null);
-            }
+            WPFProxy.ReloadToolService();
         }
 
-        IToolService _ToolService = null;
+        //IToolService _ToolService = null;
 
         /// <summary>
         /// The ToolService is the current graphical tool that the designer works with (Pointer, Line, Rectangle, Circle....)
@@ -646,22 +573,13 @@ namespace gip.core.manager
         {
             get
             {
-                ReloadToolService();
-                return _ToolService;
+                return WPFProxy.GetToolService();
             }
         }
 
         void OnCurrentToolChanged(object sender, EventArgs e)
         {
-            object tagToFind;
-            if (_ToolService.CurrentTool == _ToolService.PointerTool)
-            {
-                tagToFind = null;
-            }
-            else
-            {
-                tagToFind = _ToolService.CurrentTool;
-            }
+            WPFProxy.OnCurrentToolChanged(sender, e);
             /*if (sideBar.ActiveTab.ChoosedItem != null)
             {
                 if (sideBar.ActiveTab.ChoosedItem.Tag == tagToFind)
@@ -695,7 +613,7 @@ namespace gip.core.manager
         #endregion
 
         #region Design Editor
-        IACInteractiveObject _VBDesignEditor;
+        public IACInteractiveObject _VBDesignEditor;
         /// <summary>
         /// The Designer-Control that enables the graphically designing of the gui.
         /// (Manipulates also the XAML-Code)
@@ -712,21 +630,6 @@ namespace gip.core.manager
             }
         }
 
-        public DesignSurface DesignSurface
-        {
-            get
-            {
-                return (this.VBDesignEditor as VBDesignEditor).DesignSurface;
-            }
-        }
-
-        public DesignPanel DesignPanel
-        {
-            get
-            {
-                return this.VBDesignEditor != null ? (this.VBDesignEditor as VBDesignEditor).DesignSurface.DesignPanel : null;
-            }
-        }
 
 #endregion
 
@@ -777,29 +680,6 @@ namespace gip.core.manager
             Move = 2,
             InsertEdge = 3,
             DeleteEdge = 4,
-        }
-
-        public class VisualInfo
-        {
-            public LayoutActionType LayoutAction { get; set; }
-            public IACObject VisualObject { get; set; }
-            public string ACUrl { get; set; }
-            public string ACUrl2 { get; set; }
-            public Rect Position { get; set; }
-        }
-
-        List<VisualInfo> _VisualChangeList = new List<VisualInfo>();
-        public List<VisualInfo> VisualChangeList
-        {
-            get
-            {
-                return _VisualChangeList;
-            }
-        }
-
-        protected void AddToVisualChangeList(IACObject visualObject, LayoutActionType layoutAction = LayoutActionType.Insert, string acUrl = "", string acUrl2 = "", Rect position = new Rect())
-        {
-            _VisualChangeList.Add(new VisualInfo { VisualObject = visualObject, LayoutAction = layoutAction, ACUrl = acUrl, ACUrl2 = acUrl2, Position = position });
         }
 
         protected abstract void UpdateVisual();

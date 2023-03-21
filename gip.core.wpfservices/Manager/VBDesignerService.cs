@@ -50,6 +50,27 @@ namespace gip.core.wpfservices
                 _DesignManagerProxies.Remove(component, out proxy);
         }
 
+        #region VBPresenter
+        VBRoutingLogic _RoutingLogic;
+        public VBRoutingLogic RoutingLogic
+        {
+            get
+            {
+                return _RoutingLogic;
+            }
+        }
+
+        public void GenerateNewRoutingLogic()
+        {
+            _RoutingLogic = new VBRoutingLogic();
+        }
+
+        public object GetVBRoutingLogic()
+        {
+            return RoutingLogic;
+        }
+        #endregion
+
         #region VBPresenterMethod
         public Msg GetPresenterElements(out List<string> result, string xaml)
         {

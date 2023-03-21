@@ -3,16 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using System.Collections;
-using System.Windows;
-using System.Windows.Input;
 using System.Collections.ObjectModel;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using gip.core.layoutengine;
-using gip.ext.design;
-using gip.ext.designer.Services;
-using gip.ext.designer.Controls;
 
 namespace gip.core.manager
 {
@@ -30,7 +23,7 @@ namespace gip.core.manager
             ShowXMLEditor = true;
             PropertyWindowVisible = true;
             LogicalTreeWindowVisible = true;
-            _SaveDesignFromOtherDBContext = false;
+            SaveDesignFromOtherDBContext = false;
             _AutoLoadProperties = false;
             _AutoLoadMethods = false;
             _AutoLoadTexts = false;
@@ -56,7 +49,7 @@ namespace gip.core.manager
                 if (ParentACComponent.Database != null)
                     ParentACComponent.Database.ACChangesExecuted -= ParentACComponentDatabase_ACChangesExecuted;
             }
-            _SaveDesignFromOtherDBContext = false;
+            SaveDesignFromOtherDBContext = false;
             _CurrentAvailableProperty = null;
             _SelectedAvailableProperty = null;
             _CurrentAvailableProperty = null;
@@ -69,6 +62,14 @@ namespace gip.core.manager
         }
 
         #endregion
+
+        protected IVBComponentDesignManagerXAML WPFProxyXAML
+        {
+            get
+            {
+                return WPFProxy as IVBComponentDesignManagerXAML;
+            }
+        }
 
         #region Manager->ObjectLayoutTree
         /// <summary>
@@ -146,7 +147,7 @@ namespace gip.core.manager
 
         public override IEnumerable<IACObject> GetAvailableTools()
         {
-            return WPFProxy.GetAvailableTools();
+            return WPFProxyXAML.GetAvailableTools();
         }
 
         private void InsertObjectLayouts(ObservableCollection<IACObject> objectLayoutEntrys, string layoutGroup, IEnumerable<ACClassDesign> acClassDesigns)
@@ -322,7 +323,7 @@ namespace gip.core.manager
             else if(item.ACIdentifier == "Controls")
             {
                 item.Remove(item.Items.FirstOrDefault());
-                var vbControlList = DesignManagerControlTool.GetVBControlList(this.Database.ContextIPlus).OrderBy(c => c.ACIdentifier);
+                var vbControlList = WPFProxyXAML.DesignManagerToolGetVBControlList(this.Database.ContextIPlus);
                 foreach (ACClass acControlClass in vbControlList)
                 {
                     ACObjectItem toolItem = new ACObjectItem(acControlClass, acControlClass.ACCaption);
@@ -351,7 +352,7 @@ namespace gip.core.manager
         #endregion
 
         #region IACComponentDesignManager
-        private bool _SaveDesignFromOtherDBContext = false;
+        public bool SaveDesignFromOtherDBContext = false;
         public override string DesignXAML
         {
             get
@@ -375,7 +376,7 @@ namespace gip.core.manager
                     // Falls anderer Datenbank-Context
                     if (acClassDesign.GetObjectContext<Database>() != this.Database.ContextIPlus)
                     {
-                        _SaveDesignFromOtherDBContext = true;
+                        SaveDesignFromOtherDBContext = true;
                     }
                 }
                 OnPropertyChanged("DesignXAML");
@@ -384,49 +385,12 @@ namespace gip.core.manager
 
         void ParentComponent_ACSaveChangesExecuted(object sender, EventArgs e)
         {
-            if (VBDesignEditor != null)
-            {
-                ((VBDesignEditor)VBDesignEditor).SaveToXAML();
-            }
-            if (_SaveDesignFromOtherDBContext)
-            {
-                ACClassDesign acClassDesign = (CurrentDesign as ACClassDesign);
-                if (acClassDesign != null)
-                {
-                    acClassDesign.GetObjectContext().ACSaveChanges();
-                }
-            }
-            _SaveDesignFromOtherDBContext = false;
+            WPFProxyXAML.ParentComponent_ACSaveChangesExecuted(sender, e);
         }
 
         private void ParentACComponentDatabase_ACChangesExecuted(object sender, ACChangesEventArgs e)
         {
-            if (e.ChangeType == ACChangesEventArgs.ACChangesType.ACUndoChanges && e.Succeeded)
-            {
-                if (VBDesignEditor != null)
-                {
-                    ((VBDesignEditor)VBDesignEditor).ObjectsInDesignViewChanged = false;
-                }
-            }
-        }
-
-        DesignManagerToolItem GetToolItemOfDropObject(IACInteractiveObject dropObject)
-        {
-            if (dropObject == null)
-                return null;
-            var query = dropObject.ACContentList.Where(c => typeof(DesignManagerToolItem).IsAssignableFrom(c.GetType()));
-            if (query.Any())
-                return query.First() as DesignManagerToolItem;
-            return null;
-        }
-
-        IACEntityProperty GetContentOfACObjectItem(DesignManagerToolItem objectItem)
-        {
-            if (objectItem == null)
-                return null;
-            if (objectItem.ACObject == null)
-                return null;
-            return objectItem.ACObject as IACEntityProperty;
+            WPFProxyXAML.ParentACComponentDatabase_ACChangesExecuted(sender, e);
         }
 
         /// <summary>
@@ -436,7 +400,7 @@ namespace gip.core.manager
         /// <param name="actionArgs">Information about the type of interaction and the source.</param>
         public override void ACActionToTarget(IACInteractiveObject targetVBDataObject, ACActionArgs actionArgs)
         {
-            WPFProxy.ACActionToTargetLogic(targetVBDataObject, actionArgs, out targetVBDataObject, out actionArgs);
+            WPFProxyXAML.ACActionToTargetLogic(targetVBDataObject, actionArgs, out targetVBDataObject, out actionArgs);
             base.ACActionToTarget(targetVBDataObject, actionArgs);
         }
 
@@ -448,19 +412,7 @@ namespace gip.core.manager
         /// <returns><c>true</c> if ACAction can be invoked otherwise, <c>false</c>.</returns>
         public override bool IsEnabledACActionToTarget(IACInteractiveObject targetVBDataObject, ACActionArgs actionArgs)
         {
-            if (targetVBDataObject is IBindingDropHandler)
-            {
-                var query = actionArgs.DropObject.ACContentList.Where(c => c is ACObjectItem);
-                if (query.Any())
-                {
-                    ACObjectItem currentTool = query.First() as ACObjectItem;
-                    if (currentTool.ACObject is ACClassProperty || currentTool.ACObject is ACClassMethod)
-                        return true;
-                }
-                return false;
-            }
-
-            return true;
+            return WPFProxyXAML.IsEnabledACActionToTarget(targetVBDataObject, actionArgs);
         }
 
         
@@ -471,7 +423,7 @@ namespace gip.core.manager
         /// <param name="targetVBConnector">The target VB connector.</param>
         public override void CreateEdge(IVBConnector sourceVBConnector, IVBConnector targetVBConnector)
         {
-            VisualChangeList.Clear();
+            WPFProxyXAML.ClearVisualChangeList();
             string sourceACConnector = sourceVBConnector.ParentVBControl.ACIdentifier + "\\" + sourceVBConnector.VBContent;
             string targetACConnector = targetVBConnector.ParentVBControl.ACIdentifier + "\\" + targetVBConnector.VBContent;
 
@@ -494,7 +446,7 @@ namespace gip.core.manager
             //targetACClassProperty = targetVBVisual.MyPoint(targetVBConnector.VBContent);
 
             //WFCreateWFEdge(sourceVBVisual, sourceACClassProperty, targetVBVisual, targetACClassProperty);
-            AddToVisualChangeList(null, VBDesigner.LayoutActionType.InsertEdge, sourceACConnector, targetACConnector);
+            WPFProxyXAML.AddToVisualChangeList(null, (short)VBDesigner.LayoutActionType.InsertEdge, sourceACConnector, targetACConnector);
 
 
             UpdateVisual();
@@ -578,7 +530,7 @@ namespace gip.core.manager
                         return;
 
                     ACClassDesign acClassDesign = CurrentDesign as ACClassDesign;
-                    XElement x1 = Layoutgenerator.LoadLayoutAsXElement(acClassDesign.XMLDesign);
+                    XElement x1 = WPFProxyXAML.LayoutGeneratorLoadLayoutAsXElement(acClassDesign.XMLDesign);
                     //x1.Elements();
 
                     //CurrentACVisualItem = _ACProjectManager.NewACVisualItem(CurrentVisualisation);
@@ -741,13 +693,7 @@ namespace gip.core.manager
                 _CurrentAvailableElementClicked = value;
                 if ((ToolService != null) && (CurrentAvailableElement != null))
                 {
-                    if (CurrentAvailableElement is DesignManagerToolItem)
-                    {
-                        ITool newTool = null;
-                        newTool = (CurrentAvailableElement as DesignManagerToolItem).CreateControlTool;
-                        if ((newTool != null) && (ToolService as IToolService).CurrentTool != newTool)
-                            (ToolService as IToolService).CurrentTool = newTool;
-                    }
+                    WPFProxyXAML.CurrentAvailableElementClicked(ToolService, CurrentAvailableElement);
                 }
             }
         }
@@ -794,18 +740,7 @@ namespace gip.core.manager
                 }
                 if (ToolService != null)
                 {
-                    ITool newTool = null;
-                    if (_CurrentAvailableProperty is DesignManagerToolItem)
-                    {
-                        newTool = (_CurrentAvailableProperty as DesignManagerToolItem).CreateControlTool;
-                    }
-                    else if (value != null && value.ACObject != null)
-                    {
-                        newTool = DesignManagerControlTool.CreateNewInstance(this, _CurrentAvailableProperty.ACObject, _CurrentAvailableProperty.ACUrlRelative);
-                        //DesignManagerToolItem designManagerToolItem = new DesignManagerToolItem(_CurrentAvailableProperty.ACObject, _CurrentAvailableProperty.ACCaption, , this);
-                        //newTool = designManagerToolItem.CreateControlTool;
-                    }
-                    (ToolService as IToolService).CurrentTool = newTool ?? (ToolService as IToolService).PointerTool;
+                    WPFProxyXAML.CurrentAvailableElement(ToolService, _CurrentAvailableProperty, value);
                 }
             }
         }
@@ -823,13 +758,7 @@ namespace gip.core.manager
                 _CurrentAvailablePropertyClicked = value;
                 if ((ToolService != null) && (_CurrentAvailableProperty != null))
                 {
-                    if (_CurrentAvailableProperty is DesignManagerToolItem)
-                    {
-                        ITool newTool = null;
-                        newTool = (_CurrentAvailableProperty as DesignManagerToolItem).CreateControlTool;
-                        if ((newTool != null) && (ToolService as IToolService).CurrentTool != newTool)
-                            (ToolService as IToolService).CurrentTool = newTool;
-                    }
+                    WPFProxyXAML.CurrentAvailableElementClicked(ToolService, _CurrentAvailableProperty);
                 }
             }
         }
@@ -891,18 +820,7 @@ namespace gip.core.manager
                 }
                 if (ToolService != null)
                 {
-                    ITool newTool = null;
-                    if (_CurrentAvailableMethod is DesignManagerToolItem)
-                    {
-                        newTool = (_CurrentAvailableMethod as DesignManagerToolItem).CreateControlTool;
-                    }
-                    else if (value != null && value.ACObject != null)
-                    {
-                        newTool = DesignManagerControlTool.CreateNewInstance(this, _CurrentAvailableMethod.ACObject, _CurrentAvailableMethod.ACUrlRelative);
-//                        DesignManagerToolItem designManagerToolItem = new DesignManagerToolItem(_CurrentAvailableMethod.ACObject, _CurrentAvailableMethod.ACCaption, _CurrentAvailableMethod.ACUrlRelative, this);
-//                        newTool = designManagerToolItem.CreateControlTool;
-                    }
-                    (ToolService as IToolService).CurrentTool = newTool ?? (ToolService as IToolService).PointerTool;
+                    WPFProxyXAML.CurrentAvailableElement(ToolService, _CurrentAvailableMethod, value);
                 }
             }
         }
@@ -920,13 +838,7 @@ namespace gip.core.manager
                 _CurrentAvailableMethodClicked = value;
                 if ((ToolService != null) && (_CurrentAvailableMethod != null))
                 {
-                    if (_CurrentAvailableMethod is DesignManagerToolItem)
-                    {
-                        ITool newTool = null;
-                        newTool = (_CurrentAvailableMethod as DesignManagerToolItem).CreateControlTool;
-                        if ((newTool != null) && (ToolService as IToolService).CurrentTool != newTool)
-                            (ToolService as IToolService).CurrentTool = newTool;
-                    }
+                    WPFProxyXAML.CurrentAvailableElementClicked(ToolService, _CurrentAvailableMethod);
                 }
             }
         }
@@ -989,18 +901,7 @@ namespace gip.core.manager
 
                 if (ToolService != null)
                 {
-                    ITool newTool = null;
-                    if (_CurrentAvailableText is DesignManagerToolItem)
-                    {
-                        newTool = (_CurrentAvailableText as DesignManagerToolItem).CreateControlTool;
-                    }
-                    else if (value != null && value.ACObject != null)
-                    {
-                        newTool = DesignManagerControlTool.CreateNewInstance(this, _CurrentAvailableText.ACObject, _CurrentAvailableText.ACUrlRelative);
-                        //DesignManagerToolItem designManagerToolItem = new DesignManagerToolItem(_CurrentAvailableText.ACObject, _CurrentAvailableText.ACCaption, , this);
-                        //newTool = designManagerToolItem.CreateControlTool;
-                    }
-                    (ToolService as IToolService).CurrentTool = newTool ?? (ToolService as IToolService).PointerTool;
+                    WPFProxyXAML.CurrentAvailableElement(ToolService, _CurrentAvailableText, value);
                 }
             }
         }
@@ -1018,13 +919,7 @@ namespace gip.core.manager
                 _CurrentAvailableTextClicked = value;
                 if ((ToolService != null) && (_CurrentAvailableText != null))
                 {
-                    if (_CurrentAvailableText is DesignManagerToolItem)
-                    {
-                        ITool newTool = null;
-                        newTool = (_CurrentAvailableText as DesignManagerToolItem).CreateControlTool;
-                        if ((newTool != null) && (ToolService as IToolService).CurrentTool != newTool)
-                            (ToolService as IToolService).CurrentTool = newTool;
-                    }
+                    WPFProxyXAML.CurrentAvailableElementClicked(ToolService, _CurrentAvailableText);
                 }
             }
         }
@@ -1103,14 +998,12 @@ namespace gip.core.manager
         {
             if (!IsEnabledDesignerRotateR90())
                 return;
-            DesignSurface.DesignerRotateR90();
+            WPFProxyXAML.DesignerRotateR90();
         }
 
         public bool IsEnabledDesignerRotateR90()
         {
-            if (VBDesignEditor == null || DesignSurface == null)
-                return false;
-            return DesignSurface.IsEnabledDesignerRotateR90();
+            return WPFProxyXAML.IsEnabledDesignerRotateR90();
         }
 
         [ACMethodInfo("", "en{'Flip horizontal'}de{'Horizontal spiegeln'}", 9999)]
@@ -1118,14 +1011,12 @@ namespace gip.core.manager
         {
             if (!IsEnabledDesignerFlipHorz())
                 return;
-            DesignSurface.DesignerFlipHorz();
+            WPFProxyXAML.DesignerFlipHorz();
         }
 
         public bool IsEnabledDesignerFlipHorz()
         {
-            if (VBDesignEditor == null || DesignSurface == null)
-                return false;
-            return DesignSurface.IsEnabledDesignerFlipHorz();
+            return WPFProxyXAML.IsEnabledDesignerFlipHorz();
         }
 
         [ACMethodInfo("", "en{'Flip vertical'}de{'Vertikal spiegeln'}", 9999)]
@@ -1133,14 +1024,12 @@ namespace gip.core.manager
         {
             if (!IsEnabledDesignerFlipVert())
                 return;
-            DesignSurface.DesignerFlipVert();
+            WPFProxyXAML.DesignerFlipVert();
         }
 
         public bool IsEnabledDesignerFlipVert()
         {
-            if (VBDesignEditor == null || DesignSurface == null)
-                return false;
-            return DesignSurface.IsEnabledDesignerFlipVert();
+            return WPFProxyXAML.IsEnabledDesignerFlipVert();
         }
 
         [ACMethodInfo("", "en{'Reset transformation'}de{'Reset Transformation'}", 9999)]
@@ -1148,14 +1037,12 @@ namespace gip.core.manager
         {
             if (!IsEnabledDesignerResetTransform())
                 return;
-            DesignSurface.DesignerResetTransform();
+            WPFProxyXAML.DesignerResetTransform();
         }
 
         public bool IsEnabledDesignerResetTransform()
         {
-            if (VBDesignEditor == null || DesignSurface == null)
-                return false;
-            return DesignSurface.IsEnabledDesignerResetTransform();
+            return WPFProxyXAML.IsEnabledDesignerResetTransform();
         }
         #endregion
 
@@ -1310,9 +1197,9 @@ namespace gip.core.manager
         /// </summary>
         protected override void UpdateVisual()
         {
-            if (WPFProxy == null)
+            if (WPFProxyXAML == null)
                 throw new MemberAccessException("DesignerService is null. This method could only be used from WPF-applications");
-            WPFProxy.UpdateVisual();
+            WPFProxyXAML.UpdateVisual();
         }
 
         #endregion

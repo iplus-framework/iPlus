@@ -15,10 +15,12 @@ using static gip.core.manager.VBDesigner;
 using System.Windows.Media;
 using System.ComponentModel.Design;
 using gip.ext.designer.Services;
+using System.Net;
+using System.Xml.Linq;
 
 namespace gip.core.wpfservices
 {
-    public class VBDesignerXAMLProxy : VBDesignerProxy
+    public class VBDesignerXAMLProxy : VBDesignerProxy, IVBComponentDesignManagerXAML
     {
         public VBDesignerXAMLProxy(IACComponent component) : base(component)
         {
@@ -35,15 +37,15 @@ namespace gip.core.wpfservices
             ChangeGroup changeGroup = null;
 
             // Einfügen von WFEdge (Vor WF, da diese für die Layoutberechnung benötigt werden
-            foreach (var change in vbDesigner.VisualChangeList)
+            foreach (var change in VisualChangeList)
             {
-                if (change.LayoutAction != VBDesigner.LayoutActionType.InsertEdge) continue;
+                if (change.LayoutAction != LayoutActionType.InsertEdge) continue;
                 if (changeGroup == null)
                 {
-                    changeGroup = vbDesigner.DesignSurface.DesignContext.OpenGroup("Cut " + changedItems.Count + " elements", changedItems);
+                    changeGroup = DesignSurface.DesignContext.OpenGroup("Cut " + changedItems.Count + " elements", changedItems);
                 }
 
-                CreateVBEdgeDesignItem(change, vbDesigner.DesignSurface.DesignContext);
+                CreateVBEdgeDesignItem(change, DesignSurface.DesignContext);
             }
 
             if (changeGroup != null)
@@ -89,7 +91,122 @@ namespace gip.core.wpfservices
             return objectLayoutEntrys;
         }
 
-        public new void ACActionToTargetLogic(IACInteractiveObject oldTargetVBDataObject, ACActionArgs oldActionArgs, out IACInteractiveObject targetVBDataObject, out ACActionArgs actionArgs)
+        #region Available Elements
+
+        public void CurrentAvailableElementClicked(object ToolService, ACObjectItem _CurrentAvailableProperty)
+        {
+            if (_CurrentAvailableProperty is DesignManagerToolItem)
+            {
+                ITool newTool = null;
+                newTool = (_CurrentAvailableProperty as DesignManagerToolItem).CreateControlTool;
+                if ((newTool != null) && (ToolService as IToolService).CurrentTool != newTool)
+                    (ToolService as IToolService).CurrentTool = newTool;
+            }
+        }
+
+        public override void CurrentAvailableElement(object ToolService, ACObjectItem _CurrentAvailableProperty, ACObjectItem value)
+        {
+            VBDesignerXAML vbDesigner = Designer<VBDesignerXAML>();
+            if (vbDesigner == null)
+                return;
+
+            ITool newTool = null;
+            if (_CurrentAvailableProperty is DesignManagerToolItem)
+            {
+                newTool = (_CurrentAvailableProperty as DesignManagerToolItem).CreateControlTool;
+            }
+            else if (value != null && value.ACObject != null)
+            {
+                newTool = DesignManagerControlTool.CreateNewInstance(vbDesigner, _CurrentAvailableProperty.ACObject, _CurrentAvailableProperty.ACUrlRelative);
+                //DesignManagerToolItem designManagerToolItem = new DesignManagerToolItem(_CurrentAvailableProperty.ACObject, _CurrentAvailableProperty.ACCaption, , this);
+                //newTool = designManagerToolItem.CreateControlTool;
+            }
+            (ToolService as IToolService).CurrentTool = newTool ?? (ToolService as IToolService).PointerTool;
+        }
+
+        #endregion
+
+        #region DesignMethods
+
+        public void DesignerRotateR90()
+        {
+            DesignSurface.DesignerRotateR90();
+        }
+
+        public bool IsEnabledDesignerRotateR90()
+        {
+            VBDesignerXAML vbDesigner = Designer<VBDesignerXAML>();
+            if (vbDesigner == null)
+                return false;
+
+            if (vbDesigner.VBDesignEditor == null || DesignSurface == null)
+                return false;
+            return DesignSurface.IsEnabledDesignerRotateR90();
+        }
+
+        public void DesignerFlipHorz()
+        {
+            VBDesignerXAML vbDesigner = Designer<VBDesignerXAML>();
+            if (vbDesigner == null)
+                return;
+
+            if (vbDesigner.VBDesignEditor == null || DesignSurface == null)
+                return;
+
+            DesignSurface.DesignerFlipHorz();
+        }
+
+        public void DesignerFlipVert()
+        {
+            DesignSurface.DesignerFlipVert();
+        }
+
+        public bool IsEnabledDesignerFlipHorz()
+        {
+            VBDesignerXAML vbDesigner = Designer<VBDesignerXAML>();
+            if (vbDesigner == null)
+                return false;
+
+            if (vbDesigner.VBDesignEditor == null || DesignSurface == null)
+                return false;
+
+            return DesignSurface.IsEnabledDesignerFlipHorz();
+        }
+
+        public bool IsEnabledDesignerFlipVert()
+        {
+            VBDesignerXAML vbDesigner = Designer<VBDesignerXAML>();
+            if (vbDesigner == null)
+                return false;
+
+            if (vbDesigner.VBDesignEditor == null || DesignSurface == null)
+                return false;
+
+            return DesignSurface.IsEnabledDesignerFlipVert();
+        }
+
+        public void DesignerResetTransform()
+        {
+            DesignSurface.DesignerResetTransform();
+        }
+
+        public bool IsEnabledDesignerResetTransform()
+        {
+            VBDesignerXAML vbDesigner = Designer<VBDesignerXAML>();
+            if (vbDesigner == null)
+                return false;
+
+            if (vbDesigner.VBDesignEditor == null || DesignSurface == null)
+                return false;
+
+            return DesignSurface.IsEnabledDesignerResetTransform();
+        }
+
+        #endregion
+
+        #region IACComponentDesignManager
+
+        public override void ACActionToTargetLogic(IACInteractiveObject oldTargetVBDataObject, ACActionArgs oldActionArgs, out IACInteractiveObject targetVBDataObject, out ACActionArgs actionArgs)
         {
             actionArgs = oldActionArgs;
             targetVBDataObject = oldTargetVBDataObject;
@@ -129,6 +246,90 @@ namespace gip.core.wpfservices
                     }
                 }
             }
+        }
+
+        public bool IsEnabledACActionToTarget(IACInteractiveObject targetVBDataObject, ACActionArgs actionArgs)
+        {
+            if (targetVBDataObject is IBindingDropHandler)
+            {
+                var query = actionArgs.DropObject.ACContentList.Where(c => c is ACObjectItem);
+                if (query.Any())
+                {
+                    ACObjectItem currentTool = query.First() as ACObjectItem;
+                    if (currentTool.ACObject is ACClassProperty || currentTool.ACObject is ACClassMethod)
+                        return true;
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        public void ParentComponent_ACSaveChangesExecuted(object sender, EventArgs e)
+        {
+            VBDesignerXAML vbDesigner = Designer<VBDesignerXAML>();
+            if (vbDesigner == null)
+                return;
+
+            if (vbDesigner.VBDesignEditor != null)
+            {
+                ((VBDesignEditor)vbDesigner.VBDesignEditor).SaveToXAML();
+            }
+            if (vbDesigner.SaveDesignFromOtherDBContext)
+            {
+                ACClassDesign acClassDesign = (vbDesigner.CurrentDesign as ACClassDesign);
+                if (acClassDesign != null)
+                {
+                    acClassDesign.GetObjectContext().ACSaveChanges();
+                }
+            }
+            vbDesigner.SaveDesignFromOtherDBContext = false;
+        }
+
+        public void ParentACComponentDatabase_ACChangesExecuted(object sender, ACChangesEventArgs e)
+        {
+            VBDesignerXAML vbDesigner = Designer<VBDesignerXAML>();
+            if (vbDesigner == null)
+                return;
+
+            if (e.ChangeType == ACChangesEventArgs.ACChangesType.ACUndoChanges && e.Succeeded)
+            {
+                if (vbDesigner.VBDesignEditor != null)
+                {
+                    ((VBDesignEditor)vbDesigner.VBDesignEditor).ObjectsInDesignViewChanged = false;
+                }
+            }
+        }
+
+        DesignManagerToolItem GetToolItemOfDropObject(IACInteractiveObject dropObject)
+        {
+            if (dropObject == null)
+                return null;
+            var query = dropObject.ACContentList.Where(c => typeof(DesignManagerToolItem).IsAssignableFrom(c.GetType()));
+            if (query.Any())
+                return query.First() as DesignManagerToolItem;
+            return null;
+        }
+
+        IACEntityProperty GetContentOfACObjectItem(DesignManagerToolItem objectItem)
+        {
+            if (objectItem == null)
+                return null;
+            if (objectItem.ACObject == null)
+                return null;
+            return objectItem.ACObject as IACEntityProperty;
+        }
+
+        #endregion
+
+        public IEnumerable<ACClass> DesignManagerToolGetVBControlList(Database context)
+        {
+            return DesignManagerControlTool.GetVBControlList(context).OrderBy(c => c.ACIdentifier);
+        }
+
+        public XElement LayoutGeneratorLoadLayoutAsXElement(string xmlLayout)
+        {
+            return Layoutgenerator.LoadLayoutAsXElement(xmlLayout);
         }
     }
 }

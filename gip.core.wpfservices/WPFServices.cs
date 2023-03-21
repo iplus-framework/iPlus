@@ -1,5 +1,6 @@
 using gip.core.datamodel;
 using gip.core.layoutengine.Helperclasses;
+using gip.core.wpfservices.Manager;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +12,9 @@ namespace gip.core.wpfservices
     {
         VBDesignerService _VBDesignerService = new VBDesignerService();
         public IVBDesignerService DesignerService { get { return _VBDesignerService; } }
+
+        WFLayoutCalculatorService _WFLayoutCalculatorService = new WFLayoutCalculatorService();
+        public IVBWFLayoutCalculatorService WFLayoutCalculatorService { get { return _WFLayoutCalculatorService; } }
 
         VBFlowDocService _VBFlowdocService = new VBFlowDocService();
         public IVBFlowDocService FlowDocService { get { return _VBFlowdocService; } }

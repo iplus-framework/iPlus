@@ -4,10 +4,6 @@ using System.Linq;
 using System.Text;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using gip.ext.design;
-using System.Windows;
-using System.Windows.Media;
-using gip.core.layoutengine;
 
 namespace gip.core.manager
 {
@@ -25,7 +21,9 @@ namespace gip.core.manager
         public VBPresenter(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            GenerateNewRoutingLogic();
+            if (Root == null || Root.WPFServices == null || Root.WPFServices.DesignerService == null)
+                throw new MemberAccessException("DesignerService is null");
+            Root.WPFServices.DesignerService.GenerateNewRoutingLogic();
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -341,18 +339,9 @@ namespace gip.core.manager
         //}
         #endregion
 
-        VBRoutingLogic _RoutingLogic;
-        public VBRoutingLogic RoutingLogic
+        public object GetRoutingLogic()
         {
-            get
-            {
-                return _RoutingLogic;
-            }
-        }
-
-        protected virtual void GenerateNewRoutingLogic()
-        {
-            _RoutingLogic = new VBRoutingLogic();
+            return Root.WPFServices.DesignerService.GetVBRoutingLogic();
         }
     }
 }
