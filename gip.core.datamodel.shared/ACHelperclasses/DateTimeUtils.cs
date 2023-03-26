@@ -30,6 +30,7 @@ namespace gip.core.datamodel
                 DateTime dt = DateTime.UtcNow;
                 TimeZoneInfo localZone = TimeZoneInfo.Local;
                 dt = dt.Add(localZone.BaseUtcOffset);
+                dt = DateTime.SpecifyKind(dt, DateTimeKind.Local);
                 return dt;
             }
         }

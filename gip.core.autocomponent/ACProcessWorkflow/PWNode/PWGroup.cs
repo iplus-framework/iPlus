@@ -944,6 +944,17 @@ namespace gip.core.autocomponent
                 return query.First() as PWNodeStart;
             }
         }
+
+        public PWNodeEnd PWNodeEnd
+        {
+            get
+            {
+                var query = this.ACComponentChilds.Where(c => c is PWNodeEnd);
+                if (query.Count() != 1)
+                    return null;
+                return query.First() as PWNodeEnd;
+            }
+        }
         #endregion
 
         #endregion

@@ -384,12 +384,12 @@ namespace gip.core.autocomponent
             bool viewTimeChanged = false;
             if (start != StartTimeView.ValueT)
             {
-                StartTimeView.ValueT = StartTime.ValueT;
+                StartTimeView.ValueT = start;
                 viewTimeChanged = true;
             }
             if (end != EndTimeView.ValueT)
             {
-                EndTimeView.ValueT = EndTime.ValueT;
+                EndTimeView.ValueT = end;
                 viewTimeChanged = true;
             }
             if (viewTimeChanged)
