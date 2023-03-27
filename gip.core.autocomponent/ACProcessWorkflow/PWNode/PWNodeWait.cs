@@ -79,6 +79,8 @@ namespace gip.core.autocomponent
             Dictionary<string, string> paramTranslation = new Dictionary<string, string>();
             method.ParameterValueList.Add(new ACValue("Duration", typeof(TimeSpan), TimeSpan.Zero, Global.ParamOption.Required));
             paramTranslation.Add("Duration", "en{'Waitingtime'}de{'Wartezeit'}");
+            method.ParameterValueList.Add(new ACValue("ACUrlCmdOnEnd", typeof(string), null, Global.ParamOption.Optional));
+            paramTranslation.Add("ACUrlCmdOnEnd", "en{'ACUrlCommand on end'}de{'ACUrlCommand am Ende'}");
             var wrapper = new ACMethodWrapper(method, "en{'Wait'}de{'Warten'}", typeof(PWNodeWait), paramTranslation, null);
             ACMethod.RegisterVirtualMethod(typeof(PWNodeWait), ACStateConst.SMStarting, wrapper);
             //ACMethod.RegisterVirtualMethod(typeof(PWNodeWait), PABaseState.SMStarting, method, "en{'Wait'}de{'Warten'}", null);
@@ -166,6 +168,22 @@ namespace gip.core.autocomponent
                 return TimeSpan.Zero;
             }
         }
+
+        public string ACUrlCmdOnEnd
+        {
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("ACUrlCmdOnEnd");
+                    if (acValue != null)
+                        return acValue.ParamAsString;
+                }
+                return null;
+            }
+        }
+
 
         public override bool MustBeInsidePWGroup
         {
@@ -278,7 +296,15 @@ namespace gip.core.autocomponent
         public override void SMCompleted()
         {
             UnSubscribeToTimerCycle();
+            OnACUrlCmdOnEnd();
             base.SMCompleted();
+        }
+
+        protected virtual void OnACUrlCmdOnEnd()
+        {
+            string cmd = ACUrlCmdOnEnd;
+            if (!String.IsNullOrEmpty(cmd))
+                ACUrlCommand(cmd);
         }
 
         public override void Pause()
