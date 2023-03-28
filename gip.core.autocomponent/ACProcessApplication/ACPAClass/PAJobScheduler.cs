@@ -96,11 +96,28 @@ namespace gip.core.autocomponent
             }
         }
 
-        [ACPropertyBindingSource(202, "", "en{'date of last run'}de{'Datum letzte Ausführung'}", "", true, true)]
+        private DateTime _LastRunDateSaved;
+        [ACPropertyInfo(true, 213, "Configuration", "en{'date of last run'}de{'Datum letzte Ausführung'}", "", true)]
+        public DateTime LastRunDateSaved
+        {
+            get
+            {
+                return _LastRunDateSaved;
+            }
+            set
+            {
+                _LastRunDateSaved = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [ACPropertyBindingSource(202, "", "en{'date of last run'}de{'Datum letzte Ausführung'}", "", true, false)]
         public IACContainerTNet<DateTime> LastRunDate { get; set; }
 
         [ACPropertyBindingSource(203, "", "en{'date of next run'}de{'Datum nächste Ausführung'}", "", true, false)]
         public IACContainerTNet<DateTime> NextRunDate { get; set; }
+
+        private int _CycleCounter = 0;
 
         public static new Dictionary<string, ACEventArgs> SVirtualEventArgs
         {
@@ -146,7 +163,9 @@ namespace gip.core.autocomponent
 
         public override bool ACPostInit()
         {
-            if (LastRunDate.ValueT == null || LastRunDate.ValueT.Year < 1900)
+            if (LastRunDateSaved > DateTime.MinValue)
+                LastRunDate.ValueT = LastRunDateSaved;
+            else
                 LastRunDate.ValueT = DateTime.Now;
             StartScheduling();
             return base.ACPostInit();
@@ -234,6 +253,7 @@ namespace gip.core.autocomponent
         [ACMethodInteraction("Watching", "en{'Stop scheduling'}de{'Stoppe Zeitplanung'}", 201, true)]
         public void StopScheduling()
         {
+            LastRunDateSaved = LastRunDate.ValueT;
             UnSubscribeToProjectWorkCycle10();
             OnStopScheduling();
         }
@@ -342,6 +362,7 @@ namespace gip.core.autocomponent
 
         protected virtual void objectManager_ProjectWorkCycle10(object sender, EventArgs e)
         {
+            _CycleCounter++;
             DateTime now = DateTime.Now;
             if (now >= NextRunDate.ValueT)
             {
@@ -355,6 +376,11 @@ namespace gip.core.autocomponent
                 {
                     RaiseJobEvent();
                 }
+            }
+            if (_CycleCounter > 60)
+            {
+                _CycleCounter = 0;
+                LastRunDateSaved = LastRunDate.ValueT;
             }
         }
 
