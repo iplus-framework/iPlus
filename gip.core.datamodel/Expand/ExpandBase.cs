@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace gip.core.datamodel
 {
-    [ACClassInfo(Const.PackName_VarioManufacturing, "en{'ExpandBase'}de{'ExpandBase'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
+    [ACClassInfo(Const.PackName_VarioMaterial, "en{'ExpandBase'}de{'ExpandBase'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, false, true)]
     public abstract class ExpandBase : IVBDataCheckbox, IACContainerWithItems, IACObject, INotifyPropertyChanged
     {
 
