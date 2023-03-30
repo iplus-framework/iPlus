@@ -15,7 +15,7 @@ using System.Xaml;
 
 namespace gip.core.reporthandler
 {
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPrintServerBase'}de{'ACPrintServerBase'}", Global.ACKinds.TACApplicationManager, Global.ACStorableTypes.Required, false, "", false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPrintServerBase'}de{'ACPrintServerBase'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, "", false)]
     public abstract class ACPrintServerBase : PAClassAlarmingBase
     {
 

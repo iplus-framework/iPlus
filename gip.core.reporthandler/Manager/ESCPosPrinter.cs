@@ -12,7 +12,7 @@ using System.Text;
 
 namespace gip.core.reporthandler
 {
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'ESCPosPrinter'}de{'ESCPosPrinter'}", Global.ACKinds.TACDAClass, Global.ACStorableTypes.Required, false, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'ESCPosPrinter'}de{'ESCPosPrinter'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, false)]
     public class ESCPosPrinter : ACPrintServerBase
     {
 
