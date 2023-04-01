@@ -234,6 +234,7 @@
     <Compile Include="ACProcessWorkflow\PWNode\IPWNodeDeliverMaterial.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\IPWNodeReceiveMaterial.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWBaseInOut.cs" />
+    <Compile Include="ACProcessWorkflow\PWNode\PWNodeAndCount.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeExAnd.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeProcessWorkflow.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeUserAck.cs" />
@@ -448,6 +449,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="VBControlScripts\2023-02-07 12-04_ihrastinski.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="VBControlScripts\2023-03-31 17-34_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
