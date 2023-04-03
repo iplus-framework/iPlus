@@ -1,0 +1,127 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0-windows</TargetFramework>
+		<OutputType>Library</OutputType>
+		<WarningLevel>4</WarningLevel>
+		<SccProjectName>SAK</SccProjectName>
+		<SccLocalPath>SAK</SccLocalPath>
+		<SccAuxPath>SAK</SccAuxPath>
+		<SccProvider>SAK</SccProvider>
+		<PublishUrl>publish\</PublishUrl>
+		<Install>true</Install>
+		<InstallFrom>Disk</InstallFrom>
+		<UpdateEnabled>false</UpdateEnabled>
+		<UpdateMode>Foreground</UpdateMode>
+		<UpdateInterval>7</UpdateInterval>
+		<UpdateIntervalUnits>Days</UpdateIntervalUnits>
+		<UpdatePeriodically>false</UpdatePeriodically>
+		<UpdateRequired>false</UpdateRequired>
+		<MapFileExtensions>true</MapFileExtensions>
+		<ApplicationRevision>0</ApplicationRevision>
+		<ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+		<IsWebBootstrapper>false</IsWebBootstrapper>
+		<UseApplicationTrust>false</UseApplicationTrust>
+		<BootstrapperEnabled>true</BootstrapperEnabled>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<UseWindowsForms>true</UseWindowsForms>
+		<UseWPF>true</UseWPF>
+		<ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+		<BaseOutputPath>..\bin\</BaseOutputPath>
+	</PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="FlowDoc\Document\Chart\**" />
+    <EmbeddedResource Remove="FlowDoc\Document\Chart\**" />
+    <None Remove="FlowDoc\Document\Chart\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="CodeCompletionXsdGenerator.cs" />
+    <Compile Remove="FlowDocEditor\Editor\Dialogs\LoadFileDialog.xaml.cs" />
+    <Compile Remove="FlowDocEditor\Editor\Dialogs\MessageBoxDialog.xaml.cs" />
+    <Compile Remove="FlowDocEditor\Editor\Dialogs\SaveFileDialog.xaml.cs" />
+    <Compile Remove="FlowDocEditor\Editor\Dialogs\StartupDialog.xaml.cs" />
+    <Compile Remove="FlowDoc\InlineBoolValue.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="FlowDocEditor\Editor\Dialogs\Edit\FindDialog.xaml" />
+    <None Remove="FlowDocEditor\Editor\Dialogs\Edit\GoToDialog.xaml" />
+    <None Remove="FlowDocEditor\Editor\Dialogs\Edit\ReplaceDialog.xaml" />
+    <None Remove="FlowDocEditor\Editor\Dialogs\LoadFileDialog.xaml" />
+    <None Remove="FlowDocEditor\Editor\Dialogs\MessageBoxDialog.xaml" />
+    <None Remove="FlowDocEditor\Editor\Dialogs\SaveFileDialog.xaml" />
+    <None Remove="FlowDocEditor\Editor\Dialogs\StartupDialog.xaml" />
+    <None Remove="FlowDocEditor\Editor\DocEditor\TabHeader.xaml" />
+    <None Remove="FlowDocEditor\Editor\FlowDocEditor.xaml" />
+    <None Remove="FlowDocEditor\Editor\Images\DocumentEditorSplash.png" />
+    <None Remove="FlowDocEditor\Editor\Images\editor.png" />
+    <None Remove="FlowDocEditor\Editor\Images\rtf32.ico" />
+    <None Remove="FlowDocEditor\Editor\Images\txt32.ico" />
+    <None Remove="FlowDocEditor\Editor\Images\xaml32.ico" />
+    <None Remove="FlowDoc\VBReportEditor.xaml" />
+    <None Remove="VBXMLEditorSchemas\VBRSchema.xsd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="FlowDocEditor\Editor\Dialogs\LoadFileDialog.xaml" />
+    <Page Remove="FlowDocEditor\Editor\Dialogs\MessageBoxDialog.xaml" />
+    <Page Remove="FlowDocEditor\Editor\Dialogs\SaveFileDialog.xaml" />
+    <Page Remove="FlowDocEditor\Editor\Dialogs\StartupDialog.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="VBXMLEditorSchemas\VBRSchema.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ESCPOS" Version="1.2.3" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="System.Reflection.Context" Version="6.0.0" />
+  </ItemGroup>
+
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj" />
+    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
+    <ProjectReference Include="..\gip.core.layoutengine\gip.core.layoutengine.csproj" />
+    <ProjectReference Include="..\gip.core.reporthandler\gip.core.reporthandler.csproj" />
+    <ProjectReference Include="..\gip.ext.fluent\gip.ext.fluent.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BarcodeStandard">
+      <HintPath>..\..\..\packages\barcodelib\2.4.0\lib\netstandard2.0\BarcodeStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="QRCoder">
+      <HintPath>..\..\..\packages\QRCoder.1.4.3\lib\net6.0-windows7.0\QRCoder.dll</HintPath>
+    </Reference>
+    <Reference Include="QRCoder.Xaml">
+      <HintPath>..\..\..\packages\qrcoder.xaml\1.4.3\lib\net6.0-windows7.0\QRCoder.Xaml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Speech">
+      <HintPath>..\..\..\packages\system.speech\6.0.0\lib\net6.0\System.Speech.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="CodeCompletionXsdGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CodeCompletionXsdGenerator.txt</LastGenOutput>
+    </None>
+    <None Update="CodeCompletionXsdGenerator.txt">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CodeCompletionXsdGenerator.tt</DependentUpon>
+    </None>
+  </ItemGroup>
+
+</Project>

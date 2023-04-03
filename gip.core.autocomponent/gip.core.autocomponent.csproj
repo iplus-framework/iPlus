@@ -29,6 +29,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
+    <BaseOutputPath>..\bin\</BaseOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\gip.core.ControlScriptSync\gip.core.ControlScriptSync.csproj" />

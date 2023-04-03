@@ -47,5 +47,5 @@ using System.Windows.Markup;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: XmlnsDefinition("http://www.iplus-framework.com/report/xaml", "gip.core.reporthandler.Flowdoc")]
+[assembly: XmlnsDefinition("http://www.iplus-framework.com/report/xaml", "gip.core.reporthandlerwpf.Flowdoc")]
 [assembly: XmlnsPrefix("http://www.iplus-framework.com/report/xaml", "vbr")]

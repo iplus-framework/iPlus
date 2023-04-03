@@ -208,5 +208,7 @@
     <Content Include="appsettings.json" />
   </ItemGroup>
   <PropertyGroup />
-  <PropertyGroup />
+  <PropertyGroup>
+    <BaseOutputPath></BaseOutputPath>
+  </PropertyGroup>
 </Project>

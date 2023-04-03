@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="gip.core.reporthandlerwpf.Flowdoc.VBReportEditor"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vb="http://www.iplus-framework.com/xaml"
+    xmlns:vbr="http://www.iplus-framework.com/report/xaml"
+    xmlns:p="clr-namespace:Document.Editor"
+    Background="Transparent" Padding="0,0,0,0">
+    <!--<UserControl.Resources>
+        <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/Shared.xaml"/>
+    </UserControl.Resources>-->
+    <vb:VBTabControl x:Name="ucTabControl" SelectionChanged="TabControl_SelectionChanged">
+        <vb:VBTabItem Header="Design" x:Name="DesignTab">
+            <p:FlowDocEditor x:Name="ucDesigner" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </vb:VBTabItem>
+        <vb:VBTabItem Header="XAML" x:Name="XAMLTab">
+            <vb:VBXMLEditor x:Name="ucXMLEditor" CodeCompletionSchema="VBReportEditor.xsd"/>
+        </vb:VBTabItem>
+        <vb:VBTabItem Header="Preview" x:Name="PreviewTab">
+            <DocumentViewer x:Name="ucDocumentViewer"/>
+        </vb:VBTabItem>
+        <vb:VBTabItem Header="Configuration" x:Name="ConfigurationTab">
+            <vb:VBTabItem.Style>
+                <Style TargetType="{x:Type vb:VBTabItem}" BasedOn="{StaticResource {x:Type vb:VBTabItem}}">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=vbr:VBReportEditor}, Path=HideConfigurationTab}" Value="True">
+                            <Setter Property="Visibility" Value="Hidden"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </vb:VBTabItem.Style>
+            <vb:VBDesign VBContent="*ConfigurationEditor" x:Name="ConfigurationDesign" />
+        </vb:VBTabItem>
+    </vb:VBTabControl>
+</UserControl>

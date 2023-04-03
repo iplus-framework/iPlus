@@ -109,5 +109,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <PropertyGroup />
+  <PropertyGroup>
+    <BaseOutputPath>..\bin\</BaseOutputPath>
+  </PropertyGroup>
 </Project>

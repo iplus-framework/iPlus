@@ -31,5 +31,7 @@
   <ItemGroup>
     <PackageReference Include="System.IO.Ports" Version="7.0.0" />
   </ItemGroup>
-  <PropertyGroup />
+  <PropertyGroup>
+    <BaseOutputPath>..\bin\</BaseOutputPath>
+  </PropertyGroup>
 </Project>

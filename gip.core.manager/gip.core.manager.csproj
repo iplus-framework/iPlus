@@ -97,5 +97,7 @@
     <Compile Remove="BaseManager\PWObjectRoot.cs" />
     <Compile Remove="Presenter\Program\VBPresenterProgramLog.cs" />
   </ItemGroup>
-  <PropertyGroup />
+  <PropertyGroup>
+    <BaseOutputPath>..\bin\</BaseOutputPath>
+  </PropertyGroup>
 </Project>

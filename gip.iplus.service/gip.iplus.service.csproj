@@ -28,7 +28,9 @@
     <StartupObject>
     </StartupObject>
   </PropertyGroup>
-  <PropertyGroup />
+  <PropertyGroup>
+    <BaseOutputPath>..\bin\</BaseOutputPath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <OutputPath>..\bin\Debug\</OutputPath>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>

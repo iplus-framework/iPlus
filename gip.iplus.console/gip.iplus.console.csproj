@@ -33,6 +33,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Images\iPlusIconDesktop.ico</ApplicationIcon>
+    <BaseOutputPath>..\bin\</BaseOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Update="System.Runtime.Serialization">

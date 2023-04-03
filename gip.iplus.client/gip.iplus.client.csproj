@@ -126,7 +126,9 @@
     <Page Remove="Resources\Styles\Shared.xaml" />
     <Page Remove="Resources\VBResources.xaml" />
   </ItemGroup>
-  <PropertyGroup />
+  <PropertyGroup>
+    <BaseOutputPath>..\bin\</BaseOutputPath>
+  </PropertyGroup>
   <Target Name="AfterBuild">
     <Copy SourceFiles="..\..\..\packages\Matrix\MATRIX32.dll" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
     <Copy SourceFiles="..\..\..\packages\Matrix\MATRIX64.dll" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />

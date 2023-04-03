@@ -138,5 +138,7 @@
     <PackageReference Include="WindowsAPICodePack" Version="7.0.1" />
   </ItemGroup>
   <PropertyGroup />
-  <PropertyGroup />
+  <PropertyGroup>
+    <BaseOutputPath>..\bin\</BaseOutputPath>
+  </PropertyGroup>
 </Project>
