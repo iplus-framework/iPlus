@@ -16,6 +16,16 @@ namespace gip.core.autocomponent
         public  PAShowDlgManagerBase(gip.core.datamodel.ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
+            _C_BSONameForShowProgramLog = new ACPropertyConfigValue<string>(this, nameof(BSONameForShowProgamLog), "");
+            _C_BSONameForShowPropertyLog = new ACPropertyConfigValue<string>(this, nameof(BSONameForShowPropertyLog), "");
+        }
+
+        public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
+        {
+            bool result = base.ACInit(startChildMode);
+            _ = BSONameForShowProgamLog;
+            _ = BSONameForShowPropertyLog;
+            return result;
         }
         public const string C_DefaultServiceACIdentifier = "DlgManager";
         #endregion
@@ -63,6 +73,42 @@ namespace gip.core.autocomponent
         }
         #endregion
 
+        #region Configuration
+        protected ACPropertyConfigValue<string> _C_BSONameForShowProgramLog;
+        [ACPropertyConfig("en{'Classname and ACIdentifier for ShowProgramLogDlg'}de{'Klassenname und ACIdentifier für ShowProgramLogDlg'}")]
+        public virtual string BSONameForShowProgamLog
+        {
+            get
+            {
+                if (!String.IsNullOrEmpty(_C_BSONameForShowProgramLog.ValueT))
+                    return _C_BSONameForShowProgramLog.ValueT;
+                _C_BSONameForShowProgramLog.ValueT = "PresenterProgramLog";
+                return _C_BSONameForShowProgramLog.ValueT;
+            }
+            set
+            {
+                _C_BSONameForShowProgramLog.ValueT = value;
+            }
+        }
+
+        protected ACPropertyConfigValue<string> _C_BSONameForShowPropertyLog;
+        [ACPropertyConfig("en{'Classname and ACIdentifier for ShowPropertyLogDlg'}de{'Klassenname und ACIdentifier für ShowPropertyLogDlg'}")]
+        public virtual string BSONameForShowPropertyLog
+        {
+            get
+            {
+                if (!String.IsNullOrEmpty(_C_BSONameForShowPropertyLog.ValueT))
+                    return _C_BSONameForShowPropertyLog.ValueT;
+                _C_BSONameForShowPropertyLog.ValueT = "VBBSOPropertyLogPresenter";
+                return _C_BSONameForShowPropertyLog.ValueT;
+            }
+            set
+            {
+                _C_BSONameForShowPropertyLog.ValueT = value;
+            }
+        }
+        #endregion
+
         #region Public Methods
 
         public abstract void ShowDialogOrder(IACComponent caller, PAOrderInfo orderInfo = null);
@@ -70,7 +116,39 @@ namespace gip.core.autocomponent
 
         public abstract bool IsEnabledShowDialogOrder(IACComponent caller);
 
-        public abstract void ShowProgramLogViewer(IACComponent caller, ACValueList param);
+        public virtual void ShowProgramLogViewer(IACComponent caller, ACValueList param)
+        {
+            if (caller == null)
+                return;
+            string bsoName = BSONameForShowProgamLog;
+            if (String.IsNullOrEmpty(bsoName))
+                return;
+            ACComponent bso = caller.Root.Businessobjects.ACUrlCommand("?" + bsoName) as ACComponent;
+            if (bso == null)
+                bso = caller.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as ACComponent;
+            if (bso == null)
+                return;
+            bso.ACUrlCommand("!ShowACProgramLog", param);
+            bso.Stop();
+            return;
+        }
+
+        public virtual void ShowPropertyLogViewer(IACComponent caller)
+        {
+            if (caller == null)
+                return;
+            string bsoName = BSONameForShowPropertyLog;
+            if (String.IsNullOrEmpty(bsoName))
+                return;
+
+            ACComponent bso = caller.Root.Businessobjects.ACUrlCommand("?" + bsoName) as ACComponent;
+            if (bso == null)
+                bso = caller.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as ACComponent;
+            if (bso == null)
+                return;
+            bso.ExecuteMethod("ShowPropertyLogsDialog", caller.ComponentClass);
+            bso.Stop();
+        }
 
         public abstract string BuildAndSetOrderInfo(PAProcessModule pm);
 
