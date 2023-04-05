@@ -1290,26 +1290,26 @@ namespace gip.core.datamodel
 
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClass> WorkflowTypeMethodACClassList
+        public IEnumerable<ACClass> WorkflowTypeMethodACClassList
         {
             get
             {
                 using (ACMonitor.Lock(QueryLock_1X000))
                 {
-                    return ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TPWMethod).OrderBy(c => c.ACIdentifier);
+                    return ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TPWMethod).OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
 
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClass> WorkflowInvokerACClassList
+        public IEnumerable<ACClass> WorkflowInvokerACClassList
         {
             get
             {
                 using (ACMonitor.Lock(QueryLock_1X000))
                 {
-                    return ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TPWNodeWorkflow).OrderBy(c => c.ACIdentifier);
+                    return ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TPWNodeWorkflow).OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
@@ -1320,7 +1320,7 @@ namespace gip.core.datamodel
         /// </summary>
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClassMethod> ProgramMethodList
+        public IEnumerable<ACClassMethod> ProgramMethodList
         {
             get
             {
@@ -1329,20 +1329,20 @@ namespace gip.core.datamodel
                     return ACClassMethod.Where(c => c.ACKindIndex == (short)Global.ACKinds.MSWorkflow
                                                  && c.IsSubMethod == false && c.ACClass.ParentACClassID == null
                                                  && c.ACClass.ACProject.ACProjectTypeIndex == (Int16)Global.ACProjectTypes.AppDefinition)
-                                        .OrderBy(c => c.ACIdentifier);
+                                        .OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
 
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClassMethod> ProgramACClassMethodList
+        public IEnumerable<ACClassMethod> ProgramACClassMethodList
         {
             get
             {
                 using (ACMonitor.Lock(QueryLock_1X000))
                 {
-                    return ACClassMethod.Where(c => c.ACKindIndex == (short)Global.ACKinds.MSWorkflow).OrderBy(c => c.ACIdentifier);
+                    return ACClassMethod.Where(c => c.ACKindIndex == (short)Global.ACKinds.MSWorkflow).OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
@@ -1350,7 +1350,7 @@ namespace gip.core.datamodel
 
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClassDesign> MenuACClassList
+        public IEnumerable<ACClassDesign> MenuACClassList
         {
             get
             {
@@ -1358,28 +1358,28 @@ namespace gip.core.datamodel
                 {
                     return ACClassDesign.Where(c => c.ACKindIndex == (short)Global.ACKinds.DSDesignMenu
                                                     && c.ACClass.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Root)
-                                        .OrderBy(c => c.ACIdentifier);
+                                        .OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
 
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClass> PWClassList
+        public IEnumerable<ACClass> PWClassList
         {
             get
             {
                 using (ACMonitor.Lock(QueryLock_1X000))
                 {
                     return ACClass.Where(c => (c.ACKindIndex == (Int16)Global.ACKinds.TPWGroup ||
-                                                c.ACKindIndex == (Int16)Global.ACKinds.TPWMethod) && !c.IsAbstract).OrderBy(c => c.ACIdentifier);
+                                                c.ACKindIndex == (Int16)Global.ACKinds.TPWMethod) && !c.IsAbstract).OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
 
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClass> PAClassList
+        public IEnumerable<ACClass> PAClassList
         {
             get
             {
@@ -1388,14 +1388,14 @@ namespace gip.core.datamodel
                     return ACClass.Where(c => (c.ACKindIndex == (Int16)Global.ACKinds.TACApplicationManager ||
                     c.ACKindIndex == (Int16)Global.ACKinds.TPAModule ||
                     c.ACKindIndex == (Int16)Global.ACKinds.TPAProcessModule ||
-                    c.ACKindIndex == (Int16)Global.ACKinds.TPAProcessFunction) && !c.IsAbstract).OrderBy(c => c.ACIdentifier);
+                    c.ACKindIndex == (Int16)Global.ACKinds.TPAProcessFunction) && !c.IsAbstract).OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
 
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClass> PWNodeList
+        public IEnumerable<ACClass> PWNodeList
         {
             get
             {
@@ -1407,72 +1407,72 @@ namespace gip.core.datamodel
                                                 c.ACKindIndex == (Int16)Global.ACKinds.TPWNodeEnd ||
                                                 c.ACKindIndex == (Int16)Global.ACKinds.TPWNodeMethod ||
                                                 c.ACKindIndex == (Int16)Global.ACKinds.TPWNodeWorkflow
-                                                ) && !c.IsAbstract).OrderBy(c => c.ACIdentifier);
+                                                ) && !c.IsAbstract).OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
 
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClass> PWNodeWorkFlowList
+        public IEnumerable<ACClass> PWNodeWorkFlowList
         {
             get
             {
                 using (ACMonitor.Lock(QueryLock_1X000))
                 {
-                    return ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TPWMethod && !c.IsAbstract).OrderBy(c => c.ACIdentifier);
+                    return ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TPWMethod && !c.IsAbstract).OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
 
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClass> VBControlACClassList
+        public IEnumerable<ACClass> VBControlACClassList
         {
             get
             {
                 using (ACMonitor.Lock(QueryLock_1X000))
                 {
-                    return ACClass.Where(c => (c.ACKindIndex == (short)Global.ACKinds.TACVBControl) && !c.IsAbstract).OrderBy(c => c.ACIdentifier);
+                    return ACClass.Where(c => (c.ACKindIndex == (short)Global.ACKinds.TACVBControl) && !c.IsAbstract).OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
 
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClass> ConfigACClassList
+        public IEnumerable<ACClass> ConfigACClassList
         {
             get
             {
                 using (ACMonitor.Lock(QueryLock_1X000))
                 {
-                    return ACClass.Where(c => (c.ACKindIndex == (short)Global.ACKinds.TACClass) && !c.IsAbstract).OrderBy(c => c.ACIdentifier);
+                    return ACClass.Where(c => (c.ACKindIndex == (short)Global.ACKinds.TACClass) && !c.IsAbstract).OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
 
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClass> AssemblyACClassList
+        public IEnumerable<ACClass> AssemblyACClassList
         {
             get
             {
                 using (ACMonitor.Lock(QueryLock_1X000))
                 {
-                    return ACClass.Where(c => !string.IsNullOrEmpty(c.AssemblyQualifiedName)).OrderBy(c => c.ACIdentifier);
+                    return ACClass.Where(c => !string.IsNullOrEmpty(c.AssemblyQualifiedName)).OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
 
         [ACPropertyInfo(9999)]
         [NotMapped]
-        public IQueryable<ACClass> RoleACClassList
+        public IEnumerable<ACClass> RoleACClassList
         {
             get
             {
                 using (ACMonitor.Lock(QueryLock_1X000))
                 {
-                    return ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TPARole).OrderBy(c => c.ACIdentifier);
+                    return ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TPARole).OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }

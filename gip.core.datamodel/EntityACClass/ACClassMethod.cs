@@ -1511,7 +1511,8 @@ namespace gip.core.datamodel
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                     {
-                        ACClassWF_ACClassMethodReference.Load();
+                        Context.Entry(this).Collection(c => c.ACClassWF_ACClassMethod).Load();
+                        //ACClassWF_ACClassMethodReference.Load();
                     }
                 }
                 return ACClassWF_ACClassMethod.ToList(); // ToList, damit Query Thread-Safe

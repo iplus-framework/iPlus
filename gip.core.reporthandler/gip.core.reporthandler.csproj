@@ -39,16 +39,6 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="FlowDocEditor\**" />
-    <Compile Remove="FlowDoc\**" />
-    <EmbeddedResource Remove="FlowDocEditor\**" />
-    <EmbeddedResource Remove="FlowDoc\**" />
-    <None Remove="FlowDocEditor\**" />
-    <None Remove="FlowDoc\**" />
-    <Page Remove="FlowDocEditor\**" />
-    <Page Remove="FlowDoc\**" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Update="System.Runtime.Serialization">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -57,9 +47,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="VBXMLEditorSchemas\VBRSchema.xsd">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <None Update="VBControlScripts\2021-10-13 14-35_aaginic.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -131,20 +122,17 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="CodeCompletionXsdGenerator.cs" />
-    <Compile Remove="CodeCompletionXsdGeneratorVBR.cs" />
-    <Compile Remove="VBBSOReport.cs" />
-    <Compile Remove="VBBSOReportDialog.cs" />
-  </ItemGroup>
   <PropertyGroup>
     <BaseOutputPath>..\bin\</BaseOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="CodeCompletionXsdGenerator.tt" />
-    <None Remove="CodeCompletionXsdGenerator.txt" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

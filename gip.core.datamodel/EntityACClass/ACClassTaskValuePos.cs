@@ -21,7 +21,7 @@ namespace gip.core.datamodel
     /// ACClassTaskValuePos stores the values of points (Relationships between components)
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Taskvalue'}de{'Taskwert'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(1, "ACClassTaskValue", "en{'Value'}de{'Wert'}", Const.ContextDatabaseIPlus + "\\ACClassTaskValue", "", true)]
+    [ACPropertyEntity(1, "ACClassTaskValue", "en{'Value'}de{'Wert'}", Const.ContextDatabaseIPlus + "\\ACClassTaskValue" + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(2, "ACUrl", "en{'ACUrl'}de{'ACUrl'}","", "", true)]
     [ACPropertyEntity(3, "StateIndex", "en{'State'}de{'Status'}", "", "", false)]
     [ACPropertyEntity(4, "SequenceNo", "en{'SequenceNo'}de{'Sequencenr'}","", "", true)]

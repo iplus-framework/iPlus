@@ -582,6 +582,7 @@ namespace gip.bso.iplus
             if (!PreExecute("New")) return;
 
             CurrentNewACClassMethod = ACClassMethod.NewWorkACClassMethod(Database.ContextIPlus, CurrentACClass);
+            Database.ContextIPlus.ACClassMethod.Add(CurrentNewACClassMethod);
 
             ShowDialog(this, "WorkACClassMethodNew");
             PostExecute("New");

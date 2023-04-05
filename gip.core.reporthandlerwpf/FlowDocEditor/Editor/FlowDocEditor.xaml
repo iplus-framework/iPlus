@@ -14,22 +14,22 @@
                 <Fluent:Ribbon.QuickAccessItems>
                     <Fluent:QuickAccessMenuItem Target="{Binding ElementName=NewButton}" IsChecked="True">
                         <Fluent:QuickAccessMenuItem.Icon>
-                            <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Document/new16.png" />
+                            <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Document/new16.png" />
                         </Fluent:QuickAccessMenuItem.Icon>
                     </Fluent:QuickAccessMenuItem>
                     <Fluent:QuickAccessMenuItem Target="{Binding ElementName=OpenMenuItem}" IsChecked="True">
                         <Fluent:QuickAccessMenuItem.Icon>
-                            <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Document/open16.png" />
+                            <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Document/open16.png" />
                         </Fluent:QuickAccessMenuItem.Icon>
                     </Fluent:QuickAccessMenuItem>
                     <Fluent:QuickAccessMenuItem Target="{Binding ElementName=SaveMenuItem}" IsChecked="True">
                         <Fluent:QuickAccessMenuItem.Icon>
-                            <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Document/save16.png" />
+                            <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Document/save16.png" />
                         </Fluent:QuickAccessMenuItem.Icon>
                     </Fluent:QuickAccessMenuItem>
                     <Fluent:QuickAccessMenuItem Target="{Binding ElementName=PrintMenuItem}" IsChecked="True">
                         <Fluent:QuickAccessMenuItem.Icon>
-                            <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Document/print16.png" />
+                            <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Document/print16.png" />
                         </Fluent:QuickAccessMenuItem.Icon>
                     </Fluent:QuickAccessMenuItem>
                 </Fluent:Ribbon.QuickAccessItems>
@@ -56,22 +56,22 @@
                     </Fluent:RibbonTabItem.ContextMenu>
                     <Fluent:RibbonGroupBox Name="CommonEditGroup" Header="Edit" CanAddToQuickAccessToolBar="False">
                         <Fluent:RibbonGroupBox.Icon>
-                            <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tab/edit16.png" />
+                            <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tab/edit16.png" />
                         </Fluent:RibbonGroupBox.Icon>
                         <Fluent:RibbonGroupBox.ToolTip>
                             <Fluent:ScreenTip Title="Edit" Text="Editing Commands" />
                         </Fluent:RibbonGroupBox.ToolTip>
-                        <Fluent:Button Name="UndoButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/undo32.png" Header="Undo" SizeDefinition="Large" Click="UndoMenuItem_Click">
+                        <Fluent:Button Name="UndoButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/undo32.png" Header="Undo" SizeDefinition="Large" Click="UndoMenuItem_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/undo32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/undo32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Undo (Ctrl + Z)" Image="Images\Edit\undo48.png" Text="Undo"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="RedoButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/redo32.png" Header="Redo" SizeDefinition="Large" Click="RedoMenuItem_Click">
+                        <Fluent:Button Name="RedoButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/redo32.png" Header="Redo" SizeDefinition="Large" Click="RedoMenuItem_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/redo32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/redo32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Redo (Ctrl + Y)" Image="Images\Edit\redo48.png" Text="redo"/>
@@ -79,17 +79,17 @@
                         </Fluent:Button>
                         <Fluent:SplitButton Name="CutButton" Header="Cut" SizeDefinition="Middle,Middle,Small" Click="CutMenuItem_Click">
                             <Fluent:SplitButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/cut32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/cut32.png" />
                             </Fluent:SplitButton.LargeIcon>
                             <Fluent:SplitButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/cut16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/cut16.png" />
                             </Fluent:SplitButton.Icon>
                             <Fluent:SplitButton.ToolTip>
                                 <Fluent:ScreenTip Title="Cut (Ctrl + X)" Image="Images\Edit\cut48.png" Text="Cut to clipboard"/>
                             </Fluent:SplitButton.ToolTip>
                             <Fluent:MenuItem Name="CutParagraphMenuItem" Header="Cut Paragraph" Click="CutParagraphMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/cutparagraph16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/cutparagraph16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Cut Paragraph" Text="Cut current paragraph" Image="Images/Edit/cutparagraph48.png" />
@@ -97,7 +97,7 @@
                             </Fluent:MenuItem>
                             <Fluent:MenuItem Name="CutLineMenuItem" Header="Cut Line" Click="CutLineMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/cutline16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/cutline16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Cut Line" Text="Cut current line" Image="Images/Edit/cutline48.png" />
@@ -106,17 +106,17 @@
                         </Fluent:SplitButton>
                         <Fluent:SplitButton Name="CopyButton" Header="Copy" SizeDefinition="Middle,Middle,Small" Click="CopyMenuItem_Click">
                             <Fluent:SplitButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/copy32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/copy32.png" />
                             </Fluent:SplitButton.LargeIcon>
                             <Fluent:SplitButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/copy16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/copy16.png" />
                             </Fluent:SplitButton.Icon>
                             <Fluent:SplitButton.ToolTip>
                                 <Fluent:ScreenTip Title="Copy (Ctrl + C)" Image="Images\Edit\copy48.png" Text="Copy to clipboard"/>
                             </Fluent:SplitButton.ToolTip>
                             <Fluent:MenuItem Name="CopyParagraphMenuItem" Header="Copy Paragraph" Click="CopyParagraphMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/copyparagraph16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/copyparagraph16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Copy Paragraph" Text="Copy current paragraph" Image="Images/Edit/copyparagraph48.png" />
@@ -124,7 +124,7 @@
                             </Fluent:MenuItem>
                             <Fluent:MenuItem Name="CopyLineMenuItem" Header="Copy Line" Click="CopyLineMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/copyline16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/copyline16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Copy Line" Text="Copy current line" Image="Images/Edit/copyline48.png" />
@@ -133,10 +133,10 @@
                         </Fluent:SplitButton>
                         <Fluent:SplitButton Name="PasteButton" Header="Paste" Click="PasteMenuItem_Click">
                             <Fluent:SplitButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/paste32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/paste32.png" />
                             </Fluent:SplitButton.LargeIcon>
                             <Fluent:SplitButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/paste16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/paste16.png" />
                             </Fluent:SplitButton.Icon>
                             <Fluent:SplitButton.ToolTip>
                                 <Fluent:ScreenTip Title="Paste (Ctrl + V)" Image="Images\Edit\paste48.png" Text="Paste from clipboard"/>
@@ -147,7 +147,7 @@
                                         Selectable="False">
                                 <Fluent:MenuItem Name="PasteTextButton" Header="Paste Text" Tag="Paste Options" Click="PasteTextButton_Click">
                                     <Fluent:MenuItem.Icon>
-                                        <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/paste16.png" />
+                                        <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/paste16.png" />
                                     </Fluent:MenuItem.Icon>
                                     <Fluent:MenuItem.ToolTip>
                                         <Fluent:ScreenTip Title="Paste Text" Text="Paste text only" Image="Images/Edit/paste48.png" />
@@ -155,7 +155,7 @@
                                 </Fluent:MenuItem>
                                 <Fluent:MenuItem Name="PasteImageMenuItem" Header="Pase Image" Tag="Paste Options" Click="PasteImageMenuItem_Click">
                                     <Fluent:MenuItem.Icon>
-                                        <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/pasteimage16.png" />
+                                        <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/pasteimage16.png" />
                                     </Fluent:MenuItem.Icon>
                                     <Fluent:MenuItem.ToolTip>
                                         <Fluent:ScreenTip Title="Paste Image" Text="Paste image from clipboard" Image="Images/Edit/pasteimage48.png" />
@@ -165,17 +165,17 @@
                         </Fluent:SplitButton>
                         <Fluent:SplitButton Name="DeleteButton" Header="Delete" SizeDefinition="Middle,Middle,Small">
                             <Fluent:SplitButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/delete32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/delete32.png" />
                             </Fluent:SplitButton.LargeIcon>
                             <Fluent:SplitButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/delete16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/delete16.png" />
                             </Fluent:SplitButton.Icon>
                             <Fluent:SplitButton.ToolTip>
                                 <Fluent:ScreenTip Title="Delete (Del)" Image="Images\Edit\delete48.png" Text="Delete selected"/>
                             </Fluent:SplitButton.ToolTip>
                             <Fluent:MenuItem Name="DeleteParagraphMenuItem" Header="Delete Paragraph" Click="DeleteParagraphMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/deleteparagraph16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/deleteparagraph16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Delete Paragraph" Text="Delete current paragraph" Image="Images/Edit/deleteparagraph48.png" />
@@ -183,7 +183,7 @@
                             </Fluent:MenuItem>
                             <Fluent:MenuItem Name="DeleteLineMenuItem" Header="Delete Line" Click="DeleteLineMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/deleteline16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/deleteline16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Delete Line" Text="Delete current line" Image="Images/Edit/deleteline48.png" />
@@ -192,17 +192,17 @@
                         </Fluent:SplitButton>
                         <Fluent:SplitButton Name="SelectAllButton" Header="Select All" SizeDefinition="Middle,Middle,Small" Click="SelectAllMenuItem_Click">
                             <Fluent:SplitButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/selectall32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/selectall32.png" />
                             </Fluent:SplitButton.LargeIcon>
                             <Fluent:SplitButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/selectall16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/selectall16.png" />
                             </Fluent:SplitButton.Icon>
                             <Fluent:SplitButton.ToolTip>
                                 <Fluent:ScreenTip Title="Select All (Ctrl + A)" Image="Images\Edit\selectall48.png" Text="Select all"/>
                             </Fluent:SplitButton.ToolTip>
                             <Fluent:MenuItem Name="SelectParagraphMenuItem" Header="Select Paragraph" Click="SelectParagraphMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/selectparagraph16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/selectparagraph16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Select Paragraph" Text="Select current paragraph" Image="Images/Edit/selectparagraph48.png" />
@@ -210,7 +210,7 @@
                             </Fluent:MenuItem>
                             <Fluent:MenuItem Name="SelectLineMenuItem" Header="Select Line" Click="SelectLineMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/selectline16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/selectline16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Select Line" Text="Select current line" Image="Images/Edit/selectline48.png" />
@@ -219,17 +219,17 @@
                         </Fluent:SplitButton>
                         <Fluent:SplitButton Name="FindButton" Header="Find" Click="FindButton_Click">
                             <Fluent:SplitButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/find32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/find32.png" />
                             </Fluent:SplitButton.LargeIcon>
                             <Fluent:SplitButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/find16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/find16.png" />
                             </Fluent:SplitButton.Icon>
                             <Fluent:SplitButton.ToolTip>
                                 <Fluent:ScreenTip Title="Find (Ctrl + F)" Image="Images\Edit\find48.png" Text="Find text"/>
                             </Fluent:SplitButton.ToolTip>
                             <Fluent:MenuItem Name="ReplaceButton" Header="Replace" Click="ReplaceButton_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/findreplace16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/findreplace16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Replace (Ctrl + H)" Text="Replace text" Image="Images\Edit\findreplace48.png"/>
@@ -237,7 +237,7 @@
                             </Fluent:MenuItem>
                             <Fluent:MenuItem Name="GoToButton" Header="Go To" Click="GoToButton_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/goto16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/goto16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Go To (Ctrl + G)" Image="Images\Edit\goto48.png" Text="Go to line"/>
@@ -246,10 +246,10 @@
                         </Fluent:SplitButton>
                         <Fluent:Button Name="UppercaseMenuItem" Header="Uppercase" SizeDefinition="Middle,Middle,Small" Click="UppercaseMenuItem_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/uppercase32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/uppercase32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/uppercase16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/uppercase16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Uppercase" Text="Set uppercase" Image="Images/Edit/uppercase48.png" />
@@ -257,10 +257,10 @@
                         </Fluent:Button>
                         <Fluent:Button Name="LowercaseMenuItem" Header="Lowercase" SizeDefinition="Middle,Middle,Small" Click="LowercaseMenuItem_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/lowercase32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/lowercase32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Edit/lowercase16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Edit/lowercase16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Lowercase" Text="Set lowercase" Image="Images/Edit/lowercase48.png" />
@@ -273,10 +273,10 @@
                         </Fluent:RibbonGroupBox.ToolTip>
                         <Fluent:Button Name="CommonZoomInButton" Header="Zoom In" Click="ZoomInButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/zoomin32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/zoomin32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/zoomin16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/zoomin16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Zoom In" Text="Zoom in" Image="Images\View\zoomin48.png"/>
@@ -284,10 +284,10 @@
                         </Fluent:Button>
                         <Fluent:Button Name="CommonZoomOutButton" Header="Zoom Out" Click="ZoomOutButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/zoomout32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/zoomout32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/zoomout16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/zoomout16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Zoom Out" Image="Images\View\zoomout48.png" Text="Zoom out"/>
@@ -295,10 +295,10 @@
                         </Fluent:Button>
                         <Fluent:Button Name="CommonResetZoomButton" Header="Reset Zoom" Click="ResetZoomButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/resetzoom32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/resetzoom32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/resetzoom16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/resetzoom16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Reset Zoom" Image="Images\View\resetzoom48.png" Text="Reset zoom"/>
@@ -307,14 +307,14 @@
                     </Fluent:RibbonGroupBox>
                     <Fluent:RibbonGroupBox Name="CommonInsertGroup" Header="Insert" IsLauncherVisible="True" LauncherClick="CommonInsertGroup_LauncherClick">
                         <Fluent:RibbonGroupBox.Icon>
-                            <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Common/add16.png" />
+                            <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Common/add16.png" />
                         </Fluent:RibbonGroupBox.Icon>
                         <Fluent:RibbonGroupBox.ToolTip>
                             <Fluent:ScreenTip Title="Insert" Text="Insert Commands" Image="Images/Common/add48.png" />
                         </Fluent:RibbonGroupBox.ToolTip>
-                        <Fluent:DropDownButton Name="CommonTableButton" Header="Table" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/table16.png" SizeDefinition="Large">
+                        <Fluent:DropDownButton Name="CommonTableButton" Header="Table" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/table16.png" SizeDefinition="Large">
                             <Fluent:DropDownButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/table32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/table32.png" />
                             </Fluent:DropDownButton.LargeIcon>
                             <Fluent:DropDownButton.ToolTip>
                                 <Fluent:ScreenTip Title="Table (Insert + T)" Image="Images\Insert\table48.png" Text="Insert table"/>
@@ -322,20 +322,20 @@
                             <p:FluentTableGrid x:Name="CommonTableGrid" Click="TableGrid_Click"/>
                             <Fluent:MenuItem Name="CommonInsertTableMenuItem" Header="Insert Table..." Click="TableMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/table16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/table16.png" />
                                 </Fluent:MenuItem.Icon>
                             </Fluent:MenuItem>
                         </Fluent:DropDownButton>
                         <Fluent:SplitButton Name="CommonDateButton" Header="Date" SizeDefinition="Middle, Small, Small">
                             <Fluent:SplitButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/date16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/date16.png" />
                             </Fluent:SplitButton.Icon>
                             <Fluent:SplitButton.ToolTip>
                                 <Fluent:ScreenTip Title="Date" Image="Images\Insert\date48.png" Text="Insert date"/>
                             </Fluent:SplitButton.ToolTip>
                             <Fluent:MenuItem Name="CommonMoreDateMenuItem" Header="More" Click="DateMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/datemore16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/datemore16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="More" Text="More date options" Image="Images/Insert/datemore48.png" />
@@ -344,14 +344,14 @@
                         </Fluent:SplitButton>
                         <Fluent:SplitButton Name="CommonTimeButton" Header="Time" SizeDefinition="Middle, Small, Small" Click="TimeMenuItem_Click">
                             <Fluent:SplitButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/time16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/time16.png" />
                             </Fluent:SplitButton.Icon>
                             <Fluent:SplitButton.ToolTip>
                                 <Fluent:ScreenTip Title="Time" Image="Images\Insert\time48.png" Text="Insert time"/>
                             </Fluent:SplitButton.ToolTip>
                             <Fluent:MenuItem Name="CommonMoreTimeMenuItem" Header="More" Click="MoreTimeButton_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/timemore16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/timemore16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="More" Text="More time options" Image="Images/Insert/timemore48.png" />
@@ -360,7 +360,7 @@
                         </Fluent:SplitButton>
                         <Fluent:Button Name="CommonImageButton" Header="Image" SizeDefinition="Middle, Small, Small" Click="ImageButton_Click">
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/image16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/image16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Image (Insert + I)" Image="Images\Insert\image48.png" Text="Insert image"/>
@@ -368,7 +368,7 @@
                         </Fluent:Button>
                         <Fluent:Button Name="CommonVideoButton" Header="Video" SizeDefinition="Middle, Small, Small" Click="VideoButton_Click">
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/video16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/video16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Video (Insert + V)" Image="Images\Insert\video48.png" Text="Insert video"/>
@@ -376,7 +376,7 @@
                         </Fluent:Button>
                         <Fluent:Button Name="CommonObjectButton" Header="Object" SizeDefinition="Middle, Small, Small" Click="ObjectButton_Click">
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/object16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/object16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Object (Insert + O)" Image="Images\Insert\object48.png" Text="Insert object"/>
@@ -384,7 +384,7 @@
                         </Fluent:Button>
                         <Fluent:Button Name="CommonShapeButton" Header="Shape" SizeDefinition="Middle, Small, Small" Click="ShapeButton_Click">
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/shape16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/shape16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Shape (Insert + S)" Image="Images\Insert\shape48.png" Text="Insert shape"/>
@@ -392,7 +392,7 @@
                         </Fluent:Button>
                         <Fluent:Button Name="CommonLinkButton" Header="Link" SizeDefinition="Middle, Small, Small">
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/link16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/link16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Link (Insert + L)" Image="Images\Insert\link48.png" Text="Insert link"/>
@@ -400,7 +400,7 @@
                         </Fluent:Button>
                         <Fluent:Button Name="CommonTextFileButton" Header="Text File" SizeDefinition="Middle, Small, Small">
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/textfile16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/textfile16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Text File (Insert + X)" Image="Images\Insert\textfile48.png" Text="Insert text file"/>
@@ -408,10 +408,10 @@
                         </Fluent:Button>
                         <Fluent:DropDownButton Name="CommonSymbolButton" Header="Symbol" SizeDefinition="Middle, Small, Small">
                             <Fluent:DropDownButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/symbol32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/symbol32.png" />
                             </Fluent:DropDownButton.LargeIcon>
                             <Fluent:DropDownButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/symbol16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/symbol16.png" />
                             </Fluent:DropDownButton.Icon>
                             <Fluent:DropDownButton.ToolTip>
                                 <Fluent:ScreenTip Title="Symbol" Image="Images\Insert\symbol48.png" Text="Insert symbol"/>
@@ -423,9 +423,9 @@
                         <Fluent:RibbonGroupBox.ToolTip>
                             <Fluent:ScreenTip Title="Format" Text="Formatting Commands" />
                         </Fluent:RibbonGroupBox.ToolTip>
-                        <Fluent:Button Name="ClearFormattingButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/clearformatting16.png" Header="Clear Formatting" SizeDefinition="Large" Click="ClearFormattingButton_Click">
+                        <Fluent:Button Name="ClearFormattingButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/clearformatting16.png" Header="Clear Formatting" SizeDefinition="Large" Click="ClearFormattingButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/clearformatting32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/clearformatting32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Clear Formatting" Image="Images\Format\clearformatting48.png" Text="Clear formatting"/>
@@ -456,7 +456,7 @@
                         <StackPanel Grid.Row="0" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,0">
                             <Fluent:ToggleButton Name="BoldButton" SizeDefinition="Small" Click="BoldMenuItem_Click">
                                 <Fluent:ToggleButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/bold16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/bold16.png" />
                                 </Fluent:ToggleButton.Icon>
                                 <Fluent:ToggleButton.ToolTip>
                                     <Fluent:ScreenTip Title="Bold (Ctrl + B)" Image="Images\Format\bold48.png" Text="Toggle bold"/>
@@ -464,7 +464,7 @@
                             </Fluent:ToggleButton>
                             <Fluent:ToggleButton Name="ItalicButton" SizeDefinition="Small" Click="ItalicMenuItem_Click">
                                 <Fluent:ToggleButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/italic16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/italic16.png" />
                                 </Fluent:ToggleButton.Icon>
                                 <Fluent:ToggleButton.ToolTip>
                                     <Fluent:ScreenTip Title="Italic (Ctrl + I)" Image="Images\Format\italic48.png" Text="Toggle italic"/>
@@ -472,7 +472,7 @@
                             </Fluent:ToggleButton>
                             <Fluent:ToggleButton Name="UnderlineButton" SizeDefinition="Small" Click="UnderlineMenuItem_Click">
                                 <Fluent:ToggleButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/underline16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/underline16.png" />
                                 </Fluent:ToggleButton.Icon>
                                 <Fluent:ToggleButton.ToolTip>
                                     <Fluent:ScreenTip Title="Underline (Ctrl + U)" Image="Images\Format\underline48.png" Text="Toggle underline"/>
@@ -480,7 +480,7 @@
                             </Fluent:ToggleButton>
                             <Fluent:ToggleButton Name="StrikethroughButton" SizeDefinition="Small" Click="StrikethroughButton_Click">
                                 <Fluent:ToggleButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/strikethrough16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/strikethrough16.png" />
                                 </Fluent:ToggleButton.Icon>
                                 <Fluent:ToggleButton.ToolTip>
                                     <Fluent:ScreenTip Title="Strikethrough" Image="Images\Format\strikethrough48.png" Text="Toggle strikethrough"/>
@@ -488,7 +488,7 @@
                             </Fluent:ToggleButton>
                             <Fluent:ToggleButton Name="SubscriptButton" Header="Subscript" SizeDefinition="Small" Click="SubscriptButton_Click">
                                 <Fluent:ToggleButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/subscript16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/subscript16.png" />
                                 </Fluent:ToggleButton.Icon>
                                 <Fluent:ToggleButton.ToolTip>
                                     <Fluent:ScreenTip Title="Subscript" Image="Images\Format\subscript48.png" Text="Toggle subscript"/>
@@ -496,7 +496,7 @@
                             </Fluent:ToggleButton>
                             <Fluent:ToggleButton Name="SuperscriptButton" Header="Superscript" SizeDefinition="Small" Click="SuperscriptButton_Click">
                                 <Fluent:ToggleButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/superscript16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/superscript16.png" />
                                 </Fluent:ToggleButton.Icon>
                                 <Fluent:ToggleButton.ToolTip>
                                     <Fluent:ScreenTip Title="Superscript" Image="Images\Format\superscript48.png" Text="Toggle superscript"/>
@@ -504,7 +504,7 @@
                             </Fluent:ToggleButton>
                             <Fluent:DropDownButton Name="FontColorButton" SizeDefinition="Small">
                                 <Fluent:DropDownButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/fontfacecolor16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/fontfacecolor16.png" />
                                 </Fluent:DropDownButton.Icon>
                                 <Fluent:DropDownButton.ToolTip>
                                     <Fluent:ScreenTip Title="Font Color" Image="Images\Format\fontfacecolor48.png" Text="Set font color"/>
@@ -513,7 +513,7 @@
                             </Fluent:DropDownButton>
                             <Fluent:DropDownButton Name="HighlightColorButton" SizeDefinition="Small">
                                 <Fluent:DropDownButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/fontcolor16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/fontcolor16.png" />
                                 </Fluent:DropDownButton.Icon>
                                 <Fluent:DropDownButton.ToolTip>
                                     <Fluent:ScreenTip Title="Highlight Color" Image="Images\Format\fontcolor48.png" Text="Set highlight color"/>
@@ -522,7 +522,7 @@
                             </Fluent:DropDownButton>
                             <Fluent:Button Name="LeftToRightButton" SizeDefinition="Small" Click="LeftToRightButton_Click">
                                 <Fluent:Button.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/ltr16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/ltr16.png" />
                                 </Fluent:Button.Icon>
                                 <Fluent:Button.ToolTip>
                                     <Fluent:ScreenTip Title="Left To Right" Image="Images\Format\ltr48.png" Text="Left to right"/>
@@ -530,7 +530,7 @@
                             </Fluent:Button>
                             <Fluent:Button Name="RightToLeftButton" SizeDefinition="Small" Click="RightToLeftButton_Click">
                                 <Fluent:Button.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/rtl16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/rtl16.png" />
                                 </Fluent:Button.Icon>
                                 <Fluent:Button.ToolTip>
                                     <Fluent:ScreenTip Title="Right To Left" Image="Images\Format\rtl48.png" Text="Right to left"/>
@@ -540,7 +540,7 @@
                         <StackPanel Grid.Row="1" VerticalAlignment="Center" Orientation="Horizontal">
                             <Fluent:ToggleButton Name="AlignLeftButton" SizeDefinition="Small" Click="AlignLeftMenuItem_Click">
                                 <Fluent:ToggleButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/left16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/left16.png" />
                                 </Fluent:ToggleButton.Icon>
                                 <Fluent:ToggleButton.ToolTip>
                                     <Fluent:ScreenTip Title="Align Left (Ctrl + L)" Image="Images\Format\left48.png" Text="Align left"/>
@@ -548,7 +548,7 @@
                             </Fluent:ToggleButton>
                             <Fluent:ToggleButton Name="AlignCenterButton" SizeDefinition="Small" Click="AlignCenterMenuItem_Click">
                                 <Fluent:ToggleButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/center16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/center16.png" />
                                 </Fluent:ToggleButton.Icon>
                                 <Fluent:ToggleButton.ToolTip>
                                     <Fluent:ScreenTip Title="Align Center (Ctrl + E)" Image="Images\Format\center48.png" Text="Align center"/>
@@ -556,7 +556,7 @@
                             </Fluent:ToggleButton>
                             <Fluent:ToggleButton Name="AlignRightButton" SizeDefinition="Small" Click="AlignRightMenuItem_Click">
                                 <Fluent:ToggleButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/right16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/right16.png" />
                                 </Fluent:ToggleButton.Icon>
                                 <Fluent:ToggleButton.ToolTip>
                                     <Fluent:ScreenTip Title="Align Right (Ctrl + R)" Image="Images\Format\right48.png" Text="Align right"/>
@@ -564,7 +564,7 @@
                             </Fluent:ToggleButton>
                             <Fluent:ToggleButton Name="AlignJustifyButton" SizeDefinition="Small" Click="AlignJustifyMenuItem_Click">
                                 <Fluent:ToggleButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/justify16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/justify16.png" />
                                 </Fluent:ToggleButton.Icon>
                                 <Fluent:ToggleButton.ToolTip>
                                     <Fluent:ScreenTip Title="Align Justify (Ctrl + J)" Image="Images\Format\justify48.png" Text="Align justify"/>
@@ -572,7 +572,7 @@
                             </Fluent:ToggleButton>
                             <Fluent:Button Name="IndentMoreButton" SizeDefinition="Small" Click="IndentMoreButton_Click">
                                 <Fluent:Button.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/indentmore16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/indentmore16.png" />
                                 </Fluent:Button.Icon>
                                 <Fluent:Button.ToolTip>
                                     <Fluent:ScreenTip Title="Indent More (TAB)" Image="Images\Format\indentmore48.png" Text="Indent more"/>
@@ -580,7 +580,7 @@
                             </Fluent:Button>
                             <Fluent:Button Name="IndentLessButton" SizeDefinition="Small" Click="IndentLessButton_Click">
                                 <Fluent:Button.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/indentless16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/indentless16.png" />
                                 </Fluent:Button.Icon>
                                 <Fluent:Button.ToolTip>
                                     <Fluent:ScreenTip Title="Indent Less (Shift + TAB)" Image="Images\Format\indentless48.png" Text="Indent less"/>
@@ -588,7 +588,7 @@
                             </Fluent:Button>
                             <Fluent:SplitButton Name="BulletListButton" IsCheckable="True" SizeDefinition="Small" Click="BulletListMenuItem_Click">
                                 <Fluent:SplitButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/bulletlist16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/bulletlist16.png" />
                                 </Fluent:SplitButton.Icon>
                                 <Fluent:SplitButton.ToolTip>
                                     <Fluent:ScreenTip Title="Bullet List (Ctrl + Shift + L)" Image="Images\Format\bulletlist48.png" Text="Toggle bullet list"/>
@@ -602,7 +602,7 @@
                             </Fluent:SplitButton>
                             <Fluent:SplitButton Name="NumberListButton" IsCheckable="True" SizeDefinition="Small" Click="NumberListMenuItem_Click">
                                 <Fluent:SplitButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/numberlist16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/numberlist16.png" />
                                 </Fluent:SplitButton.Icon>
                                 <Fluent:SplitButton.ToolTip>
                                     <Fluent:ScreenTip Title="Number List (Ctrl + Shift + N)" Image="Images\Format\numberlist48.png" Text="Toggle number list"/>
@@ -617,7 +617,7 @@
                             </Fluent:SplitButton>
                             <Fluent:DropDownButton Name="LineSpacingButton" SizeDefinition="Small">
                                 <Fluent:DropDownButton.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Format/linespacing16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Format/linespacing16.png" />
                                 </Fluent:DropDownButton.Icon>
                                 <Fluent:DropDownButton.ToolTip>
                                     <Fluent:ScreenTip Title="Line Spacing" Image="Images\Format\linespacing48.png" Text="Line spacing"/>
@@ -635,24 +635,24 @@
                     </Fluent:RibbonGroupBox>
                     <Fluent:RibbonGroupBox Name="CommonToolsGroup" Header="Tools">
                         <Fluent:RibbonGroupBox.Icon>
-                            <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tab/tools16.png" />
+                            <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tab/tools16.png" />
                         </Fluent:RibbonGroupBox.Icon>
                         <Fluent:RibbonGroupBox.ToolTip>
-                            <Fluent:ScreenTip Title="Tools" Text="Extra Tools" Image="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tab/tools48.png" />
+                            <Fluent:ScreenTip Title="Tools" Text="Extra Tools" Image="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tab/tools48.png" />
                         </Fluent:RibbonGroupBox.ToolTip>
                         <Fluent:SplitButton Name="SpellCheckButton" Header="Spell Check" SizeDefinition="Large, Large, Large" Click="SpellCheckButton_Click">
                             <Fluent:SplitButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tools/spellcheck32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tools/spellcheck32.png" />
                             </Fluent:SplitButton.LargeIcon>
                             <Fluent:SplitButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tools/spellcheck16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tools/spellcheck16.png" />
                             </Fluent:SplitButton.Icon>
                             <Fluent:SplitButton.ToolTip>
                                 <Fluent:ScreenTip Title="Spell Check" Image="Images\Tools\spellcheck48.png" Text="Spell check"/>
                             </Fluent:SplitButton.ToolTip>
                             <Fluent:MenuItem Name="PreviousSpellingErrorMenuItem" Header="Previous" Click="PreviousSpellingErrorMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tools/previousspellingerror16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tools/previousspellingerror16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Previous" Text="Previous spelling error" Image="Images/Tools/previousspellingerror48.png" />
@@ -660,7 +660,7 @@
                             </Fluent:MenuItem>
                             <Fluent:MenuItem Name="NextSpellingErrorMenuItem" Header="Next" Click="NextSpellingErrorMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tools/nextspellingerror16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tools/nextspellingerror16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Next" Text="Next spelling error" Image="Images/Tools/nextspellingerror48.png" />
@@ -669,7 +669,7 @@
                             <Separator />
                             <Fluent:MenuItem Name="IgnoreSpellingErrorMenuItem" Header="Ignore" Click="IgnoreSpellingErrorMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tools/ignorespellingerror16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tools/ignorespellingerror16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Ignore" Text="Ignore spelling error" Image="Images/Tools/ignorespellingerror48.png" />
@@ -678,7 +678,7 @@
                             <Separator />
                             <Fluent:MenuItem Name="CorrectAllMenuItem" Header="Correct All" Click="CorrectAllMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tools/correctall16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tools/correctall16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="Correct All" Text="Correct all spelling error" Image="Images/Tools/correctall48.png" />
@@ -687,10 +687,10 @@
                         </Fluent:SplitButton>
                         <Fluent:Button Name="TextToSpeechButton" Header="Speech" Click="TextToSpeechButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tools/speech32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tools/speech32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tools/speech16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tools/speech16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Text To Speech" Image="Images\Tools\speech48.png" Text="Text to speech"/>
@@ -698,10 +698,10 @@
                         </Fluent:Button>
                         <Fluent:Button Name="TranslateButton" Header="Translate" Click="TranslateButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tools/translate32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tools/translate32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tools/translate16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tools/translate16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Translate" Image="Images\Tools\translate48.png" Text="Translate selected"/>
@@ -709,10 +709,10 @@
                         </Fluent:Button>
                         <Fluent:Button Name="DefinitionsButton" Header="Definitions" Click="DefinitionsButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tools/definitions32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tools/definitions32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tools/definitions16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tools/definitions16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Definitions" Image="Images\Tools\definitions48.png" Text="Definitions"/>
@@ -728,9 +728,9 @@
                         <Fluent:ScreenTip Title="Insert" Text="Insert Commands" Image="Images/Common/add48.png" />
                     </Fluent:RibbonTabItem.ToolTip>
                     <Fluent:RibbonGroupBox Header="Tables" CanAddToQuickAccessToolBar="False">
-                        <Fluent:DropDownButton Name="TableButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/table16.png" Header="Table">
+                        <Fluent:DropDownButton Name="TableButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/table16.png" Header="Table">
                             <Fluent:DropDownButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/table32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/table32.png" />
                             </Fluent:DropDownButton.LargeIcon>
                             <Fluent:DropDownButton.ToolTip>
                                 <Fluent:ScreenTip Title="Table (Insert + T)" Image="Images\Insert\table48.png" Text="Insert table"/>
@@ -742,17 +742,17 @@
                     <Fluent:RibbonGroupBox Header="Date And Time" CanAddToQuickAccessToolBar="False">
                         <Fluent:SplitButton Name="DateButton" Header="Date">
                             <Fluent:SplitButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/date32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/date32.png" />
                             </Fluent:SplitButton.LargeIcon>
                             <Fluent:SplitButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/date16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/date16.png" />
                             </Fluent:SplitButton.Icon>
                             <Fluent:SplitButton.ToolTip>
                                 <Fluent:ScreenTip Title="Date" Image="Images\Insert\date48.png" Text="Insert date"/>
                             </Fluent:SplitButton.ToolTip>
                             <Fluent:MenuItem Name="MoreDateMenuItem" Header="More" Click="DateMenuItem_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/datemore16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/datemore16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="More" Text="More date options" Image="Images/Insert/datemore48.png" />
@@ -761,17 +761,17 @@
                         </Fluent:SplitButton>
                         <Fluent:SplitButton Name="TimeButton" Header="Time" Click="TimeMenuItem_Click">
                             <Fluent:SplitButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/time32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/time32.png" />
                             </Fluent:SplitButton.LargeIcon>
                             <Fluent:SplitButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/time16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/time16.png" />
                             </Fluent:SplitButton.Icon>
                             <Fluent:SplitButton.ToolTip>
                                 <Fluent:ScreenTip Title="Time" Image="Images\Insert\time48.png" Text="Insert time"/>
                             </Fluent:SplitButton.ToolTip>
                             <Fluent:MenuItem Name="MoreTimeMenuItem" Header="More" Click="MoreTimeButton_Click">
                                 <Fluent:MenuItem.Icon>
-                                    <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/timemore16.png" />
+                                    <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/timemore16.png" />
                                 </Fluent:MenuItem.Icon>
                                 <Fluent:MenuItem.ToolTip>
                                     <Fluent:ScreenTip Title="More" Text="More time options" Image="Images/Insert/timemore48.png" />
@@ -780,9 +780,9 @@
                         </Fluent:SplitButton>
                     </Fluent:RibbonGroupBox>
                     <Fluent:RibbonGroupBox Name="InsertIllustrationGroup" Header="Illustrations" CanAddToQuickAccessToolBar="False">
-                        <Fluent:Button Name="ImageButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/image16.png" Header="Image" Click="ImageButton_Click">
+                        <Fluent:Button Name="ImageButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/image16.png" Header="Image" Click="ImageButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/image32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/image32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Image (Insert + I)" Image="Images\Insert\image48.png" Text="Insert image"/>
@@ -790,35 +790,35 @@
                         </Fluent:Button>
                         <Fluent:DropDownButton Name="InsertEmoticonButton" Header="Emoticon">
                             <Fluent:DropDownButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/Emoticons/smile32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/Emoticons/smile32.png" />
                             </Fluent:DropDownButton.LargeIcon>
                             <Fluent:DropDownButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/Emoticons/smile16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/Emoticons/smile16.png" />
                             </Fluent:DropDownButton.Icon>
                             <Fluent:DropDownButton.ToolTip>
                                 <Fluent:ScreenTip Title="Emoticon" Image="Images\Insert\Emoticons\smile48.png" Text="Insert emoticon"/>
                             </Fluent:DropDownButton.ToolTip>
                             <p:FluentEmoticonGallery x:Name="EmoticonGrid" Click="EmoticonGrid_Click" />
                         </Fluent:DropDownButton>
-                        <Fluent:Button Name="ShapeButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/shape16.png" Header="Shape" Click="ShapeButton_Click">
+                        <Fluent:Button Name="ShapeButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/shape16.png" Header="Shape" Click="ShapeButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/shape32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/shape32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Shape (Insert + S)" Image="Images\Insert\shape48.png" Text="Insert shape"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="ChartButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/chart16.png" Header="Chart" Click="ChartButton_Click">
+                        <Fluent:Button Name="ChartButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/chart16.png" Header="Chart" Click="ChartButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/chart32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/chart32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Chart (Insert + C)" Image="Images\Insert\chart48.png" Text="Insert chart"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="VideoButton" Header="Video" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/video16.png" Click="VideoButton_Click">
+                        <Fluent:Button Name="VideoButton" Header="Video" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/video16.png" Click="VideoButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/video32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/video32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Video (Insert + V)" Image="Images\Insert\video48.png" Text="Insert video"/>
@@ -826,41 +826,41 @@
                         </Fluent:Button>
                     </Fluent:RibbonGroupBox>
                     <Fluent:RibbonGroupBox Name="InsertGroup" Header="Misc" CanAddToQuickAccessToolBar="False" LauncherClick="CommonInsertGroup_LauncherClick">
-                        <Fluent:Button Name="ObjectButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/object16.png" Header="Object" Click="ObjectButton_Click">
+                        <Fluent:Button Name="ObjectButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/object16.png" Header="Object" Click="ObjectButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/object32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/object32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Object (Insert + O)" Image="Images\Insert\object48.png" Text="Insert object"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="LinkButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/link16.png" Header="Link">
+                        <Fluent:Button Name="LinkButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/link16.png" Header="Link">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/link32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/link32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Link (Insert + L)" Image="Images\Insert\link48.png" Text="Insert link"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="InsertFlowDocumentButton" Header="FlowDocument" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tab/xaml16.png" Click="InsertFlowDocumentButton_Click">
+                        <Fluent:Button Name="InsertFlowDocumentButton" Header="FlowDocument" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tab/xaml16.png" Click="InsertFlowDocumentButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tab/xaml32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tab/xaml32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="FlowDocument (Insert + F)" Image="Images\Tab\xaml48.png" Text="Insert FlowDocument"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="InsertRichTextDocumentButton" Header="Rich Text File" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tab/rtf16.png" Click="InsertRichTextDocumentButton_Click">
+                        <Fluent:Button Name="InsertRichTextDocumentButton" Header="Rich Text File" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tab/rtf16.png" Click="InsertRichTextDocumentButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Tab/rtf32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Tab/rtf32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Rich Text File" Image="Images\Tab\rtf48.png" Text="Insert Rich Text File"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="TextFileButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/textfile16.png" Header="Text File" Click="TextFileButton_Click">
+                        <Fluent:Button Name="TextFileButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/textfile16.png" Header="Text File" Click="TextFileButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/textfile32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/textfile32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Text File (Insert + X)" Image="Images\Insert\textfile48.png" Text="Insert text file"/>
@@ -869,10 +869,10 @@
                         <Fluent:Button Visibility="Collapsed" Name="InsertXPSButton" Header="XPS File" />
                         <Fluent:DropDownButton Name="InsertSymbolButton" Header="Symbol">
                             <Fluent:DropDownButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/symbol32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/symbol32.png" />
                             </Fluent:DropDownButton.LargeIcon>
                             <Fluent:DropDownButton.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/symbol16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/symbol16.png" />
                             </Fluent:DropDownButton.Icon>
                             <Fluent:DropDownButton.ToolTip>
                                 <Fluent:ScreenTip Title="Symbol" Image="Images\Insert\symbol48.png" Text="Insert symbol"/>
@@ -881,26 +881,26 @@
                         </Fluent:DropDownButton>
                         <Fluent:Button Name="HorizontalLineButton" Header="Horizontal Line" Click="HorizontalLineButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/horizontalline32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/horizontalline32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.Icon>
-                                <Image Height="16" Width="16" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/horizontalline16.png" />
+                                <Image Height="16" Width="16" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/horizontalline16.png" />
                             </Fluent:Button.Icon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Horizontal Line (Insert + H)" Image="Images\Insert\horizontalline48.png" Text="Insert horizontal line"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="HeaderButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/header16.png" Header="Header" Click="HeaderButton_Click">
+                        <Fluent:Button Name="HeaderButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/header16.png" Header="Header" Click="HeaderButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/header32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/header32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Header" Image="Images\Insert\header48.png" Text="Insert header"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="FooterButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/footer16.png" Header="Footer" Click="FooterButton_Click">
+                        <Fluent:Button Name="FooterButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/footer16.png" Header="Footer" Click="FooterButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Insert/footer32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Insert/footer32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Footer" Image="Images\Insert\footer48.png" Text="Insert footer"/>
@@ -915,7 +915,7 @@
                     <Fluent:RibbonGroupBox Header="Page Setup" CanAddToQuickAccessToolBar="False">
                         <Fluent:DropDownButton Header="Margins">
                             <Fluent:DropDownButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/PageLayout/pagemargins32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/PageLayout/pagemargins32.png" />
                             </Fluent:DropDownButton.LargeIcon>
                             <Fluent:DropDownButton.ToolTip>
                                 <Fluent:ScreenTip Title="Margins" Text="Set page margins" Image="Images/Pagelayout/pagemargins48.png" />
@@ -934,7 +934,7 @@
                         </Fluent:DropDownButton>
                         <Fluent:DropDownButton Header="Size">
                             <Fluent:DropDownButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/PageLayout/pagesize32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/PageLayout/pagesize32.png" />
                             </Fluent:DropDownButton.LargeIcon>
                             <Fluent:MenuItem Name="NormalPageSizeMenuItem" Header="Normal (8.5 x 11)" Click="NormalPageSizeMenuItem_Click"/>
                             <Fluent:MenuItem Name="WidePageSizeMenuItem" Header="Wide (11 x 8.5)"  Click="WidePageSizeMenuItem_Click"/>
@@ -948,7 +948,7 @@
                     <Fluent:RibbonGroupBox Header="Page Background" CanAddToQuickAccessToolBar="False">
                         <Fluent:DropDownButton Name="BackgroundColorMenuItem" Header="Background Color">
                             <Fluent:DropDownButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/PageLayout/backgroundcolor32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/PageLayout/backgroundcolor32.png" />
                             </Fluent:DropDownButton.LargeIcon>
                             <Fluent:DropDownButton.ToolTip>
                                 <Fluent:ScreenTip Title="Background Color" Image="Images\PageLayout\backgroundcolor48.png" Text="Set background color"/>
@@ -962,33 +962,33 @@
                         <Fluent:ScreenTip Title="Navigation" Text="Navigation Commands" />
                     </Fluent:RibbonTabItem.ToolTip>
                     <Fluent:RibbonGroupBox Header="Line" CanAddToQuickAccessToolBar="False">
-                        <Fluent:Button Name="LineDownButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/linedown16.png" Header="Line Down" Click="LineDownButton_Click">
+                        <Fluent:Button Name="LineDownButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/linedown16.png" Header="Line Down" Click="LineDownButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/linedown32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/linedown32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Line Down (Scroll Down)" Image="Images\Navigation\linedown48.png" Text="Line down"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="LineUpButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/lineup16.png" Header="Line Up" Click="LineUpButton_Click">
+                        <Fluent:Button Name="LineUpButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/lineup16.png" Header="Line Up" Click="LineUpButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/lineup32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/lineup32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Line Up (Scroll Up)" Image="Images\Navigation\lineup48.png" Text="Line up"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="LineLeftButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/lineleft16.png" Header="Line Left" Click="LineLeftButton_Click">
+                        <Fluent:Button Name="LineLeftButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/lineleft16.png" Header="Line Left" Click="LineLeftButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/lineleft32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/lineleft32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Line Left (Scroll Left)" Image="Images\Navigation\lineleft48.png" Text="Line left"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="LineRightButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/lineright16.png" Header="Line Right" Click="LineRightButton_Click">
+                        <Fluent:Button Name="LineRightButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/lineright16.png" Header="Line Right" Click="LineRightButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/lineright32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/lineright32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Line Right (Scroll Right)" Image="Images\Navigation\lineright48.png" Text="Line right"/>
@@ -996,33 +996,33 @@
                         </Fluent:Button>
                     </Fluent:RibbonGroupBox>
                     <Fluent:RibbonGroupBox Header="Page" CanAddToQuickAccessToolBar="False">
-                        <Fluent:Button Name="PageDownButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/pagedown16.png" Header="Page Down" Click="PageDownButton_Click">
+                        <Fluent:Button Name="PageDownButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/pagedown16.png" Header="Page Down" Click="PageDownButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/pagedown32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/pagedown32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Page Down (Page Down)" Image="Images\Navigation\pagedown48.png" Text="Page down"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="PageUpButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/pageup16.png" Header="Page Up" Click="PageUpButton_Click">
+                        <Fluent:Button Name="PageUpButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/pageup16.png" Header="Page Up" Click="PageUpButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/pageup32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/pageup32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Page Up (Page Up)" Image="Images\Navigation\pageup48.png" Text="Page up"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="PageLeftButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/pageleft16.png" Header="Page Left" Click="PageLeftButton_Click">
+                        <Fluent:Button Name="PageLeftButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/pageleft16.png" Header="Page Left" Click="PageLeftButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/pageleft32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/pageleft32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Page Left" Image="Images\Navigation\pageleft48.png" Text="Page left"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="PageRightButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/pageright16.png" Header="Page Right" Click="PageRightButton_Click">
+                        <Fluent:Button Name="PageRightButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/pageright16.png" Header="Page Right" Click="PageRightButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/pageright32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/pageright32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Page Right" Image="Images\Navigation\pageright48.png" Text="Page right"/>
@@ -1030,17 +1030,17 @@
                         </Fluent:Button>
                     </Fluent:RibbonGroupBox>
                     <Fluent:RibbonGroupBox Header="Document" CanAddToQuickAccessToolBar="False">
-                        <Fluent:Button Name="StartButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/pageup16.png" Header="Start" Click="StartButton_Click">
+                        <Fluent:Button Name="StartButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/pageup16.png" Header="Start" Click="StartButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/pageup32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/pageup32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Start (Home)" Image="Images\Navigation\pageup48.png" Text="Start"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="EndButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/pagedown16.png" Header="End" Click="EndButton_Click">
+                        <Fluent:Button Name="EndButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/pagedown16.png" Header="End" Click="EndButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/Navigation/pagedown32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/Navigation/pagedown32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="End (End)" Image="Images\Navigation\pagedown48.png" Text="End"/>
@@ -1053,17 +1053,17 @@
                         <Fluent:ScreenTip Title="View" Text="View Commands" />
                     </Fluent:RibbonTabItem.ToolTip>
                     <Fluent:RibbonGroupBox Header="Interface" CanAddToQuickAccessToolBar="False">
-                        <Fluent:ToggleButton Name="HRulerButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/ruler16.png" Header="Ruler" Checked="HRulerButton_Checked" Unchecked="HRulerButton_Unchecked">
+                        <Fluent:ToggleButton Name="HRulerButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/ruler16.png" Header="Ruler" Checked="HRulerButton_Checked" Unchecked="HRulerButton_Unchecked">
                             <Fluent:ToggleButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/ruler32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/ruler32.png" />
                             </Fluent:ToggleButton.LargeIcon>
                             <Fluent:ToggleButton.ToolTip>
                                 <Fluent:ScreenTip Title="Ruler" Image="Images\View\ruler48.png" Text="Show/Hide ruler"/>
                             </Fluent:ToggleButton.ToolTip>
                         </Fluent:ToggleButton>
-                        <Fluent:ToggleButton Name="StatusbarButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/statusbar16.png" Header="Statusbar" Checked="StatusbarButton_Checked" Unchecked="StatusbarButton_Unchecked">
+                        <Fluent:ToggleButton Name="StatusbarButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/statusbar16.png" Header="Statusbar" Checked="StatusbarButton_Checked" Unchecked="StatusbarButton_Unchecked">
                             <Fluent:ToggleButton.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/statusbar32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/statusbar32.png" />
                             </Fluent:ToggleButton.LargeIcon>
                             <Fluent:ToggleButton.ToolTip>
                                 <Fluent:ScreenTip Title="Statusbar" Image="Images\View\statusbar48.png" Text="Show/Hide statusbar"/>
@@ -1071,25 +1071,25 @@
                         </Fluent:ToggleButton>
                     </Fluent:RibbonGroupBox>
                     <Fluent:RibbonGroupBox Name="ZoomGroup" Header="Zoom" CanAddToQuickAccessToolBar="False">
-                        <Fluent:Button Name="ZoomInButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/zoomin16.png" Header="Zoom In" Click="ZoomInButton_Click">
+                        <Fluent:Button Name="ZoomInButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/zoomin16.png" Header="Zoom In" Click="ZoomInButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/zoomin32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/zoomin32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Zoom In" Image="Images\View\zoomin48.png" Text="Zoom in"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="ZoomOutButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/zoomout16.png" Header="Zoom Out" Click="ZoomOutButton_Click">
+                        <Fluent:Button Name="ZoomOutButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/zoomout16.png" Header="Zoom Out" Click="ZoomOutButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/zoomout32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/zoomout32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Zoom Out" Image="Images\View\zoomout48.png" Text="Zoom out"/>
                             </Fluent:Button.ToolTip>
                         </Fluent:Button>
-                        <Fluent:Button Name="ResetZoomButton" Icon="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/resetzoom16.png" Header="Reset Zoom" Click="ResetZoomButton_Click">
+                        <Fluent:Button Name="ResetZoomButton" Icon="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/resetzoom16.png" Header="Reset Zoom" Click="ResetZoomButton_Click">
                             <Fluent:Button.LargeIcon>
-                                <Image Height="32" Width="32" Source="/gip.core.reporthandler;Component/FlowDocEditor/Editor/Images/View/resetzoom32.png" />
+                                <Image Height="32" Width="32" Source="/gip.core.reporthandlerwpf;Component/FlowDocEditor/Editor/Images/View/resetzoom32.png" />
                             </Fluent:Button.LargeIcon>
                             <Fluent:Button.ToolTip>
                                 <Fluent:ScreenTip Title="Reset Zoom" Image="Images\View\resetzoom48.png" Text="Reset zoom"/>
