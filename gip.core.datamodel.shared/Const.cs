@@ -9,6 +9,7 @@
         public const string ACRootProjectName = "Root";
         public const string ACRootProjectNameTest = "RootTest";
         public const string Select = "en{'Select'}de{'Auswahl'}";
+        public const string Ok = "en{'Ok'}de{'Ok'}";
 
         //Datamodel Konstanten
         public const string EntityInsertName = "InsertName";
