@@ -1327,6 +1327,7 @@ namespace gip.core.autocomponent
 
         protected virtual void OnProcessModuleReleased(PAProcessModule module)
         {
+            module?.OnProcessModuleReleased(this);
         }
 
         [ACMethodInfo("", "en{'Release module'}de{'Gebe Modul frei'}", 300)]
@@ -1355,6 +1356,7 @@ namespace gip.core.autocomponent
         protected virtual void OnProcessModuleOccupied(PAProcessModule processModule)
         {
             _ProcessModuleChanged?.Invoke(this, new ProcessModuleChangedArgs(processModule, false));
+            processModule?.OnProcessModuleOccupied(this);
         }
 
         private event ProcessModuleChangedEventHandler _ProcessModuleChanged;

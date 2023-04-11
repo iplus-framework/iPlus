@@ -450,6 +450,14 @@ namespace gip.core.autocomponent
             }
         }
 
+        public virtual void OnProcessModuleOccupied(PWGroup pwGroup)
+        {
+        }
+
+        public virtual void OnProcessModuleReleased(PWGroup pwGroup)
+        {
+        }
+
         #region IACComponentTaskExec
         public virtual bool ActivateTask(ACMethod acMethod, bool executeMethod, IACComponent executingInstance)
         {
