@@ -31,6 +31,10 @@ namespace gip.core.manager
                 return false;
             if (ContentACClassWF.EntityState != EntityState.Added)
             {
+                if (ContentACClassWF.EntityState == EntityState.Detached)
+                {
+                    Database.ContextIPlus.ACClassWF.Add(ContentACClassWF);
+                }
                 ContentACClassWF.ACClassWF_ParentACClassWF.AutoLoad(ContentACClassWF.ACClassWF_ParentACClassWFReference, ContentACClassWF);
                 ContentACClassWF.ACClassWFEdge_SourceACClassWF.AutoLoad(ContentACClassWF.ACClassWFEdge_SourceACClassWFReference, ContentACClassWF);
                 ContentACClassWF.ACClassWFEdge_TargetACClassWF.AutoLoad(ContentACClassWF.ACClassWFEdge_TargetACClassWFReference, ContentACClassWF);

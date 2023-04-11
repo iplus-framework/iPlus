@@ -24,15 +24,14 @@ namespace gip.core.autocomponent
             using (FileStream fs = new FileStream(assemblyFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (BufferedStream bs = new BufferedStream(fs))
             {
-                using (SHA1Managed sha1 = new SHA1Managed())
+                SHA1 sha1 = SHA1.Create();
+                byte[] hash = sha1.ComputeHash(bs);
+                formatted = new StringBuilder(2 * hash.Length);
+                foreach (byte b in hash)
                 {
-                    byte[] hash = sha1.ComputeHash(bs);
-                    formatted = new StringBuilder(2 * hash.Length);
-                    foreach (byte b in hash)
-                    {
-                        formatted.AppendFormat("{0:X2}", b);
-                    }
+                    formatted.AppendFormat("{0:X2}", b);
                 }
+                sha1.Dispose();
             }
             return formatted.ToString();
         }

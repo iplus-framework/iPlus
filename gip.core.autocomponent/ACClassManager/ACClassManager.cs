@@ -494,7 +494,7 @@ namespace gip.core.autocomponent
                 if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("ACClassManager", "UpdateEntitiesWithUnknownTypes", msg);
 
-                throw e;
+                throw;
             }
         }
 
@@ -878,7 +878,7 @@ namespace gip.core.autocomponent
 
                 if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("ACClassManager", "InsertOrUpdateValueTypeACClass", msg);
-                throw e;
+                throw;
             }
             return acClass;
         }
@@ -2647,7 +2647,7 @@ namespace gip.core.autocomponent
                 if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("ACClassManager", "InsertOrUpdateACClassItemWithChild", msg);
 
-                throw e;
+                throw;
             }
         }
         #endregion
@@ -2679,7 +2679,7 @@ namespace gip.core.autocomponent
 
                 if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("ACClassManager", "InsertOrUpdateACQueryInfos", msg);
-                throw e;
+                throw;
             }
 
             try
@@ -2700,7 +2700,7 @@ namespace gip.core.autocomponent
 
                 if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("ACClassManager", "InsertOrUpdateACQueryInfos(10)", msg);
-                throw e;
+                throw;
             }
 
         }
@@ -2904,7 +2904,7 @@ namespace gip.core.autocomponent
 
                 if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("ACClassManager", "InsertOrUpdateACClassCompositions", msg);
-                throw e;
+                throw;
             }
         }
 
@@ -3048,7 +3048,7 @@ namespace gip.core.autocomponent
 
                 if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("ACClassManager", "InsertOrUpdateDummyEntries", msg);
-                throw e;
+                throw;
             }
         }
         #endregion

@@ -32,13 +32,13 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>..\bin\Debug\gip.core.layoutengine.xml</DocumentationFile>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>1591;CA1416</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>..\bin\Release\</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>1591;CA1416</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>

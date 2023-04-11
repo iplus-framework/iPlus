@@ -1231,7 +1231,7 @@ namespace gip.core.reporthandlerwpf
                                                                         || c.ACKindIndex == (short)Global.ACKinds.TPWGroup
                                                                         || c.ACKindIndex == (short)Global.ACKinds.TPWNodeWorkflow
                                                                         || c.ACKindIndex == (short)Global.ACKinds.TPWNodeStatic)
-                                                               .GroupBy(x => x.ACIdentifier).Select(q => q.FirstOrDefault());
+                                                                        .ToList().GroupBy(x => x.ACIdentifier).Select(q => q.FirstOrDefault());
             foreach (ACClass acclass in mainACClassesPW.Where(c => c.ACClassMethod_ACClass.Any(x => x.ACIdentifier == "SMStarting")))
             {
                 ACClassInfoWithItems info = new ACClassInfoWithItems() { ACCaption = acclass.ACCaption, ValueT = acclass };
