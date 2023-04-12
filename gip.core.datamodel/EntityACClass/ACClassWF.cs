@@ -645,20 +645,6 @@ namespace gip.core.datamodel
 
 #endregion
 
-<<<<<<< .mine
-#region IACConfigURL
-
-
-
-
-
-
-
-
-
-
-
-=======
         public bool IsWFProdNode(string pwClassName)
         {
             return RefPAACClassMethodID.HasValue
@@ -671,7 +657,6 @@ namespace gip.core.datamodel
         }
 
         #region IACConfigURL
->>>>>>> .theirs
 
         [NotMapped]
         public string ConfigACUrl

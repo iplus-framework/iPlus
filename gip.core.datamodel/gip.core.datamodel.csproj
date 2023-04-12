@@ -108,20 +108,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.json" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="DbScripts\iPlus\dbsync_2023-03-16_19-10_aagincic.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-<<<<<<< .mine
-  </ItemGroup>
   <PropertyGroup />
   <PropertyGroup />
-=======
-
-
-
->>>>>>> .theirs
   <Import Project="..\gip.core.datamodel.shared\gip.core.datamodel.shared.projitems" Label="Shared" />
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy /Y $(ProjectDir)..\..\..\packages\Matrix\matrix.ini  $(TargetDir)&#xD;&#xA;copy /Y $(ProjectDir)..\..\..\packages\Matrix\MATRIX32.DLL  $(TargetDir)&#xD;&#xA;copy /Y $(ProjectDir)..\..\..\packages\Matrix\MATRIX64.DLL  $(TargetDir)" />
