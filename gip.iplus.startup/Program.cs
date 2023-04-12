@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Security.AccessControl;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace gip.iplus.startup
 {
@@ -25,7 +26,7 @@ namespace gip.iplus.startup
         {
             if (args.Count() <= 0)
             {
-                System.Console.WriteLine("gip.iplus.startup.exe [Installation path Server] [Installation path local] optional:[\"Start parameters\"] optional: [Working directory of iPlus] optional: [DisableDelete (true/false default:false)]");
+                System.Console.WriteLine("gip.iplus.startup.exe [Installation path Server] [Installation path local] optional:[\"Start parameters\" use \"-\" for no params] optional: [Working directory of iPlus] optional: [StartMode (Start/UpdateStart/Max/UpdateMax)] optional: [DisableDelete (true/false default:false)]");
                 System.Console.Read();
                 return;
             }
@@ -35,6 +36,8 @@ namespace gip.iplus.startup
             string workingDirectory = "";
             string commandLineArgs = "";
             bool disableDelete = false;
+            bool copyFromServer = true;
+            string startMode = "UpdateStart";
             for (int i = 0; i < args.Length; i++)
             {
                 if (i == 0)
@@ -46,10 +49,44 @@ namespace gip.iplus.startup
                 else if (i == 3)
                     workingDirectory = args[i];
                 else if (i == 4)
+                    startMode = args[i];
+                else if (i == 5)
                 {
                     if (args[i].ToLower() == "true")
                         disableDelete = true;
                 }
+            }
+            if (commandLineArgs == "-")
+                commandLineArgs = "";
+
+            if (String.IsNullOrEmpty(startMode))
+                startMode = "UpdateStart";
+            startMode = startMode.ToLower();
+            if (!(startMode == "start" || startMode == "updatestart" || startMode == "max" || startMode == "updatemax"))
+                startMode = "updatestart";
+
+            if (startMode == "max" || startMode == "updatemax")
+            {
+                Process[] processlist = Process.GetProcesses();
+                foreach (Process process in processlist)
+                {
+                    if (   C_iPlusExeName.Contains(process.ProcessName)
+                        || C_iPlusMESExeName.Contains(process.ProcessName)
+                        || C_iPlusVBExeName.Contains(process.ProcessName))
+                    {
+                        if (process.MainWindowHandle != null && process.MainWindowHandle != IntPtr.Zero)
+                        {
+                            ShowWindowAsync(process.MainWindowHandle, 3); // SW_MAXIMIZE
+                            return;
+                        }
+                    }
+                }
+            }
+
+            if (startMode == "start" || startMode == "max")
+            {
+                disableDelete = true;
+                copyFromServer = false;
             }
 
             if (String.IsNullOrEmpty(sourceInstallPath))
@@ -110,9 +147,12 @@ namespace gip.iplus.startup
                 return;
             }
 
-            InitializeInstallScripts(sourceInstallPath);
-            if (!ExecuteInstallScriptsPreStartup(sourceInstallPath, localInstallPath))
-                return;
+            if (copyFromServer)
+            {
+                InitializeInstallScripts(sourceInstallPath);
+                if (!ExecuteInstallScriptsPreStartup(sourceInstallPath, localInstallPath))
+                    return;
+            }
 
             string pathIPlus = "";
             string[] extensions = { ".dll", ".exe", ".csdl", ".ssdl", ".msl", ".chm", ".cpl", ".inf", ".llx", ".ocx", ".lng", ".cpl", ".pdb" };
@@ -136,7 +176,7 @@ namespace gip.iplus.startup
                     if (sourceFileTime != destFileTime)
                         copyFile = true;
                 }
-                if (copyFile)
+                if (copyFile && copyFromServer)
                 {
                     File.Copy(sourcefilePath, destFilePath, true);
                 }
@@ -179,8 +219,11 @@ namespace gip.iplus.startup
                 }
             }
 
-            if (!ExecuteInstallScriptsPostStartup(sourceInstallPath, localInstallPath))
-                return;
+            if (copyFromServer)
+            {
+                if (!ExecuteInstallScriptsPostStartup(sourceInstallPath, localInstallPath))
+                    return;
+            }
 
             if (!String.IsNullOrEmpty(pathIPlus))
             {
@@ -331,6 +374,9 @@ namespace gip.iplus.startup
 
             return _ScriptEngine.Execute(ScriptMode.PostStartup, sourceInstallPath, localInstallPath);
         }
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
 
         private static ScriptEngine _ScriptEngine;
     }

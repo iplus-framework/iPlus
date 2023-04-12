@@ -167,41 +167,41 @@ namespace gip.core.communication
                     Messages.LogError(this.GetACUrl(), ClassName, "UA-Server Configuration file not found!");
                     return;
                 }
+
+                if (_AppConfiguration == null)
+                    return;
+
+                Task<bool> taskCert = _AppInstance.CheckApplicationInstanceCertificate(true, 0);
+                if (taskCert != null)
+                {
+                    _HasAppCertificate = taskCert.Result;
+                    if (!HasAppCertificate)
+                    {
+                        Messages.LogError(this.GetACUrl(), ClassName, "Application instance certificate invalid!");
+                        return;
+                    }
+                }
+                else
+                {
+                    Messages.LogError(this.GetACUrl(), ClassName, "Application instance certificate invalid!");
+                    return;
+                }
+
+                if (!_AppConfiguration.SecurityConfiguration.AutoAcceptUntrustedCertificates)
+                    _AppConfiguration.CertificateValidator.CertificateValidation += new CertificateValidationEventHandler(CertificateValidator_CertificateValidation);
+
+                if (!UseCertificate)
+                    _AutoAccept = true;
+
+                // start the server.
+                _OPCUASrvServer = new OPCUASrvServer(this);
+                _AppInstance.Start(_OPCUASrvServer).Wait();
             }
             catch (Exception e)
             {
                 Messages.LogException(this.GetACUrl(), "InitOPCUAApp(10)", e);
                 return;
             }
-
-            if (_AppConfiguration == null)
-                return;
-
-            Task<bool> taskCert = _AppInstance.CheckApplicationInstanceCertificate(true, 0);
-            if (taskCert != null)
-            {
-                _HasAppCertificate = taskCert.Result;
-                if (!HasAppCertificate)
-                {
-                    Messages.LogError(this.GetACUrl(), ClassName, "Application instance certificate invalid!");
-                    return;
-                }
-            }
-            else
-            {
-                Messages.LogError(this.GetACUrl(), ClassName, "Application instance certificate invalid!");
-                return;
-            }
-
-            if (!_AppConfiguration.SecurityConfiguration.AutoAcceptUntrustedCertificates)
-                _AppConfiguration.CertificateValidator.CertificateValidation += new CertificateValidationEventHandler(CertificateValidator_CertificateValidation);
-
-            if (!UseCertificate)
-                _AutoAccept = true;
-
-            // start the server.
-            _OPCUASrvServer = new OPCUASrvServer(this);
-            _AppInstance.Start(_OPCUASrvServer).Wait();
 
             //if (ReverseConnectUrl != null)
             //{

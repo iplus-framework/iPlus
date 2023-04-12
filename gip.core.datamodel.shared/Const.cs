@@ -8,6 +8,8 @@
         public const string ACRootClassName = "ACRoot";
         public const string ACRootProjectName = "Root";
         public const string ACRootProjectNameTest = "RootTest";
+        public const string Select = "en{'Select'}de{'Auswahl'}";
+        public const string Ok = "en{'Ok'}de{'Ok'}";
 
         //Datamodel Konstanten
         public const string EntityInsertName = "InsertName";
@@ -354,6 +356,9 @@
 
         public const string From = "en{'From'}de{'Von'}";
         public const string To = "en{'To'}de{'Bis'}";
+
+        public const string Workflow = "en{'Workflow'}de{'Workflow'}";
+        public const string ProcessModule = "en{'Process Module'}de{'Prozessmodul'}";
     }
 
 

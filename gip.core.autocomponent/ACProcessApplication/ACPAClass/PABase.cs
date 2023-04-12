@@ -859,14 +859,20 @@ namespace gip.core.autocomponent
 
             _SimTriggerGoToNextState = false;
             _SimulationWait++;
-            Random random = new Random();
-            int duration = random.Next(5, 15);
+
+            int duration = OnGetSimulationWaitCycles();
             //int duration = 300;
             if (_SimulationWait < duration)
                 return true;
             UnSubscribeToProjectWorkCycle();
             _SimulationWait = 0;
             return false;
+        }
+
+        protected virtual int OnGetSimulationWaitCycles()
+        {
+            Random random = new Random();
+            return random.Next(5, 15);
         }
 
         /// <summary>

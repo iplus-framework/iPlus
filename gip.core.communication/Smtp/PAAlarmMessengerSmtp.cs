@@ -32,6 +32,14 @@ namespace gip.core.communication
             return true;
         }
 
+        public override bool ACPostInit()
+        {
+            bool result = base.ACPostInit();
+            _ = ACUrlOfSmtpClient;
+
+            return result;
+        }
+
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
             _TaskSubscriptionPoint.UnSubscribe();

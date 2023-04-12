@@ -21,7 +21,7 @@ namespace gip.core.manager
         {
             if (!base.ACInit(startChildMode))
                 return false;
-            AccessPrimary.NavSearch(Database.ContextIPlus);
+            AccessPrimary.NavSearch(Db);
             _DisplayOrder = 0;
             wrapperList.Clear();
             if (CurrentACProgram != null)
@@ -41,6 +41,33 @@ namespace gip.core.manager
         #endregion
 
         #region Properties
+
+
+        private Database _BSODatabase = null;
+        /// <summary>
+        /// Overriden: Returns a separate database context.
+        /// </summary>
+        /// <value>The context as IACEntityObjectContext.</value>
+        public override IACEntityObjectContext Database
+        {
+            get
+            {
+                if (_BSODatabase == null)
+                    _BSODatabase = ACObjectContextManager.GetOrCreateContext<Database>(this.GetACUrl());
+                return _BSODatabase;
+            }
+        }
+
+        /// <summary>
+        /// Gets the database instance. 
+        /// </summary>
+        public Database Db
+        {
+            get
+            {
+                return Database.ContextIPlus as Database;
+            }
+        }
 
         public override IAccessNav AccessNav { get { return AccessPrimary; } }
         /// <summary>
@@ -588,14 +615,14 @@ namespace gip.core.manager
         [ACMethodInteraction("", "en{'Show Details'}de{'Details anzeigen'}", 900, true, "CurrentProgramLogWrapper")]
         public void ShowDetails()
         {
-            CurrentACMethod = ACConvert.XMLToObject<ACMethod>(CurrentProgramLogWrapper.ACProgramLog.XMLConfig, true, Database);
+            CurrentACMethod = ACConvert.XMLToObject<ACMethod>(CurrentProgramLogWrapper.ACProgramLog.XMLConfig, true, Db);
             ShowDialog(this, "DetailsDialog");
         }
 
         [ACMethodInfo("", "en{'ShowACProgramLog'}de{'ShowACProgramLog'}",901,false)]
         public void ShowACProgramLog(ACValueList param)
         { 
-            if(param.Any(c => c.ObjectType == typeof(ACProgram)))
+            if (param.Any(c => c.ObjectType == typeof(ACProgram)))
             {
                 ACProgram acprogram = param.FirstOrDefault(c => c.ObjectType == typeof(ACProgram)).Value as ACProgram;
                 if (param.FirstOrDefault(c => c.ACIdentifier == "WorkflowACUrl").Value != null)
@@ -622,6 +649,31 @@ namespace gip.core.manager
                 SearchFromWF();
             }
 
+#if DEBUG
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                IEnumerable<ACPropertyLogSumOfProgram> sumOfProgram = gip.core.datamodel.ACPropertyLog.GetSummarizedDurationsOfProgram(Db, currentACProgram.ACProgramID, new string[] { "AvailabilityState" } );
+                ACPropertyLogSumOfProgram lastEntry = sumOfProgram?.LastOrDefault();
+                if (lastEntry != null)
+                {
+                    DateTime toTime = DateTime.Now;
+                    var lastPropertyLog = lastEntry.Sum.LastOrDefault().PropertyLog;
+                    if (lastPropertyLog != null)
+                        toTime = lastPropertyLog.EventTime;
+                    else
+                    {
+                        var lastProgramLog = Db.ACProgramLog.Where(c => c.ACProgramID == CurrentACProgram.ACProgramID && c.EndDate.HasValue).OrderByDescending(c => c.EndDate).FirstOrDefault();
+                        if (lastProgramLog != null)
+                            toTime = lastProgramLog.EndDate.Value;
+                        else
+                            toTime = CurrentACProgram.UpdateDate.AddDays(1);
+                    }
+
+                    IEnumerable<ACPropertyLogSum> sum2 = gip.core.datamodel.ACPropertyLog.AggregateDurationOfPropertyValues(Db, CurrentACProgram.InsertDate, toTime, lastEntry.ACClass.ACClassID, "AvailabilityState");
+                }
+            }
+#endif
+
             ShowDialog(this, "PresenterProgramLogDialog");
             //ShowWindow(this,
             //    "PresenterProgramLogDialog", 
@@ -640,7 +692,7 @@ namespace gip.core.manager
             _IsFromVBBSOControlPA = true;
             _DisplayOrder = 0;
             wrapperList.Clear();
-            CreateProgramLogWrapper(Database.ContextIPlus.ACProgramLog.Where(c => c.ACUrl.Contains(componentACUrl) && c.StartDate > timeFrom && c.EndDate < timeTo));
+            CreateProgramLogWrapper(Db.ACProgramLog.Where(c => c.ACUrl.Contains(componentACUrl) && c.StartDate > timeFrom && c.EndDate < timeTo));
             ProgramLogWrapperList = wrapperList;
             ProgramLogWrapperRootList = ProgramLogWrapperList;
             ShowDialog(this, "PresenterProgramLogDialog");

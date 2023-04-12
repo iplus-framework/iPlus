@@ -2230,6 +2230,25 @@ namespace gip.core.autocomponent
 
 
         #region Planning and Testing
+        protected override int OnGetSimulationWaitCycles()
+        {
+            PWNodeProcessMethod invokingNode = null;
+            if (this.CurrentTask != null && CurrentACMethod.ValueT != null)
+                invokingNode = this.CurrentTask.ValueT as PWNodeProcessMethod;
+            if (invokingNode == null)
+                return base.OnGetSimulationWaitCycles();
+            int rndMinValue = 5;
+            int rndMaxValue = 20;
+            if (invokingNode != null && invokingNode.IterationCount.ValueT > 0)
+            {
+                rndMinValue = invokingNode.IterationCount.ValueT * 5;
+                rndMaxValue = invokingNode.IterationCount.ValueT * 15;
+            }
+
+            Random random = new Random();
+            return random.Next(rndMinValue, rndMaxValue);
+        }
+
         public virtual ACMethodEventArgs CreateNewMethodEventArgs(ACMethod acMethod, Global.ACMethodResultState state)
         {
             ACMethodEventArgs result = new ACMethodEventArgs(acMethod, state);

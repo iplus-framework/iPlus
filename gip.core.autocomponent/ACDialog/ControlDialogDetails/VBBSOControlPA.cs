@@ -960,11 +960,14 @@ namespace gip.core.autocomponent
             if (CurrentACComponent != null && SearchFrom < SearchTo && (SearchTo - SearchFrom).TotalDays < 11)
             {
                 PAShowDlgManagerBase service = PAShowDlgManagerBase.GetServiceInstance(this);
-                ACValueList param = new ACValueList();
-                param.Add(new ACValue("ComponentACUrl", CurrentACComponent.GetACUrl()));
-                param.Add(new ACValue("SearchFrom", SearchFrom));
-                param.Add(new ACValue("SearchTo", SearchTo));
-                service.ShowProgramLogViewer(this as IACComponent, param);
+                if (service != null)
+                {
+                    ACValueList param = new ACValueList();
+                    param.Add(new ACValue("ComponentACUrl", CurrentACComponent.GetACUrl()));
+                    param.Add(new ACValue("SearchFrom", SearchFrom));
+                    param.Add(new ACValue("SearchTo", SearchTo));
+                    service.ShowProgramLogViewer(this as IACComponent, param);
+                }
             }
             else
                 Messages.Warning(this, "Warning50010");

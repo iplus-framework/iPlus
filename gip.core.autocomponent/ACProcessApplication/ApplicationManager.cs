@@ -149,6 +149,8 @@ namespace gip.core.autocomponent
 
         #region Properties
 
+        DateTime _LastDaylightSavingTime = DateTime.Now;
+        bool _DaylightSavingTimeEnabled = TimeZoneInfo.Local.SupportsDaylightSavingTime;
         int _LastWorkflowInstanceNo = 0;
         [ACPropertyInfo(true, 999, "ACConfig", "en{'LastWorkflowIntanceNo'}de{'LastWorkflowIntanceNo'}", "", true)]
         public int LastWorkflowInstanceNo
@@ -317,6 +319,9 @@ namespace gip.core.autocomponent
         public event EventHandler ProjectWorkCycleR10min;
         public event EventHandler ProjectWorkCycleR20min;
         public event EventHandler ProjectWorkCycleHourly;
+
+        public event EventHandler DaylightSavingTimeSwitched;
+
         #endregion
 
         #region Methods
@@ -421,6 +426,12 @@ namespace gip.core.autocomponent
             {
                 if (ProjectWorkCycleR1sec != null)
                     ProjectWorkCycleR1sec(this, new EventArgs());
+                if (_LastDaylightSavingTime.IsDaylightSavingTime() != stampStart.IsDaylightSavingTime())
+                {
+                    _LastDaylightSavingTime = stampStart;
+                    if (DaylightSavingTimeSwitched != null)
+                        DaylightSavingTimeSwitched(this, new EventArgs());
+                }
             }
             if (_WakeupCounter % 20 == 0)
             {
@@ -464,6 +475,12 @@ namespace gip.core.autocomponent
             {
                 if (ProjectWorkCycleR10min != null)
                     ProjectWorkCycleR10min(this, new EventArgs());
+                if (_DaylightSavingTimeEnabled != TimeZoneInfo.Local.SupportsDaylightSavingTime)
+                {
+                    _DaylightSavingTimeEnabled = TimeZoneInfo.Local.SupportsDaylightSavingTime;
+                    if (DaylightSavingTimeSwitched != null)
+                        DaylightSavingTimeSwitched(this, new EventArgs());
+                }
             }
             if (_WakeupCounter % 12000 == 0)
             {

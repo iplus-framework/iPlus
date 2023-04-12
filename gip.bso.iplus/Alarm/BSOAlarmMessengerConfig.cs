@@ -1299,6 +1299,17 @@ namespace gip.bso.iplus
             return appMClass;
         }
 
+        private IEnumerable<ACClass> FindAlarmMessengers(IACComponent sourceComp, ACClass sourceACClass)
+        {
+            IAppManager appManager = sourceComp.FindParentComponent<IAppManager>(c => c is IAppManager);
+            if (appManager == null)
+                return null;
+            ACClass appMClass = appManager.ComponentClass;
+            if (appMClass == null)
+                return null;
+            return appMClass.ACClass_ParentACClass.Where(c => _alarmMessengerBase.IsAssignableFrom(c.ObjectFullType));
+        }
+
         private void ControlDialog_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "CurrentSelection" && _controlDialog.CurrentSelection != null)
@@ -1442,21 +1453,28 @@ namespace gip.bso.iplus
                 IsVisibleConfigTarget = true;
                 IsVisibleConfigLevel = false;
 
-                ACClass currentAlarmMessenger = FindAlarmMessenger(sourceComp, sourceACClass);
-                if (currentAlarmMessenger == null)
+                IEnumerable<ACClass> currentAlarmMessengers = FindAlarmMessengers(sourceComp, sourceACClass);
+                if (currentAlarmMessengers == null || !currentAlarmMessengers.Any())
                     return false;
-                var configTargets = FindBasedOnConfigurationTargets(currentAlarmMessenger).ToArray();
-                configTargets.Reverse();
 
-                CurrentConfigTarget = new ACClassInfoWithItems() { ValueT = configTargets[0] };
-                ACClassInfoWithItems parentTargetInfo = CurrentConfigTarget;
-                foreach (var item in configTargets)
+                CurrentConfigTarget = new ACClassInfoWithItems("Root") { ACCaption = "Root"};
+
+                foreach (var currentAlarmMessenger in currentAlarmMessengers)
                 {
-                    if (item.ACClassID == configTargets[0].ACClassID)
-                        continue;
-                    ACClassInfoWithItems info = new ACClassInfoWithItems() { ValueT = item };
-                    parentTargetInfo.Add(info);
-                    parentTargetInfo = info;
+                    var configTargets = FindBasedOnConfigurationTargets(currentAlarmMessenger).ToArray();
+                    configTargets.Reverse();
+
+                    ACClassInfoWithItems parentTargetInfo = new ACClassInfoWithItems() { ValueT = configTargets[0] };
+                    CurrentConfigTarget.Add(parentTargetInfo);
+                    
+                    foreach (var item in configTargets)
+                    {
+                        if (item.ACClassID == configTargets[0].ACClassID)
+                            continue;
+                        ACClassInfoWithItems info = new ACClassInfoWithItems() { ValueT = item };
+                        parentTargetInfo.Add(info);
+                        parentTargetInfo = info;
+                    }
                 }
                 _CurrentConfigTargetRoot = CurrentConfigTarget;
 

@@ -36,6 +36,7 @@ namespace gip.core.datamodel
             return entity;
         }
 
+
         /// <summary>
         /// Aggregates the duration of property logs by value(state).
         /// </summary>
@@ -52,11 +53,13 @@ namespace gip.core.datamodel
             {
                 var propertyLogs = db.ACPropertyLog.Include(c => c.ACClassProperty)
                                                    .Include(c => c.ACClass)
-                                                   .Where(c => c.ACClassID == acClassID 
-                                                                && c.ACClassPropertyID == acClassPropertyID 
-                                                                && c.EventTime >= from 
-                                                                && c.EventTime <= to)
-                                                   .OrderBy(p => p.EventTime)
+                                                   .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog })
+                                                   .Where(c => c.propLog.ACClassID == acClassID 
+                                                                && c.propLog.ACClassPropertyID == acClassPropertyID 
+                                                                && c.propLog.EventTime >= from 
+                                                                && c.propLog.EventTime <= to)
+                                                   .OrderBy(p => p.propLog.EventTime)
+                                                   .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.propLog, ProgramLog = c.programLog })
                                                    .ToArray();
 
                 result = BuildACPropertyLogInfo(from, to, acClassID, db, propertyLogs);
@@ -64,6 +67,7 @@ namespace gip.core.datamodel
 
             return AggregateDurationOfPropertyValues(null, null, result);
         }
+
 
         /// <summary>
         /// Aggregates the duration of property logs by value(state).
@@ -81,62 +85,73 @@ namespace gip.core.datamodel
             }
         }
 
+
         public static IEnumerable<ACPropertyLogSum> AggregateDurationOfPropertyValues(Database db, DateTime from, DateTime to, Guid acClassID, string acClassPropertyACIdentifier)
         {
             List<ACPropertyLogInfo> result = null;
             var propertyLogs = db.ACPropertyLog.Include(c => c.ACClassProperty)
                                                 .Include(c => c.ACClass)
-                                                .Where(c => c.ACClassID == acClassID
-                                                        && c.ACClassProperty.ACIdentifier == acClassPropertyACIdentifier
-                                                        && c.EventTime >= from && c.EventTime <= to)
-                                                .OrderBy(p => p.EventTime)
+                                                .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog })
+                                                .Where(c => c.propLog.ACClassID == acClassID
+                                                        && c.propLog.ACClassProperty.ACIdentifier == acClassPropertyACIdentifier
+                                                        && c.propLog.EventTime >= from && c.propLog.EventTime <= to)
+                                                .OrderBy(p => p.propLog.EventTime)
+                                                .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.propLog, ProgramLog = c.programLog })
                                                 .ToArray();
 
             result = BuildACPropertyLogInfo(from, to, acClassID, db, propertyLogs);
             return AggregateDurationOfPropertyValues(null, null, result);
         }
 
-        private static List<ACPropertyLogInfo> BuildACPropertyLogInfo(DateTime? from, DateTime? to, Guid acClassID, Database db, IEnumerable<ACPropertyLog> propertyLogs)
+
+        private static List<ACPropertyLogInfo> BuildACPropertyLogInfo(DateTime? from, DateTime? to, Guid acClassID, Database db, IEnumerable<ACPropertyLog_ACProgramLog> propertyLogs)
         {
             List<ACPropertyLogInfo> result = new List<ACPropertyLogInfo>();
 
             if (!propertyLogs.Any())
                 return null;
 
-            ACPropertyLog tempLog = propertyLogs.FirstOrDefault();
-            if (from.HasValue && tempLog.EventTime != from)
+            ACPropertyLog_ACProgramLog tempLog = propertyLogs.FirstOrDefault();
+            if (from.HasValue && tempLog.PropertyLog.EventTime != from)
             {
-                DateTime dateTime = tempLog.EventTime.AddMilliseconds(-2);
-                ACPropertyLog previousLog = db.ACPropertyLog.Where(c => c.ACClassID == acClassID && c.ACClassPropertyID == tempLog.ACClassPropertyID && c.EventTime < dateTime)
-                                                            .OrderByDescending(p => p.EventTime).FirstOrDefault();
+                DateTime dateTime = tempLog.PropertyLog.EventTime.AddMilliseconds(-2);
+                ACPropertyLog_ACProgramLog previousLog = db.ACPropertyLog.Include(c => c.ACClassProperty)
+                                                            .Include(c => c.ACClass)
+                                                            .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog })
+                                                            .Where(c => c.propLog.ACClassID == acClassID 
+                                                                     && c.propLog.ACClassPropertyID == tempLog.PropertyLog.ACClassPropertyID && c.propLog.EventTime < dateTime)
+                                                            .OrderByDescending(p => p.propLog.EventTime)
+                                                            .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.propLog, ProgramLog = c.programLog })
+                                                            .FirstOrDefault();
                 if (previousLog != null)
                 {
-                    previousLog.EventTime = from.Value;
+                    previousLog.PropertyLog.EventTime = from.Value;
                     tempLog = previousLog;
                 }
             }
 
-            Type valueType = tempLog.ACClassProperty.ObjectType;
-            string acCaption = tempLog.ACClassProperty.ACCaption;
-            string acUrl = tempLog.ACClass.ACUrlComponent;
+            Type valueType = tempLog.PropertyLog.ACClassProperty.ObjectType;
+            string acCaption = tempLog.PropertyLog.ACClassProperty.ACCaption;
+            string acUrl = tempLog.PropertyLog.ACClass.ACUrlComponent;
 
-            foreach (ACPropertyLog propLog in propertyLogs)
+            foreach (ACPropertyLog_ACProgramLog propLog in propertyLogs)
             {
-                object logValue = ACConvert.XMLToObject(valueType, tempLog.Value, true, db);
-                ACPropertyLogInfo logInfo = new ACPropertyLogInfo(tempLog.EventTime, propLog.EventTime, logValue, acCaption) { ACUrl = acUrl, PropertyLog = tempLog };
+                object logValue = ACConvert.XMLToObject(valueType, tempLog.PropertyLog.Value, true, db);
+                ACPropertyLogInfo logInfo = new ACPropertyLogInfo(tempLog.PropertyLog.EventTime, propLog.PropertyLog.EventTime, logValue, acCaption) { ACUrl = acUrl, PropertyLog = tempLog.PropertyLog, ProgramLog = tempLog.ProgramLog };
                 result.Add(logInfo);
                 tempLog = propLog;
             }
 
-            if (to.HasValue && tempLog.EventTime != to)
+            if (to.HasValue && tempLog.PropertyLog.EventTime != to)
             {
-                object logValue = ACConvert.XMLToObject(valueType, tempLog.Value, true, db);
-                ACPropertyLogInfo logInfo = new ACPropertyLogInfo(tempLog.EventTime, to, logValue, acCaption) { ACUrl = acUrl, PropertyLog = tempLog };
+                object logValue = ACConvert.XMLToObject(valueType, tempLog.PropertyLog.Value, true, db);
+                ACPropertyLogInfo logInfo = new ACPropertyLogInfo(tempLog.PropertyLog.EventTime, to, logValue, acCaption) { ACUrl = acUrl, PropertyLog = tempLog.PropertyLog, ProgramLog = tempLog.ProgramLog };
                 result.Add(logInfo);
             }
 
             return result;
         }
+
 
         /// <summary>
         /// Aggregates the duration of property logs by value(state) from given propertyLogs.
@@ -167,7 +182,7 @@ namespace gip.core.datamodel
                 {
                     ACPropertyLogInfo tempLogInfo = queryList.FirstOrDefault();
                     ACPropertyLogInfo adjustedLog = new ACPropertyLogInfo(tempLogInfo.StartDate, tempLogInfo.EndDate, tempLogInfo.PropertyValue, tempLogInfo.ACCaption)
-                                                                         { ACUrl = tempLogInfo.ACUrl, PropertyLog = tempLogInfo.PropertyLog };
+                                                                         { ACUrl = tempLogInfo.ACUrl, PropertyLog = tempLogInfo.PropertyLog, ProgramLog = tempLogInfo.ProgramLog };
                     if (tempLogInfo.StartDate < from)
                         adjustedLog.StartDate = from;
 
@@ -184,7 +199,7 @@ namespace gip.core.datamodel
                     foreach(ACPropertyLogInfo logInfo in query)
                     {
                         ACPropertyLogInfo adjustedLog = new ACPropertyLogInfo(from, logInfo.EndDate, logInfo.PropertyValue, logInfo.ACCaption)
-                                                                             { ACUrl = logInfo.ACUrl, PropertyLog = logInfo.PropertyLog };
+                                                                             { ACUrl = logInfo.ACUrl, PropertyLog = logInfo.PropertyLog, ProgramLog = logInfo.ProgramLog };
                         queryList.Remove(logInfo);
                         queryList.Insert(0, adjustedLog);
                     }
@@ -194,7 +209,7 @@ namespace gip.core.datamodel
                     foreach (ACPropertyLogInfo logInfo in query)
                     {
                         ACPropertyLogInfo adjustedLog = new ACPropertyLogInfo(logInfo.StartDate, to, logInfo.PropertyValue, logInfo.ACCaption)
-                                                                             { ACUrl = logInfo.ACUrl, PropertyLog = logInfo.PropertyLog };
+                                                                             { ACUrl = logInfo.ACUrl, PropertyLog = logInfo.PropertyLog, ProgramLog = logInfo.ProgramLog };
                         queryList.Remove(logInfo);
                         queryList.Add(adjustedLog);
                     }
@@ -209,8 +224,10 @@ namespace gip.core.datamodel
             return propertyLogs.GroupBy(c => c.PropertyValue)
                                .Select(c => new ACPropertyLogSum(c.Key, TimeSpan.FromSeconds(c.Where(x => x.StartDate.HasValue && x.EndDate.HasValue)
                                                                                               .Sum(d => (d.EndDate - d.StartDate).Value.TotalSeconds)),
-                                                                 c.FirstOrDefault()?.ACCaption, c.FirstOrDefault()?.ACUrl));
+                                                                 c.FirstOrDefault()?.ACCaption, c.FirstOrDefault()?.ACUrl)
+                                                { ProgramLog = c.FirstOrDefault()?.ProgramLog, PropertyLog = c.FirstOrDefault()?.PropertyLog});
         }
+
 
         public static IEnumerable<ACPropertyLogSumOfProgram> GetSummarizedDurationsOfProgram(Guid acProgramID, string[] properties)
         {
@@ -220,16 +237,27 @@ namespace gip.core.datamodel
             }
         }
 
+
         public static IEnumerable<ACPropertyLogSumOfProgram> GetSummarizedDurationsOfProgram(Database db, Guid acProgramID, string[] properties)
         {
             List<ACPropertyLogSumOfProgram> result = new List<ACPropertyLogSumOfProgram>();
 
+            //var query = db.ACPropertyLog
+            //    .Include(c => c.ACClass)
+            //    .Include(c => c.ACClassProperty)
+            //    .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog.ACProgramID })
+            //    //.Join(db.ACProgram, programLog => programLog.ACProgramID, program => program.ACProgramID, (programLog, program) => new { program.ACProgramID })
+            //    .Where(c => c.ACProgramID == acProgramID && properties.Contains(c.propLog.ACClassProperty.ACIdentifier))
+            //    .AsEnumerable()
+            //    .GroupBy(c => new { c.propLog.ACClass, c.propLog.ACClassProperty })
+            //    .ToArray();
+
             var query = db.ACPropertyLog
                 .Include(c => c.ACClass)
                 .Include(c => c.ACClassProperty)
-                .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog.ACProgramID })
+                .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog })
                 //.Join(db.ACProgram, programLog => programLog.ACProgramID, program => program.ACProgramID, (programLog, program) => new { program.ACProgramID })
-                .Where(c => c.ACProgramID == acProgramID && properties.Contains(c.propLog.ACClassProperty.ACIdentifier))
+                .Where(c => c.programLog.ACProgramID == acProgramID && properties.Contains(c.propLog.ACClassProperty.ACIdentifier))
                 .AsEnumerable()
                 .GroupBy(c => new { c.propLog.ACClass, c.propLog.ACClassProperty })
                 .ToArray();
@@ -245,11 +273,55 @@ namespace gip.core.datamodel
             //            select g;
             foreach (var propLogs in query)
             {
-                List<ACPropertyLogInfo> infos = BuildACPropertyLogInfo(null, null, propLogs.Key.ACClass.ACClassID, db, propLogs.Select(c => c.propLog).OrderBy(c => c.EventTime).ToArray());
+                IEnumerable<ACPropertyLog_ACProgramLog> sortedLogs = propLogs.Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.propLog, ProgramLog = c.programLog }).OrderBy(c => c.PropertyLog.EventTime).ToArray();
+                List<ACPropertyLogInfo> infos = BuildACPropertyLogInfo(null, null, propLogs.Key.ACClass.ACClassID, db, sortedLogs);
                 result.Add(new ACPropertyLogSumOfProgram(propLogs.Key.ACClass, propLogs.Key.ACClassProperty, AggregateDurationOfPropertyValues(null, null, infos)));
             }
             return result;
         }
+
+
+        public static IEnumerable<ACPropertyLog_ACProgramLog> GetLogs(Database db, DateTime from, DateTime to, Guid? projectID = null, Guid? componentClassID = null, string searchText = null)
+        {
+            IEnumerable<ACPropertyLog_ACProgramLog> relevantLogs = db.ACPropertyLog
+                                                        .Include(c => c.ACClass.ACClass1_ParentACClass.ACClass1_ParentACClass)
+                                                        .Include(c => c.ACClassProperty)
+                                                        .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog })
+                                                        .Where(c =>    c.propLog.EventTime > from 
+                                                                    && c.propLog.EventTime < to 
+                                                                    && (!projectID.HasValue || c.propLog.ACClass.ACProjectID == projectID.Value) )
+                                                        .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.propLog, ProgramLog = c.programLog })
+                                                        .ToArray();
+
+            if (componentClassID.HasValue && componentClassID.Value != Guid.Empty)
+            {
+                ACClass compClass = db.ACClass.FirstOrDefault(c => c.ACClassID == componentClassID.Value);
+                if (compClass != null)
+                {
+                    relevantLogs = relevantLogs.Where(c => c.PropertyLog.ACClassID == componentClassID
+                                                        || c.PropertyLog.ACClass?.ParentACClassID == componentClassID  // Show logs of child components
+                                                        || c.PropertyLog.ACClass?.ACClass1_ParentACClass?.ParentACClassID == componentClassID
+                                                        || c.PropertyLog.ACClass?.ACClass1_ParentACClass?.ACClass1_ParentACClass?.ParentACClassID == componentClassID);
+                }
+            }
+
+            if (!String.IsNullOrEmpty(searchText))
+            {
+                searchText = searchText.ToLower();
+                relevantLogs = relevantLogs.Where(c => c.PropertyLog.ACClass.ACUrl.ToLower().Contains(searchText)
+                                                        || c.PropertyLog.ACClassProperty.ACCaption.ToLower().Contains(searchText)
+                                                        || c.PropertyLog.ACClassProperty.ACIdentifier.ToLower().Contains(searchText));
+            }
+
+            return relevantLogs;
+        }
+    }
+
+
+    public class ACPropertyLog_ACProgramLog
+    {
+        public ACPropertyLog PropertyLog { get; set; }
+        public ACProgramLog ProgramLog { get; set; }
     }
 
 
@@ -262,12 +334,13 @@ namespace gip.core.datamodel
 
         }
 
-        public ACPropertyLogInfo(DateTime? start, DateTime? end, object value, string acCaption)
+        public ACPropertyLogInfo(DateTime? start, DateTime? end, object value, string acCaption, IACObject parent = null)
         {
             StartDate = start;
             EndDate = end;
             PropertyValue = value;
             _ACCaption = acCaption;
+            ParentACObject = parent;
         }
 
         /// <summary>
@@ -323,6 +396,12 @@ namespace gip.core.datamodel
 
         [NotMapped]
         public ACPropertyLog PropertyLog
+        {
+            get;
+            set;
+        }
+
+        public ACProgramLog ProgramLog
         {
             get;
             set;
@@ -453,8 +532,8 @@ namespace gip.core.datamodel
             return ACIdentifier;
         }
         #endregion
-
     }
+
 
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PropertyLog Sum'}de{'PropertyLog Sum'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, true)]
     [NotMapped]
@@ -483,6 +562,7 @@ namespace gip.core.datamodel
         }
     }
 
+
     public class ACPropertyLogSumOfProgram
     {
         public ACPropertyLogSumOfProgram(ACClass acClass, ACClassProperty acClassProperty, IEnumerable<ACPropertyLogSum> sum)
@@ -498,4 +578,5 @@ namespace gip.core.datamodel
         [NotMapped]
         public IEnumerable<ACPropertyLogSum> Sum { get; private set; }
     }
+
 }

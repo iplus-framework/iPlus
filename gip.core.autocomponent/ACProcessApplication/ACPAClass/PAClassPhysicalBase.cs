@@ -275,30 +275,20 @@ namespace gip.core.autocomponent
         [ACMethodInteractionClient("", "en{'Show the equipment analysis (OEE)'}de{'Anzeige der Geräteanalyse (OEE)'}", (short)MISort.ComponentExplorer - 101, true, "", false, Global.ContextMenuCategory.Utilities)]
         public static void ShowPropertyLogsDialog(IACComponent acComponent)
         {
-            IACBSO bsoPropLogPresenter = GetVBBSOPropLogPresenter(acComponent as ACComponent);
-            if(bsoPropLogPresenter == null)
-            {
-                acComponent.Messages.Info(acComponent, "Can't show the equipment analysis. Access to the VBBSOPropertyLogPresenter is denied.");
-                return;
-            }
-            bsoPropLogPresenter.ExecuteMethod("ShowPropertyLogsDialog", acComponent.ComponentClass);
-            bsoPropLogPresenter.Stop();
+            PAShowDlgManagerBase service = PAShowDlgManagerBase.GetServiceInstance(acComponent.Root as ACComponent);
+            if (service != null)
+                service.ShowPropertyLogViewer(acComponent);
         }
 
         public static bool IsEnabledShowPropertyLogsDialog(IACComponent acComponent)
         {
+            //PAShowDlgManagerBase service = PAShowDlgManagerBase.GetServiceInstance(acComponent.Root as ACComponent);
+            //if (service == null)
+            //    return false;
+            //return service.IsEnabledShowShowPropertyLogViewer(acComponent);
             return true;
         }
 
-        private static IACBSO GetVBBSOPropLogPresenter(ACComponent acComponent)
-        {
-            if (acComponent == null || acComponent.Root == null)
-                return null;
-
-            IACBSO bsoPropLogPresenter = acComponent.Root.Businessobjects.StartComponent("VBBSOPropertyLogPresenter", null, null) as IACBSO;
-
-            return bsoPropLogPresenter;
-        }
 
         #endregion
 

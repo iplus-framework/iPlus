@@ -22,7 +22,7 @@ namespace gip.core.datamodel
     /// <summary>
     /// ACClassWF represents a Workflow-Node.
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Workflow'}de{'Workflow'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, Const.Workflow, Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
     [ACPropertyEntity(2, Const.ACIdentifierPrefix, "en{'Identifier'}de{'Identifizierer'}", "", "", true)]
     [ACPropertyEntity(3, "XName", "en{'XName'}de{'XName'}", "", "", true)]
     [ACPropertyEntity(4, "ACInstanceNo", "en{'Instance No'}de{'Instanznr'}", "", "", true)]
@@ -645,7 +645,33 @@ namespace gip.core.datamodel
 
 #endregion
 
+<<<<<<< .mine
 #region IACConfigURL
+
+
+
+
+
+
+
+
+
+
+
+=======
+        public bool IsWFProdNode(string pwClassName)
+        {
+            return RefPAACClassMethodID.HasValue
+                    && RefPAACClassID.HasValue
+                    && RefPAACClassMethod.ACKindIndex == (short)Global.ACKinds.MSWorkflow
+                    && RefPAACClassMethod.PWACClass != null
+                    && (RefPAACClassMethod.PWACClass.ACIdentifier == pwClassName
+                        || RefPAACClassMethod.PWACClass.ACClass1_BasedOnACClass.ACIdentifier == pwClassName)
+                    && !string.IsNullOrEmpty(Comment);
+        }
+
+        #region IACConfigURL
+>>>>>>> .theirs
 
         [NotMapped]
         public string ConfigACUrl

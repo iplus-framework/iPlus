@@ -3263,7 +3263,6 @@ namespace gip.core.datamodel
 
         //#endregion
 
-
 #region Rightmanagement
         /// <summary>
         /// Determines whether [is any child with rightmanagement].
