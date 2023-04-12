@@ -23,8 +23,6 @@ namespace gip.core.datamodel
 
         IVBWFLayoutCalculatorService WFLayoutCalculatorService { get; }
 
-        IVBFlowDocService FlowDocService { get; }
-
         void AddXamlNamespacesFromAssembly(Assembly classAssembly);
     }
 }

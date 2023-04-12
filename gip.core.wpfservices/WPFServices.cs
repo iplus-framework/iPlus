@@ -16,9 +16,6 @@ namespace gip.core.wpfservices
         WFLayoutCalculatorService _WFLayoutCalculatorService = new WFLayoutCalculatorService();
         public IVBWFLayoutCalculatorService WFLayoutCalculatorService { get { return _WFLayoutCalculatorService; } }
 
-        VBFlowDocService _VBFlowdocService = new VBFlowDocService();
-        public IVBFlowDocService FlowDocService { get { return _VBFlowdocService; } }
-
         public void AddXamlNamespacesFromAssembly(Assembly classAssembly)
         {
             object[] xmlnsAttributes = classAssembly.GetCustomAttributes(typeof(XmlnsDefinitionAttribute), true);
