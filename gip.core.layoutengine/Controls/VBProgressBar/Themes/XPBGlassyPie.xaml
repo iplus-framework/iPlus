@@ -21,7 +21,7 @@
             <local:VBPiePiece CentreX="{Binding CentreX}" CentreY="{Binding CentreY}"
                               RotationAngle="0" WedgeAngle="{Binding Angle}"
                               Radius="{Binding Radius}"
-                              InnerRadius="{Binding InnerRadius}" Fill="Red" Stroke="DarkRed"  />
+                              InnerRadius="{Binding InnerRadius}" Fill="{TemplateBinding PieFill}" Stroke="{TemplateBinding PieStroke}"  />
 
             <!-- soft glow -->
             <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}"

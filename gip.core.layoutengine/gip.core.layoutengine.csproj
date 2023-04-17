@@ -295,6 +295,9 @@
       <DependentUpon>VBGraphSurface.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\VBNumericUpDown\VBNumericUpDown.cs" />
+    <Compile Include="Controls\VBProgressBar\VBOEEControl.xaml.cs">
+      <DependentUpon>VBOEEControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\VBScriptEditor\ClassificationHighlightColorsGip.cs" />
     <Compile Include="Controls\VBScriptEditor\VBScriptEditorBraceFoldingStrategy.cs" />
     <Compile Include="Controls\VBTextEditor\AutoCompleteTypeHelper.cs" />
@@ -869,6 +872,10 @@
     <Page Include="Controls\VBProgressBar\Themes\CircularUnlimited.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBProgressBar\VBOEEControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\VBRibbon\Icons\Restore.xaml">
       <Generator>MSBuild:Compile</Generator>
