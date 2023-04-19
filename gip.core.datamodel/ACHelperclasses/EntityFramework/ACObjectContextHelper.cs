@@ -776,7 +776,7 @@ namespace gip.core.datamodel
 
         /// <summary>
         /// Queries the Database an refreshes the collection if not in modified state. MergeOption.OverwriteChanges
-        /// Els if in modified state, then colletion is only refreshed with MergeOption.AppendOnly
+        /// Else if in modified state, then colletion is only refreshed with MergeOption.AppendOnly
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
