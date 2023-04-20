@@ -1345,7 +1345,7 @@ namespace gip.core.layoutengine
                         msg += " Inner:" + e.InnerException.Message;
 
                     if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
-                        datamodel.Database.Root.Messages.LogException("VBTreeView", "FillTree", msg);
+                        datamodel.Database.Root.Messages.LogException(nameof(VBTreeView), nameof(FillTree), msg);
                     return;
                 }
             }
