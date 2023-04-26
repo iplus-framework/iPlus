@@ -16,9 +16,9 @@ using System.Runtime.InteropServices.ComTypes;
 namespace gip.bso.iplus
 {
     /// <summary>
-    /// Presenter for the Equipment analysis (OEE)
+    /// Presenter for the Plant analysis
     /// </summary>fACPropertyLogModel
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Equipment Analysis (OEE)'}de{'Geräteanalyse (OEE)'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Analysis of property logs'}de{'Auswertung der Eigenschaftsprotokolle'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true)]
     public class VBBSOPropertyLogPresenter : ACBSO
     {
         #region c'tors
