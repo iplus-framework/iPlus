@@ -36,6 +36,7 @@ namespace gip.core.layoutengine
         string LineColor { get; set; }
         double LineThickness { get; set; }
         VBChartItemDisplayMode DisplayMode { get; set; }
+        IEnumerable<IVBChartTuple> DataSeries { get; }
     }
 
     public class ChartItem : IVBChartItem
@@ -44,10 +45,10 @@ namespace gip.core.layoutengine
         {
         }
 
-        public ChartItem(IACObject acComponent, string dataContent)
+        public ChartItem(IACObject acObject, string dataContent)
         {
             VBContent = dataContent;
-            InitVBControl(acComponent);
+            InitVBControl(acObject);
         }
 
         public ChartItem(IACPropertyBase acProperty)
@@ -55,45 +56,51 @@ namespace gip.core.layoutengine
             _ACProperty = acProperty;
         }
 
-        public void InitVBControl(IACObject acComponent)
+        public void InitVBControl(IACObject acObject)
         {
             if (_ACProperty != null)
                 return;
-            if (acComponent == null)
+            if (acObject == null)
                 return;
             if (String.IsNullOrEmpty(_VBContent))
                 return;
             IACComponent acComp = null;
             string urlObject = _VBContent;
-            string memberACIdentifier = _VBContent;
+            _ACMemberPath = _VBContent;
             int posLastBackSlash = _VBContent.LastIndexOf('\\');
             if (posLastBackSlash > 0)
             {
                 if ((posLastBackSlash + 1) >= _VBContent.Length)
                     return;
                 urlObject = _VBContent.Substring(0, posLastBackSlash);
-                memberACIdentifier = _VBContent.Substring(posLastBackSlash + 1);
+                _ACMemberPath = _VBContent.Substring(posLastBackSlash + 1);
 
-                object result = acComponent.ACUrlCommand(urlObject, null);
+                object result = acObject.ACUrlCommand(urlObject, null);
                 if (result == null)
                     return;
-                if (!(result is IACComponent))
+                if (!(result is IACObject))
                     return;
+                acObject = (IACObject)result;
                 acComp = result as IACComponent;
             }
             else
             {
-                acComp = acComponent as IACComponent;
+                acComp = acObject as IACComponent;
             }
 
-            if (acComp == null)
-                return;
-            object member = acComp.GetMember(memberACIdentifier);
-            if (member == null)
-                return;
-            if (!(member is IACPropertyBase))
-                return;
-            _ACProperty = member as IACPropertyBase;
+            if (acComp != null)
+            {
+                object member = acComp.GetMember(_ACMemberPath);
+                if (member == null)
+                    return;
+                if (!(member is IACPropertyBase))
+                    return;
+                _ACProperty = member as IACPropertyBase;
+            }
+            else
+            {
+                _ContentACObject = acObject;
+            }
         }
 
         private string _VBContent;
@@ -113,6 +120,7 @@ namespace gip.core.layoutengine
                 _VBContent = value;
             }
         }
+        private string _ACMemberPath;
 
         private string _ACCaption;
 
@@ -196,12 +204,33 @@ namespace gip.core.layoutengine
         }
 
 
+        private IACObject _ContentACObject = null;
+        public IACObject ContentACObject
+        {
+            get
+            {
+                return _ContentACObject;
+            }
+        }
+
         private IACPropertyBase _ACProperty;
         public IACPropertyBase ACProperty
         {
             get
             {
                 return _ACProperty;
+            }
+        }
+
+        public IEnumerable<IVBChartTuple> DataSeries
+        {
+            get
+            {
+                if (ACProperty != null)
+                    return ACProperty.Value as IEnumerable<IVBChartTuple>;
+                else if (ContentACObject != null && !String.IsNullOrEmpty(_ACMemberPath))
+                    return ContentACObject.ACUrlCommand(_ACMemberPath) as IEnumerable<IVBChartTuple>;
+                return null;
             }
         }
 

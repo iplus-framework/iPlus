@@ -1,4 +1,5 @@
-﻿using System;
+﻿using gip.core.datamodel;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -67,5 +68,72 @@ namespace gip.core.layoutengine
             get { return (double)GetValue(TotalOEEProperty); }
             set { SetValue(TotalOEEProperty, value); }
         }
+
+        public static readonly DependencyProperty OEETextColorProperty
+            = DependencyProperty.Register("OEETextColor", typeof(SolidColorBrush), typeof(VBOEEControl), new PropertyMetadata(new SolidColorBrush(Colors.White)));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public SolidColorBrush OEETextColor
+        {
+            get { return (SolidColorBrush)GetValue(OEETextColorProperty); }
+            set { SetValue(OEETextColorProperty, value); }
+        }
+
+
+        public static readonly DependencyProperty AvailabilityColorProperty
+            = DependencyProperty.Register("AvailabilityColor", typeof(SolidColorBrush), typeof(VBOEEControl), new PropertyMetadata(new SolidColorBrush(Colors.Lime)));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public SolidColorBrush AvailabilityColor
+        {
+            get { return (SolidColorBrush)GetValue(AvailabilityColorProperty); }
+            set { SetValue(AvailabilityColorProperty, value); }
+        }
+
+
+        public static readonly DependencyProperty PerformanceColorProperty
+            = DependencyProperty.Register("PerformanceColor", typeof(SolidColorBrush), typeof(VBOEEControl), new PropertyMetadata(new SolidColorBrush(Colors.Red)));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public SolidColorBrush PerformanceColor
+        {
+            get { return (SolidColorBrush)GetValue(PerformanceColorProperty); }
+            set { SetValue(PerformanceColorProperty, value); }
+        }
+
+
+        public static readonly DependencyProperty QualityColorProperty
+            = DependencyProperty.Register("QualityColor", typeof(SolidColorBrush), typeof(VBOEEControl), new PropertyMetadata(new SolidColorBrush(Colors.Yellow)));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public SolidColorBrush QualityColor
+        {
+            get { return (SolidColorBrush)GetValue(QualityColorProperty); }
+            set { SetValue(QualityColorProperty, value); }
+        }
+
+
+        public static readonly DependencyProperty TotalOEEColorProperty
+            = DependencyProperty.Register("TotalOEEColor", typeof(SolidColorBrush), typeof(VBOEEControl), new PropertyMetadata(new SolidColorBrush(Colors.Gray)));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public SolidColorBrush TotalOEEColor
+        {
+            get { return (SolidColorBrush)GetValue(TotalOEEColorProperty); }
+            set { SetValue(TotalOEEColorProperty, value); }
+        }
+
+
+
     }
 }
