@@ -87,7 +87,11 @@ namespace gip.core.autocomponent
                     if (parentWF == null)
                         return null;
                     else
-                        return GetProcessModules(parentWF, parentWF.Database);
+                    {
+                        bool? help = null;
+                        Tuple<IEnumerable<ACClass>, List<Route>> result = GetProcessModules(parentWF, parentWF.Database, out help);
+                        return result.Item1;
+                    }
 
                 case ACClassWFRuleTypes.Breakpoint:
                     return new object[] { true, false };
@@ -199,9 +203,9 @@ namespace gip.core.autocomponent
         public static IEnumerable<ACClass> GetProcessModulesRouting(ACClassWF item, Database db, IEnumerable<ACClass> allowedInstances, out RouteDirections direction)
         {
             bool? isRecival = null;
-            var temp = GetProcessModulesInternal(item, db, out isRecival, allowedInstances);
+            var temp = GetProcessModules(item, db, out isRecival, allowedInstances);
             direction = isRecival != null && isRecival.Value ? RouteDirections.Backwards : RouteDirections.Forwards;
-            return temp;
+            return temp.Item1;
         }
 
         #endregion
@@ -340,8 +344,8 @@ namespace gip.core.autocomponent
                 // Discharging type
                 else if (materialTransportType != null && typeof(IPWNodeDeliverMaterial).IsAssignableFrom(materialTransportType))
                 {
-                    try 
-                    { 
+                    try
+                    {
                         foreach (ACClass instance in item.ParentACClass.DerivedClassesInProjects)
                         {
                             RoutingResult routeResult = ACRoutingService.FindSuccessors(null, db, true,
@@ -353,7 +357,7 @@ namespace gip.core.autocomponent
                                 routes.AddRange(routeResult.Routes);
                         }
                     }
-                            catch (Exception)
+                    catch (Exception)
                     {
                         // Class with not connected Points
                     }
@@ -374,13 +378,13 @@ namespace gip.core.autocomponent
             }
         }
 
-        public static IEnumerable<ACClass> GetProcessModules(ACClassWF item, Database db)
-        {
-            bool? help = null;
-            return GetProcessModulesInternal(item, db, out help);
-        }
+        //public static IEnumerable<ACClass> GetProcessModules(ACClassWF item, Database db)
+        //{
+        //    bool? help = null;
+        //    return GetProcessModulesInternal(item, db, out help);
+        //}
 
-        private static IEnumerable<ACClass> GetProcessModulesInternal(ACClassWF item, Database db, out bool? isRecivalMaterial, IEnumerable<ACClass> allowedInstances = null)
+        public static Tuple<IEnumerable<ACClass>, List<Route>> GetProcessModules(ACClassWF item, Database db, out bool? isRecivalMaterial, IEnumerable<ACClass> allowedInstances = null)
         {
             isRecivalMaterial = null;
             if (item.RefPAACClassMethod == null)
@@ -406,7 +410,7 @@ namespace gip.core.autocomponent
                 {
                     foreach (ACClass instance in myInstances)
                     {
-                        ACClass instanceFunc = instance.Childs.FirstOrDefault(c => item.RefPAACClassMethod.AttachedFromACClass != null && 
+                        ACClass instanceFunc = instance.Childs.FirstOrDefault(c => item.RefPAACClassMethod.AttachedFromACClass != null &&
                                                                                    c.IsDerivedClassFrom(item.RefPAACClassMethod.AttachedFromACClass));
                         ACClassProperty paPointMatIn1 = instanceFunc?.GetProperty(Const.PAPointMatIn1);
 
@@ -481,7 +485,9 @@ namespace gip.core.autocomponent
                     isRecivalMaterial = false;
                 }
 
-                return result.OrderBy(x => x.ACCaption);
+                IEnumerable<ACClass> cls = result.OrderBy(x => x.ACCaption);
+
+                return new Tuple<IEnumerable<ACClass>, List<Route>>(cls, routes);
             }
         }
 
