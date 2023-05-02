@@ -202,7 +202,6 @@ namespace gip.core.archiver
             }
             finally
             {
-
                 using (ACMonitor.Lock(IsArchivingActiveLock))
                     IsArchivingActive = false;
             }
