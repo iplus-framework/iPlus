@@ -16,14 +16,6 @@ public partial class iPlusV5Context : DbContext
     {
     }
 
-    public virtual DbSet<ControlScriptSyncInfo> ControlScriptSyncInfo { get; set; }
-
-    public virtual DbSet<DBSyncerVersion> DBSyncerVersion { get; set; }
-
-    public virtual DbSet<DbSyncerInfo> DbSyncerInfo { get; set; }
-
-    public virtual DbSet<DbSyncerInfoContext> DbSyncerInfoContext { get; set; }
-
     public virtual DbSet<ACAssembly> ACAssembly { get; set; }
 
     public virtual DbSet<ACChangeLog> ACChangeLog { get; set; }
@@ -72,6 +64,14 @@ public partial class iPlusV5Context : DbContext
 
     public virtual DbSet<ACPropertyLogRule> ACPropertyLogRule { get; set; }
 
+    public virtual DbSet<ControlScriptSyncInfo> ControlScriptSyncInfo { get; set; }
+
+    public virtual DbSet<DBSyncerVersion> DBSyncerVersion { get; set; }
+
+    public virtual DbSet<DbSyncerInfo> DbSyncerInfo { get; set; }
+
+    public virtual DbSet<DbSyncerInfoContext> DbSyncerInfoContext { get; set; }
+
     public virtual DbSet<MsgAlarmLog> MsgAlarmLog { get; set; }
 
     public virtual DbSet<VBConfig> VBConfig { get; set; }
@@ -107,72 +107,8 @@ public partial class iPlusV5Context : DbContext
         optionsBuilder.AddInterceptors(new ACMaterializationInterceptor()).UseModel(iPlusV5CompiledModels.iPlusV5ContextModel.Instance).ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
     }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<ControlScriptSyncInfo>(entity =>
-        {
-            entity.HasKey(e => e.ControlScriptSyncInfoID).HasName("PK_ControlScriptSyncInfo");
-
-            entity.ToTable("ControlScriptSyncInfo");
-
-            entity.Property(e => e.UpdateAuthor)
-                .IsRequired()
-                .HasMaxLength(40)
-                .IsUnicode(false);
-            entity.Property(e => e.UpdateTime).HasColumnType("datetime");
-            entity.Property(e => e.VersionTime).HasColumnType("datetime");
-        });
-
-        modelBuilder.Entity<DBSyncerVersion>(entity =>
-        {
-            entity.HasKey(e => e.Version).HasName("PK_DBSyncerVersion");
-
-            entity.ToTable("DBSyncerVersion");
-
-            entity.Property(e => e.Version).HasMaxLength(10);
-            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
-        });
-
-        modelBuilder.Entity<DbSyncerInfo>(entity =>
-        {
-            entity.HasKey(e => e.DbSyncerInfoID).HasName("PK_DbSyncerInfo");
-
-            entity.ToTable("DbSyncerInfo");
-
-            entity.HasIndex(e => new { e.DbSyncerInfoContextID, e.ScriptDate }, "SyncerScriptUniqueTime").IsUnique();
-
-            entity.Property(e => e.DbSyncerInfoContextID)
-                .IsRequired()
-                .HasMaxLength(10);
-            entity.Property(e => e.ScriptDate).HasColumnType("datetime");
-            entity.Property(e => e.UpdateAuthor)
-                .IsRequired()
-                .HasMaxLength(40)
-                .IsUnicode(false);
-            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
-
-           entity.HasOne(d => d.DbSyncerInfoContext).WithMany(p => p.DbSyncerInfo_DbSyncerInfoContext)
-                .HasForeignKey(d => d.DbSyncerInfoContextID)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_DbSyncerInfo_DbSyncerInfoContext");
-        });
-
-        modelBuilder.Entity<DbSyncerInfoContext>(entity =>
-        {
-            entity.HasKey(e => e.DbSyncerInfoContextID).HasName("PK_DbSyncerInfoContext");
-
-            entity.ToTable("DbSyncerInfoContext");
-
-            entity.Property(e => e.DbSyncerInfoContextID).HasMaxLength(10);
-            entity.Property(e => e.ConnectionName)
-                .IsRequired()
-                .HasMaxLength(150);
-            entity.Property(e => e.Name)
-                .IsRequired()
-                .HasMaxLength(150);
-        });
-
         modelBuilder.Entity<ACAssembly>(entity =>
         {
             entity.ToTable("ACAssembly");
@@ -766,8 +702,6 @@ public partial class iPlusV5Context : DbContext
 
         modelBuilder.Entity<ACClassTaskValuePos>(entity =>
         {
-            entity.HasKey(e => e.ACClassTaskValuePosID);
-
             entity.HasIndex(e => e.ACClassTaskValueID, "NCI_FK_ACClassTaskValuePos_ACClassTaskValueID");
 
             entity.HasIndex(e => e.RequestID, "NCI_FK_ACClassTaskValuePos_RequestID");
@@ -1222,6 +1156,69 @@ public partial class iPlusV5Context : DbContext
            entity.HasOne(d => d.ACClass).WithMany(p => p.ACPropertyLogRule_ACClass)
                 .HasForeignKey(d => d.ACClassID)
                 .HasConstraintName("FK_ACPropertyLogRule_ACClass");
+        });
+
+        modelBuilder.Entity<ControlScriptSyncInfo>(entity =>
+        {
+            entity.HasKey(e => e.ControlScriptSyncInfoID).HasName("PK_ControlScriptSyncInfo");
+
+            entity.ToTable("@ControlScriptSyncInfo");
+
+            entity.Property(e => e.UpdateAuthor)
+                .IsRequired()
+                .HasMaxLength(40)
+                .IsUnicode(false);
+            entity.Property(e => e.UpdateTime).HasColumnType("datetime");
+            entity.Property(e => e.VersionTime).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<DBSyncerVersion>(entity =>
+        {
+            entity.HasKey(e => e.Version).HasName("PK_DBSyncerVersion");
+
+            entity.ToTable("@DBSyncerVersion");
+
+            entity.Property(e => e.Version).HasMaxLength(10);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<DbSyncerInfo>(entity =>
+        {
+            entity.HasKey(e => e.DbSyncerInfoID).HasName("PK_DbSyncerInfo");
+
+            entity.ToTable("@DbSyncerInfo");
+
+            entity.HasIndex(e => new { e.DbSyncerInfoContextID, e.ScriptDate }, "SyncerScriptUniqueTime").IsUnique();
+
+            entity.Property(e => e.DbSyncerInfoContextID)
+                .IsRequired()
+                .HasMaxLength(10);
+            entity.Property(e => e.ScriptDate).HasColumnType("datetime");
+            entity.Property(e => e.UpdateAuthor)
+                .IsRequired()
+                .HasMaxLength(40)
+                .IsUnicode(false);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
+
+           entity.HasOne(d => d.DbSyncerInfoContext).WithMany(p => p.DbSyncerInfo_DbSyncerInfoContext)
+                .HasForeignKey(d => d.DbSyncerInfoContextID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DbSyncerInfo_DbSyncerInfoContext");
+        });
+
+        modelBuilder.Entity<DbSyncerInfoContext>(entity =>
+        {
+            entity.HasKey(e => e.DbSyncerInfoContextID).HasName("PK_DbSyncerInfoContext");
+
+            entity.ToTable("@DbSyncerInfoContext");
+
+            entity.Property(e => e.DbSyncerInfoContextID).HasMaxLength(10);
+            entity.Property(e => e.ConnectionName)
+                .IsRequired()
+                .HasMaxLength(150);
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(150);
         });
 
         modelBuilder.Entity<MsgAlarmLog>(entity =>

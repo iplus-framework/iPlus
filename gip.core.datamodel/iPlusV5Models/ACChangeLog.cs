@@ -41,7 +41,7 @@ public partial class ACChangeLog : VBEntityObject
     }
 
     Guid _EntityKey;
-    new public Guid EntityKey 
+    public new Guid EntityKey 
     {
         get { return _EntityKey; }
         set { SetProperty<Guid>(ref _EntityKey, value); }

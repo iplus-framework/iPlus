@@ -16,7 +16,6 @@
 <#@ import namespace="Microsoft.EntityFrameworkCore.Design" #>
 <#@ import namespace="Microsoft.Extensions.DependencyInjection" #>
 <#
-    Debugger.Launch();
     if (EntityType.IsSimpleManyToManyJoinEntityType())
     {
         // Don't scaffold these
@@ -142,10 +141,11 @@ public partial class <#= entityTypeNewName #> : VBEntityObject <#= setInsertUpda
 
         var needsNullable = Options.UseNullableReferenceTypes && property.IsNullable && !property.ClrType.IsValueType;
         var needsInitializer = Options.UseNullableReferenceTypes && !property.IsNullable && !property.ClrType.IsValueType;
-        var needsOverride = property.Name == ("ACIdentifier") || property.Name == ("XMLConfig");
+        bool needsOverride = property.Name == ("ACIdentifier") || property.Name == ("XMLConfig");
+        bool needsNew = property.Name == ("EntityKey");
 #>
     <#=code.Reference(property.ClrType)#><#= needsNullable ? "?" : "" #> _<#= property.Name #>;
-    public <#= needsOverride ? "override " : "" #><#= code.Reference(property.ClrType) #><#= needsNullable ? "?" : "" #> <#= property.Name #> 
+    public <#= needsOverride ? "override " : "" #><#= needsNew ? "new " : "" #><#= code.Reference(property.ClrType) #><#= needsNullable ? "?" : "" #> <#= property.Name #> 
     {
         get { return _<#= property.Name#>; }
         set { SetProperty<<#=code.Reference(property.ClrType)#><#= needsNullable ? "?" : "" #>>(ref _<#= property.Name#>, value); }
