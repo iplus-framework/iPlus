@@ -109,7 +109,7 @@ namespace gip.core.wpfservices
             _VisualChangeList.Add(new VisualInfo { VisualObject = visualObject, LayoutAction = layoutAction, ACUrl = acUrl, ACUrl2 = acUrl2, Position = position });
         }
 
-        public void AddToVisualChangeList(IACObject visualObject, short layoutAction, string acUrl, string acUrl2)
+        public void AddToVisualChangeList(IACObject visualObject, short layoutAction, string acUrl = "", string acUrl2 = "")
         {
             LayoutActionType layoutActionType;
             switch (layoutAction)

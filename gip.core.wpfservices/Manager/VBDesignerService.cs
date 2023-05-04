@@ -26,7 +26,7 @@ namespace gip.core.wpfservices
 
         private ConcurrentDictionary<IACComponent, IVBComponentDesignManagerProxy> _DesignManagerProxies = new ConcurrentDictionary<IACComponent, IVBComponentDesignManagerProxy>();
 
-        public IVBComponentDesignManagerProxy GetDesignMangerProxy(IACComponent component)
+        public virtual IVBComponentDesignManagerProxy GetDesignMangerProxy(IACComponent component)
         {
             IVBComponentDesignManagerProxy proxy = null;
             if (!_DesignManagerProxies.TryGetValue(component, out proxy))
@@ -43,7 +43,7 @@ namespace gip.core.wpfservices
             return proxy;
         }
 
-        public void RemoveDesignMangerProxy(IACComponent component)
+        public virtual void RemoveDesignMangerProxy(IACComponent component)
         {
             IVBComponentDesignManagerProxy proxy = null;
             if (_DesignManagerProxies.ContainsKey(component))

@@ -198,28 +198,32 @@ namespace gip.core.wpfservices.Manager
             }
         }
 
-        public void LayoutMaterialWF(IACWorkflowContext wfContext, DesignItem parent, DesignItem designItem, VBDesigner.LayoutActionType layoutAction)
+        public void LayoutMaterialWF(IACWorkflowContext wfContext, object parent, object designItem, short layoutAction)
         {
-            if (VBDesigner.LayoutActionType.Insert != layoutAction)
+            VBDesigner.LayoutActionType newLayoutAction = TransformShortToLayoutAction(layoutAction);
+            DesignItem newDesignItem = designItem as DesignItem;
+            DesignItem newParent = parent as DesignItem;
+
+            if (VBDesigner.LayoutActionType.Insert != newLayoutAction)
                 return;
-            VBVisualGroup vbVisualGroup = parent.View as VBVisualGroup;
-            WFItemList wfItemList = new WFItemList(parent, designItem, false);
+            VBVisualGroup vbVisualGroup = newParent.View as VBVisualGroup;
+            WFItemList wfItemList = new WFItemList(newParent, newDesignItem, false);
             Size size = WFLayoutCalcComp.SizeValue(wfItemList.Count());
 
             if (vbVisualGroup.RenderSize.Width < size.Width && vbVisualGroup.RenderSize.Height < size.Height)
             {
                 UpdateItemsPosition(wfContext, wfItemList, vbVisualGroup, size);
-                parent.Properties[FrameworkElement.WidthProperty].CurrentValue = size.Width;
-                parent.Properties[FrameworkElement.HeightProperty].CurrentValue = size.Height;
+                newParent.Properties[FrameworkElement.WidthProperty].CurrentValue = size.Width;
+                newParent.Properties[FrameworkElement.HeightProperty].CurrentValue = size.Height;
             }
             else
                 size = new Size(vbVisualGroup.RenderSize.Width, vbVisualGroup.RenderSize.Height);
 
-            WFItem current = wfItemList.FirstOrDefault(c => c.DesignItem == designItem);
+            WFItem current = wfItemList.FirstOrDefault(c => c.DesignItem == newDesignItem);
             current.VisualTop = 0;
             current.VisualLeft = 0;
 
-            VBVisual vbVisual = designItem.View as VBVisual;
+            VBVisual vbVisual = newDesignItem.View as VBVisual;
             vbVisual.OnApplyTemplate();
             IACWorkflowNode node = ((PWOfflineNode)vbVisual.ContentACObject).Content as IACWorkflowNode;
             //IEnumerable<IACWorkflowEdge> outgoingEdges = node.GetOutgoingWFEdges(wfContext).Where(c => c.ParentACObject.ACIdentifier == vbVisual.ContentACObject.ParentACObject.ACIdentifier);

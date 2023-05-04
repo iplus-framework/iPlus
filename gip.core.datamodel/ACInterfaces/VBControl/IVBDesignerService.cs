@@ -103,5 +103,6 @@ namespace gip.core.datamodel
     public interface IVBWFLayoutCalculatorProxy
     {
         void WFLayoutGroup(short layoutAction, object designContext, object designItemGroup, object designItem);
+        void LayoutMaterialWF(IACWorkflowContext wfContext, object parent, object designItem, short layoutAction);
     }
 }
