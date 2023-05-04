@@ -281,6 +281,7 @@ namespace gip.core.datamodel
 
             var query = db.ACPropertyLog
                 .Include(c => c.ACClass)
+                //.Include(c => c.ACClass.ACClass1_BasedOnACClass)
                 .Include(c => c.ACClassProperty)
                 .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog })
                 //.Join(db.ACProgram, programLog => programLog.ACProgramID, program => program.ACProgramID, (programLog, program) => new { program.ACProgramID })

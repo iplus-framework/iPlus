@@ -1479,7 +1479,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                if (this.EntityState != System.Data.EntityState.Added && !ACClassWF_ACClassMethod.IsLoaded)
+                if (this.EntityState != System.Data.EntityState.Added && this.EntityState != System.Data.EntityState.Detached && this.EntityState != System.Data.EntityState.Deleted && !ACClassWF_ACClassMethod.IsLoaded)
                 {
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                     {

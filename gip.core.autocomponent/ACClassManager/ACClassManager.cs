@@ -1209,6 +1209,7 @@ namespace gip.core.autocomponent
                 case Global.ACKinds.TPAModule:
                     return Global.ACStartTypes.Automatic;
                 case Global.ACKinds.TPAProcessModule:
+                case Global.ACKinds.TPAProcessModuleGroup:
                 case Global.ACKinds.TPAProcessFunction:
                     return Global.ACStartTypes.Automatic;
                 case Global.ACKinds.TPABGModule:
