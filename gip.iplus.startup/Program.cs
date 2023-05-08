@@ -120,7 +120,7 @@ namespace gip.iplus.startup
             bool isWriteAccess = false;
             try
             {
-                AuthorizationRuleCollection collection = Directory.GetAccessControl(localInstallPath).GetAccessRules(true, true, typeof(System.Security.Principal.NTAccount));
+                AuthorizationRuleCollection collection = Directory.CreateDirectory(localInstallPath).GetAccessControl().GetAccessRules(true, true, typeof(System.Security.Principal.NTAccount));
                 foreach (FileSystemAccessRule rule in collection)
                 {
                     if (rule.AccessControlType == AccessControlType.Allow)
