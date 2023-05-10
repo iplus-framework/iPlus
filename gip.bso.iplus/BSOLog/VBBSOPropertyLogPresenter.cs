@@ -2191,19 +2191,19 @@ namespace gip.bso.iplus
 
                 CalculateOEE(item.Items, timelinePropLogs);
 
-                if (item.PropertyType == typeof(GlobalProcApp.AvailabilityState))
+                if (item.PropertyType == typeof(AvailabilityState))
                 {
                     var scheduledTime = item.TotalDuration.TotalSeconds - timelinePropLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog 
                                                                                                     && c.DisplayOrder == item.DisplayOrder 
-                                                                                                    && (   (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.Idle 
-                                                                                                        || (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.Maintenance 
-                                                                                                        || (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.Retooling 
-                                                                                                        || (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.ScheduledBreak))
+                                                                                                    && (   (AvailabilityState)c.PropertyValue == AvailabilityState.Idle 
+                                                                                                        || (AvailabilityState)c.PropertyValue == AvailabilityState.Maintenance 
+                                                                                                        || (AvailabilityState)c.PropertyValue == AvailabilityState.Retooling 
+                                                                                                        || (AvailabilityState)c.PropertyValue == AvailabilityState.ScheduledBreak))
                         .Sum(x => x.Duration.TotalSeconds);
 
                     var unscheduledTime = timelinePropLogs.Where(c =>   c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog 
                                                                      && c.DisplayOrder == item.DisplayOrder 
-                                                                     && (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.UnscheduledBreak)
+                                                                     && (AvailabilityState)c.PropertyValue == AvailabilityState.UnscheduledBreak)
                                                            .Sum(x => x.Duration.TotalSeconds);
 
                     var operatingTime = scheduledTime - unscheduledTime;

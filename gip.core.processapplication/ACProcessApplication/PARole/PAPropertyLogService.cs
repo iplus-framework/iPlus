@@ -48,23 +48,23 @@ namespace gip.core.processapplication
                 IPAOEEProvider oeeProvider = (e.ForACComponent is PAProcessFunction) ? e.ForACComponent.ParentACComponent as IPAOEEProvider : e.ForACComponent as IPAOEEProvider;
                 if (oeeProvider != null)
                 {
-                    GlobalProcApp.AvailabilityState newAvailabilityState = GlobalProcApp.AvailabilityState.Idle;
+                    AvailabilityState newAvailabilityState = AvailabilityState.Idle;
                     if (oeeProvider.OperatingMode.ValueT == Global.OperatingMode.Maintenance)
-                        newAvailabilityState = GlobalProcApp.AvailabilityState.Maintenance;
+                        newAvailabilityState = AvailabilityState.Maintenance;
                     else if (oeeProvider.Allocated.ValueT)
                     {
                         // TODO: Program Retooling-State
-                        newAvailabilityState = GlobalProcApp.AvailabilityState.Standby;
+                        newAvailabilityState = AvailabilityState.Standby;
                         List<PAProcessFunction> functions = oeeProvider.FindChildComponents<PAProcessFunction>(c => c is PAProcessFunction, null, 1);
                         if (functions.Any())
                         {
                             var queryActiveFunctions = functions.Where(c => c.CurrentACState != ACStateEnum.SMIdle);
                             if (queryActiveFunctions.Any())
                             {
-                                newAvailabilityState = GlobalProcApp.AvailabilityState.InOperation;
+                                newAvailabilityState = AvailabilityState.InOperation;
                                 if (queryActiveFunctions.Where(c => c.Malfunction.ValueT >= PANotifyState.InfoOrActive).Any())
                                 {
-                                    newAvailabilityState = GlobalProcApp.AvailabilityState.UnscheduledBreak;
+                                    newAvailabilityState = AvailabilityState.UnscheduledBreak;
                                 }
                                 else
                                 {
@@ -74,9 +74,9 @@ namespace gip.core.processapplication
                                                                         || c.CurrentACState == ACStateEnum.SMHeld);
                                     if (queryPaused.Any())
                                     {
-                                        newAvailabilityState = GlobalProcApp.AvailabilityState.ScheduledBreak;
+                                        newAvailabilityState = AvailabilityState.ScheduledBreak;
                                         if (queryPaused.Where(c => c.HasAlarms.ValueT).Any())
-                                            newAvailabilityState = GlobalProcApp.AvailabilityState.UnscheduledBreak;
+                                            newAvailabilityState = AvailabilityState.UnscheduledBreak;
                                     }
                                 }
                             }
@@ -102,7 +102,7 @@ namespace gip.core.processapplication
                     );
         }
 
-        protected virtual GlobalProcApp.AvailabilityState OnChangingAvailabilityState(GlobalProcApp.AvailabilityState newAvailabilityState, IPAOEEProvider oeeProvider, object sender, ACPropertyNetSendEventArgs e)
+        protected virtual AvailabilityState OnChangingAvailabilityState(AvailabilityState newAvailabilityState, IPAOEEProvider oeeProvider, object sender, ACPropertyNetSendEventArgs e)
         {
             return newAvailabilityState;
         }

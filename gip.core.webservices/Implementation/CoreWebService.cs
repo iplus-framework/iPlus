@@ -128,7 +128,8 @@ namespace gip.core.webservices
             if (acClass == null)
                 return new WSResponse<ACClass>(null, new Msg(eMsgLevel.Error, "Invalid class"));
 
-            return new WSResponse<ACClass>(new ACClass() { ACClassID = acClass.ACClassID, ACCaptionTranslation = acClass.ACCaptionTranslation, ACIdentifier = acClass.ACIdentifier, ACUrlComponent = acClass.ACUrlComponent });
+            return new WSResponse<ACClass>(new ACClass() { ACClassID = acClass.ACClassID, ACCaptionTranslation = acClass.ACCaptionTranslation, 
+                                                           ACIdentifier = acClass.ACIdentifier, ACUrlComponent = acClass.ACUrlComponent });
         }
 
         protected virtual void OnGetKnownTypes4Translation(ref List<Tuple<Type,Type>> knownTypes)
