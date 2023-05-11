@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Data.Objects;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static gip.core.autocomponent.PARole;
 
 namespace gip.core.autocomponent
 {
@@ -117,6 +117,13 @@ namespace gip.core.autocomponent
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
             return base.ACDeInit(deleteACClassTask);
+        }
+
+        public static ACRoutingService GetServiceInstance(ACComponent requester)
+        {
+            Msg msg = null;
+            string routingServiceACUrl = GetRoutingServiceUrl(requester, out msg);
+            return GetServiceInstance<ACRoutingService>(requester, routingServiceACUrl, CreationBehaviour.OnlyLocal);
         }
 
         public static ACRef<ACComponent> ACRefToServiceInstance(ACComponent bso)
