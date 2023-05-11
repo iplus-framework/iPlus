@@ -374,6 +374,7 @@ namespace gip.core.layoutengine
             if (_Initialized || DataContext == null || ContextACObject == null)
                 return;
             _Initialized = true;
+            LoadCyclicDataRefreshProperty();
             if (String.IsNullOrEmpty(VBContent))
                 return;
 
@@ -574,9 +575,14 @@ namespace gip.core.layoutengine
                 //MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
             }
 
+            
+        }
+
+        private void LoadCyclicDataRefreshProperty()
+        {
             if (ReadLocalValue(CyclicDataRefreshProperty) != DependencyProperty.UnsetValue)
             {
-                if(CyclicDataRefresh > 0)
+                if (CyclicDataRefresh > 0)
                 {
                     _cyclickDataRefreshDispTimer = new DispatcherTimer();
                     _cyclickDataRefreshDispTimer.Tick += new EventHandler(cyclickDataRefreshDispTimer_CanExecute);
