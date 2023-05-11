@@ -625,38 +625,6 @@ namespace gip.core.datamodel
 
         #endregion
 
-        public bool IsWFProdNode(string pwClassName)
-        {
-            return RefPAACClassMethodID.HasValue
-                    && RefPAACClassID.HasValue
-                    && RefPAACClassMethod.ACKindIndex == (short)Global.ACKinds.MSWorkflow
-                    && RefPAACClassMethod.PWACClass != null
-                    && (RefPAACClassMethod.PWACClass.ACIdentifier == pwClassName
-                        || RefPAACClassMethod.PWACClass.ACClass1_BasedOnACClass.ACIdentifier == pwClassName)
-                    && !string.IsNullOrEmpty(Comment);
-        }
-
-        public bool IsWFProdNodeAll(string pwClassName)
-        {
-            bool isWFProdNodeAll = false;
-            bool isMSWorkflow =  RefPAACClassMethodID.HasValue
-                    && RefPAACClassID.HasValue
-                    && RefPAACClassMethod.ACKindIndex == (short)Global.ACKinds.MSWorkflow
-                    && RefPAACClassMethod.PWACClass != null;
-
-            if(isMSWorkflow)
-            {
-                ACClass pwClass = RefPAACClassMethod.PWACClass;
-                while (!isWFProdNodeAll && pwClass != null)
-                {
-                    isWFProdNodeAll = pwClass.ACIdentifier == pwClassName;
-                    pwClass = pwClass.ACClass1_BasedOnACClass;
-                }
-            }
-
-            return isWFProdNodeAll;
-        }
-
         #region IACConfigURL
 
         public string ConfigACUrl
