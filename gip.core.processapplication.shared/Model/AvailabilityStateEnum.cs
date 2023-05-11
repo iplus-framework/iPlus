@@ -15,10 +15,8 @@ namespace gip.core.processapplication
 #if NETFRAMEWORK
     [ACSerializeableInfo]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Availability-State for OEE'}de{'Verfügbarkeitsstatus für OEE'}", Global.ACKinds.TACEnum)]
-#else
-    [DataContract]
 #endif
-
+    [DataContract]
     public enum AvailabilityState : short
     {
         /// <summary>
