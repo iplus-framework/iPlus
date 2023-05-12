@@ -32,7 +32,14 @@ namespace gip.core.datamodel.Licensing
             byte[] checkSum;
             using(MD5 md = MD5.Create())
             {
-                checkSum = md.ComputeHash(Encoding.UTF8.GetBytes(service_broker_guid.ToString() + create_date.ToString("dd/MM/yyyy-hh/mm/ss/fff") + database_guid.ToString()));
+                checkSum = md.ComputeHash(Encoding.UTF8.GetBytes(service_broker_guid.ToString() + string.Format("{0}.{1}.{2}-{3}.{4}.{5}.{6}", create_date.ToString("dd"),
+                                                                                                                                               create_date.ToString("MM"),
+                                                                                                                                               create_date.ToString("yyyy"),
+                                                                                                                                               create_date.ToString("hh"),
+                                                                                                                                               create_date.ToString("mm"),
+                                                                                                                                               create_date.ToString("ss"),
+                                                                                                                                               create_date.ToString("fff"))
+                                                                                                + database_guid.ToString())); 
             }
             return checkSum;
         }
