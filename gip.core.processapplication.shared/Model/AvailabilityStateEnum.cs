@@ -25,6 +25,7 @@ namespace gip.core.processapplication
         /// for ApplicationManager: Not any workflow loaded in this Application<para />
         /// According OEE, this state should be considered as "Scheduled Downtime"
         /// </summary>
+        [EnumMember]
         Idle = 0,
 
         /// <summary>
@@ -33,6 +34,7 @@ namespace gip.core.processapplication
         /// for ApplicationManager: All active Process-Modules are in Standby-State<para />
         /// According OEE, this state should be considered as "Uptime"
         /// </summary>
+        [EnumMember]
         Standby = 1,
 
         /// <summary>
@@ -41,6 +43,7 @@ namespace gip.core.processapplication
         /// for ApplicationManager: At least one Process-Module is in Operating-State<para />
         /// According OEE, this state should be considered as "Uptime"
         /// </summary>
+        [EnumMember]
         InOperation = 2,
 
         /// <summary>
@@ -49,6 +52,7 @@ namespace gip.core.processapplication
         /// for ApplicationManager: All active Process-Modules are in ScheduledBreak-State<para />
         /// According OEE, this state should be considered as "Scheduled Downtime"
         /// </summary>
+        [EnumMember] 
         ScheduledBreak = 3,
 
         /// <summary>
@@ -57,6 +61,7 @@ namespace gip.core.processapplication
         /// for ApplicationManager: All active Process-Modules are in UnscheduledBreak-State <para />
         /// According OEE, this state should be considered as "Unscheduled Downtime"
         /// </summary>
+        [EnumMember]
         UnscheduledBreak = 4,
 
         /// <summary>
@@ -65,6 +70,7 @@ namespace gip.core.processapplication
         /// for ApplicationManager:  All active Process-Modules are in Retooling-State<para />
         /// According OEE, this state should be considered as "Uptime" or as "Scheduled Downtime"
         /// </summary>
+        [EnumMember]
         Retooling = 5,
 
         /// <summary>
@@ -73,6 +79,7 @@ namespace gip.core.processapplication
         /// for ApplicationManager: Not any workflow loaded and at least one Process-Module mus be in Maintenance-Mode<para />
         /// According OEE, this state should be considered as "Scheduled Downtime"
         /// </summary>
+        [EnumMember]
         Maintenance = 6,
     }
 }
