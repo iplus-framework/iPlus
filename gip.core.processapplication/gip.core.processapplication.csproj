@@ -36,4 +36,5 @@
   <PropertyGroup>
     <BaseOutputPath>..\bin\</BaseOutputPath>
   </PropertyGroup>
+  <Import Project="..\gip.core.processapplication.shared\gip.core.processapplication.shared.projitems" Label="Shared" />
 </Project>

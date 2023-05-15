@@ -99,6 +99,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.wpfservices", "gip
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.reporthandlerwpf", "gip.core.reporthandlerwpf\gip.core.reporthandlerwpf.csproj", "{C2EE6F16-ABD1-4B0C-80C6-AACE6A3212A1}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "gip.core.processapplication.shared", "gip.core.processapplication.shared\gip.core.processapplication.shared.shproj", "{38889580-0345-42CC-AB4D-931CA15AFA85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -301,6 +303,7 @@ Global
 		{746E71A0-CC5A-4A1F-BE03-76AFCF9FAB12} = {4A180E41-9761-46E2-ACA3-4BD41764496C}
 		{532B4637-BE34-4271-AA50-2733AFB82CE6} = {2089D22B-FC62-4E94-8776-093570EA4032}
 		{C2EE6F16-ABD1-4B0C-80C6-AACE6A3212A1} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{38889580-0345-42CC-AB4D-931CA15AFA85} = {2089D22B-FC62-4E94-8776-093570EA4032}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {98B3D62C-99C4-441A-BDBB-AA6225B4CF1C}
@@ -308,6 +311,8 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		gip.core.webservices.shared\gip.core.webservices.shared.projitems*{0c232936-48b8-4ccd-951e-8ad3d439d264}*SharedItemsImports = 13
 		gip.core.datamodel.shared\gip.core.datamodel.shared.projitems*{16fb4111-5110-46e5-851d-38a4d7522f85}*SharedItemsImports = 5
+		gip.core.processapplication.shared\gip.core.processapplication.shared.projitems*{38889580-0345-42cc-ab4d-931ca15afa85}*SharedItemsImports = 13
+		gip.core.processapplication.shared\gip.core.processapplication.shared.projitems*{66484708-85bd-47c4-92dd-3010387465f4}*SharedItemsImports = 5
 		gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems*{6d353dd2-970b-45bb-9ab6-d23a28e0233f}*SharedItemsImports = 13
 		gip.core.webservices.shared\gip.core.webservices.shared.projitems*{7931f65b-3c2a-4db9-a5a6-4bc5b4d12c00}*SharedItemsImports = 5
 		gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems*{893d3b1b-dc55-4684-8b5d-941f1049151b}*SharedItemsImports = 5
