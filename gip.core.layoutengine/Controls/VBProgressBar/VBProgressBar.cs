@@ -16,6 +16,7 @@ using System.Windows.Markup;
 using gip.core.layoutengine.Helperclasses;
 using gip.core.datamodel;
 using System.Transactions;
+using gip.ext.designer.PropertyGrid;
 
 namespace gip.core.layoutengine
 {
@@ -140,6 +141,56 @@ namespace gip.core.layoutengine
             get { return (ProgressBarStyles)GetValue(ProgressBarStyleProperty); }
             set { SetValue(ProgressBarStyleProperty, value); }
         }
+
+
+        public static readonly DependencyProperty ValueVisibilityProperty =
+            DependencyProperty.Register("ValueVisibility", typeof(Visibility), typeof(VBProgressBar), new PropertyMetadata(Visibility.Visible));
+
+        public Visibility ValueVisibility
+        {
+            get { return (Visibility)GetValue(ValueVisibilityProperty); }
+            set { SetValue(ValueVisibilityProperty, value); }
+        }
+
+
+        public static readonly DependencyProperty PieFillProperty
+            = DependencyProperty.Register("PieFill", typeof(SolidColorBrush), typeof(VBProgressBar), new PropertyMetadata(new SolidColorBrush(Colors.Red)));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public SolidColorBrush PieFill
+        {
+            get { return (SolidColorBrush)GetValue(PieFillProperty); }
+            set { SetValue(PieFillProperty, value); }
+        }
+
+        public static readonly DependencyProperty PieStrokeProperty
+            = DependencyProperty.Register("PieStroke", typeof(SolidColorBrush), typeof(VBProgressBar), new PropertyMetadata(new SolidColorBrush(Colors.DarkRed)));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public SolidColorBrush PieStroke
+        {
+            get { return (SolidColorBrush)GetValue(PieStrokeProperty); }
+            set { SetValue(PieStrokeProperty, value); }
+        }
+
+
+        public static readonly DependencyProperty PieTextColorProperty
+            = DependencyProperty.Register("PieTextColor", typeof(SolidColorBrush), typeof(VBProgressBar), new PropertyMetadata(new SolidColorBrush(Colors.Black)));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public SolidColorBrush PieTextColor
+        {
+            get { return (SolidColorBrush)GetValue(PieTextColorProperty); }
+            set { SetValue(PieTextColorProperty, value); }
+        }
+
+
         #endregion
 
         #endregion

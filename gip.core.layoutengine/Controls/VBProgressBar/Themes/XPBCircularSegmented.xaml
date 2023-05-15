@@ -23,12 +23,13 @@
                             <local:VBPiePiece CentreX="{Binding Parent.CentreX}" CentreY="{Binding Parent.CentreY}"
                                 RotationAngle="{Binding StartAngle}" WedgeAngle="{Binding WedgeAngle}"
                                 Radius="{Binding Parent.Radius}" InnerRadius="{Binding Parent.InnerRadius}"
-                                Fill="LightGray" Stroke="White" Opacity="0.5"/>
+                                Fill="LightGray" Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:VBProgressBar}}, Path=PieStroke}" Opacity="0.5"/>
                             <!-- a blue segment, with an Opacity bound to the view model -->
                             <local:VBPiePiece CentreX="{Binding Parent.CentreX}" CentreY="{Binding Parent.CentreY}"
                                 RotationAngle="{Binding StartAngle}" WedgeAngle="{Binding WedgeAngle}"
                                 Radius="{Binding Parent.Radius}" InnerRadius="{Binding Parent.InnerRadius}"
-                                Fill="DarkBlue" Stroke="White" Opacity="{Binding Opacity}"/>
+                                Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:VBProgressBar}}, Path=PieFill}" 
+                                Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:VBProgressBar}}, Path=PieStroke}" Opacity="{Binding Opacity}"/>
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

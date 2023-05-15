@@ -16,9 +16,9 @@ using System.Runtime.InteropServices.ComTypes;
 namespace gip.bso.iplus
 {
     /// <summary>
-    /// Presenter for the Equipment analysis (OEE)
+    /// Presenter for the Plant analysis
     /// </summary>fACPropertyLogModel
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Equipment Analysis (OEE)'}de{'Geräteanalyse (OEE)'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Analysis of property logs'}de{'Auswertung der Eigenschaftsprotokolle'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true)]
     public class VBBSOPropertyLogPresenter : ACBSO
     {
         #region c'tors
@@ -2191,19 +2191,19 @@ namespace gip.bso.iplus
 
                 CalculateOEE(item.Items, timelinePropLogs);
 
-                if (item.PropertyType == typeof(GlobalProcApp.AvailabilityState))
+                if (item.PropertyType == typeof(AvailabilityState))
                 {
                     var scheduledTime = item.TotalDuration.TotalSeconds - timelinePropLogs.Where(c => c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog 
                                                                                                     && c.DisplayOrder == item.DisplayOrder 
-                                                                                                    && (   (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.Idle 
-                                                                                                        || (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.Maintenance 
-                                                                                                        || (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.Retooling 
-                                                                                                        || (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.ScheduledBreak))
+                                                                                                    && (   (AvailabilityState)c.PropertyValue == AvailabilityState.Idle 
+                                                                                                        || (AvailabilityState)c.PropertyValue == AvailabilityState.Maintenance 
+                                                                                                        || (AvailabilityState)c.PropertyValue == AvailabilityState.Retooling 
+                                                                                                        || (AvailabilityState)c.PropertyValue == AvailabilityState.ScheduledBreak))
                         .Sum(x => x.Duration.TotalSeconds);
 
                     var unscheduledTime = timelinePropLogs.Where(c =>   c.PropertyLogModelType == ACPropertyLogModelType.PropertyLog 
                                                                      && c.DisplayOrder == item.DisplayOrder 
-                                                                     && (GlobalProcApp.AvailabilityState)c.PropertyValue == GlobalProcApp.AvailabilityState.UnscheduledBreak)
+                                                                     && (AvailabilityState)c.PropertyValue == AvailabilityState.UnscheduledBreak)
                                                            .Sum(x => x.Duration.TotalSeconds);
 
                     var operatingTime = scheduledTime - unscheduledTime;

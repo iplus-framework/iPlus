@@ -253,8 +253,9 @@ namespace gip.bso.iplus
 
                 List<ACClass> showACClassList = new List<ACClass>();
                 var query = CurrentACProject.ACClass_ACProject.
-                                Where(c => c.ACKindIndex == (short)Global.ACKinds.TPAModule ||
-                                            c.ACKindIndex == (short)Global.ACKinds.TPAProcessModule);
+                                Where(c =>    c.ACKindIndex == (short)Global.ACKinds.TPAModule
+                                           || c.ACKindIndex == (short)Global.ACKinds.TPAProcessModuleGroup
+                                           || c.ACKindIndex == (short)Global.ACKinds.TPAProcessModule);
                 foreach (var acClassP in query)
                 {
                     var assemblyACClass = acClassP.BaseClassWithASQN;
@@ -638,6 +639,7 @@ namespace gip.bso.iplus
                     switch (kindInfo.RangeFrom)
                     {
                         case Global.ACKinds.TPAModule:
+                        case Global.ACKinds.TPAProcessModuleGroup:
                         case Global.ACKinds.TPAProcessModule:
                         case Global.ACKinds.TPAProcessFunction:
                         case Global.ACKinds.TPABGModule:
@@ -991,6 +993,7 @@ namespace gip.bso.iplus
                     switch (acClass.ACKind)
                     {
                         case Global.ACKinds.TPAModule:
+                        case Global.ACKinds.TPAProcessModuleGroup:
                         case Global.ACKinds.TPAProcessModule:
                             acClass.ACIdentifier += "1";
                             break;
@@ -1102,6 +1105,7 @@ namespace gip.bso.iplus
                 return Database.ACClass.Where(c => (c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.ClassLibrary
                                                 && (c.ACKindIndex == (short)Global.ACKinds.TPAModule
                                                      || c.ACKindIndex == (short)Global.ACKinds.TPAProcessModule
+                                                     || c.ACKindIndex == (short)Global.ACKinds.TPAProcessModuleGroup
                                                      || c.ACKindIndex == (short)Global.ACKinds.TPAProcessFunction
                                                      || c.ACKindIndex == (short)Global.ACKinds.TPABGModule
                                                      || c.ACKindIndex == (short)Global.ACKinds.TACRuntimeDump
@@ -1318,6 +1322,7 @@ namespace gip.bso.iplus
                     switch (acClass.ACKind)
                     {
                         case Global.ACKinds.TPAProcessModule:
+                        case Global.ACKinds.TPAProcessModuleGroup:
                         case Global.ACKinds.TPAModule:
                             checkCount = 1;
                             checkACClassName = acClass.ACIdentifier + checkCount.ToString();

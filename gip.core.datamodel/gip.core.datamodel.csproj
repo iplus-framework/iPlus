@@ -33,34 +33,10 @@
     <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Update="ACHelperclasses\ThreadHandling\ACBackgroundWorker.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="iPlusV4.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>iPlusV4.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
     <None Include="ACHelperclasses\ACLicense\matrix.ini" />
-    <EntityDeploy Include="iPlusV4.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>iPlusV4.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <None Update="DbScripts\iPlus\dbsync_2023-05-15_00-01_iplusV5.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="DbScripts\iPlus\dbsync_2023-03-31_00-01_reportHandlerV5.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="iPlusV4.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>iPlusV4.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -78,7 +54,22 @@
     <Folder Include="VBControlScripts\" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="DbScripts\iPlus\dbsync_2021-12-21_09-56_ihrastinski.sql">
+    <None Include="DbScripts\iPlus\dbsync_2021-12-21_09-56_ihrastinski.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="DbScripts\iPlus\dbsync_2023-01-17_00-01_dlisak.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="DbScripts\iPlus\dbsync_2023-03-16_19-10_aagincic.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="DbScripts\iPlus\dbsync_2023-05-09_12-46_ihrastinski.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="DbScripts\iPlus\dbsync_2023-05-15_00-01_iplusV5.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="DbScripts\iPlus\dbsync_2023-03-31_00-01_reportHandlerV5.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -109,11 +100,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="DbScripts\iPlus\dbsync_2023-03-16_19-10_aagincic.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <PropertyGroup />
   <PropertyGroup />

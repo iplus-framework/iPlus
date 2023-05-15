@@ -915,7 +915,7 @@ namespace gip.core.reporthandlerwpf
                                     {
                                         string server = printerName.Substring(0, index);
                                         string printerName2 = printerName.Substring(index + 1);
-                                        PrintServer pServer = new PrintServer(printerName);
+                                        PrintServer pServer = new PrintServer(server);
                                         if (pServer != null)
                                         {
                                             pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName2).FirstOrDefault();

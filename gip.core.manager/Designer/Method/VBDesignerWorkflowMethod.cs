@@ -313,7 +313,9 @@ namespace gip.core.manager
                 }
             }
 
-            if (parentEntry != null && (acClassMethodList == null || !acClassMethodList.Any()))
+            if (   parentEntry != null
+                && paACClass.ACKind != Global.ACKinds.TPAProcessModuleGroup
+                && (acClassMethodList == null || !acClassMethodList.Any()))
             {
                 return null;
             }
@@ -322,11 +324,11 @@ namespace gip.core.manager
             NodeInfo nodeInfo;
             if (parentEntry != null && parentEntry.ACObject is NodeInfo)
             {
-                nodeInfo = new NodeInfo(paACClass.RelatedWorkflowClass, paACClass, ((NodeInfo)parentEntry.ACObject).PAACClass);
+                nodeInfo = new NodeInfo(paACClass.RelatedWorkflowClass != null ? paACClass.RelatedWorkflowClass : paACClass, paACClass, ((NodeInfo)parentEntry.ACObject).PAACClass);
             }
             else
             {
-                nodeInfo = new NodeInfo(paACClass.RelatedWorkflowClass, paACClass, null);
+                nodeInfo = new NodeInfo(paACClass.RelatedWorkflowClass != null ? paACClass.RelatedWorkflowClass : paACClass, paACClass, null);
             }
             treeEntry = new ACObjectItem(nodeInfo, paACClass.ACIdentifier);
             if (parentEntry != null)
@@ -362,16 +364,9 @@ namespace gip.core.manager
             }
             foreach (var acClassChild in paACClass.ACClass_ParentACClass.Where(c => c.ACKindIndex != (Int16)Global.ACKinds.TPAProcessFunction).OrderBy(c => c.ACKindIndex).ThenBy(c => c.ACIdentifier))
             {
-                switch (acClassChild.ACKind)
-                {
-                    case Global.ACKinds.TPAProcessModule:
-                        if (!acClassChild.AllChildsInHierarchy.Where(c => c.ACKind == Global.ACKinds.TPAProcessFunction).Any())
-                            continue;
-                        break;
-                    default:
-                        continue;
-                }
-                InsertACModelClass(treeEntry, acClassChild, ingnoreACClass, pwMethodACClass);
+                if (   (acClassChild.ACKind == Global.ACKinds.TPAProcessModuleGroup)
+                    || (acClassChild.ACKind == Global.ACKinds.TPAProcessModule && acClassChild.AllChildsInHierarchy.Where(c => c.ACKind == Global.ACKinds.TPAProcessFunction).Any()))
+                    InsertACModelClass(treeEntry, acClassChild, ingnoreACClass, pwMethodACClass);
             }
             return treeEntry;
         }
@@ -721,7 +716,8 @@ namespace gip.core.manager
 
                 ACClassWF workflowClass = visualTargetEdge.FromWFNode as ACClassWF;
 
-                if (parentACClass != workflowClass.ParentACClass)
+                if (   (parentACClass.ACKind == Global.ACKinds.TPAProcessModuleGroup && parentACClass.ACClass1_ParentACClass != workflowClass.ParentACClass)
+                    || (parentACClass.ACKind != Global.ACKinds.TPAProcessModuleGroup && parentACClass != workflowClass.ParentACClass))
                     return false;
 
                 if (visualTargetEdge.WFGroup == null || !(visualTargetEdge.WFGroup is ACClassWF))

@@ -153,6 +153,11 @@ namespace gip.core.layoutengine
             get { return ChartItem != null ? ChartItem.ACProperty : null; }
         }
 
+        public IEnumerable<IVBChartTuple> DataSeries
+        {
+            get { return ChartItem != null ? ChartItem.DataSeries : null; }
+        }
+
         public VBChartItemDisplayMode DisplayMode
         {
             get

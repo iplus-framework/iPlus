@@ -165,6 +165,7 @@ namespace gip.core.datamodel
             if (propertyLogs == null || !propertyLogs.Any())
                 return null;
 
+            List<ACPropertyLogSum> propetyLogSum = new List<ACPropertyLogSum>();
             if (from != null && to != null)
             {
                 List<ACPropertyLogInfo> queryList = propertyLogs
@@ -221,11 +222,40 @@ namespace gip.core.datamodel
                 propertyLogs = propertyLogs.OrderBy(c => c.StartDate).ToArray();
             }
 
-            return propertyLogs.GroupBy(c => c.PropertyValue)
-                               .Select(c => new ACPropertyLogSum(c.Key, TimeSpan.FromSeconds(c.Where(x => x.StartDate.HasValue && x.EndDate.HasValue)
-                                                                                              .Sum(d => (d.EndDate - d.StartDate).Value.TotalSeconds)),
-                                                                 c.FirstOrDefault()?.ACCaption, c.FirstOrDefault()?.ACUrl)
-                                                { ProgramLog = c.FirstOrDefault()?.ProgramLog, PropertyLog = c.FirstOrDefault()?.PropertyLog});
+            var groupedByPropertyValue = propertyLogs.GroupBy(c => c.PropertyValue);
+            foreach (var groupedPropLog in groupedByPropertyValue)
+            {
+                ACPropertyLogInfo firstItem = groupedPropLog.FirstOrDefault();
+                ACPropertyLogInfo lastItem = groupedPropLog.OrderByDescending(c => c.EndDate.HasValue ? c.EndDate : c.StartDate).FirstOrDefault();
+                DateTime? startTime = null;
+                if (firstItem != null)
+                {
+                    if (firstItem.EndDate.HasValue)
+                        startTime = firstItem.StartDate.Value;
+                    if (!startTime.HasValue && firstItem.ProgramLog != null)
+                        startTime = firstItem.ProgramLog.StartDate;
+                }
+
+                DateTime? endTime = null;
+                if (lastItem != null)
+                {
+                    if (lastItem.EndDate.HasValue)
+                        endTime = lastItem.EndDate.Value;
+                    else if (lastItem.StartDate.HasValue)
+                        endTime = lastItem.StartDate.Value;
+                    if (!endTime.HasValue && lastItem.ProgramLog != null)
+                        endTime = lastItem.ProgramLog.EndDate;
+                }
+
+                propetyLogSum.Add(
+                    new ACPropertyLogSum(groupedPropLog.Key, startTime, endTime,
+                                         TimeSpan.FromSeconds(groupedPropLog.Where(x => x.StartDate.HasValue && x.EndDate.HasValue).Sum(d => (d.EndDate - d.StartDate).Value.TotalSeconds)),
+                                         firstItem?.ACCaption, firstItem?.ACUrl)
+                    { ProgramLog = firstItem?.ProgramLog, PropertyLog = firstItem?.PropertyLog }
+                );
+            }
+
+            return propetyLogSum;
         }
 
 
@@ -254,6 +284,7 @@ namespace gip.core.datamodel
 
             var query = db.ACPropertyLog
                 .Include(c => c.ACClass)
+                //.Include(c => c.ACClass.ACClass1_BasedOnACClass)
                 .Include(c => c.ACClassProperty)
                 .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog })
                 //.Join(db.ACProgram, programLog => programLog.ACProgramID, program => program.ACProgramID, (programLog, program) => new { program.ACProgramID })
@@ -544,7 +575,7 @@ namespace gip.core.datamodel
 
         }
 
-        public ACPropertyLogSum(object propertyValue, TimeSpan duration, string acCaption, string acUrl) : base(null, null, propertyValue, acCaption)
+        public ACPropertyLogSum(object propertyValue, DateTime? start, DateTime? end, TimeSpan duration, string acCaption, string acUrl) : base(start, end, propertyValue, acCaption)
         {
             Duration = duration;
             ACUrl = acUrl;

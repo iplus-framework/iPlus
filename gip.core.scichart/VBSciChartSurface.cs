@@ -27,6 +27,7 @@ using gip.core.layoutengine;
 using System.Windows.Threading;
 using System.ComponentModel;
 using System.Collections.Specialized;
+using System.Windows.Controls.Primitives;
 
 namespace gip.core.scichart
 {
@@ -385,7 +386,7 @@ namespace gip.core.scichart
                 }
                 else
                 {
-                    IEnumerable<IVBChartTuple> chartSeries = lineMap.ChartItem.ACProperty.Value as IEnumerable<IVBChartTuple>;
+                    IEnumerable<IVBChartTuple> chartSeries = lineMap.ChartItem.DataSeries;
                     if (chartSeries != null)
                     {
                         if (chartSeries == lineMap.TupleValues)
@@ -430,54 +431,49 @@ namespace gip.core.scichart
             IEnumerable<IVBChartTuple> chartSeries = null;
             PropertyLogRing propertyLogRing = null;
             PropertyLogListInfo logListInfo = null;
-            if (chartItem.ACProperty != null)
+            // X-Axis is DateTime
+            if (logChartItem != null && chartItem.ACProperty != null)
             {
-                // X-Axis is DateTime
-                if (logChartItem != null)
-                {
-                    typeOfXAxis = typeof(DateTime);
-                    typeOfYAxis = chartItem.ACProperty.ACType.ObjectType;
-                    if (!typeOfYAxis.IsValueType || !typeof(IComparable).IsAssignableFrom(typeOfYAxis))
-                        return;
-                    if (typeof(Boolean).IsAssignableFrom(typeOfYAxis))
-                        typeOfYAxis = typeof(byte);
-                    else if (typeOfYAxis.IsEnum)
-                        typeOfYAxis = Enum.GetUnderlyingType(typeOfYAxis);
-                    logListInfo = logChartItem.GetLiveLogList();
-                    propertyLogRing = logListInfo.LiveLogList;
-                }
-                else
-                {
-                    chartSeries = chartItem.ACProperty.Value as IEnumerable<IVBChartTuple>;
-                    if (chartSeries != null)
-                    {
-                        IVBChartTuple tuple = chartSeries.FirstOrDefault();
-                        if (tuple != null)
-                        {
-                            typeOfXAxis = tuple.Value1.GetType();
-                            typeOfYAxis = tuple.Value2.GetType();
-                        }
-                    }
-                    else
-                    {
-                        typeOfYAxis = chartItem.ACProperty.ACType.ObjectFullType;
-                        Type typeOfChartTuple = typeof(IEnumerable<>).MakeGenericType(typeof(IVBChartTuple));
-                        if (!typeOfChartTuple.IsAssignableFrom(typeOfYAxis))
-                            return;
-                        typeOfXAxis = typeof(Double);
-                        typeOfYAxis = typeof(Double);
-                    }
-                    if (chartItem.DisplayMode == VBChartItemDisplayMode.MapTupleValue2ToX)
-                    {
-                        Type tmp = typeOfXAxis;
-                        typeOfXAxis = typeOfYAxis;
-                        typeOfYAxis = tmp;
-                    }
-                }
+                typeOfXAxis = typeof(DateTime);
+                typeOfYAxis = chartItem.ACProperty.ACType.ObjectType;
+                if (!typeOfYAxis.IsValueType || !typeof(IComparable).IsAssignableFrom(typeOfYAxis))
+                    return;
+                if (typeof(Boolean).IsAssignableFrom(typeOfYAxis))
+                    typeOfYAxis = typeof(byte);
+                else if (typeOfYAxis.IsEnum)
+                    typeOfYAxis = Enum.GetUnderlyingType(typeOfYAxis);
+                logListInfo = logChartItem.GetLiveLogList();
+                propertyLogRing = logListInfo.LiveLogList;
             }
             else
-                return;
-            if (typeOfXAxis == null)
+            {
+                chartSeries = chartItem.DataSeries;
+                if (chartSeries != null)
+                {
+                    IVBChartTuple tuple = chartSeries.FirstOrDefault();
+                    if (tuple != null)
+                    {
+                        typeOfXAxis = tuple.Value1.GetType();
+                        typeOfYAxis = tuple.Value2.GetType();
+                    }
+                }
+                else if (chartItem.ACProperty != null)
+                {
+                    typeOfYAxis = chartItem.ACProperty.ACType.ObjectFullType;
+                    Type typeOfChartTuple = typeof(IEnumerable<>).MakeGenericType(typeof(IVBChartTuple));
+                    if (!typeOfChartTuple.IsAssignableFrom(typeOfYAxis))
+                        return;
+                    typeOfXAxis = typeof(Double);
+                    typeOfYAxis = typeof(Double);
+                }
+                if (chartItem.DisplayMode == VBChartItemDisplayMode.MapTupleValue2ToX)
+                {
+                    Type tmp = typeOfXAxis;
+                    typeOfXAxis = typeOfYAxis;
+                    typeOfYAxis = tmp;
+                }
+            }
+            if (typeOfXAxis == null || typeOfYAxis == null)
                 return;
 
             if (logListInfo == null && chartSeries == null)
@@ -588,14 +584,16 @@ namespace gip.core.scichart
                 VBPropertyLogChartItem logChartItem = chartItem as VBPropertyLogChartItem;
                 if (logChartItem != null)
                 {
-                    logChartItem.ACProperty.LiveLog.LiveLogList.CollectionChanged -= NotifyableCollectionChanged;
-                    if ((chartItem.ACProperty != null) && (chartItem.ACProperty.LiveLog != null))
+                    if (logChartItem.ACProperty != null && logChartItem.ACProperty.LiveLog != null && logChartItem.ACProperty.LiveLog.LiveLogList != null)
+                        logChartItem.ACProperty.LiveLog.LiveLogList.CollectionChanged -= NotifyableCollectionChanged;
+                    if (chartItem.ACProperty != null && chartItem.ACProperty.LiveLog != null)
                         chartItem.ACProperty.LiveLog.PropertyChanged -= LiveLog_PropertyChanged;
                 }
                 else
                 {
-                    chartItem.ACProperty.PropertyChanged -= ACProperty_PropertyChanged;
-                    INotifyCollectionChanged chartSeries = chartItem.ACProperty.Value as IEnumerable<IVBChartTuple> as INotifyCollectionChanged;
+                    if (chartItem.ACProperty != null)
+                        chartItem.ACProperty.PropertyChanged -= ACProperty_PropertyChanged;
+                    INotifyCollectionChanged chartSeries = chartItem.DataSeries as INotifyCollectionChanged;
                     if (chartSeries != null)
                         chartSeries.CollectionChanged -= NotifyableCollectionChanged;
                 }

@@ -21,7 +21,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Ellipse Width="9" Height="9" Fill="DarkBlue">
+                            <Ellipse Width="9" Height="9" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:VBProgressBar}}, Path=PieFill}">
                                 <Ellipse.RenderTransform>
                                     <TransformGroup>
                                         <TranslateTransform X="-4" Y="-4"/>

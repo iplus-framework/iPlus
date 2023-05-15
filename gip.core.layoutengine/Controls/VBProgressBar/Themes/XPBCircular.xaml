@@ -19,13 +19,14 @@
             <local:VBPiePiece CentreX="{Binding CentreX}" CentreY="{Binding CentreY}"
                               RotationAngle="0" WedgeAngle="{Binding Angle}"
                               Radius="{Binding Radius}" InnerRadius="{Binding InnerRadius}"
-                              Fill="Black" Opacity="0.7"/>
+                              Fill="{TemplateBinding PieFill}" Stroke="{TemplateBinding PieStroke}"/>
 
             <Grid local:GridUtils.RowDefinitions="*,2*,*"
                     local:GridUtils.ColumnDefinitions="*,2*,*">
                 <Viewbox Grid.Row="1" Grid.Column="1">
                     <TextBlock Text="{Binding Percent, StringFormat=0%}"
-                             Foreground="Black"
+                             Visibility="{TemplateBinding ValueVisibility}"
+                             Foreground="{TemplateBinding PieTextColor}"
                              FontWeight="Bold"
                              VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </Viewbox>

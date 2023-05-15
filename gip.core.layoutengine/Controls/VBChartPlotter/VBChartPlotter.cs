@@ -698,7 +698,7 @@ namespace gip.core.layoutengine
                 }
                 else
                 {
-                    IEnumerable<IVBChartTuple> chartSeries = chartItem.ACProperty.Value as IEnumerable<IVBChartTuple>;
+                    IEnumerable<IVBChartTuple> chartSeries = chartItem.DataSeries;
                     if (chartSeries != null)
                     {
                         EnumerableDataSource<IVBChartTuple> ds = CreateChartDataSource(chartSeries, chartItem.DisplayMode);

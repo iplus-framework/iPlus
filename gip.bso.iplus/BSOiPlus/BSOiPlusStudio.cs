@@ -899,6 +899,7 @@ namespace gip.bso.iplus
                 {
                     case Global.ACKinds.TACApplicationManager:
                     case Global.ACKinds.TPAProcessModule:
+                    case Global.ACKinds.TPAProcessModuleGroup:
                     case Global.ACKinds.TPAProcessFunction:
                     case Global.ACKinds.TPAModule:
                     case Global.ACKinds.TPABGModule:
@@ -2591,6 +2592,7 @@ namespace gip.bso.iplus
                 case Global.ACKinds.TACDAClass: // 0100
                 case Global.ACKinds.TACApplicationManager: // 5100
                 case Global.ACKinds.TPAModule: // 5200
+                case Global.ACKinds.TPAProcessModuleGroup:
                 case Global.ACKinds.TPAProcessModule: // 5210
                 case Global.ACKinds.TPAProcessFunction: // 5310
                 case Global.ACKinds.TPABGModule: // 5410
@@ -2644,6 +2646,7 @@ namespace gip.bso.iplus
                 case Global.ACKinds.TACDAClass: // 0100
                 case Global.ACKinds.TACApplicationManager: // 0200
                 case Global.ACKinds.TPAModule: // 5200
+                case Global.ACKinds.TPAProcessModuleGroup:
                 case Global.ACKinds.TPAProcessModule: // 5210
                 case Global.ACKinds.TPAProcessFunction: // 5310
                 case Global.ACKinds.TPABGModule: // 5410

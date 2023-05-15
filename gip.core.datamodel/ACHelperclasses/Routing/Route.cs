@@ -209,7 +209,7 @@ namespace gip.core.datamodel
 
         public RouteItem GetRouteTarget()
         {
-            return this.FirstOrDefault(r => !this.Any(t => r.TargetKey == t.SourceKey));
+            return this.LastOrDefault(r => !this.Any(t => r.TargetKey == t.SourceKey));
         }
 
         public IEnumerable<RouteItem> GetRouteTargets()

@@ -299,9 +299,9 @@ namespace gip.core.communication
         [ACMethodInteraction("Mail", "en{'Send testmail to mailinglist'}de{'Sende Testmail an Verteilerliste'}", 210, true)]
         public void SendTestMail()
         {
-            ACMethod acMethod = ACUrlACTypeSignature("!SendToMailingList", gip.core.datamodel.Database.GlobalDatabase); // Immer Globalen context um Deadlock zu vermeiden 
+            ACMethod acMethod = ACUrlACTypeSignature("!SendMailToMailingList", gip.core.datamodel.Database.GlobalDatabase); // Immer Globalen context um Deadlock zu vermeiden 
             acMethod.ParameterValueList["Subject"] = "Test";
-            acMethod.ParameterValueList["Body"] = "Testmail from variobatch";
+            acMethod.ParameterValueList["Body"] = "Testmail from iPlus";
             SendToMailingList(acMethod);
         }
 
@@ -338,10 +338,14 @@ namespace gip.core.communication
                 _SmtpClientAsync.EnableSsl = true;
             else
                 _SmtpClientAsync.EnableSsl = false;
+
             if (_SmtpClientAsync.Credentials == null)
             {
                 if (!String.IsNullOrEmpty(SmtpAuthUser.ValueT) && !String.IsNullOrEmpty(SmtpAuthPassword.ValueT))
+                {
+                    //_SmtpClientAsync.UseDefaultCredentials = false;
                     _SmtpClientAsync.Credentials = new NetworkCredential(SmtpAuthUser.ValueT, SmtpAuthPassword.ValueT);
+                }
             }
             else
             {
@@ -349,7 +353,10 @@ namespace gip.core.communication
                 if (credential.Password != SmtpAuthPassword.ValueT || credential.UserName != SmtpAuthUser.ValueT)
                 {
                     if (!String.IsNullOrEmpty(SmtpAuthUser.ValueT) && !String.IsNullOrEmpty(SmtpAuthPassword.ValueT))
+                    {
+                        //_SmtpClientAsync.UseDefaultCredentials = false;
                         _SmtpClientAsync.Credentials = new NetworkCredential(SmtpAuthUser.ValueT, SmtpAuthPassword.ValueT);
+                    }
                     else
                         _SmtpClientAsync.Credentials = null;
                 }
@@ -378,7 +385,10 @@ namespace gip.core.communication
             if (_SmtpClientSync.Credentials == null)
             {
                 if (!String.IsNullOrEmpty(SmtpAuthUser.ValueT) && !String.IsNullOrEmpty(SmtpAuthPassword.ValueT))
+                {
+                    //_SmtpClientSync.UseDefaultCredentials = false;
                     _SmtpClientSync.Credentials = new NetworkCredential(SmtpAuthUser.ValueT, SmtpAuthPassword.ValueT);
+                }
             }
             else
             {
@@ -386,7 +396,10 @@ namespace gip.core.communication
                 if (credential.Password != SmtpAuthPassword.ValueT || credential.UserName != SmtpAuthUser.ValueT)
                 {
                     if (!String.IsNullOrEmpty(SmtpAuthUser.ValueT) && !String.IsNullOrEmpty(SmtpAuthPassword.ValueT))
+                    {
+                        //_SmtpClientSync.UseDefaultCredentials = false;
                         _SmtpClientSync.Credentials = new NetworkCredential(SmtpAuthUser.ValueT, SmtpAuthPassword.ValueT);
+                    }
                     else
                         _SmtpClientSync.Credentials = null;
                 }

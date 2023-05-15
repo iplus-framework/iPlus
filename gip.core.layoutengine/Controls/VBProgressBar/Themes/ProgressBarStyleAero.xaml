@@ -182,21 +182,39 @@
         <Setter Property="Template" Value="{StaticResource DefaultBarAero}"/>
         <Style.Triggers>
             <Trigger Property="ProgressBarStyle" Value="NormalPie">
+                <Setter Property="PieFill" Value="LightBlue"/>
+                <Setter Property="PieStroke" Value="Transparent"/>
+                <Setter Property="PieTextColor" Value="Black"/>
                 <Setter Property="Template" Value="{StaticResource NormalPieGip}"/>
             </Trigger>
             <Trigger Property="ProgressBarStyle" Value="GlassyPie">
+                <Setter Property="PieFill" Value="Red"/>
+                <Setter Property="PieStroke" Value="DarkRed"/>
+                <Setter Property="PieTextColor" Value="Black"/>
                 <Setter Property="Template" Value="{StaticResource GlassyPieGip}"/>
             </Trigger>
             <Trigger Property="ProgressBarStyle" Value="Circular">
+                <Setter Property="PieFill" Value="Black"/>
+                <Setter Property="PieStroke" Value="Transparent"/>
+                <Setter Property="PieTextColor" Value="Black"/>
                 <Setter Property="Template" Value="{StaticResource CircularGip}"/>
             </Trigger>
             <Trigger Property="ProgressBarStyle" Value="CircularSegmented">
+                <Setter Property="PieFill" Value="DarkBlue"/>
+                <Setter Property="PieStroke" Value="White"/>
+                <Setter Property="PieTextColor" Value="Black"/>
                 <Setter Property="Template" Value="{StaticResource CircularSegmentedGip}"/>
             </Trigger>
             <Trigger Property="ProgressBarStyle" Value="CircularPoints">
+                <Setter Property="PieFill" Value="DarkBlue"/>
+                <Setter Property="PieStroke" Value="DarkRed"/>
+                <Setter Property="PieTextColor" Value="Black"/>
                 <Setter Property="Template" Value="{StaticResource CircularPointsGip}"/>
             </Trigger>
             <Trigger Property="ProgressBarStyle" Value="StopWatch">
+                <Setter Property="PieFill" Value="Red"/>
+                <Setter Property="PieStroke" Value="Transparent"/>
+                <Setter Property="PieTextColor" Value="Black"/>
                 <Setter Property="Template" Value="{StaticResource StopWatchGip}"/>
             </Trigger>
             <Trigger Property="ProgressBarStyle" Value="PerformantBar">

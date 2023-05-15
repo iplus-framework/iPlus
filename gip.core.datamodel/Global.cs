@@ -122,6 +122,11 @@ namespace gip.core.datamodel
             TPAProcessModule = 5210,
 
             /// <summary>
+            /// Group for Process modules
+            /// </summary>
+            TPAProcessModuleGroup = 5211,
+
+            /// <summary>
             /// Derivations from PAProcessFunction which are Operations according ISA-88
             /// </summary>
             TPAProcessFunction = 5310,
@@ -421,6 +426,7 @@ namespace gip.core.datamodel
                     Global._ACKindList.AddEntry((short)ACKinds.TACApplicationManager, "en{'Applicationmanager'}de{'Anwendungsmanager'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TPAModule, "en{'Control-Module'}de{'Steuerungsmodul'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TPAProcessModule, "en{'Process-Module'}de{'Prozessmodul'}");
+                    Global._ACKindList.AddEntry((short)ACKinds.TPAProcessModuleGroup, "en{'Group of process modulea'}de{'Prozessmodulgruppe'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TPAProcessFunction, "en{'Function'}de{'Funktion'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TPABGModule, "en{'Software-Module in Background)'}de{'Softwaremodul im Hintergrund)'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TPARole, "en{'Role'}de{'Rolle'}");
@@ -478,7 +484,7 @@ namespace gip.core.datamodel
                     _KindInfoList.Add(new KindInfo { ACCaption = "VB Query", RangeFrom = ACKinds.TACQueries, RangeTo = ACKinds.TACQRY });
 
                     _KindInfoList.Add(new KindInfo { ACCaption = "PA Module", RangeFrom = ACKinds.TPAModule, RangeTo = ACKinds.TACApplicationManager });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "PA Process Module", RangeFrom = ACKinds.TPAProcessModule		, RangeTo = ACKinds.TPAProcessModule});
+                    _KindInfoList.Add(new KindInfo { ACCaption = "PA Process Module", RangeFrom = ACKinds.TPAProcessModule, RangeTo = ACKinds.TPAProcessModuleGroup});
                     _KindInfoList.Add(new KindInfo { ACCaption = "PA Process Function", RangeFrom = ACKinds.TPAProcessFunction, RangeTo = ACKinds.TPAProcessFunction });
                     _KindInfoList.Add(new KindInfo { ACCaption = "PA Background Module", RangeFrom = ACKinds.TPABGModule, RangeTo = ACKinds.TPABGModule });
                     _KindInfoList.Add(new KindInfo { ACCaption = "PA Role", RangeFrom = ACKinds.TPARole, RangeTo = ACKinds.TPARole });

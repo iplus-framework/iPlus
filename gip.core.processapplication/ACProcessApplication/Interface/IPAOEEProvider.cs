@@ -11,7 +11,7 @@ namespace gip.core.processapplication
 {
     public interface IPAOEEProvider : IACComponent
     {
-        IACContainerTNet<GlobalProcApp.AvailabilityState> AvailabilityState { get; }
+        IACContainerTNet<AvailabilityState> AvailabilityState { get; }
         IACContainerTNet<Global.OperatingMode> OperatingMode { get; }
         IACContainerTNet<Boolean> Allocated { get; }
     }

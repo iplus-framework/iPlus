@@ -126,7 +126,6 @@ namespace gip.core.archiver
         }
         #endregion
 
-
         #region Methods
 
         public override datamodel.Msg DoExport(string exportPath, DateTime fromDate, DateTime toDate)
@@ -203,7 +202,6 @@ namespace gip.core.archiver
             }
             finally
             {
-
                 using (ACMonitor.Lock(IsArchivingActiveLock))
                     IsArchivingActive = false;
             }

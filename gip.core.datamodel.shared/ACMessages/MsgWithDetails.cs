@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.Serialization;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace gip.core.datamodel
 {
@@ -213,13 +214,15 @@ namespace gip.core.datamodel
             if (msg is MsgWithDetails)
             {
                 MsgWithDetails tmpMsg = msg as MsgWithDetails;
-                if (tmpMsg.MsgDetails != null)
+                if (tmpMsg.MsgDetails != null && tmpMsg.MsgDetails.Any())
                 {
                     foreach (Msg chMsg in tmpMsg.MsgDetails)
                     {
                         _MsgDetails.Add(chMsg);
                     }
                 }
+                else
+                    _MsgDetails.Add(msg);
             }
             else
             {

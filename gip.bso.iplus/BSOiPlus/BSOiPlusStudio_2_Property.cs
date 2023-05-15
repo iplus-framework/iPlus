@@ -1050,12 +1050,27 @@ namespace gip.bso.iplus
         [ACMethodInteraction("ACClassProperty", "en{'Delete Property'}de{'Eigenschaft löschen'}", (short)MISort.Delete, true, "CurrentACClassProperty", Global.ACKinds.MSMethodPrePost)]
         public void DeleteACClassProperty()
         {
-            if (!PreExecute("DeleteACClassProperty")) return;
-            Msg msg = CurrentACClassProperty.DeleteACObject(Database.ContextIPlus, true);
-            if (msg != null)
-            {
-                Messages.Msg(msg);
+            if (!PreExecute("DeleteACClassProperty")) 
                 return;
+            if (CurrentACClassProperty != null)
+            {
+                var taskValueList = CurrentACClassProperty.ACClassTaskValue_ACClassProperty.ToArray();
+                if (taskValueList != null && taskValueList.Any())
+                {
+                    var result = Messages.Question(this, "This Property is already used in a active component. Deleting it can lead to an inconsistent state. Are you sure?", Global.MsgResult.No, true);
+                    if (result == Global.MsgResult.No)
+                        return;
+                    foreach (ACClassTaskValue taskValue in CurrentACClassProperty.ACClassTaskValue_ACClassProperty.ToArray())
+                    {
+                        taskValue.DeleteACObject(Database.ContextIPlus, true);
+                    }
+                }
+                Msg msg = CurrentACClassProperty.DeleteACObject(Database.ContextIPlus, true);
+                if (msg != null)
+                {
+                    Messages.Msg(msg);
+                    return;
+                }
             }
 
             if (_ACClassPropertyList != null)
