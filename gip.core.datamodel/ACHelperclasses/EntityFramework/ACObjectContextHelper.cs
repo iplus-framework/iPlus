@@ -918,21 +918,21 @@ namespace gip.core.datamodel
             {
                 string[] parts = constraint.Split('_');
                 string key = "";
-                string table = Database.Root.Environment.TranslateText(Database.GlobalDatabase, "Unknown");
+                string table = Database.GlobalDatabase.IsChanged ? "Unknown" : Database.Root.Environment.TranslateText(Database.GlobalDatabase, "Unknown");
                 string column = table;
                 switch (parts[0])
                 {
                     case "FK":
-                        key = Database.Root.Environment.TranslateText(Database.GlobalDatabase, "Foreign Key");
+                        key = Database.GlobalDatabase.IsChanged ? "Foreign Key" : Database.Root.Environment.TranslateText(Database.GlobalDatabase, "Foreign Key");
                         break;
                     case "PK":
-                        key = Database.Root.Environment.TranslateText(Database.GlobalDatabase, "Primary Key");
+                        key = Database.GlobalDatabase.IsChanged ? "Primary Key" : Database.Root.Environment.TranslateText(Database.GlobalDatabase, "Primary Key");
                         break;
                     case "UIX":
-                        key = Database.Root.Environment.TranslateText(Database.GlobalDatabase, "Unique Index");
+                        key = Database.GlobalDatabase.IsChanged ? "Unique Index" : Database.Root.Environment.TranslateText(Database.GlobalDatabase, "Unique Index");
                         break;
                     default:
-                        Database.Root.Environment.TranslateText(Database.GlobalDatabase, "Unknown Constraint");
+                        key = Database.GlobalDatabase.IsChanged ? "Unknown Constraint" : Database.Root.Environment.TranslateText(Database.GlobalDatabase, "Unknown Constraint");
                         break;
                 }
                 if (parts.Any())

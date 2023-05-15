@@ -51,7 +51,7 @@
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>iPlusV4.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <None Update="DbScripts\iPlus\dbsync_2023-02-24_00-01_iplusV5.sql">
+    <None Update="DbScripts\iPlus\dbsync_2023-05-15_00-01_iplusV5.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="DbScripts\iPlus\dbsync_2023-03-31_00-01_reportHandlerV5.sql">
