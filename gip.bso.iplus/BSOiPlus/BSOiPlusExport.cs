@@ -7,10 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 using static gip.core.datamodel.Global;
 
 namespace gip.bso.iplus
@@ -206,10 +203,8 @@ namespace gip.bso.iplus
             }
             errMessage.Message = message;
 
-            System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
-            {
-                SendMessage(errMessage);
-            }));
+            SendMessage(errMessage);
+
         }
 
         #endregion
@@ -240,7 +235,7 @@ namespace gip.bso.iplus
                     if (!string.IsNullOrEmpty(value) && Directory.Exists(value))
                         this[CustomerDataPath_IndexName] = value;
                     _CurrentExportFolder = value;
-                    OnPropertyChanged("CurrentExportFolder");
+                    OnPropertyChanged();
                 }
             }
         }
@@ -266,7 +261,7 @@ namespace gip.bso.iplus
             set
             {
                 _IsExportACClass = value;
-                OnPropertyChanged("IsExportACClass");
+                OnPropertyChanged();
             }
         }
 
@@ -288,7 +283,7 @@ namespace gip.bso.iplus
             set
             {
                 _IsExportACClassProperty = value;
-                OnPropertyChanged("IsExportACClassProperty");
+                OnPropertyChanged();
             }
         }
 
@@ -310,7 +305,7 @@ namespace gip.bso.iplus
             set
             {
                 _IsExportACClassMethod = value;
-                OnPropertyChanged("IsExportACClassMethod");
+                OnPropertyChanged();
             }
         }
 
@@ -332,7 +327,7 @@ namespace gip.bso.iplus
             set
             {
                 _IsExportACClassDesign = value;
-                OnPropertyChanged("IsExportACClassDesign");
+                OnPropertyChanged();
             }
         }
 
@@ -354,7 +349,7 @@ namespace gip.bso.iplus
             set
             {
                 _IsExportACClassConfig = value;
-                OnPropertyChanged("IsExportACClassConfig");
+                OnPropertyChanged();
             }
         }
 
@@ -376,7 +371,7 @@ namespace gip.bso.iplus
             set
             {
                 _IsExportACClassText = value;
-                OnPropertyChanged("IsExportACClassText");
+                OnPropertyChanged();
             }
         }
 
@@ -398,7 +393,7 @@ namespace gip.bso.iplus
             set
             {
                 _IsExportACClassMessage = value;
-                OnPropertyChanged("IsExportACClassMessage");
+                OnPropertyChanged();
             }
         }
 
@@ -420,7 +415,7 @@ namespace gip.bso.iplus
             set
             {
                 _IsExportACClassPropertyRelation = value;
-                OnPropertyChanged("IsExportACClassPropertyRelation");
+                OnPropertyChanged();
             }
         }
 
@@ -442,7 +437,7 @@ namespace gip.bso.iplus
             set
             {
                 _IsExportDeleteFolder = value;
-                OnPropertyChanged("IsExportDeleteFolder");
+                OnPropertyChanged();
             }
         }
 
@@ -495,7 +490,7 @@ namespace gip.bso.iplus
                 if (_SearchClassText != inputString)
                 {
                     _SearchClassText = inputString;
-                    OnPropertyChanged("SearchClassText");
+                    OnPropertyChanged();
                 }
             }
         }
@@ -521,7 +516,7 @@ namespace gip.bso.iplus
                 if (_WithCaption != value)
                 {
                     _WithCaption = value;
-                    OnPropertyChanged("WithCaption");
+                    OnPropertyChanged();
                     RefreshProjectTree();
                 }
             }
@@ -545,7 +540,7 @@ namespace gip.bso.iplus
             set
             {
                 _ShowGroup = value;
-                OnPropertyChanged("ShowGroup");
+                OnPropertyChanged();
                 RefreshProjectTree();
             }
         }
@@ -623,7 +618,7 @@ namespace gip.bso.iplus
                 if (_CurrentExportACProject != value)
                 {
                     _CurrentExportACProject = value;
-                    OnPropertyChanged("CurrentExportACProject");
+                    OnPropertyChanged();
                     LoadExportTree();
                 }
             }
@@ -677,7 +672,7 @@ namespace gip.bso.iplus
             set
             {
                 _CurrentExportProjectItemRootChangeInfo = value;
-                OnPropertyChanged("CurrentExportProjectItemRootChangeInfo");
+                OnPropertyChanged();
             }
         }
 
@@ -702,7 +697,7 @@ namespace gip.bso.iplus
                 {
                     _CurrentExportProjectItem = value;
                     _LoadedItemsList = LoadLoadedItemsList();
-                    OnPropertyChanged("LoadedItemsList");
+                    OnPropertyChanged(nameof(LoadedItemsList));
                 }
             }
         }
@@ -723,8 +718,8 @@ namespace gip.bso.iplus
                 {
                     _ShowGroup = false;
                     _WithCaption = false;
-                    OnPropertyChanged("ShowGroup");
-                    OnPropertyChanged("WithCaption");
+                    OnPropertyChanged(nameof(ShowGroup));
+                    OnPropertyChanged(nameof(WithCaption));
                     RefreshProjectTree();
                     return true;
                 }
@@ -839,7 +834,7 @@ namespace gip.bso.iplus
                 if (_SelectedLoadedItems != value)
                 {
                     _SelectedLoadedItems = value;
-                    OnPropertyChanged("SelectedLoadedItems");
+                    OnPropertyChanged();
                 }
             }
         }
@@ -969,7 +964,7 @@ namespace gip.bso.iplus
                         if (ex.InnerException != null && ex.InnerException.Message != null)
                             msg += " Inner:" + ex.InnerException.Message;
                         errorMessage = new Msg() { Message = msg, MessageLevel = eMsgLevel.Error, ACIdentifier = ACIdentifier };
-                        Messages.LogException("BSOiPlusExport", "DoExport", msg);
+                        Messages.LogException(nameof(BSOiPlusExport), nameof(DoExportPackage) + "(10)", msg);
                         return errorMessage;
                     }
                 }
@@ -1005,7 +1000,7 @@ namespace gip.bso.iplus
                 if (ec.InnerException != null && ec.InnerException.Message != null)
                     msg += " Inner:" + ec.InnerException.Message;
                 errorMessage = new Msg() { Message = msg, MessageLevel = eMsgLevel.Error, ACIdentifier = ACIdentifier };
-                Messages.LogException("BSOiPlusExport", "DoExport(10)", msg);
+                Messages.LogException(nameof(BSOiPlusExport), nameof(DoExportPackage) + "(20)", msg);
             }
             BackgroundWorker.ProgressInfo.TotalProgress.ProgressText = "";
             if (errorMessage != null)
@@ -1078,7 +1073,7 @@ namespace gip.bso.iplus
             set
             {
                 _CurrentMsg = value;
-                OnPropertyChanged("CurrentMsg");
+                OnPropertyChanged();
             }
         }
 
@@ -1100,8 +1095,11 @@ namespace gip.bso.iplus
 
         public void SendMessage(Msg msg)
         {
-            MsgList.Add(msg);
-            OnPropertyChanged("MsgList");
+            System.Windows.Application.Current.Dispatcher.Invoke((Action)delegate
+            {
+                MsgList.Add(msg);
+            });
+            OnPropertyChanged(nameof(MsgList));
         }
 
         #endregion
@@ -1127,8 +1125,7 @@ namespace gip.bso.iplus
                 if (e.InnerException != null && e.InnerException.Message != null)
                     msg += " Inner:" + e.InnerException.Message;
 
-                Messages.LogException("BSOiPlusExport", "DoExport(20)", msg);
-                // ACEntitySerializer.AddMessage(eMsgLevel.Error, "Can not create Targetdirectory '{0}'!", folder, null, null, null);
+                Messages.LogException(nameof(BSOiPlusExport), nameof(CheckOrCreateDirectory) + "(10)", msg);
 
                 return false;
             }
@@ -1210,7 +1207,7 @@ namespace gip.bso.iplus
         private void _ACProjectManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == ACProjectManager.CurrentProjectItemRootPropName)
-                OnPropertyChanged("CurrentExportProjectItemRoot");
+                OnPropertyChanged(nameof(CurrentExportProjectItemRoot));
         }
 
         /// <summary>

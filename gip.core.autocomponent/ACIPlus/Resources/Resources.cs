@@ -68,12 +68,7 @@ namespace gip.core.autocomponent
                     {
                         XElement xDoc = XElement.Parse(File.ReadAllText(file));
                         serializer.DeserializeXML(this, db, rootACObjectItem, xDoc, null, "\\Resources\\" + file);
-                        if (System.Windows.Application.Current != null)
-                            System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
-                            {
-                                if (serializer.MsgList.Any() && MsgObserver != null)
-                                    serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
-                            }));
+                        serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
                     }
                     catch (Exception ec)
                     {
@@ -400,12 +395,10 @@ namespace gip.core.autocomponent
             rootACObjectItem.SetupProperties(tmpMsgList);
             if (MsgObserver != null)
             {
-                if (System.Windows.Application.Current != null)
-                    System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
-                    {
-                        foreach (Msg msg in tmpMsgList)
-                            MsgObserver.SendMessage(msg);
-                    }));
+                foreach (Msg msg in tmpMsgList)
+                {
+                    MsgObserver.SendMessage(msg);
+                }
             }
         }
 
