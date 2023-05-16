@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -104,7 +105,11 @@ public partial class iPlusV5Context : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(new ACMaterializationInterceptor()).UseModel(iPlusV5CompiledModels.iPlusV5ContextModel.Instance).ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
+        optionsBuilder.AddInterceptors(new ACMaterializationInterceptor())
+            .UseModel(iPlusV5ContextModel.Instance)
+            .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
+            //Uncomment connection string when generating new CompiledModels
+            //.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

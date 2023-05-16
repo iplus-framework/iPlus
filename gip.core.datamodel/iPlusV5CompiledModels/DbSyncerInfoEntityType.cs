@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using gip.core.datamodel;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace iPlusV5CompiledModels
+namespace gip.core.datamodel
 {
     internal partial class DbSyncerInfoEntityType
     {
@@ -112,7 +111,7 @@ namespace iPlusV5CompiledModels
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
-            runtimeEntityType.AddAnnotation("Relational:TableName", "DbSyncerInfo");
+            runtimeEntityType.AddAnnotation("Relational:TableName", "@DbSyncerInfo");
             runtimeEntityType.AddAnnotation("Relational:ViewName", null);
             runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
 

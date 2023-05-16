@@ -31,7 +31,8 @@
         "System",
         "System.Collections.Generic",
         "Microsoft.EntityFrameworkCore",
-        "Microsoft.EntityFrameworkCore.Diagnostics"
+        "Microsoft.EntityFrameworkCore.Diagnostics",
+        "System.Configuration"
     };
 
     if (NamespaceHint != Options.ModelNamespace
@@ -91,7 +92,11 @@ public partial class <#= Options.ContextName #> : DbContext
 #>
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(new ACMaterializationInterceptor()).UseModel(iPlusV5CompiledModels.iPlusV5ContextModel.Instance).ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
+        optionsBuilder.AddInterceptors(new ACMaterializationInterceptor())
+            .UseModel(iPlusV5ContextModel.Instance)
+            .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
+            //Uncomment connection string when generating new CompiledModels
+            //.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString);
     }
 <#
     }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace iPlusV5CompiledModels
+namespace gip.core.datamodel
 {
     public partial class iPlusV5ContextModel
     {

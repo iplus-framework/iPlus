@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using gip.core.datamodel;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace iPlusV5CompiledModels
+namespace gip.core.datamodel
 {
     internal partial class ACClassWFEntityType
     {
