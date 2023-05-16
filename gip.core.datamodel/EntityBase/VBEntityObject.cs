@@ -425,7 +425,8 @@ namespace gip.core.datamodel
         /// <param name="entityObject"></param>
         public void AutoRefresh()
         {
-            this.Context.AutoRefresh(this);
+            if (this.Context != null)
+                this.Context.AutoRefresh(this);
         }
 
         public void AutoRefresh(IACEntityObjectContext context)

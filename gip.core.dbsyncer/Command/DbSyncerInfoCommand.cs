@@ -172,7 +172,11 @@ namespace gip.core.dbsyncer.Command
                 var oldTimeout = db.Database.GetCommandTimeout;
                 db.Database.SetCommandTimeout(60 * 5);
                 if (!string.IsNullOrEmpty(prepraredSQL))
+                {
+                    prepraredSQL = prepraredSQL.Replace("{", "{{");
+                    prepraredSQL = prepraredSQL.Replace("}", "}}");
                     db.Database.ExecuteSql(FormattableStringFactory.Create(prepraredSQL));
+                }
                 db.Database.SetCommandTimeout(oldTimeout());
             }
         }
