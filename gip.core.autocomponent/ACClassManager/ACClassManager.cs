@@ -286,6 +286,10 @@ namespace gip.core.autocomponent
                             acAssembly.AssemblyName = assemblyFileName;
                             acAssembly.LastReflectionDate = DateTime.Now;
                             acAssembly.AssemblyDate = lastWriteTime;
+                            acAssembly.InsertName = "Init";
+                            acAssembly.InsertDate = DateTime.Now;
+                            acAssembly.UpdateName = "Init";
+                            acAssembly.UpdateDate = DateTime.Now;
                             acAssembly.SHA1 = assemblyHashValue;
                             _Database.ACAssembly.Add(acAssembly);
                         }
@@ -475,7 +479,7 @@ namespace gip.core.autocomponent
                     }
                 }
 
-                MsgWithDetails saveResult = _Database.ACSaveChanges();
+                MsgWithDetails saveResult = _Database.ACSaveChanges(true, true, true);
                 if (saveResult != null)
                 {
                     Messages.GlobalMsg.AddDetailMessage(saveResult);
@@ -608,6 +612,8 @@ namespace gip.core.autocomponent
                 acClass.ACKind = acClassInfo.ACKind;
                 acClass.SortIndex = acClassInfo.SortIndex;
                 acClass.IsAbstract = dotNETType.IsAbstract;
+                acClass.IsAutostart = false;
+                acClass.ACProjectID = acClass.ACProject.ACProjectID;
 
                 acClass.ACStartType = GetACStartTypeByACType(acClassInfo.ACKind);
                 acClass.ACStorableType = acClassInfo.ACStorableType;
@@ -862,7 +868,7 @@ namespace gip.core.autocomponent
 
             try
             {
-                MsgWithDetails saveResult = _Database.ACSaveChanges();
+                MsgWithDetails saveResult = _Database.ACSaveChanges(true, true, true);
                 if (saveResult != null)
                 {
                     Messages.GlobalMsg.AddDetailMessage(saveResult);
@@ -1512,7 +1518,7 @@ namespace gip.core.autocomponent
                     {
                         InsertOrUpdateValueTypeACClass(DataType, false, true);
 
-                        MsgWithDetails Result = _Database.ACSaveChanges();
+                        MsgWithDetails Result = _Database.ACSaveChanges(true, true, true);
                         if (Result != null)
                         {
                             Messages.GlobalMsg.AddDetailMessage(Result);
@@ -1534,7 +1540,7 @@ namespace gip.core.autocomponent
                     {
                         InsertOrUpdateValueTypeACClass(DataType, false, true);
 
-                        MsgWithDetails Result = _Database.ACSaveChanges();
+                        MsgWithDetails Result = _Database.ACSaveChanges(true, true, true);
                         if (Result != null)
                         {
                             Messages.GlobalMsg.AddDetailMessage(Result);
@@ -1865,7 +1871,7 @@ namespace gip.core.autocomponent
             {
                 acClassMethod.UpdateACMethod();
             }
-            _Database.ACSaveChanges();
+            _Database.ACSaveChanges(true, true, true);
         }
 
         private void UpdateACClassACURLCached(Database db)
@@ -1890,7 +1896,7 @@ namespace gip.core.autocomponent
 
             }
 
-            Msg msg = db.ACSaveChanges();
+            Msg msg = db.ACSaveChanges(true, true, true);
             if (msg != null)
                 Messages.ConsoleMsg("System", msg.Message);
         }
@@ -2631,7 +2637,7 @@ namespace gip.core.autocomponent
 
             try
             {
-                MsgWithDetails saveResult = _Database.ACSaveChanges();
+                MsgWithDetails saveResult = _Database.ACSaveChanges(true, true, true);
                 if (saveResult != null)
                 {
                     Messages.GlobalMsg.AddDetailMessage(saveResult);
@@ -2664,7 +2670,7 @@ namespace gip.core.autocomponent
 
             try
             {
-                MsgWithDetails saveResult = _Database.ACSaveChanges();
+                MsgWithDetails saveResult = _Database.ACSaveChanges(true, true, true);
                 if (saveResult != null)
                 {
                     Messages.GlobalMsg.AddDetailMessage(saveResult);
@@ -2685,7 +2691,7 @@ namespace gip.core.autocomponent
 
             try
             {
-                MsgWithDetails saveResult = _Database.ACSaveChanges();
+                MsgWithDetails saveResult = _Database.ACSaveChanges(true, true, true);
                 if (saveResult != null)
                 {
                     Messages.GlobalMsg.AddDetailMessage(saveResult);
@@ -2789,7 +2795,7 @@ namespace gip.core.autocomponent
 
             try
             {
-                MsgWithDetails saveResult = _Database.ACSaveChanges();
+                MsgWithDetails saveResult = _Database.ACSaveChanges(true, true, true);
                 if (saveResult != null)
                 {
                     Messages.GlobalMsg.AddDetailMessage(saveResult);
@@ -2889,7 +2895,7 @@ namespace gip.core.autocomponent
 
             try
             {
-                MsgWithDetails saveResult = _Database.ACSaveChanges();
+                MsgWithDetails saveResult = _Database.ACSaveChanges(true, true, true);
                 if (saveResult != null)
                 {
                     Messages.GlobalMsg.AddDetailMessage(saveResult);
@@ -3033,7 +3039,7 @@ namespace gip.core.autocomponent
 
             try
             {
-                MsgWithDetails saveResult = _Database.ACSaveChanges();
+                MsgWithDetails saveResult = _Database.ACSaveChanges(true, true, true);
                 if (saveResult != null)
                 {
                     Messages.GlobalMsg.AddDetailMessage(saveResult);

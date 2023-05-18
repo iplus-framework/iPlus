@@ -58,8 +58,8 @@ namespace gip.core.datamodel
             MessageLevel = msgToCopy.MessageLevel;
             Message = msgToCopy.Message;
             TranslID = msgToCopy.TranslID;
-            TimeStampOccurred = (msgToCopy.TimeStampOccurred == null || msgToCopy.TimeStampOccurred.Year < 1900) ? DateTime.Now : msgToCopy.TimeStampOccurred;
-            TimeStampAcknowledged = (msgToCopy.TimeStampAcknowledged == null || msgToCopy.TimeStampAcknowledged.Year < 1900) ? DateTime.Now : msgToCopy.TimeStampAcknowledged;
+            TimeStampOccurred = (msgToCopy.TimeStampOccurred.Year < 1900) ? DateTime.Now : msgToCopy.TimeStampOccurred;
+            TimeStampAcknowledged = (msgToCopy.TimeStampAcknowledged.Year < 1900) ? DateTime.Now : msgToCopy.TimeStampAcknowledged;
             if (msgToCopy.AcknowledgedBy != null)
                 AcknowledgedBy = msgToCopy.AcknowledgedBy;
             //XMLConfig = msgToCopy.XMLConfig;
