@@ -215,7 +215,7 @@ namespace gip.core.autocomponent
 
         #region Interaction-Methods
         [ACMethodInteraction("", "en{'Repeat'}de{'Wiederholen'}", 300, true)]
-        public void Repeat()
+        public virtual void Repeat()
         {
             if (!IsEnabledRepeat())
                 return;
@@ -225,7 +225,7 @@ namespace gip.core.autocomponent
                 RaiseElseEventAndComplete();
         }
 
-        public bool IsEnabledRepeat()
+        public virtual bool IsEnabledRepeat()
         {
             return CurrentACState == ACStateEnum.SMRunning;
         }
@@ -257,7 +257,7 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInteraction("", "en{'Complete'}de{'Beenden'}", 301, true)]
-        public void Complete()
+        public virtual void Complete()
         {
             if (!IsEnabledComplete())
                 return;
@@ -267,7 +267,7 @@ namespace gip.core.autocomponent
                 RaiseOutEventAndComplete();
         }
 
-        public bool IsEnabledComplete()
+        public virtual bool IsEnabledComplete()
         {
             return CurrentACState == ACStateEnum.SMRunning;
         }
