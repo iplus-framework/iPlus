@@ -8,6 +8,7 @@ using System.Windows.Markup;
 using System.Collections.ObjectModel;
 using gip.core.ControlScriptSync;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace gip.core.autocomponent
 {
@@ -1663,6 +1664,8 @@ namespace gip.core.autocomponent
                     ChildClassMethod.XMLACMethod = XML;
                 }
                 // If there are any attached methods at ProcessModules in Library, ProjectDefinitions or Projects then overwrite XML
+                if (ChildClassMethod.ACClassMethod_ParentACClassMethod == null)
+                    Debugger.Break();
                 var queryAttachedMethods = ChildClassMethod.ACClassMethod_ParentACClassMethod.Where(c => c.ACKindIndex == (short)Global.ACKinds.MSMethodFunction);
                 if (queryAttachedMethods.Any())
                 {

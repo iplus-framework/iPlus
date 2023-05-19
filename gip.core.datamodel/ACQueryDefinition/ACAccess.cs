@@ -183,13 +183,16 @@ namespace gip.core.datamodel
             IQueryable<T> result = parentACObject.ACSelect<T>(NavACQueryDefinition, mergeOption);
             if (NavSearchExecuting != null)
                 result = NavSearchExecuting(result);
-            QueryItemsCount = result.Count();
-            if (NavACQueryDefinition.TakeCount > 0)
-                result = (IQueryable<T>)result.Take(NavACQueryDefinition.TakeCount);
+            //QueryItemsCount = result.Count();
+            //if (NavACQueryDefinition.TakeCount > 0)
+            //    result = (IQueryable<T>)result.Take(NavACQueryDefinition.TakeCount);
             if (result != null)
             {
                 try
                 {
+                    QueryItemsCount = result.Count();
+                    if (NavACQueryDefinition.TakeCount > 0)
+                        result = (IQueryable<T>)result.Take(NavACQueryDefinition.TakeCount);
                     _NavList = new ObservableCollection<T>(result);
                 }
                 catch (Exception e)

@@ -20,7 +20,7 @@ using gip.core.manager;
 using gip.core.autocomponent;
 using System.IO;
 using System.Reflection;
-using se = System.Environment;
+using SE = System.Environment;
 using System.Text.RegularExpressions;
 
 namespace gip.bso.iplus
@@ -598,10 +598,10 @@ namespace gip.bso.iplus
                                                                                       " core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)";
 
         private static string _MethodStartPart = string.Format("{0}{1}{2}{3}{{{4}{5}result = null;{6}{7}switch (acMethodName){8}{9}{{{10}",
-                                                        _8spaces, _MethodSignature, se.NewLine, _8spaces, se.NewLine, _12spaces, se.NewLine, _12spaces, se.NewLine, _12spaces, se.NewLine);
+                                                        _8spaces, _MethodSignature, SE.NewLine, _8spaces, SE.NewLine, _12spaces, SE.NewLine, _12spaces, SE.NewLine, _12spaces, SE.NewLine);
 
         private static string _MethodEndPart = string.Format("{0}}}{1}{2}return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);{3}{4}}}",
-                                                       _12spaces, se.NewLine, _16spaces, se.NewLine, _8spaces);
+                                                       _12spaces, SE.NewLine, _16spaces, SE.NewLine, _8spaces);
 
         private static List<Type> _MethodAttributes;
         private static List<Type> MethodAttributes
@@ -722,7 +722,7 @@ namespace gip.bso.iplus
                     }
 
                     methodText += string.Format("{0}case nameof({1}):{2}{3}{4}{5}({6});{7}{8}return true;{9}",
-                                                       _16spaces, method.Name, se.NewLine, _20spaces, result, method.Name, paramString, se.NewLine, _20spaces, se.NewLine);
+                                                       _16spaces, method.Name, SE.NewLine, _20spaces, result, method.Name, paramString, SE.NewLine, _20spaces, SE.NewLine);
                     check = true;
                 }
 
