@@ -1664,15 +1664,16 @@ namespace gip.core.autocomponent
                     ChildClassMethod.XMLACMethod = XML;
                 }
                 // If there are any attached methods at ProcessModules in Library, ProjectDefinitions or Projects then overwrite XML
-                if (ChildClassMethod.ACClassMethod_ParentACClassMethod == null)
-                    Debugger.Break();
-                var queryAttachedMethods = ChildClassMethod.ACClassMethod_ParentACClassMethod.Where(c => c.ACKindIndex == (short)Global.ACKinds.MSMethodFunction);
-                if (queryAttachedMethods.Any())
+                if (ChildClassMethod.ACClassMethod_ParentACClassMethod != null)
                 {
-                    foreach (var attachedVirtualMethod in queryAttachedMethods)
+                    var queryAttachedMethods = ChildClassMethod.ACClassMethod_ParentACClassMethod.Where(c => c.ACKindIndex == (short)Global.ACKinds.MSMethodFunction);
+                    if (queryAttachedMethods.Any())
                     {
-                        if (attachedVirtualMethod.XMLACMethod != XML)
-                            attachedVirtualMethod.XMLACMethod = XML;
+                        foreach (var attachedVirtualMethod in queryAttachedMethods)
+                        {
+                            if (attachedVirtualMethod.XMLACMethod != XML)
+                                attachedVirtualMethod.XMLACMethod = XML;
+                        }
                     }
                 }
             }
