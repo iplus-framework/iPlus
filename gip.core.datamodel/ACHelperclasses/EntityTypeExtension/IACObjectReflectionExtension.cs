@@ -23,6 +23,7 @@ using System.ComponentModel;
 using System.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace gip.core.datamodel
 {
@@ -1391,7 +1392,13 @@ namespace gip.core.datamodel
                             Int64 valueAsInt64 = 0;
                             try
                             {
-                                valueAsInt64 = Convert.ToInt64(valueToCheck);
+                                if (typeToConvert.Name == "DateTime")
+                                {
+                                    DateTime valueToConv = (DateTime)valueToCheck;
+                                    valueAsInt64 = valueToConv.Ticks;
+                                }
+                                else
+                                    valueAsInt64 = Convert.ToInt64(valueToCheck);
                             }
                             catch (Exception e)
                             {
