@@ -1728,13 +1728,16 @@ namespace gip.core.datamodel
         {
 
             ACClass acClass = (acObject as ACClassMethod).ACClass;
-
-            var query = GetConfigListOfType(acClass).Where(c => c.LocalConfigACUrl == "Design_" + acUsage.ToString());
-            if (query.Any())
+            var configListAcClass = GetConfigListOfType(acClass);
+            if (configListAcClass != null)
             {
-                IACConfig acClassConfig = query.First();
-                ACComposition acComposition = acClassConfig[Const.Value] as ACComposition;
-                return acComposition.GetComposition(this.Database) as ACClassDesign;
+                var query = configListAcClass.Where(c => c.LocalConfigACUrl == "Design_" + acUsage.ToString());
+                if (query.Any())
+                {
+                    IACConfig acClassConfig = query.First();
+                    ACComposition acComposition = acClassConfig[Const.Value] as ACComposition;
+                    return acComposition.GetComposition(this.Database) as ACClassDesign;
+                }
             }
 
             if (acUsage == Global.ACUsages.DUIcon)
@@ -1970,7 +1973,11 @@ namespace gip.core.datamodel
                     //this.ACClassMethodConfig_ACClassMethod.AutoRefresh(this.ACClassMethodConfig_ACClassMethodReference, this.Database);
                     this.ACClassMethodConfig_ACClassMethod.AutoLoad(ACClassMethodConfig_ACClassMethodReference, this);
                 }
-                newSafeList = new SafeList<IACConfig>(this.ACClassMethodConfig_ACClassMethod); //.Where(c => c.KeyACUrl == ACConfigKeyACUrl); Without ACConfigKeyACUrl-Filter because ACClassMethodConfig is a seperate table 
+                else if (this.ACClassMethodConfig_ACClassMethod != null)
+                    newSafeList = new SafeList<IACConfig>(this.ACClassMethodConfig_ACClassMethod); //.Where(c => c.KeyACUrl == ACConfigKeyACUrl); Without ACConfigKeyACUrl-Filter because ACClassMethodConfig is a seperate table 
+
+                else
+                    return null;
             }
             using (ACMonitor.Lock(_10020_LockValue))
             {

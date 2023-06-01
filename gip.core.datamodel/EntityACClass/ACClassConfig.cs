@@ -105,6 +105,7 @@ namespace gip.core.datamodel
             ACClassConfig entity = new ACClassConfig();
             entity.ACClassConfigID = Guid.NewGuid();
             entity.DefaultValuesACObject();
+            entity.Database = database;
             entity.ValueTypeACClass = database.GetACType(typeof(string));
             entity.XMLConfig = "";
             entity.BranchNo = 0;

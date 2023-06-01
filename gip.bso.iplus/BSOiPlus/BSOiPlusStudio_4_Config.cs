@@ -317,6 +317,8 @@ namespace gip.bso.iplus
             IACConfigStore acConfigHandler = CurrentConfigPointACClassProperty as IACConfigStore;
             ACClassConfig acConfig = acConfigHandler.NewACConfig(CurrentACClass) as ACClassConfig;
             Database database = acConfig.GetObjectContext<Database>();
+            if (database == null)
+                database = acConfig.Database;
             acConfig.ValueTypeACClass = database.GetACType(typeof(Int32)) as ACClass;
             acConfig.Value = 0;
 

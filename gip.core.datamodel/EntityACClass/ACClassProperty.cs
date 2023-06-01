@@ -1020,10 +1020,18 @@ namespace gip.core.datamodel
             if (myAClassOfProperty == null)
                 return null;
 
-            using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+            if (ACClassPropertyRelation_TargetACClassProperty != null)
             {
-                return ACClassPropertyRelation_TargetACClassProperty.Where(c => c.TargetACClass.ACClassID == myAClassOfProperty.ACClassID && c.ConnectionTypeIndex == (Int16)Global.ConnectionTypes.Binding).FirstOrDefault();
+                using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                {
+                    return ACClassPropertyRelation_TargetACClassProperty.Where(c => c.TargetACClass.ACClassID == myAClassOfProperty.ACClassID && c.ConnectionTypeIndex == (Int16)Global.ConnectionTypes.Binding).FirstOrDefault();
+                }
             }
+            else
+            {
+                return null;
+            }
+            
         }
 
 
