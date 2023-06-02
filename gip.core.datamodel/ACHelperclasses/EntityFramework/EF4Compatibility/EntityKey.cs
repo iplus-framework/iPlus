@@ -900,11 +900,8 @@ namespace gip.core.datamodel
             get
             {
                 string assemblyQfName = "";
-                // Testiraj je EntityContainerName u formatu od AssembyQualifiedName Primjer: gip.bso.manufacturing.BSOProcessControlVB, gip.bso.manufacturing, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
                 if (EntityContainerName.Contains("Version") && EntityContainerName.Contains("Culture") && EntityContainerName.Contains("PublicKeyToken") && EntityContainerName.Contains(EntitySetName))
                 {
-                    // Ako da
-                    // assemblyQfName = EntityContainerName;
                     assemblyQfName = EntityContainerName;
                 }
                 else 
@@ -914,18 +911,13 @@ namespace gip.core.datamodel
                     if (System.Diagnostics.Debugger.IsAttached)
                         System.Diagnostics.Debugger.Break();
 #endif
-                    if (EntityContainerName == "iPlusMESV4_Entities")
+                    if (EntityContainerName == "iPlusMESV4_Entities" || EntityContainerName.Contains("gip.mes.datamodel"))
                     {
-                        // Ako ne
-                        // ako EntityContainerName == "iPlusMESV4_Entities"
-                        // assemblyQfName = "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
                         assemblyQfName = "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
                     }
 
-                    else if (EntityContainerName == "iPlusV4_Entities")
+                    else if (EntityContainerName == "iPlusV4_Entities" || EntityContainerName.Contains("gip.core.datamodel"))
                     {
-                        // EntityContainerName == "iPlusV4_Entities"
-                        // assemblyQfName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
                         assemblyQfName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
                     }
                 }

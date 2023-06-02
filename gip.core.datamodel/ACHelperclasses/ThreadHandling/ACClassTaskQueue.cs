@@ -392,8 +392,8 @@ namespace gip.core.datamodel
         }
 
 #region precompiled Queries
-        public static readonly Func<Database, Guid, IQueryable<ACProgramLog>> s_cQry_LatestProgramLogs =
-            EF.CompileQuery<Database, Guid, IQueryable<ACProgramLog>>(
+        public static readonly Func<Database, Guid, IEnumerable<ACProgramLog>> s_cQry_LatestProgramLogs =
+            EF.CompileQuery<Database, Guid, IEnumerable<ACProgramLog>>(
                 (db, acProgramID) =>
                     db.ACProgramLog
                     .Include("ACProgram")
