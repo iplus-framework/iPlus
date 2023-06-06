@@ -53,7 +53,6 @@ namespace gip.core.datamodel
         public static ACClassWF NewACObject(Database database, IACObject parentACObject, string secondaryKey)
         {
             ACClassWF entity = new ACClassWF();
-            entity.Context = database;
             entity.ACClassWFID = Guid.NewGuid();
             entity.DefaultValuesACObject();
             if (parentACObject is ACClassMethod)

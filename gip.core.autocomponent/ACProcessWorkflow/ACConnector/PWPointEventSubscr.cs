@@ -81,8 +81,7 @@ namespace gip.core.autocomponent
                             {
                                 using (ACMonitor.Lock(pwNode.ContextLockForACClassWF))
                                 {
-                                    edgesArray = pwNode.ContentACClassWF.Database.Entry(pwNode).Collection(c => c.ContentACClassWF.ACClassWFEdge_TargetACClassWF)
-                                        .Query()
+                                    edgesArray = pwNode.ContentACClassWF.Database.ACClassWFEdge
                                         .Include(c => c.SourceACClassWF)
                                         .Include(c => c.TargetACClassWF)
                                         .Include(c => c.SourceACClassProperty)

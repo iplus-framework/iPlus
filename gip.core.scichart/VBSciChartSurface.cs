@@ -14,20 +14,20 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Abt.Controls.SciChart;
-using Abt.Controls.SciChart.Visuals.Axes;
-using Abt.Controls.SciChart.Visuals;
-using Abt.Controls.SciChart.Visuals.RenderableSeries;
-using Abt.Controls.SciChart.Model.DataSeries;
-using Abt.Controls.SciChart.Visuals.PointMarkers;
-using Abt.Controls.SciChart.ChartModifiers;
-using Abt.Controls.SciChart.Rendering.Common;
+using SciChart.Charting;
+using SciChart.Charting.Visuals;
+using SciChart.Charting.Visuals.Axes;
+using SciChart.Charting.Visuals.RenderableSeries;
+using SciChart.Charting.ChartModifiers;
+using SciChart.Charting.Visuals.PointMarkers;
+using SciChart.Charting.Model.DataSeries;
 using gip.core.datamodel;
 using gip.core.layoutengine;
 using System.Windows.Threading;
 using System.ComponentModel;
 using System.Collections.Specialized;
 using System.Windows.Controls.Primitives;
+using SciChart.Charting.Common.Extensions;
 
 namespace gip.core.scichart
 {
@@ -160,16 +160,7 @@ namespace gip.core.scichart
 
         static VBSciChartSurface()
         {
-            SciChartSurface.SetRuntimeLicenseKey(@"<LicenseContract>
-              <Customer>GIP mbH</Customer>
-              <OrderId>ABT160112-4908-41124</OrderId>
-              <LicenseCount>1</LicenseCount>
-              <IsTrialLicense>false</IsTrialLicense>
-              <SupportExpires>04/11/2016 00:00:00</SupportExpires>
-              <ProductCode>SC-WPF-BSC</ProductCode>
-              <KeyCode>lwAAAAEAAAB/y03iMU3RAWQAQ3VzdG9tZXI9R0lQIG1iSDtPcmRlcklkPUFCVDE2MDExMi00OTA4LTQxMTI0O1N1YnNjcmlwdGlvblZhbGlkVG89MTEtQXByLTIwMTY7UHJvZHVjdENvZGU9U0MtV1BGLUJTQ37SOGtyqbmD6jXya52XVh2saxbG4wzCwvi7QXFCF/EcittyGyKslNzWX6m0KgC8ZA==</KeyCode>
-            </LicenseContract>
-            ");
+            SciChartSurface.SetRuntimeLicenseKey("ort8GRiNT1PCeJLG7MAvuwJIs8nur/Qx1UeGfGTd2v1kmmCOLtZcCNsMJZ1Xb8wxaPPhAJHiTYhZOZXOUUvrBwqv0Jxjf5PqC+dq/Se2SDBFVVWYZGXUui/TWAQXE6IwQq6Mk2W5msEJbeR16OkAtubvVsSIFTCrRC+9nK0FW2kNc9uLd7OueXFWkpXqZ+slOhvu3FCqGh80j+a+mNxE/ej1wEAcQfHYsfRqSB+ydojrjlY1RkUHiwWfRVBSwKS8TWQUheKeim/dbfFJ5Onrg2ztLcrMu9NxwdT5nSgX9nP9Ip5XDrzC7dIf4Tw9FrLkVNo6G9jsm/RQMEANN4Bm2vKVpi8rIF9SkbOAoS+loYokcGlEUiWOHLgBAi9qro0xLBtevdkvdNUAR8rLqWE8Ave0huG6p83dHyCC9crtmJGUYAVA5yIf6xGRagF/V1IKIxHCUCXD5bbCsPeQtu3hkgleVugeYCKT/lhg0MuZfkBaJX0PkT8XSLP0nT8cNbz19rxOL2PCbV/0w+sJ9KLz9dXJvrF/3thxwaDhunkVQR1YYCxx4GnseptjUIBsz5uNE3qA894SQRbOCrifADcyi3I=");
             DefaultStyleKeyProperty.OverrideMetadata(typeof(VBSciChartSurface), new FrameworkPropertyMetadata(typeof(VBSciChartSurface)));
         }
 
@@ -734,7 +725,7 @@ namespace gip.core.scichart
 
             line.StrokeThickness = 1;
             //(line as FastLineRenderableSeries).Name = vbPropertyLogChartItem.VBContent;
-            line.SeriesColor = vbChartItem.GetLineColor();
+            line.Stroke = vbChartItem.GetLineColor();
             return line;
         }
 

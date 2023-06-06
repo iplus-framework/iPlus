@@ -79,7 +79,6 @@ namespace gip.core.datamodel
         public static ACProject NewACObject(Database database, IACObject parentACObject, string secondaryKey)
         {
             ACProject entity = new ACProject();
-            entity.Context = database;
             entity.ACProjectID = Guid.NewGuid();
             entity.DefaultValuesACObject();
             entity.ACProjectType = Global.ACProjectTypes.Application;

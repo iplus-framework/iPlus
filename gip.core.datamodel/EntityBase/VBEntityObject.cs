@@ -255,6 +255,7 @@ namespace gip.core.datamodel
 
         public void SetInsertAndUpdateInfo(string user, IACEntityObjectContext context)
         {
+            this.Context = context;
             if (this is IInsertInfo)
             {
                 ((IInsertInfo)this).InsertDate = DateTime.Now;

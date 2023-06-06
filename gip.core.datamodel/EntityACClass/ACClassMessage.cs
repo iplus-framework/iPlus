@@ -43,7 +43,6 @@ namespace gip.core.datamodel
         {
             // Bei Systembelegung gibt es keine Vorbelegung, da hier kein Customizing erwünscht ist
             ACClassMessage entity = new ACClassMessage();
-            entity.Context = database;
             entity.ACClassMessageID = Guid.NewGuid();
             entity.BranchNo = 0;
             if (parentACObject is ACClass)

@@ -85,7 +85,6 @@ namespace gip.core.datamodel
         public static ACClassMethod NewACObject(Database database, IACObject parentACObject)
         {
             ACClassMethod entity = new ACClassMethod();
-            entity.Context = database;
             entity.ACClassMethodID = Guid.NewGuid();
             entity.ACKind = Global.ACKinds.MSMethodExt;
             entity.ContinueByError = false;
@@ -2025,8 +2024,7 @@ namespace gip.core.datamodel
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 this.ACClassMethodConfig_ACClassMethod.Remove(acConfig);
-                if (acConfig.EntityState != EntityState.Detached)
-                    acConfig.DeleteACObject(this.Database, false);
+                acConfig.DeleteACObject(this.Database, false);
             }
         }
 

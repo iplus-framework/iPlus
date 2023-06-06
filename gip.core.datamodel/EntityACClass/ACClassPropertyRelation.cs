@@ -54,7 +54,6 @@ namespace gip.core.datamodel
         public static ACClassPropertyRelation NewACObject(Database database, IACObject parentACObject)
         {
             ACClassPropertyRelation entity = new ACClassPropertyRelation();
-            entity.Context = database;
             entity.ACClassPropertyRelationID = Guid.NewGuid();
 
             entity.DefaultValuesACObject();

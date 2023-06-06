@@ -32,6 +32,7 @@ namespace gip.core.datamodel
         {
             ACPropertyLog entity = new ACPropertyLog();
             entity.ACPropertyLogID = Guid.NewGuid();
+            entity.Context = db;
             entity.ACClassID = acClass.ACClassID;
             return entity;
         }

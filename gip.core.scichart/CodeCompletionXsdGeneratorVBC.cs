@@ -48,7 +48,7 @@ namespace gip.core.scichart
             importSciChartSchema.SchemaLocation = "pack://application:,,,/gip.core.scichart;component/VBXMLEditorSchemas/SciChartSchema.xsd";
             importSchemaList.Add(new Tuple<XmlSchemaImport, XmlQualifiedName>(importSciChartSchema, sNs));
 
-            gen.RunTool("gip.core.scichart", vbcNs, new Type[] { typeof(DependencyObject), typeof(Abt.Controls.SciChart.Visuals.Axes.LabelProviderBase) }, importSchemaList, 
+            gen.RunTool("gip.core.scichart", vbcNs, new Type[] { typeof(DependencyObject), typeof(SciChart.Charting.Visuals.Axes.LabelProviders.LabelProviderBase) }, importSchemaList, 
                         "VBSciChartItems", null, CodeCompletionXsdGenerator.baseDir + vbcSchemaPath);
         }
     }

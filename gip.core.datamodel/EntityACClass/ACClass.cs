@@ -93,7 +93,6 @@ namespace gip.core.datamodel
         public static ACClass NewACObject(Database database, IACObject parentACObject)
         {
             ACClass entity = new ACClass();
-            entity.Context = database;
             entity.ACClassID = Guid.NewGuid();
             entity.IsAbstract = false;
             entity.AssemblyQualifiedName = "";
@@ -3651,8 +3650,7 @@ namespace gip.core.datamodel
                     this.ACClassConfig_ACClass.Remove(acConfig);
                 else if (acConfig.ACClass != null)
                     acConfig.ACClass.ACClassConfig_ACClass.Remove(acConfig);
-                if (acConfig.EntityState != EntityState.Detached)
-                    acConfig.DeleteACObject(this.Database, false);
+                acConfig.DeleteACObject(this.Database, false);
             }
         }
 

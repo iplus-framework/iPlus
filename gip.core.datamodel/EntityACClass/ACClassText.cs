@@ -42,7 +42,6 @@ namespace gip.core.datamodel
         {
             // Bei Systembelegung gibt es keine Vorbelegung, da hier kein Customizing erwünscht ist
             ACClassText entity = new ACClassText();
-            entity.Context = database;
             entity.ACClassTextID = Guid.NewGuid();
             if (parentACObject is ACClass)
             {

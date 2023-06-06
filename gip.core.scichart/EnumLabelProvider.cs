@@ -1,4 +1,4 @@
-﻿using Abt.Controls.SciChart.Visuals.Axes;
+﻿using SciChart.Charting.Visuals.Axes.LabelProviders;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -48,7 +48,6 @@ namespace gip.core.datamodel
         public static ACClassWFEdge NewACObject(Database database, IACObject parentACObject, string secondaryKey)
         {
             ACClassWFEdge entity = new ACClassWFEdge();
-            entity.Context = database;
             entity.ACClassWFEdgeID = Guid.NewGuid();
             entity.DefaultValuesACObject();
             if (parentACObject is ACClassMethod)

@@ -906,11 +906,6 @@ namespace gip.core.datamodel
                 }
                 else 
                 {
-#if DEBUG
-                    // If EFCR Tested, then  remove this code
-                    if (System.Diagnostics.Debugger.IsAttached)
-                        System.Diagnostics.Debugger.Break();
-#endif
                     if (EntityContainerName == "iPlusMESV4_Entities" || EntityContainerName.Contains("gip.mes.datamodel"))
                     {
                         assemblyQfName = "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
