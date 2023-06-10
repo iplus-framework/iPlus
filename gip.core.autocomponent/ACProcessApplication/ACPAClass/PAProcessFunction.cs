@@ -581,6 +581,13 @@ namespace gip.core.autocomponent
             /// In this case don't use a converter as a child
             /// </summary>
             InternalSimulation = 2,
+
+
+            /// <summary>
+            /// Function will not be sended to a external System (PLC) and should be completed on the Abort() method called.
+            /// In this case don't use a converter as a child
+            /// </summary>
+            InternalSimulationBreakManually = 3
         }
 
         private ACPropertyConfigValue<short> _FuncConvMode;
@@ -1125,7 +1132,7 @@ namespace gip.core.autocomponent
         [ACMethodState("en{'Running'}de{'Läuft'}", 30, true)]
         public virtual void SMRunning()
         {
-            if (FuncConvMode == (short)FuncConverterMode.OnlyOnPLCSide)
+            if (FuncConvMode == (short)FuncConverterMode.OnlyOnPLCSide || FuncConvMode == (short)FuncConverterMode.InternalSimulationBreakManually)
             {
                 UnSubscribeToProjectWorkCycle();
                 return;
