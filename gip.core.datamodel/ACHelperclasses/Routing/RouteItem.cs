@@ -417,7 +417,6 @@ namespace gip.core.datamodel
                 if (Database.Root != null && Database.Root.Messages != null)
                     Database.Root.Messages.LogException("RouteItem", "AttachTo", msg);
             }
-            throw new NotImplementedException();
         }
 
         public void Detach(bool detachFromContext = false)

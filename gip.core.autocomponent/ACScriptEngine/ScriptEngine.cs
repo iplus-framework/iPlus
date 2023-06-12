@@ -8,6 +8,11 @@ using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis;
 using System.IO;
+using Microsoft.CSharp;
+using System.CodeDom.Compiler;
+using System.CodeDom;
+using System.Text;
+using System.Diagnostics;
 
 namespace gip.core.autocomponent
 {
@@ -65,7 +70,8 @@ namespace gip.core.autocomponent
         #region Private Members
         internal EmitResult emitResult;
         internal CSharpCompilation compilation;
-        internal SyntaxTree compileUnit;
+        internal string compileUnit;
+        internal SyntaxTree syntaxTree;
         List<string> mAsemblies;
         List<string> mNamespaces;
         ScriptList mScripts;
@@ -282,12 +288,13 @@ namespace gip.core.autocomponent
             {
                 // Get the code
                 compileUnit = GetCode();
+                syntaxTree = CSharpSyntaxTree.ParseText(compileUnit);
                 // Compile the code
 
                 //myResults = provider.CompileAssemblyFromDom(parms, compileUnit);
 
                 compilation = CSharpCompilation.Create(execAssembly.FullName,
-                                            new[] { compileUnit },
+                                            new[] { syntaxTree },
                                             references,
                                             compilationOptions);
 
@@ -354,49 +361,47 @@ namespace gip.core.autocomponent
         /// This method creates the <see cref="SyntaxTree"/> containing the actual C# code that will be compiled.
         /// </summary>
         /// <returns>A <see cref="SyntaxTree"/> containing the code to be compiled.</returns>
-        private SyntaxTree GetCode()
+        private string GetCode()
         {
             // Create a new CodeCompileUnit to contain the program graph
-            //CodeCompileUnit compileUnit = new CodeCompileUnit();
+            CodeCompileUnit compileUnit = new CodeCompileUnit();
+
             // Declare a new namespace 
-            //CodeNamespace rulesScript = new CodeNamespace("RulesScript");
-            NamespaceDeclarationSyntax rulesScript = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName("RulesScript"));
+            CodeNamespace rulesScript = new CodeNamespace("RulesScript");
+
             // Add the new namespace to the compile unit.
-            //compileUnit.Namespaces.Add(rulesScript);
+            compileUnit.Namespaces.Add(rulesScript);
 
             // Add the new namespace using for the required namespaces.
-            //rulesScript.Imports.Add(new CodeNamespaceImport("System"));
-            rulesScript = rulesScript.AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System")));
-
+            rulesScript.Imports.Add(new CodeNamespaceImport("System"));
             foreach (string mynamespace in mNamespaces)
             {
-                rulesScript = rulesScript.AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(mynamespace)));
+                rulesScript.Imports.Add(new CodeNamespaceImport(mynamespace));
             }
 
             // Declare a new type called ScriptFunctions.
-            //CodeTypeDeclaration scriptFunctions = new CodeTypeDeclaration("ScriptFunctions");
-            TypeDeclarationSyntax scriptFunctions = SyntaxFactory.ClassDeclaration("ScriptFunctions")
-                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
+            CodeTypeDeclaration scriptFunctions = new CodeTypeDeclaration("ScriptFunctions");
 
             // Add the code here
-            //CodeSnippetTypeMember mem = new CodeSnippetTypeMember(mScripts.ToString());
-            //scriptFunctions.Members.Add(mem);
-            SyntaxTree tree = CSharpSyntaxTree.ParseText(mScripts.ToString());
-            CompilationUnitSyntax root = (CompilationUnitSyntax)tree.GetRoot();
-            SyntaxList<MemberDeclarationSyntax> members = scriptFunctions.Members.AddRange(root.Members);
-            scriptFunctions = scriptFunctions.WithMembers(members);
+            CodeSnippetTypeMember mem = new CodeSnippetTypeMember(mScripts.ToString());
+            scriptFunctions.Members.Add(mem);
 
             // Add the type to the namespace
-            rulesScript = rulesScript.AddMembers(scriptFunctions);
+            rulesScript.Types.Add(scriptFunctions);
 
-            // Create a new CodeCompileUnit to contain the program graph
-            CompilationUnitSyntax compileUnit = SyntaxFactory.CompilationUnit().AddMembers(rulesScript);
+            // Generate the code as C# source code
+            StringBuilder sb = new StringBuilder();
+            using (TextWriter writer = new StringWriter(sb))
+            {
+                CSharpCodeProvider codeProvider = new CSharpCodeProvider();
+                codeProvider.GenerateCodeFromCompileUnit(compileUnit, writer, new CodeGeneratorOptions());
+            }
 
-            return CSharpSyntaxTree.Create(compileUnit);
+            return sb.ToString();
         }
-#endregion
+        #endregion
 
-#region IScriptEngine Member
+        #region IScriptEngine Member
 
         public void RegisterAssembly(string useAssembly)
         {
@@ -428,7 +433,7 @@ namespace gip.core.autocomponent
         {
             myIsCompiled = false;
             Script script = new Script(acMethodName);
-            script.Sourcecode += "static " + sourcecode;
+            //script.Sourcecode += "static " + sourcecode;
             script.ContionueByError = continueByError;
             mScripts.AddScript(script);
         }

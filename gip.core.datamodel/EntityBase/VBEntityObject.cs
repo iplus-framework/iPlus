@@ -256,6 +256,8 @@ namespace gip.core.datamodel
         public void SetInsertAndUpdateInfo(string user, IACEntityObjectContext context)
         {
             this.Context = context;
+            if (this.Context == null)
+                throw new ArgumentNullException("Context", "Context is null");
             if (this is IInsertInfo)
             {
                 ((IInsertInfo)this).InsertDate = DateTime.Now;
@@ -473,6 +475,8 @@ namespace gip.core.datamodel
         {
             get
             {
+                if (_context == null)
+                    return null;
                 var entry = _context.Entry(this);
                 IKey key = entry.Metadata.FindPrimaryKey();
                 EntityKey ekey = new EntityKey(this.GetType().AssemblyQualifiedName, 
