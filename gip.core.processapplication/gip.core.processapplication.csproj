@@ -9,15 +9,15 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\bin\Debug\</OutputPath>
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DefineConstants>TRACE;DEBUG;NETFRAMEWORK</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\bin\Release\</OutputPath>
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DefineConstants>TRACE;NETFRAMEWORK</DefineConstants>
-    <DocumentationFile>..\bin\Release\gip.core.processapplication.XML</DocumentationFile>
+    <DocumentationFile>$(SolutionDir)bin\Release\gip.core.processapplication.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
@@ -34,7 +34,7 @@
     <PackageReference Include="System.IO.Ports" Version="7.0.0" />
   </ItemGroup>
   <PropertyGroup>
-    <BaseOutputPath>..\bin\</BaseOutputPath>
+    <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
   </PropertyGroup>
   <Import Project="..\gip.core.processapplication.shared\gip.core.processapplication.shared.projitems" Label="Shared" />
 </Project>

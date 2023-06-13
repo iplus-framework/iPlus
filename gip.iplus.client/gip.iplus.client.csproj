@@ -27,10 +27,10 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\bin\Debug\</OutputPath>
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\bin\Release\</OutputPath>
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Images\iPlusIconDesktop.ico</ApplicationIcon>
@@ -127,7 +127,7 @@
     <Page Remove="Resources\VBResources.xaml" />
   </ItemGroup>
   <PropertyGroup>
-    <BaseOutputPath>..\bin\</BaseOutputPath>
+    <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
   </PropertyGroup>
   <Target Name="AfterBuild">
     <Copy SourceFiles="..\..\..\packages\Matrix\MATRIX32.dll" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />

@@ -26,7 +26,6 @@ using ICSharpCode.AvalonEdit.Editing;
 using Microsoft.CodeAnalysis.Rename;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace gip.core.layoutengine
 {
@@ -119,7 +118,6 @@ namespace gip.core.layoutengine
 
         protected virtual void InitVBControl()
         {
-            Debugger.Break();
             if (_Loaded || (ContextACObject == null))
                 return;
             _Loaded = true;
@@ -570,7 +568,6 @@ namespace gip.core.layoutengine
 
         private void CheckReferences()
         {
-            Debugger.Break();
             if (_roslynHost == null || _docId == null)
                 return;
 

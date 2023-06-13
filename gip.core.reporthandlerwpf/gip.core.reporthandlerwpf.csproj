@@ -27,18 +27,18 @@
 		<UseWindowsForms>true</UseWindowsForms>
 		<UseWPF>true</UseWPF>
 		<ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-		<BaseOutputPath>..\bin\</BaseOutputPath>
+		<BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<OutputPath>..\bin\Debug\</OutputPath>
+		<OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
 		<WarningLevel>3</WarningLevel>
 		<DocumentationFile>
 		</DocumentationFile>
 		<NoWarn>1701;1702;CA1416</NoWarn>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<OutputPath>..\bin\Release\</OutputPath>
+		<OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
 		<DocumentationFile>
 		</DocumentationFile>
 		<NoWarn>1591</NoWarn>
