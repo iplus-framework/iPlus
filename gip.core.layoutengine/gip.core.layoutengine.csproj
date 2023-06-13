@@ -374,6 +374,7 @@
     <Compile Include="Converter\ConverterStringIsNullOrEmpty.cs" />
     <Compile Include="Converter\ConverterTimelineStatus.cs" />
     <Compile Include="Converter\ConverterVisibilityInverseBool.cs" />
+    <Compile Include="Converter\MultiConverterComparable.cs" />
     <Compile Include="Converter\VisibilityNullConverter.cs" />
     <Compile Include="Converter\FormattedMultiTextConverter.cs" />
     <Compile Include="Converter\ProgramLogViewItemMarginConverter.cs" />
