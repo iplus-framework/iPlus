@@ -78,10 +78,18 @@ namespace gip.ext.designer.Xaml
 			}
 			
 			// register extensions from the designer assemblies:
-			foreach (Assembly designerAssembly in loadSettings.DesignerAssemblies) {
-				this.Services.ExtensionManager.RegisterAssembly(designerAssembly);
-				EditorManager.RegisterAssembly(designerAssembly);
-                ConverterManager.RegisterAssembly(designerAssembly);
+			foreach (Assembly designerAssembly in loadSettings.DesignerAssemblies) 
+			{
+				try
+				{
+					this.Services.ExtensionManager.RegisterAssembly(designerAssembly);
+					EditorManager.RegisterAssembly(designerAssembly);
+					ConverterManager.RegisterAssembly(designerAssembly);
+				}
+				catch (Exception)
+				{ 
+					
+				}
 			}
 			
 			XamlParserSettings parserSettings = new XamlParserSettings();
@@ -89,12 +97,12 @@ namespace gip.ext.designer.Xaml
 			parserSettings.CreateInstanceCallback = this.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory;
 			parserSettings.ServiceProvider = this.Services;
 			_doc = XamlParser.Parse(xamlReader, parserSettings);
-			if(_doc==null)
+			if (_doc==null)
 				loadSettings.ReportErrors(xamlErrorService);
 			
 			_rootItem = _componentService.RegisterXamlComponentRecursive(_doc.RootElement);
 			
-			if(_rootItem!=null){
+			if (_rootItem!=null){
 				var rootBehavior=new RootItemBehavior();
 				rootBehavior.Intialize(this);
 			}

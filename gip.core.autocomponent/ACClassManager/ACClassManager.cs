@@ -171,6 +171,8 @@ namespace gip.core.autocomponent
                 {
                     foreach (var fileName in Directory.GetFiles(MainDir, pattern).Where(c => !c.Contains("unittest")))
                     {
+                        if (ACFileItems.Where(c => c.Filename == fileName).Any())
+                            continue;
                         ACFileItem acFileItem = new ACFileItem();
                         acFileItem.Filename = fileName;
                         acFileItem.LastManipulationDate = File.GetLastWriteTime(acFileItem.Filename);
