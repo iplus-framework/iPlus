@@ -125,7 +125,7 @@ namespace gip.core.manager
             {
                 if (_WFLayoutCalculatorProxy == null)
                 {
-                    _WFLayoutCalculatorProxy = Root.WPFServices.WFLayoutCalculatorService.GetWFLayoutCalculatorProxy(this);
+                    _WFLayoutCalculatorProxy = Root?.WPFServices?.WFLayoutCalculatorService.GetWFLayoutCalculatorProxy(this);
                 }
                 return _WFLayoutCalculatorProxy;
             }

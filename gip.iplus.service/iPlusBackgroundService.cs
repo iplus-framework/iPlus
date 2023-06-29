@@ -1,6 +1,5 @@
 ﻿using gip.core.autocomponent;
 using gip.core.datamodel;
-using gip.core.wpfservices;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -39,7 +38,7 @@ namespace gip.iplus.service
                     bool simulation = args.Contains("/Simulation");
 
                     // TODO: Two different Implementaions for Linux or Windows-Platform
-                    ACStartUpRoot startUpManager = new ACStartUpRoot(new WPFServices());
+                    ACStartUpRoot startUpManager = new ACStartUpRoot(null);
                     // If Linux, then pass null
                     //ACStartUpRoot startUpManager = new ACStartUpRoot(null);
 

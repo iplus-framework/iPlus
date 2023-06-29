@@ -36,11 +36,6 @@ namespace gip.core.manager
 
         public override bool ACPostInit()
         {
-            if (_WPFProxy != null)
-            {
-                Root?.WPFServices?.DesignerService?.RemoveDesignMangerProxy(this);
-                _WPFProxy = null;
-            }
             _IsToolSelection = true;
             return base.ACPostInit();
         }
@@ -52,6 +47,11 @@ namespace gip.core.manager
                 _SelectionManager.Detach();
                 _SelectionManager.ObjectDetaching -= _SelectionManager_ObjectDetaching;
                 _SelectionManager.ObjectAttached -= _SelectionManager_ObjectAttached;
+            }
+            if (_WPFProxy != null)
+            {
+                Root?.WPFServices?.DesignerService?.RemoveDesignMangerProxy(this);
+                _WPFProxy = null;
             }
 
             _SelectionManager = null;

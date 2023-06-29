@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 //using System.Runtime.Remoting.Messaging;
 
@@ -7,10 +8,12 @@ namespace gip.core.layoutengine
     public static class AsyncMessageBox
     {
         // Shows a message box from a separate worker thread.
-        public static void BeginMessageBoxAsync(string strMessage, string strCaption, MessageBoxButton enmButton, MessageBoxImage enmImage)
+        public static async void BeginMessageBoxAsync(string strMessage, string strCaption, MessageBoxButton enmButton, MessageBoxImage enmImage)
         {
             ShowMessageBoxDelegate caller = new ShowMessageBoxDelegate(ShowMessageBox);
-            caller.BeginInvoke(strMessage, strCaption, enmButton, enmImage, null, null);
+            var workTask = Task.Run(() => caller.Invoke(strMessage, strCaption, enmButton, enmImage));
+            await workTask;
+            //caller.BeginInvoke(strMessage, strCaption, enmButton, enmImage, null, null);
         }
 
         // Shows a message box from a separate worker thread. The specified asynchronous

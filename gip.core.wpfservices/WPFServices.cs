@@ -11,10 +11,10 @@ namespace gip.core.wpfservices
     public class WPFServices : IWPFServices
     {
         VBDesignerService _VBDesignerService = new VBDesignerService();
-        public IVBDesignerService DesignerService { get { return _VBDesignerService; } }
+        public virtual IVBDesignerService DesignerService { get { return _VBDesignerService; } }
 
         WFLayoutCalculatorService _WFLayoutCalculatorService = new WFLayoutCalculatorService();
-        public IVBWFLayoutCalculatorService WFLayoutCalculatorService { get { return _WFLayoutCalculatorService; } }
+        public virtual IVBWFLayoutCalculatorService WFLayoutCalculatorService { get { return _WFLayoutCalculatorService; } }
 
         public void AddXamlNamespacesFromAssembly(Assembly classAssembly)
         {

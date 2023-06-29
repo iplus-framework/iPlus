@@ -341,7 +341,7 @@ namespace gip.core.manager
 
         public object GetRoutingLogic()
         {
-            return Root.WPFServices.DesignerService.GetVBRoutingLogic();
+            return Root?.WPFServices?.DesignerService.GetVBRoutingLogic();
         }
     }
 }
