@@ -1686,7 +1686,10 @@ namespace gip.core.autocomponent
                     List<IACConfig> allHereOverridenParams =
                         CurrentPWInfo
                         .CurrentConfigStore.ConfigurationEntries
-                        .Where(c => c.ACClassWFID == CurrentPWInfo.ContentACClassWF.ACClassWFID)
+                        .Where(c => 
+                                    c.ACClassWFID == CurrentPWInfo.ContentACClassWF.ACClassWFID
+                                    && (c.PreConfigACUrl ?? "") == (CurrentPWInfo.PreValueACUrl ?? "")
+                        )
                         .ToList();
                     foreach (ACClassWF rootNodeGroup in sameTypeRootMethods)
                     {
