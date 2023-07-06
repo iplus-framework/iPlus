@@ -1,4 +1,4 @@
-﻿-- author:		@aagincic
+-- author:		@aagincic
 -- name:		udpACClassClone
 -- desc:		clone acclass
 -- created:		-
@@ -617,4 +617,3 @@ begin
 	end
 	commit tran;
 end
-
