@@ -184,8 +184,8 @@ namespace gip.core.datamodel
             UpdateName = from.UpdateName;
             UpdateDate = from.UpdateDate;
             ChangeLogMax = from.ChangeLogMax;
-            ACURLCached = from.ACURLCached;
-            ACURLComponentCached = from.ACURLComponentCached;
+            //ACURLCached = from.ACURLCached;
+            //ACURLComponentCached = from.ACURLComponentCached;
             IsStatic = from.IsStatic;
         }
 
