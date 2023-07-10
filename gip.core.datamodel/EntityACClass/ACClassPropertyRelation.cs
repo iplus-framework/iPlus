@@ -119,6 +119,16 @@ namespace gip.core.datamodel
             return entity;
         }
 
+        public override MsgWithDetails DeleteACObject(IACEntityObjectContext database, bool withCheck, bool softDelete = false)
+        {
+            foreach (var acClassConfig in ACClassConfig_ACClassPropertyRelation.ToList())
+            {
+                acClassConfig.DeleteACObject(database, withCheck, true);
+            }
+
+            return base.DeleteACObject(database, withCheck, softDelete);
+        }
+
         #endregion
 
         #region IACObjectEntity Members

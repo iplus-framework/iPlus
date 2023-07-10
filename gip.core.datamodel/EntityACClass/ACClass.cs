@@ -217,7 +217,9 @@ namespace gip.core.datamodel
 
             List<ACClassConfig> configs = ACClassConfig_ACClass.ToList();
             foreach (var item in configs)
+            {
                 item.DeleteACObject(database, false);
+            }
 
 
             // Remove ACClassProperty references and replace with unknown member
@@ -350,9 +352,11 @@ namespace gip.core.datamodel
                 }
             }
 
-            List<ACClass> basedACClasses = database.ACClass.Where(c => c.BasedOnACClassID == ACClassID).ToList(); ;
+            List<ACClass> basedACClasses = database.ACClass.Where(c => c.BasedOnACClassID == ACClassID).ToList();
             foreach (var basedACClass in basedACClasses)
+            {
                 basedACClass.DeleteACClassRecursiveInternal(database);
+            }
 
             DeleteACObject(database, false);
         }
