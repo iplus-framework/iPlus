@@ -299,7 +299,7 @@ namespace gip.core.manager
                 IACComponentPWNode pwNodeMethod = this;
                 while (pwNodeMethod != null)
                 {
-                    if (pwNodeMethod.ContentACClassWF.ACClassMethod.RootWFNode == pwNodeMethod.ContentACClassWF)
+                    if (pwNodeMethod.ContentACClassWF?.ACClassMethod.RootWFNode == pwNodeMethod.ContentACClassWF)
                     {
                         string preACUrl = "";
                         IACComponentPWNode pwNodeMethod2 = pwNodeMethod.ParentACObject as IACComponentPWNode;

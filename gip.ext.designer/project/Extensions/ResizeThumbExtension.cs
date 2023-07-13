@@ -108,8 +108,10 @@ namespace gip.ext.designer.Extensions
 		void drag_Started(DragListener drag)
 		{
 			/* Abort editing Text if it was editing, because it interferes with the undo stack. */
-			foreach(var extension in this.ExtendedItem.Extensions){
-				if(extension is InPlaceEditorExtension){
+			foreach(var extension in this.ExtendedItem.Extensions)
+			{
+				if (extension is InPlaceEditorExtension)
+				{
 					((InPlaceEditorExtension)extension).AbortEdit();
 				}
 			}
@@ -117,10 +119,11 @@ namespace gip.ext.designer.Extensions
 			oldSize = new Size(ModelTools.GetWidth(ExtendedItem.View), ModelTools.GetHeight(ExtendedItem.View));
 			if (resizeBehavior != null)
 				operation = PlacementOperation.Start(extendedItemArray, PlacementType.Resize);
-			else {
+			else 
+			{
 				changeGroup = this.ExtendedItem.Context.OpenGroup("Resize", extendedItemArray);
 			}
-			_isResizing=true;
+			_isResizing = true;
 			ShowSizeAndHideHandles();
 		}
 
@@ -160,16 +163,23 @@ namespace gip.ext.designer.Extensions
 
 		void drag_Completed(DragListener drag)
 		{
-			if (operation != null) {
-				if (drag.IsCanceled) operation.Abort();
-				else operation.Commit();
+			if (operation != null) 
+			{
+				if (drag.IsCanceled) 
+					operation.Abort();
+				else 
+					operation.Commit();
 				operation = null;
-			} else {
-				if (drag.IsCanceled) changeGroup.Abort();
-				else changeGroup.Commit();
+			} 
+			else 
+			{
+				if (drag.IsCanceled) 
+					changeGroup.Abort();
+				else 
+					changeGroup.Commit();
 				changeGroup = null;
 			}			
-			_isResizing=false;
+			_isResizing	= false;
 			HideSizeAndShowHandles();
 		}
 		
