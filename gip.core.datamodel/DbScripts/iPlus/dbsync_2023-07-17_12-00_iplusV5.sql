@@ -1,0 +1,2 @@
+update ACClass set AssemblyQualifiedName = 'SciChart.Charting.Visuals.SciChartSurfaceBase, SciChart.Charting, Version=7.0.2.27161, Culture=neutral, PublicKeyToken=b55dd9efe817e823' where ACIdentifier = 'SciChartSurfaceBase';
+update ACClass set AssemblyQualifiedName = 'SciChart.Charting.Visuals.SciChartSurface, SciChart.Charting, Version=7.0.2.27161, Culture=neutral, PublicKeyToken=b55dd9efe817e823' where ACIdentifier = 'SciChartSurface';

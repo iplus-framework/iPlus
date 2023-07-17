@@ -53,4 +53,7 @@
     <Copy SourceFiles="..\..\..\packages\SciChart\Abt.Controls.SciChart.Wpf.dll" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
     <Copy SourceFiles="..\..\..\packages\SciChart\Abt.Controls.SciChart.Wpf.xml" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
   </Target>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy /Y $(ProjectDir)..\..\..\packages\SciChart\7.0.2.27161\lib\net6.0-windows7.0\SciChart.Charting.dll  $(TargetDir)&#xD;&#xA;copy /Y $(ProjectDir)..\..\..\packages\SciChart\7.0.2.27161\lib\net6.0-windows7.0\SciChart.Core.dll  $(TargetDir)&#xD;&#xA;copy /Y $(ProjectDir)..\..\..\packages\SciChart\7.0.2.27161\lib\net6.0-windows7.0\SciChart.Data.dll  $(TargetDir)&#xD;&#xA;copy /Y $(ProjectDir)..\..\..\packages\SciChart\7.0.2.27161\lib\net6.0-windows7.0\SciChart.Drawing.dll  $(TargetDir)" />
+  </Target>
 </Project>

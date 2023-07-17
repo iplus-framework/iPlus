@@ -101,10 +101,10 @@ namespace gip.core.autocomponent
                 {
                     options.ListenAnyIP(endpointUri.Port, listenOptions =>
                     {
-                        if (Debugger.IsAttached)
-                        {
-                            listenOptions.UseConnectionLogging();
-                        }
+                        //if (Debugger.IsAttached)
+                        //{
+                        //    listenOptions.UseConnectionLogging();
+                        //}
                     });
                 })
                 .ConfigureServices(services =>

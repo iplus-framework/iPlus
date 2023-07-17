@@ -1979,23 +1979,20 @@ namespace gip.bso.iplus
         {
             if (CurrentACClass == null)
                 return;
-            if (CurrentACClass.CountDesignsRecursive() > 0)
-            {
-                if (Global.MsgResult.Yes != Messages.Question(this, "Question00003", Global.MsgResult.Yes, false, CurrentACClass.CountDesignsRecursive().ToString()))
-                {
-                    return;
-                }
-            }
 
             if (!IsEnabledDeleteACClass())
                 return;
-            if (!PreExecute("DeleteACClass")) return;
-            ACClassInfoWithItems projectItem = CurrentProjectItem;
+            if (!PreExecute("DeleteACClass")) 
+                return;
 
-            Msg msg = CurrentProjectItem.ValueT.DeleteACClassRecursive(Database.ContextIPlus, true);
-            if (msg != null)
+            ACClassInfoWithItems projectItem = CurrentProjectItem;
+            if (projectItem == null) 
+                return;
+
+            MsgWithDetails msgWithDetails = DeleteACClassInternal(CurrentACClass);
+            if (msgWithDetails != null && msgWithDetails.MsgDetailsCount > 0)
             {
-                Messages.Msg(msg);
+                Messages.Msg(msgWithDetails);
                 return;
             }
 
@@ -2014,6 +2011,65 @@ namespace gip.bso.iplus
             if (CurrentACProject == null || CurrentProjectItem == null || CurrentProjectItem.ValueT == null /*|| !string.IsNullOrEmpty(CurrentProjectItem.ValueT.AssemblyQualifiedName)*/)
                 return false;
             return true;
+        }
+
+        protected MsgWithDetails DeleteACClassInternal(ACClass aCClass)
+        {
+            MsgWithDetails msgWithDetails = new MsgWithDetails();
+            Msg msg = null;
+            if (aCClass == null)
+                return msgWithDetails;
+            if (aCClass.CountDesignsRecursive() > 0)
+            {
+                if (Global.MsgResult.Yes != Messages.Question(this, "Question00003", Global.MsgResult.Yes, false, aCClass.CountDesignsRecursive().ToString()))
+                {
+                    msg = new Msg { ACIdentifier = "Question00003", Message = Root.Environment.TranslateMessage(this, "Question00003", aCClass.CountDesignsRecursive().ToString()), MessageLevel = eMsgLevel.Info };
+                    msgWithDetails.AddDetailMessage(msg);
+                    return msgWithDetails;
+                }
+            }
+
+            msg = aCClass.DeleteACClassRecursive(Database.ContextIPlus, true);
+            if (msg != null)
+                msgWithDetails.AddDetailMessage(msg);
+            return msgWithDetails;
+        }
+
+
+        [ACMethodCommand("DeleteFilteredClasses", "en{'Delete filtered classes'}de{'Gefilterte Klassen löschen'}", (short)2000)]
+        public void DeleteFilteredClasses()
+        {
+            if (CurrentProjectItemRoot == null)
+                return;
+
+            MsgWithDetails msgWithDetails = new MsgWithDetails();
+
+            ACClassInfoWithItems projectItem = CurrentProjectItemRoot;
+            if (projectItem == null)
+                return;
+
+            foreach (ACClassInfoWithItems childItem in CurrentProjectItemRoot.Items)
+            {
+                MsgWithDetails subMsg = DeleteACClassInternal(childItem.ValueT);
+                if (subMsg != null && subMsg.MsgDetailsCount > 0)
+                {
+                    foreach (Msg msgChild in subMsg.MsgDetails)
+                    {
+                        msgWithDetails.MsgDetails.Add(msgChild);
+                    }
+                }
+            }
+            if (msgWithDetails != null && msgWithDetails.MsgDetailsCount > 0)
+            {
+                Messages.Msg(msgWithDetails);
+                return;
+            }
+
+            PostExecute("DeleteFilteredClasses");
+            CurrentProjectItemRootChangeInfo = new ChangeInfo(null, projectItem, Const.CmdDeleteData);
+            CurrentACClass = CurrentACProject.ACClass_ACProject.Where(c => c.ParentACClassID == null).FirstOrDefault();
+            OnPropertyChanged("CurrentACClass");
+
         }
 
         #endregion
@@ -3590,157 +3646,160 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "IsEnabledFARSearchInDB":
+                case nameof(IsEnabledFARSearchInDB):
                     result = IsEnabledFARSearchInDB((VBBSOFindAndReplace)acParameter[0]);
                     return true;
-                case "IsEnabledDataExportOk":
+                case nameof(IsEnabledDataExportOk):
                     result = IsEnabledDataExportOk();
                     return true;
-                case "IsEnabledNewMessageWarning":
+                case nameof(IsEnabledNewMessageWarning):
                     result = IsEnabledNewMessageWarning();
                     return true;
-                case "NewMessageFailure":
+                case nameof(NewMessageFailure):
                     NewMessageFailure();
                     return true;
-                case "IsEnabledNewMessageFailure":
+                case nameof(IsEnabledNewMessageFailure):
                     result = IsEnabledNewMessageFailure();
                     return true;
-                case "NewMessageError":
+                case nameof(NewMessageError):
                     NewMessageError();
                     return true;
-                case "IsEnabledNewMessageError":
+                case nameof(IsEnabledNewMessageError):
                     result = IsEnabledNewMessageError();
                     return true;
-                case "NewMessageException":
+                case nameof(NewMessageException):
                     NewMessageException();
                     return true;
-                case "IsEnabledNewMessageException":
+                case nameof(IsEnabledNewMessageException):
                     result = IsEnabledNewMessageException();
                     return true;
-                case "NewMessageQuestion":
+                case nameof(NewMessageQuestion):
                     NewMessageQuestion();
                     return true;
-                case "IsEnabledNewMessageQuestion":
+                case nameof(IsEnabledNewMessageQuestion):
                     result = IsEnabledNewMessageQuestion();
                     return true;
-                case "NewMessageStatus":
+                case nameof(NewMessageStatus):
                     NewMessageStatus();
                     return true;
-                case "IsEnabledNewMessageStatus":
+                case nameof(IsEnabledNewMessageStatus):
                     result = IsEnabledNewMessageStatus();
                     return true;
-                case "NewOK":
+                case nameof(NewOK):
                     NewOK();
                     return true;
-                case "IsEnabledNewOK":
+                case nameof(IsEnabledNewOK):
                     result = IsEnabledNewOK();
                     return true;
-                case "NewCancel":
+                case nameof(NewCancel):
                     NewCancel();
                     return true;
-                case "DeleteACTranslation":
+                case nameof(DeleteACTranslation):
                     DeleteACTranslation();
                     return true;
-                case "IsEnabledDeleteACTranslation":
+                case nameof(IsEnabledDeleteACTranslation):
                     result = IsEnabledDeleteACTranslation();
                     return true;
-                case "RefreshTranslation":
+                case nameof(RefreshTranslation):
                     RefreshTranslation();
                     return true;
-                case "IsEnabledACActionToTarget":
+                case nameof(IsEnabledACActionToTarget):
                     result = IsEnabledACActionToTarget((IACInteractiveObject)acParameter[0], (ACActionArgs)acParameter[1]);
                     return true;
-                case "Save":
+                case nameof(Save):
                     Save();
                     return true;
-                case "IsEnabledSave":
+                case nameof(IsEnabledSave):
                     result = IsEnabledSave();
                     return true;
-                case "UndoSave":
+                case nameof(UndoSave):
                     UndoSave();
                     return true;
-                case "IsEnabledUndoSave":
+                case nameof(IsEnabledUndoSave):
                     result = IsEnabledUndoSave();
                     return true;
-                case "Load":
+                case nameof(Load):
                     Load(acParameter.Count() == 1 ? (Boolean)acParameter[0] : false);
                     return true;
-                case "IsEnabledLoad":
+                case nameof(IsEnabledLoad):
                     result = IsEnabledLoad();
                     return true;
-                case "New":
+                case nameof(New):
                     New();
                     return true;
-                case "IsEnabledNew":
+                case nameof(IsEnabledNew):
                     result = IsEnabledNew();
                     return true;
-                case "NewACProjectOK":
+                case nameof(NewACProjectOK):
                     NewACProjectOK();
                     return true;
-                case "IsEnabledNewACProjectOK":
+                case nameof(IsEnabledNewACProjectOK):
                     result = IsEnabledNewACProjectOK();
                     return true;
-                case "NewACProjectCancel":
+                case nameof(NewACProjectCancel):
                     NewACProjectCancel();
                     return true;
-                case "Delete":
+                case nameof(Delete):
                     Delete();
                     return true;
-                case "IsEnabledDelete":
+                case nameof(IsEnabledDelete):
                     result = IsEnabledDelete();
                     return true;
-                case "Search":
+                case nameof(Search):
                     Search();
                     return true;
-                case "ShowProjectProperty":
+                case nameof(ShowProjectProperty):
                     ShowProjectProperty();
                     return true;
-                case "IsEnabledShowProjectProperty":
+                case nameof(IsEnabledShowProjectProperty):
                     result = IsEnabledShowProjectProperty();
                     return true;
-                case "NewACClass":
+                case nameof(NewACClass):
                     NewACClass();
                     return true;
-                case "IsEnabledNewACClass":
+                case nameof(IsEnabledNewACClass):
                     result = IsEnabledNewACClass();
                     return true;
-                case "NewChildACClass":
+                case nameof(NewChildACClass):
                     NewChildACClass();
                     return true;
-                case "IsEnabledNewChildACClass":
+                case nameof(IsEnabledNewChildACClass):
                     result = IsEnabledNewChildACClass();
                     return true;
-                case "SwitchACClass":
+                case nameof(SwitchACClass):
                     SwitchACClass();
                     return true;
-                case "IsEnabledSwitchACClass":
+                case nameof(IsEnabledSwitchACClass):
                     result = IsEnabledSwitchACClass();
                     return true;
-                case "NewACClassOK":
+                case nameof(NewACClassOK):
                     NewACClassOK();
                     return true;
-                case "IsEnabledNewACClassOK":
+                case nameof(IsEnabledNewACClassOK):
                     result = IsEnabledNewACClassOK();
                     return true;
-                case "NewACClassCancel":
+                case nameof(NewACClassCancel):
                     NewACClassCancel();
                     return true;
-                case "SwitchACClassOK":
+                case nameof(SwitchACClassOK):
                     SwitchACClassOK();
                     return true;
-                case "IsEnabledSwitchACClassOK":
+                case nameof(IsEnabledSwitchACClassOK):
                     result = IsEnabledSwitchACClassOK();
                     return true;
-                case "SwitchACClassCancel":
+                case nameof(SwitchACClassCancel):
                     SwitchACClassCancel();
                     return true;
-                case "DeleteACClass":
+                case nameof(DeleteACClass):
                     DeleteACClass();
                     return true;
-                case "IsEnabledDeleteACClass":
+                case nameof(IsEnabledDeleteACClass):
                     result = IsEnabledDeleteACClass();
                     return true;
-                case "ValidateInput":
+                case nameof(DeleteFilteredClasses):
+                    DeleteFilteredClasses();
+                    return true;
+                case nameof(ValidateInput):
                     result = ValidateInput((String)acParameter[0], (Object)acParameter[1], (System.Globalization.CultureInfo)acParameter[2]);
                     return true;
                 case nameof(StartBSO):
@@ -3767,61 +3826,61 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledReloadInstance):
                     result = IsEnabledReloadInstance();
                     return true;
-                case "DropACClass":
+                case nameof(DropACClass):
                     DropACClass((Global.ElementActionType)acParameter[0], (IACInteractiveObject)acParameter[1], (IACInteractiveObject)acParameter[2], (Double)acParameter[3], (Double)acParameter[4]);
                     return true;
-                case "IsEnabledDropACClass":
+                case nameof(IsEnabledDropACClass):
                     result = IsEnabledDropACClass((Global.ElementActionType)acParameter[0], (IACInteractiveObject)acParameter[1], (IACInteractiveObject)acParameter[2], (Double)acParameter[3], (Double)acParameter[4]);
                     return true;
-                case "ModifyACClass":
+                case nameof(ModifyACClass):
                     ModifyACClass();
                     return true;
-                case "ShowClassLibrary":
+                case nameof(ShowClassLibrary):
                     ShowClassLibrary();
                     return true;
-                case "IsEnabledShowClassLibrary":
+                case nameof(IsEnabledShowClassLibrary):
                     result = IsEnabledShowClassLibrary();
                     return true;
-                case "LoadACClassDesign":
+                case nameof(LoadACClassDesign):
                     LoadACClassDesign();
                     return true;
-                case "IsEnabledLoadACClassDesign":
+                case nameof(IsEnabledLoadACClassDesign):
                     result = IsEnabledLoadACClassDesign();
                     return true;
-                case "NewACClassDesign":
+                case nameof(NewACClassDesign):
                     NewACClassDesign();
                     return true;
-                case "IsEnabledNewACClassDesign":
+                case nameof(IsEnabledNewACClassDesign):
                     result = IsEnabledNewACClassDesign();
                     return true;
-                case "NewACClassDesignOK":
+                case nameof(NewACClassDesignOK):
                     NewACClassDesignOK();
                     return true;
-                case "IsEnabledNewACClassDesignOK":
+                case nameof(IsEnabledNewACClassDesignOK):
                     result = IsEnabledNewACClassDesignOK();
                     return true;
-                case "NewACClassDesignCancel":
+                case nameof(NewACClassDesignCancel):
                     NewACClassDesignCancel();
                     return true;
-                case "DeleteACClassDesign":
+                case nameof(DeleteACClassDesign):
                     DeleteACClassDesign();
                     return true;
-                case "IsEnabledDeleteACClassDesign":
+                case nameof(IsEnabledDeleteACClassDesign):
                     result = IsEnabledDeleteACClassDesign();
                     return true;
-                case "DuplicateDesign":
+                case nameof(DuplicateDesign):
                     DuplicateDesign();
                     return true;
-                case "IsEnabledDuplicateDesign":
+                case nameof(IsEnabledDuplicateDesign):
                     result = IsEnabledDuplicateDesign();
                     return true;
-                case "OnToolWindowItemExpand":
+                case nameof(OnToolWindowItemExpand):
                     OnToolWindowItemExpand((ACObjectItem)acParameter[0]);
                     return true;
-                case "ImportBitmap":
+                case nameof(ImportBitmap):
                     ImportBitmap();
                     return true;
-                case "IsEnabledImportBitmap":
+                case nameof(IsEnabledImportBitmap):
                     result = IsEnabledImportBitmap();
                     return true;
                 case nameof(GenerateIcon):
@@ -3830,229 +3889,229 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledGenerateIcon):
                     result = IsEnabledGenerateIcon();
                     return true;
-                case "CompileACClassDesign":
+                case nameof(CompileACClassDesign):
                     CompileACClassDesign();
                     return true;
-                case "IsEnabledCompileACClassDesign":
+                case nameof(IsEnabledCompileACClassDesign):
                     result = IsEnabledCompileACClassDesign();
                     return true;
-                case "DeleteMenuEntry":
+                case nameof(DeleteMenuEntry):
                     DeleteMenuEntry();
                     return true;
-                case "IsEnabledDeleteMenuEntry":
+                case nameof(IsEnabledDeleteMenuEntry):
                     result = IsEnabledDeleteMenuEntry();
                     return true;
-                case "InsertMenuEntry":
+                case nameof(InsertMenuEntry):
                     InsertMenuEntry();
                     return true;
-                case "IsEnabledInsertMenuEntry":
+                case nameof(IsEnabledInsertMenuEntry):
                     result = IsEnabledInsertMenuEntry();
                     return true;
-                case "NewMenuEntry":
+                case nameof(NewMenuEntry):
                     NewMenuEntry();
                     return true;
-                case "IsEnabledNewMenuEntry":
+                case nameof(IsEnabledNewMenuEntry):
                     result = IsEnabledNewMenuEntry();
                     return true;
-                case "NewChildMenuEntry":
+                case nameof(NewChildMenuEntry):
                     NewChildMenuEntry();
                     return true;
-                case "IsEnabledNewChildMenuEntry":
+                case nameof(IsEnabledNewChildMenuEntry):
                     result = IsEnabledNewChildMenuEntry();
                     return true;
-                case "ACUrlEditor":
+                case nameof(ACUrlEditor):
                     ACUrlEditor();
                     return true;
-                case "IsEnabledACUrlEditor":
+                case nameof(IsEnabledACUrlEditor):
                     result = IsEnabledACUrlEditor();
                     return true;
-                case "NewConfigACClassProperty":
+                case nameof(NewConfigACClassProperty):
                     NewConfigACClassProperty();
                     return true;
-                case "IsEnabledNewConfigACClassProperty":
+                case nameof(IsEnabledNewConfigACClassProperty):
                     result = IsEnabledNewConfigACClassProperty();
                     return true;
-                case "DeleteConfigACClassProperty":
+                case nameof(DeleteConfigACClassProperty):
                     DeleteConfigACClassProperty();
                     return true;
-                case "IsEnabledDeleteConfigACClassProperty":
+                case nameof(IsEnabledDeleteConfigACClassProperty):
                     result = IsEnabledDeleteConfigACClassProperty();
                     return true;
-                case "NewPointConfig":
+                case nameof(NewPointConfig):
                     NewPointConfig();
                     return true;
-                case "IsEnabledNewPointConfig":
+                case nameof(IsEnabledNewPointConfig):
                     result = IsEnabledNewPointConfig();
                     return true;
-                case "DeletePointConfig":
+                case nameof(DeletePointConfig):
                     DeletePointConfig();
                     return true;
-                case "IsEnabledDeletePointConfig":
+                case nameof(IsEnabledDeletePointConfig):
                     result = IsEnabledDeletePointConfig();
                     return true;
-                case "NewText":
+                case nameof(NewText):
                     NewText();
                     return true;
-                case "IsEnabledNewText":
+                case nameof(IsEnabledNewText):
                     result = IsEnabledNewText();
                     return true;
-                case "NewMessageInfo":
+                case nameof(NewMessageInfo):
                     NewMessageInfo();
                     return true;
-                case "IsEnabledNewMessageInfo":
+                case nameof(IsEnabledNewMessageInfo):
                     result = IsEnabledNewMessageInfo();
                     return true;
-                case "NewMessageWarning":
+                case nameof(NewMessageWarning):
                     NewMessageWarning();
                     return true;
-                case "UpdateOnlineValue":
+                case nameof(UpdateOnlineValue):
                     UpdateOnlineValue();
                     return true;
-                case "NewACClassProperty":
+                case nameof(NewACClassProperty):
                     NewACClassProperty();
                     return true;
-                case "IsEnabledNewACClassProperty":
+                case nameof(IsEnabledNewACClassProperty):
                     result = IsEnabledNewACClassProperty();
                     return true;
-                case "DeleteACClassProperty":
+                case nameof(DeleteACClassProperty):
                     DeleteACClassProperty();
                     return true;
-                case "IsEnabledDeleteACClassProperty":
+                case nameof(IsEnabledDeleteACClassProperty):
                     result = IsEnabledDeleteACClassProperty();
                     return true;
-                case "RemovePropertyRelationTo":
+                case nameof(RemovePropertyRelationTo):
                     RemovePropertyRelationTo();
                     return true;
-                case "IsEnabledRemovePropertyRelationTo":
+                case nameof(IsEnabledRemovePropertyRelationTo):
                     result = IsEnabledRemovePropertyRelationTo();
                     return true;
-                case "RemovePropertyRelationFrom":
+                case nameof(RemovePropertyRelationFrom):
                     RemovePropertyRelationFrom();
                     return true;
-                case "IsEnabledRemovePropertyRelationFrom":
+                case nameof(IsEnabledRemovePropertyRelationFrom):
                     result = IsEnabledRemovePropertyRelationFrom();
                     return true;
-                case "RemovePropertyBinding":
+                case nameof(RemovePropertyBinding):
                     RemovePropertyBinding();
                     return true;
-                case "IsEnabledRemovePropertyBinding":
+                case nameof(IsEnabledRemovePropertyBinding):
                     result = IsEnabledRemovePropertyBinding();
                     return true;
-                case "NewPointStateInfo":
+                case nameof(NewPointStateInfo):
                     NewPointStateInfo();
                     return true;
-                case "IsEnabledNewPointStateInfo":
+                case nameof(IsEnabledNewPointStateInfo):
                     result = IsEnabledNewPointStateInfo();
                     return true;
-                case "DeletePointStateInfo":
+                case nameof(DeletePointStateInfo):
                     DeletePointStateInfo();
                     return true;
-                case "IsEnabledDeletePointStateInfo":
+                case nameof(IsEnabledDeletePointStateInfo):
                     result = IsEnabledDeletePointStateInfo();
                     return true;
-                case "DropPBACClassProperty":
+                case nameof(DropPBACClassProperty):
                     DropPBACClassProperty((Global.ElementActionType)acParameter[0], (IACInteractiveObject)acParameter[1], (IACInteractiveObject)acParameter[2], (Double)acParameter[3], (Double)acParameter[4]);
                     return true;
-                case "IsEnabledDropPBACClassProperty":
+                case nameof(IsEnabledDropPBACClassProperty):
                     result = IsEnabledDropPBACClassProperty((Global.ElementActionType)acParameter[0], (IACInteractiveObject)acParameter[1], (IACInteractiveObject)acParameter[2], (Double)acParameter[3], (Double)acParameter[4]);
                     return true;
-                case "GetBindingSourceACUrl":
+                case nameof(GetBindingSourceACUrl):
                     result = GetBindingSourceACUrl((Object)acParameter[0]);
                     return true;
-                case "GetBindingSourceMultiplier":
+                case nameof(GetBindingSourceMultiplier):
                     result = GetBindingSourceMultiplier((Object)acParameter[0]);
                     return true;
-                case "GetBindingSourceDivisor":
+                case nameof(GetBindingSourceDivisor):
                     result = GetBindingSourceDivisor((Object)acParameter[0]);
                     return true;
-                case "GetBindingSourceExprT":
+                case nameof(GetBindingSourceExprT):
                     result = GetBindingSourceExprT((Object)acParameter[0]);
                     return true;
-                case "GetBindingSourceExprS":
+                case nameof(GetBindingSourceExprS):
                     result = GetBindingSourceExprS((Object)acParameter[0]);
                     return true;
-                case "GetBindingTargetsACUrl":
+                case nameof(GetBindingTargetsACUrl):
                     result = GetBindingTargetsACUrl((Object)acParameter[0]);
                     return true;
-                case "LoadACClassMethod":
+                case nameof(LoadACClassMethod):
                     LoadACClassMethod();
                     return true;
-                case "IsEnabledLoadACClassMethod":
+                case nameof(IsEnabledLoadACClassMethod):
                     result = IsEnabledLoadACClassMethod();
                     return true;
-                case "NewWorkACClassMethod":
+                case nameof(NewWorkACClassMethod):
                     NewWorkACClassMethod();
                     return true;
-                case "IsEnabledNewWorkACClassMethod":
+                case nameof(IsEnabledNewWorkACClassMethod):
                     result = IsEnabledNewWorkACClassMethod();
                     return true;
-                case "NewScriptACClassMethod":
+                case nameof(NewScriptACClassMethod):
                     NewScriptACClassMethod();
                     return true;
-                case "IsEnabledNewScriptACClassMethod":
+                case nameof(IsEnabledNewScriptACClassMethod):
                     result = IsEnabledNewScriptACClassMethod();
                     return true;
-                case "NewScriptClientACClassMethod":
+                case nameof(NewScriptClientACClassMethod):
                     NewScriptClientACClassMethod();
                     return true;
-                case "IsEnabledNewScriptClientACClassMethod":
+                case nameof(IsEnabledNewScriptClientACClassMethod):
                     result = IsEnabledNewScriptClientACClassMethod();
                     return true;
-                case "NewPreACClassMethod":
+                case nameof(NewPreACClassMethod):
                     NewPreACClassMethod();
                     return true;
-                case "IsEnabledNewPreACClassMethod":
+                case nameof(IsEnabledNewPreACClassMethod):
                     result = IsEnabledNewPreACClassMethod();
                     return true;
-                case "NewPostACClassMethod":
+                case nameof(NewPostACClassMethod):
                     NewPostACClassMethod();
                     return true;
-                case "IsEnabledNewPostACClassMethod":
+                case nameof(IsEnabledNewPostACClassMethod):
                     result = IsEnabledNewPostACClassMethod();
                     return true;
-                case "NewOnSetPropertyACClassMethod":
+                case nameof(NewOnSetPropertyACClassMethod):
                     NewOnSetPropertyACClassMethod();
                     return true;
-                case "IsEnabledNewOnSetPropertyACClassMethod":
+                case nameof(IsEnabledNewOnSetPropertyACClassMethod):
                     result = IsEnabledNewOnSetPropertyACClassMethod();
                     return true;
-                case "NewOnSetPropertyNetACClassMethod":
+                case nameof(NewOnSetPropertyNetACClassMethod):
                     NewOnSetPropertyNetACClassMethod();
                     return true;
-                case "IsEnabledNewOnSetPropertyNetACClassMethod":
+                case nameof(IsEnabledNewOnSetPropertyNetACClassMethod):
                     result = IsEnabledNewOnSetPropertyNetACClassMethod();
                     return true;
-                case "NewOnSetPointACClassMethod":
+                case nameof(NewOnSetPointACClassMethod):
                     NewOnSetPointACClassMethod();
                     return true;
-                case "IsEnabledNewOnSetPointACClassMethod":
+                case nameof(IsEnabledNewOnSetPointACClassMethod):
                     result = IsEnabledNewOnSetPointACClassMethod();
                     return true;
-                case "DeleteACClassMethod":
+                case nameof(DeleteACClassMethod):
                     DeleteACClassMethod();
                     return true;
-                case "IsEnabledDeleteACClassMethod":
+                case nameof(IsEnabledDeleteACClassMethod):
                     result = IsEnabledDeleteACClassMethod();
                     return true;
-                case "CompileACClassMethod":
+                case nameof(CompileACClassMethod):
                     CompileACClassMethod();
                     return true;
-                case "IsEnabledCompileACClassMethod":
+                case nameof(IsEnabledCompileACClassMethod):
                     result = IsEnabledCompileACClassMethod();
                     return true;
-                case "CloneACClass":
+                case nameof(CloneACClass):
                     CloneACClass();
                     return true;
-                case "IsEnabledCloneACClass":
+                case nameof(IsEnabledCloneACClass):
                     result = IsEnabledCloneACClass();
                     return true;
-                case "CloneDialogOK":
+                case nameof(CloneDialogOK):
                     CloneDialogOK();
                     return true;
-                case "IsEnabledCloneDialogOK":
+                case nameof(IsEnabledCloneDialogOK):
                     result = IsEnabledCloneDialogOK();
                     return true;
-                case "GenerateExecuteHandler":
+                case nameof(GenerateExecuteHandler):
                     GenerateExecuteHandler();
                     return true;
             }

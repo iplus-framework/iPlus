@@ -42,6 +42,9 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="DbScripts\iPlus\dbsync_2023-07-17_12-00_iplusV5.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="DbScripts\iPlus\info.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
