@@ -17,6 +17,8 @@ using System.Diagnostics;
 using CoreWCF.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
+using System.Reflection;
+using System.Security.Policy;
 
 namespace gip.core.webservices
 {
@@ -86,54 +88,35 @@ namespace gip.core.webservices
                         httpBinding.MaxBufferSize = int.MaxValue;
                         //httpBinding.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
                         httpBinding.MaxBufferPoolSize = int.MaxValue;
+                        builder.AddService(ServiceType);
 
-                        var serviceEndpoint = builder.AddServiceEndpoint<CoreWebService>(ServiceInterfaceType, httpBinding, uri);
-                        if (serviceEndpoint != null)
-                            builder.ConfigureServiceHostBase<CoreWebService>(serviceHostBase =>
+                        MethodInfo addServiceEndpointMethod = typeof(IServiceBuilder)
+                            .GetMethods()
+                            .FirstOrDefault(m =>
+                                m.Name == "AddServiceEndpoint" &&
+                                m.GetParameters().Length == 3 &&
+                                m.GetParameters()[0].ParameterType == typeof(Type) &&
+                                m.GetParameters()[1].ParameterType == typeof(Binding) &&
+                                m.GetParameters()[2].ParameterType == typeof(Uri))
+                            ?.MakeGenericMethod(ServiceType);
+
+                        var serviceEndpoint = addServiceEndpointMethod.Invoke(builder, new object[] { ServiceInterfaceType, httpBinding, uri });
+
+                        builder.ConfigureServiceHostBase<CoreWebService>(serviceHostBase =>
+                        {
+                            serviceHostBase.Description.Behaviors.Add(new ServiceAuthorizationBehavior { ServiceAuthorizationManager = new WSRestAuthorizationManager() });
+                            if (serviceEndpoint != null)
                             {
                                 foreach (var endpoint in serviceHostBase.Description.Endpoints)
                                 {
                                     endpoint.EndpointBehaviors.Add(new PAWebServiceBaseErrorBehavior(this.GetACUrl()));
                                 }
-                            });
-                        //serviceEndpoint.EndpointBehaviors.Add(new PAWebServiceBaseErrorBehavior(this.GetACUrl()));
-                        ServiceMetadataBehavior metad = SvcHost.Description.Behaviors.Find<ServiceMetadataBehavior>();
-                        if (metad == null)
-                        {
-                            metad = new ServiceMetadataBehavior();
-                            SvcHost.Description.Behaviors.Add(metad);
-                        }
-                        metad.HttpGetEnabled = true;
-
-                        foreach (CoreWCF.Description.ServiceEndpoint endpoint in SvcHost.Description.Endpoints)
-                        {
-                            foreach (OperationDescription opDescr in endpoint.Contract.Operations)
-                            {
-                                OnAddKnownTypesToOperationContract(endpoint, opDescr);
                             }
-                        }
+                        });
                     });
                 })
                 .Build();
             return Host;
-        }
-
-        protected virtual void OnAddKnownTypesToOperationContract(CoreWCF.Description.ServiceEndpoint endpoint, OperationDescription opDescr)
-        {
-            //var knownTypes = ACKnownTypes.GetKnownType();
-            //foreach (var knownType in knownTypes)
-            //{
-            //    opDescr.KnownTypes.Add(knownType);
-            //}
-            //foreach (IOperationBehavior behavior in opDescr.Behaviors)
-            //{
-            //    if (behavior is DataContractSerializerOperationBehavior)
-            //    {
-            //        DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
-            //        //dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
-            //        dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
-            //    }
-            //}
         }
 
         public override Type ServiceType

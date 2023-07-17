@@ -96,19 +96,17 @@ namespace gip.core.autocomponent
             // Host generieren
             //_serviceHost = new ServiceHost(typeof(WCFService), endpointUri);
             _host = WebHost.CreateDefaultBuilder()
+                .UseNetTcp(endpointUri.Port)
                 .UseKestrel(options =>
                 {
-                    options.ListenAnyIP(HTTP_PORT);
-                    options.ListenAnyIP(HTTPS_PORT, listenOptions =>
+                    options.ListenAnyIP(endpointUri.Port, listenOptions =>
                     {
-                        listenOptions.UseHttps();
                         if (Debugger.IsAttached)
                         {
                             listenOptions.UseConnectionLogging();
                         }
                     });
                 })
-
                 .ConfigureServices(services =>
                 {
                     services.AddServiceModelServices()
@@ -182,26 +180,7 @@ namespace gip.core.autocomponent
                         }
                     });
                 })
-                .UseNetTcp(NETTCP_PORT)
                 .Build();
-
-            // TODO serviceHost must be started to get serviceHost, Moved to HostStart()
-            //if (serviceHost != null)
-            //{
-            //    ContractDescription cd = serviceHost.Description.Endpoints[0].Contract;
-            //    foreach (OperationDescription opDescr in cd.Operations)
-            //    {
-            //        foreach (IOperationBehavior behavior in opDescr.OperationBehaviors)
-            //        {
-            //            if (behavior is DataContractSerializerOperationBehavior)
-            //            {
-            //                DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
-            //                dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
-            //                dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
-            //            }
-            //        }
-            //    }
-            //}
 
             return result;
         }
@@ -275,25 +254,6 @@ namespace gip.core.autocomponent
                 // Address
                 _endpointUri = new Uri(String.Format("{0}://{1}/", scheme, authority));
                 return _endpointUri;
-            }
-        }
-
-        //public const int HTTP_PORT = 8088;
-        //public const int NETTCP_PORT = 8002;
-
-        public int HTTP_PORT
-        {
-            get
-            {
-                return this.Root.Environment.UserInstance.ServicePortHTTP;
-            }
-        }
-
-        public int NETTCP_PORT
-        {
-            get
-            {
-                return this.Root.Environment.UserInstance.ServicePortTCP;
             }
         }
 
