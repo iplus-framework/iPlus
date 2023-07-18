@@ -47,24 +47,11 @@ namespace gip.core.webservices
             // >netsh http show urlacl
 
             Host = WebHost.CreateDefaultBuilder()
-                .UseKestrel(options =>
-                {
-                    options.ListenAnyIP(HTTP_PORT);
-                    options.ListenAnyIP(HTTPS_PORT, listenOptions =>
-                    {
-                        listenOptions.UseHttps();
-                        if (Debugger.IsAttached)
-                        {
-                            listenOptions.UseConnectionLogging();
-                        }
-                    });
-                })
+                .UseKestrel()
                 .ConfigureServices(services =>
                 {
                     services.AddServiceModelServices()
-                    .AddServiceModelMetadata()
-                    .AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>()
-                    .AddSingleton<ServiceAuthorizationManager, WSRestAuthorizationManager>();
+                    .AddServiceModelMetadata();
                 })
                 .Configure(app =>
                 {
@@ -79,14 +66,12 @@ namespace gip.core.webservices
 
                         string strUri = String.Format("http://{0}:{1}/", this.Root.Environment.UserInstance.Hostname, servicePort);
                         Uri uri = new Uri(strUri);
-                        //WebServiceHost serviceHost = new WebServiceHost(ServiceType, uri);
                         //builder.Authorization.ServiceAuthorizationManager = new WSRestAuthorizationManager();
                         WebHttpBinding httpBinding = new WebHttpBinding() { ContentTypeMapper = new WSJsonServiceContentTypeMapper() };
                         //Can't enable AllowCookies in httpBinding, not updated in CoreWCF; AllowCookies = true
                         httpBinding.MaxReceivedMessageSize = int.MaxValue;
                         httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
                         httpBinding.MaxBufferSize = int.MaxValue;
-                        //httpBinding.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
                         httpBinding.MaxBufferPoolSize = int.MaxValue;
                         builder.AddService(ServiceType);
 
@@ -112,10 +97,27 @@ namespace gip.core.webservices
                                     endpoint.EndpointBehaviors.Add(new PAWebServiceBaseErrorBehavior(this.GetACUrl()));
                                 }
                             }
+
+                            ServiceMetadataBehavior metad = serviceHostBase.Description.Behaviors.Find<ServiceMetadataBehavior>();
+                            if (metad == null)
+                            {
+                                metad = new ServiceMetadataBehavior();
+                                serviceHostBase.Description.Behaviors.Add(metad);
+                            }
+                            metad.HttpGetEnabled = true;
+
+                            foreach (CoreWCF.Description.ServiceEndpoint endpoint in serviceHostBase.Description.Endpoints)
+                            {
+                                foreach (OperationDescription opDescr in endpoint.Contract.Operations)
+                                {
+                                    OnAddKnownTypesToOperationContract(endpoint, opDescr);
+                                }
+                            }
                         });
                     });
                 })
                 .Build();
+
             return Host;
         }
 

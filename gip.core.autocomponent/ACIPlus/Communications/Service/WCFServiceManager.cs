@@ -94,41 +94,58 @@ namespace gip.core.autocomponent
             _nameResolutionOn = this.Root.Environment.UserInstance.NameResolutionOn;
 
             // Host generieren
-            //_serviceHost = new ServiceHost(typeof(WCFService), endpointUri);
-            _host = WebHost.CreateDefaultBuilder()
-                .UseNetTcp(endpointUri.Port)
-                .UseKestrel(options =>
-                {
-                    options.ListenAnyIP(endpointUri.Port, listenOptions =>
-                    {
-                        //if (Debugger.IsAttached)
-                        //{
-                        //    listenOptions.UseConnectionLogging();
-                        //}
-                    });
-                })
-                .ConfigureServices(services =>
-                {
-                    services.AddServiceModelServices()
-                    .AddServiceModelMetadata()
-                    .AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>();
-                })
-                .Configure(app =>
-                {
-                    app.UseServiceModel(builder =>
-                    {
-                        // Service Endpoint
 
-                        if (_useHttpConnection)
+            if (_useHttpConnection)
+            {
+                //TODO: WSDualHttpBinding not implemented in WCFCore: https://github.com/dotnet/wcf/issues/4614
+                throw new NotImplementedException();
+                _host = WebHost.CreateDefaultBuilder()
+                    .UseKestrel()
+                    .ConfigureServices(services =>
+                    {
+                        services.AddServiceModelServices();
+                    })
+                    .Configure(app =>
+                    {
+                        app.UseServiceModel(builder =>
                         {
                             /*
                             WSDualHttpBinding wsDualHttpBinding = new WSDualHttpBinding();
                             wsDualHttpBinding.MessageEncoding = System.ServiceModel.WSMessageEncoding.Text;
                             _serviceHost.AddServiceEndpoint(typeof(IWCFService), wsDualHttpBinding, endpointUri);
                             */
-                            throw new NotImplementedException();
-                        }
-                        else
+                            builder.ConfigureAllServiceHostBase((serviceHostBase) =>
+                            {
+                                ContractDescription cd = serviceHostBase.Description.Endpoints[0].Contract;
+                                foreach (OperationDescription opDescr in cd.Operations)
+                                {
+                                    foreach (IOperationBehavior behavior in opDescr.OperationBehaviors)
+                                    {
+                                        if (behavior is DataContractSerializerOperationBehavior)
+                                        {
+                                            DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
+                                            dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
+                                            dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .Build();
+            }
+            else
+            {
+                _host = WebHost.CreateDefaultBuilder()
+                    .UseNetTcp(endpointUri.Port)
+                    .UseKestrel()
+                    .ConfigureServices(services =>
+                    {
+                        services.AddServiceModelServices();
+                    })
+                    .Configure(app =>
+                    {
+                        app.UseServiceModel(builder =>
                         {
                             if (_useNetTCPBinding)
                             {
@@ -173,14 +190,31 @@ namespace gip.core.autocomponent
                                 tcpTransport.MaxBufferPoolSize = WCFServiceManager.MaxBufferSize;
                                 netTcpBinding.Elements.Add(tcpTransport);
                                 netTcpBinding.ReceiveTimeout = WCFServiceManager.ReceiveTimeout;
-
                                 builder.AddService<WCFService>();
-                                builder.AddServiceEndpoint<WCFService>(typeof(IWCFService), netTcpBinding, endpointUri);
+                                builder.AddServiceEndpoint<WCFService, IWCFService>(netTcpBinding, endpointUri);
                             }
-                        }
-                    });
-                })
-                .Build();
+
+                            builder.ConfigureAllServiceHostBase((serviceHostBase) =>
+                            {
+                                ContractDescription cd = serviceHostBase.Description.Endpoints[0].Contract;
+                                foreach (OperationDescription opDescr in cd.Operations)
+                                {
+                                    foreach (IOperationBehavior behavior in opDescr.OperationBehaviors)
+                                    {
+                                        if (behavior is DataContractSerializerOperationBehavior)
+                                        {
+                                            DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
+                                            dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
+                                            dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .Build();
+            }
+            
 
             return result;
         }
@@ -738,27 +772,7 @@ namespace gip.core.autocomponent
 
         public void StartHost()
         {
-            //while (!_syncHostStart.ExitThreadEvent.WaitOne(0, false))
-            //{
-            host.Start();
-
-            if (serviceHost != null)
-            {
-                ContractDescription cd = serviceHost.Description.Endpoints[0].Contract;
-                foreach (OperationDescription opDescr in cd.Operations)
-                {
-                    foreach (IOperationBehavior behavior in opDescr.OperationBehaviors)
-                    {
-                        if (behavior is DataContractSerializerOperationBehavior)
-                        {
-                            DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
-                            dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
-                            dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
-                        }
-                    }
-                }
-            }
-            //}
+            host.Run();
         }
 
         public void ShutdownClients()

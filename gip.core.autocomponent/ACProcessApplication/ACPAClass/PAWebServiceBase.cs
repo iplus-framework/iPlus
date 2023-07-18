@@ -267,31 +267,7 @@ namespace gip.core.autocomponent
 
         public void StartHost()
         {
-            //_SvcHost.Start();
-            _ACHostStartThread = new ACThread(HostStarting);
-            _ACHostStartThread.Name = "ACUrl:" + this.GetACUrl() + ";StartHost();";
-            _ACHostStartThread.Start();
-        }
-
-        public void HostStarting()
-        {
-            Host.Start();
-
-            ServiceMetadataBehavior metad = SvcHost.Description.Behaviors.Find<ServiceMetadataBehavior>();
-            if (metad == null)
-            {
-                metad = new ServiceMetadataBehavior();
-                SvcHost.Description.Behaviors.Add(metad);
-            }
-            metad.HttpGetEnabled = true;
-
-            foreach (CoreWCF.Description.ServiceEndpoint endpoint in SvcHost.Description.Endpoints)
-            {
-                foreach (OperationDescription opDescr in endpoint.Contract.Operations)
-                {
-                    OnAddKnownTypesToOperationContract(endpoint, opDescr);
-                }
-            }
+            Host.Run();
         }
 
         public virtual void OnAddKnownTypesToOperationContract(CoreWCF.Description.ServiceEndpoint endpoint, OperationDescription opDescr)
