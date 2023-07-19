@@ -26,9 +26,16 @@ namespace gip.core.communication
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
             _IsReadyForWriting = false;
+            _AutoBackupInitialized = true;
             if (!base.ACInit(startChildMode))
                 return false;
             return true;
+        }
+
+        public override void Recycle(IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
+        {
+            _AutoBackupInitialized = false;
+            base.Recycle(content, parentACObject, parameter, acIdentifier);
         }
 
         public override bool ACPostInit()
@@ -71,6 +78,49 @@ namespace gip.core.communication
             set;
         }
 
+        [ACPropertyInfo(true, 800, "", "en{'Time interval for cyclic Backup'}de{'Zeitintervall für regelmäßige Sicherung'}")]
+        public TimeSpan BackupInterval
+        {
+            get;
+            set;
+        }
+
+        private static TimeSpan C_MinBackupInterval = new TimeSpan(0, 0, 30);
+        private TimeSpan BackupIntervalValidated
+        {
+            get
+            {
+                if (BackupInterval <= TimeSpan.Zero)
+                    return TimeSpan.Zero;
+                if (BackupInterval <= C_MinBackupInterval)
+                    return C_MinBackupInterval;
+                return BackupInterval;
+            }
+        }
+
+        private bool _AutoBackupInitialized = false;
+        [ACPropertyInfo(true, 801, "", "en{'Last Backup'}de{'Letzte Sicherung'}")]
+        public DateTime LastBackup
+        {
+            get;
+            set;
+        }
+
+        private bool _ConnLostBackupIsOff = false;
+        [ACPropertyInfo(false, 802, "", "en{'Connection is lost - Backup is off'}de{'Verbindung verloren - Backup ist aus'}")]
+        public bool ConnLostBackupIsOff
+        {
+            get
+            {
+                return _ConnLostBackupIsOff;
+            }
+            set
+            {
+                _ConnLostBackupIsOff = value;
+                OnPropertyChanged();
+            }
+        }
+
         protected ACSession CommSession
         {
             get
@@ -97,29 +147,41 @@ namespace gip.core.communication
             result = null;
             switch (acMethodName)
             {
-                case "InitSubscription":
+                case nameof(InitSubscription):
                     result = InitSubscription();
                     return true;
-                case "IsEnabledInitSubscription":
+                case nameof(IsEnabledInitSubscription):
                     result = IsEnabledInitSubscription();
                     return true;
-                case "DeInitSubscription":
+                case nameof(DeInitSubscription):
                     result = DeInitSubscription();
                     return true;
-                case "IsEnabledDeInitSubscription":
+                case nameof(IsEnabledDeInitSubscription):
                     result = IsEnabledDeInitSubscription();
                     return true;
-                case "Connect":
+                case nameof(Connect):
                     result = Connect();
                     return true;
-                case "IsEnabledConnect":
+                case nameof(IsEnabledConnect):
                     result = IsEnabledConnect();
                     return true;
-                case "DisConnect":
+                case nameof(DisConnect):
                     result = DisConnect();
                     return true;
-                case "IsEnabledDisConnect":
+                case nameof(IsEnabledDisConnect):
                     result = IsEnabledDisConnect();
+                    return true;
+                case nameof(ActivateAutoBackup):
+                     ActivateAutoBackup();
+                    return true;
+                case nameof(IsEnabledActivateAutoBackup):
+                    result = IsEnabledActivateAutoBackup();
+                    return true;
+                case nameof(DeActivateAutoBackup):
+                    DeActivateAutoBackup();
+                    return true;
+                case nameof(IsEnabledDeActivateAutoBackup):
+                    result = IsEnabledDeActivateAutoBackup();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -130,16 +192,16 @@ namespace gip.core.communication
             result = null;
             switch (acMethodName)
             {
-                case "AutoInsertVariables":
+                case nameof(AutoInsertVariables):
                     AutoInsertVariables(acComponent);
                     return true;
-                case Const.IsEnabledPrefix + "AutoInsertVariables":
+                case Const.IsEnabledPrefix + nameof(AutoInsertVariables):
                     result = IsEnabledAutoInsertVariables(acComponent);
                     return true;
-                case "AutoRenameVariables":
+                case nameof(AutoRenameVariables):
                     AutoRenameVariables(acComponent);
                     return true;
-                case Const.IsEnabledPrefix + "AutoRenameVariables":
+                case Const.IsEnabledPrefix + nameof(AutoRenameVariables):
                     result = IsEnabledAutoRenameVariables(acComponent);
                     return true;
             }
@@ -288,6 +350,64 @@ namespace gip.core.communication
             return _this.CurrentACClass != null && _this.CurrentConfigACClassProperty != null;
         }
 
+        #endregion
+
+        #region Automatic Backup
+        protected void RunAutomaticBackupIfInterval()
+        {
+            if (   BackupIntervalValidated <= TimeSpan.Zero
+                || CommSession == null 
+                || !CommSession.IsConnected.ValueT 
+                || !IsReadyForWriting
+                || !Root.Initialized
+                || (LastBackup > DateTime.MinValue && (LastBackup + BackupIntervalValidated) > DateTime.Now)
+                || ConnLostBackupIsOff)
+                return;
+            LastBackup = DateTime.Now;
+            // Wait one Cycle for Backup, to give time for restoring from the user.
+            if (!_AutoBackupInitialized)
+            {
+                _AutoBackupInitialized = true;
+                return;
+            }
+            BackupState();
+        }
+
+        public override void RestoreBackupedState()
+        {
+            base.RestoreBackupedState();
+            ConnLostBackupIsOff = false;
+        }
+
+        [ACMethodInteraction("xxx", "en{'Reactivate automatic Backup'}de{'Reaktiviere automatische Sicherung'}", 50, true)]
+        public void ActivateAutoBackup()
+        {
+            ConnLostBackupIsOff = false;
+        }
+
+        public bool IsEnabledActivateAutoBackup()
+        {
+            return ConnLostBackupIsOff 
+                && CommSession != null 
+                && CommSession.IsConnected.ValueT
+                && IsReadyForWriting
+                && Root.Initialized
+                && BackupIntervalValidated > TimeSpan.Zero;
+        }
+
+        [ACMethodInteraction("xxx", "en{'Deactivate automatic Backup'}de{'Deaktiviere automatische Sicherung'}", 51, true)]
+        public void DeActivateAutoBackup()
+        {
+            ConnLostBackupIsOff = true;
+        }
+
+        public bool IsEnabledDeActivateAutoBackup()
+        {
+            return !ConnLostBackupIsOff
+                && CommSession != null
+                && Root.Initialized
+                && BackupIntervalValidated > TimeSpan.Zero;
+        }
         #endregion
 
         #endregion

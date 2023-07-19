@@ -335,35 +335,53 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "AcknowledgeAlarms":
+                case nameof(AcknowledgeAlarms):
                     AcknowledgeAlarms();
                     return true;
-                case "AcknowledgeAllAlarms":
+                case nameof(AcknowledgeAllAlarms):
                     AcknowledgeAllAlarms();
                     return true;
-                case "AcknowledgeSubAlarms":
+                case nameof(AcknowledgeSubAlarms):
                     AcknowledgeSubAlarms();
                     return true;
-                case Const.IsEnabledPrefix + "AcknowledgeAlarms":
+                case nameof(IsEnabledAcknowledgeAlarms):
                     result = IsEnabledAcknowledgeAlarms();
                     return true;
-                case Const.IsEnabledPrefix + "AcknowledgeAllAlarms":
+                case nameof(IsEnabledAcknowledgeAllAlarms):
                     result = IsEnabledAcknowledgeAllAlarms();
                     return true;
-                case Const.IsEnabledPrefix + "AcknowledgeSubAlarms":
+                case nameof(IsEnabledAcknowledgeSubAlarms):
                     result = IsEnabledAcknowledgeSubAlarms();
                     return true;
-                case "FilterAlarm":
+                case nameof(FilterAlarm):
                     result = FilterAlarm(acParameter[0] as string, acParameter[1] as string, (bool) acParameter[2], acParameter[3] != null ? acParameter[3] as Msg : null);
                     return true;
-                case "GetAlarms":
+                case nameof(GetAlarms):
                     result = GetAlarms((bool)acParameter[0], (bool)acParameter[1], (bool)acParameter[2]);
                     return true;
-                case "GetAlarmsConfig":
+                case nameof(GetAlarmsConfig):
                     result = GetAlarmsConfig((bool)acParameter[0], (bool)acParameter[1], (bool)acParameter[2]);
                     return true;
-                case "AcknowledgeSubAlarmsMsgList":
+                case nameof(AcknowledgeSubAlarmsMsgList):
                     AcknowledgeSubAlarmsMsgList(acParameter[0] as MsgList);
+                    return true;
+                case nameof(BackupState):
+                    BackupState();
+                    return true;
+                case nameof(IsEnabledBackupState):
+                    result = IsEnabledBackupState();
+                    return true;
+                case nameof(ClearBackupState):
+                    ClearBackupState();
+                    return true;
+                case nameof(IsEnabledClearBackupState):
+                    result = IsEnabledClearBackupState();
+                    return true;
+                case nameof(RestoreBackupedState):
+                    RestoreBackupedState();
+                    return true;
+                case nameof(IsEnabledRestoreBackupedState):
+                    result = IsEnabledRestoreBackupedState();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -1030,6 +1048,76 @@ namespace gip.core.autocomponent
             // TODO: Alarm-Name!
         }
 
+        #endregion
+
+        #region Backup and Restore
+        [ACMethodCommand("Backup", "en{'Backup state'}de{'Zustand sichern'}", 180, true)]
+        public virtual void BackupState()
+        {
+            PersistBackupState(false);
+        }
+
+        public virtual bool IsEnabledBackupState()
+        {
+            return Root.CurrentInvokingUser == null || Root.CurrentInvokingUser.IsSuperuser;
+        }
+
+        [ACMethodCommand("Backup", "en{'Clear and Reset backuped state'}de{'Gesicherten Zustand löschen und zurücksetzen'}", 180, true)]
+        public virtual void ClearBackupState()
+        {
+            PersistBackupState(true);
+        }
+
+        public virtual bool IsEnabledClearBackupState()
+        {
+            return Root.CurrentInvokingUser == null || Root.CurrentInvokingUser.IsSuperuser;
+        }
+
+        protected virtual void PersistBackupState(bool resetAndClear = false)
+        {
+            ApplicationManager compManager = ApplicationManager;
+            if (compManager != null)
+            {
+                compManager.AppContextQueue.Add(() =>
+                {
+                    List<PAClassAlarmingBase> childsForStateBackup = FindChildComponents<PAClassAlarmingBase>(c => c is PAClassAlarmingBase);
+                    childsForStateBackup.Add(this);
+                    foreach (var child in childsForStateBackup)
+                    {
+                        foreach (IACPropertyNetServer serverProp in child.ACPropertyList)
+                        {
+                            serverProp.BackupValue(resetAndClear);
+                        }
+                    }
+                });
+            }
+        }
+
+        [ACMethodCommand("Backup", "en{'Restore state'}de{'Zustand wiederherstellen'}", 181, true)]
+        public virtual void RestoreBackupedState()
+        {
+            ApplicationManager compManager = ApplicationManager;
+            if (compManager != null)
+            {
+                compManager.AppContextQueue.Add(() =>
+                {
+                    List<PAClassAlarmingBase> childsForStateBackup = FindChildComponents<PAClassAlarmingBase>(c => c is PAClassAlarmingBase);
+                    childsForStateBackup.Add(this);
+                    foreach (var child in childsForStateBackup)
+                    {
+                        foreach (IACPropertyNetServer serverProp in child.ACPropertyList)
+                        {
+                            serverProp.RestoreBackupedValue();
+                        }
+                    }
+                });
+            }
+        }
+
+        public virtual bool IsEnabledRestoreBackupedState()
+        {
+            return Root.CurrentInvokingUser == null || Root.CurrentInvokingUser.IsSuperuser;
+        }
         #endregion
 
         #region Diagnostics and Dump

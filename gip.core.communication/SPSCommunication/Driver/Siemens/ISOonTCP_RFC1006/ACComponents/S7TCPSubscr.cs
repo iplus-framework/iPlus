@@ -431,6 +431,7 @@ namespace gip.core.communication
                 S7TCPSession.AddToPollingPlan(this);
             else if (S7TCPSession != null && IsWriteOnly && !IsReadyForWriting)
                 IsReadyForWriting = true;
+            RunAutomaticBackupIfInterval();
         }
 
         //private void OnStateChanged(ObjectSpaceElement obj, EnumObjectState state)

@@ -75,9 +75,11 @@ namespace gip.core.autocomponent
                 if (value != null)
                 {
                     _SelectedItem = value;
-                    OnPropertyChanged("SelectedItem");
-                    OnPropertyChanged("SelectedValueText");
-                    OnPropertyChanged("SelectedValueXMLDoc");
+                    OnPropertyChanged(nameof(SelectedItem));
+                    OnPropertyChanged(nameof(SelectedValueText));
+                    OnPropertyChanged(nameof(SelectedValueXMLDoc));
+                    OnPropertyChanged(nameof(SelectedCmdMethod));
+                    OnPropertyChanged(nameof(CmdMethodList));
                 }
             }
         }
@@ -145,7 +147,7 @@ namespace gip.core.autocomponent
                 if (_ACUrlCommandText != value)
                 {
                     _ACUrlCommandText = value;
-                    OnPropertyChanged("ACUrlCommandText");
+                    OnPropertyChanged();
                 }
             }
         }
@@ -157,6 +159,41 @@ namespace gip.core.autocomponent
             get
             {
                 return _ACUrlCommandResult;
+            }
+        }
+
+        private ACClassMethod _SelectedCmdMethod;
+        [ACPropertySelected(310, "Methods", "en{'Method'}de{'Methode'}")]
+        public ACClassMethod SelectedCmdMethod
+        {
+            get
+            {
+                return _SelectedCmdMethod;
+            }
+            set
+            {
+                bool changed = _SelectedCmdMethod != value;
+                _SelectedCmdMethod = value;
+                if (changed)
+                {
+                    if (_SelectedCmdMethod != null)
+                        ACUrlCommandText = ACUrlHelper.Delimiter_InvokeMethod + _SelectedCmdMethod.ACIdentifier;
+                    else
+                        ACUrlCommandText = null;
+                }
+                OnPropertyChanged();
+            }
+        }
+
+        [ACPropertyList(311, "Methods", "en{'Methods'}de{'Methoden'}")]
+        public IEnumerable<ACClassMethod> CmdMethodList
+        {
+            get
+            {
+                ACComponent component = CurrentSelection as ACComponent;
+                if (component == null)
+                    return null;
+                return component.ACClassMethods.Where(c => c.IsCommand || c.IsInteraction).OrderBy(c => c.ACIdentifier).ToList();
             }
         }
         #endregion
@@ -182,7 +219,7 @@ namespace gip.core.autocomponent
                     _ACUrlCommandResult = e.Message;
                 }
             }
-            OnPropertyChanged("ACUrlCommandResult");
+            OnPropertyChanged(nameof(ACUrlCommandResult));
         }
 
         public bool IsEnabledCallACUrlCommand()
@@ -200,10 +237,10 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "CallACUrlCommand":
+                case nameof(CallACUrlCommand):
                     CallACUrlCommand();
                     return true;
-                case "IsEnabledCallACUrlCommand":
+                case nameof(IsEnabledCallACUrlCommand):
                     result = IsEnabledCallACUrlCommand();
                     return true;
                 default:

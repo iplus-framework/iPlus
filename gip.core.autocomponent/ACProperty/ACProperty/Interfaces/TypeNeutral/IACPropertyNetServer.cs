@@ -89,5 +89,9 @@ namespace gip.core.autocomponent
         /// <param name="forceSend"></param>
         /// <param name="invokerInfo">Additional individual parameters</param>
         void ChangeValueServer(object newValue, bool forceSend, object invokerInfo = null);
+
+        bool BackupValue(bool resetAndClear = false);
+
+        bool RestoreBackupedValue();
     }
 }
