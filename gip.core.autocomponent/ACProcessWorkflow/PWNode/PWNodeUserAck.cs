@@ -32,6 +32,8 @@ namespace gip.core.autocomponent
             paramTranslation.Add("MessageText", "en{'Question text'}de{'Abfragetext'}");
             method.ParameterValueList.Add(new ACValue("PasswordDlg", typeof(bool), false, Global.ParamOption.Required));
             paramTranslation.Add("PasswordDlg", "en{'With password dialogue'}de{'Mit Passwort-Dialog'}");
+            method.ParameterValueList.Add(new ACValue("SkipMode", typeof(ushort), 0, Global.ParamOption.Optional));
+            paramTranslation.Add("SkipMode", "en{'Skipmode: 1=Always, 2=From the second run'}de{'Überspringen: 1=Ständig, 2=Ab zweitem Durchlauf'}");
             var wrapper = new ACMethodWrapper(method, "en{'User Acknowledge'}de{'Benutzerbestätigung'}", typeof(PWNodeUserAck), paramTranslation, null);
             ACMethod.RegisterVirtualMethod(typeof(PWNodeUserAck), ACStateConst.SMStarting, wrapper);
         }
@@ -83,6 +85,23 @@ namespace gip.core.autocomponent
                     }
                 }
                 return false;
+            }
+        }
+
+        protected ushort SkipMode
+        {
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("SkipMode");
+                    if (acValue != null)
+                    {
+                        return acValue.ParamAsUInt16;
+                    }
+                }
+                return 0;
             }
         }
 
@@ -146,6 +165,10 @@ namespace gip.core.autocomponent
         {
             if (!CheckParentGroupAndHandleSkipMode())
                 return;
+
+            if (    SkipMode == 1 
+                || (SkipMode == 2 && RootPW != null && RootPW.InvocationCounter.HasValue && RootPW.InvocationCounter.Value > 1))
+                AckStart();
 
             RecalcTimeInfo();
             if (CreateNewProgramLog(NewACMethodWithConfiguration()) <= CreateNewProgramLogResult.ErrorNoProgramFound)
