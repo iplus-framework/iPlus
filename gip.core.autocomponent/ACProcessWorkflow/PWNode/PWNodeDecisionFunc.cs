@@ -192,26 +192,19 @@ namespace gip.core.autocomponent
             }
 
             UInt32 repeats = Repeats;
-            if (ForceEventPoint == 1)
-            {
-                if (repeats > 0 && IterationCount.ValueT % repeats != 0)
-                    RaiseElseEventAndComplete();
-                else
-                    RaiseOutEventAndComplete();
-            }
-            else if (ForceEventPoint == 2)
+            if (ForceEventPoint == 2)
             {
                 if (repeats > 0 && IterationCount.ValueT % repeats != 0)
                     RaiseOutEventAndComplete();
                 else
                     RaiseElseEventAndComplete();
             }
-            else
+            else //if (ForceEventPoint <= 1)
             {
                 if (repeats > 0 && IterationCount.ValueT % repeats != 0)
                     RaiseElseEventAndComplete();
                 else
-                    base.SMStarting();
+                    RaiseOutEventAndComplete();
             }
         }
 
