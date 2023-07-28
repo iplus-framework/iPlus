@@ -68,7 +68,10 @@ namespace gip.core.autocomponent
                     {
                         XElement xDoc = XElement.Parse(File.ReadAllText(file));
                         serializer.DeserializeXML(this, db, rootACObjectItem, xDoc, null, "\\Resources\\" + file);
-                        serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
+                        if(MsgObserver != null)
+                        {
+                            serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
+                        }
                     }
                     catch (Exception ec)
                     {
