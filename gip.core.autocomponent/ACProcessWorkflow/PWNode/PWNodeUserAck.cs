@@ -34,6 +34,8 @@ namespace gip.core.autocomponent
             paramTranslation.Add("PasswordDlg", "en{'With password dialogue'}de{'Mit Passwort-Dialog'}");
             method.ParameterValueList.Add(new ACValue("SkipMode", typeof(ushort), 0, Global.ParamOption.Optional));
             paramTranslation.Add("SkipMode", "en{'Skipmode: 1=Always, 2=From the second run'}de{'Überspringen: 1=Ständig, 2=Ab zweitem Durchlauf'}");
+            method.ParameterValueList.Add(new ACValue("ACUrlCmd", typeof(string), "", Global.ParamOption.Required));
+            paramTranslation.Add("ACUrlCmd", "en{'Invoke ACUrl-Command'}de{'ACUrl-Kommando ausführen'}");
             var wrapper = new ACMethodWrapper(method, "en{'User Acknowledge'}de{'Benutzerbestätigung'}", typeof(PWNodeUserAck), paramTranslation, null);
             ACMethod.RegisterVirtualMethod(typeof(PWNodeUserAck), ACStateConst.SMStarting, wrapper);
         }
@@ -105,6 +107,23 @@ namespace gip.core.autocomponent
             }
         }
 
+        protected string ACUrlCmd
+        {
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("ACUrlCmd");
+                    if (acValue != null)
+                    {
+                        return acValue.ParamAsString;
+                    }
+                }
+                return "";
+            }
+        }
+
         private IACContainerTNet<bool> _KeySwitch = null;
         bool _AckTiggeredOverSwitch = false;
 
@@ -166,9 +185,9 @@ namespace gip.core.autocomponent
             if (!CheckParentGroupAndHandleSkipMode())
                 return;
 
-            if (    SkipMode == 1 
+            if (SkipMode == 1
                 || (SkipMode == 2 && RootPW != null && RootPW.InvocationCounter.HasValue && RootPW.InvocationCounter.Value > 1))
-                AckStart();
+                OnAckStart(true);
 
             RecalcTimeInfo();
             if (CreateNewProgramLog(NewACMethodWithConfiguration()) <= CreateNewProgramLogResult.ErrorNoProgramFound)
@@ -268,12 +287,51 @@ namespace gip.core.autocomponent
         {
             if (!IsEnabledAckStart())
                 return;
+            OnAckStart(false);
+        }
+
+        protected virtual void OnAckStart(bool skipped)
+        {
             AcknowledgeAllAlarms();
             var appManager = this.ApplicationManager;
             if (appManager != null && Thread.CurrentThread != appManager.ApplicationQueue.ThreadOfQueue)
-                this.ApplicationManager.ApplicationQueue.Add(() => CurrentACState = ACStateEnum.SMCompleted);
+            {
+                this.ApplicationManager.ApplicationQueue.Add(() =>
+                    {
+                        if (!skipped)
+                            RunUserACUrlCmd();
+                        CurrentACState = ACStateEnum.SMCompleted;
+                    });
+            }
             else
+            {
+                if (!skipped)
+                    RunUserACUrlCmd();
                 CurrentACState = ACStateEnum.SMCompleted;
+            }
+        }
+
+        protected virtual void RunUserACUrlCmd()
+        {
+            if (String.IsNullOrEmpty(ACUrlCmd))
+                return;
+
+            string[] acUrlCmds = ACUrlCmd.Split(';');
+            foreach (string acUrlCmd in acUrlCmds)
+            {
+                ACComponent component = this;
+                string cmd = acUrlCmd;
+                if (acUrlCmd.StartsWith(nameof(PWGroup.AccessedProcessModule)))
+                {
+                    PWGroup parentGroup = ParentACComponent as PWGroup;
+                    if (parentGroup == null)
+                        return;
+                    component = parentGroup.AccessedProcessModule;
+                    cmd = acUrlCmd.Substring(nameof(PWGroup.AccessedProcessModule).Length);
+                }
+                if (component != null)
+                    component.ACUrlCommand(cmd);
+            }
         }
 
         public virtual bool IsEnabledAckStart()
