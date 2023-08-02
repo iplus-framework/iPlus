@@ -90,6 +90,15 @@ namespace gip.core.autocomponent
             }
         }
 
+        protected virtual bool CanRaiseRunningEvent
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+
 
         #region IACComponentTaskSubscr
         protected ACPointAsyncRMISubscr _TaskSubscriptionPoint;
@@ -211,7 +220,11 @@ namespace gip.core.autocomponent
             {
                 // Falls durch tiefere Callstacks der Status schon weitergeschaltet worden ist, dann schalte Status nicht weiter
                 if (CurrentACState == ACStateEnum.SMStarting)
+                {
+                    if (CanRaiseRunningEvent)
+                        RaiseRunningEvent();
                     CurrentACState = ACStateEnum.SMRunning;
+                }
             }
         }
 

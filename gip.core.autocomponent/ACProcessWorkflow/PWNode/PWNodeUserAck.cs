@@ -185,17 +185,24 @@ namespace gip.core.autocomponent
             if (!CheckParentGroupAndHandleSkipMode())
                 return;
 
-            if (SkipMode == 1
-                || (SkipMode == 2 && RootPW != null && RootPW.InvocationCounter.HasValue && RootPW.InvocationCounter.Value > 1))
-                OnAckStart(true);
-
             RecalcTimeInfo();
             if (CreateNewProgramLog(NewACMethodWithConfiguration()) <= CreateNewProgramLogResult.ErrorNoProgramFound)
                 return;
 
+            if (   SkipMode == 1
+                || (SkipMode == 2 && RootPW != null && RootPW.InvocationCounter.HasValue && RootPW.InvocationCounter.Value > 1))
+            {
+                OnAckStart(true);
+                return;
+            }
+
             RefreshNodeInfoOnModule();
             if (!CPasswordDlg)
+            {
+                if (CanRaiseRunningEvent)
+                    RaiseRunningEvent();
                 CurrentACState = ACStateEnum.SMRunning;
+            }
             AlarmsAsText.ValueT = CMessageText;
         }
 

@@ -188,6 +188,14 @@ namespace gip.core.autocomponent
             }
         }
 
+        protected override bool CanRaiseRunningEvent
+        {
+            get
+            {
+                return (ParentPWGroup != null && ParentPWGroup.WithoutPM) || RunWithoutInvokingFunction;
+            }
+        }
+
         public override void SMStarting()
         {
             if (!CheckParentGroupAndHandleSkipMode())
@@ -270,6 +278,8 @@ namespace gip.core.autocomponent
             // Falls module.AddTask synchron ausgeführt wurde, dann ist der Status schon weiter
             if (IsACStateMethodConsistent(ACStateEnum.SMStarting) < ACStateCompare.WrongACStateMethod)
             {
+                if (CanRaiseRunningEvent)
+                    RaiseRunningEvent();
                 CurrentACState = ACStateEnum.SMRunning;
             }
         }
