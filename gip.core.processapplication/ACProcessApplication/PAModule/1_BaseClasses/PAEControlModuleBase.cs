@@ -125,7 +125,7 @@ namespace gip.core.processapplication
         public IACContainerTNet<BitAccessForAllocatedByWay> AllocatedByWay { get; set; }
 
         [ACPropertyBindingTarget(442, "Read from PLC", "en{'on site turned on'}de{'Vorort eingeschaltet'}", "", false, false, RemotePropID = 25)]
-        public IACContainerTNet<Boolean> OnSiteTurnedOn { get; set; }
+        public IACContainerTNet<ushort> OnSiteTurnedOn { get; set; }
 
         [ACPropertyBindingTarget(443, "Read from PLC", "en{'turn-on interlock'}de{'Einschaltverriegelung'}", "", false, false, RemotePropID = 26)]
         public IACContainerTNet<Boolean> TurnOnInterlock { get; set; }
