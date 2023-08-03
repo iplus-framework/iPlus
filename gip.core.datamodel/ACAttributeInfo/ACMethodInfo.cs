@@ -257,7 +257,7 @@ namespace gip.core.datamodel
 
     /// <summary>
     /// For publishing methods, which should appear in the CONTEXT MENU in other classes. 
-    /// The method  MUST be STATIC and the FIRST PARAMETER of the method mus alway be "IACComponent acComponent".
+    /// The method  MUST be STATIC and the FIRST PARAMETER of the method must always be "IACComponent acComponent".
     /// Pass the TYPE of the class in the parameter "attachToClass" where this method should be ATTACHED (Similar concept as Extension-Methods in .net)
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
