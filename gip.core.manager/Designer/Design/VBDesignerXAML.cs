@@ -232,7 +232,7 @@ namespace gip.core.manager
             {
                 ACObjectItemList objectLayoutEntrys = new ACObjectItemList();
                 ACClass acClass = CurrentAvailableElement.ACObject as ACClass;
-                foreach (ACClassProperty acClassProperty in acClass.Properties)
+                foreach (ACClassProperty acClassProperty in acClass.Properties.OrderBy(c => c.ACIdentifier))
                 {
                     if ((acClassProperty.ACClass.ACIdentifier == "ACComponent")
                         && (acClassProperty.ACIdentifier != Const.ACState)
@@ -280,7 +280,7 @@ namespace gip.core.manager
             {
                 ACObjectItemList objectLayoutEntrys = new ACObjectItemList();
                 ACClass acClass = CurrentAvailableElement.ACObject as ACClass;
-                foreach (ACClassMethod acClassMethod in acClass.Methods)
+                foreach (ACClassMethod acClassMethod in acClass.Methods.OrderBy(c => c.ACIdentifier))
                 {
                     // Alle Methoden, da auch Events per VBDelegateExtension verbunden werden kann
                     //if (acClassMethod.IsCommand)
