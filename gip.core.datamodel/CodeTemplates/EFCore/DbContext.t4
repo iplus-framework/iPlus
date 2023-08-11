@@ -35,6 +35,13 @@
         "System.Configuration"
     };
 
+    string namespaceToTruncate = NamespaceHint;
+    int lastSeparatorIndex = namespaceToTruncate.LastIndexOf('.');
+    string namespaceTruncated = namespaceToTruncate.Substring(0, lastSeparatorIndex);
+    
+    if (namespaceTruncated != "gip.core.datamodel")
+        usings.Add("gip.core.datamodel");
+
     if (NamespaceHint != Options.ModelNamespace
         && !string.IsNullOrEmpty(Options.ModelNamespace))
     {
@@ -44,8 +51,7 @@
     if (!string.IsNullOrEmpty(NamespaceHint))
     {
 #>
-namespace <#= "gip.core.datamodel" #>;
-
+namespace <#= namespaceTruncated #>;
 <#
     }
 #>
@@ -93,7 +99,7 @@ public partial class <#= Options.ContextName #> : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.AddInterceptors(new ACMaterializationInterceptor())
-            .UseModel(iPlusV5ContextModel.Instance)
+            .UseModel(<#=Options.ContextName#>Model.Instance)
             .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
             //Uncomment connection string when generating new CompiledModels
             //.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString);
