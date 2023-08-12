@@ -814,68 +814,7 @@ namespace gip.core.autocomponent
 #endif
                 }
 
-                _RestoreRuntimeActive = true;
-                if (!String.IsNullOrEmpty(valueXML))
-                {
-                    if (this.ValueT != null)
-                    {
-                        if (this.ValueT is String)
-                        {
-                            this.ValueT = (T)(object)valueXML;
-                            restored = true;
-                        }
-                        else if (this.ValueT is DateTime)
-                        {
-                            this.ValueT = (T)(object)DateTime.ParseExact(valueXML, "o", CultureInfo.InvariantCulture, DateTimeStyles.None);
-                            restored = true;
-                        }
-                        else if (this.ValueT is TimeSpan)
-                        {
-                            this.ValueT = (T)(object)TimeSpan.ParseExact(valueXML, "c", CultureInfo.InvariantCulture, TimeSpanStyles.None);
-                            restored = true;
-                        }
-                        else if (this.ValueT is IConvertible)
-                        {
-                            this.ValueT = (T)ACConvert.ChangeType(valueXML, this.ValueT, typeof(T), true, gip.core.datamodel.Database.GlobalDatabase);
-                            restored = true;
-                        }
-                    }
-                    else
-                    {
-                        Type typeT = typeof(T);
-                        if (typeT == typeof(String))
-                        {
-                            this.ValueT = (T)(object)valueXML;
-                            restored = true;
-                        }
-                        else if (typeT == typeof(DateTime))
-                        {
-                            this.ValueT = (T)(object)DateTime.ParseExact(valueXML, "o", CultureInfo.InvariantCulture, DateTimeStyles.None);
-                            restored = true;
-                        }
-                        else if (typeT == typeof(TimeSpan))
-                        {
-                            this.ValueT = (T)(object)TimeSpan.ParseExact(valueXML, "c", CultureInfo.InvariantCulture, TimeSpanStyles.None);
-                            restored = true;
-                        }
-                        else if (typeT.GetInterface("IConvertible") != null
-                            || (typeT.IsGenericType && typeT.Name == Const.TNameNullable))
-                        {
-                            this.ValueT = (T)ACConvert.ChangeType(valueXML, typeof(T), true, gip.core.datamodel.Database.GlobalDatabase);
-                            restored = true;
-                        }
-                    }
-                    if (!restored && this.IsSerializable)
-                    {
-                        using (StringReader ms = new StringReader(valueXML))
-                        using (XmlTextReader xmlReader = new XmlTextReader(ms))
-                        {
-                            DataContractSerializer serializer = new DataContractSerializer(typeof(T), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
-                            this.ValueT = (T)serializer.ReadObject(xmlReader);
-                        }
-                        restored = true;
-                    }
-                }
+                restored = RestoreValue(ref valueXML);
             }
             catch (Exception e)
             {
@@ -914,10 +853,189 @@ namespace gip.core.autocomponent
             if (!CanPersist)
                 return false;
 
+            return PersistValue(false);
+        }
+
+
+        protected virtual bool CanRestoreBackupedValue
+        {
+            get
+            {
+                return !(IsProxy
+                        || !ACRef.IsObjLoaded
+                        || (ACRef.ValueT.ContentTask == null)
+                        || (ACRef.ValueT.ACOperationMode == ACOperationModes.Test));
+            }
+        }
+
+        public virtual bool RestoreBackupedValue()
+        {
+            if (!CanRestoreBackupedValue)
+                return false;
+
+            bool restored = false;
+            try
+            {
+                string valueXML = null;
+                ACClassTaskValue acClassTaskValue = null;
+
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    acClassTaskValue = _ACClassTaskValue;
+                }
+
+                if (acClassTaskValue == null)
+                {
+                    if (ACClassTaskQueue.TaskQueue.MassLoadPropertyValuesOff)
+                    {
+                        ACClassTaskQueue.TaskQueue.ProcessAction(() =>
+                        {
+                            acClassTaskValue = ACRef.ValueT.ContentTask.ACClassTaskValue_ACClassTask.
+                                        Where(c => (c.ACClassPropertyID == ACType.ACTypeID)).FirstOrDefault();
+                        }
+                        );
+                    }
+                    else
+                    {
+                        acClassTaskValue = ACClassTaskQueue.TaskQueue.GetFromAllPropValues(ACRef.ValueT.ContentTask.ACClassTaskID,
+                                                                                        ACType.ACTypeID,
+                                                                                        null);
+                    }
+
+                    using (ACMonitor.Lock(_20015_LockValue))
+                    {
+                        if (_ACClassTaskValue == null && acClassTaskValue != null)
+                            _ACClassTaskValue = acClassTaskValue;
+                    }
+
+                }
+
+                if (acClassTaskValue != null)
+                {
+#if !DIAGNOSE
+                    // *** TASKPERFOPT NEW ***
+                    valueXML = acClassTaskValue.XMLValue2;
+                    // *** TASKPERFOPT NEW  END***
+#else
+                    // *** TASKPERFOPT OLD ***
+                    ACClassTaskQueue.TaskQueue.ProcessAction(() => { valueXML = acClassTaskValue.XMLValue; });
+                    // *** TASKPERFOPT OLD END ***
+#endif
+                }
+
+                restored = RestoreValue(ref valueXML);
+
+            }
+            catch (Exception e)
+            {
+                if (ACRef.IsObjLoaded)
+                {
+                    ACRef.ValueT.Messages.LogException(this.GetACUrl(), "ACProperty.RestoreRuntimeValue()", e.Message);
+                }
+            }
+            finally
+            {
+                _RestoreRuntimeActive = false;
+            }
+            return restored;
+        }
+
+
+        protected virtual bool RestoreValue(ref string valueXML)
+        {
+            bool restored = false;
+            _RestoreRuntimeActive = true;
+            if (!String.IsNullOrEmpty(valueXML))
+            {
+                if (this.ValueT != null)
+                {
+                    if (this.ValueT is String)
+                    {
+                        this.ValueT = (T)(object)valueXML;
+                        restored = true;
+                    }
+                    else if (this.ValueT is DateTime)
+                    {
+                        this.ValueT = (T)(object)DateTime.ParseExact(valueXML, "o", CultureInfo.InvariantCulture, DateTimeStyles.None);
+                        restored = true;
+                    }
+                    else if (this.ValueT is TimeSpan)
+                    {
+                        this.ValueT = (T)(object)TimeSpan.ParseExact(valueXML, "c", CultureInfo.InvariantCulture, TimeSpanStyles.None);
+                        restored = true;
+                    }
+                    else if (this.ValueT is IConvertible)
+                    {
+                        this.ValueT = (T)ACConvert.ChangeType(valueXML, this.ValueT, typeof(T), true, gip.core.datamodel.Database.GlobalDatabase);
+                        restored = true;
+                    }
+                }
+                else
+                {
+                    Type typeT = typeof(T);
+                    if (typeT == typeof(String))
+                    {
+                        this.ValueT = (T)(object)valueXML;
+                        restored = true;
+                    }
+                    else if (typeT == typeof(DateTime))
+                    {
+                        this.ValueT = (T)(object)DateTime.ParseExact(valueXML, "o", CultureInfo.InvariantCulture, DateTimeStyles.None);
+                        restored = true;
+                    }
+                    else if (typeT == typeof(TimeSpan))
+                    {
+                        this.ValueT = (T)(object)TimeSpan.ParseExact(valueXML, "c", CultureInfo.InvariantCulture, TimeSpanStyles.None);
+                        restored = true;
+                    }
+                    else if (typeT.GetInterface("IConvertible") != null
+                        || (typeT.IsGenericType && typeT.Name == Const.TNameNullable))
+                    {
+                        this.ValueT = (T)ACConvert.ChangeType(valueXML, typeof(T), true, gip.core.datamodel.Database.GlobalDatabase);
+                        restored = true;
+                    }
+                }
+                if (!restored && this.IsSerializable)
+                {
+                    using (StringReader ms = new StringReader(valueXML))
+                    using (XmlTextReader xmlReader = new XmlTextReader(ms))
+                    {
+                        DataContractSerializer serializer = new DataContractSerializer(typeof(T), new DataContractSerializerSettings() { KnownTypes = ACKnownTypes.GetKnownType(), MaxItemsInObjectGraph = 99999999, IgnoreExtensionDataObject = true, PreserveObjectReferences = true, DataContractResolver = ACConvert.MyDataContractResolver });
+                        this.ValueT = (T)serializer.ReadObject(xmlReader);
+                    }
+                    restored = true;
+                }
+            }
+            return restored;
+        }
+
+        protected virtual bool CanBackup
+        {
+            get
+            {
+                return !(InRestorePhase
+                        || IsProxy
+                        || !ACRef.IsObjLoaded
+                        || (ACRef.ValueT.ContentTask == null)
+                        || (ACRef.ValueT.ACOperationMode == ACOperationModes.Test));
+            }
+        }
+
+        public virtual bool BackupValue(bool resetAndClear = false)
+        {
+            if (!CanBackup)
+                return false;
+
+            return PersistValue(true, resetAndClear);
+        }
+
+        protected virtual bool PersistValue(bool backup = false, bool resetAndClear = false)
+        {
             string valueXML = null;
             try
             {
-                valueXML = ValueSerialized(false);
+                if (!(backup && resetAndClear))
+                    valueXML = ValueSerialized(false);
                 if (valueXML == null)
                     return false;
 
@@ -935,7 +1053,7 @@ namespace gip.core.autocomponent
                 if (acClassTaskValue == null)
                 {
                     IEnumerable<ACClassTaskValue> acClassTaskValues = null;
-                    if (   contentTask.ACClassTaskValue_ACClassTask_IsLoaded)
+                    if (contentTask.ACClassTaskValue_ACClassTask.IsLoaded)
                         //|| contentTask.EntityState == System.Data.EntityState.Added)
                         acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
                     else
@@ -992,17 +1110,22 @@ namespace gip.core.autocomponent
                 if (acClassTaskValue != null)
                 {
                     ACClassTaskQueue.TaskQueue.Add(() =>
+                    {
+                        if (added)
                         {
-                            if (added)
-                            {
-                                acClassTaskValue.PublishToChangeTrackerInQueue();
-                                contentTask.ACClassTaskValue_ACClassTask.Add(acClassTaskValue);
-                            }
-                            if (acClassTaskValue != null
-                                && acClassTaskValue.EntityState != EntityState.Deleted
-                                && acClassTaskValue.EntityState != EntityState.Detached)
+                            acClassTaskValue.PublishToChangeTrackerInQueue();
+                            contentTask.ACClassTaskValue_ACClassTask.Add(acClassTaskValue);
+                        }
+                        if (acClassTaskValue != null
+                            && acClassTaskValue.EntityState != System.Data.EntityState.Deleted
+                            && acClassTaskValue.EntityState != System.Data.EntityState.Detached)
+                        {
+                            if (backup)
+                                acClassTaskValue.XMLValue2 = valueXML;
+                            else
                                 acClassTaskValue.XMLValue = valueXML;
                         }
+                    }
                     );
                 }
             }
@@ -1020,9 +1143,9 @@ namespace gip.core.autocomponent
                     writer = Database.Root;
                 if (writer != null)
                 {
-                    writer.Messages.LogException("\\", "ACProperty.Persist(1)", message1);
-                    writer.Messages.LogException("\\", "ACProperty.Persist(2)", message2);
-                    writer.Messages.LogException("\\", "ACProperty.Persist(3)", e.StackTrace);
+                    writer.Messages.LogException("\\", "ACProperty.PersistValue(1)", message1);
+                    writer.Messages.LogException("\\", "ACProperty.PersistValue(2)", message2);
+                    writer.Messages.LogException("\\", "ACProperty.PersistValue(3)", e.StackTrace);
                 }
             }
             return true;

@@ -121,7 +121,7 @@ namespace gip.core.datamodel
         public override MsgWithDetails DeleteACObject(IACEntityObjectContext database, bool withCheck, bool softDelete = false)
         {
             MsgWithDetails msg = null;
-            if (this.ACClassPropertyRelation != null)
+            if (this.ACClassPropertyRelation != null && !softDelete)
                 this.ACClassPropertyRelation.DeleteACObject(database, withCheck);
             database.Remove(this);
             return msg;

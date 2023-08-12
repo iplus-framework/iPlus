@@ -278,174 +278,177 @@ namespace gip.ext.designer
                     ISelectionService selection = context.Services.Selection;
                     DesignItem item = selection.PrimarySelection;
                     PlacementOperation operation = PlacementOperation.Start(context.Services.Selection.SelectedItems, PlacementType.Move);
-                    foreach (PlacementInformation info in operation.PlacedItems)
+                    if (operation != null)
                     {
-                        if (direction == Key.Up)
+                        foreach (PlacementInformation info in operation.PlacedItems)
                         {
-                            if (large)
+                            if (direction == Key.Up)
                             {
-                                if (designSurface.IsRasterOn)
+                                if (large)
                                 {
-                                    int rest = 0;
-                                    if (System.Convert.ToInt32(info.OriginalBounds.Top) != 0)
-                                        rest = System.Convert.ToInt32(info.OriginalBounds.Top) % System.Convert.ToInt32(designSurface.RasterSize);
-                                    if (rest == 0)
-                                        rest = System.Convert.ToInt32(designSurface.RasterSize);
+                                    if (designSurface.IsRasterOn)
+                                    {
+                                        int rest = 0;
+                                        if (System.Convert.ToInt32(info.OriginalBounds.Top) != 0)
+                                            rest = System.Convert.ToInt32(info.OriginalBounds.Top) % System.Convert.ToInt32(designSurface.RasterSize);
+                                        if (rest == 0)
+                                            rest = System.Convert.ToInt32(designSurface.RasterSize);
+                                        else
+                                        {
+                                            if (rest < 0)
+                                                rest *= -1;
+                                            //if (rest > 0)
+                                            //rest = System.Convert.ToInt32(designSurface.RasterSize) - rest;
+                                        }
+                                        info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
+                                                               System.Convert.ToInt32(info.OriginalBounds.Top) - rest,
+                                                               info.OriginalBounds.Width,
+                                                               info.OriginalBounds.Height);
+                                    }
                                     else
                                     {
-                                        if (rest < 0)
-                                            rest *= -1;
-                                        //if (rest > 0)
-                                        //rest = System.Convert.ToInt32(designSurface.RasterSize) - rest;
+                                        info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
+                                                               info.OriginalBounds.Top - 10,
+                                                               info.OriginalBounds.Width,
+                                                               info.OriginalBounds.Height);
                                     }
-                                    info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
-                                                           System.Convert.ToInt32(info.OriginalBounds.Top) - rest,
-                                                           info.OriginalBounds.Width,
-                                                           info.OriginalBounds.Height);
                                 }
                                 else
                                 {
                                     info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
-                                                           info.OriginalBounds.Top - 10,
-                                                           info.OriginalBounds.Width,
-                                                           info.OriginalBounds.Height);
+                                                            info.OriginalBounds.Top - 1,
+                                                            info.OriginalBounds.Width,
+                                                            info.OriginalBounds.Height);
                                 }
                             }
-                            else
+                            else if (direction == Key.Down)
                             {
-                                info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
-                                                        info.OriginalBounds.Top - 1,
-                                                        info.OriginalBounds.Width,
-                                                        info.OriginalBounds.Height);
-                            }
-                        }
-                        else if (direction == Key.Down)
-                        {
-                            if (large)
-                            {
-                                if (designSurface.IsRasterOn)
+                                if (large)
                                 {
-                                    int rest = 0;
-                                    if (System.Convert.ToInt32(info.OriginalBounds.Top) != 0)
-                                        rest = System.Convert.ToInt32(info.OriginalBounds.Top) % System.Convert.ToInt32(designSurface.RasterSize);
-                                    if (rest == 0)
-                                        rest = System.Convert.ToInt32(designSurface.RasterSize);
+                                    if (designSurface.IsRasterOn)
+                                    {
+                                        int rest = 0;
+                                        if (System.Convert.ToInt32(info.OriginalBounds.Top) != 0)
+                                            rest = System.Convert.ToInt32(info.OriginalBounds.Top) % System.Convert.ToInt32(designSurface.RasterSize);
+                                        if (rest == 0)
+                                            rest = System.Convert.ToInt32(designSurface.RasterSize);
+                                        else
+                                        {
+                                            if (rest < 0)
+                                                rest *= -1;
+                                            if (rest > 0)
+                                                rest = System.Convert.ToInt32(designSurface.RasterSize) - rest;
+                                        }
+                                        info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
+                                                               System.Convert.ToInt32(info.OriginalBounds.Top) + rest,
+                                                               info.OriginalBounds.Width,
+                                                               info.OriginalBounds.Height);
+                                    }
                                     else
                                     {
-                                        if (rest < 0)
-                                            rest *= -1;
-                                        if (rest > 0)
-                                            rest = System.Convert.ToInt32(designSurface.RasterSize) - rest;
+                                        info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
+                                                               info.OriginalBounds.Top + 10,
+                                                               info.OriginalBounds.Width,
+                                                               info.OriginalBounds.Height);
                                     }
-                                    info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
-                                                           System.Convert.ToInt32(info.OriginalBounds.Top) + rest,
-                                                           info.OriginalBounds.Width,
-                                                           info.OriginalBounds.Height);
                                 }
                                 else
                                 {
                                     info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
-                                                           info.OriginalBounds.Top + 10,
+                                                           info.OriginalBounds.Top + 1,
                                                            info.OriginalBounds.Width,
                                                            info.OriginalBounds.Height);
                                 }
                             }
-                            else
+                            else if (direction == Key.Left)
                             {
-                                info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
-                                                       info.OriginalBounds.Top + 1,
-                                                       info.OriginalBounds.Width,
-                                                       info.OriginalBounds.Height);
-                            }
-                        }
-                        else if (direction == Key.Left)
-                        {
-                            if (large)
-                            {
-                                if (designSurface.IsRasterOn)
+                                if (large)
                                 {
-                                    int rest = 0;
-                                    if (System.Convert.ToInt32(info.OriginalBounds.Left) != 0)
-                                        rest = System.Convert.ToInt32(info.OriginalBounds.Left) % System.Convert.ToInt32(designSurface.RasterSize);
-                                    if (rest == 0)
-                                        rest = System.Convert.ToInt32(designSurface.RasterSize);
+                                    if (designSurface.IsRasterOn)
+                                    {
+                                        int rest = 0;
+                                        if (System.Convert.ToInt32(info.OriginalBounds.Left) != 0)
+                                            rest = System.Convert.ToInt32(info.OriginalBounds.Left) % System.Convert.ToInt32(designSurface.RasterSize);
+                                        if (rest == 0)
+                                            rest = System.Convert.ToInt32(designSurface.RasterSize);
+                                        else
+                                        {
+                                            if (rest < 0)
+                                                rest *= -1;
+                                            //if (rest > 0)
+                                            //rest = System.Convert.ToInt32(designSurface.RasterSize) - rest;
+                                        }
+                                        info.Bounds = new System.Windows.Rect(System.Convert.ToInt32(info.OriginalBounds.Left) - rest,
+                                                               info.OriginalBounds.Top,
+                                                               info.OriginalBounds.Width,
+                                                               info.OriginalBounds.Height);
+                                    }
                                     else
                                     {
-                                        if (rest < 0)
-                                            rest *= -1;
-                                        //if (rest > 0)
-                                        //rest = System.Convert.ToInt32(designSurface.RasterSize) - rest;
+                                        info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left - 10,
+                                                               info.OriginalBounds.Top,
+                                                               info.OriginalBounds.Width,
+                                                               info.OriginalBounds.Height);
                                     }
-                                    info.Bounds = new System.Windows.Rect(System.Convert.ToInt32(info.OriginalBounds.Left) - rest,
-                                                           info.OriginalBounds.Top,
-                                                           info.OriginalBounds.Width,
-                                                           info.OriginalBounds.Height);
                                 }
                                 else
                                 {
-                                    info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left - 10,
-                                                           info.OriginalBounds.Top,
-                                                           info.OriginalBounds.Width,
-                                                           info.OriginalBounds.Height);
-                                }
-                            }
-                            else
-                            {
-                                info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left - 1,
-                                                       info.OriginalBounds.Top,
-                                                       info.OriginalBounds.Width,
-                                                       info.OriginalBounds.Height);
-                            }
-                        }
-                        else if (direction == Key.Right)
-                        {
-                            if (large)
-                            {
-                                if (designSurface.IsRasterOn)
-                                {
-                                    int rest = 0;
-                                    if (System.Convert.ToInt32(info.OriginalBounds.Left) != 0)
-                                        rest = System.Convert.ToInt32(info.OriginalBounds.Left) % System.Convert.ToInt32(designSurface.RasterSize);
-                                    if (rest == 0)
-                                        rest = System.Convert.ToInt32(designSurface.RasterSize);
-                                    else
-                                    {
-                                        if (rest < 0)
-                                            rest *= -1;
-                                        if (rest > 0)
-                                            rest = System.Convert.ToInt32(designSurface.RasterSize) - rest;
-                                    }
-                                    info.Bounds = new System.Windows.Rect(System.Convert.ToInt32(info.OriginalBounds.Left) + rest,
-                                                           info.OriginalBounds.Top,
-                                                           info.OriginalBounds.Width,
-                                                           info.OriginalBounds.Height);
-                                }
-                                else
-                                {
-                                    info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left + 10,
+                                    info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left - 1,
                                                            info.OriginalBounds.Top,
                                                            info.OriginalBounds.Width,
                                                            info.OriginalBounds.Height);
                                 }
                             }
-                            else
+                            else if (direction == Key.Right)
                             {
-                                info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left + 1,
-                                                       info.OriginalBounds.Top,
-                                                       info.OriginalBounds.Width,
-                                                       info.OriginalBounds.Height);
+                                if (large)
+                                {
+                                    if (designSurface.IsRasterOn)
+                                    {
+                                        int rest = 0;
+                                        if (System.Convert.ToInt32(info.OriginalBounds.Left) != 0)
+                                            rest = System.Convert.ToInt32(info.OriginalBounds.Left) % System.Convert.ToInt32(designSurface.RasterSize);
+                                        if (rest == 0)
+                                            rest = System.Convert.ToInt32(designSurface.RasterSize);
+                                        else
+                                        {
+                                            if (rest < 0)
+                                                rest *= -1;
+                                            if (rest > 0)
+                                                rest = System.Convert.ToInt32(designSurface.RasterSize) - rest;
+                                        }
+                                        info.Bounds = new System.Windows.Rect(System.Convert.ToInt32(info.OriginalBounds.Left) + rest,
+                                                               info.OriginalBounds.Top,
+                                                               info.OriginalBounds.Width,
+                                                               info.OriginalBounds.Height);
+                                    }
+                                    else
+                                    {
+                                        info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left + 10,
+                                                               info.OriginalBounds.Top,
+                                                               info.OriginalBounds.Width,
+                                                               info.OriginalBounds.Height);
+                                    }
+                                }
+                                else
+                                {
+                                    info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left + 1,
+                                                           info.OriginalBounds.Top,
+                                                           info.OriginalBounds.Width,
+                                                           info.OriginalBounds.Height);
+                                }
                             }
                         }
+                        //operation.CurrentContainerBehavior.BeforeSetPosition(operation);
+                        foreach (PlacementInformation info in operation.PlacedItems)
+                        {
+                            if (operation.CurrentContainerBehavior != null)
+                                operation.CurrentContainerBehavior.SetPosition(info);
+                            if (operation.CurrentDependentDrawingsBehavior != null)
+                                operation.CurrentDependentDrawingsBehavior.SetPosition(info);
+                        }
+                        operation.Commit();
                     }
-                    //operation.CurrentContainerBehavior.BeforeSetPosition(operation);
-                    foreach (PlacementInformation info in operation.PlacedItems)
-                    {
-                        if(operation.CurrentContainerBehavior != null)
-                            operation.CurrentContainerBehavior.SetPosition(info);
-                        if (operation.CurrentDependentDrawingsBehavior != null)
-                            operation.CurrentDependentDrawingsBehavior.SetPosition(info);
-                    }
-                    operation.Commit();
                 }
                 catch (Exception ec)
                 {

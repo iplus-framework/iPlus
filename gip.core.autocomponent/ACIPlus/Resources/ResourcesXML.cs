@@ -35,28 +35,22 @@ namespace gip.core.autocomponent
             try
             {
                 serializer.DeserializeXMLData(this, rootACObjectItem, path);
-#if EFCR
                 if (MsgObserver != null && serializer.MsgList.Any())
-                    System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
-                    {
-                        serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
-                    }));
-#endif
+                {
+                    serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
+                }    
             }
             catch (Exception ec)
             {
 
-#if EFCR
                 if (MsgObserver != null)
-                    System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
+                {
+                    MsgObserver.SendMessage(new Msg()
                     {
-                        MsgObserver.SendMessage(new Msg()
-                        {
-                            MessageLevel = eMsgLevel.Error,
-                            Message = string.Format(@"ResourcesXML({0}): Unable to deserialize XML! Exception: {1}", path, ec.Message)
-                        });
-                    }));
-#endif
+                        MessageLevel = eMsgLevel.Error,
+                        Message = string.Format(@"ResourcesXML({0}): Unable to deserialize XML! Exception: {1}", path, ec.Message)
+                    });
+                }
             }
             if (VBProgress != null)
                 VBProgress.ReportProgress(taskName, 1, "XML extract finished!");

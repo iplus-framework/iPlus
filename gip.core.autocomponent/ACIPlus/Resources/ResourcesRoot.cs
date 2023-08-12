@@ -51,28 +51,21 @@ namespace gip.core.autocomponent
                             XElement xDoc = XElement.Parse(File.ReadAllText(file));
                             serializer.DeserializeXML(this, db, rootACObjectItem, xDoc, null, "\\Resources\\" + file);
 
-#if EFCR
                             if (MsgObserver != null && serializer.MsgList.Any())
-                                System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
-                                {
-                                    serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
-                                }));
-#endif
+                            {
+                                serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
+                            }
+
                         }
                         catch (Exception ec)
                         {
                             if (MsgObserver != null)
                             {
-#if EFCR
-                               System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
-                               {
-                                   MsgObserver.SendMessage(new Msg()
-                                   {
-                                       MessageLevel = eMsgLevel.Error,
-                                       Message = string.Format(@"ResourcesRoot({0}): Unable to deserialize file: {1}! Exception: {2}", path, file, ec.Message)
-                                   });
-                               }));
-#endif
+                                MsgObserver.SendMessage(new Msg()
+                                {
+                                    MessageLevel = eMsgLevel.Error,
+                                    Message = string.Format(@"ResourcesRoot({0}): Unable to deserialize file: {1}! Exception: {2}", path, file, ec.Message)
+                                });
                             }
                         }
                     }

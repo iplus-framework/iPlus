@@ -298,6 +298,15 @@ namespace gip.core.autocomponent
                 else
                     acValue.Value = RootPW.CurrentACProgram.ACProgramID;
 
+                acValue = paramMethod.ParameterValueList.GetACValue(PWProcessFunction.C_InvocationCount);
+                if (acValue == null)
+                {
+                    acValue = new ACValue() { ACIdentifier = PWProcessFunction.C_InvocationCount, Value = this.IterationCount.ValueT, ValueTypeACClass = gip.core.datamodel.Database.GlobalDatabase.GetACType(typeof(int)), Option = Global.ParamOption.Optional };
+                    paramMethod.ParameterValueList.Add(acValue);
+                }
+                else
+                    acValue.Value = this.IterationCount.ValueT;
+
                 IACPointAsyncRMI rmiInvocationPoint = pFunction.GetPoint(Const.TaskInvocationPoint) as IACPointAsyncRMI;
                 if (rmiInvocationPoint != null)
                 {

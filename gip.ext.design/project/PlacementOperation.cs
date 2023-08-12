@@ -204,11 +204,17 @@ namespace gip.ext.design
             }
             catch (Exception ex)
             {
-#if DEBUG
                 Debug.WriteLine(ex.ToString());
-#endif
-                op.changeGroup.Abort();
-                throw ex;
+                try
+                {
+                    op?.changeGroup.Abort();
+                    // throw ex;
+                }
+                catch (Exception ex2)
+                {
+                    Debug.WriteLine(ex2.ToString());
+                }
+                return null;
             }
             return op;
         }

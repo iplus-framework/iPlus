@@ -1678,15 +1678,9 @@ namespace gip.core.autocomponent
                 }
 
 
-                //  SelectedPWNodeParamValue.DefaultConfiguration.ConfigStore.GetACUrl() != CurrentPWInfo.CurrentConfigStore.GetACUrl()
                 if (sameTypeRootMethods != null)
                 {
-                    //List<ACConfigParam> allHereOverridenParams = PWNodeParamValueList.Where(c => c.DefaultConfiguration != null && c.DefaultConfiguration.ConfigStore.GetACUrl() == CurrentPWInfo.CurrentConfigStore.GetACUrl()).ToList();
-                    List<IACConfig> allHereOverridenParams =
-                        CurrentPWInfo
-                        .CurrentConfigStore.ConfigurationEntries
-                        .Where(c => c.ACClassWFID == CurrentPWInfo.ContentACClassWF.ACClassWFID)
-                        .ToList();
+                    List<IACConfig> allHereOverridenParams = PrepareNodeParamsAndFixWFID();
                     foreach (ACClassWF rootNodeGroup in sameTypeRootMethods)
                     {
                         foreach (IACConfig configParam in allHereOverridenParams)
@@ -1700,7 +1694,7 @@ namespace gip.core.autocomponent
                             }
                             else
                             {
-                                if(configParam.LocalConfigACUrl.Contains("SMStarting"))
+                                if (configParam.LocalConfigACUrl.Contains("SMStarting"))
                                 {
                                     localConfigACUrl = configParam.LocalConfigACUrl.Replace(CurrentACClassWF.ConfigACUrl, rootNodeGroup.ConfigACUrl);
                                 }
@@ -1720,6 +1714,52 @@ namespace gip.core.autocomponent
                     }
                 }
             }
+        }
+
+        private List<IACConfig> PrepareNodeParamsAndFixWFID()
+        {
+            List<IACConfig> allHereOverridenParams =
+                        CurrentPWInfo.CurrentConfigStore.ConfigurationEntries
+                        .Where(c =>
+                                    c.ACClassWFID == CurrentPWInfo.ContentACClassWF.ACClassWFID
+                                    && (c.PreConfigACUrl ?? "") == (CurrentPWInfo.PreValueACUrl ?? "")
+                        )
+                        .ToList();
+
+
+            List<string> listOfProperies = CurrentPWNodeMethod.ACMethod.ParameterValueList.Select(x => CurrentPWNodeURL + @"\" + x.ACIdentifier).ToList();
+            
+            // provide all local configured list - ACClassWFID no matter
+            List<IACConfig> allConfigsOnCurrentNode = VarioConfigManager.GetConfigurationList(new List<IACConfigStore>() { CurrentPWInfo.CurrentConfigStore }, CurrentPWInfo.PreValueACUrl, listOfProperies, null, false);
+
+            // filter only values local - PreConfigACUrl pass and LocalConfigACUrl to
+            // should have same ACClassWFID but don't have
+            List<IACConfig> onlyLocalDefinedConfigs =
+                allConfigsOnCurrentNode
+                .Where(c =>
+                    (c.PreConfigACUrl ?? "") == (CurrentPWInfo.PreValueACUrl ?? "")
+                    && c.LocalConfigACUrl.StartsWith(CurrentPWNodeURL)
+                )
+                .ToList();
+
+            foreach (IACConfig configItem in onlyLocalDefinedConfigs)
+            {
+                if (!allHereOverridenParams.Contains(configItem))
+                {
+                    // if ACClassWFID is not same set it and add to distribution
+                    Messages.LogWarning(GetACUrl(), nameof(PrepareNodeParamsAndFixWFID),
+                    $"PreConfigACUrl: {configItem.PreConfigACUrl} LocalConfigACUrl: {configItem.LocalConfigACUrl} | Switch ACClassWFID {configItem.ACClassWFID} -> {CurrentPWInfo.ContentACClassWF.ACClassWFID}"
+                    );
+                    PropertyInfo pi = configItem.GetType().GetProperties().Where(c => c.Name.EndsWith(nameof(configItem.ACClassWFID)) && c.CanWrite).FirstOrDefault();
+                    if (pi != null)
+                    {
+                        pi.SetValue(configItem, CurrentPWInfo.ContentACClassWF.ACClassWFID);
+                        allHereOverridenParams.Add(configItem);
+                    }
+                }
+            }
+
+            return allHereOverridenParams;
         }
 
         public bool IsEnabledCopyValuesToEqualSubWF()

@@ -331,7 +331,8 @@ namespace gip.core.autocomponent
         {
             if (!IsEnabledSubscribeToProjectWorkCycle10())
                 return;
-            ApplicationManager.ProjectWorkCycleR10sec += objectManager_ProjectWorkCycle10;
+            if (this.ApplicationManager != null)
+                ApplicationManager.ProjectWorkCycleR10sec += objectManager_ProjectWorkCycle10;
             _SubscribedToProjectWorkCycle10 = true;
             SchedulerActive.ValueT = true;
         }
@@ -348,7 +349,8 @@ namespace gip.core.autocomponent
         {
             if (!IsEnabledUnSubscribeToProjectWorkCycle10())
                 return;
-            ApplicationManager.ProjectWorkCycleR10sec -= objectManager_ProjectWorkCycle10;
+            if (this.ApplicationManager != null)
+                ApplicationManager.ProjectWorkCycleR10sec -= objectManager_ProjectWorkCycle10;
             _SubscribedToProjectWorkCycle10 = false;
             SchedulerActive.ValueT = false;
         }

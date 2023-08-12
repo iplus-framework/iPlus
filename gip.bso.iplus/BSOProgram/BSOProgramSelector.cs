@@ -197,7 +197,10 @@ namespace gip.bso.iplus
             if (archiveService == null)
                 return;
 
-            _ACProgramListCopy = ACProgramList.ToList();
+            if(ACProgramList != null)
+            {
+                _ACProgramListCopy = ACProgramList.ToList();
+            }
             string prodOrderProgramNo = ProgramProvider.GetProdOrderProgramNo();
             if (string.IsNullOrEmpty(prodOrderProgramNo))
                 return;

@@ -195,6 +195,7 @@ namespace gip.core.manager
                             || c.ACKindIndex == (short)Global.ACKinds.TPAProcessModule
                             || c.ACKindIndex == (short)Global.ACKinds.TPAProcessFunction
                             || c.ACKindIndex == (short)Global.ACKinds.TPABGModule
+                            || c.ACKindIndex == (short)Global.ACKinds.TPAProcessModuleGroup
                             || c.ACKindIndex == (short)Global.ACKinds.TACDAClass).Any())
             {
                 objectLayoutGroup.Add(new ACObjectItem(""));
@@ -209,6 +210,7 @@ namespace gip.core.manager
                     || c.ACKindIndex == (short) Global.ACKinds.TPAProcessModule
                     || c.ACKindIndex == (short)Global.ACKinds.TPAProcessFunction
                     || c.ACKindIndex == (short)Global.ACKinds.TPABGModule
+                    || c.ACKindIndex == (short)Global.ACKinds.TPAProcessModuleGroup
                     || c.ACKindIndex == (short) Global.ACKinds.TACDAClass).
                 OrderBy(c => c.ACIdentifier);
             

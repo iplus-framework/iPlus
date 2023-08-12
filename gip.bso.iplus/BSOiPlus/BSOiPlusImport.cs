@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
 
@@ -387,7 +388,7 @@ namespace gip.bso.iplus
 
         public bool IsEnabledInspectImport()
         {
-            return 
+            return
                 !BackgroundWorker.IsBusy
                 && !string.IsNullOrEmpty(ImportSourcePath);
         }
@@ -616,10 +617,9 @@ namespace gip.bso.iplus
                 catch (Exception ec)
                 {
                     if (ec.Source != Cmd_OnReportAddFsItem_CustomBreak)
-                        System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
-                        {
-                            SendMessage(new Msg() { MessageLevel = eMsgLevel.Error, Message = string.Format(@"Error by DoInspectImport - analysing import soruce. Error: {0}", ec.Message) });
-                        }));
+                    {
+                        SendMessage(new Msg() { MessageLevel = eMsgLevel.Error, Message = string.Format(@"Error by DoInspectImport - analysing import soruce. Error: {0}", ec.Message) });
+                    }
                 }
 
             }
@@ -630,8 +630,8 @@ namespace gip.bso.iplus
         private int CalculateGipFileNr(string path)
         {
             int nrFiles = 0;
-            
-            if(Directory.Exists(path))
+
+            if (Directory.Exists(path))
             {
                 DirectoryInfo di = new DirectoryInfo(path);
                 nrFiles = di.GetFiles("*.gip", SearchOption.AllDirectories).Count();
@@ -843,8 +843,11 @@ namespace gip.bso.iplus
 
         public void SendMessage(Msg msg)
         {
-            MsgList.Add(msg);
-            OnPropertyChanged("MsgList");
+            System.Windows.Application.Current.Dispatcher.Invoke((Action)delegate
+            {
+                MsgList.Add(msg);
+            });
+            OnPropertyChanged(nameof(MsgList));
         }
 
         #endregion

@@ -279,6 +279,9 @@ namespace gip.core.autocomponent
                     if (processModule != null)
                         processModule.RefreshPWNodeInfo();
                 }
+
+                if (CanRaiseRunningEvent)
+                    RaiseRunningEvent();
                 CurrentACState = ACStateEnum.SMRunning;
             }
             else

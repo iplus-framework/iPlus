@@ -83,27 +83,33 @@ namespace gip.ext.designer
 		{
 			DesignItem parent = items.First().Parent;
 			PlacementOperation operation = PlacementOperation.Start(items, PlacementType.Delete);
-			try {
-				ISelectionService selectionService = items.First().Services.Selection;
-				selectionService.SetSelectedComponents(items, SelectionTypes.Remove);
-				// if the selection is empty after deleting some components, select the parent of the deleted component
-				if (selectionService.SelectionCount == 0 && !items.Contains(parent)) {
-					selectionService.SetSelectedComponents(new DesignItem[] { parent });
+			if (operation != null)
+			{
+				try
+				{
+					ISelectionService selectionService = items.First().Services.Selection;
+					selectionService.SetSelectedComponents(items, SelectionTypes.Remove);
+					// if the selection is empty after deleting some components, select the parent of the deleted component
+					if (selectionService.SelectionCount == 0 && !items.Contains(parent))
+					{
+						selectionService.SetSelectedComponents(new DesignItem[] { parent });
+					}
+					operation.DeleteItemsAndCommit();
 				}
-				operation.DeleteItemsAndCommit();
-			} catch (Exception ec)
-            {
-				operation.Abort();
+				catch (Exception ec)
+				{
+					operation.Abort();
 
-                string msg = ec.Message;
-                if (ec.InnerException != null && ec.InnerException.Message != null)
-                    msg += " Inner:" + ec.InnerException.Message;
+					string msg = ec.Message;
+					if (ec.InnerException != null && ec.InnerException.Message != null)
+						msg += " Inner:" + ec.InnerException.Message;
 
-                if (gip.core.datamodel.Database.Root != null && gip.core.datamodel.Database.Root.Messages != null &&
-                                                                      gip.core.datamodel.Database.Root.InitState == gip.core.datamodel.ACInitState.Initialized)
-                    gip.core.datamodel.Database.Root.Messages.LogException("ModelTools", "DeleteComponents", msg);
+					if (gip.core.datamodel.Database.Root != null && gip.core.datamodel.Database.Root.Messages != null &&
+																		  gip.core.datamodel.Database.Root.InitState == gip.core.datamodel.ACInitState.Initialized)
+						gip.core.datamodel.Database.Root.Messages.LogException("ModelTools", "DeleteComponents", msg);
 
-                throw;
+					throw;
+				}
 			}
 		}
 		

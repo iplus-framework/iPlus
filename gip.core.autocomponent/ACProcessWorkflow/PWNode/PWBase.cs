@@ -833,6 +833,18 @@ namespace gip.core.autocomponent
                     else
                         result = AfterConfigForACMethodIsSet(acParameter[0] as ACMethod, (bool)acParameter[1]);
                     return true;
+                case nameof(OnACMethodSended):
+                    if (acParameter.Count() > 2)
+                    {
+                        object[] dynParam = new object[acParameter.Count() - 2];
+                        for (int i = 2; i < acParameter.Count(); i++)
+                            dynParam[i - 2] = acParameter[i];
+
+                        OnACMethodSended(acParameter[0] as ACMethod, (bool)acParameter[1], dynParam);
+                    }
+                    else
+                        OnACMethodSended(acParameter[0] as ACMethod, (bool)acParameter[1]);
+                    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
@@ -978,6 +990,11 @@ namespace gip.core.autocomponent
             return true;
         }
 
+
+        [ACMethodInfo("", "en{'OnACMethodSended'}de{'OnACMethodSended'}", 9999)]
+        public virtual void OnACMethodSended(ACMethod paramMethod, bool newTaskStarted, params Object[] acParameter)
+        {
+        }
 
         [ACMethodInfo("", "en{'GetACConfigStoreInfo'}de{'GetACConfigStoreInfo'}", 9999)]
         public List<ACConfigStoreInfo> GetACConfigStoreInfo()

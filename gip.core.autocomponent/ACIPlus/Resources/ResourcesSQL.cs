@@ -45,16 +45,11 @@ namespace gip.core.autocomponent
             {
                 if (MsgObserver != null)
                 {
-#if EFCR
-                    System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
+                    MsgObserver.SendMessage(new Msg()
                     {
-                        MsgObserver.SendMessage(new Msg()
-                        {
-                            MessageLevel = eMsgLevel.Error,
-                            Message = string.Format(@"ResourcesSQL({0}): Unable to decode path! Exception:{1}", path, ec.Message)
-                        });
-                    }));
-#endif
+                        MessageLevel = eMsgLevel.Error,
+                        Message = string.Format(@"ResourcesSQL({0}): Unable to decode path! Exception:{1}", path, ec.Message)
+                    });
                 }
                 return rootACObjectItem;
             }
@@ -66,28 +61,18 @@ namespace gip.core.autocomponent
             try
             {
                 result = serializer.GetDeserializeSQLDataModel(sqlInstanceInfo, acQueryDefinitionIdentifier);
-#if EFCR
                 if (MsgObserver != null && serializer.MsgList.Any())
-                    System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
-                    {
-                        serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
-                    }));
-#endif
+                {
+                    serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
+                }
             }
             catch (Exception ec)
             {
                 if (MsgObserver != null)
                 {
-#if EFCR
-                    System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
-                    {
-                        MsgObserver.SendMessage(new Msg()
-                        {
-                            MessageLevel = eMsgLevel.Error,
-                            Message = string.Format(@"ResourcesSQL({0}): Unable to fetch external list! External connection string:{1}. Exception:{2}", path, result.OuterDatabase.Connection.ConnectionString, ec.Message)
-                        });
-                    }));
-#endif
+                if (MsgObserver != null)
+                {
+                    MsgObserver.SendMessage(new Msg() { MessageLevel = eMsgLevel.Error, Message = string.Format(@"ResourcesSQL({0}): Unable to fetch external list! External connection string:{1}. Exception:{2}", path, result.OuterDatabase.Connection.ConnectionString, ec.Message) });
                 }
                 return rootACObjectItem;
             }

@@ -1355,8 +1355,15 @@ namespace gip.core.autocomponent
 
         protected virtual void OnProcessModuleOccupied(PAProcessModule processModule)
         {
-            _ProcessModuleChanged?.Invoke(this, new ProcessModuleChangedArgs(processModule, false));
-            processModule?.OnProcessModuleOccupied(this);
+            try
+            {
+                _ProcessModuleChanged?.Invoke(this, new ProcessModuleChangedArgs(processModule, false));
+                processModule?.OnProcessModuleOccupied(this);
+            }
+            catch (Exception ex)
+            {
+                Messages.LogException(this.GetACUrl(), nameof(OnProcessModuleOccupied), ex, true);
+            }
         }
 
         private event ProcessModuleChangedEventHandler _ProcessModuleChanged;

@@ -776,6 +776,7 @@ namespace gip.core.communication
                         {
                             _DelegateConnAlarmOccurred = true;
                         }
+                        DeactivateAutoBackup();
                     }
                     else
                     {

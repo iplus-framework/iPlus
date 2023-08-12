@@ -11,7 +11,8 @@ namespace gip.core.processapplication
     new object[] 
         { 
             new object[] {ACProgram.ClassName, Global.ParamOption.Required, typeof(Guid)},
-            new object[] {ACProgramLog.ClassName, Global.ParamOption.Optional, typeof(Guid)}
+            new object[] {ACProgramLog.ClassName, Global.ParamOption.Optional, typeof(Guid)},
+            new object[] {PWProcessFunction.C_InvocationCount, Global.ParamOption.Optional, typeof(int)}
         }
     )]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Program'}de{'Programm'}", Global.ACKinds.TPWMethod, Global.ACStorableTypes.Optional, true, true, "", "PWBSOMethod/ACProgram", 1000)]

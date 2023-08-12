@@ -46,7 +46,7 @@ namespace gip.core.communication
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
-            foreach (IACObject child in this.ACComponentChilds)
+            foreach (IACComponent child in this.ACComponentChilds)
             {
                 if (child is ACSubscription)
                 {
@@ -103,11 +103,24 @@ namespace gip.core.communication
                 if (_ConnectedAlarmChanged != PAAlarmChangeState.NoChange)
                 {
                     if (_ConnectedAlarmChanged == PAAlarmChangeState.NewAlarmOccurred)
+                    {
                         OnNewAlarmOccurred(IsConnectedAlarm);
+                        DeactivateAutoBackup();
+                    }
                     else
                         OnAlarmDisappeared(IsConnectedAlarm);
                     _ConnectedAlarmChanged = PAAlarmChangeState.NoChange;
                 }
+            }
+        }
+
+        protected void DeactivateAutoBackup()
+        {
+            foreach (IACComponent child in this.ACComponentChilds)
+            {
+                ACSubscription subscription = child as ACSubscription;
+                if (subscription != null)
+                    subscription.ConnLostBackupIsOff = true;
             }
         }
 
@@ -157,38 +170,50 @@ namespace gip.core.communication
             result = null;
             switch (acMethodName)
             {
-                case "InitSession":
+                case nameof(InitSession):
                     result = InitSession();
                     return true;
-                case "IsEnabledInitSession":
+                case nameof(IsEnabledInitSession):
                     result = IsEnabledInitSession();
                     return true;
-                case "DeInitSession":
+                case nameof(DeInitSession):
                     result = DeInitSession();
                     return true;
-                case "IsEnabledDeInitSession":
+                case nameof(IsEnabledDeInitSession):
                     result = IsEnabledDeInitSession();
                     return true;
-                case "Connect":
+                case nameof(Connect):
                     result = Connect();
                     return true;
-                case "IsEnabledConnect":
+                case nameof(IsEnabledConnect):
                     result = IsEnabledConnect();
                     return true;
-                case "DisConnect":
+                case nameof(DisConnect):
                     result = DisConnect();
                     return true;
-                case "IsEnabledDisConnect":
+                case nameof(IsEnabledDisConnect):
                     result = IsEnabledDisConnect();
                     return true;
-                case "SendObject":
+                case nameof(SendObject):
                     result = SendObject(acParameter[0], Convert.ToInt32(acParameter[1]), Convert.ToInt32(acParameter[2]), acParameter.Count() > 3 ? acParameter[3] : null);
                     return true;
-                case "ReadObject":
+                case nameof(ReadObject):
                     result = ReadObject(acParameter[0], Convert.ToInt32(acParameter[1]), Convert.ToInt32(acParameter[2]), acParameter.Count() > 3 ? acParameter[3] : null);
                     return true;
-                case "EventCallback":
+                case nameof(EventCallback):
                     EventCallback((gip.core.datamodel.IACPointNetBase)acParameter[0], (gip.core.datamodel.ACEventArgs)acParameter[1], (gip.core.datamodel.IACObject)acParameter[2]);
+                    return true;
+                case nameof(ActivateAutoBackup):
+                    ActivateAutoBackup();
+                    return true;
+                case nameof(IsEnabledActivateAutoBackup):
+                    result = IsEnabledActivateAutoBackup();
+                    return true;
+                case nameof(DeActivateAutoBackup):
+                    DeActivateAutoBackup();
+                    return true;
+                case nameof(IsEnabledDeActivateAutoBackup):
+                    result = IsEnabledDeActivateAutoBackup();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -376,6 +401,32 @@ namespace gip.core.communication
                     IsReadyForWriting = bAllSubscrReady;
                 }
             }
+        }
+        #endregion
+
+        #region Automatic Backup
+        [ACMethodInteraction("xxx", "en{'Reactivate automatic Backup'}de{'Reaktiviere automatische Sicherung'}", 50, true)]
+        public void ActivateAutoBackup()
+        {
+            FindChildComponents<ACSubscription>(c => c is ACSubscription && (c as ACSubscription).IsEnabledActivateAutoBackup())
+                                                .ForEach(c => c.ActivateAutoBackup());
+        }
+
+        public bool IsEnabledActivateAutoBackup()
+        {
+            return FindChildComponents<ACSubscription>(c => c is ACSubscription).Any(c => c.IsEnabledActivateAutoBackup());
+        }
+
+        [ACMethodInteraction("xxx", "en{'Deactivate automatic Backup'}de{'Deaktiviere automatische Sicherung'}", 51, true)]
+        public void DeActivateAutoBackup()
+        {
+            FindChildComponents<ACSubscription>(c => c is ACSubscription && (c as ACSubscription).IsEnabledDeActivateAutoBackup())
+                                                .ForEach(c => c.DeActivateAutoBackup());
+        }
+
+        public bool IsEnabledDeActivateAutoBackup()
+        {
+            return FindChildComponents<ACSubscription>(c => c is ACSubscription).Any(c => c.IsEnabledDeActivateAutoBackup());
         }
         #endregion
     }

@@ -428,6 +428,7 @@ namespace gip.core.communication
                 ModbusSession.AddToPollingPlan(this);
             else if (ModbusSession != null && IsWriteOnly && !IsReadyForWriting)
                 IsReadyForWriting = true;
+            RunAutomaticBackupIfInterval();
         }
 
         //private void OnStateChanged(ObjectSpaceElement obj, EnumObjectState state)

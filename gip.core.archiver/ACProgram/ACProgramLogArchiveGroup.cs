@@ -460,7 +460,7 @@ namespace gip.core.archiver
                 }
 
                 string[] archive = Directory.GetFiles(acProgramDirPath);
-                string programLogPath = archive.FirstOrDefault(c => c.Contains("ACProgramLog"));
+                string programLogPath = archive.FirstOrDefault(c => c.Contains(nameof(ACProgramLog)));
 
                 if (string.IsNullOrEmpty(programLogPath))
                 {

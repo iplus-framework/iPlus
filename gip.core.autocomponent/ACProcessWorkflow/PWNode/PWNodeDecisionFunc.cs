@@ -48,6 +48,8 @@ namespace gip.core.autocomponent
             Dictionary<string, string> paramTranslation = new Dictionary<string, string>();
             method.ParameterValueList.Add(new ACValue("ForceEventPoint", typeof(ushort), 0, Global.ParamOption.Required));
             paramTranslation.Add("ForceEventPoint", "en{'Raise Event [Off=0], [Below=1], [Sideward=2]'}de{'Erzwinge Ereignis [Aus=0], [Unten=1], [Seitlich/Else=2]'}");
+            method.ParameterValueList.Add(new ACValue("Repeats", typeof(UInt32), 0, Global.ParamOption.Optional));
+            paramTranslation.Add("Repeats", "en{'Repeats'}de{'Wiederholungen'}");
             var wrapper = new ACMethodWrapper(method, "en{'Configuration'}de{'Konfiguration'}", typeof(PWNodeDecisionFunc), paramTranslation, null);
             ACMethod.RegisterVirtualMethod(typeof(PWNodeDecisionFunc), ACStateConst.SMStarting, wrapper);
 
@@ -105,6 +107,23 @@ namespace gip.core.autocomponent
                 if (method != null)
                 {
                     var acValue = method.ParameterValueList.GetACValue("ForceEventPoint");
+                    if (acValue != null)
+                    {
+                        return acValue.ParamAsUInt16;
+                    }
+                }
+                return 0;
+            }
+        }
+
+        protected UInt32 Repeats
+        {
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("Repeats");
                     if (acValue != null)
                     {
                         return acValue.ParamAsUInt16;
@@ -172,16 +191,21 @@ namespace gip.core.autocomponent
                     processModule.RefreshPWNodeInfo();
             }
 
-            if (ForceEventPoint == 1)
+            UInt32 repeats = Repeats;
+            if (ForceEventPoint == 2)
             {
-                RaiseOutEventAndComplete();
+                if (repeats > 0 && IterationCount.ValueT % repeats != 0)
+                    RaiseOutEventAndComplete();
+                else
+                    RaiseElseEventAndComplete();
             }
-            else if (ForceEventPoint == 2)
+            else //if (ForceEventPoint <= 1)
             {
-                RaiseElseEventAndComplete();
+                if (repeats > 0 && IterationCount.ValueT % repeats != 0)
+                    RaiseElseEventAndComplete();
+                else
+                    RaiseOutEventAndComplete();
             }
-            else
-                base.SMStarting();
         }
 
         protected override TimeSpan GetPlannedDuration()

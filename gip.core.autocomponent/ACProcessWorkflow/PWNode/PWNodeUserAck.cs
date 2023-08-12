@@ -32,6 +32,10 @@ namespace gip.core.autocomponent
             paramTranslation.Add("MessageText", "en{'Question text'}de{'Abfragetext'}");
             method.ParameterValueList.Add(new ACValue("PasswordDlg", typeof(bool), false, Global.ParamOption.Required));
             paramTranslation.Add("PasswordDlg", "en{'With password dialogue'}de{'Mit Passwort-Dialog'}");
+            method.ParameterValueList.Add(new ACValue("SkipMode", typeof(ushort), 0, Global.ParamOption.Optional));
+            paramTranslation.Add("SkipMode", "en{'Skipmode: 1=Always, 2=From the second run'}de{'Überspringen: 1=Ständig, 2=Ab zweitem Durchlauf'}");
+            method.ParameterValueList.Add(new ACValue("ACUrlCmd", typeof(string), "", Global.ParamOption.Required));
+            paramTranslation.Add("ACUrlCmd", "en{'Invoke ACUrl-Command'}de{'ACUrl-Kommando ausführen'}");
             var wrapper = new ACMethodWrapper(method, "en{'User Acknowledge'}de{'Benutzerbestätigung'}", typeof(PWNodeUserAck), paramTranslation, null);
             ACMethod.RegisterVirtualMethod(typeof(PWNodeUserAck), ACStateConst.SMStarting, wrapper);
         }
@@ -83,6 +87,40 @@ namespace gip.core.autocomponent
                     }
                 }
                 return false;
+            }
+        }
+
+        protected ushort SkipMode
+        {
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("SkipMode");
+                    if (acValue != null)
+                    {
+                        return acValue.ParamAsUInt16;
+                    }
+                }
+                return 0;
+            }
+        }
+
+        protected string ACUrlCmd
+        {
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("ACUrlCmd");
+                    if (acValue != null)
+                    {
+                        return acValue.ParamAsString;
+                    }
+                }
+                return "";
             }
         }
 
@@ -151,9 +189,20 @@ namespace gip.core.autocomponent
             if (CreateNewProgramLog(NewACMethodWithConfiguration()) <= CreateNewProgramLogResult.ErrorNoProgramFound)
                 return;
 
+            if (   SkipMode == 1
+                || (SkipMode == 2 && RootPW != null && RootPW.InvocationCounter.HasValue && RootPW.InvocationCounter.Value > 1))
+            {
+                OnAckStart(true);
+                return;
+            }
+
             RefreshNodeInfoOnModule();
             if (!CPasswordDlg)
+            {
+                if (CanRaiseRunningEvent)
+                    RaiseRunningEvent();
                 CurrentACState = ACStateEnum.SMRunning;
+            }
             AlarmsAsText.ValueT = CMessageText;
         }
 
@@ -245,12 +294,51 @@ namespace gip.core.autocomponent
         {
             if (!IsEnabledAckStart())
                 return;
+            OnAckStart(false);
+        }
+
+        protected virtual void OnAckStart(bool skipped)
+        {
             AcknowledgeAllAlarms();
             var appManager = this.ApplicationManager;
             if (appManager != null && Thread.CurrentThread != appManager.ApplicationQueue.ThreadOfQueue)
-                this.ApplicationManager.ApplicationQueue.Add(() => CurrentACState = ACStateEnum.SMCompleted);
+            {
+                this.ApplicationManager.ApplicationQueue.Add(() =>
+                    {
+                        if (!skipped)
+                            RunUserACUrlCmd();
+                        CurrentACState = ACStateEnum.SMCompleted;
+                    });
+            }
             else
+            {
+                if (!skipped)
+                    RunUserACUrlCmd();
                 CurrentACState = ACStateEnum.SMCompleted;
+            }
+        }
+
+        protected virtual void RunUserACUrlCmd()
+        {
+            if (String.IsNullOrEmpty(ACUrlCmd))
+                return;
+
+            string[] acUrlCmds = ACUrlCmd.Split(';');
+            foreach (string acUrlCmd in acUrlCmds)
+            {
+                ACComponent component = this;
+                string cmd = acUrlCmd;
+                if (acUrlCmd.StartsWith(nameof(PWGroup.AccessedProcessModule)))
+                {
+                    PWGroup parentGroup = ParentACComponent as PWGroup;
+                    if (parentGroup == null)
+                        return;
+                    component = parentGroup.AccessedProcessModule;
+                    cmd = acUrlCmd.Substring(nameof(PWGroup.AccessedProcessModule).Length);
+                }
+                if (component != null)
+                    component.ACUrlCommand(cmd);
+            }
         }
 
         public virtual bool IsEnabledAckStart()

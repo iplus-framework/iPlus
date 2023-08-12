@@ -69,6 +69,9 @@
     <None Include="DbScripts\iPlus\dbsync_2023-05-09_12-46_ihrastinski.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="DbScripts\iPlus\dbsync_2023-07-06_23-19_aagincic.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="DbScripts\iPlus\dbsync_2023-05-15_00-01_iplusV5.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

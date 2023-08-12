@@ -26,6 +26,8 @@ namespace gip.core.autocomponent
             paramTranslation.Add("PasswordDlg", "en{'With password dialogue'}de{'Mit Passwort-Dialog'}");
             method.ParameterValueList.Add(new ACValue("ForceEventPoint", typeof(ushort), 0, Global.ParamOption.Required));
             paramTranslation.Add("ForceEventPoint", "en{'Raise Event [Off=0], [Below=1], [Sideward=2]'}de{'Erzwinge Ereignis [Aus=0], [Unten=1], [Seitlich/Else=2]'}");
+            method.ParameterValueList.Add(new ACValue("Repeats", typeof(UInt32), 0, Global.ParamOption.Optional));
+            paramTranslation.Add("Repeats", "en{'Repeats'}de{'Wiederholungen'}");
             var wrapper = new ACMethodWrapper(method, "en{'Configuration'}de{'Konfiguration'}", typeof(PWNodeDecisionMsg), paramTranslation, null);
             ACMethod.RegisterVirtualMethod(typeof(PWNodeDecisionMsg), ACStateConst.SMStarting, wrapper);
 
@@ -139,18 +141,35 @@ namespace gip.core.autocomponent
 
         public override void ResetAndComplete()
         {
+            UInt32 repeats = Repeats;
             if (ForceEventPoint == 1)
             {
-                RaiseOutEventAndComplete();
+                if (repeats > 0 && IterationCount.ValueT % repeats != 0)
+                    RaiseElseEventAndComplete();
+                else
+                    RaiseOutEventAndComplete();
             }
             else if (ForceEventPoint == 2)
             {
-                RaiseElseEventAndComplete();
+                if (repeats > 0 && IterationCount.ValueT % repeats != 0)
+                    RaiseOutEventAndComplete();
+                else
+                    RaiseElseEventAndComplete();
             }
             else if (OutIsRepeat)
-                RaiseElseEventAndComplete();
+            {
+                if (repeats > 0 && IterationCount.ValueT % repeats != 0)
+                    RaiseOutEventAndComplete();
+                else
+                    RaiseElseEventAndComplete();
+            }
             else
-                RaiseOutEventAndComplete();
+            {
+                if (repeats > 0 && IterationCount.ValueT % repeats != 0)
+                    RaiseElseEventAndComplete();
+                else
+                    RaiseOutEventAndComplete();
+            }
         }
 
 
@@ -215,7 +234,7 @@ namespace gip.core.autocomponent
 
         #region Interaction-Methods
         [ACMethodInteraction("", "en{'Repeat'}de{'Wiederholen'}", 300, true)]
-        public void Repeat()
+        public virtual void Repeat()
         {
             if (!IsEnabledRepeat())
                 return;
@@ -225,7 +244,7 @@ namespace gip.core.autocomponent
                 RaiseElseEventAndComplete();
         }
 
-        public bool IsEnabledRepeat()
+        public virtual bool IsEnabledRepeat()
         {
             return CurrentACState == ACStateEnum.SMRunning;
         }
@@ -257,7 +276,7 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInteraction("", "en{'Complete'}de{'Beenden'}", 301, true)]
-        public void Complete()
+        public virtual void Complete()
         {
             if (!IsEnabledComplete())
                 return;
@@ -267,7 +286,7 @@ namespace gip.core.autocomponent
                 RaiseOutEventAndComplete();
         }
 
-        public bool IsEnabledComplete()
+        public virtual bool IsEnabledComplete()
         {
             return CurrentACState == ACStateEnum.SMRunning;
         }

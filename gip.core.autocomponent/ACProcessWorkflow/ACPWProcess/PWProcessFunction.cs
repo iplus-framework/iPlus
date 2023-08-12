@@ -20,12 +20,14 @@ namespace gip.core.autocomponent
         new object[]
         {
             new object[] {ACProgram.ClassName, Global.ParamOption.Required, typeof(Guid)},
-            new object[] {ACProgramLog.ClassName, Global.ParamOption.Optional, typeof(Guid)}
+            new object[] {ACProgramLog.ClassName, Global.ParamOption.Optional, typeof(Guid)},
+            new object[] {PWProcessFunction.C_InvocationCount, Global.ParamOption.Optional, typeof(int)}
         }
     )]
     public abstract class PWProcessFunction : PWBase, IACComponentPWGroup, IACComponentProcessFunction
     {
         public const string PWClassName = "PWProcessFunction";
+        public const string C_InvocationCount = "InvocationCount";
 
         #region c´tors
 
@@ -755,6 +757,24 @@ namespace gip.core.autocomponent
                 if (CurrentTask != null)
                 {
                     return CurrentTask.ValueT as IACConfigURL;
+                }
+                return null;
+            }
+        }
+
+        public virtual int? InvocationCounter
+        {
+            get
+            {
+                if (CurrentTask != null || CurrentACMethod.ValueT != null)
+                {
+                    ACValue acValue = null;
+                    if (CurrentTask != null)
+                        acValue = CurrentTask.ACMethod.ParameterValueList.GetACValue(PWProcessFunction.C_InvocationCount);
+                    else if (CurrentACMethod.ValueT != null)
+                        acValue = CurrentACMethod.ValueT.ParameterValueList.GetACValue(PWProcessFunction.C_InvocationCount);
+                    if (acValue != null)
+                        return acValue.ParamAsInt32;
                 }
                 return null;
             }

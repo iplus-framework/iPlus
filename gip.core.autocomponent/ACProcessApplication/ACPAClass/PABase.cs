@@ -522,7 +522,8 @@ namespace gip.core.autocomponent
             {
                 if (!IsEnabledSubscribeToProjectWorkCycle())
                     return;
-                ApplicationManager.ProjectWorkCycleR1sec += objectManager_ProjectWorkCycle;
+                if (ApplicationManager != null)
+                    ApplicationManager.ProjectWorkCycleR1sec += objectManager_ProjectWorkCycle;
                 _SubscribedToWorkCycle = true;
             }
         }

@@ -124,8 +124,10 @@ namespace gip.ext.designer.Services
 		bool ChangeContainerIfPossible(Point p)
 		{
 			DesignPanelHitTestResult result = HitTestUnselectedModel(p);
-			if (result.ModelHit == null) return false;
-			if (result.ModelHit == operation.CurrentContainer) return false;
+			if (result.ModelHit == null) 
+				return false;
+			if (operation == null || result.ModelHit == operation.CurrentContainer) 
+				return false;
 			
 			// check that we don't move an item into itself:
 			DesignItem tmp = result.ModelHit;

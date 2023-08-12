@@ -63,6 +63,7 @@
     <Folder Include="Programmability\udw" />
     <Folder Include="linq" />
     <Folder Include="build" />
+    <Folder Include="Build\udpACClassClone" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Programmability\udp\udpACClassClone.sql" />
@@ -70,11 +71,16 @@
     <None Include="linq\SplitSQL.linq" />
     <None Include="Query\udpTranslation-build.sql" />
     <None Include="Query\udpTranslation-Call.sql" />
+    <None Include="Build\udpACClassClone\about.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Programmability\udw\VBTranslationView.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Programmability\udp\udpTranslation.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Build\udpACClassClone\test.sql" />
+    <None Include="Build\udpACClassClone\udpACClassClone-build.sql" />
   </ItemGroup>
 </Project>

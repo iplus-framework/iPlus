@@ -5,6 +5,7 @@ using System.Text;
 using System.ComponentModel;
 using gip.core.datamodel;
 using gip.core.autocomponent;
+using System.Threading;
 
 namespace gip.core.communication
 {
@@ -29,11 +30,15 @@ namespace gip.core.communication
 
         public override bool ACPostInit()
         {
+            if (this.ApplicationManager != null)
+                this.ApplicationManager.ProjectWorkCycleR20sec += ApplicationManager_ProjectWorkCycle;
             return base.ACPostInit();
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
+            if (this.ApplicationManager != null)
+                this.ApplicationManager.ProjectWorkCycleR20sec -= ApplicationManager_ProjectWorkCycle;
             return base.ACDeInit(deleteACClassTask);
         }
         #endregion
@@ -78,6 +83,11 @@ namespace gip.core.communication
         #endregion
 
         #region Methods
+        private void ApplicationManager_ProjectWorkCycle(object sender, EventArgs e)
+        {
+            RunAutomaticBackupIfInterval();
+        }
+
         public static bool HandleExecuteACMethod_OPCClientACSubscr(out object result, IACComponent acComponent, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             return HandleExecuteACMethod_ACSubscription(out result, acComponent, acMethodName, acClassMethod, acParameter);

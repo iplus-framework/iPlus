@@ -147,7 +147,7 @@ namespace gip.core.autocomponent
         public IACContainerTNet<int> CommState { get; set; }
 
         private ACPropertyConfigValue<int> _ServicePort;
-        [ACPropertyConfig("en{'Service Url'}de{'Service Url'}")]
+        [ACPropertyConfig("en{'Service Port number'}de{'Portnummer des Services'}")]
         public int ServicePort
         {
             get => _ServicePort.ValueT;

@@ -1983,13 +1983,11 @@ namespace gip.bso.iplus
             if (!IsEnabledDeleteACClass())
                 return;
             if (!PreExecute("DeleteACClass")) 
-                return;
+				return;
 
             ACClassInfoWithItems projectItem = CurrentProjectItem;
             if (projectItem == null) 
                 return;
-
-            MsgWithDetails msgWithDetails = DeleteACClassInternal(CurrentACClass);
             if (msgWithDetails != null && msgWithDetails.MsgDetailsCount > 0)
             {
                 Messages.Msg(msgWithDetails);
@@ -2072,6 +2070,10 @@ namespace gip.bso.iplus
 
         }
 
+        public bool IsEnabledDeleteFilteredClasses()
+        {
+            return CurrentProjectItemRoot != null && CurrentProjectItemRoot.Items.Any() && !String.IsNullOrEmpty(SearchClassText);
+        }
         #endregion
 
         #region 1.1 ACClass -> Clone
@@ -3798,6 +3800,9 @@ namespace gip.bso.iplus
                     return true;
                 case nameof(DeleteFilteredClasses):
                     DeleteFilteredClasses();
+                    return true;
+                case nameof(IsEnabledDeleteFilteredClasses):
+                    result = IsEnabledDeleteFilteredClasses();
                     return true;
                 case nameof(ValidateInput):
                     result = ValidateInput((String)acParameter[0], (Object)acParameter[1], (System.Globalization.CultureInfo)acParameter[2]);
