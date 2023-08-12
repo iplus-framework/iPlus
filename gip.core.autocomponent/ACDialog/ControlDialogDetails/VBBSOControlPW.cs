@@ -5,6 +5,7 @@ using System.Linq;
 using gip.core.datamodel;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace gip.core.autocomponent
 {

@@ -547,7 +547,7 @@ namespace gip.bso.iplus
 
         public bool IsEnabledSearch()
         {
-            return SearchFrom != null && SearchTo != null;
+            return SearchFrom > DateTime.MinValue && SearchTo > DateTime.MinValue;
         }
 
         private void BuildAlarmStatistic()

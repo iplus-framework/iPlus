@@ -70,8 +70,6 @@ namespace gip.core.autocomponent
             {
                 if (MsgObserver != null)
                 {
-                if (MsgObserver != null)
-                {
                     MsgObserver.SendMessage(new Msg() { MessageLevel = eMsgLevel.Error, Message = string.Format(@"ResourcesSQL({0}): Unable to fetch external list! External connection string:{1}. Exception:{2}", path, result.OuterDatabase.Connection.ConnectionString, ec.Message) });
                 }
                 return rootACObjectItem;
@@ -84,7 +82,7 @@ namespace gip.core.autocomponent
                 ACFSItem listFsItem = new ACFSItem(this, container, null, path, ResourceTypeEnum.List, "\\List\\" + path);
                 rootACObjectItem.Add(listFsItem);
                 serializer.DeserializeSQL(this, result.InnerDatabase, listFsItem, result.DeserializedSQLData, result.ACQueryDefinition);
-               
+
                 if (VBProgress != null)
                     VBProgress.ReportProgress(taskName, result.DeserializedSQLData.Count, "Deserialization finished!");
             }
@@ -97,9 +95,9 @@ namespace gip.core.autocomponent
 
 
 
-#endregion
+        #endregion
 
-#region HelperMethods
+        #region HelperMethods
 
         public static string DBUrlEncode(SQLInstanceInfo instanceInfo, ACClass acQueryDefinition)
         {

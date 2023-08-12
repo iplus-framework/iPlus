@@ -1053,7 +1053,7 @@ namespace gip.core.autocomponent
                 if (acClassTaskValue == null)
                 {
                     IEnumerable<ACClassTaskValue> acClassTaskValues = null;
-                    if (contentTask.ACClassTaskValue_ACClassTask.IsLoaded)
+                    if (contentTask.ACClassTaskValue_ACClassTask_IsLoaded)
                         //|| contentTask.EntityState == System.Data.EntityState.Added)
                         acClassTaskValues = contentTask.ACClassTaskValue_ACClassTask.ToList();
                     else
@@ -1117,8 +1117,8 @@ namespace gip.core.autocomponent
                             contentTask.ACClassTaskValue_ACClassTask.Add(acClassTaskValue);
                         }
                         if (acClassTaskValue != null
-                            && acClassTaskValue.EntityState != System.Data.EntityState.Deleted
-                            && acClassTaskValue.EntityState != System.Data.EntityState.Detached)
+                            && acClassTaskValue.EntityState != EntityState.Deleted
+                            && acClassTaskValue.EntityState != EntityState.Detached)
                         {
                             if (backup)
                                 acClassTaskValue.XMLValue2 = valueXML;

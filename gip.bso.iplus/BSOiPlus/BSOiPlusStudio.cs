@@ -1988,6 +1988,7 @@ namespace gip.bso.iplus
             ACClassInfoWithItems projectItem = CurrentProjectItem;
             if (projectItem == null) 
                 return;
+            MsgWithDetails msgWithDetails = DeleteACClassInternal(CurrentACClass);
             if (msgWithDetails != null && msgWithDetails.MsgDetailsCount > 0)
             {
                 Messages.Msg(msgWithDetails);
