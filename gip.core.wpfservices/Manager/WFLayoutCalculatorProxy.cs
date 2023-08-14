@@ -208,7 +208,7 @@ namespace gip.core.wpfservices.Manager
                 return;
             VBVisualGroup vbVisualGroup = newParent.View as VBVisualGroup;
             WFItemList wfItemList = new WFItemList(newParent, newDesignItem, false);
-            Size size = WFLayoutCalcComp.SizeValue(wfItemList.Count());
+            Size size = SizeValue(wfItemList.Count());
 
             if (vbVisualGroup.RenderSize.Width < size.Width && vbVisualGroup.RenderSize.Height < size.Height)
             {
@@ -244,6 +244,21 @@ namespace gip.core.wpfservices.Manager
                 else
                     CalculateNodePos(outgoingEdges, current, wfItemList, size);
             }
+        }
+
+        public Size SizeValue(int numOfElements)
+        {
+            Size size = new Size(200, 200);
+            if (numOfElements > 3 && numOfElements <= 6)
+                size = new Size(400, 400);
+
+            else if (numOfElements > 6 && numOfElements <= 9)
+                size = new Size(500, 500);
+
+            else if (numOfElements > 9)
+                size = new Size(600, 600);
+
+            return size;
         }
 
         #endregion
