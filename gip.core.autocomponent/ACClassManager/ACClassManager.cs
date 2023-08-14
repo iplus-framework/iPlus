@@ -1599,9 +1599,12 @@ namespace gip.core.autocomponent
                 {
                     ClassMethod.IsParameterACMethod = IsParameter;
 
-                    foreach (ACClassMethod Child in ClassMethod.ACClassMethod_ParentACClassMethod)
+                    if (ClassMethod.ACClassMethod_ParentACClassMethod != null)
                     {
-                        Child.IsParameterACMethod = IsParameter;
+                        foreach (ACClassMethod Child in ClassMethod.ACClassMethod_ParentACClassMethod)
+                        {
+                            Child.IsParameterACMethod = IsParameter;
+                        }
                     }
                 }
             }
@@ -1612,7 +1615,10 @@ namespace gip.core.autocomponent
             ACClassMethod ChildClassMethod = null;
 
             // Try to get child class method from database
-            ChildClassMethod = ClassMethod.ACClassMethod_ParentACClassMethod.Where(c => c.ACIdentifier == VirtualMethod.Method.ACIdentifier).FirstOrDefault();
+            if (ClassMethod.ACClassMethod_ParentACClassMethod == null)
+                ChildClassMethod = null;
+            else
+                ChildClassMethod = ClassMethod.ACClassMethod_ParentACClassMethod.Where(c => c.ACIdentifier == VirtualMethod.Method.ACIdentifier).FirstOrDefault();
             //if (VirtualMethod.PWClass != null)
             //    ChildClassMethod = ClassMethod.ACClassMethod_ParentACClassMethod.Where(c => c.ACIdentifier == VirtualMethod.Method.ACIdentifier && c.PWACClass != null && c.PWACClass.ACIdentifier == VirtualMethod.PWClass.Name).FirstOrDefault();
 
