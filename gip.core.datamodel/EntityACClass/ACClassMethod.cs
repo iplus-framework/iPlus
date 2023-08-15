@@ -1972,11 +1972,7 @@ namespace gip.core.datamodel
                     //this.ACClassMethodConfig_ACClassMethod.AutoRefresh(this.ACClassMethodConfig_ACClassMethodReference, this.Database);
                     this.ACClassMethodConfig_ACClassMethod.AutoLoad(ACClassMethodConfig_ACClassMethodReference, this);
                 }
-                else if (this.ACClassMethodConfig_ACClassMethod != null)
-                    newSafeList = new SafeList<IACConfig>(this.ACClassMethodConfig_ACClassMethod); //.Where(c => c.KeyACUrl == ACConfigKeyACUrl); Without ACConfigKeyACUrl-Filter because ACClassMethodConfig is a seperate table 
-
-                else
-                    return null;
+                newSafeList = new SafeList<IACConfig>(this.ACClassMethodConfig_ACClassMethod.ToList()); //.Where(c => c.KeyACUrl == ACConfigKeyACUrl); Without ACConfigKeyACUrl-Filter because ACClassMethodConfig is a seperate table 
             }
             using (ACMonitor.Lock(_10020_LockValue))
             {

@@ -404,6 +404,7 @@ namespace gip.core.datamodel
         ACPropertyManager _ACPropertyManager = null;
 
         IACEntityObjectContext _context;
+        EntityKey _DetachedKey = null;
 
         [NotMapped]
         [XmlIgnore]
@@ -451,6 +452,7 @@ namespace gip.core.datamodel
 
         internal void OnDetached()
         {
+            _DetachedKey = EntityKey;
             _context = null;
         }
 
@@ -467,6 +469,7 @@ namespace gip.core.datamodel
 
         public virtual void OnObjectMaterialized(IACEntityObjectContext context)
         {
+            _DetachedKey = null;
             Context = context;
         }
 
@@ -476,12 +479,14 @@ namespace gip.core.datamodel
             get
             {
                 if (_context == null)
-                    return null;
+                    return _DetachedKey;
+                if (_DetachedKey != null)
+                    return _DetachedKey;
                 var entry = _context.Entry(this);
                 IKey key = entry.Metadata.FindPrimaryKey();
-                EntityKey ekey = new EntityKey(this.GetType().AssemblyQualifiedName, 
+                _DetachedKey = new EntityKey(this.GetType().AssemblyQualifiedName, 
                                                key.Properties.Select(c => new KeyValuePair<string, object>(c.Name, entry.Property(c.Name).CurrentValue)));
-                return ekey;
+                return _DetachedKey;
             }
         }
     }
