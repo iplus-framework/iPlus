@@ -40,13 +40,6 @@
         "Microsoft.EntityFrameworkCore.Infrastructure"
     };
 
-    string namespaceToTruncate = NamespaceHint;
-    int lastSeparatorIndex = namespaceToTruncate.LastIndexOf('.');
-    string namespaceTruncated = namespaceToTruncate.Substring(0, lastSeparatorIndex);
-
-    if (NamespaceHint != "gip.core.datamodel")
-        usings.Add("gip.core.datamodel");
-
     if (Options.UseDataAnnotations)
     {
         usings.Add("System.ComponentModel.DataAnnotations");
@@ -57,7 +50,8 @@
     if (!string.IsNullOrEmpty(NamespaceHint))
     {
 #>
-namespace <#= namespaceTruncated #>;
+namespace <#= "gip.core.datamodel" #>;
+
 <#
     }
 

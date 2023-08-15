@@ -589,6 +589,7 @@ namespace gip.core.datamodel
         /// Refreshes the VBEntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
         /// <param name="entityObject"></param>
+        /// <param name="refreshMode"></param>
         public void AutoRefresh(VBEntityObject entityObject)
         {
             _ObjectContextHelper.AutoRefresh(entityObject);
@@ -601,7 +602,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        /// <param name="entry"></param>
+        /// <param name="refreshMode"></param>
         public void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class
         {
             _ObjectContextHelper.AutoRefresh<T>(entityCollection, entry);
@@ -613,7 +614,6 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
-        /// <param name="entry"></param>
         public void AutoLoad<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class
         {
             _ObjectContextHelper.AutoLoad<T>(entityCollection, entry);
