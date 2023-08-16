@@ -567,15 +567,15 @@ namespace gip.core.datamodel
         }
 
 
-        private ulong _LastPointSequenceNo = ulong.MinValue;
-        internal ulong NextPointSeqNo
+        private long _LastPointSequenceNo = 0;
+        internal long NextPointSeqNo
         {
             get
             {
                 using (ACMonitor.Lock(_10020_LockValue))
                 {
-                    if (_LastPointSequenceNo == ulong.MaxValue)
-                        _LastPointSequenceNo = ulong.MinValue;
+                    if (_LastPointSequenceNo == long.MaxValue)
+                        _LastPointSequenceNo = 0;
                     else
                         _LastPointSequenceNo++;
                     return _LastPointSequenceNo;

@@ -162,7 +162,7 @@ namespace gip.core.autocomponent
                     {
                         w.Point = _this;
                     }
-                    var query = storageCopy.Where(c => c.SequenceNo == ulong.MinValue);
+                    var query = storageCopy.Where(c => c.SequenceNo == 0);
                     if (query.Any())
                     {
                         if (_this.ACType == null)

@@ -173,18 +173,6 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Gets the sequence no.
-        /// </summary>
-        /// <value>The sequence no.</value>
-        ulong IACPointEntry.SequenceNo
-        {
-            get
-            {
-                return Convert.ToUInt64(this.SequenceNo);
-            }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether [auto remove].
         /// </summary>
         /// <value><c>true</c> if [auto remove]; otherwise, <c>false</c>.</value>
