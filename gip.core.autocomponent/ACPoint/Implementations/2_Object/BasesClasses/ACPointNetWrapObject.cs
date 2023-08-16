@@ -31,7 +31,7 @@ namespace gip.core.autocomponent
             _Point = owner;
             _RequestID = Guid.Empty;
             _State = PointProcessingState.NewEntry;
-            _SequenceNo = ulong.MinValue;
+            _SequenceNo = 0;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace gip.core.autocomponent
         {
             _IsWeakReference = true;
             //_State = ProcessingState.NewEntry;
-            //_SequenceNo = ulong.MinValue;
+            //_SequenceNo = 0;
             //_RefACObject = new RefACObject();
         }
         #endregion
@@ -119,9 +119,9 @@ namespace gip.core.autocomponent
         }
 
         [DataMember]
-        private ulong _SequenceNo;
+        private long _SequenceNo;
         [IgnoreDataMember]
-        public ulong SequenceNo
+        public long SequenceNo
         {
             get
             {

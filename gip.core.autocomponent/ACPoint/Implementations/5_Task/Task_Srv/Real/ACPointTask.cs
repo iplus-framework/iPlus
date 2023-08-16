@@ -176,7 +176,7 @@ namespace gip.core.autocomponent
                                         taskValuePos.ACUrl = entry.ACUrl;
                                         taskValuePos.State = entry.State;
                                         taskValuePos.InProcess = entry.InProcess;
-                                        taskValuePos.SequenceNo = Convert.ToInt64(entry.SequenceNo);
+                                        taskValuePos.SequenceNo = entry.SequenceNo;
                                         taskValuePos.ClientPointName = entry.ClientPointName;
                                         taskValuePos.AsyncCallbackDelegateName = entry.AsyncCallbackDelegateName;
                                         taskValuePos.RequestID = entry.RequestID;
@@ -185,7 +185,10 @@ namespace gip.core.autocomponent
                                             taskValuePos.ExecutingInstanceURL = entry.ExecutingInstance.ACUrl;
                                         taskValuePos.CallbackIsPending = entry.CallbackIsPending;
                                         if (add)
+                                        {
+                                            ACClassTaskQueue.TaskQueue.Context.Add(taskValuePos);
                                             taskValue.ACClassTaskValuePos_ACClassTaskValue.Add(taskValuePos);
+                                        }
                                         taskValue.UpdateDate = DateTime.Now;
                                     }
                                 }
@@ -247,7 +250,7 @@ namespace gip.core.autocomponent
                 _ExecutingInstanceURL = taskValuePos.ExecutingInstanceURL;
                 _Entry.State = taskValuePos.State;
                 _Entry.InProcess = taskValuePos.InProcess;
-                _Entry.SequenceNo = Convert.ToUInt64(taskValuePos.SequenceNo);
+                _Entry.SequenceNo = taskValuePos.SequenceNo;
                 _Entry.ClientPointName = taskValuePos.ClientPointName;
                 _Entry.AsyncCallbackDelegateName = taskValuePos.AsyncCallbackDelegateName;
                 _Entry.CallbackIsPending = taskValuePos.CallbackIsPending;

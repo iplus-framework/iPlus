@@ -58,7 +58,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The sequence no.</value>
         [ACPropertyInfo(1, "", "en{'SequenceNo'}de{'Sequenz-Nr.'}")]
-        ulong SequenceNo { get; }
+        long SequenceNo { get; }
 
         /// <summary>
         /// Gets the state.

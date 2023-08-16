@@ -463,7 +463,16 @@ namespace gip.core.datamodel
         {
             get
             {
-                return _context != null ? _context.Entry(this).State : EntityState.Detached;
+                if (_context == null)
+                    return EntityState.Detached;
+                else
+                {
+                    var entry = _context.Entry(this);
+                    if (entry == null)
+                        return EntityState.Detached;
+                    else
+                        return entry.State;
+                }
             }
         }
 

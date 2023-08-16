@@ -382,6 +382,7 @@ namespace gip.core.autocomponent
                                 acClassTaskValue.VBUser = _UserFromPropertyContext;
                                 acClassTaskValue.PublishToChangeTrackerInQueue();
 #endif
+                                ACClassTaskQueue.TaskQueue.Context.Add(acClassTaskValue);
                                 contentTask.ACClassTaskValue_ACClassTask.Add(acClassTaskValue);
                             }
                         );

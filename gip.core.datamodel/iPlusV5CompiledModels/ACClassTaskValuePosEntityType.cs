@@ -119,6 +119,13 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassTaskValuePos).GetField("_RequestID", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             requestID.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var sequenceNo = runtimeEntityType.AddProperty(
+                "SequenceNo",
+                typeof(long),
+                propertyInfo: typeof(ACClassTaskValuePos).GetProperty("SequenceNo", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(ACClassTaskValuePos).GetField("_SequenceNo", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            sequenceNo.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
             var stateIndex = runtimeEntityType.AddProperty(
                 "StateIndex",
                 typeof(short),

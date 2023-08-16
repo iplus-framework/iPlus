@@ -1086,6 +1086,7 @@ namespace gip.core.autocomponent
 #if !DIAGNOSE
                         currentProgramLog.PublishToChangeTrackerInQueue();
 #endif
+                        ACClassTaskQueue.TaskQueue.Context.ACProgramLog.Add(currentProgramLog);
                         acProgram.ACProgramLog_ACProgram.Add(currentProgramLog);
                         if (parentProgramLog != null)
                             parentProgramLog.ACProgramLog_ParentACProgramLog.Add(currentProgramLog);

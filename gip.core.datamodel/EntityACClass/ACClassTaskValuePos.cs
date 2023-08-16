@@ -178,18 +178,18 @@ namespace gip.core.datamodel
             }
         }
 
-        /// <summary>
-        /// Gets the sequence no.
-        /// </summary>
-        /// <value>The sequence no.</value>
-        [NotMapped]
-        ulong IACPointEntry.SequenceNo
-        {
-            get
-            {
-                return Convert.ToUInt64(this.SequenceNo);
-            }
-        }
+        ///// <summary>
+        ///// Gets the sequence no.
+        ///// </summary>
+        ///// <value>The sequence no.</value>
+        //[NotMapped]
+        //ulong IACPointEntry.SequenceNo
+        //{
+        //    get
+        //    {
+        //        return Convert.ToUInt64(this.SequenceNo);
+        //    }
+        //}
 
         /// <summary>
         /// Gets a value indicating whether [auto remove].

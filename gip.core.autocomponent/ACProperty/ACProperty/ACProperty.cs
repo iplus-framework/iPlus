@@ -1114,6 +1114,7 @@ namespace gip.core.autocomponent
                         if (added)
                         {
                             acClassTaskValue.PublishToChangeTrackerInQueue();
+                            ACClassTaskQueue.TaskQueue.Context.Add(acClassTaskValue);
                             contentTask.ACClassTaskValue_ACClassTask.Add(acClassTaskValue);
                         }
                         if (acClassTaskValue != null
