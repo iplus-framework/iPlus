@@ -3,8 +3,9 @@ using gip.core.dbsyncer;
 using gip.core.dbsyncer.Command;
 using gip.core.dbsyncer.helper;
 using System;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using System.IO;
+using gip.core.datamodel;
 
 namespace DBSyncerUpdate.unit.test.Transfer.Operation.Steps
 {
@@ -66,7 +67,7 @@ namespace DBSyncerUpdate.unit.test.Transfer.Operation.Steps
             bool successPrepareData = true;
             try
             {
-                using (DbContext db = new DbContext(DbSyncerSettings.GetDefaultConnectionString(DbSyncerSettings.ConfigCurrentDir)))
+                using (Database db = new Database(DbSyncerSettings.GetDefaultConnectionString(DbSyncerSettings.ConfigCurrentDir)))
                 {
                     string prepraredSQL = null;
                     DbSyncerInfoCommand.UpdateSqlContent(db, TransferJob.SQLToExecute, ref prepraredSQL);

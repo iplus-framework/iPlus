@@ -4,10 +4,12 @@ using gip.core.dbsyncer.helper;
 using gip.core.dbsyncer.model;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Linq;
 using modelOld = DBSyncerUpdate.unit.test.DBSyncerOldModel;
+using gip.core.datamodel;
+using System.Runtime.CompilerServices;
 
 namespace DBSyncerUpdate.unit.test.Transfer.Operation.Steps
 {
@@ -84,7 +86,7 @@ namespace DBSyncerUpdate.unit.test.Transfer.Operation.Steps
                 operationFile.OldDbSyncerInfo = dbFileList.FirstOrDefault(c => c.DbSyncerInfoContextID == operationContext.DataContextID && c.Version == operationFile.Version && c.UpdateAuthor == operationFile.UpdateAuthor);
             if (File.Exists(fullFileName))
                 operationFile.ScriptFileInfo = new modelOld.ScriptFileInfo(null, new FileInfo(fullFileName), updateSettings.RootFolder);
-            operationFile.NewDbSyncerInfo = new DbSyncerInfo()
+            operationFile.NewDbSyncerInfo = new gip.core.dbsyncer.model.DbSyncerInfo()
             {
                 ScriptDate = operationFile.UsedScriptDate,
                 DbSyncerInfoContextID = operationContext.DataContextID,
@@ -96,9 +98,9 @@ namespace DBSyncerUpdate.unit.test.Transfer.Operation.Steps
         private static List<modelOld.DbSyncerInfo> GetAllDBDbSyncerInfo()
         {
             List<modelOld.DbSyncerInfo> list = new List<modelOld.DbSyncerInfo>();
-            using (DbContext db = new DbContext(DbSyncerSettings.GetDefaultConnectionString(DbSyncerSettings.ConfigCurrentDir)))
+            using (Database db = new Database(DbSyncerSettings.GetDefaultConnectionString(DbSyncerSettings.ConfigCurrentDir)))
             {
-                list = db.Database.SqlQuery<modelOld.DbSyncerInfo>(SQLScripts.AllDbSyncerInfo).ToList<modelOld.DbSyncerInfo>();
+                list = db.Database.SqlQuery<modelOld.DbSyncerInfo>(FormattableStringFactory.Create(SQLScripts.AllDbSyncerInfo)).ToList<modelOld.DbSyncerInfo>();
             }
             return list;
         }
