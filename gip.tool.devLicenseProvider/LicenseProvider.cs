@@ -78,7 +78,7 @@ namespace gip.tool.devLicenseProvider
             {
                 if (_AvailablePackages == null)
                 {
-                    using(var ctx = new iPlusV4_Entities())
+                    using(var ctx = new iPlusV5_Entities())
                     {
                         _AvailablePackages = ctx.ACPackage.Where(c => c.ACPackageName != Const.PackName_VarioDevelopment && c.ACPackageName != Const.PackName_VarioSystem &&
                                                                       c.ACPackageName != Const.PackName_System).Select(c => c.ACPackageName)

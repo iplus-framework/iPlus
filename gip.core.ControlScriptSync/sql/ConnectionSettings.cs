@@ -8,7 +8,7 @@ namespace gip.core.ControlScriptSync.sql
     {
         #region Settings
 
-        public static string DefaultConnectionStringName = "iPlusV4_Entities";
+        public static string DefaultConnectionStringName = "iPlusV5_Entities";
 
         #endregion
 
@@ -69,7 +69,7 @@ namespace gip.core.ControlScriptSync.sql
             {
                 if (!string.IsNullOrEmpty(_DefaultConnectionString))
                     return _DefaultConnectionString;
-                _DefaultConnectionString = "name=iPlusV4_Entities";
+                _DefaultConnectionString = "name=iPlusV5_Entities";
                 if (ConfigCurrentDir != null && ConfigCurrentDir.ConnectionStrings != null)
                 {
                     try

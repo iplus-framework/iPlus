@@ -18,7 +18,7 @@ namespace gip.core.dbsyncer.helper
         /// <summary>
         /// Define default SQL server connection name
         /// </summary>
-        public static string DefaultConnectionStringName = "iPlusV4_Entities";
+        public static string DefaultConnectionStringName = "iPlusV5_Entities";
 
         /// <summary>
         /// Define name of initial sql scripts - builds infrastructure for dbsyncer
@@ -37,7 +37,7 @@ namespace gip.core.dbsyncer.helper
         {
             if (connectionStringName == null)
                 connectionStringName = DbSyncerSettings.DefaultConnectionStringName;
-            string defaultConnectionString = "name=iPlusV4_Entities";
+            string defaultConnectionString = "name=iPlusV5_Entities";
             if (configuration != null && configuration.ConnectionStrings != null)
             {
                 try

@@ -232,12 +232,12 @@ namespace gip.core.datamodel
 
                         else
                         {
-                            if (EntityContainerName == "iPlusMESV4_Entities")
+                            if (EntityContainerName == "iPlusMESV5_Entities")
                             {
                                 _entityContainerName = "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
                             }
 
-                            else if (EntityContainerName == "iPlusV4_Entities")
+                            else if (EntityContainerName == "iPlusV5_Entities")
                             {
                                 _entityContainerName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
                             }
@@ -906,12 +906,12 @@ namespace gip.core.datamodel
                 }
                 else 
                 {
-                    if (EntityContainerName == "iPlusMESV4_Entities" || EntityContainerName.Contains("gip.mes.datamodel"))
+                    if (EntityContainerName == "iPlusMESV5_Entities" || EntityContainerName.Contains("gip.mes.datamodel"))
                     {
                         assemblyQfName = "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
                     }
 
-                    else if (EntityContainerName == "iPlusV4_Entities" || EntityContainerName.Contains("gip.core.datamodel"))
+                    else if (EntityContainerName == "iPlusV5_Entities" || EntityContainerName.Contains("gip.core.datamodel"))
                     {
                         assemblyQfName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
                     }

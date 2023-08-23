@@ -150,7 +150,7 @@ namespace gip.core.datamodel
                 {
                     try
                     {
-                        ConnectionStringSettings setting = CommandLineHelper.ConfigCurrentDir.ConnectionStrings.ConnectionStrings["iPlusV4_Entities"];
+                        ConnectionStringSettings setting = CommandLineHelper.ConfigCurrentDir.ConnectionStrings.ConnectionStrings["iPlusV5_Entities"];
                         return setting.ConnectionString;
                     }
                     catch (Exception e)
@@ -164,7 +164,7 @@ namespace gip.core.datamodel
                     }
                 }
 
-                return ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString;
+                return ConfigurationManager.ConnectionStrings["iPlusV5_Entities"].ConnectionString;
             }
         }
 
@@ -175,7 +175,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public static string ModifiedConnectionString(string appName)
         {
-            var connString = ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString.Replace("iPlus_db", appName);
+            var connString = ConfigurationManager.ConnectionStrings["iPlusV5_Entities"].ConnectionString.Replace("iPlus_db", appName);
             return connString;
         }
 

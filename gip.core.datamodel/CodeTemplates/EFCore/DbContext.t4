@@ -103,7 +103,7 @@ public partial class <#= Options.ContextName #> : DbContext
             .UseModel(<#=Options.ContextName#>Model.Instance)
             .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
             //Uncomment connection string when generating new CompiledModels
-            //.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV4_Entities"].ConnectionString);
+            //.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV5_Entities"].ConnectionString);
     }
 <#
     }

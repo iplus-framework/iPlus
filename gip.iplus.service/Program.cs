@@ -45,7 +45,7 @@ using Microsoft.Extensions.Logging;
 /// Wenn der Dienst gestartet wird, dann sind die Umgebungsvariablen nicht gesetzt in der die Anwendung läuft.
 /// Daher müssen alle Pfade in der Config-Datei absolut sein. 
 /// z.B. beim Connection-String muss der Pfad zu den Metadateien .msl, .csdl, ssdl, auch absolut sein:
-/// <add name="iPlusV4_Entities" connectionString="metadata=E:\Devel\VarioBatch2008\VarioiplusV3\bin\Debug\VarioBatch.csdl|E:\Devel\VarioBatch2008\VarioiplusV3\bin\Debug\VarioBatch.ssdl|E:\Devel\VarioBatch2008\VarioiplusV3\bin\Debug\VarioBatch.msl;provider=System.Data.SqlClient;provider connection string=&quot;Data Source=SRV-SQL;Initial Catalog=JoseraBDEV3;Persist Security Info=True;User ID=gip;Password=netspirit;MultipleActiveResultSets=True&quot;" providerName="System.Data.EntityClient" />
+/// <add name="iPlusV5_Entities" connectionString="metadata=E:\Devel\VarioBatch2008\VarioiplusV3\bin\Debug\VarioBatch.csdl|E:\Devel\VarioBatch2008\VarioiplusV3\bin\Debug\VarioBatch.ssdl|E:\Devel\VarioBatch2008\VarioiplusV3\bin\Debug\VarioBatch.msl;provider=System.Data.SqlClient;provider connection string=&quot;Data Source=SRV-SQL;Initial Catalog=JoseraBDEV3;Persist Security Info=True;User ID=gip;Password=netspirit;MultipleActiveResultSets=True&quot;" providerName="System.Data.EntityClient" />
 /// 
 /// </summary>
 
