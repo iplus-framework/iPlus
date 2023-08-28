@@ -525,28 +525,40 @@ namespace gip.core.autocomponent
 
         #region ParametersInfo
 
-        public static string GetParametersInfo(IEnumerable<IACConfigStore> configStores)
+        public static string GetParametersInfo(IEnumerable<IACConfigStore> configStores, string preConfigACUrl)
         {
             if (configStores == null || !configStores.Any())
                 return null;
 
             try
             {
-                var configEntries = configStores.SelectMany(c => c.ConfigurationEntries.Select(x => new Tuple<decimal, IACConfig>(c.OverridingOrder, x)))
-                            .GroupBy(x => x.Item2.LocalConfigACUrl).Where(x => x.Any(c => !string.IsNullOrEmpty(c.Item2.Expression))).OrderBy(x => x.Key).ToArray();
+                var configEntries = 
+                    configStores
+                    .SelectMany(c => c.ConfigurationEntries.Select(x => new Tuple<decimal, IACConfig>(c.OverridingOrder, x)))
+                    .GroupBy(x => x.Item2.LocalConfigACUrl)
+                    .Where(x => x.Any(c => !string.IsNullOrEmpty(c.Item2.Expression)))
+                    .OrderBy(x => x.Key).ToArray();
 
                 string result = "";
 
                 foreach (var configEntry in configEntries)
                 {
-                    var sortedItems = configEntry.OrderByDescending(c => c.Item1);
-                    IACConfig configExpression = sortedItems.FirstOrDefault(x => !string.IsNullOrEmpty(x.Item2.Expression))?.Item2;
-                    if (configExpression == null)
-                        continue;
-
-                    IACConfig configValue = sortedItems.FirstOrDefault()?.Item2;
-                    if (configValue != null && configValue.Value != null)
-                        result += configExpression.Expression + ": " + configValue.Value.ToString() + "; ";
+                    // Search if any expresion is configured
+                    string expression = configEntry.Where(c => c.Item2 != null && !string.IsNullOrEmpty(c.Item2.Expression)).Select(c => c.Item2.Expression).FirstOrDefault();
+                    if (!string.IsNullOrEmpty(expression))
+                    {
+                        // by configuration order descending - last in hierarchy is first in list
+                        var sortedItems = configEntry.OrderByDescending(c => c.Item1);
+                        // search local (PreConfigACUrl) defined value
+                        IACConfig configValue = sortedItems.Where(c => c.Item2 != null && (c.Item2.PreConfigACUrl ?? "") == (preConfigACUrl ?? "")).FirstOrDefault()?.Item2;
+                        if (configValue == null)
+                        {
+                            // if null then value defined on WF definition level
+                            configValue = sortedItems.Where(c => c.Item2 != null && string.IsNullOrEmpty(c.Item2.PreConfigACUrl)).FirstOrDefault()?.Item2;
+                        }
+                        if (configValue != null && configValue.Value != null)
+                            result += expression + ": " + configValue.Value.ToString() + "; ";
+                    }
                 }
 
                 return String.IsNullOrEmpty(result) ? null : result;
