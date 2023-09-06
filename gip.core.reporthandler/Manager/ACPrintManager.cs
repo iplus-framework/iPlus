@@ -208,7 +208,7 @@ namespace gip.core.reporthandler
                                 catch (Exception e)
                                 {
                                     msg = new Msg(e.Message, this, eMsgLevel.Exception, C_ClassName, "Print", 1050);
-                                    Messages.LogException(this.GetACUrl(), msg.ACIdentifier, e);
+                                    Messages.LogException(this.GetACUrl(), msg.ACIdentifier, e, true);
                                 }
                             }
                         });
@@ -248,7 +248,7 @@ namespace gip.core.reporthandler
                         catch (Exception e)
                         {
                             msg = new Msg(e.Message, this, eMsgLevel.Exception, C_ClassName, "Print", 1040);
-                            Messages.LogException(this.GetACUrl(), msg.ACIdentifier, e);
+                            Messages.LogException(this.GetACUrl(), msg.ACIdentifier, e, true);
                         }
                         finally
                         {
