@@ -134,8 +134,8 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     private ACClassMethod _ACClassMethod;
     public virtual ACClassMethod ACClassMethod
     { 
-        get => LazyLoader.Load(this, ref _ACClassMethod);
-        set => _ACClassMethod = value;
+        get { return LazyLoader.Load(this, ref _ACClassMethod); }
+        set { SetProperty<ACClassMethod>(ref _ACClassMethod, value); }
     }
 
     public bool ACClassMethod_IsLoaded
@@ -154,8 +154,8 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<ACClassMethodConfig> _ACClassMethodConfig_ACClassWF;
     public virtual ICollection<ACClassMethodConfig> ACClassMethodConfig_ACClassWF
     {
-        get => LazyLoader.Load(this, ref _ACClassMethodConfig_ACClassWF);
-        set => _ACClassMethodConfig_ACClassWF = value;
+        get { return LazyLoader.Load(this, ref _ACClassMethodConfig_ACClassWF); }
+        set { _ACClassMethodConfig_ACClassWF = value; }
     }
 
     public bool ACClassMethodConfig_ACClassWF_IsLoaded
@@ -174,8 +174,8 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<ACClassTask> _ACClassTask_ContentACClassWF;
     public virtual ICollection<ACClassTask> ACClassTask_ContentACClassWF
     {
-        get => LazyLoader.Load(this, ref _ACClassTask_ContentACClassWF);
-        set => _ACClassTask_ContentACClassWF = value;
+        get { return LazyLoader.Load(this, ref _ACClassTask_ContentACClassWF); }
+        set { _ACClassTask_ContentACClassWF = value; }
     }
 
     public bool ACClassTask_ContentACClassWF_IsLoaded
@@ -194,8 +194,8 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<ACClassWFEdge> _ACClassWFEdge_SourceACClassWF;
     public virtual ICollection<ACClassWFEdge> ACClassWFEdge_SourceACClassWF
     {
-        get => LazyLoader.Load(this, ref _ACClassWFEdge_SourceACClassWF);
-        set => _ACClassWFEdge_SourceACClassWF = value;
+        get { return LazyLoader.Load(this, ref _ACClassWFEdge_SourceACClassWF); }
+        set { _ACClassWFEdge_SourceACClassWF = value; }
     }
 
     public bool ACClassWFEdge_SourceACClassWF_IsLoaded
@@ -214,8 +214,8 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<ACClassWFEdge> _ACClassWFEdge_TargetACClassWF;
     public virtual ICollection<ACClassWFEdge> ACClassWFEdge_TargetACClassWF
     {
-        get => LazyLoader.Load(this, ref _ACClassWFEdge_TargetACClassWF);
-        set => _ACClassWFEdge_TargetACClassWF = value;
+        get { return LazyLoader.Load(this, ref _ACClassWFEdge_TargetACClassWF); }
+        set { _ACClassWFEdge_TargetACClassWF = value; }
     }
 
     public bool ACClassWFEdge_TargetACClassWF_IsLoaded
@@ -234,8 +234,8 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<ACClassWF> _ACClassWF_ParentACClassWF;
     public virtual ICollection<ACClassWF> ACClassWF_ParentACClassWF
     {
-        get => LazyLoader.Load(this, ref _ACClassWF_ParentACClassWF);
-        set => _ACClassWF_ParentACClassWF = value;
+        get { return LazyLoader.Load(this, ref _ACClassWF_ParentACClassWF); }
+        set { _ACClassWF_ParentACClassWF = value; }
     }
 
     public bool ACClassWF_ParentACClassWF_IsLoaded
@@ -254,8 +254,8 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     private ACClass _PWACClass;
     public virtual ACClass PWACClass
     { 
-        get => LazyLoader.Load(this, ref _PWACClass);
-        set => _PWACClass = value;
+        get { return LazyLoader.Load(this, ref _PWACClass); }
+        set { SetProperty<ACClass>(ref _PWACClass, value); }
     }
 
     public bool PWACClass_IsLoaded
@@ -274,8 +274,8 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     private ACClassWF _ACClassWF1_ParentACClassWF;
     public virtual ACClassWF ACClassWF1_ParentACClassWF
     { 
-        get => LazyLoader.Load(this, ref _ACClassWF1_ParentACClassWF);
-        set => _ACClassWF1_ParentACClassWF = value;
+        get { return LazyLoader.Load(this, ref _ACClassWF1_ParentACClassWF); }
+        set { SetProperty<ACClassWF>(ref _ACClassWF1_ParentACClassWF, value); }
     }
 
     public bool ACClassWF1_ParentACClassWF_IsLoaded
@@ -294,8 +294,8 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     private ACClass _RefPAACClass;
     public virtual ACClass RefPAACClass
     { 
-        get => LazyLoader.Load(this, ref _RefPAACClass);
-        set => _RefPAACClass = value;
+        get { return LazyLoader.Load(this, ref _RefPAACClass); }
+        set { SetProperty<ACClass>(ref _RefPAACClass, value); }
     }
 
     public bool RefPAACClass_IsLoaded
@@ -314,8 +314,8 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     private ACClassMethod _RefPAACClassMethod;
     public virtual ACClassMethod RefPAACClassMethod
     { 
-        get => LazyLoader.Load(this, ref _RefPAACClassMethod);
-        set => _RefPAACClassMethod = value;
+        get { return LazyLoader.Load(this, ref _RefPAACClassMethod); }
+        set { SetProperty<ACClassMethod>(ref _RefPAACClassMethod, value); }
     }
 
     public bool RefPAACClassMethod_IsLoaded

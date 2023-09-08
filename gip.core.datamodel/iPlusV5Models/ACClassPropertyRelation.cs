@@ -190,8 +190,8 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     private ICollection<ACClassConfig> _ACClassConfig_ACClassPropertyRelation;
     public virtual ICollection<ACClassConfig> ACClassConfig_ACClassPropertyRelation
     {
-        get => LazyLoader.Load(this, ref _ACClassConfig_ACClassPropertyRelation);
-        set => _ACClassConfig_ACClassPropertyRelation = value;
+        get { return LazyLoader.Load(this, ref _ACClassConfig_ACClassPropertyRelation); }
+        set { _ACClassConfig_ACClassPropertyRelation = value; }
     }
 
     public bool ACClassConfig_ACClassPropertyRelation_IsLoaded
@@ -210,8 +210,8 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     private ICollection<ACClassMethodConfig> _ACClassMethodConfig_VBiACClassPropertyRelation;
     public virtual ICollection<ACClassMethodConfig> ACClassMethodConfig_VBiACClassPropertyRelation
     {
-        get => LazyLoader.Load(this, ref _ACClassMethodConfig_VBiACClassPropertyRelation);
-        set => _ACClassMethodConfig_VBiACClassPropertyRelation = value;
+        get { return LazyLoader.Load(this, ref _ACClassMethodConfig_VBiACClassPropertyRelation); }
+        set { _ACClassMethodConfig_VBiACClassPropertyRelation = value; }
     }
 
     public bool ACClassMethodConfig_VBiACClassPropertyRelation_IsLoaded
@@ -230,8 +230,8 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     private ICollection<ACProgramConfig> _ACProgramConfig_ACClassPropertyRelation;
     public virtual ICollection<ACProgramConfig> ACProgramConfig_ACClassPropertyRelation
     {
-        get => LazyLoader.Load(this, ref _ACProgramConfig_ACClassPropertyRelation);
-        set => _ACProgramConfig_ACClassPropertyRelation = value;
+        get { return LazyLoader.Load(this, ref _ACProgramConfig_ACClassPropertyRelation); }
+        set { _ACProgramConfig_ACClassPropertyRelation = value; }
     }
 
     public bool ACProgramConfig_ACClassPropertyRelation_IsLoaded
@@ -250,8 +250,8 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     private ACClass _SourceACClass;
     public virtual ACClass SourceACClass
     { 
-        get => LazyLoader.Load(this, ref _SourceACClass);
-        set => _SourceACClass = value;
+        get { return LazyLoader.Load(this, ref _SourceACClass); }
+        set { SetProperty<ACClass>(ref _SourceACClass, value); }
     }
 
     public bool SourceACClass_IsLoaded
@@ -270,8 +270,8 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     private ACClassProperty _SourceACClassProperty;
     public virtual ACClassProperty SourceACClassProperty
     { 
-        get => LazyLoader.Load(this, ref _SourceACClassProperty);
-        set => _SourceACClassProperty = value;
+        get { return LazyLoader.Load(this, ref _SourceACClassProperty); }
+        set { SetProperty<ACClassProperty>(ref _SourceACClassProperty, value); }
     }
 
     public bool SourceACClassProperty_IsLoaded
@@ -290,8 +290,8 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     private ACClass _TargetACClass;
     public virtual ACClass TargetACClass
     { 
-        get => LazyLoader.Load(this, ref _TargetACClass);
-        set => _TargetACClass = value;
+        get { return LazyLoader.Load(this, ref _TargetACClass); }
+        set { SetProperty<ACClass>(ref _TargetACClass, value); }
     }
 
     public bool TargetACClass_IsLoaded
@@ -310,8 +310,8 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     private ACClassProperty _TargetACClassProperty;
     public virtual ACClassProperty TargetACClassProperty
     { 
-        get => LazyLoader.Load(this, ref _TargetACClassProperty);
-        set => _TargetACClassProperty = value;
+        get { return LazyLoader.Load(this, ref _TargetACClassProperty); }
+        set { SetProperty<ACClassProperty>(ref _TargetACClassProperty, value); }
     }
 
     public bool TargetACClassProperty_IsLoaded
@@ -330,8 +330,8 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     private ICollection<VBConfig> _VBConfig_ACClassPropertyRelation;
     public virtual ICollection<VBConfig> VBConfig_ACClassPropertyRelation
     {
-        get => LazyLoader.Load(this, ref _VBConfig_ACClassPropertyRelation);
-        set => _VBConfig_ACClassPropertyRelation = value;
+        get { return LazyLoader.Load(this, ref _VBConfig_ACClassPropertyRelation); }
+        set { _VBConfig_ACClassPropertyRelation = value; }
     }
 
     public bool VBConfig_ACClassPropertyRelation_IsLoaded

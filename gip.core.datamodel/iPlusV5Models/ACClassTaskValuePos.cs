@@ -141,8 +141,8 @@ public partial class ACClassTaskValuePos : VBEntityObject , IInsertInfo, IUpdate
     private ACClassTaskValue _ACClassTaskValue;
     public virtual ACClassTaskValue ACClassTaskValue
     { 
-        get => LazyLoader.Load(this, ref _ACClassTaskValue);
-        set => _ACClassTaskValue = value;
+        get { return LazyLoader.Load(this, ref _ACClassTaskValue); }
+        set { SetProperty<ACClassTaskValue>(ref _ACClassTaskValue, value); }
     }
 
     public bool ACClassTaskValue_IsLoaded

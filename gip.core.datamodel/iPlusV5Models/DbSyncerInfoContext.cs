@@ -50,8 +50,8 @@ public partial class DbSyncerInfoContext : VBEntityObject
     private ICollection<DbSyncerInfo> _DbSyncerInfo_DbSyncerInfoContext;
     public virtual ICollection<DbSyncerInfo> DbSyncerInfo_DbSyncerInfoContext
     {
-        get => LazyLoader.Load(this, ref _DbSyncerInfo_DbSyncerInfoContext);
-        set => _DbSyncerInfo_DbSyncerInfoContext = value;
+        get { return LazyLoader.Load(this, ref _DbSyncerInfo_DbSyncerInfoContext); }
+        set { _DbSyncerInfo_DbSyncerInfoContext = value; }
     }
 
     public bool DbSyncerInfo_DbSyncerInfoContext_IsLoaded

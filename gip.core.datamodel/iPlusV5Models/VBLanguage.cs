@@ -106,8 +106,8 @@ public partial class VBLanguage : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<VBUser> _VBUser_VBLanguage;
     public virtual ICollection<VBUser> VBUser_VBLanguage
     {
-        get => LazyLoader.Load(this, ref _VBUser_VBLanguage);
-        set => _VBUser_VBLanguage = value;
+        get { return LazyLoader.Load(this, ref _VBUser_VBLanguage); }
+        set { _VBUser_VBLanguage = value; }
     }
 
     public bool VBUser_VBLanguage_IsLoaded

@@ -85,8 +85,8 @@ public partial class VBUserACClassDesign : VBEntityObject , IInsertInfo, IUpdate
     private ACClassDesign _ACClassDesign;
     public virtual ACClassDesign ACClassDesign
     { 
-        get => LazyLoader.Load(this, ref _ACClassDesign);
-        set => _ACClassDesign = value;
+        get { return LazyLoader.Load(this, ref _ACClassDesign); }
+        set { SetProperty<ACClassDesign>(ref _ACClassDesign, value); }
     }
 
     public bool ACClassDesign_IsLoaded
@@ -105,8 +105,8 @@ public partial class VBUserACClassDesign : VBEntityObject , IInsertInfo, IUpdate
     private VBUser _VBUser;
     public virtual VBUser VBUser
     { 
-        get => LazyLoader.Load(this, ref _VBUser);
-        set => _VBUser = value;
+        get { return LazyLoader.Load(this, ref _VBUser); }
+        set { SetProperty<VBUser>(ref _VBUser, value); }
     }
 
     public bool VBUser_IsLoaded

@@ -127,8 +127,8 @@ public partial class VBConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     private ACClass _ACClass;
     public virtual ACClass ACClass
     { 
-        get => LazyLoader.Load(this, ref _ACClass);
-        set => _ACClass = value;
+        get { return LazyLoader.Load(this, ref _ACClass); }
+        set { SetProperty<ACClass>(ref _ACClass, value); }
     }
 
     public bool ACClass_IsLoaded
@@ -147,8 +147,8 @@ public partial class VBConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     private ACClassPropertyRelation _ACClassPropertyRelation;
     public virtual ACClassPropertyRelation ACClassPropertyRelation
     { 
-        get => LazyLoader.Load(this, ref _ACClassPropertyRelation);
-        set => _ACClassPropertyRelation = value;
+        get { return LazyLoader.Load(this, ref _ACClassPropertyRelation); }
+        set { SetProperty<ACClassPropertyRelation>(ref _ACClassPropertyRelation, value); }
     }
 
     public bool ACClassPropertyRelation_IsLoaded
@@ -167,8 +167,8 @@ public partial class VBConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<VBConfig> _VBConfig_ParentVBConfig;
     public virtual ICollection<VBConfig> VBConfig_ParentVBConfig
     {
-        get => LazyLoader.Load(this, ref _VBConfig_ParentVBConfig);
-        set => _VBConfig_ParentVBConfig = value;
+        get { return LazyLoader.Load(this, ref _VBConfig_ParentVBConfig); }
+        set { _VBConfig_ParentVBConfig = value; }
     }
 
     public bool VBConfig_ParentVBConfig_IsLoaded
@@ -187,8 +187,8 @@ public partial class VBConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     private VBConfig _VBConfig1_ParentVBConfig;
     public virtual VBConfig VBConfig1_ParentVBConfig
     { 
-        get => LazyLoader.Load(this, ref _VBConfig1_ParentVBConfig);
-        set => _VBConfig1_ParentVBConfig = value;
+        get { return LazyLoader.Load(this, ref _VBConfig1_ParentVBConfig); }
+        set { SetProperty<VBConfig>(ref _VBConfig1_ParentVBConfig, value); }
     }
 
     public bool VBConfig1_ParentVBConfig_IsLoaded
@@ -207,8 +207,8 @@ public partial class VBConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     private ACClass _ValueTypeACClass;
     public virtual ACClass ValueTypeACClass
     { 
-        get => LazyLoader.Load(this, ref _ValueTypeACClass);
-        set => _ValueTypeACClass = value;
+        get { return LazyLoader.Load(this, ref _ValueTypeACClass); }
+        set { SetProperty<ACClass>(ref _ValueTypeACClass, value); }
     }
 
     public bool ValueTypeACClass_IsLoaded

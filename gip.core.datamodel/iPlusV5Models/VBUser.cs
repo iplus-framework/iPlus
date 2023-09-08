@@ -120,8 +120,8 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<ACChangeLog> _ACChangeLog_VBUser;
     public virtual ICollection<ACChangeLog> ACChangeLog_VBUser
     {
-        get => LazyLoader.Load(this, ref _ACChangeLog_VBUser);
-        set => _ACChangeLog_VBUser = value;
+        get { return LazyLoader.Load(this, ref _ACChangeLog_VBUser); }
+        set { _ACChangeLog_VBUser = value; }
     }
 
     public bool ACChangeLog_VBUser_IsLoaded
@@ -140,8 +140,8 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<ACClassTaskValue> _ACClassTaskValue_VBUser;
     public virtual ICollection<ACClassTaskValue> ACClassTaskValue_VBUser
     {
-        get => LazyLoader.Load(this, ref _ACClassTaskValue_VBUser);
-        set => _ACClassTaskValue_VBUser = value;
+        get { return LazyLoader.Load(this, ref _ACClassTaskValue_VBUser); }
+        set { _ACClassTaskValue_VBUser = value; }
     }
 
     public bool ACClassTaskValue_VBUser_IsLoaded
@@ -160,8 +160,8 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     private ACClassDesign _MenuACClassDesign;
     public virtual ACClassDesign MenuACClassDesign
     { 
-        get => LazyLoader.Load(this, ref _MenuACClassDesign);
-        set => _MenuACClassDesign = value;
+        get { return LazyLoader.Load(this, ref _MenuACClassDesign); }
+        set { SetProperty<ACClassDesign>(ref _MenuACClassDesign, value); }
     }
 
     public bool MenuACClassDesign_IsLoaded
@@ -180,8 +180,8 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     private VBLanguage _VBLanguage;
     public virtual VBLanguage VBLanguage
     { 
-        get => LazyLoader.Load(this, ref _VBLanguage);
-        set => _VBLanguage = value;
+        get { return LazyLoader.Load(this, ref _VBLanguage); }
+        set { SetProperty<VBLanguage>(ref _VBLanguage, value); }
     }
 
     public bool VBLanguage_IsLoaded
@@ -200,8 +200,8 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<VBUserACClassDesign> _VBUserACClassDesign_VBUser;
     public virtual ICollection<VBUserACClassDesign> VBUserACClassDesign_VBUser
     {
-        get => LazyLoader.Load(this, ref _VBUserACClassDesign_VBUser);
-        set => _VBUserACClassDesign_VBUser = value;
+        get { return LazyLoader.Load(this, ref _VBUserACClassDesign_VBUser); }
+        set { _VBUserACClassDesign_VBUser = value; }
     }
 
     public bool VBUserACClassDesign_VBUser_IsLoaded
@@ -220,8 +220,8 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<VBUserACProject> _VBUserACProject_VBUser;
     public virtual ICollection<VBUserACProject> VBUserACProject_VBUser
     {
-        get => LazyLoader.Load(this, ref _VBUserACProject_VBUser);
-        set => _VBUserACProject_VBUser = value;
+        get { return LazyLoader.Load(this, ref _VBUserACProject_VBUser); }
+        set { _VBUserACProject_VBUser = value; }
     }
 
     public bool VBUserACProject_VBUser_IsLoaded
@@ -240,8 +240,8 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<VBUserGroup> _VBUserGroup_VBUser;
     public virtual ICollection<VBUserGroup> VBUserGroup_VBUser
     {
-        get => LazyLoader.Load(this, ref _VBUserGroup_VBUser);
-        set => _VBUserGroup_VBUser = value;
+        get { return LazyLoader.Load(this, ref _VBUserGroup_VBUser); }
+        set { _VBUserGroup_VBUser = value; }
     }
 
     public bool VBUserGroup_VBUser_IsLoaded
@@ -260,8 +260,8 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<VBUserInstance> _VBUserInstance_VBUser;
     public virtual ICollection<VBUserInstance> VBUserInstance_VBUser
     {
-        get => LazyLoader.Load(this, ref _VBUserInstance_VBUser);
-        set => _VBUserInstance_VBUser = value;
+        get { return LazyLoader.Load(this, ref _VBUserInstance_VBUser); }
+        set { _VBUserInstance_VBUser = value; }
     }
 
     public bool VBUserInstance_VBUser_IsLoaded

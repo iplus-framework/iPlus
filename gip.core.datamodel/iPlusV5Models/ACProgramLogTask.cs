@@ -85,8 +85,8 @@ public partial class ACProgramLogTask : VBEntityObject , IInsertInfo, IUpdateInf
     private ACProgramLog _ACProgramLog;
     public virtual ACProgramLog ACProgramLog
     { 
-        get => LazyLoader.Load(this, ref _ACProgramLog);
-        set => _ACProgramLog = value;
+        get { return LazyLoader.Load(this, ref _ACProgramLog); }
+        set { SetProperty<ACProgramLog>(ref _ACProgramLog, value); }
     }
 
     public bool ACProgramLog_IsLoaded

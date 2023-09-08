@@ -113,8 +113,8 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<ACClassTask> _ACClassTask_ACProgram;
     public virtual ICollection<ACClassTask> ACClassTask_ACProgram
     {
-        get => LazyLoader.Load(this, ref _ACClassTask_ACProgram);
-        set => _ACClassTask_ACProgram = value;
+        get { return LazyLoader.Load(this, ref _ACClassTask_ACProgram); }
+        set { _ACClassTask_ACProgram = value; }
     }
 
     public bool ACClassTask_ACProgram_IsLoaded
@@ -133,8 +133,8 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<ACProgramConfig> _ACProgramConfig_ACProgram;
     public virtual ICollection<ACProgramConfig> ACProgramConfig_ACProgram
     {
-        get => LazyLoader.Load(this, ref _ACProgramConfig_ACProgram);
-        set => _ACProgramConfig_ACProgram = value;
+        get { return LazyLoader.Load(this, ref _ACProgramConfig_ACProgram); }
+        set { _ACProgramConfig_ACProgram = value; }
     }
 
     public bool ACProgramConfig_ACProgram_IsLoaded
@@ -153,8 +153,8 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
     private ICollection<ACProgramLog> _ACProgramLog_ACProgram;
     public virtual ICollection<ACProgramLog> ACProgramLog_ACProgram
     {
-        get => LazyLoader.Load(this, ref _ACProgramLog_ACProgram);
-        set => _ACProgramLog_ACProgram = value;
+        get { return LazyLoader.Load(this, ref _ACProgramLog_ACProgram); }
+        set { _ACProgramLog_ACProgram = value; }
     }
 
     public bool ACProgramLog_ACProgram_IsLoaded
@@ -173,8 +173,8 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
     private ACClassMethod _ProgramACClassMethod;
     public virtual ACClassMethod ProgramACClassMethod
     { 
-        get => LazyLoader.Load(this, ref _ProgramACClassMethod);
-        set => _ProgramACClassMethod = value;
+        get { return LazyLoader.Load(this, ref _ProgramACClassMethod); }
+        set { SetProperty<ACClassMethod>(ref _ProgramACClassMethod, value); }
     }
 
     public bool ProgramACClassMethod_IsLoaded
@@ -193,8 +193,8 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
     private ACClass _WorkflowTypeACClass;
     public virtual ACClass WorkflowTypeACClass
     { 
-        get => LazyLoader.Load(this, ref _WorkflowTypeACClass);
-        set => _WorkflowTypeACClass = value;
+        get { return LazyLoader.Load(this, ref _WorkflowTypeACClass); }
+        set { SetProperty<ACClass>(ref _WorkflowTypeACClass, value); }
     }
 
     public bool WorkflowTypeACClass_IsLoaded
