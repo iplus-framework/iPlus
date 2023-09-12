@@ -2,10 +2,9 @@
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using gip.core.datamodel;
 
-namespace gip.core.datamodel
+namespace gip.core.media
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'MediaItemPresentations'}de{'MediaItemPresentation'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class MediaItemPresentation : INotifyPropertyChanged
@@ -32,37 +31,15 @@ namespace gip.core.datamodel
         [ACPropertyInfo(4, "FilePath", "en{'File path'}de{'Dateipfad'}")]
         public string EditFilePath { get; set; }
 
+        #region Temp File Path
+
+        [ACPropertyInfo(5, "TempThumbPath", "en{'Thumb Image path'}de{'Standard-Daumenbildpfad'}")]
+        public string TempThumbPath { get; set; }
+
+        [ACPropertyInfo(6, "TempFilePath", "en{'File path'}de{'Dateipfad'}")]
+        public string TempFilePath { get; set; }
+
         #endregion
-
-        #region BitMap
-
-        private ImageSource _Image;
-        public ImageSource Image
-        {
-            get
-            {
-                return _Image;
-            }
-            set
-            {
-                _Image = value;
-                OnPropertyChanged("Image");
-            }
-        }
-
-        private ImageSource _ImageThumb;
-        public ImageSource ImageThumb
-        {
-            get
-            {
-                return _ImageThumb;
-            }
-            set
-            {
-                _ImageThumb = value;
-                OnPropertyChanged("ImageThumb");
-            }
-        }
 
         #endregion
 
@@ -81,44 +58,19 @@ namespace gip.core.datamodel
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public MediaItemTypeEnum MediaType { get; set; }
+
         #endregion
 
         #region Methods
-        public void LoadImage(bool isImage)
-        {
-            if (!string.IsNullOrEmpty(ThumbPath))
-            {
-                BitmapImage imageThumb = new BitmapImage();
-                imageThumb.BeginInit();
-                imageThumb.UriSource = new Uri(ThumbPath, UriKind.RelativeOrAbsolute);
-                imageThumb.CacheOption = BitmapCacheOption.OnLoad;
-                imageThumb.EndInit();
-                ImageThumb = imageThumb;
-            }
-            if (isImage)
-            {
-                BitmapImage image = new BitmapImage();
-                image.BeginInit();
-                image.UriSource = new Uri(FilePath, UriKind.RelativeOrAbsolute);
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.EndInit();
-                Image = image;
-            }
-        }
-
-        public bool ThumbExistAndIsNotGeneric()
-        {
-            string fileName = Path.GetFileNameWithoutExtension(FilePath);
-            return !string.IsNullOrEmpty(ThumbPath) && ThumbPath.Contains(fileName);
-        }
 
         public void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
-        #endregion
 
+        #endregion
 
     }
 }
