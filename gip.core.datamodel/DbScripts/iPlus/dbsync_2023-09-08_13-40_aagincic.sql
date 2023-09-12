@@ -1,0 +1,3 @@
+update ACClass set AssemblyQualifiedName = 'gip.core.media.BSOMedia, gip.core.media, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where ACIdentifier = 'BSOMedia'
+update ACClass set AssemblyQualifiedName = 'gip.core.media.MediaItemPresentation, gip.core.media, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where ACIdentifier = 'MediaItemPresentation'
+update ACClass set AssemblyQualifiedName = 'gip.core.media.MediaItemTypeEnum, gip.core.media, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where ACIdentifier = 'MediaItemTypeEnum'

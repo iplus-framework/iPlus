@@ -3,7 +3,7 @@
     /// <summary>
     /// Entity items supports default image (Grid preview)
     /// </summary>
-    public interface  IImageInfo
+    public interface  IImageInfo: IACObject
     {
         string DefaultImage { get; set; }
         string DefaultThumbImage { get; set; }

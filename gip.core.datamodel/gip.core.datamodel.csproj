@@ -345,13 +345,6 @@
     <Compile Include="ACHelperclasses\PropertyLog\PropertyLogItem.cs" />
     <Compile Include="ACHelperclasses\PropertyLog\PropertyLogListInfo.cs" />
     <Compile Include="ACHelperclasses\PropertyLog\PropertyLogRing.cs" />
-    <Compile Include="ACHelperclasses\Media\ImageResize.cs" />
-    <Compile Include="ACHelperclasses\Media\MediaController.cs" />
-    <Compile Include="ACHelperclasses\Media\MediaItemPresentation.cs" />
-    <Compile Include="ACHelperclasses\Media\MediaItemTypeEnum.cs" />
-    <Compile Include="ACHelperclasses\Media\MediaSet.cs" />
-    <Compile Include="ACHelperclasses\Media\MediaSettings.cs" />
-    <Compile Include="ACHelperclasses\Media\MediaTypeSettingsItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ACQueryDefinition\ACQuery.cs" />
     <Compile Include="ACQueryDefinition\ACFilterItem.cs" />
@@ -411,6 +404,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="ACHelperclasses\Media\" />
     <Folder Include="VBControlScripts\" />
   </ItemGroup>
   <ItemGroup>
@@ -435,6 +429,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DbScripts\iPlus\dbsync_2023-07-06_23-19_aagincic.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DbScripts\iPlus\dbsync_2023-09-08_13-40_aagincic.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

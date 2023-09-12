@@ -1,6 +1,6 @@
 ﻿
 
-namespace gip.core.datamodel
+namespace gip.core.media
 {
     public enum MediaItemTypeEnum
     {
