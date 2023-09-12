@@ -10,7 +10,7 @@ namespace gip.core.datamodel
 
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACFavorite'}de{'ACFavorite'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.Optional, false, true)]
-    public class ACFavorite : IVBTileGrid
+    public class ACFavorite : EntityBase, IVBTileGrid
     {
         [DataMember]
         public short? TileColumn
