@@ -5,7 +5,6 @@ using System.Text;
 using System.ComponentModel;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using gip.bso.iplus;
 
 namespace gip.core.communication
 {
@@ -190,21 +189,21 @@ namespace gip.core.communication
         public static bool HandleExecuteACMethod_ACSubscription(out object result, IACComponent acComponent, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;
-            switch (acMethodName)
-            {
-                case nameof(AutoInsertVariables):
-                    AutoInsertVariables(acComponent);
-                    return true;
-                case Const.IsEnabledPrefix + nameof(AutoInsertVariables):
-                    result = IsEnabledAutoInsertVariables(acComponent);
-                    return true;
-                case nameof(AutoRenameVariables):
-                    AutoRenameVariables(acComponent);
-                    return true;
-                case Const.IsEnabledPrefix + nameof(AutoRenameVariables):
-                    result = IsEnabledAutoRenameVariables(acComponent);
-                    return true;
-            }
+            //switch (acMethodName)
+            //{
+            //    case nameof(AutoInsertVariables):
+            //        AutoInsertVariables(acComponent);
+            //        return true;
+            //    case Const.IsEnabledPrefix + nameof(AutoInsertVariables):
+            //        result = IsEnabledAutoInsertVariables(acComponent);
+            //        return true;
+            //    case nameof(AutoRenameVariables):
+            //        AutoRenameVariables(acComponent);
+            //        return true;
+            //    case Const.IsEnabledPrefix + nameof(AutoRenameVariables):
+            //        result = IsEnabledAutoRenameVariables(acComponent);
+            //        return true;
+            //}
             return false;
         }
 
@@ -226,129 +225,129 @@ namespace gip.core.communication
         public abstract bool IsEnabledDisConnect();
 
         #region Configuration
-        [ACMethodAttached("", "en{'Create variables autom.'}de{'Variablen autom. anlegen'}", 1000, typeof(BSOiPlusStudio), true, "", false, Global.ContextMenuCategory.NoCategory)]
-        public static void AutoInsertVariables(IACComponent acComponent)
-        {
-            BSOiPlusStudio _this = acComponent as BSOiPlusStudio;
-            if (!IsEnabledAutoInsertVariables(_this))
-                return;
+        //[ACMethodAttached("", "en{'Create variables autom.'}de{'Variablen autom. anlegen'}", 1000, typeof(BSOiPlusStudio), true, "", false, Global.ContextMenuCategory.NoCategory)]
+        //public static void AutoInsertVariables(IACComponent acComponent)
+        //{
+        //    BSOiPlusStudio _this = acComponent as BSOiPlusStudio;
+        //    if (!IsEnabledAutoInsertVariables(_this))
+        //        return;
 
-            object[] result = acComponent.Messages.InputBoxValues("Wertebereich", new object[] { "1", "1", "A", "", "", "0", "0", "" }, new string[] { "Von", "Bis", "Prefix", "Postfix", "SPSAddr-Prefix", "SPS-Startaddr.", "SPS-Offset to next", "Bemerkung" });
+        //    object[] result = acComponent.Messages.InputBoxValues("Wertebereich", new object[] { "1", "1", "A", "", "", "0", "0", "" }, new string[] { "Von", "Bis", "Prefix", "Postfix", "SPSAddr-Prefix", "SPS-Startaddr.", "SPS-Offset to next", "Bemerkung" });
 
-            if (result == null)
-            {
-                return;
-            }
+        //    if (result == null)
+        //    {
+        //        return;
+        //    }
 
-            int nfrom = System.Convert.ToInt32(result[0]);
-            int nto = System.Convert.ToInt32(result[1]);
-            if ((nfrom <= 0) || (nto <= 0) || (nto < nfrom))
-            {
-                return;
-            }
-            string prefix = System.Convert.ToString(result[2]);
-            string postfix = System.Convert.ToString(result[3]);
-            string spsPrefix = System.Convert.ToString(result[4]);
-            int spsfrom = System.Convert.ToInt32(result[5]);
-            int spsoffset = System.Convert.ToInt32(result[6]);
-            string comment = System.Convert.ToString(result[7]);
+        //    int nfrom = System.Convert.ToInt32(result[0]);
+        //    int nto = System.Convert.ToInt32(result[1]);
+        //    if ((nfrom <= 0) || (nto <= 0) || (nto < nfrom))
+        //    {
+        //        return;
+        //    }
+        //    string prefix = System.Convert.ToString(result[2]);
+        //    string postfix = System.Convert.ToString(result[3]);
+        //    string spsPrefix = System.Convert.ToString(result[4]);
+        //    int spsfrom = System.Convert.ToInt32(result[5]);
+        //    int spsoffset = System.Convert.ToInt32(result[6]);
+        //    string comment = System.Convert.ToString(result[7]);
 
-            ACClass dataType = _this.CurrentConfigACClassProperty.ValueTypeACClass;
-            Global.ACPropUsages acPropUsage = _this.CurrentConfigACClassProperty.ACPropUsage;
+        //    ACClass dataType = _this.CurrentConfigACClassProperty.ValueTypeACClass;
+        //    Global.ACPropUsages acPropUsage = _this.CurrentConfigACClassProperty.ACPropUsage;
 
-            int spsNextAddr = spsfrom;
-            for (int i = nfrom; i <= nto; i++)
-            {
-                _this.NewConfigACClassProperty();
-                _this.CurrentConfigACClassProperty.ACIdentifier = String.Format("{1}{0:D3}{2}", i, prefix, postfix);
-                _this.CurrentConfigACClassProperty.ACCaption = _this.CurrentConfigACClassProperty.ACIdentifier;
-                _this.CurrentConfigACClassProperty.ValueTypeACClass = dataType;
-                _this.CurrentConfigACClassProperty.ACPropUsage = acPropUsage;
-                _this.CurrentConfigACClassProperty.IsInput = true;
-                _this.CurrentConfigACClassProperty.IsOutput = true;
-                _this.CurrentConfigACClassProperty.IsBroadcast = true;
-                _this.CurrentConfigACClassProperty.SortIndex = System.Convert.ToInt16(i);
-                _this.CurrentConfigACClassProperty.Comment = comment;
-                if (!String.IsNullOrEmpty(spsPrefix) && spsfrom > 0 && spsoffset > 0)
-                {
-                    string spsAddr = String.Format("{0}{1}", spsPrefix, spsNextAddr);
-                    OPCItemConfig opcConfig = (OPCItemConfig)_this.CurrentConfigACClassProperty["OPCItemConfig"];
-                    opcConfig.OPCAddr = spsAddr;
-                    spsNextAddr += spsoffset;
-                }
-            }
+        //    int spsNextAddr = spsfrom;
+        //    for (int i = nfrom; i <= nto; i++)
+        //    {
+        //        _this.NewConfigACClassProperty();
+        //        _this.CurrentConfigACClassProperty.ACIdentifier = String.Format("{1}{0:D3}{2}", i, prefix, postfix);
+        //        _this.CurrentConfigACClassProperty.ACCaption = _this.CurrentConfigACClassProperty.ACIdentifier;
+        //        _this.CurrentConfigACClassProperty.ValueTypeACClass = dataType;
+        //        _this.CurrentConfigACClassProperty.ACPropUsage = acPropUsage;
+        //        _this.CurrentConfigACClassProperty.IsInput = true;
+        //        _this.CurrentConfigACClassProperty.IsOutput = true;
+        //        _this.CurrentConfigACClassProperty.IsBroadcast = true;
+        //        _this.CurrentConfigACClassProperty.SortIndex = System.Convert.ToInt16(i);
+        //        _this.CurrentConfigACClassProperty.Comment = comment;
+        //        if (!String.IsNullOrEmpty(spsPrefix) && spsfrom > 0 && spsoffset > 0)
+        //        {
+        //            string spsAddr = String.Format("{0}{1}", spsPrefix, spsNextAddr);
+        //            OPCItemConfig opcConfig = (OPCItemConfig)_this.CurrentConfigACClassProperty["OPCItemConfig"];
+        //            opcConfig.OPCAddr = spsAddr;
+        //            spsNextAddr += spsoffset;
+        //        }
+        //    }
 
-            return;
-        }
+        //    return;
+        //}
 
-        public static bool IsEnabledAutoInsertVariables(IACComponent acComponent)
-        {
-            BSOiPlusStudio _this = acComponent as BSOiPlusStudio;
-            if (_this == null)
-                return false;
-            return _this.CurrentACClass != null && _this.CurrentConfigACClassProperty != null;
-        }
+        //public static bool IsEnabledAutoInsertVariables(IACComponent acComponent)
+        //{
+        //    BSOiPlusStudio _this = acComponent as BSOiPlusStudio;
+        //    if (_this == null)
+        //        return false;
+        //    return _this.CurrentACClass != null && _this.CurrentConfigACClassProperty != null;
+        //}
 
 
-        [ACMethodAttached("", "en{'Rename variables'}de{'Variablen umbenennen'}", 1001, typeof(BSOiPlusStudio), true, "", false, Global.ContextMenuCategory.NoCategory)]
-        public static void AutoRenameVariables(IACComponent acComponent)
-        {
-            BSOiPlusStudio _this = acComponent as BSOiPlusStudio;
-            if (!IsEnabledAutoRenameVariables(_this))
-                return;
+        //[ACMethodAttached("", "en{'Rename variables'}de{'Variablen umbenennen'}", 1001, typeof(BSOiPlusStudio), true, "", false, Global.ContextMenuCategory.NoCategory)]
+        //public static void AutoRenameVariables(IACComponent acComponent)
+        //{
+        //    BSOiPlusStudio _this = acComponent as BSOiPlusStudio;
+        //    if (!IsEnabledAutoRenameVariables(_this))
+        //        return;
 
-            object[] result = acComponent.Messages.InputBoxValues("Wertebereich", new object[] { "1", "1", "A", "", "", "0", "0", "" }, new string[] { "Von", "Bis", "Prefix", "Postfix", "SPSAddr-Prefix", "SPS-Startaddr.", "SPS-Offset to next", "Bemerkung" });
+        //    object[] result = acComponent.Messages.InputBoxValues("Wertebereich", new object[] { "1", "1", "A", "", "", "0", "0", "" }, new string[] { "Von", "Bis", "Prefix", "Postfix", "SPSAddr-Prefix", "SPS-Startaddr.", "SPS-Offset to next", "Bemerkung" });
 
-            if (result == null)
-            {
-                return;
-            }
+        //    if (result == null)
+        //    {
+        //        return;
+        //    }
 
-            int nfrom = System.Convert.ToInt32(result[0]);
-            int nto = System.Convert.ToInt32(result[1]);
-            if ((nfrom <= 0) || (nto <= 0) || (nto < nfrom))
-            {
-                return;
-            }
-            string prefix = System.Convert.ToString(result[2]);
-            string postfix = System.Convert.ToString(result[3]);
-            string spsPrefix = System.Convert.ToString(result[4]);
-            int spsfrom = System.Convert.ToInt32(result[5]);
-            int spsoffset = System.Convert.ToInt32(result[6]);
-            string comment = System.Convert.ToString(result[7]);
+        //    int nfrom = System.Convert.ToInt32(result[0]);
+        //    int nto = System.Convert.ToInt32(result[1]);
+        //    if ((nfrom <= 0) || (nto <= 0) || (nto < nfrom))
+        //    {
+        //        return;
+        //    }
+        //    string prefix = System.Convert.ToString(result[2]);
+        //    string postfix = System.Convert.ToString(result[3]);
+        //    string spsPrefix = System.Convert.ToString(result[4]);
+        //    int spsfrom = System.Convert.ToInt32(result[5]);
+        //    int spsoffset = System.Convert.ToInt32(result[6]);
+        //    string comment = System.Convert.ToString(result[7]);
 
-            ACClass dataType = _this.CurrentConfigACClassProperty.ValueTypeACClass;
-            Global.ACPropUsages acPropUsage = _this.CurrentConfigACClassProperty.ACPropUsage;
+        //    ACClass dataType = _this.CurrentConfigACClassProperty.ValueTypeACClass;
+        //    Global.ACPropUsages acPropUsage = _this.CurrentConfigACClassProperty.ACPropUsage;
 
-            int spsNextAddr = spsfrom;
-            for (int i = nfrom; i <= nto; i++)
-            {
-                string findID = String.Format("{1}{0:D3}{2}", i, prefix, postfix);
+        //    int spsNextAddr = spsfrom;
+        //    for (int i = nfrom; i <= nto; i++)
+        //    {
+        //        string findID = String.Format("{1}{0:D3}{2}", i, prefix, postfix);
 
-                var foundProperty = _this.ConfigACClassPropertyList.Where(c => c.ACIdentifier == findID).FirstOrDefault();
-                if (foundProperty != null)
-                {
-                    foundProperty.ValueTypeACClass = dataType;
-                    if (!String.IsNullOrEmpty(spsPrefix) && spsfrom > 0 && spsoffset > 0)
-                    {
-                        string spsAddr = String.Format("{0}{1}", spsPrefix, spsNextAddr);
-                        OPCItemConfig opcConfig = (OPCItemConfig)foundProperty["OPCItemConfig"];
-                        opcConfig.OPCAddr = spsAddr;
-                    }
-                }
-                if (!String.IsNullOrEmpty(spsPrefix) && spsfrom > 0 && spsoffset > 0)
-                    spsNextAddr += spsoffset;
-            }
-            return;
-        }
+        //        var foundProperty = _this.ConfigACClassPropertyList.Where(c => c.ACIdentifier == findID).FirstOrDefault();
+        //        if (foundProperty != null)
+        //        {
+        //            foundProperty.ValueTypeACClass = dataType;
+        //            if (!String.IsNullOrEmpty(spsPrefix) && spsfrom > 0 && spsoffset > 0)
+        //            {
+        //                string spsAddr = String.Format("{0}{1}", spsPrefix, spsNextAddr);
+        //                OPCItemConfig opcConfig = (OPCItemConfig)foundProperty["OPCItemConfig"];
+        //                opcConfig.OPCAddr = spsAddr;
+        //            }
+        //        }
+        //        if (!String.IsNullOrEmpty(spsPrefix) && spsfrom > 0 && spsoffset > 0)
+        //            spsNextAddr += spsoffset;
+        //    }
+        //    return;
+        //}
 
-        public static bool IsEnabledAutoRenameVariables(IACComponent acComponent)
-        {
-            BSOiPlusStudio _this = acComponent as BSOiPlusStudio;
-            if (_this == null)
-                return false;
-            return _this.CurrentACClass != null && _this.CurrentConfigACClassProperty != null;
-        }
+        //public static bool IsEnabledAutoRenameVariables(IACComponent acComponent)
+        //{
+        //    BSOiPlusStudio _this = acComponent as BSOiPlusStudio;
+        //    if (_this == null)
+        //        return false;
+        //    return _this.CurrentACClass != null && _this.CurrentConfigACClassProperty != null;
+        //}
 
         #endregion
 

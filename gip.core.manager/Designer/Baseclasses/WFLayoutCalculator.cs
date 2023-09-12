@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
 using System.Windows;
 using gip.core.datamodel;
 using gip.core.autocomponent;
@@ -26,21 +25,5 @@ namespace gip.core.manager
 
         #endregion
 
-        public Size SizeValue(int numOfElements)
-        {
-            Size size = new Size(200,200);
-            if (numOfElements > 3 && numOfElements <= 6)
-                size = new Size(400, 400);
-
-            else if (numOfElements > 6 && numOfElements <= 9)
-                size = new Size(500, 500);
-
-            else if (numOfElements > 9)
-                size = new Size(600, 600);
-
-            return size;
-        }
-
-        
     }
 }

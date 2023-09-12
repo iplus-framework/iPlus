@@ -2,8 +2,9 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Windows.Documents;
+using gip.core.reporthandler;
 
-namespace gip.core.reporthandler
+namespace gip.core.reporthandlerwpf
 {
     public class PrintContext
     {
@@ -37,11 +38,11 @@ namespace gip.core.reporthandler
             if (PrintFormats != null)
                 foreach (var item in PrintFormats)
                 {
-                    if(item.FontSize != null)
-                        printFormat.FontSize = item.FontSize; 
-                    if(item.FontWeight != null)
-                        printFormat.FontWeight =  item.FontWeight;   
-                    if(item.TextAlignment != null)
+                    if (item.FontSize != null)
+                        printFormat.FontSize = item.FontSize;
+                    if (item.FontWeight != null)
+                        printFormat.FontWeight = item.FontWeight;
+                    if (item.TextAlignment != null)
                         printFormat.TextAlignment = item.TextAlignment;
                 }
             return printFormat;

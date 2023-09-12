@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace gip.core.reporthandler
+namespace gip.core.reporthandlerwpf
 {
     public class PrintFormat
     {

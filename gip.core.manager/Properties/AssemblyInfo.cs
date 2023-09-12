@@ -36,6 +36,6 @@ using System.Windows.Markup;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: XmlnsDefinition("http://www.iplus-framework.com/manager/xaml", "gip.core.manager")]
-[assembly: XmlnsPrefix("http://www.iplus-framework.com/manager/xaml", "vbm")]
+//[assembly: XmlnsDefinition("http://www.iplus-framework.com/manager/xaml", "gip.core.manager")]
+//[assembly: XmlnsPrefix("http://www.iplus-framework.com/manager/xaml", "vbm")]
 

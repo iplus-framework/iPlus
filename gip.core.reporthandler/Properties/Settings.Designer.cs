@@ -23,17 +23,17 @@ namespace gip.core.reporthandler.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Calibri")]
-        public global::System.Windows.Media.FontFamily Options_DefaultFont {
-            get {
-                return ((global::System.Windows.Media.FontFamily)(this["Options_DefaultFont"]));
-            }
-            set {
-                this["Options_DefaultFont"] = value;
-            }
-        }
+        //[global::System.Configuration.UserScopedSettingAttribute()]
+        //[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        //[global::System.Configuration.DefaultSettingValueAttribute("Calibri")]
+        //public global::System.Windows.Media.FontFamily Options_DefaultFont {
+        //    get {
+        //        return ((global::System.Windows.Media.FontFamily)(this["Options_DefaultFont"]));
+        //    }
+        //    set {
+        //        this["Options_DefaultFont"] = value;
+        //    }
+        //}
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

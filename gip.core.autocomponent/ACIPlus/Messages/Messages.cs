@@ -916,9 +916,11 @@ namespace gip.core.autocomponent
         {
             try
             {
+#pragma warning disable CA1416
                 if (!EventLog.SourceExists("iPlus"))
                     EventLog.CreateEventSource("iPlus", "Application");
                 EventLog.WriteEntry("iPlus", message, EventLogEntryType.Error, eventID);
+#pragma warning restore CA1416
             }
             catch (Exception e)
             {
