@@ -99,6 +99,8 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "gip.core.sql", "gip.core.sq
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "gip.core.processapplication.shared", "gip.core.processapplication.shared\gip.core.processapplication.shared.shproj", "{38889580-0345-42CC-AB4D-931CA15AFA85}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.media", "gip.core.media\gip.core.media.csproj", "{F9620201-705D-432C-8941-353E9BFFE5E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -251,6 +253,10 @@ Global
 		{746E71A0-CC5A-4A1F-BE03-76AFCF9FAB12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{746E71A0-CC5A-4A1F-BE03-76AFCF9FAB12}.Release|Any CPU.Build.0 = Release|Any CPU
 		{746E71A0-CC5A-4A1F-BE03-76AFCF9FAB12}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{F9620201-705D-432C-8941-353E9BFFE5E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9620201-705D-432C-8941-353E9BFFE5E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9620201-705D-432C-8941-353E9BFFE5E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9620201-705D-432C-8941-353E9BFFE5E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -297,6 +303,7 @@ Global
 		{6D353DD2-970B-45BB-9AB6-D23A28E0233F} = {2089D22B-FC62-4E94-8776-093570EA4032}
 		{746E71A0-CC5A-4A1F-BE03-76AFCF9FAB12} = {4A180E41-9761-46E2-ACA3-4BD41764496C}
 		{38889580-0345-42CC-AB4D-931CA15AFA85} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{F9620201-705D-432C-8941-353E9BFFE5E0} = {2089D22B-FC62-4E94-8776-093570EA4032}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {98B3D62C-99C4-441A-BDBB-AA6225B4CF1C}
@@ -305,6 +312,7 @@ Global
 		gip.core.webservices.shared\gip.core.webservices.shared.projitems*{0c232936-48b8-4ccd-951e-8ad3d439d264}*SharedItemsImports = 13
 		gip.core.datamodel.shared\gip.core.datamodel.shared.projitems*{16fb4111-5110-46e5-851d-38a4d7522f85}*SharedItemsImports = 4
 		gip.core.processapplication.shared\gip.core.processapplication.shared.projitems*{38889580-0345-42cc-ab4d-931ca15afa85}*SharedItemsImports = 13
+		gip.core.processapplication.shared\gip.core.processapplication.shared.projitems*{66484708-85bd-47c4-92dd-3010387465f4}*SharedItemsImports = 4
 		gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems*{6d353dd2-970b-45bb-9ab6-d23a28e0233f}*SharedItemsImports = 13
 		gip.core.webservices.shared\gip.core.webservices.shared.projitems*{7931f65b-3c2a-4db9-a5a6-4bc5b4d12c00}*SharedItemsImports = 4
 		gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems*{893d3b1b-dc55-4684-8b5d-941f1049151b}*SharedItemsImports = 4
