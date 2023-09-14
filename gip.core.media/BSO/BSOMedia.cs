@@ -561,7 +561,7 @@ namespace gip.core.media
         {
             if (!IsEnabledSetFilePath())
                 return;
-            string filePath = GetFilePath(SelectedMediaItemPresentation.EditFilePath, true);
+            string filePath = MediaController.OpenFileDialog(false, SelectedMediaItemPresentation.EditFilePath, true);
             if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
                 SelectedMediaItemPresentation.EditFilePath = filePath;
@@ -583,7 +583,7 @@ namespace gip.core.media
         {
             if (!IsEnabledSetFileThumbPath())
                 return;
-            string filePath = GetFilePath(SelectedMediaItemPresentation.EditFilePath, true);
+            string filePath = MediaController.OpenFileDialog(false, SelectedMediaItemPresentation.EditFilePath, true);
             if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
                 SelectedMediaItemPresentation.EditThumbPath = filePath;
@@ -783,7 +783,7 @@ namespace gip.core.media
         {
             if (File.Exists(filePath))
             {
-                string newFilePath = GetFilePath(filePath, false);
+                string newFilePath = MediaController.OpenFileDialog(false, filePath, false);
                 if (!string.IsNullOrEmpty(newFilePath))
                 {
                     File.Copy(filePath, newFilePath);
@@ -801,17 +801,6 @@ namespace gip.core.media
                 item.FilePath = MediaController.GetEmptyImagePath();
                 item.TempFilePath = MediaController.GetEmptyImagePath();
             }
-        }
-
-        private string GetFilePath(string startFilePath, bool useExisting)
-        {
-            string filePath = null;
-            IACComponent component = ACUrlCommand($"\\{nameof(ACRoot.Businessobjects)}\\#{nameof(BSOFileDialog)}") as IACComponent;
-            if (component != null)
-            {
-                filePath = component.ACUrlCommand($"!{nameof(SetFilePath)}", startFilePath, useExisting) as string;
-            }
-            return filePath;
         }
 
         #endregion

@@ -3,10 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using gip.core.datamodel;
 using System.IO;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using gip.core.media;
 
 namespace gip.bso.iplus
 {
@@ -504,12 +503,9 @@ namespace gip.bso.iplus
         [ACMethodInfo("", "en{'...'}de{'...'}", 409, true)]
         public void BrowseExportActivationDataDir()
         {
-            using (var dialog = new CommonOpenFileDialog() { IsFolderPicker = true })
-            {
-                dialog.InitialDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                    ExportDirPath = dialog.FileName;
-            }
+            string intialPaht = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            ExportDirPath = mediaController.OpenFileDialog(true, intialPaht, true) ?? ExportDirPath;
         }
 
         /// <summary>Called inside the GetControlModes-Method to get the Global.ControlModes from derivations.

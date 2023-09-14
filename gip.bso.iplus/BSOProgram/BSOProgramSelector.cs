@@ -1,19 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using System.Runtime.Serialization;
-using System.IO;
-using System.IO.Compression;
-using System.Xml;
 using System.Windows.Threading;
-using ClosedXML;
 using ClosedXML.Excel;
 using System.Data;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using gip.core.media;
 
 namespace gip.bso.iplus
 {
@@ -392,12 +385,9 @@ namespace gip.bso.iplus
         [ACMethodInfo("", "en{'...'}de{'...'}", 413, true)]
         public void Browse()
         {
-            using (var dialog = new CommonOpenFileDialog(){IsFolderPicker = true})
-            {
-                dialog.InitialDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                    ExcelFilePath = dialog.FileName;
-            }
+            string initialDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            ExcelFilePath = mediaController.OpenFileDialog(true, initialDir, true) ?? ExcelFilePath;
         }
         
         public bool IsEnabledBrowse()

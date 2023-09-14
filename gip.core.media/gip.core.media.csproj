@@ -82,7 +82,6 @@
   <ItemGroup>
     <Compile Include="ACComponent\ACMediaController.cs" />
     <Compile Include="ACComponent\IACMediaController.cs" />
-    <Compile Include="BSO\BSOFileDialog.cs" />
     <Compile Include="BSO\BSOMedia.cs" />
     <Compile Include="Model\MediaItemPresentation.cs" />
     <Compile Include="Model\MediaItemTypeEnum.cs" />

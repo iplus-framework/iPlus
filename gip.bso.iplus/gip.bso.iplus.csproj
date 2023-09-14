@@ -139,21 +139,6 @@
     <Reference Include="Microsoft.Build.Engine" />
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.WindowsAPICodePack">
-      <HintPath>..\..\..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.ExtendedLinguisticServices">
-      <HintPath>..\..\..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.ExtendedLinguisticServices.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.Sensors">
-      <HintPath>..\..\..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.Sensors.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.Shell">
-      <HintPath>..\..\..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions">
-      <HintPath>..\..\..\packages\WindowsAPICodePack.1.1.0\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -261,6 +246,10 @@
     <ProjectReference Include="..\gip.core.manager\gip.core.manager.csproj">
       <Project>{3A9383D8-5C6D-429C-89D3-57C1D2565AD1}</Project>
       <Name>gip.core.manager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gip.core.media\gip.core.media.csproj">
+      <Project>{f9620201-705d-432c-8941-353e9bffe5e0}</Project>
+      <Name>gip.core.media</Name>
     </ProjectReference>
     <ProjectReference Include="..\gip.core.processapplication\gip.core.processapplication.csproj">
       <Project>{66484708-85BD-47C4-92DD-3010387465F4}</Project>
