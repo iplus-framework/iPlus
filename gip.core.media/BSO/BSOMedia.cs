@@ -149,7 +149,7 @@ namespace gip.core.media
                 {
                     _SelectedImage = value;
                     OnPropertyChanged();
-                    OnPropertyChanged($"{nameof(SelectedImage)}\\{nameof(SelectedImage.FilePath)}");
+                    OnPropertyChanged($"{nameof(SelectedImage)}\\{nameof(SelectedImage.TempFilePath)}");
                 }
             }
         }
@@ -197,7 +197,7 @@ namespace gip.core.media
                 {
                     _SelectedDocument = value;
                     OnPropertyChanged();
-                    OnPropertyChanged($"{nameof(SelectedDocument)}\\{nameof(SelectedDocument.FilePath)}");
+                    OnPropertyChanged($"{nameof(SelectedDocument)}\\{nameof(SelectedDocument.TempFilePath)}");
                 }
             }
         }
