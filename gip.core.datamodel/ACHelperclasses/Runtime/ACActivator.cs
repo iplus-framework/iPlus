@@ -208,12 +208,12 @@ namespace gip.core.datamodel
             if (parentComp == null)
                 return;
 
-            GetMaxInstanceNoOfChilds(newInstance.ParentACComponent, acIdentifierPrefix, out minInstanceNo, out maxInstanceNo);
-            if (maxInstanceNo < 0)
-                maxInstanceNo = 0;
-
             lock (_CreationTokensLock)
             {
+                GetMaxInstanceNoOfChilds(newInstance.ParentACComponent, acIdentifierPrefix, out minInstanceNo, out maxInstanceNo);
+                if (maxInstanceNo < 0)
+                    maxInstanceNo = 0;
+
                 List<IACComponent> newChildInstances = null;
                 if (!_AquiringInstanceNoDict.TryGetValue(parentComp, out newChildInstances))
                 {
@@ -223,7 +223,7 @@ namespace gip.core.datamodel
                 }
                 else
                     newChildInstances.Add(newInstance);
-                maxInstanceNo = newChildInstances.Where(c => c.ACIdentifier.StartsWith(acIdentifierPrefix)).Count();
+                maxInstanceNo += newChildInstances.Where(c => c.ACIdentifier.StartsWith(acIdentifierPrefix)).Count();
             }
         }
 
