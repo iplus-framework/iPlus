@@ -1,6 +1,6 @@
 using gip.core.autocomponent;
 using gip.core.datamodel;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using gip.core.media;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -757,19 +757,8 @@ namespace gip.bso.iplus
         [ACMethodInfo("Export", "en{'...'}de{'...'}", 402, false, false, true)]
         public void ExportFolder()
         {
-            using (var dialog = new CommonOpenFileDialog())
-            {
-                if (Directory.Exists(CurrentExportFolder))
-                    dialog.InitialDirectory = CurrentExportFolder;
-                dialog.IsFolderPicker = true;
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    if (Directory.Exists(dialog.FileName))
-                    {
-                        CurrentExportFolder = dialog.FileName;
-                    }
-                }
-            }
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            CurrentExportFolder = mediaController.OpenFileDialog(true, CurrentExportFolder, true) ?? CurrentExportFolder;
         }
 
         [ACMethodInfo("LoadExportTree", "en{'Filter and load'}de{'Filtern und anzeigen'}", 9999, false, false, true)]

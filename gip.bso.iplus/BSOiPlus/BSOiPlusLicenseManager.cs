@@ -1,6 +1,5 @@
 using gip.core.autocomponent;
 using gip.core.datamodel;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,6 +13,7 @@ using System.Xml;
 using System.ComponentModel;
 using System.Threading;
 using System.Drawing;
+using gip.core.media;
 
 namespace gip.bso.iplus
 {
@@ -432,12 +432,9 @@ namespace gip.bso.iplus
         [ACMethodInfo("","en{'...'}de{'...'}",502,true)]
         public void BrowseActivationDataFile()
         {
-            using (var dialog = new CommonOpenFileDialog() { IsFolderPicker = false })
-            {
-                dialog.InitialDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                    ActivationDataPath = dialog.FileName;
-            }
+            string initialDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            ActivationDataPath = mediaController.OpenFileDialog(false, initialDir, true) ?? ActivationDataPath;
         }
 
         /// <summary>
@@ -631,12 +628,9 @@ namespace gip.bso.iplus
         [ACMethodInfo("","en{'...'}de{'...'}",509)]
         public void BrowseLicenseDir()
         {
-            using (var dialog = new CommonOpenFileDialog() { IsFolderPicker = true })
-            {
-                dialog.InitialDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                    LicenseFileDirPath = dialog.FileName;
-            }
+            string initialDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            LicenseFileDirPath = mediaController.OpenFileDialog(true, initialDir, true) ?? LicenseFileDirPath;
         }
 
         private string CreatePackagesString(IEnumerable<string> packageItems)
@@ -752,12 +746,9 @@ namespace gip.bso.iplus
         [ACMethodInfo("", "en{'...'}de{'...'}", 511)]
         public void BrowseLicenseFile()
         {
-            using (var dialog = new CommonOpenFileDialog() { IsFolderPicker = false })
-            {
-                dialog.InitialDirectory = LicenseFileDirPath;
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                    LicenseFilePath = dialog.FileName;
-            }
+            string initialDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            LicenseFilePath = mediaController.OpenFileDialog(false, initialDir, true) ?? LicenseFilePath;
         }
 
         #endregion

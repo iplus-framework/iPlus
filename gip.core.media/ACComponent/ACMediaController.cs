@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using SkiaSharp;
 using System.Net.Mime;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace gip.core.media
 {
@@ -548,6 +549,65 @@ namespace gip.core.media
             }
 
             return isEmpty;
+        }
+
+        #endregion
+
+        #region Methods -> OpenFileDialog
+
+        public string OpenFileDialog(bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
+        {
+            string path = null;
+            using (var dialog = new CommonOpenFileDialog())
+            {
+                dialog.IsFolderPicker = isFolderPicker;
+                if (isFolderPicker)
+                {
+                    if (Directory.Exists(initialDirectory))
+                    {
+                        dialog.InitialDirectory = initialDirectory;
+                    }
+                }
+                else
+                {
+                    if (File.Exists(initialDirectory))
+                    {
+                        dialog.InitialDirectory = Path.GetDirectoryName(initialDirectory);
+                    }
+                }
+
+                if(defaultExtension != null)
+                {
+                    dialog.DefaultExtension = defaultExtension;
+                }
+
+                if(filters != null)
+                {
+                    foreach(KeyValuePair<string, string> filter in filters)
+                    {
+                        dialog.Filters.Add(new CommonFileDialogFilter(filter.Key, filter.Value));
+                    }
+                }
+
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    bool selectedItemExist = false;
+                    if (isFolderPicker)
+                    {
+                        selectedItemExist = Directory.Exists(dialog.FileName);
+                    }
+                    else
+                    {
+                        selectedItemExist = File.Exists(dialog.FileName);
+                    }
+
+                    if (!string.IsNullOrEmpty(dialog.FileName) && (!useExisting || selectedItemExist))
+                    {
+                        path = dialog.FileName;
+                    }
+                }
+            }
+            return path;
         }
 
         #endregion
