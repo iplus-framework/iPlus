@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.ComponentModel;
 using gip.core.tcShared;
 using ClosedXML.Excel;
+using gip.core.media;
 
 namespace gip.bso.tcStudio
 {
@@ -570,7 +571,9 @@ namespace gip.bso.tcStudio
         [ACMethodInfo("", "en{'...'}de{'...'}", 999)]
         public void OpenSolutionPath()
         {
-            string tsSlnPath = Messages.OpenFileDialog("");
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            string tsSlnPath = mediaController.OpenFileDialog(false, TCSolutionPath, true, "", new Dictionary<string, string>() { { "Solution file", "*.sln" } });
+
             if (tsSlnPath != null && tsSlnPath.ToLower().Contains(".sln"))
                 TCSolutionPath = tsSlnPath;
 
@@ -862,8 +865,8 @@ namespace gip.bso.tcStudio
                     foreach (ITcSmTreeItem tcMethod in ITcSmTreeItemList(pou))
                     {
                         string itemName = ITCAction(() => tcMethod.Name);
-                        if (ITCAction(() => tcMethod.ItemType) == (int)ItemType.Method 
-                                                                    && itemName != GCL.cMethodName_FB_init 
+                        if (ITCAction(() => tcMethod.ItemType) == (int)ItemType.Method
+                                                                    && itemName != GCL.cMethodName_FB_init
                                                                     && itemName != GCL.cMethodName_FB_reinit
                                                                     && itemName != GCL.cMethodName_FB_exit
                                                                     && itemName != GCL.cMethodName_FB_postinit
@@ -1133,8 +1136,8 @@ namespace gip.bso.tcStudio
             foreach (ITcSmTreeItem item in ITcSmTreeItemList(treeItem))
             {
                 string itemName = ITCAction(() => item.Name);
-                if (ITCAction(() => item.ItemType) == (int)ItemType.Method 
-                    && itemName != GCL.cMethodName_FB_init 
+                if (ITCAction(() => item.ItemType) == (int)ItemType.Method
+                    && itemName != GCL.cMethodName_FB_init
                     && itemName != GCL.cMethodName_FB_reinit
                     && itemName != GCL.cMethodName_FB_exit
                     && itemName != GCL.cMethodName_FB_postinit
@@ -1292,7 +1295,7 @@ namespace gip.bso.tcStudio
                     string declVB = decl.Substring(startIndex, endIndex - startIndex).Trim();
                     int edgeIndex = declVB.IndexOf("_Edge");
 
-                    if(edgeIndex != -1)
+                    if (edgeIndex != -1)
                     {
                         _mainDecl = declVB.Substring(C_RegionStartName.Length, edgeIndex - C_RegionStartName.Length).Trim();
                         _mainEdgeDecl = declVB.Substring(edgeIndex, declVB.Length - edgeIndex);
@@ -1764,26 +1767,26 @@ namespace gip.bso.tcStudio
 
                 AddDefaultMethods(vb);
             }
-    
+
             string mainDeclaration = ITCAction(() => main is ITcPlcDeclaration ? ((ITcPlcDeclaration)main).DeclarationText : null);
             string regionStart = C_RegionStartName;
 
             if (mainDeclaration.Contains(regionStart) && mainDeclaration.Contains(C_VBRegionEnd))
             {
-                int startIndex = mainDeclaration.IndexOf(regionStart)+regionStart.Length;
+                int startIndex = mainDeclaration.IndexOf(regionStart) + regionStart.Length;
                 int endIndex = mainDeclaration.IndexOf(C_VBRegionEnd);
 
                 mainDeclaration = mainDeclaration.Remove(startIndex, endIndex - startIndex);
                 mainDeclaration = mainDeclaration.Insert(startIndex, System.Environment.NewLine + _mainDecl + System.Environment.NewLine);
-                mainDeclaration = mainDeclaration.Insert(startIndex + (System.Environment.NewLine + _mainDecl + System.Environment.NewLine).Length, 
+                mainDeclaration = mainDeclaration.Insert(startIndex + (System.Environment.NewLine + _mainDecl + System.Environment.NewLine).Length,
                                                          System.Environment.NewLine + _mainEdgeDecl + System.Environment.NewLine);
             }
             else
             {
                 mainDeclaration = mainDeclaration.Insert(mainDeclaration.IndexOf(GCL.cST_Keyword_VAR) + 3, System.Environment.NewLine +
-                                                        C_VBRegionStart + System.Environment.NewLine + 
-                                                        _mainDecl + System.Environment.NewLine + 
-                                                        _mainEdgeDecl + System.Environment.NewLine + 
+                                                        C_VBRegionStart + System.Environment.NewLine +
+                                                        _mainDecl + System.Environment.NewLine +
+                                                        _mainEdgeDecl + System.Environment.NewLine +
                                                         C_VBRegionEnd + System.Environment.NewLine);
             }
 
@@ -1846,36 +1849,36 @@ namespace gip.bso.tcStudio
                     while (line != null);
                 }
             }
-            
+
             AddVBDeclarationAndImplementation(vb, childName);
         }
 
         private void RemoveDeletedItemsFromMain(ITcSmTreeItem main)
         {
-            foreach(var edgeTuple in _edgeDeleteCache)
+            foreach (var edgeTuple in _edgeDeleteCache)
             {
                 int edgeIndex = _mainEdgeDecl.IndexOf(edgeTuple.Item2);
                 if (edgeIndex != -1)
                 {
-                    int endIndex = _mainEdgeDecl.IndexOf(';', edgeIndex)+1;
+                    int endIndex = _mainEdgeDecl.IndexOf(';', edgeIndex) + 1;
                     string edge = _mainEdgeDecl.Substring(edgeIndex, endIndex - edgeIndex);
 
                     var edgeParts = edge.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-                    if(edgeParts[0].Contains(edgeTuple.Item1))
+                    if (edgeParts[0].Contains(edgeTuple.Item1))
                     {
                         string pointPart = edgeParts[1].Trim();
                         string pouName = pointPart.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
-                        ITcSmTreeItem pou = FindPouFromRoot(pouName.Remove(0,1));
-                        if(pou != null)
+                        ITcSmTreeItem pou = FindPouFromRoot(pouName.Remove(0, 1));
+                        if (pou != null)
                             DeleteEdgeFromPouDeclarationAndImplementation(pou, edgeTuple.Item2);
                     }
                     else
                     {
                         string pointPart = edgeParts[0].Split(new char[] { '(' }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
                         string pouName = pointPart.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
-                        ITcSmTreeItem pou = FindPouFromRoot(pouName.Remove(0,1));
-                        if(pou != null)
+                        ITcSmTreeItem pou = FindPouFromRoot(pouName.Remove(0, 1));
+                        if (pou != null)
                             DeleteEdgeFromPouDeclarationAndImplementation(pou, edgeTuple.Item2);
                     }
 
@@ -1891,9 +1894,9 @@ namespace gip.bso.tcStudio
                 if (startIndex == -1)
                     startIndex = _mainDecl.IndexOf(C_4spaces + GCL.cADSInstancePrefix + deletedPou + " :");
 
-                if(startIndex != -1)
+                if (startIndex != -1)
                 {
-                    int endIndex = _mainDecl.IndexOf(';', startIndex) +1;
+                    int endIndex = _mainDecl.IndexOf(';', startIndex) + 1;
                     _mainDecl = _mainDecl.Remove(startIndex, endIndex - startIndex);
                 }
             }
@@ -1957,8 +1960,8 @@ namespace gip.bso.tcStudio
 
             if (string.IsNullOrEmpty(implementation))
             {
-                implementation = C_VBRegionStart + System.Environment.NewLine + C_4spaces + GCL.cADSInstancePrefix  + childName + C_ST_Code_RefMainChild + childName + ";"+ 
-                                                  System.Environment.NewLine + C_4spaces + GCL.cMethodName_AddChild + "(" + GCL.cADSInstancePrefix + childName + ");" + 
+                implementation = C_VBRegionStart + System.Environment.NewLine + C_4spaces + GCL.cADSInstancePrefix + childName + C_ST_Code_RefMainChild + childName + ";" +
+                                                  System.Environment.NewLine + C_4spaces + GCL.cMethodName_AddChild + "(" + GCL.cADSInstancePrefix + childName + ");" +
                                                   System.Environment.NewLine + C_4spaces + GCL.cSTCode_CallSuper + GCL.cMethodName_FB_childinit + GCL.cSTCode_Call + System.Environment.NewLine +
                                  C_VBRegionEnd;
                 ITCPlcImplementationTextSet(fbChildInit, implementation);
@@ -1977,14 +1980,14 @@ namespace gip.bso.tcStudio
                             if (!implementation.Contains(C_VBRegionStart) && !implementation.Contains(C_VBRegionEnd))
                             {
                                 sb.AppendLine(C_VBRegionStart);
-                                sb.AppendLine(C_4spaces + GCL.cADSInstancePrefix  + childName + C_ST_Code_RefMainChild + childName + ";");
+                                sb.AppendLine(C_4spaces + GCL.cADSInstancePrefix + childName + C_ST_Code_RefMainChild + childName + ";");
                                 sb.AppendLine(C_4spaces + GCL.cMethodName_AddChild + "(" + GCL.cADSInstancePrefix + childName + ");");
                                 sb.AppendLine(C_4spaces + GCL.cSTCode_CallSuper + GCL.cMethodName_FB_childinit + GCL.cSTCode_Call);
                                 sb.AppendLine(C_VBRegionEnd);
                             }
                             else if (line.Equals(GCL.cSTCode_CallSuper + GCL.cMethodName_FB_childinit + GCL.cSTCode_Call) && !implementation.Contains(C_4spaces + GCL.cMethodName_AddChild + "(" + GCL.cADSInstancePrefix + childName + ");"))
                             {
-                                sb.AppendLine(C_4spaces + GCL.cADSInstancePrefix + childName + C_ST_Code_RefMainChild + childName+ ";");
+                                sb.AppendLine(C_4spaces + GCL.cADSInstancePrefix + childName + C_ST_Code_RefMainChild + childName + ";");
                                 sb.AppendLine(C_4spaces + GCL.cMethodName_AddChild + "(" + GCL.cADSInstancePrefix + childName + ");");
                                 sb.AppendLine(line);
                             }
@@ -2118,14 +2121,14 @@ namespace gip.bso.tcStudio
                         if (initialDeclaration && line.Equals(GCL.cST_Keyword_VAR_INPUT))
                         {
                             sb.AppendLine(VBRegionStart(C_4spaces));
-                            string childName = C_8spaces + GCL.cADSInstancePrefix + ITCAction(() => childPou.Name).Split(_DirSeperatorArr, StringSplitOptions.RemoveEmptyEntries).LastOrDefault() + " :" + _ReferenceTo + ITCAction(() => childPou.Name)+";";
+                            string childName = C_8spaces + GCL.cADSInstancePrefix + ITCAction(() => childPou.Name).Split(_DirSeperatorArr, StringSplitOptions.RemoveEmptyEntries).LastOrDefault() + " :" + _ReferenceTo + ITCAction(() => childPou.Name) + ";";
                             sb.AppendLine(childName);
                             AddChildFBInitImplementation(ITCAction(() => childPou.Name), parentPou);
                             sb.AppendLine(C_4spaces + C_VBRegionEnd);
                         }
                         else if (line == C_4spaces + C_RegionStartName)
                         {
-                            string childName = C_8spaces + GCL.cADSInstancePrefix + ITCAction(() => childPou.Name).Split(_DirSeperatorArr, StringSplitOptions.RemoveEmptyEntries).LastOrDefault() + " :" + _ReferenceTo + ITCAction(() => childPou.Name)+";";
+                            string childName = C_8spaces + GCL.cADSInstancePrefix + ITCAction(() => childPou.Name).Split(_DirSeperatorArr, StringSplitOptions.RemoveEmptyEntries).LastOrDefault() + " :" + _ReferenceTo + ITCAction(() => childPou.Name) + ";";
                             if (!declaration.Contains(childName))
                                 sb.AppendLine(childName);
                             AddChildFBInitImplementation(ITCAction(() => childPou.Name), parentPou);
@@ -2169,7 +2172,7 @@ namespace gip.bso.tcStudio
             if (string.IsNullOrEmpty(implementation))
             {
                 createdImplementation = C_VBRegionStart + System.Environment.NewLine +
-                                        C_4spaces + GCL.cADSInstancePrefix + childName + C_ST_Code_RefMainChild + childFullName + ";" + System.Environment.NewLine + 
+                                        C_4spaces + GCL.cADSInstancePrefix + childName + C_ST_Code_RefMainChild + childFullName + ";" + System.Environment.NewLine +
                                         C_4spaces + GCL.cMethodName_AddChild + "(" + GCL.cADSInstancePrefix + childName + ");" + System.Environment.NewLine +
                                         C_4spaces + GCL.cSTCode_CallSuper + GCL.cMethodName_FB_childinit + GCL.cSTCode_Call + System.Environment.NewLine +
                                         C_VBRegionEnd;
@@ -2198,7 +2201,7 @@ namespace gip.bso.tcStudio
                 }
             }
             ITCPlcImplementationTextSet(postInit, createdImplementation);
-                    
+
         }
 
         /// <summary>
@@ -2293,18 +2296,18 @@ namespace gip.bso.tcStudio
             if (string.IsNullOrEmpty(_mainEdgeDecl))
             {
                 _lastEdgeNo = 1;
-                _mainEdgeDecl = string.Format("{0}{1} : {2}", C_4spaces, currentEdge, edgeInstance+";");
+                _mainEdgeDecl = string.Format("{0}{1} : {2}", C_4spaces, currentEdge, edgeInstance + ";");
             }
-            else if(_mainEdgeDecl.Contains(edgeInstance))
+            else if (_mainEdgeDecl.Contains(edgeInstance))
             {
-                string instanceLine = _mainEdgeDecl.Split(new char[] { ';'}, StringSplitOptions.None).FirstOrDefault(c => c.Contains(edgeInstance));
-                currentEdge = instanceLine.Split(new char[] {':'}).FirstOrDefault().Replace("_Edge", String.Empty).Trim();
+                string instanceLine = _mainEdgeDecl.Split(new char[] { ';' }, StringSplitOptions.None).FirstOrDefault(c => c.Contains(edgeInstance));
+                currentEdge = instanceLine.Split(new char[] { ':' }).FirstOrDefault().Replace("_Edge", String.Empty).Trim();
             }
             else
             {
                 _lastEdgeNo++;
                 currentEdge = string.Format("_Edge{0}", _lastEdgeNo.ToString("000#"));
-                _mainEdgeDecl += System.Environment.NewLine + string.Format("{0}{1} : {2}", C_4spaces, currentEdge, edgeInstance+";");
+                _mainEdgeDecl += System.Environment.NewLine + string.Format("{0}{1} : {2}", C_4spaces, currentEdge, edgeInstance + ";");
             }
 
             string declaration = ITCAction(() => sourceItem is ITcPlcDeclaration ? ((ITcPlcDeclaration)sourceItem).DeclarationText : null);
@@ -2326,7 +2329,7 @@ namespace gip.bso.tcStudio
                         {
                             sb.AppendLine(line);
                             sb.AppendLine(VBRegionStart(C_4spaces));
-                            string edge = string.Format("{0}{1} :" + _ReferenceTo + PAEdge.ClassName + ";",C_8spaces, currentEdge);
+                            string edge = string.Format("{0}{1} :" + _ReferenceTo + PAEdge.ClassName + ";", C_8spaces, currentEdge);
                             sb.AppendLine(edge);
                             sb.AppendLine(C_4spaces + C_VBRegionEnd);
                             AddEdgeFBPostInitImplementation(currentEdge, sourceItem, sourceProp);
@@ -2387,14 +2390,14 @@ namespace gip.bso.tcStudio
                 createdImplementation = C_VBRegionStart + System.Environment.NewLine +
                                         C_4spaces + C_ST_Code_IF_NOT_InitState_THEN
                                         + System.Environment.NewLine +
-                                        C_8spaces + edgeName + C_ST_Code_RefMain + edgeName + ";" + System.Environment.NewLine + 
+                                        C_8spaces + edgeName + C_ST_Code_RefMain + edgeName + ";" + System.Environment.NewLine +
                                         C_8spaces + propName + "." + GCL.cMethodName_AddEdge + "(" + edgeName + ");"
                                         + System.Environment.NewLine +
                                         C_4spaces + GCL.cST_Keyword_ENDIF
                                         + System.Environment.NewLine + C_VBRegionEnd
                                         + System.Environment.NewLine + System.Environment.NewLine +
                                         C_VBRegionStart + System.Environment.NewLine +
-                                        C_4spaces + GCL.cSTCode_CallSuper + GCL.cMethodName_FB_postinit +"(root);"
+                                        C_4spaces + GCL.cSTCode_CallSuper + GCL.cMethodName_FB_postinit + "(root);"
                                         + System.Environment.NewLine + C_VBRegionEnd;
             }
             else
@@ -2402,7 +2405,7 @@ namespace gip.bso.tcStudio
                 if (!implementation.Contains(C_VBRegionEnd))
                 {
                     implementation += System.Environment.NewLine + C_VBRegionStart + System.Environment.NewLine +
-                                     C_4spaces + C_ST_Code_IF_NOT_InitState_THEN +  System.Environment.NewLine +
+                                     C_4spaces + C_ST_Code_IF_NOT_InitState_THEN + System.Environment.NewLine +
                                      C_4spaces + GCL.cST_Keyword_ENDIF + System.Environment.NewLine +
                                      C_VBRegionEnd;
                 }
@@ -2413,7 +2416,7 @@ namespace gip.bso.tcStudio
 
                     implementation = implementation.Insert(indexOfVBRegEnd, System.Environment.NewLine +
                          C_4spaces + C_ST_Code_IF_NOT_InitState_THEN + System.Environment.NewLine +
-                         C_4spaces + GCL.cST_Keyword_ENDIF + System.Environment.NewLine); 
+                         C_4spaces + GCL.cST_Keyword_ENDIF + System.Environment.NewLine);
                 }
 
                 using (StringReader reader = new StringReader(implementation))
@@ -2471,7 +2474,7 @@ namespace gip.bso.tcStudio
                         {
                             sb.AppendLine(line);
                             sb.AppendLine(VBRegionStart(C_4spaces));
-                            sb.AppendLine(C_8spaces  + edgeInfo1);
+                            sb.AppendLine(C_8spaces + edgeInfo1);
                             sb.AppendLine(C_4spaces + C_VBRegionEnd);
                         }
                         else if (line == C_4spaces + C_VBRegionEnd)
@@ -2575,8 +2578,8 @@ namespace gip.bso.tcStudio
                     propSync.Add(prop);
                     propCount++;
                 }
-                else if (ITCAction(() => item.ItemType) == (int)ItemType.Method 
-                                                            && itemName != GCL.cMethodName_FB_init 
+                else if (ITCAction(() => item.ItemType) == (int)ItemType.Method
+                                                            && itemName != GCL.cMethodName_FB_init
                                                             && itemName != GCL.cMethodName_FB_reinit
                                                             && itemName != GCL.cMethodName_FB_exit
                                                             && itemName != GCL.cMethodName_FB_postinit
@@ -2829,7 +2832,7 @@ namespace gip.bso.tcStudio
                         if (line.Contains("." + GCL.cMethodName_AddEdge))
                         {
                             string propName = line.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault().Trim();
-                            int startIndex = line.IndexOf('(')+1;
+                            int startIndex = line.IndexOf('(') + 1;
                             string edgeName = line.Substring(startIndex, line.IndexOf(')') - startIndex);
                             _edgeDeleteCache.Add(new Tuple<string, string>(propName, edgeName));
                         }
@@ -3220,7 +3223,7 @@ namespace gip.bso.tcStudio
             }
             else
                 result++;
-           
+
             foreach (ACClassInfoWithItems item in info.Items)
                 CountRecursive(item, onlyChecked, ref result);
         }

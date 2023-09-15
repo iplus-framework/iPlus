@@ -222,7 +222,7 @@ namespace gip.core.reporthandler
             }
             catch (Exception e)
             {
-                Messages.LogException(this.GetACUrl(), "DoPrint(30)", e);
+                Messages.LogException(this.GetACUrl(), "DoPrint(30)", e, true);
             }
             finally
             {

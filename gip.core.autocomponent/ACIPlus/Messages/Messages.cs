@@ -204,52 +204,6 @@ namespace gip.core.autocomponent
             return result;
         }
 
-
-        /// <summary>Opens the file dialog.</summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="initialDirectory">The initial directory.</param>
-        /// <param name="restoreDirectory">if set to <c>true</c> [restore directory].</param>
-        /// <returns>System.String.</returns>
-        [ACMethodInfo("FileDialog", "en{'Open File'}de{'Datei öffnen'}", 9999)]
-        public string OpenFileDialog(string filter, string initialDirectory = "", bool restoreDirectory = true)
-        {
-            if (Root.RootPageWPF != null)
-            {
-                return Root.RootPageWPF.OpenFileDialog(filter, initialDirectory, restoreDirectory);
-            }
-            return null;
-        }
-
-
-        /// <summary>Opens a file dialog for saving.</summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="initialDirectory">The initial directory.</param>
-        /// <param name="restoreDirectory">if set to <c>true</c> [restore directory].</param>
-        /// <returns>System.String.</returns>
-        [ACMethodInfo("FileDialog", "en{'Save File'}de{'Datei speichern'}", 9999)]
-        public string SaveFileDialog(string filter, string initialDirectory = "", bool restoreDirectory = true)
-        {
-            if (Root.RootPageWPF != null)
-            {
-                return Root.RootPageWPF.SaveFileDialog(filter, initialDirectory, restoreDirectory);
-            }
-            return null;
-        }
-
-
-        /// <summary>Opens a file dialog for selecting a directory.</summary>
-        /// <param name="initialDirectory">The initial directory.</param>
-        /// <returns>System.String.</returns>
-        [ACMethodInfo("FolderDialog", "en{'Folder'}de{'Verzeichnis'}", 9999)]
-        public string SelectFolderDialog(string initialDirectory)
-        {
-            if (Root.RootPageWPF != null)
-            {
-                return (string)Root.Businessobjects.ACUrlCommand("VBBSOFolderDialog!FolderDlg", new object[] { initialDirectory });
-            }
-            return initialDirectory;
-        }
-
         #endregion
 
         #region Logging
@@ -843,15 +797,6 @@ namespace gip.core.autocomponent
                     return true;
                 case "InputBoxValues":
                     result = InputBoxValues((String)acParameter[0], (Object[])acParameter[1], (String[])acParameter[2], acParameter.Count() == 4 ? (String)acParameter[3] : null);
-                    return true;
-                case "OpenFileDialog":
-                    result = OpenFileDialog((String)acParameter[0], acParameter.Count() == 2 ? (String)acParameter[1] : "", acParameter.Count() == 3 ? (Boolean)acParameter[2] : true);
-                    return true;
-                case "SaveFileDialog":
-                    result = SaveFileDialog((String)acParameter[0], acParameter.Count() == 2 ? (String)acParameter[1] : "", acParameter.Count() == 3 ? (Boolean)acParameter[2] : true);
-                    return true;
-                case "SelectFolderDialog":
-                    result = SelectFolderDialog((String)acParameter[0]);
                     return true;
                 case "LogDebug":
                     LogDebug((String)acParameter[0], (String)acParameter[1], (String)acParameter[2]);

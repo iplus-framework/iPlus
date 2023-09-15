@@ -1,5 +1,6 @@
 ﻿using gip.core.autocomponent;
 using gip.core.datamodel;
+using gip.core.media;
 using Google.Api.Gax.ResourceNames;
 using Google.Cloud.Translate.V3;
 using Microsoft.EntityFrameworkCore;
@@ -1555,19 +1556,8 @@ namespace gip.bso.iplus
         [ACMethodInfo("Export", "en{'...'}de{'...'}", 402, false, false, true)]
         public void ExportFolder()
         {
-            using (var dialog = new CommonOpenFileDialog())
-            {
-                if (Directory.Exists(CurrentExportFolder))
-                    dialog.InitialDirectory = CurrentExportFolder;
-                dialog.IsFolderPicker = true;
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    if (Directory.Exists(dialog.FileName))
-                    {
-                        CurrentExportFolder = dialog.FileName;
-                    }
-                }
-            }
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            CurrentExportFolder = mediaController.OpenFileDialog(true, CurrentExportFolder, true) ?? CurrentExportFolder;
         }
 
         [ACMethodInfo("ExportTranslations", "en{'Export selected only'}de{'Exportiere nur Auswahl'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
@@ -1639,19 +1629,8 @@ namespace gip.bso.iplus
         {
             if (!IsEnabledImportSource())
                 return;
-            using (var dialog = new CommonOpenFileDialog())
-            {
-                if (Directory.Exists(CurrentExportFolder))
-                    dialog.InitialDirectory = CurrentExportFolder;
-                dialog.IsFolderPicker = false;
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    if (File.Exists(dialog.FileName))
-                    {
-                        ImportSourcePath = dialog.FileName;
-                    }
-                }
-            }
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            ImportSourcePath = mediaController.OpenFileDialog(false, ImportSourcePath, true) ?? ImportSourcePath;
         }
 
         public bool IsEnabledImportSource()

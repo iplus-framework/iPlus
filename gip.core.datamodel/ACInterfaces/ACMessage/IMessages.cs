@@ -118,28 +118,6 @@ namespace gip.core.datamodel
         /// <returns>System.Object[][].</returns>
         object[] InputBoxValues(String header, object[] valueList, string[] captionList, string designXML = null);
 
-
-        /// <summary>Opens the file dialog.</summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="initialDirectory">The initial directory.</param>
-        /// <param name="restoreDirectory">if set to <c>true</c> [restore directory].</param>
-        /// <returns>System.String.</returns>
-        string OpenFileDialog(string filter, string initialDirectory = "", bool restoreDirectory = true);
-
-
-        /// <summary>Opens a file dialog for saving.</summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="initialDirectory">The initial directory.</param>
-        /// <param name="restoreDirectory">if set to <c>true</c> [restore directory].</param>
-        /// <returns>System.String.</returns>
-        string SaveFileDialog(string filter, string initialDirectory = "", bool restoreDirectory = true);
-
-
-        /// <summary>Opens a file dialog for selecting a directory.</summary>
-        /// <param name="initialDirectory">The initial directory.</param>
-        /// <returns>System.String.</returns>
-        string SelectFolderDialog(string initialDirectory);
-
         #endregion
 
 

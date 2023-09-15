@@ -1,6 +1,6 @@
 using gip.core.autocomponent;
 using gip.core.datamodel;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using gip.core.media;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -454,19 +454,8 @@ namespace gip.bso.iplus
         [ACMethodInfo("Import", "en{'...'}de{'...'}", 407, false, false, true)]
         public void ImportFolder()
         {
-            using (var dialog = new CommonOpenFileDialog())
-            {
-                if (Directory.Exists(FolderPath))
-                    dialog.InitialDirectory = FolderPath;
-                dialog.IsFolderPicker = true;
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    if (Directory.Exists(dialog.FileName))
-                    {
-                        FolderPath = dialog.FileName;
-                    }
-                }
-            }
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            FolderPath = mediaController.OpenFileDialog(true, FolderPath, true) ?? FolderPath;
         }
 
         #endregion

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace gip.core.datamodel
+namespace gip.core.media
 {
     public class MediaTypeSettingsItem
     {

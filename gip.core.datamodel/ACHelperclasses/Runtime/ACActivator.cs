@@ -12,6 +12,7 @@
 // <summary></summary>
 // ***********************************************************************
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -133,6 +134,130 @@ namespace gip.core.datamodel
     /// </summary>
     public static class ACActivator
     {
+        #region Creation-Token
+        private static object _CreationTokensLock = new object();
+        private static ConcurrentBag<int> _CreationTokens = new ConcurrentBag<int>();
+        private static Dictionary<int, IACObjectWithInit> _TokenInstanceMap = new Dictionary<int, IACObjectWithInit>();
+        private static int NewCreationToken()
+        {
+            int creationToken = (new object()).GetHashCode();
+            lock (_CreationTokensLock)
+            {
+                _CreationTokens.Add(creationToken);
+            }
+            return creationToken;
+        }
+
+        internal static int GetNextCreationToken(IACObjectWithInit newInstance)
+        {
+            int creationToken = 0;
+            lock (_CreationTokensLock)
+            {
+                if (_CreationTokens.TryTake(out creationToken))
+                {
+                    _TokenInstanceMap.Add(creationToken, newInstance);
+                }
+            }
+            return creationToken;
+        }
+
+        private static void RemoveCreationToken(int creationToken)
+        {
+            if (creationToken <= 0)
+                return;
+            lock (_CreationTokensLock)
+            {
+                IACObjectWithInit newInstance = null;
+                if (_TokenInstanceMap.TryGetValue(creationToken, out newInstance))
+                    CompleteInstanceNoAquisition(newInstance as IACComponent);
+                if (!_TokenInstanceMap.Remove(creationToken))
+                {
+                    _CreationTokens = new ConcurrentBag<int>(_CreationTokens.Except(new[] { creationToken }));
+                }
+            }
+        }
+
+        private static void CompleteInstanceNoAquisition(IACComponent newInstance)
+        {
+            if (newInstance == null)
+                return;
+            lock (_CreationTokensLock)
+            {
+                IACComponent parentComp = newInstance.ParentACComponent;
+                if (parentComp != null)
+                {
+                    List<IACComponent> newChildInstances = null;
+                    if (_AquiringInstanceNoDict.TryGetValue(parentComp, out newChildInstances))
+                    {
+                        newChildInstances.Remove(newInstance);
+                        if (!newChildInstances.Any())
+                            _AquiringInstanceNoDict.Remove(parentComp);
+                    }
+                }
+            }
+        }
+
+        private static Dictionary<IACComponent, List<IACComponent>> _AquiringInstanceNoDict = new Dictionary<IACComponent, List<IACComponent>>();
+        internal static void AquireNextInstanceNo(IACComponent newInstance, string acIdentifierPrefix, out int minInstanceNo, out int maxInstanceNo)
+        {
+            minInstanceNo = -1;
+            maxInstanceNo = -1;
+            if (newInstance == null)
+                return;
+            IACComponent parentComp = newInstance.ParentACComponent;
+            if (parentComp == null)
+                return;
+
+            lock (_CreationTokensLock)
+            {
+                GetMaxInstanceNoOfChilds(newInstance.ParentACComponent, acIdentifierPrefix, out minInstanceNo, out maxInstanceNo);
+                if (maxInstanceNo < 0)
+                    maxInstanceNo = 0;
+
+                List<IACComponent> newChildInstances = null;
+                if (!_AquiringInstanceNoDict.TryGetValue(parentComp, out newChildInstances))
+                {
+                    newChildInstances = new List<IACComponent>();
+                    newChildInstances.Add(newInstance);
+                    _AquiringInstanceNoDict.Add(parentComp, newChildInstances);
+                }
+                else
+                    newChildInstances.Add(newInstance);
+                maxInstanceNo += newChildInstances.Where(c => c.ACIdentifier.StartsWith(acIdentifierPrefix)).Count();
+            }
+        }
+
+        public static void GetMaxInstanceNoOfChilds(IACComponent parentACComponent, string acIdentifierPrefix, out int minInstanceNo, out int maxInstanceNo)
+        {
+            minInstanceNo = -1;
+            maxInstanceNo = -1;
+            if (parentACComponent == null || parentACComponent.ACComponentChilds == null || String.IsNullOrEmpty(acIdentifierPrefix))
+                return;
+            string multiIACIdentifier = acIdentifierPrefix + "(";
+            var query = parentACComponent.ACComponentChilds.Where(c => c.ACIdentifier.StartsWith(multiIACIdentifier)).ToArray();
+            if (query != null && query.Any())
+            {
+                foreach (var acComponentChild in query)
+                {
+                    string sInstanceNo = ACUrlHelper.ExtractInstanceName(acComponentChild.ACIdentifier);
+                    int iInstanceNo = 0;
+                    if (int.TryParse(sInstanceNo, out iInstanceNo))
+                    {
+                        if (maxInstanceNo <= -1)
+                            maxInstanceNo = iInstanceNo;
+                        else if (iInstanceNo > maxInstanceNo)
+                            maxInstanceNo = iInstanceNo;
+                        if (minInstanceNo <= -1)
+                            minInstanceNo = iInstanceNo;
+                        else if (iInstanceNo < minInstanceNo)
+                            minInstanceNo = iInstanceNo;
+                    }
+                }
+            }
+        }
+        #endregion
+
+
         /// <summary>
         /// Creates the instance.
         /// </summary>
@@ -158,6 +283,7 @@ namespace gip.core.datamodel
                 return null;
             IACObjectWithInit newACObject = null;
             ACActivatorThread currentThreadInACInit = null;
+            int creationToken = -1;
             try
             {
                 bool recycled = false;
@@ -175,6 +301,7 @@ namespace gip.core.datamodel
 
                     IACComponent newACComponent = newACObject as IACComponent;
                     IACObject contentACObject = content as IACObject;
+                    creationToken = NewCreationToken();
                     newACComponent.Recycle(contentACObject, acComponentParent, parameter, acIdentifier);
                     recycled = true;
                 }
@@ -186,6 +313,7 @@ namespace gip.core.datamodel
                             String.Format("Start={0:dd.MM.yyyy HH:mm:ss.ffff}; ThreadID={1}; Class={2};",
                             DateTime.Now, Thread.CurrentThread.ManagedThreadId, acClass.ACIdentifier));
 #endif
+                    creationToken = NewCreationToken();
                     newACObject = Activator.CreateInstance(acObjectType, new Object[] { acClass, content, acComponentParent, parameter, acIdentifier }) as IACObjectWithInit;
                 }
 
@@ -245,7 +373,10 @@ namespace gip.core.datamodel
                 currentThreadInACInit = null;
 
                 if (newACObject is IACComponent && componentParent != null)
+                {
                     componentParent.AddChild(newACObject);
+                    CompleteInstanceNoAquisition(newACObject as IACComponent);
+                }
                 currentThreadInPostInit.NewACObjectStack.Push(newACObject);
 
                 if (currentThreadInPostInit.ProxyObjectsInvolved && currentThreadInPostInit.InstanceDepth <= 0 && newACObject is IACComponent)
@@ -283,6 +414,10 @@ namespace gip.core.datamodel
                     throw new ACCreateException(newACObject, message, e);
                 else
                     return null;
+            }
+            finally
+            {
+                RemoveCreationToken(creationToken);
             }
         }
 

@@ -150,6 +150,7 @@ namespace gip.core.layoutengine
             _Initialized = false;
             _VBContentPropertyInfo = null;
             this.Loaded -= OnLoaded;
+            Source = null;
             
             BindingOperations.ClearBinding(this, VBImage.ACClassDesignProperty);
             //BindingOperations.ClearBinding(this, VBImage.ACCompInitStateProperty);

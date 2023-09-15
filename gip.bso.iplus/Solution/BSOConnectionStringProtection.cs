@@ -2,12 +2,8 @@ using gip.core.autocomponent;
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
 using System.Configuration;
-using System.IO;
+using gip.core.media;
 
 namespace gip.bso.iplus
 {
@@ -100,7 +96,8 @@ namespace gip.bso.iplus
         [ACMethodInfo("ConnectionString", "en{'...'}de{'...'}", 401, false, false, true)]
         public void SelectConfigFile()
         {
-            string configPath = Messages.OpenFileDialog("", AppDomain.CurrentDomain.BaseDirectory);
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            string configPath = mediaController.OpenFileDialog(false, AppDomain.CurrentDomain.BaseDirectory, true, ".config", new Dictionary<string, string>() { { "Config file", ".config" } });
             if (configPath != null && configPath.ToLower().Contains(".config"))
             {
                 ExeConfigurationFileMap fileMap = new ExeConfigurationFileMap();

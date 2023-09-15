@@ -139,6 +139,7 @@ namespace gip.core.autocomponent
         /// <param name="acIdentifier"></param>
         protected virtual void Construct(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
         {
+            int creationToken = ACActivator.GetNextCreationToken(this);
             if (parentACObject is ACComponent && content == null)
             {
                 ACComponent parentACComponent = parentACObject as ACComponent;
@@ -222,10 +223,9 @@ namespace gip.core.autocomponent
                     {
                         int minInstanceNo = -1;
                         int maxInstanceNo = -1;
-                        GetMaxInstanceNoOfChilds(_ACIdentifier, out minInstanceNo, out maxInstanceNo);
-                        if (maxInstanceNo < 0)
-                            maxInstanceNo = 0;
-                        maxInstanceNo++;
+                        ACActivator.AquireNextInstanceNo(this, _ACIdentifier, out minInstanceNo, out maxInstanceNo);
+                        if (maxInstanceNo <= 0)
+                            maxInstanceNo = 1;
                         string acNameInstance = maxInstanceNo.ToString();
                         _ACIdentifier += "(" + acNameInstance + ")";
                     }
@@ -242,31 +242,7 @@ namespace gip.core.autocomponent
         /// <param name="maxInstanceNo"></param>
         public void GetMaxInstanceNoOfChilds(string acIdentifierPrefix, out int minInstanceNo, out int maxInstanceNo)
         {
-            minInstanceNo = -1;
-            maxInstanceNo = -1;
-            if (ParentACComponent == null || ParentACComponent.ACComponentChilds == null || String.IsNullOrEmpty(acIdentifierPrefix))
-                return;
-            string multiIACIdentifier = acIdentifierPrefix + "(";
-            var query = ParentACComponent.ACComponentChilds.Where(c => c.ACIdentifier.StartsWith(multiIACIdentifier)).ToArray();
-            if (query != null && query.Any())
-            {
-                foreach (var acComponentChild in query)
-                {
-                    string sInstanceNo = ACUrlHelper.ExtractInstanceName(acComponentChild.ACIdentifier);
-                    int iInstanceNo = 0;
-                    if (int.TryParse(sInstanceNo, out iInstanceNo))
-                    {
-                        if (maxInstanceNo <= -1)
-                            maxInstanceNo = iInstanceNo;
-                        else if (iInstanceNo > maxInstanceNo)
-                            maxInstanceNo = iInstanceNo;
-                        if (minInstanceNo <= -1)
-                            minInstanceNo = iInstanceNo;
-                        else if (iInstanceNo < minInstanceNo)
-                            minInstanceNo = iInstanceNo;
-                    }
-                }
-            }
+            ACActivator.GetMaxInstanceNoOfChilds(ParentACComponent, acIdentifierPrefix, out minInstanceNo, out maxInstanceNo);
         }
 
         #endregion

@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using gip.core.datamodel;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace gip.core.datamodel
+namespace gip.core.media
 {
     public class MediaSettings
     {
@@ -40,36 +41,14 @@ namespace gip.core.datamodel
                     }
                 }
             }
-        }
-        
-        #endregion
 
-        #region Load
-
-        public void LoadTypeFolder(IACObject item)
-        {
-            TypeRootFolder = GetItemTypeRootFolder(MediaRootFolder, item);
-        }
-
-        /// <summary>
-        /// Loading image for supported type
-        /// </summary>
-        /// <param name="imageInfo"></param>
-        public void LoadImage(IImageInfo imageInfo)
-        {
-            string tmpFolder = GetItemRootFolder(TypeRootFolder, imageInfo as IACObject);
-            tmpFolder = Path.Combine(tmpFolder, "images");
-            if (Directory.Exists(tmpFolder))
+            TempFolder = Path.Combine(Path.GetTempPath(), "MediaTemp");
+            if(!Directory.Exists(TempFolder))
             {
-                string defImage = Path.Combine(tmpFolder, FullDefaultImageName);
-                if (File.Exists(defImage))
-                    imageInfo.DefaultImage = defImage;
-                string thumbImage = Path.Combine(tmpFolder, FullDefaultThumbImageName);
-                if (File.Exists(thumbImage))
-                    imageInfo.DefaultThumbImage = thumbImage;
+                Directory.CreateDirectory(TempFolder);
             }
         }
-
+        
         #endregion
 
         #region Definitions
@@ -120,43 +99,22 @@ namespace gip.core.datamodel
         #region Places
         public string MediaRootFolder { get; set; }
 
-        public string TypeRootFolder { get; private set; }
-
-        #endregion
-
-        #region Methods
-
-        #region Methods ->  RootFolder creation
-        /*
-            material: 10025/Röstkaffee A-Entkoffeiniert 500g
-            typeACPathFirst: 
-            typeACPath: 
-            typeACUrl: Database\ACProject(Root)\ACClass(Root)\ACClass(DatabaseApp)\ACClass(Material)
-            dataItemACURL: Database\Material(10025)
-        */
-
-        public string GetItemTypeRootFolder(string rootFolder, IACObject aCObject)
+        private string _TempFolder;
+        public string TempFolder
         {
-            string path = rootFolder;
-            if (aCObject == null)
-                return path;
-            string typeACUrl = aCObject.ACType.GetACUrl();
-            typeACUrl = typeACUrl.TrimStart(TrimStartString.ToCharArray());
-
-            foreach (var item in typeACUrl.Split('\\'))
-                path = Path.Combine(path, item);
-
-            return path;
+            get
+            {
+                if(!Directory.Exists(_TempFolder))
+                {
+                    Directory.CreateDirectory(_TempFolder);
+                }
+                return _TempFolder;
+            }
+            private set
+            {
+                _TempFolder = value;
+            }
         }
-        public string GetItemRootFolder(string rootFolder, IACObject aCObject)
-        {
-            string itemACUrl = aCObject.GetACUrl();
-            itemACUrl = itemACUrl.TrimStart(TrimStartString.ToCharArray());
-            string paht = Path.Combine(rootFolder, itemACUrl);
-            return paht;
-        }
-
-        #endregion
 
         #endregion
 
@@ -176,7 +134,7 @@ namespace gip.core.datamodel
             {
                 MediaType = MediaItemTypeEnum.Document,
                 FolderName = "documents",
-                Extensions = ".doc,.docx,.xls,.xlsx,.ppt,.pptx,.pdf".Split(',').ToList()
+                Extensions = ".doc,.docx,.xls,.xlsx,.ppt,.pptx,.pdf,.xml".Split(',').ToList()
             };
 
             MediaTypeSettingsItem audioType = new MediaTypeSettingsItem()
