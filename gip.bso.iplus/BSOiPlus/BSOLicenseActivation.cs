@@ -382,9 +382,8 @@ namespace gip.bso.iplus
         [ACMethodInfo("", "en{'...'}de{'...'}", 403, true)]
         public void BrowseLicenceFile()
         {
-            string licenceFile = Messages.OpenFileDialog("");
-            if (!string.IsNullOrEmpty(licenceFile))
-                LicenceFilePath = licenceFile;
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            LicenceFilePath = mediaController.OpenFileDialog(false, LicenceFilePath, true) ?? LicenceFilePath;
         }
 
         /// <summary>

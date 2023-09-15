@@ -121,19 +121,15 @@
     <Copy SourceFiles="$(OutDir)\gip.core.media.pdb" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
     <Copy SourceFiles="@(MySourceFiles)" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)\VBControlScripts" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
   </Target>
-  <Import Project="..\..\..\packages\SkiaSharp.NativeAssets.macOS.2.88.5\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\..\..\packages\SkiaSharp.NativeAssets.macOS.2.88.5\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\packages\SkiaSharp.NativeAssets.macOS.2.88.5\build\net462\SkiaSharp.NativeAssets.macOS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\SkiaSharp.NativeAssets.macOS.2.88.5\build\net462\SkiaSharp.NativeAssets.macOS.targets'))" />
     <Error Condition="!Exists('..\..\..\packages\SkiaSharp.NativeAssets.Win32.2.88.5\build\net462\SkiaSharp.NativeAssets.Win32.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\SkiaSharp.NativeAssets.Win32.2.88.5\build\net462\SkiaSharp.NativeAssets.Win32.targets'))" />
-    <Error Condition="!Exists('..\..\..\packages\SkiaSharp.NativeAssets.macOS.2.88.5\build\net462\SkiaSharp.NativeAssets.macOS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\SkiaSharp.NativeAssets.macOS.2.88.5\build\net462\SkiaSharp.NativeAssets.macOS.targets'))" />
-    <Error Condition="!Exists('..\..\..\packages\SkiaSharp.NativeAssets.Win32.2.88.5\build\net462\SkiaSharp.NativeAssets.Win32.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\SkiaSharp.NativeAssets.Win32.2.88.5\build\net462\SkiaSharp.NativeAssets.Win32.targets'))" />
   </Target>
   <Import Project="..\..\..\packages\SkiaSharp.NativeAssets.Win32.2.88.5\build\net462\SkiaSharp.NativeAssets.Win32.targets" Condition="Exists('..\..\..\packages\SkiaSharp.NativeAssets.Win32.2.88.5\build\net462\SkiaSharp.NativeAssets.Win32.targets')" />
   <Import Project="..\..\..\packages\SkiaSharp.NativeAssets.macOS.2.88.5\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\..\..\packages\SkiaSharp.NativeAssets.macOS.2.88.5\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />
-  <Import Project="..\..\..\packages\SkiaSharp.NativeAssets.Win32.2.88.5\build\net462\SkiaSharp.NativeAssets.Win32.targets" Condition="Exists('..\..\..\packages\SkiaSharp.NativeAssets.Win32.2.88.5\build\net462\SkiaSharp.NativeAssets.Win32.targets')" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y $(ProjectDir)..\..\..\packages\SkiaSharp.NativeAssets.macOS.2.88.5\runtimes\osx\native\libSkiaSharp.dylib  $(TargetDir)
 copy /Y $(ProjectDir)..\..\..\packages\SkiaSharp.NativeAssets.Win32.2.88.5\runtimes\win-arm64\native\libSkiaSharp.dll  $(TargetDir)\arm64\
