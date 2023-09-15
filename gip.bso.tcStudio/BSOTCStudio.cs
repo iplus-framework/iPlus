@@ -572,7 +572,7 @@ namespace gip.bso.tcStudio
         public void OpenSolutionPath()
         {
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            string tsSlnPath = mediaController.OpenFileDialog(false, TCSolutionPath, true, "", new Dictionary<string, string>() { { "Solution file (*.sln)", "*.sln" } });
+            string tsSlnPath = mediaController.OpenFileDialog(false, TCSolutionPath, true, "", new Dictionary<string, string>() { { "Solution file", "*.sln" } });
 
             if (tsSlnPath != null && tsSlnPath.ToLower().Contains(".sln"))
                 TCSolutionPath = tsSlnPath;
