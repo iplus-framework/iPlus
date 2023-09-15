@@ -135,7 +135,7 @@ namespace gip.core.communication
                 try
                 {
                     if (_Client != null)
-                        _Client.Timeout = _TimeOut > TimeSpan.Zero ? _TimeOut : new TimeSpan(0, 0, 15);
+                        _Client.Timeout = _TimeOut > TimeSpan.Zero ? _TimeOut : new TimeSpan(0, 0, 30);
                 }
                 catch (Exception ex)
                 {
@@ -355,7 +355,7 @@ namespace gip.core.communication
                 if (_Client != null)
                     return true;
                 _Client = new HttpClient();
-                _Client.Timeout = TimeOut > TimeSpan.Zero ? TimeOut : new TimeSpan(0, 0, 15);
+                _Client.Timeout = TimeOut > TimeSpan.Zero ? TimeOut : new TimeSpan(0, 0, 30);
                 _Client.BaseAddress = new Uri(ServiceUrl);
                 OnCreateDefaultRequestHeaders(_Client);
             }

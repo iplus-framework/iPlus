@@ -66,15 +66,21 @@ using Microsoft.Extensions.Logging;
 // The sevice is created by using method sc.exe create "iPlusService" binpath="Path/to/exe"
 // The service is started by using method sc. exe start "iPlusService" 
 
-using IHost host = Host.CreateDefaultBuilder()
+IHost host = null;
+
+if (MyOperatingSystem.isWindows())
+{
+    host = Host.CreateDefaultBuilder()
     .UseWindowsService(options =>
     {
         options.ServiceName = ".iPlusService";
     })
     .ConfigureServices(services =>
     {
+#pragma warning disable CA1416
         LoggerProviderOptions.RegisterProviderOptions<
             EventLogSettings, EventLogLoggerProvider>(services);
+#pragma warning restore CA1416
 
         services.AddSingleton<iPlusService>();
         services.AddHostedService<IPlusBackgroundService>();
@@ -87,5 +93,25 @@ using IHost host = Host.CreateDefaultBuilder()
     })
     .UseWindowsService()
     .Build();
+}
+
+
+if (MyOperatingSystem.isLinux())
+{
+    host = Host.CreateDefaultBuilder()
+    .UseSystemd()
+    .ConfigureServices(services =>
+    {
+        services.AddSingleton<iPlusService>();
+        services.AddHostedService<IPlusBackgroundService>();
+    })
+    .ConfigureLogging((context, logging) =>
+    {
+        // See: https://github.com/dotnet/runtime/issues/47303
+        logging.AddConfiguration(
+           context.Configuration.GetSection("Logging"));
+    })
+    .Build();
+}
 
 await host.RunAsync();

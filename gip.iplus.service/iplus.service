@@ -1,0 +1,13 @@
+[Unit]
+Description=iplus-service
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/dotnet /mnt/d/devel/iPlusV5/trunk/iPlus/bin/Release/net7.0/publish/linux-x64/gip.iplus.service.dll
+
+User=mario
+
+Environment=/usr/bin/dotnet
+
+[Install]
+WantedBy=multi-user.target

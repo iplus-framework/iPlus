@@ -1,6 +1,7 @@
 ﻿using gip.core.autocomponent;
 using gip.core.datamodel;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Systemd;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace gip.iplus.service
     {
         private readonly iPlusService _iPlusService;
         private readonly ILogger<IPlusBackgroundService> _logger;
-
+        
         public IPlusBackgroundService(
             iPlusService iPlusService,
             ILogger<IPlusBackgroundService> logger) =>
@@ -47,9 +48,14 @@ namespace gip.iplus.service
                     if (startUpManager.LoginUser(cmdHelper.LoginUser, cmdHelper.LoginPassword, false, false, ref errorMsg, WCFOff, simulation) != 1)
                     {
                         string source = "Vario iPlus Service";
-                        if (!EventLog.SourceExists(source))
-                            EventLog.CreateEventSource(source, "Application");
-                        EventLog.WriteEntry(source, errorMsg, EventLogEntryType.Information);
+                        if (MyOperatingSystem.isWindows())
+                        {
+#pragma warning disable CA1416
+                            if (!EventLog.SourceExists(source))
+                                EventLog.CreateEventSource(source, "Application");
+                            EventLog.WriteEntry(source, errorMsg, EventLogEntryType.Information);
+#pragma warning restore CA1416
+                        }
                         return;
                     }
                 }
@@ -66,7 +72,7 @@ namespace gip.iplus.service
                 //
                 // In order for the Windows Service Management system to leverage configured
                 // recovery options, we need to terminate the process with a non-zero exit code.
-                
+
                 if (ACRoot.SRoot != null)
                     ACRoot.SRoot.ACDeInit();
                 System.Environment.Exit(1);
