@@ -683,6 +683,7 @@ namespace gip.bso.iplus
                 CurrentImportItemRoot.CollectContext(contextList);
                 foreach (IACEntityObjectContext context in contextList)
                 {
+                    var a = context.ChangeTracker.Entries().Where(e => e.State == Microsoft.EntityFrameworkCore.EntityState.Added);
                     MsgWithDetails msg = context.ACSaveChanges(true, false, false);
                     if (msg != null)
                         foreach (var chMsg in msg.MsgDetails)

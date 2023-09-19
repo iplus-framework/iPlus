@@ -1,0 +1,2 @@
+update @DbSyncerInfoContext set ConnectionName = 'iPlusV5_Entities' where ConnectionName like 'iPlusV4_Entities'
+update @DbSyncerInfoContext set ConnectionName = 'iPlusMESV5_Entities' where ConnectionName like 'iPlusMESV4_Entities'
