@@ -177,9 +177,10 @@
     <Resource Include="Images\iPlusIconDesktop.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AvalonEdit" Version="6.2.0.78" />
-    <PackageReference Include="ClosedXML" Version="0.100.3" />
+    <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
+    <PackageReference Include="ClosedXML" Version="0.102.1" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.4.0" />
@@ -188,9 +189,9 @@
     <PackageReference Include="RoslynPad.Roslyn" Version="4.4.0" />
     <PackageReference Include="RoslynPad.Roslyn.Windows" Version="4.4.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="System.ServiceModel.Duplex" Version="4.10.0" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.10.0" />
-    <PackageReference Include="System.ServiceModel.Federation" Version="4.10.0" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="6.0.0" />
+    <PackageReference Include="System.ServiceModel.Federation" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />

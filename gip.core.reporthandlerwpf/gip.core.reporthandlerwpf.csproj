@@ -70,9 +70,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="BarcodeLib" Version="3.0.0" />
 		<PackageReference Include="ESCPOS" Version="1.2.3" />
 		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-		<PackageReference Include="System.Reflection.Context" Version="6.0.0" />
+		<PackageReference Include="System.Reflection.Context" Version="7.0.0" />
 	</ItemGroup>
 
 

@@ -21,6 +21,8 @@ namespace gip.core.datamodel
     {
         IVBDesignerService DesignerService { get; }
 
+        IVBMediaController VBMediaController { get; }
+
         IVBWFLayoutCalculatorService WFLayoutCalculatorService { get; }
 
         void AddXamlNamespacesFromAssembly(Assembly classAssembly);

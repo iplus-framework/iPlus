@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using BarcodeLib;
+using BarcodeStandard;
 using QRCoder.Xaml;
 
 namespace gip.core.reporthandlerwpf.Flowdoc
@@ -155,10 +155,12 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                         wpfImage.MaxHeight = MaxHeight;
                     if (MaxWidth > 0.1)
                         wpfImage.MaxWidth = MaxWidth;
-                    using (System.Drawing.Image img = b.Encode((TYPE)BarcodeType, strValue, System.Drawing.Color.Black, System.Drawing.Color.White, BarcodeWidth, BarcodeHeight))
+                    using (SkiaSharp.SKImage img = b.Encode((Type)BarcodeType, strValue, SkiaSharp.SKColorF.FromHsv(0,0,0), SkiaSharp.SKColorF.FromHsv(0, 0, 100), BarcodeWidth, BarcodeHeight))
                     using (var ms = new MemoryStream())
                     {
-                        img.Save(ms, ImageFormat.Bmp);
+                        //Skiasharp doesnt support saving to Bmp file format, saved to png instead, check this later
+                        //img.Save(ms, ImageFormat.Bmp);
+                        img.Encode(SkiaSharp.SKEncodedImageFormat.Png, 100).SaveTo(ms);
                         ms.Seek(0, SeekOrigin.Begin);
 
                         var bitmapImage = new BitmapImage();

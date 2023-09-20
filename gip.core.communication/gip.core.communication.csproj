@@ -84,7 +84,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NModbus" Version="3.0.72" />
+    <PackageReference Include="NModbus" Version="3.0.80" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Opc.Ua.Client">
