@@ -149,7 +149,7 @@ namespace gip.core.datamodel
                 || ((pi.PropertyType.IsGenericType) && (pi.PropertyType.GetInterfaces().Where(c => c.Name == "IEnumerable").Any()))
                 || pi.PropertyType.BaseType == typeof(ReferenceEntry)
                 || pi.PropertyType.BaseType == typeof(CollectionEntry)
-                || !(pi.GetCustomAttributes(typeof(DataMemberAttribute), true).Any() && pi.Name != "EntityKey");// not registred for data operate
+                || !(pi.Name != "EntityKey");// not registred for data operate
         }
 
 #endregion
@@ -159,7 +159,9 @@ namespace gip.core.datamodel
         public static List<ACObjectSerialPropertyContainerModel> GetPropertyList(IACObject acObject, bool? onlyKeyMembers)
         {
             List<ACObjectSerialPropertyContainerModel> list = new List<ACObjectSerialPropertyContainerModel>();
-            PropertyInfo[] properties = acObject.GetType().GetProperties().Where(pi => !ACObjectSerialHelper.PropertyForIgnore(pi)).ToArray();
+            PropertyInfo[] properties = acObject.GetType().GetProperties().ToArray();
+
+            properties = properties.Where(pi => !ACObjectSerialHelper.PropertyForIgnore(pi)).ToArray();
 
             PropertyInfo keyMemberPropertyInfo = acObject.GetType().GetProperty("KeyACIdentifier");
             string dataIdentifierStr = keyMemberPropertyInfo.GetValue(acObject.GetType(), null) as string;
