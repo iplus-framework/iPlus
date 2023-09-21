@@ -21,7 +21,7 @@ namespace gip.core.datamodel
     {
         IVBDesignerService DesignerService { get; }
 
-        IVBMediaController VBMediaController { get; }
+        IVBMediaControllerService VBMediaControllerService { get; }
 
         IVBWFLayoutCalculatorService WFLayoutCalculatorService { get; }
 

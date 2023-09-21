@@ -5,9 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using SkiaSharp;
 using System.Net.Mime;
-using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace gip.core.media
 {
@@ -27,6 +25,13 @@ namespace gip.core.media
         public string RootFolder { get; private set; }
         public MediaSettings MediaSettings { get; set; }
 
+        public enum Quality
+        {
+            Medium,
+            Low,
+            High,
+            None
+        }
 
         #endregion
 
@@ -39,17 +44,35 @@ namespace gip.core.media
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
-            bool result = base.ACInit(startChildMode);
-            return result;
+            bool initialized = base.ACInit(startChildMode);
+            if (initialized)
+                _VBMediaController = Root?.WPFServices?.VBMediaControllerService?.GetMediaControllerProxy(this);
+            return initialized;
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
+            if (_VBMediaController != null)
+            {
+                Root?.WPFServices?.VBMediaControllerService?.RemoveMediaControllerProxy(this);
+                _VBMediaController = null;
+            }
             bool result = base.ACDeInit(deleteACClassTask);
             return result;
         }
 
         #endregion
+
+        IVBMediaControllerProxy _VBMediaController;
+        protected IVBMediaControllerProxy VBMediaController
+        {
+            get
+            {
+                if (_VBMediaController == null)
+                    _VBMediaController = Root?.WPFServices?.VBMediaControllerService.GetMediaControllerProxy(this);
+                return _VBMediaController;
+            }
+        }
 
         #region Static methods
 
@@ -460,26 +483,9 @@ namespace gip.core.media
             }
         }
 
-        public byte[] ResizeImage(string fileName, int maxWidth, int maxHeight, SKFilterQuality quality = SKFilterQuality.Medium)
+        public byte[] ResizeImage(string fileName, int maxWidth, int maxHeight, Quality quality = Quality.Medium)
         {
-            SKData data = null;
-            using (FileStream ms = new FileStream(fileName, FileMode.Open))
-            {
-                using (SKBitmap sourceBitmap = SKBitmap.Decode(ms))
-                {
-                    int height = Math.Min(maxHeight, sourceBitmap.Height);
-                    int width = Math.Min(maxWidth, sourceBitmap.Width);
-                    using (SKBitmap scaledBitmap = sourceBitmap.Resize(new SKImageInfo(width, height), quality))
-                    {
-                        using (SKImage scaledImage = SKImage.FromBitmap(scaledBitmap))
-                        {
-                            data = scaledImage.Encode();
-                        }
-                    }
-                }
-            }
-
-            return data != null ? data.ToArray() : null;
+            return VBMediaController.ResizeImage(fileName, maxWidth, maxHeight, quality.ToString());
         }
 
         #endregion
@@ -557,57 +563,7 @@ namespace gip.core.media
 
         public string OpenFileDialog(bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
         {
-            string path = null;
-            using (var dialog = new CommonOpenFileDialog())
-            {
-                dialog.IsFolderPicker = isFolderPicker;
-                if (isFolderPicker)
-                {
-                    if (Directory.Exists(initialDirectory))
-                    {
-                        dialog.InitialDirectory = initialDirectory;
-                    }
-                }
-                else
-                {
-                    if (File.Exists(initialDirectory))
-                    {
-                        dialog.InitialDirectory = Path.GetDirectoryName(initialDirectory);
-                    }
-                }
-
-                if(defaultExtension != null)
-                {
-                    dialog.DefaultExtension = defaultExtension;
-                }
-
-                if(filters != null)
-                {
-                    foreach(KeyValuePair<string, string> filter in filters)
-                    {
-                        dialog.Filters.Add(new CommonFileDialogFilter(filter.Key, filter.Value));
-                    }
-                }
-
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    bool selectedItemExist = false;
-                    if (isFolderPicker)
-                    {
-                        selectedItemExist = Directory.Exists(dialog.FileName);
-                    }
-                    else
-                    {
-                        selectedItemExist = File.Exists(dialog.FileName);
-                    }
-
-                    if (!string.IsNullOrEmpty(dialog.FileName) && (!useExisting || selectedItemExist))
-                    {
-                        path = dialog.FileName;
-                    }
-                }
-            }
-            return path;
+            return VBMediaController.OpenFileDialog(isFolderPicker, initialDirectory, useExisting, defaultExtension, filters);
         }
 
         #endregion

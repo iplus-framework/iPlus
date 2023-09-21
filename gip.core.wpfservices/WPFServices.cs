@@ -13,8 +13,8 @@ namespace gip.core.wpfservices
         VBDesignerService _VBDesignerService = new VBDesignerService();
         public virtual IVBDesignerService DesignerService { get { return _VBDesignerService; } }
 
-        VBMediaController _VBMediaController = new VBMediaController();
-        public virtual IVBMediaController VBMediaController { get { return _VBMediaController; } }
+        MediaControllerService _VBMediaControllerService = new MediaControllerService();
+        public virtual IVBMediaControllerService VBMediaControllerService { get { return _VBMediaControllerService; } }
 
         WFLayoutCalculatorService _WFLayoutCalculatorService = new WFLayoutCalculatorService();
         public virtual IVBWFLayoutCalculatorService WFLayoutCalculatorService { get { return _WFLayoutCalculatorService; } }
