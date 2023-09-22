@@ -175,11 +175,11 @@ namespace gip.core.datamodel
                 new[] { aCProgramLogID });
             runtimeEntityType.SetPrimaryKey(key);
 
-            var nCIFKACProgramLogACProgramID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACProgramLog_ACProgramID = runtimeEntityType.AddIndex(
                 new[] { aCProgramID },
                 name: "NCI_FK_ACProgramLog_ACProgramID");
 
-            var nCIFKACProgramLogParentACProgramLogID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACProgramLog_ParentACProgramLogID = runtimeEntityType.AddIndex(
                 new[] { parentACProgramLogID },
                 name: "NCI_FK_ACProgramLog_ParentACProgramLogID");
 
@@ -202,7 +202,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACProgramLog).GetField("_ACProgram", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCProgramLogACProgram = principalEntityType.AddNavigation("ACProgramLog_ACProgram",
+            var aCProgramLog_ACProgram = principalEntityType.AddNavigation("ACProgramLog_ACProgram",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACProgramLog>),
@@ -220,7 +220,7 @@ namespace gip.core.datamodel
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty("ACProgramLogID") }),
                 principalEntityType);
 
-            var aCProgramLog1ParentACProgramLog = declaringEntityType.AddNavigation("ACProgramLog1_ParentACProgramLog",
+            var aCProgramLog1_ParentACProgramLog = declaringEntityType.AddNavigation("ACProgramLog1_ParentACProgramLog",
                 runtimeForeignKey,
                 onDependent: true,
                 typeof(ACProgramLog),
@@ -228,7 +228,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACProgramLog).GetField("_ACProgramLog1_ParentACProgramLog", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCProgramLogParentACProgramLog = principalEntityType.AddNavigation("ACProgramLog_ParentACProgramLog",
+            var aCProgramLog_ParentACProgramLog = principalEntityType.AddNavigation("ACProgramLog_ParentACProgramLog",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACProgramLog>),

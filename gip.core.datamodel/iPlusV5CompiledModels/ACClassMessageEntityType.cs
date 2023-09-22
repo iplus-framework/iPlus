@@ -110,7 +110,7 @@ namespace gip.core.datamodel
                 new[] { aCClassMessageID });
             runtimeEntityType.SetPrimaryKey(key);
 
-            var uIXACClassMessage = runtimeEntityType.AddIndex(
+            var uIX_ACClassMessage = runtimeEntityType.AddIndex(
                 new[] { aCClassID, aCIdentifier },
                 name: "UIX_ACClassMessage",
                 unique: true);
@@ -134,7 +134,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassMessage).GetField("_ACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassMessageACClass = principalEntityType.AddNavigation("ACClassMessage_ACClass",
+            var aCClassMessage_ACClass = principalEntityType.AddNavigation("ACClassMessage_ACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassMessage>),

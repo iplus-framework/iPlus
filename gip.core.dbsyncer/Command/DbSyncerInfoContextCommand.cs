@@ -47,6 +47,20 @@ namespace gip.core.dbsyncer.Command
             return db.Database.SqlQuery<int>(FormattableStringFactory.Create(SQLScripts.CheckDbSyncerInfoExist_OLD)).ToArray().FirstOrDefault() > 0;
         }
 
+        public static bool AreThereV4OccurencesPresent(DbContext db)
+        {
+            return db.Database.SqlQuery<int>(FormattableStringFactory.Create(SQLScripts.CheckOldV4DbSyncerContext)).ToArray().FirstOrDefault() > 0;
+        }
+
+        public static void ChangeV4ToV5InDb(DbContext db)
+        {
+            int result = db.Database.ExecuteSql(FormattableStringFactory.Create(SQLScripts.UpdateV4ToV5References));
+            if (result == 0)
+            {
+                throw new Exception("No rows were affected by the SQL command.");
+            }
+        }
+
         /// <summary>
         /// Generate a initial script
         /// </summary>

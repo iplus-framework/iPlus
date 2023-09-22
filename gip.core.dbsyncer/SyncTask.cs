@@ -98,6 +98,12 @@ namespace gip.core.dbsyncer
                             DBSyncerVersionCommand.SetVersion(db, item.Key);
                         }
                     }
+                    bool OccurencesV4InDb = DbSyncerInfoContextCommand.AreThereV4OccurencesPresent(db);
+                    if (OccurencesV4InDb)
+                    {
+                        OnStatusChange(new ProgressMessage() { Success = true, Message = "V4 Occurences found in database, changing them to V5..." });
+                        DbSyncerInfoContextCommand.ChangeV4ToV5InDb(db);
+                    }
 
                     // 2. Checking if all context are stored in DbInfoContext structure...
                     if (OnStatusChange != null)

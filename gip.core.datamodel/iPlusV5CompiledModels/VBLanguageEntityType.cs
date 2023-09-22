@@ -125,7 +125,7 @@ namespace gip.core.datamodel
             runtimeEntityType.SetPrimaryKey(key);
             key.AddAnnotation("Relational:Name", "PK_MDLanguage");
 
-            var uIXMDLanguage = runtimeEntityType.AddIndex(
+            var uIX_MDLanguage = runtimeEntityType.AddIndex(
                 new[] { vBKey },
                 name: "UIX_MDLanguage",
                 unique: true);

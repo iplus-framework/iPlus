@@ -102,7 +102,7 @@ namespace gip.core.datamodel
                 new[] { aCProgramLogTaskID });
             runtimeEntityType.SetPrimaryKey(key);
 
-            var nCIFKACProgramLogTaskACProgramLogID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACProgramLogTask_ACProgramLogID = runtimeEntityType.AddIndex(
                 new[] { aCProgramLogID },
                 name: "NCI_FK_ACProgramLogTask_ACProgramLogID");
 
@@ -125,7 +125,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACProgramLogTask).GetField("_ACProgramLog", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCProgramLogTaskACProgramLog = principalEntityType.AddNavigation("ACProgramLogTask_ACProgramLog",
+            var aCProgramLogTask_ACProgramLog = principalEntityType.AddNavigation("ACProgramLogTask_ACProgramLog",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACProgramLogTask>),

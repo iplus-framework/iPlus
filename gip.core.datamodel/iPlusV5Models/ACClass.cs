@@ -679,7 +679,7 @@ public partial class ACClass : VBEntityObject , IInsertInfo, IUpdateInfo
 
     private ACPackage _ACPackage;
     public virtual ACPackage ACPackage
-    {
+    { 
         get { return LazyLoader.Load(this, ref _ACPackage); }
         set { SetProperty<ACPackage>(ref _ACPackage, value); }
     }

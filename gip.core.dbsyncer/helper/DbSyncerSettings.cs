@@ -37,6 +37,10 @@ namespace gip.core.dbsyncer.helper
         {
             if (connectionStringName == null)
                 connectionStringName = DbSyncerSettings.DefaultConnectionStringName;
+            if (connectionStringName == "iPlusV4_Entities")
+            {
+
+            }
             string defaultConnectionString = "name=iPlusV5_Entities";
             if (configuration != null && configuration.ConnectionStrings != null)
             {

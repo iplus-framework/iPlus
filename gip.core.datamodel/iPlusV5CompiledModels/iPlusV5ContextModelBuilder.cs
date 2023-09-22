@@ -194,7 +194,7 @@ namespace gip.core.datamodel
             VBUserGroupEntityType.CreateAnnotations(vBUserGroup);
             VBUserInstanceEntityType.CreateAnnotations(vBUserInstance);
 
-            AddAnnotation("ProductVersion", "7.0.2");
+            AddAnnotation("ProductVersion", "7.0.11");
             AddAnnotation("Relational:MaxIdentifierLength", 128);
             AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
         }

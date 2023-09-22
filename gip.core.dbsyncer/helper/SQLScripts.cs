@@ -7,6 +7,9 @@
     {
         public static string MaxScriptDate              = @"select max(ScriptDate) from [dbo].[@DbSyncerInfo] where rtrim(DbSyncerInfoContextID) = '{0}'";
         public static string CheckDbSyncerInfoExist     = @"select max(ScriptDate) from [dbo].[@DbSyncerInfo]";
+        public static string CheckOldV4DbSyncerContext  = @"SELECT COUNT(*) as Count FROM [@DbSyncerInfoContext] WHERE ConnectionName LIKE '%V4%'";
+        public static string UpdateV4ToV5References     = @"update [@DbSyncerInfoContext] set ConnectionName = 'iPlusV5_Entities' where ConnectionName like 'iPlusV4_Entities'
+                                                          update [@DbSyncerInfoContext] set ConnectionName = 'iPlusMESV5_Entities' where ConnectionName like 'iPlusMESV4_Entities'";
         public static string CheckDbSyncerInfoExist_OLD = @"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'DbInfo'";
         public static string DbSyncerInfoContextSelect  = @"select * from  [dbo].[@DbSyncerInfoContext] order by [Order]";
         public static string DbSyncerInfoContextInsert  = @"INSERT INTO [dbo].[@DbSyncerInfoContext] ([DbSyncerInfoContextID], [Name], [ConnectionName], [Order]) VALUES ('{0}', '{1}', '{2}',{3})";

@@ -168,11 +168,11 @@ namespace gip.core.datamodel
                 new[] { msgAlarmLogID });
             runtimeEntityType.SetPrimaryKey(key);
 
-            var nCIFKMsgAlarmLogACProgramLogID = runtimeEntityType.AddIndex(
+            var nCI_FK_MsgAlarmLog_ACProgramLogID = runtimeEntityType.AddIndex(
                 new[] { aCProgramLogID },
                 name: "NCI_FK_MsgAlarmLog_ACProgramLogID");
 
-            var uIXMsgAlarmLog = runtimeEntityType.AddIndex(
+            var uIX_MsgAlarmLog = runtimeEntityType.AddIndex(
                 new[] { aCClassID, timeStampOccurred },
                 name: "UIX_MsgAlarmLog");
 
@@ -194,7 +194,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(MsgAlarmLog).GetField("_ACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var msgAlarmLogACClass = principalEntityType.AddNavigation("MsgAlarmLog_ACClass",
+            var msgAlarmLog_ACClass = principalEntityType.AddNavigation("MsgAlarmLog_ACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<MsgAlarmLog>),
@@ -220,7 +220,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(MsgAlarmLog).GetField("_ACProgramLog", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var msgAlarmLogACProgramLog = principalEntityType.AddNavigation("MsgAlarmLog_ACProgramLog",
+            var msgAlarmLog_ACProgramLog = principalEntityType.AddNavigation("MsgAlarmLog_ACProgramLog",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<MsgAlarmLog>),

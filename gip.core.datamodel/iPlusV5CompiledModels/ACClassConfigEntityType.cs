@@ -160,19 +160,19 @@ namespace gip.core.datamodel
                 new[] { aCClassConfigID });
             runtimeEntityType.SetPrimaryKey(key);
 
-            var nCIFKACClassConfigACClassID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACClassConfig_ACClassID = runtimeEntityType.AddIndex(
                 new[] { aCClassID },
                 name: "NCI_FK_ACClassConfig_ACClassID");
 
-            var nCIFKACClassConfigACClassPropertyRelationID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACClassConfig_ACClassPropertyRelationID = runtimeEntityType.AddIndex(
                 new[] { aCClassPropertyRelationID },
                 name: "NCI_FK_ACClassConfig_ACClassPropertyRelationID");
 
-            var nCIFKACClassConfigParentACClassConfigID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACClassConfig_ParentACClassConfigID = runtimeEntityType.AddIndex(
                 new[] { parentACClassConfigID },
                 name: "NCI_FK_ACClassConfig_ParentACClassConfigID");
 
-            var nCIFKACClassConfigValueTypeACClassID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACClassConfig_ValueTypeACClassID = runtimeEntityType.AddIndex(
                 new[] { valueTypeACClassID },
                 name: "NCI_FK_ACClassConfig_ValueTypeACClassID");
 
@@ -195,7 +195,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassConfig).GetField("_ACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassConfigACClass = principalEntityType.AddNavigation("ACClassConfig_ACClass",
+            var aCClassConfig_ACClass = principalEntityType.AddNavigation("ACClassConfig_ACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassConfig>),
@@ -221,7 +221,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassConfig).GetField("_ACClassPropertyRelation", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassConfigACClassPropertyRelation = principalEntityType.AddNavigation("ACClassConfig_ACClassPropertyRelation",
+            var aCClassConfig_ACClassPropertyRelation = principalEntityType.AddNavigation("ACClassConfig_ACClassPropertyRelation",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassConfig>),
@@ -239,7 +239,7 @@ namespace gip.core.datamodel
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty("ACClassConfigID") }),
                 principalEntityType);
 
-            var aCClassConfig1ParentACClassConfig = declaringEntityType.AddNavigation("ACClassConfig1_ParentACClassConfig",
+            var aCClassConfig1_ParentACClassConfig = declaringEntityType.AddNavigation("ACClassConfig1_ParentACClassConfig",
                 runtimeForeignKey,
                 onDependent: true,
                 typeof(ACClassConfig),
@@ -247,7 +247,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassConfig).GetField("_ACClassConfig1_ParentACClassConfig", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassConfigParentACClassConfig = principalEntityType.AddNavigation("ACClassConfig_ParentACClassConfig",
+            var aCClassConfig_ParentACClassConfig = principalEntityType.AddNavigation("ACClassConfig_ParentACClassConfig",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassConfig>),
@@ -274,7 +274,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassConfig).GetField("_ValueTypeACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassConfigValueTypeACClass = principalEntityType.AddNavigation("ACClassConfig_ValueTypeACClass",
+            var aCClassConfig_ValueTypeACClass = principalEntityType.AddNavigation("ACClassConfig_ValueTypeACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassConfig>),

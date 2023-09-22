@@ -52,6 +52,14 @@ namespace gip.core.datamodel
                 unicode: false);
             mandatoryACIdentifier.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var mandatoryACURLCached = runtimeEntityType.AddProperty(
+                "MandatoryACURLCached",
+                typeof(string),
+                propertyInfo: typeof(VBTranslationView).GetProperty("MandatoryACURLCached", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(VBTranslationView).GetField("_MandatoryACURLCached", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            mandatoryACURLCached.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
             var mandatoryID = runtimeEntityType.AddProperty(
                 "MandatoryID",
                 typeof(Guid),

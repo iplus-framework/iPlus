@@ -301,39 +301,39 @@ namespace gip.core.datamodel
                 new[] { aCClassID });
             runtimeEntityType.SetPrimaryKey(key);
 
-            var nCIACClassACKindIndexIsAbstract = runtimeEntityType.AddIndex(
+            var nCI_ACClass_ACKindIndex_IsAbstract = runtimeEntityType.AddIndex(
                 new[] { aCKindIndex, isAbstract },
                 name: "NCI_ACClass_ACKindIndex_IsAbstract");
 
-            var nCIACClassAssemblyQualifiedName = runtimeEntityType.AddIndex(
+            var nCI_ACClass_AssemblyQualifiedName = runtimeEntityType.AddIndex(
                 new[] { assemblyQualifiedName },
                 name: "NCI_ACClass_AssemblyQualifiedName");
 
-            var nCIFKACClassACPackageID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACClass_ACPackageID = runtimeEntityType.AddIndex(
                 new[] { aCPackageID },
                 name: "NCI_FK_ACClass_ACPackageID");
 
-            var nCIFKACClassACProjectID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACClass_ACProjectID = runtimeEntityType.AddIndex(
                 new[] { aCProjectID },
                 name: "NCI_FK_ACClass_ACProjectID");
 
-            var nCIFKACClassBasedOnACClassID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACClass_BasedOnACClassID = runtimeEntityType.AddIndex(
                 new[] { basedOnACClassID },
                 name: "NCI_FK_ACClass_BasedOnACClassID");
 
-            var nCIFKACClassPWACClassID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACClass_PWACClassID = runtimeEntityType.AddIndex(
                 new[] { pWACClassID },
                 name: "NCI_FK_ACClass_PWACClassID");
 
-            var nCIFKACClassPWMethodACClassID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACClass_PWMethodACClassID = runtimeEntityType.AddIndex(
                 new[] { pWMethodACClassID },
                 name: "NCI_FK_ACClass_PWMethodACClassID");
 
-            var nCIFKACClassParentACClassID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACClass_ParentACClassID = runtimeEntityType.AddIndex(
                 new[] { parentACClassID },
                 name: "NCI_FK_ACClass_ParentACClassID");
 
-            var uIXACClass = runtimeEntityType.AddIndex(
+            var uIX_ACClass = runtimeEntityType.AddIndex(
                 new[] { aCProjectID, parentACClassID, aCIdentifier },
                 name: "UIX_ACClass",
                 unique: true);
@@ -356,7 +356,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClass).GetField("_ACPackage", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassACPackage = principalEntityType.AddNavigation("ACClass_ACPackage",
+            var aCClass_ACPackage = principalEntityType.AddNavigation("ACClass_ACPackage",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClass>),
@@ -384,7 +384,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClass).GetField("_ACProject", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassACProject = principalEntityType.AddNavigation("ACClass_ACProject",
+            var aCClass_ACProject = principalEntityType.AddNavigation("ACClass_ACProject",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClass>),
@@ -402,7 +402,7 @@ namespace gip.core.datamodel
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty("ACClassID") }),
                 principalEntityType);
 
-            var aCClass1BasedOnACClass = declaringEntityType.AddNavigation("ACClass1_BasedOnACClass",
+            var aCClass1_BasedOnACClass = declaringEntityType.AddNavigation("ACClass1_BasedOnACClass",
                 runtimeForeignKey,
                 onDependent: true,
                 typeof(ACClass),
@@ -410,7 +410,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClass).GetField("_ACClass1_BasedOnACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassBasedOnACClass = principalEntityType.AddNavigation("ACClass_BasedOnACClass",
+            var aCClass_BasedOnACClass = principalEntityType.AddNavigation("ACClass_BasedOnACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClass>),
@@ -428,7 +428,7 @@ namespace gip.core.datamodel
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty("ACClassID") }),
                 principalEntityType);
 
-            var aCClass1PWACClass = declaringEntityType.AddNavigation("ACClass1_PWACClass",
+            var aCClass1_PWACClass = declaringEntityType.AddNavigation("ACClass1_PWACClass",
                 runtimeForeignKey,
                 onDependent: true,
                 typeof(ACClass),
@@ -436,7 +436,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClass).GetField("_ACClass1_PWACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassPWACClass = principalEntityType.AddNavigation("ACClass_PWACClass",
+            var aCClass_PWACClass = principalEntityType.AddNavigation("ACClass_PWACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClass>),
@@ -454,7 +454,7 @@ namespace gip.core.datamodel
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty("ACClassID") }),
                 principalEntityType);
 
-            var aCClass1PWMethodACClass = declaringEntityType.AddNavigation("ACClass1_PWMethodACClass",
+            var aCClass1_PWMethodACClass = declaringEntityType.AddNavigation("ACClass1_PWMethodACClass",
                 runtimeForeignKey,
                 onDependent: true,
                 typeof(ACClass),
@@ -462,7 +462,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClass).GetField("_ACClass1_PWMethodACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassPWMethodACClass = principalEntityType.AddNavigation("ACClass_PWMethodACClass",
+            var aCClass_PWMethodACClass = principalEntityType.AddNavigation("ACClass_PWMethodACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClass>),
@@ -480,7 +480,7 @@ namespace gip.core.datamodel
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty("ACClassID") }),
                 principalEntityType);
 
-            var aCClass1ParentACClass = declaringEntityType.AddNavigation("ACClass1_ParentACClass",
+            var aCClass1_ParentACClass = declaringEntityType.AddNavigation("ACClass1_ParentACClass",
                 runtimeForeignKey,
                 onDependent: true,
                 typeof(ACClass),
@@ -488,7 +488,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClass).GetField("_ACClass1_ParentACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassParentACClass = principalEntityType.AddNavigation("ACClass_ParentACClass",
+            var aCClass_ParentACClass = principalEntityType.AddNavigation("ACClass_ParentACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClass>),

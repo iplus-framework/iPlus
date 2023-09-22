@@ -94,7 +94,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(DbSyncerInfo).GetField("_DbSyncerInfoContext", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var dbSyncerInfoDbSyncerInfoContext = principalEntityType.AddNavigation("DbSyncerInfo_DbSyncerInfoContext",
+            var dbSyncerInfo_DbSyncerInfoContext = principalEntityType.AddNavigation("DbSyncerInfo_DbSyncerInfoContext",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<DbSyncerInfo>),

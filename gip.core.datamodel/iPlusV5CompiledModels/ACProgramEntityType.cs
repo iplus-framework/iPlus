@@ -136,11 +136,11 @@ namespace gip.core.datamodel
                 new[] { aCProgramID });
             runtimeEntityType.SetPrimaryKey(key);
 
-            var nCIFKACProgramProgramACClassMethodID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACProgram_ProgramACClassMethodID = runtimeEntityType.AddIndex(
                 new[] { programACClassMethodID },
                 name: "NCI_FK_ACProgram_ProgramACClassMethodID");
 
-            var nCIFKACProgramWorkflowTypeACClassID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACProgram_WorkflowTypeACClassID = runtimeEntityType.AddIndex(
                 new[] { workflowTypeACClassID },
                 name: "NCI_FK_ACProgram_WorkflowTypeACClassID");
 
@@ -161,7 +161,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACProgram).GetField("_ProgramACClassMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCProgramProgramACClassMethod = principalEntityType.AddNavigation("ACProgram_ProgramACClassMethod",
+            var aCProgram_ProgramACClassMethod = principalEntityType.AddNavigation("ACProgram_ProgramACClassMethod",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACProgram>),
@@ -188,7 +188,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACProgram).GetField("_WorkflowTypeACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCProgramWorkflowTypeACClass = principalEntityType.AddNavigation("ACProgram_WorkflowTypeACClass",
+            var aCProgram_WorkflowTypeACClass = principalEntityType.AddNavigation("ACProgram_WorkflowTypeACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACProgram>),

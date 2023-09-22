@@ -205,7 +205,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassMethodConfig).GetField("_ACClassMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassMethodConfigACClassMethod = principalEntityType.AddNavigation("ACClassMethodConfig_ACClassMethod",
+            var aCClassMethodConfig_ACClassMethod = principalEntityType.AddNavigation("ACClassMethodConfig_ACClassMethod",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassMethodConfig>),
@@ -232,7 +232,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassMethodConfig).GetField("_ACClassWF", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassMethodConfigACClassWF = principalEntityType.AddNavigation("ACClassMethodConfig_ACClassWF",
+            var aCClassMethodConfig_ACClassWF = principalEntityType.AddNavigation("ACClassMethodConfig_ACClassWF",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassMethodConfig>),
@@ -250,7 +250,7 @@ namespace gip.core.datamodel
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty("ACClassMethodConfigID") }),
                 principalEntityType);
 
-            var aCClassMethodConfig1ParentACClassMethodConfig = declaringEntityType.AddNavigation("ACClassMethodConfig1_ParentACClassMethodConfig",
+            var aCClassMethodConfig1_ParentACClassMethodConfig = declaringEntityType.AddNavigation("ACClassMethodConfig1_ParentACClassMethodConfig",
                 runtimeForeignKey,
                 onDependent: true,
                 typeof(ACClassMethodConfig),
@@ -258,7 +258,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassMethodConfig).GetField("_ACClassMethodConfig1_ParentACClassMethodConfig", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassMethodConfigParentACClassMethodConfig = principalEntityType.AddNavigation("ACClassMethodConfig_ParentACClassMethodConfig",
+            var aCClassMethodConfig_ParentACClassMethodConfig = principalEntityType.AddNavigation("ACClassMethodConfig_ParentACClassMethodConfig",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassMethodConfig>),
@@ -284,7 +284,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassMethodConfig).GetField("_VBiACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassMethodConfigVBiACClass = principalEntityType.AddNavigation("ACClassMethodConfig_VBiACClass",
+            var aCClassMethodConfig_VBiACClass = principalEntityType.AddNavigation("ACClassMethodConfig_VBiACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassMethodConfig>),
@@ -310,7 +310,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassMethodConfig).GetField("_VBiACClassPropertyRelation", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassMethodConfigVBiACClassPropertyRelation = principalEntityType.AddNavigation("ACClassMethodConfig_VBiACClassPropertyRelation",
+            var aCClassMethodConfig_VBiACClassPropertyRelation = principalEntityType.AddNavigation("ACClassMethodConfig_VBiACClassPropertyRelation",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassMethodConfig>),
@@ -337,7 +337,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassMethodConfig).GetField("_ValueTypeACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassMethodConfigValueTypeACClass = principalEntityType.AddNavigation("ACClassMethodConfig_ValueTypeACClass",
+            var aCClassMethodConfig_ValueTypeACClass = principalEntityType.AddNavigation("ACClassMethodConfig_ValueTypeACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassMethodConfig>),

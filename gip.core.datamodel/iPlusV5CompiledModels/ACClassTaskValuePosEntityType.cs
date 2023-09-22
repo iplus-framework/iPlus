@@ -166,11 +166,11 @@ namespace gip.core.datamodel
                 new[] { aCClassTaskValuePosID });
             runtimeEntityType.SetPrimaryKey(key);
 
-            var nCIFKACClassTaskValuePosACClassTaskValueID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACClassTaskValuePos_ACClassTaskValueID = runtimeEntityType.AddIndex(
                 new[] { aCClassTaskValueID },
                 name: "NCI_FK_ACClassTaskValuePos_ACClassTaskValueID");
 
-            var nCIFKACClassTaskValuePosRequestID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACClassTaskValuePos_RequestID = runtimeEntityType.AddIndex(
                 new[] { requestID },
                 name: "NCI_FK_ACClassTaskValuePos_RequestID");
 
@@ -193,7 +193,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACClassTaskValuePos).GetField("_ACClassTaskValue", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCClassTaskValuePosACClassTaskValue = principalEntityType.AddNavigation("ACClassTaskValuePos_ACClassTaskValue",
+            var aCClassTaskValuePos_ACClassTaskValue = principalEntityType.AddNavigation("ACClassTaskValuePos_ACClassTaskValue",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACClassTaskValuePos>),

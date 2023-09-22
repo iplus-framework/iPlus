@@ -178,15 +178,15 @@ namespace gip.core.datamodel
                 new[] { aCProjectID });
             runtimeEntityType.SetPrimaryKey(key);
 
-            var nCIFKACProjectBasedOnACProjectID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACProject_BasedOnACProjectID = runtimeEntityType.AddIndex(
                 new[] { basedOnACProjectID },
                 name: "NCI_FK_ACProject_BasedOnACProjectID");
 
-            var nCIFKACProjectPAAppClassAssignmentACClassID = runtimeEntityType.AddIndex(
+            var nCI_FK_ACProject_PAAppClassAssignmentACClassID = runtimeEntityType.AddIndex(
                 new[] { pAAppClassAssignmentACClassID },
                 name: "NCI_FK_ACProject_PAAppClassAssignmentACClassID");
 
-            var uIXACProjectACProjectNo = runtimeEntityType.AddIndex(
+            var uIX_ACProject_ACProjectNo = runtimeEntityType.AddIndex(
                 new[] { aCProjectNo },
                 name: "UIX_ACProject_ACProjectNo",
                 unique: true);
@@ -200,7 +200,7 @@ namespace gip.core.datamodel
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty("ACProjectID") }),
                 principalEntityType);
 
-            var aCProject1BasedOnACProject = declaringEntityType.AddNavigation("ACProject1_BasedOnACProject",
+            var aCProject1_BasedOnACProject = declaringEntityType.AddNavigation("ACProject1_BasedOnACProject",
                 runtimeForeignKey,
                 onDependent: true,
                 typeof(ACProject),
@@ -208,7 +208,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACProject).GetField("_ACProject1_BasedOnACProject", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCProjectBasedOnACProject = principalEntityType.AddNavigation("ACProject_BasedOnACProject",
+            var aCProject_BasedOnACProject = principalEntityType.AddNavigation("ACProject_BasedOnACProject",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACProject>),
@@ -234,7 +234,7 @@ namespace gip.core.datamodel
                 fieldInfo: typeof(ACProject).GetField("_PAAppClassAssignmentACClass", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field);
 
-            var aCProjectPAAppClassAssignmentACClass = principalEntityType.AddNavigation("ACProject_PAAppClassAssignmentACClass",
+            var aCProject_PAAppClassAssignmentACClass = principalEntityType.AddNavigation("ACProject_PAAppClassAssignmentACClass",
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(ICollection<ACProject>),
