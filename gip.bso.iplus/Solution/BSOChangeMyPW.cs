@@ -176,6 +176,7 @@ namespace gip.bso.iplus
                 return;
             DialogResult = new VBDialogResult();
             DialogResult.SelectedCommand = eMsgButton.OK;
+            DialogResult.ReturnValue = new ACValueItem("UserName", CheckUser, null);
             _CheckVBUser = null;
             CheckUser = null;
             CheckPassword = null;

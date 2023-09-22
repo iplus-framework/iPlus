@@ -36,7 +36,12 @@ namespace gip.core.autocomponent
             paramTranslation.Add("SkipMode", "en{'Skipmode: 1=Always, 2=From the second run'}de{'Überspringen: 1=Ständig, 2=Ab zweitem Durchlauf'}");
             method.ParameterValueList.Add(new ACValue("ACUrlCmd", typeof(string), "", Global.ParamOption.Required));
             paramTranslation.Add("ACUrlCmd", "en{'Invoke ACUrl-Command'}de{'ACUrl-Kommando ausführen'}");
-            var wrapper = new ACMethodWrapper(method, "en{'User Acknowledge'}de{'Benutzerbestätigung'}", typeof(PWNodeUserAck), paramTranslation, null);
+
+            Dictionary<string, string> resultTranslation = new Dictionary<string, string>();
+            method.ResultValueList.Add(new ACValue("UserName", typeof(string), "", Global.ParamOption.Optional));
+            resultTranslation.Add("UserName", "en{'Username'}de{'Benutzername'}");
+
+            var wrapper = new ACMethodWrapper(method, "en{'User Acknowledge'}de{'Benutzerbestätigung'}", typeof(PWNodeUserAck), paramTranslation, resultTranslation);
             ACMethod.RegisterVirtualMethod(typeof(PWNodeUserAck), ACStateConst.SMStarting, wrapper);
         }
 
@@ -297,6 +302,18 @@ namespace gip.core.autocomponent
             OnAckStart(false);
         }
 
+        [ACMethodInfo("", "en{'Acknowledge'}de{'Bestätigen'}", 801, true)]
+        public virtual void AckStartUserName(string userName)
+        {
+            if (!string.IsNullOrEmpty(userName))
+            {
+                if (ExecutingACMethod != null)
+                    ExecutingACMethod.ResultValueList["UserName"] = userName;
+            }
+
+            AckStart();
+        }
+
         protected virtual void OnAckStart(bool skipped)
         {
             AcknowledgeAllAlarms();
@@ -367,12 +384,19 @@ namespace gip.core.autocomponent
                 VBDialogResult dlgResult = childBSO.ACUrlCommand("!ShowCheckUserDialog") as VBDialogResult;
                 if (dlgResult != null && dlgResult.SelectedCommand == eMsgButton.OK)
                 {
-                    acComponent.ACUrlCommand("!AckStart");
+                    string userName = "";
+                    if (dlgResult.ReturnValue != null)
+                        userName = (dlgResult.ReturnValue as ACValueItem)?.Value?.ToString();
+
+                    if (string.IsNullOrEmpty(userName))
+                        acComponent.ACUrlCommand("!" + nameof(AckStart));
+                    else
+                        acComponent.ACUrlCommand("!" + nameof(AckStartUserName), userName);
                 }
                 childBSO.Stop();
             }
             else
-                acComponent.ACUrlCommand("!AckStart");
+                acComponent.ACUrlCommand("!" + nameof(AckStart));
         }
 
         public static bool IsEnabledAckStartClient(IACComponent acComponent)
