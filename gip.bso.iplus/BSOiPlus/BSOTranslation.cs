@@ -1384,21 +1384,22 @@ namespace gip.bso.iplus
 
         #endregion
 
-        [ACMethodInfo("", "en{'Key event'}de{'Tastatur Ereignis'}", 9999, false)]
-        public void OnKeyEvent(KeyEventArgs e)
-        {
-            bool ctrlkeyPresent = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
-            Console.WriteLine(e.Key);
-            if (ctrlkeyPresent && e.Key == Key.Left)
-                MoveBackward();
-            if (ctrlkeyPresent && e.Key == Key.Right)
-                MoveForward();
-            if (ctrlkeyPresent && e.Key == Key.Up)
-                MoveUp();
-            if (ctrlkeyPresent && e.Key == Key.Down)
-                MoveDown();
+        //TODO Different implementation in design
+        //[ACMethodInfo("", "en{'Key event'}de{'Tastatur Ereignis'}", 9999, false)]
+        //public void OnKeyEvent(KeyEventArgs e)
+        //{
+        //    bool ctrlkeyPresent = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
+        //    Console.WriteLine(e.Key);
+        //    if (ctrlkeyPresent && e.Key == Key.Left)
+        //        MoveBackward();
+        //    if (ctrlkeyPresent && e.Key == Key.Right)
+        //        MoveForward();
+        //    if (ctrlkeyPresent && e.Key == Key.Up)
+        //        MoveUp();
+        //    if (ctrlkeyPresent && e.Key == Key.Down)
+        //        MoveDown();
 
-        }
+        //}
 
 
         #endregion

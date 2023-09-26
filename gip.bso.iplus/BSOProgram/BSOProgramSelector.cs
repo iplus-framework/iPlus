@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using System.Windows.Threading;
 using ClosedXML.Excel;
 using System.Data;
 using gip.core.media;
+using System.Timers;
 
 namespace gip.bso.iplus
 {
@@ -23,16 +23,16 @@ namespace gip.bso.iplus
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
             bool init = base.ACInit(startChildMode);
-            _refreshTimer = new DispatcherTimer();
-            _refreshTimer.Tick += _refreshTimer_Tick;
-            _refreshTimer.Interval = new TimeSpan(0, 0, 0, 1);
+            _refreshTimer = new Timer();
+            _refreshTimer.Elapsed += _refreshTimer_Tick;
+            _refreshTimer.Interval = 1000;
             return init;
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
-            if(_refreshTimer != null)
-                _refreshTimer.Tick -= _refreshTimer_Tick;
+            if (_refreshTimer != null)
+                _refreshTimer.Elapsed -= _refreshTimer_Tick;
             _refreshTimer = null;
             CurrentACProgram = null;
             ArchiveRemainingDays = null;
@@ -42,7 +42,7 @@ namespace gip.bso.iplus
 
         #region Private members
 
-        private DispatcherTimer _refreshTimer;
+        private Timer _refreshTimer;
         private int _refreshTimerCounter = 0;
         private List<core.datamodel.ACProgram> _ACProgramListCopy;
         private bool _IsEnabledRestoreArchivedProgramLog = true;

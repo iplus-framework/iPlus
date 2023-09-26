@@ -7,7 +7,7 @@ ExecStart=/usr/bin/dotnet /mnt/d/devel/iPlusV5/trunk/iPlus/bin/Release/net7.0/pu
 
 User=mario
 
-Environment=/usr/bin/dotnet
+Environment=DOTNET_ROOT=/usr/bin/dotnet
 
 [Install]
 WantedBy=multi-user.target

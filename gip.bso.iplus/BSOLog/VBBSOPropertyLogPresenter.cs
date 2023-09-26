@@ -1004,7 +1004,7 @@ namespace gip.bso.iplus
         /// </summary>
         /// <param name="treeViewItems"></param>
         [ACMethodInfo("", "", 405)]
-        public void UpdateDisplayOrder(ICollectionView treeViewItems)
+        public void UpdateDisplayOrder(System.Collections.IEnumerable treeViewItems)
         {
             _UpdatedPropertyLogs = new List<ACPropertyLogModel>();
             int displayOrder = 0;

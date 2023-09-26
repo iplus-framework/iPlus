@@ -15,9 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows.Media.Imaging;
-using System.Windows.Media;
 using System.Data;
 using gip.core.datamodel;
 using gip.core.autocomponent;
@@ -535,9 +532,9 @@ namespace gip.bso.iplus
                 case Const.IsEnabledPrefix + "ExportDesigns":
                     result = IsEnabledExportDesigns();
                     return true;
-                case "NavigateToDesign":
-                    NavigateToDesign(acParameter[0] as MouseButtonEventArgs, acParameter[1] as string);
-                    return true;
+                //case "NavigateToDesign":
+                //    NavigateToDesign(acParameter[0] as MouseButtonEventArgs, acParameter[1] as string);
+                //    return true;
                 case "DesignOpen":
                     DesignOpen(acParameter[0] as string);
                     return true;
@@ -679,18 +676,19 @@ namespace gip.bso.iplus
             return CurrentVisualisation != null;
         }
 
-        [ACMethodInfo("NavigateToDesign", "", 490)]
-        public void NavigateToDesign(MouseButtonEventArgs e, string Parameter)
-        {
-            if (e.ClickCount > 1)
-            {
-                ACUrlCommand("BSOVisualisationStudio!DesignOpen", Parameter);
-            }
-            else
-            {
-                DesignOpen(Parameter);
-            }
-        }
+        //TODO New implementation in design
+        //[ACMethodInfo("NavigateToDesign", "", 490)]
+        //public void NavigateToDesign(MouseButtonEventArgs e, string Parameter)
+        //{
+        //    if (e.ClickCount > 1)
+        //    {
+        //        ACUrlCommand("BSOVisualisationStudio!DesignOpen", Parameter);
+        //    }
+        //    else
+        //    {
+        //        DesignOpen(Parameter);
+        //    }
+        //}
 
 
         [ACMethodInfo("NavigateToDesign", "", 491)]

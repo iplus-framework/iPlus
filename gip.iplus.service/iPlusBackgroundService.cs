@@ -45,6 +45,7 @@ namespace gip.iplus.service
 
                     String errorMsg = "";
                     // 1. Datenbankverbindung herstellen
+                    //await Task.Delay(5000);
                     if (startUpManager.LoginUser(cmdHelper.LoginUser, cmdHelper.LoginPassword, false, false, ref errorMsg, WCFOff, simulation) != 1)
                     {
                         string source = "Vario iPlus Service";

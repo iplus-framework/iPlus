@@ -16,7 +16,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using System.IO;
-using System.Windows.Controls;
 using System.Windows;
 using System.ComponentModel;
 using gip.core.datamodel;
@@ -772,29 +771,29 @@ namespace gip.bso.iplus
             get { return CurrentVisualACClass; }
         }
 
-        /// <summary>
-        /// Gets the current AC class VBV isual item.
-        /// </summary>
-        /// <value>The current AC class VBV isual item.</value>
-        public IACInteractiveObject CurrentACClassVBVIsualItem
-        {
-            get
-            {
-                foreach (var client in ReferencePoint.ConnectionList)
-                {
-                    if (client is Control)
-                    {
-                        Control control = client as Control;
-                        DependencyObject dObject = LogicalTreeHelper.FindLogicalNode(control, "VisualControl");
-                        if (dObject != null)
-                        {
-                            return dObject as IACInteractiveObject;
-                        }
-                    }
-                }
-                return null;
-            }
-        }
+        ///// <summary>
+        ///// Gets the current AC class VBV isual item.
+        ///// </summary>
+        ///// <value>The current AC class VBV isual item.</value>
+        //public IACInteractiveObject CurrentACClassVBVIsualItem
+        //{
+        //    get
+        //    {
+        //        foreach (var client in ReferencePoint.ConnectionList)
+        //        {
+        //            if (client is Control)
+        //            {
+        //                Control control = client as Control;
+        //                DependencyObject dObject = LogicalTreeHelper.FindLogicalNode(control, "VisualControl");
+        //                if (dObject != null)
+        //                {
+        //                    return dObject as IACInteractiveObject;
+        //                }
+        //            }
+        //        }
+        //        return null;
+        //    }
+        //}
 
         /// <summary>
         /// The _ current new AC class
