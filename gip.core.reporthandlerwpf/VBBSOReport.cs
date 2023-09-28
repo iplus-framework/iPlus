@@ -1414,7 +1414,7 @@ namespace gip.core.reporthandlerwpf
             if (_SelectedACMetodReportConfigWrapper.ConfigSource.ACIdentifier == "Rules")
                 return "Rules";
 
-            string url = _SelectedACMetodReportConfigWrapper.GetACUrl();
+            string url = _SelectedACMetodReportConfigWrapper.ConfigSource.GetACUrl();
             if (!url.Contains(ACClassMethod.ClassName + "("))
                 url += "\\" + ACClassMethod.ClassName + "(" + ACStateEnum.SMStarting + ")";
             return url;
@@ -1450,7 +1450,7 @@ namespace gip.core.reporthandlerwpf
             }
         }
 
-        [ACMethodInfo("", "en", 999)]
+        [ACMethodInfo("", "en{'Apply configuration'}de{Konfiguration anwenden}", 9999)]
         public void ApplyConfig()
         {
             CreateOrUpdateConfigs();

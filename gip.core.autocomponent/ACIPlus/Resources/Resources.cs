@@ -68,20 +68,25 @@ namespace gip.core.autocomponent
                     {
                         XElement xDoc = XElement.Parse(File.ReadAllText(file));
                         serializer.DeserializeXML(this, db, rootACObjectItem, xDoc, null, "\\Resources\\" + file);
-                        if(MsgObserver != null)
+                        if (Worker != null)
                         {
-                            serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
+                            foreach (Msg msg in serializer.MsgList)
+                            {
+                                Worker.ReportProgress(0, msg);
+                            }
                         }
                     }
                     catch (Exception ec)
                     {
-                        if (MsgObserver != null)
+                        if(Worker != null)
                         {
-                            MsgObserver.SendMessage(new Msg()
-                            {
-                                MessageLevel = eMsgLevel.Error,
-                                Message = string.Format(@"Resources({0}): Unable to deserialize file: {1}! Exception: {2}", path, file, ec.Message)
-                            });
+                            Worker.ReportProgress(0,
+                                    new Msg()
+                                    {
+                                        MessageLevel = eMsgLevel.Error,
+                                        Message = string.Format(@"Resources({0}): Unable to deserialize file: {1}! Exception: {2}", path, file, ec.Message)
+                                    }
+                                );
                         }
                     }
                     index++;
@@ -382,9 +387,8 @@ namespace gip.core.autocomponent
 
 #endregion
 
-#region Progress and messages
-
-        public IMsgObserver MsgObserver { get; set; }
+        #region Progress and messages
+        public ACBackgroundWorker Worker { get; set; }
 
         public IVBProgress VBProgress { get; set; }
 
@@ -396,11 +400,11 @@ namespace gip.core.autocomponent
         {
             List<Msg> tmpMsgList = new List<Msg>();
             rootACObjectItem.SetupProperties(tmpMsgList);
-            if (MsgObserver != null)
+            if(Worker != null)
             {
                 foreach (Msg msg in tmpMsgList)
                 {
-                    MsgObserver.SendMessage(msg);
+                    Worker.ReportProgress(0, msg);
                 }
             }
         }

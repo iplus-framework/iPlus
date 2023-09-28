@@ -434,12 +434,22 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                     using (ACMonitor.Lock(Database.GlobalDatabase.QueryLock_1X000))
                         acClass = Database.GlobalDatabase.ACClass.FirstOrDefault(c => c.ACClassID == log.ACClassID);
 
-                    if (!acClass.ACClassMethod_PWACClass.Select(c => c.ACUrl).Intersect(ReportConfig.Items.Cast<ConfigurationMethod>().Select(x => x.VBContent)).Any())
+                    if (acClass.ACKind == Global.ACKinds.TPWNodeStatic)
                     {
-                        tempLogs.Add(log);
+                        if (!(ReportConfig.Items.Cast<ConfigurationMethod>().Select(x => x.VBContent).Any(c => c == acClass.ACUrl + "\\" +nameof(ACClassMethod) + "(" + nameof(PWNodeProcessMethod.SMStarting) +")")))
+                        {
+                            tempLogs.Add(log);
+                        }
+                    }
+                    else
+                    {
+                        if (!acClass.ACClassMethod_PWACClass.Select(c => c.ACUrl).Intersect(ReportConfig.Items.Cast<ConfigurationMethod>().Select(x => x.VBContent)).Any())
+                        {
+                            tempLogs.Add(log);
+                        }
                     }
                 }
-                enumerableObj = logs.Except(tempLogs);
+                enumerableObj = logs.Except(tempLogs).OrderBy(c => c.StartDate);
             }
 
             if (configs != null)
@@ -480,7 +490,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                                     msg += " Inner:" + e.InnerException.Message;
 
                                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                                    datamodel.Database.Root.Messages.LogException("ReportPaginator", "ReportConfig", msg);
+                                    datamodel.Database.Root.Messages.LogException(nameof(ReportPaginator), nameof(ReportConfig), msg);
                             }
                         }
                     }
@@ -503,7 +513,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                 List<IACConfig> tempList = new List<IACConfig>();
                 foreach (var item in configuration.ConfigItems)
                 {
-                    if (!item.LocalConfigACUrl.Contains("Rules") && !item.LocalConfigACUrl.Contains("SMStarting") && !configInfo.Items.Cast<ConfigurationParameter>().Any(c => c.ParameterName == item.LocalConfigACUrl.Split('\\').Last()))
+                    if (!item.LocalConfigACUrl.Contains("Rules") && !item.LocalConfigACUrl.Contains(nameof(PWBaseExecutable.SMStarting)) && !configInfo.Items.Cast<ConfigurationParameter>().Any(c => c.ParameterName == item.LocalConfigACUrl.Split('\\').Last()))
                     {
                         tempList.Add(item);
                     }
@@ -514,7 +524,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
             else
             {
                 configuration.Method = false;
-                configuration.ConfigItems.RemoveAll(c => !c.LocalConfigACUrl.Contains("SMStarting") && !c.LocalConfigACUrl.Contains("Rules"));
+                configuration.ConfigItems.RemoveAll(c => !c.LocalConfigACUrl.Contains(nameof(PWBaseExecutable.SMStarting)) && !c.LocalConfigACUrl.Contains("Rules"));
             }
         }
 
@@ -523,13 +533,13 @@ namespace gip.core.reporthandlerwpf.Flowdoc
             ACClassMethod method = null;
             if (configuration.ConfigACClassWF.PWACClass.ACClassMethod_ACClass.Any())
             {
-                method = configuration.ConfigACClassWF.PWACClass.ACClassMethod_ACClass.FirstOrDefault(c => c.ACIdentifier == "SMStarting");
+                method = configuration.ConfigACClassWF.PWACClass.ACClassMethod_ACClass.FirstOrDefault(c => c.ACIdentifier == nameof(PWBaseExecutable.SMStarting));
                 if (method == null)
-                    method = configuration.ConfigACClassWF.PWACClass.ACClass1_BasedOnACClass.ACClassMethod_ACClass.FirstOrDefault(c => c.ACIdentifier == "SMStarting");
+                    method = configuration.ConfigACClassWF.PWACClass.ACClass1_BasedOnACClass.ACClassMethod_ACClass.FirstOrDefault(c => c.ACIdentifier == nameof(PWBaseExecutable.SMStarting));
             }
             else
             {
-                method = configuration.ConfigACClassWF.PWACClass.ACClass1_BasedOnACClass.ACClassMethod_ACClass.FirstOrDefault(c => c.ACIdentifier == "SMStarting");
+                method = configuration.ConfigACClassWF.PWACClass.ACClass1_BasedOnACClass.ACClassMethod_ACClass.FirstOrDefault(c => c.ACIdentifier == nameof(PWBaseExecutable.SMStarting));
             }
             if (method != null)
             {
@@ -540,7 +550,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                     List<IACConfig> tempList = new List<IACConfig>();
                     foreach (var item in configuration.ConfigItems)
                     {
-                        if (item.LocalConfigACUrl.Contains("SMStarting") && !configInfo.Items.Cast<ConfigurationParameter>().Any(c => c.ParameterName == item.LocalConfigACUrl.Split('\\').Last()))
+                        if (item.LocalConfigACUrl.Contains(nameof(PWBaseExecutable.SMStarting)) && !configInfo.Items.Cast<ConfigurationParameter>().Any(c => c.ParameterName == item.LocalConfigACUrl.Split('\\').Last()))
                         {
                             tempList.Add(item);
                         }
@@ -551,7 +561,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                 else
                 {
                     configuration.Configuration = false;
-                    configuration.ConfigItems.RemoveAll(c => c.LocalConfigACUrl.Contains("SMStarting"));
+                    configuration.ConfigItems.RemoveAll(c => c.LocalConfigACUrl.Contains(nameof(PWBaseExecutable.SMStarting)));
                 }
             }
         }
@@ -1248,9 +1258,21 @@ namespace gip.core.reporthandlerwpf.Flowdoc
 
                     if (acClass != null)
                     {
-                        var item = acClass.ACClassMethod_PWACClass.Select(c => c.ACUrl).Intersect(ReportConfig.Items.Cast<ConfigurationMethod>().Select(x => x.VBContent));
-                        if (item.Count() == 1)
-                            configInfo = ReportConfig.Items.Cast<ConfigurationMethod>().FirstOrDefault(c => c.VBContent == item.FirstOrDefault());
+
+                        if (acClass.ACKind == Global.ACKinds.TPWNodeStatic)
+                        {
+                            var items = ReportConfig.Items.Cast<ConfigurationMethod>().Where(c => c.VBContent == acClass.ACUrl + "\\" + nameof(ACClassMethod) + "(" + nameof(PWNodeProcessMethod.SMStarting) + ")");
+                            if (items.Count() == 1)
+                                configInfo = items.FirstOrDefault();
+
+                        }
+                        else
+                        {
+
+                            var item = acClass.ACClassMethod_PWACClass.Select(c => c.ACUrl).Intersect(ReportConfig.Items.Cast<ConfigurationMethod>().Select(x => x.VBContent));
+                            if (item.Count() == 1)
+                                configInfo = ReportConfig.Items.Cast<ConfigurationMethod>().FirstOrDefault(c => c.VBContent == item.FirstOrDefault());
+                        }
                     }
                 }
 
@@ -1401,7 +1423,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                 string error = "Set InlineFlowDocContenValue error: " + e.Message;
                 MessageBox.Show(error);
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                    datamodel.Database.Root.Messages.LogError("ReportPaginator", "SetInlineFlowDocContentValue(20)", error);
+                    datamodel.Database.Root.Messages.LogError(nameof(ReportPaginator), "SetInlineFlowDocContentValue(20)", error);
                 return false;
             }
 
@@ -1620,7 +1642,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                         msg += " Inner:" + e.InnerException.Message;
 
                     if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                        datamodel.Database.Root.Messages.LogException("ReportPaginator", "OnSetNewTableCell", msg);
+                        datamodel.Database.Root.Messages.LogException(nameof(ReportPaginator), nameof(OnSetNewTableCell), msg);
                 }
             }
             TableCell newCell = new TableCell(new Paragraph(new Run(valueAsString)));

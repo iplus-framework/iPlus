@@ -13,7 +13,7 @@ using static gip.core.datamodel.Global;
 namespace gip.bso.iplus
 {
     [ACClassInfo(Const.PackName_VarioDevelopment, "en{'Export'}de{'Export'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, false, true)]
-    public class BSOiPlusExport : ACBSO, IMsgObserver
+    public class BSOiPlusExport : ACBSO
     {
         #region const
 
@@ -1045,7 +1045,7 @@ namespace gip.bso.iplus
 
         #endregion
 
-        #region IMsgObserver
+        #region Messages
 
         Msg _CurrentMsg;
         /// <summary>
@@ -1084,10 +1084,7 @@ namespace gip.bso.iplus
 
         public void SendMessage(Msg msg)
         {
-            //System.Windows.Application.Current.Dispatcher.Invoke((Action)delegate
-            //{
-                MsgList.Add(msg);
-            //});
+            MsgList.Add(msg);
             OnPropertyChanged(nameof(MsgList));
         }
 
@@ -1173,6 +1170,17 @@ namespace gip.bso.iplus
                     SendMessage(msg);
             }
         }
+
+        public override void BgWorkerProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            base.BgWorkerProgressChanged(sender, e);
+            if (e.UserState != null && e.UserState is Msg)
+            {
+                Msg msg = e.UserState as Msg;
+                SendMessage(msg);
+            }
+        }
+
         #endregion
 
         #region private Property

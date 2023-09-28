@@ -936,7 +936,7 @@ namespace gip.core.media
             base.BgWorkerCompleted(sender, e);
             CloseWindow(this, DesignNameProgressBar);
             ACBackgroundWorker worker = sender as ACBackgroundWorker;
-            KeyValuePair<string, bool> command = (KeyValuePair<string, bool>)worker.EventArgs.Argument;
+            Tuple<string, bool, bool> command = (Tuple<string, bool, bool>)worker.EventArgs.Result;
 
             if (e.Cancelled)
             {
@@ -948,11 +948,10 @@ namespace gip.core.media
             }
             else
             {
-                switch (command.Key)
+                switch (command.Item1)
                 {
                     case BGWorkerMehtod_DeleteFile:
-                        KeyValuePair<bool, bool> success = (KeyValuePair<bool, bool>)e.Result;
-                        if (OnDefaultImageDelete != null && success.Key && success.Value)
+                        if (OnDefaultImageDelete != null && command.Item2 && command.Item3)
                             OnDefaultImageDelete(this, new EventArgs());
                         break;
                 }
@@ -962,7 +961,7 @@ namespace gip.core.media
 
         #region BackgroundWorker -> BGWorker mehtods -> Methods for call
 
-        private KeyValuePair<bool, bool> DoDeleteFile(ACBackgroundWorker worker, DoWorkEventArgs e, BGModel bGModel)
+        private Tuple<string, bool, bool> DoDeleteFile(ACBackgroundWorker worker, DoWorkEventArgs e, BGModel bGModel)
         {
             bool success = true;
             try
@@ -978,7 +977,7 @@ namespace gip.core.media
                     if (worker.CancellationPending == true)
                     {
                         e.Cancel = true;
-                        return new KeyValuePair<bool, bool>(false, bGModel.IsDefault);
+                        return new Tuple<string, bool, bool>(BGWorkerMehtod_DeleteFile, false, bGModel.IsDefault);
                     }
 
                     bool isDeleted = false;
@@ -1009,7 +1008,7 @@ namespace gip.core.media
                 Messages.Exception(this, ex.Message);
             }
 
-            return new KeyValuePair<bool, bool>(success, bGModel.IsDefault);
+            return new Tuple<string, bool, bool>(BGWorkerMehtod_DeleteFile, success, bGModel.IsDefault);
         }
 
         #endregion

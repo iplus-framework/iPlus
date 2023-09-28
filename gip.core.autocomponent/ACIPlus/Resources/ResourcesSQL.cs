@@ -43,9 +43,9 @@ namespace gip.core.autocomponent
             }
             catch (Exception ec)
             {
-                if (MsgObserver != null)
+                if (Worker != null)
                 {
-                    MsgObserver.SendMessage(new Msg()
+                    Worker.ReportProgress(0, new Msg()
                     {
                         MessageLevel = eMsgLevel.Error,
                         Message = string.Format(@"ResourcesSQL({0}): Unable to decode path! Exception:{1}", path, ec.Message)
@@ -61,16 +61,19 @@ namespace gip.core.autocomponent
             try
             {
                 result = serializer.GetDeserializeSQLDataModel(sqlInstanceInfo, acQueryDefinitionIdentifier);
-                if (MsgObserver != null && serializer.MsgList.Any())
+                if (Worker != null && serializer.MsgList.Any())
                 {
-                    serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
+                    foreach(Msg msg in serializer.MsgList)
+                    {
+                        Worker.ReportProgress(0, msg);
+                    }
                 }
             }
             catch (Exception ec)
             {
-                if (MsgObserver != null)
+                if (Worker != null)
                 {
-                    MsgObserver.SendMessage(new Msg() { MessageLevel = eMsgLevel.Error, Message = string.Format(@"ResourcesSQL({0}): Unable to fetch external list! External connection string:{1}. Exception:{2}", path, result.OuterDatabase.Connection.ConnectionString, ec.Message) });
+                    Worker.ReportProgress(0, new Msg() { MessageLevel = eMsgLevel.Error, Message = string.Format(@"ResourcesSQL({0}): Unable to fetch external list! External connection string:{1}. Exception:{2}", path, result.OuterDatabase.Connection.ConnectionString, ec.Message) });
                 }
                 return rootACObjectItem;
             }

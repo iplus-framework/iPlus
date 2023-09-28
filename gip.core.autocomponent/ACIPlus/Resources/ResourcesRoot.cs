@@ -37,7 +37,7 @@ namespace gip.core.autocomponent
                 {
                     if (ResourceFactory.IsResourceZip(file) || ResourceFactory.IsResourceXML(file))
                     {
-                        IResources handlingResource = ResourceFactory.Factory(file, MsgObserver);
+                        IResources handlingResource = ResourceFactory.Factory(file, Worker);
                         handlingResource.VBProgress = VBProgress;
                         ACFSItem childItem = handlingResource.Dir(db, container, file, recursive, withFiles);
                         rootACObjectItem.Add(childItem);
@@ -50,18 +50,20 @@ namespace gip.core.autocomponent
                         {
                             XElement xDoc = XElement.Parse(File.ReadAllText(file));
                             serializer.DeserializeXML(this, db, rootACObjectItem, xDoc, null, "\\Resources\\" + file);
-
-                            if (MsgObserver != null && serializer.MsgList.Any())
+                          
+                            if(Worker != null)
                             {
-                                serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
+                                foreach (Msg msg in serializer.MsgList)
+                                {
+                                    Worker.ReportProgress(0, msg);
+                                }
                             }
-
                         }
                         catch (Exception ec)
                         {
-                            if (MsgObserver != null)
+                            if (Worker != null)
                             {
-                                MsgObserver.SendMessage(new Msg()
+                                Worker.ReportProgress(0, new Msg()
                                 {
                                     MessageLevel = eMsgLevel.Error,
                                     Message = string.Format(@"ResourcesRoot({0}): Unable to deserialize file: {1}! Exception: {2}", path, file, ec.Message)
@@ -80,7 +82,7 @@ namespace gip.core.autocomponent
                 string folderName = folder.Substring(pos + 1);
                 if (folderName.StartsWith(ACProject.ClassName))
                 {
-                    IResources basicResourceHt = ResourceFactory.Factory(folder, MsgObserver);
+                    IResources basicResourceHt = ResourceFactory.Factory(folder, Worker);
                     basicResourceHt.VBProgress = VBProgress;
                     ACFSItem childItem = basicResourceHt.Dir(db, container, folder, recursive, withFiles);
                     rootACObjectItem.Add(childItem);
