@@ -7,6 +7,7 @@ using gip.core.processapplication;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.CodeDom;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -1522,7 +1523,7 @@ namespace gip.bso.iplus
                     result = IsEnabledShowAlarms();
                     return true;
                 case "UpdateDisplayOrder":
-                    UpdateDisplayOrder(acParameter[0] as ICollectionView);
+                    UpdateDisplayOrder(acParameter[0] as IEnumerable);
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);

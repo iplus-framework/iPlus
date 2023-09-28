@@ -22,6 +22,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace gip.bso.iplus
 {
@@ -1240,18 +1241,14 @@ namespace gip.bso.iplus
         /// <returns>ACClassInfoWithItems.</returns>
         private ACClassInfoWithItems DropMoveACClass(ACProject acProject, IACInteractiveObject dropObject, IACInteractiveObject targetVBDataObject)
         {
-            Type t = typeof(System.Windows.Controls.TreeViewItem);
-            PropertyInfo pi = t.GetProperty("ParentItemsControl", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            IACInteractiveObject parentObject = pi.GetValue(dropObject, null) as IACInteractiveObject;
-
             ACClass targetClassItem = targetVBDataObject.GetACValue(typeof(ACClass)) as ACClass;
             ACClass dropClassItem = dropObject.GetACValue(typeof(ACClass)) as ACClass;
-            ACClass parentClassItem = parentObject.GetACValue(typeof(ACClass)) as ACClass;
+
+            IACInteractiveObject parentClassItem = dropObject.ParentACObject as IACInteractiveObject;
 
             ACClassInfoWithItems dropItem = dropObject.ACContentList.First() as ACClassInfoWithItems;
             ACClassInfoWithItems targetItem = targetVBDataObject.ACContentList.First() as ACClassInfoWithItems;
-            ACClassInfoWithItems parentItem = parentObject.ACContentList.First() as ACClassInfoWithItems;
+            ACClassInfoWithItems parentItem = parentClassItem.ACContentList.First() as ACClassInfoWithItems;
 
             parentItem.Remove(dropItem);
             targetItem.Add(dropItem);

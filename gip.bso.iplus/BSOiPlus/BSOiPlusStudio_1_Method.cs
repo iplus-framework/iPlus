@@ -729,7 +729,7 @@ namespace gip.bso.iplus
             }
 
             methodText += _MethodEndPart;
-            System.Windows.Clipboard.SetText(methodText);
+            TextCopy.ClipboardService.SetText(methodText);
             if (check)
                 return methodText;
             return null;

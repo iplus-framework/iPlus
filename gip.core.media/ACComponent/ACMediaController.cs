@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Net.Mime;
+using System.Drawing;
 
 namespace gip.core.media
 {
@@ -73,6 +74,15 @@ namespace gip.core.media
                 return _VBMediaController;
             }
         }
+
+        #region License Image
+
+        public Bitmap CreateLicenseImage(VBLicense CurrentVBLicense)
+        {
+            return VBMediaController.CreateLicenseImage(CurrentVBLicense);
+        }
+
+        #endregion
 
         #region Static methods
 

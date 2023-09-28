@@ -842,10 +842,10 @@ namespace gip.bso.iplus
 
         public void SendMessage(Msg msg)
         {
-            System.Windows.Application.Current.Dispatcher.Invoke((Action)delegate
-            {
+            //System.Windows.Application.Current.Dispatcher.Invoke((Action)delegate
+            //{
                 MsgList.Add(msg);
-            });
+            //});
             OnPropertyChanged(nameof(MsgList));
         }
 
