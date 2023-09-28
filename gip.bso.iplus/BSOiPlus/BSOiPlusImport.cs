@@ -9,14 +9,12 @@ using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Xml.Linq;
 
 namespace gip.bso.iplus
 {
     [ACClassInfo(Const.PackName_VarioDevelopment, "en{'Import'}de{'Import'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, false, true)]
-    public class BSOiPlusImport : ACBSO, IMsgObserver
+    public class BSOiPlusImport : ACBSO
     {
 
         #region consts
@@ -26,6 +24,9 @@ namespace gip.bso.iplus
         public const string BackgroundWorker_DoInspectImport = "DoInspectImport";
 
         public const string Cmd_OnReportAddFsItem_CustomBreak = @"OnReportAddFsItem_CustomBreak";
+
+        private readonly object _RefreshLock = new object();
+
 
         #endregion
 
@@ -154,6 +155,12 @@ namespace gip.bso.iplus
                     msgList = new ObservableCollection<Msg>();
                 return msgList;
             }
+        }
+
+        public void SendMessage(Msg msg)
+        {
+            MsgList.Add(msg);
+            OnPropertyChanged(nameof(MsgList));
         }
 
         #endregion
@@ -310,7 +317,7 @@ namespace gip.bso.iplus
             if (string.IsNullOrEmpty(filename)) return null;
             if (acFsItem.ResourceType == ResourceTypeEnum.IACObject || acFsItem.ResourceType == ResourceTypeEnum.List || acFsItem.ResourceType == ResourceTypeEnum.XML)
             {
-                IResources resource = ResourceFactory.Factory(filename, this);
+                IResources resource = ResourceFactory.Factory(filename, BackgroundWorker);
                 importXML = resource.ReadText(filename);
             }
             return importXML;
@@ -431,7 +438,7 @@ namespace gip.bso.iplus
             if (!IsEnabledImportFile()) return;
             try
             {
-                IResources resource = ResourceFactory.Factory(CurrentImportItem.ACUrlFS, this);
+                IResources resource = ResourceFactory.Factory(CurrentImportItem.ACUrlFS, BackgroundWorker);
                 ACFSItem feakRoot = new ACFSItem(resource, new ACFSItemContainer(Database, false), null, "", ResourceTypeEnum.Folder);
                 IACEntityObjectContext db = DoImportXML(resource, feakRoot, CurrentImportFileXML);
                 db.ACSaveChanges();
@@ -465,7 +472,7 @@ namespace gip.bso.iplus
             ACFSItem feakRoot = new ACFSItem(null, new ACFSItemContainer(Database, false), null, "", ResourceTypeEnum.Folder);
             try
             {
-                IResources resource = ResourceFactory.Factory(CurrentImportItem.ACUrlFS, this);
+                IResources resource = ResourceFactory.Factory(CurrentImportItem.ACUrlFS, BackgroundWorker);
                 DoImportXML(resource, feakRoot, CurrentImportFileXML);
                 if (feakRoot.Items == null || !feakRoot.Items.Any())
                 {
@@ -571,7 +578,7 @@ namespace gip.bso.iplus
                     DateTime startTime = DateTime.Now;
                     int gipNrFiles = CalculateGipFileNr(ImportSourcePath);
 
-                    IResources rootResources = ResourceFactory.Factory(ImportSourcePath, this);
+                    IResources rootResources = ResourceFactory.Factory(ImportSourcePath, BackgroundWorker);
                     worker.ProgressInfo.OnlyTotalProgress = true;
                     worker.ProgressInfo.TotalProgress.ProgressRangeFrom = 0;
                     worker.ProgressInfo.TotalProgress.ProgressRangeTo = gipNrFiles;
@@ -837,18 +844,17 @@ namespace gip.bso.iplus
 
         }
 
-        #endregion
-
-        #region IMsgObserver
-
-        public void SendMessage(Msg msg)
+        public override void BgWorkerProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            System.Windows.Application.Current.Dispatcher.Invoke((Action)delegate
+            base.BgWorkerProgressChanged(sender, e);
+            if (e.UserState != null && e.UserState is Msg)
             {
-                MsgList.Add(msg);
-            });
-            OnPropertyChanged(nameof(MsgList));
+                Msg msg = e.UserState as Msg;
+                SendMessage(msg);
+            }
         }
+
+        
 
         #endregion
 

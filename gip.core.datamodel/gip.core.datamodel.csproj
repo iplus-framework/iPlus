@@ -250,7 +250,6 @@
     <Compile Include="ACInterfaces\ACDesign\IACMenuBuilder.cs" />
     <Compile Include="ACInterfaces\VBControl\IVBFindAndReplace.cs" />
     <Compile Include="ACMethod\ACEventArgs.cs" />
-    <Compile Include="ACMessages\IMsgObserver.cs" />
     <Compile Include="ACMessages\VBDialogResult.cs" />
     <Compile Include="ACQueryDefinition\ACAccess.cs" />
     <Compile Include="ACObject\ACGenericObject.cs" />

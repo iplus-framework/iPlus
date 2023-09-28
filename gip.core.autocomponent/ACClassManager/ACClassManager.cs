@@ -13,7 +13,7 @@ using gip.core.ControlScriptSync;
 
 namespace gip.core.autocomponent
 {
-    public class ACClassManager : IMsgObserver
+    public class ACClassManager
     {
 
         #region Structs
@@ -439,7 +439,6 @@ namespace gip.core.autocomponent
                 controlSync.OnMessage += controlSync_OnMessage;
                 bool importSuccess = false;
                 IResources rootResources = new Resources();
-                rootResources.MsgObserver = this;
 
                 using (ACMonitor.Lock(_Database.QueryLock_1X000))
                 {
@@ -3194,10 +3193,6 @@ namespace gip.core.autocomponent
             Messages.ConsoleMsg("ControlSync", msg.Message);
         }
 
-        public void SendMessage(Msg msg)
-        {
-            Messages.GlobalMsg.AddDetailMessage(msg);
-        }
 
         #endregion
     }

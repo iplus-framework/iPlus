@@ -10,7 +10,7 @@ namespace gip.core.autocomponent
 {
     public static class ResourceFactory
     {
-        public static IResources Factory(string path, IMsgObserver msgObserver)
+        public static IResources Factory(string path, ACBackgroundWorker worker)
         {
             IResources resource = null;
             if(path != null)
@@ -36,7 +36,7 @@ namespace gip.core.autocomponent
             }
             if(resource == null)
                 resource = new ResourcesRoot();
-            resource.MsgObserver = msgObserver;
+            resource.Worker = worker;
             return resource;
         }
 

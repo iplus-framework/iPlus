@@ -1,19 +1,14 @@
-﻿using gip.core.autocomponent;
-using gip.core.datamodel;
+﻿using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media.Animation;
-using System.Xml.XPath;
 
 namespace gip.core.autocomponent
 {
-    public class ACClassCleanManager : IMsgObserver
+    public class ACClassCleanManager 
     {
         #region Settings
         public string[] AssemblySearchPatterns = new string[] { "gip.*", "kse.*", "elg.*", "eckel.*" };
@@ -356,12 +351,6 @@ namespace gip.core.autocomponent
 
         #endregion
 
-        #region IMsgObserver
-        public void SendMessage(Msg msg)
-        {
-
-        }
-
-        #endregion
+       
     }
 }

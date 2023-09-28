@@ -981,7 +981,7 @@ namespace gip.core.autocomponent
         /// <param name="e">The <see cref="ProgressChangedEventArgs"/> instance containing the event data.</param>
         public virtual void BgWorkerProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (e.UserState is Msg)
+            if (e.UserState != null && e.UserState is Msg)
             {
 
             }

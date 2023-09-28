@@ -23,9 +23,7 @@ namespace gip.core.datamodel
     /// </summary>
     public interface IResources 
     {
-
-        IMsgObserver MsgObserver { get; set; }
-
+        ACBackgroundWorker Worker { get; set; }
         IVBProgress VBProgress { get; set; }
 
         #region Filesystem

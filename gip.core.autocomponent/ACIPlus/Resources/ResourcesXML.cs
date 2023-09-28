@@ -35,17 +35,20 @@ namespace gip.core.autocomponent
             try
             {
                 serializer.DeserializeXMLData(this, rootACObjectItem, path);
-                if (MsgObserver != null && serializer.MsgList.Any())
+                if (Worker != null && serializer.MsgList.Any())
                 {
-                    serializer.MsgList.ForEach(x => MsgObserver.SendMessage(x));
+                    foreach(Msg msg in serializer.MsgList)
+                    {
+                        Worker.ReportProgress(0, msg);
+                    }
                 }    
             }
             catch (Exception ec)
             {
 
-                if (MsgObserver != null)
+                if (Worker != null)
                 {
-                    MsgObserver.SendMessage(new Msg()
+                    Worker.ReportProgress(0, new Msg()
                     {
                         MessageLevel = eMsgLevel.Error,
                         Message = string.Format(@"ResourcesXML({0}): Unable to deserialize XML! Exception: {1}", path, ec.Message)
