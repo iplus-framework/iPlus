@@ -620,7 +620,8 @@ namespace gip.core.datamodel
         [SecuritySafeCritical]
         public void SetApartmentState(ApartmentState state)
         {
-            this.Thread.SetApartmentState(state);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                this.Thread.SetApartmentState(state);
         }
 
         /// <summary>

@@ -17,6 +17,7 @@ using System.Linq;
 using System.Text;
 using System.Configuration;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace gip.core.datamodel
 {
@@ -31,19 +32,40 @@ namespace gip.core.datamodel
         /// <param name="args">The args.</param>
         public CommandLineHelper(string[] args)
         {
-            foreach ( string arg in args)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                string kennung = arg.Substring(1, 1).ToUpper();
-                switch (kennung)
+                for (int i = 0; i < args.Length; i++)
                 {
-                    case "U":
-                        LoginUser = arg.Substring(2);
-                        break;
-                    case "P":
-                        LoginPassword = arg.Substring(2);
-                        break;
+                    if (args[i] == "-U" && i + 1 < args.Length)
+                    {
+                        LoginUser = args[i + 1];
+                        i++;
+                    }
+                    else if (args[i] == "-P" && i + 1 < args.Length)
+                    {
+                        LoginPassword = args[i + 1];
+                        i++;
+                    }
                 }
             }
+
+            else
+            {
+                foreach (string arg in args)
+                {
+                    string kennung = arg.Substring(1, 1).ToUpper();
+                    switch (kennung)
+                    {
+                        case "U":
+                            LoginUser = arg.Substring(2);
+                            break;
+                        case "P":
+                            LoginPassword = arg.Substring(2);
+                            break;
+                    }
+                }
+            }
+
         }
         /// <summary>
         /// LoginUser = /U

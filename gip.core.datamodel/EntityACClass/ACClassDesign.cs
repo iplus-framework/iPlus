@@ -20,6 +20,7 @@ using System.Xml;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
+using SkiaSharp;
 
 namespace gip.core.datamodel
 {
@@ -455,17 +456,24 @@ namespace gip.core.datamodel
 
                 if (DesignBinary != null)
                 {
-                    using(var ms = new MemoryStream(DesignBinary))
+                    using (var ms = new MemoryStream(DesignBinary))
                     {
-                        System.Drawing.Image image = System.Drawing.Image.FromStream(ms);
-                        if (image != null)
+                        using (SKBitmap image = SKBitmap.Decode(ms))
                         {
-                            if (System.Drawing.Imaging.ImageFormat.Png.Equals(image.RawFormat))
-                                return reportFileName += ".png";
-                            if (System.Drawing.Imaging.ImageFormat.Jpeg.Equals(image.RawFormat))
-                                return reportFileName += ".jpeg";
-                            if (System.Drawing.Imaging.ImageFormat.Bmp.Equals(image.RawFormat))
-                                return reportFileName += ".bmp";
+                            if (image != null)
+                            {
+                                switch (image.ColorType)
+                                {
+                                    case SKColorType.Rgba8888:
+                                    case SKColorType.Bgra8888:
+                                    case SKColorType.Rgb888x:
+                                        return reportFileName + ".png";
+                                    case SKColorType.Rgb565:
+                                        return reportFileName + ".jpeg";
+                                    case SKColorType.Gray8:
+                                        return reportFileName + ".bmp";
+                                }
+                            }
                         }
                     }
                 }
