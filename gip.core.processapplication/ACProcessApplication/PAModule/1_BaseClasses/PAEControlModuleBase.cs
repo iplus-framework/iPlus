@@ -14,7 +14,7 @@ namespace gip.core.processapplication
     /// Basisklasse für steuerbare Bauteile/Elemente
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass Controlmodules'}de{'Basisklasse Steuerungsmodule'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
-    public abstract class PAEControlModuleBase : PAModule
+    public abstract class PAEControlModuleBase : PAModule, IRoutableModule
     {
         public const string ClassName = "PAEControlModuleBase";
 
@@ -172,10 +172,21 @@ namespace gip.core.processapplication
                 return;
             foreach (RouteItem routeItem in route.Items)
             {
-                PAEControlModuleBase module = routeItem.SourceACComponent as PAEControlModuleBase;
+                IRoutableModule module = routeItem.SourceACComponent as IRoutableModule;
+                module?.SimulateAllocationState(routeItem, switchOff);
                 module?.ActivateRouteItemOnSimulation(routeItem, switchOff);
-                module = routeItem.TargetACComponent as PAEControlModuleBase;
+                module = routeItem.TargetACComponent as IRoutableModule;
+                module?.SimulateAllocationState(routeItem, switchOff);
                 module?.ActivateRouteItemOnSimulation(routeItem, switchOff);
+            }
+        }
+
+        public virtual void SimulateAllocationState(RouteItem item, bool switchOff)
+        {
+            if (AllocatedByWay != null && AllocatedByWay.ValueT != null)
+            {
+                AllocatedByWay.ValueT.Bit00_Reserved = false;
+                AllocatedByWay.ValueT.Bit01_Allocated = !switchOff;
             }
         }
         #endregion

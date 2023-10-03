@@ -1364,7 +1364,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        public static void ReserveRoute(Route route)
+        public static void ReserveRoute(Route route, bool reserv = true)
         {
             if (route == null)
                 return;
@@ -1372,9 +1372,9 @@ namespace gip.core.autocomponent
             IEnumerable<IACComponent> sources = route.GetSourceComponentsOfRouteSources();
             foreach (IACComponent source in sources)
             {
-                IACContainerT<BitAccessForAllocatedByWay> propAllocated = source.GetProperty("AllocatedByWay") as IACContainerT<BitAccessForAllocatedByWay>;
+                IACContainerT<BitAccessForAllocatedByWay> propAllocated = source.GetProperty(nameof(IRoutableModule.AllocatedByWay)) as IACContainerT<BitAccessForAllocatedByWay>;
                 if (propAllocated != null)
-                    propAllocated.ValueT.Bit00_Reserved = true;
+                    propAllocated.ValueT.Bit00_Reserved = reserv;
             }
 
             foreach (RouteItem routeItem in route)
@@ -1382,9 +1382,9 @@ namespace gip.core.autocomponent
                 if (routeItem.TargetACComponent == null)
                     continue;
 
-                IACContainerT<BitAccessForAllocatedByWay> propAllocated = routeItem.TargetACComponent.GetProperty("AllocatedByWay") as IACContainerT<BitAccessForAllocatedByWay>;
+                IACContainerT<BitAccessForAllocatedByWay> propAllocated = routeItem.TargetACComponent.GetProperty(nameof(IRoutableModule.AllocatedByWay)) as IACContainerT<BitAccessForAllocatedByWay>;
                 if (propAllocated != null)
-                    propAllocated.ValueT.Bit00_Reserved = true;
+                    propAllocated.ValueT.Bit00_Reserved = reserv;
             }
         }
 

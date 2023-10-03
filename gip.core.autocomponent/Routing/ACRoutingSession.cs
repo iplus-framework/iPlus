@@ -767,8 +767,8 @@ namespace gip.core.autocomponent
                 )
                 return false;
 
-            BitAccessForAllocatedByWay allocatedSource = edge.IsAllocated(false);
-            BitAccessForAllocatedByWay allocatedTarget = edge.IsAllocated(true);
+            BitAccessForAllocatedByWay allocatedSource = edge.GetAllocationState(false);
+            BitAccessForAllocatedByWay allocatedTarget = edge.GetAllocationState(true);
 
             if (allocatedSource.ValueT == 0 && allocatedTarget.ValueT == 0)
                 return true;
