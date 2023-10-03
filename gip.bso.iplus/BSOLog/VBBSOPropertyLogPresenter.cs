@@ -1,17 +1,13 @@
 ﻿using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Office.CustomUI;
-using DocumentFormat.OpenXml.Wordprocessing;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.processapplication;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Objects;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace gip.bso.iplus
 {
@@ -1004,7 +1000,7 @@ namespace gip.bso.iplus
         /// </summary>
         /// <param name="treeViewItems"></param>
         [ACMethodInfo("", "", 405)]
-        public void UpdateDisplayOrder(ICollectionView treeViewItems)
+        public void UpdateDisplayOrder(System.Collections.IEnumerable treeViewItems)
         {
             _UpdatedPropertyLogs = new List<ACPropertyLogModel>();
             int displayOrder = 0;
