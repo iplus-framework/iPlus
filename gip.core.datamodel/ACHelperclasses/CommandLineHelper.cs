@@ -36,12 +36,12 @@ namespace gip.core.datamodel
             {
                 for (int i = 0; i < args.Length; i++)
                 {
-                    if (args[i] == "-U" && i + 1 < args.Length)
+                    if (args[i].ToLower() == "-u" && i + 1 < args.Length)
                     {
                         LoginUser = args[i + 1];
                         i++;
                     }
-                    else if (args[i] == "-P" && i + 1 < args.Length)
+                    else if (args[i].ToLower() == "-p" && i + 1 < args.Length)
                     {
                         LoginPassword = args[i + 1];
                         i++;
