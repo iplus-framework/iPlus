@@ -14,7 +14,7 @@ namespace gip.core.processapplication
     /// Waage allgemein
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Scale general'}de{'Waage allgemein)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
-    public abstract class PAEScaleBase : PAESensorAnalog
+    public abstract class PAEScaleBase : PAESensorAnalog, IRoutableModule
     {
         #region c'tors
 
@@ -26,8 +26,9 @@ namespace gip.core.processapplication
         public PAEScaleBase(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            _WeightRemovedBin = new ACPropertyConfigValue<double?>(this, nameof(WeightRemovedBin), null);
-            _WeightPlacedBin = new ACPropertyConfigValue<double?>(this, nameof(WeightPlacedBin), null);
+            _RouteItemID = new ACPropertyConfigValue<string>(this, "RouteItemID", "0");
+            _PAPointMatIn1 = new PAPoint(this, nameof(PAPointMatIn1));
+            _PAPointMatOut1 = new PAPoint(this, nameof(PAPointMatOut1));
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -40,17 +41,13 @@ namespace gip.core.processapplication
             StateDosingTime.PropertyChanged += StateDosingTime_PropertyChanged;
             ActualWeight.PropertyChanged += ActualWeight_PropertyChanged;
             DesiredWeight.PropertyChanged += DesiredWeight_PropertyChanged;
-
+            _ = RouteItemID;
             return true;
         }
 
         public override bool ACPostInit()
         {
             bool result = base.ACPostInit();
-
-            _ = WeightRemovedBin;
-            _ = WeightPlacedBin;
-
             return result;
         }
 
@@ -63,6 +60,28 @@ namespace gip.core.processapplication
             ActualWeight.PropertyChanged -= ActualWeight_PropertyChanged;
             DesiredWeight.PropertyChanged -= DesiredWeight_PropertyChanged;
             return base.ACDeInit(deleteACClassTask);
+        }
+        #endregion
+
+        #region Points
+        PAPoint _PAPointMatIn1;
+        [ACPropertyConnectionPoint(9999, "PointMaterial")]
+        public PAPoint PAPointMatIn1
+        {
+            get
+            {
+                return _PAPointMatIn1;
+            }
+        }
+
+        PAPoint _PAPointMatOut1;
+        [ACPropertyConnectionPoint(9999, "PointMaterial")]
+        public PAPoint PAPointMatOut1
+        {
+            get
+            {
+                return _PAPointMatOut1;
+            }
         }
         #endregion
 
@@ -88,51 +107,6 @@ namespace gip.core.processapplication
         [ACPropertyBindingTarget(604, "Configuration", "en{'Digit/Precision [g]'}de{'Teilung/Ziffernschritt [g]'}", "", true, true)]
         public IACContainerTNet<Double> DigitWeight { get; set; }
         // https://de.wikipedia.org/wiki/Genauigkeitsklasse_eines_Wiegesystems
-
-
-        private ACPropertyConfigValue<double?> _WeightRemovedBin;
-        [ACPropertyConfig("en{'Detection weight of removed bin'}de{'Erkennungsgewicht Behälter entfernt'}")]
-        public double? WeightRemovedBin
-        {
-            get => _WeightRemovedBin.ValueT;
-            set
-            {
-                _WeightRemovedBin.ValueT = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private ACPropertyConfigValue<double?> _WeightPlacedBin;
-        [ACPropertyConfig("en{'Detection weight of placed bin'}de{'Erkennungsgewicht Behälter hingestellt'}")]
-        public double? WeightPlacedBin
-        {
-            get => _WeightPlacedBin.ValueT;
-            set
-            {
-                _WeightPlacedBin.ValueT = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool? IsBinRemoved
-        {
-            get
-            {
-                if (!WeightRemovedBin.HasValue)
-                    return null;
-                return ActualValue.ValueT <= WeightRemovedBin.Value && !NotStandStill.ValueT;
-            }
-        }
-
-        public bool? IsBinPlaced
-        {
-            get
-            {
-                if (!WeightPlacedBin.HasValue)
-                    return null;
-                return ActualValue.ValueT >= WeightPlacedBin.Value && !NotStandStill.ValueT;
-            }
-        }
 
         #endregion
 
@@ -321,6 +295,48 @@ namespace gip.core.processapplication
             }
         }
 
+        [ACPropertyBindingTarget(441, "Read from PLC", "en{'Allocated by Way'}de{'Belegt von Wegesteuerung'}", "", false, false)]
+        public IACContainerTNet<BitAccessForAllocatedByWay> AllocatedByWay { get; set; }
+
+        protected ACPropertyConfigValue<string> _RouteItemID;
+        [ACPropertyConfig("en{'ID/Number in PLC'}de{'ID/Nummer in SPS'}")]
+        public virtual string RouteItemID
+        {
+            get
+            {
+                return _RouteItemID.ValueT;
+            }
+            //set
+            //{
+            //    this["RouteItemID"] = value;
+            //}
+        }
+
+        protected Nullable<int> _RouteItemIDAsNum;
+        public virtual int RouteItemIDAsNum
+        {
+            get
+            {
+                if (_RouteItemIDAsNum.HasValue)
+                    return _RouteItemIDAsNum.Value;
+                _RouteItemIDAsNum = -1;
+                if (!String.IsNullOrEmpty(RouteItemID))
+                {
+                    try { _RouteItemIDAsNum = System.Convert.ToInt32(RouteItemID); }
+                    catch (Exception e)
+                    {
+                        string msg = e.Message;
+                        if (e.InnerException != null && e.InnerException.Message != null)
+                            msg += " Inner:" + e.InnerException.Message;
+
+                        Messages.LogException(nameof(PAEScaleBase), "RouteItemIDAsNum", msg);
+                    }
+                }
+                return _RouteItemIDAsNum.Value;
+            }
+        }
+
+
         public string IsScaleOccupied()
         {
             using (ACMonitor.Lock(_20015_LockValue))
@@ -414,6 +430,19 @@ namespace gip.core.processapplication
         public static bool HandleExecuteACMethod_PAEScaleBase(out object result, IACComponent acComponent, string acMethodName, ACClassMethod acClassMethod, object[] acParameter)
         {
             return HandleExecuteACMethod_PAESensorAnalog(out result, acComponent, acMethodName, acClassMethod, acParameter);
+        }
+
+        public virtual void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)
+        {
+        }
+
+        public virtual void SimulateAllocationState(RouteItem item, bool switchOff)
+        {
+            if (AllocatedByWay != null && AllocatedByWay.ValueT != null)
+            {
+                AllocatedByWay.ValueT.Bit00_Reserved = false;
+                AllocatedByWay.ValueT.Bit01_Allocated = !switchOff;
+            }
         }
 
         #endregion

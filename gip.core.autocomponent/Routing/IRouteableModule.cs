@@ -7,7 +7,13 @@ using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
-    public interface IRoutableModule : IACComponent
+    public interface IRouteItemIDProvider : IACComponent
+    {
+        string RouteItemID { get; }
+        int RouteItemIDAsNum { get; }
+    }
+
+    public interface IRoutableModule : IRouteItemIDProvider
     {
         IACContainerTNet<BitAccessForAllocatedByWay> AllocatedByWay { get; }
 

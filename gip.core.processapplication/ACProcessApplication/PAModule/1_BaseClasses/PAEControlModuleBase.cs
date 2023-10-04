@@ -136,6 +136,27 @@ namespace gip.core.processapplication
         [ACPropertyBindingTarget(445, "Read from PLC", "en{'is triggered'}de{'Angesteuert'}", "", false, false, RemotePropID = 28)]
         public IACContainerTNet<Boolean> IsTriggered { get; set; }
 
+        public string RouteItemID
+        {
+            get
+            {
+                IRouteItemIDProvider idProvider = FindChildComponents<IRouteItemIDProvider>(c => c is IRouteItemIDProvider).FirstOrDefault();
+                if (idProvider != null)
+                    return idProvider.RouteItemID;
+                return null;
+            }
+        }
+
+        public int RouteItemIDAsNum
+        {
+            get
+            {
+                IRouteItemIDProvider idProvider = FindChildComponents<IRouteItemIDProvider>(c => c is IRouteItemIDProvider).FirstOrDefault();
+                if (idProvider != null)
+                    return idProvider.RouteItemIDAsNum;
+                return 0;
+            }
+        }
         // TODO: Grund der Verriegelung (GIP-Spezifisch)
         // TODO: Phase (GIP-Spezifisch)
         #endregion
