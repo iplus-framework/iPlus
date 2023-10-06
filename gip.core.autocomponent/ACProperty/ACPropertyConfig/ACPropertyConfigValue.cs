@@ -113,7 +113,10 @@ namespace gip.core.autocomponent
             {
                 Type typeT = typeof(T);
                 if ((typeT.IsGenericType && typeT.Name == Const.TNameNullable))
-                    innerType = typeT.GetGenericArguments()[0];
+                {
+                    innerType = typeT;
+                    //innerType = typeT.GetGenericArguments()[0];
+                }
             }
             _ACComponent.SetConfigurationValue(_ACIdentifier, _ValueT, innerType);
             _IsCachedValueSet = true;

@@ -1221,7 +1221,8 @@ namespace gip.core.datamodel
             if (!type.IsGenericType)
                 return null;
 
-            Type genericType = type.GetGenericTypeDefinition();
+            //Type genericType = type.GetGenericTypeDefinition();
+            Type genericType = type.GetGenericArguments()[0];
             if (_ACTypeCache.TryGetValue(genericType, out acClass))
                 return acClass;
 

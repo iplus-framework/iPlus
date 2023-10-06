@@ -195,7 +195,7 @@ namespace gip.core.communication
                     result = IsEnabledDisConnect();
                     return true;
                 case nameof(SendObject):
-                    result = SendObject(acParameter[0], Convert.ToInt32(acParameter[1]), Convert.ToInt32(acParameter[2]), acParameter.Count() > 3 ? acParameter[3] : null);
+                    result = SendObject(acParameter[0], acParameter[1], Convert.ToInt32(acParameter[2]), Convert.ToInt32(acParameter[3]), acParameter[4] != null ? Convert.ToInt32(acParameter[4]) : default(Int32?), acParameter.Count() > 5 ? acParameter[5] : null);
                     return true;
                 case nameof(ReadObject):
                     result = ReadObject(acParameter[0], Convert.ToInt32(acParameter[1]), Convert.ToInt32(acParameter[2]), acParameter.Count() > 3 ? acParameter[3] : null);
@@ -272,7 +272,7 @@ namespace gip.core.communication
         /// <param name="miscParams"></param>
         /// <returns>true if succeed</returns>
         [ACMethodInfo("Exchange", "en{'Send complex object'}de{'Sende komplexes objekt'}", 202)]
-        public virtual bool SendObject(object complexObj, int dbNo, int offset, object miscParams)
+        public virtual bool SendObject(object complexObj, object prevComplexObj, int dbNo, int offset, int? routeOffset, object miscParams)
         {
             if (complexObj == null)
                 return false;
@@ -286,12 +286,12 @@ namespace gip.core.communication
                                                                                             .FirstOrDefault();
             if (converter != null)
             {
-                succ = converter.SendObject(complexObj, dbNo, offset, miscParams);
+                succ = converter.SendObject(complexObj, prevComplexObj, dbNo, offset, routeOffset, miscParams);
             }
             else
             {
                 string virtualMethodName = "Send_" + typeName.Replace('.','_');
-                object result = ExecuteMethod(virtualMethodName, complexObj, dbNo, offset, miscParams);
+                object result = ExecuteMethod(virtualMethodName, complexObj, prevComplexObj, dbNo, offset, routeOffset, miscParams);
                 if (result == null)
                     succ = false;
                 else

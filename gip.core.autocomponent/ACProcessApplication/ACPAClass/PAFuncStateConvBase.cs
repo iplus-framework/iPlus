@@ -92,7 +92,7 @@ namespace gip.core.autocomponent
         #region abstract methods
         public abstract ACStateEnum GetNextACState(PAProcessFunction sender, string transitionMethod = "");
         public abstract bool IsEnabledTransition(PAProcessFunction sender, string transitionMethod);
-        public abstract MsgWithDetails SendACMethod(PAProcessFunction sender, ACMethod acMethod);
+        public abstract MsgWithDetails SendACMethod(PAProcessFunction sender, ACMethod acMethod, ACMethod previousParams = null);
         public abstract PAProcessFunction.CompleteResult ReceiveACMethodResult(PAProcessFunction sender, ACMethod acMethod, out MsgWithDetails msg);
         public virtual void OnProjSpecFunctionEvent(PAProcessFunction sender, string eventName, params object[] projSpecParams) { }
 

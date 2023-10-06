@@ -2158,14 +2158,14 @@ namespace gip.core.autocomponent
         /// </summary>
         public MsgWithDetails ReSendACMethod(ACMethod newParameters = null)
         {
-            ACMethod acMethod = GetCurrentACMethod();
+            ACMethod previousParams = GetCurrentACMethod();
             if (newParameters != null)
             {
-                OnChangingCurrentACMethod(acMethod, newParameters);
+                OnChangingCurrentACMethod(previousParams, newParameters);
                 CurrentACMethod.ValueT = newParameters;
             }
             MsgWithDetails msgError = null;
-            acMethod = GetCurrentACMethod();
+            ACMethod acMethod = GetCurrentACMethod();
             if (acMethod == null)
             {
                 msgError = new MsgWithDetails() { Message = "CurrentACMethod is null" };
