@@ -363,7 +363,10 @@ namespace gip.core.datamodel
         {
             if (!_NativeThreadId.HasValue)
             {
-                _NativeThreadId = GetCurrentWin32ThreadId();
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    _NativeThreadId = GetCurrentWin32ThreadId();
+                else
+                    _NativeThreadId = (new object()).GetHashCode();
             }
         }
 

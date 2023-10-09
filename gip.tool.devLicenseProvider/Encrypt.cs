@@ -12,20 +12,19 @@ namespace gip.tool.devLicenseProvider
     {
         public static string EncryptString(string plainText, byte[] pass)
         {
-            // Instantiate a new RijndaelManaged object to perform string symmetric encryption
-            RijndaelManaged rijndaelCipher = new RijndaelManaged();
+            // Instantiate a new Aes object to perform string symmetric encryption
+            Aes aesCipher = Aes.Create();
 
-            rijndaelCipher.Padding = PaddingMode.PKCS7;
+            aesCipher.Padding = PaddingMode.PKCS7;
 
             // Set key and IV
-            rijndaelCipher.Key = pass;
-            rijndaelCipher.IV = pass.Take(rijndaelCipher.BlockSize / 8).ToArray();
+            aesCipher.Key = pass;
+            aesCipher.IV = pass.Take(aesCipher.BlockSize / 8).ToArray();
 
             // Instantiate a new MemoryStream object to contain the encrypted bytes
             MemoryStream memoryStream = new MemoryStream();
-
-            // Instantiate a new encryptor from our RijndaelManaged object
-            ICryptoTransform rijndaelEncryptor = rijndaelCipher.CreateEncryptor();
+            // Instantiate a new encryptor from our aesCipher object
+            ICryptoTransform rijndaelEncryptor = aesCipher.CreateEncryptor();
 
             // Instantiate a new CryptoStream object to process the data and write it to the 
             // memory stream
@@ -56,12 +55,12 @@ namespace gip.tool.devLicenseProvider
 
         public static string DecryptString(string cipherText, byte[] pass)
         {
-            RijndaelManaged rijndaelCipher = new RijndaelManaged();
-            rijndaelCipher.Key = pass;
-            rijndaelCipher.IV = pass.Take(rijndaelCipher.BlockSize / 8).ToArray();
+            Aes aesCipher = Aes.Create();
+            aesCipher.Key = pass;
+            aesCipher.IV = pass.Take(aesCipher.BlockSize / 8).ToArray();
 
             MemoryStream memoryStream = new MemoryStream();
-            ICryptoTransform rijndaelDecryptor = rijndaelCipher.CreateDecryptor();
+            ICryptoTransform rijndaelDecryptor = aesCipher.CreateDecryptor();
             CryptoStream cryptoStream = new CryptoStream(memoryStream, rijndaelDecryptor, CryptoStreamMode.Write);
 
             string plainText = String.Empty;

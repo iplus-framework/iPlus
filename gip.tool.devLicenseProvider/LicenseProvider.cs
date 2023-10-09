@@ -10,6 +10,7 @@ using System.Runtime.Serialization;
 using MXAPI;
 using System.Collections.ObjectModel;
 using System.Xml;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace gip.tool.devLicenseProvider
@@ -78,7 +79,7 @@ namespace gip.tool.devLicenseProvider
             {
                 if (_AvailablePackages == null)
                 {
-                    using(var ctx = new iPlusV5_Entities())
+                    using(var ctx = new iPlusV5Context())
                     {
                         _AvailablePackages = ctx.ACPackage.Where(c => c.ACPackageName != Const.PackName_VarioDevelopment && c.ACPackageName != Const.PackName_VarioSystem &&
                                                                       c.ACPackageName != Const.PackName_System).Select(c => c.ACPackageName)
@@ -189,7 +190,7 @@ namespace gip.tool.devLicenseProvider
 
             RSACryptoServiceProvider csp = new RSACryptoServiceProvider(2048);
             vbSystem.SystemInternal2 = csp.ToXmlString(false);
-            vbSystem.SystemInternal1 = csp.SignData(vbSystem.SystemInternal, new SHA256CryptoServiceProvider());
+            vbSystem.SystemInternal1 = csp.SignData(vbSystem.SystemInternal, SHA256.Create());
             license.PackagePrivateKey = csp.ToXmlString(true);
 
             csp = new RSACryptoServiceProvider(2048);
@@ -201,7 +202,7 @@ namespace gip.tool.devLicenseProvider
 
             csp = new RSACryptoServiceProvider();
             csp.FromXmlString(CommonPrivateKey);
-            vbSystem.SystemCommon = csp.SignData(vbSystem.GetChecksum(), new SHA256CryptoServiceProvider());
+            vbSystem.SystemCommon = csp.SignData(vbSystem.GetChecksum(), SHA256.Create());
 
             DataContractSerializer serializer = new DataContractSerializer(typeof(VBSystem));
             string licenceText = "";
@@ -563,7 +564,7 @@ namespace gip.tool.devLicenseProvider
                 byte[] data = ToByteArray(input);
                 RSACryptoServiceProvider csp = new RSACryptoServiceProvider();
                 csp.FromXmlString("<RSAKeyValue><Modulus>3ZgedYpQrgIFSvW+77uVEZPObwbCSEtlzbp/hiY9rWK3+kWtopf5AZWweSiZ8+AUVp2jV7WQwsmvdO/kJ/86/U3EcRbNsfJPJDDYwjWdGP3+tG5FB0tGHc/eUlfa762cxm7bf0AZ76zkz19xnzpbNVWSAKquc+0YAhdl7b4jqlBrQ2ydogJkDMLPU1GF8hRTpIzEr951KFA+Ss0opH3JllCQL4WTlOqQDZje9DlUu64hIX8M7vRwHZblHAZtO+MT6bKgP43SYiCYo7KxYDyFpSl1Xh5GQsRL8Qcqhnr+Bq7DlzpUMsErkCWecR4iq0fMnIz7FEpHedYZ1LjDoZTKaQ==</Modulus><Exponent>AQAB</Exponent><P>7ThGyUW4P5vr4rcwiI2rKkkKQZPIjf3zZvnVr3ZXnxEbqJP4ib+qzKk0p4249HZ3D1XNFbNcQhxwGcFVb+U7Kz7dvkJzOXEzBKTlZt2FxMJPs1pgkiQacglW6D4R2vxQrotjk/++2Q2aEL7bIJavCZpPS6HKJU4mH5/a0SUCH9M=</P><Q>7yMoqZrbLlef8tsG26ltRZz/nb0P2r+Y4k/LMC6rvwmQyZh+nCkL5OxeqDKxZRPTa5J00bfKs8EvEeKLkVI4e0XvzS5BEuiY3VEAutTDjH1zM4jSuBBSFEb8DuniPineNQxijWnn8CYmQstHdmXOcZnEBDWfhrqQqmE6YRhHA1M=</Q><DP>GIFBvrT3DYsb2PW3i8OmtN2Ks6+CfjiHllGko1WEQ6hOxSFUAVbNXAr2p4BaZNaAAhOI9f7rPuEVK3PvUXnKnPMHkQnoQTzSWl52XCPyF5tDBHIHm9Ei8jjIw4D18zsxUnaPuNAodN+U1LoChOFL/5/zJQr3iNcD1Sx8PDKof4U=</DP><DQ>IQPhoUjX6dX/JzBGCh2iEHJUeBqaDcFWAiiyDLzkyUMw0iRTlou0MK7Rgrc89o9+KOPXbPzK53ZMYVO9oRqQ4bQOH227Xjjuod+FEkY9mS/Yr8y8Ct1194a1VfnEWoC9ROWo1Y1BkE40ChS2kQoNLnHkNhCRLbCkOGGkBbOsWjE=</DQ><InverseQ>lbrEkcpR0LHgGgAnD5aoIf7qBzzD1ybSr4mFMbC7RUovjDscWOJdmCocmV1ac2OcsCNciotWSGEEJI3jfR5rLRZ63wVOn9f3HjoVxptCkPJl4T0dxbE+yD/kc1QM5z4l3ava0l5CNGlKjZVIMPe3SdT6k4TFKefEjvw3R+NZkHQ=</InverseQ><D>StfRGdQAkfT+wqWjuqa5n3kzlQ5MWkyU8tpVrgKGfGRGTVJxZeQ8Zwue0h0jeloppGOTwtEBNrkV+MH5ZoTu8JTuj1+rU7nKfye8XkPrboCDIX/I8sC6yuDlbxxbRu51cBQLMLx+xhO4KE5NOwFjwuzG5lC/oUnn/PTYKWc59pCX9cTtRu3qUvPdgRoJYHUpI7RkMicB1KGgw6eodBlt6hGxTUj3Q900+4atKktzTeghQV3kqNKiwq4xx2GkTQ8xfI1e7MpNWcz68lKQCKmG/eSYpO1u+o0so62ZWAjpjuXByy785C10IU7Y8JDvSbbtrgLCEkquVZPEy2+IcL6YnQ==</D></RSAKeyValue>");
-                var sign = csp.SignData(data, new SHA256CryptoServiceProvider());
+                var sign = csp.SignData(data, SHA256.Create());
                 return ToByteString(sign);
             }
             catch

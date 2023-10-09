@@ -396,7 +396,7 @@ namespace Fluent
         private static void OnWindowPropertyChangedThatRequiresTemplateFixup(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             RibbonWindow window = d as RibbonWindow;
-            if (window.handle != null)
+            if (window.handle != IntPtr.Zero)
             {
                 // Assume that when the template changes it's going to be applied.
                 // We don't have a good way to externally hook into the template

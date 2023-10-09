@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Security.AccessControl;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
 
 namespace gip.iplus.startup
 {
@@ -74,7 +74,7 @@ namespace gip.iplus.startup
                         || C_iPlusMESExeName.Contains(process.ProcessName)
                         || C_iPlusVBExeName.Contains(process.ProcessName))
                     {
-                        if (process.MainWindowHandle != null && process.MainWindowHandle != IntPtr.Zero)
+                        if (process.MainWindowHandle != IntPtr.Zero)
                         {
                             ShowWindowAsync(process.MainWindowHandle, 3); // SW_MAXIMIZE
                             return;

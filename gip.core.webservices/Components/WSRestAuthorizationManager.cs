@@ -12,10 +12,10 @@ namespace gip.core.webservices
 {
     public class WSRestAuthorizationManager : ServiceAuthorizationManager
     {
-        protected override bool CheckAccessCore(OperationContext operationContext)
+        protected override async ValueTask<bool> CheckAccessCoreAsync(OperationContext operationContext)
         {
             Guid? sessionId = CurrentSessionID;
-            //Extract the Authorization header, and parse out the credentials converting the Base64 string:  
+            // Extract the Authorization header, and parse out the credentials converting the Base64 string:  
             string authHeader = WebOperationContext.Current.IncomingRequest.Headers["Authorization"];
             if (!String.IsNullOrEmpty(authHeader))
             {
@@ -31,10 +31,9 @@ namespace gip.core.webservices
                     Password = svcCredentials[1]
                 };
 
-
                 ACStartUpRoot startUpRoot = new ACStartUpRoot(null);
                 string errorMessage = "";
-                bool loggedIn = startUpRoot.CheckLogin(user.Name, user.Password, ref errorMessage) != null;
+                bool loggedIn = await Task.Run(() => startUpRoot.CheckLogin(user.Name, user.Password, ref errorMessage)) != null;
                 if (loggedIn)
                 {
                     if (!sessionId.HasValue)
@@ -44,9 +43,9 @@ namespace gip.core.webservices
             }
             else
             {
-                //No authorization header was provided, so challenge the client to provide before proceeding:  
+                // No authorization header was provided, so challenge the client to provide before proceeding:  
                 WebOperationContext.Current.OutgoingResponse.Headers.Add("WWW-Authenticate: Basic realm=\"PAJsonServiceHost\"");
-                //Throw an exception with the associated HTTP status code equivalent to HTTP status 401  
+                // Throw an exception with the associated HTTP status code equivalent to HTTP status 401  
                 throw new WebFaultException(HttpStatusCode.Unauthorized);
             }
         }
