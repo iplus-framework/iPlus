@@ -46,9 +46,9 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="reflectedObject">The reflected object.</param>
         /// <returns>IACType.</returns>
-        public static IACType ReflectACType(this IACObject reflectedObject)
+        public static IACType ReflectACType(this IACObject reflectedObject, bool getOuterTypeIfGeneric = false)
         {
-            return Database.GlobalDatabase.GetACType(reflectedObject.GetType());
+            return Database.GlobalDatabase.GetACType(reflectedObject.GetType(), getOuterTypeIfGeneric);
         }
 
         /// <summary>
@@ -463,11 +463,28 @@ namespace gip.core.datamodel
             else
                 acMethodName1 = acMethodName;
 
-            ACClass ClassACType = reflectedObject.ACType as ACClass;
-            if (ClassACType == null)
-                return null;
+            ACClass acType = reflectedObject.ACType as ACClass;
+            if (acType == null)
+                return false;
 
-            ACClassMethod acClassMethod = ClassACType.GetMethod(acMethodName1);
+            ACClassMethod acClassMethod = acType.GetMethod(acMethodName1);
+            Type typeofReflectedObj = null;
+            // Es sind grundsätzlich nur Kommandos erlaubt, die
+            // vorher registriert wurden
+            if (acClassMethod == null)
+            {
+                typeofReflectedObj = reflectedObject.GetType();
+                if (typeofReflectedObj != null && typeofReflectedObj.IsGenericType)
+                {
+                    acType = reflectedObject.ReflectACType(true) as ACClass;
+                    if (acType == null)
+                        return false;
+                    acClassMethod = acType.GetMethod(acMethodName1);
+                }
+                if (acClassMethod == null)
+                    return false;
+            }
+
 
             // Es sind grundsätzlich nur Kommandos erlaubt, die
             // vorher registriert wurden
@@ -526,17 +543,26 @@ namespace gip.core.datamodel
             else
                 acMethodName1 = acMethodName;
 
-            ACClass ClassACType = reflectedObject.ACType as ACClass;
-            if (ClassACType == null)
+            ACClass acType = reflectedObject.ACType as ACClass;
+            if (acType == null)
                 return false;
 
-            ACClassMethod acClassMethod = ClassACType.GetMethod(acMethodName1);
-
+            ACClassMethod acClassMethod = acType.GetMethod(acMethodName1);
+            Type typeofReflectedObj = null;
             // Es sind grundsätzlich nur Kommandos erlaubt, die
             // vorher registriert wurden
             if (acClassMethod == null)
             {
-                return false;
+                typeofReflectedObj = reflectedObject.GetType();
+                if (typeofReflectedObj != null && typeofReflectedObj.IsGenericType)
+                {
+                    acType = reflectedObject.ReflectACType(true) as ACClass;
+                    if (acType == null)
+                        return false;
+                    acClassMethod = acType.GetMethod(acMethodName1);
+                }
+                if (acClassMethod == null)
+                    return false;
             }
 
             // Falls AutoEnabled, dann gibt es keine IsEnabled-Methode und das 
@@ -551,7 +577,9 @@ namespace gip.core.datamodel
             // 2. Entsprechende IsEnabled-Methode ist nicht public deklariert
             try
             {
-                MethodInfo mi = reflectedObject.GetType().GetMethod("IsEnabled" + acMethodName1);
+                if (typeofReflectedObj == null)
+                    typeofReflectedObj = reflectedObject.GetType();
+                MethodInfo mi = typeofReflectedObj.GetMethod("IsEnabled" + acMethodName1);
                 if (mi == null)
                     return false;
                 return (bool)mi.Invoke(reflectedObject, acParameter);

@@ -1188,7 +1188,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public ACClass GetACType(Type type)
+        public ACClass GetACType(Type type, bool getOuterTypeIfGeneric = false)
         {
             if (type == null)
                 return null;
@@ -1222,7 +1222,7 @@ namespace gip.core.datamodel
                 return null;
 
             //Type genericType = type.GetGenericTypeDefinition();
-            Type genericType = type.GetGenericArguments()[0];
+            Type genericType = getOuterTypeIfGeneric ? type.GetGenericTypeDefinition() : type.GetGenericArguments()[0];
             if (_ACTypeCache.TryGetValue(genericType, out acClass))
                 return acClass;
 
