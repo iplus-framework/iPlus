@@ -137,34 +137,39 @@ namespace gip.core.datamodel
             return new Route(routeItems);
         }
 
-        public bool TryGetFirstDifferentComponent(Route oldRoute, out IACComponent diffComponent)
+        /// <summary>
+        /// Compares two routes. Returns true, if both are equal or if Branch found
+        /// </summary>
+        /// <param name="oldRoute"></param>
+        /// <param name="diffComponent"></param>
+        /// <returns>True if equal or if branch found</returns>
+        public bool Compare(Route oldRoute, out IACComponent branchesAt)
         {
-            diffComponent = null;
-
+            branchesAt = null;
             if (oldRoute == null)
                 return false;
 
             IEnumerable<RouteItem> newSources = this.GetRouteSources();
-            IEnumerable<RouteItem> oldSources = this.GetRouteSources();
+            IEnumerable<RouteItem> oldSources = oldRoute.GetRouteSources();
 
-            foreach(RouteItem newSource in newSources)
+            foreach (RouteItem newSource in newSources)
             {
                 RouteItem oldSource = oldSources.FirstOrDefault(o => o.Equals(newSource));
                 if (oldSource != null)
                 {
-                    var key = CheckForFirstDifferentComponent(newSource.SourceKey, oldSource.SourceKey, oldRoute);
+                    var key = FindFirstDifference(newSource.SourceKey, oldSource.SourceKey, oldRoute);
                     if (key == null)
                         return true;
 
                     var rItem = this.FirstOrDefault(c => c.SourceKey == key);
                     if (rItem != null)
-                        diffComponent = rItem.SourceACComponent;
+                        branchesAt = rItem.SourceACComponent;
                     else
                     {
                         rItem = this.FirstOrDefault(c => c.TargetKey == key);
                         if (rItem == null)
                             return false;
-                        diffComponent = rItem.TargetACComponent;
+                        branchesAt = rItem.TargetACComponent;
                     }
                     return true;
                 }
@@ -172,7 +177,7 @@ namespace gip.core.datamodel
             return false;
         }
 
-        private System.Data.EntityKey CheckForFirstDifferentComponent(System.Data.EntityKey newSource, System.Data.EntityKey oldSource, Route oldRoute)
+        private System.Data.EntityKey FindFirstDifference(System.Data.EntityKey newSource, System.Data.EntityKey oldSource, Route oldRoute)
         {
             var newSourceItems = this.Where(c => c.SourceKey == newSource);
             var oldSourceItems = oldRoute.Where(c => c.SourceKey == oldSource);
@@ -183,7 +188,7 @@ namespace gip.core.datamodel
             var newTargetItems = newSourceItems.Select(t => t.TargetKey);
             var oldTargetItems = oldSourceItems.Select(t => t.TargetKey);
 
-            foreach(var newTarget in newTargetItems)
+            foreach (var newTarget in newTargetItems)
             {
                 var oldTarget = oldTargetItems.FirstOrDefault(c => c == newTarget);
                 if (oldTarget == null)
@@ -195,7 +200,7 @@ namespace gip.core.datamodel
                 if (!newTargetSources.SequenceEqual(oldTargetSources))
                     return newTarget;
 
-                return CheckForFirstDifferentComponent(newTarget, oldTarget, oldRoute);
+                return FindFirstDifference(newTarget, oldTarget, oldRoute);
             }
             return null;
         }
@@ -288,6 +293,7 @@ namespace gip.core.datamodel
         /// <summary>Gets a value indicating whether the encapuslated objects are attached.</summary>
         /// <value>
         ///   <c>true</c> if the encapuslated objects are attached; otherwise, <c>false</c>.</value>
+        [IgnoreDataMember]
         public bool IsAttached
         {
             get { return !_Items.Where(c => !c.IsAttached).Any(); }
@@ -298,9 +304,16 @@ namespace gip.core.datamodel
             _Items.ForEach(c => c.DetachEntitesFromDbContext());
         }
 
+        [IgnoreDataMember]
         public bool IsDetachedFromDbContext
         {
             get { return !_Items.Where(c => !c.IsDetachedFromDBContext).Any(); }
+        }
+
+        [IgnoreDataMember]
+        public bool AreACUrlInfosSet
+        {
+            get { return !_Items.Where(c => !c.AreACUrlInfosSet).Any(); }
         }
 
         /// <summary>

@@ -2184,7 +2184,7 @@ namespace gip.core.autocomponent
 
             if (ACStateConverter != null)
             {
-                msgError = ACStateConverter.SendACMethod(this, acMethod);
+                msgError = ACStateConverter.SendACMethod(this, acMethod, previousParams != null && previousParams != acMethod ? previousParams : null);
                 if (msgError != null && !IsSimulationOn)
                 {
                     if (FunctionError.ValueT == PANotifyState.Off)

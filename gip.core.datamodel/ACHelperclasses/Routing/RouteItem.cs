@@ -311,7 +311,19 @@ namespace gip.core.datamodel
             }
         }
 
-#endregion
+        [IgnoreDataMember]
+        public bool AreACUrlInfosSet
+        {
+            get
+            {
+                return !String.IsNullOrEmpty(_ACUrlSourceACComponent)
+                    && !String.IsNullOrEmpty(_ACIdentifierSourcePoint)
+                    && !String.IsNullOrEmpty(_ACUrlTargetACComponent)
+                    && !String.IsNullOrEmpty(_ACIdentifierTargetPoint);
+            }
+        }
+
+        #endregion
 
         #region Constructors
 

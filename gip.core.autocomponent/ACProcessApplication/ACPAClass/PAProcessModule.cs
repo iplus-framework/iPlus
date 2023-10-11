@@ -16,7 +16,7 @@ namespace gip.core.autocomponent
     /// <seealso cref="gip.core.autocomponent.PAClassPhysicalBase" />
     /// <seealso cref="gip.core.autocomponent.IACComponentTaskExec" />
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PAProcessModule'}de{'PAProcessModule'}", Global.ACKinds.TPAProcessModule, Global.ACStorableTypes.Required, false, PWGroup.PWClassName, true)]
-    public abstract class PAProcessModule : PAClassPhysicalBase, IACComponentTaskExec, IACAttachedAlarmHandler
+    public abstract class PAProcessModule : PAClassPhysicalBase, IACComponentTaskExec, IACAttachedAlarmHandler, IRouteItemIDProvider
     {
         #region c'tors
 
