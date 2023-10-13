@@ -491,6 +491,7 @@ namespace gip.core.datamodel
                 SourcePropertyKey = this.SourcePropertyKey, 
                 TargetKey = this.TargetKey, 
                 TargetPropertyKey = this.TargetPropertyKey,
+                RouteNo = this.RouteNo,
                 _ACUrlSourceACComponent = this._ACUrlSourceACComponent,
                 _ACUrlTargetACComponent = this._ACUrlTargetACComponent,
                 _ACIdentifierSourcePoint = this._ACIdentifierSourcePoint,
