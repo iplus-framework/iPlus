@@ -205,6 +205,9 @@
         public const string CmdNameExport = "DataExportDialog";            // dataExport
         public const string CmdExport = "!" + CmdNameExport;            // dataExport
 
+        public const string CmdNameKeyHandle = "KeyHandle";            // keyHand
+        public const string CmdKeyHandle = "!" + CmdNameKeyHandle;            // dataExport
+
         // Visualisierung
         public const string CmdClassConfigurationOK = "!ClassConfigurationOK";
         public const string CmdClassConfigurationCancel = "!ClassConfigurationCancel";
