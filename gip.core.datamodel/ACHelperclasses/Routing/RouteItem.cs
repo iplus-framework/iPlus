@@ -380,7 +380,6 @@ namespace gip.core.datamodel
                 object propValue;
                 if (SourceKey != null && _Source == null)
                 {
-
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
                         Source = context.ContextIPlus.GetObjectByKey(SourceKey) as ACClass;
@@ -388,6 +387,7 @@ namespace gip.core.datamodel
                     if (Source != null)
                         propValue = SourceACComponent;
                 }
+
                 if (TargetKey != null && _Target == null)
                 {
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
@@ -397,9 +397,9 @@ namespace gip.core.datamodel
                     if (Target != null)
                         propValue = TargetACComponent;
                 }
+
                 if (SourcePropertyKey != null && _SourceProperty == null)
                 {
-
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
                         SourceProperty = context.ContextIPlus.GetObjectByKey(SourcePropertyKey) as ACClassProperty;
@@ -407,9 +407,9 @@ namespace gip.core.datamodel
                     if (SourceProperty != null)
                         propValue = SourceACPoint;
                 }
+
                 if (TargetPropertyKey != null && _TargetProperty == null)
                 {
-
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
                         TargetProperty = context.ContextIPlus.GetObjectByKey(TargetPropertyKey) as ACClassProperty;
