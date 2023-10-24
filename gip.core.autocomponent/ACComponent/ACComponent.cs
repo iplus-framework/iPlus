@@ -2650,12 +2650,13 @@ namespace gip.core.autocomponent
                 catch (Exception invokeMethodException)
                 {
                     string message = string.Format(@"{0} - Method: {1}, ExceptionType: {2} Exception: {3} Trace: {4}", ACIdentifier, acMethodName1, invokeMethodException.GetType().Name, invokeMethodException.Message, invokeMethodException.StackTrace);
-                    Messages.LogError(GetACUrl(), "ACComponent.ExecuteACMethod(1)", message);
+                    Messages.LogError(GetACUrl(), nameof(ExecuteMethod) + "(10)", message);
                     if (invokeMethodException.InnerException != null)
                     {
                         message = string.Format(@"Inner-Exception: {0}, Trace: {1}", invokeMethodException.InnerException.Message, invokeMethodException.InnerException.StackTrace);
-                        Messages.LogError(GetACUrl(), "ACComponent.ExecuteACMethod(1)", message);
+                        Messages.LogError(GetACUrl(), nameof(ExecuteMethod) + "(20)", message);
                     }
+                    OnExceptionCatched(nameof(ExecuteMethod), acMethodName1, invokeMethodException);
 
                     if (syncInvocationWaitHandle != null)
                     {
@@ -2746,6 +2747,10 @@ namespace gip.core.autocomponent
                 default:
                     return null;
             }
+        }
+
+        protected virtual void OnExceptionCatched(string methodName, string position, Exception exception)
+        {
         }
 
         /// <summary>

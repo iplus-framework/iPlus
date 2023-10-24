@@ -374,9 +374,25 @@ namespace gip.core.autocomponent
             return ACStateCompare.WrongACStateMethod;
         }
 
-#endregion
+        protected override void OnExceptionCatched(string methodName, string position, Exception exception)
+        {
+            if (methodName == nameof(ExecuteMethod)
+                && !String.IsNullOrEmpty(position)
+                && CurrentACState != ACStateEnum.SMIdle
+                //&& Enum.GetNames(typeof(ACStateEnum)).Contains(position)
+                && _ACStateMethod != null 
+                && _ACStateMethod.IsPeriodic 
+                && _ACStateMethod.ACIdentifier == position
+                && !IsACStateInconsistent
+                && !IsSubscribedToWorkCycle)
+            {
+                SubscribeToProjectWorkCycle();
+            }
+        }
 
-#region TimeInfo
+        #endregion
+
+        #region TimeInfo
         [ACPropertyBindingSource(201, "", "en{'Time information'}de{'Zeitinformation'}", "", true, false)]
         public IACContainerTNet<PATimeInfo> TimeInfo { get; set; }
         #endregion
