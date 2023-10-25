@@ -13,6 +13,7 @@
         public const string Add = "en{'Add'}de{'Hinzufügen'}";
         public const string Cancel = "en{'Cancel'}de{'Stornieren'}";
         public const string Remove = "en{'Remove'}de{'Entfernen'}";
+        public const string Recalculate = "en{'Recalculate'}de{'Neu berechnen'}";
 
         //Datamodel Konstanten
         public const string EntityInsertName = "InsertName";
