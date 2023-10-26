@@ -61,7 +61,7 @@ namespace gip.core.autocomponent
 
 
         #region Properties
-        protected string CMessageText
+        protected virtual string CMessageText
         {
             get
             {
