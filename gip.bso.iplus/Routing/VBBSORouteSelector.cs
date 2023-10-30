@@ -576,7 +576,7 @@ namespace gip.bso.iplus
                                     if (!tempList.Contains(rPath))
                                     {
                                         tempList.Add(rPath);
-                                        SetActiveRoutes(components, routePath, rPath);
+                                        SetActiveRoutes(components, routePath, rPath, selectedEdge);
                                     }
                                 }
                             }
@@ -604,7 +604,7 @@ namespace gip.bso.iplus
             SelectedActiveRoutingPaths = tempList;
         }
 
-        private void SetActiveRoutes(List<IACObject> components, List<IACObject> routePath, ACRoutingPath path)
+        private void SetActiveRoutes(List<IACObject> components, List<IACObject> routePath, ACRoutingPath path, PAEdge selectedEdge = null)
         {
             if (path == null)
                 return;
@@ -615,7 +615,11 @@ namespace gip.bso.iplus
             components.AddRange(path.AllPoints.Where(c => !components.Contains(c.ACRef.ValueT)).Select(c => c.ACRef.ValueT));
 
             if (_IsInEdgeWeightAdjustmentMode)
+            {
                 EdgesList = SelectedRoutingPaths.SelectMany(c => c).Distinct().ToList();
+                if (selectedEdge != null)
+                    SelectedEdge = selectedEdge;
+            }
         }
 
         private void SelectActiveRoutes()
