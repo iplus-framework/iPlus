@@ -772,7 +772,8 @@ namespace gip.core.manager
                 if (!workflowClass.GetIncomingWFEdges(rootACClassMethod).Any() || !workflowClass.GetOutgoingWFEdges(rootACClassMethod).Any())
                     return false;
 
-                if (parentACClass != workflowClass.ParentACClass)
+                if (   (parentACClass.ACKind != Global.ACKinds.TPAProcessModuleGroup && parentACClass != workflowClass.ParentACClass)
+                    || (parentACClass.ACKind == Global.ACKinds.TPAProcessModuleGroup && parentACClass.ACClass1_ParentACClass != workflowClass.ParentACClass))
                     return false;
 
                 if (workflowClass.WFGroup == null || !(workflowClass.WFGroup is ACClassWF))
