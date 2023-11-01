@@ -1,0 +1,21 @@
+<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/Shared.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <Style x:Key="FrameControlStyleGip" TargetType="{x:Type local:VBFrameControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border BorderBrush="Green" BorderThickness="1">
+                        <Frame Name="MainContent" NavigationUIVisibility="Visible" JournalOwnership="OwnsJournal" MaxWidth="1440" MaxHeight="2560">
+                        </Frame>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

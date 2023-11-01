@@ -85,13 +85,13 @@ namespace gip.core.layoutengine
             }
         }
 
-        private void VBMenuItem_Click(object sender, RoutedEventArgs e)
+        internal void VBMenuItem_Click(object sender, RoutedEventArgs e)
         {
             ACActionArgs actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
             ACAction(actionArgs);
         }
 
-        private void VBMenuItem_IsEnabled(object sender, CanExecuteRoutedEventArgs e)
+        internal void VBMenuItem_IsEnabled(object sender, CanExecuteRoutedEventArgs e)
         {
             if (ACCommand.IsAutoEnabled)
             {
@@ -110,7 +110,7 @@ namespace gip.core.layoutengine
         }
         #endregion
 
-        private void LoadIcon(string iconACUrl)
+        internal void LoadIcon(string iconACUrl)
         {
             object icon = null;
 
