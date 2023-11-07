@@ -28,10 +28,12 @@ namespace gip.core.communication
 
         /// <summary>This method must bei implemented in the derivation class.</summary>
         /// <param name="complexObj">The complexObj can be wether a ACMethod or any serializable Object.</param>
+        /// <param name="prevComplexObj">Previous send object</param>
         /// <param name="dbNo">Datablock-Number</param>
         /// <param name="offset">Offset in Datablock</param>
+        /// <param name="routeOffset"></param>
         /// <param name="miscParams"></param>
-        /// <returns>true if succeede</returns>
+        /// <returns>true if succeeded</returns>
         public abstract bool SendObject(object complexObj, object prevComplexObj, int dbNo, int offset, int? routeOffset, object miscParams);
 
         /// <summary>This method must bei implemented in the derivation class.</summary>

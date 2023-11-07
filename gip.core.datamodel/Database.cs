@@ -1187,6 +1187,7 @@ namespace gip.core.datamodel
         /// Ermittelt die ACClass für den übergebenen Typen
         /// </summary>
         /// <param name="type"></param>
+        /// <param name="getOuterTypeIfGeneric">Returns outer type if generic</param>
         /// <returns></returns>
         public ACClass GetACType(Type type, bool getOuterTypeIfGeneric = false)
         {

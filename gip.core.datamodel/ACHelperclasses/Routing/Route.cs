@@ -140,8 +140,8 @@ namespace gip.core.datamodel
         /// <summary>
         /// Compares two routes. Returns true, if both are equal or if Branch found
         /// </summary>
-        /// <param name="oldRoute"></param>
-        /// <param name="diffComponent"></param>
+        /// <param name="oldRoute">Secnond rout to compare</param>
+        /// <param name="branchesAt">Component where both routes start to be different</param>
         /// <returns>True if equal or if branch found</returns>
         public bool Compare(Route oldRoute, out IACComponent branchesAt)
         {

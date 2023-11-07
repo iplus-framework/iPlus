@@ -45,6 +45,7 @@ namespace gip.core.datamodel
         /// Reflects the type of the AC.
         /// </summary>
         /// <param name="reflectedObject">The reflected object.</param>
+        /// <param name="getOuterTypeIfGeneric">Get outer type if generic.</param>
         /// <returns>IACType.</returns>
         public static IACType ReflectACType(this IACObject reflectedObject, bool getOuterTypeIfGeneric = false)
         {

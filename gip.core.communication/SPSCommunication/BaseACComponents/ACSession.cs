@@ -267,10 +267,12 @@ namespace gip.core.communication
         /// e.g. "gip.core.TestObj" =&gt; "gip_gore_TestObj" therefore the Methodname must be "Send_gip_gore_TestObj";
         /// </summary>
         /// <param name="complexObj">The complexObj can be wether a ACMethod or any serializable Object.</param>
+        /// <param name="prevComplexObj">Previous send object</param>
         /// <param name="dbNo">Datablock-Number</param>
         /// <param name="offset">Offset in Datablock</param>
+        /// <param name="routeOffset"></param>
         /// <param name="miscParams"></param>
-        /// <returns>true if succeed</returns>
+        /// <returns>true if succeeded</returns>
         [ACMethodInfo("Exchange", "en{'Send complex object'}de{'Sende komplexes objekt'}", 202)]
         public virtual bool SendObject(object complexObj, object prevComplexObj, int dbNo, int offset, int? routeOffset, object miscParams)
         {
