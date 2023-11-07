@@ -295,7 +295,9 @@
     <Compile Include="Controls\VBGraph\VBGraphSurface.xaml.cs">
       <DependentUpon>VBGraphSurface.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\VBMenuItemMobile\VBMenuItemMobile.cs" />
     <Compile Include="Controls\VBNumericUpDown\VBNumericUpDown.cs" />
+    <Compile Include="Controls\VBPage\VBPage.cs" />
     <Compile Include="Controls\VBProgressBar\VBOEEControl.xaml.cs">
       <DependentUpon>VBOEEControl.xaml</DependentUpon>
     </Compile>
@@ -710,6 +712,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\VBFrameControl\Themes\FrameControlStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBFrameControl\Themes\FrameControlStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\VBFrame\Themes\FrameStyleAero.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -862,11 +872,27 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\VBMenuItemMobile\Themes\MenuItemMobileStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBMenuItemMobile\Themes\MenuItemMobileStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\VBNumericUpDown\Themes\NumericUpDownStyleAero.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\VBNumericUpDown\Themes\NumericUpDownStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBPage\Themes\PageStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBPage\Themes\PageStyleGip.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
