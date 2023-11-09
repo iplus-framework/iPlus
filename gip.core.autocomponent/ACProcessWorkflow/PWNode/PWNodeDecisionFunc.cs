@@ -222,9 +222,9 @@ namespace gip.core.autocomponent
         {
             ResetInEvents();
             RecalcTimeInfo();
-            TimeInfo.ValueT.ActualTimes.ChangeTime(TimeInfo.ValueT.ActualTimes.StartTime == DateTime.MinValue ? DateTimeUtils.NowDST : TimeInfo.ValueT.ActualTimes.StartTime, DateTimeUtils.NowDST);
+            TimeInfo?.ValueT?.ActualTimes.ChangeTime(TimeInfo.ValueT.ActualTimes.StartTime == DateTime.MinValue ? DateTimeUtils.NowDST : TimeInfo.ValueT.ActualTimes.StartTime, DateTimeUtils.NowDST);
             ACEventArgs eventArgs = ACEventArgs.GetVirtualEventArgs("PWPointOut", VirtualEventArgs);
-            eventArgs.GetACValue("TimeInfo").Value = TimeInfo.ValueT;
+            eventArgs.GetACValue("TimeInfo").Value = TimeInfo?.ValueT;
             if (CurrentACState == ACStateEnum.SMStarting || CurrentACState == ACStateEnum.SMRunning)
             {
                 FinishProgramLog(ExecutingACMethod);
@@ -240,9 +240,9 @@ namespace gip.core.autocomponent
         {
             ResetInEvents();
             RecalcTimeInfo();
-            TimeInfo.ValueT.ActualTimes.ChangeTime(TimeInfo.ValueT.ActualTimes.StartTime == DateTime.MinValue ? DateTimeUtils.NowDST : TimeInfo.ValueT.ActualTimes.StartTime, DateTimeUtils.NowDST);
+            TimeInfo?.ValueT?.ActualTimes.ChangeTime(TimeInfo.ValueT.ActualTimes.StartTime == DateTime.MinValue ? DateTimeUtils.NowDST : TimeInfo.ValueT.ActualTimes.StartTime, DateTimeUtils.NowDST);
             ACEventArgs eventArgs = ACEventArgs.GetVirtualEventArgs("PWPointElseOut", VirtualEventArgs);
-            eventArgs.GetACValue("TimeInfo").Value = TimeInfo.ValueT;
+            eventArgs.GetACValue("TimeInfo").Value = TimeInfo?.ValueT;
             if (CurrentACState == ACStateEnum.SMStarting || CurrentACState == ACStateEnum.SMRunning)
             {
                 FinishProgramLog(ExecutingACMethod);

@@ -118,25 +118,25 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "RaiseOutEvent":
+                case nameof(RaiseOutEvent):
                     RaiseOutEvent();
                     return true;
-                case "ResetInEvents":
+                case nameof(ResetInEvents):
                     ResetInEvents();
                     return true;
-                case "ReloadInEvents":
+                case nameof(ReloadInEvents):
                     ReloadInEvents();
                     return true;
-                case Const.IsEnabledPrefix + "RaiseOutEvent":
+                case nameof(IsEnabledRaiseOutEvent):
                     result = IsEnabledRaiseOutEvent();
                     return true;
-                case Const.IsEnabledPrefix + "ResetInEvents":
+                case nameof(IsEnabledResetInEvents):
                     result = IsEnabledResetInEvents();
                     return true;
-                case Const.IsEnabledPrefix + "ReloadInEvents":
+                case nameof(IsEnabledReloadInEvents):
                     result = IsEnabledReloadInEvents();
                     return true;
-                case "PWPointInCallback":
+                case nameof(PWPointInCallback):
                     PWPointInCallback(acParameter[0] as IACPointNetBase, acParameter[1] as ACEventArgs, acParameter[2] as IACObject);
                     return true;
             }

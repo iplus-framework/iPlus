@@ -230,12 +230,14 @@
     <Compile Include="ACProcessApplication\ACPAClass\PAClassAlarmingBase.cs" />
     <Compile Include="ACProcessApplication\ACPAClass\PAClassPhysicalBase.cs" />
     <Compile Include="ACProcessWorkflow\ACConnector\PWPointEventSubscr.cs" />
+    <Compile Include="ACProcessWorkflow\PWNode\PWNodeAndFlag.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\IPWNodeIn.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\IPWNodeOut.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\IPWNodeDeliverMaterial.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\IPWNodeReceiveMaterial.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWBaseInOut.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeAndCount.cs" />
+    <Compile Include="ACProcessWorkflow\PWNode\PWNodePivot.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeExAnd.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeProcessWorkflow.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeUserAck.cs" />
@@ -457,6 +459,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="VBControlScripts\2023-07-19 15-47_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="VBControlScripts\2023-11-08 11-00_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

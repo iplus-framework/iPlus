@@ -165,7 +165,7 @@ namespace gip.core.autocomponent
                         {
                             foreach (SafeWFNodeEdgeResult edge in edges)
                             {
-                                if (pwNode.RootPW != null)
+                                if (pwNode.RootPW != null && edge.TargetACClassProperty.ACClassPropertyID == this.ACType.ACTypeID)
                                 {
                                     IACComponent sourceComponent = pwNode.RootPW.WFDictionary.GetPWComponent(edge.SourceACClassWF);
                                     if (sourceComponent != null)
@@ -311,7 +311,7 @@ namespace gip.core.autocomponent
                         {
                             foreach (SafeWFNodeEdgeResult edge in edges)
                             {
-                                if (pwNode.RootPW != null)
+                                if (pwNode.RootPW != null && edge.TargetACClassProperty.ACClassPropertyID == this.ACType.ACTypeID)
                                 {
                                     IACComponent sourceComponent = pwNode.RootPW.WFDictionary.GetPWComponent(edge.SourceACClassWF);
                                     if (sourceComponent != null)
