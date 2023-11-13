@@ -1,6 +1,7 @@
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Objects;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -278,16 +279,17 @@ namespace gip.core.autocomponent
                     result = SelectRoutes(acParameter[0] as string[], acParameter[1] as string[], (RouteDirections)acParameter[2], acParameter[3] as string, acParameter[4] as object[], (int)acParameter[5], (bool)acParameter[6], (bool)acParameter[7]);
                     return true;
                 case MN_FindSuccessors:
-                    result = FindSuccessors(acParameter[0] as string, acParameter[1] as string, (RouteDirections)acParameter[2], acParameter[3] as object[], (int)acParameter[4], (bool)acParameter[5], (bool)acParameter[6]);
+                    result = FindSuccessors(acParameter[0] as string, acParameter[1] as string, (RouteDirections)acParameter[2], acParameter[3] as object[], (int)acParameter[4], (bool)acParameter[5], (bool)acParameter[6], (bool)acParameter[7]);
                     return true;
                 case MN_FindLastSuccessors:
                     result = FindLastSuccessors(acParameter[0] as string, acParameter[1] as string, (RouteDirections)acParameter[2], acParameter[3] as object[], (bool)acParameter[4], (bool)acParameter[5]);
                     return true;
                 case MN_FindSuccessorsFromPoint:
-                    result = FindSuccessorsFromPoint(acParameter[0] as string, (Guid) acParameter[1], acParameter[2] as string, (RouteDirections)acParameter[3], acParameter[4] as object[], (int)acParameter[5], (bool)acParameter[6], (bool)acParameter[7]);
+                    result = FindSuccessorsFromPoint(acParameter[0] as string, (Guid) acParameter[1], acParameter[2] as string, (RouteDirections)acParameter[3], acParameter[4] as object[], (int)acParameter[5], (bool)acParameter[6], 
+                                                     (bool)acParameter[7], (bool)acParameter[8]);
                     return true;
                 case MN_SetPriority:
-                    SetPriority(acParameter[0] as ACRoutingPath);
+                    SetPriority(acParameter[0] as Route);
                     return true;
                 case MN_IncreasePriorityStepwise:
                     IncreasePriorityStepwise(acParameter[0] as Route);
@@ -329,7 +331,8 @@ namespace gip.core.autocomponent
             bool dbIncludeInternalConnections = false,
             int dbRecursionLimit = 0,
             bool dbIgnoreRecursionLoop = false,
-            bool forceReattachToDatabaseContext = false)
+            bool forceReattachToDatabaseContext = false,
+            bool shortRoute = false)
         {
             if (routingService == null)
             {
@@ -340,7 +343,7 @@ namespace gip.core.autocomponent
             if (routingService != null && routingService.ConnectionState != ACObjectConnectionState.DisConnected)
             {
                 return MemFindSuccessors(routingService, attachRouteItemsToContext ? database : null, from.GetACUrlComponent(), selectionRuleID, direction,
-                                                    maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, forceReattachToDatabaseContext);
+                                                    maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, forceReattachToDatabaseContext, shortRoute);
             }
             else
             {
@@ -629,14 +632,15 @@ namespace gip.core.autocomponent
         }
 
         public static RoutingResult MemFindSuccessors(ACComponent routingService, Database database, string startComponentACUrl, string selectionRuleID, RouteDirections direction,
-                                                           int maxRouteAlternatives, bool includeReserved, bool includeAllocated, object[] selectionRuleParams = null, bool forceReattachToDatabaseContext = false)
+                                                           int maxRouteAlternatives, bool includeReserved, bool includeAllocated, object[] selectionRuleParams = null, bool forceReattachToDatabaseContext = false,
+                                                           bool shortRoute = false)
         {
             if (routingService == null || routingService.ConnectionState == ACObjectConnectionState.DisConnected)
                 return new RoutingResult(null, false, new Msg() { Message = "The routing service is unavailable!" });
             if (selectionRuleParams == null)
                 selectionRuleParams = new object[] { };
 
-            var routeResult = routingService.ExecuteMethod(MN_FindSuccessors, startComponentACUrl, selectionRuleID, direction, selectionRuleParams, maxRouteAlternatives, includeReserved, includeAllocated) as RoutingResult;
+            var routeResult = routingService.ExecuteMethod(MN_FindSuccessors, startComponentACUrl, selectionRuleID, direction, selectionRuleParams, maxRouteAlternatives, includeReserved, includeAllocated, shortRoute) as RoutingResult;
             if (routeResult != null && routeResult.Message != null && routeResult.Message.MessageLevel > eMsgLevel.Warning)
                 return routeResult;
 
@@ -657,7 +661,7 @@ namespace gip.core.autocomponent
 
         public static RoutingResult MemFindSuccessorsFromPoint(ACComponent routingService, Database database, string startComponentACUrl, Guid fromPointACClassPropID, 
                                                                string selectionRuleID, RouteDirections direction, int maxRouteAlternatives, bool includeReserved, bool includeAllocated, 
-                                                               object[] selectionRuleParams = null, bool forceReattachToDatabaseContext = false)
+                                                               object[] selectionRuleParams = null, bool forceReattachToDatabaseContext = false, bool shortRoute = false)
         {
             if (routingService == null || routingService.ConnectionState == ACObjectConnectionState.DisConnected)
                 return new RoutingResult(null, false, new Msg() { Message = "The routing service is unavailable!" });
@@ -665,7 +669,7 @@ namespace gip.core.autocomponent
                 selectionRuleParams = new object[] { };
 
             var routeResult = routingService.ExecuteMethod(MN_FindSuccessorsFromPoint, startComponentACUrl, fromPointACClassPropID, selectionRuleID, direction, selectionRuleParams, 
-                                                           maxRouteAlternatives, includeReserved, includeAllocated) as RoutingResult;
+                                                           maxRouteAlternatives, includeReserved, includeAllocated, shortRoute) as RoutingResult;
             if (routeResult != null && routeResult.Message != null && routeResult.Message.MessageLevel > eMsgLevel.Warning)
                 return routeResult;
 
@@ -1215,7 +1219,7 @@ namespace gip.core.autocomponent
         /// </returns>
         [ACMethodInfo("", "", 304, true)]
         public RoutingResult FindSuccessors(string startComponentACUrl, string selectionRuleID, RouteDirections routeDirection, object[] selectionRuleParams, int maxRouteAlternatives,
-                                            bool includeReserved, bool includeAllocated)
+                                            bool includeReserved, bool includeAllocated, bool shortRoute)
         {
             var startComp = ACUrlCommand(startComponentACUrl) as ACComponent;
             if (startComp == null)
@@ -1225,7 +1229,7 @@ namespace gip.core.autocomponent
             }
 
             var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp), selectionRuleID, routeDirection, selectionRuleParams, maxRouteAlternatives,
-                                                                   includeReserved, includeAllocated);
+                                                                   includeReserved, includeAllocated, shortRoute);
             if (result != null && result.Message != null)
             {
                 if (result.Message.MessageLevel > eMsgLevel.Warning)
@@ -1269,7 +1273,7 @@ namespace gip.core.autocomponent
 
         [ACMethodInfo("", "", 305)]
         public RoutingResult FindSuccessorsFromPoint(string startComponentACUrl, Guid startPointACClassPropID, string selectionRuleID, RouteDirections routeDirection, 
-                                                    object[] selectionRuleParams, int maxRouteAlternatives, bool includeReserved, bool includeAllocated)
+                                                    object[] selectionRuleParams, int maxRouteAlternatives, bool includeReserved, bool includeAllocated, bool shortRoute)
         {
             var startComp = ACUrlCommand(startComponentACUrl) as ACComponent;
             if (startComp == null)
@@ -1279,7 +1283,7 @@ namespace gip.core.autocomponent
             }
 
             var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp, startPointACClassPropID), selectionRuleID, routeDirection, selectionRuleParams, 
-                                                                   maxRouteAlternatives, includeReserved, includeAllocated);
+                                                                   maxRouteAlternatives, includeReserved, includeAllocated, shortRoute);
             if (result != null && result.Message != null)
             {
                 if (result.Message.MessageLevel > eMsgLevel.Warning)
@@ -1301,35 +1305,87 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInfo("", "", 307)]
-        public void SetPriority(ACRoutingPath path)
+        public void SetPriority(Route route)
         {
-            ThreadPool.QueueUserWorkItem(c => SetPriorityInternal(path));
+            ThreadPool.QueueUserWorkItem(c => SetPriorityInternal(route));
         }
 
-        private void SetPriorityInternal(ACRoutingPath path)
+        private void SetPriorityInternal(Route route)
         {
+            if (route == null)
+                return;
+
             using (Database db = new datamodel.Database())
             {
-                foreach (PAEdge edge in path)
+                //var routes = Route.SplitRoutes(route);
+
+                //List<Tuple<Guid, Guid, List<Route>>> tempList = new List<Tuple<Guid, Guid, List<Route>>>();
+                
+                //foreach (Route rRoute in routes)
+                //{
+                //    var source = rRoute.GetRouteSource().SourceGuid;
+                //    var target = rRoute.GetRouteTarget().TargetGuid;
+
+                //    var tempItem = tempList.FirstOrDefault(c => c.Item1 == source && c.Item2 == target);
+                //    if (tempItem == null)
+                //    {
+                //        tempItem = new Tuple<Guid, Guid, List<Route>>(source, target, new List<Route>() { rRoute });
+                //        tempList.Add(tempItem);
+                //    }
+                //    else
+                //    {
+                //        tempItem.Item3.Add(rRoute);
+                //    }
+                //}
+
+                //foreach (var groupedRoute in tempList)
+                //{
+                //    var parallelItems = groupedRoute.Item3.SelectMany(c => c).GroupBy(x => x.SourceGuid).Where(x => x.Count() > 1).SelectMany(c => c);
+                //    if (parallelItems != null && parallelItems.Any())
+                //    {
+                //        foreach (var paralellItem in parallelItems)
+                //        {
+                //            using (ACMonitor.Lock(_LockObject))
+                //            {
+                //                PAEdgeInfo edgeInstance;
+                //                if (_EdgeCache.TryGetValue(paralellItem.RelationID, out edgeInstance))
+                //                {
+                //                    EntityKey sourceKey = new EntityKey();
+                //                    sourceKey.EntityKeyValues = new EntityKeyMember[] { new EntityKeyMember(nameof(ACClass.ACClassID), groupedRoute.Item1) };
+
+                //                    EntityKey targetKey = new EntityKey();
+                //                    targetKey.EntityKeyValues = new EntityKeyMember[] { new EntityKeyMember(nameof(ACClass.ACClassID), groupedRoute.Item2) };
+
+                //                    edgeInstance.Edge.AddParallelInRoute(new RouteItem() { SourceKey = sourceKey, TargetKey = targetKey });
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
+
+                foreach (RouteItem rItem in route)
                 {
-                    int weight = edge.Weight < 1 ? 1 : edge.Weight;
+                    var relation = db.ContextIPlus.ACClassPropertyRelation.FirstOrDefault(c => c.ACClassPropertyRelationID == rItem.RelationID);
+
+                    if (relation == null && rItem.RouteItemWeight.HasValue)
+                        continue;
+
+
+                    int weight = rItem.RouteItemWeight.Value < 1 ? 1 : rItem.RouteItemWeight.Value;
                     weight = weight > 100 ? 100 : weight;
                     using (ACMonitor.Lock(_LockObject))
                     {
                         PAEdgeInfo edgeInstance;
-                        if (_EdgeCache.TryGetValue(edge.RelationID.Value, out edgeInstance))
+                        if (_EdgeCache.TryGetValue(relation.ACClassPropertyRelationID, out edgeInstance))
                         {
                             edgeInstance.Edge.Weight = weight;
-                            edgeInstance.Edge.IsDeactivated = edge.IsDeactivated;
+                            edgeInstance.Edge.IsDeactivated = rItem.IsDeactivated;
                         }
                     }
-                    var relation = db.ContextIPlus.ACClassPropertyRelation.FirstOrDefault(c => c.ACClassPropertyRelationID == edge.RelationID.Value);
-                    if (relation != null)
-                    {
-                        relation.RelationWeight = (short)weight;
-                        relation.IsDeactivated = edge.IsDeactivated;
-                        relation.LastManipulationDT = DateTime.Now;
-                    }
+
+                    relation.RelationWeight = (short)weight;
+                    relation.IsDeactivated = rItem.IsDeactivated;
+                    relation.LastManipulationDT = DateTime.Now;
                 }
                 db.ACSaveChanges();
             }

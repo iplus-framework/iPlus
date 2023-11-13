@@ -660,10 +660,12 @@ namespace gip.core.autocomponent
                                         targetPropertyGuid = paModulePointOut == null ? Guid.Empty : paModulePointOut.ACClassPropertyID;
                                     }
                                     if (targetPropertyGuid != Guid.Empty)
-                                        targets = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, targetPropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true);
+                                        targets = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, targetPropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true,
+                                                                                              null, false, true);
                                 }
                                 if (targets == null)
-                                    targets = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true);
+                                    targets = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true,
+                                                                                 null, false, true);
                                 if (targets != null)
                                 {
                                     if (targets.Message != null)
@@ -708,11 +710,13 @@ namespace gip.core.autocomponent
                                         sourcePropertyGuid = paModulePointIn == null ? Guid.Empty : paModulePointIn.ACClassPropertyID;
                                     }
                                     if (sourcePropertyGuid != Guid.Empty)
-                                        sources = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, sourcePropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true);
+                                        sources = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, sourcePropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true,
+                                                                                              null, false, true);
                                 }
                             }
                             if (sources == null)
-                                sources = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true);
+                                sources = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true,
+                                                                             null, false, true);
                             if (sources != null)
                             {
                                 if (sources.Message != null)
@@ -797,7 +801,7 @@ namespace gip.core.autocomponent
                 return;
 
             var routes = routeSelector.RouteResult;
-            Route route = routes.FirstOrDefault();
+            Route route = Route.MergeRoutesWithoutDuplicates(routes);
             SelectedACMethodParam.Value = route;
         }
 
@@ -853,7 +857,8 @@ namespace gip.core.autocomponent
                 }
                 if (routes == null || !routes.Any())
                     return;
-                Route route = routes.FirstOrDefault();
+
+                Route route = Route.MergeRoutesWithoutDuplicates(routes);
                 route.DetachEntitesFromDbContext();
                 SelectedACMethodParam.Value = route;
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -192,7 +193,7 @@ namespace gip.core.autocomponent
         }
 
         public RoutingResult FindSuccessors(ACRoutingVertex startVertex, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams, int maxRouteAlternatives,
-                                            bool includeReserved, bool includeAllocated)
+                                            bool includeReserved, bool includeAllocated, bool shortRoute)
         {
             RoutingResult rResult = FindAvailableComponents(startVertex, selectionRuleID, direction, selectionRuleParams, includeReserved, includeAllocated);
             if (rResult != null && rResult.Message != null && rResult.Message.MessageLevel > eMsgLevel.Warning)
@@ -211,16 +212,66 @@ namespace gip.core.autocomponent
             IEnumerable<ACRoutingVertex> foundSuccessors = rResult.Components.Select(c => new ACRoutingVertex(c.ValueT));
 
             RoutingResult routingResult = null;
+            bool runFullRoute = !shortRoute;
 
             if (direction == RouteDirections.Backwards)
             {
-                routingResult = FindRoute(foundSuccessors, new ACRoutingVertex[] { startVertex }, selectionRuleID, selectionRuleParams, maxRouteAlternatives,
-                                                        includeReserved, includeAllocated);
+                if (shortRoute)
+                {
+                    List<Route> tempResult = new List<Route>();
+                    PAEdge toEdge = startVertex.ToEdges.FirstOrDefault();
+                    if (toEdge != null && toEdge.Relation != null)
+                    {
+                        foreach (var successor in foundSuccessors)
+                        {
+                            PAEdge fromEdge = successor.FromEdges.FirstOrDefault();
+                            if (fromEdge == null || fromEdge.Relation == null)
+                                continue;
+
+                            RouteItem rItem = new RouteItem(fromEdge.Relation.SourceACClass, fromEdge.Relation.SourceACClassProperty, toEdge.Relation.TargetACClass, toEdge.Relation.TargetACClassProperty);
+                            tempResult.Add(new Route(rItem));
+                        }
+                        routingResult = new RoutingResult(tempResult, false, null);
+                    }
+                    else
+                        runFullRoute = true;
+                }
+
+                if (runFullRoute)
+                {
+                    routingResult = FindRoute(foundSuccessors, new ACRoutingVertex[] { startVertex }, selectionRuleID, selectionRuleParams, maxRouteAlternatives,
+                                              includeReserved, includeAllocated);
+                }
             }
             else
             {
-                routingResult = FindRoute(new ACRoutingVertex[] { startVertex }, foundSuccessors, selectionRuleID, selectionRuleParams, maxRouteAlternatives,
+                if (shortRoute)
+                {
+                    List<Route> tempResult = new List<Route>();
+                    PAEdge fromEdge = startVertex.FromEdges.FirstOrDefault();
+                    if (fromEdge != null && fromEdge.Relation != null)
+                    {
+                        foreach (var successor in foundSuccessors)
+                        {
+                            PAEdge toEdge = successor.ToEdges.FirstOrDefault();
+                            if (toEdge == null || toEdge.Relation == null)
+                                continue;
+
+                            RouteItem rItem = new RouteItem(fromEdge.Relation.SourceACClass, fromEdge.Relation.SourceACClassProperty, toEdge.Relation.TargetACClass, toEdge.Relation.TargetACClassProperty);
+                            tempResult.Add(new Route(rItem));
+                        }
+
+                        routingResult = new RoutingResult(tempResult, false, null);
+                    }
+                    else
+                        runFullRoute = true;
+                }
+
+                if (runFullRoute)
+                {
+                    routingResult = FindRoute(new ACRoutingVertex[] { startVertex }, foundSuccessors, selectionRuleID, selectionRuleParams, maxRouteAlternatives,
                                                         includeReserved, includeAllocated);
+                }
             }
 
             if (routingResult != null && routingResult.Message == null && rResult != null && rResult.Message != null && rResult.Message.MessageLevel == eMsgLevel.Warning)

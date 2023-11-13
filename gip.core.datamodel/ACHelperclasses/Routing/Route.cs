@@ -137,6 +137,15 @@ namespace gip.core.datamodel
             return new Route(routeItems);
         }
 
+        public static IEnumerable<Route> SplitRoutes(Route route)
+        {
+            List<Route> result = new List<Route>();
+            var groups = route.GroupBy(c => c.RouteNo);
+            foreach (var group in groups)
+                result.Add(new Route(group));
+            return result;
+        }
+
         /// <summary>
         /// Compares two routes. Returns true, if both are equal or if Branch found
         /// </summary>

@@ -86,7 +86,6 @@ namespace gip.core.datamodel
                     _SourceKey = Source.EntityKey;
                 return _SourceKey;
             }
-
             set
             {
                 _SourceKey = value;
@@ -117,7 +116,6 @@ namespace gip.core.datamodel
                     _TargetKey = Target.EntityKey;
                 return _TargetKey;
             }
-
             set
             {
                 _TargetKey = value;
@@ -197,6 +195,27 @@ namespace gip.core.datamodel
 
         [DataMember]
         public int RouteNo
+        {
+            get;
+            set;
+        }
+
+        [DataMember]
+        public int? RouteItemWeight
+        {
+            get;
+            set;
+        }
+
+        [DataMember]
+        public Guid RelationID
+        {
+            get;
+            set;
+        }
+
+        [DataMember]
+        public bool IsDeactivated
         {
             get;
             set;
@@ -327,7 +346,7 @@ namespace gip.core.datamodel
 
         #region Constructors
 
-        public RouteItem(ACClassPropertyRelation relation, int routeNo=0)
+        public RouteItem(ACClassPropertyRelation relation, int routeNo=0, int? routeItemWeight = null)
         {
             if (relation == null) throw new ArgumentNullException("relation");
 
@@ -336,6 +355,8 @@ namespace gip.core.datamodel
             Target = relation.TargetACClass;
             TargetProperty = relation.TargetACClassProperty;
             RouteNo = routeNo;
+            RouteItemWeight = routeItemWeight;
+            RelationID = relation.ACClassPropertyRelationID;
         }
 
         public RouteItem(ACClass source, ACClassProperty sourceProperty, ACClass target, ACClassProperty targetProperty)

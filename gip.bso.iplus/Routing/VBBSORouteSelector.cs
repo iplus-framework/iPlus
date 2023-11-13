@@ -282,7 +282,7 @@ namespace gip.bso.iplus
 
         public void EditRoutes(Route route, bool isReadOnly, bool includeReserved, bool includeAllocated)
         {
-            IEnumerable<Route> splitedRoutes = SplitRoutes(route);
+            IEnumerable<Route> splitedRoutes = Route.SplitRoutes(route);
 
             IEnumerable<string> sourceComponentsList = splitedRoutes.Select(x => x.FirstOrDefault().Source.ACUrlComponent).Distinct();
             IEnumerable<string> targetComponentsList = splitedRoutes.Select(x => x.LastOrDefault().Target.ACUrlComponent).Distinct();
@@ -320,15 +320,6 @@ namespace gip.bso.iplus
                 ShowDialog(this, "RoutePresenter");
             else
                 ShowDialog(this, "EdgeWeightsPresenter");
-        }
-
-        private IEnumerable<Route> SplitRoutes(Route route)
-        {
-            List<Route> result = new List<Route>();
-            var groups = route.GroupBy(c => c.RouteNo);
-            foreach (var group in groups)
-                result.Add(new Route(group));
-            return result;
         }
 
         private bool CompareRoutes(ACRoutingPath routingPath, Route route)
@@ -944,9 +935,20 @@ namespace gip.bso.iplus
         [ACMethodInfo("", "en{'Save settings'}de{'Einstellungen speichern'}", 405)]
         public void SaveSettings()
         {
-            ACRoutingPath path = new ACRoutingPath();
-            path.AddRange(EdgesList);
-            ACUrlCommand(RoutingServiceACUrl+ "!SetPriority", path);
+            int routeNo = 1;
+            List<RouteItem> routeItems = new List<RouteItem>();
+            foreach (ACRoutingPath rPath in SelectedActiveRoutingPaths)
+            {
+                foreach(PAEdge edge in rPath)
+                {
+                    RouteItem rItem = new RouteItem(edge.Relation, routeNo);
+                    rItem.IsDeactivated = edge.IsDeactivated;
+                    routeItems.Add(rItem);
+                }
+                routeNo++;
+            }
+            Route route = new Route(routeItems);
+            ACUrlCommand(RoutingServiceACUrl + "!" + nameof(ACRoutingService.SetPriority), route);
         }
 
         #endregion
