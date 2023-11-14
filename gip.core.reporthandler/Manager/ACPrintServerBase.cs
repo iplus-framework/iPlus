@@ -414,7 +414,7 @@ namespace gip.core.reporthandler
             printContext.Encoding = encoder;
             printContext.ColumnMultiplier = 1;
             printContext.ColumnDivisor = 1;
-            OnRenderFlowDocment(printContext, printContext.FlowDocument);
+            OnRenderFlowDocument(printContext, printContext.FlowDocument);
             return printContext;
         }
 
@@ -424,7 +424,7 @@ namespace gip.core.reporthandler
 
         #region Methods -> Render -> Block
 
-        public virtual void OnRenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
+        public virtual void OnRenderFlowDocument(PrintContext printContext, FlowDocument flowDoc)
         {
             OnRenderBlocks(printContext, flowDoc.Blocks, BlockDocumentPosition.General);
         }

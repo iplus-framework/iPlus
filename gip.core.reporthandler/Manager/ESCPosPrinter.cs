@@ -145,11 +145,11 @@ namespace gip.core.reporthandler
 
         #region Methods -> Render -> FlowDoc
 
-        public override void OnRenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
+        public override void OnRenderFlowDocument(PrintContext printContext, FlowDocument flowDoc)
         {
             printContext.Main.Add(Commands.InitializePrinter);
             printContext.Main = printContext.Main.Add(GetESCPosCodePage(printContext.Encoding.CodePage));
-            base.OnRenderFlowDocment(printContext, flowDoc);
+            base.OnRenderFlowDocument(printContext, flowDoc);
         }
 
        
