@@ -25,6 +25,7 @@ using gip.core.autocomponent;
 using System.Data.Objects.SqlClient;
 using gip.core.datamodel.ACContainer;
 using ClosedXML.Excel;
+using Microsoft.Build.Evaluation;
 
 namespace gip.bso.iplus
 {
@@ -1861,6 +1862,30 @@ namespace gip.bso.iplus
             return ProjectManager.IsEnabledNewChildACClass(CurrentACProject, CurrentProjectItem);
         }
 
+
+        [ACMethodInteraction("ACClass", "en{'Move one level higher'}de{'Eine Ebene höher'}", (short)(MISort.New+1), true, "CurrentProjectItem", Global.ACKinds.MSMethodPrePost)]
+        public void MoveUpInTree()
+        {
+            if (IsEnabledMoveUpInTree())
+            {
+                if (ProjectManager.MoveUpInTree(CurrentACProject, CurrentProjectItem))
+                {
+                    CurrentProjectItemRootChangeInfo = new ChangeInfo(null, CurrentProjectItem, Const.CmdDeleteData);
+                    CurrentACClass = CurrentACProject.ACClass_ACProject.Where(c => c.ParentACClassID == null).FirstOrDefault();
+                    OnPropertyChanged("CurrentACClass");
+                    OnPropertyChanged("CurrentProjectItemRoot");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determines whether [is enabled new child AC class].
+        /// </summary>
+        /// <returns><c>true</c> if [is enabled new child AC class]; otherwise, <c>false</c>.</returns>
+        public bool IsEnabledMoveUpInTree()
+        {
+            return ProjectManager.IsEnabledMoveUpInTree(CurrentACProject, CurrentProjectItem);
+        }
 
         /// <summary>
         /// News the AC class OK.
@@ -3775,6 +3800,12 @@ namespace gip.bso.iplus
                     return true;
                 case nameof(IsEnabledSwitchACClass):
                     result = IsEnabledSwitchACClass();
+                    return true;
+                case nameof(MoveUpInTree):
+                    MoveUpInTree();
+                    return true;
+                case nameof(IsEnabledMoveUpInTree):
+                    result = IsEnabledMoveUpInTree();
                     return true;
                 case nameof(NewACClassOK):
                     NewACClassOK();

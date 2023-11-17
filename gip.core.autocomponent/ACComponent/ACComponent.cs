@@ -290,6 +290,13 @@ namespace gip.core.autocomponent
                         appManager.ACCompUrlDict.AddComponent(this);
                     }
                 }
+//#if DEBUG
+//                if (System.Diagnostics.Debugger.IsAttached)
+//                {
+//                    System.Diagnostics.Debug.WriteLine(this.GetACUrl());
+//                }
+//#endif
+
                 // 1. Lade zuerst Modelkomponenten
                 foreach (ACClass acClassOfChild in ComponentClass.Childs.Where(c => c.ACStartType > Global.ACStartTypes.None && c.ACStartType <= startChildMode))
                 {

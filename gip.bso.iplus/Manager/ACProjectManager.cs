@@ -961,6 +961,51 @@ namespace gip.bso.iplus
         }
 
         /// <summary>
+        /// News the child AC class.
+        /// </summary>
+        /// <param name="acProject">The ac project.</param>
+        /// <param name="parentProjectItem">The parent project item.</param>
+        /// <returns>ACClass.</returns>
+        public bool MoveUpInTree(ACProject acProject, ACClassInfoWithItems parentProjectItem)
+        {
+            ACClass thisClass = parentProjectItem.Value as ACClass;
+            ACClass parentClass = thisClass;
+            if (parentClass != null)
+            {
+                parentClass = parentClass.ACClass1_ParentACClass;
+                if (parentClass != null)
+                {
+                    parentClass = parentClass.ACClass1_ParentACClass;
+                    if (parentClass != null)
+                    {
+                        thisClass.ACClass1_ParentACClass = parentClass;
+                        if (!String.IsNullOrEmpty(thisClass.ACURLComponentCached))
+                            thisClass.RefreshChildrenACURLCache();
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Determines whether [is enabled new child AC class] [the specified ac project].
+        /// </summary>
+        /// <param name="acProject">The ac project.</param>
+        /// <param name="parentProjectItem">The parent project item.</param>
+        /// <returns><c>true</c> if [is enabled new child AC class] [the specified ac project]; otherwise, <c>false</c>.</returns>
+        public bool IsEnabledMoveUpInTree(ACProject acProject, ACClassInfoWithItems parentProjectItem)
+        {
+            if (acProject == null || parentProjectItem == null)
+                return false;
+
+            ACClass acClass1 = parentProjectItem.ValueT;
+            if (acClass1 == null || acClass1.ACClass1_ParentACClass == null)
+                return false;
+            return true;
+        }
+
+        /// <summary>
         /// Inits the AC class.
         /// </summary>
         /// <param name="acClass">The ac class.</param>

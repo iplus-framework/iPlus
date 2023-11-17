@@ -1608,7 +1608,14 @@ namespace gip.core.layoutengine
                 {
                     UpdateValue(true);
                     TreeItemClicked++;
-                    VBDragDrop.VBDoDragDrop(vbTreeViewItem/*, acObject, ACComponent, new Point()*/);
+
+                    try
+                    {
+                        VBDragDrop.VBDoDragDrop(vbTreeViewItem/*, acObject, ACComponent, new Point()*/);
+                    }
+                    catch (Exception) 
+                    {
+                    }
                 }
             }
         }
