@@ -26,10 +26,32 @@ namespace gip.core.processapplication
         public PAEScaleTotalizing(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
+            _SWTTipWeight = new ACPropertyConfigValue<double>(this, "SWTTipWeight", 0.0);
         }
 
         #endregion
 
+        private ACPropertyConfigValue<double> _SWTTipWeight;
+        [ACPropertyConfig("en{'SWT tip weight'}de{'SWT Kippgewicht'}")]
+        public double SWTTipWeight
+        {
+            get
+            {
+                return _SWTTipWeight.ValueT;
+            }
+            set
+            {
+                _SWTTipWeight.ValueT = value;
+            }
+        }
+
+        public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
+        {
+            if (!base.ACInit(startChildMode))
+                return false;
+            _ = SWTTipWeight;
+            return true;
+        }
 
         #region Properties Range 800
 
