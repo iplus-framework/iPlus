@@ -266,9 +266,9 @@ namespace gip.core.manager
             {
                 wfInfos = doc.CreateElement("ContentACClassWFInfo");
                 if (wfInfos != null)
-                {
-                    wfInfos.InnerText = String.Format("PWACClassID:{0}, RefPAACClassID:{1}, RefPAACClassMethodID:{2}", ContentACClassWF.PWACClassID, ContentACClassWF.RefPAACClassID, ContentACClassWF.RefPAACClassMethodID); ;
-                }
+                    wfInfos.InnerText = String.Format("ACClassWFID:{0}, PWACClassID:{1}, RefPAACClassID:{2}, RefPAACClassMethodID:{3}", ContentACClassWF.ACClassWFID, ContentACClassWF.PWACClassID, ContentACClassWF.RefPAACClassID, ContentACClassWF.RefPAACClassMethodID);
+                else
+                    wfInfos.InnerText = "null";
                 xmlACPropertyList.AppendChild(wfInfos);
             }
 
