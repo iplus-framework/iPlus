@@ -163,9 +163,19 @@ namespace gip.core.autocomponent
 
                         if (edges != null && edges.Any())
                         {
+                            // ((gip.core.datamodel.ACClassProperty)this.ACType).ACClass.ACClass1_BasedOnACClass.GetMember(this.ACType.ACIdentifier)
                             foreach (SafeWFNodeEdgeResult edge in edges)
                             {
-                                if (pwNode.RootPW != null && edge.TargetACClassProperty.ACClassPropertyID == this.ACType.ACTypeID)
+                                if (pwNode.RootPW != null 
+                                        && (   (edge.TargetACClassProperty.ACClassPropertyID == this.ACType.ACTypeID)
+                                            // Temporary Workaround, because PWGroup doesn't have a PWPointIn-Property. But in the Past it has and therefore old Databases has this wrong entry.
+                                            // A deletion is only possible when no ACClassTask is active.
+                                            // Therefore the Workflows must be unloaded first and then the following Script has to be executed:
+                                            // delete ACClassProperty where ACClassPropertyID  = '61b790c9-a379-483d-b3af-1594b567a730';
+                                            || (   ((gip.core.datamodel.ACClassProperty)this.ACType).ACClass.ACIdentifier == "PWGroup" 
+                                                && ((gip.core.datamodel.ACClassProperty)this.ACType).ACClass.BaseClass.GetMember(this.ACType.ACIdentifier)?.ACTypeID == edge.TargetACClassProperty.ACClassPropertyID)
+                                         )
+                                   )
                                 {
                                     IACComponent sourceComponent = pwNode.RootPW.WFDictionary.GetPWComponent(edge.SourceACClassWF);
                                     if (sourceComponent != null)
@@ -311,7 +321,16 @@ namespace gip.core.autocomponent
                         {
                             foreach (SafeWFNodeEdgeResult edge in edges)
                             {
-                                if (pwNode.RootPW != null && edge.TargetACClassProperty.ACClassPropertyID == this.ACType.ACTypeID)
+                                if (pwNode.RootPW != null
+                                        && ((edge.TargetACClassProperty.ACClassPropertyID == this.ACType.ACTypeID)
+                                            // Temporary Workaround, because PWGroup doesn't have a PWPointIn-Property. But in the Past it has and therefore old Databases has this wrong entry.
+                                            // A deletion is only possible when no ACClassTask is active.
+                                            // Therefore the Workflows must be unloaded first and then the following Script has to be executed:
+                                            // delete ACClassProperty where ACClassPropertyID  = '61b790c9-a379-483d-b3af-1594b567a730';
+                                            || (((gip.core.datamodel.ACClassProperty)this.ACType).ACClass.ACIdentifier == "PWGroup"
+                                                && ((gip.core.datamodel.ACClassProperty)this.ACType).ACClass.BaseClass.GetMember(this.ACType.ACIdentifier)?.ACTypeID == edge.TargetACClassProperty.ACClassPropertyID)
+                                         )
+                                   )
                                 {
                                     IACComponent sourceComponent = pwNode.RootPW.WFDictionary.GetPWComponent(edge.SourceACClassWF);
                                     if (sourceComponent != null)
