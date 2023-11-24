@@ -3,12 +3,9 @@ using gip.core.reporthandler.Flowdoc;
 using System.Windows.Documents;
 using System;
 using System.Threading;
-using gip.core.reporthandler;
 using ESCPOS;
 using ESCPOS.Utils;
 using System.Windows;
-using gip.core.layoutengine;
-using System.Text;
 
 namespace gip.core.reporthandler
 {
