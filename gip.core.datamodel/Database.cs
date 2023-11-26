@@ -1144,6 +1144,30 @@ namespace gip.core.datamodel
                             .Where(c => c.AssemblyQualifiedName == assemblyQualifiedName).FirstOrDefault()
             );
 
+        public static readonly Func<Database, string, IQueryable<ACClass>> s_cQry_FindInstancesOfClass =
+            CompiledQuery.Compile<Database, string, IQueryable<ACClass>>(
+                   (ctx, pafACIdentifier) => ctx.ACClass.Where(c => (c.BasedOnACClassID.HasValue
+                                                    && (c.ACClass1_BasedOnACClass.ACIdentifier == pafACIdentifier // 1. Ableitungsstufe
+                                                        || (c.ACClass1_BasedOnACClass.BasedOnACClassID.HasValue
+                                                                && (c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACIdentifier == pafACIdentifier // 2. Ableitungsstufe
+                                                                    || (c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.BasedOnACClassID.HasValue
+                                                                                && (c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACIdentifier == pafACIdentifier // 3. Ableitungsstufe
+                                                                                    || (c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.BasedOnACClassID.HasValue
+                                                                                        && c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACIdentifier == pafACIdentifier) // 4. Ableitungsstufe
+                                                                                            || (c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.BasedOnACClassID.HasValue
+                                                                                                && c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACIdentifier == pafACIdentifier) // 5. Ableitungsstufe
+                                                                                                    || (c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.BasedOnACClassID.HasValue
+                                                                                                    && c.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACClass1_BasedOnACClass.ACIdentifier == pafACIdentifier)
+                                                                                    )
+                                                                        )
+                                                                    )
+                                                            )
+                                                        )
+                                                        )
+                                                    && c.ACProject != null
+                                                    && c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application
+                                                    && c.ACStartTypeIndex == (short)Global.ACStartTypes.Automatic));
+
         /// <summary>
         /// Build Cache for primitive Types from System namespace to avoid Deadlocks when quering Global dabatbase
         /// </summary>
