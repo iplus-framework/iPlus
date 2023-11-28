@@ -13,8 +13,8 @@ namespace gip.core.processapplication
     /// Totalizing gravimaterically Scale
     /// Totalisierende Waage
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Scale totalizing'}de{'Waage totalisierend (SWT))'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
-    public class PAEScaleTotalizing : PAEScaleGravimetric
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Scale totalizing'}de{'Waage totalisierend (SWT)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    public class PAEScaleTotalizing : PAEScaleCalibratable
     {
         #region c'tors
 
@@ -77,7 +77,7 @@ namespace gip.core.processapplication
 
         public static bool HandleExecuteACMethod_PAEScaleTotalizing(out object result, IACComponent acComponent, string acMethodName, ACClassMethod acClassMethod, object[] acParameter)
         {
-            return HandleExecuteACMethod_PAEScaleGravimetric(out result, acComponent, acMethodName, acClassMethod, acParameter);
+            return HandleExecuteACMethod_PAEScaleCalibratable(out result, acComponent, acMethodName, acClassMethod, acParameter);
         }
 
         #endregion

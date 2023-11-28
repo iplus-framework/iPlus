@@ -809,26 +809,6 @@ namespace gip.core.autocomponent
             }
         }
 
-
-        /// <summary>
-        /// Gets a value indicating whether this instance runs in simulation mode and the states will be changed automatically by the simulatorlogic.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is simulation on; otherwise, <c>false</c>.
-        /// </value>
-        public virtual bool IsSimulationOn
-        {
-            get
-            {
-                if (ACOperationMode != ACOperationModes.Live)
-                    return true;
-                if (ApplicationManager == null)
-                    return false;
-                return ApplicationManager.IsSimulationOn;
-            }
-        }
-
-
         /// <summary>
         /// Gets a value indicating whether this instance runs in simulation mode and the states will be changed manually by a operator.
         /// </summary>

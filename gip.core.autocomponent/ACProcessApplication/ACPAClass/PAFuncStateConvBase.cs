@@ -50,18 +50,6 @@ namespace gip.core.autocomponent
         #region Properties
         public IACContainerTNet<ACStateEnum> ACState { get; set; }
 
-        public virtual bool IsSimulationOn
-        {
-            get
-            {
-                if (ACOperationMode != ACOperationModes.Live)
-                    return true;
-                if (ApplicationManager == null)
-                    return false;
-                return ApplicationManager.IsSimulationOn;
-            }
-        }
-
         [ACPropertyBindingSource(210, "Error", "en{'Conversion Alarm'}de{'Konvertierungs Alarm'}", "", false, false)]
         public IACContainerTNet<PANotifyState> ConversionAlarm { get; set; }
 

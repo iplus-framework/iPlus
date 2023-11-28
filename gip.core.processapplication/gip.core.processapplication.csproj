@@ -84,6 +84,7 @@
     <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\PAEMisalignment.cs" />
     <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\PAEHygrometer.cs" />
     <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\PAEThermometer.cs" />
+    <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\Scale\PAEScaleCalibratable.cs" />
     <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\Scale\PAEScaleTotalizing.cs" />
     <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\Scale\PAEScaleVolumetric.cs" />
     <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\Scale\PAEScaleGravimetric.cs" />
