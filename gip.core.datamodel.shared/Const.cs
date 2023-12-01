@@ -11,7 +11,7 @@
         public const string Select = "en{'Select'}de{'Auswahl'}";
         public const string Ok = "en{'Ok'}de{'Ok'}";
         public const string Add = "en{'Add'}de{'Hinzufügen'}";
-        public const string Cancel = "en{'Cancel'}de{'Stornieren'}";
+        public const string Cancel = "en{'Cancel'}de{'Abbrechen'}";
         public const string Remove = "en{'Remove'}de{'Entfernen'}";
         public const string Recalculate = "en{'Recalculate'}de{'Neu berechnen'}";
 
