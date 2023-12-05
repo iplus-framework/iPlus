@@ -5,6 +5,7 @@
     /// </summary>
     public enum LinxCommandStatusCodeEnum : short
     {
+        None = 0,
         Parity_error = 0x01,
         Framing_error = 0x02,
         Data_overrun = 0x03,

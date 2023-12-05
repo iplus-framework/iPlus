@@ -146,14 +146,16 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Linx\LinxByteMappingAttribute.cs" />
     <Compile Include="Linx\LinxCommandStatusCodeEnum.cs" />
     <Compile Include="Linx\LinxExtendedPrintErrorEnum.cs" />
+    <Compile Include="Linx\LinxMapping.cs" />
     <Compile Include="Linx\LinxPrinterCommandCodeEnum.cs" />
     <Compile Include="Linx\LinxASCIControlCharacterEnum.cs" />
     <Compile Include="Linx\LinxHelper.cs" />
     <Compile Include="Linx\LinxJetStateEnum.cs" />
     <Compile Include="Linx\LinxPrinterFaultCodeEnum.cs" />
-    <Compile Include="Linx\LinxPrinterResponse.cs" />
+    <Compile Include="Linx\LinxPrinterStatusResponse.cs" />
     <Compile Include="Linx\LinxPrintErrorEnum.cs" />
     <Compile Include="Linx\LinxPrintStateEnum.cs" />
     <Compile Include="Manager\BlockDocumentPosition.cs" />

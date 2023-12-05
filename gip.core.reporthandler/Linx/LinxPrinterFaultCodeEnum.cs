@@ -2,6 +2,7 @@
 {
     public enum LinxPrinterFaultCodeEnum : short
     {
+        None = 01,
         Print_head_temperature = 01,
         Deflector_voltage = 02,
         EHT_trip = 02,

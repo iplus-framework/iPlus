@@ -1,4 +1,5 @@
-﻿using gip.core.autocomponent;
+﻿using DocumentFormat.OpenXml.Drawing.Diagrams;
+using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.reporthandler.Flowdoc;
 using System;
@@ -38,9 +39,6 @@ namespace gip.core.reporthandler
         #endregion
 
         #region Settings
-
-
-
 
         #endregion
 
@@ -176,11 +174,34 @@ namespace gip.core.reporthandler
             {
                 System.Threading.Thread.Sleep(ReceiveTimeout);
                 (bool responseSuccess, byte[] responseData) = Response();
-                if(responseSuccess && responseData != null)
+                if (responseSuccess && responseData != null)
                 {
-
+                    ParsePrinterStatusFull(responseData);
                 }
             }
+        }
+
+        private (bool, LinxPrinterStatusResponse) ParsePrinterStatusFull(byte[] responseData)
+        {
+            bool success = false;
+            LinxPrinterStatusResponse response = new LinxPrinterStatusResponse();
+
+            bool isCheckSumValid = ValidateChecksum(responseData);
+            if (isCheckSumValid)
+            {
+                response = LinxMapping<LinxPrinterStatusResponse>.Map(responseData);
+            }
+            else
+            {
+                //CommAlarm.ValueT = PANotifyState.AlarmOrFault;
+                //if (IsAlarmActive("CommAlarm", e.Message) == null)
+                //    Messages.LogException(GetACUrl(), $"{nameof(LinxPrinter)}.{nameof(OpenPort)}(10)", e);
+                OnNewAlarmOccurred(CommAlarm, $"Response checksum is not valid!", true);
+                ClosePort();
+            }
+
+
+            return (success, response);
         }
 
         #endregion
@@ -225,7 +246,7 @@ namespace gip.core.reporthandler
                 {
                     CommAlarm.ValueT = PANotifyState.AlarmOrFault;
                     if (IsAlarmActive("CommAlarm", e.Message) == null)
-                        Messages.LogException(GetACUrl(), "PAETerminal3xxxBase.OpenPort(10)", e);
+                        Messages.LogException(GetACUrl(), $"{nameof(LinxPrinter)}.{nameof(OpenPort)}(10)", e);
                     OnNewAlarmOccurred(CommAlarm, e.Message, true);
                     ClosePort();
                 }
@@ -257,7 +278,7 @@ namespace gip.core.reporthandler
                 {
                     CommAlarm.ValueT = PANotifyState.AlarmOrFault;
                     if (IsAlarmActive("CommAlarm", e.Message) == null)
-                        Messages.LogException(GetACUrl(), "PAETerminal3xxxBase.OpenPort(20)", e);
+                        Messages.LogException(GetACUrl(), $"{nameof(LinxPrinter)}.{nameof(OpenPort)}(20)", e);
                     OnNewAlarmOccurred(CommAlarm, e.Message, true);
                 }
                 UpdateIsConnectedState();
@@ -402,6 +423,15 @@ namespace gip.core.reporthandler
                                 while (stream.DataAvailable);
 
                                 success = result != null;
+
+                                if (success)
+                                {
+                                    success = ValidateChecksum(result.ToArray());
+                                    if (!success)
+                                    {
+
+                                    }
+                                }
                             }
                         }
                     }
@@ -476,6 +506,24 @@ namespace gip.core.reporthandler
             int checkSum = BitConverter.ToInt32(input, 0) & 0x0FF;
             checkSum = 0x100 - checkSum;
             return BitConverter.GetBytes(checkSum);
+        }
+
+        public bool ValidateChecksum(byte[] dataWithCheckSum)
+        {
+            bool isValid = false;
+            if (dataWithCheckSum != null && dataWithCheckSum.Length > 2)
+            {
+                byte[] data = new byte[dataWithCheckSum.Length - 2];
+                byte[] inputChecksum = new byte[2];
+
+                Array.Copy(dataWithCheckSum, 0, data, 0, dataWithCheckSum.Length - 2);
+                Array.Copy(dataWithCheckSum, 0, inputChecksum, dataWithCheckSum.Length - 2 - 1, 2);
+
+                byte[] calcCheckSum = GetCheckSum(data);
+
+                isValid = inputChecksum == calcCheckSum;
+            }
+            return isValid;
         }
 
         #endregion
