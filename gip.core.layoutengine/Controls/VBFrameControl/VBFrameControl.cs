@@ -197,7 +197,7 @@ namespace gip.core.layoutengine
             ShowVBDesign(vbDesign);
         }
 
-        public void StartBusinessobject(string acUrl, ACValueList parameterList, string acCaption, bool ribbonVisibilityOff = false, Global.VBDesignDockState dockState = Global.VBDesignDockState.Tabbed)
+        public void StartBusinessobject(string acUrl, ACValueList parameterList, string acCaption, string title, bool ribbonVisibilityOff = false, Global.VBDesignDockState dockState = Global.VBDesignDockState.Tabbed)
         {
             if (ContextACObject != null)
             {
@@ -217,7 +217,7 @@ namespace gip.core.layoutengine
                 vbDesign.AutoStartParameter = parameterList;
 
                 VBDesignList.Add(vbDesign);
-                ShowVBDesign(vbDesign);
+                ShowVBDesign(vbDesign, title);
             }
         }
 
@@ -261,18 +261,18 @@ namespace gip.core.layoutengine
                 _MainContent = ((Frame)frameObj);
             }
 
-            _MainContent.Navigate(new Uri("TestPage.xaml", UriKind.Relative));
+            //_MainContent.Navigate(new Uri("TestPage.xaml", UriKind.Relative));
 
-            VBPage page = new VBPage(this, uiElement);
+            VBPage page = new VBPage(this, uiElement, acCaption);
             _MainContent.Navigate(page);
 
-            _MainContent.Navigated += (sender, e) =>
-            {
-                if (_MainContent.Content is VBPage vbPage)
-                {
-                    vbPage.GenerateContent(uiElement);
-                }
-            };
+            //_MainContent.Navigated += (sender, e) =>
+            //{
+            //    if (_MainContent.Content is VBPage vbPage)
+            //    {
+            //        vbPage.GenerateContent(uiElement);
+            //    }
+            //};
         }
 
         void VBFrameControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)

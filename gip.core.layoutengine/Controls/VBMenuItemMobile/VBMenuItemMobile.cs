@@ -5,15 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace gip.core.layoutengine
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBMenuItemMobile'}de{'VBMenuItemMobile'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBMenuItemMobile : VBMenuItem, IACInteractiveObject, IACObject
     {
+        #region c´tors
         static VBMenuItemMobile()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(VBMenuItemMobile), new FrameworkPropertyMetadata(typeof(VBMenuItemMobile)));
@@ -22,27 +21,7 @@ namespace gip.core.layoutengine
         public static readonly DependencyProperty IsExpandedProperty =
             DependencyProperty.Register("IsExpanded", typeof(bool), typeof(VBMenuItemMobile), new PropertyMetadata(false, OnIsExpandedChanged));
 
-        public bool IsExpanded
-        {
-            get { return (bool)GetValue(IsExpandedProperty); }
-            set { SetValue(IsExpandedProperty, value); }
-        }
-
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            ToggleSubmenuVisibility();
-        }
-
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
-        {
-            base.OnMouseLeftButtonDown(e);
-
-            IsExpanded = !IsExpanded;
-
-            e.Handled = true;
-        }
-
+       
         /// <summary>
         /// Creates a new instance of VBMenuItem.
         /// </summary>
@@ -70,74 +49,149 @@ namespace gip.core.layoutengine
             if (!string.IsNullOrEmpty(acCommand.GetACUrl()))
             {
                 Command = AppCommands.AddApplicationCommand(ACCommand);
-                CommandBindings.Add(new CommandBinding(Command, VBMenuItem_Click, VBMenuItem_IsEnabled));
+                CommandBindings.Add(new CommandBinding(Command, VBMenuItemMobile_Click, VBMenuItemMobile_IsEnabled));
             }
         }
 
-        #region Expand
+        public bool IsExpanded
+        {
+            get { return (bool)GetValue(IsExpandedProperty); }
+            set { SetValue(IsExpandedProperty, value); }
+        }
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+        }
+
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseLeftButtonDown(e);
+
+            if (this.subMenu == null && this.mainSubMenu == null || IsExpanded && this.mainSubMenu.Items.Count > 0)
+                VBMenuItemMobile_Click();
+            else
+                IsExpanded = !IsExpanded;
+
+            e.Handled = true;
+        }
+
+        private void VBMenuItemMobile_Click()
+        {
+            ACActionArgs actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
+            ACAction(actionArgs);
+        }
+
+        private void VBMenuItemMobile_Click(object sender, RoutedEventArgs e)
+        {
+            ACActionArgs actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
+            ACAction(actionArgs);
+        }
+
+        private void VBMenuItemMobile_IsEnabled(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (ACCommand.IsAutoEnabled)
+            {
+                e.CanExecute = true;
+                return;
+            }
+            if (ContextACObject != null)
+            {
+                ACActionArgs actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
+                e.CanExecute = IsEnabledACAction(actionArgs);
+            }
+            else
+            {
+                e.CanExecute = false;
+            }
+        }
+
+        #endregion
+
+        #region Submenu
 
         private static void OnIsExpandedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var menuItem = d as VBMenuItemMobile;
             if (menuItem != null)
             {
-                menuItem.ToggleSubmenuVisibility();
+                menuItem.ShowSubMenu(menuItem);
             }
         }
 
-        private bool isSubmenuOpen = false;
+        public bool subMenuExpanded = false;
 
-        private void ToggleSubmenuVisibility()
+        public VBMenu mainSubMenu;
+
+        public VBMenu subMenu;
+
+        public VBMenu CreateSubmenu(VBMenu subMenuMain, ACMenuItemList aCMenuItems)
         {
-            if (IsExpanded)
+            this.mainSubMenu = subMenuMain;
+            this.subMenu = new VBMenu();
+
+            if (aCMenuItems != null && aCMenuItems.Count > 0)
             {
-                if (!isSubmenuOpen)
+                foreach (var subMenuItem in aCMenuItems)
                 {
-                    var popup = GetTemplateChild("PART_Popup") as Popup;
-                    if (popup != null)
+                    if (subMenuItem.ACCaption == "-")
                     {
-                        double submenuWidth = ActualWidth - Margin.Left - Margin.Right;
-
-                        var submenuBorder = GetTemplateChild("SubMenuBorder") as FrameworkElement;
-                        double availableSpace = submenuBorder.ActualWidth;
-
-                        if (submenuWidth > availableSpace)
-                        {
-                            popup.Placement = PlacementMode.Left;
-                        }
-                        else
-                        {
-                            popup.Placement = PlacementMode.Right;
-                        }
-
-                        popup.IsOpen = true;
-                        isSubmenuOpen = true;
+                        VBMenuSeparator _Seperator = new VBMenuSeparator();
+                        this.subMenu.Items.Add(_Seperator);
+                        continue;
+                    }
+                    VBMenuItemMobile menuItem = new VBMenuItemMobile(ContextACObject, subMenuItem);
+                    this.subMenu.Items.Add(menuItem);
+                    if (subMenuItem.Items != null && subMenuItem.Items.Count > 0)
+                    {
+                        menuItem.CreateSubmenu(subMenuMain, subMenuItem.Items);
                     }
                 }
             }
-            else
+            return subMenu;
+        }
+
+        public async void ShowSubMenu(VBMenuItemMobile menuItem)
+        {
+            if (menuItem != null && this.Parent is VBMenu)
             {
-                isSubmenuOpen = false;
-                var popup = GetTemplateChild("PART_Popup") as Popup;
-                if (popup != null)
+                (this.Parent as VBMenu).ToggleMenu();
+                await Task.Delay(300);
+                var subMenuItemList = new List<object>(this.subMenu.Items.Cast<object>());
+                foreach (var subMenuItem in subMenuItemList)
                 {
-                    popup.IsOpen = false;
+                    this.subMenu.Items.Remove(subMenuItem);
+                    mainSubMenu.Items.Add(subMenuItem);
                 }
+                mainSubMenu.ToggleMenu();
+                this.subMenuExpanded = true;
             }
         }
 
-
+        public void SwitchActiveMenu()
+        {
+            if (this.subMenu.Items.Count > 0)
+            {
+                this.subMenu.Items.Clear();
+            }
+            var mainSubMenuItemList = new List<object>(this.mainSubMenu.Items.Cast<object>());
+            if (mainSubMenu.Items.Count > 0)
+            {
+                foreach (var oldSubMenuItem in mainSubMenuItemList)
+                {
+                    mainSubMenu.Items.Remove(oldSubMenuItem);
+                    this.subMenu.Items.Add(oldSubMenuItem);
+                }
+            }
+        }
 
         protected override void OnSubmenuOpened(RoutedEventArgs e)
         {
             base.OnSubmenuOpened(e);
-            ToggleSubmenuVisibility();
-        }
-
-        protected override void OnSubmenuClosed(RoutedEventArgs e)
-        {
-            base.OnSubmenuClosed(e);
-            ToggleSubmenuVisibility();
+            if (e.OriginalSource is VBMenuItemMobile vbMenuItem)
+            {
+                ShowSubMenu(vbMenuItem);
+            }
         }
 
         #endregion

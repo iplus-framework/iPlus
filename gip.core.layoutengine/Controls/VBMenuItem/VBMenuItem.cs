@@ -85,13 +85,13 @@ namespace gip.core.layoutengine
             }
         }
 
-        internal void VBMenuItem_Click(object sender, RoutedEventArgs e)
+        private void VBMenuItem_Click(object sender, RoutedEventArgs e)
         {
             ACActionArgs actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
             ACAction(actionArgs);
         }
 
-        internal void VBMenuItem_IsEnabled(object sender, CanExecuteRoutedEventArgs e)
+        private void VBMenuItem_IsEnabled(object sender, CanExecuteRoutedEventArgs e)
         {
             if (ACCommand.IsAutoEnabled)
             {

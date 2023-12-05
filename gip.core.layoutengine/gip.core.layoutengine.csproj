@@ -297,7 +297,9 @@
     </Compile>
     <Compile Include="Controls\VBMenuItemMobile\VBMenuItemMobile.cs" />
     <Compile Include="Controls\VBNumericUpDown\VBNumericUpDown.cs" />
-    <Compile Include="Controls\VBPage\VBPage.cs" />
+    <Compile Include="Controls\VBPage\VBPage.xaml.cs">
+      <DependentUpon>VBPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\VBProgressBar\VBOEEControl.xaml.cs">
       <DependentUpon>VBOEEControl.xaml</DependentUpon>
     </Compile>
@@ -895,6 +897,10 @@
     <Page Include="Controls\VBPage\Themes\PageStyleGip.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBPage\VBPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\VBProgressBar\Themes\CircularUnlimited.xaml">
       <Generator>MSBuild:Compile</Generator>

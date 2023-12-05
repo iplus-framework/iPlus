@@ -11,7 +11,7 @@ using System.Windows.Controls;
 
 namespace gip.core.layoutengine
 {
-    public class VBPage : Page, IACObject
+    partial class VBPage : Page, IACObject
     {
         public VBPage()
         {
@@ -20,12 +20,18 @@ namespace gip.core.layoutengine
         public VBPage(VBFrameControl frameControl)
         {
             FrameControl = frameControl;
+            Loaded += OnLoaded;
         }
 
-        public VBPage(VBFrameControl frameControl, UIElement vbDesignContent)
+        public VBPage(VBFrameControl frameControl, UIElement vbDesignContent, string title = "")
         {
             FrameControl = frameControl;
             this.VBDesignContent = vbDesignContent;
+            //this.Content = vbDesignContent;
+            if (title != "")
+                this.Title = title;
+            else
+                this.Title = ACCaption;
             //this.GenerateContent(VBDesignContent);
             if ((this.VBDesignContent is FrameworkElement) && (this.VBDesignContent is IVBContent))
             {
@@ -35,12 +41,8 @@ namespace gip.core.layoutengine
                 //else
                 //    (this.VBDesignContent as FrameworkElement).DataContextChanged += new DependencyPropertyChangedEventHandler(VBDockingContainerBase_ContentDataContextChanged);
                 //(this.VBDesignContent as FrameworkElement).Loaded += new RoutedEventHandler(VBDockingContainerBase_ContentLoaded);
+            Loaded += OnLoaded;
             }
-        }
-
-        static VBPage()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBPage), new FrameworkPropertyMetadata(typeof(VBPage)));
         }
 
         protected override void OnInitialized(EventArgs e)
@@ -65,15 +67,6 @@ namespace gip.core.layoutengine
             set;
         }
 
-        private Grid _MainGrid;
-        public Grid MainGrid
-        {
-            get
-            {
-                return _MainGrid;
-            }
-        }
-
         public void GenerateContent(object content)
         {
             if (content is VBDesign)
@@ -81,15 +74,29 @@ namespace gip.core.layoutengine
                 ((VBDesign)content).DataContext = ContextACObject;
                 ((VBDesign)content).BSOACComponent = ContextACObject as IACBSO;
 
-                object gridObj = (object)GetTemplateChild("MainGrid");
-                if ((gridObj != null) && (gridObj is Grid))
+                if (MainGrid != null)
                 {
-                    _MainGrid = ((Grid)gridObj);
-                    _MainGrid.Children.Add((VBDesign)content);
+                    MainGrid.Children.Add((VBDesign)content);
                 }
-
+                else
+                {
+                    Debugger.Break();
+                }
+            mainGrid = Template.FindName("MainGrid", this) as Grid;
             }
-            
+
+        }
+
+        private Grid mainGrid;
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            mainGrid = Template.FindName("MainGrid", this) as Grid;
+
+            if (mainGrid != null && VBDesignContent is VBDesign content && !(mainGrid.Children.Contains(content)))
+            {
+                mainGrid.Children.Add(content);
+            }
         }
 
         IACObject _ACComponent = null;
@@ -121,7 +128,42 @@ namespace gip.core.layoutengine
 
         public string ACIdentifier => throw new NotImplementedException();
 
-        public string ACCaption => throw new NotImplementedException();
+        public string ACCaption 
+        { 
+            get
+            {
+                if (this.VBDesignContent == null)
+                {
+                    return "";
+                }
+                string acCaption = "";
+
+                if ((VBDesignContent != null) && (VBDesignContent is IVBContent))
+                    acCaption = (VBDesignContent as IVBContent).ACCaption;
+
+                if (VBDesignContent is VBDesign)
+                {
+                    if (((gip.core.layoutengine.VBDesign)(VBDesignContent)) != null &&
+                        ((gip.core.layoutengine.VBDesign)(VBDesignContent)).DataContext is IACComponent &&
+                        !string.IsNullOrEmpty(((gip.core.layoutengine.VBDesign)(VBDesignContent)).VBContent) &&
+                        ((gip.core.layoutengine.VBDesign)(VBDesignContent)).VBContent.StartsWith("*"))
+                    {
+                        IACComponent acComponent = ((gip.core.layoutengine.VBDesign)(VBDesignContent)).DataContext as IACComponent;
+                        ACClassDesign acClassDesign = acComponent.GetDesign(((gip.core.layoutengine.VBDesign)(VBDesignContent)).VBContent.Substring(1));
+                        if (acClassDesign != null)
+                            return acClassDesign.ACCaption;
+                    }
+                }
+
+
+                string title = VBDockingManager.GetWindowTitle(VBDesignContent);
+                if (!String.IsNullOrEmpty(title))
+                    acCaption = title;
+                if (String.IsNullOrEmpty(acCaption) && (ContextACObject != null))
+                    acCaption = ContextACObject.ACCaption;
+                return acCaption;
+            }
+        }
 
         public object ACUrlCommand(string acUrl, params object[] acParameter)
         {

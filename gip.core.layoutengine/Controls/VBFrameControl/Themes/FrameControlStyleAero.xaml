@@ -13,7 +13,7 @@
                 <ControlTemplate>
                     <Border BorderBrush="Green" BorderThickness="1">
                         <Grid>
-                            <Frame Name="MainContent" Background="Black" NavigationUIVisibility="Visible" MaxWidth="1440" MaxHeight="2560">
+                            <Frame Name="MainContent" Background="Black" NavigationUIVisibility="Hidden" MaxWidth="1440" MaxHeight="2560">
                             </Frame>
                         </Grid>
                     </Border>
