@@ -21,7 +21,7 @@ using System.Collections.Concurrent;
 namespace gip.core.datamodel
 {
     /// <summary>
-    /// VBEntityObject - common VarioBatch base for entity object - implementing commnon definitions and functionality
+    /// VBEntityObject - common iPlus base for entity object - implementing commnon definitions and functionality
     /// (aagincic) TODO:
     /// 1. Implement one by one method
     ///     - remove all with same signature

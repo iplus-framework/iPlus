@@ -292,6 +292,26 @@
           <Property Name="GroupName" Type="varchar(max)" />
           <Property Name="StateName" Type="varchar(max)" />
         </EntityType>
+        <EntityType Name="ACClassRouteUsage">
+          <Key>
+            <PropertyRef Name="ACClassRouteUsageID" />
+          </Key>
+          <Property Name="ACClassRouteUsageID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ACClassID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="UseFactor" Type="int" Nullable="false" />
+          <Property Name="InsertName" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="InsertDate" Type="datetime" Nullable="false" />
+          <Property Name="UpdateName" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="UpdateDate" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ACClassRouteUsagePos">
+          <Key>
+            <PropertyRef Name="ACClassRouteUsagePosID" />
+          </Key>
+          <Property Name="ACClassRouteUsagePosID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ACClassRouteUsageID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="HashCode" Type="int" Nullable="false" />
+        </EntityType>
         <EntityType Name="ACClassTask">
           <Key>
             <PropertyRef Name="ACClassTaskID" />
@@ -766,8 +786,8 @@
           <Property Name="SessionInfo" Type="text" />
           <Property Name="SessionCount" Type="int" Nullable="false" />
         </EntityType>
-        <!--Während der Generierung sind Fehler aufgetreten:
-Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBSystemColumns' ist kein Primärschlüssel definiert. Der Schlüssel wurde abgeleitet, und die Definition wurde als schreibgeschützte Tabelle/Sicht erstellt.-->
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'PanPekZGV4.dbo.VBSystemColumns' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="VBSystemColumns">
           <Key>
             <PropertyRef Name="tablename" />
@@ -779,8 +799,8 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBSystemColumns' ist kein Pr
           <Property Name="columnlength" Type="smallint" />
           <Property Name="columnnullable" Type="int" />
         </EntityType>
-        <!--Während der Generierung sind Fehler aufgetreten:
-Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein Primärschlüssel definiert. Der Schlüssel wurde abgeleitet, und die Definition wurde als schreibgeschützte Tabelle/Sicht erstellt.-->
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="VBTranslationView">
           <Key>
             <PropertyRef Name="ACProjectName" />
@@ -793,13 +813,14 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
             
           </Key>
           <Property Name="ACProjectName" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="TableName" Type="varchar" MaxLength="7" Nullable="false" />
+          <Property Name="TableName" Type="varchar" MaxLength="248" Nullable="false" />
           <Property Name="MandatoryID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="MandatoryACIdentifier" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="MandatoryACURLCached" Type="varchar(max)" />
           <Property Name="ID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="ACIdentifier" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="TranslationValue" Type="varchar(max)" />
-          <Property Name="UpdateName" Type="varchar" MaxLength="5" Nullable="false" />
+          <Property Name="UpdateName" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="UpdateDate" Type="datetime" Nullable="false" />
         </EntityType>
         <Association Name="FK_ACChangeLog_ACClass">
@@ -1247,6 +1268,18 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
             </Principal>
             <Dependent Role="ACClassPropertyRelation">
               <PropertyRef Name="TargetACClassPropertyID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ACClassRouteUsagePos_ACClassRouteUsage">
+          <End Role="ACClassRouteUsage" Type="Self.ACClassRouteUsage" Multiplicity="1" />
+          <End Role="ACClassRouteUsagePos" Type="Self.ACClassRouteUsagePos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACClassRouteUsage">
+              <PropertyRef Name="ACClassRouteUsageID" />
+            </Principal>
+            <Dependent Role="ACClassRouteUsagePos">
+              <PropertyRef Name="ACClassRouteUsageID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1982,11 +2015,14 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
           <Parameter Name="DifferenceDays" Type="int" Mode="In" />
         </Function>
         <Function Name="udpTranslation" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="acProjectID" Type="uniqueidentifier" Mode="In" />
+          <Parameter Name="mandatoryID" Type="uniqueidentifier" Mode="In" />
           <Parameter Name="onlyClassTables" Type="bit" Mode="In" />
           <Parameter Name="onlyMDTables" Type="bit" Mode="In" />
           <Parameter Name="searchClassACIdentifier" Type="varchar" Mode="In" />
           <Parameter Name="searchACIdentifier" Type="varchar" Mode="In" />
           <Parameter Name="searchTranslation" Type="varchar" Mode="In" />
+          <Parameter Name="notHaveInTranslation" Type="varchar" Mode="In" />
         </Function>
         <EntityContainer Name="VarioiplusV3_devModelStoreContainer">
           <EntitySet Name="ACAssembly" EntityType="Self.ACAssembly" Schema="dbo" store:Type="Tables" />
@@ -1999,6 +2035,8 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
           <EntitySet Name="ACClassMethodConfig" EntityType="Self.ACClassMethodConfig" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACClassProperty" EntityType="Self.ACClassProperty" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACClassPropertyRelation" EntityType="Self.ACClassPropertyRelation" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ACClassRouteUsage" EntityType="Self.ACClassRouteUsage" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ACClassRouteUsagePos" EntityType="Self.ACClassRouteUsagePos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACClassTask" EntityType="Self.ACClassTask" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACClassTaskValue" EntityType="Self.ACClassTaskValue" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACClassTaskValuePos" EntityType="Self.ACClassTaskValuePos" Schema="dbo" store:Type="Tables" />
@@ -2041,6 +2079,7 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
     [VBTranslationView].[TableName] AS [TableName], 
     [VBTranslationView].[MandatoryID] AS [MandatoryID], 
     [VBTranslationView].[MandatoryACIdentifier] AS [MandatoryACIdentifier], 
+    [VBTranslationView].[MandatoryACURLCached] AS [MandatoryACURLCached], 
     [VBTranslationView].[ID] AS [ID], 
     [VBTranslationView].[ACIdentifier] AS [ACIdentifier], 
     [VBTranslationView].[TranslationValue] AS [TranslationValue], 
@@ -2191,6 +2230,10 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
           <AssociationSet Name="FK_ACClassPropertyRelation_TargetACClassPropertyID" Association="Self.FK_ACClassPropertyRelation_TargetACClassPropertyID">
             <End Role="ACClassProperty" EntitySet="ACClassProperty" />
             <End Role="ACClassPropertyRelation" EntitySet="ACClassPropertyRelation" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ACClassRouteUsagePos_ACClassRouteUsage" Association="Self.FK_ACClassRouteUsagePos_ACClassRouteUsage">
+            <End Role="ACClassRouteUsage" EntitySet="ACClassRouteUsage" />
+            <End Role="ACClassRouteUsagePos" EntitySet="ACClassRouteUsagePos" />
           </AssociationSet>
           <AssociationSet Name="FK_ACClassTask_ACProgramID" Association="Self.FK_ACClassTask_ACProgramID">
             <End Role="ACProgram" EntitySet="ACProgram" />
@@ -2613,11 +2656,14 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
             <End Role="VBGroupRight" EntitySet="VBGroupRight" />
           </AssociationSet>
           <FunctionImport Name="udpTranslation" EntitySet="VBTranslationView" ReturnType="Collection(VarioiplusV3_devModel.VBTranslationView)">
+            <Parameter Name="acProjectID" Mode="In" Type="Guid" />
+            <Parameter Name="mandatoryID" Mode="In" Type="Guid" />
             <Parameter Name="onlyClassTables" Mode="In" Type="Boolean" />
             <Parameter Name="onlyMDTables" Mode="In" Type="Boolean" />
             <Parameter Name="searchClassACIdentifier" Mode="In" Type="String" />
             <Parameter Name="searchACIdentifier" Mode="In" Type="String" />
             <Parameter Name="searchTranslation" Mode="In" Type="String" />
+            <Parameter Name="notHaveInTranslation" Mode="In" Type="String" />
           </FunctionImport>
           <EntitySet Name="VBTranslationView" EntityType="VarioiplusV3_devModel.VBTranslationView" />
           <EntitySet Name="ACChangeLog" EntityType="VarioiplusV3_devModel.ACChangeLog" />
@@ -2850,6 +2896,12 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
           <AssociationSet Name="FK_VBConfig_ACClassPropertyRelationID" Association="VarioiplusV3_devModel.FK_VBConfig_ACClassPropertyRelationID">
             <End Role="ACClassPropertyRelation" EntitySet="ACClassPropertyRelation" />
             <End Role="VBConfig" EntitySet="VBConfig" />
+          </AssociationSet>
+          <EntitySet Name="ACClassRouteUsage" EntityType="VarioiplusV3_devModel.ACClassRouteUsage" />
+          <EntitySet Name="ACClassRouteUsagePos" EntityType="VarioiplusV3_devModel.ACClassRouteUsagePos" />
+          <AssociationSet Name="FK_ACClassRouteUsagePos_ACClassRouteUsage" Association="VarioiplusV3_devModel.FK_ACClassRouteUsagePos_ACClassRouteUsage">
+            <End Role="ACClassRouteUsage" EntitySet="ACClassRouteUsage" />
+            <End Role="ACClassRouteUsagePos" EntitySet="ACClassRouteUsagePos" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="ACAssembly">
@@ -4038,13 +4090,14 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
             <PropertyRef Name="ACIdentifier" />
           </Key>
           <Property Name="ACProjectName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="TableName" Type="String" Nullable="false" MaxLength="7" FixedLength="false" Unicode="false" />
+          <Property Name="TableName" Type="String" Nullable="false" MaxLength="248" FixedLength="false" Unicode="false" />
           <Property Name="MandatoryID" Type="Guid" Nullable="false" />
           <Property Name="MandatoryACIdentifier" Type="String" MaxLength="100" Nullable="false" Unicode="false" FixedLength="false" />
+          <Property Name="MandatoryACURLCached" Type="String" MaxLength="Max" Nullable="true" Unicode="false" FixedLength="false" />
           <Property Name="ID" Type="Guid" Nullable="false" />
           <Property Name="ACIdentifier" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="TranslationValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="UpdateName" Type="String" MaxLength="5" Nullable="false" Unicode="false" FixedLength="false" />
+          <Property Name="UpdateName" Type="String" MaxLength="20" Nullable="false" Unicode="false" FixedLength="false" />
           <Property Name="UpdateDate" Type="DateTime" Nullable="false" Precision="3" />
         </EntityType>
         <EntityType Name="ACChangeLog">
@@ -4989,6 +5042,40 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="ACClassRouteUsage">
+          <Key>
+            <PropertyRef Name="ACClassRouteUsageID" />
+          </Key>
+          <Property Name="ACClassRouteUsageID" Type="Guid" Nullable="false" />
+          <Property Name="ACClassID" Type="Guid" Nullable="false" />
+          <Property Name="UseFactor" Type="Int32" Nullable="false" />
+          <Property Name="InsertName" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="InsertDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdateName" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="UpdateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="ACClassRouteUsagePos" Relationship="VarioiplusV3_devModel.FK_ACClassRouteUsagePos_ACClassRouteUsage" FromRole="ACClassRouteUsage" ToRole="ACClassRouteUsagePos" />
+        </EntityType>
+        <EntityType Name="ACClassRouteUsagePos">
+          <Key>
+            <PropertyRef Name="ACClassRouteUsagePosID" />
+          </Key>
+          <Property Name="ACClassRouteUsagePosID" Type="Guid" Nullable="false" />
+          <Property Name="ACClassRouteUsageID" Type="Guid" Nullable="false" />
+          <Property Name="HashCode" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ACClassRouteUsage" Relationship="VarioiplusV3_devModel.FK_ACClassRouteUsagePos_ACClassRouteUsage" FromRole="ACClassRouteUsagePos" ToRole="ACClassRouteUsage" />
+        </EntityType>
+        <Association Name="FK_ACClassRouteUsagePos_ACClassRouteUsage">
+          <End Type="VarioiplusV3_devModel.ACClassRouteUsage" Role="ACClassRouteUsage" Multiplicity="1" />
+          <End Type="VarioiplusV3_devModel.ACClassRouteUsagePos" Role="ACClassRouteUsagePos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACClassRouteUsage">
+              <PropertyRef Name="ACClassRouteUsageID" />
+            </Principal>
+            <Dependent Role="ACClassRouteUsagePos">
+              <PropertyRef Name="ACClassRouteUsageID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -5641,6 +5728,7 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
                 <ScalarProperty Name="ACProjectName" ColumnName="ACProjectName" />
                 <ScalarProperty Name="MandatoryID" ColumnName="MandatoryID" />
                 <ScalarProperty Name="MandatoryACIdentifier" ColumnName="MandatoryACIdentifier" />
+                <ScalarProperty Name="MandatoryACURLCached" ColumnName="MandatoryACURLCached" />
                 <ScalarProperty Name="UpdateName" ColumnName="UpdateName" />
                 <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
               </MappingFragment>
@@ -5822,6 +5910,28 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="ACClassRouteUsage">
+            <EntityTypeMapping TypeName="VarioiplusV3_devModel.ACClassRouteUsage">
+              <MappingFragment StoreEntitySet="ACClassRouteUsage">
+                <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
+                <ScalarProperty Name="UpdateName" ColumnName="UpdateName" />
+                <ScalarProperty Name="InsertDate" ColumnName="InsertDate" />
+                <ScalarProperty Name="InsertName" ColumnName="InsertName" />
+                <ScalarProperty Name="UseFactor" ColumnName="UseFactor" />
+                <ScalarProperty Name="ACClassID" ColumnName="ACClassID" />
+                <ScalarProperty Name="ACClassRouteUsageID" ColumnName="ACClassRouteUsageID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ACClassRouteUsagePos">
+            <EntityTypeMapping TypeName="VarioiplusV3_devModel.ACClassRouteUsagePos">
+              <MappingFragment StoreEntitySet="ACClassRouteUsagePos">
+                <ScalarProperty Name="HashCode" ColumnName="HashCode" />
+                <ScalarProperty Name="ACClassRouteUsageID" ColumnName="ACClassRouteUsageID" />
+                <ScalarProperty Name="ACClassRouteUsagePosID" ColumnName="ACClassRouteUsagePosID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
@@ -5976,6 +6086,9 @@ Warnung 6002: Für Tabelle/Sicht 'IPCDrives2017.dbo.VBTranslationView' ist kein 
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassPropertyRelation_TargetACClassPropertyID" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACProgramConfig_ACClassPropertyRelationID" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_VBConfig_ACClassPropertyRelationID" />
+        <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassRouteUsage" Width="1.5" PointX="7.375" PointY="1" />
+        <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassRouteUsagePos" Width="1.5" PointX="9.625" PointY="1.375" />
+        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassRouteUsagePos_ACClassRouteUsage" />
       </Diagram>
     </Diagrams>
   </Designer>
