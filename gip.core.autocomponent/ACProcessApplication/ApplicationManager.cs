@@ -226,7 +226,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        public bool IsSimulationOn
+        public override bool IsSimulationOn
         {
             get
             {

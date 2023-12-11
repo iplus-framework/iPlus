@@ -5,6 +5,7 @@ using System.Text;
 using gip.core.datamodel;
 using System.ComponentModel;
 using System.Threading;
+using static gip.core.autocomponent.PAProcessFunction;
 
 namespace gip.core.autocomponent
 {
@@ -2062,6 +2063,16 @@ namespace gip.core.autocomponent
                 }
             }
             return CompleteResult.Succeeded;
+        }
+
+        public PAProcessFunction.CompleteResult ReceiveACMethodResult(out ACMethod acMethod, out MsgWithDetails msgError)
+        {
+            CompleteResult completeResult = CompleteResult.Succeeded;
+            msgError = null;
+            acMethod = GetCurrentACMethod();
+            if (ACStateConverter != null)
+                completeResult = ACStateConverter.ReceiveACMethodResult(this, acMethod, out msgError);
+            return completeResult;
         }
 
 
