@@ -364,6 +364,7 @@
     <Compile Include="Routing\ACRoutingSession.cs" />
     <Compile Include="Routing\ACRoutingVertex.cs" />
     <Compile Include="Routing\IRouteableModule.cs" />
+    <Compile Include="Routing\RouteHashItem.cs" />
     <Compile Include="Routing\RoutingHelper.cs" />
     <Compile Include="Routing\PriorityQueue.cs" />
     <Compile Include="Routing\ACRoutingService.cs" />

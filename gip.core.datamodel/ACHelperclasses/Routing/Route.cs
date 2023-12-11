@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Windows.Media;
 
 namespace gip.core.datamodel
 {
@@ -13,6 +14,26 @@ namespace gip.core.datamodel
     {
         #region const
         public const string ClassName = "Route";
+        #endregion
+
+        #region Constructors
+
+        public Route(RouteItem item)
+        {
+            _Items = new List<RouteItem>(new RouteItem[] { item });
+        }
+
+        public Route(IEnumerable<RouteItem> items)
+        {
+            _Items = new List<RouteItem>(items);
+        }
+
+
+        public Route()
+        {
+            _Items = new List<RouteItem>();
+        }
+
         #endregion
 
         #region private fields
@@ -50,24 +71,13 @@ namespace gip.core.datamodel
             get { return ToString(); }
         }
 
-        #endregion
-
-        #region Constructors
-
-        public Route(RouteItem item)
+        [DataMember]
+        private bool _IsPredefinedRoute = false;
+        [IgnoreDataMember]
+        public bool IsPredefinedRoute
         {
-            _Items = new List<RouteItem>(new RouteItem[] {item});
-        }
-
-        public Route(IEnumerable<RouteItem> items)
-        {
-            _Items = new List<RouteItem>(items);
-        }
-
-
-        public Route()
-        {
-            _Items = new List<RouteItem>();
+            get => _IsPredefinedRoute;
+            set => _IsPredefinedRoute = value;
         }
 
         #endregion
@@ -137,12 +147,55 @@ namespace gip.core.datamodel
             return new Route(routeItems);
         }
 
-        public static IEnumerable<Route> SplitRoutes(Route route)
+        public static IEnumerable<Route> SplitRoute(Route route)
         {
             List<Route> result = new List<Route>();
             var groups = route.GroupBy(c => c.RouteNo);
             foreach (var group in groups)
                 result.Add(new Route(group));
+            return result;
+        }
+
+        public static IEnumerable<Route> SplitRouteWithDuplicates(Route route)
+        {
+            List<Route> result = new List<Route>();
+            var groups = route.GroupBy(c => c.RouteNo);
+
+            var sources = route.GetRouteSources();
+            var targets = route.GetRouteTargets();
+
+            Route mainRoute = null;
+            IGrouping<int, RouteItem> mainGroup = null;
+
+            foreach (var source in sources)
+            {
+                foreach (var target in targets)
+                {
+                    mainGroup = groups.FirstOrDefault(c => c.Key == source.RouteNo && c.Key == target.RouteNo);
+                    mainRoute = new Route(mainGroup);
+
+                    break;
+                }
+
+                if (mainRoute != null)
+                    break;
+            }
+
+            foreach (var group in groups)
+            {
+                if (group == mainGroup)
+                    continue;
+
+                Route r = new Route(group);
+
+                var tempSource = r.GetRouteSource();
+                var tempTarget = r.GetRouteTarget();
+
+                //var startFromMainRoute = 
+
+
+            }
+
             return result;
         }
 
@@ -241,8 +294,8 @@ namespace gip.core.datamodel
             string result = "";
             foreach (var group in groups)
             {
-                RouteItem source = this.FirstOrDefault();
-                RouteItem target = this.LastOrDefault();
+                RouteItem source = this.GetRouteSource();
+                RouteItem target = this.GetRouteTarget();
                 if (source == null || target == null)
                     continue;
                 var sourceComp = source.SourceACComponent;
@@ -261,6 +314,43 @@ namespace gip.core.datamodel
             //{
             //    return sourceComp.GetACUrl() + " -> " + targetComp.GetACUrl();
             //}
+        }
+        
+        public int GetRouteHash()
+        {
+            var sources = this.GetRouteSources().ToList();
+            var targets = this.GetRouteTargets().ToList();
+
+            foreach (var source in sources)
+                this.Items.Remove(source);
+
+            foreach (var target in targets)
+                this.Items.Remove(target);
+
+            List<Guid> guids = null;
+
+            if (!this.Items.Any())
+            {
+                guids = new List<Guid>(targets.Select(c => c.SourceGuid));
+            }
+            else
+            {
+                var newTargets = this.GetRouteTargets().ToList();
+
+                guids = this.Select(c => c.SourceGuid).ToList();
+                foreach (var target in newTargets)
+                {
+                    guids.Add(target.TargetGuid);
+                }
+            }
+
+            this.Items.InsertRange(0, sources);
+            this.Items.AddRange(targets);
+
+            if (guids == null || !guids.Any())
+                return 0;
+
+            return string.Join("", guids).GetHashCode();
         }
 
         #endregion
@@ -348,7 +438,7 @@ namespace gip.core.datamodel
 
         public object Clone()
         {
-            return new Route(this._Items.Select(c => c.Clone() as RouteItem));
+            return new Route(this._Items.Select(c => c.Clone() as RouteItem)) { IsPredefinedRoute = this.IsPredefinedRoute };
         }
 
         public Route Clone(IACEntityObjectContext attachTo)

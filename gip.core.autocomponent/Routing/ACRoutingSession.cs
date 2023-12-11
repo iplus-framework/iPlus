@@ -62,6 +62,8 @@ namespace gip.core.autocomponent
 
         bool _anyLoop = false;
 
+        bool _RouteDependOnUsage = false;
+
         private ACRoutingService _ACRoutingService;
         private string _DiagnosticData = "";
 
@@ -167,7 +169,7 @@ namespace gip.core.autocomponent
                                       eMsgLevel.Error, "ACRoutingSession", "FindRoute(10)", 137);
                     return new RoutingResult(null, false, msg);
                 }
-                return CreateRouteFromMultipeSourcesTargets(result);
+                return CreateRouteFromMultipleSourcesTargets(result);
             }
             else if (RoutingPaths.Any())
             {
@@ -314,22 +316,75 @@ namespace gip.core.autocomponent
             if (!routingPaths.Any())
                 return null;
 
-            //ACRoutingPath currentPath = routingPaths.Where(c => !c.Any(x => x.IsAllocated(x == c.LastOrDefault())))
-            //                                        .OrderBy(k => k.DeltaWeight).FirstOrDefault();
+            List<ACRoutingPath> paths = new List<ACRoutingPath>();
+            List<RouteHashItem> routeHashItems = null;
 
-            ACRoutingPath currentPath = routingPaths.OrderBy(k => k.DeltaWeight).FirstOrDefault();
+            if (_ACRoutingService.SelectRouteDependUsage)
+            {
+                List<Guid> targetIDs = routingPaths.Select(c => c.LastOrDefault().Relation.SourceACClassID).Distinct().ToList();
+                routeHashItems = _ACRoutingService.GetMostUsedRouteHash(targetIDs);
+            }
 
-            if (currentPath == null || !currentPath.Any())
-                currentPath = routingPaths.OrderBy(c => c.DeltaWeight).FirstOrDefault();
+            List<int> tempHashCodeItems = new List<int>();
+            if (routeHashItems != null && routeHashItems.Any())
+            {
+                List<int> hashCodes = new List<int>();
+
+                foreach (var itemPath in routingPaths)
+                {
+                    PAEdge source = itemPath.FirstOrDefault();
+                    PAEdge target = itemPath.LastOrDefault();
+
+                    itemPath.Remove(source);
+                    itemPath.Remove(target);
+
+                    List<Guid> temp = null; 
+                    if (itemPath.Any())
+                    {
+                        temp = itemPath.Select(c => c.Relation.SourceACClassID).ToList();
+                        temp.Add(itemPath.LastOrDefault().Relation.TargetACClassID);
+
+                    }
+                    else
+                        temp = new List<Guid>() { target.SourceParentComponent.ComponentClass.ACClassID };
+
+                    int hash = string.Join("", temp).GetHashCode();
+
+                    itemPath.Insert(0, source);
+                    itemPath.Add(target);
+
+                    var groupedByKey = routeHashItems.GroupBy(c => c.UseFactor).OrderByDescending(c => c.Key).FirstOrDefault();
+
+                    if (groupedByKey.Any(c => c.RouteHashCodes.Any(x => x == hash)))
+                        paths.Add(itemPath);
+                }
+            }
+
+            if (paths == null || !paths.Any())
+            {
+                ACRoutingPath currentPath = routingPaths.OrderBy(k => k.DeltaWeight).FirstOrDefault();
+
+                if (currentPath == null || !currentPath.Any())
+                    currentPath = routingPaths.OrderBy(c => c.DeltaWeight).FirstOrDefault();
+
+                paths.Add(currentPath);
+            }
 
             List<RouteItem> tempList = new List<RouteItem>();
-            foreach (var item in currentPath)
-                tempList.Add(new RouteItem(item.Relation));
+
+            foreach (ACRoutingPath routingPath in paths)
+            {
+                int i = 0;
+                foreach (PAEdge pathEdge in routingPath)
+                    tempList.Add(new RouteItem(pathEdge.Relation) { RouteNo = i });
+
+                i++;
+            }
 
             return new Route(tempList);
         }
 
-        private RoutingResult CreateRouteFromMultipeSourcesTargets(IEnumerable<ACRoutingPath> routingPaths)
+        private RoutingResult CreateRouteFromMultipleSourcesTargets(IEnumerable<ACRoutingPath> routingPaths)
         {
             var groups = routingPaths.GroupBy(x => new { start = x.Start.ParentACComponent, end = x.End.ParentACComponent });
             List<Route> routes = new List<Route>();

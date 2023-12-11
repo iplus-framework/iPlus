@@ -281,7 +281,9 @@ namespace gip.bso.iplus
 
                     if (Root.Environment.User.IsSuperuser)
                     {
-                        IEnumerable<ACClass> BSOs = Db.ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TACBSO).ToArray()
+                        IEnumerable<ACClass> BSOs = Db.ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TACBSO
+                                                                       || c.ACKindIndex == (short)Global.ACKinds.TACBSOGlobal)
+                                                              .ToArray()
                                                               .Where(bso => !_StartupItems.Any(sti => sti.ACIdentifier == bso.ACIdentifier) && !bso.IsAbstract &&
                                                                      bso.ACClass1_ParentACClass.ObjectFullType != null &&
                                                                      bso.ACClass1_ParentACClass.ObjectFullType.IsAssignableFrom(typeof(Businessobjects)));

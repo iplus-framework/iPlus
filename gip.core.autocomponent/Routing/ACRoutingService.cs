@@ -1,104 +1,19 @@
 using gip.core.datamodel;
+using Microsoft.Isam.Esent.Interop;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Objects;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static gip.core.autocomponent.PARole;
 
 namespace gip.core.autocomponent
 {
-    [ACSerializeableInfo]
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'RouteDirections'}de{'RouteDirections'}", Global.ACKinds.TACEnum)]
-    public enum RouteDirections : int
-    {
-        Backwards,
-        Forwards
-    }
-
-    public class SelectionRule
-    {
-        public Func<ACRoutingVertex, object[], bool> Selector { get; set; }
-        public Func<ACRoutingVertex, object[], bool> DeSelector { get; set; }
-    }
-
-    [ACSerializeableInfo]
-    [DataContract]
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'RoutingResult'}de{'RoutingResult'}", Global.ACKinds.TACSimpleClass)]
-    public class RoutingResult
-    {
-        public RoutingResult(IEnumerable<Route> routes, bool isDbResult, Msg msg, IEnumerable<ACRef<IACComponent>> components = null)
-        {
-            _Routes = routes;
-            _IsDbResult = isDbResult;
-            _Msg = msg;
-            _Components = components;
-        }
-
-        [IgnoreDataMember]
-        private IEnumerable<Route> _Routes;
-        [DataMember]
-        public IEnumerable<Route> Routes
-        {
-            get
-            {
-                return _Routes;
-            }
-            set
-            {
-                _Routes = value;
-            }
-        }
-
-        [IgnoreDataMember]
-        private IEnumerable<ACRef<IACComponent>> _Components;
-        [DataMember]
-        public IEnumerable<ACRef<IACComponent>> Components
-        {
-            get
-            {
-                return _Components;
-            }
-            set
-            {
-                _Components = value;
-            }
-        }
-
-        [IgnoreDataMember]
-        private bool _IsDbResult;
-        [DataMember]
-        public bool IsDbResult
-        {
-            get
-            {
-                return _IsDbResult;
-            }
-            set
-            {
-                _IsDbResult = value;
-            }
-        }
-
-        [IgnoreDataMember]
-        private Msg _Msg;
-        [DataMember]
-        public Msg Message
-        {
-            get
-            {
-                return _Msg;
-            }
-            set
-            {
-                _Msg = value;
-            }
-        }
-    }
-
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Routing Service'}de{'Routing Service'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, true)]
     public class ACRoutingService : PAJobScheduler
     {
@@ -112,6 +27,7 @@ namespace gip.core.autocomponent
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
             RestoreLastManipulationTime();
+            InitRouteUsage();
             return base.ACInit(startChildMode);
         }
 
@@ -196,6 +112,8 @@ namespace gip.core.autocomponent
 
         protected static Dictionary<string, SelectionRule> _RegisteredSelectionQueries = new Dictionary<string, SelectionRule>();
 
+        private ConcurrentDictionary<Guid, SafeList<RouteHashItem>> _UsedRoutesCache = new ConcurrentDictionary<Guid, SafeList<RouteHashItem>>();
+
         #endregion
 
         #region Precompiled Queries
@@ -238,7 +156,7 @@ namespace gip.core.autocomponent
         #region Properties
 
         private int _RecalcEdgeWeightAfterDays = 15;
-        [ACPropertyInfo(300, "", "en{'Recalculate edges weight after -X- days'}de{'Kantengewicht nach -X- Tagen neu berechnen'}")]
+        [ACPropertyInfo(300, "", "en{'Recalculate edges weight after -X- days'}de{'Kantengewicht nach -X- Tagen neu berechnen'}", IsPersistable = true)]
         public int RecalcEdgeWeightAfterDays
         {
             get
@@ -261,6 +179,20 @@ namespace gip.core.autocomponent
 
         [ACPropertyInfo(true, 302, "", "en{'Ignore inactive modules'}de{'Ignoriere inaktive Module'}")]
         public bool IgnoreInactiveModules
+        {
+            get;
+            set;
+        }
+
+        [ACPropertyInfo(true, 302, "", "en{'Select route depending usage'}de{'Wählen Sie die Route je nach Nutzung aus'}")]
+        public bool SelectRouteDependUsage
+        {
+            get;
+            set;
+        }
+
+        [ACPropertyInfo(true, 302, "", "en{'Max alternatives on route depending usage'}de{'Maximale Alternativen auf der Route je nach Nutzung'}")]
+        public int MaxAlternativesOnRouteDependUsage
         {
             get;
             set;
@@ -1155,6 +1087,13 @@ namespace gip.core.autocomponent
                     return new RoutingResult(null, false, msg);
             }
 
+            if (SelectRouteDependUsage)
+            {
+                maxRouteAlternatives = MaxAlternativesOnRouteDependUsage;
+                if (maxRouteAlternatives < 5)
+                    maxRouteAlternatives = 5;
+            }
+
             Tuple<ACRoutingVertex[], ACRoutingVertex[]> routeVertices = CreateRoutingVertices(startComponents, endComponents);
             RoutingResult rResult = new ACRoutingSession(this).FindRoute(routeVertices.Item1, routeVertices.Item2, selectionRuleID, selectionRuleParams, maxRouteAlternatives, 
                                                                          includeReserved, includeAllocated);
@@ -1163,6 +1102,8 @@ namespace gip.core.autocomponent
             {
                 Messages.LogMessageMsg(rResult.Message);
             }
+
+            
 
             return rResult;
         }
@@ -1317,52 +1258,6 @@ namespace gip.core.autocomponent
 
             using (Database db = new datamodel.Database())
             {
-                //var routes = Route.SplitRoutes(route);
-
-                //List<Tuple<Guid, Guid, List<Route>>> tempList = new List<Tuple<Guid, Guid, List<Route>>>();
-                
-                //foreach (Route rRoute in routes)
-                //{
-                //    var source = rRoute.GetRouteSource().SourceGuid;
-                //    var target = rRoute.GetRouteTarget().TargetGuid;
-
-                //    var tempItem = tempList.FirstOrDefault(c => c.Item1 == source && c.Item2 == target);
-                //    if (tempItem == null)
-                //    {
-                //        tempItem = new Tuple<Guid, Guid, List<Route>>(source, target, new List<Route>() { rRoute });
-                //        tempList.Add(tempItem);
-                //    }
-                //    else
-                //    {
-                //        tempItem.Item3.Add(rRoute);
-                //    }
-                //}
-
-                //foreach (var groupedRoute in tempList)
-                //{
-                //    var parallelItems = groupedRoute.Item3.SelectMany(c => c).GroupBy(x => x.SourceGuid).Where(x => x.Count() > 1).SelectMany(c => c);
-                //    if (parallelItems != null && parallelItems.Any())
-                //    {
-                //        foreach (var paralellItem in parallelItems)
-                //        {
-                //            using (ACMonitor.Lock(_LockObject))
-                //            {
-                //                PAEdgeInfo edgeInstance;
-                //                if (_EdgeCache.TryGetValue(paralellItem.RelationID, out edgeInstance))
-                //                {
-                //                    EntityKey sourceKey = new EntityKey();
-                //                    sourceKey.EntityKeyValues = new EntityKeyMember[] { new EntityKeyMember(nameof(ACClass.ACClassID), groupedRoute.Item1) };
-
-                //                    EntityKey targetKey = new EntityKey();
-                //                    targetKey.EntityKeyValues = new EntityKeyMember[] { new EntityKeyMember(nameof(ACClass.ACClassID), groupedRoute.Item2) };
-
-                //                    edgeInstance.Edge.AddParallelInRoute(new RouteItem() { SourceKey = sourceKey, TargetKey = targetKey });
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
-
                 foreach (RouteItem rItem in route)
                 {
                     var relation = db.ContextIPlus.ACClassPropertyRelation.FirstOrDefault(c => c.ACClassPropertyRelationID == rItem.RelationID);
@@ -1392,6 +1287,183 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInfo("", "", 308)]
+        public void OnRouteUsed(Route route)
+        {
+            if (route == null || !route.Any())
+                return;
+
+            Route clonedRoute = route.Clone() as Route;
+
+            ApplicationManager.ApplicationQueue.Add(() => OnRouteUsedInternal(clonedRoute));
+        }
+
+        private void OnRouteUsedInternal(Route route)
+        {
+            if (!Root.Initialized)
+                return;
+
+            try
+            {
+                IEnumerable<Route> routes = Route.SplitRoute(route).ToList();
+                IEnumerable<RouteItem> targetItems = route.GetRouteTargets().Distinct(new RouteItemSourceComparer());
+                IEnumerable<Guid> targets = targetItems.Select(c => c.SourceGuid);
+
+                using (Database db = new datamodel.Database())
+                {
+                    foreach (RouteItem target in targetItems)
+                    {
+                        var myRoutes = routes.Where(c => c.GetRouteTarget().SourceGuid == target.SourceGuid).ToList();
+
+                        SafeList<RouteHashItem> routeHash;
+                        if (!_UsedRoutesCache.TryGetValue(target.SourceGuid, out routeHash))
+                        {
+                            routeHash = new SafeList<RouteHashItem>();
+                            _UsedRoutesCache.TryAdd(target.SourceGuid, routeHash);
+                        }
+
+                        List<int> hashCodes = new List<int>();
+                        foreach (Route r in myRoutes)
+                            hashCodes.Add(r.GetRouteHash());
+
+                        hashCodes = hashCodes.OrderBy(c => c).ToList();
+
+                        RouteHashItem item = routeHash.FirstOrDefault(c => c.RouteHashCodes.SequenceEqual(hashCodes));
+                        ACClassRouteUsage acClassRouteUsage = null;
+                        if (item == null)
+                        {
+                            acClassRouteUsage = ACClassRouteUsage.NewACObject(db);
+                            acClassRouteUsage.ACClassID = target.SourceGuid;
+
+                            item = new RouteHashItem(hashCodes);
+                            routeHash.Add(item);
+                            item.ACClassRouteUsageID = acClassRouteUsage.ACClassRouteUsageID;
+
+                            foreach(int hashCode in hashCodes)
+                            {
+                                ACClassRouteUsagePos routeUsagePos = ACClassRouteUsagePos.NewACObject(db, acClassRouteUsage);
+                                routeUsagePos.HashCode = hashCode;
+                            }
+                        }
+
+                        if (acClassRouteUsage == null && item != null)
+                            acClassRouteUsage = db.ACClassRouteUsage.FirstOrDefault(c => c.ACClassRouteUsageID == item.ACClassRouteUsageID);
+
+                        foreach (RouteHashItem rhItem in routeHash)
+                        {
+                            if (rhItem.RouteHashCodes.SequenceEqual(hashCodes))
+                                continue;
+
+                            if (rhItem.UseFactor > 1)
+                            {
+                                rhItem.UseFactor--;
+
+                                ACClassRouteUsage tempRouteUsage = db.ACClassRouteUsage.FirstOrDefault(c => c.ACClassRouteUsageID == rhItem.ACClassRouteUsageID);
+                                if (tempRouteUsage != null)
+                                    tempRouteUsage.UseFactor = rhItem.UseFactor;
+                            }
+                        }
+
+                        if (item.UseFactor < 5)
+                            item.UseFactor++;
+                        item.LastManipulation = DateTime.Now;
+                        acClassRouteUsage.UseFactor = item.UseFactor;
+
+                        IEnumerable<PAEdge> targetSources = (target.TargetACPoint as PAPoint).ConnectionList.Where(c => c.TargetParent == target.TargetACComponent);
+
+                        foreach (var targetSource in targetSources)
+                        {
+                            if (targets.Contains(targetSource.Relation.SourceACClassID))
+                                continue;
+
+                            SafeList<RouteHashItem> targetSourceHashItems;
+                            if (_UsedRoutesCache.TryGetValue(targetSource.Relation.SourceACClassID, out targetSourceHashItems))
+                            {
+                                foreach (RouteHashItem hashItem in targetSourceHashItems)
+                                {
+                                    if (hashItem.UseFactor > 1)
+                                    {
+                                        hashItem.UseFactor--;
+
+                                        ACClassRouteUsage tempRouteUsage = db.ACClassRouteUsage.FirstOrDefault(c => c.ACClassRouteUsageID == hashItem.ACClassRouteUsageID);
+                                        if (tempRouteUsage != null)
+                                            tempRouteUsage.UseFactor = hashItem.UseFactor;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    db.ACSaveChanges();
+                }
+            }
+            catch (Exception e)
+            {
+                Messages.LogException(this.GetACUrl(), nameof(OnRouteUsedInternal), e);
+            }
+        }
+
+        public List<RouteHashItem> GetMostUsedRouteHash(List<Guid> lastItems)
+        {
+            try
+            {
+                SafeList<RouteHashItem> hashItems;
+                List<RouteHashItem> result = new List<RouteHashItem>();
+
+                foreach (Guid target in lastItems)
+                {
+                    if (_UsedRoutesCache.TryGetValue(target, out hashItems))
+                    {
+                        result.Add(hashItems.OrderByDescending(c => c.UseFactor).ThenByDescending(c => c.LastManipulation).FirstOrDefault().Clone() as RouteHashItem);
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Messages.LogException(this.GetACUrl(), nameof(GetMostUsedRouteHash), e);
+                return null;
+            }
+        }
+
+        [ACMethodInfo("","",9999, true)]
+        public void ClearUsedRouteCache(GuidList targets)
+        {
+            if (targets == null || !targets.Any())
+                return;
+
+            foreach (Guid target in targets)
+            {
+                SafeList<RouteHashItem> tempList;
+                if (_UsedRoutesCache.TryRemove(target, out tempList))
+                {
+                    tempList = null;
+                }
+            }
+
+            using(Database db = new datamodel.Database())
+            {
+                List<ACClassRouteUsage> acClassUsageList = db.ACClassRouteUsage.Include(c => c.ACClassRouteUsagePos_ACClassRouteUsage)
+                                                                               .Where(c => targets.Contains(c.ACClassID))
+                                                                               .ToList();
+
+                foreach(ACClassRouteUsage usage in acClassUsageList)
+                {
+                    var usagePosList = usage.ACClassRouteUsagePos_ACClassRouteUsage.ToList();
+
+                    foreach (ACClassRouteUsagePos usagePos in usagePosList)
+                        usagePos.DeleteACObject(db, false);
+
+                    usage.DeleteACObject(db, false);
+                }
+
+                Msg msg = db.ACSaveChanges();
+                if (msg != null)
+                    Messages.LogMessageMsg(msg);
+            }
+        }
+
+        [ACMethodInfo("", "", 309)]
         public void IncreasePriorityStepwise(Route route)
         {
             using (Database db = new datamodel.Database())
@@ -1419,7 +1491,7 @@ namespace gip.core.autocomponent
                 db.ACSaveChanges();
             }
         }
-
+        
         public static void ReserveRoute(Route route, bool reserv = true)
         {
             if (route == null)
@@ -1482,6 +1554,7 @@ namespace gip.core.autocomponent
         {
             Task.Run(() => RecalcEdgeWeight());
         }
+
         #endregion
 
         #endregion
@@ -1692,6 +1765,39 @@ namespace gip.core.autocomponent
                 };
             }
             return msg; ;
+        }
+
+        private void InitRouteUsage()
+        {
+            using (Database db = new datamodel.Database())
+            {
+                try
+                {
+
+                    List<ACClassRouteUsage> routeUsages = db.ACClassRouteUsage.Include(c => c.ACClassRouteUsagePos_ACClassRouteUsage).ToList();
+
+                    foreach (ACClassRouteUsage routeUsage in routeUsages)
+                    {
+                        SafeList<RouteHashItem> hashItems;
+                        if (!_UsedRoutesCache.TryGetValue(routeUsage.ACClassID, out hashItems))
+                        {
+                            hashItems = new SafeList<RouteHashItem>();
+                            _UsedRoutesCache.TryAdd(routeUsage.ACClassID, hashItems);
+                        }
+
+                        RouteHashItem hashItem = new RouteHashItem();
+                        hashItem.UseFactor = routeUsage.UseFactor;
+                        hashItem.RouteHashCodes = new SafeList<int>(routeUsage.ACClassRouteUsagePos_ACClassRouteUsage.Select(c => c.HashCode));
+                        hashItem.LastManipulation = routeUsage.UpdateDate;
+                        hashItem.ACClassRouteUsageID = routeUsage.ACClassRouteUsageID;
+                        hashItems.Add(hashItem);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Messages.LogException(this.GetACUrl(), nameof(InitRouteUsage), e);
+                }
+            }
         }
 
         #endregion
