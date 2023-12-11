@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Data;
+using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace gip.core.datamodel
 {
@@ -517,6 +519,19 @@ namespace gip.core.datamodel
                 _ACUrlTargetACComponent = this._ACUrlTargetACComponent,
                 _ACIdentifierSourcePoint = this._ACIdentifierSourcePoint,
                 _ACIdentifierTargetPoint = this._ACIdentifierTargetPoint};
+        }
+    }
+
+    public class RouteItemSourceComparer : IEqualityComparer<RouteItem>
+    {
+        public bool Equals(RouteItem x, RouteItem y)
+        {
+            return x.SourceGuid == y.SourceGuid;
+        }
+
+        public int GetHashCode(RouteItem obj)
+        {
+            return obj.SourceGuid.GetHashCode();
         }
     }
 }

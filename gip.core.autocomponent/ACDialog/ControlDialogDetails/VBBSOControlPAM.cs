@@ -801,7 +801,7 @@ namespace gip.core.autocomponent
                 return;
 
             var routes = routeSelector.RouteResult;
-            Route route = Route.MergeRoutesWithoutDuplicates(routes);
+            Route route = Route.MergeRoutes(routes);
             SelectedACMethodParam.Value = route;
         }
 
@@ -810,14 +810,14 @@ namespace gip.core.autocomponent
             if (vbControl == null && string.IsNullOrEmpty(vbControl.VBContent))
                 return base.OnGetControlModes(vbControl);
 
-            if (vbControl.VBContent == "SelectedInPoint")
+            if (vbControl.VBContent == nameof(SelectedInPoint))
             {
                 if (CurrentSourceOrTargetComponent != null && CurrentSourceOrTargetComponent.Value.ToString() == "Source")
                     return datamodel.Global.ControlModes.Enabled;
                 else
                     return datamodel.Global.ControlModes.Collapsed;
             }
-            else if (vbControl.VBContent == "SelectedOutPoint")
+            else if (vbControl.VBContent == nameof(SelectedOutPoint))
             {
                 if (CurrentSourceOrTargetComponent != null && CurrentSourceOrTargetComponent.Value.ToString() == "Target")
                     return datamodel.Global.ControlModes.Enabled;
@@ -858,7 +858,7 @@ namespace gip.core.autocomponent
                 if (routes == null || !routes.Any())
                     return;
 
-                Route route = Route.MergeRoutesWithoutDuplicates(routes);
+                Route route = Route.MergeRoutes(routes);
                 route.DetachEntitesFromDbContext();
                 SelectedACMethodParam.Value = route;
             }

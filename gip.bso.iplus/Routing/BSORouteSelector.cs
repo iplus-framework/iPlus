@@ -7,6 +7,7 @@ using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.manager;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace gip.bso.iplus
 {
@@ -240,6 +241,36 @@ namespace gip.bso.iplus
 
         #endregion
 
+        #region Properties => RouteUsage
+
+        public ACClassInfoWithItems _CurrentACClassUsageItem;
+
+        [ACPropertySelected(9999, "ACClassRouteUsage", "")]
+        public ACClassInfoWithItems CurrentACClassUsageItem
+        {
+            get => _CurrentACClassUsageItem;
+            set
+            {
+                _CurrentACClassUsageItem = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private List<ACClassInfoWithItems> _ACClassUsageItemList;
+
+        [ACPropertyList(9999, "ACClassRouteUsage")]
+        public List<ACClassInfoWithItems> ACClassUsageItemList
+        {
+            get => _ACClassUsageItemList;
+            set
+            {
+                _ACClassUsageItemList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Methods
@@ -441,6 +472,50 @@ namespace gip.bso.iplus
             //    var result = routeSelector.RouteResult.FirstOrDefault().GetFirstDifferentRouteItem(routeSelector.RouteResult.ToList()[0]);
             //}
         }
+
+        public override void ACAction(ACActionArgs actionArgs)
+        {
+            base.ACAction(actionArgs);
+
+            if (actionArgs == null || actionArgs.DropObject == null || string.IsNullOrEmpty(actionArgs.DropObject.VBContent))
+                return;
+
+            if (actionArgs.ElementAction == Global.ElementActionType.TabItemActivated)
+            {
+                if (actionArgs.DropObject.VBContent == "RouteUsage")
+                {
+                    RefreshRouteUsageCache();
+                }
+            }
+        }
+
+        #region Methods => RouteUsage
+
+        [ACMethodInfo("", "en{'Clear route usage cache'}de{'Routennutzungs-Cache löschen'}", 9999, true)]
+        public void ClearRouteUsageCache()
+        {
+            IEnumerable<Guid> targetIDs = ACClassUsageItemList.Where(c => c.IsChecked).Select(c => c.ValueT.ACClassID);
+            if (targetIDs.Any())
+            {
+                if (RoutingService == null)
+                {
+                    Messages.Error(this, "Routing service is unavailable!", true);
+                    return;
+                }
+
+                RoutingService.ExecuteMethod(nameof(ACRoutingService.ClearUsedRouteCache), new GuidList(targetIDs));
+                ThreadPool.QueueUserWorkItem((object state) => { Thread.Sleep(5000); RefreshRouteUsageCache(); });
+            }
+        }
+
+        [ACMethodInfo("", "en{'Refresh route usage cache'}de{'Routennutzungs-Cache aktualisieren'}", 9999)]
+        public void RefreshRouteUsageCache()
+        {
+            List<Guid> acClassIDList = Database.ContextIPlus.ACClassRouteUsage.Select(c => c.ACClassID).Distinct().ToList();
+            ACClassUsageItemList = Database.ContextIPlus.ACClass.Where(c => acClassIDList.Contains(c.ACClassID)).ToList().Select(x => new ACClassInfoWithItems(x)).ToList();
+        }
+
+        #endregion
 
         #region Methods => Source,Target
 

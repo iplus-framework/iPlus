@@ -282,7 +282,7 @@ namespace gip.bso.iplus
 
         public void EditRoutes(Route route, bool isReadOnly, bool includeReserved, bool includeAllocated)
         {
-            IEnumerable<Route> splitedRoutes = Route.SplitRoutes(route);
+            IEnumerable<Route> splitedRoutes = Route.SplitRoute(route);
 
             IEnumerable<string> sourceComponentsList = splitedRoutes.Select(x => x.FirstOrDefault().Source.ACUrlComponent).Distinct();
             IEnumerable<string> targetComponentsList = splitedRoutes.Select(x => x.LastOrDefault().Target.ACUrlComponent).Distinct();
@@ -617,18 +617,95 @@ namespace gip.bso.iplus
         {
             foreach (var item in AvailableRoutes)
             {
-                ACRoutingPath path = null;
-                if (_CurrentRouteMode != null && ((short)_CurrentRouteMode.Value) == 1)
-                    path = item.OrderBy(c => c.Count).FirstOrDefault();
-                else
-                    path = item.OrderBy(c => c.RouteWeight).FirstOrDefault();
+                List<ACRoutingPath> paths = new List<ACRoutingPath>();
+                bool shortestRoute = (_CurrentRouteMode != null && ((short)_CurrentRouteMode.Value) == 1);
+           
+                List<Guid> targetIDs = null;
+                List<RouteHashItem> routeHashItems = null;
 
-                SetActiveRoutes(ActiveRouteComponents, ActiveRoutePaths, path);
-                SelectedActiveRoutingPaths.Add(path);
+                if (!shortestRoute)
+                {
+                    targetIDs = item.Select(c => c.LastOrDefault().Relation.SourceACClassID).Distinct().ToList();
+                    routeHashItems = LoadRouteUsage(targetIDs);
+                }    
+
+                List<int> tempHashCodeItems = new List<int>();
+                if (routeHashItems != null && routeHashItems.Any())
+                {
+                    List<int> hashCodes = new List<int>();
+
+                    foreach (var itemPath in item)
+                    {
+                        PAEdge source = itemPath.FirstOrDefault();
+                        PAEdge target = itemPath.LastOrDefault();
+
+                        itemPath.Remove(source);
+                        itemPath.Remove(target);
+
+                        List<Guid> temp = null;
+                        if (itemPath.Any())
+                        {
+                            temp = itemPath.Select(c => c.Relation.SourceACClassID).ToList();
+                            temp.Add(itemPath.LastOrDefault().Relation.TargetACClassID);
+                        }
+                        else
+                            temp = new List<Guid>() { target.Relation.SourceACClassID };
+
+                        int hash = string.Join("", temp).GetHashCode();
+
+                        itemPath.Insert(0, source);
+                        itemPath.Add(target);
+
+                        var groupedByKey = routeHashItems.GroupBy(c => c.UseFactor).OrderByDescending(c => c.Key).FirstOrDefault();
+
+                        if (groupedByKey.Any(c => c.RouteHashCodes.Any(x => x == hash)))
+                            paths.Add(itemPath);
+                    }
+
+                    if (paths == null || !paths.Any())
+                        shortestRoute = true;
+                }
+                else
+                    shortestRoute = true;
+
+                if (shortestRoute)
+                    paths = item.OrderBy(c => c.RouteWeight).Take(1).ToList();
+
+                foreach (var path in paths)
+                {
+                    SetActiveRoutes(ActiveRouteComponents, ActiveRoutePaths, path);
+                    SelectedActiveRoutingPaths.Add(path);
+                }
 
                 if (_IsInEdgeWeightAdjustmentMode)
-                    EdgesList = path.ToList();
+                    EdgesList = paths.SelectMany(c => c).ToList();
+                
             }
+        }
+
+        private List<RouteHashItem> LoadRouteUsage(IEnumerable<Guid> targets)
+        {
+            List<RouteHashItem> result = new List<RouteHashItem>();
+
+            using (Database db = new core.datamodel.Database())
+            {
+                List<ACClassRouteUsage> routeUsageList = db.ACClassRouteUsage.Include(x => x.ACClassRouteUsagePos_ACClassRouteUsage)
+                                                                             .Where(c => targets.Contains(c.ACClassID))
+                                                                             .ToList();
+
+                var groupedUsageList = routeUsageList.GroupBy(c => c.ACClassID);
+
+                foreach (var group in groupedUsageList)
+                {
+                    ACClassRouteUsage routeUsage = group.OrderByDescending(c => c.UseFactor).ThenByDescending(c => c.UpdateDate).FirstOrDefault();
+                    RouteHashItem hashItem = new RouteHashItem();
+                    hashItem.RouteHashCodes = new SafeList<int>(routeUsage.ACClassRouteUsagePos_ACClassRouteUsage.Select(c => c.HashCode));
+                    hashItem.UseFactor = routeUsage.UseFactor;
+                    result.Add(hashItem);
+                }
+            }
+
+            return result;
         }
 
         [ACMethodInfo("", "", 401)]
