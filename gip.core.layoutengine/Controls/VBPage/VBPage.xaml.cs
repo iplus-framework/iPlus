@@ -23,10 +23,11 @@ namespace gip.core.layoutengine
             Loaded += OnLoaded;
         }
 
-        public VBPage(VBFrameControl frameControl, UIElement vbDesignContent, string title = "")
+        public VBPage(VBFrameControl frameControl, UIElement vbDesignContent, bool isBusinessObject = false, string title = "")
         {
             FrameControl = frameControl;
             this.VBDesignContent = vbDesignContent;
+            this.isBusinessObject = isBusinessObject;
             //this.Content = vbDesignContent;
             if (title != "")
                 this.Title = title;
@@ -119,10 +120,7 @@ namespace gip.core.layoutengine
             }
         }
 
-
-        public IACObject ParentACObject => throw new NotImplementedException();
-
-        public IACType ACType => throw new NotImplementedException();
+        public bool isBusinessObject;
 
         public IEnumerable<IACObject> ACContentList => throw new NotImplementedException();
 
@@ -165,6 +163,12 @@ namespace gip.core.layoutengine
             }
         }
 
+        #region IACObject
+
+        public IACType ACType => throw new NotImplementedException();
+
+        public IACObject ParentACObject => throw new NotImplementedException();
+
         public object ACUrlCommand(string acUrl, params object[] acParameter)
         {
             throw new NotImplementedException();
@@ -183,6 +187,18 @@ namespace gip.core.layoutengine
         public bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode)
         {
             throw new NotImplementedException();
+        }
+
+        #endregion
+
+        protected override void OnContextMenuClosing(ContextMenuEventArgs e)
+        {
+            base.OnContextMenuClosing(e);
+        }
+
+        protected override void OnToolTipClosing(ToolTipEventArgs e)
+        {
+            base.OnToolTipClosing(e); 
         }
     }
 }

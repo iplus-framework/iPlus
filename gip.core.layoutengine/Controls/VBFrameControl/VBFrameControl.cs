@@ -186,6 +186,19 @@ namespace gip.core.layoutengine
 
         #endregion
 
+        #region Design
+
+        [ACMethodInfo("", "en{'Show Dialog'}de{'Dialog'}", 9999)]
+        public void ShowDialog(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
+            Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
+        {
+            VBDesign vbDesign = new VBDesign();
+            vbDesign.DataContext = forObject;
+            vbDesign.VBContent = "*" + acClassDesignName;
+            ShowVBDesign(vbDesign, acCaption);
+        }
+
+        [ACMethodInfo("", "en{'Show Window'}de{'Window'}", 9999)]
         public void ShowWindow(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState,
             Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
         {
@@ -217,11 +230,11 @@ namespace gip.core.layoutengine
                 vbDesign.AutoStartParameter = parameterList;
 
                 VBDesignList.Add(vbDesign);
-                ShowVBDesign(vbDesign, title);
+                ShowVBDesign(vbDesign, title, true);
             }
         }
 
-        private void ShowVBDesign(UIElement uiElement, string acCaption = "")
+        private void ShowVBDesign(UIElement uiElement, string acCaption = "", bool isBusinessObject = false)
         {
             if (uiElement == null)
                 return;
@@ -261,9 +274,7 @@ namespace gip.core.layoutengine
                 _MainContent = ((Frame)frameObj);
             }
 
-            //_MainContent.Navigate(new Uri("TestPage.xaml", UriKind.Relative));
-
-            VBPage page = new VBPage(this, uiElement, acCaption);
+            VBPage page = new VBPage(this, uiElement, isBusinessObject, acCaption);
             _MainContent.Navigate(page);
 
             //_MainContent.Navigated += (sender, e) =>
@@ -275,6 +286,10 @@ namespace gip.core.layoutengine
             //};
         }
 
+        #endregion
+
+        #region Navigation
+
         void VBFrameControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (e.NewValue == null && e.OldValue != null)
@@ -284,6 +299,29 @@ namespace gip.core.layoutengine
                     //DeInitVBControl(bso);
             }
         }
+
+        public void ClearContent()
+        {
+            while (this.MainContent.NavigationService.RemoveBackEntry() != null) ;
+            this.CloseAndRemoveVBDesign(this.MainContent.Content as VBPage);
+            this.MainContent.Content = null;
+        }
+
+        public void CloseAndRemoveVBDesign(VBPage page)
+        {
+            UIElement uiElement = page.VBDesignContent;
+            if (uiElement == null)
+                return;
+            if (!(uiElement is VBDesign))
+                return;
+            VBDesign uiElementAsDataDesign = (uiElement as VBDesign);
+            if (!this.NavigationService.CanGoBack && page.isBusinessObject)
+                uiElementAsDataDesign.StopAutoStartComponent();
+            VBDesignList.Remove(uiElement);
+            this.Focus();
+        }
+
+        #endregion
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
