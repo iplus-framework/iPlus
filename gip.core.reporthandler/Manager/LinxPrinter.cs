@@ -1,13 +1,15 @@
-﻿using DocumentFormat.OpenXml.Drawing.Diagrams;
-using gip.core.autocomponent;
+﻿using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.reporthandler.Flowdoc;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Windows.Documents;
 
 namespace gip.core.reporthandler
@@ -27,18 +29,27 @@ namespace gip.core.reporthandler
             if (!base.ACInit(startChildMode))
                 return false;
             _ = IPAddress;
-
+            if (ApplicationManager != null)
+                ApplicationManager.ProjectWorkCycleR200ms += objectManager_ProjectTimerCycle200ms;
             return true;
         }
 
+
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
-            return base.ACDeInit(deleteACClassTask);
+            bool acDeinit = base.ACDeInit(deleteACClassTask);
+
+            if (ApplicationManager != null)
+                ApplicationManager.ProjectWorkCycleR200ms -= objectManager_ProjectTimerCycle200ms;
+            return acDeinit;
         }
 
         #endregion
 
         #region Settings
+
+        [ACPropertyInfo(true, 200, DefaultValue = false)]
+        public bool UseRemoteReport { get; set; }
 
         #endregion
 
@@ -190,6 +201,8 @@ namespace gip.core.reporthandler
             if (isCheckSumValid)
             {
                 response = LinxMapping<LinxPrinterStatusResponse>.Map(responseData);
+
+
             }
             else
             {
@@ -199,7 +212,6 @@ namespace gip.core.reporthandler
                 OnNewAlarmOccurred(CommAlarm, $"Response checksum is not valid!", true);
                 ClosePort();
             }
-
 
             return (success, response);
         }
@@ -429,7 +441,7 @@ namespace gip.core.reporthandler
                                     success = ValidateChecksum(result.ToArray());
                                     if (!success)
                                     {
-
+                                        // TODO: @aagincic: organize logging
                                     }
                                 }
                             }
@@ -461,6 +473,23 @@ namespace gip.core.reporthandler
         }
 
         #endregion
+
+        #endregion
+
+        #region Print Job
+
+        private ConcurrentDictionary<Guid, LinxPrintJob> _LinxPrintJobs;
+        public ConcurrentDictionary<Guid, LinxPrintJob> LinxPrintJobs
+        {
+            get
+            {
+                if (_LinxPrintJobs == null)
+                {
+                    _LinxPrintJobs = new ConcurrentDictionary<Guid, LinxPrintJob>();
+                }
+                return _LinxPrintJobs;
+            }
+        }
 
         #endregion
 
@@ -528,107 +557,247 @@ namespace gip.core.reporthandler
 
         #endregion
 
-
         #region ACPrintServerBase
 
-        public override void OnRenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position)
+        public override PrintJob GetPrintJob(FlowDocument flowDocument)
+        {
+            LinxPrintJob linxPrintJob = new LinxPrintJob();
+            Encoding encoder = Encoding.ASCII;
+            linxPrintJob.FlowDocument = flowDocument;
+            linxPrintJob.Encoding = encoder;
+            linxPrintJob.ColumnMultiplier = 1;
+            linxPrintJob.ColumnDivisor = 1;
+
+            if(UseRemoteReport)
+            {
+                // TODO: specify report name
+                string reportName = flowDocument.Name;
+
+                // specify this report will be used and etc
+            }
+
+            OnRenderFlowDocument(linxPrintJob, linxPrintJob.FlowDocument);
+            return linxPrintJob;
+        }
+
+        public override bool SendDataToPrinter(PrintJob printJob)
+        {
+            bool success = false;
+
+            if (printJob != null)
+            {
+                LinxPrintJob linxPrintJob = (LinxPrintJob)printJob;
+
+                if (linxPrintJob != null)
+                {
+                    using (ACMonitor.Lock(_61000_LockPort))
+                    {
+                        Messages.LogMessage(eMsgLevel.Info, GetACUrl(), nameof(SendDataToPrinter), $"Add LinxPrintJob:{linxPrintJob.PrintJobID} to queue...");
+                        success = LinxPrintJobs.TryAdd(linxPrintJob.PrintJobID, linxPrintJob);
+                    }
+                }
+            }
+
+            return success;
+        }
+
+        private void objectManager_ProjectTimerCycle200ms(object sender, EventArgs e)
+        {
+            using (ACMonitor.Lock(_61000_LockPort))
+            {
+                LinxPrintJob linxPrintJob = LinxPrintJobs.Select(c => c.Value).Where(c => c.State == PrintJobStateEnum.New).OrderBy(c => c.InsertDate).FirstOrDefault();
+                if (linxPrintJob != null)
+                {
+                    DelegateQueue.Add(() =>
+                    {
+                        ProcessJob(linxPrintJob);
+                    });
+                }
+            }
+        }
+
+        public bool ProcessJob(LinxPrintJob linxPrintJob)
+        {
+            bool success = false;
+            try
+            {
+                if (linxPrintJob.State == PrintJobStateEnum.New)
+                {
+                    using (ACMonitor.Lock(_61000_LockPort))
+                    {
+                        linxPrintJob.State = PrintJobStateEnum.InProcess;
+
+                    }
+
+                    // TODO: implement communication with printer
+
+                    using (ACMonitor.Lock(_61000_LockPort))
+                    {
+                        linxPrintJob.State = PrintJobStateEnum.Done;
+                        LinxPrintJob tempJob = null;
+                        success = LinxPrintJobs.TryRemove(linxPrintJob.PrintJobID, out tempJob);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return success;
+        }
+
+
+        public override void OnRenderBlockHeader(PrintJob printJob, Block block, BlockDocumentPosition position)
         {
         }
 
-        public override void OnRenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position)
+        public override void OnRenderBlockFooter(PrintJob printJob, Block block, BlockDocumentPosition position)
         {
         }
 
-        public override void OnRenderSectionReportHeaderHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
+        public override void OnRenderSectionReportHeaderHeader(PrintJob printJob, SectionReportHeader sectionReportHeader)
         {
         }
 
-        public override void OnRenderSectionReportHeaderFooter(PrintContext printContext, SectionReportHeader sectionReportHeader)
+        public override void OnRenderSectionReportHeaderFooter(PrintJob printJob, SectionReportHeader sectionReportHeader)
         {
         }
 
-        public override void OnRenderSectionReportFooterHeader(PrintContext printContext, SectionReportFooter sectionReportFooter)
+        public override void OnRenderSectionReportFooterHeader(PrintJob printJob, SectionReportFooter sectionReportFooter)
         {
         }
 
-        public override void OnRenderSectionReportFooterFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
+        public override void OnRenderSectionReportFooterFooter(PrintJob printJob, SectionReportFooter sectionReportFooter)
         {
         }
 
-        public override void OnRenderSectionDataGroupHeader(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        public override void OnRenderSectionDataGroupHeader(PrintJob printJob, SectionDataGroup sectionDataGroup)
         {
         }
 
-        public override void OnRenderSectionDataGroupFooter(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        public override void OnRenderSectionDataGroupFooter(PrintJob printJob, SectionDataGroup sectionDataGroup)
         {
         }
 
-        public override void OnRenderSectionTableHeader(PrintContext printContext, Table table)
+        public override void OnRenderSectionTableHeader(PrintJob printJob, Table table)
         {
         }
 
-        public override void OnRenderSectionTableFooter(PrintContext printContext, Table table)
+        public override void OnRenderSectionTableFooter(PrintJob printJob, Table table)
         {
         }
 
-        public override void OnRenderTableColumn(PrintContext printContext, TableColumn tableColumn)
+        public override void OnRenderTableColumn(PrintJob printJob, TableColumn tableColumn)
         {
         }
 
-        public override void OnRenderTableRowGroupHeader(PrintContext printContext, TableRowGroup tableRowGroup)
+        public override void OnRenderTableRowGroupHeader(PrintJob printJob, TableRowGroup tableRowGroup)
         {
         }
 
-        public override void OnRenderTableRowGroupFooter(PrintContext printContext, TableRowGroup tableRowGroup)
+        public override void OnRenderTableRowGroupFooter(PrintJob printJob, TableRowGroup tableRowGroup)
         {
         }
 
-        public override void OnRenderTableRowHeader(PrintContext printContext, TableRow tableRow)
+        public override void OnRenderTableRowHeader(PrintJob printJob, TableRow tableRow)
         {
         }
 
-        public override void OnRenderTableRowFooter(PrintContext printContext, TableRow tableRow)
+        public override void OnRenderTableRowFooter(PrintJob printJob, TableRow tableRow)
         {
         }
 
-        public override void OnRenderParagraphHeader(PrintContext printContext, Paragraph paragraph)
+        public override void OnRenderParagraphHeader(PrintJob printJob, Paragraph paragraph)
         {
         }
 
-        public override void OnRenderParagraphFooter(PrintContext printContext, Paragraph paragraph)
+        public override void OnRenderParagraphFooter(PrintJob printJob, Paragraph paragraph)
+        {
+            
+        }
+
+        public override void OnRenderInlineContextValue(PrintJob printJob, InlineContextValue inlineContextValue)
+        {
+            if(UseRemoteReport)
+            {
+
+            }
+            else
+            {
+
+            }
+        }
+
+        public override void OnRenderInlineDocumentValue(PrintJob printJob, InlineDocumentValue inlineDocumentValue)
+        {
+            LinxPrintJob linxPrintJob = (LinxPrintJob)printJob;
+            if (UseRemoteReport)
+            {
+                SetRemoteValue(linxPrintJob, inlineDocumentValue.Name, inlineDocumentValue.Text);
+            }
+            else
+            {
+
+            }
+        }
+
+        public override void OnRenderInlineACMethodValue(PrintJob printJob, InlineACMethodValue inlineACMethodValue)
+        {
+            LinxPrintJob linxPrintJob = (LinxPrintJob)printJob;
+            if (UseRemoteReport)
+            {
+                SetRemoteValue(linxPrintJob, inlineACMethodValue.Name, inlineACMethodValue.Text);
+            }
+            else
+            {
+
+            }
+        }
+
+        public override void OnRenderInlineTableCellValue(PrintJob printJob, InlineTableCellValue inlineTableCellValue)
+        {
+            LinxPrintJob linxPrintJob = (LinxPrintJob)printJob;
+            if (UseRemoteReport)
+            {
+                SetRemoteValue(linxPrintJob, inlineTableCellValue.Name, inlineTableCellValue.Text);
+            }
+            else
+            {
+
+            }
+        }
+
+        public override void OnRenderInlineBarcode(PrintJob printJob, InlineBarcode inlineBarcode)
         {
         }
 
-        public override void OnRenderInlineContextValue(PrintContext printContext, InlineContextValue inlineContextValue)
+        public override void OnRenderInlineBoolValue(PrintJob printJob, InlineBoolValue inlineBoolValue)
+        {
+            LinxPrintJob linxPrintJob = (LinxPrintJob)printJob;
+            if (UseRemoteReport)
+            {
+                SetRemoteValue(linxPrintJob, inlineBoolValue.Name, inlineBoolValue.Value.ToString());
+            }
+            else
+            {
+
+            }
+        }
+
+        
+
+        public override void OnRenderRun(PrintJob printJob, Run run)
         {
         }
 
-        public override void OnRenderInlineDocumentValue(PrintContext printContext, InlineDocumentValue inlineDocumentValue)
+        public override void OnRenderLineBreak(PrintJob printJob, LineBreak lineBreak)
         {
         }
 
-        public override void OnRenderInlineACMethodValue(PrintContext printContext, InlineACMethodValue inlineACMethodValue)
+        private void SetRemoteValue(LinxPrintJob linxPrintJob, string name, string text)
         {
-        }
-
-        public override void OnRenderInlineTableCellValue(PrintContext printContext, InlineTableCellValue inlineTableCellValue)
-        {
-        }
-
-        public override void OnRenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode)
-        {
-        }
-
-        public override void OnRenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue)
-        {
-        }
-
-        public override void OnRenderRun(PrintContext printContext, Run run)
-        {
-        }
-
-        public override void OnRenderLineBreak(PrintContext printContext, LineBreak lineBreak)
-        {
+            // TODO: there only send value for report field
         }
 
         #endregion

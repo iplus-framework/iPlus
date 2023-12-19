@@ -150,6 +150,7 @@
     <Compile Include="Linx\LinxCommandStatusCodeEnum.cs" />
     <Compile Include="Linx\LinxExtendedPrintErrorEnum.cs" />
     <Compile Include="Linx\LinxMapping.cs" />
+    <Compile Include="Linx\LinxPrintJob.cs" />
     <Compile Include="Linx\LinxPrinterCommandCodeEnum.cs" />
     <Compile Include="Linx\LinxASCIControlCharacterEnum.cs" />
     <Compile Include="Linx\LinxHelper.cs" />
@@ -157,14 +158,16 @@
     <Compile Include="Linx\LinxPrinterFaultCodeEnum.cs" />
     <Compile Include="Linx\LinxPrinterStatusResponse.cs" />
     <Compile Include="Linx\LinxPrintErrorEnum.cs" />
+    <Compile Include="Linx\LinxPrintModeEnum.cs" />
     <Compile Include="Linx\LinxPrintStateEnum.cs" />
     <Compile Include="Manager\BlockDocumentPosition.cs" />
     <Compile Include="Manager\ESCPosPrinter.cs" />
     <Compile Include="Manager\LinxPrinter.cs" />
     <Compile Include="Manager\PAPrintInfo.cs" />
     <Compile Include="Print\ESCPosExt.cs" />
-    <Compile Include="Print\PrintContext.cs" />
     <Compile Include="Print\PrintFormat.cs" />
+    <Compile Include="Print\PrintJob.cs" />
+    <Compile Include="Print\PrintJobStateEnum.cs" />
     <Compile Include="Print\QRCodeSizeExt.cs" />
     <Compile Include="Workflow\PWNodePrint.cs" />
     <None Include="app.config" />

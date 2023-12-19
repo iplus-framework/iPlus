@@ -289,7 +289,7 @@
 					Stroke="{StaticResource CheckBoxPressNormalBgAero}"
 					Fill="{StaticResource CheckBoxPressNormalBgAero}"
                        RadiusY="3" RadiusX="3"/>
-            <Border x:Name="BorderFocus" Margin="3,3,3,3" BorderThickness="1" CornerRadius="4">
+            <Border x:Name="BorderFocus" Margin="3,3,3,3" BorderThickness="0" CornerRadius="4">
                 <ContentPresenter x:Name="ContentPresenter"
                             RecognizesAccessKey="True"/>
                 <!--HorizontalAlignment="Center"
@@ -327,7 +327,7 @@
             <Trigger Property="IsChecked" Value="true">
                 <Setter TargetName="BdButtonFront" Property="Stroke" Value="{StaticResource CheckBoxPressPressedBgAero}" />
                 <Setter TargetName="BdButtonFront" Property="Fill" Value="{StaticResource CheckBoxPressPressedBgAero}" />
-                <Setter TargetName="BdButtonFront" Property="Margin" Value="1,1,-1,-1"/>
+                <Setter TargetName="BdButtonFront" Property="Margin" Value="2,2,-1,-1"/>
                 <Setter TargetName="BorderFocus" Property="Margin" Value="4,4,2,2"/>
                 <Setter Property="ContentStroke" Value="{StaticResource CheckBoxPressPressedContentStrokeAero}"/>
                 <Setter Property="ContentFill" Value="{StaticResource CheckBoxPressPressedContentFillAero}"/>

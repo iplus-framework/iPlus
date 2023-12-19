@@ -84,6 +84,49 @@ namespace gip.core.layoutengine
 
         #region Mobile
 
+        public void SwitchActiveMenuItems()
+        {
+            bool activeMenuExpanded = false;
+
+            foreach (VBMenuItemMobile menuItem in this.Items)
+            {
+                if (menuItem.IsExpanded)
+                {
+                    menuItem.SwitchActiveMenu();
+                    menuItem.IsExpanded = false;
+                    activeMenuExpanded = true;
+                }
+            }
+
+            if (!activeMenuExpanded)
+            {
+                foreach (VBMenuItemMobile menuItem in this.Items)
+                {
+                    foreach (var submenuItem in menuItem.subMenu.Items)
+                    {
+                        if (submenuItem is VBMenuItemMobile submenuVBItem && submenuVBItem.subMenuExpanded)
+                        {
+                            submenuVBItem.SwitchItems();
+                            submenuVBItem.IsExpanded = false;
+                            submenuVBItem.subMenuExpanded = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void SwitchMainMenuItems()
+        {
+            if (Parent is VBDockPanel dockPanel)
+            {
+                foreach (var uiElement in dockPanel.Children)
+                {
+                    if (uiElement is VBMenu menu && menu.Name == "MainMenu")
+                        menu.SwitchActiveMenuItems();
+                }
+            }
+        }
+
         private bool isMenuOpen = false;
 
         public void ToggleMenu()

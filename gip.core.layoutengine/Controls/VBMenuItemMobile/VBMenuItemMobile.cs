@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace gip.core.layoutengine
@@ -113,7 +114,7 @@ namespace gip.core.layoutengine
         private static void OnIsExpandedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var menuItem = d as VBMenuItemMobile;
-            if (menuItem != null)
+            if (menuItem != null && menuItem.IsExpanded)
             {
                 menuItem.ShowSubMenu(menuItem);
             }
@@ -153,18 +154,20 @@ namespace gip.core.layoutengine
 
         public async void ShowSubMenu(VBMenuItemMobile menuItem)
         {
-            if (menuItem != null && this.Parent is VBMenu)
+            if (this.Parent is VBMenu parentMenu && parentMenu.Name == "Submenu")
+            {
+                parentMenu.SwitchMainMenuItems();
+                await Task.Delay(200);
+                MoveItems(this.subMenu.Items, mainSubMenu.Items);
+                this.subMenuExpanded = true;
+                subMenu.ToggleMenu();
+            }
+            else if (menuItem != null && this.Parent is VBMenu)
             {
                 (this.Parent as VBMenu).ToggleMenu();
                 await Task.Delay(300);
-                var subMenuItemList = new List<object>(this.subMenu.Items.Cast<object>());
-                foreach (var subMenuItem in subMenuItemList)
-                {
-                    this.subMenu.Items.Remove(subMenuItem);
-                    mainSubMenu.Items.Add(subMenuItem);
-                }
+                MoveItems(this.subMenu.Items, mainSubMenu.Items);
                 mainSubMenu.ToggleMenu();
-                this.subMenuExpanded = true;
             }
         }
 
@@ -174,14 +177,24 @@ namespace gip.core.layoutengine
             {
                 this.subMenu.Items.Clear();
             }
-            var mainSubMenuItemList = new List<object>(this.mainSubMenu.Items.Cast<object>());
-            if (mainSubMenu.Items.Count > 0)
+            MoveItems(mainSubMenu.Items, this.subMenu.Items);
+        }
+
+        public void SwitchItems()
+        {
+            VBMenu tempMenu = new VBMenu();
+            MoveItems(mainSubMenu.Items, tempMenu.Items);
+            MoveItems(this.subMenu.Items, mainSubMenu.Items);
+            MoveItems(tempMenu.Items, this.subMenu.Items);
+        }
+
+        private static void MoveItems(ItemCollection source, ItemCollection destination)
+        {
+            var items = new List<object>(source.Cast<object>());
+            foreach (var item in items)
             {
-                foreach (var oldSubMenuItem in mainSubMenuItemList)
-                {
-                    mainSubMenu.Items.Remove(oldSubMenuItem);
-                    this.subMenu.Items.Add(oldSubMenuItem);
-                }
+                source.Remove(item);
+                destination.Add(item);
             }
         }
 

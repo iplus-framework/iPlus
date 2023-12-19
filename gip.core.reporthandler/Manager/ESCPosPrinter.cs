@@ -107,8 +107,13 @@ namespace gip.core.reporthandler
         /// </summary>
         /// <param name="reportData"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public override bool SendDataToPrinter(byte[] bytes)
+        public override bool SendDataToPrinter(PrintJob printJob)
         {
+            if (printJob == null || printJob.Main == null)
+            {
+                return false;
+            }
+            byte[] bytes = printJob.Main;
             for (int tries = 0; tries < PrintTries; tries++)
             {
                 try
@@ -142,11 +147,11 @@ namespace gip.core.reporthandler
 
         #region Methods -> Render -> FlowDoc
 
-        public override void OnRenderFlowDocument(PrintContext printContext, FlowDocument flowDoc)
+        public override void OnRenderFlowDocument(PrintJob printJob, FlowDocument flowDoc)
         {
-            printContext.Main.Add(Commands.InitializePrinter);
-            printContext.Main = printContext.Main.Add(GetESCPosCodePage(printContext.Encoding.CodePage));
-            base.OnRenderFlowDocument(printContext, flowDoc);
+            printJob.Main.Add(Commands.InitializePrinter);
+            printJob.Main = printJob.Main.Add(GetESCPosCodePage(printJob.Encoding.CodePage));
+            base.OnRenderFlowDocument(printJob, flowDoc);
         }
 
        
@@ -156,47 +161,47 @@ namespace gip.core.reporthandler
         #region Methods -> Render -> Block
 
 
-        public override void OnRenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position)
+        public override void OnRenderBlockHeader(PrintJob printJob, Block block, BlockDocumentPosition position)
         {
 
         }
 
-        public override void OnRenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position)
+        public override void OnRenderBlockFooter(PrintJob printJob, Block block, BlockDocumentPosition position)
         {
 
         }
 
 
-        public override void OnRenderSectionReportHeaderHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
+        public override void OnRenderSectionReportHeaderHeader(PrintJob printJob, SectionReportHeader sectionReportHeader)
         {
-            SetPrintFormat(printContext, sectionReportHeader, sectionReportHeader.TextAlignment);
+            SetPrintFormat(printJob, sectionReportHeader, sectionReportHeader.TextAlignment);
         }
 
-        public override void OnRenderSectionReportHeaderFooter(PrintContext printContext, SectionReportHeader sectionReportHeader)
+        public override void OnRenderSectionReportHeaderFooter(PrintJob printJob, SectionReportHeader sectionReportHeader)
         {
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
-        }
-
-
-        public override void OnRenderSectionReportFooterHeader(PrintContext printContext, SectionReportFooter sectionReportFooter)
-        {
-            SetPrintFormat(printContext, sectionReportFooter, sectionReportFooter.TextAlignment);
-        }
-
-        public override void OnRenderSectionReportFooterFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
-        {
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
         }
 
 
-        public override void OnRenderSectionDataGroupHeader(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        public override void OnRenderSectionReportFooterHeader(PrintJob printJob, SectionReportFooter sectionReportFooter)
         {
-            SetPrintFormat(printContext, sectionDataGroup, sectionDataGroup.TextAlignment);
+            SetPrintFormat(printJob, sectionReportFooter, sectionReportFooter.TextAlignment);
         }
 
-        public override void OnRenderSectionDataGroupFooter(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        public override void OnRenderSectionReportFooterFooter(PrintJob printJob, SectionReportFooter sectionReportFooter)
         {
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+        }
+
+
+        public override void OnRenderSectionDataGroupHeader(PrintJob printJob, SectionDataGroup sectionDataGroup)
+        {
+            SetPrintFormat(printJob, sectionDataGroup, sectionDataGroup.TextAlignment);
+        }
+
+        public override void OnRenderSectionDataGroupFooter(PrintJob printJob, SectionDataGroup sectionDataGroup)
+        {
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
         }
 
 
@@ -205,95 +210,95 @@ namespace gip.core.reporthandler
         #region Methods -> Render -> Table
 
 
-        public override void OnRenderSectionTableHeader(PrintContext printContext, Table table)
+        public override void OnRenderSectionTableHeader(PrintJob printJob, Table table)
         {
             PrintFormat printFormat = new PrintFormat();
             printFormat.FontSize = table.FontSize;
             printFormat.FontWeight = table.FontWeight;
             printFormat.TextAlignment = table.TextAlignment;
-            printContext.PrintFormats.Add(printFormat);
+            printJob.PrintFormats.Add(printFormat);
         }
 
-        public override void OnRenderSectionTableFooter(PrintContext printContext, Table table)
+        public override void OnRenderSectionTableFooter(PrintJob printJob, Table table)
         {
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
         }
 
 
-        public override void OnRenderTableColumn(PrintContext printContext, TableColumn tableColumn)
+        public override void OnRenderTableColumn(PrintJob printJob, TableColumn tableColumn)
         {
             //
         }
 
-        public override void OnRenderTableRowGroupHeader(PrintContext printContext, TableRowGroup tableRowGroup)
+        public override void OnRenderTableRowGroupHeader(PrintJob printJob, TableRowGroup tableRowGroup)
         {
-            SetPrintFormat(printContext, tableRowGroup, null);
+            SetPrintFormat(printJob, tableRowGroup, null);
         }
 
-        public override void OnRenderTableRowGroupFooter(PrintContext printContext, TableRowGroup tableRowGroup)
+        public override void OnRenderTableRowGroupFooter(PrintJob printJob, TableRowGroup tableRowGroup)
         {
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
         }
 
-        public override void OnRenderTableRowHeader(PrintContext printContext, TableRow tableRow)
+        public override void OnRenderTableRowHeader(PrintJob printJob, TableRow tableRow)
         {
-            SetPrintFormat(printContext, tableRow, null);
+            SetPrintFormat(printJob, tableRow, null);
         }
 
-        public override void OnRenderTableRowFooter(PrintContext printContext, TableRow tableRow)
+        public override void OnRenderTableRowFooter(PrintJob printJob, TableRow tableRow)
         {
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
         }
 
         #endregion
 
         #region Methods -> Render -> Inlines
 
-        public override void OnRenderParagraphHeader(PrintContext printContext, Paragraph paragraph)
+        public override void OnRenderParagraphHeader(PrintJob printJob, Paragraph paragraph)
         {
-            SetPrintFormat(printContext, paragraph, paragraph.TextAlignment);
+            SetPrintFormat(printJob, paragraph, paragraph.TextAlignment);
         }
 
-        public override void OnRenderParagraphFooter(PrintContext printContext, Paragraph paragraph)
+        public override void OnRenderParagraphFooter(PrintJob printJob, Paragraph paragraph)
         {
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
         }
 
-        public override void OnRenderInlineContextValue(PrintContext printContext, InlineContextValue inlineContextValue)
+        public override void OnRenderInlineContextValue(PrintJob printJob, InlineContextValue inlineContextValue)
         {
-            SetPrintFormat(printContext, inlineContextValue, null);
-            PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
-            PrintFormattedText(printContext, defaultPrintFormat, inlineContextValue.Text);
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+            SetPrintFormat(printJob, inlineContextValue, null);
+            PrintFormat defaultPrintFormat = printJob.GetDefaultPrintFormat();
+            PrintFormattedText(printJob, defaultPrintFormat, inlineContextValue.Text);
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
         }
 
-        public override void OnRenderInlineDocumentValue(PrintContext printContext, InlineDocumentValue inlineDocumentValue)
+        public override void OnRenderInlineDocumentValue(PrintJob printJob, InlineDocumentValue inlineDocumentValue)
         {
-            SetPrintFormat(printContext, inlineDocumentValue, null);
-            PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
-            PrintFormattedText(printContext, defaultPrintFormat, inlineDocumentValue.Text);
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+            SetPrintFormat(printJob, inlineDocumentValue, null);
+            PrintFormat defaultPrintFormat = printJob.GetDefaultPrintFormat();
+            PrintFormattedText(printJob, defaultPrintFormat, inlineDocumentValue.Text);
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
         }
 
-        public override void OnRenderInlineACMethodValue(PrintContext printContext, InlineACMethodValue inlineACMethodValue)
+        public override void OnRenderInlineACMethodValue(PrintJob printJob, InlineACMethodValue inlineACMethodValue)
         {
-            SetPrintFormat(printContext, inlineACMethodValue, null);
-            PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
-            PrintFormattedText(printContext, defaultPrintFormat, inlineACMethodValue.Text);
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+            SetPrintFormat(printJob, inlineACMethodValue, null);
+            PrintFormat defaultPrintFormat = printJob.GetDefaultPrintFormat();
+            PrintFormattedText(printJob, defaultPrintFormat, inlineACMethodValue.Text);
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
         }
 
-        public override void OnRenderInlineTableCellValue(PrintContext printContext, InlineTableCellValue inlineTableCellValue)
+        public override void OnRenderInlineTableCellValue(PrintJob printJob, InlineTableCellValue inlineTableCellValue)
         {
-            SetPrintFormat(printContext, inlineTableCellValue, null);
-            PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
-            PrintFormattedText(printContext, defaultPrintFormat, inlineTableCellValue.Text);
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+            SetPrintFormat(printJob, inlineTableCellValue, null);
+            PrintFormat defaultPrintFormat = printJob.GetDefaultPrintFormat();
+            PrintFormattedText(printJob, defaultPrintFormat, inlineTableCellValue.Text);
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
         }
 
-        public override void OnRenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode)
+        public override void OnRenderInlineBarcode(PrintJob printJob, InlineBarcode inlineBarcode)
         {
-            if (printContext == null || inlineBarcode == null || inlineBarcode.Value == null)
+            if (printJob == null || inlineBarcode == null || inlineBarcode.Value == null)
                 return;
 
             string barcodeValue = inlineBarcode.Value.ToString();
@@ -302,37 +307,37 @@ namespace gip.core.reporthandler
                 QRCodeSizeExt qRCodeSizeExt = QRCodeSizeExt.Six;
                 if (inlineBarcode.BarcodeWidth >= 2 && inlineBarcode.BarcodeWidth <= 10)
                     qRCodeSizeExt = (QRCodeSizeExt)inlineBarcode.BarcodeWidth;
-                printContext.Main = printContext.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Center), Commands.SelectPrintMode(PrintMode.Reset),
+                printJob.Main = printJob.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Center), Commands.SelectPrintMode(PrintMode.Reset),
                     ESCPosExt.PrintQRCodeExt(barcodeValue, QRCodeModel.Model1, QRCodeCorrection.Percent30, qRCodeSizeExt));
             }
             else
             {
                 BarCodeType barCodeType = BarCodeType.EAN8;
                 if (Enum.TryParse(inlineBarcode.BarcodeType.ToString(), out barCodeType))
-                    printContext.Main = printContext.Main.Add(Commands.LF, Commands.PrintBarCode(barCodeType, barcodeValue));
+                    printJob.Main = printJob.Main.Add(Commands.LF, Commands.PrintBarCode(barCodeType, barcodeValue));
             }
-            printContext.Main = printContext.Main.Add(Commands.LF, Commands.LF, Commands.LF, Commands.LF, Commands.LF);
+            printJob.Main = printJob.Main.Add(Commands.LF, Commands.LF, Commands.LF, Commands.LF, Commands.LF);
         }
 
-        public override void OnRenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue)
+        public override void OnRenderInlineBoolValue(PrintJob printJob, InlineBoolValue inlineBoolValue)
         {
-            SetPrintFormat(printContext, inlineBoolValue, null);
-            PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
-            PrintFormattedText(printContext, defaultPrintFormat, inlineBoolValue.Value.ToString());
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+            SetPrintFormat(printJob, inlineBoolValue, null);
+            PrintFormat defaultPrintFormat = printJob.GetDefaultPrintFormat();
+            PrintFormattedText(printJob, defaultPrintFormat, inlineBoolValue.Value.ToString());
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
         }
 
-        public override void OnRenderRun(PrintContext printContext, Run run)
+        public override void OnRenderRun(PrintJob printJob, Run run)
         {
-            SetPrintFormat(printContext, run, null);
-            PrintFormat defaultPrintFormat = printContext.GetDefaultPrintFormat();
-            PrintFormattedText(printContext, defaultPrintFormat, run.Text);
-            printContext.PrintFormats.RemoveAt(printContext.PrintFormats.Count - 1);
+            SetPrintFormat(printJob, run, null);
+            PrintFormat defaultPrintFormat = printJob.GetDefaultPrintFormat();
+            PrintFormattedText(printJob, defaultPrintFormat, run.Text);
+            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
         }
 
-        public override void OnRenderLineBreak(PrintContext printContext, LineBreak lineBreak)
+        public override void OnRenderLineBreak(PrintJob printJob, LineBreak lineBreak)
         {
-            printContext.Main = printContext.Main.Add(Commands.LF);
+            printJob.Main = printJob.Main.Add(Commands.LF);
         }
 
         #endregion
@@ -340,13 +345,13 @@ namespace gip.core.reporthandler
 
         #region Methods -> Render-> Common
 
-        private void SetPrintFormat(PrintContext printContext, TextElement textElement, TextAlignment? textAlignment)
+        private void SetPrintFormat(PrintJob printJob, TextElement textElement, TextAlignment? textAlignment)
         {
             PrintFormat printFormat = new PrintFormat();
             printFormat.FontSize = textElement.FontSize;
             printFormat.FontWeight = textElement.FontWeight;
             printFormat.TextAlignment = textAlignment;
-            printContext.PrintFormats.Add(printFormat);
+            printJob.PrintFormats.Add(printFormat);
         }
 
         protected Tuple<Justification, CharSizeWidth, CharSizeHeight> GetESCFormat(PrintFormat defaultPrintFormat)
@@ -386,12 +391,12 @@ namespace gip.core.reporthandler
             return new Tuple<Justification, CharSizeWidth, CharSizeHeight>(justification, charSizeWidth, charSizeHeight);
         }
 
-        protected void PrintFormattedText(PrintContext printContext, PrintFormat defaultPrintFormat, string text)
+        protected void PrintFormattedText(PrintJob printJob, PrintFormat defaultPrintFormat, string text)
         {
             Tuple<Justification, CharSizeWidth, CharSizeHeight> format = GetESCFormat(defaultPrintFormat);
-            printContext.Main = printContext.Main.Add(Commands.SelectPrintMode(PrintMode.Reset));
-            printContext.Main = printContext.Main.Add(Commands.SelectCharSize(format.Item2, format.Item3));
-            printContext.Main = printContext.Main.Add(Commands.LF, Commands.SelectJustification(format.Item1), printContext.Encoding.GetBytes(text));
+            printJob.Main = printJob.Main.Add(Commands.SelectPrintMode(PrintMode.Reset));
+            printJob.Main = printJob.Main.Add(Commands.SelectCharSize(format.Item2, format.Item3));
+            printJob.Main = printJob.Main.Add(Commands.LF, Commands.SelectJustification(format.Item1), printJob.Encoding.GetBytes(text));
         }
 
         #endregion

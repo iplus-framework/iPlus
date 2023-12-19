@@ -1,26 +1,30 @@
-﻿using System.Collections.Generic;
-using System.Net.Sockets;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Windows.Documents;
 
 namespace gip.core.reporthandler
 {
-    public class PrintContext
+    public class PrintJob
     {
+        public Guid PrintJobID { get;set; }
+        public DateTime InsertDate { get;set; }
+
+        public PrintJobStateEnum State { get;set; }
 
         #region ctor's
-        public PrintContext()
+        public PrintJob()
         {
             PrintFormats = new List<PrintFormat>();
+            PrintJobID = Guid.NewGuid();
+            InsertDate = DateTime.Now;
+            State = PrintJobStateEnum.New;
         }
         #endregion
 
         public byte[] Main { get; set; }
 
         public FlowDocument FlowDocument { get; set; }
-        public NetworkStream NetworkStream { get; set; }
-
-        public TcpClient TcpClient { get; set; }
 
         public Encoding Encoding { get; set; }
 
