@@ -307,7 +307,7 @@ namespace gip.core.layoutengine
             }
         }
 
-        #region xx = > CyclicDataRefresh
+        #region CyclicDataRefresh
 
         /// <summary>
         /// Determines is cyclic refresh enabled or disabled.The value (integer) in this property determines the interval of cyclic execution in miliseconds.   
@@ -519,11 +519,14 @@ namespace gip.core.layoutengine
                 // 1. Binding ItemsSource-Property:
                 // Listenbereich vom Datagrid füllen 
                 Binding bindingItemSource = new Binding();
-                bindingItemSource.Source = sourceOfBindingForItmSrc;
+                if (!BindItemsSourceToContext)
+                    bindingItemSource.Source = sourceOfBindingForItmSrc;
                 if (!string.IsNullOrEmpty(pathOfBindingForItmSrc))
                 {
                     bindingItemSource.Path = new PropertyPath(pathOfBindingForItmSrc);
                 }
+                else
+                    bindingItemSource.Source = sourceOfBindingForItmSrc;
                 bindingItemSource.NotifyOnSourceUpdated = true;
                 bindingItemSource.NotifyOnTargetUpdated = true;
                 bindingItemSource.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
@@ -538,7 +541,8 @@ namespace gip.core.layoutengine
                 if (!VBContentPropertyInfo.IsEnumerable)
                 {
                     Binding binding2 = new Binding();
-                    binding2.Source = sourceOfBindingForSelItm;
+                    if (!BindSelectedItemToContext)
+                        binding2.Source = sourceOfBindingForSelItm;
                     binding2.Path = new PropertyPath(pathOfBindingForSelItm);
                     binding2.Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
                     binding2.NotifyOnSourceUpdated = true;
@@ -819,7 +823,7 @@ namespace gip.core.layoutengine
         }
         #endregion
 
-        #region Event Hanndling
+        #region Event Handling
         /// <summary>
         /// Handles the OnContextMenuOpening event.
         /// </summary>
@@ -1274,6 +1278,26 @@ namespace gip.core.layoutengine
             set { SetValue(VBAccessProperty, value); }
         }
 
+
+        public static readonly DependencyProperty BindItemsSourceToContextProperty
+            = DependencyProperty.Register("BindItemsSourceToContext", typeof(bool), typeof(VBDataGrid));
+
+        [Category("VBControl")]
+        public bool BindItemsSourceToContext
+        {
+            get { return (bool)GetValue(BindItemsSourceToContextProperty); }
+            set { SetValue(BindItemsSourceToContextProperty, value); }
+        }
+
+        public static readonly DependencyProperty BindSelectedItemToContextProperty
+            = DependencyProperty.Register("BindSelectedItemToContext", typeof(bool), typeof(VBDataGrid));
+
+        [Category("VBControl")]
+        public bool BindSelectedItemToContext
+        {
+            get { return (bool)GetValue(BindSelectedItemToContextProperty); }
+            set { SetValue(BindSelectedItemToContextProperty, value); }
+        }
         #endregion
 
         #region IVBSource Members
