@@ -246,8 +246,10 @@ namespace gip.core.datamodel
         {
             if (this is IInsertInfo)
             {
-                ((IInsertInfo)this).InsertDate = DateTime.Now;
-                ((IInsertInfo)this).InsertName = user;
+                if (((IInsertInfo)this).InsertDate == DateTime.MinValue)
+                    ((IInsertInfo)this).InsertDate = DateTime.Now;
+                if (String.IsNullOrEmpty(((IInsertInfo)this).InsertName))
+                    ((IInsertInfo)this).InsertName = user;
             }
 
             if (this is IUpdateInfo)
