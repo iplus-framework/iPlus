@@ -3,7 +3,6 @@
     public class LinxPrinterStatusResponse
     {
 
-
         [LinxByteMapping(Order = 1, Length = 2)]
         public LinxASCIControlCharacterEnum StartCode01 { get; set; } = LinxASCIControlCharacterEnum.ESC;
 

@@ -158,6 +158,7 @@
     <Compile Include="Linx\LinxPrinterFaultCodeEnum.cs" />
     <Compile Include="Linx\LinxPrinterStatusResponse.cs" />
     <Compile Include="Linx\LinxPrintErrorEnum.cs" />
+    <Compile Include="Linx\LinxPrintJobTypeEnum.cs" />
     <Compile Include="Linx\LinxPrintModeEnum.cs" />
     <Compile Include="Linx\LinxPrintStateEnum.cs" />
     <Compile Include="Manager\BlockDocumentPosition.cs" />
