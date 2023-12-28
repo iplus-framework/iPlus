@@ -3,7 +3,7 @@
     /// <summary>
     /// Return value for actual command status
     /// </summary>
-    public enum LinxCommandStatusCodeEnum : short
+    public enum LinxCommandStatusCodeEnum : byte
     {
         None = 0,
         Parity_error = 0x01,

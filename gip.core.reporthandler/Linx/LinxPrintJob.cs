@@ -9,11 +9,14 @@ namespace gip.core.reporthandler
 
         public LinxPrintJob() : base()
         {
-
         }
 
         #endregion
-        
+
+        #region Properies
+
+        public LinxPrintJobTypeEnum LinxPrintJobType { get; set; }
+
         private List<byte[]> _PacketsForPrint;
         public List<byte[]> PacketsForPrint
         {
@@ -26,5 +29,30 @@ namespace gip.core.reporthandler
                 return _PacketsForPrint;
             }
         }
+
+
+        private List<byte[]> _RemoteFieldValues;
+        public List<byte[]> RemoteFieldValues
+        {
+            get
+            {
+                if (_RemoteFieldValues == null)
+                {
+                    _RemoteFieldValues = new List<byte[]>();
+                }
+                return _RemoteFieldValues;
+            }
+        }
+
+        #endregion
+
+        #region Methods
+
+        public string GetJobInfo()
+        {
+            return $"PrintJobID: {PrintJobID} ReportName:{FlowDocument?.Name}";
+        }
+
+        #endregion
     }
 }

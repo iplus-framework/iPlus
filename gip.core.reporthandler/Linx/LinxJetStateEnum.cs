@@ -5,7 +5,7 @@
     /// Return value for jet state
     /// part of status response
     /// </summary>
-    public enum LinxJetStateEnum : short
+    public enum LinxJetStateEnum : byte
     {
         Jet_Running = 0x00,
         Jet_Startup = 0x01,

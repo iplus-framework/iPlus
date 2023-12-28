@@ -1,6 +1,6 @@
 ﻿namespace gip.core.reporthandler
 {
-    public enum LinxPrinterCommandCodeEnum : short
+    public enum LinxPrinterCommandCodeEnum : byte
     {
         Set_EHT_Value = 01,
         Request_EHT_Value = 02,

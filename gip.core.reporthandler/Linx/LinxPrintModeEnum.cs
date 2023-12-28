@@ -1,8 +1,8 @@
 ﻿namespace gip.core.reporthandler
 {
-    public enum LinxPrintModeEnum : short
+    public enum LinxPrintModeEnum : byte
     {
         Continuous = 0,
-        Single
+        Single = 1,
     }
 }

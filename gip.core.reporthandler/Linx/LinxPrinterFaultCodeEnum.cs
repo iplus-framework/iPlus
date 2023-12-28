@@ -1,6 +1,6 @@
 ﻿namespace gip.core.reporthandler
 {
-    public enum LinxPrinterFaultCodeEnum : short
+    public enum LinxPrinterFaultCodeEnum : byte
     {
         None = 01,
         Print_head_temperature = 01,
