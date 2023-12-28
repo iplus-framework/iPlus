@@ -733,7 +733,8 @@ namespace gip.core.reporthandler
                             (bool responseSuccess, byte[] responseData) = Response(linxPrintJob);
                             if (responseSuccess && responseData != null)
                             {
-                                LinxPrinterStatusResponse response = LinxMapping<LinxPrinterStatusResponse>.Map(responseData);
+                                (MsgWithDetails msgWithDetails, LinxPrinterFullStatusResponse response) = LinxMapping<LinxPrinterFullStatusResponse>.Map(responseData);
+                                // TODO @aagincic: LinxPrinter parse LinxPrinterFullStatusResponse response
                             }
                         }
                     }
