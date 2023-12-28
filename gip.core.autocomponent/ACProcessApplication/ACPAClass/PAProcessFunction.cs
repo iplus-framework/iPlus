@@ -845,10 +845,10 @@ namespace gip.core.autocomponent
                 case ACStateConst.TMReset:
                     Reset();
                     return true;
-                case "Reset2Repeat":
+                case nameof(Reset2Repeat):
                     Reset2Repeat();
                     return true;
-                case "SendChangedACMethod":
+                case nameof(SendChangedACMethod):
                     SendChangedACMethod();
                     return true;
                 case ACStateConst.TMStart:
@@ -878,10 +878,10 @@ namespace gip.core.autocomponent
                 case Const.IsEnabledPrefix + ACStateConst.TMReset:
                     result = IsEnabledReset();
                     return true;
-                case Const.IsEnabledPrefix + "Reset2Repeat":
+                case nameof(IsEnabledReset2Repeat):
                     result = IsEnabledReset2Repeat();
                     return true;
-                case Const.IsEnabledPrefix + "SendChangedACMethod":
+                case nameof(IsEnabledSendChangedACMethod):
                     result = IsEnabledSendChangedACMethod();
                     return true;
                 case Const.IsEnabledPrefix + ACStateConst.TMStart:
@@ -905,10 +905,10 @@ namespace gip.core.autocomponent
                 case Const.AskUserPrefix + ACStateConst.TMReset:
                     result = AskUserReset(acComponent);
                     return true;
-                case Const.AskUserPrefix + "Reset2Repeat":
+                case nameof(AskUserReset2Repeat):
                     result = AskUserReset2Repeat(acComponent);
                     return true;
-                case Const.AskUserPrefix + "SendChangedACMethod":
+                case nameof(AskUserSendChangedACMethod):
                     result = AskUserSendChangedACMethod(acComponent);
                     return true;
             }
