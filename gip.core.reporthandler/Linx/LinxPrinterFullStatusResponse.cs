@@ -17,10 +17,10 @@
 
          */
 
-        [LinxByteMapping(Order = 1, Length = 1, DefaultValue = (short)LinxASCIControlCharacterEnum.ESC)]
+        [LinxByteMapping(Order = 1, Length = 1, DefaultValue = (byte)LinxASCIControlCharacterEnum.ESC)]
         public LinxASCIControlCharacterEnum StartCode01 { get; set; } = LinxASCIControlCharacterEnum.ESC;
 
-        [LinxByteMapping(Order = 2, Length = 1, DefaultValue = (short)LinxASCIControlCharacterEnum.ACK)]
+        [LinxByteMapping(Order = 2, Length = 1, DefaultValue = (byte)LinxASCIControlCharacterEnum.ACK)]
         public LinxASCIControlCharacterEnum StartCode02 { get; set; } = LinxASCIControlCharacterEnum.ACK;
 
         [LinxByteMapping(Order = 3, Length = 1)]
@@ -41,10 +41,10 @@
         [LinxByteMapping(Order = 8, Length = 4)]
         public int ErrorMask { get; set; }
 
-        [LinxByteMapping(Order = 9, Length = 1, DefaultValue = (short)LinxASCIControlCharacterEnum.ESC)]
+        [LinxByteMapping(Order = 9, Length = 1, DefaultValue = (byte)LinxASCIControlCharacterEnum.ESC)]
         public LinxASCIControlCharacterEnum EndCode01 { get; set; } = LinxASCIControlCharacterEnum.ESC;
 
-        [LinxByteMapping(Order = 10, Length = 1, DefaultValue = (short)LinxASCIControlCharacterEnum.ETX)]
+        [LinxByteMapping(Order = 10, Length = 1, DefaultValue = (byte)LinxASCIControlCharacterEnum.ETX)]
         public LinxASCIControlCharacterEnum EndCode02 { get; set; } = LinxASCIControlCharacterEnum.ETX;
 
         [LinxByteMapping(Order = 11, Length = 1)]

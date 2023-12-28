@@ -3,7 +3,7 @@
     /// <summary>
     /// Return value for printer state
     /// </summary>
-    public enum LinxPrintStateEnum : short
+    public enum LinxPrintStateEnum : byte
     {
         Printing = 0x00,
         Undefined = 0x01,

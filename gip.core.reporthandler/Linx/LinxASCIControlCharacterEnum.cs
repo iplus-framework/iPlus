@@ -3,7 +3,7 @@
     /// <summary>
     /// Control charachters used in message to divide message parts
     /// </summary>
-    public enum LinxASCIControlCharacterEnum : short
+    public enum LinxASCIControlCharacterEnum : byte
     {
         /// <summary>
         /// ASCII text terminator

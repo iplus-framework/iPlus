@@ -1,6 +1,6 @@
 ﻿namespace gip.core.reporthandler
 {
-    public enum LinxPrintErrorEnum: short
+    public enum LinxPrintErrorEnum: byte
     {
         No_TOF_adjustments = 00,
         Viscosity_Temperature = 00,

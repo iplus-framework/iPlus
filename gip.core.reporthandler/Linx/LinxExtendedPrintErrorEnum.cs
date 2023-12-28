@@ -4,7 +4,7 @@
     /// <summary>
     /// Returned byte describe advanced print error
     /// </summary>
-    public enum LinxExtendedPrintErrorEnum : short
+    public enum LinxExtendedPrintErrorEnum : byte
     {
         Cover_ovrerride_active = 0x00,
         Power_override_active = 0x01,

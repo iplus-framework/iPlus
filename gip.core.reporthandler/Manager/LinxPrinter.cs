@@ -543,7 +543,7 @@ namespace gip.core.reporthandler
 
             if (success)
             {
-                success = ValidateChecksum(result.ToArray());
+                success = LinxHelper.ValidateChecksum(result.ToArray());
                 if (!success)
                 {
                     string message = $"Bad checksum for response: {linxPrintJob.GetJobInfo()}";
@@ -580,36 +580,16 @@ namespace gip.core.reporthandler
 
         public byte[] GetData(LinxPrinterCommandCodeEnum commandCode, byte[] data)
         {
-            using (MemoryStream ms = new MemoryStream())
-            using (MemoryStream msForCheckSum = new MemoryStream())
-            {
-                ms.Write(LinxASCIControlCharacterEnum.ESC);
-                ms.Write(LinxASCIControlCharacterEnum.STX);
-                msForCheckSum.Write(LinxASCIControlCharacterEnum.STX);
-
-                ms.Write(commandCode);
-                msForCheckSum.Write(commandCode);
-
-                if (data != null)
-                {
-                    ms.Write(data, 0, data.Length);
-                    msForCheckSum.Write(data, 0, data.Length);
-                }
-
-                ms.Write(LinxASCIControlCharacterEnum.ESC);
-                ms.Write(LinxASCIControlCharacterEnum.ETX);
-                msForCheckSum.Write(LinxASCIControlCharacterEnum.ETX);
-
-                byte[] tempArr = msForCheckSum.ToArray();
-                byte[] checkSum = GetCheckSum(tempArr);
-                ms.Write(checkSum, 0, checkSum.Length);
-
-                return ms.ToArray();
-            }
+            return GetData((byte)commandCode, data);
         }
 
         public byte[] GetData(LinxASCIControlCharacterEnum commandCode, byte[] data)
         {
+            return GetData((byte)commandCode, data);
+        }
+
+        public byte[] GetData(byte commandCode, byte[] data)
+        {
             using (MemoryStream ms = new MemoryStream())
             using (MemoryStream msForCheckSum = new MemoryStream())
             {
@@ -631,41 +611,11 @@ namespace gip.core.reporthandler
                 msForCheckSum.Write(LinxASCIControlCharacterEnum.ETX);
 
                 byte[] tempArr = msForCheckSum.ToArray();
-                byte[] checkSum = GetCheckSum(tempArr);
-                ms.Write(checkSum, 0, checkSum.Length);
+                byte checkSum = LinxHelper.GetCheckSum(tempArr);
+                ms.Write(new byte[] { checkSum }, 0, 1);
 
                 return ms.ToArray();
             }
-        }
-
-        public void ReciveData(byte[] input)
-        {
-
-        }
-
-        public byte[] GetCheckSum(byte[] input)
-        {
-            int checkSum = BitConverter.ToInt32(input, 0) & 0x0FF;
-            checkSum = 0x100 - checkSum;
-            return BitConverter.GetBytes(checkSum);
-        }
-
-        public bool ValidateChecksum(byte[] dataWithCheckSum)
-        {
-            bool isValid = false;
-            if (dataWithCheckSum != null && dataWithCheckSum.Length > 2)
-            {
-                byte[] data = new byte[dataWithCheckSum.Length - 2];
-                byte[] inputChecksum = new byte[2];
-
-                Array.Copy(dataWithCheckSum, 0, data, 0, dataWithCheckSum.Length - 2);
-                Array.Copy(dataWithCheckSum, 0, inputChecksum, dataWithCheckSum.Length - 2 - 1, 2);
-
-                byte[] calcCheckSum = GetCheckSum(data);
-
-                isValid = inputChecksum == calcCheckSum;
-            }
-            return isValid;
         }
 
         #endregion

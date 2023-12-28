@@ -1,9 +1,9 @@
 ﻿namespace gip.core.reporthandler
 {
-    public enum LinxPrintJobTypeEnum : short
+    public enum LinxPrintJobTypeEnum : byte
     {
-        Print,
-        PrintRemote,
-        CheckStatus
+        Print = 1,
+        PrintRemote = 2,
+        CheckStatus = 3
     }
 }
