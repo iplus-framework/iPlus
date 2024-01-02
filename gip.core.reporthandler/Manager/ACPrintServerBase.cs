@@ -260,7 +260,7 @@ namespace gip.core.reporthandler
                 using (ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign))
                 {
                     FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
-                    printJob = GetPrintJob(flowDoc);
+                    printJob = GetPrintJob(aCClassDesign.ACIdentifier, flowDoc);
                 }
             }
             catch (Exception e)
@@ -377,7 +377,7 @@ namespace gip.core.reporthandler
         /// <param name="clientStream"></param>
         /// <param name="reportData"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public virtual PrintJob GetPrintJob(FlowDocument flowDocument)
+        public virtual PrintJob GetPrintJob(string reportName, FlowDocument flowDocument)
         {
             Encoding encoder = Encoding.ASCII;
             VBFlowDocument vBFlowDocument = flowDocument as VBFlowDocument;

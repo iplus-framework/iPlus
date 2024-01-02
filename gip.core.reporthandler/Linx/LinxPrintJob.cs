@@ -50,7 +50,7 @@ namespace gip.core.reporthandler
 
         public string GetJobInfo()
         {
-            return $"PrintJobID: {PrintJobID} ReportName:{FlowDocument?.Name}";
+            return $"PrintJobID: {PrintJobID} Name:{Name}";
         }
 
         #endregion

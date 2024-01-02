@@ -1,5 +1,10 @@
-﻿namespace gip.core.reporthandler
+﻿using gip.core.datamodel;
+
+namespace gip.core.reporthandler
 {
+
+    [ACSerializeableInfo]
+    [ACClassInfo("gip.VarioSystem", "en{'LinxPrinterFaultCodeEnum'}de{'LinxPrinterFaultCodeEnum'}", Global.ACKinds.TACEnum, Global.ACStorableTypes.NotStorable, false, false, "", "", 9999)]
     public enum LinxPrinterFaultCodeEnum : byte
     {
         None = 01,

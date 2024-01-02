@@ -8,6 +8,7 @@ namespace gip.core.reporthandler
     public class PrintJob
     {
         public Guid PrintJobID { get;set; }
+        public string Name { get;set; }
         public DateTime InsertDate { get;set; }
 
         public PrintJobStateEnum State { get;set; }

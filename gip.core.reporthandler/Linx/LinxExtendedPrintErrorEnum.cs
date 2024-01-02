@@ -1,9 +1,13 @@
-﻿namespace gip.core.reporthandler
+﻿using gip.core.datamodel;
+
+namespace gip.core.reporthandler
 {
 
     /// <summary>
     /// Returned byte describe advanced print error
     /// </summary>
+    [ACSerializeableInfo]
+    [ACClassInfo("gip.VarioSystem", "en{'LinxExtendedPrintErrorEnum'}de{'LinxExtendedPrintErrorEnum'}", Global.ACKinds.TACEnum, Global.ACStorableTypes.NotStorable, false, false, "", "", 9999)]
     public enum LinxExtendedPrintErrorEnum : byte
     {
         Cover_ovrerride_active = 0x00,

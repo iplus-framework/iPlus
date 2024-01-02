@@ -157,7 +157,7 @@
     <Compile Include="Linx\LinxHelper.cs" />
     <Compile Include="Linx\LinxJetStateEnum.cs" />
     <Compile Include="Linx\LinxPrinterFaultCodeEnum.cs" />
-    <Compile Include="Linx\LinxPrinterFullStatusResponse.cs" />
+    <Compile Include="Linx\LinxPrinterCompleteStatusResponse.cs" />
     <Compile Include="Linx\LinxPrintErrorEnum.cs" />
     <Compile Include="Linx\LinxPrintJobTypeEnum.cs" />
     <Compile Include="Linx\LinxPrintModeEnum.cs" />

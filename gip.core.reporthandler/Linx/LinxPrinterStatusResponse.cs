@@ -1,5 +1,10 @@
-﻿namespace gip.core.reporthandler
+﻿using gip.core.datamodel;
+
+namespace gip.core.reporthandler
 {
+
+    [ACSerializeableInfo]
+    [ACClassInfo("gip.VarioSystem", "en{'LinxPrinterStatusResponse'}de{'LinxPrinterStatusResponse'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, false, false, "", "", 9999)]
     public class LinxPrinterStatusResponse
     {
 

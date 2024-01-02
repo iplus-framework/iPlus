@@ -1,5 +1,9 @@
-﻿namespace gip.core.reporthandler
+﻿using gip.core.datamodel;
+
+namespace gip.core.reporthandler
 {
+    [ACSerializeableInfo]
+    [ACClassInfo("gip.VarioSystem", "en{'LinxPrintErrorEnum'}de{'LinxPrintErrorEnum'}", Global.ACKinds.TACEnum, Global.ACStorableTypes.NotStorable, false, false, "", "", 9999)]
     public enum LinxPrintErrorEnum: byte
     {
         No_TOF_adjustments = 00,

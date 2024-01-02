@@ -1,5 +1,9 @@
-﻿namespace gip.core.reporthandler
+﻿using gip.core.datamodel;
+
+namespace gip.core.reporthandler
 {
+    [ACSerializeableInfo]
+    [ACClassInfo("gip.VarioSystem", "en{'LinxPrinterCommandCodeEnum'}de{'LinxPrinterCommandCodeEnum'}", Global.ACKinds.TACEnum, Global.ACStorableTypes.NotStorable, false, false, "", "", 9999)]
     public enum LinxPrinterCommandCodeEnum : byte
     {
         Set_EHT_Value = 01,

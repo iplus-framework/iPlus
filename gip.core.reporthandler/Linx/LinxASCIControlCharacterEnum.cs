@@ -1,8 +1,12 @@
-﻿namespace gip.core.reporthandler
+﻿using gip.core.datamodel;
+
+namespace gip.core.reporthandler
 {
     /// <summary>
     /// Control charachters used in message to divide message parts
     /// </summary>
+    [ACSerializeableInfo]
+    [ACClassInfo("gip.VarioSystem", "en{'LinxASCIControlCharacterEnum'}de{'LinxASCIControlCharacterEnum'}", Global.ACKinds.TACEnum, Global.ACStorableTypes.NotStorable, false, false, "", "", 9999)]
     public enum LinxASCIControlCharacterEnum : byte
     {
         /// <summary>

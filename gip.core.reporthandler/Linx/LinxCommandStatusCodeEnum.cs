@@ -1,8 +1,12 @@
-﻿namespace gip.core.reporthandler
+﻿using gip.core.datamodel;
+
+namespace gip.core.reporthandler
 {
     /// <summary>
     /// Return value for actual command status
     /// </summary>
+    [ACSerializeableInfo]
+    [ACClassInfo("gip.VarioSystem", "en{'LinxCommandStatusCodeEnum'}de{'LinxCommandStatusCodeEnum'}", Global.ACKinds.TACEnum, Global.ACStorableTypes.NotStorable, false, false, "", "", 9999)]
     public enum LinxCommandStatusCodeEnum : byte
     {
         None = 0,
