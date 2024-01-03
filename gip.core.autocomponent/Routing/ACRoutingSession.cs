@@ -62,8 +62,6 @@ namespace gip.core.autocomponent
 
         bool _anyLoop = false;
 
-        bool _RouteDependOnUsage = false;
-
         private ACRoutingService _ACRoutingService;
         private string _DiagnosticData = "";
 
