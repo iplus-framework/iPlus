@@ -795,6 +795,11 @@ namespace gip.core.layoutengine
 
 
                         break;
+                    case Const.CmdInitSelectionManager:
+                    {
+                        _= VBBSOSelectionManager;
+                    }
+                        break;
                     case Const.CmdDesignModeOff:
                         if(this is VBDesign)
                         {

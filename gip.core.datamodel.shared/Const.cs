@@ -1,4 +1,6 @@
-﻿namespace gip.core.datamodel
+﻿using System.CodeDom;
+
+namespace gip.core.datamodel
 {
     /// <summary>
     /// Definition der grundsätzlichen Ansichtsarten, welche das Standardframework unterstützt
@@ -269,6 +271,7 @@
         public const string CmdInvalidateRequerySuggested = "^InvalidateRequerySuggested";
         public const string CmdHighlightVBControl = "^HighlightVBControl";
         public const string CmdHighlightContentACObject = "^HighlightContentACObject";
+        public const string CmdInitSelectionManager = "^InitSelectionManager";
         public const string CmdPrintScreenToImage = "^PrintScreenToImage";
         public const string CmdPrintScreenToIcon = "^CmdPrintScreenToIcon";
         public const string CmdPrintScreenToClipboard = "^CmdPrintScreenToClipboard";
