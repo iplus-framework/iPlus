@@ -530,68 +530,83 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case Const.CmdNameSave:
+                case nameof(Save):
                     Save();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameSave:
+                case nameof(IsEnabledSave):
                     result = IsEnabledSave();
                     return true;
-                case Const.CmdNameUndoSave:
+                case nameof(UndoSave):
                     UndoSave();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameUndoSave:
+                case nameof(IsEnabledUndoSave):
                     result = IsEnabledUndoSave();
                     return true;
-                case Const.CmdNameNew:
+                case nameof(New):
                     New();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameNew:
+                case nameof(IsEnabledNew):
                     result = IsEnabledNew();
                     return true;
-                case Const.CmdNameDelete:
+                case nameof(Delete):
                     Delete();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameDelete:
+                case nameof(IsEnabledDelete):
                     result = IsEnabledDelete();
                     return true;
-                case "NewVisualisationOK":
+                case nameof(Search):
+                    Search();
+                    return true;
+                case nameof(NewVisualisationOK):
                     NewVisualisationOK();
                     return true;
-                case Const.IsEnabledPrefix + "NewVisualisationOK":
+                case nameof(IsEnabledNewVisualisationOK):
                     result = IsEnabledNewVisualisationOK();
                     return true;
-                case "NewVisualisationCancel":
+                case nameof(NewVisualisationCancel):
                     NewVisualisationCancel();
                     return true;
-                case "SetDefaultVisualisation":
+                case nameof(SetDefaultVisualisation):
                     SetDefaultVisualisation();
                     return true;
-                case Const.IsEnabledPrefix + "SetDefaultVisualisation":
+                case nameof(IsEnabledSetDefaultVisualisation):
                     result = IsEnabledSetDefaultVisualisation();
                     return true;
-                case "Screenshot":
+                case nameof(Screenshot):
                     Screenshot();
                     return true;
-                case "CopyVisualisationToClipboard":
+                case nameof(CopyVisualisationToClipboard):
                     CopyVisualisationToClipboard();
                     return true;
-                case Const.IsEnabledPrefix + "CopyVisualisationToClipboard":
+                case nameof(IsEnabledCopyVisualisationToClipboard):
                     result = IsEnabledCopyVisualisationToClipboard();
                     return true;
-                case "ExportDesigns":
+                case nameof(ExportDesigns):
                     ExportDesigns();
                     return true;
-                case Const.IsEnabledPrefix + "ExportDesigns":
+                case nameof(IsEnabledExportDesigns):
                     result = IsEnabledExportDesigns();
                     return true;
-                case "NavigateToDesign":
+                case nameof(NavigateToDesign):
                     NavigateToDesign(acParameter[0] as MouseButtonEventArgs, acParameter[1] as string);
                     return true;
-                case "DesignOpen":
+                case nameof(DesignOpen):
                     DesignOpen(acParameter[0] as string);
                     return true;
-                case "ValidateInput":
+                case nameof(ValidateInput):
                     result = ValidateInput((String)acParameter[0], (Object)acParameter[1], (System.Globalization.CultureInfo)acParameter[2]);
+                    return true;
+                case nameof(SearchComponents):
+                    SearchComponents();
+                    return true;
+                case nameof(IsEnabledSearchComponents):
+                    result = IsEnabledSearchComponents();
+                    return true;
+                case nameof(NavigateToComponent):
+                    NavigateToComponent();
+                    return true;
+                case nameof(IsEnabledNavigateToComponent):
+                    result = IsEnabledNavigateToComponent();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
