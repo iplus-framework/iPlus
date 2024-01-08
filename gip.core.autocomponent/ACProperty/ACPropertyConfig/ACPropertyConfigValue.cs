@@ -1,15 +1,18 @@
 ﻿using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.Isam.Esent.Interop.EnumeratedColumn;
 
 namespace gip.core.autocomponent
 {
     public interface IACPropertyConfigValue : IACContainer
     {
         bool IsCachedValueSet { get; set; }
+        void RemoveDuplicateEntries();
     }
 
     public class ACPropertyConfigValue<T> : IACPropertyConfigValue, IACContainerT<T>
@@ -49,17 +52,20 @@ namespace gip.core.autocomponent
             {
                 if (_IsCachedValueSet)
                     return _ValueT;
-                object result = _ACComponent[_ACIdentifier];
-                bool isValueNotSet = result == null || (typeof(T) == typeof(string) && string.IsNullOrEmpty(result.ToString()));
-                if (isValueNotSet)
+                IACConfig acConfig = _ACComponent.GetConfigurationValue(_ACIdentifier);
+                //object result = _ACComponent[_ACIdentifier];
+                //bool isValueNotSet = result == null; // || (typeof(T) == typeof(string) && string.IsNullOrEmpty(result.ToString()));
+                if (acConfig == null)
                 {
                     SetDefaultValue();
                     return _ValueT;
                 }
                 else
                 {
+                    object result = null;
                     try
                     {
+                        result = acConfig.Value;
                         _ValueT = (T)result;
                         _IsCachedValueSet = true;
                     }
@@ -73,7 +79,7 @@ namespace gip.core.autocomponent
                             datamodel.Database.Root.Messages.LogException("ACPropertyConfigValue<T>", "ValueT", msg);
                         try
                         {
-                            if (result is IConvertible)
+                            if (result != null && result is IConvertible)
                             {
                                 _ValueT = (T)Convert.ChangeType(result, typeof(T));
                                 _ACComponent[_ACIdentifier] = _ValueT;
@@ -120,6 +126,50 @@ namespace gip.core.autocomponent
             }
             _ACComponent.SetConfigurationValue(_ACIdentifier, _ValueT, innerType);
             _IsCachedValueSet = true;
+        }
+
+        public void RemoveDuplicateEntries()
+        {
+            ACClass acTypeFromLiveContext = _ACComponent.ACTypeFromLiveContext;
+            if (acTypeFromLiveContext == null)
+                return;
+            try
+            {
+                IACConfig[] entries = acTypeFromLiveContext.ConfigurationEntries.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl && c.LocalConfigACUrl == _ACIdentifier).ToArray();
+                if (entries != null && entries.Length > 1)
+                {
+                    ACClassConfig prevEntry = null;
+                    foreach (ACClassConfig entry in entries)
+                    {
+                        if (prevEntry != null)
+                        {
+                            if (   entry.UpdateDate.Subtract(prevEntry.UpdateDate).TotalSeconds > 10
+                                || prevEntry.Value == null
+                                || (    (prevEntry.Value is IComparable) 
+                                    &&  (   (_DefaultValue != null && ((IComparable)_DefaultValue).CompareTo(prevEntry.Value as IComparable) == 0)
+                                         || (default(T) != null && ((IComparable)default(T)).CompareTo(prevEntry.Value as IComparable) == 0))
+                                   )
+                               )
+                            {
+                                acTypeFromLiveContext.RemoveACConfig(prevEntry);
+                                prevEntry = entry;
+                            }
+                            else
+                            {
+                                acTypeFromLiveContext.RemoveACConfig(entry);
+                            }
+                        }
+                        else
+                            prevEntry = entry;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _ACComponent.Messages.LogException(_ACComponent.GetACUrl(), "RemoveDuplicateEntries()", e.Message);
+                if (e.InnerException != null)
+                    _ACComponent.Messages.LogException(_ACComponent.GetACUrl(), "RemoveDuplicateEntries()", e.InnerException.Message);
+            }
         }
 
         private bool _IsCachedValueSet = false;

@@ -17,6 +17,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Xml;
+using static Microsoft.Isam.Esent.Interop.EnumeratedColumn;
 
 namespace gip.core.autocomponent
 {
@@ -2543,6 +2544,9 @@ namespace gip.core.autocomponent
                             case nameof(ResetConfigValuesCache):
                                 ResetConfigValuesCache();
                                 return null;
+                            case nameof(RemoveDuplicateConfigEntries):
+                                RemoveDuplicateConfigEntries();
+                                return null;
                             //case nameof(IsEnabledResetConfigValuesCache):
                             //    return IsEnabledResetConfigValuesCache();
                             case nameof(GetGUI):
@@ -4537,32 +4541,43 @@ namespace gip.core.autocomponent
         {
             get
             {
-                object result = null;
-                ACClass acTypeFromLiveContext = ACTypeFromLiveContext;
-                if (acTypeFromLiveContext == null)
-                    return null;
-                //ACClassTaskQueue.TaskQueue.ProcessAction(() =>
-                //{
-                    try
-                    {
-                        IACConfig acClassConfig = acTypeFromLiveContext.ConfigurationEntries.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl && c.LocalConfigACUrl == configuration).FirstOrDefault();
-
-                        if (acClassConfig != null)
-                            result = acClassConfig.Value;
-                    }
-                    catch (Exception e)
-                    {
-                        Messages.LogException(this.GetACUrl(), "this[].get", e.Message);
-                        if (e.InnerException != null)
-                            Messages.LogException(this.GetACUrl(), "this[].get", e.InnerException.Message);
-                    }
-                //});
-                return result;
+                try
+                {
+                    IACConfig acClassConfig = GetConfigurationValue(configuration);
+                    if (acClassConfig != null)
+                        return acClassConfig.Value;
+                }
+                catch (Exception e)
+                {
+                    Messages.LogException(this.GetACUrl(), "this[].get", e.Message);
+                    if (e.InnerException != null)
+                        Messages.LogException(this.GetACUrl(), "this[].get", e.InnerException.Message);
+                }
+                return null;
             }
             set
             {
                 SetConfigurationValue(configuration, value);
             }
+        }
+
+        public IACConfig GetConfigurationValue(string configuration)
+        {
+            ACClass acTypeFromLiveContext = ACTypeFromLiveContext;
+            if (acTypeFromLiveContext == null)
+                return null;
+            try
+            {
+                return acTypeFromLiveContext.ConfigurationEntries.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl && c.LocalConfigACUrl == configuration).FirstOrDefault();
+            }
+            catch (Exception e)
+            {
+                Messages.LogException(this.GetACUrl(), "GetConfigurationValue()", e.Message);
+                if (e.InnerException != null)
+                    Messages.LogException(this.GetACUrl(), "GetConfigurationValue()", e.InnerException.Message);
+            }
+            //});
+            return null;
         }
 
         internal void SetConfigurationValue(string configuration, object value, Type forceType = null)
@@ -4593,7 +4608,8 @@ namespace gip.core.autocomponent
                                 break;
                         }
                     }
-                    ACClassTaskQueue.TaskQueue.Add(() =>
+                    //ACClassTaskQueue.TaskQueue.Add(() =>
+                    ACClassTaskQueue.TaskQueue.ProcessAction(() =>
                     {
                         acClassConfig = acTypeFromLiveContext.NewACConfig(null, ACClassTaskQueue.TaskQueue.Context.GetACType(value != null ? value.GetType() : forceType)) as ACClassConfig;
                         acClassConfig.LocalConfigACUrl = configuration;
@@ -4618,12 +4634,20 @@ namespace gip.core.autocomponent
         /// This also resets all configuration properties and reloads them from the database (ACPropertyConfigValue&lt;T&gt;).
         /// This method is recursively. It resets also all childs in the application tree.
         /// </summary>
-        [ACMethodInfo("ACComponent", "en{'Reset configuration cache'}de{'Resettiere Konfigurationspuffer'}", 1000)]
+        [ACMethodCommand("ACComponent", "en{'Reset configuration cache'}de{'Resettiere Konfigurationspuffer'}", 1000)]
         public virtual void ResetConfigValuesCache()
         {
             ACClass acTypeFromLiveContext = ACTypeFromLiveContext;
             if (acTypeFromLiveContext == null)
                 return;
+            using (ACMonitor.Lock(LockMemberList_20020))
+            {
+                if (_ACPropertyConfigValueList != null)
+                {
+                    _ACPropertyConfigValueList.ForEach(c => c.IsCachedValueSet = false);
+                }
+            }
+
             acTypeFromLiveContext.ClearCacheOfConfigurationEntries();
 
             using (ACMonitor.Lock(LockMemberList_20020))
@@ -4649,6 +4673,38 @@ namespace gip.core.autocomponent
         //    }
         //    return false;
         //}
+
+        [ACMethodCommand("ACComponent", "en{'Remove duplicate configurations'}de{'Entferne doppelte Konfigurationseinträge'}", 1001, true)]
+        public virtual void RemoveDuplicateConfigEntries()
+        {
+            RemoveDuplicateConfigEntriesInternal();
+        }
+
+        protected virtual void RemoveDuplicateConfigEntriesInternal(int depth = 0)
+        {
+            using (ACMonitor.Lock(LockMemberList_20020))
+            {
+                if (_ACPropertyConfigValueList != null)
+                {
+                    _ACPropertyConfigValueList.ForEach(c => c.RemoveDuplicateEntries());
+                }
+            }
+            foreach (ACComponent child in this.ACComponentChilds)
+            {
+                child.RemoveDuplicateConfigEntriesInternal(depth+1);
+            }
+
+            if (depth == 0)
+            {
+                ResetConfigValuesCache();
+                ACClassTaskQueue.TaskQueue.Add(() =>
+                {
+                    // Force SaveChanges
+                    _ = new object();
+                });
+
+            }
+        }
         #endregion
 
 
