@@ -1020,7 +1020,7 @@ namespace gip.bso.iplus
 
             AvailableSearchedItemsList = Database.ContextIPlus.ACClass.Where(c => (c.ACKindIndex == (short)Global.ACKinds.TPAProcessModule || c.ACKindIndex == (short)Global.ACKinds.TPAModule)
                                                                                && c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application
-                                                                               && (c.ACIdentifier.ToLower().Contains(SearchText) || c.ACCaptionTranslation.ToLower().Contains(SearchText) || c.Comment.ToLower().Contains(SearchText)))
+                                                                               && (c.ACIdentifier.ToLower().Contains(searchText) || c.ACCaptionTranslation.ToLower().Contains(searchText) || c.Comment.ToLower().Contains(searchText)))
                                                                       .OrderBy(c => c.ACURLComponentCached)
                                                                       .ToList();
 
