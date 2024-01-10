@@ -146,6 +146,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Flowdoc\Document\Barcode\BarcodeValue.cs" />
     <Compile Include="Linx\LinxByteMappingAttribute.cs" />
     <Compile Include="Linx\LinxCommandStatusCodeEnum.cs" />
     <Compile Include="Linx\LinxExtendedPrintErrorEnum.cs" />

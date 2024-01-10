@@ -691,7 +691,7 @@ namespace gip.core.reporthandler
                             if (responseSuccess && responseData != null)
                             {
                                 (MsgWithDetails msgWithDetails, LinxPrinterCompleteStatusResponse response) = LinxMapping<LinxPrinterCompleteStatusResponse>.Map(responseData);
-                                if(msgWithDetails != null && msgWithDetails.IsSucceded())
+                                if (msgWithDetails != null && msgWithDetails.IsSucceded())
                                 {
                                     LinxPrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
                                     if (IsAlarmActive(nameof(LinxPrinterAlarm), msgWithDetails.DetailsAsText) == null)
@@ -730,7 +730,7 @@ namespace gip.core.reporthandler
                                     }
                                     else
                                     {
-                                        if(response.P_Status > 0 || response.C_Status > 0)
+                                        if (response.P_Status > 0 || response.C_Status > 0)
                                         {
                                             using (ACMonitor.Lock(_61000_LockPort))
                                             {
@@ -744,7 +744,7 @@ namespace gip.core.reporthandler
                                                 Messages.LogError(GetACUrl(), $"{nameof(LinxPrinter)}.{nameof(ProcessJob)}(140)", message);
                                             }
                                             OnNewAlarmOccurred(LinxPrinterAlarm, message, true);
-                                            if(PrinterCompleteStatus.ValueT != null)
+                                            if (PrinterCompleteStatus.ValueT != null)
                                             {
                                                 PrinterCompleteStatus.ValueT.P_Status = response.P_Status;
                                                 PrinterCompleteStatus.ValueT.C_Status = response.C_Status;
@@ -940,13 +940,47 @@ namespace gip.core.reporthandler
         public override void OnRenderInlineBarcode(PrintJob printJob, InlineBarcode inlineBarcode)
         {
             LinxPrintJob linxPrintJob = (LinxPrintJob)printJob;
-            if (UseRemoteReport)
+            string barcodeValue = "";
+
+            BarcodeType[] ianBarcodeTypes = new BarcodeType[] { BarcodeType.CODE128, BarcodeType.CODE128A, BarcodeType.CODE128B, BarcodeType.CODE128C };
+            bool isIanCodeType = ianBarcodeTypes.Contains(inlineBarcode.BarcodeType);
+            Dictionary<string, string> barcodeValues = new Dictionary<string, string>();
+            
+            if (isIanCodeType)
             {
-                SetRemoteValue(linxPrintJob, inlineBarcode.Name, inlineBarcode.Value.ToString());
+                if (inlineBarcode.BarcodeValues != null && inlineBarcode.BarcodeValues.Any())
+                {
+                    foreach(BarcodeValue tmpBarcodeValue in  inlineBarcode.BarcodeValues)
+                    {
+                        try
+                        {
+                            string ai = tmpBarcodeValue.AI;
+                            string tmpValue = tmpBarcodeValue.Value?.ToString();
+                            if(tmpValue != null)
+                            {
+                                barcodeValues.Add(ai, tmpValue);
+                            }
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+                }
+                barcodeValue = GS1.Generate(barcodeValues, isIanCodeType);
             }
             else
             {
-                DownloadBarcodeValue(linxPrintJob, inlineBarcode);
+                barcodeValue = inlineBarcode.Value.ToString();
+            }
+
+            if (UseRemoteReport)
+            {
+                SetRemoteValue(linxPrintJob, inlineBarcode.Name, barcodeValue);
+            }
+            else
+            {
+                DownloadBarcodeValue(linxPrintJob, barcodeValue);
             }
         }
 
@@ -975,6 +1009,8 @@ namespace gip.core.reporthandler
 
         #region Methods -> Linx Printer Methods
 
+        #region Methods -> Linx Printer Methods -> Communicate
+
         /// <summary>
         /// Add remote field value for post processing to LinxPrintJob feed
         /// </summary>
@@ -983,7 +1019,8 @@ namespace gip.core.reporthandler
         /// <param name="text"></param>
         private void SetRemoteValue(LinxPrintJob linxPrintJob, string name, string text)
         {
-            linxPrintJob.RemoteFieldValues.Add(Encoding.ASCII.GetBytes(text));
+            byte[] textByte = Encoding.ASCII.GetBytes(text);
+            linxPrintJob.RemoteFieldValues.Add(textByte);
         }
 
 
@@ -1041,6 +1078,7 @@ namespace gip.core.reporthandler
 
             byte[] textBytes = Encoding.ASCII.GetBytes(text);
 
+
             List<byte[]> dataArr = new List<byte[]>();
 
             //01; Number of messages
@@ -1063,11 +1101,11 @@ namespace gip.core.reporthandler
 
             //52 45 4D 4F 54 45 20 54; Message name -REMOTE TEST
             //45 53 54 00 00 00 00 00
-            dataArr.Add(textBytes);
+            dataArr.Add(GetMessageName(linxPrintJob.Name));
 
             //31 36 20 47 45 4E 20 53; Raster name -16 GEN STD
             //54 44 00 00 00 00 00 00
-            dataArr.Add(new byte[] { 0x31, 0x36, 0x20, 0x47, 0x45, 0x4E, 0x20, 0x53, 0x54, 0x44, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }); // @aagincic: don't know meaning (is fixed name or?)
+            dataArr.Add(new byte[] { 0x31, 0x36, 0x20, 0x47, 0x45, 0x4E, 0x20, 0x53, 0x54, 0x44, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }); // NOTE: hardcoded Raster name
 
             //1C; Field header
             dataArr.Add(new byte[] { (byte)LinxASCIControlCharacterEnum.FS });
@@ -1108,12 +1146,15 @@ namespace gip.core.reporthandler
             //00; Linkage
             dataArr.Add(new byte[] { 0x00 });
 
-            //37 20 48 69 67 68 20 46; Character set name - 7 High Full
-            //75 6C 6C 00 00 00 00 00
-            dataArr.Add(new byte[] { 0x37, 0x20, 0x48, 0x69, 0x67, 0x68, 0x20, 0x46, 0x75, 0x6C, 0x6C, 0x00, 0x00, 0x00, 0x00, 0x00 });
+            //37 20 48 69 67 68 20 46; Data set name - 7 High Full
+            //    75 6C 6C 00 00 00 00 00
+            dataArr.Add(new byte[] {0x37,  0x20,  0x48,  0x69,  0x67,  0x68,  0x20,  0x46,  0x75,  0x6C,  0x6C,  0x00,  0x00,  0x00,  0x00,  0x00 }); //  NOTE: hardcoded Data Set Name
+
+            // 4C 69 6E 78 00; Data - Linx(note the null terminator)
+            dataArr.Add(textBytes);
+            dataArr.Add(new byte[] { 0x00 }); // the null terminator
 
             byte[] inputData = LinxHelper.Combine(dataArr);
-
 
             byte[] data = GetData(LinxASCIControlCharacterEnum.DC3, inputData);
             linxPrintJob.PacketsForPrint.Add(data);
@@ -1126,326 +1167,178 @@ namespace gip.core.reporthandler
         /// </summary>
         /// <param name="linxPrintJob"></param>
         /// <param name="inlineBarcode"></param>
-        private void DownloadBarcodeValue(LinxPrintJob linxPrintJob, InlineBarcode inlineBarcode)
+        private void DownloadBarcodeValue(LinxPrintJob linxPrintJob, string barcodeValue)
         {
             // TODO: @aagincic LinxPrinter DownloadBarcodeValue
 
             /*
-                1B 02	;ESC STX sequence
-                19	;Command ID - Download Message Data
+                7C	;Command ID - Download Message Data
                 01	;Number of messages
-                ED 00	;Message length in bytes
-                CF 00	;Message length in rasters
-                06	;EHT setting
+                79 00	;Message length in bytes
+                5C 01	;Message length in rasters
+                00	;EHT setting - set to null
                 00 00	;Inter-raster width
                 10 00	;Print delay
-                4C 49 4E 58 20 54 45 53	;Message name - LINX TEST
-                54 00 00 00 00 00 00 00
-                31 36 20 47 45 4E 20 53	;Raster name - 16 GEN STD
-                54 44 00 00 00 00 00 00
-                1C	;Field header
-                00	;Field type - Text field
-                2A 00	;Field length in bytes
-                00	;Y position
-                00 00	;X position
-                35 00	;Field length in rasters
-                07	;Field height in drops
- 
-                00	;Format 3
-                01	;Bold multiplier
-                09	;String length (excluding null)
-                00	;Format 1
-                00	;Format 2
-                00	;Linkage
-                37 20 48 69 67 68 20 46	;Data set name - 7 High Full
-                75 6C 6C 00 00 00 00 00
-                54 65 73 74 20 54 65 78	;Data - Test Text
-                74 00
-                1C	;Field header
-                05	;Field type - Date field
-                32 00	;Field length in bytes
-                09	;Y position
-                00 00	;X position
-                2F 00	;Field length in rasters
-                07	;Field height in drops
-                00	;Format 3
-                01	;Bold multiplier
-                08	;String length (excluding null)
-                00	;Format 1
-                00	;Format 2
-                00	;Linkage
-                37 20 48 69 67 68 20 46	;Data set name - 7 High Full
-                75 6C 6C 00 00 00 00 00
-                64 64 2E 6D 6D 2E 79 79	;Date format name - dd.mm.yy
+                6D 65 73 73 61 67 65 37	;Message name - message7.pat
+                2E 70 61 74 00 00 00 00
+                35 30 30 20 48 69 67 68	;Raster name - 500 High
                 00 00 00 00 00 00 00 00
-                00	00	;Date offset - 0
                 1C	;Field header
-                01	;Field type - Logo field
-                20 00	;Field length in bytes
-                00	;Y position
-                3C 00	;X position
-                36 00	;Field length in rasters
-                10	;Field height in drops
-                00	;Format 3
-                01	;Bold multiplier
-                00	;String length (excluding null)
-                00	;Format 1
-                00	;Format 2
-                00	;Linkage
-                45 78 70 2E 20 31 36 20	;Data set name - Exp. 16 (Arab)
-                28 41 72 61 62 29 00 00
-                1C	;Field header
-                C0	;Field type - Bar code text (not rendered)
-                28 00	;Field length in bytes
-                00	;Y position
+                C0	;Field type - Text field (not rendered)
+                2C 00	;Field length in bytes
+                FA FF	;Y position
                 00 00	;X position
-                2F 00	;Field length in rasters
-                07	;Field height in drops
+                40 01	;Field length in rasters
+                2D 00	;Field height in drops
                 00	;Format 3
- 
                 01	;Bold multiplier
                 07	;String length (excluding null)
                 00	;Format 1
                 00	;Format 2
-                04	;Linkage – points to field 4
-                37 20 48 69 67 68 20 46	;Data set name - 7 High Full
-                75 6C 6C 00 00 00 00 00
+                01	;Linkage - points to Bar Code
+                00	;Reserved - set to null
+                00	;Reserved - set to null
+                34 35 20 48 69 20 42 61	;Data set name - 45 Hi Barcode
+                72 63 6F 64 65 00 00 00
                 31 32 33 34 35 36 37 00	;Data - 1234567
+ 
                 1C	;Field header
                 46	;Field type - Bar code field
-                20 00	;Field length in bytes
-                00	;Y position
-                78 00	;X position
-                57 00	;Field length in rasters
-                10	;Field height in drops
+                24 00	;Field length in bytes
+                00 00	;Y position
+                00 00	;X position
+                5C 01	;Field length in rasters
+                E5 00	;Field height in drops
                 00	;Format 3
-                01	;Bold multiplier
-                00	;String length (excluding null)
+                04	;Bold multiplier
+                00	;Text length (excluding null)
                 00	;Format 1
-                01	;Format 2 (Checksum on)
-                03	;Linkage – points to field 3
+                03	;Format 2 - Checksum on, attached text; on
+                00	;Linkage
+                00	;Reserved
+                00	;Reserved
                 45 41 4E 2D 38 20 20 20	;Data set name - EAN-8
                 20 20 20 20 20 20 20 00
-                1B 03	;ESC ETX sequence
-                D4	;Checksum
 
-                Printer Reply
-                1B 06	;ESC ACK sequence
-                00	;P-Status - No printer errors
-                00	;C-Status - No command errors
-                19	;Command ID sent
-                1B 03	;ESC ETX sequence
-                DE	;Checksum
-    */
-
-
-            //    19; Command ID -Download Message Data
-            byte[] textBytes = Encoding.ASCII.GetBytes(inlineBarcode.Value.ToString());
+         */
             List<byte[]> dataArr = new List<byte[]>();
+            byte[] textBytes = Encoding.ASCII.GetBytes(barcodeValue);
 
-            //    01; Number of messages
-            dataArr.Add(BitConverter.GetBytes(textBytes.Length));
+            //01; Number of messages
+            dataArr.Add(new byte[] { 0x00 });
 
-            //    ED 00; Message length in bytes
-            dataArr.Add(new byte[] { 0x01 });
-
-            //    CF 00; Message length in rasters
-            dataArr.Add(new byte[] { 0xCF, 0 });
-
-            //    06; EHT setting
-            dataArr.Add(new byte[] { 0x06, 0 });
+            //79 00; Message length in bytes
+            dataArr.Add(new byte[] { 79, 00 });
 
 
-            //    00 00; Inter - raster width
+            //5C 01; Message length in rasters
+            dataArr.Add(new byte[] { 0x5c, 0x01 });
+
+            //00; EHT setting -set to null
+            dataArr.Add(new byte[] { 0x00 });
+
+            //00 00; Inter - raster width
             dataArr.Add(new byte[] { 0x00, 0x00 });
-            //    10 00; Print delay
+
+            //10 00; Print delay
             dataArr.Add(new byte[] { 0x10, 0x00 });
 
-            //    4C 49 4E 58 20 54 45 53; Message name -LINX TEST
-            //    54 00 00 00 00 00 00 00
-            dataArr.Add(textBytes);
+            //6D 65 73 73 61 67 65 37; Message name -message7.pat
+            //2E 70 61 74 00 00 00 00
+            dataArr.Add(GetMessageName(linxPrintJob.Name));
 
-            //    31 36 20 47 45 4E 20 53; Raster name -16 GEN STD
-            //    54 44 00 00 00 00 00 00
-            dataArr.Add(new byte[] { 0x31, 0x36, 0x20, 0x47, 0x45, 0x4E, 0x20, 0x53, 0x54, 0x44, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }); // @aagincic: don't know meaning (is fixed name or?)
+            //35 30 30 20 48 69 67 68; Raster name -500 High
+            //00 00 00 00 00 00 00 00
+            dataArr.Add(new byte[] { 0x35, 0x30, 0x30, 0x20, 0x48, 0x69, 0x67, 0x68, 0x2E, 0x70, 0x61, 0x74, 0x00, 0x00, 0x00, 0x00 }); // NOTE: hardcoded Raster name
 
-            //    1C; Field header
+            //1C; Field header
             dataArr.Add(new byte[] { 0x1C });
 
-            //    00; Field type -Text field
-            dataArr.Add(new byte[] { 0x00 });
+            //C0; Field type -Text field(not rendered)
+            dataArr.Add(new byte[] { 0xC0 });
 
-            //    2A 00; Field length in bytes
-            dataArr.Add(new byte[] { 0x2A, 0x00 });
+            //2C 00; Field length in bytes
+            dataArr.Add(new byte[] { (byte)textBytes.Length });
 
-            //    00; Y position
-            dataArr.Add(new byte[] { 0x00 });
+            //FA FF; Y position
+            dataArr.Add(new byte[] { 0xFA, 0xFF });
 
-            //    00 00; X position
+            //00 00; X position
             dataArr.Add(new byte[] { 0x00, 0x00 });
 
-            //    35 00; Field length in rasters
-            dataArr.Add(new byte[] { 0x00, 0x00 });
+            //40 01; Field length in rasters
+            dataArr.Add(new byte[] { 0x40, 0x01 });
 
-            //    07; Field height in drops
-            dataArr.Add(new byte[] { 0x07 });
+            //2D 00; Field height in drops
+            dataArr.Add(new byte[] { 0x2D, 0x00 });
 
-            //    00; Format 3
+            //00; Format 3
             dataArr.Add(new byte[] { 0x00 });
 
-            //    01; Bold multiplier
+            //01; Bold multiplier
             dataArr.Add(new byte[] { 0x01 });
 
-            //    09; String length(excluding null)
-            dataArr.Add(BitConverter.GetBytes(textBytes.Length));
+            //07; String length(excluding null)
+            dataArr.Add(new byte[] { (byte) barcodeValue.Length });
 
-            //    00; Format 1
+            //00; Format 1
             dataArr.Add(new byte[] { 0x00 });
 
-            //    00; Format 2
+            //00; Format 2
             dataArr.Add(new byte[] { 0x00 });
 
-            //    00; Linkage
+            //01; Linkage - points to Bar Code
+            dataArr.Add(new byte[] { 0x01 });
+
+            //00; Reserved - set to null
             dataArr.Add(new byte[] { 0x00 });
 
-            //    37 20 48 69 67 68 20 46; Data set name - 7 High Full
-            //    75 6C 6C 00 00 00 00 00
-            dataArr.Add(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}); // @aagincic why i need name - this is not remote field, and text value is already given, now give empty set in same length
+            //00; Reserved - set to null
+            dataArr.Add(new byte[] { 0x00 });
 
-            //    54 65 73 74 20 54 65 78; Data - Test Text
-            //    74 00
-            dataArr.Add(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }); // @aagincic: same as previous
+            //34 35 20 48 69 20 42 61; Data set name - 45 Hi Barcode
+            //72 63 6F 64 65 00 00 00
+            dataArr.Add(new byte[] { 0x34, 0x35, 0x20, 0x48, 0x69, 0x20, 0x42, 0x61, 0x72, 0x63, 0x6F, 0x64, 0x65, 0x00, 0x00, 0x00 }); // NOTE: hardcoded: Data set name
 
+            //31 32 33 34 35 36 37 00; Data - 1234567
+            dataArr.Add(textBytes);
 
-            // Section repeat it self
-
-            ////    1C; Field header
-            //dataArr.Add(new byte[] { 0x0C });
-
-            ////    05; Field type -Date field
-            //dataArr.Add(new byte[] { 0x05 });
-
-            ////    32 00; Field length in bytes
-            //dataArr.Add(new byte[] { 0x32, 0x00 });
-
-            ////    09; Y position
-            //dataArr.Add(new byte[] { 0x09 });
-
-            ////    00 00; X position
-            //dataArr.Add(new byte[] { 0x00, 0x00 });
-
-            ////    2F 00; Field length in rasters
-            //dataArr.Add(new byte[] { 0x2F, 0x00 });
-
-            ////    07; Field height in drops
-            //dataArr.Add(new byte[] { 0x07 });
-
-            ////    00; Format 3
-            //dataArr.Add(new byte[] { 0x00 });
-
-            ////    01; Bold multiplier
-            //dataArr.Add(new byte[] { 0x01 });
-
-            ////    08; String length(excluding null)
-            //dataArr.Add(new byte[] { 0x00 });
-
-            ////    00; Format 1
-            //dataArr.Add(new byte[] { 0x00 });
-
-            ////    00; Format 2
-            //dataArr.Add(new byte[] { 0x00 });
-
-            ////    00; Linkage
-            //dataArr.Add(new byte[] { 0x00 });
-
-            ////    37 20 48 69 67 68 20 46; Data set name - 7 High Full
-            ////    75 6C 6C 00 00 00 00 00
-
-            ////    64 64 2E 6D 6D 2E 79 79; Date format name - dd.mm.yy
-            ////    00 00 00 00 00 00 00 00
-
-            ////    00  00; Date offset -0
-
-            ////    1C; Field header
-
-            ////    01; Field type -Logo field
-
-            ////    20 00; Field length in bytes
-
-            ////    00; Y position
-
-            ////    3C 00; X position
-
-            ////    36 00; Field length in rasters
-
-            ////    10; Field height in drops
-
-            ////    00; Format 3
-
-            ////    01; Bold multiplier
-
-            ////    00; String length(excluding null)
-
-            ////    00; Format 1
-
-            ////    00; Format 2
-
-            ////    00; Linkage
-
-            ////    45 78 70 2E 20 31 36 20; Data set name - Exp. 16(Arab)
-
-            ////    28 41 72 61 62 29 00 00
-
-            ////    1C; Field header
-
-            ////    C0; Field type -Bar code text(not rendered)
-            ////    28 00; Field length in bytes
-            ////    00; Y position
-            ////    00 00; X position
-            ////    2F 00; Field length in rasters
-            ////    07; Field height in drops
-            ////    00; Format 3
-
-
-            ////    01; Bold multiplier
-            ////    07; String length(excluding null)
-            ////    00; Format 1
-            ////    00; Format 2
-            ////    04; Linkage – points to field 4
-            ////    37 20 48 69 67 68 20 46; Data set name - 7 High Full
-            ////    75 6C 6C 00 00 00 00 00
-            ////    31 32 33 34 35 36 37 00; Data - 1234567
-            ////    1C; Field header
-            ////    46; Field type -Bar code field
-            ////    20 00; Field length in bytes
-            ////    00; Y position
-            ////    78 00; X position
-            ////    57 00; Field length in rasters
-            ////    10; Field height in drops
-            ////    00; Format 3
-            ////    01; Bold multiplier
-            ////    00; String length(excluding null)
-            ////    00; Format 1
-            ////    01; Format 2(Checksum on)
-            ////    03; Linkage – points to field 3
-            ////    45 41 4E 2D 38 20 20 20; Data set name - EAN - 8
-            ////    20 20 20 20 20 20 20 00
-            ////    1B 03; ESC ETX sequence
-            ////    D4; Checksum
-
-            ////    Printer Reply
-            ////    1B 06; ESC ACK sequence
-            ////    00; P - Status - No printer errors
-            ////    00; C - Status - No command errors
-            ////    19; Command ID sent
-            ////    1B 03; ESC ETX sequence
-            ////    DE; Checksum
-
-
-
-            byte[] data = GetData(LinxASCIControlCharacterEnum.DC3, null);
+            byte[] inputData = LinxHelper.Combine(dataArr);
+            // 7C	;Command ID - Download Message Data
+            byte[] data = GetData(LinxPrinterCommandCodeEnum.Download_Message_Data1, inputData.ToArray());
             linxPrintJob.PacketsForPrint.Add(data);
         }
+
+
+        /// <summary>
+        /// Loading remote layout
+        /// </summary>
+        /// <param name="linxPrintJob"></param>
+        private void LoadPrintMessage(LinxPrintJob linxPrintJob, FlowDocument flowDoc)
+        {
+            string reportName = flowDoc.Name;
+            byte[] reportNameByte = Encoding.ASCII.GetBytes(reportName);
+            // LinxASCIControlCharacterEnum.RS == 0x1E
+            byte[] data = GetData(LinxASCIControlCharacterEnum.RS, reportNameByte);
+            linxPrintJob.PacketsForPrint.Add(data);
+        }
+
+        private byte[] GetMessageName(string reportName)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(reportName);
+
+            byte[] result = new byte[15];
+            Array.Copy(bytes, result, Math.Min(bytes.Length, 15));
+
+            // If the name is shorter than 15 bytes, the rest of the array will be zeros.
+            return result;
+        }
+
+        #endregion
+
+
+        #region Methods -> Linx Printer Methods -> Start printing
+
 
         /// <summary>
         /// add to print queue
@@ -1504,24 +1397,58 @@ namespace gip.core.reporthandler
         }
 
 
+        #endregion
+
+        #region Methods -> Linx Printer Methods -> Communicate
+
+        public void StopPrint(LinxPrintJob linxPrintJob)
+        {
+            //1B 02; ESC STX sequence
+            //12; Command ID -Stop Print
+            //1B 03; ESC ETX sequence
+            //E9; Checksum
+
+            //12; Command ID -Stop Print
+            byte[] data = GetData(LinxASCIControlCharacterEnum.DC2, null);
+            linxPrintJob.PacketsForPrint.Add(data);
+        }
+
         /// <summary>
-        /// Loading remote layout
+        /// Doc name:
+        /// Delete Message Data
         /// </summary>
         /// <param name="linxPrintJob"></param>
-        private void LoadPrintMessage(LinxPrintJob linxPrintJob, FlowDocument flowDoc)
+        /// <param name="reportName"></param>
+        public void ClearRemoteReportData(LinxPrintJob linxPrintJob)
         {
-            string reportName = flowDoc.Name;
-            byte[] reportNameByte = Encoding.ASCII.GetBytes(reportName);
-            // LinxASCIControlCharacterEnum.RS == 0x1E
-            byte[] data = GetData(LinxASCIControlCharacterEnum.RS, reportNameByte);
+
+            //1B 02; ESC STX sequence
+            //1B 1B; Command ID -Delete Message
+            //01; Number of messages
+            //4C 49 4E 58 20 54 45 53
+            //54 00 00 00 00 00 00 00; Message name -LINX TEST
+            //1B 03; ESC ETX sequence
+            //44; Checksum
+
+            List<byte[]> dataArr = new List<byte[]>();
+
+            //01; Number of messages
+            dataArr.Add(new byte[] { 0x01 });
+
+            //  Message name -LINX TEST
+            byte[] reportNameBytes = Encoding.ASCII.GetBytes(linxPrintJob.Name);
+            dataArr.Add(reportNameBytes);
+
+
+            //1B 1B; Command ID -Delete Message
+            byte[] data = GetData(LinxASCIControlCharacterEnum.ESC, new byte[] { (byte)LinxASCIControlCharacterEnum.ESC });
             linxPrintJob.PacketsForPrint.Add(data);
         }
 
         #endregion
 
-        #region Messages
-
         #endregion
+
 
     }
 }
