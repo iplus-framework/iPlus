@@ -236,6 +236,9 @@ namespace gip.core.reporthandler.Flowdoc
             List<InlineBarcode> blockBarcodeValues = _rootCache.GetObjectsOfType<InlineBarcode>(null, true);
             blockBarcodeValues.AddRange(walker.TraverseBlockCollection<InlineBarcode>(blocks, 0));
 
+            List<BarcodeValue> barcodeValues = blockBarcodeValues.Where(c=>c.BarcodeValues != null).SelectMany(c=>c.BarcodeValues).ToList();
+            barcodeValues.AddRange(walker.TraverseBlockCollection<BarcodeValue>(blocks, 0));
+
             List<InlineFlowDocContentValue> blockFlowDocContentValues = _rootCache.GetObjectsOfType<InlineFlowDocContentValue>(null, true);
             blockFlowDocContentValues.AddRange(walker.TraverseBlockCollection<InlineFlowDocContentValue>(blocks, 0));
 
@@ -248,6 +251,7 @@ namespace gip.core.reporthandler.Flowdoc
             blockBoolValues.ForEach(c => SetIPropertyValue(c, aggregateValues, null));
             blockACMethodValues.ForEach(c => SetIPropertyValue(c, aggregateValues, null));
             blockBarcodeValues.ForEach(c => SetIPropertyValue(c, aggregateValues, null));
+            barcodeValues.ForEach(c => SetIPropertyValue(c, aggregateValues, null));
             blockFlowDocContentValues.ForEach(c => SetIPropertyValue(c, aggregateValues, null));
 
             // 2. fill tables

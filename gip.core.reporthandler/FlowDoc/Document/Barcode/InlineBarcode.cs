@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Drawing.Imaging;
+﻿using System.Drawing.Imaging;
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -95,19 +92,7 @@ namespace gip.core.reporthandler.Flowdoc
             DependencyProperty.Register("QRPixelsPerModule", typeof(int), typeof(InlineBarcode), new UIPropertyMetadata(20));
 
 
-
-        private List<BarcodeValue> _BarcodeValues = new List<BarcodeValue>();
-        public List<BarcodeValue> BarcodeValues
-        {
-            get
-            {
-                return _BarcodeValues;
-            }
-            set
-            {
-                _BarcodeValues = value;
-            }
-        }
+        public BarcodeValueCollection BarcodeValues { get;set;} = new BarcodeValueCollection();
 
         public override object Value
         {

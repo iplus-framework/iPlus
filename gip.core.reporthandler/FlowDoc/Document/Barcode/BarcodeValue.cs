@@ -2,8 +2,10 @@
 
 namespace gip.core.reporthandler.Flowdoc
 {
-    public class BarcodeValue : InlineUIValueBase
+    public class BarcodeValue : InlineDocumentValue
     {
+
+        #region Properties
 
         public virtual string AI
         {
@@ -11,5 +13,9 @@ namespace gip.core.reporthandler.Flowdoc
             set { SetValue(AIProperty, value); }
         }
         public static readonly DependencyProperty AIProperty = ReportDocument.StringFormatProperty.AddOwner(typeof(BarcodeValue));
+
+
+        #endregion
+
     }
 }
