@@ -152,6 +152,51 @@ namespace gip.core.layoutengine.Helperclasses
             return null;
         }
 
+        public static IEnumerable<T> FindChildObjects<T>(DependencyObject obj) where T : class
+        {
+            List<T> result = new List<T>();
+
+            FindChildObjects<T>(obj, result);
+
+            return result;
+        }
+
+        private static void FindChildObjects<T>(DependencyObject obj, List<T> resultList) where T : class
+        {
+            if (obj == null)
+                return;
+
+            Type type = typeof(T);
+
+            if (obj.GetType() == type)
+            {
+                resultList.Add(obj as T);
+            }
+            else if (type.IsAssignableFrom(obj.GetType()))
+            {
+                resultList.Add(obj as T);
+            }
+
+            if (obj is ContentPresenter)
+            {
+                DependencyObject contentObj = (obj as ContentPresenter).Content as DependencyObject;
+                if (contentObj != null)
+                {
+                    FindChildObjects<T>(contentObj, resultList);
+                }
+            }
+            else
+            {
+                foreach (object childObj in LogicalTreeHelper.GetChildren(obj))
+                {
+                    if (!(childObj is DependencyObject))
+                        continue;
+                    FindChildObjects<T>(childObj as DependencyObject, resultList);
+                }
+            }
+        }
+
+
         public static DependencyObject FindParentObjectInLogicalTree(DependencyObject obj, string PART_Name)
         {
             if (obj == null)

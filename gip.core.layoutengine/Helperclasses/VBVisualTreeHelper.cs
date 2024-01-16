@@ -8,7 +8,9 @@ using gip.core.datamodel;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Windows.Data;
- 
+using System.Windows.Controls;
+using DocumentFormat.OpenXml.Presentation;
+
 namespace gip.core.layoutengine.Helperclasses
 {
 
@@ -107,6 +109,51 @@ namespace gip.core.layoutengine.Helperclasses
             }
             return null;
         }
+
+
+        public static IEnumerable<T> FindChildObjects<T>(DependencyObject obj) where T : class
+        {
+            List<T> result = new List<T>();
+
+            FindChildObjects<T>(obj, result);
+
+            return result;
+        }
+
+        private static void FindChildObjects<T>(DependencyObject obj, List<T> resultList) where T : class
+        {
+            if (obj == null)
+                return;
+
+            Type type = typeof(T);
+
+            if (obj.GetType() == type)
+            {
+                resultList.Add(obj as T);
+            }
+            else if (type.IsAssignableFrom(obj.GetType()))
+            {
+                resultList.Add(obj as T);
+            }
+
+            //if (obj is ContentPresenter)
+            //{
+            //    DependencyObject contentObj = (obj as ContentPresenter).Content as DependencyObject;
+            //    if (contentObj != null)
+            //    {
+            //        FindChildObjects<T>(contentObj, resultList);
+            //    }
+            //}
+            //else
+            //{
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+                {
+                    DependencyObject found = VisualTreeHelper.GetChild(obj, i);
+                    FindChildObjects<T>(found as DependencyObject, resultList);
+                }
+            //}
+        }
+
 
         public static DependencyObject FindParentObjectInVisualTree(DependencyObject obj, string PART_Name)
         {

@@ -271,6 +271,7 @@
     <Compile Include="Controls\VBDesignEditor\VBTriggersCollectionEditor.cs" />
     <Compile Include="Controls\VBDesign\AdornerVBControlManager.cs" />
     <Compile Include="Controls\VBDesign\VBDesignSelectionAdorner.cs" />
+    <Compile Include="Controls\VBDesign\VBDesignVBContentAdorner.cs" />
     <Compile Include="Controls\VBDocking\VBWindow\VBWindowDialogMsgViewModel.cs" />
     <Compile Include="Controls\VBDynamic\VBDynamicContent.cs" />
     <Compile Include="Controls\VBExpander\VBExpander.cs" />
