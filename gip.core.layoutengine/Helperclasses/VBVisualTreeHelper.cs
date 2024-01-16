@@ -136,22 +136,11 @@ namespace gip.core.layoutengine.Helperclasses
                 resultList.Add(obj as T);
             }
 
-            //if (obj is ContentPresenter)
-            //{
-            //    DependencyObject contentObj = (obj as ContentPresenter).Content as DependencyObject;
-            //    if (contentObj != null)
-            //    {
-            //        FindChildObjects<T>(contentObj, resultList);
-            //    }
-            //}
-            //else
-            //{
-                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
-                {
-                    DependencyObject found = VisualTreeHelper.GetChild(obj, i);
-                    FindChildObjects<T>(found as DependencyObject, resultList);
-                }
-            //}
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+            {
+                DependencyObject found = VisualTreeHelper.GetChild(obj, i);
+                FindChildObjects<T>(found as DependencyObject, resultList);
+            }
         }
 
 
