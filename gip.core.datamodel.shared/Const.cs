@@ -272,6 +272,7 @@ namespace gip.core.datamodel
         public const string CmdHighlightVBControl = "^HighlightVBControl";
         public const string CmdHighlightContentACObject = "^HighlightContentACObject";
         public const string CmdInitSelectionManager = "^InitSelectionManager";
+        public const string CmdShowHideVBContentInfo = "^ShowHideVBContentInfo";
         public const string CmdPrintScreenToImage = "^PrintScreenToImage";
         public const string CmdPrintScreenToIcon = "^CmdPrintScreenToIcon";
         public const string CmdPrintScreenToClipboard = "^CmdPrintScreenToClipboard";
