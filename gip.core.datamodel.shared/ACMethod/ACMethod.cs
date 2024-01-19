@@ -291,6 +291,38 @@ namespace gip.core.datamodel
                 return _MethodsRegistry.GetVirtualMethodInfos(typeOfACComponent, assemblyMethodName);
             }
         }
+
+        public static void InheritFromBase(Type thisType, string assemblyMethodName)
+        {
+            if (thisType == null || thisType.BaseType == null || String.IsNullOrEmpty(assemblyMethodName))
+                throw new ArgumentNullException();
+            IReadOnlyList<ACMethodWrapper> wrappers = ACMethod.GetVirtualMethodInfos(thisType.BaseType, assemblyMethodName);
+            if (wrappers != null)
+            {
+                foreach (var w in wrappers)
+                {
+                    ACMethod.RegisterVirtualMethod(thisType, assemblyMethodName, w);
+                }
+            }
+        }
+
+        public static List<ACMethodWrapper> OverrideFromBase(Type thisType, string assemblyMethodName)
+        {
+            if (thisType == null || thisType.BaseType == null || String.IsNullOrEmpty(assemblyMethodName))
+                throw new ArgumentNullException();
+            List<ACMethodWrapper> clonedWrappers = new List<ACMethodWrapper>();
+            IReadOnlyList<ACMethodWrapper> wrappers = ACMethod.GetVirtualMethodInfos(thisType.BaseType, assemblyMethodName);
+            if (wrappers != null)
+            {
+                foreach (var w in wrappers)
+                {
+                    ACMethodWrapper w2 = (ACMethodWrapper)w.Clone();
+                    clonedWrappers.Add(w2);
+                    ACMethod.RegisterVirtualMethod(thisType, assemblyMethodName, w2);
+                }
+            }
+            return clonedWrappers;
+        }
 #endif
 
         #endregion

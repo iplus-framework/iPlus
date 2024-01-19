@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
-    public class ACMethodWrapper
+    public class ACMethodWrapper : ICloneable
     {
         private string _CaptionTranslation;
         private Type _PWClass;
@@ -19,6 +19,7 @@ namespace gip.core.datamodel
         public string CaptionTranslation
         {
             get { return _CaptionTranslation; }
+            set { _CaptionTranslation = value; }
         }
 
         public Type PWClass
@@ -84,7 +85,7 @@ namespace gip.core.datamodel
 
         public string GetResultParamACCaption(string paramName, string vbLanguageCode = null)
         {
-            if (_ParameterTranslation == null || String.IsNullOrEmpty(paramName))
+            if (_ResultTranslation == null || String.IsNullOrEmpty(paramName))
                 return paramName;
             string strTranslation;
             if (!_ResultTranslation.TryGetValue(paramName, out strTranslation))
@@ -94,7 +95,31 @@ namespace gip.core.datamodel
             return Translator.GetTranslation(paramName, strTranslation, vbLanguageCode);
         }
 
-#endregion
+        public object Clone()
+        {
+            if (_Method == null || _CaptionTranslation == null || _PWClass == null)
+                return null;
+            ACMethod clonedMethod = _Method.Clone() as ACMethod;
+            Dictionary<string, string> cloneParamTrans = new Dictionary<string, string>();
+            if (_ParameterTranslation != null)
+            {
+                foreach (var entry in _ParameterTranslation)
+                {
+                    cloneParamTrans.Add(entry.Key, entry.Value);
+                }
+            }
+            Dictionary<string, string> cloneResultTrans = new Dictionary<string, string>();
+            if (_ResultTranslation != null)
+            {
+                foreach (var entry in _ResultTranslation)
+                {
+                    cloneParamTrans.Add(entry.Key, entry.Value);
+                }
+            }
+            return new ACMethodWrapper(clonedMethod, _CaptionTranslation, _PWClass, cloneParamTrans, cloneResultTrans);
+        }
+
+        #endregion
 
     }
 }
