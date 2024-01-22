@@ -88,6 +88,7 @@ namespace gip.core.reporthandler
                         Message = $"Message length not match! Expected length:{expectedLength} Actual length: {data.Length}"
                     };
                     msgWithDetails.AddDetailMessage(badLengthErr);
+                    msgWithDetails.MessageLevel = eMsgLevel.Error;
                 }
             }
 

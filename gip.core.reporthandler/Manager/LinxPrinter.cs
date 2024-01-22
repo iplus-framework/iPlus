@@ -483,7 +483,6 @@ namespace gip.core.reporthandler
             {
                 using (ACMonitor.Lock(_61000_LockPort))
                 {
-                    result = null;
                     if (TcpClient != null || TcpClient.Connected)
                     {
                         try
@@ -498,7 +497,8 @@ namespace gip.core.reporthandler
                                     do
                                     {
                                         numberOfBytesRead = stream.Read(myReadBuffer, 0, myReadBuffer.Length);
-                                        result.AddRange(myReadBuffer);
+                                        if (numberOfBytesRead > 0)
+                                            result.AddRange(myReadBuffer.Take(numberOfBytesRead));
                                     }
                                     while (stream.DataAvailable);
 
@@ -530,7 +530,7 @@ namespace gip.core.reporthandler
                         try
                         {
                             numberOfBytesRead = SerialPort.Read(myReadBuffer, 0, 1024);
-                            result.AddRange(myReadBuffer);
+                            result.AddRange(myReadBuffer.Take(numberOfBytesRead));
 
                             success = result != null && result.Any();
                         }
@@ -730,7 +730,7 @@ namespace gip.core.reporthandler
                                     }
                                     else
                                     {
-                                        if (response.P_Status > 0 || response.C_Status > 0)
+                                        if (response != null && (response.P_Status > 0 || response.C_Status > 0))
                                         {
                                             using (ACMonitor.Lock(_61000_LockPort))
                                             {
