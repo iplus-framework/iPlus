@@ -271,7 +271,7 @@ namespace gip.core.reporthandler
         public void StartPrint()
         {
             LinxPrintJob linxPrintJob = new LinxPrintJob();
-            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.CheckStatus;
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.Print;
             StartPrintCommand(linxPrintJob);
             using (ACMonitor.Lock(_61000_LockPort))
             {
@@ -289,7 +289,7 @@ namespace gip.core.reporthandler
         public void StopPrint()
         {
             LinxPrintJob linxPrintJob = new LinxPrintJob();
-            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.CheckStatus;
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.Print;
             StartPrintCommand(linxPrintJob, true);
             using (ACMonitor.Lock(_61000_LockPort))
             {
@@ -307,7 +307,7 @@ namespace gip.core.reporthandler
         public void StartJet()
         {
             LinxPrintJob linxPrintJob = new LinxPrintJob();
-            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.CheckStatus;
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.Print;
             StartJetCommand(linxPrintJob);
             using (ACMonitor.Lock(_61000_LockPort))
             {
@@ -325,7 +325,7 @@ namespace gip.core.reporthandler
         public void StopJet()
         {
             LinxPrintJob linxPrintJob = new LinxPrintJob();
-            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.CheckStatus;
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.Print;
             StartJetCommand(linxPrintJob, true);
             using (ACMonitor.Lock(_61000_LockPort))
             {
@@ -768,7 +768,7 @@ namespace gip.core.reporthandler
                             if (responseSuccess && responseData != null)
                             {
                                 (MsgWithDetails msgWithDetails, LinxPrinterCompleteStatusResponse response) = LinxMapping<LinxPrinterCompleteStatusResponse>.Map(responseData);
-                                if (msgWithDetails != null && msgWithDetails.IsSucceded())
+                                if (msgWithDetails != null && !msgWithDetails.IsSucceded())
                                 {
                                     LinxPrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
                                     if (IsAlarmActive(nameof(LinxPrinterAlarm), msgWithDetails.DetailsAsText) == null)
@@ -796,7 +796,7 @@ namespace gip.core.reporthandler
                                 if (responseSuccess && responseData != null)
                                 {
                                     (MsgWithDetails msgWithDetails, LinxPrinterStatusResponse response) = LinxMapping<LinxPrinterStatusResponse>.Map(responseData);
-                                    if (msgWithDetails != null && msgWithDetails.IsSucceded())
+                                    if (msgWithDetails != null && !msgWithDetails.IsSucceded())
                                     {
                                         LinxPrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
                                         if (IsAlarmActive(nameof(LinxPrinterAlarm), msgWithDetails.DetailsAsText) == null)
@@ -1469,7 +1469,7 @@ namespace gip.core.reporthandler
 
              */
             // LinxASCIControlCharacterEnum.VT == 0xB == 11
-            byte[] data = GetData(bStop ? LinxASCIControlCharacterEnum.FF : LinxASCIControlCharacterEnum.VT, null);
+            byte[] data = GetData(bStop ? LinxASCIControlCharacterEnum.DC2 : LinxASCIControlCharacterEnum.DC1, null);
             linxPrintJob.PacketsForPrint.Add(data);
         }
 
