@@ -31,6 +31,15 @@ namespace gip.core.reporthandler
         Jet_not_idle = 0x13,
         Print_not_idle = 0x14,
 
+        Message_edit_in_progress = 0x15,
+        Number_of_bytes_in_command = 0x16,
+        Parameter_rejected = 0x17,
+        Minimum_string_length = 0x18,
+        Maximum_string_length = 0x19,
+        Minimum_value = 0x1A,
+        Maximum_value = 0x1B,
+        Memory_full = 0x1C,
+
         No_character_sets = 0x1D,
         No_bar_codes = 0x1E,
         No_logos = 0x1F,
