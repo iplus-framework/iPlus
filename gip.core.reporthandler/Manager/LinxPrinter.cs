@@ -1510,6 +1510,10 @@ namespace gip.core.reporthandler
             linxFieldHeader.FieldLenghtInBytes = BitConverter.GetBytes((short)value.Length);
             linxFieldHeader.FieldLengthInRasters = GetFieldLengthInRasters(dataSet, (short)value.Length);
             linxFieldHeader.TextLenght = (byte)value.Length;
+
+            // TODO: check this: DataSetName length
+            byte[] test = Encoding.Unicode.GetBytes("6 High Full"); // meni je dužina polja (datasetname) ovdje 22 a njima 15 bytes + null*
+
             linxFieldHeader.DataSetName = encoding.GetBytes(dataSet.DataSetName);
             return linxFieldHeader;
         }
@@ -1521,7 +1525,16 @@ namespace gip.core.reporthandler
         public virtual LinxMessageHeader GetLinxMessageHeader(Encoding encoding, string messageName, string rasterName, short numOfMessages, short msgLengthInBytes, short msgLengthInRasters)
         {
             LinxMessageHeader header = new LinxMessageHeader();
+
+            // TODO: check this: MessageName length
+            byte[] test = Encoding.Unicode.GetBytes("LINX TEST"); // meni je dužina polja ovdje 18 a njima 16
+            
             header.MessageName = encoding.GetBytes(messageName);
+
+            // TODO: check this: RasterName length
+            byte[] test1 = Encoding.Unicode.GetBytes("16 GEN STD"); // meni je dužina polja ovdje 20 a njima 16
+
+
             header.RasterName = encoding.GetBytes(rasterName);
             header.NumberOfMessages = (byte)numOfMessages;
             header.MessageLengthInBytes = BitConverter.GetBytes(msgLengthInBytes);
