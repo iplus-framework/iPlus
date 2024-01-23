@@ -54,18 +54,18 @@ namespace gip.core.reporthandler
 
         #region Methods
 
-        public List<byte> GetBytes()
+        public List<byte[]> GetBytes()
         {
-            List<byte> bytes = new List<byte>();
+            List<byte[]> bytes = new List<byte[]>();
 
-            bytes.Add(NumberOfMessages);
-            bytes.AddRange(MessageLengthInBytes);
-            bytes.AddRange(MessageLengthInRasters);
-            bytes.Add(EHTSetting);
-            bytes.AddRange(InterRasterWidth);
-            bytes.AddRange(PrintDelay);
-            bytes.AddRange(MessageName);
-            bytes.AddRange(RasterName);
+            bytes.Add(new byte[] { NumberOfMessages });
+            bytes.Add(MessageLengthInBytes);
+            bytes.Add(MessageLengthInRasters);
+            bytes.Add(new byte[] { EHTSetting });
+            bytes.Add(InterRasterWidth);
+            bytes.Add(PrintDelay);
+            bytes.Add(MessageName);
+            bytes.Add(RasterName);
 
             return bytes;
         }

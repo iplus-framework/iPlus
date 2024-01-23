@@ -1008,18 +1008,24 @@ namespace gip.core.reporthandler
             if (!UseRemoteReport)
             {
                 string rasterName = "16 GEN STD";
-                int msgLengthInBytes = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt32(c.Header.FieldLengthInBytes, 0)) + LinxMessageHeader.DefaultHeaderLength;
-                int msgLengthInRasters = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt32(c.Header.FieldLengthInRasters, 0)) + LinxMessageHeader.DefaultHeaderLength;
+                int msgLengthInBytes = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt16(c.Header.FieldLengthInBytes, 0)) + LinxMessageHeader.DefaultHeaderLength;
+                int msgLengthInRasters = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt16(c.Header.FieldLengthInRasters, 0)) + LinxMessageHeader.DefaultHeaderLength;
                 LinxMessageHeader linxMessageHeader = GetLinxMessageHeader(linxPrintJob.Name, rasterName, 1, (short)msgLengthInBytes, (short)msgLengthInRasters);
+                List<byte[]> headerBytes = linxMessageHeader.GetBytes();
 
-                List<byte> downloadData = new List<byte>(); 
-                downloadData.AddRange(linxMessageHeader.GetBytes());
+                List<byte[]> downloadData = new List<byte[]>(); 
+                downloadData.AddRange(headerBytes);
+
                 foreach(LinxField linxField in linxPrintJob.LinxFields)
                 {
-                    downloadData.AddRange(linxField.GetBytes(linxPrintJob.Encoding));
+                    List<byte[]> fieldBytes = linxField.GetBytes(linxPrintJob.Encoding);
+                    downloadData.AddRange(fieldBytes);
                 }
 
-                linxPrintJob.PacketsForPrint.Add(downloadData.ToArray());
+                foreach (byte[] bytes in downloadData)
+                {
+                    linxPrintJob.PacketsForPrint.Add(bytes);
+                }
             }
         }
 
@@ -1287,7 +1293,7 @@ namespace gip.core.reporthandler
                 dataSet = DataSets.FirstOrDefault();
             }
             LinxField linxField = GetLinxField(dataSet, text);
-
+            linxPrintJob.LinxFields.Add(linxField);
         }
 
         /// <summary>
@@ -1356,6 +1362,7 @@ namespace gip.core.reporthandler
                 dataSet = DataSets.FirstOrDefault();
             }
             LinxField linxField = GetLinxField(dataSet, barcodeValue, 0x46);
+            linxPrintJob.LinxFields.Add(linxField);
         }
 
 

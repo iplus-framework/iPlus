@@ -21,24 +21,24 @@ namespace gip.core.reporthandler
 
         #region Methods
 
-        public List<byte> GetBytes(Encoding encoding)
+        public List<byte[]> GetBytes(Encoding encoding)
         {
-            List<byte> bytes = new List<byte>();
+            List<byte[]> bytes = new List<byte[]>();
 
-            bytes.Add(Header.FieldHeaderCharacter);
-            bytes.Add(Header.FieldType);
-            bytes.AddRange(Header.FieldLengthInBytes);
-            bytes.Add(Header.YPosition);
-            bytes.AddRange(Header.XPosition);
-            bytes.AddRange(Header.FieldLengthInRasters);
-            bytes.Add(Header.FieldHeightInDrops);
-            bytes.Add(Header.Format3);
-            bytes.Add(Header.BoldMultiplier);
-            bytes.Add(Header.TextLenght);
-            bytes.Add(Header.Format1);
-            bytes.Add(Header.Format2);
-            bytes.Add(Header.Linkage);
-            bytes.AddRange(Header.DataSetName);
+            bytes.Add(new byte[]{Header.FieldHeaderCharacter });
+            bytes.Add(new byte[] { Header.FieldType });
+            bytes.Add(Header.FieldLengthInBytes);
+            bytes.Add(new byte[] { Header.YPosition });
+            bytes.Add(Header.XPosition);
+            bytes.Add(Header.FieldLengthInRasters);
+            bytes.Add(new byte[] { Header.FieldHeightInDrops });
+            bytes.Add(new byte[] { Header.Format3 });
+            bytes.Add(new byte[] { Header.BoldMultiplier });
+            bytes.Add(new byte[] { Header.TextLenght });
+            bytes.Add(new byte[] { Header.Format1 });
+            bytes.Add(new byte[] { Header.Format2 });
+            bytes.Add(new byte[] { Header.Linkage });
+            bytes.Add(Header.DataSetName);
 
             byte[] messageByte = encoding.GetBytes(Value);
 
