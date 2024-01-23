@@ -676,13 +676,13 @@ namespace gip.core.reporthandler
         {
             List<byte> result = new List<byte>();
             List<byte> checkSumList = new List<byte>();
-            
+
             result.Add((byte)LinxASCIControlCharacterEnum.ESC);
             result.Add((byte)LinxASCIControlCharacterEnum.STX);
             checkSumList.Add((byte)LinxASCIControlCharacterEnum.STX);
 
             result.Add((byte)commandCode);
-            checkSumList.Add((byte)commandCode); 
+            checkSumList.Add((byte)commandCode);
 
             if (data != null)
             {
@@ -815,6 +815,27 @@ namespace gip.core.reporthandler
                                             }
 
                                             string message = $"JobID: {linxPrintJob.PrintJobID}| Printer return P_Status: {response.P_Status}; C_Status: {response.C_Status}";
+                                            
+                                            if (response.P_Status > 0)
+                                            {
+                                                LinxPrintErrorEnum printErrorEnum = LinxPrintErrorEnum.Remote_alarm;
+                                                if(Enum.TryParse<LinxPrintErrorEnum>(response.P_Status.ToString(), out printErrorEnum))
+                                                {
+                                                    message += System.Environment.NewLine;
+                                                    message += "Printer error code: " + printErrorEnum.ToString();
+                                                }
+                                            }
+
+                                            if (response.C_Status > 0)
+                                            {
+                                                LinxCommandStatusCodeEnum commandStatusCode = LinxCommandStatusCodeEnum.Data_overrun;
+                                                if (Enum.TryParse<LinxCommandStatusCodeEnum>(response.C_Status.ToString(), out commandStatusCode))
+                                                {
+                                                    message += System.Environment.NewLine;
+                                                    message += "Command status code: " + commandStatusCode.ToString();
+                                                }
+                                            }
+
                                             LinxPrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
                                             if (IsAlarmActive(nameof(LinxPrinterAlarm), message) == null)
                                             {
