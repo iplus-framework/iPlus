@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using System.Text;
 
 namespace gip.core.reporthandler
 {
@@ -20,13 +21,13 @@ namespace gip.core.reporthandler
 
         #region Methods
 
-        public List<byte> GetBytes()
+        public List<byte> GetBytes(Encoding encoding)
         {
             List<byte> bytes = new List<byte>();
 
             bytes.Add(Header.FieldHeaderCharacter);
             bytes.Add(Header.FieldType);
-            bytes.AddRange(Header.FieldLenghtInBytes);
+            bytes.AddRange(Header.FieldLengthInBytes);
             bytes.Add(Header.YPosition);
             bytes.AddRange(Header.XPosition);
             bytes.AddRange(Header.FieldLengthInRasters);
@@ -38,6 +39,8 @@ namespace gip.core.reporthandler
             bytes.Add(Header.Format2);
             bytes.Add(Header.Linkage);
             bytes.AddRange(Header.DataSetName);
+
+            byte[] messageByte = encoding.GetBytes(Value);
 
             return bytes;
         }

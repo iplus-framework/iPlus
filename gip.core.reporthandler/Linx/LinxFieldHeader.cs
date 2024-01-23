@@ -35,10 +35,10 @@
 
         public byte FieldHeaderCharacter { get; set; }
         public byte FieldType { get; set; }
-        public byte[] FieldLenghtInBytes { get; set; }
+        public byte[] FieldLengthInBytes { get; } = new byte[2];
         public byte YPosition { get; set; }
-        public byte[] XPosition { get; set; }
-        public byte[] FieldLengthInRasters { get; set; }
+        public byte[] XPosition { get; } = new byte[2];
+        public byte[] FieldLengthInRasters { get; } = new byte[2];
         public byte FieldHeightInDrops { get; set; }
         public byte Format3 { get; set; }
         public byte BoldMultiplier { get; set; }
@@ -46,7 +46,7 @@
         public byte Format1 { get; set; }
         public byte Format2 { get; set; }
         public byte Linkage { get; set; }
-        public byte[] DataSetName { get; set; }
+        public byte[] DataSetName { get;  }  = new byte[16];
 
     }
 }

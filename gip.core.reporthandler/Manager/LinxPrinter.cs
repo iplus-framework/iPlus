@@ -1008,16 +1008,18 @@ namespace gip.core.reporthandler
             if (!UseRemoteReport)
             {
                 string rasterName = "16 GEN STD";
-                int msgLengthInBytes = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt32(c.Header.FieldLenghtInBytes, 0)) + LinxMessageHeader.DefaultHeaderLength;
+                int msgLengthInBytes = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt32(c.Header.FieldLengthInBytes, 0)) + LinxMessageHeader.DefaultHeaderLength;
                 int msgLengthInRasters = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt32(c.Header.FieldLengthInRasters, 0)) + LinxMessageHeader.DefaultHeaderLength;
-                LinxMessageHeader linxMessageHeader = GetLinxMessageHeader(linxPrintJob.Encoding, linxPrintJob.Name, rasterName, 1, (short)msgLengthInBytes, (short)msgLengthInRasters);
+                LinxMessageHeader linxMessageHeader = GetLinxMessageHeader(linxPrintJob.Name, rasterName, 1, (short)msgLengthInBytes, (short)msgLengthInRasters);
 
                 List<byte> downloadData = new List<byte>(); 
                 downloadData.AddRange(linxMessageHeader.GetBytes());
                 foreach(LinxField linxField in linxPrintJob.LinxFields)
                 {
-                    downloadData.AddRange(linxField.GetBytes());
+                    downloadData.AddRange(linxField.GetBytes(linxPrintJob.Encoding));
                 }
+
+                linxPrintJob.PacketsForPrint.Add(downloadData.ToArray());
             }
         }
 
@@ -1284,7 +1286,7 @@ namespace gip.core.reporthandler
             {
                 dataSet = DataSets.FirstOrDefault();
             }
-            LinxField linxField = GetLinxField(dataSet, linxPrintJob.Encoding, text);
+            LinxField linxField = GetLinxField(dataSet, text);
 
         }
 
@@ -1353,7 +1355,7 @@ namespace gip.core.reporthandler
             {
                 dataSet = DataSets.FirstOrDefault();
             }
-            LinxField linxField = GetLinxField(dataSet, linxPrintJob.Encoding, barcodeValue, 0x46);
+            LinxField linxField = GetLinxField(dataSet, barcodeValue, 0x46);
         }
 
 
@@ -1364,21 +1366,10 @@ namespace gip.core.reporthandler
         private void LoadPrintMessage(LinxPrintJob linxPrintJob, FlowDocument flowDoc)
         {
             string reportName = flowDoc.Name;
-            byte[] reportNameByte = linxPrintJob.Encoding.GetBytes(reportName);
+            byte[] reportNameByte = Encoding.ASCII.GetBytes(reportName);
             // LinxASCIControlCharacterEnum.RS == 0x1E
             byte[] data = GetData(LinxASCIControlCharacterEnum.RS, reportNameByte);
             linxPrintJob.PacketsForPrint.Add(data);
-        }
-
-        private byte[] GetMessageName(string reportName)
-        {
-            byte[] bytes = Encoding.UTF8.GetBytes(reportName);
-
-            byte[] result = new byte[15];
-            Array.Copy(bytes, result, Math.Min(bytes.Length, 15));
-
-            // If the name is shorter than 15 bytes, the rest of the array will be zeros.
-            return result;
         }
 
         #endregion
@@ -1482,7 +1473,7 @@ namespace gip.core.reporthandler
             dataArr.Add(new byte[] { 0x01 });
 
             //  Message name -LINX TEST
-            byte[] reportNameBytes = linxPrintJob.Encoding.GetBytes(linxPrintJob.Name);
+            byte[] reportNameBytes = Encoding.ASCII.GetBytes(linxPrintJob.Name);
             dataArr.Add(reportNameBytes);
 
 
@@ -1495,26 +1486,31 @@ namespace gip.core.reporthandler
 
         #region Methods -> Prepare Fields
 
-        public virtual LinxField GetLinxField(LinxDataSetData dataSet, Encoding encoding, string value, byte fieldType = 0x00)
+        public virtual LinxField GetLinxField(LinxDataSetData dataSet, string value, byte fieldType = 0x00)
         {
             LinxField field = new LinxField();
-            field.Header = GetLinxFieldHeader(dataSet, encoding, value, fieldType);
+            field.Header = GetLinxFieldHeader(dataSet, value, fieldType);
             field.Value = value;
             return field;
         }
 
-        public virtual LinxFieldHeader GetLinxFieldHeader(LinxDataSetData dataSet, Encoding encoding, string value, byte fieldType = 0x00)
+        public virtual LinxFieldHeader GetLinxFieldHeader(LinxDataSetData dataSet, string value, byte fieldType = 0x00)
         {
             LinxFieldHeader linxFieldHeader = new LinxFieldHeader();
             linxFieldHeader.FieldType = fieldType;
-            linxFieldHeader.FieldLenghtInBytes = BitConverter.GetBytes((short)value.Length);
-            linxFieldHeader.FieldLengthInRasters = GetFieldLengthInRasters(dataSet, (short)value.Length);
+
+            byte[] fieldLengthInBytes = BitConverter.GetBytes((short)value.Length);
+            Array.Copy(fieldLengthInBytes, linxFieldHeader.FieldLengthInBytes, System.Math.Min(linxFieldHeader.FieldLengthInBytes.Length, fieldLengthInBytes.Length));
+
+            byte[] fieldLengthInRasters = GetFieldLengthInRasters(dataSet, (short)value.Length);
+            Array.Copy(fieldLengthInRasters, linxFieldHeader.FieldLengthInRasters, System.Math.Min(linxFieldHeader.FieldLengthInRasters.Length, fieldLengthInRasters.Length));
+
             linxFieldHeader.TextLenght = (byte)value.Length;
 
-            // TODO: check this: DataSetName length
-            byte[] test = Encoding.Unicode.GetBytes("6 High Full"); // meni je dužina polja (datasetname) ovdje 22 a njima 15 bytes + null*
-
-            linxFieldHeader.DataSetName = encoding.GetBytes(dataSet.DataSetName);
+            // Data set name	15 bytes + null*
+            Array.Copy(Encoding.ASCII.GetBytes(dataSet.DataSetName), linxFieldHeader.DataSetName, System.Math.Min(linxFieldHeader.DataSetName.Length - 1, dataSet.DataSetName.Length));
+            linxFieldHeader.DataSetName[15] = 0x00;
+            
             return linxFieldHeader;
         }
 
@@ -1522,23 +1518,25 @@ namespace gip.core.reporthandler
 
         #region Methods -> Prepare Header
 
-        public virtual LinxMessageHeader GetLinxMessageHeader(Encoding encoding, string messageName, string rasterName, short numOfMessages, short msgLengthInBytes, short msgLengthInRasters)
+        public virtual LinxMessageHeader GetLinxMessageHeader(string messageName, string rasterName, short numOfMessages, short msgLengthInBytes, short msgLengthInRasters)
         {
             LinxMessageHeader header = new LinxMessageHeader();
 
-            // TODO: check this: MessageName length
-            byte[] test = Encoding.Unicode.GetBytes("LINX TEST"); // meni je dužina polja ovdje 18 a njima 16
-            
-            header.MessageName = encoding.GetBytes(messageName);
+            // Message name	16 
+            byte[] messageNameBytes = Encoding.ASCII.GetBytes(messageName);
+            Array.Copy(messageNameBytes, header.MessageName, System.Math.Min(header.MessageName.Length, messageNameBytes.Length));
 
-            // TODO: check this: RasterName length
-            byte[] test1 = Encoding.Unicode.GetBytes("16 GEN STD"); // meni je dužina polja ovdje 20 a njima 16
+            byte[] rasterNameBytes = Encoding.ASCII.GetBytes(rasterName);
+            Array.Copy(rasterNameBytes, header.RasterName, System.Math.Min(header.RasterName.Length, rasterNameBytes.Length));
 
-
-            header.RasterName = encoding.GetBytes(rasterName);
             header.NumberOfMessages = (byte)numOfMessages;
-            header.MessageLengthInBytes = BitConverter.GetBytes(msgLengthInBytes);
-            header.MessageLengthInRasters = BitConverter.GetBytes(msgLengthInRasters);
+
+            byte[] messageLengthInBytes = BitConverter.GetBytes(msgLengthInBytes);
+            Array.Copy(messageLengthInBytes, header.MessageLengthInBytes, System.Math.Min(header.MessageLengthInBytes.Length, messageLengthInBytes.Length));
+
+            byte[] messageLengthInRasters = BitConverter.GetBytes(msgLengthInRasters);
+            Array.Copy(messageLengthInRasters, header.MessageLengthInRasters, System.Math.Min(header.MessageLengthInRasters.Length, messageLengthInRasters.Length));
+
             return header;
         }
 

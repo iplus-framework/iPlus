@@ -41,14 +41,14 @@ namespace gip.core.reporthandler
         //54 44 00 00 00 00 00 00
 
         public byte NumberOfMessages { get; set; }
-        public byte[] MessageLengthInBytes { get; set; }
-        public byte[] MessageLengthInRasters { get; set; }
+        public byte[] MessageLengthInBytes { get; } = new byte[2];
+        public byte[] MessageLengthInRasters { get; } = new byte[2];
         public byte EHTSetting { get; set; }
 
-        public byte[] InterRasterWidth { get; set; }
-        public byte[] PrintDelay { get; set; }
-        public byte[] MessageName { get; set; }
-        public byte[] RasterName { get; set; }
+        public byte[] InterRasterWidth { get; } = new byte[2];
+        public byte[] PrintDelay { get; } = new byte[2];
+        public byte[] MessageName { get; } = new byte[16];
+        public byte[] RasterName { get; } = new byte[16];
 
         #endregion
 
