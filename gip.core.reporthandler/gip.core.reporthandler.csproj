@@ -148,10 +148,14 @@
   <ItemGroup>
     <Compile Include="Flowdoc\Document\Barcode\BarcodeValue.cs" />
     <Compile Include="Flowdoc\Document\Barcode\BarcodeValueCollection.cs" />
+    <Compile Include="Linx\LinxDataSetData.cs" />
     <Compile Include="Linx\LinxByteMappingAttribute.cs" />
     <Compile Include="Linx\LinxCommandStatusCodeEnum.cs" />
     <Compile Include="Linx\LinxExtendedPrintErrorEnum.cs" />
+    <Compile Include="Linx\LinxField.cs" />
+    <Compile Include="Linx\LinxFieldHeader.cs" />
     <Compile Include="Linx\LinxMapping.cs" />
+    <Compile Include="Linx\LinxMessageHeader.cs" />
     <Compile Include="Linx\LinxPrinterStatusResponse.cs" />
     <Compile Include="Linx\LinxPrintJob.cs" />
     <Compile Include="Linx\LinxPrinterCommandCodeEnum.cs" />

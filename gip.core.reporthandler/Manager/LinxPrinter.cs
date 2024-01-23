@@ -1,8 +1,12 @@
-﻿using gip.core.autocomponent;
+﻿using DocumentFormat.OpenXml.ExtendedProperties;
+using DocumentFormat.OpenXml.Packaging;
+using gip.core.autocomponent;
 using gip.core.datamodel;
+using gip.core.layoutengine;
 using gip.core.reporthandler.Flowdoc;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -28,13 +32,96 @@ namespace gip.core.reporthandler
         {
             if (!base.ACInit(startChildMode))
                 return false;
+
             _ = IPAddress;
+
+            DataSets = LoadDataSets();
+
             return true;
+        }
+
+        public virtual List<LinxDataSetData> LoadDataSets()
+        {
+            return new List<LinxDataSetData>()
+            {
+                new LinxDataSetData()
+                {
+                    DataSetName = "5 High Caps",
+                    Height= 5,
+                    Width = 5,
+                    InterCharacterSpace = 1
+                },
+                new LinxDataSetData()
+                {
+                    DataSetName = "6 High Full",
+                    Height= 6,
+                    Width = 5,
+                    InterCharacterSpace = 1
+                },
+                new LinxDataSetData()
+                {
+                    DataSetName = "7 High Full",
+                    Height= 7,
+                    Width = 5,
+                    InterCharacterSpace = 1
+                },
+                new LinxDataSetData()
+                {
+                    DataSetName = "9 High Caps",
+                    Height= 9,
+                    Width = 7,
+                    InterCharacterSpace = 1
+                },
+                new LinxDataSetData()
+                {
+                    DataSetName = "9 High Full",
+                    Height= 9,
+                    Width = 5,
+                    InterCharacterSpace = 1
+                },
+                new LinxDataSetData()
+                {
+                    DataSetName = "15 High Full",
+                    Height= 15,
+                    Width = 10,
+                    InterCharacterSpace = 2
+                },
+                new LinxDataSetData()
+                {
+                    DataSetName = "15 High Caps",
+                    Height= 15,
+                    Width = 10,
+                    InterCharacterSpace = 2
+                },
+                new LinxDataSetData()
+                {
+                    DataSetName = "23 High Caps",
+                    Height= 23,
+                    Width = 16,
+                    InterCharacterSpace = 2
+                }
+                ,
+                new LinxDataSetData()
+                {
+                    DataSetName = "32 High Caps",
+                    Height= 32,
+                    Width = 24,
+                    InterCharacterSpace = 3
+                }
+            };
+        }
+
+        public virtual byte[] GetFieldLengthInRasters(LinxDataSetData dataSetData, short numberOfCharacters)
+        {
+            // field length in rasters can be calculated by multiplying the number of characters in the field by the width of the character in rasters (including the inter-character space), minus one inter-character space.
+            int length = (numberOfCharacters * dataSetData.Width - dataSetData.InterCharacterSpace);
+            return BitConverter.GetBytes((short)length);
         }
 
         public override bool ACPostInit()
         {
             bool basePostInit = base.ACPostInit();
+
 
             _ShutdownEvent = new ManualResetEvent(false);
             _PollThread = new ACThread(Poll);
@@ -59,6 +146,8 @@ namespace gip.core.reporthandler
                 _PollThread = null;
             }
 
+            DataSets = null;
+
             return acDeinit;
         }
 
@@ -70,6 +159,8 @@ namespace gip.core.reporthandler
 
         [ACPropertyInfo(true, 200, DefaultValue = false)]
         public bool UseRemoteReport { get; set; }
+
+        public List<LinxDataSetData> DataSets { get; set; }
 
         #endregion
 
@@ -630,7 +721,7 @@ namespace gip.core.reporthandler
         public override PrintJob GetPrintJob(string reportName, FlowDocument flowDocument)
         {
             LinxPrintJob linxPrintJob = new LinxPrintJob();
-            Encoding encoder = Encoding.ASCII;
+            Encoding encoder = Encoding.Unicode;
             linxPrintJob.FlowDocument = flowDocument;
             linxPrintJob.Name = string.IsNullOrEmpty(flowDocument.Name) ? reportName : flowDocument.Name;
             linxPrintJob.Encoding = encoder;
@@ -737,11 +828,11 @@ namespace gip.core.reporthandler
                                             }
 
                                             string message = $"JobID: {linxPrintJob.PrintJobID}| Printer return P_Status: {response.P_Status}; C_Status: {response.C_Status}";
-                                            
+
                                             if (response.P_Status > 0)
                                             {
                                                 LinxPrintErrorEnum printErrorEnum = LinxPrintErrorEnum.Remote_alarm;
-                                                if(Enum.TryParse<LinxPrintErrorEnum>(response.P_Status.ToString(), out printErrorEnum))
+                                                if (Enum.TryParse<LinxPrintErrorEnum>(response.P_Status.ToString(), out printErrorEnum))
                                                 {
                                                     message += System.Environment.NewLine;
                                                     message += "Printer error code: " + printErrorEnum.ToString();
@@ -832,8 +923,24 @@ namespace gip.core.reporthandler
                 linxPrintJob.PacketsForPrint.Add(data);
             }
 
+
             StartJetCommand(linxPrintJob);
             StartPrintCommand(linxPrintJob);
+
+            if (!UseRemoteReport)
+            {
+                string rasterName = "16 GEN STD";
+                int msgLengthInBytes = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt32(c.Header.FieldLenghtInBytes, 0)) + LinxMessageHeader.DefaultHeaderLength;
+                int msgLengthInRasters = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt32(c.Header.FieldLengthInRasters, 0)) + LinxMessageHeader.DefaultHeaderLength;
+                LinxMessageHeader linxMessageHeader = GetLinxMessageHeader(linxPrintJob.Encoding, linxPrintJob.Name, rasterName, 1, (short)msgLengthInBytes, (short)msgLengthInRasters);
+
+                List<byte> downloadData = new List<byte>(); 
+                downloadData.AddRange(linxMessageHeader.GetBytes());
+                foreach(LinxField linxField in linxPrintJob.LinxFields)
+                {
+                    downloadData.AddRange(linxField.GetBytes());
+                }
+            }
         }
 
 
@@ -927,7 +1034,7 @@ namespace gip.core.reporthandler
             }
             else
             {
-                DownloadTextValue(linxPrintJob, inlineDocumentValue.Text);
+                DownloadTextValue(linxPrintJob, inlineDocumentValue.AggregateGroup, inlineDocumentValue.Text);
             }
         }
 
@@ -940,7 +1047,7 @@ namespace gip.core.reporthandler
             }
             else
             {
-                DownloadTextValue(linxPrintJob, inlineACMethodValue.Text);
+                DownloadTextValue(linxPrintJob, inlineACMethodValue.AggregateGroup, inlineACMethodValue.Text);
             }
         }
 
@@ -953,7 +1060,7 @@ namespace gip.core.reporthandler
             }
             else
             {
-                DownloadTextValue(linxPrintJob, inlineTableCellValue.Text);
+                DownloadTextValue(linxPrintJob, inlineTableCellValue.AggregateGroup, inlineTableCellValue.Text);
             }
         }
 
@@ -1000,7 +1107,7 @@ namespace gip.core.reporthandler
             }
             else
             {
-                DownloadBarcodeValue(linxPrintJob, barcodeValue);
+                DownloadBarcodeValue(linxPrintJob, inlineBarcode.AggregateGroup, barcodeValue);
             }
         }
 
@@ -1013,7 +1120,7 @@ namespace gip.core.reporthandler
             }
             else
             {
-                DownloadTextValue(linxPrintJob, inlineBoolValue.Value.ToString());
+                DownloadTextValue(linxPrintJob, inlineBoolValue.AggregateGroup, inlineBoolValue.Value.ToString());
             }
         }
 
@@ -1039,7 +1146,7 @@ namespace gip.core.reporthandler
         /// <param name="text"></param>
         private void SetRemoteValue(LinxPrintJob linxPrintJob, string name, string text)
         {
-            byte[] textByte = Encoding.ASCII.GetBytes(text);
+            byte[] textByte = linxPrintJob.Encoding.GetBytes(text);
             linxPrintJob.RemoteFieldValues.Add(textByte);
         }
 
@@ -1051,7 +1158,7 @@ namespace gip.core.reporthandler
         /// </summary>
         /// <param name="linxPrintJob"></param>
         /// <param name="text"></param>
-        private void DownloadTextValue(LinxPrintJob linxPrintJob, string text)
+        private void DownloadTextValue(LinxPrintJob linxPrintJob, string aggregateGroup, string text)
         {
             /*
                 19	;Command ID - Download Message
@@ -1094,90 +1201,12 @@ namespace gip.core.reporthandler
                 DE	;Checksum
 
             */
-            // TODO: @aagincic LinxPrinter DownloadTextValue
-
-            byte[] textBytes = Encoding.ASCII.GetBytes(text);
-
-
-            List<byte[]> dataArr = new List<byte[]>();
-
-            //01; Number of messages
-            dataArr.Add(new byte[] { 0x01 });
-
-            //49 00; Message length in bytes
-            dataArr.Add(BitConverter.GetBytes(textBytes.Length));
-
-            //17 00; Message length in rasters
-            dataArr.Add(new byte[] { 0x17, 0 });
-
-            //06; EHT setting
-            dataArr.Add(new byte[] { (byte)LinxASCIControlCharacterEnum.ACK });
-
-            //00 00; Inter - raster width
-            dataArr.Add(new byte[] { 0x00, 0x00 });
-
-            //10 00; Print delay
-            dataArr.Add(new byte[] { 0x10, 0x00 });
-
-            //52 45 4D 4F 54 45 20 54; Message name -REMOTE TEST
-            //45 53 54 00 00 00 00 00
-            dataArr.Add(GetMessageName(linxPrintJob.Name));
-
-            //31 36 20 47 45 4E 20 53; Raster name -16 GEN STD
-            //54 44 00 00 00 00 00 00
-            dataArr.Add(new byte[] { 0x31, 0x36, 0x20, 0x47, 0x45, 0x4E, 0x20, 0x53, 0x54, 0x44, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }); // NOTE: hardcoded Raster name
-
-            //1C; Field header
-            dataArr.Add(new byte[] { (byte)LinxASCIControlCharacterEnum.FS });
-
-            //07; Field type -Remote Field
-            dataArr.Add(new byte[] { (byte)LinxASCIControlCharacterEnum.BEL });
-
-            //20 00; Field length in bytes
-            dataArr.Add(new byte[] { 0x20, 0x00 });
-
-            //00; Y position
-            dataArr.Add(new byte[] { 0x00 });
-
-            //00 00; X position
-            dataArr.Add(new byte[] { 0x00, 0x00 });
-
-            //1D 00; Field length in rasters
-            dataArr.Add(new byte[] { 0x1D, 0x00 });
-
-            //07; Field height in drops
-            dataArr.Add(new byte[] { 0x07 });
-
-            //00; Format 3
-            dataArr.Add(new byte[] { 0x00 });
-
-            //01; Bold multiplier
-            dataArr.Add(new byte[] { 0x00 });
-
-            //05; String length(excluding null)
-            dataArr.Add(new byte[] { (byte)text.Length });
-
-            //00; Format 1
-            dataArr.Add(new byte[] { 0x00 });
-
-            //00; Format 2
-            dataArr.Add(new byte[] { 0x00 });
-
-            //00; Linkage
-            dataArr.Add(new byte[] { 0x00 });
-
-            //37 20 48 69 67 68 20 46; Data set name - 7 High Full
-            //    75 6C 6C 00 00 00 00 00
-            dataArr.Add(new byte[] { 0x37, 0x20, 0x48, 0x69, 0x67, 0x68, 0x20, 0x46, 0x75, 0x6C, 0x6C, 0x00, 0x00, 0x00, 0x00, 0x00 }); //  NOTE: hardcoded Data Set Name
-
-            // 4C 69 6E 78 00; Data - Linx(note the null terminator)
-            dataArr.Add(textBytes);
-            dataArr.Add(new byte[] { 0x00 }); // the null terminator
-
-            byte[] inputData = LinxHelper.Combine(dataArr);
-
-            byte[] data = GetData(LinxASCIControlCharacterEnum.DC3, inputData);
-            linxPrintJob.PacketsForPrint.Add(data);
+            LinxDataSetData dataSet = DataSets.Where(c => c.DataSetName == aggregateGroup).FirstOrDefault();
+            if (dataSet == null)
+            {
+                dataSet = DataSets.FirstOrDefault();
+            }
+            LinxField linxField = GetLinxField(dataSet, linxPrintJob.Encoding, text);
 
         }
 
@@ -1187,7 +1216,7 @@ namespace gip.core.reporthandler
         /// </summary>
         /// <param name="linxPrintJob"></param>
         /// <param name="inlineBarcode"></param>
-        private void DownloadBarcodeValue(LinxPrintJob linxPrintJob, string barcodeValue)
+        private void DownloadBarcodeValue(LinxPrintJob linxPrintJob, string aggregateGroup, string barcodeValue)
         {
             // TODO: @aagincic LinxPrinter DownloadBarcodeValue
 
@@ -1241,92 +1270,12 @@ namespace gip.core.reporthandler
                 20 20 20 20 20 20 20 00
 
          */
-            List<byte[]> dataArr = new List<byte[]>();
-            byte[] textBytes = Encoding.ASCII.GetBytes(barcodeValue);
-
-            //01; Number of messages
-            dataArr.Add(new byte[] { 0x00 });
-
-            //79 00; Message length in bytes
-            dataArr.Add(new byte[] { 79, 00 });
-
-
-            //5C 01; Message length in rasters
-            dataArr.Add(new byte[] { 0x5c, 0x01 });
-
-            //00; EHT setting -set to null
-            dataArr.Add(new byte[] { 0x00 });
-
-            //00 00; Inter - raster width
-            dataArr.Add(new byte[] { 0x00, 0x00 });
-
-            //10 00; Print delay
-            dataArr.Add(new byte[] { 0x10, 0x00 });
-
-            //6D 65 73 73 61 67 65 37; Message name -message7.pat
-            //2E 70 61 74 00 00 00 00
-            dataArr.Add(GetMessageName(linxPrintJob.Name));
-
-            //35 30 30 20 48 69 67 68; Raster name -500 High
-            //00 00 00 00 00 00 00 00
-            dataArr.Add(new byte[] { 0x35, 0x30, 0x30, 0x20, 0x48, 0x69, 0x67, 0x68, 0x2E, 0x70, 0x61, 0x74, 0x00, 0x00, 0x00, 0x00 }); // NOTE: hardcoded Raster name
-
-            //1C; Field header
-            dataArr.Add(new byte[] { 0x1C });
-
-            //C0; Field type -Text field(not rendered)
-            dataArr.Add(new byte[] { 0xC0 });
-
-            //2C 00; Field length in bytes
-            dataArr.Add(new byte[] { (byte)textBytes.Length });
-
-            //FA FF; Y position
-            dataArr.Add(new byte[] { 0xFA, 0xFF });
-
-            //00 00; X position
-            dataArr.Add(new byte[] { 0x00, 0x00 });
-
-            //40 01; Field length in rasters
-            dataArr.Add(new byte[] { 0x40, 0x01 });
-
-            //2D 00; Field height in drops
-            dataArr.Add(new byte[] { 0x2D, 0x00 });
-
-            //00; Format 3
-            dataArr.Add(new byte[] { 0x00 });
-
-            //01; Bold multiplier
-            dataArr.Add(new byte[] { 0x01 });
-
-            //07; String length(excluding null)
-            dataArr.Add(new byte[] { (byte)barcodeValue.Length });
-
-            //00; Format 1
-            dataArr.Add(new byte[] { 0x00 });
-
-            //00; Format 2
-            dataArr.Add(new byte[] { 0x00 });
-
-            //01; Linkage - points to Bar Code
-            dataArr.Add(new byte[] { 0x01 });
-
-            //00; Reserved - set to null
-            dataArr.Add(new byte[] { 0x00 });
-
-            //00; Reserved - set to null
-            dataArr.Add(new byte[] { 0x00 });
-
-            //34 35 20 48 69 20 42 61; Data set name - 45 Hi Barcode
-            //72 63 6F 64 65 00 00 00
-            dataArr.Add(new byte[] { 0x34, 0x35, 0x20, 0x48, 0x69, 0x20, 0x42, 0x61, 0x72, 0x63, 0x6F, 0x64, 0x65, 0x00, 0x00, 0x00 }); // NOTE: hardcoded: Data set name
-
-            //31 32 33 34 35 36 37 00; Data - 1234567
-            dataArr.Add(textBytes);
-
-            byte[] inputData = LinxHelper.Combine(dataArr);
-            // 7C	;Command ID - Download Message Data
-            byte[] data = GetData(LinxPrinterCommandCodeEnum.Download_Message_Data1, inputData.ToArray());
-            linxPrintJob.PacketsForPrint.Add(data);
+            LinxDataSetData dataSet = DataSets.Where(c => c.DataSetName == aggregateGroup).FirstOrDefault();
+            if (dataSet == null)
+            {
+                dataSet = DataSets.FirstOrDefault();
+            }
+            LinxField linxField = GetLinxField(dataSet, linxPrintJob.Encoding, barcodeValue, 0x46);
         }
 
 
@@ -1337,7 +1286,7 @@ namespace gip.core.reporthandler
         private void LoadPrintMessage(LinxPrintJob linxPrintJob, FlowDocument flowDoc)
         {
             string reportName = flowDoc.Name;
-            byte[] reportNameByte = Encoding.ASCII.GetBytes(reportName);
+            byte[] reportNameByte = linxPrintJob.Encoding.GetBytes(reportName);
             // LinxASCIControlCharacterEnum.RS == 0x1E
             byte[] data = GetData(LinxASCIControlCharacterEnum.RS, reportNameByte);
             linxPrintJob.PacketsForPrint.Add(data);
@@ -1355,7 +1304,6 @@ namespace gip.core.reporthandler
         }
 
         #endregion
-
 
         #region Methods -> Linx Printer Methods -> Start printing
 
@@ -1456,13 +1404,51 @@ namespace gip.core.reporthandler
             dataArr.Add(new byte[] { 0x01 });
 
             //  Message name -LINX TEST
-            byte[] reportNameBytes = Encoding.ASCII.GetBytes(linxPrintJob.Name);
+            byte[] reportNameBytes = linxPrintJob.Encoding.GetBytes(linxPrintJob.Name);
             dataArr.Add(reportNameBytes);
 
 
             //1B 1B; Command ID -Delete Message
             byte[] data = GetData(LinxASCIControlCharacterEnum.ESC, new byte[] { (byte)LinxASCIControlCharacterEnum.ESC });
             linxPrintJob.PacketsForPrint.Add(data);
+        }
+
+        #endregion
+
+        #region Methods -> Prepare Fields
+
+        public virtual LinxField GetLinxField(LinxDataSetData dataSet, Encoding encoding, string value, byte fieldType = 0x00)
+        {
+            LinxField field = new LinxField();
+            field.Header = GetLinxFieldHeader(dataSet, encoding, value, fieldType);
+            field.Value = value;
+            return field;
+        }
+
+        public virtual LinxFieldHeader GetLinxFieldHeader(LinxDataSetData dataSet, Encoding encoding, string value, byte fieldType = 0x00)
+        {
+            LinxFieldHeader linxFieldHeader = new LinxFieldHeader();
+            linxFieldHeader.FieldType = fieldType;
+            linxFieldHeader.FieldLenghtInBytes = BitConverter.GetBytes((short)value.Length);
+            linxFieldHeader.FieldLengthInRasters = GetFieldLengthInRasters(dataSet, (short)value.Length);
+            linxFieldHeader.TextLenght = (byte)value.Length;
+            linxFieldHeader.DataSetName = encoding.GetBytes(dataSet.DataSetName);
+            return linxFieldHeader;
+        }
+
+        #endregion
+
+        #region Methods -> Prepare Header
+
+        public virtual LinxMessageHeader GetLinxMessageHeader(Encoding encoding, string messageName, string rasterName, short numOfMessages, short msgLengthInBytes, short msgLengthInRasters)
+        {
+            LinxMessageHeader header = new LinxMessageHeader();
+            header.MessageName = encoding.GetBytes(messageName);
+            header.RasterName = encoding.GetBytes(rasterName);
+            header.NumberOfMessages = (byte)numOfMessages;
+            header.MessageLengthInBytes = BitConverter.GetBytes(msgLengthInBytes);
+            header.MessageLengthInRasters = BitConverter.GetBytes(msgLengthInRasters);
+            return header;
         }
 
         #endregion

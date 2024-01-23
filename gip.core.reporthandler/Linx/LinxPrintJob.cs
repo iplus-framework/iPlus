@@ -31,18 +31,16 @@ namespace gip.core.reporthandler
         }
 
 
-        private List<byte[]> _RemoteFieldValues;
+        private List<byte[]> _RemoteFieldValues = new List<byte[]>();
         public List<byte[]> RemoteFieldValues
         {
             get
             {
-                if (_RemoteFieldValues == null)
-                {
-                    _RemoteFieldValues = new List<byte[]>();
-                }
                 return _RemoteFieldValues;
             }
         }
+
+        public List<LinxField> LinxFields { get; set; } = new List<LinxField>();
 
         #endregion
 
