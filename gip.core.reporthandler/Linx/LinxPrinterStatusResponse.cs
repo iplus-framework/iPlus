@@ -21,7 +21,7 @@ namespace gip.core.reporthandler
         [LinxByteMapping(Order = 1, Length = 1, DefaultValue = (byte)LinxASCIControlCharacterEnum.ESC)]
         public LinxASCIControlCharacterEnum StartCode01 { get; set; } = LinxASCIControlCharacterEnum.ESC;
 
-        [LinxByteMapping(Order = 2, Length = 1, DefaultValue = (byte)LinxASCIControlCharacterEnum.ACK)]
+        [LinxByteMapping(Order = 2, Length = 1)]
         public LinxASCIControlCharacterEnum StartCode02 { get; set; } = LinxASCIControlCharacterEnum.ACK;
 
         [LinxByteMapping(Order = 3, Length = 1)]
