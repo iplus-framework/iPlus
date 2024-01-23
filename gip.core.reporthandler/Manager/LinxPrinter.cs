@@ -674,32 +674,31 @@ namespace gip.core.reporthandler
 
         public byte[] GetData(byte commandCode, byte[] data)
         {
-            using (MemoryStream ms = new MemoryStream())
-            using (MemoryStream msForCheckSum = new MemoryStream())
+            List<byte> result = new List<byte>();
+            List<byte> checkSumList = new List<byte>();
+            
+            result.Add((byte)LinxASCIControlCharacterEnum.ESC);
+            result.Add((byte)LinxASCIControlCharacterEnum.STX);
+            checkSumList.Add((byte)LinxASCIControlCharacterEnum.STX);
+
+            result.Add((byte)commandCode);
+            checkSumList.Add((byte)commandCode); 
+
+            if (data != null)
             {
-                ms.Write(LinxASCIControlCharacterEnum.ESC);
-                ms.Write(LinxASCIControlCharacterEnum.STX);
-                msForCheckSum.Write(LinxASCIControlCharacterEnum.STX);
-
-                ms.Write(commandCode);
-                msForCheckSum.Write(commandCode);
-
-                if (data != null)
-                {
-                    ms.Write(data, 0, data.Length);
-                    msForCheckSum.Write(data, 0, data.Length);
-                }
-
-                ms.Write(LinxASCIControlCharacterEnum.ESC);
-                ms.Write(LinxASCIControlCharacterEnum.ETX);
-                msForCheckSum.Write(LinxASCIControlCharacterEnum.ETX);
-
-                byte[] tempArr = msForCheckSum.ToArray();
-                byte checkSum = LinxHelper.GetCheckSum(tempArr);
-                ms.Write(new byte[] { checkSum }, 0, 1);
-
-                return ms.ToArray();
+                result.AddRange(data);
+                checkSumList.AddRange(data);
             }
+
+            result.Add((byte)LinxASCIControlCharacterEnum.ESC);
+            result.Add((byte)LinxASCIControlCharacterEnum.ETX);
+            checkSumList.Add((byte)LinxASCIControlCharacterEnum.ETX);
+
+            byte[] checkSumArr = checkSumList.ToArray();
+            byte checkSum = LinxHelper.GetCheckSum(checkSumArr);
+            result.Add(checkSum);
+
+            return result.ToArray();
         }
 
         #endregion
@@ -1023,18 +1022,18 @@ namespace gip.core.reporthandler
             BarcodeType[] ianBarcodeTypes = new BarcodeType[] { BarcodeType.CODE128, BarcodeType.CODE128A, BarcodeType.CODE128B, BarcodeType.CODE128C };
             bool isIanCodeType = ianBarcodeTypes.Contains(inlineBarcode.BarcodeType);
             Dictionary<string, string> barcodeValues = new Dictionary<string, string>();
-            
+
             if (isIanCodeType)
             {
                 if (inlineBarcode.BarcodeValues != null && inlineBarcode.BarcodeValues.Any())
                 {
-                    foreach(BarcodeValue tmpBarcodeValue in  inlineBarcode.BarcodeValues)
+                    foreach (BarcodeValue tmpBarcodeValue in inlineBarcode.BarcodeValues)
                     {
                         try
                         {
                             string ai = tmpBarcodeValue.AI;
                             string tmpValue = tmpBarcodeValue.Value?.ToString();
-                            if(tmpValue != null)
+                            if (tmpValue != null)
                             {
                                 barcodeValues.Add(ai, tmpValue);
                             }
@@ -1226,7 +1225,7 @@ namespace gip.core.reporthandler
 
             //37 20 48 69 67 68 20 46; Data set name - 7 High Full
             //    75 6C 6C 00 00 00 00 00
-            dataArr.Add(new byte[] {0x37,  0x20,  0x48,  0x69,  0x67,  0x68,  0x20,  0x46,  0x75,  0x6C,  0x6C,  0x00,  0x00,  0x00,  0x00,  0x00 }); //  NOTE: hardcoded Data Set Name
+            dataArr.Add(new byte[] { 0x37, 0x20, 0x48, 0x69, 0x67, 0x68, 0x20, 0x46, 0x75, 0x6C, 0x6C, 0x00, 0x00, 0x00, 0x00, 0x00 }); //  NOTE: hardcoded Data Set Name
 
             // 4C 69 6E 78 00; Data - Linx(note the null terminator)
             dataArr.Add(textBytes);
@@ -1357,7 +1356,7 @@ namespace gip.core.reporthandler
             dataArr.Add(new byte[] { 0x01 });
 
             //07; String length(excluding null)
-            dataArr.Add(new byte[] { (byte) barcodeValue.Length });
+            dataArr.Add(new byte[] { (byte)barcodeValue.Length });
 
             //00; Format 1
             dataArr.Add(new byte[] { 0x00 });
