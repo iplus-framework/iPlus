@@ -253,6 +253,11 @@ namespace gip.core.reporthandler
             }
         }
 
+        public bool IsEnabledCheckStatus()
+        {
+            return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
+        }
+
         [ACPropertyBindingSource(730, "Error", "en{'Printer (complete) status'}de{'Druckerstatus (abgeschlossen).'}", "", false, false)]
         public IACContainerTNet<LinxPrinterCompleteStatusResponse> PrinterCompleteStatus
         {
@@ -260,6 +265,79 @@ namespace gip.core.reporthandler
             set;
         }
 
+
+
+        [ACMethodInteraction(nameof(LinxPrinter), "en{'Start Print'}de{'Drucker Start'}", 201, true)]
+        public void StartPrint()
+        {
+            LinxPrintJob linxPrintJob = new LinxPrintJob();
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.CheckStatus;
+            StartPrintCommand(linxPrintJob);
+            using (ACMonitor.Lock(_61000_LockPort))
+            {
+                Messages.LogMessage(eMsgLevel.Info, GetACUrl(), nameof(StartPrint), $"Add LinxPrintJob:{linxPrintJob.PrintJobID} to queue...");
+                LinxPrintJobs.Enqueue(linxPrintJob);
+            }
+        }
+
+        public bool IsEnabledStartPrint()
+        {
+            return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
+        }
+
+        [ACMethodInteraction(nameof(LinxPrinter), "en{'Stop Print'}de{'Drucker Stopp'}", 202, true)]
+        public void StopPrint()
+        {
+            LinxPrintJob linxPrintJob = new LinxPrintJob();
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.CheckStatus;
+            StartPrintCommand(linxPrintJob, true);
+            using (ACMonitor.Lock(_61000_LockPort))
+            {
+                Messages.LogMessage(eMsgLevel.Info, GetACUrl(), nameof(StopPrint), $"Add LinxPrintJob:{linxPrintJob.PrintJobID} to queue...");
+                LinxPrintJobs.Enqueue(linxPrintJob);
+            }
+        }
+
+        public bool IsEnabledStopPrint()
+        {
+            return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
+        }
+
+        [ACMethodInteraction(nameof(LinxPrinter), "en{'Start Jet'}de{'Druckkopf Start'}", 203, true)]
+        public void StartJet()
+        {
+            LinxPrintJob linxPrintJob = new LinxPrintJob();
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.CheckStatus;
+            StartJetCommand(linxPrintJob);
+            using (ACMonitor.Lock(_61000_LockPort))
+            {
+                Messages.LogMessage(eMsgLevel.Info, GetACUrl(), nameof(StartJet), $"Add LinxPrintJob:{linxPrintJob.PrintJobID} to queue...");
+                LinxPrintJobs.Enqueue(linxPrintJob);
+            }
+        }
+
+        public bool IsEnabledStartJet()
+        {
+            return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
+        }
+
+        [ACMethodInteraction(nameof(LinxPrinter), "en{'Stop Jet'}de{'Druckkopf Stopp'}", 203, true)]
+        public void StopJet()
+        {
+            LinxPrintJob linxPrintJob = new LinxPrintJob();
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.CheckStatus;
+            StartJetCommand(linxPrintJob, true);
+            using (ACMonitor.Lock(_61000_LockPort))
+            {
+                Messages.LogMessage(eMsgLevel.Info, GetACUrl(), nameof(StopJet), $"Add LinxPrintJob:{linxPrintJob.PrintJobID} to queue...");
+                LinxPrintJobs.Enqueue(linxPrintJob);
+            }
+        }
+
+        public bool IsEnabledStopJet()
+        {
+            return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
+        }
         #endregion
 
         #region Communication -> Open / Close port
@@ -1345,7 +1423,7 @@ namespace gip.core.reporthandler
         /// starting jet command
         /// </summary>
         /// <param name="linxPrintJob"></param>
-        private void StartJetCommand(LinxPrintJob linxPrintJob)
+        private void StartJetCommand(LinxPrintJob linxPrintJob, bool bStop = false)
         {
             /*
                 E.1.9	Start Jet Command
@@ -1363,7 +1441,7 @@ namespace gip.core.reporthandler
                 E8	;Checksum
             */
             // LinxASCIControlCharacterEnum.SI == 0xF
-            byte[] data = GetData(LinxASCIControlCharacterEnum.SI, null);
+            byte[] data = GetData(bStop ? LinxASCIControlCharacterEnum.DLE : LinxASCIControlCharacterEnum.SI, null);
             linxPrintJob.PacketsForPrint.Add(data);
         }
 
@@ -1373,7 +1451,7 @@ namespace gip.core.reporthandler
         /// starting print command
         /// </summary>
         /// <param name="linxPrintJob"></param>
-        private void StartPrintCommand(LinxPrintJob linxPrintJob)
+        private void StartPrintCommand(LinxPrintJob linxPrintJob, bool bStop = false)
         {
             /*
                  E.1.10	Start Print Command
@@ -1392,7 +1470,7 @@ namespace gip.core.reporthandler
 
              */
             // LinxASCIControlCharacterEnum.VT == 0xB == 11
-            byte[] data = GetData(LinxASCIControlCharacterEnum.VT, null);
+            byte[] data = GetData(bStop ? LinxASCIControlCharacterEnum.FF : LinxASCIControlCharacterEnum.VT, null);
             linxPrintJob.PacketsForPrint.Add(data);
         }
 
@@ -1449,6 +1527,45 @@ namespace gip.core.reporthandler
 
         #endregion
 
-
+        #region Execute-Helper
+        protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
+        {
+            result = null;
+            switch (acMethodName)
+            {
+                case nameof(CheckStatus):
+                    CheckStatus();
+                    return true;
+                case nameof(IsEnabledCheckStatus):
+                    result = IsEnabledCheckStatus();
+                    return true;
+                case nameof(StartPrint):
+                    StartPrint();
+                    return true;
+                case nameof(IsEnabledStartPrint):
+                    result = IsEnabledStartPrint();
+                    return true;
+                case nameof(StopPrint):
+                    StopPrint();
+                    return true;
+                case nameof(IsEnabledStopPrint):
+                    result = IsEnabledStopPrint();
+                    return true;
+                case nameof(StartJet):
+                    StartJet();
+                    return true;
+                case nameof(IsEnabledStartJet):
+                    result = IsEnabledStartJet();
+                    return true;
+                case nameof(StopJet):
+                    StopJet();
+                    return true;
+                case nameof(IsEnabledStopJet):
+                    result = IsEnabledStopJet();
+                    return true;
+            }
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+        #endregion
     }
 }
