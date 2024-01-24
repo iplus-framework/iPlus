@@ -1044,17 +1044,16 @@ namespace gip.core.reporthandler
                     fieldData.AddRange(fieldBytes);
                 }
 
-                foreach (byte[] bytes in fieldData)
-                {
-                    linxPrintJob.PacketsForPrint.Add(bytes);
-                }
-
+               
                 string headerPresentation = ByteStrPresentation(headerBytes);
                 string fieldPresentation = ByteStrPresentation(fieldData);
 
                 List<byte[]> downloadData = new List<byte[]>();
                 downloadData.AddRange(headerBytes);
                 downloadData.AddRange(fieldData);
+
+                byte[] data = GetData(LinxASCIControlCharacterEnum.EM, downloadData.ToArray().SelectMany(c=>c).ToArray());
+                linxPrintJob.PacketsForPrint.Add(data);
             }
         }
 
