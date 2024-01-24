@@ -17,6 +17,14 @@
         //    Linkage	1 byte*
         //    Data set name	15 bytes + null*
 
+        #region const
+
+        public const short ConstHeaderLength = 33; // Mislio sam da je 32 al sam stavio 33 da je rezultat kao u primjeru
+
+        #endregion
+
+        #region ctor's
+
         public LinxFieldHeader()
         {
             // Setup defaults
@@ -33,6 +41,10 @@
             Linkage = 0x00;
         }
 
+        #endregion
+
+        #region Properties
+
         public byte FieldHeaderCharacter { get; set; }
         public byte FieldType { get; set; }
         public byte[] FieldLengthInBytes { get; } = new byte[2];
@@ -47,6 +59,8 @@
         public byte Format2 { get; set; }
         public byte Linkage { get; set; }
         public byte[] DataSetName { get;  }  = new byte[16];
+
+        #endregion
 
     }
 }

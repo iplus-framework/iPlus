@@ -114,7 +114,7 @@ namespace gip.core.reporthandler
         public virtual byte[] GetFieldLengthInRasters(LinxDataSetData dataSetData, short numberOfCharacters)
         {
             // field length in rasters can be calculated by multiplying the number of characters in the field by the width of the character in rasters (including the inter-character space), minus one inter-character space.
-            int length = (numberOfCharacters * dataSetData.Width - dataSetData.InterCharacterSpace);
+            int length = (numberOfCharacters * (dataSetData.Width + dataSetData.InterCharacterSpace)) - dataSetData.InterCharacterSpace;
             return BitConverter.GetBytes((short)length);
         }
 
@@ -1026,6 +1026,18 @@ namespace gip.core.reporthandler
                 {
                     linxPrintJob.PacketsForPrint.Add(bytes);
                 }
+
+                StringBuilder sbPresentation = new StringBuilder();
+                foreach(var test in downloadData)
+                {
+                    foreach (byte by in test)
+                    {
+                        sbPresentation.Append(((short)by).ToString("X"));
+                        sbPresentation.Append(" ");
+                    }
+                    sbPresentation.AppendLine();
+                }
+                var testStr = sbPresentation.ToString();
             }
         }
 
@@ -1506,7 +1518,7 @@ namespace gip.core.reporthandler
             LinxFieldHeader linxFieldHeader = new LinxFieldHeader();
             linxFieldHeader.FieldType = fieldType;
 
-            byte[] fieldLengthInBytes = BitConverter.GetBytes((short)value.Length);
+            byte[] fieldLengthInBytes = BitConverter.GetBytes((short)value.Length + LinxFieldHeader.ConstHeaderLength);
             Array.Copy(fieldLengthInBytes, linxFieldHeader.FieldLengthInBytes, System.Math.Min(linxFieldHeader.FieldLengthInBytes.Length, fieldLengthInBytes.Length));
 
             byte[] fieldLengthInRasters = GetFieldLengthInRasters(dataSet, (short)value.Length);
