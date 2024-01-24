@@ -1013,33 +1013,43 @@ namespace gip.core.reporthandler
                 LinxMessageHeader linxMessageHeader = GetLinxMessageHeader(linxPrintJob.Name, rasterName, 1, (short)msgLengthInBytes, (short)msgLengthInRasters);
                 List<byte[]> headerBytes = linxMessageHeader.GetBytes();
 
-                List<byte[]> downloadData = new List<byte[]>(); 
-                downloadData.AddRange(headerBytes);
-
-                foreach(LinxField linxField in linxPrintJob.LinxFields)
+                List<byte[]> fieldData = new List<byte[]>();
+                
+                foreach (LinxField linxField in linxPrintJob.LinxFields)
                 {
                     List<byte[]> fieldBytes = linxField.GetBytes(linxPrintJob.Encoding);
-                    downloadData.AddRange(fieldBytes);
+                    fieldData.AddRange(fieldBytes);
                 }
 
-                foreach (byte[] bytes in downloadData)
+                foreach (byte[] bytes in fieldData)
                 {
                     linxPrintJob.PacketsForPrint.Add(bytes);
                 }
 
-                StringBuilder sbPresentation = new StringBuilder();
-                foreach(var test in downloadData)
-                {
-                    foreach (byte by in test)
-                    {
-                        sbPresentation.Append(((short)by).ToString("X"));
-                        sbPresentation.Append(" ");
-                    }
-                    sbPresentation.AppendLine();
-                }
-                var testStr = sbPresentation.ToString();
+                string headerPresentation = ByteStrPresentation(headerBytes);
+                string fieldPresentation = ByteStrPresentation(fieldData);
+
+                List<byte[]> downloadData = new List<byte[]>();
+                downloadData.AddRange(headerBytes);
+                downloadData.AddRange(fieldData);
             }
         }
+
+        private string ByteStrPresentation(List<byte[]> downloadData)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var test in downloadData)
+            {
+                foreach (byte by in test)
+                {
+                    sb.Append(((short)by).ToString("X"));
+                    sb.Append(" ");
+                }
+                sb.AppendLine();
+            }
+            return sb.ToString();
+        }
+
 
 
         public override void OnRenderBlockHeader(PrintJob printJob, Block block, BlockDocumentPosition position)

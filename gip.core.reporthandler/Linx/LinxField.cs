@@ -41,6 +41,7 @@ namespace gip.core.reporthandler
             bytes.Add(Header.DataSetName);
 
             byte[] messageByte = encoding.GetBytes(Value);
+            bytes.Add(messageByte);
 
             return bytes;
         }
