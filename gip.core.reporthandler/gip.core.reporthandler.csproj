@@ -156,6 +156,7 @@
     <Compile Include="Linx\LinxFieldHeader.cs" />
     <Compile Include="Linx\LinxMapping.cs" />
     <Compile Include="Linx\LinxMessageHeader.cs" />
+    <Compile Include="Linx\LinxPrinterRasterDataResponse.cs" />
     <Compile Include="Linx\LinxPrinterStatusResponse.cs" />
     <Compile Include="Linx\LinxPrintJob.cs" />
     <Compile Include="Linx\LinxPrinterCommandCodeEnum.cs" />

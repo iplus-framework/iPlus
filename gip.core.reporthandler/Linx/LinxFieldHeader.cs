@@ -19,7 +19,7 @@
 
         #region const
 
-        public const short ConstHeaderLength = 33; // Mislio sam da je 32 al sam stavio 33 da je rezultat kao u primjeru
+        public const short ConstHeaderLength = 32; // Mislio sam da je 32 al sam stavio 33 da je rezultat kao u primjeru
 
         #endregion
 

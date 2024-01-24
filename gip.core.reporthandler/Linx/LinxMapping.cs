@@ -26,7 +26,7 @@ namespace gip.core.reporthandler
             if (attrs != null && attrs.Any())
             {
                 int expectedLength = attrs.Select(c => c.LinxByteMapping.Length).Sum();
-                if (expectedLength == data.Length)
+                if (expectedLength <= data.Length)
                 {
                     item = Activator.CreateInstance<T>();
                     foreach (var attr in attrs)

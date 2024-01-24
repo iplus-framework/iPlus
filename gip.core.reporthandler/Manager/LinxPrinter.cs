@@ -312,7 +312,7 @@ namespace gip.core.reporthandler
         /// <summary>
         /// ReadTimeout
         /// </summary>
-        [ACPropertyInfo(true, 405, "Config", "en{'Read-Timeout [ms]'}de{'Lese-Timeout [ms]'}", DefaultValue = 2000)]
+        [ACPropertyInfo(true, 405, "Config", "en{'Read-Timeout [ms]'}de{'Lese-Timeout [ms]'}", DefaultValue = 5000)]
         public int ReadTimeout { get; set; }
 
         /// <summary>
@@ -423,6 +423,25 @@ namespace gip.core.reporthandler
         }
 
         public bool IsEnabledStopJet()
+        {
+            return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
+        }
+
+        [ACMethodInteraction(nameof(LinxPrinter), "en{'GetRasterData'}de{'GetRasterData'}", 203, true)]
+        public void GetRasterData()
+        {
+            LinxPrintJob linxPrintJob = new LinxPrintJob();
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.RasterData;
+            byte[] data = GetData( LinxASCIControlCharacterEnum.CAN, null);
+            linxPrintJob.PacketsForPrint.Add(data);
+            using (ACMonitor.Lock(_61000_LockPort))
+            {
+                Messages.LogMessage(eMsgLevel.Info, GetACUrl(), nameof(StopJet), $"Add LinxPrintJob:{linxPrintJob.PrintJobID} to queue...");
+                LinxPrintJobs.Enqueue(linxPrintJob);
+            }
+        }
+
+        public bool IsEnabledGetRasterData()
         {
             return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
         }
@@ -656,7 +675,7 @@ namespace gip.core.reporthandler
                             NetworkStream stream = TcpClient.GetStream();
                             if (stream != null)
                             {
-                                if (stream.CanRead && stream.DataAvailable)
+                                if (stream.CanRead) // && stream.DataAvailable)
                                 {
                                     byte[] myReadBuffer = new byte[1024];
                                     int numberOfBytesRead = 0;
@@ -715,7 +734,8 @@ namespace gip.core.reporthandler
 
             if (success)
             {
-                success = LinxHelper.ValidateChecksum(result.ToArray());
+                if (linxPrintJob.LinxPrintJobType != LinxPrintJobTypeEnum.RasterData)
+                    success = LinxHelper.ValidateChecksum(result.ToArray());
                 if (!success)
                 {
                     string message = $"Bad checksum for response: {linxPrintJob.GetJobInfo()}";
@@ -872,7 +892,7 @@ namespace gip.core.reporthandler
                         linxPrintJob.State = PrintJobStateEnum.InProcess;
                     }
 
-                    if (linxPrintJob.LinxPrintJobType == LinxPrintJobTypeEnum.CheckStatus && linxPrintJob.PacketsForPrint.Count == 1)
+                    if (linxPrintJob.LinxPrintJobType == LinxPrintJobTypeEnum.CheckStatus && linxPrintJob.PacketsForPrint.Count >= 1)
                     {
                         bool requestSuccess = Request(linxPrintJob.PacketsForPrint[0]);
                         if (requestSuccess)
@@ -894,6 +914,38 @@ namespace gip.core.reporthandler
                                 else
                                 {
                                     PrinterCompleteStatus.ValueT = response;
+                                }
+                            }
+                        }
+                    }
+                    else if (linxPrintJob.LinxPrintJobType == LinxPrintJobTypeEnum.RasterData && linxPrintJob.PacketsForPrint.Count >= 1)
+                    {
+                        bool requestSuccess = Request(linxPrintJob.PacketsForPrint[0]);
+                        if (requestSuccess)
+                        {
+                            Thread.Sleep(ReceiveTimeout);
+                            (bool responseSuccess, byte[] responseData) = Response(linxPrintJob);
+                            if (responseSuccess && responseData != null)
+                            {
+                                (MsgWithDetails msgWithDetails, LinxPrinterRasterDataResponse response) = LinxMapping<LinxPrinterRasterDataResponse>.Map(responseData);
+                                if (msgWithDetails != null && !msgWithDetails.IsSucceded())
+                                {
+                                    LinxPrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
+                                    if (IsAlarmActive(nameof(LinxPrinterAlarm), msgWithDetails.DetailsAsText) == null)
+                                    {
+                                        Messages.LogError(GetACUrl(), $"{nameof(LinxPrinter)}.{nameof(ProcessJob)}(120)", msgWithDetails.DetailsAsText);
+                                    }
+                                    OnNewAlarmOccurred(LinxPrinterAlarm, msgWithDetails.DetailsAsText, true);
+                                }
+                                else
+                                {
+                                    for (int i = 0; i < response.NumberOfHeaders; i++)
+                                    {
+                                        int start = (i * 35) + 12;
+                                        byte[] rasterBlock = new byte[35];
+                                        Array.Copy(responseData, start, rasterBlock, 0, 35);
+                                    }
+                                    //PrinterCompleteStatus.ValueT = response;
                                 }
                             }
                         }
@@ -1023,14 +1075,9 @@ namespace gip.core.reporthandler
                 byte[] data = GetData(LinxASCIControlCharacterEnum.GS, inputData);
                 linxPrintJob.PacketsForPrint.Add(data);
             }
-
-
-            StartJetCommand(linxPrintJob);
-            StartPrintCommand(linxPrintJob);
-
-            if (!UseRemoteReport)
+            else //if (!UseRemoteReport)
             {
-                string rasterName = "16 GEN STD";
+                string rasterName = "5 STD LIN"; //"1x9 Westlich Flexible";
                 int msgLengthInBytes = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt16(c.Header.FieldLengthInBytes, 0)) + LinxMessageHeader.DefaultHeaderLength;
                 int msgLengthInRasters = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt16(c.Header.FieldLengthInRasters, 0)) + LinxMessageHeader.DefaultHeaderLength;
                 LinxMessageHeader linxMessageHeader = GetLinxMessageHeader(linxPrintJob.Name, rasterName, 1, (short)msgLengthInBytes, (short)msgLengthInRasters);
@@ -1044,7 +1091,7 @@ namespace gip.core.reporthandler
                     fieldData.AddRange(fieldBytes);
                 }
 
-               
+
                 string headerPresentation = ByteStrPresentation(headerBytes);
                 string fieldPresentation = ByteStrPresentation(fieldData);
 
@@ -1052,9 +1099,14 @@ namespace gip.core.reporthandler
                 downloadData.AddRange(headerBytes);
                 downloadData.AddRange(fieldData);
 
-                byte[] data = GetData(LinxASCIControlCharacterEnum.EM, downloadData.ToArray().SelectMany(c=>c).ToArray());
+                byte[] data = GetData(LinxASCIControlCharacterEnum.EM, downloadData.ToArray().SelectMany(c => c).ToArray());
                 linxPrintJob.PacketsForPrint.Add(data);
             }
+
+
+            StartJetCommand(linxPrintJob);
+            StartPrintCommand(linxPrintJob);
+
         }
 
         private string ByteStrPresentation(List<byte[]> downloadData)
@@ -1558,6 +1610,7 @@ namespace gip.core.reporthandler
             Array.Copy(fieldLengthInRasters, linxFieldHeader.FieldLengthInRasters, System.Math.Min(linxFieldHeader.FieldLengthInRasters.Length, fieldLengthInRasters.Length));
 
             linxFieldHeader.TextLenght = (byte)valueLength;
+            linxFieldHeader.FieldHeightInDrops = (byte)dataSet.Height;
 
             // Data set name	15 bytes + null*
             Array.Copy(Encoding.ASCII.GetBytes(dataSet.DataSetName), linxFieldHeader.DataSetName, System.Math.Min(linxFieldHeader.DataSetName.Length - 1, dataSet.DataSetName.Length));
