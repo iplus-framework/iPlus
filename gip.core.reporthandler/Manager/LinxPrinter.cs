@@ -1,13 +1,10 @@
-﻿using DocumentFormat.OpenXml.ExtendedProperties;
-using DocumentFormat.OpenXml.Packaging;
-using gip.core.autocomponent;
+﻿using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.layoutengine;
 using gip.core.reporthandler.Flowdoc;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Net;
@@ -798,8 +795,34 @@ namespace gip.core.reporthandler
 
         public override PrintJob GetPrintJob(string reportName, FlowDocument flowDocument)
         {
-            LinxPrintJob linxPrintJob = new LinxPrintJob();
             Encoding encoder = Encoding.Unicode;
+            VBFlowDocument vBFlowDocument = flowDocument as VBFlowDocument;
+
+            int? codePage = null;
+
+            if (vBFlowDocument != null && vBFlowDocument.CodePage > 0)
+            {
+                codePage = vBFlowDocument.CodePage;
+            }
+            else if (CodePage > 0)
+            {
+                codePage = CodePage;
+            }
+
+
+            if (codePage != null)
+            {
+                try
+                {
+                    encoder = Encoding.GetEncoding(codePage.Value);
+                }
+                catch (Exception ex)
+                {
+                    Messages.LogException(GetACUrl(), nameof(GetPrintJob), ex);
+                }
+            }
+
+            LinxPrintJob linxPrintJob = new LinxPrintJob();
             linxPrintJob.FlowDocument = flowDocument;
             linxPrintJob.Name = string.IsNullOrEmpty(flowDocument.Name) ? reportName : flowDocument.Name;
             linxPrintJob.Encoding = encoder;
@@ -1014,10 +1037,10 @@ namespace gip.core.reporthandler
                 List<byte[]> headerBytes = linxMessageHeader.GetBytes();
 
                 List<byte[]> fieldData = new List<byte[]>();
-                
+
                 foreach (LinxField linxField in linxPrintJob.LinxFields)
                 {
-                    List<byte[]> fieldBytes = linxField.GetBytes(linxPrintJob.Encoding);
+                    List<byte[]> fieldBytes = linxField.GetBytes();
                     fieldData.AddRange(fieldBytes);
                 }
 
@@ -1314,7 +1337,7 @@ namespace gip.core.reporthandler
             {
                 dataSet = DataSets.FirstOrDefault();
             }
-            LinxField linxField = GetLinxField(dataSet, text);
+            LinxField linxField = GetLinxField(linxPrintJob.Encoding, dataSet, text);
             linxPrintJob.LinxFields.Add(linxField);
         }
 
@@ -1383,7 +1406,7 @@ namespace gip.core.reporthandler
             {
                 dataSet = DataSets.FirstOrDefault();
             }
-            LinxField linxField = GetLinxField(dataSet, barcodeValue, 0x46);
+            LinxField linxField = GetLinxField(linxPrintJob.Encoding, dataSet, barcodeValue, 0x46);
             linxPrintJob.LinxFields.Add(linxField);
         }
 
@@ -1515,31 +1538,32 @@ namespace gip.core.reporthandler
 
         #region Methods -> Prepare Fields
 
-        public virtual LinxField GetLinxField(LinxDataSetData dataSet, string value, byte fieldType = 0x00)
+        public virtual LinxField GetLinxField(Encoding encoding, LinxDataSetData dataSet, string value, byte fieldType = 0x00)
         {
             LinxField field = new LinxField();
-            field.Header = GetLinxFieldHeader(dataSet, value, fieldType);
+            field.ValueByte = encoding.GetBytes(value);
+            field.Header = GetLinxFieldHeader(dataSet, (short)value.Length, (short)field.ValueByte.Length, fieldType);
             field.Value = value;
             return field;
         }
 
-        public virtual LinxFieldHeader GetLinxFieldHeader(LinxDataSetData dataSet, string value, byte fieldType = 0x00)
+        public virtual LinxFieldHeader GetLinxFieldHeader(LinxDataSetData dataSet, short valueLength, short valueByteLength, byte fieldType = 0x00)
         {
             LinxFieldHeader linxFieldHeader = new LinxFieldHeader();
             linxFieldHeader.FieldType = fieldType;
 
-            byte[] fieldLengthInBytes = BitConverter.GetBytes((short)value.Length + LinxFieldHeader.ConstHeaderLength);
+            byte[] fieldLengthInBytes = BitConverter.GetBytes(valueByteLength + LinxFieldHeader.ConstHeaderLength);
             Array.Copy(fieldLengthInBytes, linxFieldHeader.FieldLengthInBytes, System.Math.Min(linxFieldHeader.FieldLengthInBytes.Length, fieldLengthInBytes.Length));
 
-            byte[] fieldLengthInRasters = GetFieldLengthInRasters(dataSet, (short)value.Length);
+            byte[] fieldLengthInRasters = GetFieldLengthInRasters(dataSet, valueLength);
             Array.Copy(fieldLengthInRasters, linxFieldHeader.FieldLengthInRasters, System.Math.Min(linxFieldHeader.FieldLengthInRasters.Length, fieldLengthInRasters.Length));
 
-            linxFieldHeader.TextLenght = (byte)value.Length;
+            linxFieldHeader.TextLenght = (byte)valueLength;
 
             // Data set name	15 bytes + null*
             Array.Copy(Encoding.ASCII.GetBytes(dataSet.DataSetName), linxFieldHeader.DataSetName, System.Math.Min(linxFieldHeader.DataSetName.Length - 1, dataSet.DataSetName.Length));
             linxFieldHeader.DataSetName[15] = 0x00;
-            
+
             return linxFieldHeader;
         }
 

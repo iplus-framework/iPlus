@@ -16,12 +16,13 @@ namespace gip.core.reporthandler
         public LinxFieldHeader Header { get; set; } = new LinxFieldHeader();
 
         public string Value { get; set; }
+        public byte[] ValueByte { get; set; }
 
         #endregion
 
         #region Methods
 
-        public List<byte[]> GetBytes(Encoding encoding)
+        public List<byte[]> GetBytes()
         {
             List<byte[]> bytes = new List<byte[]>();
 
@@ -39,9 +40,7 @@ namespace gip.core.reporthandler
             bytes.Add(new byte[] { Header.Format2 });
             bytes.Add(new byte[] { Header.Linkage });
             bytes.Add(Header.DataSetName);
-
-            byte[] messageByte = encoding.GetBytes(Value);
-            bytes.Add(messageByte);
+            bytes.Add(ValueByte);
 
             return bytes;
         }
