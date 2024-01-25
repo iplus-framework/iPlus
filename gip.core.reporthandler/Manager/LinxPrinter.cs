@@ -939,13 +939,10 @@ namespace gip.core.reporthandler
                                 }
                                 else
                                 {
-                                    for (int i = 0; i < response.NumberOfHeaders; i++)
-                                    {
-                                        int start = (i * 35) + 12;
-                                        byte[] rasterBlock = new byte[35];
-                                        Array.Copy(responseData, start, rasterBlock, 0, 35);
-                                    }
-                                    //PrinterCompleteStatus.ValueT = response;
+                                    response.ParseData(responseData);
+                                    string dumpedResult = response.ToString();
+                                    Messages.LogInfo(GetACUrl(), $"{nameof(LinxPrinter)}.{nameof(ProcessJob)}(120)", dumpedResult);
+                                    OnNewAlarmOccurred(LinxPrinterAlarm, dumpedResult, true);
                                 }
                             }
                         }
@@ -1077,7 +1074,12 @@ namespace gip.core.reporthandler
             }
             else //if (!UseRemoteReport)
             {
-                string rasterName = "5 STD LIN"; //"1x9 Westlich Flexible";
+                string rasterName = null;
+                VBFlowDocument vBFlowDocument = flowDoc as VBFlowDocument;
+                if (vBFlowDocument != null)
+                    rasterName = vBFlowDocument.Custom01;
+                if (string.IsNullOrEmpty(rasterName))
+                    rasterName = "5 STD LIN"; //"1x9 Westlich Flexible";
                 int msgLengthInBytes = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt16(c.Header.FieldLengthInBytes, 0)) + LinxMessageHeader.DefaultHeaderLength;
                 int msgLengthInRasters = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt16(c.Header.FieldLengthInRasters, 0)) + LinxMessageHeader.DefaultHeaderLength;
                 LinxMessageHeader linxMessageHeader = GetLinxMessageHeader(linxPrintJob.Name, rasterName, 1, (short)msgLengthInBytes, (short)msgLengthInRasters);

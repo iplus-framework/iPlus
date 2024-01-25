@@ -77,5 +77,25 @@ namespace gip.core.reporthandler
             }
             return isValid;
         }
+
+        public static byte[] RemoveZeros(byte[] data) 
+        {
+            if (data == null)
+                return data;
+            int x = -1;
+            for (int i = 0; i < data.Length; i++) 
+            {
+                if (data[i] == 0)
+                {
+                    x = i;
+                    break;
+                }
+            }
+            if (x <= 0)
+                return null;
+            byte[] shortenData = new byte[x];
+            Array.Copy(data, shortenData, x);
+            return shortenData;
+        }
     }
 }

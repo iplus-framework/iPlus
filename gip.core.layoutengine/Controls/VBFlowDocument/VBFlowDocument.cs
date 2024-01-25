@@ -18,17 +18,9 @@ namespace gip.core.layoutengine
 
         #region Properties - > CodePage
 
-        /// <summary>
-        /// Represents the dependency property for WidthCaption.
-        /// </summary>
         public static readonly DependencyProperty CodePageProperty
             = DependencyProperty.Register("CodePage", typeof(int), typeof(VBFlowDocument), new PropertyMetadata(1250));
-        /// <summary>
-        /// Gets or sets the width of caption.
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Liest oder setzt die Breite der Beschriftung.
-        /// </summary>
+
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
@@ -36,6 +28,22 @@ namespace gip.core.layoutengine
         {
             get { return (int)GetValue(CodePageProperty); }
             set { SetValue(CodePageProperty, value); }
+        }
+
+        #endregion
+
+        #region Properties - > CodePage
+
+        public static readonly DependencyProperty Custom01Property
+            = DependencyProperty.Register("Custom01Property", typeof(string), typeof(VBFlowDocument), new PropertyMetadata());
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string Custom01
+        {
+            get { return (string)GetValue(Custom01Property); }
+            set { SetValue(Custom01Property, value); }
         }
 
         #endregion

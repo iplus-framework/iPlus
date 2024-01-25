@@ -8,7 +8,6 @@ namespace gip.core.reporthandler
 {
     public class LinxMapping<T> where T : class
     {
-
         public static (MsgWithDetails, T) Map(byte[] data)
         {
             T item = null;
@@ -21,6 +20,7 @@ namespace gip.core.reporthandler
                     PropertyInfo = c,
                     LinxByteMapping = (LinxByteMappingAttribute)c.GetCustomAttributes(typeof(LinxByteMappingAttribute)).FirstOrDefault()
                 })
+                .Where(c => c.LinxByteMapping != null)
                 .ToList();
 
             if (attrs != null && attrs.Any())
