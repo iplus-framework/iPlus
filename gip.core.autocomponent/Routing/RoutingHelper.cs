@@ -374,4 +374,13 @@ namespace gip.core.autocomponent
             
         }
     }
+
+    [ACSerializeableInfo]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'RouteResultMode'}de{'RouteResultMode'}", Global.ACKinds.TACEnum)]
+    public enum RouteResultMode : short
+    {
+        ShortRoute = 0,
+        FullRouteFromFindComp = 10,
+        FullRoute = 20
+    }
 }

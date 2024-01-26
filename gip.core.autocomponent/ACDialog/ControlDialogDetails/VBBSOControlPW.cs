@@ -26,7 +26,6 @@ namespace gip.core.autocomponent
 
         }
 
-
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
             ParentACComponent.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(ParentACComponent_PropertyChanged);
@@ -77,6 +76,7 @@ namespace gip.core.autocomponent
             return base.ACDeInit(deleteACClassTask);
         }
 
+        private const string Const_TabRoutingVBContent = "Routing";
 
         #endregion
 
@@ -177,7 +177,7 @@ namespace gip.core.autocomponent
                     RefreshPAFunctionParamValueList();
 
                     // 3. Refresh Rulesdp
-                    RefreshRules();
+                    //RefreshRules();
 
                     OnPropertyChanged("IsMachineConfigReadyStore");
                     LoadMachineList(_CurrentACClassWF);
@@ -1309,6 +1309,16 @@ namespace gip.core.autocomponent
             return base.OnPreSave();
         }
 
+        
+
+        public override void ACAction(ACActionArgs actionArgs)
+        {
+            base.ACAction(actionArgs);
+
+            if (actionArgs.ElementAction == Global.ElementActionType.TabItemActivated && actionArgs.DropObject != null && actionArgs.DropObject.VBContent == Const_TabRoutingVBContent)
+                RefreshRules();
+        }
+
         #endregion
 
         #region Saving
@@ -1999,73 +2009,73 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "CreatePWNodeValue":
+                case nameof(CreatePWNodeValue):
                     CreatePWNodeValue();
                     return true;
-                case "DeletePWNodeParamValue":
+                case nameof(DeletePWNodeParamValue):
                     DeletePWNodeParamValue();
                     return true;
-                case "CreatePAFunctionValue":
+                case nameof(CreatePAFunctionValue):
                     CreatePAFunctionValue();
                     return true;
-                case "DeletePAFunctionValue":
+                case nameof(DeletePAFunctionValue):
                     DeletePAFunctionValue();
                     return true;
-                case "SaveSolProperties":
+                case nameof(SaveSolProperties):
                     SaveSolProperties();
                     return true;
-                case "ReplicationNodeApplyToAll":
+                case nameof(ReplicationNodeApplyToAll):
                     ReplicationNodeApplyToAll();
                     return true;
-                case "ReplicationFunctionApplyToAll":
+                case nameof(ReplicationFunctionApplyToAll):
                     ReplicationFunctionApplyToAll();
                     return true;
-                case "SearchAllHistoryPWNodeParamValue":
+                case nameof(SearchAllHistoryPWNodeParamValue):
                     SearchAllHistoryPWNodeParamValue();
                     return true;
-                case "SearchAllHistoryPAFunctionParamValue":
+                case nameof(SearchAllHistoryPAFunctionParamValue):
                     SearchAllHistoryPAFunctionParamValue();
                     return true;
-                case "AddRoute":
+                case nameof(AddRoute):
                     AddRoute();
                     return true;
-                case "DeleteRoute":
+                case nameof(DeleteRoute):
                     DeleteRoute();
                     return true;
-                case "OpenRoute":
+                case nameof(OpenRoute):
                     OpenRoute();
                     return true;
-                case "CopyConfigToSimilarNodes":
+                case nameof(CopyConfigToSimilarNodes):
                     CopyConfigToSimilarNodes();
                     return true;
-                case Const.IsEnabledPrefix + "CreatePWNodeValue":
+                case nameof(IsEnabledCreatePWNodeValue):
                     result = IsEnabledCreatePWNodeValue();
                     return true;
-                case Const.IsEnabledPrefix + "DeletePWNodeParamValue":
+                case nameof(IsEnabledDeletePWNodeParamValue):
                     result = IsEnabledDeletePWNodeParamValue();
                     return true;
-                case Const.IsEnabledPrefix + "CreatePAFunctionValue":
+                case nameof(IsEnabledCreatePAFunctionValue):
                     result = IsEnabledCreatePAFunctionValue();
                     return true;
-                case Const.IsEnabledPrefix + "DeletePAFunctionValue":
+                case nameof(IsEnabledDeletePAFunctionValue):
                     result = IsEnabledDeletePAFunctionValue();
                     return true;
-                case Const.IsEnabledPrefix + "ReplicationNodeApplyToAll":
+                case nameof(IsEnabledReplicationNodeApplyToAll):
                     result = IsEnabledReplicationNodeApplyToAll();
                     return true;
-                case Const.IsEnabledPrefix + "ReplicationFunctionApplyToAll":
+                case nameof(IsEnabledReplicationFunctionApplyToAll):
                     result = IsEnabledReplicationFunctionApplyToAll();
                     return true;
-                case Const.IsEnabledPrefix + "AddRoute":
+                case nameof(IsEnabledAddRoute):
                     result = IsEnabledAddRoute();
                     return true;
-                case Const.IsEnabledPrefix + "DeleteRoute":
+                case nameof(IsEnabledDeleteRoute):
                     result = IsEnabledDeleteRoute();
                     return true;
-                case Const.IsEnabledPrefix + "OpenRoute":
+                case nameof(IsEnabledOpenRoute):
                     result = IsEnabledOpenRoute();
                     return true;
-                case Const.IsEnabledPrefix + "CopyConfigToSimilarNodes":
+                case nameof(IsEnabledCopyConfigToSimilarNodes):
                     result = IsEnabledCopyConfigToSimilarNodes();
                     return true;
             }
