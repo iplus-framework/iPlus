@@ -8,10 +8,10 @@ namespace gip.core.reporthandler
     {
 
         #region ctor's
-
-        public LinxPrintJob() : base()
+        public LinxPrintJob()
         {
         }
+
 
         #endregion
 
@@ -81,7 +81,7 @@ namespace gip.core.reporthandler
             }
         }
 
-        public LinxPrintJobTypeEnum LinxPrintJobType { get; set; }
+        //public LinxPrintJobTypeEnum LinxPrintJobType { get; set; }
 
         public class Telegram
         {
