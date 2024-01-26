@@ -35,7 +35,7 @@ namespace gip.core.reporthandler
             bytes.Add(new byte[] { Header.FieldHeightInDrops });
             bytes.Add(new byte[] { Header.Format3 });
             bytes.Add(new byte[] { Header.BoldMultiplier });
-            bytes.Add(new byte[] { Header.TextLenght });
+            bytes.Add(new byte[] { Header.TextLength });
             bytes.Add(new byte[] { Header.Format1 });
             bytes.Add(new byte[] { Header.Format2 });
             bytes.Add(new byte[] { Header.Linkage });

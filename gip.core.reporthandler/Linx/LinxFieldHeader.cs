@@ -54,7 +54,7 @@
         public byte FieldHeightInDrops { get; set; }
         public byte Format3 { get; set; }
         public byte BoldMultiplier { get; set; }
-        public byte TextLenght { get; set; }
+        public byte TextLength { get; set; }
         public byte Format1 { get; set; }
         public byte Format2 { get; set; }
         public byte Linkage { get; set; }

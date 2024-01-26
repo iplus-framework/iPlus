@@ -12,6 +12,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Documents;
+using static gip.core.reporthandler.LinxPrintJob;
 
 namespace gip.core.reporthandler
 {
@@ -108,11 +109,50 @@ namespace gip.core.reporthandler
             };
         }
 
-        public virtual byte[] GetFieldLengthInRasters(LinxDataSetData dataSetData, short numberOfCharacters)
+        public virtual byte[] GetFieldLengthInRasters(LinxPrintJob linxPrintJob, InlinePropertyValueBase inlineProp, LinxDataSetData dataSetData, short numberOfCharacters)
         {
+            // CustomInt01 = character width
+            // CustomInt02 = InterCharacterSpace
+            int interCharacterSpace = -1;
+            int characterWidth = -1;
+            if (inlineProp.CustomInt01 > 0 && inlineProp.CustomInt02 > 0)
+            {
+                characterWidth = inlineProp.CustomInt01;
+                interCharacterSpace = inlineProp.CustomInt02;
+            }
+            if (interCharacterSpace <= -1 || characterWidth <= -1)
+            {
+                characterWidth = linxPrintJob.CharacterWidth;
+                interCharacterSpace = linxPrintJob.InterCharSpace;
+            }
+            if ((interCharacterSpace <= -1 || characterWidth <= -1) && dataSetData != null)
+            {
+                characterWidth = dataSetData.Width;
+                interCharacterSpace = dataSetData.InterCharacterSpace;
+            }
+            if (interCharacterSpace <= -1 || characterWidth <= -1)
+            {
+                characterWidth = 5;
+                interCharacterSpace = 1;
+            }
+
             // field length in rasters can be calculated by multiplying the number of characters in the field by the width of the character in rasters (including the inter-character space), minus one inter-character space.
-            int length = (numberOfCharacters * (dataSetData.Width + dataSetData.InterCharacterSpace)) - dataSetData.InterCharacterSpace;
+            int length = (numberOfCharacters * (characterWidth + interCharacterSpace)) - interCharacterSpace;
             return BitConverter.GetBytes((short)length);
+        }
+
+        public byte GetFieldHeightInDrops(LinxPrintJob linxPrintJob, InlinePropertyValueBase inlineProp, LinxDataSetData dataSetData, short numberOfCharacters)
+        {
+            int height = -1;
+            if (inlineProp.CustomInt03 > 0)
+                height = inlineProp.CustomInt03;
+            if (height <= -1)
+                height = linxPrintJob.FieldHeightDrop;
+            if (height <= -1 && dataSetData != null)
+                height = dataSetData.Height;
+            if (height <= -1)
+                height = 5;
+            return (byte)height;
         }
 
         public override bool ACPostInit()
@@ -333,7 +373,7 @@ namespace gip.core.reporthandler
             byte[] data = GetData(LinxPrinterCommandCodeEnum.Printer_Status_Request, null);
             LinxPrintJob linxPrintJob = new LinxPrintJob();
             linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.CheckStatus;
-            linxPrintJob.PacketsForPrint.Add(data);
+            linxPrintJob.PacketsForPrint.Add(new LinxPrintJob.Telegram(LinxPrintJobTypeEnum.CheckStatus, data));
             using (ACMonitor.Lock(_61000_LockPort))
             {
                 Messages.LogMessage(eMsgLevel.Info, GetACUrl(), nameof(SendDataToPrinter), $"Add LinxPrintJob:{linxPrintJob.PrintJobID} to queue...");
@@ -359,7 +399,7 @@ namespace gip.core.reporthandler
         public void StartPrint()
         {
             LinxPrintJob linxPrintJob = new LinxPrintJob();
-            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.Print;
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.ControlCmd;
             StartPrintCommand(linxPrintJob);
             using (ACMonitor.Lock(_61000_LockPort))
             {
@@ -377,7 +417,7 @@ namespace gip.core.reporthandler
         public void StopPrint()
         {
             LinxPrintJob linxPrintJob = new LinxPrintJob();
-            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.Print;
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.ControlCmd;
             StartPrintCommand(linxPrintJob, true);
             using (ACMonitor.Lock(_61000_LockPort))
             {
@@ -395,7 +435,7 @@ namespace gip.core.reporthandler
         public void StartJet()
         {
             LinxPrintJob linxPrintJob = new LinxPrintJob();
-            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.Print;
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.ControlCmd;
             StartJetCommand(linxPrintJob);
             using (ACMonitor.Lock(_61000_LockPort))
             {
@@ -413,7 +453,7 @@ namespace gip.core.reporthandler
         public void StopJet()
         {
             LinxPrintJob linxPrintJob = new LinxPrintJob();
-            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.Print;
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.ControlCmd;
             StartJetCommand(linxPrintJob, true);
             using (ACMonitor.Lock(_61000_LockPort))
             {
@@ -433,7 +473,7 @@ namespace gip.core.reporthandler
             LinxPrintJob linxPrintJob = new LinxPrintJob();
             linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.RasterData;
             byte[] data = GetData( LinxASCIControlCharacterEnum.CAN, null);
-            linxPrintJob.PacketsForPrint.Add(data);
+            linxPrintJob.PacketsForPrint.Add(new LinxPrintJob.Telegram(LinxPrintJobTypeEnum.RasterData, data));
             using (ACMonitor.Lock(_61000_LockPort))
             {
                 Messages.LogMessage(eMsgLevel.Info, GetACUrl(), nameof(StopJet), $"Add LinxPrintJob:{linxPrintJob.PrintJobID} to queue...");
@@ -456,7 +496,7 @@ namespace gip.core.reporthandler
             if (!IsEnabledOpenPort())
             {
                 UpdateIsConnectedState();
-                return false;
+                return IsConnected.ValueT;
             }
             if (TCPCommEnabled)
             {
@@ -616,7 +656,7 @@ namespace gip.core.reporthandler
         #endregion
 
         #region Communication -> Request/Response
-        public bool Request(byte[] data)
+        public bool Request(Telegram telegram)
         {
             bool success = OpenPort();
 
@@ -631,7 +671,7 @@ namespace gip.core.reporthandler
                         NetworkStream stream = TcpClient.GetStream();
                         if (stream != null && stream.CanWrite)
                         {
-                            stream.Write(data, 0, data.Length);
+                            stream.Write(telegram.Packet, 0, telegram.Packet.Length);
                             success = true;
                         }
                     }
@@ -639,7 +679,7 @@ namespace gip.core.reporthandler
                     {
                         if (SerialPort.IsOpen)
                         {
-                            SerialPort.Write(data, 0, data.Length);
+                            SerialPort.Write(telegram.Packet, 0, telegram.Packet.Length);
                             success = true;
                         }
                     }
@@ -659,7 +699,7 @@ namespace gip.core.reporthandler
         }
 
 
-        public (bool, byte[]) Response(LinxPrintJob linxPrintJob)
+        public (bool, byte[]) Response(LinxPrintJob linxPrintJob, Telegram telegram)
         {
             bool success = false;
             List<byte> result = new List<byte>();
@@ -734,7 +774,8 @@ namespace gip.core.reporthandler
 
             if (success)
             {
-                if (linxPrintJob.LinxPrintJobType != LinxPrintJobTypeEnum.RasterData)
+                if (telegram.LinxPrintJobType != LinxPrintJobTypeEnum.RasterData 
+                    && telegram.LinxPrintJobType != LinxPrintJobTypeEnum.DeleteReport)
                     success = LinxHelper.ValidateChecksum(result.ToArray());
                 if (!success)
                 {
@@ -791,6 +832,9 @@ namespace gip.core.reporthandler
 
             result.Add((byte)commandCode);
             checkSumList.Add((byte)commandCode);
+            // If delete command, than add as escape sequence, without checksum-calc
+            if (commandCode == (byte) LinxASCIControlCharacterEnum.ESC)
+                result.Add((byte)commandCode);
 
             if (data != null)
             {
@@ -805,6 +849,8 @@ namespace gip.core.reporthandler
             byte[] checkSumArr = checkSumList.ToArray();
             byte checkSum = LinxHelper.GetCheckSum(checkSumArr);
             result.Add(checkSum);
+            if (checkSum == (byte)LinxASCIControlCharacterEnum.ESC)
+                result.Add((byte)LinxASCIControlCharacterEnum.ESC);
 
             return result.ToArray();
         }
@@ -848,7 +894,7 @@ namespace gip.core.reporthandler
             linxPrintJob.Encoding = encoder;
             linxPrintJob.ColumnMultiplier = 1;
             linxPrintJob.ColumnDivisor = 1;
-            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.Print;
+            linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.ControlCmd;
             if (UseRemoteReport)
             {
                 linxPrintJob.LinxPrintJobType = LinxPrintJobTypeEnum.PrintRemote;
@@ -898,7 +944,7 @@ namespace gip.core.reporthandler
                         if (requestSuccess)
                         {
                             Thread.Sleep(ReceiveTimeout);
-                            (bool responseSuccess, byte[] responseData) = Response(linxPrintJob);
+                            (bool responseSuccess, byte[] responseData) = Response(linxPrintJob, linxPrintJob.PacketsForPrint[0]);
                             if (responseSuccess && responseData != null)
                             {
                                 (MsgWithDetails msgWithDetails, LinxPrinterCompleteStatusResponse response) = LinxMapping<LinxPrinterCompleteStatusResponse>.Map(responseData);
@@ -924,7 +970,7 @@ namespace gip.core.reporthandler
                         if (requestSuccess)
                         {
                             Thread.Sleep(ReceiveTimeout);
-                            (bool responseSuccess, byte[] responseData) = Response(linxPrintJob);
+                            (bool responseSuccess, byte[] responseData) = Response(linxPrintJob, linxPrintJob.PacketsForPrint[0]);
                             if (responseSuccess && responseData != null)
                             {
                                 (MsgWithDetails msgWithDetails, LinxPrinterRasterDataResponse response) = LinxMapping<LinxPrinterRasterDataResponse>.Map(responseData);
@@ -949,15 +995,19 @@ namespace gip.core.reporthandler
                     }
                     else
                     {
-                        foreach (byte[] data in linxPrintJob.PacketsForPrint)
+                        foreach (Telegram telegram in linxPrintJob.PacketsForPrint)
                         {
-                            bool requestSuccess = Request(data);
+                            bool requestSuccess = Request(telegram);
                             if (requestSuccess)
                             {
                                 Thread.Sleep(ReceiveTimeout);
-                                (bool responseSuccess, byte[] responseData) = Response(linxPrintJob);
-                                if (responseSuccess && responseData != null)
+                                (bool responseSuccess, byte[] responseData) = Response(linxPrintJob, telegram);
+                                // TODO: Linxmapping according Type of Telegram!! Temporary workaround for DeleteReport
+                                if (   telegram.LinxPrintJobType != LinxPrintJobTypeEnum.DeleteReport
+                                    && responseSuccess 
+                                    && responseData != null)
                                 {
+                                    // TODO: Linxmapping according Type of Telegram!!
                                     (MsgWithDetails msgWithDetails, LinxPrinterStatusResponse response) = LinxMapping<LinxPrinterStatusResponse>.Map(responseData);
                                     if (msgWithDetails != null && !msgWithDetails.IsSucceded())
                                     {
@@ -1050,39 +1100,20 @@ namespace gip.core.reporthandler
         {
             LinxPrintJob linxPrintJob = (LinxPrintJob)printJob;
 
-            if (UseRemoteReport)
-            {
-                LoadPrintMessage(linxPrintJob, flowDoc);
-            }
+            //if (UseRemoteReport)
+            //{
+            //    LoadPrintMessage(linxPrintJob, flowDoc);
+            //}
 
             base.OnRenderFlowDocument(printJob, flowDoc);
 
-            if (UseRemoteReport)
+            if (!UseRemoteReport)
             {
-                // field length
-                int dataLength = linxPrintJob.RemoteFieldValues.Sum(c => c.Length);
-                byte[] dataLengthBy = BitConverter.GetBytes(dataLength);
+                DeletePrintMessage(linxPrintJob, flowDoc);
 
-                // prepare data
-                List<byte[]> dataArr = linxPrintJob.RemoteFieldValues;
-                dataArr.Insert(0, dataLengthBy);
-                byte[] inputData = LinxHelper.Combine(dataArr);
-
-                // generate request array and add to queue
-                byte[] data = GetData(LinxASCIControlCharacterEnum.GS, inputData);
-                linxPrintJob.PacketsForPrint.Add(data);
-            }
-            else //if (!UseRemoteReport)
-            {
-                string rasterName = null;
-                VBFlowDocument vBFlowDocument = flowDoc as VBFlowDocument;
-                if (vBFlowDocument != null)
-                    rasterName = vBFlowDocument.Custom01;
-                if (string.IsNullOrEmpty(rasterName))
-                    rasterName = "5 STD LIN"; //"1x9 Westlich Flexible";
                 int msgLengthInBytes = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt16(c.Header.FieldLengthInBytes, 0)) + LinxMessageHeader.DefaultHeaderLength;
                 int msgLengthInRasters = linxPrintJob.LinxFields.Sum(c => BitConverter.ToInt16(c.Header.FieldLengthInRasters, 0)) + LinxMessageHeader.DefaultHeaderLength;
-                LinxMessageHeader linxMessageHeader = GetLinxMessageHeader(linxPrintJob.Name, rasterName, 1, (short)msgLengthInBytes, (short)msgLengthInRasters);
+                LinxMessageHeader linxMessageHeader = GetLinxMessageHeader(linxPrintJob.Name, linxPrintJob.RasterName, 1, (short)msgLengthInBytes, (short)msgLengthInRasters);
                 List<byte[]> headerBytes = linxMessageHeader.GetBytes();
 
                 List<byte[]> fieldData = new List<byte[]>();
@@ -1102,13 +1133,29 @@ namespace gip.core.reporthandler
                 downloadData.AddRange(fieldData);
 
                 byte[] data = GetData(LinxASCIControlCharacterEnum.EM, downloadData.ToArray().SelectMany(c => c).ToArray());
-                linxPrintJob.PacketsForPrint.Add(data);
+                linxPrintJob.PacketsForPrint.Add(new LinxPrintJob.Telegram(LinxPrintJobTypeEnum.DownloadReport, data));
             }
 
+            LoadPrintMessage(linxPrintJob, flowDoc);
 
-            StartJetCommand(linxPrintJob);
+            if (UseRemoteReport)
+            {
+                // field length
+                int dataLength = linxPrintJob.RemoteFieldValues.Sum(c => c.Length);
+                byte[] dataLengthBy = BitConverter.GetBytes(dataLength);
+
+                // prepare data
+                List<byte[]> dataArr = linxPrintJob.RemoteFieldValues;
+                dataArr.Insert(0, dataLengthBy);
+                byte[] inputData = LinxHelper.Combine(dataArr);
+
+                // generate request array and add to queue
+                byte[] data = GetData(LinxASCIControlCharacterEnum.GS, inputData);
+                linxPrintJob.PacketsForPrint.Add(new LinxPrintJob.Telegram(LinxPrintJobTypeEnum.PrintRemote, data));
+            }
+
+            //StartJetCommand(linxPrintJob);
             StartPrintCommand(linxPrintJob);
-
         }
 
         private string ByteStrPresentation(List<byte[]> downloadData)
@@ -1218,7 +1265,7 @@ namespace gip.core.reporthandler
             }
             else
             {
-                DownloadTextValue(linxPrintJob, inlineDocumentValue.AggregateGroup, inlineDocumentValue.Text);
+                DownloadTextValue(linxPrintJob, inlineDocumentValue, inlineDocumentValue.AggregateGroup, inlineDocumentValue.Text);
             }
         }
 
@@ -1231,7 +1278,7 @@ namespace gip.core.reporthandler
             }
             else
             {
-                DownloadTextValue(linxPrintJob, inlineACMethodValue.AggregateGroup, inlineACMethodValue.Text);
+                DownloadTextValue(linxPrintJob, inlineACMethodValue, inlineACMethodValue.AggregateGroup, inlineACMethodValue.Text);
             }
         }
 
@@ -1244,7 +1291,7 @@ namespace gip.core.reporthandler
             }
             else
             {
-                DownloadTextValue(linxPrintJob, inlineTableCellValue.AggregateGroup, inlineTableCellValue.Text);
+                DownloadTextValue(linxPrintJob, inlineTableCellValue, inlineTableCellValue.AggregateGroup, inlineTableCellValue.Text);
             }
         }
 
@@ -1304,7 +1351,7 @@ namespace gip.core.reporthandler
             }
             else
             {
-                DownloadTextValue(linxPrintJob, inlineBoolValue.AggregateGroup, inlineBoolValue.Value.ToString());
+                DownloadTextValue(linxPrintJob, null, inlineBoolValue.AggregateGroup, inlineBoolValue.Value.ToString());
             }
         }
 
@@ -1342,7 +1389,7 @@ namespace gip.core.reporthandler
         /// </summary>
         /// <param name="linxPrintJob"></param>
         /// <param name="text"></param>
-        private void DownloadTextValue(LinxPrintJob linxPrintJob, string aggregateGroup, string text)
+        private void DownloadTextValue(LinxPrintJob linxPrintJob, InlinePropertyValueBase inlineProp, string aggregateGroup, string text)
         {
             /*
                 19	;Command ID - Download Message
@@ -1390,7 +1437,7 @@ namespace gip.core.reporthandler
             {
                 dataSet = DataSets.FirstOrDefault();
             }
-            LinxField linxField = GetLinxField(linxPrintJob.Encoding, dataSet, text);
+            LinxField linxField = GetLinxField(linxPrintJob.Encoding, linxPrintJob, inlineProp, dataSet, text);
             linxPrintJob.LinxFields.Add(linxField);
         }
 
@@ -1459,7 +1506,7 @@ namespace gip.core.reporthandler
             {
                 dataSet = DataSets.FirstOrDefault();
             }
-            LinxField linxField = GetLinxField(linxPrintJob.Encoding, dataSet, barcodeValue, 0x46);
+            LinxField linxField = GetLinxField(linxPrintJob.Encoding, linxPrintJob, null, dataSet, barcodeValue, 0x46);
             linxPrintJob.LinxFields.Add(linxField);
         }
 
@@ -1470,11 +1517,25 @@ namespace gip.core.reporthandler
         /// <param name="linxPrintJob"></param>
         private void LoadPrintMessage(LinxPrintJob linxPrintJob, FlowDocument flowDoc)
         {
-            string reportName = flowDoc.Name;
+            string reportName = linxPrintJob.Name; // flowDoc.Name;
             byte[] reportNameByte = Encoding.ASCII.GetBytes(reportName);
+            byte[] telegram = new byte[18];
+            Array.Copy(reportNameByte, telegram, reportNameByte.Length);
             // LinxASCIControlCharacterEnum.RS == 0x1E
-            byte[] data = GetData(LinxASCIControlCharacterEnum.RS, reportNameByte);
-            linxPrintJob.PacketsForPrint.Add(data);
+            byte[] data = GetData(LinxASCIControlCharacterEnum.RS, telegram);
+            linxPrintJob.PacketsForPrint.Add(new LinxPrintJob.Telegram(LinxPrintJobTypeEnum.LoadReport, data));
+        }
+
+        private void DeletePrintMessage(LinxPrintJob linxPrintJob, FlowDocument flowDoc)
+        {
+            string reportName = linxPrintJob.Name; // flowDoc.Name;
+            byte[] reportNameByte = Encoding.ASCII.GetBytes(reportName);
+            byte[] telegram = new byte[17];
+            telegram[0] = 0x01;
+            Array.Copy(reportNameByte, 0, telegram, 1, reportNameByte.Length);
+            // LinxASCIControlCharacterEnum.RS == 0x1E
+            byte[] data = GetData(LinxASCIControlCharacterEnum.ESC, telegram);
+            linxPrintJob.PacketsForPrint.Add(new LinxPrintJob.Telegram(LinxPrintJobTypeEnum.DeleteReport, data));
         }
 
         #endregion
@@ -1506,7 +1567,7 @@ namespace gip.core.reporthandler
             */
             // LinxASCIControlCharacterEnum.SI == 0xF
             byte[] data = GetData(bStop ? LinxASCIControlCharacterEnum.DLE : LinxASCIControlCharacterEnum.SI, null);
-            linxPrintJob.PacketsForPrint.Add(data);
+            linxPrintJob.PacketsForPrint.Add(new LinxPrintJob.Telegram(LinxPrintJobTypeEnum.ControlCmd, data));
         }
 
 
@@ -1535,7 +1596,7 @@ namespace gip.core.reporthandler
              */
             // LinxASCIControlCharacterEnum.VT == 0xB == 11
             byte[] data = GetData(bStop ? LinxASCIControlCharacterEnum.DC2 : LinxASCIControlCharacterEnum.DC1, null);
-            linxPrintJob.PacketsForPrint.Add(data);
+            linxPrintJob.PacketsForPrint.Add(new LinxPrintJob.Telegram(LinxPrintJobTypeEnum.ControlCmd, data));
         }
 
 
@@ -1552,7 +1613,7 @@ namespace gip.core.reporthandler
 
             //12; Command ID -Stop Print
             byte[] data = GetData(LinxASCIControlCharacterEnum.DC2, null);
-            linxPrintJob.PacketsForPrint.Add(data);
+            linxPrintJob.PacketsForPrint.Add(new LinxPrintJob.Telegram(LinxPrintJobTypeEnum.ControlCmd, data));
         }
 
         /// <summary>
@@ -1584,23 +1645,26 @@ namespace gip.core.reporthandler
 
             //1B 1B; Command ID -Delete Message
             byte[] data = GetData(LinxASCIControlCharacterEnum.ESC, new byte[] { (byte)LinxASCIControlCharacterEnum.ESC });
-            linxPrintJob.PacketsForPrint.Add(data);
+            linxPrintJob.PacketsForPrint.Add(new LinxPrintJob.Telegram(LinxPrintJobTypeEnum.ControlCmd, data));
         }
 
         #endregion
 
         #region Methods -> Prepare Fields
 
-        public virtual LinxField GetLinxField(Encoding encoding, LinxDataSetData dataSet, string value, byte fieldType = 0x00)
+        public virtual LinxField GetLinxField(Encoding encoding, LinxPrintJob linxPrintJob, InlinePropertyValueBase inlineProp, LinxDataSetData dataSet, string value, byte fieldType = 0x00)
         {
             LinxField field = new LinxField();
-            field.ValueByte = encoding.GetBytes(value);
-            field.Header = GetLinxFieldHeader(dataSet, (short)value.Length, (short)field.ValueByte.Length, fieldType);
+            byte[] tmp = encoding.GetBytes(value);
+            byte[] valueByte = new byte[tmp.Length + 1];
+            Array.Copy(tmp, valueByte, tmp.Length);
+            field.ValueByte = valueByte;
+            field.Header = GetLinxFieldHeader(dataSet, linxPrintJob, inlineProp, (short)value.Length, (short)field.ValueByte.Length, fieldType);
             field.Value = value;
             return field;
         }
 
-        public virtual LinxFieldHeader GetLinxFieldHeader(LinxDataSetData dataSet, short valueLength, short valueByteLength, byte fieldType = 0x00)
+        public virtual LinxFieldHeader GetLinxFieldHeader(LinxDataSetData dataSet, LinxPrintJob linxPrintJob, InlinePropertyValueBase inlineProp, short valueLength, short valueByteLength, byte fieldType = 0x00)
         {
             LinxFieldHeader linxFieldHeader = new LinxFieldHeader();
             linxFieldHeader.FieldType = fieldType;
@@ -1608,11 +1672,15 @@ namespace gip.core.reporthandler
             byte[] fieldLengthInBytes = BitConverter.GetBytes(valueByteLength + LinxFieldHeader.ConstHeaderLength);
             Array.Copy(fieldLengthInBytes, linxFieldHeader.FieldLengthInBytes, System.Math.Min(linxFieldHeader.FieldLengthInBytes.Length, fieldLengthInBytes.Length));
 
-            byte[] fieldLengthInRasters = GetFieldLengthInRasters(dataSet, valueLength);
+            byte[] fieldLengthInRasters = GetFieldLengthInRasters(linxPrintJob, inlineProp, dataSet, valueLength);
             Array.Copy(fieldLengthInRasters, linxFieldHeader.FieldLengthInRasters, System.Math.Min(linxFieldHeader.FieldLengthInRasters.Length, fieldLengthInRasters.Length));
 
-            linxFieldHeader.TextLenght = (byte)valueLength;
-            linxFieldHeader.FieldHeightInDrops = (byte)dataSet.Height;
+            linxFieldHeader.TextLength = (byte)valueLength;
+            linxFieldHeader.FieldHeightInDrops = GetFieldHeightInDrops(linxPrintJob, inlineProp, dataSet, valueLength);
+
+            byte[] xpos = BitConverter.GetBytes(inlineProp.XPos);
+            Array.Copy(xpos, linxFieldHeader.XPosition, System.Math.Min(linxFieldHeader.XPosition.Length, xpos.Length));
+            linxFieldHeader.YPosition = BitConverter.GetBytes(inlineProp.YPos)[0];
 
             // Data set name	15 bytes + null*
             Array.Copy(Encoding.ASCII.GetBytes(dataSet.DataSetName), linxFieldHeader.DataSetName, System.Math.Min(linxFieldHeader.DataSetName.Length - 1, dataSet.DataSetName.Length));

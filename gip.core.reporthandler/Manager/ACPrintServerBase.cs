@@ -251,6 +251,12 @@ namespace gip.core.reporthandler
             ACClassDesign aCClassDesign = acBSO.GetDesignForPrinting(GetACUrl(), designACIdentifier, pAOrderInfo);
             if (aCClassDesign == null)
                 return;
+#if DEBUG
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                aCClassDesign.AutoRefresh();
+            }
+#endif
             ReportData reportData = GetReportData(acBSO, aCClassDesign);
             PrintJob printJob = null;
 

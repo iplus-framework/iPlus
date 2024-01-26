@@ -52,10 +52,18 @@ namespace gip.core.reporthandler
         }
 
 
-        public static byte GetCheckSum(byte[] input)
+        public static byte GetCheckSum(byte[] input, bool ignoreESC = false)
         {
+            int sumValues = 0;
             // LinxASCIControlCharacterEnum.ESC not calculated
-            int sumValues = input.Where(c => c != (byte)LinxASCIControlCharacterEnum.ESC).Sum(c => c);
+            if (ignoreESC)
+            {
+                sumValues = input.Where(c => c != (byte)LinxASCIControlCharacterEnum.ESC).Sum(c => c);
+            }
+            else
+            {
+                sumValues = input.Sum(c => c);
+            }
             int checkSum = sumValues & 0x0FF;
             checkSum = 0x100 - checkSum;
             return (byte)checkSum;
@@ -71,7 +79,7 @@ namespace gip.core.reporthandler
 
                 byte inputChecksum = dataWithCheckSum[dataWithCheckSum.Length - 1];
 
-                byte calcCheckSum = GetCheckSum(data);
+                byte calcCheckSum = GetCheckSum(data, true);
 
                 isValid = inputChecksum == calcCheckSum;
             }

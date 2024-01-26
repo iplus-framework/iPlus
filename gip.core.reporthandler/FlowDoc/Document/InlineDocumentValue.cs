@@ -1,4 +1,9 @@
-﻿namespace gip.core.reporthandler.Flowdoc
+﻿using gip.core.datamodel;
+using gip.core.layoutengine;
+using System.ComponentModel;
+using System.Windows;
+
+namespace gip.core.reporthandler.Flowdoc
 {
     /// <summary>
     /// Contains a single report value that is to be displayed on the report (e.g. report title)

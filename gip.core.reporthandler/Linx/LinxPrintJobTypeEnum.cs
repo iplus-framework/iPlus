@@ -2,9 +2,12 @@
 {
     public enum LinxPrintJobTypeEnum : byte
     {
-        Print = 1,
+        ControlCmd = 1,
         PrintRemote = 2,
         CheckStatus = 3,
-        RasterData = 4
+        RasterData = 4,
+        DeleteReport = 5,
+        DownloadReport = 6,
+        LoadReport = 7,
     }
 }

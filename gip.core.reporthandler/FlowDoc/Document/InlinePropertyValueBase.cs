@@ -42,5 +42,40 @@ namespace gip.core.reporthandler.Flowdoc
             get { return _aggregateGroup; }
             set { _aggregateGroup = value; }
         }
+
+        public static readonly DependencyProperty CustomInt01Property = DependencyProperty.Register("CustomInt01", typeof(int), typeof(InlinePropertyValueBase), new PropertyMetadata(-1));
+        public int CustomInt01
+        {
+            get { return (int)GetValue(CustomInt01Property); }
+            set { SetValue(CustomInt01Property, value); }
+        }
+
+        public static readonly DependencyProperty CustomInt02Property = DependencyProperty.Register("CustomInt02", typeof(int), typeof(InlinePropertyValueBase), new PropertyMetadata(-1));
+        public int CustomInt02
+        {
+            get { return (int)GetValue(CustomInt02Property); }
+            set { SetValue(CustomInt02Property, value); }
+        }
+
+        public static readonly DependencyProperty CustomInt03Property = DependencyProperty.Register("CustomInt03", typeof(int), typeof(InlinePropertyValueBase), new PropertyMetadata(-1));
+        public int CustomInt03
+        {
+            get { return (int)GetValue(CustomInt03Property); }
+            set { SetValue(CustomInt03Property, value); }
+        }
+
+        public static readonly DependencyProperty XPosProperty = DependencyProperty.Register("XPos", typeof(int), typeof(InlinePropertyValueBase), new PropertyMetadata(0));
+        public int XPos
+        {
+            get { return (int)GetValue(XPosProperty); }
+            set { SetValue(XPosProperty, value); }
+        }
+
+        public static readonly DependencyProperty YPosProperty = DependencyProperty.Register("YPos", typeof(int), typeof(InlinePropertyValueBase), new PropertyMetadata(0));
+        public int YPos
+        {
+            get { return (int)GetValue(YPosProperty); }
+            set { SetValue(YPosProperty, value); }
+        }
     }
 }
