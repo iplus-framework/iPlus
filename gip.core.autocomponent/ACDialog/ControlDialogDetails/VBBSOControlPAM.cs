@@ -661,11 +661,11 @@ namespace gip.core.autocomponent
                                     }
                                     if (targetPropertyGuid != Guid.Empty)
                                         targets = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, targetPropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true,
-                                                                                              null, false, true);
+                                                                                              null, false, RouteResultMode.ShortRoute);
                                 }
                                 if (targets == null)
                                     targets = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true,
-                                                                                 null, false, true);
+                                                                                 null, false, RouteResultMode.ShortRoute);
                                 if (targets != null)
                                 {
                                     if (targets.Message != null)
@@ -711,12 +711,12 @@ namespace gip.core.autocomponent
                                     }
                                     if (sourcePropertyGuid != Guid.Empty)
                                         sources = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, sourcePropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true,
-                                                                                              null, false, true);
+                                                                                              null, false, RouteResultMode.ShortRoute);
                                 }
                             }
                             if (sources == null)
                                 sources = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true,
-                                                                             null, false, true);
+                                                                             null, false, RouteResultMode.ShortRoute);
                             if (sources != null)
                             {
                                 if (sources.Message != null)
