@@ -234,9 +234,15 @@ namespace gip.core.layoutengine
             if (d is VBComboBox)
             {
                 VBComboBox control = d as VBComboBox;
-                if (!control._Initialized)
-                    return;
-                control.ACCaptionTrans = control.Root().Root.Environment.TranslateText(control.BSOACComponent, control.ACCaption);
+                //if (!control._Initialized)
+                //    return;
+                if (control != null)
+                {
+                    if (control.BSOACComponent != null)
+                        control.ACCaptionTrans = control.Root().Root.Environment.TranslateText(control.BSOACComponent, control.ACCaption);
+                    else
+                        control.ACCaptionTrans = control.ACCaption;
+                }
             }
         }
 

@@ -281,7 +281,7 @@ namespace gip.core.reporthandler
                         return msg;
                     }
 
-                    printServer.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + ACPrintServerBase.MN_PrintByACUrl, printInfo.BSOACUrl, printInfo.ReportACIdentifier, pAOrderInfo, copyCount);
+                    printServer.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(ACPrintServerBase.PrintByACUrl), printInfo.BSOACUrl, printInfo.ReportACIdentifier, pAOrderInfo, copyCount, false);
                 }
             }
             catch (Exception ex)

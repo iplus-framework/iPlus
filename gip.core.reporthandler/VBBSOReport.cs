@@ -113,6 +113,21 @@ namespace gip.core.reporthandler
             set;
         }
 
+        bool _ReloadOnServer;
+        [ACPropertyInfo(50, "", "en{'Refresh design on server'}de{'Design auf Server aktualisieren'}")]
+        public bool ReloadOnServer
+        {
+            get
+            {
+                return _ReloadOnServer;
+            }
+            set
+            {
+                _ReloadOnServer = value;
+                OnPropertyChanged();
+            }
+        }
+
         [ACPropertyInfo(9999)]
         public ACQueryDefinition ACQueryDefinitionRoot
         {
@@ -178,7 +193,7 @@ namespace gip.core.reporthandler
             }
             else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
             {
-                DoPrintComponent(acClassDesign, withDialog, copies);
+                DoPrintComponent(acClassDesign, withDialog, copies, ReloadOnServer);
             }
 
             return null;
@@ -237,7 +252,7 @@ namespace gip.core.reporthandler
         /// Selected property for PrinterInfo
         /// </summary>
         /// <value>The selected ESCPosPrinter</value>
-        [ACPropertySelected(9999, "PrintServer", "en{'TODO: ESCPosPrinter'}de{'TODO: ESCPosPrinter'}")]
+        [ACPropertySelected(9999, "PrintServer", "en{'Printer'}de{'Drucker'}")]
         public PrinterInfo SelectedPrintServer
         {
             get
@@ -1074,7 +1089,7 @@ namespace gip.core.reporthandler
         {
             if (!IsEnabledPrintComponent())
                 return;
-            PrintOnServer(CurrentACClassDesign, SelectedPrintServer.PrinterACUrl, CopyCount);
+            PrintOnServer(CurrentACClassDesign, SelectedPrintServer.PrinterACUrl, CopyCount, ReloadOnServer);
             CloseTopDialog();
         }
 
@@ -1083,18 +1098,18 @@ namespace gip.core.reporthandler
             return SelectedPrintServer != null;
         }
 
-        private void DoPrintComponent(ACClassDesign acClassDesign, bool withDialog, int copies)
+        private void DoPrintComponent(ACClassDesign acClassDesign, bool withDialog, int copies, bool reloadReport)
         {
             if (withDialog)
                 PrintComponent();
             else
             {
                 string acPrintServerACUrl = PrintServerList.Where(c => c.IsDefault).Select(c => c.PrinterACUrl).FirstOrDefault();
-                PrintOnServer(acClassDesign, acPrintServerACUrl, copies);
+                PrintOnServer(acClassDesign, acPrintServerACUrl, copies, reloadReport);
             }
         }
 
-        private void PrintOnServer(ACClassDesign acClassDesign, string acPrintServerACUrl, int copies)
+        private void PrintOnServer(ACClassDesign acClassDesign, string acPrintServerACUrl, int copies, bool reloadReport)
         {
             IACComponent printServer = Root.ACUrlCommand(acPrintServerACUrl) as IACComponent;
             if (printServer == null)
@@ -1119,7 +1134,7 @@ namespace gip.core.reporthandler
                 {
                     pAOrderInfo = parentACBSO.GetOrderInfo();
                     if (pAOrderInfo != null)
-                        printServer.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + ACPrintServerBase.MN_Print, parentACBSO.ACType.ACTypeID, acClassDesign.ACIdentifier, pAOrderInfo, copies);
+                        printServer.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(ACPrintServerBase.Print), parentACBSO.ACType.ACTypeID, acClassDesign.ACIdentifier, pAOrderInfo, copies, reloadReport);
                 }
                 if (parentACBSO == null || pAOrderInfo == null)
                     Root.Messages.Error(this, "Error50475", false, ParentACComponent.GetACUrl());
@@ -1491,22 +1506,22 @@ namespace gip.core.reporthandler
             result = null;
             switch (acMethodName)
             {
-                case "Print":
+                case nameof(Print):
                     Print((ACClassDesign)acParameter[0], (Boolean)acParameter[1], (String)acParameter[2], (ReportData)acParameter[3], acParameter.Count() == 5 ? (Int32)acParameter[4] : 1);
                     return true;
-                case "Preview":
+                case nameof(Preview):
                     Preview((ACClassDesign)acParameter[0], (Boolean)acParameter[1], (String)acParameter[2], (ReportData)acParameter[3]);
                     return true;
-                case "Design":
+                case nameof(Design):
                     Design((ACClassDesign)acParameter[0], (Boolean)acParameter[1], (String)acParameter[2], (ReportData)acParameter[3]);
                     return true;
-                case "FlowDialogCancel":
+                case nameof(FlowDialogCancel):
                     FlowDialogCancel();
                     return true;
-                case "FlowDialogOk":
+                case nameof(FlowDialogOk):
                     FlowDialogOk();
                     return true;
-                case "ApplyConfig":
+                case nameof(ApplyConfig):
                     ApplyConfig();
                     return true;
             }

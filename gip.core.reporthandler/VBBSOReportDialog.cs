@@ -592,7 +592,7 @@ namespace gip.core.reporthandler
         /// Selected property for PrinterInfo
         /// </summary>
         /// <value>The selected ESCPosPrinter</value>
-        [ACPropertySelected(9999, "PrintServer", "en{'SelectedPrintServer'}de{'SelectedPrintServer'}")]
+        [ACPropertySelected(9999, "PrintServer", "en{'Printer'}de{'Drucker'}")]
         public PrinterInfo SelectedPrintServer
         {
             get
@@ -704,89 +704,107 @@ namespace gip.core.reporthandler
             result = null;
             switch (acMethodName)
             {
-                case "ReportPrintDlg":
+                case nameof(ReportPrintDlg):
                     ReportPrintDlg();
                     return true;
-                case Const.IsEnabledPrefix + "ReportPrintDlg":
+                case nameof(IsEnabledReportPrintDlg):
                     result = IsEnabledReportPrintDlg();
                     return true;
-                case "ReportPreviewDlg":
+                case nameof(ReportPreviewDlg):
                     ReportPreviewDlg();
                     return true;
-                case Const.IsEnabledPrefix + "ReportPreviewDlg":
+                case nameof(IsEnabledReportPreviewDlg):
                     result = IsEnabledReportPreviewDlg();
                     return true;
-                case "ReportDesignDlg":
+                case nameof(ReportDesignDlg):
                     ReportDesignDlg();
                     return true;
-                case Const.IsEnabledPrefix + "ReportDesignDlg":
+                case nameof(IsEnabledReportDesignDlg):
                     result = IsEnabledReportDesignDlg();
                     return true;
-                case "ReportNewReportDlg":
+                case nameof(ReportNewReportDlg):
                     ReportNewReportDlg();
                     return true;
-                case "ReportCancel":
+                case nameof(ReportCancel):
                     ReportCancel();
                     return true;
-                case Const.CmdNameReportNew:
+                case nameof(ReportNew):
                     ReportNew();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameReportNew:
+                case nameof(IsEnabledReportNew):
                     result = IsEnabledReportNew();
                     return true;
-                case "LoadDefaultReport":
+                case nameof(LoadDefaultReport):
                     LoadDefaultReport();
                     return true;
-                case Const.CmdNameReportDelete:
+                case nameof(ReportDelete):
                     ReportDelete();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameReportDelete:
+                case nameof(IsEnabledReportDelete):
                     result = IsEnabledReportDelete();
                     return true;
-                case Const.CmdNameReportSave:
+                case nameof(ReportSave):
                     ReportSave();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameReportSave:
+                case nameof(IsEnabledReportSave):
                     result = IsEnabledReportSave();
                     return true;
-                case Const.CmdNameReportPrint:
+                case nameof(ReportPrint):
                     ReportPrint();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameReportPrint:
+                case nameof(IsEnabledReportPrint):
                     result = IsEnabledReportPrint();
                     return true;
-                case Const.CmdNameReportPreview:
+                case nameof(ReportPreview):
                     ReportPreview();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameReportPreview:
+                case nameof(IsEnabledReportPreview):
                     result = IsEnabledReportPreview();
                     return true;
-                case Const.CmdNameReportDesign:
+                case nameof(ReportDesign):
                     ReportDesign();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameReportDesign:
+                case nameof(IsEnabledReportDesign):
                     result = IsEnabledReportDesign();
                     return true;
-                case "ReportPrintSilent":
+                case nameof(ReportPrintSilent):
                     ReportPrintSilent(acParameter[0] as ACClassDesign, (Global.CurrentOrList)acParameter[1], acParameter[2] as string);
                     return true;
-                case "ReportPreviewSilent":
+                case nameof(ReportPreviewSilent):
                     ReportPreviewSilent(acParameter[0] as ACClassDesign, (Global.CurrentOrList)acParameter[1], acParameter[2] as string);
                     return true;
-                case "ReportModifyQuery":
+                case nameof(ReportModifyQuery):
                     ReportModifyQuery();
                     return true;
-                case Const.IsEnabledPrefix + "ReportModifyQuery":
+                case nameof(IsEnabledReportModifyQuery):
                     result = IsEnabledReportModifyQuery();
                     return true;
-                case Const.SMReadOnly:
+                case nameof(SMReadOnly):
                     SMReadOnly();
                     return true;
-                case Const.SMNew:
+                case nameof(SMNew):
                     SMNew();
                     return true;
-                case Const.SMEdit:
+                case nameof(SMEdit):
                     SMEdit();
+                    return true;
+                case nameof(AddPrintServer):
+                    AddPrintServer();
+                    return true;
+                case nameof(IsEnabledAddPrintServer):
+                    result = IsEnabledAddPrintServer();
+                    return true;
+                case nameof(AddWinPrinter):
+                    AddWinPrinter();
+                    return true;
+                case nameof(IsEnabledAddWinPrinter):
+                    result = IsEnabledAddWinPrinter();
+                    return true;
+                case nameof(DeleteConfiguredPrinter):
+                    DeleteConfiguredPrinter();
+                    return true;
+                case nameof(IsEnabledDeleteConfiguredPrinter):
+                    result = IsEnabledDeleteConfiguredPrinter();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
