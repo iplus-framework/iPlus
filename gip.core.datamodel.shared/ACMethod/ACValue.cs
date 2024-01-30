@@ -210,7 +210,24 @@ namespace gip.core.datamodel
 #endif
         }
 
-#if !NETFRAMEWORK        
+
+#if NETFRAMEWORK
+
+        public string ACCaptionTrans
+        {
+            get
+            {
+                var parentMethod = ParentMethod;
+                if (parentMethod != null)
+                    return parentMethod.GetACCaptionTransForACValue(this);
+                return ACIdentifier;
+            }
+        }
+
+#endif
+
+
+#if !NETFRAMEWORK
 string _ACCaption;
 #endif
         [DataMember(Name ="L")]

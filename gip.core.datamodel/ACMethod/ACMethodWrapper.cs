@@ -83,6 +83,18 @@ namespace gip.core.datamodel
             return Translator.GetTranslation(paramName, strTranslation, vbLanguageCode);
         }
 
+        public string GetParameterACCaptionTrans(string paramName)
+        {
+            if (_ParameterTranslation == null || String.IsNullOrEmpty(paramName))
+                return paramName;
+
+            string strTranslation;
+            if (_ParameterTranslation.TryGetValue(paramName, out strTranslation))
+                return strTranslation;
+                
+            return paramName;
+        }
+
         public string GetResultParamACCaption(string paramName, string vbLanguageCode = null)
         {
             if (_ResultTranslation == null || String.IsNullOrEmpty(paramName))
@@ -93,6 +105,18 @@ namespace gip.core.datamodel
             if (String.IsNullOrEmpty(vbLanguageCode))
                 return Translator.GetTranslation(paramName, strTranslation);
             return Translator.GetTranslation(paramName, strTranslation, vbLanguageCode);
+        }
+
+        public string GetResultParamACCaptionTrans(string paramName)
+        {
+            if (_ResultTranslation == null || String.IsNullOrEmpty(paramName))
+                return paramName;
+
+            string strTranslation;
+            if (_ResultTranslation.TryGetValue(paramName, out strTranslation))
+                return strTranslation;
+
+            return paramName;
         }
 
         public object Clone()

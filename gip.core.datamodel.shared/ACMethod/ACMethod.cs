@@ -878,6 +878,67 @@ namespace gip.core.datamodel
             return acValue.ACIdentifier;
         }
 
+        public string GetACCaptionTransForACValue(ACValue acValue)
+        {
+            if (acValue == null)
+                throw new ArgumentNullException("acValue");
+            if (_Wrapper == null)
+            {
+                if (_NamesRegistry != null)
+                {
+                    _Wrapper = _NamesRegistry.FindWrapper(this);
+                }
+                if ((_NamesRegistry == null || _Wrapper == null) && !_NamesRegistryFilledWithReflection)
+                {
+                    try
+                    {
+                        gip.core.datamodel.Database.GlobalDatabase.EnterCS();
+                        var query = gip.core.datamodel.Database.GlobalDatabase.ACClassMethod
+                            .Where(c => c.ParentACClassMethodID.HasValue && c.ACKindIndex == (short)Global.ACKinds.MSMethod && !String.IsNullOrEmpty(c.ACClass.AssemblyQualifiedName))
+                            .Select(c => c.ACClass.AssemblyQualifiedName).Distinct();
+                        _NamesRegistryFilledWithReflection = true;
+                        foreach (string assemblyQName in query)
+                        {
+                            Type type = Type.GetType(assemblyQName);
+                            if (type != null)
+                            {
+                                System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        string msg = e.Message;
+                        if (e.InnerException != null && e.InnerException.Message != null)
+                            msg += " Inner:" + e.InnerException.Message;
+
+                        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                            datamodel.Database.Root.Messages.LogException("ACMethod", "GetACCaptionForACValue", msg);
+                    }
+                    finally
+                    {
+                        gip.core.datamodel.Database.GlobalDatabase.LeaveCS();
+                    }
+                }
+                if (_NamesRegistry == null)
+                    return acValue.ACIdentifier;
+                _Wrapper = _NamesRegistry.FindWrapper(this);
+            }
+            if (_Wrapper == null)
+                return acValue.ACIdentifier;
+            if (this.ParameterValueList.Contains(acValue))
+                return _Wrapper.GetParameterACCaptionTrans(acValue.ACIdentifier);
+            if (this.ResultValueList.Contains(acValue))
+                return _Wrapper.GetResultParamACCaptionTrans(acValue.ACIdentifier);
+            ACValue acValueClone = this.ParameterValueList.Where(c => c.ACIdentifier == acValue.ACIdentifier).FirstOrDefault();
+            if (acValueClone != null)
+                return _Wrapper.GetParameterACCaptionTrans(acValue.ACIdentifier);
+            acValueClone = this.ResultValueList.Where(c => c.ACIdentifier == acValue.ACIdentifier).FirstOrDefault();
+            if (acValueClone != null)
+                return _Wrapper.GetResultParamACCaptionTrans(acValue.ACIdentifier);
+            return acValue.ACIdentifier;
+        }
+
         public string GetACCaptionForACIdentifier(string acIdentifier)
         {
             if (String.IsNullOrEmpty(acIdentifier))
