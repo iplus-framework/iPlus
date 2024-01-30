@@ -78,6 +78,7 @@
     <Compile Include="ACProcessApplication\PAModule\2_Basic\Drives\PAEETurnHeadDist.cs" />
     <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\PAEEmergencyRelay.cs" />
     <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\PAEEmergencySwitch.cs" />
+    <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\PAELimitSwitch.cs" />
     <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\PAEMaterialSensor.cs" />
     <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\PAERotationControl.cs" />
     <Compile Include="ACProcessApplication\PAModule\2_Basic\Sensors\PAEJamSensor.cs" />
