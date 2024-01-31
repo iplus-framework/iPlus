@@ -72,9 +72,33 @@ namespace gip.bso.iplus
             }
         }
 
+        private bool _IncludeAllocated = true;
+        [ACPropertyInfo(402, "", "en{'Include allocated'}de{'Zugeteilt einbeziehen'}")]
+        public bool IncludeAllocated
+        {
+            get => _IncludeAllocated;
+            set
+            {
+                _IncludeAllocated = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _IncludeReserved = true;
+        [ACPropertyInfo(403, "", "en{'Include reserved'}de{'Reserviert einschließen'}")]
+        public bool IncludeReserved
+        {
+            get => _IncludeReserved;
+            set
+            {
+                _IncludeReserved = value;
+                OnPropertyChanged();
+            }
+        }
+
         private bool _IsInEdgeWeightAdjustmentMode = false;
 
-        [ACPropertyInfo(402)]
+        [ACPropertyInfo(404)]
         public List<List<ACRoutingPath>> AvailableRoutes
         {
             get;
@@ -82,7 +106,7 @@ namespace gip.bso.iplus
         }
 
         private List<IACObject> _ActiveRouteComponents;
-        [ACPropertyInfo(403)]
+        [ACPropertyInfo(405)]
         public List<IACObject> ActiveRouteComponents
         {
             get { return _ActiveRouteComponents; }
@@ -94,7 +118,7 @@ namespace gip.bso.iplus
         }
 
         private List<IACObject> _ActiveRoutePaths;
-        [ACPropertyInfo(404)]
+        [ACPropertyInfo(406)]
         public List<IACObject> ActiveRoutePaths
         {
             get { return _ActiveRoutePaths; }
@@ -287,7 +311,12 @@ namespace gip.bso.iplus
             IEnumerable<string> sourceComponentsList = splitedRoutes.Select(x => x.FirstOrDefault().Source.ACUrlComponent).Distinct();
             IEnumerable<string> targetComponentsList = splitedRoutes.Select(x => x.LastOrDefault().Target.ACUrlComponent).Distinct();
 
-            if (!GetRoutes(sourceComponentsList, targetComponentsList, includeReserved, includeAllocated))
+
+            IncludeAllocated = includeAllocated;
+            IncludeReserved = includeReserved;
+
+
+            if (!GetRoutes(sourceComponentsList, targetComponentsList, IncludeReserved, IncludeAllocated))
                 return;
 
             List<IACObject> components = new List<IACObject>();
@@ -960,7 +989,7 @@ namespace gip.bso.iplus
             }
 
             _CurrentRouteMode = SelectedRouteMode;
-            if (!GetRoutes(start, end, true, true, false, SelectionRuleID, SelectionRuleParams))
+            if (!GetRoutes(start, end, IncludeReserved, IncludeAllocated, false, SelectionRuleID, SelectionRuleParams))
                 return;
 
             ShowRoute();
@@ -1001,7 +1030,7 @@ namespace gip.bso.iplus
             var maxRAltTemp = MaximumRouteAlternatives;
             MaximumRouteAlternatives = maxRouteAlternatives;
             _CurrentRouteMode = null;
-            if (!GetRoutes(startComponentsACUrl, endComponentsACUrl, true,true,true))
+            if (!GetRoutes(startComponentsACUrl, endComponentsACUrl, IncludeReserved, IncludeAllocated, true))
                 return;
             ShowRoute();
             _IsInEdgeWeightAdjustmentMode = false;
