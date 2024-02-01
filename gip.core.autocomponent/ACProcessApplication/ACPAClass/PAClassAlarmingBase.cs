@@ -448,6 +448,14 @@ namespace gip.core.autocomponent
                 bool send = (bool)ACUrlCommand("!FilterAlarm", property.ACIdentifier, messageText, autoAckForNewAlarm, newAlarm);
                 if (!send)
                     return null;
+                lock (_TransLock)
+                {
+                    if (_TransEntryList != null)
+                    {
+                        _TransEntryList.Add(new AlarmTransEntry(property.ACIdentifier, messageText, autoAckForNewAlarm));
+                        return new Msg("AlarmTransEntry", property.ACIdentifier);
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -456,15 +464,6 @@ namespace gip.core.autocomponent
                     msg += " Inner:" + e.InnerException.Message;
 
                 Messages.LogException("PAClassAlarmingBase", "OnNewAlarmOccurred", msg);
-            }
-
-            if (_TransEntryList != null)
-            {
-                lock (_TransLock)
-                {
-                    _TransEntryList.Add(new AlarmTransEntry(property.ACIdentifier, messageText, autoAckForNewAlarm));
-                    return new Msg("AlarmTransEntry", property.ACIdentifier);
-                }
             }
             return AddNewAlarm(property, messageText, autoAckForNewAlarm, newAlarm);
         }
