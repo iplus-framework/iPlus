@@ -80,6 +80,16 @@ namespace gip.core.datamodel
             set => _IsPredefinedRoute = value;
         }
 
+        public bool HasAnyReserved
+        {
+            get; set;
+        }
+
+        public bool HasAnyAllocated
+        {
+            get; set;
+        }
+
         #endregion
 
         #region Methods
@@ -352,6 +362,11 @@ namespace gip.core.datamodel
 
             return string.Join("", guids).GetHashCode();
         }
+
+        //public bool CheckIfAnyReservedOrAllocated(bool checkAllocated, bool checkReserved)
+        //{
+        //    this.Where(c => c.SourceACComponent)
+        //}
 
         #endregion
 
