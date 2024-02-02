@@ -90,7 +90,7 @@ namespace gip.core.datamodel
                 if (_HasAnyReserved.HasValue)
                     return _HasAnyReserved.Value;
 
-                return false; //TODO
+                return false;
             }
             set
             {
@@ -108,7 +108,7 @@ namespace gip.core.datamodel
                 if (_HasAnyAllocated.HasValue)
                     return _HasAnyAllocated.Value;
 
-                return false; //TODO:
+                return false;
             }
             set
             {
@@ -389,10 +389,27 @@ namespace gip.core.datamodel
             return string.Join("", guids).GetHashCode();
         }
 
-        //public bool CheckIfAnyReservedOrAllocated(bool checkAllocated, bool checkReserved)
-        //{
-        //    this.Where(c => c.SourceACComponent)
-        //}
+        public (bool reserved, bool allocated) GetReservedAndAllocated(IACComponent acRoutingService)
+        {
+            if (_HasAnyReserved.HasValue && _HasAnyAllocated.HasValue)
+            {
+                return (_HasAnyReserved.Value, _HasAnyAllocated.Value);
+            }
+
+            if (acRoutingService == null)
+                return (false, false);
+
+            Route route = acRoutingService.ExecuteMethod("GetAllocatedAndReserved", this) as Route;
+            if (route != null)
+            {
+                _HasAnyReserved = route.HasAnyReserved;
+                _HasAnyAllocated = route.HasAnyAllocated;
+            }
+
+            return (HasAnyReserved, HasAnyAllocated);
+        }
+
+
 
         #endregion
 

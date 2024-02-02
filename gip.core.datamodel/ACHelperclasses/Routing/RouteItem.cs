@@ -510,11 +510,12 @@ namespace gip.core.datamodel
 
         public object Clone()
         {
-            return new RouteItem() { SourceKey = this.SourceKey, 
-                SourcePropertyKey = this.SourcePropertyKey, 
-                TargetKey = this.TargetKey, 
+            return new RouteItem() { SourceKey = this.SourceKey,
+                SourcePropertyKey = this.SourcePropertyKey,
+                TargetKey = this.TargetKey,
                 TargetPropertyKey = this.TargetPropertyKey,
                 RouteNo = this.RouteNo,
+                RelationID = this.RelationID,
                 _ACUrlSourceACComponent = this._ACUrlSourceACComponent,
                 _ACUrlTargetACComponent = this._ACUrlTargetACComponent,
                 _ACIdentifierSourcePoint = this._ACIdentifierSourcePoint,

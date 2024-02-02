@@ -775,7 +775,6 @@ namespace gip.bso.iplus
             List<Route> routes = new List<Route>();
             List<RouteItem> tempList = new List<RouteItem>();
 
-
             foreach (ACRoutingPath path in SelectedRoutingPaths)
             {
                 tempList.Clear();
@@ -789,7 +788,7 @@ namespace gip.bso.iplus
 
                     tempList.Add(new RouteItem(relation));
                 }
-                routes.Add(new Route(tempList));
+                routes.Add(new Route(tempList) /*{ HasAnyReserved = path.HasAnyReserved, HasAnyAllocated = path.HasAnyAllocated }*/);
             }
             _RouteResult = routes;
 

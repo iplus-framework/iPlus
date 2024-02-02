@@ -1492,6 +1492,50 @@ namespace gip.core.autocomponent
                 db.ACSaveChanges();
             }
         }
+
+        [ACMethodInfo("", "", 310)]
+        public Route GetAllocatedAndReserved(Route route)
+        {
+            if (route != null)
+            {
+                bool reserved = false, allocated = false;
+
+                foreach (RouteItem rItem in route)
+                {
+                    PAEdgeInfo edgeInfo = null;
+                    PAEdge edge = null;
+
+                    using (ACMonitor.Lock(_LockObject))
+                    {
+                        if (_EdgeCache.TryGetValue(rItem.RelationID, out edgeInfo))
+                            edge = edgeInfo.Edge;
+                    }
+
+                    if (edge != null)
+                    {
+                        var allocatedSource = edge.GetAllocationState(false);
+                        var allocatedTarget = edge.GetAllocationState(true);
+
+                        if (allocatedSource.ValueT == 0 && allocatedTarget.ValueT == 0)
+                            continue;
+
+                        if (!reserved)
+                            reserved = allocatedSource.Bit00_Reserved || allocatedTarget.Bit00_Reserved;
+
+                        if (!allocated)
+                            allocated = allocatedSource.Bit01_Allocated || allocatedTarget.Bit01_Allocated;
+
+                        if (reserved && allocated)
+                            break;
+                    }
+                }
+
+                route.HasAnyReserved = reserved;
+                route.HasAnyAllocated = allocated;
+            }
+
+            return route;
+        }
         
         public static void ReserveRoute(Route route, bool reserv = true)
         {
