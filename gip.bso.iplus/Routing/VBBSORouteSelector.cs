@@ -45,6 +45,11 @@ namespace gip.bso.iplus
 
         #region Properties
 
+        private bool _IsInPresenterMode = false;
+
+        private IEnumerable<string> _start = null;
+        private IEnumerable<string> _end = null;
+
         private string _RoutingServiceACUrl = "\\Service\\RoutingService";
         [ACPropertyInfo(999, "", "en{'ACUrl of routing service'}de{'ACUrl of routing service'}")]
         public string RoutingServiceACUrl
@@ -81,6 +86,9 @@ namespace gip.bso.iplus
             {
                 _IncludeAllocated = value;
                 OnPropertyChanged();
+
+                if (_IsInPresenterMode)
+                    ResetRoute();
             }
         }
 
@@ -93,16 +101,24 @@ namespace gip.bso.iplus
             {
                 _IncludeReserved = value;
                 OnPropertyChanged();
+
+                if (_IsInPresenterMode)
+                    ResetRoute();
             }
         }
 
         private bool _IsInEdgeWeightAdjustmentMode = false;
 
+        public List<List<ACRoutingPath>> _AvailableRoutes;
         [ACPropertyInfo(404)]
         public List<List<ACRoutingPath>> AvailableRoutes
         {
-            get;
-            set;
+            get => _AvailableRoutes;
+            set
+            {
+                _AvailableRoutes = value;
+                OnPropertyChanged();
+            }
         }
 
         private List<IACObject> _ActiveRouteComponents;
@@ -345,10 +361,15 @@ namespace gip.bso.iplus
                 InitSelectionManger(Const.SelectionManagerCDesign_ClassName);
 
             CloseTopDialog();
+
+            _IsInPresenterMode = true;
+
             if (!_IsInEdgeWeightAdjustmentMode)
                 ShowDialog(this, "RoutePresenter");
             else
                 ShowDialog(this, "EdgeWeightsPresenter");
+
+            _IsInPresenterMode = false;
         }
 
         private bool CompareRoutes(ACRoutingPath routingPath, Route route)
@@ -405,6 +426,10 @@ namespace gip.bso.iplus
 
             CheckFirstRoutePath();
             SelectActiveRoutes();
+
+            AvailableRoutes = AvailableRoutes.ToList();
+            ActiveRoutePaths = ActiveRoutePaths.ToList();
+            ActiveRouteComponents = ActiveRouteComponents.ToList();
 
             return true;
         }
@@ -710,6 +735,10 @@ namespace gip.bso.iplus
                     EdgesList = paths.SelectMany(c => c).ToList();
                 
             }
+
+
+            SelectedActiveRoutingPaths = SelectedActiveRoutingPaths.ToList();
+
         }
 
         private List<RouteHashItem> LoadRouteUsage(IEnumerable<Guid> targets)
@@ -969,17 +998,20 @@ namespace gip.bso.iplus
         [ACMethodInfo("", "en{'Set route'}de{'Route festlegen'}", 404, true)]
         public void SetRoute()
         {
-            IEnumerable<string> start = null;
-            IEnumerable<string> end = null;
             if (IsMultipleSourcesTargets)
             {
-                start = StartComponents.Where(c => c.IsChecked).Select(x => x.ValueT.ACUrlComponent);
-                end = EndComponents.Where(c => c.IsChecked).Select(x => x.ValueT.ACUrlComponent);
+                _start = StartComponents.Where(c => c.IsChecked).Select(x => x.ValueT.ACUrlComponent);
+                _end = EndComponents.Where(c => c.IsChecked).Select(x => x.ValueT.ACUrlComponent);
             }
             else if (SelectedStartComponent != null && SelectedEndComponent != null)
             {
-                start = new string[] { SelectedStartComponent.ValueT.ACUrlComponent };
-                end = new string[] { SelectedEndComponent.ValueT.ACUrlComponent };
+                _start = new string[] { SelectedStartComponent.ValueT.ACUrlComponent };
+                _end = new string[] { SelectedEndComponent.ValueT.ACUrlComponent };
+            }
+            else
+            {
+                _start = null;
+                _end = null;
             }
 
             if (AllowProcessModuleInRoute)
@@ -989,10 +1021,17 @@ namespace gip.bso.iplus
             }
 
             _CurrentRouteMode = SelectedRouteMode;
-            if (!GetRoutes(start, end, IncludeReserved, IncludeAllocated, false, SelectionRuleID, SelectionRuleParams))
+            if (!GetRoutes(_start, _end, IncludeReserved, IncludeAllocated, false, SelectionRuleID, SelectionRuleParams))
                 return;
 
             ShowRoute();
+        }
+
+        public void ResetRoute()
+        {
+            _CurrentRouteMode = SelectedRouteMode;
+            if (!GetRoutes(_start, _end, IncludeReserved, IncludeAllocated, false, SelectionRuleID, SelectionRuleParams))
+                return;
         }
 
         #endregion

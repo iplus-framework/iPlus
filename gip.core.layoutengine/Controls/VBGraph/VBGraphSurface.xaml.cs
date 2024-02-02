@@ -69,7 +69,7 @@ namespace gip.core.layoutengine
                     SetBinding(AvailablePathsProperty, binding);
                 }
 
-                InitGraphSurface();
+                //InitGraphSurface();
                 if (ContextACObject != null)
                 {
                     if (!string.IsNullOrEmpty(SelectedItems) && ContextACObject.ACUrlBinding(SelectedItems, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcCtrlModes))
@@ -225,7 +225,7 @@ namespace gip.core.layoutengine
         }
 
         public static readonly DependencyProperty AvailablePathsProperty =
-            DependencyProperty.Register("AvailablePaths", typeof(IEnumerable<IEnumerable<IEnumerable<IACEdge>>>), typeof(VBGraphSurface), new PropertyMetadata());
+            DependencyProperty.Register("AvailablePaths", typeof(IEnumerable<IEnumerable<IEnumerable<IACEdge>>>), typeof(VBGraphSurface), new PropertyMetadata(OnDepPropChanged));
 
         [Category("VBControl")]
         [Bindable(true)]
@@ -468,6 +468,8 @@ namespace gip.core.layoutengine
                     surface.UpdateVBGraphItemsState();
                 else if (args.Property == ACUrlCmdMessageProperty)
                     surface.OnACUrlMessageReceived();
+                else if (args.Property == AvailablePathsProperty)
+                    surface.UpdateVBGraphAvailablePaths();
                 if (args.Property == GraphActionProperty)
                 {
                     Global.GraphAction graphAction = Global.GraphAction.None;
@@ -503,7 +505,7 @@ namespace gip.core.layoutengine
             if (AvailablePaths == null || !AvailablePaths.Any())
                 return;
 
-            
+            this.graph.Children.Clear();
 
             _GraphItemsMap = new Dictionary<IACObject, FrameworkElement>();
             _EdgesMap = new Dictionary<IACEdge, VBEdge>();
@@ -632,6 +634,11 @@ namespace gip.core.layoutengine
                     }
                 }
             }
+        }
+
+        protected void UpdateVBGraphAvailablePaths()
+        {
+            InitGraphSurface();
         }
 
         protected void UpdateVBGraphItemsState()

@@ -80,14 +80,40 @@ namespace gip.core.datamodel
             set => _IsPredefinedRoute = value;
         }
 
+        [DataMember]
+        private bool? _HasAnyReserved;
+        [IgnoreDataMember]
         public bool HasAnyReserved
         {
-            get; set;
+            get
+            {
+                if (_HasAnyReserved.HasValue)
+                    return _HasAnyReserved.Value;
+
+                return false; //TODO
+            }
+            set
+            {
+                _HasAnyReserved = value;
+            }
         }
 
+        [DataMember]
+        private bool? _HasAnyAllocated;
+        [IgnoreDataMember]
         public bool HasAnyAllocated
         {
-            get; set;
+            get
+            {
+                if (_HasAnyAllocated.HasValue)
+                    return _HasAnyAllocated.Value;
+
+                return false; //TODO:
+            }
+            set
+            {
+                _HasAnyAllocated = value;
+            }
         }
 
         #endregion

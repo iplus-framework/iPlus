@@ -387,8 +387,16 @@ namespace gip.core.autocomponent
 
             List<RouteItem> tempList = new List<RouteItem>();
 
+            bool hasAnyReserved = false, hasAnyAllocated = false;
+
             foreach (ACRoutingPath routingPath in paths)
             {
+                if (routingPath.HasAnyAllocated)
+                    hasAnyAllocated = true;
+
+                if (routingPath.HasAnyReserved)
+                    hasAnyReserved = true;
+
                 int i = 0;
                 foreach (PAEdge pathEdge in routingPath)
                     tempList.Add(new RouteItem(pathEdge.Relation) { RouteNo = i });
@@ -396,7 +404,7 @@ namespace gip.core.autocomponent
                 i++;
             }
 
-            return new Route(tempList);
+            return new Route(tempList) { HasAnyReserved = hasAnyReserved, HasAnyAllocated = hasAnyAllocated };
         }
 
         private RoutingResult CreateRouteFromMultipleSourcesTargets(IEnumerable<ACRoutingPath> routingPaths)
@@ -534,7 +542,9 @@ namespace gip.core.autocomponent
                     var edges = routingTargetVertex.RelatedEdges.Where(c => c.TargetParentComponent == routingTargetVertex.Component.ValueT).OrderBy(c => c.Weight).ToArray();
                     foreach (PAEdge edge in edges)
                     {
-                        if (!ValidateRouteRelation(edge, includeReserved, includeAllocated, isForEditor))
+                        bool hasReserved, hasAllocated;
+
+                        if (!ValidateRouteRelation(edge, includeReserved, includeAllocated, isForEditor, out hasAllocated, out hasReserved))
                             continue;
 
                         ACRoutingVertex currentVertex;
@@ -546,6 +556,9 @@ namespace gip.core.autocomponent
                             currentVertex = new ACRoutingVertex(edge.Target.ParentACComponent as ACComponent);
                             RoutingVertexList.Add(edge.TargetParentComponent, currentVertex);
                         }
+
+                        currentVertex.HasAnyAllocated = hasAllocated;
+                        currentVertex.HasAnyReserved = hasReserved;
 
                         if (currentVertex.Component.ValueT == routingTargetVertex.Component.ValueT && edge.Weight >= 0)  // Ignore negative edges
                             fringe.Enqueue(new SP_Node(edge, edge.Weight + currentVertex.Distance));
@@ -730,6 +743,16 @@ namespace gip.core.autocomponent
                 else // else continue walking on shortest path
                 {
                     ACRoutingVertex tempVertex = vertexList.FirstOrDefault(c => c.Component.ValueT == v);
+
+                    if (tempVertex != null)
+                    {
+                        if (tempVertex.HasAnyAllocated)
+                            path.HasAnyAllocated = tempVertex.HasAnyAllocated;
+
+                        if (tempVertex.HasAnyReserved)
+                            path.HasAnyReserved = tempVertex.HasAnyReserved;
+                    }
+
                     if (tempVertex != null && tempVertex.EdgeToPath == null || (path.Any(c => c.SourceParent == sourceComponent) && path.Any(c => c.TargetParent == sourceComponent)))
                         break;
                     path.Add(tempVertex.EdgeToPath);
@@ -787,7 +810,9 @@ namespace gip.core.autocomponent
 
                     foreach (PAEdge edge in relatedEdges)
                     {
-                        if (!ValidateRouteRelation(edge, includeReserved, includeAllocated, false))
+                        bool hasReserved, hasAllocated;
+
+                        if (!ValidateRouteRelation(edge, includeReserved, includeAllocated, false, out hasAllocated, out hasReserved))
                             continue;
 
                         ACRoutingVertex currentVertex;
@@ -800,6 +825,9 @@ namespace gip.core.autocomponent
 
                             RoutingVertexList.Add(Source != null ? edge.SourceParentComponent : edge.TargetParentComponent, currentVertex);
                         }
+
+                        currentVertex.HasAnyAllocated = hasAllocated;
+                        currentVertex.HasAnyReserved = hasReserved;
 
                         if (currentVertex.Component.ValueT == routingTargetVertex.Component.ValueT && edge.Weight >= 0)  // Ignore negative edges
                             fringe.Enqueue(new SP_Node(edge, edge.Weight + currentVertex.Distance));
@@ -888,6 +916,9 @@ namespace gip.core.autocomponent
 
                     routeItems.Add(new RouteItem(edge.Relation));
 
+                    bool hasAnyReserved = tempVertex.HasAnyReserved;
+                    bool hasAnyAllocated = tempVertex.HasAnyAllocated;
+
                     do
                     {
                         if (edge == null)
@@ -905,21 +936,30 @@ namespace gip.core.autocomponent
                             if (edge == null)
                                 break;
                             routeItems.Insert(0, new RouteItem(edge.Relation));
+
+                            if (tempVertex.HasAnyReserved)
+                                hasAnyReserved = true;
+
+                            if (tempVertex.HasAnyAllocated)
+                                hasAnyAllocated = true;
                         }
                         else
                             break;
                     }
                     while (true);
 
-                    routeResult.Add(new Route(routeItems));
+                    routeResult.Add(new Route(routeItems) { HasAnyReserved = hasAnyReserved, HasAnyAllocated = hasAnyAllocated });
                 }
             }
 
             return new RoutingResult(routeResult, false, msg1, result.Select(c => c.Component));
         }
 
-        private bool ValidateRouteRelation(PAEdge edge, bool includeReserved, bool includeAllocated, bool isForEditor)
+        private bool ValidateRouteRelation(PAEdge edge, bool includeReserved, bool includeAllocated, bool isForEditor, out bool allocated, out bool reserved)
         {
+            allocated = false;
+            reserved = false;
+
             if (isForEditor)
                 return true;
 
@@ -942,6 +982,9 @@ namespace gip.core.autocomponent
 
             if (allocatedSource.ValueT == 0 && allocatedTarget.ValueT == 0)
                 return true;
+
+            reserved = allocatedSource.Bit00_Reserved || allocatedTarget.Bit00_Reserved;
+            allocated = allocatedSource.Bit01_Allocated || allocatedTarget.Bit01_Allocated;
 
             if ((!includeReserved && allocatedSource.Bit00_Reserved) || (!includeAllocated && allocatedSource.Bit01_Allocated))
                 return false;

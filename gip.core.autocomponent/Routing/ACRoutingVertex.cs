@@ -128,6 +128,20 @@ namespace gip.core.autocomponent
             }
         }
 
+        [DataMember]
+        public bool HasAnyReserved
+        {
+            get;
+            set;
+        }
+
+        [DataMember]
+        public bool HasAnyAllocated
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Methods
@@ -137,6 +151,8 @@ namespace gip.core.autocomponent
             Distance = int.MinValue;
             EdgeToPath = null;
             DistanceInLoop = null;
+            HasAnyReserved = false;
+            HasAnyAllocated = false;
         }
 
         public override string ToString()

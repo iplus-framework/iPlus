@@ -85,6 +85,18 @@ namespace gip.core.autocomponent
             }
         }
 
+        public bool HasAnyReserved
+        {
+            get;
+            set;
+        }
+
+        public bool HasAnyAllocated
+        {
+            get;
+            set;
+        }
+
         #endregion
     }
 
