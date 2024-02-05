@@ -7,7 +7,7 @@
       mc:Ignorable="d" Title="VBPage">
 
     <Border BorderBrush="Yellow" BorderThickness="1">
-        <Grid Name="MainGrid">
+        <Grid Name="MainGridMobile">
         </Grid>
     </Border>
 </Page>

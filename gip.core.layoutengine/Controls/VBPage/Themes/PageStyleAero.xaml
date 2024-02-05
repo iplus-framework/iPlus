@@ -12,10 +12,7 @@
             <Setter.Value>
                 <ControlTemplate>
                     <Border BorderBrush="Red" BorderThickness="1">
-                        <Grid>
-                            <Page Name="MainPage">
-
-                            </Page>
+                        <Grid Name="MainGridMobile">
                         </Grid>
                     </Border>
                 </ControlTemplate>
