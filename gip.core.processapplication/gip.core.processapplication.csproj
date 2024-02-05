@@ -115,6 +115,7 @@
     <Compile Include="ACProcessApplication\PAModule\Misc\CSVReader\CSVStringConverter.cs" />
     <Compile Include="ACProcessApplication\PAModule\Misc\PAEOnOffModule.cs" />
     <Compile Include="ACProcessApplication\PAModule\Misc\PAEScaleDK800.cs" />
+    <Compile Include="ACProcessApplication\PAModule\Misc\PAECameraOCR.cs" />
     <Compile Include="ACProcessApplication\PAModule\Misc\PAEScannerDecoder.cs" />
     <Compile Include="ACProcessApplication\PAModule\Misc\PAEScanner.cs" />
     <Compile Include="ACProcessApplication\PAProcessModule\Bus\PAMSerialBusDK800.cs" />

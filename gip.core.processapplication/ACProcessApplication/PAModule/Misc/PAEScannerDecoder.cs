@@ -80,8 +80,9 @@ namespace gip.core.processapplication
             _SVirtualEventArgs = new Dictionary<string,ACEventArgs>(PAModule.SVirtualEventArgs, StringComparer.OrdinalIgnoreCase);
 
             TMP = new ACEventArgs();
-            TMP.Add(new ACValue("ScanSequenceList", typeof(BindingList<PAEScannerData>), null, Global.ParamOption.Required));
-            _SVirtualEventArgs.Add("ScanSequenceCompleteEvent", TMP);
+            TMP.Add(new ACValue(nameof(ScanSequenceList), typeof(BindingList<PAEScannerData>), null, Global.ParamOption.Required));
+            TMP.Add(new ACValue(nameof(PAOrderInfo), typeof(PAOrderInfo), null, Global.ParamOption.Optional));
+            _SVirtualEventArgs.Add(nameof(ScanSequenceCompleteEvent), TMP);
 
             RegisterExecuteHandler(typeof(PAEScannerDecoder), HandleExecuteACMethod_PAEScannerDecoder);
         }
@@ -89,7 +90,7 @@ namespace gip.core.processapplication
         public PAEScannerDecoder(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            _ScanSequenceCompleteEvent = new ACPointEvent(this, "ScanSequenceCompleteEvent", 0);
+            _ScanSequenceCompleteEvent = new ACPointEvent(this, nameof(ScanSequenceCompleteEvent), 0);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -136,7 +137,7 @@ namespace gip.core.processapplication
             bool sequenceFinished = false;
             try
             {
-                sequenceFinished = (bool)ACUrlCommand("!AnalyzeScanSequence", new object[] { ScanSequenceList.ValueT });
+                sequenceFinished = (bool)ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(AnalyzeScanSequence), new object[] { ScanSequenceList.ValueT });
             }
             catch (Exception e)
             {
@@ -148,10 +149,8 @@ namespace gip.core.processapplication
             }
             if (sequenceFinished && (ScanSequenceCompleteEvent != null))
             {
-                ACEventArgs eventArgs = ACEventArgs.GetVirtualEventArgs("ScanSequenceCompleteEvent", VirtualEventArgs);
-
-                eventArgs.GetACValue("ScanSequenceList").Value = ScanSequenceList.ValueT;
-
+                ACEventArgs eventArgs = ACEventArgs.GetVirtualEventArgs(nameof(ScanSequenceCompleteEvent), VirtualEventArgs);
+                eventArgs.GetACValue(nameof(ScanSequenceList)).Value = ScanSequenceList.ValueT;
                 ScanSequenceCompleteEvent.Raise(eventArgs);
                 ScanSequenceList.ValueT = new BindingList<PAEScannerData>();
             }
