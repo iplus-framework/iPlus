@@ -1,15 +1,18 @@
-﻿using gip.core.datamodel;
+﻿using DocumentFormat.OpenXml.Packaging;
+using gip.core.datamodel;
 using gip.core.layoutengine.Helperclasses;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
+using System.Windows.Navigation;
 using System.Xml.Linq;
 
 namespace gip.core.layoutengine
@@ -40,6 +43,12 @@ namespace gip.core.layoutengine
         {
             base.OnInitialized(e);
             this.DataContextChanged += VBFrameControl_DataContextChanged;
+            this.JournalOwnership = System.Windows.Navigation.JournalOwnership.OwnsJournal;
+        }
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
         }
 
 
@@ -189,8 +198,7 @@ namespace gip.core.layoutengine
         #region Design
 
         [ACMethodInfo("", "en{'Show Dialog'}de{'Dialog'}", 9999)]
-        public void ShowDialog(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
-            Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
+        public void ShowDialog(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false)
         {
             VBDesign vbDesign = new VBDesign();
             vbDesign.DataContext = forObject;
@@ -199,8 +207,7 @@ namespace gip.core.layoutengine
         }
 
         [ACMethodInfo("", "en{'Show Window'}de{'Window'}", 9999)]
-        public void ShowWindow(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState,
-            Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
+        public void ShowWindow(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot)
         {
             VBDesign vbDesign = new VBDesign();
             vbDesign.DataContext = forObject;
@@ -210,7 +217,30 @@ namespace gip.core.layoutengine
             ShowVBDesign(vbDesign);
         }
 
-        public void StartBusinessobject(string acUrl, ACValueList parameterList, string acCaption, string title, bool ribbonVisibilityOff = false, Global.VBDesignDockState dockState = Global.VBDesignDockState.Tabbed)
+        public void ShowDesign(string acUrl, IACBSO bsoObject, string acCaption)
+        {
+            if (ContextACObject != null)
+            {
+                if (acUrl.IndexOf('#') != -1)
+                {
+                    string checkACUrl = acUrl.Replace("#", "\\?");
+                    var x = ContextACObject.ACUrlCommand(checkACUrl);
+                    if (x != null)
+                        return;
+                }
+                VBDesign vbDesign = new VBDesign();
+                vbDesign.Name = String.Format("BSO{0}", VBDesignList.Count);
+                if (!string.IsNullOrEmpty(acCaption))
+                    vbDesign.ACCaption = acCaption;
+
+                vbDesign.DataContext = bsoObject;
+                vbDesign.VBContent = acUrl;
+                VBDesignList.Add(vbDesign);
+                ShowVBDesign(vbDesign, "", false);
+            }
+        }
+
+        public void StartBusinessobject(string acUrl, ACValueList parameterList, string acCaption, string title = "", bool ribbonVisibilityOff = false, Global.VBDesignDockState dockState = Global.VBDesignDockState.Tabbed)
         {
             if (ContextACObject != null)
             {
@@ -274,16 +304,7 @@ namespace gip.core.layoutengine
                 _MainContent = ((Frame)frameObj);
             }
 
-            VBPage page = new VBPage(this, uiElement, isBusinessObject, acCaption);
-            _MainContent.Navigate(page);
-
-            //_MainContent.Navigated += (sender, e) =>
-            //{
-            //    if (_MainContent.Content is VBPage vbPage)
-            //    {
-            //        vbPage.GenerateContent(uiElement);
-            //    }
-            //};
+            _MainContent.Navigate(new VBPage(this, uiElement, isBusinessObject, acCaption));
         }
 
         #endregion
@@ -300,15 +321,23 @@ namespace gip.core.layoutengine
             }
         }
 
+        void NavigationService_Navigating(object sender, NavigatingCancelEventArgs e)
+        {
+        }
+
         public void ClearContent()
         {
             while (this.MainContent.NavigationService.RemoveBackEntry() != null) ;
             this.CloseAndRemoveVBDesign(this.MainContent.Content as VBPage);
-            this.MainContent.Content = null;
+            if (this.MainContent.CanGoForward)
+            {
+                ClearFowardStack();
+            }
+
         }
 
         public void CloseAndRemoveVBDesign(VBPage page)
-        {
+         {
             UIElement uiElement = page.VBDesignContent;
             if (uiElement == null)
                 return;
@@ -319,6 +348,12 @@ namespace gip.core.layoutengine
                 uiElementAsDataDesign.StopAutoStartComponent();
             VBDesignList.Remove(uiElement);
             this.Focus();
+        }
+
+        public void ClearFowardStack()
+        {
+            this.MainContent.GoForward();
+            this.ClearContent();
         }
 
         #endregion

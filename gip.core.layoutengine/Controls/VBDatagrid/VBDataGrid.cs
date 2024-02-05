@@ -1018,6 +1018,27 @@ namespace gip.core.layoutengine
                     }
                 }
             }
+
+            if (OpenDesignOnClick != null && !firstTimeOpened)
+            {
+                if (this.Parent is VBDesign designParent)
+                {
+                    var p = designParent.Parent as Grid;
+                    var page = p.TemplatedParent as VBPage;
+                    var frame = page.FrameControl;
+                    frame.ShowDesign(OpenDesignOnClick, BSOACComponent, "");
+                }
+                if (this.Parent is VBGrid gridParent)
+                {
+                    var designParentGrid = gridParent.Parent as VBDesign;
+                    var p = designParentGrid.Parent as Grid;
+                    var page = p.TemplatedParent as VBPage;
+                    var frame = page.FrameControl;
+                    frame.ShowDesign(OpenDesignOnClick, BSOACComponent, "");
+                }
+            }
+            firstTimeOpened = false;
+
             base.OnSelectionChanged(e);
         }
 
@@ -1829,6 +1850,24 @@ namespace gip.core.layoutengine
             get { return (string)GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
         }
+        #endregion
+
+        #region Mobile Members
+
+        /// <summary>
+        /// Represents the bool property for checking if the control is opened in the Mobile App.
+        /// </summary>
+        public static readonly DependencyProperty OpenDesignOnClickProperty
+            = DependencyProperty.Register(nameof(OpenDesignOnClick), typeof(string), typeof(VBDataGrid));
+
+        public string OpenDesignOnClick
+        {
+            get { return (string)GetValue(OpenDesignOnClickProperty); }
+            set { SetValue(OpenDesignOnClickProperty, value); }
+        }
+
+        private bool firstTimeOpened = true;
+
         #endregion
 
         #region private methods

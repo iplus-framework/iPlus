@@ -1,11 +1,7 @@
-﻿using DocumentFormat.OpenXml.ExtendedProperties;
-using gip.core.datamodel;
+﻿using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -53,6 +49,11 @@ namespace gip.core.layoutengine
             this.GenerateContent(VBDesignContent);
         }
 
+        public override void OnApplyTemplate()
+        {
+
+        }
+
         protected override void OnGotFocus(RoutedEventArgs e)
         {
             base.OnGotFocus(e);
@@ -74,29 +75,19 @@ namespace gip.core.layoutengine
             {
                 ((VBDesign)content).DataContext = ContextACObject;
                 ((VBDesign)content).BSOACComponent = ContextACObject as IACBSO;
-
-                if (MainGrid != null)
-                {
-                    MainGrid.Children.Add((VBDesign)content);
-                }
-                else
-                {
-                    Debugger.Break();
-                }
-            mainGrid = Template.FindName("MainGrid", this) as Grid;
             }
 
         }
 
-        private Grid mainGrid;
+        private Grid mainGridMobile;
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            mainGrid = Template.FindName("MainGrid", this) as Grid;
+            mainGridMobile = Template.FindName("MainGridMobile", this) as Grid;
 
-            if (mainGrid != null && VBDesignContent is VBDesign content && !(mainGrid.Children.Contains(content)))
+            if (mainGridMobile != null && VBDesignContent is VBDesign content && !(mainGridMobile.Children.Contains(content)))
             {
-                mainGrid.Children.Add(content);
+                mainGridMobile.Children.Add(content);
             }
         }
 
@@ -122,9 +113,18 @@ namespace gip.core.layoutengine
 
         public bool isBusinessObject;
 
-        public IEnumerable<IACObject> ACContentList => throw new NotImplementedException();
+        public IEnumerable<IACObject> ACContentList
+        {
+            get
+            {
+                return null;
+            }
+        }
 
-        public string ACIdentifier => throw new NotImplementedException();
+        public string ACIdentifier
+        {
+            get { return this.Name; }
+        }
 
         public string ACCaption 
         { 
@@ -165,28 +165,48 @@ namespace gip.core.layoutengine
 
         #region IACObject
 
-        public IACType ACType => throw new NotImplementedException();
+        /// <summary>
+        /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
+        /// </summary>
+        /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
+        public IACType ACType
+        {
+            get
+            {
+                return this.ReflectACType();
+            }
+        }
 
-        public IACObject ParentACObject => throw new NotImplementedException();
+        /// <summary>
+        /// Returns the parent object
+        /// </summary>
+        /// <value>Reference to the parent object</value>
+        public IACObject ParentACObject
+        {
+            get
+            {
+                return Parent as IACObject;
+            }
+        }
 
         public object ACUrlCommand(string acUrl, params object[] acParameter)
         {
-            throw new NotImplementedException();
+            return this.ReflectACUrlCommand(acUrl, acParameter);
         }
 
-        public bool IsEnabledACUrlCommand(string acUrl, params object[] acParameter)
+        public bool IsEnabledACUrlCommand(string acUrl, params Object[] acParameter)
         {
-            throw new NotImplementedException();
+            return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
 
         public string GetACUrl(IACObject rootACObject = null)
         {
-            throw new NotImplementedException();
+            return ACIdentifier;
         }
 
         public bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         #endregion

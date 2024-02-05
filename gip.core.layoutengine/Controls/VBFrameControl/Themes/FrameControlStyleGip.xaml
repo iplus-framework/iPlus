@@ -11,7 +11,7 @@
             <Setter.Value>
                 <ControlTemplate>
                     <Border BorderBrush="Green" BorderThickness="1">
-                        <Frame Name="MainContent" NavigationUIVisibility="Hidden" JournalOwnership="Automatic" MaxWidth="1440" MaxHeight="2560">
+                        <Frame Name="MainContent" NavigationUIVisibility="Hidden" JournalOwnership="OwnsJournal" MaxWidth="1440" MaxHeight="2560">
                         </Frame>
                     </Border>
                 </ControlTemplate>
