@@ -1220,7 +1220,7 @@ namespace gip.core.autocomponent
             }
 
             _IsChangeRuleTypeLocked = true;
-            routeSelector.EditRoutes(SelectedRuleValue.Value as Route, CurrentRuleType.IsReadOnly, true, true);
+            routeSelector.EditRoutesWithAttach(SelectedRuleValue.Value as Route, CurrentRuleType.IsReadOnly, true, true);
 
             if (routeSelector.RouteResult == null)
             {
