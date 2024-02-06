@@ -83,14 +83,11 @@ namespace gip.core.datamodel
         [DataMember]
         private bool? _HasAnyReserved;
         [IgnoreDataMember]
-        public bool HasAnyReserved
+        public bool? HasAnyReserved
         {
             get
             {
-                if (_HasAnyReserved.HasValue)
-                    return _HasAnyReserved.Value;
-
-                return false;
+                return _HasAnyReserved;
             }
             set
             {
@@ -101,14 +98,11 @@ namespace gip.core.datamodel
         [DataMember]
         private bool? _HasAnyAllocated;
         [IgnoreDataMember]
-        public bool HasAnyAllocated
+        public bool? HasAnyAllocated
         {
             get
             {
-                if (_HasAnyAllocated.HasValue)
-                    return _HasAnyAllocated.Value;
-
-                return false;
+                return _HasAnyAllocated;
             }
             set
             {
@@ -157,6 +151,25 @@ namespace gip.core.datamodel
                     routeItems.Add(routeItem);
                 }
                 routeNo++;
+            }
+            return new Route(routeItems);
+        }
+
+        public static Route IntersectRoutesGetDiff(Route routeA, Route routeB, bool removeIfSourceOrTarget = false)
+        {
+            if (routeA == null || routeB == null)
+                return null;
+
+            Route intersectedRoute = (Route)routeA.Clone();
+            List<RouteItem> routeItems = intersectedRoute.ToList();
+            foreach (var routeItem in routeB)
+            {
+                foreach (var removeItem in routeItems.Where(c => ( !removeIfSourceOrTarget && c.SourceKey == routeItem.SourceKey && c.TargetKey == routeItem.TargetKey)
+                                                                ||(removeIfSourceOrTarget && (c.SourceKey == routeItem.SourceKey || c.TargetKey == routeItem.TargetKey))
+                                                           ).ToArray())
+                {
+                    routeItems.Remove(removeItem);
+                }
             }
             return new Route(routeItems);
         }
@@ -391,10 +404,14 @@ namespace gip.core.datamodel
 
         public (bool reserved, bool allocated) GetReservedAndAllocated(IACComponent acRoutingService)
         {
-            if (_HasAnyReserved.HasValue && _HasAnyAllocated.HasValue)
+            if (Count == 0)
             {
-                return (_HasAnyReserved.Value, _HasAnyAllocated.Value);
+                _HasAnyReserved = false;
+                _HasAnyAllocated = false;
             }
+
+            if (_HasAnyReserved.HasValue && _HasAnyAllocated.HasValue)
+                return (_HasAnyReserved.Value, _HasAnyAllocated.Value);
 
             if (acRoutingService == null)
                 return (false, false);
@@ -406,7 +423,7 @@ namespace gip.core.datamodel
                 _HasAnyAllocated = route.HasAnyAllocated;
             }
 
-            return (HasAnyReserved, HasAnyAllocated);
+            return (HasAnyReserved.HasValue? HasAnyReserved.Value : false, HasAnyAllocated.HasValue? HasAnyAllocated.Value : false);
         }
 
 

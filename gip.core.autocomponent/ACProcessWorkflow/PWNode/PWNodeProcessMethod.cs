@@ -293,9 +293,11 @@ namespace gip.core.autocomponent
         {
             if (route == null)
                 return false;
-            if (ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.None)
+            if (ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.None || ApplicationManager.RoutingServiceInstance == null)
                 return true;
-            if ((route.HasAnyAllocated || route.HasAnyReserved)
+
+            (bool reserved, bool allocated) = route.GetReservedAndAllocated(ApplicationManager.RoutingServiceInstance);
+            if ((allocated || reserved)
                 && (ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.AllocatedBlock
                     || ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.AllocatedWarning))
             {
@@ -305,8 +307,8 @@ namespace gip.core.autocomponent
                     Messages.LogWarning(this.GetACUrl(), "ValidateRouteForFuncParam(2)", msg.InnerMessage);
                 OnNewAlarmOccurred(ProcessAlarm, msg, true);
             }
-            return !((route.HasAnyAllocated && ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.AllocatedBlock)
-                    || (route.HasAnyReserved && ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.ReservedBlock));
+            return !((allocated && ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.AllocatedBlock)
+                    || (allocated && ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.ReservedBlock));
         }
 
         #endregion
