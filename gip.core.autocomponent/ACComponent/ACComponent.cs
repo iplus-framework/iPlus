@@ -4617,6 +4617,11 @@ namespace gip.core.autocomponent
                             acClassConfig.Comment = baseACClassConfig.Comment;
                         acClassConfig.Value = value;
                     });
+                    // Call Add for exceuting Save-Changes afterwards
+                    ACClassTaskQueue.TaskQueue.Add(() =>
+                    {
+                        _ = acClassConfig?.VBiACClassID;
+                    });
                 }
             }
             else
