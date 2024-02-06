@@ -113,6 +113,51 @@ namespace gip.core.autocomponent
             }
         }
 
+        [ACMethodInfo("", "en{'Show complex value'}de{'Komplexen Wert anzeigen'}", 9999)]
+        public void ShowComplexValue(IACObjectBase selectedParameter)
+        {
+            ACValue selParam = selectedParameter as ACValue;
+            if (selParam == null || selParam.Value == null)
+                return;
+
+            Route currentRoute = selParam.Value as Route;
+            if (currentRoute == null)
+                return;
+
+            IACVBBSORouteSelector routeSelector = ACUrlCommand("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
+            if (routeSelector == null)
+            {
+                Messages.Error(this, "Route selector is not installed");
+                return;
+            }
+
+            //set flag to true if route is read only
+
+            routeSelector.EditRoutesWithAttach(currentRoute, true, true, true);
+            
+
+            //if (routeSelector.RouteResult != null)
+            //{
+            //    Route route = Route.MergeRoutes(routeSelector.RouteResult);
+            //    if (route != SelectedTarget.CurrentRoute)
+            //        SelectedTarget.CurrentRoute = route;
+            //}
+        }
+
+        public bool IsEnabledShowComplexValue(IACObjectBase selectedParameter)
+        {
+            ACValue selParam = selectedParameter as ACValue;
+
+            if (selParam == null)
+                return false;
+            if (selParam.ObjectType == null)
+                return false;
+            if (selParam.ObjectType.IsValueType)
+                return false;
+
+            return true;
+        }
+
 #region Execute-Helper-Handlers
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, ACClassMethod acClassMethod, params object[] acParameter)
         {
