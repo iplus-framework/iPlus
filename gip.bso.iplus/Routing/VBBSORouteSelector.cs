@@ -355,6 +355,44 @@ namespace gip.bso.iplus
             ShowRoute(isReadOnly);
         }
 
+        public void EditRoutesWithAttach(Route route, bool isReadOnly, bool includeReserved, bool includeAllocated)
+        {
+            route.AttachTo(Database.ContextIPlus);
+            IEnumerable<Route> splitedRoutes = Route.SplitRoute(route);
+
+            IEnumerable<string> sourceComponentsList = splitedRoutes.Select(x => x.FirstOrDefault().Source.ACUrlComponent).Distinct();
+            IEnumerable<string> targetComponentsList = splitedRoutes.Select(x => x.LastOrDefault().Target.ACUrlComponent).Distinct();
+
+
+            IncludeAllocated = includeAllocated;
+            IncludeReserved = includeReserved;
+
+
+            if (!GetRoutes(sourceComponentsList, targetComponentsList, IncludeReserved, IncludeAllocated, false, null, null, true))
+                return;
+
+            List<IACObject> components = new List<IACObject>();
+            List<IACObject> routePath = new List<IACObject>();
+            SelectedRoutingPaths = new List<ACRoutingPath>();
+
+            foreach (Route r in splitedRoutes)
+            {
+                IEnumerable<ACRoutingPath> possiblePaths = AvailableRoutes.FirstOrDefault(c =>
+                                                           c.FirstOrDefault().FirstOrDefault().SourceParentComponent.ACUrl == r.FirstOrDefault().Source.ACUrlComponent &&
+                                                           c.FirstOrDefault().LastOrDefault().TargetParentComponent.ACUrl == r.LastOrDefault().Target.ACUrlComponent);
+
+                ACRoutingPath selectedRoutePath = possiblePaths.FirstOrDefault(c => CompareRoutes(c, r));
+                SetActiveRoutes(components, routePath, selectedRoutePath);
+            }
+
+            ActiveRouteComponents = components;
+            ActiveRoutePaths = routePath;
+
+            ShowRoute(isReadOnly);
+
+            route.Detach();
+        }
+
         public void ShowRoute(bool isReadOnly = false)
         {
             if (!isReadOnly)
@@ -387,7 +425,8 @@ namespace gip.bso.iplus
             return true;
         }
 
-        private bool GetRoutes(IEnumerable<string> sourceComponentsList, IEnumerable<string> targetComponentsList, bool includeReserved, bool includeAllocated, bool isForEditor = false, string selectionRuleID = null, object[] selectionRuleParams = null)
+        private bool GetRoutes(IEnumerable<string> sourceComponentsList, IEnumerable<string> targetComponentsList, bool includeReserved, bool includeAllocated, bool isForEditor = false, string selectionRuleID = null, object[] selectionRuleParams = null, 
+                                bool attach = false)
         {
             SourceComponentsList = sourceComponentsList;
             TargetComponentsList = targetComponentsList;
@@ -425,7 +464,7 @@ namespace gip.bso.iplus
             }
 
             CheckFirstRoutePath();
-            SelectActiveRoutes();
+            SelectActiveRoutes(attach ? Database.ContextIPlus : null);
 
             AvailableRoutes = AvailableRoutes.ToList();
             ActiveRoutePaths = ActiveRoutePaths.ToList();
@@ -667,7 +706,7 @@ namespace gip.bso.iplus
             }
         }
 
-        private void SelectActiveRoutes()
+        private void SelectActiveRoutes(Database db = null)
         {
             foreach (var item in AvailableRoutes)
             {
@@ -679,6 +718,20 @@ namespace gip.bso.iplus
 
                 if (!shortestRoute)
                 {
+                    if (db != null)
+                    {
+                        foreach (var itemPart in item)
+                        {
+                            foreach(var temp in itemPart)
+                            {
+                                if (temp.Relation == null)
+                                {
+                                    temp.AttachRelation(db);
+                                }
+                            }
+                        }
+                    }
+
                     targetIDs = item.Select(c => c.LastOrDefault().Relation.SourceACClassID).Distinct().ToList();
                     routeHashItems = LoadRouteUsage(targetIDs);
                 }    

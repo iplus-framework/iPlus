@@ -226,6 +226,11 @@ namespace gip.core.autocomponent
             }
         }
 
+        public void AttachRelation(Database db)
+        {
+            _Relation = db.ACClassPropertyRelation.FirstOrDefault(c => c.ACClassPropertyRelationID == RelationID);
+        }
+
         private void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             if (PropertyChanged != null)
