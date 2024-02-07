@@ -60,6 +60,7 @@ namespace gip.core.autocomponent
         public override bool ACPostInit()
         {
             bool result = base.ACPostInit();
+            _ = RouteFindMode;
 
             if (AutoRestoreUnboundTargetProp)
             {

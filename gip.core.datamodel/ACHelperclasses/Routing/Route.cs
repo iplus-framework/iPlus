@@ -290,8 +290,8 @@ namespace gip.core.datamodel
 
         private System.Data.EntityKey FindFirstDifference(System.Data.EntityKey newSource, System.Data.EntityKey oldSource, Route oldRoute)
         {
-            var newSourceItems = this.Where(c => c.SourceKey == newSource);
-            var oldSourceItems = oldRoute.Where(c => c.SourceKey == oldSource);
+            var newSourceItems = this.Where(c => c.SourceKey == newSource).OrderBy(c => c.SourceGuid).ThenBy(c => c.TargetGuid);
+            var oldSourceItems = oldRoute.Where(c => c.SourceKey == oldSource).OrderBy(c => c.SourceGuid).ThenBy(c => c.TargetGuid);
 
             if (!newSourceItems.SequenceEqual(oldSourceItems))
                 return newSource;
@@ -305,8 +305,8 @@ namespace gip.core.datamodel
                 if (oldTarget == null)
                     return newSource;
 
-                var newTargetSources = this.Where(c => c.TargetKey == newTarget);
-                var oldTargetSources = oldRoute.Where(c => c.TargetKey == oldTarget);
+                var newTargetSources = this.Where(c => c.TargetKey == newTarget).OrderBy(c => c.SourceGuid).ThenBy(c => c.TargetGuid);
+                var oldTargetSources = oldRoute.Where(c => c.TargetKey == oldTarget).OrderBy(c => c.SourceGuid).ThenBy(c => c.TargetGuid);
 
                 if (!newTargetSources.SequenceEqual(oldTargetSources))
                     return newTarget;
