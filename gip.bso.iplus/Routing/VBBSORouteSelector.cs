@@ -26,7 +26,15 @@ namespace gip.bso.iplus
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
-            return base.ACInit(startChildMode);
+            bool result = base.ACInit(startChildMode);
+
+            _ConfigIncludeReserved = new ACPropertyConfigValue<bool>(this, nameof(ConfigIncludeReserved), false);
+            _ConfigIncludeAllocated = new ACPropertyConfigValue<bool>(this, nameof(ConfigIncludeAllocated), false);
+
+            _IncludeReserved = ConfigIncludeReserved;
+            _IncludeAllocated = ConfigIncludeAllocated;
+
+            return result;
         }
 
         public override bool ACPostInit()
@@ -78,7 +86,7 @@ namespace gip.bso.iplus
             }
         }
 
-        private bool _IncludeAllocated = true;
+        private bool _IncludeAllocated;
         [ACPropertyInfo(402, "", "en{'Include allocated'}de{'Zugeteilt einbeziehen'}")]
         public bool IncludeAllocated
         {
@@ -86,6 +94,7 @@ namespace gip.bso.iplus
             set
             {
                 _IncludeAllocated = value;
+                ConfigIncludeAllocated = value;
                 OnPropertyChanged();
 
                 if (_IsInPresenterMode)
@@ -93,7 +102,7 @@ namespace gip.bso.iplus
             }
         }
 
-        private bool _IncludeReserved = true;
+        private bool _IncludeReserved;
         [ACPropertyInfo(403, "", "en{'Include reserved'}de{'Reserviert einschließen'}")]
         public bool IncludeReserved
         {
@@ -101,6 +110,7 @@ namespace gip.bso.iplus
             set
             {
                 _IncludeReserved = value;
+                ConfigIncludeReserved = value;
                 OnPropertyChanged();
 
                 if (_IsInPresenterMode)
@@ -215,6 +225,30 @@ namespace gip.bso.iplus
             set;
         }
 
+        private ACPropertyConfigValue<bool> _ConfigIncludeReserved;
+        [ACPropertyConfig("en{'Include reserved config'}de{'Include reserved config'}")]
+        public bool ConfigIncludeReserved
+        {
+            get => _ConfigIncludeReserved.ValueT;
+            set
+            {
+                _ConfigIncludeReserved.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ACPropertyConfigValue<bool> _ConfigIncludeAllocated;
+        [ACPropertyConfig("en{'Include allocated config'}de{'Include allocated config'}")]
+        public bool ConfigIncludeAllocated
+        {
+            get => _ConfigIncludeAllocated.ValueT;
+            set
+            {
+                _ConfigIncludeAllocated.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -224,19 +258,19 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "ApplyRoute":
+                case nameof(ApplyRoute):
                     ApplyRoute();
                     return true;
-                case "Relayout":
+                case nameof(Relayout):
                     Relayout();
                     return true;
-                case "ReturnToRouteSelector":
+                case nameof(ReturnToRouteSelector):
                     ReturnToRouteSelector();
                     return true;
-                case "SetRoute":
+                case nameof(SetRoute):
                     SetRoute();
                     return true;
-                case "SaveSettings":
+                case nameof(SaveSettings):
                     SaveSettings();
                     return true;
             }
@@ -329,11 +363,11 @@ namespace gip.bso.iplus
             IEnumerable<string> targetComponentsList = splitedRoutes.Select(x => x.LastOrDefault().Target.ACUrlComponent).Distinct();
 
 
-            IncludeAllocated = includeAllocated;
-            IncludeReserved = includeReserved;
+            //IncludeAllocated = includeAllocated;
+            //IncludeReserved = includeReserved;
 
 
-            if (!GetRoutes(sourceComponentsList, targetComponentsList, IncludeReserved, IncludeAllocated))
+            if (!GetRoutes(sourceComponentsList, targetComponentsList, true, true))
                 return;
 
             List<IACObject> components = new List<IACObject>();
@@ -365,11 +399,11 @@ namespace gip.bso.iplus
             IEnumerable<string> targetComponentsList = splitedRoutes.Select(x => x.LastOrDefault().Target.ACUrlComponent).Distinct();
 
 
-            IncludeAllocated = includeAllocated;
-            IncludeReserved = includeReserved;
+            //IncludeAllocated = includeAllocated;
+            //IncludeReserved = includeReserved;
 
 
-            if (!GetRoutes(sourceComponentsList, targetComponentsList, IncludeReserved, IncludeAllocated, false, null, null, true))
+            if (!GetRoutes(sourceComponentsList, targetComponentsList, true, true, false, null, null, true))
                 return;
 
             List<IACObject> components = new List<IACObject>();
