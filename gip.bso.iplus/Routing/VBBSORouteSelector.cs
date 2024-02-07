@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Threading;
+using gip.core.processapplication;
 
 namespace gip.bso.iplus
 {
@@ -708,7 +709,7 @@ namespace gip.bso.iplus
 
         private void SelectActiveRoutes(Database db = null)
         {
-            foreach (var item in AvailableRoutes)
+            foreach (List<ACRoutingPath> availableRoute in AvailableRoutes)
             {
                 List<ACRoutingPath> paths = new List<ACRoutingPath>();
                 bool shortestRoute = (_CurrentRouteMode != null && ((short)_CurrentRouteMode.Value) == 1);
@@ -720,19 +721,17 @@ namespace gip.bso.iplus
                 {
                     if (db != null)
                     {
-                        foreach (var itemPart in item)
+                        foreach (ACRoutingPath routingPath in availableRoute)
                         {
-                            foreach(var temp in itemPart)
+                            foreach(PAEdge edge in routingPath)
                             {
-                                if (temp.Relation == null)
-                                {
-                                    temp.AttachRelation(db);
-                                }
+                                if (edge.Relation == null)
+                                    edge.AttachRelation(db);
                             }
                         }
                     }
 
-                    targetIDs = item.Select(c => c.LastOrDefault().Relation.SourceACClassID).Distinct().ToList();
+                    targetIDs = availableRoute.Select(c => c.LastOrDefault().Relation.SourceACClassID).Distinct().ToList();
                     routeHashItems = LoadRouteUsage(targetIDs);
                 }    
 
@@ -741,7 +740,7 @@ namespace gip.bso.iplus
                 {
                     List<int> hashCodes = new List<int>();
 
-                    foreach (var itemPath in item)
+                    foreach (var itemPath in availableRoute)
                     {
                         PAEdge source = itemPath.FirstOrDefault();
                         PAEdge target = itemPath.LastOrDefault();
@@ -776,7 +775,7 @@ namespace gip.bso.iplus
                     shortestRoute = true;
 
                 if (shortestRoute)
-                    paths = item.OrderBy(c => c.RouteWeight).Take(1).ToList();
+                    paths = availableRoute.OrderBy(c => c.RouteWeight).Take(1).ToList();
 
                 foreach (var path in paths)
                 {
@@ -786,12 +785,9 @@ namespace gip.bso.iplus
 
                 if (_IsInEdgeWeightAdjustmentMode)
                     EdgesList = paths.SelectMany(c => c).ToList();
-                
             }
 
-
             SelectedActiveRoutingPaths = SelectedActiveRoutingPaths.ToList();
-
         }
 
         private List<RouteHashItem> LoadRouteUsage(IEnumerable<Guid> targets)
