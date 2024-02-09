@@ -2,29 +2,28 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Windows;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows;
+using System.Windows.Navigation;
 
 namespace gip.core.layoutengine
 {
-    partial class VBPage : Page, IACObject
+    public class VBPageFunction<T> : PageFunction<T>, IACObject
     {
-        public VBPage()
+        public VBPageFunction()
         {
         }
 
-        static VBPage()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBPage), new FrameworkPropertyMetadata(typeof(VBPage)));
-        }
-
-        public VBPage(VBFrameController frameController)
+        public VBPageFunction(VBFrameController frameController)
         {
             FrameController = frameController;
             Loaded += OnLoaded;
         }
 
-        public VBPage(VBFrameController frameController, UIElement vbDesignContent, bool isBusinessObject = false, string title = "")
+        public VBPageFunction(VBFrameController frameController, UIElement vbDesignContent, bool isBusinessObject = false, string title = "")
         {
             FrameController = frameController;
             this.VBDesignContent = vbDesignContent;
@@ -34,22 +33,12 @@ namespace gip.core.layoutengine
                 this.Title = title;
             else
                 this.Title = ACCaption;
-            //this.GenerateContent(VBDesignContent);
-            if ((this.VBDesignContent is FrameworkElement) && (this.VBDesignContent is IVBContent))
-            {
-                //TODO Implement event handling
-                //if (this.VBDesignContent is VBDesign)
-                //    (this.VBDesignContent as VBDesign).OnContextACObjectChanged += new EventHandler(VBDockingContainerBase_OnElementACComponentChanged);
-                //else
-                //    (this.VBDesignContent as FrameworkElement).DataContextChanged += new DependencyPropertyChangedEventHandler(VBDockingContainerBase_ContentDataContextChanged);
-                //(this.VBDesignContent as FrameworkElement).Loaded += new RoutedEventHandler(VBDockingContainerBase_ContentLoaded);
-            Loaded += OnLoaded;
-            }
         }
 
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
+            Debugger.Break();
             this.GenerateContent(VBDesignContent);
         }
 
@@ -95,10 +84,6 @@ namespace gip.core.layoutengine
             }
         }
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-        }
-
         IACObject _ACComponent = null;
         /// <summary>
         /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
@@ -134,8 +119,8 @@ namespace gip.core.layoutengine
             get { return this.Name; }
         }
 
-        public string ACCaption 
-        { 
+        public string ACCaption
+        {
             get
             {
                 if (this.VBDesignContent == null)
@@ -226,7 +211,7 @@ namespace gip.core.layoutengine
 
         protected override void OnToolTipClosing(ToolTipEventArgs e)
         {
-            base.OnToolTipClosing(e); 
+            base.OnToolTipClosing(e);
         }
     }
 }

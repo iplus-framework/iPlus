@@ -1025,7 +1025,7 @@ namespace gip.core.layoutengine
                 {
                     var p = designParent.Parent as Grid;
                     var page = p.TemplatedParent as VBPage;
-                    var frame = page.FrameControl;
+                    var frame = page.FrameController;
                     frame.ShowDesign(OpenDesignOnClick, BSOACComponent, "");
                 }
                 if (this.Parent is VBGrid gridParent)
@@ -1033,7 +1033,7 @@ namespace gip.core.layoutengine
                     var designParentGrid = gridParent.Parent as VBDesign;
                     var p = designParentGrid.Parent as Grid;
                     var page = p.TemplatedParent as VBPage;
-                    var frame = page.FrameControl;
+                    var frame = page.FrameController;
                     frame.ShowDesign(OpenDesignOnClick, BSOACComponent, "");
                 }
             }

@@ -10,12 +10,12 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Border BorderBrush="Red" BorderThickness="1">
-                        <Grid Name="MainGridMobile">
-                        </Grid>
-                    </Border>
+                    <Grid Name="MainGridMobile" Margin="0,0,0,0">
+                    </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Setter Property="Margin" Value="-1,-1,0,-1"/>
     </Style>
+    
 </ResourceDictionary>

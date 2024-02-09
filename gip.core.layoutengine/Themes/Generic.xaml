@@ -71,7 +71,6 @@
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBCanvas/VBSelectedThumb/Themes/SelectedThumbStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBDocking/VBWindow/Themes/DialogStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBFrame/Themes/FrameStyleGip.xaml"/>
-        <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBFrameControl/Themes/FrameControlStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBPage/Themes/PageStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBHeader/Themes/HeaderStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBTreeListView/Themes/TreeListViewStyleGip.xaml"/>
@@ -168,7 +167,6 @@
     <Style TargetType="{x:Type local:VBDateTimePicker}" BasedOn="{StaticResource DateTimePickerStyleGip}" />
     <Style TargetType="{x:Type local:VBNumericUpDown}" BasedOn="{StaticResource NumericUpDownStyleGip}" />
     <Style TargetType="{x:Type local:VBFrame}" BasedOn="{StaticResource FrameStyleGip}" />
-    <Style TargetType="{x:Type local:VBFrameControl}" BasedOn="{StaticResource FrameControlStyleGip}" />
     <Style TargetType="{x:Type local:VBPage}" BasedOn="{StaticResource PageStyleGip}" />
     <Style TargetType="{x:Type local:VBHeader}" BasedOn="{StaticResource HeaderStyleGip}" />
     <Style TargetType="{x:Type local:VBPropertyGridView}" BasedOn="{StaticResource PropertyGridViewStyleGip}" />

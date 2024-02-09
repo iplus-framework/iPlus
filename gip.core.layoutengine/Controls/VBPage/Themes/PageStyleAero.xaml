@@ -11,10 +11,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Border BorderBrush="Red" BorderThickness="1">
-                        <Grid Name="MainGridMobile">
-                        </Grid>
-                    </Border>
+                    <Grid Name="MainGridMobile">
+                    </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

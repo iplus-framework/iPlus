@@ -280,7 +280,9 @@
     <Compile Include="Controls\VBFlipView\AnimationFactory.cs" />
     <Compile Include="Controls\VBFlowDocumentScrollViewer\VBFlowDocumentScrollViewer.cs" />
     <Compile Include="Controls\VBFlowDocument\VBFlowDocument.cs" />
-    <Compile Include="Controls\VBFrameControl\VBFrameControl.cs" />
+    <Compile Include="Controls\VBFrameControl\VBFrameController.xaml.cs">
+      <DependentUpon>VBFrameController.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\VBGanttChart\Connection\Connection.cs" />
     <Compile Include="Controls\VBGanttChart\Connection\ConnectionsPresenter.cs" />
     <Compile Include="Controls\VBGanttChart\Connection\Connector.cs" />
@@ -301,6 +303,7 @@
     <Compile Include="Controls\VBPage\VBPage.xaml.cs">
       <DependentUpon>VBPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\VBPage\VBPageFunction.cs" />
     <Compile Include="Controls\VBProgressBar\VBOEEControl.xaml.cs">
       <DependentUpon>VBOEEControl.xaml</DependentUpon>
     </Compile>
@@ -715,13 +718,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\VBFrameControl\Themes\FrameControlStyleAero.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Controls\VBFrameControl\VBFrameController.xaml">
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Controls\VBFrameControl\Themes\FrameControlStyleGip.xaml">
       <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\VBFrame\Themes\FrameStyleAero.xaml">
       <Generator>MSBuild:Compile</Generator>

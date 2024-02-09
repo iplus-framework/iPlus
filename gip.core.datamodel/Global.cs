@@ -511,7 +511,7 @@ namespace gip.core.datamodel
             DUUndefined     = 0,
 
             /// <summary>
-            /// Main view for the mobile application, which is loaded first from VBDesign when Businessobject is opened. Main view for mobile uses pages that are navigated with using VBFrameControl 
+            /// Main view for the mobile application, which is loaded first from VBDesign when Businessobject is opened. Main view for mobile uses pages that are navigated with using the VBFrameController 
             /// </summary>
             DUMainMobile = 4400,
 

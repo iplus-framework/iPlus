@@ -1,34 +1,20 @@
-﻿using DocumentFormat.OpenXml.Packaging;
-using gip.core.datamodel;
-using gip.core.layoutengine.Helperclasses;
+﻿using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Markup;
 using System.Windows.Navigation;
-using System.Xml.Linq;
 
 namespace gip.core.layoutengine
 {
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'VBFrameControl'}de{'VBFrameControl'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.NotStorable, true, false)]
-    public class VBFrameControl : Frame, IACInteractiveObject ,IACObject
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'VBFrameController'}de{'VBFrameController'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.NotStorable, true, false)]
+    public partial class VBFrameController : Frame, IACInteractiveObject, IACObject
     {
-
-        #region const 
-        public VBFrameControl()
+        public VBFrameController()
         {
-        }
-
-        static VBFrameControl()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBFrameControl), new FrameworkPropertyMetadata(typeof(VBFrameControl)));
+            InitializeComponent();
         }
 
         public IACObject ContextACObject
@@ -42,8 +28,36 @@ namespace gip.core.layoutengine
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
-            this.DataContextChanged += VBFrameControl_DataContextChanged;
+            this.LoadCompleted += VBFrameController_LoadCompleted;
+            this.Navigated += VBFrameController_Navigated;
+            this.DataContextChanged += VBFrameController_DataContextChanged;
+            this.NavigationUIVisibility = NavigationUIVisibility.Hidden;
             this.JournalOwnership = System.Windows.Navigation.JournalOwnership.OwnsJournal;
+        }
+
+        private void VBFrameController_Navigated(object sender, NavigationEventArgs e)
+        {
+            if (clearNavigationOnLoad && CanGoBack)
+            {
+                this.CloseAndRemoveVBDesign(this.Content as VBPage);
+            }
+        }
+
+        private void VBFrameController_LoadCompleted(object sender, NavigationEventArgs e)
+        {
+        }
+
+        private void VBFrameController_ContentRendered(object sender, EventArgs e)
+        {
+            if (clearNavigationOnLoad && CanGoBack)
+            {
+                ClearNavigation();
+            }
+            clearNavigationOnLoad = false;
+            if (this.Content == null && CanGoBack)
+            {
+                this.ClearEmptyBackEntry();
+            }
         }
 
         public override void OnApplyTemplate()
@@ -65,16 +79,7 @@ namespace gip.core.layoutengine
             }
         }
 
-        private Frame _MainContent;
-        public Frame MainContent
-        {
-            get
-            {
-                return _MainContent;
-            }
-        }
-
-        #endregion
+        private bool clearNavigationOnLoad = false;
 
         #region IACUrl Member
 
@@ -82,9 +87,9 @@ namespace gip.core.layoutengine
         /// <value>The Unique Identifier as string</value>
         public string ACIdentifier
         {
-            get 
+            get
             {
-                return this.Name; 
+                return this.Name;
             }
         }
 
@@ -195,6 +200,40 @@ namespace gip.core.layoutengine
 
         #endregion
 
+        #region IACInteractiveObject
+        
+        /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
+        /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
+        /// ACUrl's can be either absolute or relative to the DataContext of the parent WPFControl (or the ContextACObject of the parent IACInteractiveObject)</summary>
+        /// <value>Relative or absolute ACUrl</value>
+        [Category("VBControl")]
+        public string VBContent
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// ACAction is called when one IACInteractiveObject (Source) wants to inform another IACInteractiveObject (Target) about an relevant interaction-event.
+        /// </summary>
+        /// <param name="actionArgs">Information about the type of interaction and the source</param>
+        public void ACAction(ACActionArgs actionArgs)
+        {
+            return;
+        }
+
+        /// <summary>
+        /// It's called at the Target-IACInteractiveObject to inform the Source-IACInteractiveObject that ACAction ist allowed to be invoked.
+        /// </summary>
+        /// <param name="actionArgs">Information about the type of interaction and the source</param>
+        /// <returns><c>true</c> if ACAction can be invoked otherwise, <c>false</c>.</returns>
+        public bool IsEnabledACAction(ACActionArgs actionArgs)
+        {
+            return false;
+        }
+
+        #endregion
+
         #region Design
 
         [ACMethodInfo("", "en{'Show Dialog'}de{'Dialog'}", 9999)]
@@ -203,7 +242,8 @@ namespace gip.core.layoutengine
             VBDesign vbDesign = new VBDesign();
             vbDesign.DataContext = forObject;
             vbDesign.VBContent = "*" + acClassDesignName;
-            ShowVBDesign(vbDesign, acCaption);
+            VBDesignList.Add(vbDesign);
+            ShowVBDesign(vbDesign, acCaption, false);
         }
 
         [ACMethodInfo("", "en{'Show Window'}de{'Window'}", 9999)]
@@ -242,8 +282,11 @@ namespace gip.core.layoutengine
 
         public void StartBusinessobject(string acUrl, ACValueList parameterList, string acCaption, string title = "", bool ribbonVisibilityOff = false, Global.VBDesignDockState dockState = Global.VBDesignDockState.Tabbed)
         {
+            if (this.Content != null)
+                ClearAllHistory();
             if (ContextACObject != null)
             {
+                clearNavigationOnLoad = true;
                 if (acUrl.IndexOf('#') != -1)
                 {
                     string checkACUrl = acUrl.Replace("#", "\\?");
@@ -298,94 +341,101 @@ namespace gip.core.layoutengine
                 }
             }
 
-            object frameObj = (object)GetTemplateChild("MainContent");
-            if ((frameObj != null) && (frameObj is Frame))
-            {
-                _MainContent = ((Frame)frameObj);
-            }
-
-            _MainContent.Navigate(new VBPage(this, uiElement, isBusinessObject, acCaption));
+            this.Navigate(new VBPage(this, uiElement, isBusinessObject, acCaption));
         }
 
         #endregion
 
         #region Navigation
 
-        void VBFrameControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        void VBFrameController_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (e.NewValue == null && e.OldValue != null)
             {
                 IACBSO bso = e.OldValue as IACBSO;
                 //if (bso != null)
-                    //DeInitVBControl(bso);
+                //DeInitVBControl(bso);
             }
         }
 
-        void NavigationService_Navigating(object sender, NavigatingCancelEventArgs e)
+        public void ClearEmptyBackEntry()
         {
+            this.GoBack();
+            while (this.NavigationService.RemoveBackEntry() != null) ;
         }
 
         public void ClearContent()
         {
-            while (this.MainContent.NavigationService.RemoveBackEntry() != null) ;
-            this.CloseAndRemoveVBDesign(this.MainContent.Content as VBPage);
-            if (this.MainContent.CanGoForward)
+            this.CloseAndRemoveVBDesign(this.Content as VBPage);
+            while (this.NavigationService.RemoveBackEntry() != null) ;
+            if (this.CanGoForward)
             {
                 ClearFowardStack();
             }
-
+            this.Content = null;
         }
 
-        public void CloseAndRemoveVBDesign(VBPage page)
-         {
+        public void ClearNavigation()
+        {
+            while (this.NavigationService.RemoveBackEntry() != null) ;
+            if (this.CanGoForward)
+            {
+                ClearFowardStack();
+            }
+        }
+
+        public void ClearAllHistory()
+        {
+            this.CloseAndRemoveVBDesign(this.Content as VBPage);
+            this.Content = null;
+            var entriesToRemove = new List<JournalEntry>();
+            foreach (JournalEntry entry in this.BackStack)
+                entriesToRemove.Add(entry);
+            foreach (JournalEntry entry in entriesToRemove)
+            {
+                var prop = entry.GetType().GetProperty("KeepAliveRoot", BindingFlags.Instance | BindingFlags.NonPublic);
+                VBPage entryPage = prop.GetValue(entry) as VBPage;
+                this.CloseAndRemoveVBDesign(entryPage, true);
+            }
+            if (this.CanGoForward)
+            {
+                ClearFowardStack();
+            }
+        }
+
+        public void ClearFowardStack()
+        {
+            this.GoForward();
+            this.ClearContent();
+        }
+
+        public void CloseAndRemoveVBDesign(VBPage page, bool stopStartBSO = false)
+        {
+            if (page == null)
+                return;
             UIElement uiElement = page.VBDesignContent;
             if (uiElement == null)
                 return;
             if (!(uiElement is VBDesign))
                 return;
             VBDesign uiElementAsDataDesign = (uiElement as VBDesign);
-            if (!this.NavigationService.CanGoBack && page.isBusinessObject)
+            if (!this.NavigationService.CanGoBack && page.isBusinessObject || stopStartBSO)
                 uiElementAsDataDesign.StopAutoStartComponent();
             VBDesignList.Remove(uiElement);
             this.Focus();
         }
 
-        public void ClearFowardStack()
+        public bool CheckIfEntryEmpty(JournalEntry entry)
         {
-            this.MainContent.GoForward();
-            this.ClearContent();
+            var prop = entry.GetType().GetProperty("KeepAliveRoot", BindingFlags.Instance | BindingFlags.NonPublic);
+            VBPage entryPage = prop.GetValue(entry) as VBPage;
+            if (entryPage.VBDesignContent is VBDesign vBDesign && vBDesign.ACCompInitState == ACInitState.Constructing)
+                return true;
+            else
+                return false;
         }
 
         #endregion
 
-        /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
-        /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
-        /// ACUrl's can be either absolute or relative to the DataContext of the parent WPFControl (or the ContextACObject of the parent IACInteractiveObject)</summary>
-        /// <value>Relative or absolute ACUrl</value>
-        [Category("VBControl")]
-        public string VBContent
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// ACAction is called when one IACInteractiveObject (Source) wants to inform another IACInteractiveObject (Target) about an relevant interaction-event.
-        /// </summary>
-        /// <param name="actionArgs">Information about the type of interaction and the source</param>
-        public void ACAction(ACActionArgs actionArgs)
-        {
-            return;
-        }
-
-        /// <summary>
-        /// It's called at the Target-IACInteractiveObject to inform the Source-IACInteractiveObject that ACAction ist allowed to be invoked.
-        /// </summary>
-        /// <param name="actionArgs">Information about the type of interaction and the source</param>
-        /// <returns><c>true</c> if ACAction can be invoked otherwise, <c>false</c>.</returns>
-        public bool IsEnabledACAction(ACActionArgs actionArgs)
-        {
-            return false;
-        }
     }
 }

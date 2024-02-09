@@ -241,7 +241,10 @@ namespace gip.core.layoutengine
             if (string.IsNullOrEmpty(VBContent))
             {
                 _LoadDesignLocked = true;
-                ContentACObject = (ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
+                if (Parent is System.Windows.Controls.Grid ParentGrid && ParentGrid.Name == "MainGridMobile")
+                    ContentACObject = (ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMainMobile);
+                else
+                    ContentACObject = (ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
                 _LoadDesignLocked = false;
                 LoadDesign();
             }
