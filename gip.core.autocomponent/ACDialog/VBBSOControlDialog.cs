@@ -131,17 +131,7 @@ namespace gip.core.autocomponent
                 return;
             }
 
-            //set flag to true if route is read only
-
             routeSelector.EditRoutesWithAttach(currentRoute, true, true, true);
-            
-
-            //if (routeSelector.RouteResult != null)
-            //{
-            //    Route route = Route.MergeRoutes(routeSelector.RouteResult);
-            //    if (route != SelectedTarget.CurrentRoute)
-            //        SelectedTarget.CurrentRoute = route;
-            //}
         }
 
         public bool IsEnabledShowComplexValue(IACObjectBase selectedParameter)
@@ -158,21 +148,33 @@ namespace gip.core.autocomponent
             return true;
         }
 
-#region Execute-Helper-Handlers
+        #region Execute-Helper-Handlers
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;
             switch (acMethodName)
             {
-                case "SaveSolProperties":
+                case nameof(SaveSolProperties):
                     SaveSolProperties();
                     return true;
-                case "GoToParent":
+                case nameof(GoToParent):
                     GoToParent();
                     return true;
-                case Const.IsEnabledPrefix + "GoToParent":
+                case nameof(IsEnabledGoToParent):
                     result = IsEnabledGoToParent();
                     return true;
+                case nameof(ShowComplexValue):
+                    //TODO Ivan: temporary fix, solve it with converter in design
+                    if (acParameter != null && acParameter.Any())
+                        ShowComplexValue(acParameter[0] as IACObjectBase);
+                    return true;
+                case nameof(IsEnabledShowComplexValue):
+                    result = false;
+                    //TODO Ivan: temporary fix, solve it with converter in design
+                    if (acClassMethod != null && acParameter.Any())
+                        result = IsEnabledShowComplexValue(acParameter[0] as IACObjectBase);
+                    return true;
+
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
