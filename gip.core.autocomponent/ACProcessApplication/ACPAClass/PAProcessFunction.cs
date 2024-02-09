@@ -927,7 +927,7 @@ namespace gip.core.autocomponent
         /// </summary>
         /// <param name="acMethod">The ac method.</param>
         /// <returns></returns>
-        protected virtual MsgWithDetails CompleteACMethodOnSMStarting(ACMethod acMethod)
+        protected virtual MsgWithDetails CompleteACMethodOnSMStarting(ACMethod acMethod, ACMethod previousParams)
         {
             return null;
         }
@@ -2184,7 +2184,7 @@ namespace gip.core.autocomponent
                 Messages.LogError(this.GetACUrl(), "ReSendACMethod(0)", msgError.Message);
             }
             else
-                msgError = CompleteACMethodOnSMStarting(acMethod);
+                msgError = CompleteACMethodOnSMStarting(acMethod, previousParams);
             if (msgError != null)
             {
                 if (FunctionError.ValueT == PANotifyState.Off)

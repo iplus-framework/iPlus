@@ -155,23 +155,21 @@ namespace gip.core.datamodel
             return new Route(routeItems);
         }
 
-        public static Route IntersectRoutesGetDiff(Route routeA, Route routeB, bool removeIfSourceOrTarget = false)
+        public static Route IntersectRoutesGetDiff(Route routeA, Route routeB_forRemovingItemsA, bool removeIfSourceOrTarget = false)
         {
-            if (routeA == null || routeB == null)
+            if (routeA == null || routeB_forRemovingItemsA == null)
                 return null;
 
             Route intersectedRoute = (Route)routeA.Clone();
-            List<RouteItem> routeItems = intersectedRoute.ToList();
-            foreach (var routeItem in routeB)
+            List<RouteItem> diffItems = intersectedRoute.ToList();
+            foreach (var itemInA in intersectedRoute)
             {
-                foreach (var removeItem in routeItems.Where(c => ( !removeIfSourceOrTarget && c.SourceKey == routeItem.SourceKey && c.TargetKey == routeItem.TargetKey)
-                                                                ||(removeIfSourceOrTarget && (c.SourceKey == routeItem.SourceKey || c.TargetKey == routeItem.TargetKey))
-                                                           ).ToArray())
-                {
-                    routeItems.Remove(removeItem);
-                }
+                if (routeB_forRemovingItemsA.Where(c => (!removeIfSourceOrTarget && c.SourceKey == itemInA.SourceKey && c.TargetKey == itemInA.TargetKey)
+                                                     || (removeIfSourceOrTarget && (c.SourceKey == itemInA.SourceKey || c.TargetKey == itemInA.TargetKey)))
+                                            .Any())
+                      diffItems.Remove(itemInA);
             }
-            return new Route(routeItems);
+            return new Route(diffItems);
         }
 
         public static Route MergeRoutesWithoutDuplicates(IEnumerable<Route> routes)
