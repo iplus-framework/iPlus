@@ -41,6 +41,12 @@ namespace gip.core.autocomponent
             set;
         }
 
+        public SafeList<Guid> RouteUsageGroupID
+        {
+            get;
+            set;
+        }
+
         private DateTime _LastManipulation;
         public DateTime LastManipulation
         {
@@ -68,7 +74,8 @@ namespace gip.core.autocomponent
             {
                 RouteHashCodes = this.RouteHashCodes,
                 UseFactor = this.UseFactor,
-                LastManipulation = this.LastManipulation
+                LastManipulation = this.LastManipulation,
+                RouteUsageGroupID = this.RouteUsageGroupID
             };
         }
     }    

@@ -1,15 +1,18 @@
 using gip.core.datamodel;
 using Microsoft.Isam.Esent.Interop;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Objects;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.XPath;
 using static gip.core.autocomponent.PARole;
 
 namespace gip.core.autocomponent
@@ -1090,8 +1093,8 @@ namespace gip.core.autocomponent
             if (SelectRouteDependUsage)
             {
                 maxRouteAlternatives = MaxAlternativesOnRouteDependUsage;
-                if (maxRouteAlternatives < 5)
-                    maxRouteAlternatives = 5;
+                if (maxRouteAlternatives < 2)
+                    maxRouteAlternatives = 2;
             }
 
             Tuple<ACRoutingVertex[], ACRoutingVertex[]> routeVertices = CreateRoutingVertices(startComponents, endComponents);
@@ -1311,6 +1314,12 @@ namespace gip.core.autocomponent
 
                 using (Database db = new datamodel.Database())
                 {
+                    bool multipleTargets = targetItems.Count() > 1;
+                    Guid tempGroupID = Guid.NewGuid();
+
+                    List<RouteHashItem> hashItems = new List<RouteHashItem>();
+                    List<RouteHashItem> hashItemToClear = new List<RouteHashItem>();
+
                     foreach (RouteItem target in targetItems)
                     {
                         var myRoutes = routes.Where(c => c.GetRouteTarget().SourceGuid == target.SourceGuid).ToList();
@@ -1343,11 +1352,13 @@ namespace gip.core.autocomponent
                             {
                                 ACClassRouteUsagePos routeUsagePos = ACClassRouteUsagePos.NewACObject(db, acClassRouteUsage);
                                 routeUsagePos.HashCode = hashCode;
-                            }
+                            }    
                         }
 
                         if (acClassRouteUsage == null && item != null)
                             acClassRouteUsage = db.ACClassRouteUsage.FirstOrDefault(c => c.ACClassRouteUsageID == item.ACClassRouteUsageID);
+
+                        hashItems.Add(item);
 
                         foreach (RouteHashItem rhItem in routeHash)
                         {
@@ -1389,12 +1400,83 @@ namespace gip.core.autocomponent
                                         if (tempRouteUsage != null)
                                             tempRouteUsage.UseFactor = hashItem.UseFactor;
                                     }
+
+                                    hashItemToClear.Add(hashItem);
                                 }
                             }
                         }
                     }
 
-                    db.ACSaveChanges();
+                    List<Guid> groupToRemove = new List<Guid>();
+
+                    if (multipleTargets)
+                    {
+                        List<SafeList<Guid>> tempGroups = hashItems.Select(c => c.RouteUsageGroupID).ToList();
+
+                        Guid existingGroup = Guid.Empty;
+
+                        if (tempGroups.All(c => c != null))
+                        {
+                            existingGroup = tempGroups.SelectMany(x => x).Distinct()
+                                                           .Where(x => tempGroups.Select(y => (y.Contains(x) ? 1 : 0))
+                                                           .Sum() == tempGroups.Count).FirstOrDefault();
+                        }
+
+                        if (existingGroup == null || existingGroup == Guid.Empty)
+                        {
+                            foreach (RouteHashItem rhItem in hashItems)
+                            {
+                                ACClassRouteUsageGroup group = ACClassRouteUsageGroup.NewACObject(db);
+                                group.ACClassRouteUsageID = rhItem.ACClassRouteUsageID;
+                                group.GroupID = tempGroupID;
+
+                                if (rhItem.RouteUsageGroupID == null)
+                                    rhItem.RouteUsageGroupID = new SafeList<Guid>();
+
+                                rhItem.RouteUsageGroupID.Add(tempGroupID);
+                            }
+
+                            existingGroup = tempGroupID;
+                        }
+                    }
+                    
+                    if (hashItemToClear.Any())
+                    {
+                        List<SafeList<Guid>> tempGroups = hashItems.Select(c => c.RouteUsageGroupID).ToList();
+                        tempGroups.AddRange(hashItemToClear.Select(c => c.RouteUsageGroupID));
+
+                        Guid existingGroup = Guid.Empty;
+
+                        if (tempGroups.All(c => c != null))
+                        {
+                            existingGroup = tempGroups.SelectMany(x => x).Distinct()
+                                                      .Where(x => tempGroups.Select(y => (y.Contains(x) ? 1 : 0))
+                                                      .Sum() == tempGroups.Count).FirstOrDefault();
+                        }
+
+                        if (existingGroup != null && existingGroup != Guid.Empty)
+                        {
+                            hashItems.AddRange(hashItemToClear);
+
+                            foreach (RouteHashItem hashItem in hashItems)
+                            {
+                                hashItem.RouteUsageGroupID.Remove(existingGroup);
+                            }
+
+                            ACClassRouteUsageGroup[] routeGroups = db.ACClassRouteUsageGroup.Where(c => c.GroupID == existingGroup).ToArray();
+
+                            foreach (ACClassRouteUsageGroup routeGroup in routeGroups)
+                            {
+                                db.ACClassRouteUsageGroup.DeleteObject(routeGroup);
+                            }
+                        }
+                    }
+
+                    Msg msg = db.ACSaveChanges();
+                    if (msg != null)
+                    {
+                        Messages.LogMessageMsg(msg);
+                    }
                 }
             }
             catch (Exception e)
@@ -1418,6 +1500,20 @@ namespace gip.core.autocomponent
                     }
                 }
 
+                if (result.Count > 1)
+                {
+                    if (result.All(c => (c.RouteUsageGroupID == null || !c.RouteUsageGroupID.Any())))
+                    {
+                        result = result.OrderByDescending(c => c.UseFactor).Take(1).ToList();
+                    }
+                    else
+                    {
+                        if (! result.SelectMany(c => c.RouteUsageGroupID).GroupBy(c => c).Any(c => c.Count() == result.Count))
+                        {
+                            result = result.OrderByDescending(c => c.UseFactor).Take(1).ToList();
+                        }
+                    }
+                }
                 return result;
             }
             catch (Exception e)
@@ -1835,6 +1931,7 @@ namespace gip.core.autocomponent
                         hashItem.RouteHashCodes = new SafeList<int>(routeUsage.ACClassRouteUsagePos_ACClassRouteUsage.Select(c => c.HashCode));
                         hashItem.LastManipulation = routeUsage.UpdateDate;
                         hashItem.ACClassRouteUsageID = routeUsage.ACClassRouteUsageID;
+                        hashItem.RouteUsageGroupID = new SafeList<Guid>(routeUsage.ACClassRouteUsageGroup_ACClassRouteUsage.Select(c => c.GroupID));
                         hashItems.Add(hashItem);
                     }
                 }

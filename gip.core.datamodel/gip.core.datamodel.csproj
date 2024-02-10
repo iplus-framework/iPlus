@@ -269,6 +269,7 @@
     <Compile Include="Configuration\EFConfiguration.cs" />
     <Compile Include="EntityACClass\ACChangeLog.cs" />
     <Compile Include="EntityACClass\ACClassRouteUsage.cs" />
+    <Compile Include="EntityACClass\ACClassRouteUsageGroup.cs" />
     <Compile Include="EntityACClass\ACClassRouteUsagePos.cs" />
     <Compile Include="EntityACClass\ACClassTask.cs" />
     <Compile Include="EntityACClass\ACClassTaskValue.cs" />
@@ -455,6 +456,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DbScripts\iPlus\dbsync_2023-12-05_16-09_ihrastinski.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DbScripts\iPlus\dbsync_2024-01-09_16-09_ihrastinski.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

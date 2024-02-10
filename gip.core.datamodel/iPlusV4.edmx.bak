@@ -276,6 +276,9 @@
           <Property Name="DirectionIndex" Type="smallint" Nullable="false" />
           <Property Name="XMLValue" Type="text" />
           <Property Name="LogicalOperationIndex" Type="smallint" Nullable="false" />
+          <Property Name="RelationWeight" Type="smallint" Nullable="false" />
+          <Property Name="UseFactor" Type="smallint" Nullable="false" />
+          <Property Name="LastManipulationDT" Type="datetime" Nullable="false" />
           <Property Name="InsertName" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="InsertDate" Type="datetime" Nullable="false" />
           <Property Name="UpdateName" Type="varchar" MaxLength="20" Nullable="false" />
@@ -284,9 +287,6 @@
           <Property Name="Divisor" Type="float" />
           <Property Name="ConvExpressionT" Type="varchar" MaxLength="200" />
           <Property Name="ConvExpressionS" Type="varchar" MaxLength="200" />
-          <Property Name="RelationWeight" Type="smallint" Nullable="false" />
-          <Property Name="UseFactor" Type="smallint" Nullable="false" />
-          <Property Name="LastManipulationDT" Type="datetime" Nullable="false" />
           <Property Name="IsDeactivated" Type="bit" Nullable="false" />
           <Property Name="DisplayGroup" Type="smallint" />
           <Property Name="GroupName" Type="varchar(max)" />
@@ -303,6 +303,15 @@
           <Property Name="InsertDate" Type="datetime" Nullable="false" />
           <Property Name="UpdateName" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="UpdateDate" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ACClassRouteUsageGroup">
+          <Key>
+            <PropertyRef Name="ACClassRouteUsageGroupID" />
+          </Key>
+          <Property Name="ACClassRouteUsageGroupID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ACClassRouteUsageID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="GroupID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="UseFactor" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="ACClassRouteUsagePos">
           <Key>
@@ -787,7 +796,7 @@
           <Property Name="SessionCount" Type="int" Nullable="false" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'PanPekZGV4.dbo.VBSystemColumns' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+warning 6002: The table/view 'NKGV4.dbo.VBSystemColumns' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="VBSystemColumns">
           <Key>
             <PropertyRef Name="tablename" />
@@ -800,7 +809,7 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBSystemColumns' does not have a pr
           <Property Name="columnnullable" Type="int" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="VBTranslationView">
           <Key>
             <PropertyRef Name="ACProjectName" />
@@ -1268,6 +1277,18 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
             </Principal>
             <Dependent Role="ACClassPropertyRelation">
               <PropertyRef Name="TargetACClassPropertyID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ACClassRouteUsageGroup_ACClassRouteUsage">
+          <End Role="ACClassRouteUsage" Type="Self.ACClassRouteUsage" Multiplicity="1" />
+          <End Role="ACClassRouteUsageGroup" Type="Self.ACClassRouteUsageGroup" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACClassRouteUsage">
+              <PropertyRef Name="ACClassRouteUsageID" />
+            </Principal>
+            <Dependent Role="ACClassRouteUsageGroup">
+              <PropertyRef Name="ACClassRouteUsageID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2036,6 +2057,7 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <EntitySet Name="ACClassProperty" EntityType="Self.ACClassProperty" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACClassPropertyRelation" EntityType="Self.ACClassPropertyRelation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACClassRouteUsage" EntityType="Self.ACClassRouteUsage" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ACClassRouteUsageGroup" EntityType="Self.ACClassRouteUsageGroup" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACClassRouteUsagePos" EntityType="Self.ACClassRouteUsagePos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACClassTask" EntityType="Self.ACClassTask" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACClassTaskValue" EntityType="Self.ACClassTaskValue" Schema="dbo" store:Type="Tables" />
@@ -2230,6 +2252,10 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <AssociationSet Name="FK_ACClassPropertyRelation_TargetACClassPropertyID" Association="Self.FK_ACClassPropertyRelation_TargetACClassPropertyID">
             <End Role="ACClassProperty" EntitySet="ACClassProperty" />
             <End Role="ACClassPropertyRelation" EntitySet="ACClassPropertyRelation" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ACClassRouteUsageGroup_ACClassRouteUsage" Association="Self.FK_ACClassRouteUsageGroup_ACClassRouteUsage">
+            <End Role="ACClassRouteUsage" EntitySet="ACClassRouteUsage" />
+            <End Role="ACClassRouteUsageGroup" EntitySet="ACClassRouteUsageGroup" />
           </AssociationSet>
           <AssociationSet Name="FK_ACClassRouteUsagePos_ACClassRouteUsage" Association="Self.FK_ACClassRouteUsagePos_ACClassRouteUsage">
             <End Role="ACClassRouteUsage" EntitySet="ACClassRouteUsage" />
@@ -2902,6 +2928,11 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <AssociationSet Name="FK_ACClassRouteUsagePos_ACClassRouteUsage" Association="VarioiplusV3_devModel.FK_ACClassRouteUsagePos_ACClassRouteUsage">
             <End Role="ACClassRouteUsage" EntitySet="ACClassRouteUsage" />
             <End Role="ACClassRouteUsagePos" EntitySet="ACClassRouteUsagePos" />
+          </AssociationSet>
+          <EntitySet Name="ACClassRouteUsageGroup" EntityType="VarioiplusV3_devModel.ACClassRouteUsageGroup" />
+          <AssociationSet Name="FK_ACClassRouteUsageGroup_ACClassRouteUsage" Association="VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage">
+            <End Role="ACClassRouteUsage" EntitySet="ACClassRouteUsage" />
+            <End Role="ACClassRouteUsageGroup" EntitySet="ACClassRouteUsageGroup" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="ACAssembly">
@@ -5053,7 +5084,8 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <Property Name="InsertDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="UpdateName" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="UpdateDate" Type="DateTime" Nullable="false" Precision="3" />
-          <NavigationProperty Name="ACClassRouteUsagePos" Relationship="VarioiplusV3_devModel.FK_ACClassRouteUsagePos_ACClassRouteUsage" FromRole="ACClassRouteUsage" ToRole="ACClassRouteUsagePos" />
+          <NavigationProperty Name="ACClassRouteUsagePos_ACClassRouteUsage" Relationship="VarioiplusV3_devModel.FK_ACClassRouteUsagePos_ACClassRouteUsage" FromRole="ACClassRouteUsage" ToRole="ACClassRouteUsagePos" />
+          <NavigationProperty Name="ACClassRouteUsageGroup" Relationship="VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage" FromRole="ACClassRouteUsage" ToRole="ACClassRouteUsageGroup" />
         </EntityType>
         <EntityType Name="ACClassRouteUsagePos">
           <Key>
@@ -5072,6 +5104,28 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
               <PropertyRef Name="ACClassRouteUsageID" />
             </Principal>
             <Dependent Role="ACClassRouteUsagePos">
+              <PropertyRef Name="ACClassRouteUsageID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="ACClassRouteUsageGroup">
+          <Key>
+            <PropertyRef Name="ACClassRouteUsageGroupID" />
+          </Key>
+          <Property Name="ACClassRouteUsageGroupID" Type="Guid" Nullable="false" />
+          <Property Name="ACClassRouteUsageID" Type="Guid" Nullable="false" />
+          <Property Name="GroupID" Type="Guid" Nullable="false" />
+          <Property Name="UseFactor" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ACClassRouteUsage" Relationship="VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage" FromRole="ACClassRouteUsageGroup" ToRole="ACClassRouteUsage" />
+        </EntityType>
+        <Association Name="FK_ACClassRouteUsageGroup_ACClassRouteUsage">
+          <End Type="VarioiplusV3_devModel.ACClassRouteUsage" Role="ACClassRouteUsage" Multiplicity="1" />
+          <End Type="VarioiplusV3_devModel.ACClassRouteUsageGroup" Role="ACClassRouteUsageGroup" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACClassRouteUsage">
+              <PropertyRef Name="ACClassRouteUsageID" />
+            </Principal>
+            <Dependent Role="ACClassRouteUsageGroup">
               <PropertyRef Name="ACClassRouteUsageID" />
             </Dependent>
           </ReferentialConstraint>
@@ -5932,6 +5986,16 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="ACClassRouteUsageGroup">
+            <EntityTypeMapping TypeName="VarioiplusV3_devModel.ACClassRouteUsageGroup">
+              <MappingFragment StoreEntitySet="ACClassRouteUsageGroup">
+                <ScalarProperty Name="UseFactor" ColumnName="UseFactor" />
+                <ScalarProperty Name="GroupID" ColumnName="GroupID" />
+                <ScalarProperty Name="ACClassRouteUsageID" ColumnName="ACClassRouteUsageID" />
+                <ScalarProperty Name="ACClassRouteUsageGroupID" ColumnName="ACClassRouteUsageGroupID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
@@ -6089,6 +6153,8 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
         <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassRouteUsage" Width="1.5" PointX="7.375" PointY="1" />
         <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassRouteUsagePos" Width="1.5" PointX="9.625" PointY="1.375" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassRouteUsagePos_ACClassRouteUsage" />
+        <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassRouteUsageGroup" Width="1.5" PointX="9.625" PointY="4.375" />
+        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage" />
       </Diagram>
     </Diagrams>
   </Designer>

@@ -113,6 +113,7 @@ using gip.core.datamodel;
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACProgramConfig_ACClassPropertyRelationID", "ACClassPropertyRelation", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClassPropertyRelation), "ACProgramConfig", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACProgramConfig), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_VBConfig_ACClassPropertyRelationID", "ACClassPropertyRelation", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClassPropertyRelation), "VBConfig", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.VBConfig), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassRouteUsagePos_ACClassRouteUsage", "ACClassRouteUsage", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACClassRouteUsage), "ACClassRouteUsagePos", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassRouteUsagePos), true)]
+[assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassRouteUsageGroup_ACClassRouteUsage", "ACClassRouteUsage", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACClassRouteUsage), "ACClassRouteUsageGroup", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassRouteUsageGroup), true)]
 
 #endregion
 
@@ -819,6 +820,22 @@ namespace gip.core.datamodel
             }
         }
         private ObjectSet<ACClassRouteUsagePos> _ACClassRouteUsagePos;
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        public ObjectSet<ACClassRouteUsageGroup> ACClassRouteUsageGroup
+        {
+            get
+            {
+                if ((_ACClassRouteUsageGroup == null))
+                {
+                    _ACClassRouteUsageGroup = base.CreateObjectSet<ACClassRouteUsageGroup>("ACClassRouteUsageGroup");
+                }
+                return _ACClassRouteUsageGroup;
+            }
+        }
+        private ObjectSet<ACClassRouteUsageGroup> _ACClassRouteUsageGroup;
 
         #endregion
 
@@ -1150,6 +1167,14 @@ namespace gip.core.datamodel
         public void AddToACClassRouteUsagePos(ACClassRouteUsagePos aCClassRouteUsagePos)
         {
             base.AddObject("ACClassRouteUsagePos", aCClassRouteUsagePos);
+        }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the ACClassRouteUsageGroup EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToACClassRouteUsageGroup(ACClassRouteUsageGroup aCClassRouteUsageGroup)
+        {
+            base.AddObject("ACClassRouteUsageGroup", aCClassRouteUsageGroup);
         }
 
         #endregion
@@ -10764,6 +10789,201 @@ namespace gip.core.datamodel
                 if ((value != null))
                 {
                     ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<ACClassRouteUsagePos>("VarioiplusV3_devModel.FK_ACClassRouteUsagePos_ACClassRouteUsage", "ACClassRouteUsagePos", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_ACClassRouteUsageGroup_ACClassRouteUsage", "ACClassRouteUsageGroup")]
+        public EntityCollection<ACClassRouteUsageGroup> ACClassRouteUsageGroup_ACClassRouteUsage
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<ACClassRouteUsageGroup>("VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage", "ACClassRouteUsageGroup");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<ACClassRouteUsageGroup>("VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage", "ACClassRouteUsageGroup", value);
+                }
+            }
+        }
+
+        #endregion
+
+    }
+    
+    [EdmEntityTypeAttribute(NamespaceName="VarioiplusV3_devModel", Name="ACClassRouteUsageGroup")]
+    [Serializable()]
+    [DataContractAttribute(IsReference=true)]
+    public partial class ACClassRouteUsageGroup : VBEntityObject 
+    {
+        #region Factory Method
+    
+        /// <summary>
+        /// Create a new ACClassRouteUsageGroup object.
+        /// </summary>
+        /// <param name="aCClassRouteUsageGroupID">Initial value of the ACClassRouteUsageGroupID property.</param>
+        /// <param name="aCClassRouteUsageID">Initial value of the ACClassRouteUsageID property.</param>
+        /// <param name="groupID">Initial value of the GroupID property.</param>
+        /// <param name="useFactor">Initial value of the UseFactor property.</param>
+        public static ACClassRouteUsageGroup CreateACClassRouteUsageGroup(global::System.Guid aCClassRouteUsageGroupID, global::System.Guid aCClassRouteUsageID, global::System.Guid groupID, global::System.Int32 useFactor)
+        {
+            ACClassRouteUsageGroup aCClassRouteUsageGroup = new ACClassRouteUsageGroup();
+            aCClassRouteUsageGroup.ACClassRouteUsageGroupID = aCClassRouteUsageGroupID;
+            aCClassRouteUsageGroup.ACClassRouteUsageID = aCClassRouteUsageID;
+            aCClassRouteUsageGroup.GroupID = groupID;
+            aCClassRouteUsageGroup.UseFactor = useFactor;
+            return aCClassRouteUsageGroup;
+        }
+
+        #endregion
+
+        #region Simple Properties
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public  global::System.Guid ACClassRouteUsageGroupID
+        {
+            get
+            {
+                return _ACClassRouteUsageGroupID;
+            }
+            set
+            {
+                if (_ACClassRouteUsageGroupID != value)
+                {
+                    OnACClassRouteUsageGroupIDChanging(value);
+                    ReportPropertyChanging("ACClassRouteUsageGroupID");
+                    _ACClassRouteUsageGroupID = StructuralObject.SetValidValue(value);
+                    ReportPropertyChanged("ACClassRouteUsageGroupID");
+                    OnACClassRouteUsageGroupIDChanged();
+                }
+            }
+        }
+        private global::System.Guid _ACClassRouteUsageGroupID;
+        partial void OnACClassRouteUsageGroupIDChanging(global::System.Guid value);
+        partial void OnACClassRouteUsageGroupIDChanged();
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public  global::System.Guid ACClassRouteUsageID
+        {
+            get
+            {
+                return _ACClassRouteUsageID;
+            }
+            set
+            {
+                OnACClassRouteUsageIDChanging(value);
+                ReportPropertyChanging("ACClassRouteUsageID");
+                _ACClassRouteUsageID = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("ACClassRouteUsageID");
+                OnACClassRouteUsageIDChanged();
+            }
+        }
+        private global::System.Guid _ACClassRouteUsageID;
+        partial void OnACClassRouteUsageIDChanging(global::System.Guid value);
+        partial void OnACClassRouteUsageIDChanged();
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public  global::System.Guid GroupID
+        {
+            get
+            {
+                return _GroupID;
+            }
+            set
+            {
+                OnGroupIDChanging(value);
+                ReportPropertyChanging("GroupID");
+                _GroupID = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("GroupID");
+                OnGroupIDChanged();
+            }
+        }
+        private global::System.Guid _GroupID;
+        partial void OnGroupIDChanging(global::System.Guid value);
+        partial void OnGroupIDChanged();
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public  global::System.Int32 UseFactor
+        {
+            get
+            {
+                return _UseFactor;
+            }
+            set
+            {
+                OnUseFactorChanging(value);
+                ReportPropertyChanging("UseFactor");
+                _UseFactor = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("UseFactor");
+                OnUseFactorChanged();
+            }
+        }
+        private global::System.Int32 _UseFactor;
+        partial void OnUseFactorChanging(global::System.Int32 value);
+        partial void OnUseFactorChanged();
+
+        #endregion
+
+        #region Navigation Properties
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_ACClassRouteUsageGroup_ACClassRouteUsage", "ACClassRouteUsage")]
+        public ACClassRouteUsage ACClassRouteUsage
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassRouteUsage>("VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage", "ACClassRouteUsage").Value;
+            }
+            set
+            {
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassRouteUsage>("VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage", "ACClassRouteUsage").Value = value;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        [BrowsableAttribute(false)]
+        [DataMemberAttribute()]
+        public EntityReference<ACClassRouteUsage> ACClassRouteUsageReference
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassRouteUsage>("VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage", "ACClassRouteUsage");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<ACClassRouteUsage>("VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage", "ACClassRouteUsage", value);
                 }
             }
         }
