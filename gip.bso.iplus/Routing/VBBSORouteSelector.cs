@@ -841,8 +841,24 @@ namespace gip.bso.iplus
                     ACClassRouteUsage routeUsage = group.OrderByDescending(c => c.UseFactor).ThenByDescending(c => c.UpdateDate).FirstOrDefault();
                     RouteHashItem hashItem = new RouteHashItem();
                     hashItem.RouteHashCodes = new SafeList<int>(routeUsage.ACClassRouteUsagePos_ACClassRouteUsage.Select(c => c.HashCode));
+                    hashItem.RouteUsageGroupID = new SafeList<Guid>(routeUsage.ACClassRouteUsageGroup_ACClassRouteUsage.Select(c => c.GroupID));
                     hashItem.UseFactor = routeUsage.UseFactor;
                     result.Add(hashItem);
+                }
+
+                if (result.Count > 1)
+                {
+                    if (result.All(c => (c.RouteUsageGroupID == null || !c.RouteUsageGroupID.Any())))
+                    {
+                        result = result.OrderByDescending(c => c.UseFactor).Take(1).ToList();
+                    }
+                    else
+                    {
+                        if (!result.SelectMany(c => c.RouteUsageGroupID).GroupBy(c => c).Any(c => c.Count() == result.Count))
+                        {
+                            result = result.OrderByDescending(c => c.UseFactor).Take(1).ToList();
+                        }
+                    }
                 }
             }
 
