@@ -1551,6 +1551,11 @@ namespace gip.core.autocomponent
                     foreach (ACClassRouteUsagePos usagePos in usagePosList)
                         usagePos.DeleteACObject(db, false);
 
+                    var usageGroupList = usage.ACClassRouteUsageGroup_ACClassRouteUsage.ToList();
+
+                    foreach (ACClassRouteUsageGroup usageGroup in usageGroupList)
+                        usageGroup.DeleteACObject(db, false);
+
                     usage.DeleteACObject(db, false);
                 }
 
