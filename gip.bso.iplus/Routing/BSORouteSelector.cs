@@ -279,35 +279,44 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "GetAvailableRoutes":
+                case nameof(GetAvailableRoutes):
                     GetAvailableRoutes();
                     return true;
-                case "OpenRouteSettings":
+                case nameof(OpenRouteSettings):
                     OpenRouteSettings();
                     return true;
-                case "TestSelectRoutesFromComponent":
+                case nameof(TestSelectRoutesFromComponent):
                     TestSelectRoutesFromComponent();
                     return true;
-                case "IsEnabledTestSelectRoutesFromComponent":
+                case nameof(IsEnabledTestSelectRoutesFromComponent):
                     result = IsEnabledTestSelectRoutesFromComponent();
                     return true;
-                case "TestSelectRoutes":
+                case nameof(TestSelectRoutes):
                     TestSelectRoutes();
                     return true;
-                case "IsEnabledTestSelectRoutes":
+                case nameof(IsEnabledTestSelectRoutes):
                     result = IsEnabledTestSelectRoutes();
                     return true;
-                case "TestMethod":
+                case nameof(TestMethod):
                     TestMethod();
                     return true;
-                case "RemoveSource":
+                case nameof(RemoveSource):
                     RemoveSource();
                     return true;
-                case "RemoveTarget":
+                case nameof(RemoveTarget):
                     RemoveTarget();
                     return true;
-                case "SetACClassInfoWithItems":
+                case nameof(SetACClassInfoWithItems):
                     SetACClassInfoWithItems(acParameter[0] as ACClassInfoWithItems);
+                    return true;
+                case nameof(RefreshRouteUsageCache):
+                    RefreshRouteUsageCache();
+                    return true;
+                case nameof(ClearRouteUsageCache):
+                    ClearRouteUsageCache();
+                    return true;
+                case nameof(MarkAll):
+                    MarkAll();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -385,12 +394,12 @@ namespace gip.bso.iplus
             {
                 switch (targetVBDataObject.VBContent)
                 {
-                    case "SelectedSourceComponent":
+                    case nameof(SelectedSourceComponent):
                         ACClassInfoWithItems aCClassInfo = actionArgs.DropObject.ACContentList.OfType<ACClassInfoWithItems>().FirstOrDefault();
                         if (aCClassInfo != null && IsEnabledAddSource(aCClassInfo.ValueT))
                             AddSource(aCClassInfo);
                         break;
-                    case "SelectedTargetComponent":
+                    case nameof(SelectedTargetComponent):
                         ACClassInfoWithItems aCClassInfoT = actionArgs.DropObject.ACContentList.OfType<ACClassInfoWithItems>().FirstOrDefault();
                         if (aCClassInfoT != null && IsEnabledAddTarget(aCClassInfoT.ValueT))
                             AddTarget(aCClassInfoT);
@@ -513,6 +522,18 @@ namespace gip.bso.iplus
         {
             List<Guid> acClassIDList = Database.ContextIPlus.ACClassRouteUsage.Select(c => c.ACClassID).Distinct().ToList();
             ACClassUsageItemList = Database.ContextIPlus.ACClass.Where(c => acClassIDList.Contains(c.ACClassID)).ToList().Select(x => new ACClassInfoWithItems(x)).ToList();
+        }
+
+        [ACMethodInfo("", "en{'Mark all'}de{'Alles markieren'}", 9999)]
+        public void MarkAll()
+        {
+            if (ACClassUsageItemList == null)
+                return;
+
+            foreach (ACClassInfoWithItems usageItem in ACClassUsageItemList)
+            {
+                usageItem.IsChecked = true;
+            }
         }
 
         #endregion
