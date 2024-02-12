@@ -1158,7 +1158,7 @@ namespace gip.core.autocomponent
         /// <param name="maxRouteAlternatives"></param>
         /// <param name="includeReserved"></param>
         /// <param name="includeAllocated"></param>
-        /// <param name="shortRoute"></param>
+        /// <param name="resultMode"></param>
         /// <returns>
         ///   <br />
         /// </returns>

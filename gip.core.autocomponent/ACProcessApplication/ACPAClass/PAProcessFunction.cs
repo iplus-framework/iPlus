@@ -926,6 +926,7 @@ namespace gip.core.autocomponent
         /// This method is also invoked, when a user changes the parameterlist on the GUI on client-side.
         /// </summary>
         /// <param name="acMethod">The ac method.</param>
+        /// <param name="previousParams">The ac method.</param>
         /// <returns></returns>
         protected virtual MsgWithDetails CompleteACMethodOnSMStarting(ACMethod acMethod, ACMethod previousParams)
         {
