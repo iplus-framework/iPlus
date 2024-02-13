@@ -1029,7 +1029,7 @@ namespace gip.core.autocomponent
             {
                 ACClassPropertyRelation relation = edge.Relation;
                 
-                if (relation != null && _PreviousRoute.Any(c => c.SourceGuid == relation.SourceACClassID && c.TargetGuid == relation.TargetACClassID))
+                if (relation != null && _PreviousRoute.Any(c => c.SourceGuid == relation.SourceACClassID || c.TargetGuid == relation.TargetACClassID))
                     return true;
             }
 
