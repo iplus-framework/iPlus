@@ -96,7 +96,7 @@ namespace gip.core.autocomponent
         #endregion
 
         #region const
-        public const string MN_SelectRoutes = "SelectRoutes";
+        public const string MN_SelectRoutes = nameof(SelectRoutes);
         public const string MN_FindSuccessors = "FindSuccessors";
         public const string MN_FindSuccessorsFromPoint = "FindSuccessorsFromPoint";
         public const string MN_FindLastSuccessors = "FindLastSuccessors";
@@ -210,8 +210,8 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case MN_SelectRoutes:
-                    result = SelectRoutes(acParameter[0] as string[], acParameter[1] as string[], (RouteDirections)acParameter[2], acParameter[3] as string, acParameter[4] as object[], (int)acParameter[5], (bool)acParameter[6], (bool)acParameter[7]);
+                case nameof(SelectRoutes):
+                    result = SelectRoutes(acParameter[0] as string[], acParameter[1] as string[], (RouteDirections)acParameter[2], acParameter[3] as string, acParameter[4] as object[], (int)acParameter[5], (bool)acParameter[6], (bool)acParameter[7], acParameter[8] as Route);
                     return true;
                 case MN_FindSuccessors:
                     result = FindSuccessors(acParameter[0] as string, acParameter[1] as string, (RouteDirections)acParameter[2], acParameter[3] as object[], (int)acParameter[4], (bool)acParameter[5], (bool)acParameter[6], (RouteResultMode)acParameter[7]);
@@ -401,7 +401,8 @@ namespace gip.core.autocomponent
             bool dbIncludeInternalConnections = false,
             int dbRecursionLimit = 0,
             bool dbIgnoreRecursionLoop = false, 
-            bool forceReattachToDatabaseContext = false)
+            bool forceReattachToDatabaseContext = false,
+            Route previousRoute = null)
         {
             if (routingService == null)
             {
@@ -412,7 +413,7 @@ namespace gip.core.autocomponent
             if (routingService != null && routingService.ConnectionState != ACObjectConnectionState.DisConnected)
             {
                 return MemSelectRoutes(attachRouteItemsToContext ? database : null, from.GetACUrlComponent(), to.GetACUrlComponent(), direction, selectionRuleID,
-                                       maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext);
+                                       maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext, previousRoute);
             }
             else
             {
@@ -435,7 +436,8 @@ namespace gip.core.autocomponent
             bool dbIncludeInternalConnections = false,
             int dbRecursionLimit = 0,
             bool dbIgnoreRecursionLoop = false, 
-            bool forceReattachToDatabaseContext = false)
+            bool forceReattachToDatabaseContext = false,
+            Route previousRoute = null)
         {
             if (routingService == null)
             {
@@ -446,7 +448,7 @@ namespace gip.core.autocomponent
             if (routingService != null && routingService.ConnectionState != ACObjectConnectionState.DisConnected)
             {
                 return MemSelectRoutes(attachRouteItemsToContext ? database : null, new string[] { from.GetACUrlComponent() }, targets, direction, selectionRuleID,
-                                       maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext);
+                                       maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext, previousRoute);
             }
             else
             {
@@ -469,7 +471,8 @@ namespace gip.core.autocomponent
             bool dbIncludeInternalConnections = false,
             int dbRecursionLimit = 0,
             bool dbIgnoreRecursionLoop = false, 
-            bool forceReattachToDatabaseContext = false)
+            bool forceReattachToDatabaseContext = false,
+            Route previousRoute = null)
         {
             if (routingService == null)
             {
@@ -479,7 +482,8 @@ namespace gip.core.autocomponent
 
             if (routingService != null && routingService.ConnectionState != ACObjectConnectionState.DisConnected)
             {
-                return MemSelectRoutes(attachRouteItemsToContext ? database : null, from.GetACUrl(), to.GetACUrl(), direction, selectionRuleID, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext);
+                return MemSelectRoutes(attachRouteItemsToContext ? database : null, from.GetACUrl(), to.GetACUrl(), direction, selectionRuleID, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, 
+                                       forceReattachToDatabaseContext, previousRoute);
             }
             else
             {
@@ -626,13 +630,16 @@ namespace gip.core.autocomponent
 
         //find a routes between start and end components
         public static RoutingResult MemSelectRoutes(Database database, string startComponentsACUrl, string endComponentACUrl, RouteDirections direction, string selectionRuleID,
-                                                         int maxRouteAlternatives, bool includeReserved, bool includeAllocated, object[] selectionRuleParams = null, ACComponent routingService = null, bool forceReattachToDatabaseContext = false)
+                                                         int maxRouteAlternatives, bool includeReserved, bool includeAllocated, object[] selectionRuleParams = null, ACComponent routingService = null, bool forceReattachToDatabaseContext = false,
+                                                         Route previousRoute = null)
         {
-            return MemSelectRoutes(database, new string[] { startComponentsACUrl }, new string[] { endComponentACUrl }, direction, selectionRuleID, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext);
+            return MemSelectRoutes(database, new string[] { startComponentsACUrl }, new string[] { endComponentACUrl }, direction, selectionRuleID, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext,
+                                   previousRoute);
         }
 
         public static RoutingResult MemSelectRoutes(Database database, IEnumerable<string> startComponentsACUrl, IEnumerable<string> endComponentsACUrl, RouteDirections direction,
-                                                    string selectionRuleID, int maxRouteAlternatives, bool includeReserved, bool includeAllocated, object[] selectionRuleParams = null, ACComponent routingService = null, bool forceReattachToDatabaseContext = false)
+                                                    string selectionRuleID, int maxRouteAlternatives, bool includeReserved, bool includeAllocated, object[] selectionRuleParams = null, ACComponent routingService = null, bool forceReattachToDatabaseContext = false,
+                                                    Route previousRoute = null)
         {
             Msg msg = null;
             if (routingService == null)
@@ -644,7 +651,7 @@ namespace gip.core.autocomponent
             if (routingService == null || routingService.ConnectionState == ACObjectConnectionState.DisConnected)
                 return new RoutingResult(null, false, new Msg() { Message = "Routing service is unavailable!" });
 
-            var routeResult = routingService.ExecuteMethod(MN_SelectRoutes, startComponentsACUrl.ToArray(), endComponentsACUrl.ToArray(), direction, selectionRuleID, selectionRuleParams, maxRouteAlternatives, includeReserved, includeAllocated) as RoutingResult;
+            var routeResult = routingService.ExecuteMethod(nameof(SelectRoutes), startComponentsACUrl.ToArray(), endComponentsACUrl.ToArray(), direction, selectionRuleID, selectionRuleParams, maxRouteAlternatives, includeReserved, includeAllocated, previousRoute) as RoutingResult;
             if (routeResult == null || (routeResult.Routes == null && routeResult.Message == null))
                 return new RoutingResult(null, false, new Msg() { Message = "Routes not found!" });
             else if (routeResult.Routes == null && routeResult.Message != null)
@@ -1064,7 +1071,7 @@ namespace gip.core.autocomponent
         /// <returns>Available routes between start and end components.</returns>
         [ACMethodInfo("", "", 302, true)]
         public RoutingResult SelectRoutes(string[] startComponentsACUrl, string[] endComponentsACUrl, RouteDirections routeDirection, string selectionRuleID, object[] selectionRuleParams,
-                                          int maxRouteAlternatives, bool includeReserved, bool includeAllocated)
+                                          int maxRouteAlternatives, bool includeReserved, bool includeAllocated, Route previousRoute = null)
         {
             Msg msg = CheckRoutingService(startComponentsACUrl, endComponentsACUrl);
             if (msg != null)
@@ -1099,7 +1106,7 @@ namespace gip.core.autocomponent
 
             Tuple<ACRoutingVertex[], ACRoutingVertex[]> routeVertices = CreateRoutingVertices(startComponents, endComponents);
             RoutingResult rResult = new ACRoutingSession(this).FindRoute(routeVertices.Item1, routeVertices.Item2, selectionRuleID, selectionRuleParams, maxRouteAlternatives, 
-                                                                         includeReserved, includeAllocated);
+                                                                         includeReserved, includeAllocated, previousRoute);
 
             if (DumpRoutingData && rResult != null && rResult.Message != null && rResult.Message.MessageLevel <= eMsgLevel.Warning)
             {
@@ -1112,7 +1119,7 @@ namespace gip.core.autocomponent
         }
 
         public RoutingResult SelectRoutesFromPoint(string startComponentACUrl, Guid sourcePointID, string[] endComponentsACUrl, RouteDirections routeDirection, string selectionRuleID, 
-                                                   object[] selectionRuleParams, int maxRouteAlternatives, bool includeReserved, bool includeAllocated)
+                                                   object[] selectionRuleParams, int maxRouteAlternatives, bool includeReserved, bool includeAllocated, Route previousRoute = null)
         {
             Msg msg = CheckRoutingService(new string[] { startComponentACUrl }, endComponentsACUrl);
             if (msg != null)
@@ -1140,7 +1147,7 @@ namespace gip.core.autocomponent
 
             Tuple<ACRoutingVertex[], ACRoutingVertex[]> routeVertices = CreateRoutingVerticesFromPoint(startComponents.FirstOrDefault(), sourcePointID, endComponents);
             RoutingResult rResult = new ACRoutingSession(this).FindRoute(routeVertices.Item1, routeVertices.Item2, selectionRuleID, selectionRuleParams, maxRouteAlternatives, 
-                                                                         includeReserved, includeAllocated);
+                                                                         includeReserved, includeAllocated, previousRoute);
 
             if (DumpRoutingData && rResult != null && rResult.Message != null && rResult.Message.MessageLevel <= eMsgLevel.Warning)
             {

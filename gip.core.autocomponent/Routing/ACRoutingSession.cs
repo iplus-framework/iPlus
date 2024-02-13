@@ -87,6 +87,9 @@ namespace gip.core.autocomponent
             }
         }
 
+        Route _PreviousRoute = null;
+
+
         #endregion
 
         #region Properties
@@ -135,12 +138,14 @@ namespace gip.core.autocomponent
         }
 
         public RoutingResult FindRoute(IEnumerable<ACRoutingVertex> startVertices, IEnumerable<ACRoutingVertex> endVertices, string selectionRuleID, object[] selectionRuleParams,
-                                       int maxRouteAlternatives, bool includeReserved, bool includeAllocated)
+                                       int maxRouteAlternatives, bool includeReserved, bool includeAllocated, Route previousRoute = null)
         {
             RoutingPaths.Clear();
             _MaxRouteAlternatives = maxRouteAlternatives;
             _SelectionRuleID = selectionRuleID;
             _SelectionRuleParams = selectionRuleParams;
+            _PreviousRoute = previousRoute;
+
             foreach (ACRoutingVertex start in startVertices)
             {
                 Source = start;
@@ -334,44 +339,78 @@ namespace gip.core.autocomponent
             List<ACRoutingPath> paths = new List<ACRoutingPath>();
             List<RouteHashItem> routeHashItems = null;
 
-            if (_ACRoutingService.SelectRouteDependUsage)
+            if (_PreviousRoute != null)
             {
-                List<Guid> targetIDs = routingPaths.Select(c => c.LastOrDefault().Relation.SourceACClassID).Distinct().ToList();
-                routeHashItems = _ACRoutingService.GetMostUsedRouteHash(targetIDs);
+                List<Tuple<ACRoutingPath, int>> diffList = new List<Tuple<ACRoutingPath, int>>();
+
+                foreach (ACRoutingPath path in routingPaths)
+                {
+                    if (!path.Any())
+                        continue;
+
+                    List<PAEdge> diffItems = path.ToList();
+                    foreach (var itemInA in path)
+                    {
+                        ACClassPropertyRelation relation = itemInA.Relation;
+
+                        if (_PreviousRoute.Where(c => (c.SourceGuid == relation.SourceACClassID || c.TargetGuid == relation.TargetACClassID)).Any())
+                            diffItems.Remove(itemInA);
+                    }
+
+                    diffList.Add(new Tuple<ACRoutingPath, int>(path, diffItems.Count));
+                }
+
+                var groupedItem = diffList.GroupBy(c => c.Item2).OrderBy(c => c.Key).ToArray().FirstOrDefault();
+
+                //Difference max
+                if (groupedItem.Key != _PreviousRoute.Count)
+                {
+                    paths.AddRange(groupedItem.Select(c => c.Item1));
+                }
             }
 
-            List<int> tempHashCodeItems = new List<int>();
-            if (routeHashItems != null && routeHashItems.Any())
+
+            if (!paths.Any())
             {
-                List<int> hashCodes = new List<int>();
-
-                foreach (var itemPath in routingPaths)
+                if (_ACRoutingService.SelectRouteDependUsage)
                 {
-                    PAEdge source = itemPath.FirstOrDefault();
-                    PAEdge target = itemPath.LastOrDefault();
+                    List<Guid> targetIDs = routingPaths.Select(c => c.LastOrDefault().Relation.SourceACClassID).Distinct().ToList();
+                    routeHashItems = _ACRoutingService.GetMostUsedRouteHash(targetIDs);
+                }
 
-                    itemPath.Remove(source);
-                    itemPath.Remove(target);
+                List<int> tempHashCodeItems = new List<int>();
+                if (routeHashItems != null && routeHashItems.Any())
+                {
+                    List<int> hashCodes = new List<int>();
 
-                    List<Guid> temp = null; 
-                    if (itemPath.Any())
+                    foreach (var itemPath in routingPaths)
                     {
-                        temp = itemPath.Select(c => c.Relation.SourceACClassID).ToList();
-                        temp.Add(itemPath.LastOrDefault().Relation.TargetACClassID);
+                        PAEdge source = itemPath.FirstOrDefault();
+                        PAEdge target = itemPath.LastOrDefault();
 
+                        itemPath.Remove(source);
+                        itemPath.Remove(target);
+
+                        List<Guid> temp = null;
+                        if (itemPath.Any())
+                        {
+                            temp = itemPath.Select(c => c.Relation.SourceACClassID).ToList();
+                            temp.Add(itemPath.LastOrDefault().Relation.TargetACClassID);
+
+                        }
+                        else
+                            temp = new List<Guid>() { target.SourceParentComponent.ComponentClass.ACClassID };
+
+                        int hash = string.Join("", temp).GetHashCode();
+
+                        itemPath.Insert(0, source);
+                        itemPath.Add(target);
+
+                        var groupedByKey = routeHashItems.GroupBy(c => c.UseFactor).OrderByDescending(c => c.Key).FirstOrDefault();
+
+                        if (groupedByKey.Any(c => c.RouteHashCodes.Any(x => x == hash)))
+                            paths.Add(itemPath);
                     }
-                    else
-                        temp = new List<Guid>() { target.SourceParentComponent.ComponentClass.ACClassID };
-
-                    int hash = string.Join("", temp).GetHashCode();
-
-                    itemPath.Insert(0, source);
-                    itemPath.Add(target);
-
-                    var groupedByKey = routeHashItems.GroupBy(c => c.UseFactor).OrderByDescending(c => c.Key).FirstOrDefault();
-
-                    if (groupedByKey.Any(c => c.RouteHashCodes.Any(x => x == hash)))
-                        paths.Add(itemPath);
                 }
             }
 
