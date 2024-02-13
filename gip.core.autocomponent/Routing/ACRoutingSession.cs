@@ -1025,11 +1025,20 @@ namespace gip.core.autocomponent
             reserved = allocatedSource.Bit00_Reserved || allocatedTarget.Bit00_Reserved;
             allocated = allocatedSource.Bit01_Allocated || allocatedTarget.Bit01_Allocated;
 
+            if (_PreviousRoute != null && (reserved || allocated))
+            {
+                ACClassPropertyRelation relation = edge.Relation;
+                
+                if (relation != null && _PreviousRoute.Any(c => c.SourceGuid == relation.SourceACClassID && c.TargetGuid == relation.TargetACClassID))
+                    return true;
+            }
+
             if ((!includeReserved && allocatedSource.Bit00_Reserved) || (!includeAllocated && allocatedSource.Bit01_Allocated))
                 return false;
 
             if ((!includeReserved && allocatedTarget.Bit00_Reserved) || (!includeAllocated && allocatedTarget.Bit01_Allocated))
                 return false;
+
 
             return true;
         }
