@@ -765,7 +765,7 @@ namespace gip.bso.iplus
                         }
                     }
 
-                    targetIDs = availableRoute.Select(c => c.LastOrDefault().Relation.SourceACClassID).Distinct().ToList();
+                    targetIDs = availableRoute.Where(c => c.LastOrDefault().Relation != null).Select(c => c.LastOrDefault().Relation.SourceACClassID).Distinct().ToList();
                     routeHashItems = LoadRouteUsage(targetIDs);
                 }    
 
@@ -1167,7 +1167,7 @@ namespace gip.bso.iplus
             var maxRAltTemp = MaximumRouteAlternatives;
             MaximumRouteAlternatives = maxRouteAlternatives;
             _CurrentRouteMode = null;
-            if (!GetRoutes(startComponentsACUrl, endComponentsACUrl, IncludeReserved, IncludeAllocated, true))
+            if (!GetRoutes(startComponentsACUrl, endComponentsACUrl, IncludeReserved, IncludeAllocated, true, null, null, true))
                 return;
             ShowRoute();
             _IsInEdgeWeightAdjustmentMode = false;
