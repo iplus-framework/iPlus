@@ -94,7 +94,7 @@ namespace gip.core.layoutengine
                 {
                     _dispTimer = new DispatcherTimer();
                     _dispTimer.Tick += new EventHandler(dispatcherTimer_CanExecute);
-                    _dispTimer.Interval = new TimeSpan(0, 0, 0, 0, CanExecuteCyclic);
+                    _dispTimer.Interval = new TimeSpan(0, 0, 0, 0, CanExecuteCyclic < 500 ? 500 : CanExecuteCyclic);
                     _dispTimer.Start();
                 }
             }

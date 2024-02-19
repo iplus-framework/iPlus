@@ -1100,9 +1100,11 @@ namespace gip.core.autocomponent
                     childsForStateBackup.Add(this);
                     foreach (var child in childsForStateBackup)
                     {
-                        foreach (IACPropertyNetServer serverProp in child.ACPropertyList)
+                        foreach (IACPropertyBase prop in child.ACPropertyList)
                         {
-                            serverProp.BackupValue(resetAndClear);
+                            IACPropertyNetServer serverProp = prop as IACPropertyNetServer;
+                            if (serverProp != null)
+                                serverProp.BackupValue(resetAndClear);
                         }
                     }
                 });

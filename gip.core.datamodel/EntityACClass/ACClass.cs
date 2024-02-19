@@ -3222,13 +3222,22 @@ namespace gip.core.datamodel
         /// <returns>ACValueList.</returns>
         public ACValueList GetACParameter(object[] parameters)
         {
-            ACValueList acValueList = null;
-            if (parameters != null && parameters.Any())
+            ACValueList acValueList = ACParameter;
+            if (parameters != null && parameters.Any() && acValueList != null)
             {
-                if (parameters[0] is ACValueList)
-                    return parameters[0] as ACValueList;
-                acValueList = ACParameter;
-                if (acValueList != null)
+                ACValueList passedParamList = parameters[0] as ACValueList;
+                if (passedParamList != null)
+                {
+                    foreach (ACValue passedParamValue in passedParamList)
+                    {
+                        ACValue existingValue = acValueList.GetACValue(passedParamValue.ACIdentifier);
+                        if (existingValue != null)
+                            existingValue.Value = passedParamValue.Value;
+                        else
+                            acValueList.Add(passedParamValue);
+                    }
+                }
+                else
                 {
                     if (acValueList.Count >= parameters.Count())
                     {
