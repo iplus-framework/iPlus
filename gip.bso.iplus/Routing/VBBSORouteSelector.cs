@@ -30,16 +30,17 @@ namespace gip.bso.iplus
 
             _ConfigIncludeReserved = new ACPropertyConfigValue<bool>(this, nameof(ConfigIncludeReserved), false);
             _ConfigIncludeAllocated = new ACPropertyConfigValue<bool>(this, nameof(ConfigIncludeAllocated), false);
+            _ConfigRouteMode = new ACPropertyConfigValue<short>(this, nameof(ConfigRouteMode), 1);
 
             _IncludeReserved = ConfigIncludeReserved;
             _IncludeAllocated = ConfigIncludeAllocated;
+            _SelectedRouteMode = RouteModeList.FirstOrDefault(c => c.Value.Equals(ConfigRouteMode));
 
             return result;
         }
 
         public override bool ACPostInit()
         {
-            SelectedRouteMode = RouteModeList.FirstOrDefault();
             return base.ACPostInit();
         }
 
@@ -249,6 +250,18 @@ namespace gip.bso.iplus
             }
         }
 
+        private ACPropertyConfigValue<short> _ConfigRouteMode;
+        [ACPropertyConfig("en{'Route mode config'}de{'Route mode config'}")]
+        public short ConfigRouteMode
+        {
+            get => _ConfigRouteMode.ValueT;
+            set
+            {
+                _ConfigRouteMode.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -312,9 +325,6 @@ namespace gip.bso.iplus
             SelectedStartComponent = StartComponents.FirstOrDefault();
             SelectedEndComponent = EndComponents.FirstOrDefault();
 
-            if (_CurrentRouteMode != null && SelectedRouteMode == null)
-                SelectedRouteMode = _CurrentRouteMode;
-
             ShowDialog(this, "Mainlayout");
         }
 
@@ -348,9 +358,6 @@ namespace gip.bso.iplus
 
             SelectedStartComponent = StartComponents.FirstOrDefault();
             SelectedEndComponent = EndComponents.FirstOrDefault();
-
-            if (_CurrentRouteMode != null && SelectedRouteMode == null)
-                SelectedRouteMode = _CurrentRouteMode;
 
             ShowDialog(this, "Mainlayout");
         }
@@ -435,12 +442,16 @@ namespace gip.bso.iplus
 
             CloseTopDialog();
 
+            var tempRouteMode = SelectedRouteMode;
+
             _IsInPresenterMode = true;
 
             if (!_IsInEdgeWeightAdjustmentMode)
                 ShowDialog(this, "RoutePresenter");
             else
                 ShowDialog(this, "EdgeWeightsPresenter");
+
+            SelectedRouteMode = tempRouteMode;
 
             _IsInPresenterMode = false;
         }
@@ -524,7 +535,8 @@ namespace gip.bso.iplus
                 IncludeAllocated = includeAllocated,
                 IsForEditor = isForEditor,
                 SelectionRuleID = selectionRuleID,
-                SelectionRuleParams = selectionRuleParams
+                SelectionRuleParams = selectionRuleParams,
+                MaxRouteLoopDepth = MaximumRouteLoopDepth
             };
 
             var buildRouteResult = ACUrlCommand(string.Format("{0}!"+nameof(ACRoutingService.BuildAvailableRoutesFromPoints), RoutingServiceACUrl.StartsWith("\\") ? RoutingServiceACUrl : "\\" + RoutingServiceACUrl),
@@ -752,10 +764,11 @@ namespace gip.bso.iplus
 
         private void SelectActiveRoutes(Database db = null)
         {
+            bool shortestRoute = SelectedRouteMode != null && SelectedRouteMode.Value.Equals(1);
+            
             foreach (List<ACRoutingPath> availableRoute in AvailableRoutes)
             {
                 List<ACRoutingPath> paths = new List<ACRoutingPath>();
-                bool shortestRoute = (_CurrentRouteMode != null && ((short)_CurrentRouteMode.Value) == 1);
            
                 List<Guid> targetIDs = null;
                 List<RouteHashItem> routeHashItems = null;
@@ -1032,16 +1045,21 @@ namespace gip.bso.iplus
             set;
         }
 
-        private ACValueItem _CurrentRouteMode;
         private ACValueItem _SelectedRouteMode;
         [ACPropertySelected(410, "RouteMode")]
         public ACValueItem SelectedRouteMode
         {
-            get { return _SelectedRouteMode; }
+            get => _SelectedRouteMode;
             set
             {
-                _SelectedRouteMode = value;
-                OnPropertyChanged("SelectedRouteMode");
+                if (value != null)
+                {
+                    _SelectedRouteMode = value;
+                    short? configValue = _SelectedRouteMode?.Value as short?;
+                    if (configValue.HasValue)
+                        ConfigRouteMode = configValue.Value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -1073,6 +1091,21 @@ namespace gip.bso.iplus
             {
                 _MaximumRouteAlternatives = value;
                 OnPropertyChanged("MaximumRouteAlternatives");
+            }
+        }
+
+        private int _MaximumRouteLoopDepth = 2;
+        [ACPropertyInfo(412, "", "en{'Maximum route loop depth'}de{'Maximale Routenschleifentiefe'}")]
+        public int MaximumRouteLoopDepth
+        {
+            get
+            {
+                return _MaximumRouteLoopDepth;
+            }
+            set
+            {
+                _MaximumRouteLoopDepth = value;
+                OnPropertyChanged();
             }
         }
 
@@ -1127,7 +1160,6 @@ namespace gip.bso.iplus
                 SelectionRuleParams = null;
             }
 
-            _CurrentRouteMode = SelectedRouteMode;
             if (!GetRoutes(_start, _end, IncludeReserved, IncludeAllocated, false, SelectionRuleID, SelectionRuleParams))
                 return;
 
@@ -1136,7 +1168,6 @@ namespace gip.bso.iplus
 
         public void ResetRoute()
         {
-            _CurrentRouteMode = SelectedRouteMode;
             if (!GetRoutes(_start, _end, IncludeReserved, IncludeAllocated, false, SelectionRuleID, SelectionRuleParams))
                 return;
         }
@@ -1172,15 +1203,12 @@ namespace gip.bso.iplus
         public void EditEdgeWeights(IEnumerable<string> startComponentsACUrl, IEnumerable<string> endComponentsACUrl, int maxRouteAlternatives)
         {
             _IsInEdgeWeightAdjustmentMode = true;
-            var routeModeTemp = _CurrentRouteMode;
             var maxRAltTemp = MaximumRouteAlternatives;
             MaximumRouteAlternatives = maxRouteAlternatives;
-            _CurrentRouteMode = null;
             if (!GetRoutes(startComponentsACUrl, endComponentsACUrl, IncludeReserved, IncludeAllocated, true, null, null, true))
                 return;
             ShowRoute();
             _IsInEdgeWeightAdjustmentMode = false;
-            _CurrentRouteMode = routeModeTemp;
             MaximumRouteAlternatives = maxRAltTemp;
         }
 
