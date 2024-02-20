@@ -417,8 +417,19 @@ namespace gip.bso.iplus
 
             string ruleID = SelectedSelectionRuleID != null && SelectedSelectionRuleID.Value != null ? SelectedSelectionRuleID.Value.ToString() : "";
             RouteDirections direction = SelectedRouteDirection != null ? (RouteDirections)SelectedRouteDirection.Value : RouteDirections.Forwards;
-            var result = ACRoutingService.MemFindSuccessors(RoutingService, Db, SourceComponentsList.FirstOrDefault().ValueT.ACUrlComponent, ruleID, 
-                                                            direction, 0, false, false);
+
+            ACRoutingParameters routingParameters = new ACRoutingParameters()
+            {
+                RoutingService = this.RoutingService,
+                Database = Db,
+                SelectionRuleID = ruleID,
+                Direction = direction,
+                MaxRouteAlternativesInLoop = 0,
+                IncludeReserved = false,
+                IncludeAllocated = false
+            };
+
+            var result = ACRoutingService.MemFindSuccessors(SourceComponentsList.FirstOrDefault().ValueT.ACUrlComponent, routingParameters);
 
             if (result.Message != null)
                 Messages.Msg(result.Message);
@@ -446,10 +457,19 @@ namespace gip.bso.iplus
         {
             if (!IsEnabledTestSelectRoutes())
                 return;
-            string ruleID = SelectedSelectionRuleID != null && SelectedSelectionRuleID.Value != null ? SelectedSelectionRuleID.Value.ToString() : "";
-            RouteDirections direction = SelectedRouteDirection != null ? (RouteDirections)SelectedRouteDirection.Value : RouteDirections.Forwards;
-            var result = ACRoutingService.MemSelectRoutes(Db, SourceComponentsList.Select(x => x.ValueT.ACUrlComponent), TargetComponentsList.Select(x => x.ValueT.ACUrlComponent),
-                                                          direction, ruleID, 0, true, true, new object[] { }, RoutingService);
+
+            ACRoutingParameters routingParameters = new ACRoutingParameters()
+            {
+                Database = Db,
+                RoutingService = this.RoutingService,
+                Direction = SelectedRouteDirection != null ? (RouteDirections)SelectedRouteDirection.Value : RouteDirections.Forwards,
+                SelectionRuleID = SelectedSelectionRuleID != null && SelectedSelectionRuleID.Value != null ? SelectedSelectionRuleID.Value.ToString() : "",
+                MaxRouteAlternativesInLoop = 0,
+                IncludeReserved = true,
+                IncludeAllocated = true
+            };
+
+            var result = ACRoutingService.MemSelectRoutes(SourceComponentsList.Select(x => x.ValueT.ACUrlComponent), TargetComponentsList.Select(x => x.ValueT.ACUrlComponent), routingParameters);
 
             //ACMethod method = new ACMethod();
             //ACValueList aCValueList = new ACValueList();

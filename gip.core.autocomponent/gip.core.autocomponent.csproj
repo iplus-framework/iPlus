@@ -361,6 +361,7 @@
     <Compile Include="Configuration\CoreConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ACThreadHandling\ACPDispatchThread.cs" />
+    <Compile Include="Routing\ACRoutingParameters.cs" />
     <Compile Include="Routing\ACRoutingSession.cs" />
     <Compile Include="Routing\ACRoutingVertex.cs" />
     <Compile Include="Routing\IRouteableModule.cs" />

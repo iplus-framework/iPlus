@@ -232,11 +232,21 @@ namespace gip.core.autocomponent
 
                 using (Database db = new datamodel.Database())
                 {
-                    RoutingResult rResult = ACRoutingService.FindSuccessors(RoutingService, db, RoutingService != null && RoutingService.IsProxy,
-                     this, SelRuleID_ProcessModule, RouteDirections.Forwards, new object[] { },
-                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
-                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
-                            0,true, true, false, false);
+                    ACRoutingParameters routingParameters = new ACRoutingParameters()
+                    {
+                        RoutingService = this.RoutingService,
+                        Database = db,
+                        AttachRouteItemsToContext = RoutingService != null && RoutingService.IsProxy,
+                        SelectionRuleID = PAProcessModule.SelRuleID_ProcessModule,
+                        Direction = RouteDirections.Forwards,
+                        DBSelector = (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
+                        DBDeSelector = (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
+                        MaxRouteAlternativesInLoop = 0,
+                        IncludeReserved = true,
+                        IncludeAllocated = true,
+                    };
+
+                    RoutingResult rResult = ACRoutingService.FindSuccessors(this.GetACUrl(), routingParameters);
                     if (rResult.Routes != null && rResult.Routes.Any())
                         _CacheModuleDestinations = rResult.Routes.Select(c => c.LastOrDefault().Target.ACClassID).ToArray();
                     else

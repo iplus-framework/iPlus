@@ -637,18 +637,38 @@ namespace gip.core.autocomponent
                             ACClassProperty paPointOut = funcClass.GetProperty(Const.PAPointMatOut1);
                             if (paPointOut != null)
                             {
+                                ACRoutingParameters routingParameters = new ACRoutingParameters()
+                                {
+                                    Database = db,
+                                    DBSelector = (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
+                                    DBDeSelector = null,
+                                    Direction = RouteDirections.Forwards,
+                                    DBIncludeInternalConnections = true
+                                };
+
                                 IReadOnlyList<Route> routeToRelatedOutPointOfPM = null;
                                 ACClassProperty paModulePointOut = null;
                                 try
                                 {
-                                    routeToRelatedOutPointOfPM = ACRoutingService.DbSelectRoutesFromPoint(db, funcClass, paPointOut,
-                                                                                                (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule, null,
-                                                                                                            RouteDirections.Forwards, true);
+                                    routeToRelatedOutPointOfPM = ACRoutingService.DbSelectRoutesFromPoint(funcClass, paPointOut, routingParameters);
                                 }
                                 catch (Exception ex)
                                 {
                                     this.Messages.Exception(this, ex.Message, true);
                                 }
+
+                                routingParameters = new ACRoutingParameters()
+                                {
+                                    Database = db,
+                                    RoutingService = this.RoutingService,
+                                    SelectionRuleID = PAProcessModule.SelRuleID_ProcessModule,
+                                    Direction = RouteDirections.Forwards,
+                                    MaxRouteAlternativesInLoop = 1,
+                                    IncludeReserved = true,
+                                    IncludeAllocated = true,
+                                    ResultMode = RouteResultMode.ShortRoute
+                                };
+
                                 if (routeToRelatedOutPointOfPM != null)
                                 {
                                     Guid targetPropertyGuid = Guid.Empty;
@@ -660,12 +680,10 @@ namespace gip.core.autocomponent
                                         targetPropertyGuid = paModulePointOut == null ? Guid.Empty : paModulePointOut.ACClassPropertyID;
                                     }
                                     if (targetPropertyGuid != Guid.Empty)
-                                        targets = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, targetPropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true,
-                                                                                              null, false, RouteResultMode.ShortRoute);
+                                        targets = ACRoutingService.MemFindSuccessorsFromPoint(currentCompACUrl, targetPropertyGuid, routingParameters);
                                 }
                                 if (targets == null)
-                                    targets = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Forwards, 1, true, true,
-                                                                                 null, false, RouteResultMode.ShortRoute);
+                                    targets = ACRoutingService.MemFindSuccessors(currentCompACUrl, routingParameters);
                                 if (targets != null)
                                 {
                                     if (targets.Message != null)
@@ -686,14 +704,28 @@ namespace gip.core.autocomponent
                         {
                             ACClassProperty paPointIn = funcClass.GetProperty(Const.PAPointMatIn1);
                             ACClassProperty paModulePointIn = null;
+
+                            ACRoutingParameters routingParameters = new ACRoutingParameters()
+                            {
+                                Database = db,
+                                DBSelector = (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
+                                DBDeSelector = null,
+                                Direction = RouteDirections.Backwards,
+                                RoutingService = this.RoutingService,
+                                SelectionRuleID = PAProcessModule.SelRuleID_ProcessModule,
+                                MaxRouteAlternativesInLoop = 1,
+                                IncludeReserved = true,
+                                IncludeAllocated = true,
+                                ResultMode = RouteResultMode.ShortRoute
+                            };
+
                             if (paPointIn != null)
                             {
                                 IReadOnlyList<Route> routeToRelatedInPointOfPM = null;
                                 try
                                 {
-                                    routeToRelatedInPointOfPM = ACRoutingService.DbSelectRoutesFromPoint(db, funcClass, paPointIn,
-                                                                                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule, null,
-                                                                                                        RouteDirections.Backwards, true);
+                                    routingParameters.DBIncludeInternalConnections = true;
+                                    routeToRelatedInPointOfPM = ACRoutingService.DbSelectRoutesFromPoint(funcClass, paPointIn, routingParameters);
                                 }
                                 catch (Exception ex)
                                 {
@@ -710,13 +742,11 @@ namespace gip.core.autocomponent
                                         sourcePropertyGuid = paModulePointIn == null ? Guid.Empty : paModulePointIn.ACClassPropertyID;
                                     }
                                     if (sourcePropertyGuid != Guid.Empty)
-                                        sources = ACRoutingService.MemFindSuccessorsFromPoint(RoutingService, db, currentCompACUrl, sourcePropertyGuid, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true,
-                                                                                              null, false, RouteResultMode.ShortRoute);
+                                        sources = ACRoutingService.MemFindSuccessorsFromPoint(currentCompACUrl, sourcePropertyGuid, routingParameters);
                                 }
                             }
                             if (sources == null)
-                                sources = ACRoutingService.MemFindSuccessors(RoutingService, db, currentCompACUrl, PAProcessModule.SelRuleID_ProcessModule, RouteDirections.Backwards, 1, true, true,
-                                                                             null, false, RouteResultMode.ShortRoute);
+                                sources = ACRoutingService.MemFindSuccessors(currentCompACUrl, routingParameters);
                             if (sources != null)
                             {
                                 if (sources.Message != null)
@@ -842,18 +872,31 @@ namespace gip.core.autocomponent
                 if (!String.IsNullOrEmpty(sourceACIdentifier))
                 {
                     ACClass targetACClass = db.ACClass.Where(c => c.ACClassID == CurrentACComponent.ACType.ACTypeID).FirstOrDefault();
-                    routes = ACRoutingService.DbSelectRoutes(db, targetACClass,
-                        (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule && c.ACIdentifier == sourceACIdentifier,
-                        (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule && c.ACClassID != targetACClass.ACClassID, // Breche Suche ab sobald man bei einem Vorgänger der ein Silo oder Waage angelangt ist
-                        RouteDirections.Backwards, false, false, 10);
+
+                    ACRoutingParameters routingParameters = new ACRoutingParameters()
+                    {
+                        Database = db,
+                        DBSelector = (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule && c.ACIdentifier == sourceACIdentifier,
+                        DBDeSelector = (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule && c.ACClassID != targetACClass.ACClassID,
+                        Direction = RouteDirections.Backwards,
+                        DBRecursionLimit = 10
+                    };
+
+                    routes = ACRoutingService.DbSelectRoutes(targetACClass, routingParameters);  // Breche Suche ab sobald man bei einem Vorgänger der ein Silo oder Waage angelangt ist
                 }
                 else if (!String.IsNullOrEmpty(targetACIdentifier))
                 {
                     ACClass sourceACClass = db.ACClass.Where(c => c.ACClassID == CurrentACComponent.ACType.ACTypeID).FirstOrDefault();
-                    routes = ACRoutingService.DbSelectRoutes(db, sourceACClass,
-                                (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule && c.ACIdentifier == targetACIdentifier,
-                                (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule && c.ACClassID != sourceACClass.ACClassID,
-                                RouteDirections.Forwards, false, false);
+
+                    ACRoutingParameters routingParameters = new ACRoutingParameters()
+                    {
+                        Database = db,
+                        DBSelector = (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule && c.ACIdentifier == targetACIdentifier,
+                        DBDeSelector = (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule && c.ACClassID != sourceACClass.ACClassID,
+                        Direction = RouteDirections.Forwards
+                    };
+
+                    routes = ACRoutingService.DbSelectRoutes(sourceACClass, routingParameters);
                 }
                 if (routes == null || !routes.Any())
                     return;

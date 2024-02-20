@@ -60,6 +60,7 @@ namespace gip.core.autocomponent
         private object[] _SelectionRuleParams = new object[] { };
 
         private int _MaxRouteAlternatives = 1;
+        private int _MaxRouteLoopDepth = 2;
 
         bool _anyLoop = false;
 
@@ -138,13 +139,14 @@ namespace gip.core.autocomponent
         }
 
         public RoutingResult FindRoute(IEnumerable<ACRoutingVertex> startVertices, IEnumerable<ACRoutingVertex> endVertices, string selectionRuleID, object[] selectionRuleParams,
-                                       int maxRouteAlternatives, bool includeReserved, bool includeAllocated, Route previousRoute = null)
+                                       int maxRouteAlternatives, int maxLoopDepth, bool includeReserved, bool includeAllocated, Route previousRoute = null)
         {
             RoutingPaths.Clear();
             _MaxRouteAlternatives = maxRouteAlternatives;
             _SelectionRuleID = selectionRuleID;
             _SelectionRuleParams = selectionRuleParams;
             _PreviousRoute = previousRoute;
+            _MaxRouteLoopDepth = maxLoopDepth;
 
             foreach (ACRoutingVertex start in startVertices)
             {
@@ -199,7 +201,7 @@ namespace gip.core.autocomponent
             return new RoutingResult(null, false, new Msg(message, _ACRoutingService, eMsgLevel.Error, "ACRoutingSession", "FindRoute(20)", 161));
         }
 
-        public RoutingResult FindSuccessors(ACRoutingVertex startVertex, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams, int maxRouteAlternatives,
+        public RoutingResult FindSuccessors(ACRoutingVertex startVertex, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams, int maxRouteAlternatives, int maxLoopDepth,
                                             bool includeReserved, bool includeAllocated, RouteResultMode resultMode = RouteResultMode.FullRoute)
         {
             RoutingResult rResult = FindAvailableComponents(startVertex, selectionRuleID, direction, selectionRuleParams, includeReserved, includeAllocated, resultMode == RouteResultMode.FullRouteFromFindComp);
@@ -253,7 +255,7 @@ namespace gip.core.autocomponent
 
                 if (runFullRoute)
                 {
-                    routingResult = FindRoute(foundSuccessors, new ACRoutingVertex[] { startVertex }, selectionRuleID, selectionRuleParams, maxRouteAlternatives,
+                    routingResult = FindRoute(foundSuccessors, new ACRoutingVertex[] { startVertex }, selectionRuleID, selectionRuleParams, maxRouteAlternatives, maxLoopDepth,
                                             includeReserved, includeAllocated);
                 }
             }
@@ -291,7 +293,7 @@ namespace gip.core.autocomponent
 
                 if (runFullRoute)
                 {
-                    routingResult = FindRoute(new ACRoutingVertex[] { startVertex }, foundSuccessors, selectionRuleID, selectionRuleParams, maxRouteAlternatives,
+                    routingResult = FindRoute(new ACRoutingVertex[] { startVertex }, foundSuccessors, selectionRuleID, selectionRuleParams, maxRouteAlternatives, maxLoopDepth,
                                               includeReserved, includeAllocated);
                 }
             }
@@ -678,7 +680,7 @@ namespace gip.core.autocomponent
             this.PathsHeap = new PriorityQueue<ST_Node>();
             ACRoutingPath empty = new ACRoutingPath();
             this.PathsHeap.Enqueue(new ST_Node(empty));
-            AddSidetracks(empty, this.Source);
+            AddSidetracks(empty, this.Source,0);
             if (_anyLoop)
                 this.PathsHeap.Take(_MaxRouteAlternatives + 1);
         }
@@ -688,9 +690,9 @@ namespace gip.core.autocomponent
         /// <summary>Adds sidetracks recursively for specified vertex and new vertices in shortest path</summary>
         /// <param name="rp">Previous sidetrack collection</param>
         /// <param name="routingVertex"></param>
-        private void AddSidetracks(ACRoutingPath rp, ACRoutingVertex routingVertex)
+        private void AddSidetracks(ACRoutingPath rp, ACRoutingVertex routingVertex, int depth)
         {
-            if (routingVertex == null)
+            if (routingVertex == null || depth > _MaxRouteLoopDepth)
                 return;
 
             var edges = routingVertex.RelatedEdges.Where(c => c.SourceParentComponent == routingVertex.Component.ValueT).ToArray();
@@ -715,11 +717,11 @@ namespace gip.core.autocomponent
                     _AddedSidetracks++;
 
                     if (edge.Target.ParentACComponent != routingVertex.Component.ValueT)  // This avoids infinite cycling
-                        AddSidetracks(p, targetVertex);
+                        AddSidetracks(p, targetVertex, depth + 1);
                 }
             }
             if (routingVertex.Next != null && routingVertex.Distance > 0 && !(_anyLoop && _AddedSidetracks >= _MaxRouteAlternatives))
-                AddSidetracks(rp, RoutingVertexList[routingVertex.Next.ValueT]);
+                AddSidetracks(rp, RoutingVertexList[routingVertex.Next.ValueT], depth);
         }
 
         private IEnumerable<PAEdge> OrderEdges(IEnumerable<PAEdge> edges)

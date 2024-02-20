@@ -517,9 +517,18 @@ namespace gip.bso.iplus
             if (MaximumRouteAlternatives > -1 && MaximumRouteAlternatives < 11)
                 maxRouteAlt = MaximumRouteAlternatives;
 
+            ACRoutingParameters routingParameters = new ACRoutingParameters()
+            {
+                MaxRouteAlternativesInLoop = maxRouteAlt,
+                IncludeReserved = includeReserved,
+                IncludeAllocated = includeAllocated,
+                IsForEditor = isForEditor,
+                SelectionRuleID = selectionRuleID,
+                SelectionRuleParams = selectionRuleParams
+            };
+
             var buildRouteResult = ACUrlCommand(string.Format("{0}!"+nameof(ACRoutingService.BuildAvailableRoutesFromPoints), RoutingServiceACUrl.StartsWith("\\") ? RoutingServiceACUrl : "\\" + RoutingServiceACUrl),
-                                                startComponent, startPointID, endComponent, endPointID, maxRouteAlt, includeReserved, 
-                                                includeAllocated, isForEditor, selectionRuleID, selectionRuleParams) as Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>>;
+                                                startComponent, startPointID, endComponent, endPointID, routingParameters) as Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>>;
             if (buildRouteResult == null)
                 return;
 
