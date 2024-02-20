@@ -968,8 +968,14 @@ namespace gip.core.autocomponent
             {
             }
             // Lösche Balken
-            CurrentProgressInfo.Complete();
-            BackgroundWorker.ProgressInfo.Complete();
+            if(CurrentProgressInfo != null)
+            {
+                CurrentProgressInfo.Complete();
+            }
+            if(BackgroundWorker != null && BackgroundWorker.ProgressInfo != null)
+            {
+                BackgroundWorker.ProgressInfo.Complete();
+            }
             CloseTopDialog();
         }
 

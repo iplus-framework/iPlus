@@ -214,7 +214,7 @@ namespace gip.core.layoutengine
                 else
                 {
                     Binding binding = new Binding();
-                    binding.Source = BSOACComponent.ACUrlCommand(AutoStartACComponent, this.AutoStartParameter.ToValueArray());
+                    binding.Source = BSOACComponent.ACUrlCommand(AutoStartACComponent, this.AutoStartParameter);//.ToValueArray());
                     this.SetBinding(FrameworkElement.DataContextProperty, binding);
                 }
                 if (BSOACComponent.ACType.ACKind == Global.ACKinds.TACBusinessobjects)
