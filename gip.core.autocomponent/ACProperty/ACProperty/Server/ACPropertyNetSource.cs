@@ -339,7 +339,8 @@ namespace gip.core.autocomponent
                         if (!String.IsNullOrEmpty(e.StackTrace))
                             writer.Messages.LogException("\\", "ACPropertyNetSource.ChangeValueRequest(3)", e.StackTrace);
                     }
-                    throw e;
+                    return;
+                    //throw e;
                 }
             }
             else // Falls Property im Proxy-Objekt

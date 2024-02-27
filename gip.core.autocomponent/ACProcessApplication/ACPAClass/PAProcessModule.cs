@@ -330,7 +330,9 @@ namespace gip.core.autocomponent
             {
                 if (Semaphore.ConnectionListCount <= 0)
                     return null;
-                var wrapPWGroup = Semaphore.ConnectionList.First();
+                var wrapPWGroup = Semaphore.ConnectionList.FirstOrDefault();
+                if (wrapPWGroup == null)
+                    return null;
                 PWGroup pwGroup = wrapPWGroup.ValueT as PWGroup;
                 if (pwGroup != null)
                     return pwGroup.CurrentProgramLog;
