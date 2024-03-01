@@ -11,7 +11,9 @@
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBButton/Themes/ButtonStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBScrollViewer/Themes/ScrollViewerStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Themes/RibbonButtonStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Themes/RibbonButtonMobileStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Themes/RibbonBarStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Themes/RibbonBarMobileStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBRibbon/Themes/RibbonTrayStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBMenu/Themes/MenuStyleGip.xaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine;Component/Controls/VBMenuItem/Themes/MenuItemStyleGip.xaml"/>
@@ -115,7 +117,9 @@
     <Style TargetType="{x:Type local:VBScrollBar}" BasedOn="{StaticResource VBScrollBarStyleGip}" />
     <Style TargetType="{x:Type local:VBScrollViewer}" BasedOn="{StaticResource VBScrollViewerStyleGip}" />
     <Style TargetType="{x:Type local:VBRibbonButton}" BasedOn="{StaticResource RibbonButtonStyleGip}" />
+    <Style TargetType="{x:Type local:VBRibbonButtonMobile}" BasedOn="{StaticResource RibbonButtonMobileStyleGip}" />
     <Style TargetType="{x:Type local:VBRibbonBar}" BasedOn="{StaticResource RibbonBarStyleGip}" />
+    <Style TargetType="{x:Type local:VBRibbonBarMobile}" BasedOn="{StaticResource RibbonBarMobileStyleGip}" />
     <Style TargetType="{x:Type local:VBRibbonTray}" BasedOn="{StaticResource RibbonTrayStyleGip}" />
     <Style TargetType="{x:Type local:VBMenu}" BasedOn="{StaticResource MenuStyleGip}" />
     <Style TargetType="{x:Type local:VBMenuItem}" BasedOn="{StaticResource MenuItemStyleGip}" />

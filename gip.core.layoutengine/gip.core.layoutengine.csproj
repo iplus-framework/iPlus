@@ -307,6 +307,11 @@
     <Compile Include="Controls\VBProgressBar\VBOEEControl.xaml.cs">
       <DependentUpon>VBOEEControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\VBRibbon\VBRibbonBarMobile.cs" />
+    <Compile Include="Controls\VBRibbon\VBRibbonButtonMobile.cs" />
+    <Compile Include="Controls\VBRibbon\VBRibbonMobile.xaml.cs">
+      <DependentUpon>VBRibbonMobile.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\VBScriptEditor\ClassificationHighlightColorsGip.cs" />
     <Compile Include="Controls\VBScriptEditor\VBScriptEditorBraceFoldingStrategy.cs" />
     <Compile Include="Controls\VBTextEditor\AutoCompleteTypeHelper.cs" />
@@ -913,6 +918,26 @@
     <Page Include="Controls\VBRibbon\Icons\Restore.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Themes\RibbonBarMobileStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Themes\RibbonBarMobileStyleGip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VBRibbon\Themes\RibbonButtonMobileStyleGip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\Themes\RibbonButtonMobileStyleAero.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VBRibbon\VBRibbonMobile.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\VBScriptEditor\Themes\ScriptEditorStyleAero.xaml">
       <Generator>MSBuild:Compile</Generator>

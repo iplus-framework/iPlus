@@ -346,6 +346,37 @@ namespace gip.core.layoutengine
 
         #endregion
 
+        #region VBRibbon
+
+        public VBRibbonMobile vBRibbonMobile;
+
+        public void CreateVBRibbon()
+        {
+            if (this.vBRibbonMobile == null)
+                vBRibbonMobile = new VBRibbonMobile();
+        }
+
+        public void ShowVBRibbon(VBGrid grid)
+        {
+            if (vBRibbonMobile == null)
+                CreateVBRibbon();
+
+            var page = this.Content as VBPage;
+            vBRibbonMobile.DataContext = page.ContextACObject;
+            grid.BSOACComponent = this.ContextACObject as IACBSO;
+            grid.Children.Add(vBRibbonMobile);
+        }
+
+        public void RemoveVBRibbon(VBGrid grid)
+        {
+            if (vBRibbonMobile == null)
+                return;
+
+            grid.Children.Remove(vBRibbonMobile);
+        }
+
+        #endregion
+
         #region Navigation
 
         void VBFrameController_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -353,7 +384,10 @@ namespace gip.core.layoutengine
             if (e.NewValue == null && e.OldValue != null)
             {
                 IACBSO bso = e.OldValue as IACBSO;
-                //if (bso != null)
+                if (bso != null)
+                {
+
+                }
                 //DeInitVBControl(bso);
             }
         }
