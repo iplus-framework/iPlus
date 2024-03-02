@@ -165,10 +165,10 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case MN_AckStartClient:
+                case nameof(AckStartClient):
                     AckStartClient(acComponent);
                     return true;
-                case Const.IsEnabledPrefix + MN_AckStartClient:
+                case nameof(IsEnabledAckStartClient):
                     result = IsEnabledAckStartClient(acComponent);
                     return true;
             }
