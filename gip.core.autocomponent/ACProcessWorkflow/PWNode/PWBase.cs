@@ -946,6 +946,9 @@ namespace gip.core.autocomponent
         [ACMethodInfo("", "en{'Get current order informations'}de{'Informationen über aktuellen Auftrag'}", 9999)]
         public virtual PAOrderInfo GetPAOrderInfo()
         {
+            PWBase pwParent = ParentACComponent as PWBase;
+            if (pwParent != null)
+                return pwParent.GetPAOrderInfo();
             return null;
         }
 

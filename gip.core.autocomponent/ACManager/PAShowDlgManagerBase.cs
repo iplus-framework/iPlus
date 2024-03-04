@@ -43,34 +43,6 @@ namespace gip.core.autocomponent
                 return new ACRef<PAShowDlgManagerBase>(serviceInstance, requester);
             return null;
         }
-
-        public static PAOrderInfo QueryOrderInfo(IACComponent caller)
-        {
-            if (caller == null)
-                return null;
-            PAOrderInfo orderInfo = null;
-            string[] accessedFromVBGroupACUrl = caller.ACUrlCommand("!SemaphoreAccessedFrom") as string[];
-            if (accessedFromVBGroupACUrl != null && accessedFromVBGroupACUrl.Any())
-            {
-                string firstModule = accessedFromVBGroupACUrl[0];
-                if (!String.IsNullOrEmpty(firstModule))
-                    orderInfo = caller.ACUrlCommand(accessedFromVBGroupACUrl[0] + "!GetPAOrderInfo") as PAOrderInfo;
-            }
-            return orderInfo;
-        }
-
-        public static bool HasOrderInfo(IACComponent caller, out IACContainerTNet<String> orderInfoProp)
-        {
-            orderInfoProp = null;
-            if (caller == null)
-                return false;
-            orderInfoProp = caller.GetProperty("OrderInfo") as IACContainerTNet<String>;
-            if (orderInfoProp == null)
-                return false;
-            if (String.IsNullOrEmpty(orderInfoProp.ValueT))
-                return false;
-            return true;
-        }
         #endregion
 
         #region Configuration
