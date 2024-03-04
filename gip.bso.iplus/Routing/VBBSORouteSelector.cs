@@ -389,7 +389,8 @@ namespace gip.bso.iplus
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
-        public void ShowAvailableRoutes(IEnumerable<ACClass> startComponents, IEnumerable<ACClass> endComponents, string selectionRuleID = null, object[] selectionRuleParams = null, bool allowProcessModuleInRoute = true)
+        public void ShowAvailableRoutes(IEnumerable<ACClass> startComponents, IEnumerable<ACClass> endComponents, string selectionRuleID = null, object[] selectionRuleParams = null, 
+                                        bool allowProcessModuleInRoute = true, ACClass preselectedStart = null)
         {
             _RouteResult = null;
             List<ACClassInfoWithItems> start = new List<ACClassInfoWithItems>();
@@ -421,7 +422,11 @@ namespace gip.bso.iplus
                 SelectionRuleParams = null;
             }
 
-            SelectedStartComponent = StartComponents.FirstOrDefault();
+            if (preselectedStart != null)
+                SelectedStartComponent = StartComponents.FirstOrDefault(c => c.ValueT == preselectedStart);
+            
+            if(SelectedStartComponent == null)
+                SelectedStartComponent = StartComponents.FirstOrDefault();
             SelectedEndComponent = EndComponents.FirstOrDefault();
 
             ShowDialog(this, "Mainlayout");
