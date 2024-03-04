@@ -97,6 +97,27 @@ namespace gip.core.autocomponent
             set;
         }
 
+        [IgnoreDataMember]
+        private List<Tuple<IACObject, RouteItemModeEnum>> _RouteItemsMode;
+        [IgnoreDataMember]
+        public List<Tuple<IACObject, RouteItemModeEnum>> RouteItemsMode
+        {
+            get
+            {
+                if (_RouteItemsMode == null)
+                    _RouteItemsMode = new List<Tuple<IACObject, RouteItemModeEnum>>();
+                return _RouteItemsMode;
+            }
+                
+        }
+
+        [IgnoreDataMember]
+        public int RoutingPathNo
+        {
+            get;
+            set;
+        }
+
         #endregion
     }
 

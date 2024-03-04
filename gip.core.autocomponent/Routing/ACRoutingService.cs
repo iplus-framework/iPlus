@@ -4,9 +4,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Objects;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using static gip.core.autocomponent.PARole;
 
 namespace gip.core.autocomponent
@@ -23,9 +27,20 @@ namespace gip.core.autocomponent
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
+            _RouteItemModes = new ACPropertyConfigValue<string>(this, nameof(RouteItemModes), "");
+
             RestoreLastManipulationTime();
             InitRouteUsage();
+
+            _ = RouteItemModes;
+
             return base.ACInit(startChildMode);
+        }
+
+        public override bool ACPostInit()
+        {
+            LoadRouteItemModes();
+            return base.ACPostInit();
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
@@ -111,6 +126,8 @@ namespace gip.core.autocomponent
 
         private ConcurrentDictionary<Guid, SafeList<RouteHashItem>> _UsedRoutesCache = new ConcurrentDictionary<Guid, SafeList<RouteHashItem>>();
 
+        private ConcurrentDictionary<Guid, RouteItemModeEnum> _RouteItemsModeCache = new ConcurrentDictionary<Guid, RouteItemModeEnum>();
+
         #endregion
 
         #region Precompiled Queries
@@ -193,6 +210,18 @@ namespace gip.core.autocomponent
         {
             get;
             set;
+        }
+
+        private ACPropertyConfigValue<string> _RouteItemModes;
+        [ACPropertyConfig("en{'Route item mode config'}de{'Route item mode config'}")]
+        public string RouteItemModes
+        {
+            get => _RouteItemModes.ValueT;
+            set
+            {
+                _RouteItemModes.ValueT = value;
+                OnPropertyChanged();
+            }
         }
 
         #endregion
@@ -1487,6 +1516,14 @@ namespace gip.core.autocomponent
 
             return route;
         }
+
+        internal Dictionary<Guid,RouteItemModeEnum> GetRouteItemsMode()
+        {
+            using (ACMonitor.Lock(LockMemberList_20020))
+            {
+                return _RouteItemsModeCache.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            }
+        }
         
         public static void ReserveRoute(Route route, bool reserv = true)
         {
@@ -1795,6 +1832,40 @@ namespace gip.core.autocomponent
                     Messages.LogException(this.GetACUrl(), nameof(InitRouteUsage), e);
                 }
             }
+        }
+
+        private void LoadRouteItemModes()
+        {
+            string xml = RouteItemModes;
+
+            if (string.IsNullOrEmpty(xml))
+                return;
+
+            List<Tuple<Guid, short>> tempList;
+
+            using (StringReader ms = new StringReader(xml))
+            using (XmlTextReader xmlReader = new XmlTextReader(ms))
+            {
+                DataContractSerializer serializer = new DataContractSerializer(typeof(List<Tuple<Guid, short>>));
+                var modeList = serializer.ReadObject(xmlReader);
+
+                tempList = modeList as List<Tuple<Guid, short>>;
+            }
+
+            using (ACMonitor.Lock(LockMemberList_20020))
+            {
+                _RouteItemsModeCache = new ConcurrentDictionary<Guid, RouteItemModeEnum>(tempList.Select(c => new KeyValuePair<Guid, RouteItemModeEnum>(c.Item1, (RouteItemModeEnum)c.Item2)));
+            }
+        }
+
+        [ACMethodInfo("","",9999)]
+        public void SaveRouteItemModes(string xml)
+        {
+            ApplicationManager.ApplicationQueue.Add(() =>
+            {
+                RouteItemModes = xml;
+                LoadRouteItemModes();
+            });
         }
 
         #endregion
