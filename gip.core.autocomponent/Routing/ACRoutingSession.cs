@@ -5,7 +5,10 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Markup.Localizer;
+using System.Windows.Media;
 using gip.core.datamodel;
+using Microsoft.Isam.Esent.Interop;
 
 namespace gip.core.autocomponent
 {
@@ -341,6 +344,7 @@ namespace gip.core.autocomponent
             List<ACRoutingPath> paths = new List<ACRoutingPath>();
             List<RouteHashItem> routeHashItems = null;
 
+            //PREVIOUS ROUTE
             if (_PreviousRoute != null)
             {
                 List<Tuple<ACRoutingPath, int>> diffList = new List<Tuple<ACRoutingPath, int>>();
@@ -371,7 +375,78 @@ namespace gip.core.autocomponent
                 }
             }
 
+            //RULES (Parallel / NonParallel)
+            if (!paths.Any() && routingPaths.Any(c => c.RouteItemsMode.Any()))
+            {
+                try
+                {
+                    List<ACRoutingPath> tempPaths = new List<ACRoutingPath>();
+                    List<Tuple<IACObject, RouteItemModeEnum>> routeItemsMode = routingPaths.SelectMany(c => c.RouteItemsMode).Distinct().ToList();
 
+                    int routingPathNo = 1;
+
+                    foreach (ACRoutingPath path in routingPaths.OrderBy(x => x.DeltaWeight).Where(c => c.Any(x => routeItemsMode.Any(k => k.Item1 == x.SourceParent))))
+                    {
+                        ACRoutingPath newPath = new ACRoutingPath();
+                        path.RoutingPathNo = routingPathNo;
+                        newPath.RoutingPathNo = routingPathNo;
+
+                        foreach (PAEdge edge in path)
+                        {
+                            if (!tempPaths.Any(x => x.Any(c => edge == c)))
+                                newPath.Add(edge);
+                        }
+
+                        if (newPath.Any())
+                        {
+                            tempPaths.Add(newPath);
+                            routingPathNo++;
+                        }
+                    }
+
+                    ACRoutingPath workingPath = tempPaths.FirstOrDefault();
+                    paths.Add(workingPath);
+
+                    foreach (ACRoutingPath path in tempPaths)
+                    {
+                        if (path == workingPath)
+                            continue;
+
+                        ACRoutingPath mainPath = path;
+
+                        while (true)
+                        {
+                            mainPath = tempPaths.FirstOrDefault(c => c != path && c.Any(k => k.SourceParent == mainPath.FirstOrDefault().SourceParent));
+
+                            if (mainPath == null)
+                                break;
+
+                            int index = mainPath.IndexWhere(c => c.SourceParent == path.Start.ParentACObject);
+                            if (index < 0 || index + 1 > mainPath.Count)
+                                continue;
+
+                            var mode = routeItemsMode.Where(c => mainPath.Take(index + 1).Any(x => x.SourceParent == c.Item1)).LastOrDefault();
+                            if (mode != null)
+                            {
+                                if (mode.Item2 == RouteItemModeEnum.RouteItemsNextParallel)
+                                {
+                                    ACRoutingPath pathToAdd = routingPaths.FirstOrDefault(c => c.RoutingPathNo == path.RoutingPathNo);
+                                    paths.Add(pathToAdd);
+                                }
+                            }
+
+                            if (mainPath == workingPath)
+                                break;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    _ACRoutingService.Messages.LogException(_ACRoutingService.GetACUrl(), nameof(ACRoutingSession) + "." + nameof(ACRoutingSession.CreateRoute), e);
+                }
+            }
+
+            //ROUTE USAGE 
             if (!paths.Any())
             {
                 if (_ACRoutingService.SelectRouteDependUsage)
@@ -523,7 +598,7 @@ namespace gip.core.autocomponent
                 return new ACRoutingPath(); // Invalid path
 
             // Returns path reconstructed from sidetracks
-            return RebuildPath(node.Sidetracks, this.Source.Component.ValueT, RoutingVertexList.Values.ToList());
+            return RebuildPath(node.Sidetracks, this.Source.Component.ValueT, RoutingVertexList.Values.ToList(), _ACRoutingService.GetRouteItemsMode());
         }
 
         /// <summary>
@@ -766,7 +841,7 @@ namespace gip.core.autocomponent
         /// <param name="sourceComponent"></param>
         /// <param name="vertexList"></param>
         /// <returns>Full path reconstructed from s to t, crossing sidetracks</returns>
-        public static ACRoutingPath RebuildPath(ACRoutingPath _sidetracks, IACComponent sourceComponent, List<ACRoutingVertex> vertexList)
+        public static ACRoutingPath RebuildPath(ACRoutingPath _sidetracks, IACComponent sourceComponent, List<ACRoutingVertex> vertexList, Dictionary<Guid,RouteItemModeEnum> routeModeItems)
         {
             ACRoutingPath path = new ACRoutingPath();
             IACComponent v = sourceComponent;
@@ -798,10 +873,21 @@ namespace gip.core.autocomponent
                         break;
                     path.Add(tempVertex.EdgeToPath);
                     v = tempVertex.Next.ValueT;
-                    //if (tempVertex.DistanceInLoop > 0)
-                    //{
-                    //    tempVertex.EdgeToPath = null;
-                    //}
+
+                    if (routeModeItems != null && routeModeItems.Any())
+                    {
+                        Guid tempVertexID = tempVertex.Component.ValueT.ComponentClass.ACClassID;
+
+                        RouteItemModeEnum mode = RouteItemModeEnum.None;
+
+                        if (routeModeItems.TryGetValue(tempVertexID, out mode))
+                        {
+                            if (mode != RouteItemModeEnum.None)
+                            {
+                                path.RouteItemsMode.Add(new Tuple<IACObject, RouteItemModeEnum>(tempVertex.EdgeToPath.SourceParent, mode));
+                            }
+                        }
+                    }
                 }
             }
             return path;
