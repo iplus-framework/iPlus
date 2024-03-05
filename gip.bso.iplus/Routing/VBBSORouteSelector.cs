@@ -423,7 +423,7 @@ namespace gip.bso.iplus
             }
 
             if (preselectedStart != null)
-                SelectedStartComponent = StartComponents.FirstOrDefault(c => c.ValueT == preselectedStart);
+                SelectedStartComponent = StartComponents.FirstOrDefault(c => c.ValueT.ACClassID == preselectedStart.ACClassID);
             
             if(SelectedStartComponent == null)
                 SelectedStartComponent = StartComponents.FirstOrDefault();
