@@ -2331,7 +2331,7 @@ namespace gip.bso.iplus
             }
             else
             {
-                if (currentInstance.InitState == ACInitState.Initialized)
+                if (currentInstance.InitState == ACInitState.Initialized || currentInstance.InitState == ACInitState.RecycledFromPool)
                     currentInstance.Stop();
             }
         }
