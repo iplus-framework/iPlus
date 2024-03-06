@@ -190,6 +190,26 @@ namespace gip.core.communication
             }
         }
 
+        public virtual void SerializeToXMLEncoded<T>(T rootNode, string fileName) where T : class
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(T));
+            Encoding encoding = Encoding.UTF8;
+            if (!string.IsNullOrEmpty(EncodingName))
+            {
+                encoding = Encoding.GetEncoding(EncodingName);
+            }
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.OmitXmlDeclaration = false;
+            settings.Encoding = encoding;
+            settings.Indent = true;
+            StreamWriter sw = new StreamWriter(fileName, false, encoding);
+            XmlWriter writer = XmlWriter.Create(sw, settings);
+            XmlSerializerNamespaces xmlns = new XmlSerializerNamespaces();
+            xmlns.Add(string.Empty, string.Empty);
+            serializer.Serialize(writer, rootNode, xmlns);
+            writer.Close();
+        }
+
         public virtual bool CheckPath(string className, out string xmlFileName, out string archivFileName, out string exportFileName)
         {
             xmlFileName = XMLFileName;
