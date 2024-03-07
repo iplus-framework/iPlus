@@ -61,7 +61,7 @@ namespace gip.core.autocomponent
 
 
         #region Properties
-        protected virtual string CMessageText
+        public virtual string CMessageText
         {
             get
             {
@@ -78,7 +78,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        protected bool CPasswordDlg
+        public bool CPasswordDlg
         {
             get
             {
@@ -95,7 +95,14 @@ namespace gip.core.autocomponent
             }
         }
 
-        protected ushort SkipMode
+        public enum SkipModeEnum : ushort
+        {
+            Never = 0,
+            Always = 1,
+            FromSecondRun = 2 
+        }
+
+        public ushort SkipMode
         {
             get
             {
@@ -112,7 +119,16 @@ namespace gip.core.autocomponent
             }
         }
 
-        protected string ACUrlCmd
+        public bool IsSkippingNeeded
+        {
+            get
+            {
+                return SkipMode == (ushort)SkipModeEnum.Always
+                || (SkipMode == (ushort)SkipModeEnum.FromSecondRun && RootPW != null && RootPW.InvocationCounter.HasValue && RootPW.InvocationCounter.Value > 1);
+            }
+        }
+
+        public string ACUrlCmd
         {
             get
             {
@@ -194,8 +210,7 @@ namespace gip.core.autocomponent
             if (CreateNewProgramLog(NewACMethodWithConfiguration()) <= CreateNewProgramLogResult.ErrorNoProgramFound)
                 return;
 
-            if (   SkipMode == 1
-                || (SkipMode == 2 && RootPW != null && RootPW.InvocationCounter.HasValue && RootPW.InvocationCounter.Value > 1))
+            if (IsSkippingNeeded)
             {
                 OnAckStart(true);
                 return;
