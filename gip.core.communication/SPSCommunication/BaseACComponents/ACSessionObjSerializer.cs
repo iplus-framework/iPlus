@@ -42,7 +42,7 @@ namespace gip.core.communication
         /// <param name="offset">Offset in Datablock</param>
         /// <param name="miscParams"></param>
         /// <returns>The passed complexObj with filled out properties. If read error the result is null.</returns>
-        public abstract object ReadObject(object complexObj, int dbNo, int offset, object miscParams);
+        public abstract object ReadObject(object complexObj, int dbNo, int offset, int?routeOffset, object miscParams);
 
         public virtual void OnObjectRead(byte[] result)
         {

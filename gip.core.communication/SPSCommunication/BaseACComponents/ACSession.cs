@@ -198,7 +198,7 @@ namespace gip.core.communication
                     result = SendObject(acParameter[0], acParameter[1], Convert.ToInt32(acParameter[2]), Convert.ToInt32(acParameter[3]), acParameter[4] != null ? Convert.ToInt32(acParameter[4]) : default(Int32?), acParameter.Count() > 5 ? acParameter[5] : null);
                     return true;
                 case nameof(ReadObject):
-                    result = ReadObject(acParameter[0], Convert.ToInt32(acParameter[1]), Convert.ToInt32(acParameter[2]), acParameter.Count() > 3 ? acParameter[3] : null);
+                    result = ReadObject(acParameter[0], Convert.ToInt32(acParameter[1]), Convert.ToInt32(acParameter[2]), acParameter[3] != null ? Convert.ToInt32(acParameter[3]) : default(Int32?), acParameter.Count() > 4 ? acParameter[4] : null);
                     return true;
                 case nameof(EventCallback):
                     EventCallback((gip.core.datamodel.IACPointNetBase)acParameter[0], (gip.core.datamodel.ACEventArgs)acParameter[1], (gip.core.datamodel.IACObject)acParameter[2]);
@@ -302,7 +302,7 @@ namespace gip.core.communication
 
             if (succ && WithVerification)
             {
-                complexObj = ReadObject(complexObj, dbNo, offset, miscParams);
+                complexObj = ReadObject(complexObj, dbNo, offset, routeOffset, miscParams);
                 if (complexObj == null)
                     succ = false;
             }
@@ -324,7 +324,7 @@ namespace gip.core.communication
         /// <param name="miscParams"></param>
         /// <returns>The passed complexObj with filled out properties. If read error the result is null.</returns>
         [ACMethodInfo("Exchange", "en{'Read complex object'}de{'Lese komplexes objekt'}", 203)]
-        public virtual object ReadObject(object complexObj, int dbNo, int offset, object miscParams)
+        public virtual object ReadObject(object complexObj, int dbNo, int offset, int? routeOffset, object miscParams)
         {
             if (complexObj == null)
                 return false;
@@ -337,7 +337,7 @@ namespace gip.core.communication
                                                                                             .FirstOrDefault();
             if (converter != null)
             {
-                return converter.ReadObject(complexObj, dbNo, offset, miscParams);
+                return converter.ReadObject(complexObj, dbNo, offset, routeOffset, miscParams);
             }
             else
             {
