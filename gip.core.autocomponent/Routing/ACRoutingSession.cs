@@ -164,7 +164,7 @@ namespace gip.core.autocomponent
                     while (tempPath.IsValid)
                     {
                         tempPath = FindNextShortestPath();
-                        if (tempPath.Any())
+                        if (tempPath.Any() && tempPath.End.ParentACComponent == Target.Component.ValueT)
                             RoutingPaths.Add(tempPath);
                     }
                 }
