@@ -241,7 +241,7 @@ namespace gip.core.autocomponent
                         Direction = RouteDirections.Forwards,
                         DBSelector = (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
                         DBDeSelector = (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
-                        MaxRouteAlternativesInLoop = 0,
+                        MaxRouteAlternativesInLoop = 1,
                         IncludeReserved = true,
                         IncludeAllocated = true,
                     };

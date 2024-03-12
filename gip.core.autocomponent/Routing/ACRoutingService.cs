@@ -169,6 +169,19 @@ namespace gip.core.autocomponent
 
         #region Properties
 
+        private static int _DefaultAlternatives = 3;
+        public static int DefaultAlternatives
+        {
+            get
+            {
+                return _DefaultAlternatives;
+            }
+            set
+            {
+                _DefaultAlternatives = value;
+            }
+        }
+
         private int _RecalcEdgeWeightAfterDays = 15;
         [ACPropertyInfo(300, "", "en{'Recalculate edges weight after -X- days'}de{'Kantengewicht nach -X- Tagen neu berechnen'}", IsPersistable = true)]
         public int RecalcEdgeWeightAfterDays
