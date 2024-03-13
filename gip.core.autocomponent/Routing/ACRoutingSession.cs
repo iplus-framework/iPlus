@@ -413,9 +413,15 @@ namespace gip.core.autocomponent
                             continue;
 
                         ACRoutingPath mainPath = path;
+                        int loopCounter = 0;
 
                         while (true)
                         {
+                            if (loopCounter > 500)
+                                break;
+
+                            loopCounter++;
+
                             mainPath = tempPaths.FirstOrDefault(c => c != path && c.Any(k => k.SourceParent == mainPath.FirstOrDefault().SourceParent));
 
                             if (mainPath == null)
