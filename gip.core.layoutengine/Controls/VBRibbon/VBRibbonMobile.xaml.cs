@@ -254,6 +254,9 @@ namespace gip.core.layoutengine
         }
         #endregion
 
+        public VBButton ButtonToggleRibbonBar;
+        public VBGrid GridContainer;
+
         VBRibbonButtonMobile _ButtonSearchMobile;
         List<CommandBinding> _BindingsInRoot = new List<CommandBinding>();
         List<VBRibbonButtonMobile> _ButtonListMobile = new List<VBRibbonButtonMobile>();
@@ -530,22 +533,6 @@ namespace gip.core.layoutengine
                         button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "Search <Ctrl>-F");
                         acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "Search");
                         break;
-                    case Const.CmdNavigateFirstPrimary:
-                        button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "First record <Ctrl>-Pos1");
-                        acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "First record");
-                        break;
-                    case Const.CmdNavigatePrevPrimary:
-                        button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "Previous record <Ctrl>-Up");
-                        acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "Previous record");
-                        break;
-                    case Const.CmdNavigateNextPrimary:
-                        button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "Next record <Ctrl>-Dn");
-                        acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "Next record");
-                        break;
-                    case Const.CmdNavigateLastPrimary:
-                        button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "Last record <Ctrl>-End");
-                        acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "Last record");
-                        break;
                     case Const.CmdQueryPrintDlg:
                         button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "Print <Ctrl>-P");
                         acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "Print");
@@ -553,26 +540,6 @@ namespace gip.core.layoutengine
                     case Const.CmdQueryPreviewDlg:
                         button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "Preview");
                         acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "Preview");
-                        break;
-                    case Const.CmdQueryDesignDlg:
-                        button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "Design");
-                        acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "Design");
-                        break;
-                    case Const.CmdCut:
-                        button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, Const.CmdNameCut);
-                        acCaption = Database.Root.Environment.TranslateText(BSOACComponent, Const.CmdNameCut);
-                        break;
-                    case Const.CmdCopy:
-                        button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, Const.CmdNameCopy);
-                        acCaption = Database.Root.Environment.TranslateText(BSOACComponent, Const.CmdNameCopy);
-                        break;
-                    case Const.CmdPaste:
-                        button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, Const.CmdNamePaste);
-                        acCaption = Database.Root.Environment.TranslateText(BSOACComponent, Const.CmdNamePaste);
-                        break;
-                    case Const.CmdUndo:
-                        button.ToolTip = (Const.CmdNameUndo);
-                        acCaption = Database.Root.Environment.TranslateText(BSOACComponent, Const.CmdNameUndo);
                         break;
                     case Const.CmdRedo:
                         button.ToolTip = ("Retry");

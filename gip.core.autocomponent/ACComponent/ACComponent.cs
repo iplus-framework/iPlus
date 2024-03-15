@@ -3821,6 +3821,9 @@ namespace gip.core.autocomponent
 
             if (GetGUI() != null)
                 GetGUI().ShowDialog(forObject == null ? this : forObject, acClassDesignName, acCaption, isClosableBSORoot, ribbonVisibility, closeButtonVisibility);
+
+            else if (GetGUIMobile() != null)
+                GetGUIMobile().ShowDialog(forObject == null ? this : forObject, acClassDesignName, acCaption, isClosableBSORoot, ribbonVisibility, closeButtonVisibility);
         }
 
 
@@ -3875,6 +3878,16 @@ namespace gip.core.autocomponent
         public IVBGui GetGUI()
         {
             return FindGui("VBDockingManager") as IVBGui;
+        }
+
+        /// <summary>
+        /// Gets a reference to the VBFrameController which has this instance bound to its DataContext.
+        /// </summary>
+        /// <returns></returns>
+        [ACMethodInfo("", "en{'MobileGUI'}de{'MobileGUI'}", 9999)]
+        public IVBGui GetGUIMobile()
+        {
+            return FindGui("VBFrameController") as IVBGui;
         }
 
         private IACObject _FindGuiResult = null;

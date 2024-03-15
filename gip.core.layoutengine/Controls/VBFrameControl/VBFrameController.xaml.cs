@@ -1,21 +1,31 @@
-﻿using gip.core.datamodel;
+﻿using DocumentFormat.OpenXml.Vml.Office;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Navigation;
+using System.Xml.Linq;
 
 namespace gip.core.layoutengine
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBFrameController'}de{'VBFrameController'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.NotStorable, true, false)]
-    public partial class VBFrameController : Frame, IACInteractiveObject, IACObject
+    public partial class VBFrameController : Frame, IACInteractiveObject, IACObject, IVBGui
     {
         public VBFrameController()
         {
             InitializeComponent();
         }
+
+        public static readonly DependencyProperty RibbonBarVisibilityProperty =
+                       DependencyProperty.RegisterAttached("RibbonBarVisibility",
+                                                            typeof(Global.ControlModes),
+                                                            typeof(VBFrameController),
+                                                            new FrameworkPropertyMetadata(Global.ControlModes.Hidden,
+                                                                                          FrameworkPropertyMetadataOptions.None));
 
         public IACObject ContextACObject
         {
@@ -29,10 +39,16 @@ namespace gip.core.layoutengine
         {
             base.OnInitialized(e);
             this.LoadCompleted += VBFrameController_LoadCompleted;
+            this.Navigating += VBFrameController_Navigating;
             this.Navigated += VBFrameController_Navigated;
             this.DataContextChanged += VBFrameController_DataContextChanged;
             this.NavigationUIVisibility = NavigationUIVisibility.Hidden;
             this.JournalOwnership = System.Windows.Navigation.JournalOwnership.OwnsJournal;
+        }
+
+        private void VBFrameController_Navigating(object sender, NavigatingCancelEventArgs e)
+        {
+
         }
 
         private void VBFrameController_Navigated(object sender, NavigationEventArgs e)
@@ -41,10 +57,17 @@ namespace gip.core.layoutengine
             {
                 this.CloseAndRemoveVBDesign(this.Content as VBPage);
             }
+            //ClearDialogs();
         }
 
         private void VBFrameController_LoadCompleted(object sender, NavigationEventArgs e)
         {
+            //var page = this.Content as VBPage;
+            //var ribbonBarVis = VBFrameController.GetRibbonBarVisibility(page.VBDesignContent);
+            //if (ribbonBarVis == Global.ControlModes.Collapsed || ribbonBarVis == Global.ControlModes.Hidden)
+            //{
+            //    ShowVBRibbon(_VBRibbonMobile.Parent as VBGrid, _VBRibbonMobile.ButtonToggleRibbonBar);
+            //}
         }
 
         private void VBFrameController_ContentRendered(object sender, EventArgs e)
@@ -58,11 +81,29 @@ namespace gip.core.layoutengine
             {
                 this.ClearEmptyBackEntry();
             }
+
+            var page = this.Content as VBPage;
+
+            if (page != null)
+            {
+                var ribbonBarVis = VBFrameController.GetRibbonBarVisibility(page.VBDesignContent);
+                if (ribbonBarVis == Global.ControlModes.Enabled && _VBRibbonMobile != null 
+                    && page.VBDesignContent is VBDesign vBDesign && !(vBDesign.ACCompInitState == ACInitState.Constructing)) 
+                {
+                    ShowVBRibbon(_VBRibbonMobile.Parent as VBGrid, _VBRibbonMobile.ButtonToggleRibbonBar);
+                }
+                if (ribbonBarVis == Global.ControlModes.Hidden || ribbonBarVis == Global.ControlModes.Collapsed
+                    && _VBRibbonMobile != null)
+                {
+                    CloseVBRibbon(_VBRibbonMobile.GridContainer);
+                }
+            }
         }
 
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
+            InitVBControl();
         }
 
 
@@ -81,16 +122,118 @@ namespace gip.core.layoutengine
 
         private bool clearNavigationOnLoad = false;
 
+        #region Init And Release
+
+        bool _Loaded = false;
+        /// <summary>
+        /// Initializes the VB control.
+        /// </summary>
+        protected virtual void InitVBControl()
+        {
+            if (_Loaded)
+                return;
+            _Loaded = true;
+
+            AddToComponentReference();
+
+            if (VBDesignList != null)
+            {
+                int count = 0;
+                VBPropertyGridView gridView = null;
+                VBDesignEditor designEditor = null;
+                VBDesignItemTreeView logicalTreeView = null;
+                foreach (UIElement uiElement in VBDesignList)
+                {
+                    count++;
+                    ShowVBDesign(uiElement);
+                    //ShowWindow(ContextACObject as IACComponent, "FavBar", true, Global.VBDesignContainer.DockableWindow, Global.VBDesignDockState.AutoHideButton, Global.VBDesignDockPosition.Right, Global.ControlModes.Hidden);
+                    if (uiElement is VBPropertyGridView)
+                        gridView = (uiElement as VBPropertyGridView);
+                    else if (uiElement is VBDesignEditor)
+                        designEditor = (uiElement as VBDesignEditor);
+                    else if (uiElement is VBDesignItemTreeView)
+                        logicalTreeView = (uiElement as VBDesignItemTreeView);
+                }
+
+                if ((designEditor != null) && (gridView != null))
+                    designEditor.PropertyGridView = gridView;
+                if ((designEditor != null) && (logicalTreeView != null))
+                    designEditor.DesignItemTreeView = logicalTreeView;
+            }
+
+            //AddSelectionChangedHandler();
+            //if (OnInitVBControlFinished != null)
+            //{
+            //    OnInitVBControlFinished(this, new EventArgs());
+            //}
+        }
+
+        protected virtual void DeInitVBControl(IACComponent bso = null)
+        {
+            if (VBDesignList != null)
+            {
+                VBDesignList.Clear();
+                //foreach (UIElement uiElement in VBDesignList)
+                //{
+                //}
+            }
+
+            this.DataContextChanged -= VBFrameController_DataContextChanged;
+        }
+
+        protected void AddToComponentReference()
+        {
+            if (ContextACObject is IACComponent)
+            {
+                Binding binding = new Binding();
+                binding.Source = ContextACObject;
+                binding.Path = new PropertyPath(Const.ACUrlCmdMessage);
+                binding.Mode = BindingMode.OneWay;
+                SetBinding(VBFrameController.ACUrlCmdMessageProperty, binding);
+
+                binding = new Binding();
+                binding.Source = ContextACObject;
+                binding.Path = new PropertyPath(Const.InitState);
+                binding.Mode = BindingMode.OneWay;
+                SetBinding(VBFrameController.ACCompInitStateProperty, binding);
+            }
+        }
+
+        protected void RemoveFromComponentReference()
+        {
+            BindingOperations.ClearBinding(this, VBFrameController.ACUrlCmdMessageProperty);
+            BindingOperations.ClearBinding(this, VBFrameController.ACCompInitStateProperty);
+        }
+
+        #endregion
+
+        #region AccessMethods Attached Properties
+
+        [AttachedPropertyBrowsableForChildren]
+        public static void SetRibbonBarVisibility(UIElement element, Global.ControlModes value)
+        {
+            if (element == null)
+                throw new ArgumentNullException("element");
+            element.SetValue(VBFrameController.RibbonBarVisibilityProperty, value);
+        }
+
+        [AttachedPropertyBrowsableForChildren]
+        public static Global.ControlModes GetRibbonBarVisibility(UIElement element)
+        {
+            if (element == null)
+                throw new ArgumentNullException("element");
+            return (Global.ControlModes)element.GetValue(VBFrameController.RibbonBarVisibilityProperty);
+        }
+
+        #endregion
+
         #region IACUrl Member
 
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
-        public string ACIdentifier
+        public virtual string ACIdentifier
         {
-            get
-            {
-                return this.Name;
-            }
+            get { return ACUrlHelper.BuildACNameForGUI(this, Name); }
         }
 
         /// <summary>
@@ -151,8 +294,8 @@ namespace gip.core.layoutengine
         {
             if (acUrl == Const.EventDeInit)
             {
-                //RemoveFromComponentReference();
-                //DeInitVBControl();
+                RemoveFromComponentReference();
+                DeInitVBControl();
             }
             return this.ReflectACUrlCommand(acUrl, acParameter);
         }
@@ -237,22 +380,25 @@ namespace gip.core.layoutengine
         #region Design
 
         [ACMethodInfo("", "en{'Show Dialog'}de{'Dialog'}", 9999)]
-        public void ShowDialog(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false)
+        public void ShowDialog(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
+            Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
         {
             VBDesign vbDesign = new VBDesign();
             vbDesign.DataContext = forObject;
             vbDesign.VBContent = "*" + acClassDesignName;
             VBDesignList.Add(vbDesign);
+            VBFrameController.SetRibbonBarVisibility(vbDesign, ribbonVisibility);
             ShowVBDesign(vbDesign, acCaption, false);
         }
 
         [ACMethodInfo("", "en{'Show Window'}de{'Window'}", 9999)]
-        public void ShowWindow(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot)
+        public void ShowWindow(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState,
+            Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
         {
             VBDesign vbDesign = new VBDesign();
             vbDesign.DataContext = forObject;
             vbDesign.VBContent = "*" + acClassDesignName;
-
+            VBFrameController.SetRibbonBarVisibility(vbDesign, ribbonVisibility);
             VBDesignList.Add(vbDesign);
             ShowVBDesign(vbDesign);
         }
@@ -302,6 +448,11 @@ namespace gip.core.layoutengine
                 vbDesign.AutoStartACComponent = acUrl;
                 vbDesign.AutoStartParameter = parameterList;
 
+                if (ribbonVisibilityOff)
+                    VBFrameController.SetRibbonBarVisibility(vbDesign, Global.ControlModes.Collapsed);
+                else
+                    VBFrameController.SetRibbonBarVisibility(vbDesign, Global.ControlModes.Enabled);
+
                 VBDesignList.Add(vbDesign);
                 ShowVBDesign(vbDesign, title, true);
             }
@@ -342,37 +493,72 @@ namespace gip.core.layoutengine
             }
 
             this.Navigate(new VBPage(this, uiElement, isBusinessObject, acCaption));
+
+            if (VBFrameController.GetRibbonBarVisibility(uiElement) == Global.ControlModes.Collapsed
+                || VBFrameController.GetRibbonBarVisibility(uiElement) == Global.ControlModes.Hidden)
+                CloseVBRibbon();
         }
 
         #endregion
 
         #region VBRibbon
 
-        public VBRibbonMobile vBRibbonMobile;
+        public VBRibbonMobile _VBRibbonMobile;
 
-        public void CreateVBRibbon()
+        public void CreateVBRibbon(VBGrid grid, VBButton ribbonToggleButton)
         {
-            if (this.vBRibbonMobile == null)
-                vBRibbonMobile = new VBRibbonMobile();
+            if (_VBRibbonMobile == null)
+            {
+                _VBRibbonMobile = new VBRibbonMobile();
+                _VBRibbonMobile.ButtonToggleRibbonBar = ribbonToggleButton;
+                _VBRibbonMobile.GridContainer = grid;
+            }
         }
 
-        public void ShowVBRibbon(VBGrid grid)
+        public void ShowVBRibbon(VBGrid grid, VBButton ribbonToggleButton)
         {
-            if (vBRibbonMobile == null)
-                CreateVBRibbon();
+            if (_VBRibbonMobile == null)
+                CreateVBRibbon(grid, ribbonToggleButton);
+
+            if (grid == null)
+                grid = _VBRibbonMobile.GridContainer;
+
+            if (ribbonToggleButton.Visibility == Visibility.Hidden)
+                ribbonToggleButton.Visibility = Visibility.Visible;
 
             var page = this.Content as VBPage;
-            vBRibbonMobile.DataContext = page.ContextACObject;
+            _VBRibbonMobile.DataContext = page.ContextACObject;
             grid.BSOACComponent = this.ContextACObject as IACBSO;
-            grid.Children.Add(vBRibbonMobile);
+            grid.Children.Add(_VBRibbonMobile);
+            grid.Visibility = Visibility.Visible;
+            VBFrameController.SetRibbonBarVisibility(this, Global.ControlModes.Enabled);
         }
 
-        public void RemoveVBRibbon(VBGrid grid)
+        public void CloseVBRibbon(VBGrid grid = null)
         {
-            if (vBRibbonMobile == null)
+            if (_VBRibbonMobile == null)
                 return;
 
-            grid.Children.Remove(vBRibbonMobile);
+            if (grid == null || _VBRibbonMobile.GridContainer == null)
+                grid = _VBRibbonMobile.Parent as VBGrid;
+
+            grid.Children.Remove(_VBRibbonMobile);
+            grid.Visibility = Visibility.Collapsed;
+            _VBRibbonMobile.ButtonToggleRibbonBar.Visibility = Visibility.Hidden;
+            VBFrameController.SetRibbonBarVisibility(this, Global.ControlModes.Collapsed);
+        }
+
+        public void HideVBRibbon(VBGrid grid)
+        {
+            if (_VBRibbonMobile == null)
+                return;
+
+            if (grid == null || _VBRibbonMobile.GridContainer == null)
+                grid = _VBRibbonMobile.Parent as VBGrid;
+
+            grid.Children.Remove(_VBRibbonMobile);
+            grid.Visibility = Visibility.Collapsed;
+            VBFrameController.SetRibbonBarVisibility(this, Global.ControlModes.Collapsed);
         }
 
         #endregion
@@ -388,7 +574,7 @@ namespace gip.core.layoutengine
                 {
 
                 }
-                //DeInitVBControl(bso);
+                DeInitVBControl(bso);
             }
         }
 
@@ -404,7 +590,7 @@ namespace gip.core.layoutengine
             while (this.NavigationService.RemoveBackEntry() != null) ;
             if (this.CanGoForward)
             {
-                ClearFowardStack();
+                ClearForwardStack();
             }
             this.Content = null;
         }
@@ -414,7 +600,7 @@ namespace gip.core.layoutengine
             while (this.NavigationService.RemoveBackEntry() != null) ;
             if (this.CanGoForward)
             {
-                ClearFowardStack();
+                ClearForwardStack();
             }
         }
 
@@ -433,11 +619,11 @@ namespace gip.core.layoutengine
             }
             if (this.CanGoForward)
             {
-                ClearFowardStack();
+                ClearForwardStack();
             }
         }
 
-        public void ClearFowardStack()
+        public void ClearForwardStack()
         {
             this.GoForward();
             this.ClearContent();
@@ -469,7 +655,123 @@ namespace gip.core.layoutengine
                 return false;
         }
 
+        private VBPage GetPage(JournalEntry entry)
+        {
+            var prop = entry.GetType().GetProperty("KeepAliveRoot", BindingFlags.Instance | BindingFlags.NonPublic);
+            VBPage entryPage = prop.GetValue(entry) as VBPage;
+
+            return entryPage;
+        }
+
+        public void CloseTopDialog()
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<IVBDialog> DialogStack => throw new NotImplementedException();
+
         #endregion
 
+        #region Persistance
+
+        /// <summary>
+        /// Gets or sets the ACUrlCmdMessage.
+        /// </summary>
+        public ACUrlCmdMessage ACUrlCmdMessage
+        {
+            get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
+            set { SetValue(ACUrlCmdMessageProperty, value); }
+        }
+
+        /// <summary>
+        /// Represents the dependency property for ACUrlCmdMessage.
+        /// </summary>
+        public static readonly DependencyProperty ACUrlCmdMessageProperty =
+            DependencyProperty.Register("ACUrlCmdMessage",
+                typeof(ACUrlCmdMessage), typeof(VBFrameController),
+                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+
+        /// <summary>
+        /// Represents the dependency property for ACCompInitState.
+        /// </summary>
+        public static readonly DependencyProperty ACCompInitStateProperty =
+            DependencyProperty.Register("ACCompInitState",
+                typeof(ACInitState), typeof(VBFrameController),
+                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+
+        /// <summary>
+        /// Gets or sets the ACCompInitState.
+        /// </summary>
+        public ACInitState ACCompInitState
+        {
+            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            set { SetValue(ACCompInitStateProperty, value); }
+        }
+
+        private static void OnDepPropChanged(DependencyObject dependencyObject,
+        DependencyPropertyChangedEventArgs args)
+        {
+            VBFrameController thisControl = dependencyObject as VBFrameController;
+            if (thisControl == null)
+                return;
+            else if (args.Property == ACUrlCmdMessageProperty)
+                thisControl.OnACUrlMessageReceived();
+            else if (args.Property == ACCompInitStateProperty)
+                thisControl.InitStateChanged();
+        }
+
+        /// <summary>
+        /// Calls on when initialization state is changed.
+        /// </summary>
+        protected void InitStateChanged()
+        {
+            if (ContextACObject != null && ContextACObject is IACComponent && (ACCompInitState == ACInitState.Destructed || ACCompInitState == ACInitState.DisposedToPool))
+            {
+                RemoveFromComponentReference();
+                DeInitVBControl(ContextACObject as IACComponent);
+            }
+        }
+
+        /// <summary>
+        /// Handles the ACUrl message when it is received.
+        /// </summary>
+        public void OnACUrlMessageReceived()
+        {
+            if (ACUrlCmdMessage != null && ACUrlCmdMessage.ACUrl == Const.CmdFindGUI)
+            {
+                try
+                {
+                    IACObject invoker = (IACObject)ACUrlCmdMessage.ACParameter[0];
+                    string filterVBControlClassName = (string)ACUrlCmdMessage.ACParameter[1];
+                    string filterFrameworkElementName = (string)ACUrlCmdMessage.ACParameter[2];
+                    string filterVBContent = (string)ACUrlCmdMessage.ACParameter[3];
+                    string filterACNameOfComponent = (string)ACUrlCmdMessage.ACParameter[4];
+                    bool withDialogStack = (bool)ACUrlCmdMessage.ACParameter[5];
+
+                    bool filterVBControlClassNameSet = !String.IsNullOrEmpty(filterVBControlClassName);
+                    bool filterFrameworkElementNameSet = !String.IsNullOrEmpty(filterFrameworkElementName);
+                    bool filterACNameOfComponentSet = !String.IsNullOrEmpty(filterACNameOfComponent);
+                    bool filterVBContentSet = !String.IsNullOrEmpty(filterVBContent);
+                    if (!filterVBControlClassNameSet && !filterFrameworkElementNameSet && !filterACNameOfComponentSet && !filterVBContentSet)
+                        return;
+
+                    if (ACUrlHelper.IsSearchedGUIInstance(ACIdentifier, filterVBControlClassName, filterFrameworkElementName, filterVBContent, filterACNameOfComponent))
+                    {
+                        invoker.ACUrlCommand(Const.CmdFindGUIResult, this);
+                    }
+                }
+                catch (Exception e)
+                {
+                    string msg = e.Message;
+                    if (e.InnerException != null && e.InnerException.Message != null)
+                        msg += " Inner:" + e.InnerException.Message;
+
+                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                        datamodel.Database.Root.Messages.LogException("VBFrameController", "OnACUrlMessagereceived", msg);
+                }
+            }
+        }
+
+        #endregion
     }
 }
