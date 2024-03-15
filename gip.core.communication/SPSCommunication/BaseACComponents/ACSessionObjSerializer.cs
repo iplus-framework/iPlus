@@ -40,6 +40,7 @@ namespace gip.core.communication
         /// <param name="complexObj">The complexObj can be wether a ACMethod or any serializable Object. The complexObject should be empty</param>
         /// <param name="dbNo">Datablock-Number</param>
         /// <param name="offset">Offset in Datablock</param>
+        /// /// <param name="routeOffset">Route offset in Datablock</param>
         /// <param name="miscParams"></param>
         /// <returns>The passed complexObj with filled out properties. If read error the result is null.</returns>
         public abstract object ReadObject(object complexObj, int dbNo, int offset, int?routeOffset, object miscParams);
@@ -60,6 +61,28 @@ namespace gip.core.communication
                 return false;
             return split[0].Trim() == compareWith;
         }
+
+        public (ACChildInstanceInfo childInfo, IACComponent invokerModule) GetSendParameters(object miscParams, bool withInvokerModule = true)
+        {
+            ACChildInstanceInfo childInfo = null;
+            IACComponent invokerModule = null;
+            if (miscParams != null)
+            {
+                childInfo = miscParams as ACChildInstanceInfo;
+                if (childInfo == null)
+                {
+                    object[] miscParamArray = miscParams as object[];
+                    if (miscParamArray != null && miscParamArray.Any())
+                        childInfo = miscParamArray[0] as ACChildInstanceInfo;
+                }
+
+                if (childInfo != null && withInvokerModule)
+                    invokerModule = ACUrlCommand(childInfo.ACUrlParent) as IACComponent;
+            }
+
+            return (childInfo, invokerModule);
+        }
+
         #endregion
     }
 }
