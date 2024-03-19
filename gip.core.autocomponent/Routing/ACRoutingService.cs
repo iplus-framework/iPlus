@@ -20,6 +20,10 @@ namespace gip.core.autocomponent
     {
         #region c'tors
 
+        static ACRoutingService()
+        {
+        }
+
         public ACRoutingService(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
@@ -169,12 +173,24 @@ namespace gip.core.autocomponent
 
         #region Properties
 
-        private static int _DefaultAlternatives = 3;
+        private static int? _DefaultAlternatives = null;
         public static int DefaultAlternatives
         {
             get
             {
-                return _DefaultAlternatives;
+                if (!_DefaultAlternatives.HasValue)
+                {
+                    try
+                    {
+                        CoreConfiguration coreConfig = (CoreConfiguration)CommandLineHelper.ConfigCurrentDir.GetSection("Process/CoreConfiguration");
+                        if (coreConfig != null)
+                            _DefaultAlternatives = coreConfig.RoutingDefaultAlternatives;
+                        else
+                            _DefaultAlternatives = 3;
+                    }
+                    catch { _DefaultAlternatives = 3; }
+                }
+                return _DefaultAlternatives.Value;
             }
             set
             {
