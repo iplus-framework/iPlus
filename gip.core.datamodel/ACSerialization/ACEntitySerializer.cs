@@ -81,7 +81,7 @@ namespace gip.core.datamodel
         /// <returns>System.String.</returns>
         public XElement SerializeACObject(IACObject acObject, ACQueryDefinition acQueryDefinition, string folderPath, bool withChilds = true)
         {
-            if (acObject == null) 
+            if (acObject == null)
                 return null;
 
             // Define element header
@@ -247,7 +247,10 @@ namespace gip.core.datamodel
             string acQueryACUrl = xDoc.Attribute(ACQueryDefinition.ClassName) != null ? xDoc.Attribute(ACQueryDefinition.ClassName).Value : "";
             string typeName = xDoc.Attribute("Type").Value;
             IACEntityObjectContext db = ACObjectContextManager.GetContextFromACUrl(acQueryACUrl, typeName);
-
+            if (acFSItemParent != null && acFSItemParent.ResourceType == ResourceTypeEnum.XML)
+            {
+                acFSItemParent.ACObject = db;
+            }
             ACQueryDefinition navACQueryDefinition = null;
             if (!string.IsNullOrEmpty(acQueryACUrl))
             {
