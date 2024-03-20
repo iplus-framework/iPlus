@@ -22,14 +22,17 @@ namespace gip.core.autocomponent
 
         public const string SelRuleID_ProcessModule = "PAProcessModule";
         public const string SelRuleID_ProcessModule_Deselector = "PAProcessModule.Deselector";
+        public const string SelRuleID_ProcessModuleParam_Deselector = "PAProcessModuleParam.Deselector";
 
-        public const string ClassName = "PAProcessModule";
+        public const string ClassName = nameof(PAProcessModule);
 
         static PAProcessModule()
         {
             RegisterExecuteHandler(typeof(PAProcessModule), HandleExecuteACMethod_PAProcessModule);
             ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule, (c, p) => c.Component.ValueT is PAProcessModule, null);
             ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule_Deselector, null, (c, p) => c.Component.ValueT is PAProcessModule);
+            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModuleParam_Deselector, null, (c, p) => c.Component.ValueT is PAProcessModule 
+                                                                                                         && !p.Contains(c.Component.ValueT.ComponentClass.ACClassID));
         }
 
         public PAProcessModule(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")

@@ -170,7 +170,9 @@ namespace gip.core.autocomponent
                 }
             }
 
-            if ((RoutingPaths.Count > 1 && (startVertices.Count() > 1 || endVertices.Count() > 1)))
+            var groupBySourceAndTarget = RoutingPaths.GroupBy(c => new Tuple<IACComponent, IACComponent>(c.Start.ParentACComponent, c.End.ParentACComponent));
+
+            if ((RoutingPaths.Count > 1 && (startVertices.Count() > 1 || endVertices.Count() > 1) && groupBySourceAndTarget.Count() > 1))
             {
                 var result = CheckMultipleSourcesTargets();
                 if (result == null)
