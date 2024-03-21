@@ -249,6 +249,10 @@ namespace gip.core.datamodel
             IACEntityObjectContext db = ACObjectContextManager.GetContextFromACUrl(acQueryACUrl, typeName);
             if (acFSItemParent != null && acFSItemParent.ResourceType == ResourceTypeEnum.XML)
             {
+                if(acFSItemParent.Container.DB.GetType() == db.GetType())
+                {
+                    db = acFSItemParent.Container.DB;
+                }
                 acFSItemParent.ACObject = db;
             }
             ACQueryDefinition navACQueryDefinition = null;
