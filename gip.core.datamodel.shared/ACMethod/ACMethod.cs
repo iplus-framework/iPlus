@@ -236,7 +236,14 @@ namespace gip.core.datamodel
             {
                 AssemblyMethodDict assemblyMethodDict = null;
                 if (!TryGetValue(typeOfACComponent, out assemblyMethodDict))
-                    return null;
+                {
+                    // This invokes the static constructor. The static constructor adds methods to this Dictionary
+                    if (typeof(IACComponent).IsAssignableFrom(typeOfACComponent))
+                        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeOfACComponent.TypeHandle);
+                    // Try again
+                    if (!TryGetValue(typeOfACComponent, out assemblyMethodDict))
+                        return null;
+                }
                 return assemblyMethodDict.GetVirtualMethodInfos(assemblyMethodName);
             }
         }
@@ -274,10 +281,11 @@ namespace gip.core.datamodel
 
         public static ACMethod GetVirtualMethod(Type typeOfACComponent, string assemblyMethodName, string virtualMethodName, bool getClone=true)
         {
-            if (_MethodsRegistry == null)
-                return null;
             lock (_LockDict)
             {
+                if (_MethodsRegistry == null)
+                    _MethodsRegistry = new TypesDict();
+
                 return _MethodsRegistry.GetVirtualMethod(typeOfACComponent, assemblyMethodName, virtualMethodName, getClone);
             }
         }
