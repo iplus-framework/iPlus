@@ -5,8 +5,6 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Markup.Localizer;
-using System.Windows.Media;
 using gip.core.datamodel;
 using Microsoft.Isam.Esent.Interop;
 

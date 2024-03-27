@@ -1,5 +1,4 @@
-﻿using combit.ListLabel17;
-using System;
+﻿using System;
 
 namespace gip.core.reporthandler
 {

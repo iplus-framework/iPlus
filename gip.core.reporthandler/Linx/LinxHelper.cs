@@ -18,12 +18,12 @@ namespace gip.core.reporthandler
 
         public static void Write(this MemoryStream ms, LinxASCIControlCharacterEnum command)
         {
-            ms.Write(BitConverter.GetBytes((byte)command), 0, BitConverter.GetBytes((byte)command).Count());
+            ms.Write(BitConverter.GetBytes((short)command), 0, BitConverter.GetBytes((short)command).Count());
         }
 
         public static void Write(this MemoryStream ms, LinxPrinterCommandCodeEnum commandCode)
         {
-            ms.Write(BitConverter.GetBytes((byte)commandCode), 0, BitConverter.GetBytes((byte)commandCode).Count());
+            ms.Write(BitConverter.GetBytes((short)commandCode), 0, BitConverter.GetBytes((short)commandCode).Count());
         }
 
 

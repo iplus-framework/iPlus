@@ -9,7 +9,6 @@ using gip.core.manager;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Threading;
 using gip.core.processapplication;
 using System.IO;
 using System.Runtime.Serialization;
