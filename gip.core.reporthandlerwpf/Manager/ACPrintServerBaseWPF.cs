@@ -46,7 +46,7 @@ namespace gip.core.reporthandlerwpf
         /// <param name="clientStream"></param>
         /// <param name="reportData"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public override PrintJob GetPrintJob(string reportName, FlowDocument flowDocument)
+        public virtual PrintJob GetPrintJob(string reportName, FlowDocument flowDocument)
         {
             Encoding encoder = Encoding.ASCII;
             VBFlowDocument vBFlowDocument = flowDocument as VBFlowDocument;
@@ -75,7 +75,7 @@ namespace gip.core.reporthandlerwpf
                 }
             }
 
-            PrintJob printJob = new PrintJob();
+            PrintJobWPF printJob = new PrintJobWPF();
             printJob.FlowDocument = flowDocument;
             printJob.Encoding = encoder;
             printJob.ColumnMultiplier = 1;

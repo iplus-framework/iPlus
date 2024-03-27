@@ -13,7 +13,7 @@ namespace gip.core.datamodel
         {
             ACClassRouteUsage entity = new ACClassRouteUsage();
             entity.ACClassRouteUsageID = Guid.NewGuid();
-            db.ACClassRouteUsage.AddObject(entity);
+            db.ACClassRouteUsage.Add(entity);
             return entity;
         }
     }

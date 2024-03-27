@@ -1,5 +1,5 @@
 ﻿using gip.core.datamodel;
-using gip.core.reporthandler.Flowdoc;
+using gip.core.reporthandlerwpf.Flowdoc;
 using System.Windows.Documents;
 using System;
 using System.Threading;
@@ -8,6 +8,7 @@ using ESCPOS.Utils;
 using System.Windows;
 using System.Net;
 using System.Runtime.InteropServices;
+using gip.core.reporthandler;
 
 namespace gip.core.reporthandlerwpf
 {
@@ -48,7 +49,7 @@ namespace gip.core.reporthandlerwpf
             };
         }
 
-        public static byte[] SelectInternationalCharacterSet(CharSet charSet)
+        public static byte[] SelectInternationalCharacterSet(ESCPOS.CharSet charSet)
         {
             return new byte[3]
             {
@@ -111,11 +112,11 @@ namespace gip.core.reporthandlerwpf
         /// <exception cref="NotImplementedException"></exception>
         public override bool SendDataToPrinter(PrintJob printJob)
         {
-            if (printJob == null || printJob.Main == null)
+            if (printJob == null || (printJob as PrintJobWPF).Main == null)
             {
                 return false;
             }
-            byte[] bytes = printJob.Main;
+            byte[] bytes = (printJob as PrintJobWPF).Main;
             for (int tries = 0; tries < PrintTries; tries++)
             {
                 try
@@ -151,8 +152,8 @@ namespace gip.core.reporthandlerwpf
 
         public override void OnRenderFlowDocument(PrintJob printJob, FlowDocument flowDoc)
         {
-            printJob.Main.Add(Commands.InitializePrinter);
-            printJob.Main = printJob.Main.Add(GetESCPosCodePage(printJob.Encoding.CodePage));
+            (printJob as PrintJobWPF).Main.Add(Commands.InitializePrinter);
+            (printJob as PrintJobWPF).Main = (printJob as PrintJobWPF).Main.Add(GetESCPosCodePage((printJob as PrintJobWPF).Encoding.CodePage));
             base.OnRenderFlowDocument(printJob, flowDoc);
         }
 
@@ -181,7 +182,7 @@ namespace gip.core.reporthandlerwpf
 
         public override void OnRenderSectionReportHeaderFooter(PrintJob printJob, SectionReportHeader sectionReportHeader)
         {
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
 
@@ -192,7 +193,7 @@ namespace gip.core.reporthandlerwpf
 
         public override void OnRenderSectionReportFooterFooter(PrintJob printJob, SectionReportFooter sectionReportFooter)
         {
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
 
@@ -203,7 +204,7 @@ namespace gip.core.reporthandlerwpf
 
         public override void OnRenderSectionDataGroupFooter(PrintJob printJob, SectionDataGroup sectionDataGroup)
         {
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
 
@@ -218,12 +219,12 @@ namespace gip.core.reporthandlerwpf
             printFormat.FontSize = table.FontSize;
             printFormat.FontWeight = table.FontWeight;
             printFormat.TextAlignment = table.TextAlignment;
-            printJob.PrintFormats.Add(printFormat);
+            (printJob as PrintJobWPF).PrintFormats.Add(printFormat);
         }
 
         public override void OnRenderSectionTableFooter(PrintJob printJob, Table table)
         {
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
 
@@ -239,7 +240,7 @@ namespace gip.core.reporthandlerwpf
 
         public override void OnRenderTableRowGroupFooter(PrintJob printJob, TableRowGroup tableRowGroup)
         {
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
         public override void OnRenderTableRowHeader(PrintJob printJob, TableRow tableRow)
@@ -249,7 +250,7 @@ namespace gip.core.reporthandlerwpf
 
         public override void OnRenderTableRowFooter(PrintJob printJob, TableRow tableRow)
         {
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
         #endregion
@@ -263,39 +264,39 @@ namespace gip.core.reporthandlerwpf
 
         public override void OnRenderParagraphFooter(PrintJob printJob, Paragraph paragraph)
         {
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
         public override void OnRenderInlineContextValue(PrintJob printJob, InlineContextValue inlineContextValue)
         {
             SetPrintFormat(printJob, inlineContextValue, null);
-            PrintFormat defaultPrintFormat = printJob.GetDefaultPrintFormat();
+            PrintFormat defaultPrintFormat = (printJob as PrintJobWPF).GetDefaultPrintFormat();
             PrintFormattedText(printJob, defaultPrintFormat, inlineContextValue.Text);
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
         public override void OnRenderInlineDocumentValue(PrintJob printJob, InlineDocumentValue inlineDocumentValue)
         {
             SetPrintFormat(printJob, inlineDocumentValue, null);
-            PrintFormat defaultPrintFormat = printJob.GetDefaultPrintFormat();
+            PrintFormat defaultPrintFormat = (printJob as PrintJobWPF).GetDefaultPrintFormat();
             PrintFormattedText(printJob, defaultPrintFormat, inlineDocumentValue.Text);
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
         public override void OnRenderInlineACMethodValue(PrintJob printJob, InlineACMethodValue inlineACMethodValue)
         {
             SetPrintFormat(printJob, inlineACMethodValue, null);
-            PrintFormat defaultPrintFormat = printJob.GetDefaultPrintFormat();
+            PrintFormat defaultPrintFormat = (printJob as PrintJobWPF).GetDefaultPrintFormat();
             PrintFormattedText(printJob, defaultPrintFormat, inlineACMethodValue.Text);
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
         public override void OnRenderInlineTableCellValue(PrintJob printJob, InlineTableCellValue inlineTableCellValue)
         {
             SetPrintFormat(printJob, inlineTableCellValue, null);
-            PrintFormat defaultPrintFormat = printJob.GetDefaultPrintFormat();
+            PrintFormat defaultPrintFormat = (printJob as PrintJobWPF).GetDefaultPrintFormat();
             PrintFormattedText(printJob, defaultPrintFormat, inlineTableCellValue.Text);
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
         public override void OnRenderInlineBarcode(PrintJob printJob, InlineBarcode inlineBarcode)
@@ -309,37 +310,37 @@ namespace gip.core.reporthandlerwpf
                 QRCodeSizeExt qRCodeSizeExt = QRCodeSizeExt.Six;
                 if (inlineBarcode.BarcodeWidth >= 2 && inlineBarcode.BarcodeWidth <= 10)
                     qRCodeSizeExt = (QRCodeSizeExt)inlineBarcode.BarcodeWidth;
-                printJob.Main = printJob.Main.Add(Commands.LF, Commands.SelectJustification(Justification.Center), Commands.SelectPrintMode(PrintMode.Reset),
+                (printJob as PrintJobWPF).Main = (printJob as PrintJobWPF).Main.Add(Commands.LF, Commands.SelectJustification(Justification.Center), Commands.SelectPrintMode(PrintMode.Reset),
                     ESCPosExt.PrintQRCodeExt(barcodeValue, QRCodeModel.Model1, QRCodeCorrection.Percent30, qRCodeSizeExt));
             }
             else
             {
                 BarCodeType barCodeType = BarCodeType.EAN8;
                 if (Enum.TryParse(inlineBarcode.BarcodeType.ToString(), out barCodeType))
-                    printJob.Main = printJob.Main.Add(Commands.LF, Commands.PrintBarCode(barCodeType, barcodeValue));
+                    (printJob as PrintJobWPF).Main = (printJob as PrintJobWPF).Main.Add(Commands.LF, Commands.PrintBarCode(barCodeType, barcodeValue));
             }
-            printJob.Main = printJob.Main.Add(Commands.LF, Commands.LF, Commands.LF, Commands.LF, Commands.LF);
+            (printJob as PrintJobWPF).Main = (printJob as PrintJobWPF).Main.Add(Commands.LF, Commands.LF, Commands.LF, Commands.LF, Commands.LF);
         }
 
         public override void OnRenderInlineBoolValue(PrintJob printJob, InlineBoolValue inlineBoolValue)
         {
             SetPrintFormat(printJob, inlineBoolValue, null);
-            PrintFormat defaultPrintFormat = printJob.GetDefaultPrintFormat();
+            PrintFormat defaultPrintFormat = (printJob as PrintJobWPF).GetDefaultPrintFormat();
             PrintFormattedText(printJob, defaultPrintFormat, inlineBoolValue.Value.ToString());
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
         public override void OnRenderRun(PrintJob printJob, Run run)
         {
             SetPrintFormat(printJob, run, null);
-            PrintFormat defaultPrintFormat = printJob.GetDefaultPrintFormat();
+            PrintFormat defaultPrintFormat = (printJob as PrintJobWPF).GetDefaultPrintFormat();
             PrintFormattedText(printJob, defaultPrintFormat, run.Text);
-            printJob.PrintFormats.RemoveAt(printJob.PrintFormats.Count - 1);
+            (printJob as PrintJobWPF).PrintFormats.RemoveAt((printJob as PrintJobWPF).PrintFormats.Count - 1);
         }
 
         public override void OnRenderLineBreak(PrintJob printJob, LineBreak lineBreak)
         {
-            printJob.Main = printJob.Main.Add(Commands.LF);
+            (printJob as PrintJobWPF).Main = (printJob as PrintJobWPF).Main.Add(Commands.LF);
         }
 
         #endregion
@@ -353,7 +354,7 @@ namespace gip.core.reporthandlerwpf
             printFormat.FontSize = textElement.FontSize;
             printFormat.FontWeight = textElement.FontWeight;
             printFormat.TextAlignment = textAlignment;
-            printJob.PrintFormats.Add(printFormat);
+            (printJob as PrintJobWPF).PrintFormats.Add(printFormat);
         }
 
         protected Tuple<Justification, CharSizeWidth, CharSizeHeight> GetESCFormat(PrintFormat defaultPrintFormat)
@@ -396,9 +397,9 @@ namespace gip.core.reporthandlerwpf
         protected void PrintFormattedText(PrintJob printJob, PrintFormat defaultPrintFormat, string text)
         {
             Tuple<Justification, CharSizeWidth, CharSizeHeight> format = GetESCFormat(defaultPrintFormat);
-            printJob.Main = printJob.Main.Add(Commands.SelectPrintMode(PrintMode.Reset));
-            printJob.Main = printJob.Main.Add(Commands.SelectCharSize(format.Item2, format.Item3));
-            printJob.Main = printJob.Main.Add(Commands.LF, Commands.SelectJustification(format.Item1), printJob.Encoding.GetBytes(text));
+            (printJob as PrintJobWPF).Main = (printJob as PrintJobWPF).Main.Add(Commands.SelectPrintMode(PrintMode.Reset));
+            (printJob as PrintJobWPF).Main = (printJob as PrintJobWPF).Main.Add(Commands.SelectCharSize(format.Item2, format.Item3));
+            (printJob as PrintJobWPF).Main = (printJob as PrintJobWPF).Main.Add(Commands.LF, Commands.SelectJustification(format.Item1), (printJob as PrintJobWPF).Encoding.GetBytes(text));
         }
 
         #endregion

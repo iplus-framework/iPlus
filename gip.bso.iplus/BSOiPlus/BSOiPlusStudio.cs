@@ -770,29 +770,29 @@ namespace gip.bso.iplus
             get { return CurrentVisualACClass; }
         }
 
-        /// <summary>
-        /// Gets the current AC class VBV isual item.
-        /// </summary>
-        /// <value>The current AC class VBV isual item.</value>
-        public IACInteractiveObject CurrentACClassVBVIsualItem
-        {
-            get
-            {
-                foreach (var client in ReferencePoint.ConnectionList)
-                {
-                    if (client is Control)
-                    {
-                        Control control = client as Control;
-                        DependencyObject dObject = LogicalTreeHelper.FindLogicalNode(control, "VisualControl");
-                        if (dObject != null)
-                        {
-                            return dObject as IACInteractiveObject;
-                        }
-                    }
-                }
-                return null;
-            }
-        }
+        ///// <summary>
+        ///// Gets the current AC class VBV isual item.
+        ///// </summary>
+        ///// <value>The current AC class VBV isual item.</value>
+        //public IACInteractiveObject CurrentACClassVBVIsualItem
+        //{
+        //    get
+        //    {
+        //        foreach (var client in ReferencePoint.ConnectionList)
+        //        {
+        //            if (client is Control)
+        //            {
+        //                Control control = client as Control;
+        //                DependencyObject dObject = LogicalTreeHelper.FindLogicalNode(control, "VisualControl");
+        //                if (dObject != null)
+        //                {
+        //                    return dObject as IACInteractiveObject;
+        //                }
+        //            }
+        //        }
+        //        return null;
+        //    }
+        //}
 
         /// <summary>
         /// The _ current new AC class

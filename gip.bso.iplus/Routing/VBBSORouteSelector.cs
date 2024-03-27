@@ -13,6 +13,7 @@ using gip.core.processapplication;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.bso.iplus
 {

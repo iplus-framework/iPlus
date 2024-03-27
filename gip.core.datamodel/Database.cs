@@ -1661,8 +1661,8 @@ namespace gip.core.datamodel
                             .Where(c => c.AssemblyQualifiedName == assemblyQualifiedName).FirstOrDefault()
             );
 
-        public static readonly Func<Database, string, IQueryable<ACClass>> s_cQry_FindInstancesOfClass =
-            CompiledQuery.Compile<Database, string, IQueryable<ACClass>>(
+        public static readonly Func<Database, string, IEnumerable<ACClass>> s_cQry_FindInstancesOfClass =
+            EF.CompileQuery<Database, string, IEnumerable<ACClass>>(
                    (ctx, pafACIdentifier) => ctx.ACClass.Where(c => (c.BasedOnACClassID.HasValue
                                                     && (c.ACClass1_BasedOnACClass.ACIdentifier == pafACIdentifier // 1. Ableitungsstufe
                                                         || (c.ACClass1_BasedOnACClass.BasedOnACClassID.HasValue

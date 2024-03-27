@@ -211,7 +211,7 @@ namespace gip.core.reporthandler
             }
         }
 
-        public void DoPrint(string acUrl, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        public void DoPrint(string acUrl, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies, bool reloadReport)
         {
             ACBSO acBSO = null;
             try
@@ -219,7 +219,7 @@ namespace gip.core.reporthandler
                 acBSO = GetACBSO(acUrl, pAOrderInfo);
                 if (acBSO == null)
                     return;
-                DoPrint(acBSO, designACIdentifier, pAOrderInfo, copies);
+                DoPrint(acBSO, designACIdentifier, pAOrderInfo, copies, reloadReport);
             }
             catch (Exception e)
             {
@@ -354,8 +354,6 @@ namespace gip.core.reporthandler
             IsConnected.ValueT = true;
             return true;
         }
-
-        public abstract PrintJob GetPrintJob(string reportName, FlowDocument flowDocument);
 
         #endregion
 

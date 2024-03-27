@@ -1375,7 +1375,7 @@ namespace gip.core.autocomponent
 
                             foreach (ACClassRouteUsageGroup routeGroup in routeGroups)
                             {
-                                db.ACClassRouteUsageGroup.DeleteObject(routeGroup);
+                                db.ACClassRouteUsageGroup.Remove(routeGroup);
                             }
                         }
                     }

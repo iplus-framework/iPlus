@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Windows.Media;
 
 namespace gip.core.datamodel
 {
@@ -284,7 +283,7 @@ namespace gip.core.datamodel
             return false;
         }
 
-        private System.Data.EntityKey FindFirstDifference(EntityKey newSource, EntityKey oldSource, Route oldRoute)
+        private EntityKey FindFirstDifference(EntityKey newSource, EntityKey oldSource, Route oldRoute)
         {
             var newSourceItems = this.Where(c => c.SourceKey == newSource).OrderBy(c => c.SourceGuid).ThenBy(c => c.TargetGuid);
             var oldSourceItems = oldRoute.Where(c => c.SourceKey == oldSource).OrderBy(c => c.SourceGuid).ThenBy(c => c.TargetGuid);

@@ -15,7 +15,7 @@ namespace gip.core.datamodel
             entity.ACClassRouteUsagePosID = Guid.NewGuid();
             entity.ACClassRouteUsageID = routeUsage.ACClassRouteUsageID;
 
-            db.ACClassRouteUsagePos.AddObject(entity);
+            db.ACClassRouteUsagePos.Add(entity);
             return entity;
         }
     }
