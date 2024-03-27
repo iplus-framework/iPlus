@@ -511,6 +511,11 @@ namespace gip.core.datamodel
             DUUndefined     = 0,
 
             /// <summary>
+            /// Main view for the mobile application, which is loaded first from VBDesign when Businessobject is opened. Main view for mobile uses pages that are navigated with using the VBFrameController 
+            /// </summary>
+            DUMainMobile = 4400,
+
+            /// <summary>
             /// Main view, which is loaded first from VBDesign when Businessobject is opened. Main views consist of many partial views (DULayout) 
             /// </summary>
             DUMain = 4200,
@@ -611,6 +616,7 @@ namespace gip.core.datamodel
                     Global._ACUsageList = new ACValueItemList("ACUsageIndex");
                     // Der Originaltext ist immer in Englisch
                     Global._ACUsageList.AddEntry((short)ACUsages.DUMain, "en{'Main view'}de{'Hauptansicht'}");
+                    Global._ACUsageList.AddEntry((short)ACUsages.DUMainMobile, "en{'Main view Mobile'}de{'Hauptansicht Mobile'}");
                     Global._ACUsageList.AddEntry((short)ACUsages.DULayout, "en{'Partial view'}de{'Teilansicht'}");
                     Global._ACUsageList.AddEntry((short)ACUsages.DUControl, "en{'Control'}de{'Steuerelement'}");
                     Global._ACUsageList.AddEntry((short)ACUsages.DUControlDialog, "en{'Control dialog'}de{'Steuerungsdialog'}");

@@ -1,108 +1,28 @@
 using gip.core.datamodel;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using static gip.core.autocomponent.PARole;
 
 namespace gip.core.autocomponent
 {
-    [ACSerializeableInfo]
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'RouteDirections'}de{'RouteDirections'}", Global.ACKinds.TACEnum)]
-    public enum RouteDirections : int
-    {
-        Backwards,
-        Forwards
-    }
-
-    public class SelectionRule
-    {
-        public Func<ACRoutingVertex, object[], bool> Selector { get; set; }
-        public Func<ACRoutingVertex, object[], bool> DeSelector { get; set; }
-    }
-
-    [ACSerializeableInfo]
-    [DataContract]
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'RoutingResult'}de{'RoutingResult'}", Global.ACKinds.TACSimpleClass)]
-    public class RoutingResult
-    {
-        public RoutingResult(IEnumerable<Route> routes, bool isDbResult, Msg msg, IEnumerable<ACRef<IACComponent>> components = null)
-        {
-            _Routes = routes;
-            _IsDbResult = isDbResult;
-            _Msg = msg;
-            _Components = components;
-        }
-
-        [IgnoreDataMember]
-        private IEnumerable<Route> _Routes;
-        [DataMember]
-        public IEnumerable<Route> Routes
-        {
-            get
-            {
-                return _Routes;
-            }
-            set
-            {
-                _Routes = value;
-            }
-        }
-
-        [IgnoreDataMember]
-        private IEnumerable<ACRef<IACComponent>> _Components;
-        [DataMember]
-        public IEnumerable<ACRef<IACComponent>> Components
-        {
-            get
-            {
-                return _Components;
-            }
-            set
-            {
-                _Components = value;
-            }
-        }
-
-        [IgnoreDataMember]
-        private bool _IsDbResult;
-        [DataMember]
-        public bool IsDbResult
-        {
-            get
-            {
-                return _IsDbResult;
-            }
-            set
-            {
-                _IsDbResult = value;
-            }
-        }
-
-        [IgnoreDataMember]
-        private Msg _Msg;
-        [DataMember]
-        public Msg Message
-        {
-            get
-            {
-                return _Msg;
-            }
-            set
-            {
-                _Msg = value;
-            }
-        }
-    }
-
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Routing Service'}de{'Routing Service'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, true)]
     public class ACRoutingService : PAJobScheduler
     {
         #region c'tors
+
+        static ACRoutingService()
+        {
+        }
 
         public ACRoutingService(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
@@ -111,8 +31,20 @@ namespace gip.core.autocomponent
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
+            _RouteItemModes = new ACPropertyConfigValue<string>(this, nameof(RouteItemModes), "");
+
             RestoreLastManipulationTime();
+            InitRouteUsage();
+
+            _ = RouteItemModes;
+
             return base.ACInit(startChildMode);
+        }
+
+        public override bool ACPostInit()
+        {
+            LoadRouteItemModes();
+            return base.ACPostInit();
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
@@ -177,7 +109,7 @@ namespace gip.core.autocomponent
         #endregion
 
         #region const
-        public const string MN_SelectRoutes = "SelectRoutes";
+        public const string MN_SelectRoutes = nameof(SelectRoutes);
         public const string MN_FindSuccessors = "FindSuccessors";
         public const string MN_FindSuccessorsFromPoint = "FindSuccessorsFromPoint";
         public const string MN_FindLastSuccessors = "FindLastSuccessors";
@@ -195,6 +127,10 @@ namespace gip.core.autocomponent
         private static ACMonitorObject _LockObjectRule = new ACMonitorObject(10000);
 
         protected static Dictionary<string, SelectionRule> _RegisteredSelectionQueries = new Dictionary<string, SelectionRule>();
+
+        private ConcurrentDictionary<Guid, SafeList<RouteHashItem>> _UsedRoutesCache = new ConcurrentDictionary<Guid, SafeList<RouteHashItem>>();
+
+        private ConcurrentDictionary<Guid, RouteItemModeEnum> _RouteItemsModeCache = new ConcurrentDictionary<Guid, RouteItemModeEnum>();
 
         #endregion
 
@@ -237,8 +173,33 @@ namespace gip.core.autocomponent
 
         #region Properties
 
+        private static int? _DefaultAlternatives = null;
+        public static int DefaultAlternatives
+        {
+            get
+            {
+                if (!_DefaultAlternatives.HasValue)
+                {
+                    try
+                    {
+                        CoreConfiguration coreConfig = (CoreConfiguration)CommandLineHelper.ConfigCurrentDir.GetSection("Process/CoreConfiguration");
+                        if (coreConfig != null)
+                            _DefaultAlternatives = coreConfig.RoutingDefaultAlternatives;
+                        else
+                            _DefaultAlternatives = 3;
+                    }
+                    catch { _DefaultAlternatives = 3; }
+                }
+                return _DefaultAlternatives.Value;
+            }
+            set
+            {
+                _DefaultAlternatives = value;
+            }
+        }
+
         private int _RecalcEdgeWeightAfterDays = 15;
-        [ACPropertyInfo(300, "", "en{'Recalculate edges weight after -X- days'}de{'Kantengewicht nach -X- Tagen neu berechnen'}")]
+        [ACPropertyInfo(300, "", "en{'Recalculate edges weight after -X- days'}de{'Kantengewicht nach -X- Tagen neu berechnen'}", IsPersistable = true)]
         public int RecalcEdgeWeightAfterDays
         {
             get
@@ -266,6 +227,32 @@ namespace gip.core.autocomponent
             set;
         }
 
+        [ACPropertyInfo(true, 302, "", "en{'Select route depending usage'}de{'Wählen Sie die Route je nach Nutzung aus'}")]
+        public bool SelectRouteDependUsage
+        {
+            get;
+            set;
+        }
+
+        [ACPropertyInfo(true, 302, "", "en{'Max alternatives on route depending usage'}de{'Maximale Alternativen auf der Route je nach Nutzung'}")]
+        public int MaxAlternativesOnRouteDependUsage
+        {
+            get;
+            set;
+        }
+
+        private ACPropertyConfigValue<string> _RouteItemModes;
+        [ACPropertyConfig("en{'Route item mode config'}de{'Route item mode config'}")]
+        public string RouteItemModes
+        {
+            get => _RouteItemModes.ValueT;
+            set
+            {
+                _RouteItemModes.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -275,30 +262,29 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case MN_SelectRoutes:
-                    result = SelectRoutes(acParameter[0] as string[], acParameter[1] as string[], (RouteDirections)acParameter[2], acParameter[3] as string, acParameter[4] as object[], (int)acParameter[5], (bool)acParameter[6], (bool)acParameter[7]);
+                case nameof(SelectRoutesInstance):
+                    result = SelectRoutesInstance(acParameter[0] as string[], acParameter[1] as string[], acParameter[2] as ACRoutingParameters);
                     return true;
-                case MN_FindSuccessors:
-                    result = FindSuccessors(acParameter[0] as string, acParameter[1] as string, (RouteDirections)acParameter[2], acParameter[3] as object[], (int)acParameter[4], (bool)acParameter[5], (bool)acParameter[6]);
+                case nameof(FindSuccessorsInstance):
+                    result = FindSuccessorsInstance(acParameter[0] as string, acParameter[1] as ACRoutingParameters);
                     return true;
-                case MN_FindLastSuccessors:
-                    result = FindLastSuccessors(acParameter[0] as string, acParameter[1] as string, (RouteDirections)acParameter[2], acParameter[3] as object[], (bool)acParameter[4], (bool)acParameter[5]);
+                case nameof(FindLastSuccessorsInstance):
+                    result = FindLastSuccessorsInstance(acParameter[0] as string, acParameter[1] as ACRoutingParameters);
                     return true;
-                case MN_FindSuccessorsFromPoint:
-                    result = FindSuccessorsFromPoint(acParameter[0] as string, (Guid) acParameter[1], acParameter[2] as string, (RouteDirections)acParameter[3], acParameter[4] as object[], (int)acParameter[5], (bool)acParameter[6], (bool)acParameter[7]);
+                case nameof(FindSuccessorsFromPointInstance):
+                    result = FindSuccessorsFromPointInstance(acParameter[0] as string, (Guid) acParameter[1], acParameter[2] as ACRoutingParameters);
                     return true;
                 case MN_SetPriority:
-                    SetPriority(acParameter[0] as ACRoutingPath);
+                    SetPriority(acParameter[0] as Route);
                     return true;
                 case MN_IncreasePriorityStepwise:
                     IncreasePriorityStepwise(acParameter[0] as Route);
                     return true;
-                case MN_BuildAvailableRoutes:
-                    result = BuildAvailableRoutes(acParameter[0] as string, acParameter[1] as string, (int)acParameter[2], (bool)acParameter[3], (bool)acParameter[4], (bool)acParameter[5]);
+                case nameof(BuildAvailableRoutes):
+                    result = BuildAvailableRoutes(acParameter[0] as string, acParameter[1] as string, acParameter[2] as ACRoutingParameters);
                     return true;
                 case nameof(BuildAvailableRoutesFromPoints):
-                    result = BuildAvailableRoutesFromPoints(acParameter[0] as string, acParameter[1] as Guid?, acParameter[2] as string, acParameter[3] as Guid?, (int)acParameter[4], (bool)acParameter[5], (bool)acParameter[6], (bool)acParameter[7],
-                                                            acParameter[8] as string, acParameter[9] as object[]);
+                    result = BuildAvailableRoutesFromPoints(acParameter[0] as string, acParameter[1] as Guid?, acParameter[2] as string, acParameter[3] as Guid?, acParameter[4] as ACRoutingParameters);
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -320,238 +306,123 @@ namespace gip.core.autocomponent
         #region Routing common
 
 
-        public static RoutingResult FindSuccessors(ACComponent routingService, Database database, bool attachRouteItemsToContext,
-            ACClass from, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams,
-            Func<ACClass, ACClassProperty, Route, bool> dbSelector,
-            Func<ACClass, ACClassProperty, Route, bool> dbDeSelector,
-            int maxRouteAlternatives,
-            bool includeReserved, bool includeAllocated,
-            bool autoDetachFromDBContext = false,
-            bool dbIncludeInternalConnections = false,
-            int dbRecursionLimit = 0,
-            bool dbIgnoreRecursionLoop = false,
-            bool forceReattachToDatabaseContext = false)
+        public static RoutingResult FindSuccessors(ACClass from, ACRoutingParameters routingParameters)
         {
-            if (routingService == null)
+            if (routingParameters.RoutingService == null)
             {
                 Msg msg = null;
-                routingService = GetRoutingService(from.GetACUrlComponent(), out msg);
+                routingParameters.RoutingService = GetRoutingService(from.GetACUrlComponent(), out msg);
             }
 
-            if (routingService != null && routingService.ConnectionState != ACObjectConnectionState.DisConnected)
+            if (routingParameters.RoutingService != null && routingParameters.RoutingService.ConnectionState != ACObjectConnectionState.DisConnected)
             {
-                return MemFindSuccessors(routingService, attachRouteItemsToContext ? database : null, from.GetACUrlComponent(), selectionRuleID, direction,
-                                                    maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, forceReattachToDatabaseContext);
+                return MemFindSuccessors(from.GetACUrlComponent(), routingParameters);
             }
             else
             {
-                return new RoutingResult(DbSelectRoutes(database, from,
-                                    dbSelector,
-                                    dbDeSelector,
-                                    direction, dbIncludeInternalConnections, autoDetachFromDBContext, dbRecursionLimit),
-                                true, null);
+                return new RoutingResult(DbSelectRoutes(from, routingParameters), true, null);
             }
         }
 
-        public static RoutingResult FindSuccessors(ACComponent routingService, Database database, bool attachRouteItemsToContext,
-            ACComponent from, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams,
-            Func<ACClass, ACClassProperty, Route, bool> dbSelector,
-            Func<ACClass, ACClassProperty, Route, bool> dbDeSelector,
-            int maxRouteAlternatives,
-            bool includeReserved, bool includeAllocated,
-            bool autoDetachFromDBContext = false,
-            bool dbIncludeInternalConnections = false,
-            int dbRecursionLimit = 0,
-            bool dbIgnoreRecursionLoop = false,
-            bool forceReattachToDatabaseContext = false)
+        public static RoutingResult FindSuccessors(string fromACUrl, ACRoutingParameters routingParameters)
         {
-            if (routingService == null)
+            if (routingParameters.RoutingService == null)
             {
                 Msg msg = null;
-                routingService = GetRoutingService(from.GetACUrl(), out msg);
+                routingParameters.RoutingService = GetRoutingService(fromACUrl, out msg);
             }
 
-            if (routingService != null && routingService.ConnectionState != ACObjectConnectionState.DisConnected)
+            if (routingParameters.RoutingService != null && routingParameters.RoutingService.ConnectionState != ACObjectConnectionState.DisConnected)
             {
-                return MemFindSuccessors(routingService, attachRouteItemsToContext ? database : null, from.GetACUrl(), selectionRuleID, direction, maxRouteAlternatives,
-                                         includeReserved, includeAllocated, selectionRuleParams, forceReattachToDatabaseContext);
+                return MemFindSuccessors(fromACUrl, routingParameters);
             }
             else
             {
-                var fromClass = from.ComponentClass.FromIPlusContext<gip.core.datamodel.ACClass>(database);
-                return new RoutingResult(DbSelectRoutes(database, fromClass,
-                                    dbSelector,
-                                    dbDeSelector,
-                                    direction, dbIncludeInternalConnections, autoDetachFromDBContext, dbRecursionLimit),
-                                true, null);
+                var fromClass = routingParameters.Database.ACClass.FirstOrDefault(c => c.ACURLComponentCached == fromACUrl);
+                return new RoutingResult(DbSelectRoutes(fromClass, routingParameters), true, null);
             }
         }
 
-        public static RoutingResult FindSuccessorsFromPoint(ACComponent routingService, Database database, bool attachRouteItemsToContext,
-                                                            ACClass from, ACClassProperty fromPoint, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams,
-                                                            Func<ACClass, ACClassProperty, Route, bool> dbSelector,
-                                                            Func<ACClass, ACClassProperty, Route, bool> dbDeSelector,
-                                                            int maxRouteAlternatives,
-                                                            bool includeReserved, bool includeAllocated,
-                                                            bool autoDetachFromDBContext = false,
-                                                            bool dbIncludeInternalConnections = false,
-                                                            int dbRecursionLimit = 0,
-                                                            bool dbIgnoreRecursionLoop = false,
-                                                            bool forceReattachToDatabaseContext = false)
+        public static RoutingResult FindSuccessorsFromPoint(ACClass from, ACClassProperty fromPoint, ACRoutingParameters routingParameters)
         {
-            if (routingService == null)
+            if (routingParameters.RoutingService == null)
             {
                 Msg msg = null;
-                routingService = GetRoutingService(from.GetACUrlComponent(), out msg);
+                routingParameters.RoutingService = GetRoutingService(from.GetACUrlComponent(), out msg);
             }
 
-            if (routingService != null && routingService.ConnectionState != ACObjectConnectionState.DisConnected)
+            if (routingParameters.RoutingService != null && routingParameters.RoutingService.ConnectionState != ACObjectConnectionState.DisConnected)
             {
-                return MemFindSuccessorsFromPoint(routingService, attachRouteItemsToContext ? database : null, from.GetACUrlComponent(), fromPoint.ACClassPropertyID, selectionRuleID, 
-                                                  direction, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, forceReattachToDatabaseContext);
+                return MemFindSuccessorsFromPoint(from.GetACUrlComponent(), fromPoint.ACClassPropertyID, routingParameters);
             }
             else
             {
-                return new RoutingResult(DbSelectRoutesFromPoint(database, from, fromPoint,
-                                                                 dbSelector,
-                                                                 dbDeSelector,
-                                                                 direction, dbIncludeInternalConnections, autoDetachFromDBContext, dbRecursionLimit),
-                                         true, null);
+                return new RoutingResult(DbSelectRoutesFromPoint(from, fromPoint, routingParameters), true, null);
             }
         }
 
-        public static RoutingResult FindSuccessorsFromPoint(ACComponent routingService, Database database, bool attachRouteItemsToContext,
-                                                            ACComponent from, ACClassProperty fromPoint, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams,
-                                                            Func<ACClass, ACClassProperty, Route, bool> dbSelector,
-                                                            Func<ACClass, ACClassProperty, Route, bool> dbDeSelector,
-                                                            int maxRouteAlternatives,
-                                                            bool includeReserved, bool includeAllocated,
-                                                            bool autoDetachFromDBContext = false,
-                                                            bool dbIncludeInternalConnections = false,
-                                                            int dbRecursionLimit = 0,
-                                                            bool dbIgnoreRecursionLoop = false, 
-                                                            bool forceReattachToDatabaseContext = false)
+        public static RoutingResult SelectRoutes(ACClass from, ACClass to, ACRoutingParameters routingParameters)
         {
-            if (routingService == null)
+            if (routingParameters.RoutingService == null)
             {
                 Msg msg = null;
-                routingService = GetRoutingService(from.GetACUrl(), out msg);
+                routingParameters.RoutingService = GetRoutingService(from.GetACUrlComponent(), out msg);
             }
 
-            if (routingService != null && routingService.ConnectionState != ACObjectConnectionState.DisConnected)
+            if (routingParameters.RoutingService != null && routingParameters.RoutingService.ConnectionState != ACObjectConnectionState.DisConnected)
             {
-                return MemFindSuccessorsFromPoint(routingService, attachRouteItemsToContext ? database : null, from.GetACUrl(), fromPoint.ACClassPropertyID, selectionRuleID, 
-                                                  direction, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, forceReattachToDatabaseContext);
+                //return MemSelectRoutes(attachRouteItemsToContext ? database : null, from.GetACUrlComponent(), to.GetACUrlComponent(), direction, selectionRuleID,
+                //                       maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext, previousRoute);
+
+                return MemSelectRoutes(from.GetACUrlComponent(), to.GetACUrlComponent(), routingParameters);
             }
             else
             {
-                var fromClass = from.ComponentClass.FromIPlusContext<gip.core.datamodel.ACClass>(database);
-                return new RoutingResult(DbSelectRoutesFromPoint(database, fromClass, fromPoint,
-                                                                 dbSelector,
-                                                                 dbDeSelector,
-                                                                 direction, dbIncludeInternalConnections, autoDetachFromDBContext, dbRecursionLimit),
-                                         true, null);
-            }
-        }
-
-        public static RoutingResult SelectRoutes(ACComponent routingService, Database database, bool attachRouteItemsToContext,
-            ACClass from, ACClass to, RouteDirections direction, string selectionRuleID, object[] selectionRuleParams,
-            Func<ACClass, ACClassProperty, Route, bool> dbSelector,
-            Func<ACClass, ACClassProperty, Route, bool> dbDeSelector,
-            int maxRouteAlternatives,
-            bool includeReserved, bool includeAllocated,
-            bool autoDetachFromDBContext = false,
-            bool dbIncludeInternalConnections = false,
-            int dbRecursionLimit = 0,
-            bool dbIgnoreRecursionLoop = false, 
-            bool forceReattachToDatabaseContext = false)
-        {
-            if (routingService == null)
-            {
-                Msg msg = null;
-                routingService = GetRoutingService(from.GetACUrlComponent(), out msg);
-            }
-
-            if (routingService != null && routingService.ConnectionState != ACObjectConnectionState.DisConnected)
-            {
-                return MemSelectRoutes(attachRouteItemsToContext ? database : null, from.GetACUrlComponent(), to.GetACUrlComponent(), direction, selectionRuleID,
-                                       maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext);
-            }
-            else
-            {
-                return new RoutingResult(DbSelectRoutes(database, from,
-                                    dbSelector,
-                                    dbDeSelector,
-                                    direction, dbIncludeInternalConnections, autoDetachFromDBContext, dbRecursionLimit),
-                                true, null);
+                return new RoutingResult(DbSelectRoutes(from, routingParameters), true, null);
             }
 
         }
 
-        public static RoutingResult SelectRoutes(ACComponent routingService, Database database, bool attachRouteItemsToContext,
-            ACClass from, IEnumerable<string> targets, RouteDirections direction, string selectionRuleID, object[] selectionRuleParams,
-            Func<ACClass, ACClassProperty, Route, bool> dbSelector,
-            Func<ACClass, ACClassProperty, Route, bool> dbDeSelector,
-            int maxRouteAlternatives,
-            bool includeReserved, bool includeAllocated,
-            bool autoDetachFromDBContext = false,
-            bool dbIncludeInternalConnections = false,
-            int dbRecursionLimit = 0,
-            bool dbIgnoreRecursionLoop = false, 
-            bool forceReattachToDatabaseContext = false)
+        public static RoutingResult SelectRoutes(ACClass from, IEnumerable<string> targets, ACRoutingParameters routingParameters)
         {
-            if (routingService == null)
+            if (routingParameters.RoutingService == null)
             {
                 Msg msg = null;
-                routingService = GetRoutingService(from.GetACUrlComponent(), out msg);
+                routingParameters.RoutingService = GetRoutingService(from.GetACUrlComponent(), out msg);
             }
 
-            if (routingService != null && routingService.ConnectionState != ACObjectConnectionState.DisConnected)
+            if (routingParameters.RoutingService != null && routingParameters.RoutingService.ConnectionState != ACObjectConnectionState.DisConnected)
             {
-                return MemSelectRoutes(attachRouteItemsToContext ? database : null, new string[] { from.GetACUrlComponent() }, targets, direction, selectionRuleID,
-                                       maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext);
+                //return MemSelectRoutes(attachRouteItemsToContext ? database : null, new string[] { from.GetACUrlComponent() }, targets, direction, selectionRuleID,
+                //                       maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext, previousRoute);
+
+                return MemSelectRoutes(new string[] { from.GetACUrlComponent() }, targets, routingParameters);
             }
             else
             {
-                return new RoutingResult(DbSelectRoutes(database, from,
-                                    dbSelector,
-                                    dbDeSelector,
-                                    direction, dbIncludeInternalConnections, autoDetachFromDBContext, dbRecursionLimit),
-                                true, null);
+                return new RoutingResult(DbSelectRoutes(from, routingParameters), true, null);
             }
-
         }
 
-        public static RoutingResult SelectRoutes(ACComponent routingService, Database database, bool attachRouteItemsToContext,
-            ACComponent from, ACComponent to, RouteDirections direction, string selectionRuleID, object[] selectionRuleParams,
-            Func<ACClass, ACClassProperty, Route, bool> dbSelector,
-            Func<ACClass, ACClassProperty, Route, bool> dbDeSelector,
-            int maxRouteAlternatives,
-            bool includeReserved, bool includeAllocated,
-            bool autoDetachFromDBContext = false,
-            bool dbIncludeInternalConnections = false,
-            int dbRecursionLimit = 0,
-            bool dbIgnoreRecursionLoop = false, 
-            bool forceReattachToDatabaseContext = false)
+        public static RoutingResult SelectRoutes(ACComponent from, ACComponent to, ACRoutingParameters routingParameters)
         {
-            if (routingService == null)
+            if (routingParameters.RoutingService == null)
             {
                 Msg msg = null;
-                routingService = GetRoutingService(from.GetACUrl(), out msg);
+                routingParameters.RoutingService = GetRoutingService(from.GetACUrl(), out msg);
             }
 
-            if (routingService != null && routingService.ConnectionState != ACObjectConnectionState.DisConnected)
+            if (routingParameters.RoutingService != null && routingParameters.RoutingService.ConnectionState != ACObjectConnectionState.DisConnected)
             {
-                return MemSelectRoutes(attachRouteItemsToContext ? database : null, from.GetACUrl(), to.GetACUrl(), direction, selectionRuleID, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext);
+                //return MemSelectRoutes(attachRouteItemsToContext ? database : null, from.GetACUrl(), to.GetACUrl(), direction, selectionRuleID, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, 
+                //                       forceReattachToDatabaseContext, previousRoute);
+
+                return MemSelectRoutes(from.GetACUrl(), to.GetACUrl(), routingParameters);
             }
             else
             {
-                var fromClass = from.ComponentClass.FromIPlusContext<gip.core.datamodel.ACClass>(database);
-                return new RoutingResult(DbSelectRoutes(database, fromClass,
-                                    dbSelector,
-                                    dbDeSelector,
-                                    direction, dbIncludeInternalConnections, autoDetachFromDBContext, dbRecursionLimit),
-                                true, null);
+                var fromClass = from.ComponentClass.FromIPlusContext<gip.core.datamodel.ACClass>(routingParameters.Database);
+                return new RoutingResult(DbSelectRoutes(fromClass, routingParameters), true, null);
             }
 
         }
@@ -606,79 +477,74 @@ namespace gip.core.autocomponent
             return routingServiceACUrl;
         }
 
-        public static RoutingResult MemFindSuccessors(Database database, ACComponent from, string selectionRuleID, RouteDirections direction, int maxRouteAlternatives,
-                                                      bool includeReserved, bool includeAllocated, object[] selectionRuleParams = null, bool forceReattachToDatabaseContext = false)
+        //public static RoutingResult MemFindSuccessors(ACComponent from, ACRoutingParameters routingParameters)
+        //{
+        //    return MemFindSuccessors(database, from.GetACUrl(), selectionRuleID, direction, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, forceReattachToDatabaseContext);
+        //}
+
+        //public static RoutingResult MemFindSuccessors(string startComponentACUrl, ACRoutingParameters routingParameters)
+        //{
+        //    Msg msg = null;
+        //    ACComponent routingService = GetRoutingService(startComponentACUrl, out msg);
+        //    if (routingService == null)
+        //        return new RoutingResult(null, false, msg);
+
+        //    return MemFindSuccessors(routingService, database, startComponentACUrl, selectionRuleID, direction, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, forceReattachToDatabaseContext);
+        //}
+
+        public static RoutingResult MemFindSuccessors(ACComponent from, ACRoutingParameters routingParameters)
         {
-            return MemFindSuccessors(database, from.GetACUrl(), selectionRuleID, direction, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, forceReattachToDatabaseContext);
+            return MemFindSuccessors(from.GetACUrl(), routingParameters);
         }
 
-        public static RoutingResult MemFindSuccessors(Database database, string startComponentACUrl, string selectionRuleID, RouteDirections direction, int maxRouteAlternatives,
-                                                      bool includeReserved, bool includeAllocated, object[] selectionRuleParams = null, bool forceReattachToDatabaseContext = false)
+        public static RoutingResult MemFindSuccessors(string startComponentACUrl, ACRoutingParameters routingParameters)
         {
-            Msg msg = null;
-            ACComponent routingService = GetRoutingService(startComponentACUrl, out msg);
-            if (routingService == null)
-                return new RoutingResult(null, false, msg);
-
-            return MemFindSuccessors(routingService, database, startComponentACUrl, selectionRuleID, direction, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, forceReattachToDatabaseContext);
-        }
-
-        public static RoutingResult MemFindSuccessors(ACComponent routingService, Database database, ACComponent from, string selectionRuleID, RouteDirections direction,
-                                                           int maxRouteAlternatives, bool includeReserved, bool includeAllocated, object[] selectionRuleParams = null, bool forceReattachToDatabaseContext = false)
-        {
-            return MemFindSuccessors(routingService, database, from.GetACUrl(), selectionRuleID, direction, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, forceReattachToDatabaseContext);
-        }
-
-        public static RoutingResult MemFindSuccessors(ACComponent routingService, Database database, string startComponentACUrl, string selectionRuleID, RouteDirections direction,
-                                                           int maxRouteAlternatives, bool includeReserved, bool includeAllocated, object[] selectionRuleParams = null, bool forceReattachToDatabaseContext = false)
-        {
-            if (routingService == null || routingService.ConnectionState == ACObjectConnectionState.DisConnected)
+            if (routingParameters.RoutingService == null || routingParameters.RoutingService.ConnectionState == ACObjectConnectionState.DisConnected)
                 return new RoutingResult(null, false, new Msg() { Message = "The routing service is unavailable!" });
-            if (selectionRuleParams == null)
-                selectionRuleParams = new object[] { };
+            
+            if (routingParameters.SelectionRuleParams == null)
+                routingParameters.SelectionRuleParams = new object[] { };
 
-            var routeResult = routingService.ExecuteMethod(MN_FindSuccessors, startComponentACUrl, selectionRuleID, direction, selectionRuleParams, maxRouteAlternatives, includeReserved, includeAllocated) as RoutingResult;
+            var routeResult = routingParameters.RoutingService.ExecuteMethod(nameof(FindSuccessorsInstance), startComponentACUrl, routingParameters) as RoutingResult;
             if (routeResult != null && routeResult.Message != null && routeResult.Message.MessageLevel > eMsgLevel.Warning)
                 return routeResult;
 
             if (routeResult == null || !routeResult.Routes.Any())
                 return new RoutingResult(null, false, new Msg() { Message = string.Format("Successors are not found for the component with ACUrl {0}!", startComponentACUrl) });
 
-            if (database != null)
+            if (routingParameters.Database != null)
             {
                 foreach (Route item in routeResult.Routes)
                 {
-                    if (!item.IsAttached || forceReattachToDatabaseContext)
-                        item.AttachTo(database);
+                    if (!item.IsAttached || routingParameters.ForceReattachToDatabaseContext)
+                        item.AttachTo(routingParameters.Database);
                 }
             }
 
             return routeResult;
         }
 
-        public static RoutingResult MemFindSuccessorsFromPoint(ACComponent routingService, Database database, string startComponentACUrl, Guid fromPointACClassPropID, 
-                                                               string selectionRuleID, RouteDirections direction, int maxRouteAlternatives, bool includeReserved, bool includeAllocated, 
-                                                               object[] selectionRuleParams = null, bool forceReattachToDatabaseContext = false)
+        public static RoutingResult MemFindSuccessorsFromPoint(string startComponentACUrl, Guid fromPointACClassPropID, ACRoutingParameters routingParameters)
         {
-            if (routingService == null || routingService.ConnectionState == ACObjectConnectionState.DisConnected)
+            if (routingParameters.RoutingService == null || routingParameters.RoutingService.ConnectionState == ACObjectConnectionState.DisConnected)
                 return new RoutingResult(null, false, new Msg() { Message = "The routing service is unavailable!" });
-            if (selectionRuleParams == null)
-                selectionRuleParams = new object[] { };
 
-            var routeResult = routingService.ExecuteMethod(MN_FindSuccessorsFromPoint, startComponentACUrl, fromPointACClassPropID, selectionRuleID, direction, selectionRuleParams, 
-                                                           maxRouteAlternatives, includeReserved, includeAllocated) as RoutingResult;
+            if (routingParameters.SelectionRuleParams == null)
+                routingParameters.SelectionRuleParams = new object[] { };
+
+            var routeResult = routingParameters.RoutingService.ExecuteMethod(nameof(FindSuccessorsFromPointInstance), startComponentACUrl, fromPointACClassPropID, routingParameters) as RoutingResult;
             if (routeResult != null && routeResult.Message != null && routeResult.Message.MessageLevel > eMsgLevel.Warning)
                 return routeResult;
 
             if (routeResult == null || !routeResult.Routes.Any())
                 return new RoutingResult(null, false, new Msg() { Message = string.Format("Successors are not found for the component with ACUrl {0}!", startComponentACUrl) });
 
-            if (database != null)
+            if (routingParameters.Database != null)
             {
                 foreach (Route item in routeResult.Routes)
                 {
-                    if (!item.IsAttached || forceReattachToDatabaseContext)
-                        item.AttachTo(database);
+                    if (!item.IsAttached || routingParameters.ForceReattachToDatabaseContext)
+                        item.AttachTo(routingParameters.Database);
                 }
             }
 
@@ -687,37 +553,35 @@ namespace gip.core.autocomponent
 
 
         //find a routes between start and end components
-        public static RoutingResult MemSelectRoutes(Database database, string startComponentsACUrl, string endComponentACUrl, RouteDirections direction, string selectionRuleID,
-                                                         int maxRouteAlternatives, bool includeReserved, bool includeAllocated, object[] selectionRuleParams = null, ACComponent routingService = null, bool forceReattachToDatabaseContext = false)
+        public static RoutingResult MemSelectRoutes(string startComponentsACUrl, string endComponentACUrl, ACRoutingParameters routingParameters)
         {
-            return MemSelectRoutes(database, new string[] { startComponentsACUrl }, new string[] { endComponentACUrl }, direction, selectionRuleID, maxRouteAlternatives, includeReserved, includeAllocated, selectionRuleParams, routingService, forceReattachToDatabaseContext);
+            return MemSelectRoutes(new string[] { startComponentsACUrl }, new string[] { endComponentACUrl }, routingParameters);
         }
 
-        public static RoutingResult MemSelectRoutes(Database database, IEnumerable<string> startComponentsACUrl, IEnumerable<string> endComponentsACUrl, RouteDirections direction,
-                                                    string selectionRuleID, int maxRouteAlternatives, bool includeReserved, bool includeAllocated, object[] selectionRuleParams = null, ACComponent routingService = null, bool forceReattachToDatabaseContext = false)
+        public static RoutingResult MemSelectRoutes(IEnumerable<string> startComponentsACUrl, IEnumerable<string> endComponentsACUrl, ACRoutingParameters routingParameters)
         {
             Msg msg = null;
-            if (routingService == null)
-                routingService = GetRoutingService(startComponentsACUrl.FirstOrDefault(), out msg) as ACComponent;
+            if (routingParameters.RoutingService == null)
+                routingParameters.RoutingService = GetRoutingService(startComponentsACUrl.FirstOrDefault(), out msg) as ACComponent;
 
             if (msg != null)
                 return new RoutingResult(null, false, msg);
 
-            if (routingService == null || routingService.ConnectionState == ACObjectConnectionState.DisConnected)
+            if (routingParameters.RoutingService == null || routingParameters.RoutingService.ConnectionState == ACObjectConnectionState.DisConnected)
                 return new RoutingResult(null, false, new Msg() { Message = "Routing service is unavailable!" });
 
-            var routeResult = routingService.ExecuteMethod(MN_SelectRoutes, startComponentsACUrl.ToArray(), endComponentsACUrl.ToArray(), direction, selectionRuleID, selectionRuleParams, maxRouteAlternatives, includeReserved, includeAllocated) as RoutingResult;
+            var routeResult = routingParameters.RoutingService.ExecuteMethod(nameof(SelectRoutesInstance), startComponentsACUrl.ToArray(), endComponentsACUrl.ToArray(), routingParameters) as RoutingResult;
             if (routeResult == null || (routeResult.Routes == null && routeResult.Message == null))
                 return new RoutingResult(null, false, new Msg() { Message = "Routes not found!" });
             else if (routeResult.Routes == null && routeResult.Message != null)
                 return routeResult;
 
-            if (database != null)
+            if (routingParameters.Database != null)
             {
                 foreach (Route item in routeResult.Routes)
                 {
-                    if (!item.IsAttached || forceReattachToDatabaseContext)
-                        item.AttachTo(database);
+                    if (!item.IsAttached || routingParameters.ForceReattachToDatabaseContext)
+                        item.AttachTo(routingParameters.Database);
                 }
             }
 
@@ -729,16 +593,9 @@ namespace gip.core.autocomponent
         #region Routing over database
 
         #region public
-        public static IReadOnlyList<Route> DbSelectRoutes(Database database, ACClass start,
-            Func<ACClass, ACClassProperty, Route, bool> selector,
-            Func<ACClass, ACClassProperty, Route, bool> deSelector,
-            RouteDirections direction,
-            bool includeInternalConnections = false,
-            bool autoDetachFromDBContext = false,
-            int recursionLimit = 0,
-            bool ignoreRecursionLoop = false)
+        public static IReadOnlyList<Route> DbSelectRoutes(ACClass start, ACRoutingParameters routingParameters)
         {
-            if (database == null)
+            if (routingParameters.Database == null)
             {
                 throw new ArgumentNullException("database");
             }
@@ -751,15 +608,15 @@ namespace gip.core.autocomponent
                 List<Route> list = new List<Route>();
 
 
-                using (ACMonitor.Lock(database.QueryLock_1X000))
+                using (ACMonitor.Lock(routingParameters.Database.QueryLock_1X000))
                 {
                     IEnumerable<ACClassPropertyRelation> query;
-                    if (direction == RouteDirections.Backwards)
+                    if (routingParameters.Direction == RouteDirections.Backwards)
                     {
-                        if (includeInternalConnections && start.ACKind == Global.ACKinds.TPAProcessFunction)
+                        if (routingParameters.DBIncludeInternalConnections && start.ACKind == Global.ACKinds.TPAProcessFunction)
                         {
                             // Query internal connections
-                            query = s_cQry_TargetRoutes(database, start.ACClassID, (short)Global.ConnectionTypes.LogicalBridge);
+                            query = s_cQry_TargetRoutes(routingParameters.Database, start.ACClassID, (short)Global.ConnectionTypes.LogicalBridge);
 
                             if (!query.Any())
                                 throw new Exception("Broken internal route in " + start.ACClassID);
@@ -767,14 +624,15 @@ namespace gip.core.autocomponent
                         else
                         {
                             // Query physical connections
-                            query = s_cQry_TargetRoutes(database, start.ACClassID, (short)Global.ConnectionTypes.ConnectionPhysical);
+                            query = s_cQry_TargetRoutes(routingParameters.Database, start.ACClassID, (short)Global.ConnectionTypes.ConnectionPhysical);
                         }
 
 
                         // Get routes for all start ACClass properites
                         foreach (ACClassPropertyRelation rTarget in query)
                         {
-                            list.AddRange(DbSelectUpwardRoutes(database, 0, new Route(new RouteItem(rTarget)), selector, deSelector, includeInternalConnections, recursionLimit, ignoreRecursionLoop));
+                            list.AddRange(DbSelectUpwardRoutes(routingParameters.Database, 0, new Route(new RouteItem(rTarget)), routingParameters.DBSelector, routingParameters.DBDeSelector, 
+                                                               routingParameters.DBIncludeInternalConnections, routingParameters.DBRecursionLimit, routingParameters.DBIgnoreRecursionLoop));
                         }
 
                         // Reverse routes
@@ -785,10 +643,10 @@ namespace gip.core.autocomponent
                     }
                     else
                     {
-                        if (includeInternalConnections && start.ACKind == Global.ACKinds.TPAProcessFunction)
+                        if (routingParameters.DBIncludeInternalConnections && start.ACKind == Global.ACKinds.TPAProcessFunction)
                         {
                             // Query internal connections
-                            query = s_cQry_SourceRoutes(database, start.ACClassID, (short)Global.ConnectionTypes.LogicalBridge);
+                            query = s_cQry_SourceRoutes(routingParameters.Database, start.ACClassID, (short)Global.ConnectionTypes.LogicalBridge);
 
                             if (!query.Any())
                                 throw new Exception("Broken internal route in " + start.ACClassID);
@@ -796,14 +654,15 @@ namespace gip.core.autocomponent
                         else
                         {
                             // Query physical connections
-                            query = s_cQry_SourceRoutes(database, start.ACClassID, (short)Global.ConnectionTypes.ConnectionPhysical);
+                            query = s_cQry_SourceRoutes(routingParameters.Database, start.ACClassID, (short)Global.ConnectionTypes.ConnectionPhysical);
                         }
 
 
                         // Get routes for all start ACClass properites
                         foreach (ACClassPropertyRelation rSource in query)
                         {
-                            list.AddRange(DbSelectDownwardRoutes(database, 0, new Route(new RouteItem(rSource)), selector, deSelector, includeInternalConnections, recursionLimit, ignoreRecursionLoop));
+                            list.AddRange(DbSelectDownwardRoutes(routingParameters.Database, 0, new Route(new RouteItem(rSource)), routingParameters.DBSelector, routingParameters.DBDeSelector,
+                                                                 routingParameters.DBIncludeInternalConnections, routingParameters.DBRecursionLimit, routingParameters.DBIgnoreRecursionLoop));
                         }
                     }
                 }
@@ -820,22 +679,15 @@ namespace gip.core.autocomponent
                 //                    Database.Root.Messages.LogDebug("Route", "SelectRoutes", builder.ToString());
                 //                }
                 //#endif
-                if (autoDetachFromDBContext)
+                if (routingParameters.AutoDetachFromDBContext)
                     list.ForEach(c => c.DetachEntitesFromDbContext());
                 return list;
             }
         }
 
-        public static IReadOnlyList<Route> DbSelectRoutesFromPoint(Database database, ACClass start, ACClassProperty startPoint,
-            Func<ACClass, ACClassProperty, Route, bool> selector,
-            Func<ACClass, ACClassProperty, Route, bool> deSelector,
-            RouteDirections direction,
-            bool includeInternalConnections = false,
-            bool autoDetachFromDBContext = false,
-            int recursionLimit = 0,
-            bool ignoreRecursionLoop = false)
+        public static IReadOnlyList<Route> DbSelectRoutesFromPoint(ACClass start, ACClassProperty startPoint, ACRoutingParameters routingParameters)
         {
-            if (database == null)
+            if (routingParameters.Database == null)
             {
                 throw new ArgumentNullException("database");
             }
@@ -848,15 +700,15 @@ namespace gip.core.autocomponent
                 List<Route> list = new List<Route>();
 
 
-                using (ACMonitor.Lock(database.QueryLock_1X000))
+                using (ACMonitor.Lock(routingParameters.Database.QueryLock_1X000))
                 {
                     IEnumerable<ACClassPropertyRelation> query;
-                    if (direction == RouteDirections.Backwards)
+                    if (routingParameters.Direction == RouteDirections.Backwards)
                     {
-                        if (includeInternalConnections && start.ACKind == Global.ACKinds.TPAProcessFunction)
+                        if (routingParameters.DBIncludeInternalConnections && start.ACKind == Global.ACKinds.TPAProcessFunction)
                         {
                             // Query internal connections
-                            query = s_cQry_TargetRoutesFromPoint(database, start.ACClassID, startPoint.ACClassPropertyID, (short)Global.ConnectionTypes.LogicalBridge);
+                            query = s_cQry_TargetRoutesFromPoint(routingParameters.Database, start.ACClassID, startPoint.ACClassPropertyID, (short)Global.ConnectionTypes.LogicalBridge);
 
                             if (!query.Any())
                                 throw new Exception(String.Format("Broken internal route in {0}, {1}", start.GetACUrlComponent(), start.ACClassID));
@@ -864,14 +716,15 @@ namespace gip.core.autocomponent
                         else
                         {
                             // Query physical connections
-                            query = s_cQry_TargetRoutesFromPoint(database, start.ACClassID, startPoint.ACClassPropertyID, (short)Global.ConnectionTypes.ConnectionPhysical);
+                            query = s_cQry_TargetRoutesFromPoint(routingParameters.Database, start.ACClassID, startPoint.ACClassPropertyID, (short)Global.ConnectionTypes.ConnectionPhysical);
                         }
 
 
                         // Get routes for all start ACClass properites
                         foreach (ACClassPropertyRelation rTarget in query)
                         {
-                            list.AddRange(DbSelectUpwardRoutes(database, 0, new Route(new RouteItem(rTarget)), selector, deSelector, includeInternalConnections, recursionLimit, ignoreRecursionLoop));
+                            list.AddRange(DbSelectUpwardRoutes(routingParameters.Database, 0, new Route(new RouteItem(rTarget)), routingParameters.DBSelector, routingParameters.DBDeSelector, routingParameters.DBIncludeInternalConnections,
+                                                               routingParameters.DBRecursionLimit, routingParameters.DBIgnoreRecursionLoop));
                         }
 
                         // Reverse routes
@@ -882,10 +735,10 @@ namespace gip.core.autocomponent
                     }
                     else
                     {
-                        if (includeInternalConnections && start.ACKind == Global.ACKinds.TPAProcessFunction)
+                        if (routingParameters.DBIncludeInternalConnections && start.ACKind == Global.ACKinds.TPAProcessFunction)
                         {
                             // Query internal connections
-                            query = s_cQry_SourceRoutesFromPoint(database, start.ACClassID, startPoint.ACClassPropertyID, (short)Global.ConnectionTypes.LogicalBridge);
+                            query = s_cQry_SourceRoutesFromPoint(routingParameters.Database, start.ACClassID, startPoint.ACClassPropertyID, (short)Global.ConnectionTypes.LogicalBridge);
 
                             if (!query.Any())
                                 throw new Exception(String.Format("Broken internal route in {0}, {1}, {2}, {3}, {4}", start.ACIdentifier, start.GetACUrlComponent(), start.ACClassID, startPoint.ACIdentifier, startPoint.ACClassPropertyID));
@@ -893,14 +746,15 @@ namespace gip.core.autocomponent
                         else
                         {
                             // Query physical connections
-                            query = s_cQry_SourceRoutesFromPoint(database, start.ACClassID, startPoint.ACClassPropertyID, (short)Global.ConnectionTypes.ConnectionPhysical);
+                            query = s_cQry_SourceRoutesFromPoint(routingParameters.Database, start.ACClassID, startPoint.ACClassPropertyID, (short)Global.ConnectionTypes.ConnectionPhysical);
                         }
 
 
                         // Get routes for all start ACClass properites
                         foreach (ACClassPropertyRelation rSource in query)
                         {
-                            list.AddRange(DbSelectDownwardRoutes(database, 0, new Route(new RouteItem(rSource)), selector, deSelector, includeInternalConnections, recursionLimit, ignoreRecursionLoop));
+                            list.AddRange(DbSelectDownwardRoutes(routingParameters.Database, 0, new Route(new RouteItem(rSource)), routingParameters.DBSelector, routingParameters.DBDeSelector, routingParameters.DBIncludeInternalConnections,
+                                                                 routingParameters.DBRecursionLimit, routingParameters.DBIgnoreRecursionLoop));
                         }
                     }
                 }
@@ -917,7 +771,7 @@ namespace gip.core.autocomponent
                 //                    Database.Root.Messages.LogDebug("Route", "SelectRoutes", builder.ToString());
                 //                }
                 //#endif
-                if (autoDetachFromDBContext)
+                if (routingParameters.AutoDetachFromDBContext)
                     list.ForEach(c => c.DetachEntitesFromDbContext());
                 return list;
             }
@@ -1071,8 +925,7 @@ namespace gip.core.autocomponent
 
         #region Instance-Methods
         [ACMethodInfo("", "", 301, true)]
-        public Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>> BuildAvailableRoutes(string startComponentACUrl, string endComponentACUrl, int maxRouteAlternatives,
-                                                                                         bool includeReserved, bool includeAllocated, bool isForEditor = false)
+        public Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>> BuildAvailableRoutes(string startComponentACUrl, string endComponentACUrl, ACRoutingParameters routingParameters)
         {
             var startComponent = ACUrlCommand(startComponentACUrl) as ACComponent;
             var endComponent = ACUrlCommand(endComponentACUrl) as ACComponent;
@@ -1080,13 +933,12 @@ namespace gip.core.autocomponent
             if (startComponent == null || endComponent == null)
                 return null;
 
-            return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent), new ACRoutingVertex(endComponent), maxRouteAlternatives, includeReserved, 
-                                                          includeAllocated, isForEditor);
+            return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent), new ACRoutingVertex(endComponent), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved, 
+                                                          routingParameters.IncludeAllocated, routingParameters.IsForEditor);
         }
 
         [ACMethodInfo("", "", 301, true)]
-        public Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>> BuildAvailableRoutesFromPoints(string startComponentACUrl, Guid? startPointID, string endComponentACUrl, Guid? endPointID, int maxRouteAlternatives,
-                                                                                 bool includeReserved, bool includeAllocated, bool isForEditor = false, string selectionRuleID = null, object[] selectionRuleParams = null)
+        public Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>> BuildAvailableRoutesFromPoints(string startComponentACUrl, Guid? startPointID, string endComponentACUrl, Guid? endPointID, ACRoutingParameters routingParameters)
         {
             var startComponent = ACUrlCommand(startComponentACUrl) as ACComponent;
             var endComponent = ACUrlCommand(endComponentACUrl) as ACComponent;
@@ -1096,22 +948,22 @@ namespace gip.core.autocomponent
 
             if (startPointID.HasValue && endPointID.HasValue)
             {
-                return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, startPointID.Value), new ACRoutingVertex(endComponent, endPointID.Value), maxRouteAlternatives, includeReserved,
-                                                          includeAllocated, isForEditor, selectionRuleID, selectionRuleParams);
+                return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, startPointID.Value), new ACRoutingVertex(endComponent, endPointID.Value), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved,
+                                                          routingParameters.IncludeAllocated, routingParameters.IsForEditor, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams);
             }
             else if (startPointID.HasValue && !endPointID.HasValue)
             {
-                return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, startPointID.Value), new ACRoutingVertex(endComponent), maxRouteAlternatives, includeReserved,
-                                                          includeAllocated, isForEditor, selectionRuleID, selectionRuleParams);
+                return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, startPointID.Value), new ACRoutingVertex(endComponent), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved,
+                                                          routingParameters.IncludeAllocated, routingParameters.IsForEditor, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams);
             }
             else if (!startPointID.HasValue && endPointID.HasValue)
             {
-                return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent), new ACRoutingVertex(endComponent, endPointID.Value), maxRouteAlternatives, includeReserved,
-                                                          includeAllocated, isForEditor, selectionRuleID, selectionRuleParams);
+                return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent), new ACRoutingVertex(endComponent, endPointID.Value), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved,
+                                                          routingParameters.IncludeAllocated, routingParameters.IsForEditor, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams);
             }
 
-            return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent), new ACRoutingVertex(endComponent), maxRouteAlternatives, includeReserved,
-                                                          includeAllocated, isForEditor, selectionRuleID, selectionRuleParams);
+            return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent), new ACRoutingVertex(endComponent), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved,
+                                                          routingParameters.IncludeAllocated, routingParameters.IsForEditor, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams);
         }
 
         /// <summary>Searches a route from start components to end components.</summary>
@@ -1125,8 +977,7 @@ namespace gip.core.autocomponent
         /// <param name="includeAllocated"></param>
         /// <returns>Available routes between start and end components.</returns>
         [ACMethodInfo("", "", 302, true)]
-        public RoutingResult SelectRoutes(string[] startComponentsACUrl, string[] endComponentsACUrl, RouteDirections routeDirection, string selectionRuleID, object[] selectionRuleParams,
-                                          int maxRouteAlternatives, bool includeReserved, bool includeAllocated)
+        public RoutingResult SelectRoutesInstance(string[] startComponentsACUrl, string[] endComponentsACUrl, ACRoutingParameters routingParameters)
         {
             Msg msg = CheckRoutingService(startComponentsACUrl, endComponentsACUrl);
             if (msg != null)
@@ -1135,7 +986,7 @@ namespace gip.core.autocomponent
             List<ACComponent> startComponents;
             List<ACComponent> endComponents;
 
-            if (routeDirection == RouteDirections.Backwards)
+            if (routingParameters.Direction == RouteDirections.Backwards)
             {
                 startComponents = FindComponent(endComponentsACUrl);
                 endComponents = FindComponent(startComponentsACUrl);
@@ -1152,9 +1003,17 @@ namespace gip.core.autocomponent
                     return new RoutingResult(null, false, msg);
             }
 
+            if (SelectRouteDependUsage)
+            {
+                if (routingParameters.MaxRouteAlternativesInLoop < MaxAlternativesOnRouteDependUsage)
+                    routingParameters.MaxRouteAlternativesInLoop = MaxAlternativesOnRouteDependUsage;
+                if (routingParameters.MaxRouteAlternativesInLoop < 2)
+                    routingParameters.MaxRouteAlternativesInLoop = 2;
+            }
+
             Tuple<ACRoutingVertex[], ACRoutingVertex[]> routeVertices = CreateRoutingVertices(startComponents, endComponents);
-            RoutingResult rResult = new ACRoutingSession(this).FindRoute(routeVertices.Item1, routeVertices.Item2, selectionRuleID, selectionRuleParams, maxRouteAlternatives, 
-                                                                         includeReserved, includeAllocated);
+            RoutingResult rResult = new ACRoutingSession(this).FindRoute(routeVertices.Item1, routeVertices.Item2, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams, routingParameters.MaxRouteAlternativesInLoop, routingParameters.MaxRouteLoopDepth,
+                                                                         routingParameters.IncludeReserved, routingParameters.IncludeAllocated, routingParameters.PreviousRoute);
 
             if (DumpRoutingData && rResult != null && rResult.Message != null && rResult.Message.MessageLevel <= eMsgLevel.Warning)
             {
@@ -1164,8 +1023,7 @@ namespace gip.core.autocomponent
             return rResult;
         }
 
-        public RoutingResult SelectRoutesFromPoint(string startComponentACUrl, Guid sourcePointID, string[] endComponentsACUrl, RouteDirections routeDirection, string selectionRuleID, 
-                                                   object[] selectionRuleParams, int maxRouteAlternatives, bool includeReserved, bool includeAllocated)
+        public RoutingResult SelectRoutesFromPointInstance(string startComponentACUrl, Guid sourcePointID, string[] endComponentsACUrl, ACRoutingParameters routingParameters)
         {
             Msg msg = CheckRoutingService(new string[] { startComponentACUrl }, endComponentsACUrl);
             if (msg != null)
@@ -1174,7 +1032,7 @@ namespace gip.core.autocomponent
             List<ACComponent> startComponents;
             List<ACComponent> endComponents;
 
-            if (routeDirection == RouteDirections.Backwards)
+            if (routingParameters.Direction == RouteDirections.Backwards)
             {
                 startComponents = FindComponent(endComponentsACUrl);
                 endComponents = FindComponent(new string[] { startComponentACUrl });
@@ -1192,8 +1050,8 @@ namespace gip.core.autocomponent
             }
 
             Tuple<ACRoutingVertex[], ACRoutingVertex[]> routeVertices = CreateRoutingVerticesFromPoint(startComponents.FirstOrDefault(), sourcePointID, endComponents);
-            RoutingResult rResult = new ACRoutingSession(this).FindRoute(routeVertices.Item1, routeVertices.Item2, selectionRuleID, selectionRuleParams, maxRouteAlternatives, 
-                                                                         includeReserved, includeAllocated);
+            RoutingResult rResult = new ACRoutingSession(this).FindRoute(routeVertices.Item1, routeVertices.Item2, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams, routingParameters.MaxRouteAlternativesInLoop, 
+                                                                         routingParameters.MaxRouteLoopDepth, routingParameters.IncludeReserved, routingParameters.IncludeAllocated, routingParameters.PreviousRoute);
 
             if (DumpRoutingData && rResult != null && rResult.Message != null && rResult.Message.MessageLevel <= eMsgLevel.Warning)
             {
@@ -1211,12 +1069,12 @@ namespace gip.core.autocomponent
         /// <param name="maxRouteAlternatives"></param>
         /// <param name="includeReserved"></param>
         /// <param name="includeAllocated"></param>
+        /// <param name="resultMode"></param>
         /// <returns>
         ///   <br />
         /// </returns>
         [ACMethodInfo("", "", 304, true)]
-        public RoutingResult FindSuccessors(string startComponentACUrl, string selectionRuleID, RouteDirections routeDirection, object[] selectionRuleParams, int maxRouteAlternatives,
-                                            bool includeReserved, bool includeAllocated)
+        public RoutingResult FindSuccessorsInstance(string startComponentACUrl, ACRoutingParameters routingParameters)
         {
             var startComp = ACUrlCommand(startComponentACUrl) as ACComponent;
             if (startComp == null)
@@ -1225,8 +1083,8 @@ namespace gip.core.autocomponent
                 return new RoutingResult(null, false, msg);
             }
 
-            var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp), selectionRuleID, routeDirection, selectionRuleParams, maxRouteAlternatives,
-                                                                   includeReserved, includeAllocated);
+            var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp), routingParameters.SelectionRuleID, routingParameters.Direction, routingParameters.SelectionRuleParams, routingParameters.MaxRouteAlternativesInLoop,
+                                                                   routingParameters.MaxRouteLoopDepth, routingParameters.IncludeReserved, routingParameters.IncludeAllocated, routingParameters.ResultMode);
             if (result != null && result.Message != null)
             {
                 if (result.Message.MessageLevel > eMsgLevel.Warning)
@@ -1247,8 +1105,7 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInfo("", "", 305)]
-        public RoutingResult FindLastSuccessors(string startComponentACUrl, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams,
-                                                bool includeReserved, bool includeAllocated)
+        public RoutingResult FindLastSuccessorsInstance(string startComponentACUrl, ACRoutingParameters routingParameters)
         {
             var startComp = ACUrlCommand(startComponentACUrl) as ACComponent;
             if (startComp == null)
@@ -1257,8 +1114,8 @@ namespace gip.core.autocomponent
                 return new RoutingResult(null, false, msg);
             }
 
-            RoutingResult rResult = new ACRoutingSession(this).FindAvailableComponents(new ACRoutingVertex(startComp), selectionRuleID, direction, selectionRuleParams, 
-                                                                                       includeReserved, includeAllocated);
+            RoutingResult rResult = new ACRoutingSession(this).FindAvailableComponents(new ACRoutingVertex(startComp), routingParameters.SelectionRuleID, routingParameters.Direction, routingParameters.SelectionRuleParams, 
+                                                                                       routingParameters.IncludeReserved, routingParameters.IncludeAllocated);
             
             if (DumpRoutingData && rResult != null && rResult.Message != null && rResult.Message.MessageLevel <= eMsgLevel.Warning)
             {
@@ -1269,8 +1126,7 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInfo("", "", 305)]
-        public RoutingResult FindSuccessorsFromPoint(string startComponentACUrl, Guid startPointACClassPropID, string selectionRuleID, RouteDirections routeDirection, 
-                                                    object[] selectionRuleParams, int maxRouteAlternatives, bool includeReserved, bool includeAllocated)
+        public RoutingResult FindSuccessorsFromPointInstance(string startComponentACUrl, Guid startPointACClassPropID, ACRoutingParameters routingParameters)
         {
             var startComp = ACUrlCommand(startComponentACUrl) as ACComponent;
             if (startComp == null)
@@ -1279,8 +1135,8 @@ namespace gip.core.autocomponent
                 return new RoutingResult(null, false, msg);
             }
 
-            var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp, startPointACClassPropID), selectionRuleID, routeDirection, selectionRuleParams, 
-                                                                   maxRouteAlternatives, includeReserved, includeAllocated);
+            var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp, startPointACClassPropID), routingParameters.SelectionRuleID, routingParameters.Direction, routingParameters.SelectionRuleParams, 
+                                                                   routingParameters.MaxRouteAlternativesInLoop, routingParameters.MaxRouteLoopDepth, routingParameters.IncludeReserved, routingParameters.IncludeAllocated, routingParameters.ResultMode);
             if (result != null && result.Message != null)
             {
                 if (result.Message.MessageLevel > eMsgLevel.Warning)
@@ -1302,41 +1158,322 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInfo("", "", 307)]
-        public void SetPriority(ACRoutingPath path)
+        public void SetPriority(Route route)
         {
-            ThreadPool.QueueUserWorkItem(c => SetPriorityInternal(path));
+            ThreadPool.QueueUserWorkItem(c => SetPriorityInternal(route));
         }
 
-        private void SetPriorityInternal(ACRoutingPath path)
+        private void SetPriorityInternal(Route route)
         {
+            if (route == null)
+                return;
+
             using (Database db = new datamodel.Database())
             {
-                foreach (PAEdge edge in path)
+                foreach (RouteItem rItem in route)
                 {
-                    int weight = edge.Weight < 1 ? 1 : edge.Weight;
+                    var relation = db.ContextIPlus.ACClassPropertyRelation.FirstOrDefault(c => c.ACClassPropertyRelationID == rItem.RelationID);
+
+                    if (relation == null && rItem.RouteItemWeight.HasValue)
+                        continue;
+
+
+                    int weight = rItem.RouteItemWeight.Value < 1 ? 1 : rItem.RouteItemWeight.Value;
                     weight = weight > 100 ? 100 : weight;
                     using (ACMonitor.Lock(_LockObject))
                     {
                         PAEdgeInfo edgeInstance;
-                        if (_EdgeCache.TryGetValue(edge.RelationID.Value, out edgeInstance))
+                        if (_EdgeCache.TryGetValue(relation.ACClassPropertyRelationID, out edgeInstance))
                         {
                             edgeInstance.Edge.Weight = weight;
-                            edgeInstance.Edge.IsDeactivated = edge.IsDeactivated;
+                            edgeInstance.Edge.IsDeactivated = rItem.IsDeactivated;
                         }
                     }
-                    var relation = db.ContextIPlus.ACClassPropertyRelation.FirstOrDefault(c => c.ACClassPropertyRelationID == edge.RelationID.Value);
-                    if (relation != null)
-                    {
-                        relation.RelationWeight = (short)weight;
-                        relation.IsDeactivated = edge.IsDeactivated;
-                        relation.LastManipulationDT = DateTime.Now;
-                    }
+
+                    relation.RelationWeight = (short)weight;
+                    relation.IsDeactivated = rItem.IsDeactivated;
+                    relation.LastManipulationDT = DateTime.Now;
                 }
                 db.ACSaveChanges();
             }
         }
 
         [ACMethodInfo("", "", 308)]
+        public void OnRouteUsed(Route route)
+        {
+            if (route == null || !route.Any())
+                return;
+
+            Route clonedRoute = route.Clone() as Route;
+
+            ApplicationManager.ApplicationQueue.Add(() => OnRouteUsedInternal(clonedRoute));
+        }
+
+        private void OnRouteUsedInternal(Route route)
+        {
+            if (!Root.Initialized)
+                return;
+
+            try
+            {
+                IEnumerable<Route> routes = Route.SplitRoute(route).ToList();
+                IEnumerable<RouteItem> targetItems = route.GetRouteTargets().Distinct(new RouteItemSourceComparer());
+                IEnumerable<Guid> targets = targetItems.Select(c => c.SourceGuid);
+
+                using (Database db = new datamodel.Database())
+                {
+                    bool multipleTargets = targetItems.Count() > 1;
+                    Guid tempGroupID = Guid.NewGuid();
+
+                    List<RouteHashItem> hashItems = new List<RouteHashItem>();
+                    List<RouteHashItem> hashItemToClear = new List<RouteHashItem>();
+
+                    foreach (RouteItem target in targetItems)
+                    {
+                        var myRoutes = routes.Where(c => c.GetRouteTarget().SourceGuid == target.SourceGuid).ToList();
+
+                        SafeList<RouteHashItem> routeHash;
+                        if (!_UsedRoutesCache.TryGetValue(target.SourceGuid, out routeHash))
+                        {
+                            routeHash = new SafeList<RouteHashItem>();
+                            _UsedRoutesCache.TryAdd(target.SourceGuid, routeHash);
+                        }
+
+                        List<int> hashCodes = new List<int>();
+                        foreach (Route r in myRoutes)
+                            hashCodes.Add(r.GetRouteHash());
+
+                        hashCodes = hashCodes.OrderBy(c => c).ToList();
+
+                        RouteHashItem item = routeHash.FirstOrDefault(c => c.RouteHashCodes.SequenceEqual(hashCodes));
+                        ACClassRouteUsage acClassRouteUsage = null;
+                        if (item == null)
+                        {
+                            acClassRouteUsage = ACClassRouteUsage.NewACObject(db);
+                            acClassRouteUsage.ACClassID = target.SourceGuid;
+
+                            item = new RouteHashItem(hashCodes);
+                            routeHash.Add(item);
+                            item.ACClassRouteUsageID = acClassRouteUsage.ACClassRouteUsageID;
+
+                            foreach(int hashCode in hashCodes)
+                            {
+                                ACClassRouteUsagePos routeUsagePos = ACClassRouteUsagePos.NewACObject(db, acClassRouteUsage);
+                                routeUsagePos.HashCode = hashCode;
+                            }    
+                        }
+
+                        if (acClassRouteUsage == null && item != null)
+                            acClassRouteUsage = db.ACClassRouteUsage.FirstOrDefault(c => c.ACClassRouteUsageID == item.ACClassRouteUsageID);
+
+                        hashItems.Add(item);
+
+                        foreach (RouteHashItem rhItem in routeHash)
+                        {
+                            if (rhItem.RouteHashCodes.SequenceEqual(hashCodes))
+                                continue;
+
+                            if (rhItem.UseFactor > 1)
+                            {
+                                rhItem.UseFactor--;
+
+                                ACClassRouteUsage tempRouteUsage = db.ACClassRouteUsage.FirstOrDefault(c => c.ACClassRouteUsageID == rhItem.ACClassRouteUsageID);
+                                if (tempRouteUsage != null)
+                                    tempRouteUsage.UseFactor = rhItem.UseFactor;
+                            }
+                        }
+
+                        if (item.UseFactor < 5)
+                            item.UseFactor++;
+                        item.LastManipulation = DateTime.Now;
+                        acClassRouteUsage.UseFactor = item.UseFactor;
+
+                        IEnumerable<PAEdge> targetSources = (target.TargetACPoint as PAPoint).ConnectionList.Where(c => c.TargetParent == target.TargetACComponent);
+
+                        foreach (var targetSource in targetSources)
+                        {
+                            if (targets.Contains(targetSource.Relation.SourceACClassID))
+                                continue;
+
+                            SafeList<RouteHashItem> targetSourceHashItems;
+                            if (_UsedRoutesCache.TryGetValue(targetSource.Relation.SourceACClassID, out targetSourceHashItems))
+                            {
+                                foreach (RouteHashItem hashItem in targetSourceHashItems)
+                                {
+                                    if (hashItem.UseFactor > 1)
+                                    {
+                                        hashItem.UseFactor--;
+
+                                        ACClassRouteUsage tempRouteUsage = db.ACClassRouteUsage.FirstOrDefault(c => c.ACClassRouteUsageID == hashItem.ACClassRouteUsageID);
+                                        if (tempRouteUsage != null)
+                                            tempRouteUsage.UseFactor = hashItem.UseFactor;
+                                    }
+
+                                    hashItemToClear.Add(hashItem);
+                                }
+                            }
+                        }
+                    }
+
+                    List<Guid> groupToRemove = new List<Guid>();
+
+                    if (multipleTargets)
+                    {
+                        List<SafeList<Guid>> tempGroups = hashItems.Select(c => c.RouteUsageGroupID).ToList();
+
+                        Guid existingGroup = Guid.Empty;
+
+                        if (tempGroups.All(c => c != null))
+                        {
+                            existingGroup = tempGroups.SelectMany(x => x).Distinct()
+                                                           .Where(x => tempGroups.Select(y => (y.Contains(x) ? 1 : 0))
+                                                           .Sum() == tempGroups.Count).FirstOrDefault();
+                        }
+
+                        if (existingGroup == null || existingGroup == Guid.Empty)
+                        {
+                            foreach (RouteHashItem rhItem in hashItems)
+                            {
+                                ACClassRouteUsageGroup group = ACClassRouteUsageGroup.NewACObject(db);
+                                group.ACClassRouteUsageID = rhItem.ACClassRouteUsageID;
+                                group.GroupID = tempGroupID;
+
+                                if (rhItem.RouteUsageGroupID == null)
+                                    rhItem.RouteUsageGroupID = new SafeList<Guid>();
+
+                                rhItem.RouteUsageGroupID.Add(tempGroupID);
+                            }
+
+                            existingGroup = tempGroupID;
+                        }
+                    }
+                    
+                    if (hashItemToClear.Any())
+                    {
+                        List<SafeList<Guid>> tempGroups = hashItems.Select(c => c.RouteUsageGroupID).ToList();
+                        tempGroups.AddRange(hashItemToClear.Select(c => c.RouteUsageGroupID));
+
+                        Guid existingGroup = Guid.Empty;
+
+                        if (tempGroups.All(c => c != null))
+                        {
+                            existingGroup = tempGroups.SelectMany(x => x).Distinct()
+                                                      .Where(x => tempGroups.Select(y => (y.Contains(x) ? 1 : 0))
+                                                      .Sum() == tempGroups.Count).FirstOrDefault();
+                        }
+
+                        if (existingGroup != null && existingGroup != Guid.Empty)
+                        {
+                            hashItems.AddRange(hashItemToClear);
+
+                            foreach (RouteHashItem hashItem in hashItems)
+                            {
+                                hashItem.RouteUsageGroupID.Remove(existingGroup);
+                            }
+
+                            ACClassRouteUsageGroup[] routeGroups = db.ACClassRouteUsageGroup.Where(c => c.GroupID == existingGroup).ToArray();
+
+                            foreach (ACClassRouteUsageGroup routeGroup in routeGroups)
+                            {
+                                db.ACClassRouteUsageGroup.DeleteObject(routeGroup);
+                            }
+                        }
+                    }
+
+                    Msg msg = db.ACSaveChanges();
+                    if (msg != null)
+                    {
+                        Messages.LogMessageMsg(msg);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Messages.LogException(this.GetACUrl(), nameof(OnRouteUsedInternal), e);
+            }
+        }
+
+        public List<RouteHashItem> GetMostUsedRouteHash(List<Guid> lastItems)
+        {
+            try
+            {
+                SafeList<RouteHashItem> hashItems;
+                List<RouteHashItem> result = new List<RouteHashItem>();
+
+                foreach (Guid target in lastItems)
+                {
+                    if (_UsedRoutesCache.TryGetValue(target, out hashItems))
+                    {
+                        result.Add(hashItems.OrderByDescending(c => c.UseFactor).ThenByDescending(c => c.LastManipulation).FirstOrDefault().Clone() as RouteHashItem);
+                    }
+                }
+
+                if (result.Count > 1)
+                {
+                    if (result.All(c => (c.RouteUsageGroupID == null || !c.RouteUsageGroupID.Any())))
+                    {
+                        result = result.OrderByDescending(c => c.UseFactor).Take(1).ToList();
+                    }
+                    else
+                    {
+                        if (! result.SelectMany(c => c.RouteUsageGroupID).GroupBy(c => c).Any(c => c.Count() == result.Count))
+                        {
+                            result = result.OrderByDescending(c => c.UseFactor).Take(1).ToList();
+                        }
+                    }
+                }
+                return result;
+            }
+            catch (Exception e)
+            {
+                Messages.LogException(this.GetACUrl(), nameof(GetMostUsedRouteHash), e);
+                return null;
+            }
+        }
+
+        [ACMethodInfo("","",9999, true)]
+        public void ClearUsedRouteCache(GuidList targets)
+        {
+            if (targets == null || !targets.Any())
+                return;
+
+            foreach (Guid target in targets)
+            {
+                SafeList<RouteHashItem> tempList;
+                if (_UsedRoutesCache.TryRemove(target, out tempList))
+                {
+                    tempList = null;
+                }
+            }
+
+            using(Database db = new datamodel.Database())
+            {
+                List<ACClassRouteUsage> acClassUsageList = db.ACClassRouteUsage.Include(c => c.ACClassRouteUsagePos_ACClassRouteUsage)
+                                                                               .Where(c => targets.Contains(c.ACClassID))
+                                                                               .ToList();
+
+                foreach(ACClassRouteUsage usage in acClassUsageList)
+                {
+                    var usagePosList = usage.ACClassRouteUsagePos_ACClassRouteUsage.ToList();
+
+                    foreach (ACClassRouteUsagePos usagePos in usagePosList)
+                        usagePos.DeleteACObject(db, false);
+
+                    var usageGroupList = usage.ACClassRouteUsageGroup_ACClassRouteUsage.ToList();
+
+                    foreach (ACClassRouteUsageGroup usageGroup in usageGroupList)
+                        usageGroup.DeleteACObject(db, false);
+
+                    usage.DeleteACObject(db, false);
+                }
+
+                Msg msg = db.ACSaveChanges();
+                if (msg != null)
+                    Messages.LogMessageMsg(msg);
+            }
+        }
+
+        [ACMethodInfo("", "", 309)]
         public void IncreasePriorityStepwise(Route route)
         {
             using (Database db = new datamodel.Database())
@@ -1365,7 +1502,59 @@ namespace gip.core.autocomponent
             }
         }
 
-        public static void ReserveRoute(Route route)
+        [ACMethodInfo("", "", 310)]
+        public Route GetAllocatedAndReserved(Route route)
+        {
+            if (route != null)
+            {
+                bool reserved = false, allocated = false;
+
+                foreach (RouteItem rItem in route)
+                {
+                    PAEdgeInfo edgeInfo = null;
+                    PAEdge edge = null;
+
+                    using (ACMonitor.Lock(_LockObject))
+                    {
+                        if (_EdgeCache.TryGetValue(rItem.RelationID, out edgeInfo))
+                            edge = edgeInfo.Edge;
+                    }
+
+                    if (edge != null)
+                    {
+                        var allocatedSource = edge.GetAllocationState(false);
+                        var allocatedTarget = edge.GetAllocationState(true);
+
+                        if (allocatedSource.ValueT == 0 && allocatedTarget.ValueT == 0)
+                            continue;
+
+                        if (!reserved)
+                            reserved = allocatedSource.Bit00_Reserved || allocatedTarget.Bit00_Reserved;
+
+                        if (!allocated)
+                            allocated = allocatedSource.Bit01_Allocated || allocatedTarget.Bit01_Allocated;
+
+                        if (reserved && allocated)
+                            break;
+                    }
+                }
+
+                route.HasAnyReserved = reserved;
+                route.HasAnyAllocated = allocated;
+            }
+
+            return route;
+        }
+
+        internal Dictionary<Guid,RouteItemModeEnum> GetRouteItemsMode()
+        {
+            using (ACMonitor.Lock(LockMemberList_20020))
+            {
+                return _RouteItemsModeCache.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            }
+        }
+        
+        public static void ReserveRoute(Route route, bool reserv = true)
         {
             if (route == null)
                 return;
@@ -1373,9 +1562,9 @@ namespace gip.core.autocomponent
             IEnumerable<IACComponent> sources = route.GetSourceComponentsOfRouteSources();
             foreach (IACComponent source in sources)
             {
-                IACContainerT<BitAccessForAllocatedByWay> propAllocated = source.GetProperty("AllocatedByWay") as IACContainerT<BitAccessForAllocatedByWay>;
+                IACContainerT<BitAccessForAllocatedByWay> propAllocated = source.GetProperty(nameof(IRoutableModule.AllocatedByWay)) as IACContainerT<BitAccessForAllocatedByWay>;
                 if (propAllocated != null)
-                    propAllocated.ValueT.Bit00_Reserved = true;
+                    propAllocated.ValueT.Bit00_Reserved = reserv;
             }
 
             foreach (RouteItem routeItem in route)
@@ -1383,9 +1572,9 @@ namespace gip.core.autocomponent
                 if (routeItem.TargetACComponent == null)
                     continue;
 
-                IACContainerT<BitAccessForAllocatedByWay> propAllocated = routeItem.TargetACComponent.GetProperty("AllocatedByWay") as IACContainerT<BitAccessForAllocatedByWay>;
+                IACContainerT<BitAccessForAllocatedByWay> propAllocated = routeItem.TargetACComponent.GetProperty(nameof(IRoutableModule.AllocatedByWay)) as IACContainerT<BitAccessForAllocatedByWay>;
                 if (propAllocated != null)
-                    propAllocated.ValueT.Bit00_Reserved = true;
+                    propAllocated.ValueT.Bit00_Reserved = reserv;
             }
         }
 
@@ -1427,6 +1616,7 @@ namespace gip.core.autocomponent
         {
             Task.Run(() => RecalcEdgeWeight());
         }
+
         #endregion
 
         #endregion
@@ -1638,6 +1828,74 @@ namespace gip.core.autocomponent
                 };
             }
             return msg; ;
+        }
+
+        private void InitRouteUsage()
+        {
+            using (Database db = new datamodel.Database())
+            {
+                try
+                {
+
+                    List<ACClassRouteUsage> routeUsages = db.ACClassRouteUsage.Include(c => c.ACClassRouteUsagePos_ACClassRouteUsage).ToList();
+
+                    foreach (ACClassRouteUsage routeUsage in routeUsages)
+                    {
+                        SafeList<RouteHashItem> hashItems;
+                        if (!_UsedRoutesCache.TryGetValue(routeUsage.ACClassID, out hashItems))
+                        {
+                            hashItems = new SafeList<RouteHashItem>();
+                            _UsedRoutesCache.TryAdd(routeUsage.ACClassID, hashItems);
+                        }
+
+                        RouteHashItem hashItem = new RouteHashItem();
+                        hashItem.UseFactor = routeUsage.UseFactor;
+                        hashItem.RouteHashCodes = new SafeList<int>(routeUsage.ACClassRouteUsagePos_ACClassRouteUsage.Select(c => c.HashCode));
+                        hashItem.LastManipulation = routeUsage.UpdateDate;
+                        hashItem.ACClassRouteUsageID = routeUsage.ACClassRouteUsageID;
+                        hashItem.RouteUsageGroupID = new SafeList<Guid>(routeUsage.ACClassRouteUsageGroup_ACClassRouteUsage.Select(c => c.GroupID));
+                        hashItems.Add(hashItem);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Messages.LogException(this.GetACUrl(), nameof(InitRouteUsage), e);
+                }
+            }
+        }
+
+        private void LoadRouteItemModes()
+        {
+            string xml = RouteItemModes;
+
+            if (string.IsNullOrEmpty(xml))
+                return;
+
+            List<Tuple<Guid, short>> tempList;
+
+            using (StringReader ms = new StringReader(xml))
+            using (XmlTextReader xmlReader = new XmlTextReader(ms))
+            {
+                DataContractSerializer serializer = new DataContractSerializer(typeof(List<Tuple<Guid, short>>));
+                var modeList = serializer.ReadObject(xmlReader);
+
+                tempList = modeList as List<Tuple<Guid, short>>;
+            }
+
+            using (ACMonitor.Lock(LockMemberList_20020))
+            {
+                _RouteItemsModeCache = new ConcurrentDictionary<Guid, RouteItemModeEnum>(tempList.Select(c => new KeyValuePair<Guid, RouteItemModeEnum>(c.Item1, (RouteItemModeEnum)c.Item2)));
+            }
+        }
+
+        [ACMethodInfo("","",9999)]
+        public void SaveRouteItemModes(string xml)
+        {
+            ApplicationManager.ApplicationQueue.Add(() =>
+            {
+                RouteItemModes = xml;
+                LoadRouteItemModes();
+            });
         }
 
         #endregion

@@ -103,10 +103,10 @@ namespace gip.bso.iplus
                 return base.OnGetControlModes(vbControl);
             switch (vbControl.VBContent)
             {
-                case "CurrentACClassMethod\\ContinueByError":
-                    if (CurrentACClassMethod == null || CurrentACClassMethod.ACKind != Global.ACKinds.MSMethodPrePost)
-                        return Global.ControlModes.Hidden;
-                    break;
+                //case "CurrentACClassMethod\\ContinueByError":
+                //    if (CurrentACClassMethod == null || CurrentACClassMethod.ACKind != Global.ACKinds.MSMethodPrePost)
+                //        return Global.ControlModes.Hidden;
+                //    break;
                 case "CurrentACClassMethod\\IsSubMethod":
                     if (CurrentACClassMethod == null || CurrentACClassMethod.ACKind != Global.ACKinds.MSWorkflow)
                         return Global.ControlModes.Hidden;

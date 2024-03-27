@@ -7,6 +7,7 @@ using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.manager;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace gip.bso.iplus
 {
@@ -240,6 +241,36 @@ namespace gip.bso.iplus
 
         #endregion
 
+        #region Properties => RouteUsage
+
+        public ACClassInfoWithItems _CurrentACClassUsageItem;
+
+        [ACPropertySelected(9999, "ACClassRouteUsage", "")]
+        public ACClassInfoWithItems CurrentACClassUsageItem
+        {
+            get => _CurrentACClassUsageItem;
+            set
+            {
+                _CurrentACClassUsageItem = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private List<ACClassInfoWithItems> _ACClassUsageItemList;
+
+        [ACPropertyList(9999, "ACClassRouteUsage")]
+        public List<ACClassInfoWithItems> ACClassUsageItemList
+        {
+            get => _ACClassUsageItemList;
+            set
+            {
+                _ACClassUsageItemList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Methods
@@ -248,35 +279,44 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "GetAvailableRoutes":
+                case nameof(GetAvailableRoutes):
                     GetAvailableRoutes();
                     return true;
-                case "OpenRouteSettings":
+                case nameof(OpenRouteSettings):
                     OpenRouteSettings();
                     return true;
-                case "TestSelectRoutesFromComponent":
+                case nameof(TestSelectRoutesFromComponent):
                     TestSelectRoutesFromComponent();
                     return true;
-                case "IsEnabledTestSelectRoutesFromComponent":
+                case nameof(IsEnabledTestSelectRoutesFromComponent):
                     result = IsEnabledTestSelectRoutesFromComponent();
                     return true;
-                case "TestSelectRoutes":
+                case nameof(TestSelectRoutes):
                     TestSelectRoutes();
                     return true;
-                case "IsEnabledTestSelectRoutes":
+                case nameof(IsEnabledTestSelectRoutes):
                     result = IsEnabledTestSelectRoutes();
                     return true;
-                case "TestMethod":
+                case nameof(TestMethod):
                     TestMethod();
                     return true;
-                case "RemoveSource":
+                case nameof(RemoveSource):
                     RemoveSource();
                     return true;
-                case "RemoveTarget":
+                case nameof(RemoveTarget):
                     RemoveTarget();
                     return true;
-                case "SetACClassInfoWithItems":
+                case nameof(SetACClassInfoWithItems):
                     SetACClassInfoWithItems(acParameter[0] as ACClassInfoWithItems);
+                    return true;
+                case nameof(RefreshRouteUsageCache):
+                    RefreshRouteUsageCache();
+                    return true;
+                case nameof(ClearRouteUsageCache):
+                    ClearRouteUsageCache();
+                    return true;
+                case nameof(MarkAll):
+                    MarkAll();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -354,12 +394,12 @@ namespace gip.bso.iplus
             {
                 switch (targetVBDataObject.VBContent)
                 {
-                    case "SelectedSourceComponent":
+                    case nameof(SelectedSourceComponent):
                         ACClassInfoWithItems aCClassInfo = actionArgs.DropObject.ACContentList.OfType<ACClassInfoWithItems>().FirstOrDefault();
                         if (aCClassInfo != null && IsEnabledAddSource(aCClassInfo.ValueT))
                             AddSource(aCClassInfo);
                         break;
-                    case "SelectedTargetComponent":
+                    case nameof(SelectedTargetComponent):
                         ACClassInfoWithItems aCClassInfoT = actionArgs.DropObject.ACContentList.OfType<ACClassInfoWithItems>().FirstOrDefault();
                         if (aCClassInfoT != null && IsEnabledAddTarget(aCClassInfoT.ValueT))
                             AddTarget(aCClassInfoT);
@@ -377,8 +417,19 @@ namespace gip.bso.iplus
 
             string ruleID = SelectedSelectionRuleID != null && SelectedSelectionRuleID.Value != null ? SelectedSelectionRuleID.Value.ToString() : "";
             RouteDirections direction = SelectedRouteDirection != null ? (RouteDirections)SelectedRouteDirection.Value : RouteDirections.Forwards;
-            var result = ACRoutingService.MemFindSuccessors(RoutingService, Db, SourceComponentsList.FirstOrDefault().ValueT.ACUrlComponent, ruleID, 
-                                                            direction, 0, false, false);
+
+            ACRoutingParameters routingParameters = new ACRoutingParameters()
+            {
+                RoutingService = this.RoutingService,
+                Database = Db,
+                SelectionRuleID = ruleID,
+                Direction = direction,
+                MaxRouteAlternativesInLoop = 0,
+                IncludeReserved = false,
+                IncludeAllocated = false
+            };
+
+            var result = ACRoutingService.MemFindSuccessors(SourceComponentsList.FirstOrDefault().ValueT.ACUrlComponent, routingParameters);
 
             if (result.Message != null)
                 Messages.Msg(result.Message);
@@ -406,10 +457,19 @@ namespace gip.bso.iplus
         {
             if (!IsEnabledTestSelectRoutes())
                 return;
-            string ruleID = SelectedSelectionRuleID != null && SelectedSelectionRuleID.Value != null ? SelectedSelectionRuleID.Value.ToString() : "";
-            RouteDirections direction = SelectedRouteDirection != null ? (RouteDirections)SelectedRouteDirection.Value : RouteDirections.Forwards;
-            var result = ACRoutingService.MemSelectRoutes(Db, SourceComponentsList.Select(x => x.ValueT.ACUrlComponent), TargetComponentsList.Select(x => x.ValueT.ACUrlComponent),
-                                                          direction, ruleID, 0, true, true, new object[] { }, RoutingService);
+
+            ACRoutingParameters routingParameters = new ACRoutingParameters()
+            {
+                Database = Db,
+                RoutingService = this.RoutingService,
+                Direction = SelectedRouteDirection != null ? (RouteDirections)SelectedRouteDirection.Value : RouteDirections.Forwards,
+                SelectionRuleID = SelectedSelectionRuleID != null && SelectedSelectionRuleID.Value != null ? SelectedSelectionRuleID.Value.ToString() : "",
+                MaxRouteAlternativesInLoop = 0,
+                IncludeReserved = true,
+                IncludeAllocated = true
+            };
+
+            var result = ACRoutingService.MemSelectRoutes(SourceComponentsList.Select(x => x.ValueT.ACUrlComponent), TargetComponentsList.Select(x => x.ValueT.ACUrlComponent), routingParameters);
 
             //ACMethod method = new ACMethod();
             //ACValueList aCValueList = new ACValueList();
@@ -441,6 +501,62 @@ namespace gip.bso.iplus
             //    var result = routeSelector.RouteResult.FirstOrDefault().GetFirstDifferentRouteItem(routeSelector.RouteResult.ToList()[0]);
             //}
         }
+
+        public override void ACAction(ACActionArgs actionArgs)
+        {
+            base.ACAction(actionArgs);
+
+            if (actionArgs == null || actionArgs.DropObject == null || string.IsNullOrEmpty(actionArgs.DropObject.VBContent))
+                return;
+
+            if (actionArgs.ElementAction == Global.ElementActionType.TabItemActivated)
+            {
+                if (actionArgs.DropObject.VBContent == "RouteUsage")
+                {
+                    RefreshRouteUsageCache();
+                }
+            }
+        }
+
+        #region Methods => RouteUsage
+
+        [ACMethodInfo("", "en{'Clear route usage cache'}de{'Routennutzungs-Cache löschen'}", 9999, true)]
+        public void ClearRouteUsageCache()
+        {
+            IEnumerable<Guid> targetIDs = ACClassUsageItemList.Where(c => c.IsChecked).Select(c => c.ValueT.ACClassID);
+            if (targetIDs.Any())
+            {
+                if (RoutingService == null)
+                {
+                    Messages.Error(this, "Routing service is unavailable!", true);
+                    return;
+                }
+
+                RoutingService.ExecuteMethod(nameof(ACRoutingService.ClearUsedRouteCache), new GuidList(targetIDs));
+                ThreadPool.QueueUserWorkItem((object state) => { Thread.Sleep(5000); RefreshRouteUsageCache(); });
+            }
+        }
+
+        [ACMethodInfo("", "en{'Refresh route usage cache'}de{'Routennutzungs-Cache aktualisieren'}", 9999)]
+        public void RefreshRouteUsageCache()
+        {
+            List<Guid> acClassIDList = Database.ContextIPlus.ACClassRouteUsage.Select(c => c.ACClassID).Distinct().ToList();
+            ACClassUsageItemList = Database.ContextIPlus.ACClass.Where(c => acClassIDList.Contains(c.ACClassID)).ToList().Select(x => new ACClassInfoWithItems(x)).ToList();
+        }
+
+        [ACMethodInfo("", "en{'Mark all'}de{'Alles markieren'}", 9999)]
+        public void MarkAll()
+        {
+            if (ACClassUsageItemList == null)
+                return;
+
+            foreach (ACClassInfoWithItems usageItem in ACClassUsageItemList)
+            {
+                usageItem.IsChecked = true;
+            }
+        }
+
+        #endregion
 
         #region Methods => Source,Target
 

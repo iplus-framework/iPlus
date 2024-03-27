@@ -113,21 +113,68 @@ namespace gip.core.autocomponent
             }
         }
 
-#region Execute-Helper-Handlers
+        [ACMethodInfo("", "en{'Show complex value'}de{'Komplexen Wert anzeigen'}", 9999)]
+        public void ShowComplexValue(IACObjectBase selectedParameter)
+        {
+            ACValue selParam = selectedParameter as ACValue;
+            if (selParam == null || selParam.Value == null)
+                return;
+
+            Route currentRoute = selParam.Value as Route;
+            if (currentRoute == null)
+                return;
+
+            IACVBBSORouteSelector routeSelector = ACUrlCommand("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
+            if (routeSelector == null)
+            {
+                Messages.Error(this, "Route selector is not installed");
+                return;
+            }
+
+            routeSelector.EditRoutesWithAttach(currentRoute, true, true, true);
+        }
+
+        public bool IsEnabledShowComplexValue(IACObjectBase selectedParameter)
+        {
+            ACValue selParam = selectedParameter as ACValue;
+
+            if (selParam == null)
+                return false;
+            if (selParam.ObjectType == null)
+                return false;
+            if (selParam.ObjectType.IsValueType)
+                return false;
+
+            return true;
+        }
+
+        #region Execute-Helper-Handlers
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;
             switch (acMethodName)
             {
-                case "SaveSolProperties":
+                case nameof(SaveSolProperties):
                     SaveSolProperties();
                     return true;
-                case "GoToParent":
+                case nameof(GoToParent):
                     GoToParent();
                     return true;
-                case Const.IsEnabledPrefix + "GoToParent":
+                case nameof(IsEnabledGoToParent):
                     result = IsEnabledGoToParent();
                     return true;
+                case nameof(ShowComplexValue):
+                    //TODO Ivan: temporary fix, solve it with converter in design
+                    if (acParameter != null && acParameter.Any())
+                        ShowComplexValue(acParameter[0] as IACObjectBase);
+                    return true;
+                case nameof(IsEnabledShowComplexValue):
+                    result = false;
+                    //TODO Ivan: temporary fix, solve it with converter in design
+                    if (acClassMethod != null && acParameter.Any())
+                        result = IsEnabledShowComplexValue(acParameter[0] as IACObjectBase);
+                    return true;
+
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }

@@ -26,7 +26,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gip.core.datamodel
 {
-    [DataContract]
 #if NETFRAMEWORK
     /// <summary>
     /// Container for values that are used in the Parameter- or ResultList of ACMethod and ACEventArgs
@@ -35,11 +34,13 @@ namespace gip.core.datamodel
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     /// <seealso cref="System.ICloneable" />
     /// <seealso cref="gip.core.datamodel.IACAttach" />
+    [DataContract]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACValue", "en{'ACValue'}de{'ACValue'}", typeof(ACValue), "ACValue", Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValue'}de{'ACValue'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     [NotMapped]
     public class ACValue : IACContainer, INotifyPropertyChanged, ICloneable, IACAttach
 #else
+    [DataContract]
     public class ACValue : INotifyPropertyChanged
 #endif
     {
@@ -213,7 +214,24 @@ namespace gip.core.datamodel
 #endif
         }
 
-#if !NETFRAMEWORK        
+
+#if NETFRAMEWORK
+
+        public string ACCaptionTrans
+        {
+            get
+            {
+                var parentMethod = ParentMethod;
+                if (parentMethod != null)
+                    return parentMethod.GetACCaptionTransForACValue(this);
+                return ACIdentifier;
+            }
+        }
+
+#endif
+
+
+#if !NETFRAMEWORK
 string _ACCaption;
 #endif
         [DataMember(Name ="L")]

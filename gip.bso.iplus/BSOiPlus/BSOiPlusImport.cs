@@ -515,7 +515,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Imports the save file.
         /// </summary>
-        [ACMethodInfo("Import", "en{'Undo'}de{'Änderung stornieren'}", 405, false, false, true)]
+        [ACMethodInfo("Import", "en{'Undo'}de{'Änderung rückgängig machen'}", 405, false, false, true)]
         public void ImportSaveFileUndo()
         {
             if (!IsEnabledImportSaveFileUndo()) return;

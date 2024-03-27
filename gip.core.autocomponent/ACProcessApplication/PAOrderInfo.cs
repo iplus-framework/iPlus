@@ -38,6 +38,9 @@ namespace gip.core.autocomponent
             }
         }
 
+        [IgnoreDataMember]
+        public VBDialogResult DialogResult { get; set; }
+
         #endregion
 
         #region Methods

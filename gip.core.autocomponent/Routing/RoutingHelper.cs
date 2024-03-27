@@ -85,6 +85,39 @@ namespace gip.core.autocomponent
             }
         }
 
+        public bool HasAnyReserved
+        {
+            get;
+            set;
+        }
+
+        public bool HasAnyAllocated
+        {
+            get;
+            set;
+        }
+
+        [IgnoreDataMember]
+        private List<Tuple<IACObject, RouteItemModeEnum>> _RouteItemsMode;
+        [IgnoreDataMember]
+        public List<Tuple<IACObject, RouteItemModeEnum>> RouteItemsMode
+        {
+            get
+            {
+                if (_RouteItemsMode == null)
+                    _RouteItemsMode = new List<Tuple<IACObject, RouteItemModeEnum>>();
+                return _RouteItemsMode;
+            }
+                
+        }
+
+        [IgnoreDataMember]
+        public int RoutingPathNo
+        {
+            get;
+            set;
+        }
+
         #endregion
     }
 
@@ -269,5 +302,118 @@ namespace gip.core.autocomponent
 
             return this;
         }
+    }
+
+    public class SelectionRule
+    {
+        public Func<ACRoutingVertex, object[], bool> Selector { get; set; }
+        public Func<ACRoutingVertex, object[], bool> DeSelector { get; set; }
+    }
+
+    [ACSerializeableInfo]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'RouteDirections'}de{'RouteDirections'}", Global.ACKinds.TACEnum)]
+    public enum RouteDirections : int
+    {
+        Backwards,
+        Forwards
+    }
+
+    [ACSerializeableInfo]
+    [DataContract]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'RoutingResult'}de{'RoutingResult'}", Global.ACKinds.TACSimpleClass)]
+    public class RoutingResult
+    {
+        public RoutingResult(IEnumerable<Route> routes, bool isDbResult, Msg msg, IEnumerable<ACRef<IACComponent>> components = null)
+        {
+            _Routes = routes;
+            _IsDbResult = isDbResult;
+            _Msg = msg;
+            _Components = components;
+        }
+
+        [IgnoreDataMember]
+        private IEnumerable<Route> _Routes;
+        [DataMember]
+        public IEnumerable<Route> Routes
+        {
+            get
+            {
+                return _Routes;
+            }
+            set
+            {
+                _Routes = value;
+            }
+        }
+
+        [IgnoreDataMember]
+        private IEnumerable<ACRef<IACComponent>> _Components;
+        [DataMember]
+        public IEnumerable<ACRef<IACComponent>> Components
+        {
+            get
+            {
+                return _Components;
+            }
+            set
+            {
+                _Components = value;
+            }
+        }
+
+        [IgnoreDataMember]
+        private bool _IsDbResult;
+        [DataMember]
+        public bool IsDbResult
+        {
+            get
+            {
+                return _IsDbResult;
+            }
+            set
+            {
+                _IsDbResult = value;
+            }
+        }
+
+        [IgnoreDataMember]
+        private Msg _Msg;
+        [DataMember]
+        public Msg Message
+        {
+            get
+            {
+                return _Msg;
+            }
+            set
+            {
+                _Msg = value;
+            }
+        }
+    }
+
+    [ACSerializeableInfo]
+    [CollectionDataContract]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'RoutingResult'}de{'RoutingResult'}", Global.ACKinds.TACSimpleClass)]
+    public class GuidList : List<Guid>
+    {
+        public GuidList()
+        {
+                
+        }
+
+        public GuidList(IEnumerable<Guid> items) : base(items)
+        {
+            
+        }
+    }
+
+    [ACSerializeableInfo]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'RouteResultMode'}de{'RouteResultMode'}", Global.ACKinds.TACEnum)]
+    public enum RouteResultMode : short
+    {
+        ShortRoute = 0,
+        FullRouteFromFindComp = 10,
+        FullRoute = 20
     }
 }

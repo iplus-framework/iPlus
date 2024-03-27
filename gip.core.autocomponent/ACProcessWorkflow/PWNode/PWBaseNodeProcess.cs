@@ -254,7 +254,7 @@ namespace gip.core.autocomponent
                 try
                 {
                     UnSubscribeToProjectWorkCycle();
-                    _RepeatAfterCompleted = false;
+                    //_RepeatAfterCompleted = false;
                     Start();
                 }
                 finally

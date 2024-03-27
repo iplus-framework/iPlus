@@ -621,6 +621,11 @@ namespace gip.core.autocomponent
         {
             RMInvoker.ExecuteMethod(nameof(ResetConfigValuesCache), new Object[] { });
         }
+
+        public override void RemoveDuplicateConfigEntries()
+        {
+            RMInvoker.ExecuteMethod(nameof(RemoveDuplicateConfigEntries), new Object[] { });
+        }
         #endregion
     }
 }

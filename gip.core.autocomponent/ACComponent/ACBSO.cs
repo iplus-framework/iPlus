@@ -967,8 +967,14 @@ namespace gip.core.autocomponent
             {
             }
             // Lösche Balken
-            CurrentProgressInfo.Complete();
-            BackgroundWorker.ProgressInfo.Complete();
+            if(CurrentProgressInfo != null)
+            {
+                CurrentProgressInfo.Complete();
+            }
+            if(BackgroundWorker != null && BackgroundWorker.ProgressInfo != null)
+            {
+                BackgroundWorker.ProgressInfo.Complete();
+            }
             CloseTopDialog();
         }
 
@@ -1144,50 +1150,70 @@ namespace gip.core.autocomponent
 
         #endregion
 
+        #region ShowVBContent
+
+        [ACMethodInteraction("", "en{'Show/Hide content info'}de{'Inhaltsinfo anzeigen/ausblenden'}", 9999, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.Utilities)]
+        public virtual void ShowHideVBContentInfo()
+        {
+            BroadcastToVBControls(Const.CmdShowHideVBContentInfo, null, new object[] { this });
+        }
+
+        public bool IsEnabledShowHideVBContentInfo()
+        {
+            return true;
+        }
+        #endregion
+
         #region Execute-Helper-Handlers
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;
             switch (acMethodName)
             {
-                case "TaskCallback":
+                case nameof(TaskCallback):
                     TaskCallback(acParameter[0] as IACPointNetBase, acParameter[1] as ACEventArgs, acParameter[2] as IACObject);
                     return true;
-                case Const.CmdNameQueryPrintDlg:
+                case nameof(QueryPrintDlg):
                     QueryPrintDlg();
                     return true;
-                case Const.CmdNameQueryDesignDlg:
+                case nameof(QueryDesignDlg):
                     QueryDesignDlg();
                     return true;
-                case Const.CmdNameQueryPreviewDlg:
+                case nameof(QueryPreviewDlg):
                     QueryPreviewDlg();
                     return true;
-                case "CancelBackgroundWorker":
+                case nameof(CancelBackgroundWorker):
                     CancelBackgroundWorker();
                     return true;
-                case "DataExportDialog":
+                case nameof(DataExportDialog):
                     DataExportDialog();
                     return true;
-                case "DataExportOk":
+                case nameof(DataExportOk):
                     DataExportOk();
                     return true;
-                case "DataExportCancel":
+                case nameof(DataExportCancel):
                     DataExportCancel();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameQueryPrintDlg:
+                case nameof(IsEnabledQueryPrintDlg):
                     result = IsEnabledQueryPrintDlg();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameQueryDesignDlg:
+                case nameof(IsEnabledQueryDesignDlg):
                     result = IsEnabledQueryDesignDlg();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameQueryPreviewDlg:
+                case nameof(IsEnabledQueryPreviewDlg):
                     result = IsEnabledQueryPreviewDlg();
                     return true;
-                case Const.IsEnabledPrefix + "DataExportDialog":
+                case nameof(IsEnabledDataExportDialog):
                     result = IsEnabledDataExportDialog();
                     return true;
-                case Const.IsEnabledPrefix + "DataExportOk":
+                case nameof(IsEnabledDataExportOk):
                     result = IsEnabledDataExportOk();
+                    return true;
+                case nameof(ShowHideVBContentInfo):
+                    ShowHideVBContentInfo();
+                    return true;
+                case nameof(IsEnabledShowHideVBContentInfo):
+                    result = IsEnabledShowHideVBContentInfo();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);

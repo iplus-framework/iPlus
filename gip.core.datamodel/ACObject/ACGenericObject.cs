@@ -262,7 +262,15 @@ namespace gip.core.datamodel
         {
             get
             {
-                return this.ReflectACType();
+                return this.ReflectACType(false);
+            }
+        }
+
+        public IACType ACTypeIfGeneric
+        {
+            get
+            {
+                return this.ReflectACType(true);
             }
         }
 

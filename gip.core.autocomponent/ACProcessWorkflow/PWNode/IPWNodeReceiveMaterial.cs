@@ -42,5 +42,7 @@ namespace gip.core.autocomponent
     public interface IPWNodeReceiveMaterialRouteable : IPWNodeReceiveMaterial
     {
         Route CurrentDosingRoute { get; set; }
+
+        bool HasAndCanProcessAnyMaterial(PAProcessModule module);
     }
 }

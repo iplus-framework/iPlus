@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Windows.Media;
 
 namespace gip.core.datamodel
 {
@@ -13,6 +14,26 @@ namespace gip.core.datamodel
     {
         #region const
         public const string ClassName = "Route";
+        #endregion
+
+        #region Constructors
+
+        public Route(RouteItem item)
+        {
+            _Items = new List<RouteItem>(new RouteItem[] { item });
+        }
+
+        public Route(IEnumerable<RouteItem> items)
+        {
+            _Items = new List<RouteItem>(items);
+        }
+
+
+        public Route()
+        {
+            _Items = new List<RouteItem>();
+        }
+
         #endregion
 
         #region private fields
@@ -50,24 +71,43 @@ namespace gip.core.datamodel
             get { return ToString(); }
         }
 
-        #endregion
-
-        #region Constructors
-
-        public Route(RouteItem item)
+        [DataMember]
+        private bool _IsPredefinedRoute = false;
+        [IgnoreDataMember]
+        public bool IsPredefinedRoute
         {
-            _Items = new List<RouteItem>(new RouteItem[] {item});
+            get => _IsPredefinedRoute;
+            set => _IsPredefinedRoute = value;
         }
 
-        public Route(IEnumerable<RouteItem> items)
+        [DataMember]
+        private bool? _HasAnyReserved;
+        [IgnoreDataMember]
+        public bool? HasAnyReserved
         {
-            _Items = new List<RouteItem>(items);
+            get
+            {
+                return _HasAnyReserved;
+            }
+            set
+            {
+                _HasAnyReserved = value;
+            }
         }
 
-
-        public Route()
+        [DataMember]
+        private bool? _HasAnyAllocated;
+        [IgnoreDataMember]
+        public bool? HasAnyAllocated
         {
-            _Items = new List<RouteItem>();
+            get
+            {
+                return _HasAnyAllocated;
+            }
+            set
+            {
+                _HasAnyAllocated = value;
+            }
         }
 
         #endregion
@@ -114,6 +154,23 @@ namespace gip.core.datamodel
             return new Route(routeItems);
         }
 
+        public static Route IntersectRoutesGetDiff(Route routeA, Route routeB_forRemovingItemsA, bool removeIfSourceOrTarget = false)
+        {
+            if (routeA == null || routeB_forRemovingItemsA == null)
+                return null;
+
+            Route intersectedRoute = (Route)routeA.Clone();
+            List<RouteItem> diffItems = intersectedRoute.ToList();
+            foreach (var itemInA in intersectedRoute)
+            {
+                if (routeB_forRemovingItemsA.Where(c => (!removeIfSourceOrTarget && c.SourceKey == itemInA.SourceKey && c.TargetKey == itemInA.TargetKey)
+                                                     || (removeIfSourceOrTarget && (c.SourceKey == itemInA.SourceKey || c.TargetKey == itemInA.TargetKey)))
+                                            .Any())
+                      diffItems.Remove(itemInA);
+            }
+            return new Route(diffItems);
+        }
+
         public static Route MergeRoutesWithoutDuplicates(IEnumerable<Route> routes)
         {
             if (routes == null)
@@ -136,33 +193,90 @@ namespace gip.core.datamodel
             return new Route(routeItems);
         }
 
-        public bool TryGetFirstDifferentComponent(Route oldRoute, out IACComponent diffComponent)
+        public static IEnumerable<Route> SplitRoute(Route route)
         {
-            diffComponent = null;
+            List<Route> result = new List<Route>();
+            var groups = route.GroupBy(c => c.RouteNo);
+            foreach (var group in groups)
+                result.Add(new Route(group));
+            return result;
+        }
 
+        public static IEnumerable<Route> SplitRouteWithDuplicates(Route route)
+        {
+            List<Route> result = new List<Route>();
+            var groups = route.GroupBy(c => c.RouteNo);
+
+            var sources = route.GetRouteSources();
+            var targets = route.GetRouteTargets();
+
+            Route mainRoute = null;
+            IGrouping<int, RouteItem> mainGroup = null;
+
+            foreach (var source in sources)
+            {
+                foreach (var target in targets)
+                {
+                    mainGroup = groups.FirstOrDefault(c => c.Key == source.RouteNo && c.Key == target.RouteNo);
+                    mainRoute = new Route(mainGroup);
+
+                    break;
+                }
+
+                if (mainRoute != null)
+                    break;
+            }
+
+            foreach (var group in groups)
+            {
+                if (group == mainGroup)
+                    continue;
+
+                Route r = new Route(group);
+
+                var tempSource = r.GetRouteSource();
+                var tempTarget = r.GetRouteTarget();
+
+                //var startFromMainRoute = 
+
+
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Compares two routes. Returns true, if both are equal or if Branch found
+        /// </summary>
+        /// <param name="oldRoute">Secnond rout to compare</param>
+        /// <param name="branchesAt">Component where both routes start to be different</param>
+        /// <returns>True if equal or if branch found</returns>
+        public bool Compare(Route oldRoute, out IACComponent branchesAt)
+        {
+            branchesAt = null;
             if (oldRoute == null)
                 return false;
 
             IEnumerable<RouteItem> newSources = this.GetRouteSources();
-            IEnumerable<RouteItem> oldSources = this.GetRouteSources();
+            IEnumerable<RouteItem> oldSources = oldRoute.GetRouteSources();
 
-            foreach(RouteItem newSource in newSources)
+            foreach (RouteItem newSource in newSources)
             {
                 RouteItem oldSource = oldSources.FirstOrDefault(o => o.Equals(newSource));
                 if (oldSource != null)
                 {
-                    var key = CheckForFirstDifferentComponent(newSource.SourceKey, oldSource.SourceKey, oldRoute);
+                    var key = FindFirstDifference(newSource.SourceKey, oldSource.SourceKey, oldRoute);
                     if (key == null)
                         return true;
                     var rItem = this.FirstOrDefault(c => c.SourceKey == key);
                     if (rItem != null)
-                        diffComponent = rItem.SourceACComponent;
+                        branchesAt = rItem.SourceACComponent;
                     else
                     {
                         rItem = this.FirstOrDefault(c => c.TargetKey == key);
                         if (rItem == null)
                             return false;
-                        diffComponent = rItem.TargetACComponent;
+                        branchesAt = rItem.TargetACComponent;
                     }
                     return true;
                 }
@@ -170,10 +284,10 @@ namespace gip.core.datamodel
             return false;
         }
 
-        private EntityKey CheckForFirstDifferentComponent(EntityKey newSource, EntityKey oldSource, Route oldRoute)
+        private System.Data.EntityKey FindFirstDifference(EntityKey newSource, EntityKey oldSource, Route oldRoute)
         {
-            var newSourceItems = this.Where(c => c.SourceKey == newSource);
-            var oldSourceItems = oldRoute.Where(c => c.SourceKey == oldSource);
+            var newSourceItems = this.Where(c => c.SourceKey == newSource).OrderBy(c => c.SourceGuid).ThenBy(c => c.TargetGuid);
+            var oldSourceItems = oldRoute.Where(c => c.SourceKey == oldSource).OrderBy(c => c.SourceGuid).ThenBy(c => c.TargetGuid);
 
             if (!newSourceItems.SequenceEqual(oldSourceItems))
                 return newSource;
@@ -181,19 +295,19 @@ namespace gip.core.datamodel
             var newTargetItems = newSourceItems.Select(t => t.TargetKey);
             var oldTargetItems = oldSourceItems.Select(t => t.TargetKey);
 
-            foreach(var newTarget in newTargetItems)
+            foreach (var newTarget in newTargetItems)
             {
                 var oldTarget = oldTargetItems.FirstOrDefault(c => c == newTarget);
                 if (oldTarget == null)
                     return newSource;
 
-                var newTargetSources = this.Where(c => c.TargetKey == newTarget);
-                var oldTargetSources = oldRoute.Where(c => c.TargetKey == oldTarget);
+                var newTargetSources = this.Where(c => c.TargetKey == newTarget).OrderBy(c => c.SourceGuid).ThenBy(c => c.TargetGuid);
+                var oldTargetSources = oldRoute.Where(c => c.TargetKey == oldTarget).OrderBy(c => c.SourceGuid).ThenBy(c => c.TargetGuid);
 
                 if (!newTargetSources.SequenceEqual(oldTargetSources))
                     return newTarget;
 
-                return CheckForFirstDifferentComponent(newTarget, oldTarget, oldRoute);
+                return FindFirstDifference(newTarget, oldTarget, oldRoute);
             }
             return null;
         }
@@ -224,8 +338,8 @@ namespace gip.core.datamodel
             string result = "";
             foreach (var group in groups)
             {
-                RouteItem source = this.FirstOrDefault();
-                RouteItem target = this.LastOrDefault();
+                RouteItem source = this.GetRouteSource();
+                RouteItem target = this.GetRouteTarget();
                 if (source == null || target == null)
                     continue;
                 var sourceComp = source.SourceACComponent;
@@ -245,17 +359,80 @@ namespace gip.core.datamodel
             //    return sourceComp.GetACUrl() + " -> " + targetComp.GetACUrl();
             //}
         }
+        
+        public int GetRouteHash()
+        {
+            var sources = this.GetRouteSources().ToList();
+            var targets = this.GetRouteTargets().ToList();
 
-#endregion
+            foreach (var source in sources)
+                this.Items.Remove(source);
 
-#region Private
+            foreach (var target in targets)
+                this.Items.Remove(target);
+
+            List<Guid> guids = null;
+
+            if (!this.Items.Any())
+            {
+                guids = new List<Guid>(targets.Select(c => c.SourceGuid));
+            }
+            else
+            {
+                var newTargets = this.GetRouteTargets().ToList();
+
+                guids = this.Select(c => c.SourceGuid).ToList();
+                foreach (var target in newTargets)
+                {
+                    guids.Add(target.TargetGuid);
+                }
+            }
+
+            this.Items.InsertRange(0, sources);
+            this.Items.AddRange(targets);
+
+            if (guids == null || !guids.Any())
+                return 0;
+
+            return string.Join("", guids).GetHashCode();
+        }
+
+        public (bool reserved, bool allocated) GetReservedAndAllocated(IACComponent acRoutingService)
+        {
+            if (Count == 0)
+            {
+                _HasAnyReserved = false;
+                _HasAnyAllocated = false;
+            }
+
+            if (_HasAnyReserved.HasValue && _HasAnyAllocated.HasValue)
+                return (_HasAnyReserved.Value, _HasAnyAllocated.Value);
+
+            if (acRoutingService == null)
+                return (false, false);
+
+            Route route = acRoutingService.ExecuteMethod("GetAllocatedAndReserved", this) as Route;
+            if (route != null)
+            {
+                _HasAnyReserved = route.HasAnyReserved;
+                _HasAnyAllocated = route.HasAnyAllocated;
+            }
+
+            return (HasAnyReserved.HasValue? HasAnyReserved.Value : false, HasAnyAllocated.HasValue? HasAnyAllocated.Value : false);
+        }
+
+
+
+        #endregion
+
+        #region Private
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
         }
 
-#endregion
+        #endregion
 
 #region IAttach
 
@@ -285,6 +462,7 @@ namespace gip.core.datamodel
         /// <summary>Gets a value indicating whether the encapuslated objects are attached.</summary>
         /// <value>
         ///   <c>true</c> if the encapuslated objects are attached; otherwise, <c>false</c>.</value>
+        [IgnoreDataMember]
         public bool IsAttached
         {
             get { return !_Items.Where(c => !c.IsAttached).Any(); }
@@ -295,9 +473,16 @@ namespace gip.core.datamodel
             _Items.ForEach(c => c.DetachEntitesFromDbContext());
         }
 
+        [IgnoreDataMember]
         public bool IsDetachedFromDbContext
         {
             get { return !_Items.Where(c => !c.IsDetachedFromDBContext).Any(); }
+        }
+
+        [IgnoreDataMember]
+        public bool AreACUrlInfosSet
+        {
+            get { return !_Items.Where(c => !c.AreACUrlInfosSet).Any(); }
         }
 
         /// <summary>
@@ -323,7 +508,7 @@ namespace gip.core.datamodel
 
         public object Clone()
         {
-            return new Route(this._Items.Select(c => c.Clone() as RouteItem));
+            return new Route(this._Items.Select(c => c.Clone() as RouteItem)) { IsPredefinedRoute = this.IsPredefinedRoute };
         }
 
         public Route Clone(IACEntityObjectContext attachTo)

@@ -27,7 +27,7 @@ using System.Xml.Serialization;
 namespace gip.core.datamodel
 {
     /// <summary>
-    /// VBEntityObject - common VarioBatch base for entity object - implementing commnon definitions and functionality
+    /// VBEntityObject - common iPlus base for entity object - implementing commnon definitions and functionality
     /// (aagincic) TODO:
     /// 1. Implement one by one method
     ///     - remove all with same signature
@@ -260,8 +260,10 @@ namespace gip.core.datamodel
                 throw new ArgumentNullException("Context", "Context is null");
             if (this is IInsertInfo)
             {
-                ((IInsertInfo)this).InsertDate = DateTime.Now;
-                ((IInsertInfo)this).InsertName = user;
+                if (((IInsertInfo)this).InsertDate == DateTime.MinValue)
+                    ((IInsertInfo)this).InsertDate = DateTime.Now;
+                if (String.IsNullOrEmpty(((IInsertInfo)this).InsertName))
+                    ((IInsertInfo)this).InsertName = user;
             }
 
             if (this is IUpdateInfo)

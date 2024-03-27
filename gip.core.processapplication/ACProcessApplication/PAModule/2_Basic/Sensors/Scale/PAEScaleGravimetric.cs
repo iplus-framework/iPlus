@@ -29,6 +29,8 @@ namespace gip.core.processapplication
             _TareInternal = new ACPropertyConfigValue<bool>(this, "TareInternal", false);
             _TolerancePlus = new ACPropertyConfigValue<double>(this, "TolerancePlus", 0.0);
             _ToleranceMinus = new ACPropertyConfigValue<double>(this, "ToleranceMinus", 0.0);
+            _WeightRemovedBin = new ACPropertyConfigValue<double?>(this, nameof(WeightRemovedBin), null);
+            _WeightPlacedBin = new ACPropertyConfigValue<double?>(this, nameof(WeightPlacedBin), null);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -38,6 +40,8 @@ namespace gip.core.processapplication
             _ = TareInternal;
             _ = TolerancePlus;
             _ = ToleranceMinus;
+            _ = WeightRemovedBin;
+            _ = WeightPlacedBin;
             return true;
         }
 
@@ -128,6 +132,51 @@ namespace gip.core.processapplication
                 return weightAsTarget != null && weightAsTarget.Source == null;
             }
         }
+
+        private ACPropertyConfigValue<double?> _WeightRemovedBin;
+        [ACPropertyConfig("en{'Detection weight of removed bin'}de{'Erkennungsgewicht Behälter entfernt'}")]
+        public double? WeightRemovedBin
+        {
+            get => _WeightRemovedBin.ValueT;
+            set
+            {
+                _WeightRemovedBin.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ACPropertyConfigValue<double?> _WeightPlacedBin;
+        [ACPropertyConfig("en{'Detection weight of placed bin'}de{'Erkennungsgewicht Behälter hingestellt'}")]
+        public double? WeightPlacedBin
+        {
+            get => _WeightPlacedBin.ValueT;
+            set
+            {
+                _WeightPlacedBin.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool? IsBinRemoved
+        {
+            get
+            {
+                if (!WeightRemovedBin.HasValue)
+                    return null;
+                return ActualValue.ValueT <= WeightRemovedBin.Value && !NotStandStill.ValueT;
+            }
+        }
+
+        public bool? IsBinPlaced
+        {
+            get
+            {
+                if (!WeightPlacedBin.HasValue)
+                    return null;
+                return ActualValue.ValueT >= WeightPlacedBin.Value && !NotStandStill.ValueT;
+            }
+        }
+
         #endregion
 
         #region Write-Values to PLC

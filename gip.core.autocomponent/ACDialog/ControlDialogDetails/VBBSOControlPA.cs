@@ -957,8 +957,22 @@ namespace gip.core.autocomponent
         [ACMethodInfo("","en{'Show logs'}de{'Protokolle anzeigen'}",999)]
         public void ShowACProgramLog()
         {
-            if (CurrentACComponent != null && SearchFrom < SearchTo && (SearchTo - SearchFrom).TotalDays < 11)
+            if (CurrentACComponent != null && SearchFrom < SearchTo)
             {
+                short searchMode = 0;
+                if ((SearchTo - SearchFrom).TotalDays >= 11)
+                {
+                    Global.MsgResult result = Messages.Question(this, "Warning50010", Global.MsgResult.No );
+                    if (result == Global.MsgResult.No)
+                        return;
+                    // If you want to find the last entry, then click YES. If you want to search for the last entry from the current time period, press NO. With CANCEL, the search is carried out in exactly the specified period.
+                    result = Messages.YesNoCancel(this, "Question50105", Global.MsgResult.No);
+                    if (result == Global.MsgResult.Yes)
+                        searchMode = 1;
+                    if (result == Global.MsgResult.No)
+                        searchMode = 2;
+                }
+
                 PAShowDlgManagerBase service = PAShowDlgManagerBase.GetServiceInstance(this);
                 if (service != null)
                 {
@@ -966,11 +980,11 @@ namespace gip.core.autocomponent
                     param.Add(new ACValue("ComponentACUrl", CurrentACComponent.GetACUrl()));
                     param.Add(new ACValue("SearchFrom", SearchFrom));
                     param.Add(new ACValue("SearchTo", SearchTo));
+                    param.Add(new ACValue("SearchMode", searchMode));
                     service.ShowProgramLogViewer(this as IACComponent, param);
                 }
             }
-            else
-                Messages.Warning(this, "Warning50010");
+
         }
 
         //public bool IsEnabledShowACProgramLog()

@@ -8,6 +8,6 @@
     <Style x:Key="FrameStyleGip" TargetType="{x:Type local:VBFrame}">
         <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="Background" Value="{StaticResource {ComponentResourceKey ResourceId=AppDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
-        <Setter Property="Margin" Value="1,0,1,1"/>
+        <Setter Property="Margin" Value="0"/>
     </Style>
 </ResourceDictionary>

@@ -289,6 +289,28 @@ namespace gip.core.autocomponent
             // Muss überschrieben werden, damit Basis-Klasse den Status nicht sofort auf SMCompleted setzt!
         }
 
+        public virtual bool ValidateRouteForFuncParam(Route route)
+        {
+            if (route == null)
+                return false;
+            if (ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.None || ApplicationManager.RoutingServiceInstance == null)
+                return true;
+
+            (bool reserved, bool allocated) = route.GetReservedAndAllocated(ApplicationManager.RoutingServiceInstance);
+            if ((allocated || reserved)
+                && (ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.AllocatedBlock
+                    || ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.AllocatedWarning))
+            {
+                //Warning50070: There are elements in the route that are either occupied or reserved!
+                Msg msg = new Msg(this, eMsgLevel.Warning, nameof(PWNodeProcessMethod), "ValidateRouteForFuncParam(1)", 1000, "Warning50070");
+                if (IsAlarmActive(ProcessAlarm, msg.Message) == null)
+                    Messages.LogWarning(this.GetACUrl(), "ValidateRouteForFuncParam(2)", msg.InnerMessage);
+                OnNewAlarmOccurred(ProcessAlarm, msg, true);
+            }
+            return !((allocated && ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.AllocatedBlock)
+                    || (allocated && ApplicationManager.RouteFindModeE == ApplicationManager.RouteFindModeEnum.ReservedBlock));
+        }
+
         #endregion
 
         #region Planning and Testing

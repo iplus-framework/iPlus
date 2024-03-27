@@ -5,6 +5,7 @@ using System.Text;
 using gip.core.datamodel;
 using System.ComponentModel;
 using System.Threading;
+using static gip.core.autocomponent.PAProcessFunction;
 
 namespace gip.core.autocomponent
 {
@@ -844,10 +845,10 @@ namespace gip.core.autocomponent
                 case ACStateConst.TMReset:
                     Reset();
                     return true;
-                case "Reset2Repeat":
+                case nameof(Reset2Repeat):
                     Reset2Repeat();
                     return true;
-                case "SendChangedACMethod":
+                case nameof(SendChangedACMethod):
                     SendChangedACMethod();
                     return true;
                 case ACStateConst.TMStart:
@@ -877,10 +878,10 @@ namespace gip.core.autocomponent
                 case Const.IsEnabledPrefix + ACStateConst.TMReset:
                     result = IsEnabledReset();
                     return true;
-                case Const.IsEnabledPrefix + "Reset2Repeat":
+                case nameof(IsEnabledReset2Repeat):
                     result = IsEnabledReset2Repeat();
                     return true;
-                case Const.IsEnabledPrefix + "SendChangedACMethod":
+                case nameof(IsEnabledSendChangedACMethod):
                     result = IsEnabledSendChangedACMethod();
                     return true;
                 case Const.IsEnabledPrefix + ACStateConst.TMStart:
@@ -904,15 +905,16 @@ namespace gip.core.autocomponent
                 case Const.AskUserPrefix + ACStateConst.TMReset:
                     result = AskUserReset(acComponent);
                     return true;
-                case Const.AskUserPrefix + "Reset2Repeat":
+                case nameof(AskUserReset2Repeat):
                     result = AskUserReset2Repeat(acComponent);
                     return true;
-                case Const.AskUserPrefix + "SendChangedACMethod":
+                case nameof(AskUserSendChangedACMethod):
                     result = AskUserSendChangedACMethod(acComponent);
                     return true;
             }
             return false;
         }
+
         #endregion
 
 
@@ -924,8 +926,9 @@ namespace gip.core.autocomponent
         /// This method is also invoked, when a user changes the parameterlist on the GUI on client-side.
         /// </summary>
         /// <param name="acMethod">The ac method.</param>
+        /// <param name="previousParams">The ac method.</param>
         /// <returns></returns>
-        protected virtual MsgWithDetails CompleteACMethodOnSMStarting(ACMethod acMethod)
+        protected virtual MsgWithDetails CompleteACMethodOnSMStarting(ACMethod acMethod, ACMethod previousParams)
         {
             return null;
         }
@@ -2063,6 +2066,16 @@ namespace gip.core.autocomponent
             return CompleteResult.Succeeded;
         }
 
+        public PAProcessFunction.CompleteResult ReceiveACMethodResult(out ACMethod acMethod, out MsgWithDetails msgError)
+        {
+            CompleteResult completeResult = CompleteResult.Succeeded;
+            msgError = null;
+            acMethod = GetCurrentACMethod();
+            if (ACStateConverter != null)
+                completeResult = ACStateConverter.ReceiveACMethodResult(this, acMethod, out msgError);
+            return completeResult;
+        }
+
 
         /// <summary>
         /// Handles the CompleteResult-State when ACStateConverter.ReceiveACMethodResult() and AnalyzeACMethodResult() was called.
@@ -2158,21 +2171,21 @@ namespace gip.core.autocomponent
         /// </summary>
         public MsgWithDetails ReSendACMethod(ACMethod newParameters = null)
         {
-            ACMethod acMethod = GetCurrentACMethod();
+            ACMethod previousParams = GetCurrentACMethod();
             if (newParameters != null)
             {
-                OnChangingCurrentACMethod(acMethod, newParameters);
+                OnChangingCurrentACMethod(previousParams, newParameters);
                 CurrentACMethod.ValueT = newParameters;
             }
             MsgWithDetails msgError = null;
-            acMethod = GetCurrentACMethod();
+            ACMethod acMethod = GetCurrentACMethod();
             if (acMethod == null)
             {
                 msgError = new MsgWithDetails() { Message = "CurrentACMethod is null" };
                 Messages.LogError(this.GetACUrl(), "ReSendACMethod(0)", msgError.Message);
             }
             else
-                msgError = CompleteACMethodOnSMStarting(acMethod);
+                msgError = CompleteACMethodOnSMStarting(acMethod, previousParams);
             if (msgError != null)
             {
                 if (FunctionError.ValueT == PANotifyState.Off)
@@ -2184,7 +2197,7 @@ namespace gip.core.autocomponent
 
             if (ACStateConverter != null)
             {
-                msgError = ACStateConverter.SendACMethod(this, acMethod);
+                msgError = ACStateConverter.SendACMethod(this, acMethod, previousParams != null && previousParams != acMethod ? previousParams : null);
                 if (msgError != null && !IsSimulationOn)
                 {
                     if (FunctionError.ValueT == PANotifyState.Off)

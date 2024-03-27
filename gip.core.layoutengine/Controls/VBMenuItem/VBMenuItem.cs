@@ -110,7 +110,7 @@ namespace gip.core.layoutengine
         }
         #endregion
 
-        private void LoadIcon(string iconACUrl)
+        internal void LoadIcon(string iconACUrl)
         {
             object icon = null;
 
@@ -284,7 +284,7 @@ namespace gip.core.layoutengine
                 return false;
             return HandlerACElement.IsEnabledACAction(actionArgs);
         }
-#endregion
+        #endregion
 
         /// <summary>
         /// The event hander for Initialized event.

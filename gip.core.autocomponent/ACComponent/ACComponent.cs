@@ -17,6 +17,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Xml;
+using static Microsoft.Isam.Esent.Interop.EnumeratedColumn;
 
 namespace gip.core.autocomponent
 {
@@ -290,6 +291,13 @@ namespace gip.core.autocomponent
                         appManager.ACCompUrlDict.AddComponent(this);
                     }
                 }
+//#if DEBUG
+//                if (System.Diagnostics.Debugger.IsAttached)
+//                {
+//                    System.Diagnostics.Debug.WriteLine(this.GetACUrl());
+//                }
+//#endif
+
                 // 1. Lade zuerst Modelkomponenten
                 foreach (ACClass acClassOfChild in ComponentClass.Childs.Where(c => c.ACStartType > Global.ACStartTypes.None && c.ACStartType <= startChildMode))
                 {
@@ -2536,6 +2544,9 @@ namespace gip.core.autocomponent
                             case nameof(ResetConfigValuesCache):
                                 ResetConfigValuesCache();
                                 return null;
+                            case nameof(RemoveDuplicateConfigEntries):
+                                RemoveDuplicateConfigEntries();
+                                return null;
                             //case nameof(IsEnabledResetConfigValuesCache):
                             //    return IsEnabledResetConfigValuesCache();
                             case nameof(GetGUI):
@@ -2650,12 +2661,13 @@ namespace gip.core.autocomponent
                 catch (Exception invokeMethodException)
                 {
                     string message = string.Format(@"{0} - Method: {1}, ExceptionType: {2} Exception: {3} Trace: {4}", ACIdentifier, acMethodName1, invokeMethodException.GetType().Name, invokeMethodException.Message, invokeMethodException.StackTrace);
-                    Messages.LogError(GetACUrl(), "ACComponent.ExecuteACMethod(1)", message);
+                    Messages.LogError(GetACUrl(), nameof(ExecuteMethod) + "(10)", message);
                     if (invokeMethodException.InnerException != null)
                     {
                         message = string.Format(@"Inner-Exception: {0}, Trace: {1}", invokeMethodException.InnerException.Message, invokeMethodException.InnerException.StackTrace);
-                        Messages.LogError(GetACUrl(), "ACComponent.ExecuteACMethod(1)", message);
+                        Messages.LogError(GetACUrl(), nameof(ExecuteMethod) + "(20)", message);
                     }
+                    OnExceptionCatched(nameof(ExecuteMethod), acMethodName1, invokeMethodException);
 
                     if (syncInvocationWaitHandle != null)
                     {
@@ -2746,6 +2758,10 @@ namespace gip.core.autocomponent
                 default:
                     return null;
             }
+        }
+
+        protected virtual void OnExceptionCatched(string methodName, string position, Exception exception)
+        {
         }
 
         /// <summary>
@@ -3805,6 +3821,9 @@ namespace gip.core.autocomponent
 
             if (GetGUI() != null)
                 GetGUI().ShowDialog(forObject == null ? this : forObject, acClassDesignName, acCaption, isClosableBSORoot, ribbonVisibility, closeButtonVisibility);
+
+            else if (GetGUIMobile() != null)
+                GetGUIMobile().ShowDialog(forObject == null ? this : forObject, acClassDesignName, acCaption, isClosableBSORoot, ribbonVisibility, closeButtonVisibility);
         }
 
 
@@ -3859,6 +3878,16 @@ namespace gip.core.autocomponent
         public IVBGui GetGUI()
         {
             return FindGui("VBDockingManager") as IVBGui;
+        }
+
+        /// <summary>
+        /// Gets a reference to the VBFrameController which has this instance bound to its DataContext.
+        /// </summary>
+        /// <returns></returns>
+        [ACMethodInfo("", "en{'MobileGUI'}de{'MobileGUI'}", 9999)]
+        public IVBGui GetGUIMobile()
+        {
+            return FindGui("VBFrameController") as IVBGui;
         }
 
         private IACObject _FindGuiResult = null;
@@ -4525,32 +4554,43 @@ namespace gip.core.autocomponent
         {
             get
             {
-                object result = null;
-                ACClass acTypeFromLiveContext = ACTypeFromLiveContext;
-                if (acTypeFromLiveContext == null)
-                    return null;
-                //ACClassTaskQueue.TaskQueue.ProcessAction(() =>
-                //{
-                    try
-                    {
-                        IACConfig acClassConfig = acTypeFromLiveContext.ConfigurationEntries.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl && c.LocalConfigACUrl == configuration).FirstOrDefault();
-
-                        if (acClassConfig != null)
-                            result = acClassConfig.Value;
-                    }
-                    catch (Exception e)
-                    {
-                        Messages.LogException(this.GetACUrl(), "this[].get", e.Message);
-                        if (e.InnerException != null)
-                            Messages.LogException(this.GetACUrl(), "this[].get", e.InnerException.Message);
-                    }
-                //});
-                return result;
+                try
+                {
+                    IACConfig acClassConfig = GetConfigurationValue(configuration);
+                    if (acClassConfig != null)
+                        return acClassConfig.Value;
+                }
+                catch (Exception e)
+                {
+                    Messages.LogException(this.GetACUrl(), "this[].get", e.Message);
+                    if (e.InnerException != null)
+                        Messages.LogException(this.GetACUrl(), "this[].get", e.InnerException.Message);
+                }
+                return null;
             }
             set
             {
                 SetConfigurationValue(configuration, value);
             }
+        }
+
+        public IACConfig GetConfigurationValue(string configuration)
+        {
+            ACClass acTypeFromLiveContext = ACTypeFromLiveContext;
+            if (acTypeFromLiveContext == null)
+                return null;
+            try
+            {
+                return acTypeFromLiveContext.ConfigurationEntries.Where(c => c.KeyACUrl == acTypeFromLiveContext.ACConfigKeyACUrl && c.LocalConfigACUrl == configuration).FirstOrDefault();
+            }
+            catch (Exception e)
+            {
+                Messages.LogException(this.GetACUrl(), "GetConfigurationValue()", e.Message);
+                if (e.InnerException != null)
+                    Messages.LogException(this.GetACUrl(), "GetConfigurationValue()", e.InnerException.Message);
+            }
+            //});
+            return null;
         }
 
         internal void SetConfigurationValue(string configuration, object value, Type forceType = null)
@@ -4581,13 +4621,19 @@ namespace gip.core.autocomponent
                                 break;
                         }
                     }
-                    ACClassTaskQueue.TaskQueue.Add(() =>
+                    //ACClassTaskQueue.TaskQueue.Add(() =>
+                    ACClassTaskQueue.TaskQueue.ProcessAction(() =>
                     {
                         acClassConfig = acTypeFromLiveContext.NewACConfig(null, ACClassTaskQueue.TaskQueue.Context.GetACType(value != null ? value.GetType() : forceType)) as ACClassConfig;
                         acClassConfig.LocalConfigACUrl = configuration;
                         if (baseACClassConfig != null)
                             acClassConfig.Comment = baseACClassConfig.Comment;
                         acClassConfig.Value = value;
+                    });
+                    // Call Add for exceuting Save-Changes afterwards
+                    ACClassTaskQueue.TaskQueue.Add(() =>
+                    {
+                        _ = acClassConfig?.VBiACClassID;
                     });
                 }
             }
@@ -4606,12 +4652,20 @@ namespace gip.core.autocomponent
         /// This also resets all configuration properties and reloads them from the database (ACPropertyConfigValue&lt;T&gt;).
         /// This method is recursively. It resets also all childs in the application tree.
         /// </summary>
-        [ACMethodInfo("ACComponent", "en{'Reset configuration cache'}de{'Resettiere Konfigurationspuffer'}", 1000)]
+        [ACMethodCommand("ACComponent", "en{'Reset configuration cache'}de{'Resettiere Konfigurationspuffer'}", 1000)]
         public virtual void ResetConfigValuesCache()
         {
             ACClass acTypeFromLiveContext = ACTypeFromLiveContext;
             if (acTypeFromLiveContext == null)
                 return;
+            using (ACMonitor.Lock(LockMemberList_20020))
+            {
+                if (_ACPropertyConfigValueList != null)
+                {
+                    _ACPropertyConfigValueList.ForEach(c => c.IsCachedValueSet = false);
+                }
+            }
+
             acTypeFromLiveContext.ClearCacheOfConfigurationEntries();
 
             using (ACMonitor.Lock(LockMemberList_20020))
@@ -4637,6 +4691,38 @@ namespace gip.core.autocomponent
         //    }
         //    return false;
         //}
+
+        [ACMethodCommand("ACComponent", "en{'Remove duplicate configurations'}de{'Entferne doppelte Konfigurationseinträge'}", 1001, true)]
+        public virtual void RemoveDuplicateConfigEntries()
+        {
+            RemoveDuplicateConfigEntriesInternal();
+        }
+
+        protected virtual void RemoveDuplicateConfigEntriesInternal(int depth = 0)
+        {
+            using (ACMonitor.Lock(LockMemberList_20020))
+            {
+                if (_ACPropertyConfigValueList != null)
+                {
+                    _ACPropertyConfigValueList.ForEach(c => c.RemoveDuplicateEntries());
+                }
+            }
+            foreach (ACComponent child in this.ACComponentChilds)
+            {
+                child.RemoveDuplicateConfigEntriesInternal(depth+1);
+            }
+
+            if (depth == 0)
+            {
+                ResetConfigValuesCache();
+                ACClassTaskQueue.TaskQueue.Add(() =>
+                {
+                    // Force SaveChanges
+                    _ = new object();
+                });
+
+            }
+        }
         #endregion
 
 

@@ -35,6 +35,7 @@ namespace gip.core.autocomponent
             _ShutdownEvent = new ManualResetEvent(false);
             _WorkCycleThread = new ACThread(RunWorkCycle);
             _ACUrlRoutingService = new ACPropertyConfigValue<string>(this, "ACUrlRoutingService", ACRoutingService.DefaultServiceACUrl);
+            _RouteFindMode = new ACPropertyConfigValue<ushort>(this, "RouteFindMode", 0);
         }
 
         #region Initialisierung
@@ -58,6 +59,7 @@ namespace gip.core.autocomponent
         public override bool ACPostInit()
         {
             bool result = base.ACPostInit();
+            _ = RouteFindMode;
 
             if (AutoRestoreUnboundTargetProp)
             {
@@ -225,7 +227,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        public bool IsSimulationOn
+        public override bool IsSimulationOn
         {
             get
             {
@@ -725,6 +727,88 @@ namespace gip.core.autocomponent
         }
 
         public string RoutingServiceACUrl { get { return ACUrlRoutingService; } }
+
+        private ACPropertyConfigValue<ushort> _RouteFindMode;
+        /// <summary>
+        /// 0 = None
+        /// 1 = Prevent using allocated items (but warn)
+        /// 2 = Prevent using reserved items (but warn)
+        /// 5 = Donn't use allocated items (Block)
+        /// 6 = Donn't use reserved items (Block)
+        /// </summary>
+        [ACPropertyConfig("en{'Mode Route finding'}de{'Modus Routensuche'}")]
+        public ushort RouteFindMode
+        {
+            get
+            {
+                return _RouteFindMode.ValueT;
+            }
+        }
+
+        public RouteFindModeEnum RouteFindModeE
+        {
+            get
+            {
+                try
+                {
+                    return (RouteFindModeEnum)RouteFindMode;
+                }
+                catch
+                {
+                    return RouteFindModeEnum.None;
+                }
+            }
+        }
+
+        public enum RouteFindModeEnum : ushort
+        {
+             None = 0,
+             AllocatedWarning = 1,
+             ReservedWarning = 2,
+             AllocatedBlock = 5,
+             ReservedBlock = 6,
+        }
+
+        public bool IncludeAllocatedOnRoutingSearch
+        {
+            get
+            {
+                return !(RouteFindModeE >= RouteFindModeEnum.AllocatedWarning);
+            }
+        }
+
+        public bool IncludeReservedOnRoutingSearch
+        {
+            get
+            {
+                return !(RouteFindModeE == RouteFindModeEnum.ReservedWarning || RouteFindModeE == RouteFindModeEnum.ReservedBlock);
+            }
+        }
+
+        public bool RoutingSearchBlockIfNotFree
+        {
+            get
+            {
+                return RouteFindModeE >= RouteFindModeEnum.AllocatedBlock;
+            }
+        }
+
+        public bool RoutingSearchWarnIfNotFree
+        {
+            get
+            {
+                return RouteFindModeE == RouteFindModeEnum.AllocatedWarning || RouteFindModeE == RouteFindModeEnum.ReservedWarning;
+            }
+        }
+
+        public bool RoutingTrySearchAgainIfOnlyWarning
+        {
+            get 
+            {
+                return     (!IncludeReservedOnRoutingSearch || !IncludeAllocatedOnRoutingSearch) 
+                        && !RoutingSearchBlockIfNotFree;
+            }
+        }
 
         #endregion
     }

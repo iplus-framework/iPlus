@@ -1,0 +1,1 @@
+update ACClass set AssemblyQualifiedName = 'gip.core.processapplication.PAEScaleCalibratable, gip.core.processapplication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where AssemblyQualifiedName = 'gip.mes.processapplication.PAEScaleCalibratable, gip.mes.processapplication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'

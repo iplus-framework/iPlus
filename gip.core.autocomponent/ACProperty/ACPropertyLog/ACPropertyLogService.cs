@@ -60,9 +60,9 @@ namespace gip.core.autocomponent
 
         private string[] _LoggableProperties;
 
-        private string[] _HierahicalRulesACUrl;
+        private string[] _HierachicalRulesACUrl;
 
-        private Dictionary<Guid, Guid> _HierahicalOneselfRules;
+        private Dictionary<Guid, Guid> _HierachicalOneselfRules;
 
         private ACClass[] _BasedOnRulesACClasses;
 
@@ -94,13 +94,13 @@ namespace gip.core.autocomponent
             {
                 using (ACMonitor.Lock(_LockObjectHierarchy))
                 {
-                    _HierahicalRulesACUrl = db.ACPropertyLogRule.Where(c => c.RuleType == (short)Global.PropertyLogRuleType.ProjectHierarchy && c.ACClass.ACURLComponentCached != null).ToArray()
+                    _HierachicalRulesACUrl = db.ACPropertyLogRule.Where(c => c.RuleType == (short)Global.PropertyLogRuleType.ProjectHierarchy && c.ACClass.ACURLComponentCached != null).ToArray()
                                                                 .Select(x => x.ACClass.ACUrlComponent).ToArray();
                 }
 
                 using (ACMonitor.Lock(_LockObjectHierarchyOneself))
                 {
-                    _HierahicalOneselfRules = db.ACPropertyLogRule.Where(c => c.RuleType == (short)Global.PropertyLogRuleType.ProjectHierarchyOneself)
+                    _HierachicalOneselfRules = db.ACPropertyLogRule.Where(c => c.RuleType == (short)Global.PropertyLogRuleType.ProjectHierarchyOneself)
                                                                   .ToDictionary(c => c.ACClassID, c => c.ACClassID);
                 }
 
@@ -118,7 +118,7 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "RebuildRuleCache":
+                case nameof(RebuildRuleCache):
                     RebuildRuleCache();
                     return true;
             }
@@ -175,7 +175,7 @@ namespace gip.core.autocomponent
         {
             using (ACMonitor.Lock(_LockObjectHierarchy))
             {
-                return _HierahicalRulesACUrl.Any(c => acUrlComponent.StartsWith(c, StringComparison.Ordinal));
+                return _HierachicalRulesACUrl != null ? _HierachicalRulesACUrl.Any(c => acUrlComponent.StartsWith(c, StringComparison.Ordinal)) : false;
             }
         }
 
@@ -183,8 +183,7 @@ namespace gip.core.autocomponent
         {
             using (ACMonitor.Lock(_LockObjectHierarchyOneself))
             {
-                Guid rule;
-                return _HierahicalOneselfRules.TryGetValue(componentClass.ACClassID, out rule);
+                return _HierachicalOneselfRules != null ? _HierachicalOneselfRules.ContainsKey(componentClass.ACClassID) : false;
             }
         }
 
@@ -192,7 +191,7 @@ namespace gip.core.autocomponent
         {
             using (ACMonitor.Lock(_LockObjectBasedOn))
             {
-                return _BasedOnRulesACClasses.Any(baseClass => componentClass.IsDerivedClassFrom(baseClass));
+                return _BasedOnRulesACClasses != null ? _BasedOnRulesACClasses.Any(baseClass => componentClass.IsDerivedClassFrom(baseClass)) : false;
             }
         }
 

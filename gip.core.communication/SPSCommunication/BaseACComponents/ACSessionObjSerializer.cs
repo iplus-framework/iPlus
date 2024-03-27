@@ -28,19 +28,22 @@ namespace gip.core.communication
 
         /// <summary>This method must bei implemented in the derivation class.</summary>
         /// <param name="complexObj">The complexObj can be wether a ACMethod or any serializable Object.</param>
+        /// <param name="prevComplexObj">Previous send object</param>
         /// <param name="dbNo">Datablock-Number</param>
         /// <param name="offset">Offset in Datablock</param>
+        /// <param name="routeOffset"></param>
         /// <param name="miscParams"></param>
-        /// <returns>true if succeede</returns>
-        public abstract bool SendObject(object complexObj, int dbNo, int offset, object miscParams);
+        /// <returns>true if succeeded</returns>
+        public abstract bool SendObject(object complexObj, object prevComplexObj, int dbNo, int offset, int? routeOffset, object miscParams);
 
         /// <summary>This method must bei implemented in the derivation class.</summary>
         /// <param name="complexObj">The complexObj can be wether a ACMethod or any serializable Object. The complexObject should be empty</param>
         /// <param name="dbNo">Datablock-Number</param>
         /// <param name="offset">Offset in Datablock</param>
+        /// /// <param name="routeOffset">Route offset in Datablock</param>
         /// <param name="miscParams"></param>
         /// <returns>The passed complexObj with filled out properties. If read error the result is null.</returns>
-        public abstract object ReadObject(object complexObj, int dbNo, int offset, object miscParams);
+        public abstract object ReadObject(object complexObj, int dbNo, int offset, int?routeOffset, object miscParams);
 
         public virtual void OnObjectRead(byte[] result)
         {
@@ -58,6 +61,28 @@ namespace gip.core.communication
                 return false;
             return split[0].Trim() == compareWith;
         }
+
+        public (ACChildInstanceInfo childInfo, IACComponent invokerModule) GetSendParameters(object miscParams, bool withInvokerModule = true)
+        {
+            ACChildInstanceInfo childInfo = null;
+            IACComponent invokerModule = null;
+            if (miscParams != null)
+            {
+                childInfo = miscParams as ACChildInstanceInfo;
+                if (childInfo == null)
+                {
+                    object[] miscParamArray = miscParams as object[];
+                    if (miscParamArray != null && miscParamArray.Any())
+                        childInfo = miscParamArray[0] as ACChildInstanceInfo;
+                }
+
+                if (childInfo != null && withInvokerModule)
+                    invokerModule = ACUrlCommand(childInfo.ACUrlParent) as IACComponent;
+            }
+
+            return (childInfo, invokerModule);
+        }
+
         #endregion
     }
 }

@@ -570,5 +570,48 @@ namespace gip.core.autocomponent
 
         #endregion
 
+        #region Misc
+
+        public static List<ACClass> FilterByAllowedInstances(ACClassWF currentACClassWF, List<IACConfigStore> mandantoryConfigStores, ConfigManagerIPlus configManager,
+                                                    List<ACClass> possibleInstances)
+        {
+            List<ACClass> result = new List<ACClass>();
+
+            ACClassMethod wfMethod = currentACClassWF.RefPAACClassMethod;
+            if (wfMethod != null)
+            {
+                IEnumerable<core.datamodel.ACClassWF> groups = wfMethod.ACClassWF_ACClassMethod.Where(c => c.PWACClass.ACKind == Global.ACKinds.TPWGroup);
+
+                List<string> classes = new List<string>();
+
+                int prio = 0;
+
+                foreach (core.datamodel.ACClassWF group in groups)
+                {
+                    IACConfig config = configManager.GetConfiguration(mandantoryConfigStores, currentACClassWF.ConfigACUrl + "\\",
+                                                                           group.ConfigACUrl + @"\Rules\" + ACClassWFRuleTypes.Allowed_instances.ToString(),
+                                                                           null, out prio);
+                    if (config == null)
+                        continue;
+
+                    List<RuleValue> allowedInstancesRuleValueList = RulesCommand.ReadIACConfig(config);
+                    classes.AddRange(allowedInstancesRuleValueList.SelectMany(c => c.ACClassACUrl).Distinct());
+                }
+
+                if (classes.Any())
+                {
+                    foreach (var acClass in possibleInstances)
+                    {
+                        if (classes.Any(c => acClass.ACUrl == c))
+                            result.Add(acClass);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
+
     }
 }

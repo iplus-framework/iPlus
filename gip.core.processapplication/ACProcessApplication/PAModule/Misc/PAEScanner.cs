@@ -71,7 +71,9 @@ namespace gip.core.processapplication
             TMP = new ACEventArgs();
             TMP.Add(new ACValue("DeviceID", typeof(string), null, Global.ParamOption.Required));
             TMP.Add(new ACValue("User", typeof(VBUser), null, Global.ParamOption.Required));
-            _SVirtualEventArgs.Add("ScanSequenceCompleteEvent", TMP);
+            TMP.Add(new ACValue(nameof(PAEScannerDecoder.ScanSequenceList), typeof(BindingList<PAEScannerData>), null, Global.ParamOption.Required));
+            TMP.Add(new ACValue(nameof(PAOrderInfo), typeof(PAOrderInfo), null, Global.ParamOption.Optional));
+            _SVirtualEventArgs.Add(nameof(ScanSequenceCompleteEvent), TMP);
 
             RegisterExecuteHandler(typeof(PAEScanner), HandleExecuteACMethod_PAEScanner);
         }
@@ -79,9 +81,9 @@ namespace gip.core.processapplication
         public PAEScanner(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            _ScanEvent = new ACPointEvent(this, "ScanEvent", 0);
-            _ScanSequenceCompleteEvent = new ACPointEvent(this, "ScanSequenceCompleteEvent", 0);
-            _EventSubscr = new ACPointEventSubscr(this, "EventSubscr", 0);
+            _ScanEvent = new ACPointEvent(this, nameof(ScanEvent), 0);
+            _ScanSequenceCompleteEvent = new ACPointEvent(this, nameof(ScanSequenceCompleteEvent), 0);
+            _EventSubscr = new ACPointEventSubscr(this, nameof(EventSubscr), 0);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -103,19 +105,18 @@ namespace gip.core.processapplication
 
         public override bool ACPostInit()
         {
-            var query = ACComponentChilds.Where(c => c is PAEScannerDecoder);
-            if (query.Any())
+            PAEScannerDecoder decoder = FindChildComponents< PAEScannerDecoder>(c => c is PAEScannerDecoder, null, 1).FirstOrDefault();
+            if (decoder != null)
             {
-                PAEScannerDecoder decoder = query.First() as PAEScannerDecoder;
                 _Decoder = new ACRef<PAEScannerDecoder>(decoder,this);
-                EventSubscr.SubscribeEvent(decoder, "ScanSequenceCompleteEvent", EventCallback);
+                EventSubscr.SubscribeEvent(decoder, nameof(PAEScannerDecoder.ScanSequenceCompleteEvent), EventCallback);
             }
             if (!String.IsNullOrEmpty(ScannerBusURL))
             {
                 ScannerBus = new ACRef<IACComponent>(ScannerBusURL,this);
                 if ((ScannerBus != null) && ScannerBus.IsObjLoaded)
                 {
-                    EventSubscr.SubscribeEvent(ScannerBus.ValueT, "ReadOnBusEvent", EventCallback);
+                    EventSubscr.SubscribeEvent(ScannerBus.ValueT, nameof(PAMBus.ReadOnBusEvent), EventCallback);
                 }
             }
 
@@ -149,10 +150,10 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "AnalyzeScanEvent":
+                case nameof(AnalyzeScanEvent):
                     AnalyzeScanEvent((System.String)acParameter[0]);
                     return true;
-                case "EventCallback":
+                case nameof(EventCallback):
                     EventCallback((gip.core.datamodel.IACPointNetBase)acParameter[0], (gip.core.datamodel.ACEventArgs)acParameter[1], (gip.core.datamodel.IACObject)acParameter[2]);
                     return true;
             }
@@ -226,7 +227,7 @@ namespace gip.core.processapplication
             if (e != null)
             {
                 // Event vom Bus
-                if (sender.ACIdentifier == "ReadOnBusEvent")
+                if (sender.ACIdentifier == nameof(PAMBus.ReadOnBusEvent))
                 {
                     string deviceID = "";
                     string data = "";
@@ -250,13 +251,24 @@ namespace gip.core.processapplication
                     AnalyzeScanEvent(data);
                 }
                 // Event arrived from Decoder
-                else if (sender.ACIdentifier == "ScanSequenceCompleteEvent")
+                else if (sender.ACIdentifier == nameof(PAEScannerDecoder.ScanSequenceCompleteEvent))
                 {
-                    ACEventArgs eventArgs = ACEventArgs.GetVirtualEventArgs("ScanSequenceCompleteEvent", VirtualEventArgs);
+                    ACEventArgs eventArgs = ACEventArgs.GetVirtualEventArgs(nameof(PAEScannerDecoder.ScanSequenceCompleteEvent), VirtualEventArgs);
 
                     eventArgs.GetACValue("DeviceID").Value = DeviceID;
-                    eventArgs.GetACValue("User").Value = User.ValueT;
-                    
+                    if (User != null && User.ValueT != null)
+                        eventArgs.GetACValue("User").Value = User.ValueT;
+
+                    ACValue acValue = e.GetACValue(nameof(PAEScannerDecoder.ScanSequenceList));
+                    ACValue acValue2 = eventArgs.GetACValue(nameof(PAEScannerDecoder.ScanSequenceList));
+                    if (acValue != null)
+                        acValue2.Value = acValue.Value;
+
+                    acValue = e.GetACValue(nameof(PAOrderInfo));
+                    acValue2 = eventArgs.GetACValue(nameof(PAOrderInfo));
+                    if (acValue != null)
+                        acValue2.Value = acValue.Value;
+
                     ScanSequenceCompleteEvent.Raise(eventArgs);
                 }
             }

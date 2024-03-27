@@ -21,6 +21,7 @@ using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.Windows.Controls.Primitives;
 
 namespace gip.core.layoutengine
 {
@@ -211,7 +212,7 @@ namespace gip.core.layoutengine
                 {
                     _dispTimer = new DispatcherTimer();
                     _dispTimer.Tick += new EventHandler(dispatcherTimer_CanExecute);
-                    _dispTimer.Interval = new TimeSpan(0, 0, 0, 0, CanExecuteCyclic);
+                    _dispTimer.Interval = new TimeSpan(0, 0, 0, 0, CanExecuteCyclic < 500 ? 500 : CanExecuteCyclic);
                     _dispTimer.Start();
                 }
             }
@@ -746,7 +747,7 @@ namespace gip.core.layoutengine
         /// <summary>
         /// Handles the ACUrl message when it is received.
         /// </summary>
-        public void OnACUrlMessageReceived()
+        public virtual void OnACUrlMessageReceived()
             {
                 if (!this.IsLoaded)
                     return;
@@ -794,6 +795,11 @@ namespace gip.core.layoutengine
                         bmpNew.Save(fileName);
 
 
+                        break;
+                    case Const.CmdInitSelectionManager:
+                    {
+                        _= VBBSOSelectionManager;
+                    }
                         break;
                     case Const.CmdDesignModeOff:
                         if(this is VBDesign)
@@ -914,7 +920,7 @@ namespace gip.core.layoutengine
 
         #endregion
 
-        #region Mouse-Event
+      #region Mouse-Event
         //private static VBDesignBase _LastVBDesignBaseWithInfo = null;
         IVBContent _LastClickedControl;
 
@@ -963,6 +969,16 @@ namespace gip.core.layoutengine
                             {
                                 selectableElement = elementInVisualTree;
                                 break;
+                            }
+
+                            if (elementInVisualTree is VBCheckBox)
+                            {
+                                VBCheckBox checkBox = elementInVisualTree as VBCheckBox;
+                                if (checkBox != null && checkBox.PushButtonStyle)
+                                {
+                                    selectableElement = null;
+                                    break;
+                                }
                             }
                         }
                     }

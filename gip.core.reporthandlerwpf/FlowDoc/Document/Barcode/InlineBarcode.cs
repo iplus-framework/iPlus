@@ -1,6 +1,7 @@
 ﻿using System.Drawing.Imaging;
 using System.IO;
 using System.Windows;
+using System.Windows.Markup;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -55,6 +56,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
     }
 
 
+    [ContentProperty(nameof(BarcodeValues))]
     public class InlineBarcode : InlineUIValueBase
     {
         public virtual BarcodeType BarcodeType
@@ -91,6 +93,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
         public static readonly DependencyProperty QRPixelsPerModuleProperty =
             DependencyProperty.Register("QRPixelsPerModule", typeof(int), typeof(InlineBarcode), new UIPropertyMetadata(20));
 
+        public BarcodeValueCollection BarcodeValues { get;set;} = new BarcodeValueCollection();
 
         public override object Value
         {

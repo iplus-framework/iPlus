@@ -277,8 +277,7 @@ namespace gip.bso.iplus
                         TaskPresenter.Unload();
                 }
                 _SelectedACTask = value;
-
-                OnPropertyChanged("SelectedACTask");
+                OnPropertyChanged();
             }
         }
 
@@ -313,7 +312,7 @@ namespace gip.bso.iplus
             set
             {
                 _AutoRefresh = value;
-                OnPropertyChanged("AutoRefresh");
+                OnPropertyChanged();
             }
         }
 

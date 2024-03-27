@@ -159,26 +159,26 @@ namespace gip.core.reporthandler
         #region Methods -> General (print & provide data)
 
         [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 200, true)]
-        public virtual void Print(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        public virtual void Print(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies, bool reloadReport)
         {
             // suggestion: Use Queue
             DelegateQueue.Add(() =>
             {
-                DoPrint(bsoClassID, designACIdentifier, pAOrderInfo, copies);
+                DoPrint(bsoClassID, designACIdentifier, pAOrderInfo, copies, reloadReport);
             });
         }
 
         [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 200, true)]
-        public virtual void PrintByACUrl(string acUrl, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        public virtual void PrintByACUrl(string acUrl, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies, bool reloadReport)
         {
             // suggestion: Use Queue
             DelegateQueue.Add(() =>
             {
-                DoPrint(acUrl, designACIdentifier, pAOrderInfo, copies);
+                DoPrint(acUrl, designACIdentifier, pAOrderInfo, copies, reloadReport);
             });
         }
 
-        public void DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        public void DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies, bool reloadReport)
         {
             ACBSO acBSO = null;
             try
@@ -186,8 +186,9 @@ namespace gip.core.reporthandler
                 acBSO = GetACBSO(bsoClassID, pAOrderInfo);
                 if (acBSO == null)
                     return;
-                DoPrint(acBSO, designACIdentifier, pAOrderInfo, copies);
+                DoPrint(acBSO, designACIdentifier, pAOrderInfo, copies, reloadReport);
             }
+
             catch (Exception e)
             {
                 Messages.LogException(this.GetACUrl(), "DoPrint(10)", e);
@@ -242,18 +243,18 @@ namespace gip.core.reporthandler
             }
         }
 
-        public void DoPrint(ACBSO acBSO, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies)
+        public void DoPrint(ACBSO acBSO, string designACIdentifier, PAOrderInfo pAOrderInfo, int copiess, bool reloadReport)
         {
             ACClassDesign aCClassDesign = acBSO.GetDesignForPrinting(GetACUrl(), designACIdentifier, pAOrderInfo);
             if (aCClassDesign == null)
                 return;
             ReportData reportData = GetReportData(acBSO, aCClassDesign);
-            byte[] bytes = OnDoPrint(aCClassDesign, CodePage, reportData);
-            if (bytes != null)
-                SendDataToPrinter(bytes);
+            PrintJob printJob = OnDoPrint(aCClassDesign, CodePage, reportData);
+            if (printJob != null)
+                SendDataToPrinter(printJob);
         }
 
-        protected abstract byte[] OnDoPrint(ACClassDesign aCClassDesign, int codePage, ReportData reportData);
+        protected abstract PrintJob OnDoPrint(ACClassDesign aCClassDesign, int codePage, ReportData reportData);
 
         /// <summary>
         /// Factiry BSI abd setzo data frin PAPrderInfo
@@ -317,8 +318,13 @@ namespace gip.core.reporthandler
         /// </summary>
         /// <param name="reportData"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public virtual bool SendDataToPrinter(byte[] bytes)
+        public virtual bool SendDataToPrinter(PrintJob printJob)
         {
+            if (printJob == null || printJob.Main == null)
+            {
+                return false;
+            }
+
             if (IsLocalConnection(IPAddress))
             {
                 //IsConnected.ValueT = true;
@@ -329,7 +335,7 @@ namespace gip.core.reporthandler
                 using (TcpClient tcpClient = new TcpClient(IPAddress, Port))
                 {
                     NetworkStream clientStream = tcpClient.GetStream();
-                    clientStream.Write(bytes, 0, bytes.Length);
+                    clientStream.Write(printJob.Main, 0, printJob.Main.Length);
                     clientStream.Flush();
                 }
             }
@@ -349,6 +355,8 @@ namespace gip.core.reporthandler
             return true;
         }
 
+        public abstract PrintJob GetPrintJob(string reportName, FlowDocument flowDocument);
+
         #endregion
 
         #region Execute-Helper
@@ -361,13 +369,15 @@ namespace gip.core.reporthandler
                     Print((Guid)acParameter[0],
                           acParameter[1] as string,
                           acParameter[2] as PAOrderInfo,
-                          (int)acParameter[3]);
+                          (int)acParameter[3],
+                          (bool)acParameter[4]);
                     return true;
                 case nameof(PrintByACUrl):
                     PrintByACUrl(acParameter[0] as string,
                           acParameter[1] as string,
                           acParameter[2] as PAOrderInfo,
-                          (int)acParameter[3]);
+                          (int)acParameter[3],
+                          (bool)acParameter[4]);
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);

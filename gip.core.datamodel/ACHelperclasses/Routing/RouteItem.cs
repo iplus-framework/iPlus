@@ -2,8 +2,8 @@ using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Data;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-
 namespace gip.core.datamodel
 {
     [ACSerializeableInfo]
@@ -88,7 +88,6 @@ namespace gip.core.datamodel
                     _SourceKey = Source.EntityKey;
                 return _SourceKey;
             }
-
             set
             {
                 _SourceKey = value;
@@ -119,7 +118,6 @@ namespace gip.core.datamodel
                     _TargetKey = Target.EntityKey;
                 return _TargetKey;
             }
-
             set
             {
                 _TargetKey = value;
@@ -204,7 +202,28 @@ namespace gip.core.datamodel
             set;
         }
 
-#endregion
+        [DataMember]
+        public int? RouteItemWeight
+        {
+            get;
+            set;
+        }
+
+        [DataMember]
+        public Guid RelationID
+        {
+            get;
+            set;
+        }
+
+        [DataMember]
+        public bool IsDeactivated
+        {
+            get;
+            set;
+        }
+
+        #endregion
 
 #region ACComponents
         [IgnoreDataMember]
@@ -313,11 +332,23 @@ namespace gip.core.datamodel
             }
         }
 
-#endregion
+        [IgnoreDataMember]
+        public bool AreACUrlInfosSet
+        {
+            get
+            {
+                return !String.IsNullOrEmpty(_ACUrlSourceACComponent)
+                    && !String.IsNullOrEmpty(_ACIdentifierSourcePoint)
+                    && !String.IsNullOrEmpty(_ACUrlTargetACComponent)
+                    && !String.IsNullOrEmpty(_ACIdentifierTargetPoint);
+            }
+        }
 
-#region Constructors
+        #endregion
 
-        public RouteItem(ACClassPropertyRelation relation, int routeNo=0)
+        #region Constructors
+
+        public RouteItem(ACClassPropertyRelation relation, int routeNo=0, int? routeItemWeight = null)
         {
             if (relation == null) throw new ArgumentNullException("relation");
 
@@ -326,6 +357,8 @@ namespace gip.core.datamodel
             Target = relation.TargetACClass;
             TargetProperty = relation.TargetACClassProperty;
             RouteNo = routeNo;
+            RouteItemWeight = routeItemWeight;
+            RelationID = relation.ACClassPropertyRelationID;
         }
 
         public RouteItem(ACClass source, ACClassProperty sourceProperty, ACClass target, ACClassProperty targetProperty)
@@ -370,7 +403,6 @@ namespace gip.core.datamodel
                 object propValue;
                 if (SourceKey != null && _Source == null)
                 {
-
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
                         Source = context.ContextIPlus.GetObjectByKey(SourceKey) as ACClass;
@@ -378,6 +410,7 @@ namespace gip.core.datamodel
                     if (Source != null)
                         propValue = SourceACComponent;
                 }
+
                 if (TargetKey != null && _Target == null)
                 {
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
@@ -387,9 +420,9 @@ namespace gip.core.datamodel
                     if (Target != null)
                         propValue = TargetACComponent;
                 }
+
                 if (SourcePropertyKey != null && _SourceProperty == null)
                 {
-
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
                         SourceProperty = context.ContextIPlus.GetObjectByKey(SourcePropertyKey) as ACClassProperty;
@@ -397,9 +430,9 @@ namespace gip.core.datamodel
                     if (SourceProperty != null)
                         propValue = SourceACPoint;
                 }
+
                 if (TargetPropertyKey != null && _TargetProperty == null)
                 {
-
                     using (ACMonitor.Lock(context.ContextIPlus.QueryLock_1X000))
                     {
                         TargetProperty = context.ContextIPlus.GetObjectByKey(TargetPropertyKey) as ACClassProperty;
@@ -484,14 +517,29 @@ namespace gip.core.datamodel
 
         public object Clone()
         {
-            return new RouteItem() { SourceKey = this.SourceKey, 
-                SourcePropertyKey = this.SourcePropertyKey, 
-                TargetKey = this.TargetKey, 
+            return new RouteItem() { SourceKey = this.SourceKey,
+                SourcePropertyKey = this.SourcePropertyKey,
+                TargetKey = this.TargetKey,
                 TargetPropertyKey = this.TargetPropertyKey,
+                RouteNo = this.RouteNo,
+                RelationID = this.RelationID,
                 _ACUrlSourceACComponent = this._ACUrlSourceACComponent,
                 _ACUrlTargetACComponent = this._ACUrlTargetACComponent,
                 _ACIdentifierSourcePoint = this._ACIdentifierSourcePoint,
                 _ACIdentifierTargetPoint = this._ACIdentifierTargetPoint};
+        }
+    }
+
+    public class RouteItemSourceComparer : IEqualityComparer<RouteItem>
+    {
+        public bool Equals(RouteItem x, RouteItem y)
+        {
+            return x.SourceGuid == y.SourceGuid;
+        }
+
+        public int GetHashCode(RouteItem obj)
+        {
+            return obj.SourceGuid.GetHashCode();
         }
     }
 }

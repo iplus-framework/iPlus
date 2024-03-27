@@ -212,7 +212,7 @@ namespace gip.core.layoutengine
                     {
                         _dispTimer = new DispatcherTimer();
                         _dispTimer.Tick += new EventHandler(dispatcherTimer_CanExecute);
-                        _dispTimer.Interval = new TimeSpan(0, 0, 0, 0, CanExecuteCyclic);
+                        _dispTimer.Interval = new TimeSpan(0, 0, 0, 0, CanExecuteCyclic < 500 ? 500 : CanExecuteCyclic);
                         _dispTimer.Start();
                     }
 
@@ -1086,6 +1086,25 @@ namespace gip.core.layoutengine
                 }
                 if (actionArgs == null)
                 {
+                    #region @aagincic: Temp fix with grid button without action parameters
+                    if (ParameterList == null)
+                        ParameterList = new ACValueList();
+
+                    if (CommandParameter != null)
+                    {
+                        foreach (ACValue valueItem in ParameterList.ToArray())
+                        {
+                            if (valueItem.ACIdentifier == "CommandParameter")
+                                ParameterList.Remove(valueItem);
+                        }
+                        ParameterList.Add(new ACValue("CommandParameter", CommandParameter));
+
+                        ACCommand acCommand = ACContentList.Where(c => c is ACCommand).FirstOrDefault() as ACCommand;
+                        if (acCommand != null)
+                            acCommand.ParameterList = ParameterList;
+                    }
+                    #endregion
+
                     actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
                     if (this.IsLoaded)
                         e.CanExecute = IsEnabledACAction(actionArgs);

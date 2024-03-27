@@ -118,6 +118,23 @@ namespace gip.core.autocomponent
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance runs in simulation mode and the states will be changed automatically by the simulatorlogic.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is simulation on; otherwise, <c>false</c>.
+        /// </value>
+        public virtual bool IsSimulationOn
+        {
+            get
+            {
+                if (ACOperationMode != ACOperationModes.Live)
+                    return true;
+                if (ApplicationManager == null)
+                    return false;
+                return ApplicationManager.IsSimulationOn;
+            }
+        }
 
         /// <summary>
         /// Gets the reference to the routing service if this instance is in a application project
@@ -431,6 +448,14 @@ namespace gip.core.autocomponent
                 bool send = (bool)ACUrlCommand("!FilterAlarm", property.ACIdentifier, messageText, autoAckForNewAlarm, newAlarm);
                 if (!send)
                     return null;
+                lock (_TransLock)
+                {
+                    if (_TransEntryList != null)
+                    {
+                        _TransEntryList.Add(new AlarmTransEntry(property.ACIdentifier, messageText, autoAckForNewAlarm));
+                        return new Msg("AlarmTransEntry", property.ACIdentifier);
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -439,15 +464,6 @@ namespace gip.core.autocomponent
                     msg += " Inner:" + e.InnerException.Message;
 
                 Messages.LogException("PAClassAlarmingBase", "OnNewAlarmOccurred", msg);
-            }
-
-            if (_TransEntryList != null)
-            {
-                lock (_TransLock)
-                {
-                    _TransEntryList.Add(new AlarmTransEntry(property.ACIdentifier, messageText, autoAckForNewAlarm));
-                    return new Msg("AlarmTransEntry", property.ACIdentifier);
-                }
             }
             return AddNewAlarm(property, messageText, autoAckForNewAlarm, newAlarm);
         }
@@ -1084,9 +1100,11 @@ namespace gip.core.autocomponent
                     childsForStateBackup.Add(this);
                     foreach (var child in childsForStateBackup)
                     {
-                        foreach (IACPropertyNetServer serverProp in child.ACPropertyList)
+                        foreach (IACPropertyBase prop in child.ACPropertyList)
                         {
-                            serverProp.BackupValue(resetAndClear);
+                            IACPropertyNetServer serverProp = prop as IACPropertyNetServer;
+                            if (serverProp != null)
+                                serverProp.BackupValue(resetAndClear);
                         }
                     }
                 });

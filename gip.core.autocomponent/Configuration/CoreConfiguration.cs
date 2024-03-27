@@ -92,5 +92,18 @@ namespace gip.core.autocomponent
                 this["ConsistencyCheckWF"] = value;
             }
         }
+
+        [ConfigurationProperty("RoutingDefaultAlternatives", DefaultValue = 3, IsRequired = false)]
+        public int RoutingDefaultAlternatives
+        {
+            get
+            {
+                return (int)this[nameof(RoutingDefaultAlternatives)];
+            }
+            set
+            {
+                this[nameof(RoutingDefaultAlternatives)] = value;
+            }
+        }
     }
 }

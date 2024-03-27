@@ -9,6 +9,10 @@ using gip.core.manager;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
+using gip.core.processapplication;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Xml;
 
 namespace gip.bso.iplus
 {
@@ -24,12 +28,24 @@ namespace gip.bso.iplus
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
-            return base.ACInit(startChildMode);
+            bool result = base.ACInit(startChildMode);
+
+            _ConfigIncludeReserved = new ACPropertyConfigValue<bool>(this, nameof(ConfigIncludeReserved), false);
+            _ConfigIncludeAllocated = new ACPropertyConfigValue<bool>(this, nameof(ConfigIncludeAllocated), false);
+            _ConfigRouteMode = new ACPropertyConfigValue<short>(this, nameof(ConfigRouteMode), 1);
+            _MaxRouteAltInLoop = new ACPropertyConfigValue<int>(this, nameof(MaxRouteAltInLoop), 1);
+
+            _IncludeReserved = ConfigIncludeReserved;
+            _IncludeAllocated = ConfigIncludeAllocated;
+            _SelectedRouteMode = RouteModeList.FirstOrDefault(c => c.Value.Equals(ConfigRouteMode));
+            _MaximumRouteAlternatives = MaxRouteAltInLoop;
+
+            return result;
         }
 
         public override bool ACPostInit()
         {
-            SelectedRouteMode = RouteModeList.FirstOrDefault();
+            LoadRouteItemModes();
             return base.ACPostInit();
         }
 
@@ -43,6 +59,11 @@ namespace gip.bso.iplus
         #endregion
 
         #region Properties
+
+        private bool _IsInPresenterMode = false;
+
+        private IEnumerable<string> _start = null;
+        private IEnumerable<string> _end = null;
 
         private string _RoutingServiceACUrl = "\\Service\\RoutingService";
         [ACPropertyInfo(999, "", "en{'ACUrl of routing service'}de{'ACUrl of routing service'}")]
@@ -71,29 +92,90 @@ namespace gip.bso.iplus
             }
         }
 
+        private bool _IncludeAllocated;
+        [ACPropertyInfo(402, "", "en{'Include allocated'}de{'Zugeteilt einbeziehen'}")]
+        public bool IncludeAllocated
+        {
+            get => _IncludeAllocated;
+            set
+            {
+                _IncludeAllocated = value;
+                ConfigIncludeAllocated = value;
+                OnPropertyChanged();
+
+                if (_IsInPresenterMode)
+                    ResetRoute();
+            }
+        }
+
+        private bool _IncludeReserved;
+        [ACPropertyInfo(403, "", "en{'Include reserved'}de{'Reserviert einschließen'}")]
+        public bool IncludeReserved
+        {
+            get => _IncludeReserved;
+            set
+            {
+                _IncludeReserved = value;
+                ConfigIncludeReserved = value;
+                OnPropertyChanged();
+
+                if (_IsInPresenterMode)
+                    ResetRoute();
+            }
+        }
+
         private bool _IsInEdgeWeightAdjustmentMode = false;
 
-        [ACPropertyInfo(402)]
+        public List<List<ACRoutingPath>> _AvailableRoutes;
+        [ACPropertyInfo(404)]
         public List<List<ACRoutingPath>> AvailableRoutes
         {
-            get;
-            set;
+            get => _AvailableRoutes;
+            set
+            {
+                _AvailableRoutes = value;
+                OnPropertyChanged();
+            }
         }
 
         private List<IACObject> _ActiveRouteComponents;
-        [ACPropertyInfo(403)]
+        [ACPropertyInfo(405)]
         public List<IACObject> ActiveRouteComponents
         {
             get { return _ActiveRouteComponents; }
             set
             {
                 _ActiveRouteComponents = value;
-                OnPropertyChanged("ActiveRouteComponents");
+                OnPropertyChanged();
+            }
+        }
+
+        private IACObject _SelectedComponent;
+        [ACPropertyInfo(405)]
+        public IACObject SelectedComponent
+        {
+            get { return _SelectedComponent; }
+            set
+            {
+                _SelectedComponent = value;
+                OnPropertyChanged();
+
+                Guid? compID = (_SelectedComponent?.ACType as ACClass)?.ACClassID;
+                if (compID.HasValue)
+                {
+                    var cacheItem = _RouteModeItemCache.FirstOrDefault(c => c.Item1 == compID.Value);
+                    if (cacheItem != null)
+                    {
+                        SelectedRouteItemMode = RouteModeItemList.FirstOrDefault(c => (RouteItemModeEnum)c.Value == (RouteItemModeEnum)cacheItem.Item2);
+                        return;
+                    }
+                }
+                SelectedRouteItemMode = null;
             }
         }
 
         private List<IACObject> _ActiveRoutePaths;
-        [ACPropertyInfo(404)]
+        [ACPropertyInfo(406)]
         public List<IACObject> ActiveRoutePaths
         {
             get { return _ActiveRoutePaths; }
@@ -173,6 +255,108 @@ namespace gip.bso.iplus
             set;
         }
 
+        private ACPropertyConfigValue<bool> _ConfigIncludeReserved;
+        [ACPropertyConfig("en{'Include reserved config'}de{'Include reserved config'}")]
+        public bool ConfigIncludeReserved
+        {
+            get => _ConfigIncludeReserved.ValueT;
+            set
+            {
+                _ConfigIncludeReserved.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ACPropertyConfigValue<bool> _ConfigIncludeAllocated;
+        [ACPropertyConfig("en{'Include allocated config'}de{'Include allocated config'}")]
+        public bool ConfigIncludeAllocated
+        {
+            get => _ConfigIncludeAllocated.ValueT;
+            set
+            {
+                _ConfigIncludeAllocated.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ACPropertyConfigValue<short> _ConfigRouteMode;
+        [ACPropertyConfig("en{'Route mode config'}de{'Route mode config'}")]
+        public short ConfigRouteMode
+        {
+            get => _ConfigRouteMode.ValueT;
+            set
+            {
+                _ConfigRouteMode.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ACPropertyConfigValue<int> _MaxRouteAltInLoop;
+        [ACPropertyConfig("en{'Max route alt. in loop'}de{'Max route alt. in loop'}")]
+        public int MaxRouteAltInLoop
+        {
+            get => _MaxRouteAltInLoop.ValueT;
+            set
+            {
+                _MaxRouteAltInLoop.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ACValueItem _SelectedRouteItemMode;
+        [ACPropertySelected(410, "RouteItemMode", "en{'Route item mode'}de{'Routenelementmodus'}")]
+        public ACValueItem SelectedRouteItemMode
+        {
+            get => _SelectedRouteItemMode;
+            set
+            {
+                _SelectedRouteItemMode = value;
+                OnPropertyChanged();
+
+                if (value != null)
+                {
+                    Guid? selectedComponentID = (SelectedComponent?.ACType as ACClass)?.ACClassID;
+                    Tuple<Guid, short> item = _RouteModeItemCache.FirstOrDefault(c => c.Item1 == selectedComponentID.Value);
+
+                    if (selectedComponentID.HasValue)
+                    {
+                        if (_SelectedRouteItemMode != null && (RouteItemModeEnum)_SelectedRouteItemMode.Value != RouteItemModeEnum.None)
+                        {
+                            if (item != null)
+                                _RouteModeItemCache.Remove(item);
+
+                            item = new Tuple<Guid, short>(selectedComponentID.Value, (short)_SelectedRouteItemMode.Value);
+                            _RouteModeItemCache.Add(item);
+                        }
+                        else
+                        {
+                            if (item != null)
+                                _RouteModeItemCache.Remove(item);
+                        }
+                    }
+                }
+            }
+        }
+
+        private ACValueItemList _RouteModeItemList;
+        [ACPropertyList(411, "RouteItemMode")]
+        public ACValueItemList RouteModeItemList
+        {
+            get
+            {
+                if (_RouteModeItemList == null)
+                {
+                    _RouteModeItemList = new ACValueItemList("");
+                    _RouteModeItemList.Add(new ACValueItem("en{'None'}de{'Keine'}", RouteItemModeEnum.None, null));
+                    _RouteModeItemList.Add(new ACValueItem("en{'Next route items parallel'}de{'Nächste Elemente parallel verlegen'}", RouteItemModeEnum.RouteItemsNextParallel, null));
+                    _RouteModeItemList.Add(new ACValueItem("en{'Next route items nonparallel'}de{'Die nächsten Routenelemente sind nicht parallel'}", RouteItemModeEnum.RouteItemsNextNonParallel, null));
+                }
+                return _RouteModeItemList;
+            }
+        }
+
+        private List<Tuple<Guid, short>> _RouteModeItemCache;
+
         #endregion
 
         #region Methods
@@ -182,26 +366,30 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "ApplyRoute":
+                case nameof(ApplyRoute):
                     ApplyRoute();
                     return true;
-                case "Relayout":
+                case nameof(Relayout):
                     Relayout();
                     return true;
-                case "ReturnToRouteSelector":
+                case nameof(ReturnToRouteSelector):
                     ReturnToRouteSelector();
                     return true;
-                case "SetRoute":
+                case nameof(SetRoute):
                     SetRoute();
                     return true;
-                case "SaveSettings":
+                case nameof(SaveSettings):
                     SaveSettings();
+                    return true;
+                case nameof(SaveRouteItemMode):
+                    SaveRouteItemMode();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
-        public void ShowAvailableRoutes(IEnumerable<ACClass> startComponents, IEnumerable<ACClass> endComponents, string selectionRuleID = null, object[] selectionRuleParams = null, bool allowProcessModuleInRoute = true)
+        public void ShowAvailableRoutes(IEnumerable<ACClass> startComponents, IEnumerable<ACClass> endComponents, string selectionRuleID = null, object[] selectionRuleParams = null, 
+                                        bool allowProcessModuleInRoute = true, ACClass preselectedStart = null)
         {
             _RouteResult = null;
             List<ACClassInfoWithItems> start = new List<ACClassInfoWithItems>();
@@ -233,16 +421,17 @@ namespace gip.bso.iplus
                 SelectionRuleParams = null;
             }
 
-            SelectedStartComponent = StartComponents.FirstOrDefault();
+            if (preselectedStart != null)
+                SelectedStartComponent = StartComponents.FirstOrDefault(c => c.ValueT.ACClassID == preselectedStart.ACClassID);
+            
+            if(SelectedStartComponent == null)
+                SelectedStartComponent = StartComponents.FirstOrDefault();
             SelectedEndComponent = EndComponents.FirstOrDefault();
-
-            if (_CurrentRouteMode != null && SelectedRouteMode == null)
-                SelectedRouteMode = _CurrentRouteMode;
 
             ShowDialog(this, "Mainlayout");
         }
 
-        public void ShowAvailableRoutes(IEnumerable<Tuple<ACClass,ACClassProperty>> startPoints, IEnumerable<Tuple<ACClass, ACClassProperty>> endPoints, string selectionRuleID = null, object[] selectionRuleParams = null, bool allowProcessModuleInRoute = true)
+        public void ShowAvailableRoutes(IEnumerable<Tuple<ACClass, ACClassProperty>> startPoints, IEnumerable<Tuple<ACClass, ACClassProperty>> endPoints, string selectionRuleID = null, object[] selectionRuleParams = null, bool allowProcessModuleInRoute = true)
         {
             _RouteResult = null;
             List<ACClassInfoWithItems> start = new List<ACClassInfoWithItems>();
@@ -273,20 +462,17 @@ namespace gip.bso.iplus
             SelectedStartComponent = StartComponents.FirstOrDefault();
             SelectedEndComponent = EndComponents.FirstOrDefault();
 
-            if (_CurrentRouteMode != null && SelectedRouteMode == null)
-                SelectedRouteMode = _CurrentRouteMode;
-
             ShowDialog(this, "Mainlayout");
         }
 
         public void EditRoutes(Route route, bool isReadOnly, bool includeReserved, bool includeAllocated)
         {
-            IEnumerable<Route> splitedRoutes = SplitRoutes(route);
+            IEnumerable<Route> splitedRoutes = Route.SplitRoute(route);
 
             IEnumerable<string> sourceComponentsList = splitedRoutes.Select(x => x.FirstOrDefault().Source.ACUrlComponent).Distinct();
             IEnumerable<string> targetComponentsList = splitedRoutes.Select(x => x.LastOrDefault().Target.ACUrlComponent).Distinct();
 
-            if (!GetRoutes(sourceComponentsList, targetComponentsList, includeReserved, includeAllocated))
+            if (!GetRoutes(sourceComponentsList, targetComponentsList, true, true))
                 return;
 
             List<IACObject> components = new List<IACObject>();
@@ -309,25 +495,58 @@ namespace gip.bso.iplus
             ShowRoute(isReadOnly);
         }
 
+        public void EditRoutesWithAttach(Route route, bool isReadOnly, bool includeReserved, bool includeAllocated)
+        {
+            route.AttachTo(Database.ContextIPlus);
+            IEnumerable<Route> splitedRoutes = Route.SplitRoute(route);
+
+            IEnumerable<string> sourceComponentsList = splitedRoutes.Select(x => x.FirstOrDefault().Source.ACUrlComponent).Distinct();
+            IEnumerable<string> targetComponentsList = splitedRoutes.Select(x => x.LastOrDefault().Target.ACUrlComponent).Distinct();
+
+            if (!GetRoutes(sourceComponentsList, targetComponentsList, true, true, false, null, null, true))
+                return;
+
+            List<IACObject> components = new List<IACObject>();
+            List<IACObject> routePath = new List<IACObject>();
+            SelectedRoutingPaths = new List<ACRoutingPath>();
+
+            foreach (Route r in splitedRoutes)
+            {
+                IEnumerable<ACRoutingPath> possiblePaths = AvailableRoutes.FirstOrDefault(c =>
+                                                           c.FirstOrDefault().FirstOrDefault().SourceParentComponent.ACUrl == r.FirstOrDefault().Source.ACUrlComponent &&
+                                                           c.FirstOrDefault().LastOrDefault().TargetParentComponent.ACUrl == r.LastOrDefault().Target.ACUrlComponent);
+
+                ACRoutingPath selectedRoutePath = possiblePaths.FirstOrDefault(c => CompareRoutes(c, r));
+                SetActiveRoutes(components, routePath, selectedRoutePath);
+            }
+
+            ActiveRouteComponents = components;
+            ActiveRoutePaths = routePath;
+
+            ShowRoute(isReadOnly);
+
+            route.Detach();
+        }
+
         public void ShowRoute(bool isReadOnly = false)
         {
             if (!isReadOnly)
                 InitSelectionManger(Const.SelectionManagerCDesign_ClassName);
 
             CloseTopDialog();
+
+            var tempRouteMode = SelectedRouteMode;
+
+            _IsInPresenterMode = true;
+
             if (!_IsInEdgeWeightAdjustmentMode)
                 ShowDialog(this, "RoutePresenter");
             else
                 ShowDialog(this, "EdgeWeightsPresenter");
-        }
 
-        private IEnumerable<Route> SplitRoutes(Route route)
-        {
-            List<Route> result = new List<Route>();
-            var groups = route.GroupBy(c => c.RouteNo);
-            foreach (var group in groups)
-                result.Add(new Route(group));
-            return result;
+            SelectedRouteMode = tempRouteMode;
+
+            _IsInPresenterMode = false;
         }
 
         private bool CompareRoutes(ACRoutingPath routingPath, Route route)
@@ -345,7 +564,8 @@ namespace gip.bso.iplus
             return true;
         }
 
-        private bool GetRoutes(IEnumerable<string> sourceComponentsList, IEnumerable<string> targetComponentsList, bool includeReserved, bool includeAllocated, bool isForEditor = false, string selectionRuleID = null, object[] selectionRuleParams = null)
+        private bool GetRoutes(IEnumerable<string> sourceComponentsList, IEnumerable<string> targetComponentsList, bool includeReserved, bool includeAllocated, bool isForEditor = false, string selectionRuleID = null, object[] selectionRuleParams = null,
+                                bool attach = false)
         {
             SourceComponentsList = sourceComponentsList;
             TargetComponentsList = targetComponentsList;
@@ -383,7 +603,11 @@ namespace gip.bso.iplus
             }
 
             CheckFirstRoutePath();
-            SelectActiveRoutes();
+            SelectActiveRoutes(attach ? Database.ContextIPlus : null);
+
+            AvailableRoutes = AvailableRoutes.ToList();
+            ActiveRoutePaths = ActiveRoutePaths.ToList();
+            ActiveRouteComponents = ActiveRouteComponents.ToList();
 
             return true;
         }
@@ -397,9 +621,19 @@ namespace gip.bso.iplus
             if (MaximumRouteAlternatives > -1 && MaximumRouteAlternatives < 11)
                 maxRouteAlt = MaximumRouteAlternatives;
 
-            var buildRouteResult = ACUrlCommand(string.Format("{0}!"+nameof(ACRoutingService.BuildAvailableRoutesFromPoints), RoutingServiceACUrl.StartsWith("\\") ? RoutingServiceACUrl : "\\" + RoutingServiceACUrl),
-                                                startComponent, startPointID, endComponent, endPointID, maxRouteAlt, includeReserved, 
-                                                includeAllocated, isForEditor, selectionRuleID, selectionRuleParams) as Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>>;
+            ACRoutingParameters routingParameters = new ACRoutingParameters()
+            {
+                MaxRouteAlternativesInLoop = maxRouteAlt,
+                IncludeReserved = includeReserved,
+                IncludeAllocated = includeAllocated,
+                IsForEditor = isForEditor,
+                SelectionRuleID = selectionRuleID,
+                SelectionRuleParams = selectionRuleParams,
+                MaxRouteLoopDepth = MaximumRouteLoopDepth
+            };
+
+            var buildRouteResult = ACUrlCommand(string.Format("{0}!" + nameof(ACRoutingService.BuildAvailableRoutesFromPoints), RoutingServiceACUrl.StartsWith("\\") ? RoutingServiceACUrl : "\\" + RoutingServiceACUrl),
+                                                startComponent, startPointID, endComponent, endPointID, routingParameters) as Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>>;
             if (buildRouteResult == null)
                 return;
 
@@ -412,7 +646,7 @@ namespace gip.bso.iplus
             ST_Node temp = buildRouteResult.Item2.Dequeue();
             while (temp != null)
             {
-                ACRoutingPath path = ACRoutingSession.RebuildPath(temp.Sidetracks, startVertex.Component.ValueT, buildRouteResult.Item1);
+                ACRoutingPath path = ACRoutingSession.RebuildPath(temp.Sidetracks, startVertex.Component.ValueT, buildRouteResult.Item1, _RouteModeItemCache.ToDictionary(c => c.Item1, c => (RouteItemModeEnum)c.Item2));
                 if (!temp.Sidetracks.Any())
                 {
                     path.IsPrimaryRoute = true;
@@ -537,6 +771,7 @@ namespace gip.bso.iplus
             ActiveRoutePaths = routePath;
             ActiveRouteComponents = components;
             SelectedActiveRoutingPaths = tempList;
+            SelectedComponent = selectedComponents.FirstOrDefault();
         }
 
         private void ChangeRouteFromEdge(IEnumerable<PAEdge> selectedEdges)
@@ -575,7 +810,7 @@ namespace gip.bso.iplus
                                     if (!tempList.Contains(rPath))
                                     {
                                         tempList.Add(rPath);
-                                        SetActiveRoutes(components, routePath, rPath);
+                                        SetActiveRoutes(components, routePath, rPath, selectedEdge);
                                     }
                                 }
                             }
@@ -603,7 +838,7 @@ namespace gip.bso.iplus
             SelectedActiveRoutingPaths = tempList;
         }
 
-        private void SetActiveRoutes(List<IACObject> components, List<IACObject> routePath, ACRoutingPath path)
+        private void SetActiveRoutes(List<IACObject> components, List<IACObject> routePath, ACRoutingPath path, PAEdge selectedEdge = null)
         {
             if (path == null)
                 return;
@@ -614,25 +849,199 @@ namespace gip.bso.iplus
             components.AddRange(path.AllPoints.Where(c => !components.Contains(c.ACRef.ValueT)).Select(c => c.ACRef.ValueT));
 
             if (_IsInEdgeWeightAdjustmentMode)
+            {
                 EdgesList = SelectedRoutingPaths.SelectMany(c => c).Distinct().ToList();
+                if (selectedEdge != null)
+                    SelectedEdge = selectedEdge;
+            }
         }
 
-        private void SelectActiveRoutes()
+        private void SelectActiveRoutes(Database db = null)
         {
-            foreach (var item in AvailableRoutes)
-            {
-                ACRoutingPath path = null;
-                if (_CurrentRouteMode != null && ((short)_CurrentRouteMode.Value) == 1)
-                    path = item.OrderBy(c => c.Count).FirstOrDefault();
-                else
-                    path = item.OrderBy(c => c.RouteWeight).FirstOrDefault();
+            bool shortestRoute = SelectedRouteMode != null && SelectedRouteMode.Value.Equals(1);
 
-                SetActiveRoutes(ActiveRouteComponents, ActiveRoutePaths, path);
-                SelectedActiveRoutingPaths.Add(path);
+            foreach (List<ACRoutingPath> availableRoute in AvailableRoutes)
+            {
+                List<ACRoutingPath> paths = new List<ACRoutingPath>();
+
+                List<Guid> targetIDs = null;
+                List<RouteHashItem> routeHashItems = null;
+
+                if (!shortestRoute)
+                {
+                    if (db != null)
+                    {
+                        foreach (ACRoutingPath routingPath in availableRoute)
+                        {
+                            foreach (PAEdge edge in routingPath)
+                            {
+                                if (edge.Relation == null)
+                                    edge.AttachRelation(db);
+                            }
+                        }
+                    }
+
+                    targetIDs = availableRoute.Where(c => c.LastOrDefault().Relation != null).Select(c => c.LastOrDefault().Relation.SourceACClassID).Distinct().ToList();
+                    routeHashItems = LoadRouteUsage(targetIDs);
+                }
+
+                List<int> tempHashCodeItems = new List<int>();
+
+                if (availableRoute.Any(c => c.RouteItemsMode.Any()))
+                {
+                    List<ACRoutingPath> tempPaths = new List<ACRoutingPath>();
+                    List<Tuple<IACObject, RouteItemModeEnum>> routeItemsMode = availableRoute.SelectMany(c => c.RouteItemsMode).Distinct().ToList();
+
+                    int routingPathNo = 1;
+
+                    foreach (ACRoutingPath path in availableRoute.OrderBy(x => x.DeltaWeight).Where(c => c.Any(x => routeItemsMode.Any(k => k.Item1 == x.SourceParent))))
+                    {
+                        ACRoutingPath newPath = new ACRoutingPath();
+                        path.RoutingPathNo = routingPathNo;
+                        newPath.RoutingPathNo = routingPathNo;
+
+                        foreach (PAEdge edge in path)
+                        {
+                            if (!tempPaths.Any(x => x.Any(c => edge == c)))
+                                newPath.Add(edge);
+                        }
+
+                        if (newPath.Any())
+                        {
+                            tempPaths.Add(newPath);
+                            routingPathNo++;
+                        }
+                    }
+
+                    ACRoutingPath workingPath = tempPaths.FirstOrDefault();
+                    paths.Add(workingPath);
+
+                    foreach (ACRoutingPath path in tempPaths)
+                    {
+                        if (path == workingPath)
+                            continue;
+
+                        ACRoutingPath mainPath = path;
+
+                        while (true)
+                        {
+                            mainPath = tempPaths.FirstOrDefault(c => c != path && c.Any(k => k.SourceParent == mainPath.FirstOrDefault().SourceParent));
+
+                            if (mainPath == null)
+                                break;
+
+                            int index = mainPath.IndexWhere(c => c.SourceParent == path.Start.ParentACObject);
+                            if (index < 0 || index + 1 > mainPath.Count)
+                                continue;
+
+                            var mode = routeItemsMode.Where(c => mainPath.Take(index + 1).Any(x => x.SourceParent == c.Item1)).LastOrDefault();
+                            if (mode != null)
+                            {
+                                if (mode.Item2 == RouteItemModeEnum.RouteItemsNextParallel)
+                                {
+                                    ACRoutingPath pathToAdd = availableRoute.FirstOrDefault(c => c.RoutingPathNo == path.RoutingPathNo);
+                                    paths.Add(pathToAdd);
+                                }
+                            }
+
+                            if (mainPath == workingPath)
+                                break;
+                        }
+                    }
+                }
+                else if (!paths.Any() && routeHashItems != null && routeHashItems.Any())
+                {
+                    List<int> hashCodes = new List<int>();
+
+                    foreach (var itemPath in availableRoute)
+                    {
+                        PAEdge source = itemPath.FirstOrDefault();
+                        PAEdge target = itemPath.LastOrDefault();
+
+                        itemPath.Remove(source);
+                        itemPath.Remove(target);
+
+                        List<Guid> temp = null;
+                        if (itemPath.Any())
+                        {
+                            temp = itemPath.Select(c => c.Relation.SourceACClassID).ToList();
+                            temp.Add(itemPath.LastOrDefault().Relation.TargetACClassID);
+                        }
+                        else
+                            temp = new List<Guid>() { target.Relation.SourceACClassID };
+
+                        int hash = string.Join("", temp).GetHashCode();
+
+                        itemPath.Insert(0, source);
+                        itemPath.Add(target);
+
+                        var groupedByKey = routeHashItems.GroupBy(c => c.UseFactor).OrderByDescending(c => c.Key).FirstOrDefault();
+
+                        if (groupedByKey.Any(c => c.RouteHashCodes.Any(x => x == hash)))
+                            paths.Add(itemPath);
+                    }
+
+                    if (paths == null || !paths.Any())
+                        shortestRoute = true;
+                }
+                else
+                    shortestRoute = true;
+
+                if (shortestRoute)
+                    paths = availableRoute.OrderBy(c => c.RouteWeight).Take(1).ToList();
+
+                foreach (var path in paths)
+                {
+                    SetActiveRoutes(ActiveRouteComponents, ActiveRoutePaths, path);
+                    SelectedActiveRoutingPaths.Add(path);
+                }
 
                 if (_IsInEdgeWeightAdjustmentMode)
-                    EdgesList = path.ToList();
+                    EdgesList = paths.SelectMany(c => c).ToList();
             }
+
+            SelectedActiveRoutingPaths = SelectedActiveRoutingPaths.ToList();
+        }
+
+        private List<RouteHashItem> LoadRouteUsage(IEnumerable<Guid> targets)
+        {
+            List<RouteHashItem> result = new List<RouteHashItem>();
+
+            using (Database db = new core.datamodel.Database())
+            {
+                List<ACClassRouteUsage> routeUsageList = db.ACClassRouteUsage.Include(x => x.ACClassRouteUsagePos_ACClassRouteUsage)
+                                                                             .Where(c => targets.Contains(c.ACClassID))
+                                                                             .ToList();
+
+                var groupedUsageList = routeUsageList.GroupBy(c => c.ACClassID);
+
+                foreach (var group in groupedUsageList)
+                {
+                    ACClassRouteUsage routeUsage = group.OrderByDescending(c => c.UseFactor).ThenByDescending(c => c.UpdateDate).FirstOrDefault();
+                    RouteHashItem hashItem = new RouteHashItem();
+                    hashItem.RouteHashCodes = new SafeList<int>(routeUsage.ACClassRouteUsagePos_ACClassRouteUsage.Select(c => c.HashCode));
+                    hashItem.RouteUsageGroupID = new SafeList<Guid>(routeUsage.ACClassRouteUsageGroup_ACClassRouteUsage.Select(c => c.GroupID));
+                    hashItem.UseFactor = routeUsage.UseFactor;
+                    result.Add(hashItem);
+                }
+
+                if (result.Count > 1)
+                {
+                    if (result.All(c => (c.RouteUsageGroupID == null || !c.RouteUsageGroupID.Any())))
+                    {
+                        result = result.OrderByDescending(c => c.UseFactor).Take(1).ToList();
+                    }
+                    else
+                    {
+                        if (!result.SelectMany(c => c.RouteUsageGroupID).GroupBy(c => c).Any(c => c.Count() == result.Count))
+                        {
+                            result = result.OrderByDescending(c => c.UseFactor).Take(1).ToList();
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
 
         [ACMethodInfo("", "", 401)]
@@ -643,7 +1052,6 @@ namespace gip.bso.iplus
 
             List<Route> routes = new List<Route>();
             List<RouteItem> tempList = new List<RouteItem>();
-
 
             foreach (ACRoutingPath path in SelectedRoutingPaths)
             {
@@ -658,7 +1066,7 @@ namespace gip.bso.iplus
 
                     tempList.Add(new RouteItem(relation));
                 }
-                routes.Add(new Route(tempList));
+                routes.Add(new Route(tempList) /*{ HasAnyReserved = path.HasAnyReserved, HasAnyAllocated = path.HasAnyAllocated }*/);
             }
             _RouteResult = routes;
 
@@ -682,6 +1090,60 @@ namespace gip.bso.iplus
         public void ReturnToRouteSelector()
         {
             CloseTopDialog();
+        }
+
+        [ACMethodInfo("", "en{'Save route mode settings'}de{'Routenmoduseinstellungen speichern'}", 404, true)]
+        public void SaveRouteItemMode()
+        {
+            if (_RouteModeItemCache != null)
+            {
+                _RouteModeItemCache = _RouteModeItemCache.Where(c => c.Item2 > (short)RouteItemModeEnum.None).ToList();
+
+                string xml = "";
+                StringBuilder sb = new StringBuilder();
+                using (StringWriter sw = new StringWriter(sb))
+                using (XmlTextWriter xmlWriter = new XmlTextWriter(sw))
+                {
+                    DataContractSerializer serializer = new DataContractSerializer(typeof(List<Tuple<Guid, short>>));
+                    serializer.WriteObject(xmlWriter, _RouteModeItemCache);
+                    xml = sw.ToString();
+                }
+
+                ACUrlCommand(RoutingServiceACUrl + "!" + nameof(ACRoutingService.SaveRouteItemModes), xml);
+
+                //ACClassConfig routeItemModes = Database.ContextIPlus.ACClassConfig.FirstOrDefault(c => c.LocalConfigACUrl == nameof(ACRoutingService.RouteItemModes));
+                //if (routeItemModes != null)
+                //{
+                //    routeItemModes.Value = xml;
+                //}
+
+                //Database.ACSaveChanges();
+            }
+
+        }
+
+        public void LoadRouteItemModes()
+        {
+
+            ACClassConfig routeItemModes = Database.ContextIPlus.ACClassConfig.FirstOrDefault(c => c.LocalConfigACUrl == nameof(ACRoutingService.RouteItemModes) && c.ACClass.ACURLComponentCached == RoutingServiceACUrl);
+
+            if (routeItemModes != null)
+            {
+                string xml = routeItemModes.Value as string;
+
+                if (!string.IsNullOrEmpty(xml))
+                {
+                    using (StringReader ms = new StringReader(xml))
+                    using (XmlTextReader xmlReader = new XmlTextReader(ms))
+                    {
+                        DataContractSerializer serializer = new DataContractSerializer(typeof(List<Tuple<Guid, short>>));
+                        _RouteModeItemCache = serializer.ReadObject(xmlReader) as List<Tuple<Guid, short>>;
+                    }
+                }
+
+                if (_RouteModeItemCache == null)
+                    _RouteModeItemCache = new List<Tuple<Guid, short>>();
+            }
         }
 
         #endregion
@@ -794,16 +1256,21 @@ namespace gip.bso.iplus
             set;
         }
 
-        private ACValueItem _CurrentRouteMode;
         private ACValueItem _SelectedRouteMode;
         [ACPropertySelected(410, "RouteMode")]
         public ACValueItem SelectedRouteMode
         {
-            get { return _SelectedRouteMode; }
+            get => _SelectedRouteMode;
             set
             {
-                _SelectedRouteMode = value;
-                OnPropertyChanged("SelectedRouteMode");
+                if (value != null)
+                {
+                    _SelectedRouteMode = value;
+                    short? configValue = _SelectedRouteMode?.Value as short?;
+                    if (configValue.HasValue)
+                        ConfigRouteMode = configValue.Value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -823,7 +1290,7 @@ namespace gip.bso.iplus
             }
         }
 
-        private int _MaximumRouteAlternatives = 1;
+        private int _MaximumRouteAlternatives;
         [ACPropertyInfo(412, "", "en{'Maximum route alternatives in loop'}de{'Maximale Routenalternativen in der Schleife'}")]
         public int MaximumRouteAlternatives
         {
@@ -834,7 +1301,23 @@ namespace gip.bso.iplus
             set
             {
                 _MaximumRouteAlternatives = value;
-                OnPropertyChanged("MaximumRouteAlternatives");
+                MaxRouteAltInLoop = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _MaximumRouteLoopDepth = 2;
+        [ACPropertyInfo(412, "", "en{'Maximum route loop depth'}de{'Maximale Routenschleifentiefe'}")]
+        public int MaximumRouteLoopDepth
+        {
+            get
+            {
+                return _MaximumRouteLoopDepth;
+            }
+            set
+            {
+                _MaximumRouteLoopDepth = value;
+                OnPropertyChanged();
             }
         }
 
@@ -867,17 +1350,20 @@ namespace gip.bso.iplus
         [ACMethodInfo("", "en{'Set route'}de{'Route festlegen'}", 404, true)]
         public void SetRoute()
         {
-            IEnumerable<string> start = null;
-            IEnumerable<string> end = null;
             if (IsMultipleSourcesTargets)
             {
-                start = StartComponents.Where(c => c.IsChecked).Select(x => x.ValueT.ACUrlComponent);
-                end = EndComponents.Where(c => c.IsChecked).Select(x => x.ValueT.ACUrlComponent);
+                _start = StartComponents.Where(c => c.IsChecked).Select(x => x.ValueT.ACUrlComponent);
+                _end = EndComponents.Where(c => c.IsChecked).Select(x => x.ValueT.ACUrlComponent);
             }
             else if (SelectedStartComponent != null && SelectedEndComponent != null)
             {
-                start = new string[] { SelectedStartComponent.ValueT.ACUrlComponent };
-                end = new string[] { SelectedEndComponent.ValueT.ACUrlComponent };
+                _start = new string[] { SelectedStartComponent.ValueT.ACUrlComponent };
+                _end = new string[] { SelectedEndComponent.ValueT.ACUrlComponent };
+            }
+            else
+            {
+                _start = null;
+                _end = null;
             }
 
             if (AllowProcessModuleInRoute)
@@ -886,11 +1372,16 @@ namespace gip.bso.iplus
                 SelectionRuleParams = null;
             }
 
-            _CurrentRouteMode = SelectedRouteMode;
-            if (!GetRoutes(start, end, true, true, false, SelectionRuleID, SelectionRuleParams))
+            if (!GetRoutes(_start, _end, IncludeReserved, IncludeAllocated, false, SelectionRuleID, SelectionRuleParams))
                 return;
 
             ShowRoute();
+        }
+
+        public void ResetRoute()
+        {
+            if (!GetRoutes(_start, _end, IncludeReserved, IncludeAllocated, false, SelectionRuleID, SelectionRuleParams))
+                return;
         }
 
         #endregion
@@ -898,7 +1389,7 @@ namespace gip.bso.iplus
         #region AdjustmentEdgeWeight
 
         private PAEdge _SelectedEdge;
-        [ACPropertySelected(414,"SelectedEdge")]
+        [ACPropertySelected(414, "SelectedEdge")]
         public PAEdge SelectedEdge
         {
             get { return _SelectedEdge; }
@@ -924,24 +1415,32 @@ namespace gip.bso.iplus
         public void EditEdgeWeights(IEnumerable<string> startComponentsACUrl, IEnumerable<string> endComponentsACUrl, int maxRouteAlternatives)
         {
             _IsInEdgeWeightAdjustmentMode = true;
-            var routeModeTemp = _CurrentRouteMode;
             var maxRAltTemp = MaximumRouteAlternatives;
             MaximumRouteAlternatives = maxRouteAlternatives;
-            _CurrentRouteMode = null;
-            if (!GetRoutes(startComponentsACUrl, endComponentsACUrl, true,true,true))
+            if (!GetRoutes(startComponentsACUrl, endComponentsACUrl, IncludeReserved, IncludeAllocated, true, null, null, true))
                 return;
             ShowRoute();
             _IsInEdgeWeightAdjustmentMode = false;
-            _CurrentRouteMode = routeModeTemp;
             MaximumRouteAlternatives = maxRAltTemp;
         }
 
         [ACMethodInfo("", "en{'Save settings'}de{'Einstellungen speichern'}", 405)]
         public void SaveSettings()
         {
-            ACRoutingPath path = new ACRoutingPath();
-            path.AddRange(EdgesList);
-            ACUrlCommand(RoutingServiceACUrl+ "!SetPriority", path);
+            int routeNo = 1;
+            List<RouteItem> routeItems = new List<RouteItem>();
+            foreach (ACRoutingPath rPath in SelectedActiveRoutingPaths)
+            {
+                foreach (PAEdge edge in rPath)
+                {
+                    RouteItem rItem = new RouteItem(edge.Relation, routeNo);
+                    rItem.IsDeactivated = edge.IsDeactivated;
+                    routeItems.Add(rItem);
+                }
+                routeNo++;
+            }
+            Route route = new Route(routeItems);
+            ACUrlCommand(RoutingServiceACUrl + "!" + nameof(ACRoutingService.SetPriority), route);
         }
 
         #endregion

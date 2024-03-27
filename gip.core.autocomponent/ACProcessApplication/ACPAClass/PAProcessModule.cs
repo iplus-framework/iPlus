@@ -16,20 +16,23 @@ namespace gip.core.autocomponent
     /// <seealso cref="gip.core.autocomponent.PAClassPhysicalBase" />
     /// <seealso cref="gip.core.autocomponent.IACComponentTaskExec" />
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PAProcessModule'}de{'PAProcessModule'}", Global.ACKinds.TPAProcessModule, Global.ACStorableTypes.Required, false, PWGroup.PWClassName, true)]
-    public abstract class PAProcessModule : PAClassPhysicalBase, IACComponentTaskExec, IACAttachedAlarmHandler
+    public abstract class PAProcessModule : PAClassPhysicalBase, IACComponentTaskExec, IACAttachedAlarmHandler, IRouteItemIDProvider
     {
         #region c'tors
 
         public const string SelRuleID_ProcessModule = "PAProcessModule";
         public const string SelRuleID_ProcessModule_Deselector = "PAProcessModule.Deselector";
+        public const string SelRuleID_ProcessModuleParam_Deselector = "PAProcessModuleParam.Deselector";
 
-        public const string ClassName = "PAProcessModule";
+        public const string ClassName = nameof(PAProcessModule);
 
         static PAProcessModule()
         {
             RegisterExecuteHandler(typeof(PAProcessModule), HandleExecuteACMethod_PAProcessModule);
             ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule, (c, p) => c.Component.ValueT is PAProcessModule, null);
             ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule_Deselector, null, (c, p) => c.Component.ValueT is PAProcessModule);
+            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModuleParam_Deselector, null, (c, p) => c.Component.ValueT is PAProcessModule 
+                                                                                                         && !p.Contains(c.Component.ValueT.ComponentClass.ACClassID));
         }
 
         public PAProcessModule(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
@@ -232,11 +235,21 @@ namespace gip.core.autocomponent
 
                 using (Database db = new datamodel.Database())
                 {
-                    RoutingResult rResult = ACRoutingService.FindSuccessors(RoutingService, db, RoutingService != null && RoutingService.IsProxy,
-                     this, SelRuleID_ProcessModule, RouteDirections.Forwards, new object[] { },
-                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
-                            (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
-                            0,true, true, false, false);
+                    ACRoutingParameters routingParameters = new ACRoutingParameters()
+                    {
+                        RoutingService = this.RoutingService,
+                        Database = db,
+                        AttachRouteItemsToContext = RoutingService != null && RoutingService.IsProxy,
+                        SelectionRuleID = PAProcessModule.SelRuleID_ProcessModule,
+                        Direction = RouteDirections.Forwards,
+                        DBSelector = (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
+                        DBDeSelector = (c, p, r) => c.ACKind == Global.ACKinds.TPAProcessModule,
+                        MaxRouteAlternativesInLoop = 1,
+                        IncludeReserved = true,
+                        IncludeAllocated = true,
+                    };
+
+                    RoutingResult rResult = ACRoutingService.FindSuccessors(this.GetACUrl(), routingParameters);
                     if (rResult.Routes != null && rResult.Routes.Any())
                         _CacheModuleDestinations = rResult.Routes.Select(c => c.LastOrDefault().Target.ACClassID).ToArray();
                     else
@@ -320,7 +333,9 @@ namespace gip.core.autocomponent
             {
                 if (Semaphore.ConnectionListCount <= 0)
                     return null;
-                var wrapPWGroup = Semaphore.ConnectionList.First();
+                var wrapPWGroup = Semaphore.ConnectionList.FirstOrDefault();
+                if (wrapPWGroup == null)
+                    return null;
                 PWGroup pwGroup = wrapPWGroup.ValueT as PWGroup;
                 if (pwGroup != null)
                     return pwGroup.CurrentProgramLog;

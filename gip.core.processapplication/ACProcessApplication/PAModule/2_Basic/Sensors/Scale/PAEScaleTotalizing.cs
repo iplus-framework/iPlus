@@ -13,8 +13,8 @@ namespace gip.core.processapplication
     /// Totalizing gravimaterically Scale
     /// Totalisierende Waage
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Scale totalizing'}de{'Waage totalisierend (SWT))'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
-    public class PAEScaleTotalizing : PAEScaleGravimetric
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Scale totalizing'}de{'Waage totalisierend (SWT)'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    public class PAEScaleTotalizing : PAEScaleCalibratable
     {
         #region c'tors
 
@@ -26,10 +26,32 @@ namespace gip.core.processapplication
         public PAEScaleTotalizing(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
+            _SWTTipWeight = new ACPropertyConfigValue<double>(this, "SWTTipWeight", 0.0);
         }
 
         #endregion
 
+        private ACPropertyConfigValue<double> _SWTTipWeight;
+        [ACPropertyConfig("en{'SWT tip weight'}de{'SWT Kippgewicht'}")]
+        public double SWTTipWeight
+        {
+            get
+            {
+                return _SWTTipWeight.ValueT;
+            }
+            set
+            {
+                _SWTTipWeight.ValueT = value;
+            }
+        }
+
+        public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
+        {
+            if (!base.ACInit(startChildMode))
+                return false;
+            _ = SWTTipWeight;
+            return true;
+        }
 
         #region Properties Range 800
 
@@ -55,7 +77,7 @@ namespace gip.core.processapplication
 
         public static bool HandleExecuteACMethod_PAEScaleTotalizing(out object result, IACComponent acComponent, string acMethodName, ACClassMethod acClassMethod, object[] acParameter)
         {
-            return HandleExecuteACMethod_PAEScaleGravimetric(out result, acComponent, acMethodName, acClassMethod, acParameter);
+            return HandleExecuteACMethod_PAEScaleCalibratable(out result, acComponent, acMethodName, acClassMethod, acParameter);
         }
 
         #endregion

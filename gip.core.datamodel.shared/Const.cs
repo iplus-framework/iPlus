@@ -1,4 +1,6 @@
-﻿namespace gip.core.datamodel
+﻿using System.CodeDom;
+
+namespace gip.core.datamodel
 {
     /// <summary>
     /// Definition der grundsätzlichen Ansichtsarten, welche das Standardframework unterstützt
@@ -10,6 +12,10 @@
         public const string ACRootProjectNameTest = "RootTest";
         public const string Select = "en{'Select'}de{'Auswahl'}";
         public const string Ok = "en{'Ok'}de{'Ok'}";
+        public const string Add = "en{'Add'}de{'Hinzufügen'}";
+        public const string Cancel = "en{'Cancel'}de{'Abbrechen'}";
+        public const string Remove = "en{'Remove'}de{'Entfernen'}";
+        public const string Recalculate = "en{'Recalculate'}de{'Neu berechnen'}";
 
         //Datamodel Konstanten
         public const string EntityInsertName = "InsertName";
@@ -203,6 +209,9 @@
         public const string CmdNameExport = "DataExportDialog";            // dataExport
         public const string CmdExport = "!" + CmdNameExport;            // dataExport
 
+        public const string CmdNameKeyHandle = "KeyHandle";            // keyHand
+        public const string CmdKeyHandle = "!" + CmdNameKeyHandle;            // dataExport
+
         // Visualisierung
         public const string CmdClassConfigurationOK = "!ClassConfigurationOK";
         public const string CmdClassConfigurationCancel = "!ClassConfigurationCancel";
@@ -263,6 +272,8 @@
         public const string CmdInvalidateRequerySuggested = "^InvalidateRequerySuggested";
         public const string CmdHighlightVBControl = "^HighlightVBControl";
         public const string CmdHighlightContentACObject = "^HighlightContentACObject";
+        public const string CmdInitSelectionManager = "^InitSelectionManager";
+        public const string CmdShowHideVBContentInfo = "^ShowHideVBContentInfo";
         public const string CmdPrintScreenToImage = "^PrintScreenToImage";
         public const string CmdPrintScreenToIcon = "^CmdPrintScreenToIcon";
         public const string CmdPrintScreenToClipboard = "^CmdPrintScreenToClipboard";

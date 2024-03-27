@@ -3170,8 +3170,8 @@ namespace gip.core.autocomponent
 
             if (paramCount > 4)
                 acParameterDefinition.SetValueFromString(parameter[4] as string);
-            else
-                acParameterDefinition.SetDefaultValue();
+            //else
+                //acParameterDefinition.SetDefaultValue();
 
             return acParameterDefinition;
         }

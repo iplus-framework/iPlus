@@ -4,14 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace gip.core.webservices
 {
     public partial class CoreWebService : ICoreWebService
     {
-        public WSResponse<VBUserRights> Login(string userName)
+        public virtual WSResponse<VBUserRights> Login(string userName)
         {
             if (String.IsNullOrEmpty(userName))
                 return new WSResponse<VBUserRights>(null, new Msg(eMsgLevel.Error, "Username is empty"));
@@ -98,7 +96,7 @@ namespace gip.core.webservices
             }
         }
 
-        public WSResponse<bool> Logout(string sessionID)
+        public virtual WSResponse<bool> Logout(string sessionID)
         {
             if (String.IsNullOrEmpty(sessionID))
                 return new WSResponse<bool>(false, new Msg(eMsgLevel.Error, "sessionID is empty"));

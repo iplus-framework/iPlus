@@ -159,7 +159,7 @@ namespace gip.bso.iplus
             if (actionArgs.ElementAction == Global.ElementActionType.VBDesignChanged && !_SwitchingOnAlarm)
             {
                 _HighlightParentOnSwitch = null;
-                _MsgForSwitchingView = null;
+                _CompForSwitchingView = null;
                 _CurrentHighlightedParent = null;
                 base.ACAction(actionArgs);
             }
@@ -170,17 +170,16 @@ namespace gip.bso.iplus
         protected override void OnWPFRefAdded(int hashOfDepObj, IACObject boundedObject)
         {
             base.OnWPFRefAdded(hashOfDepObj, boundedObject);
-            if (_MsgForSwitchingView != null
-                && _MsgForSwitchingView.SourceComponent != null
+            if (_CompForSwitchingView != null
                 && boundedObject is IACComponent)
             {
                 string boundedObjUrl = boundedObject.GetACUrl();
-                if (  (_MsgForSwitchingView.SourceComponent.ValueT != null &&_MsgForSwitchingView.SourceComponent.ValueT == boundedObject)
-                    || _MsgForSwitchingView.Source == boundedObjUrl)
+                if (  (_CompForSwitchingView.Item2 != null && _CompForSwitchingView.Item2 == boundedObject)
+                    || _CompForSwitchingView.Item1 == boundedObjUrl)
                 {
                     VBBSOSelectionManager.HighlightContentACObject(boundedObject, false);
                     _HighlightParentOnSwitch = null;
-                    _MsgForSwitchingView = null;
+                    _CompForSwitchingView = null;
                 }
                 else if (!String.IsNullOrEmpty(_HighlightParentOnSwitch) && boundedObjUrl.StartsWith(_HighlightParentOnSwitch))
                 {
@@ -191,8 +190,8 @@ namespace gip.bso.iplus
                     }
                     else
                     {
-                        int distanceCurrent = ACUrlHelper.CalcDistance(_MsgForSwitchingView.Source, _CurrentHighlightedParent);
-                        int distanceThis = ACUrlHelper.CalcDistance(_MsgForSwitchingView.Source, boundedObjUrl);
+                        int distanceCurrent = ACUrlHelper.CalcDistance(_CompForSwitchingView.Item1, _CurrentHighlightedParent);
+                        int distanceThis = ACUrlHelper.CalcDistance(_CompForSwitchingView.Item1, boundedObjUrl);
                         if (distanceCurrent >= 0 && distanceThis >= 0 && distanceThis < distanceCurrent)
                         {
                             _CurrentHighlightedParent = boundedObjUrl;
@@ -468,6 +467,55 @@ namespace gip.bso.iplus
         }
         #endregion
 
+        #region BSO=>ACPropety=>Others
+
+        private string _SearchText;
+        [ACPropertyInfo(9999, "", "en{'Search text'}de{'Suchtext'}")]
+        public string SearchText
+        {
+            get => _SearchText;
+            set
+            {
+                _SearchText = value;
+                OnPropertyChanged();
+                if (string.IsNullOrEmpty(value))
+                {
+                    AvailableSearchedItemsList = null;
+                    SelectedAvailableSearchedItem = null;
+                }
+                else
+                {
+                    SearchComponents();
+                }
+            }
+        }
+
+        private ACClass _SelectedAvailableSearchedItem;
+        [ACPropertySelected(9999, "AvailableSearchedItem", "en{'Available searched item'}de{'Verfügbares gesuchtes Element'}")]
+        public ACClass SelectedAvailableSearchedItem
+        {
+            get => _SelectedAvailableSearchedItem;
+            set
+            {
+                _SelectedAvailableSearchedItem = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private List<ACClass> _AvailableSearchedItemsList;
+        [ACPropertyList(9999, "AvailableSearchedItem")]
+        public List<ACClass> AvailableSearchedItemsList
+        {
+            get => _AvailableSearchedItemsList;
+            set
+            {
+                _AvailableSearchedItemsList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region BSO->ACMethod
@@ -478,68 +526,83 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case Const.CmdNameSave:
+                case nameof(Save):
                     Save();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameSave:
+                case nameof(IsEnabledSave):
                     result = IsEnabledSave();
                     return true;
-                case Const.CmdNameUndoSave:
+                case nameof(UndoSave):
                     UndoSave();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameUndoSave:
+                case nameof(IsEnabledUndoSave):
                     result = IsEnabledUndoSave();
                     return true;
-                case Const.CmdNameNew:
+                case nameof(New):
                     New();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameNew:
+                case nameof(IsEnabledNew):
                     result = IsEnabledNew();
                     return true;
-                case Const.CmdNameDelete:
+                case nameof(Delete):
                     Delete();
                     return true;
-                case Const.IsEnabledPrefix + Const.CmdNameDelete:
+                case nameof(IsEnabledDelete):
                     result = IsEnabledDelete();
                     return true;
-                case "NewVisualisationOK":
+                case nameof(Search):
+                    Search();
+                    return true;
+                case nameof(NewVisualisationOK):
                     NewVisualisationOK();
                     return true;
-                case Const.IsEnabledPrefix + "NewVisualisationOK":
+                case nameof(IsEnabledNewVisualisationOK):
                     result = IsEnabledNewVisualisationOK();
                     return true;
-                case "NewVisualisationCancel":
+                case nameof(NewVisualisationCancel):
                     NewVisualisationCancel();
                     return true;
-                case "SetDefaultVisualisation":
+                case nameof(SetDefaultVisualisation):
                     SetDefaultVisualisation();
                     return true;
-                case Const.IsEnabledPrefix + "SetDefaultVisualisation":
+                case nameof(IsEnabledSetDefaultVisualisation):
                     result = IsEnabledSetDefaultVisualisation();
                     return true;
-                case "Screenshot":
+                case nameof(Screenshot):
                     Screenshot();
                     return true;
-                case "CopyVisualisationToClipboard":
+                case nameof(CopyVisualisationToClipboard):
                     CopyVisualisationToClipboard();
                     return true;
-                case Const.IsEnabledPrefix + "CopyVisualisationToClipboard":
+                case nameof(IsEnabledCopyVisualisationToClipboard):
                     result = IsEnabledCopyVisualisationToClipboard();
                     return true;
-                case "ExportDesigns":
+                case nameof(ExportDesigns):
                     ExportDesigns();
                     return true;
-                case Const.IsEnabledPrefix + "ExportDesigns":
+                case nameof(IsEnabledExportDesigns):
                     result = IsEnabledExportDesigns();
                     return true;
-                //case "NavigateToDesign":
-                //    NavigateToDesign(acParameter[0] as MouseButtonEventArgs, acParameter[1] as string);
-                //    return true;
-                case "DesignOpen":
+                //case nameof(NavigateToDesign):
+                    //NavigateToDesign(acParameter[0] as MouseButtonEventArgs, acParameter[1] as string);
+                    //return true;
+                case nameof(DesignOpen):
                     DesignOpen(acParameter[0] as string);
                     return true;
-                case "ValidateInput":
+                case nameof(ValidateInput):
                     result = ValidateInput((String)acParameter[0], (Object)acParameter[1], (System.Globalization.CultureInfo)acParameter[2]);
+                    return true;
+                case nameof(SearchComponents):
+                    SearchComponents();
+                    return true;
+                case nameof(IsEnabledSearchComponents):
+                    result = IsEnabledSearchComponents();
+                    return true;
+                case nameof(NavigateToComponent):
+                    NavigateToComponent();
+                    return true;
+                case nameof(IsEnabledNavigateToComponent):
+                    result = IsEnabledNavigateToComponent();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -676,18 +739,25 @@ namespace gip.bso.iplus
             return CurrentVisualisation != null;
         }
 
-        //TODO New implementation in design
+
+        [ACMethodCommand("Visualisation", "en{'Search'}de{'Suchen'}", (short)MISort.Search)]
+        public void Search()
+        {
+            ShowDialog(this, "SearchDialog");
+        }
+
+
         //[ACMethodInfo("NavigateToDesign", "", 490)]
         //public void NavigateToDesign(MouseButtonEventArgs e, string Parameter)
         //{
-        //    if (e.ClickCount > 1)
-        //    {
-        //        ACUrlCommand("BSOVisualisationStudio!DesignOpen", Parameter);
-        //    }
-        //    else
-        //    {
-        //        DesignOpen(Parameter);
-        //    }
+            //if (e.ClickCount > 1)
+            //{
+                //ACUrlCommand("BSOVisualisationStudio!DesignOpen", Parameter);
+            //}
+            //else
+            //{
+                //DesignOpen(Parameter);
+            //}
         //}
 
 
@@ -762,7 +832,7 @@ namespace gip.bso.iplus
 
 
         private bool _SwitchingOnAlarm = false;
-        private Msg _MsgForSwitchingView = null;
+        private Tuple<string, IACComponent> _CompForSwitchingView = null;
         private string _HighlightParentOnSwitch = "";
         private string _CurrentHighlightedParent = "";
         public void SwitchToViewOnAlarm(Msg msgAlarm)
@@ -778,14 +848,26 @@ namespace gip.bso.iplus
                 acUrlToFind = msgAlarm.SourceComponent.ValueT.GetACUrl();
             if (!IsValidAlarmUrl(acUrlToFind))
                 return;
-            string findPattern = String.Format("VBContent=\"{0}\"", acUrlToFind);
+
+            SwitchToViewOnComponent(msgAlarm.Source, msgAlarm.SourceComponent?.ValueT);
+        }
+
+        public void SwitchToViewOnComponent(string acUrl, IACComponent acComponent = null)
+        {
+            _HighlightParentOnSwitch = null;
+            _CurrentHighlightedParent = null;
+
+            if (acUrl == null ||  VBBSOSelectionManager == null)
+                return;
+
+            string findPattern = String.Format("VBContent=\"{0}\"", acUrl);
             ACClassDesign foundImage = null;
 
             // On Proxy-side, WPF-Refs with proxy-objects are stored in ReferencePoint
             IACPointReference<IACObject> refPoint = this.ReferencePoint;
             bool wpfRefs = false;
-            if (refPoint != null && msgAlarm.SourceComponent != null && msgAlarm.SourceComponent.ValueT != null)
-                wpfRefs = refPoint.HasWPFRefsForComp(msgAlarm.SourceComponent.ValueT);
+            if (refPoint != null && acComponent != null)
+                wpfRefs = refPoint.HasWPFRefsForComp(acComponent);
             // If wpf-Refs exist, then current visualisation conatins the object
             if (wpfRefs)
             {
@@ -803,15 +885,15 @@ namespace gip.bso.iplus
                 else
                 {
                     // Does any Image exist with the exact url?
-                    ACClassDesign designWithComp = VisualisationList.Where(c => c.XMLDesign.Contains(findPattern) 
-                                                                        && c.ValueTypeACClassID.HasValue 
+                    ACClassDesign designWithComp = VisualisationList.Where(c => c.XMLDesign.Contains(findPattern)
+                                                                        && c.ValueTypeACClassID.HasValue
                                                                         && c.ValueTypeACClass.ACIdentifier == Const.VBDesign_ClassName)
                                                                     .FirstOrDefault();
                     if (designWithComp != null)
                         foundImage = designWithComp;
                     else
                     {
-                        designWithComp = VisualisationList.Where(c => c.XMLDesign.Contains(findPattern) 
+                        designWithComp = VisualisationList.Where(c => c.XMLDesign.Contains(findPattern)
                                                                 && (!c.ValueTypeACClassID.HasValue || c.ValueTypeACClass.ACIdentifier != Const.VBDesign_ClassName))
                                                             .FirstOrDefault();
                         if (designWithComp != null)
@@ -820,18 +902,18 @@ namespace gip.bso.iplus
                     // Resolve Url to parents and search backwards
                     if (foundImage == null)
                     {
-                        List<string> resolvedParents = ACUrlHelper.ResolveParents(acUrlToFind, true);
+                        List<string> resolvedParents = ACUrlHelper.ResolveParents(acUrl, true);
                         if (resolvedParents.Any())
                         {
                             resolvedParents.Reverse();
                             foreach (string parentUrl in resolvedParents)
                             {
-                                if (parentUrl == acUrlToFind)
+                                if (parentUrl == acUrl)
                                     continue;
                                 findPattern = String.Format("VBContent=\"{0}\"", parentUrl);
-                                if (CurrentVisualisation != null 
-                                    && CurrentVisualisation.ValueTypeACClassID.HasValue 
-                                    && CurrentVisualisation.ValueTypeACClass.ACIdentifier == Const.VBDesign_ClassName 
+                                if (CurrentVisualisation != null
+                                    && CurrentVisualisation.ValueTypeACClassID.HasValue
+                                    && CurrentVisualisation.ValueTypeACClass.ACIdentifier == Const.VBDesign_ClassName
                                     && CurrentVisualisation.XMLDesign.Contains(findPattern))
                                 {
                                     _HighlightParentOnSwitch = parentUrl;
@@ -840,8 +922,8 @@ namespace gip.bso.iplus
                                 }
                                 else
                                 {
-                                    designWithComp = VisualisationList.Where(c => c.XMLDesign.Contains(findPattern) 
-                                                                            && c.ValueTypeACClassID.HasValue 
+                                    designWithComp = VisualisationList.Where(c => c.XMLDesign.Contains(findPattern)
+                                                                            && c.ValueTypeACClassID.HasValue
                                                                             && c.ValueTypeACClass.ACIdentifier == Const.VBDesign_ClassName)
                                                                       .FirstOrDefault();
                                     if (designWithComp != null)
@@ -852,7 +934,7 @@ namespace gip.bso.iplus
                                     }
                                     else
                                     {
-                                        designWithComp = VisualisationList.Where(c => c.XMLDesign.Contains(findPattern) 
+                                        designWithComp = VisualisationList.Where(c => c.XMLDesign.Contains(findPattern)
                                                                                         && (!c.ValueTypeACClassID.HasValue || c.ValueTypeACClass.ACIdentifier != Const.VBDesign_ClassName))
                                                                         .FirstOrDefault();
                                         if (designWithComp != null)
@@ -875,7 +957,7 @@ namespace gip.bso.iplus
                         try
                         {
                             _SwitchingOnAlarm = true;
-                            _MsgForSwitchingView = msgAlarm;
+                            _CompForSwitchingView = new Tuple<string, IACComponent>(acUrl, acComponent);
                             CurrentVisualisation = foundImage;
                             SelectedVisualisation = foundImage;
                         }
@@ -885,24 +967,31 @@ namespace gip.bso.iplus
                         }
                     }
                     else
-                        VBBSOSelectionManager.HighlightContentACObject(GetComponentToHighlight(msgAlarm), !String.IsNullOrEmpty(_HighlightParentOnSwitch));
+                    {
+                        BroadcastToVBControls(Const.CmdInitSelectionManager, "CurrentVisualisation", this);
+                        VBBSOSelectionManager.HighlightContentACObject(GetComponentToHighlight(acUrl, acComponent), !String.IsNullOrEmpty(_HighlightParentOnSwitch));
+                    }
                 }
             }
             else
-                VBBSOSelectionManager.HighlightContentACObject(GetComponentToHighlight(msgAlarm), !String.IsNullOrEmpty(_HighlightParentOnSwitch));
+            {
+                BroadcastToVBControls(Const.CmdInitSelectionManager, "CurrentVisualisation", this);
+                VBBSOSelectionManager.HighlightContentACObject(GetComponentToHighlight(acUrl, acComponent), !String.IsNullOrEmpty(_HighlightParentOnSwitch));
+            }
         }
 
-        public IACComponent GetComponentToHighlight(Msg msgAlarm)
+        public IACComponent GetComponentToHighlight(string acUrl, IACComponent acComponent = null)
         {
-            if (msgAlarm.SourceComponent != null && msgAlarm.SourceComponent.ValueT != null)
-                return msgAlarm.SourceComponent.ValueT;
-            List<string> parents = ACUrlHelper.ResolveParents(msgAlarm.Source);
+            if (acComponent != null)
+                return acComponent;
+
+            List<string> parents = ACUrlHelper.ResolveParents(acUrl);
             if (!parents.Any())
                 return null;
             parents.Reverse();
             foreach (var parent in parents)
             {
-                if (parent == msgAlarm.Source)
+                if (parent == acUrl)
                     continue;
                 IACComponent parentComp = ACUrlCommand("?" + parent) as IACComponent;
                 if (parentComp != null)
@@ -917,6 +1006,44 @@ namespace gip.bso.iplus
             return urlHelper.UrlKey == ACUrlHelper.UrlKeys.Root 
                 && !String.IsNullOrEmpty(urlHelper.NextACUrl) 
                 && !ACUrlHelper.IsUrlDynamicInstance(acUrlToFind);
+        }
+
+        [ACMethodInfo("", "en{'Search components'}de{'Suchkomponenten'}", 9999)]
+        public void SearchComponents()
+        {
+            string searchText = SearchText.ToLower();
+
+            SelectedAvailableSearchedItem = null;
+
+            AvailableSearchedItemsList = Database.ContextIPlus.ACClass.Where(c => (c.ACKindIndex == (short)Global.ACKinds.TPAProcessModule || c.ACKindIndex == (short)Global.ACKinds.TPAModule)
+                                                                               && c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application
+                                                                               && (c.ACIdentifier.ToLower().Contains(searchText) || c.ACCaptionTranslation.ToLower().Contains(searchText) || c.Comment.ToLower().Contains(searchText)))
+                                                                      .OrderBy(c => c.ACURLComponentCached)
+                                                                      .ToList();
+
+            if (AvailableSearchedItemsList.Count == 1)
+            {
+                SelectedAvailableSearchedItem = AvailableSearchedItemsList.FirstOrDefault();
+                NavigateToComponent();
+            }
+        }
+
+        public bool IsEnabledSearchComponents()
+        {
+            return !string.IsNullOrEmpty(SearchText);
+        }
+
+        [ACMethodInfo("", "en{'Navigate'}de{'Navigieren'}", 9999)]
+        public void NavigateToComponent()
+        {
+            CloseTopDialog();
+            IACComponent component = ACUrlCommand(SelectedAvailableSearchedItem.ACUrlComponent) as IACComponent;
+            SwitchToViewOnComponent(SelectedAvailableSearchedItem.ACUrlComponent, component);
+        }
+
+        public bool IsEnabledNavigateToComponent()
+        {
+            return SelectedAvailableSearchedItem != null;
         }
 
         #endregion

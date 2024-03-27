@@ -14,7 +14,7 @@ namespace gip.core.processapplication
     /// Basisklasse für steuerbare Bauteile/Elemente
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass Controlmodules'}de{'Basisklasse Steuerungsmodule'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
-    public abstract class PAEControlModuleBase : PAModule
+    public abstract class PAEControlModuleBase : PAModule, IRoutableModule
     {
         public const string ClassName = "PAEControlModuleBase";
 
@@ -136,6 +136,27 @@ namespace gip.core.processapplication
         [ACPropertyBindingTarget(445, "Read from PLC", "en{'is triggered'}de{'Angesteuert'}", "", false, false, RemotePropID = 28)]
         public IACContainerTNet<Boolean> IsTriggered { get; set; }
 
+        public string RouteItemID
+        {
+            get
+            {
+                IRouteItemIDProvider idProvider = FindChildComponents<IRouteItemIDProvider>(c => c is IRouteItemIDProvider).FirstOrDefault();
+                if (idProvider != null)
+                    return idProvider.RouteItemID;
+                return null;
+            }
+        }
+
+        public int RouteItemIDAsNum
+        {
+            get
+            {
+                IRouteItemIDProvider idProvider = FindChildComponents<IRouteItemIDProvider>(c => c is IRouteItemIDProvider).FirstOrDefault();
+                if (idProvider != null)
+                    return idProvider.RouteItemIDAsNum;
+                return 0;
+            }
+        }
         // TODO: Grund der Verriegelung (GIP-Spezifisch)
         // TODO: Phase (GIP-Spezifisch)
         #endregion
@@ -172,10 +193,21 @@ namespace gip.core.processapplication
                 return;
             foreach (RouteItem routeItem in route.Items)
             {
-                PAEControlModuleBase module = routeItem.SourceACComponent as PAEControlModuleBase;
+                IRoutableModule module = routeItem.SourceACComponent as IRoutableModule;
+                module?.SimulateAllocationState(routeItem, switchOff);
                 module?.ActivateRouteItemOnSimulation(routeItem, switchOff);
-                module = routeItem.TargetACComponent as PAEControlModuleBase;
+                module = routeItem.TargetACComponent as IRoutableModule;
+                module?.SimulateAllocationState(routeItem, switchOff);
                 module?.ActivateRouteItemOnSimulation(routeItem, switchOff);
+            }
+        }
+
+        public virtual void SimulateAllocationState(RouteItem item, bool switchOff)
+        {
+            if (AllocatedByWay != null && AllocatedByWay.ValueT != null)
+            {
+                AllocatedByWay.ValueT.Bit00_Reserved = false;
+                AllocatedByWay.ValueT.Bit01_Allocated = !switchOff;
             }
         }
         #endregion

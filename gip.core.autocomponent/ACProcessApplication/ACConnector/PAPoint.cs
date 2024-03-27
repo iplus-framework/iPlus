@@ -187,14 +187,20 @@ namespace gip.core.autocomponent
             get => TargetParent as IACComponent;
         }
 
-        public BitAccessForAllocatedByWay IsAllocated(bool isTarget)
+        public BitAccessForAllocatedByWay GetAllocationState(bool isTarget)
         {
             if(!isTarget)
             {
                 if (Source == null || Source.ACRef == null || Source.ACRef.ValueT == null)
                     return new BitAccessForAllocatedByWay();
-                IACMember member = Source.ACRef.ValueT.GetMember("AllocatedByWay");
 
+                // If real instance:
+                IRoutableModule routableModule = Source.ACRef.ValueT as IRoutableModule;
+                if (routableModule != null && routableModule.AllocatedByWay != null)
+                    return routableModule.AllocatedByWay.ValueT;
+
+                // Else proxy:
+                IACMember member = Source.ACRef.ValueT.GetMember(nameof(IRoutableModule.AllocatedByWay));
                 if (member == null || member.Value == null || !(member.Value is BitAccessForAllocatedByWay))
                     return new BitAccessForAllocatedByWay();
 
@@ -204,13 +210,24 @@ namespace gip.core.autocomponent
             {
                 if (Target == null || Target.ACRef == null || Target.ACRef.ValueT == null)
                     return new BitAccessForAllocatedByWay();
-                IACMember memberTarget = Target.ACRef.ValueT.GetMember("AllocatedByWay");
+                
+                // If real instance:
+                IRoutableModule routableModule = Target.ACRef.ValueT as IRoutableModule;
+                if (routableModule != null && routableModule.AllocatedByWay != null)
+                    return routableModule.AllocatedByWay.ValueT;
 
+                // Else proxy:
+                IACMember memberTarget = Target.ACRef.ValueT.GetMember(nameof(IRoutableModule.AllocatedByWay));
                 if (memberTarget == null || memberTarget.Value == null || !(memberTarget.Value is BitAccessForAllocatedByWay))
                     return new BitAccessForAllocatedByWay();
 
                 return (BitAccessForAllocatedByWay)memberTarget.Value;
             }
+        }
+
+        public void AttachRelation(Database db)
+        {
+            _Relation = db.ACClassPropertyRelation.FirstOrDefault(c => c.ACClassPropertyRelationID == RelationID);
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = "")

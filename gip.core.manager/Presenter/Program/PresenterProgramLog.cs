@@ -635,8 +635,10 @@ namespace gip.core.manager
                 string componentACUrl = param.FirstOrDefault(c => c.ACIdentifier == "ComponentACUrl").Value.ToString();
                 DateTime from = DateTime.Parse(param.FirstOrDefault(c => c.ACIdentifier == "SearchFrom").Value.ToString());
                 DateTime to = DateTime.Parse(param.FirstOrDefault(c => c.ACIdentifier == "SearchTo").Value.ToString());
+                short searchMode = (short) param.FirstOrDefault(c => c.ACIdentifier == "SearchMode")?.Value;
+                //param.Add(new ACValue("FindFirst", findFirst));
                 if (componentACUrl != null)
-                    ShowLogFromVBBSOControlPA(componentACUrl, from, to);
+                    ShowLogFromVBBSOControlPA(componentACUrl, from, to, searchMode);
             }
         }
 
@@ -687,12 +689,29 @@ namespace gip.core.manager
                 this.ParentACComponent.StopComponent(this);
         }
 
-        public void ShowLogFromVBBSOControlPA(string componentACUrl, DateTime timeFrom, DateTime timeTo)
+        public void ShowLogFromVBBSOControlPA(string componentACUrl, DateTime timeFrom, DateTime timeTo, short searchMode = 0)
         {
             _IsFromVBBSOControlPA = true;
             _DisplayOrder = 0;
             wrapperList.Clear();
-            CreateProgramLogWrapper(Db.ACProgramLog.Where(c => c.ACUrl.Contains(componentACUrl) && c.StartDate > timeFrom && c.EndDate < timeTo));
+            if (searchMode > 0)
+            {
+                ACProgramLog programLog = null;
+                if (searchMode == 2)
+                {
+                    programLog = Db.ACProgramLog.Where(c => c.ACUrl.Contains(componentACUrl) && c.StartDate.HasValue && c.StartDate < timeFrom).OrderByDescending(c => c.StartDate).FirstOrDefault();
+                    if (programLog != null)
+                        timeFrom = programLog.StartDate.Value.AddSeconds(-1);
+                }
+                if (searchMode == 1 || (programLog == null && searchMode == 2))
+                {
+                    programLog = Db.ACProgramLog.Where(c => c.ACUrl.Contains(componentACUrl) && c.StartDate.HasValue).OrderByDescending(c => c.StartDate).FirstOrDefault();
+                    if (programLog != null)
+                        timeFrom = programLog.StartDate.Value.AddSeconds(-1);
+                }
+
+            }
+            CreateProgramLogWrapper(Db.ACProgramLog.Where(c => c.ACUrl.Contains(componentACUrl) && c.StartDate >= timeFrom && c.EndDate < timeTo));
             ProgramLogWrapperList = wrapperList;
             ProgramLogWrapperRootList = ProgramLogWrapperList;
             ShowDialog(this, "PresenterProgramLogDialog");

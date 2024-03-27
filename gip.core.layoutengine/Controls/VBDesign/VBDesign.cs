@@ -139,7 +139,6 @@ namespace gip.core.layoutengine
 
         public event EventHandler OnContextACObjectChanged;
 
-
         #region Control Loaded-Event
         protected bool _Loaded = false;
         /// <summary>
@@ -215,7 +214,7 @@ namespace gip.core.layoutengine
                 else
                 {
                     Binding binding = new Binding();
-                    binding.Source = BSOACComponent.ACUrlCommand(AutoStartACComponent, this.AutoStartParameter.ToValueArray());
+                    binding.Source = BSOACComponent.ACUrlCommand(AutoStartACComponent, this.AutoStartParameter);//.ToValueArray());
                     this.SetBinding(FrameworkElement.DataContextProperty, binding);
                 }
                 if (BSOACComponent.ACType.ACKind == Global.ACKinds.TACBusinessobjects)
@@ -242,7 +241,10 @@ namespace gip.core.layoutengine
             if (string.IsNullOrEmpty(VBContent))
             {
                 _LoadDesignLocked = true;
-                ContentACObject = (ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
+                if (Parent is System.Windows.Controls.Grid ParentGrid && ParentGrid.Name == "MainGridMobile")
+                    ContentACObject = (ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMainMobile);
+                else
+                    ContentACObject = (ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
                 _LoadDesignLocked = false;
                 LoadDesign();
             }
@@ -503,6 +505,28 @@ namespace gip.core.layoutengine
                 DesignModeOn();
             }
         }
+
+        public override void OnACUrlMessageReceived()
+        {
+            base.OnACUrlMessageReceived();
+
+            if (!this.IsLoaded)
+                return;
+            var acUrlMessage = ACUrlCmdMessage;
+            if (acUrlMessage == null
+                || acUrlMessage.ACParameter == null
+                || !acUrlMessage.ACParameter.Any()
+                || !(acUrlMessage.ACParameter[0] is IACComponent)
+                || acUrlMessage.TargetVBContent != this.VBContent)
+                return;
+            switch (acUrlMessage.ACUrl)
+            {
+                case Const.CmdShowHideVBContentInfo:
+                    ShowHideVBContentInfo();
+                    break;
+            }
+        }
+
         #endregion
 
         #region Freeze Screen and User-Dependent Serialization
@@ -1385,6 +1409,78 @@ namespace gip.core.layoutengine
         }
 
         #endregion
+
+        #endregion
+
+        #region Adorner
+
+        private bool _AdornedVBContentInfo = false;
+
+        public void ShowHideVBContentInfo()
+        {
+            if (!_AdornedVBContentInfo)
+            {
+                FrameworkElement fe = this.Content as FrameworkElement;
+                IEnumerable<IVBContent> controls = VBVisualTreeHelper.FindChildObjects<IVBContent>(fe);
+
+                if (controls != null && controls.Any())
+                {
+                    AdornerLayer layer = AdornerLayer.GetAdornerLayer(this);
+                    VBDesignVBContentInfo contentInfo = fe.Resources.Values.OfType<VBDesignVBContentInfo>().FirstOrDefault();
+
+                    if (layer != null)
+                    {
+                        foreach (IVBContent control in controls)
+                        {
+                            UIElement element = control as UIElement;
+                            if (element == null || string.IsNullOrEmpty(control.VBContent) || element is VBConnector)
+                                continue;
+
+                            if (control.VBContent == "this")
+                                continue;
+
+                            VBDesignVBContentAdorner adorner = new VBDesignVBContentAdorner(element, contentInfo);
+                            layer.Add(adorner);
+                            element.UpdateLayout();
+                        }
+                        _AdornedVBContentInfo = true;
+                    }
+                }
+            }
+            else
+            {
+                DependencyObject depObj = this.Content as DependencyObject;
+                IEnumerable<IVBContent> controls = VBVisualTreeHelper.FindChildObjects<IVBContent>(depObj);
+
+                if (controls != null && controls.Any())
+                {
+                    AdornerLayer layer = AdornerLayer.GetAdornerLayer(this);
+
+                    foreach (IVBContent control in controls)
+                    {
+                        UIElement element = control as UIElement;
+                        if (element == null)
+                            continue;
+
+                        Adorner[] adorners = layer.GetAdorners(element);
+                        if (adorners != null && adorners.Any())
+                        {
+                            foreach (Adorner adorner in adorners)
+                            {
+                                VBDesignVBContentAdorner contentAdorner = adorner as VBDesignVBContentAdorner;
+                                if (contentAdorner == null)
+                                    continue;
+
+                                layer.Remove(contentAdorner);
+                            }
+                        }
+                    }
+
+                    layer.Update();
+                    _AdornedVBContentInfo = false;
+                }
+            }
+        }
 
         #endregion
     }

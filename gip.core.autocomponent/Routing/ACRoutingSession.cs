@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Markup.Localizer;
+using System.Windows.Media;
 using gip.core.datamodel;
+using Microsoft.Isam.Esent.Interop;
 
 namespace gip.core.autocomponent
 {
@@ -58,6 +63,7 @@ namespace gip.core.autocomponent
         private object[] _SelectionRuleParams = new object[] { };
 
         private int _MaxRouteAlternatives = 1;
+        private int _MaxRouteLoopDepth = 2;
 
         bool _anyLoop = false;
 
@@ -84,6 +90,9 @@ namespace gip.core.autocomponent
                 set;
             }
         }
+
+        Route _PreviousRoute = null;
+
 
         #endregion
 
@@ -115,29 +124,33 @@ namespace gip.core.autocomponent
             return new Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>>(RoutingVertexList.Values.Where(c => c.Distance != int.MinValue).ToList(), PathsHeap);
         }
 
-        public RoutingResult FindAvailableComponents(ACRoutingVertex startVertex, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams, bool includeReserved, bool includeAllocated)
+        public RoutingResult FindAvailableComponents(ACRoutingVertex startVertex, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams, bool includeReserved, 
+                                                     bool includeAllocated, bool includeFullRoute = false)
         {
             _SelectionRuleID = selectionRuleID;
             _SelectionRuleParams = selectionRuleParams != null ? selectionRuleParams : new object[] { };
             if (direction == RouteDirections.Backwards)
             {
                 Target = startVertex;
-                return FindComponents(includeReserved, includeAllocated, direction);
+                return FindComponents(includeReserved, includeAllocated, direction, includeFullRoute);
             }
             else
             {
                 Source = startVertex;
-                return FindComponents(includeReserved, includeAllocated, direction);
+                return FindComponents(includeReserved, includeAllocated, direction, includeFullRoute);
             }
         }
 
         public RoutingResult FindRoute(IEnumerable<ACRoutingVertex> startVertices, IEnumerable<ACRoutingVertex> endVertices, string selectionRuleID, object[] selectionRuleParams,
-                                       int maxRouteAlternatives, bool includeReserved, bool includeAllocated)
+                                       int maxRouteAlternatives, int maxLoopDepth, bool includeReserved, bool includeAllocated, Route previousRoute = null)
         {
             RoutingPaths.Clear();
             _MaxRouteAlternatives = maxRouteAlternatives;
             _SelectionRuleID = selectionRuleID;
             _SelectionRuleParams = selectionRuleParams;
+            _PreviousRoute = previousRoute;
+            _MaxRouteLoopDepth = maxLoopDepth;
+
             foreach (ACRoutingVertex start in startVertices)
             {
                 Source = start;
@@ -151,13 +164,15 @@ namespace gip.core.autocomponent
                     while (tempPath.IsValid)
                     {
                         tempPath = FindNextShortestPath();
-                        if (tempPath.Any())
+                        if (tempPath.Any() && tempPath.End.ParentACComponent == Target.Component.ValueT)
                             RoutingPaths.Add(tempPath);
                     }
                 }
             }
 
-            if ((RoutingPaths.Count > 1 && (startVertices.Count() > 1 || endVertices.Count() > 1)))
+            var groupBySourceAndTarget = RoutingPaths.GroupBy(c => new Tuple<IACComponent, IACComponent>(c.Start.ParentACComponent, c.End.ParentACComponent));
+
+            if ((RoutingPaths.Count > 1 && (startVertices.Count() > 1 || endVertices.Count() > 1) && groupBySourceAndTarget.Count() > 1))
             {
                 var result = CheckMultipleSourcesTargets();
                 if (result == null)
@@ -166,7 +181,7 @@ namespace gip.core.autocomponent
                                       eMsgLevel.Error, "ACRoutingSession", "FindRoute(10)", 137);
                     return new RoutingResult(null, false, msg);
                 }
-                return CreateRouteFromMultipeSourcesTargets(result);
+                return CreateRouteFromMultipleSourcesTargets(result);
             }
             else if (RoutingPaths.Any())
             {
@@ -191,10 +206,10 @@ namespace gip.core.autocomponent
             return new RoutingResult(null, false, new Msg(message, _ACRoutingService, eMsgLevel.Error, "ACRoutingSession", "FindRoute(20)", 161));
         }
 
-        public RoutingResult FindSuccessors(ACRoutingVertex startVertex, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams, int maxRouteAlternatives,
-                                            bool includeReserved, bool includeAllocated)
+        public RoutingResult FindSuccessors(ACRoutingVertex startVertex, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams, int maxRouteAlternatives, int maxLoopDepth,
+                                            bool includeReserved, bool includeAllocated, RouteResultMode resultMode = RouteResultMode.FullRoute)
         {
-            RoutingResult rResult = FindAvailableComponents(startVertex, selectionRuleID, direction, selectionRuleParams, includeReserved, includeAllocated);
+            RoutingResult rResult = FindAvailableComponents(startVertex, selectionRuleID, direction, selectionRuleParams, includeReserved, includeAllocated, resultMode == RouteResultMode.FullRouteFromFindComp);
             if (rResult != null && rResult.Message != null && rResult.Message.MessageLevel > eMsgLevel.Warning)
                 return rResult;
 
@@ -211,16 +226,81 @@ namespace gip.core.autocomponent
             IEnumerable<ACRoutingVertex> foundSuccessors = rResult.Components.Select(c => new ACRoutingVertex(c.ValueT));
 
             RoutingResult routingResult = null;
+            bool runFullRoute = resultMode == RouteResultMode.FullRoute;
 
             if (direction == RouteDirections.Backwards)
             {
-                routingResult = FindRoute(foundSuccessors, new ACRoutingVertex[] { startVertex }, selectionRuleID, selectionRuleParams, maxRouteAlternatives,
-                                                        includeReserved, includeAllocated);
+                if (resultMode == RouteResultMode.ShortRoute)
+                {
+                    List<Route> tempResult = new List<Route>();
+                    PAEdge toEdge = startVertex.ToEdges.FirstOrDefault();
+                    if (toEdge != null && toEdge.Relation != null)
+                    {
+                        foreach (var successor in foundSuccessors)
+                        {
+                            PAEdge fromEdge = successor.FromEdges.FirstOrDefault();
+                            if (fromEdge == null || fromEdge.Relation == null)
+                                continue;
+
+                            RouteItem rItem = new RouteItem(fromEdge.Relation.SourceACClass, fromEdge.Relation.SourceACClassProperty, toEdge.Relation.TargetACClass, toEdge.Relation.TargetACClassProperty);
+                            tempResult.Add(new Route(rItem));
+                        }
+                        routingResult = new RoutingResult(tempResult, false, null);
+                    }
+                    else
+                        runFullRoute = true;
+                }
+                else if (resultMode == RouteResultMode.FullRouteFromFindComp)
+                {
+                    if (rResult.Routes != null && rResult.Routes.Any())
+                        routingResult = rResult;
+                    else
+                        runFullRoute = true;
+                }
+
+                if (runFullRoute)
+                {
+                    routingResult = FindRoute(foundSuccessors, new ACRoutingVertex[] { startVertex }, selectionRuleID, selectionRuleParams, maxRouteAlternatives, maxLoopDepth,
+                                            includeReserved, includeAllocated);
+                }
             }
             else
             {
-                routingResult = FindRoute(new ACRoutingVertex[] { startVertex }, foundSuccessors, selectionRuleID, selectionRuleParams, maxRouteAlternatives,
-                                                        includeReserved, includeAllocated);
+                if (resultMode == RouteResultMode.ShortRoute)
+                {
+                    List<Route> tempResult = new List<Route>();
+                    PAEdge fromEdge = startVertex.FromEdges.FirstOrDefault();
+                    if (fromEdge != null && fromEdge.Relation != null)
+                    {
+                        foreach (var successor in foundSuccessors)
+                        {
+                            PAEdge toEdge = successor.ToEdges.FirstOrDefault();
+                            if (toEdge == null || toEdge.Relation == null)
+                                continue;
+
+                            RouteItem rItem = new RouteItem(fromEdge.Relation.SourceACClass, fromEdge.Relation.SourceACClassProperty, toEdge.Relation.TargetACClass, toEdge.Relation.TargetACClassProperty);
+                            tempResult.Add(new Route(rItem));
+                        }
+
+                        routingResult = new RoutingResult(tempResult, false, null);
+                    }
+                    else
+                        runFullRoute = true;
+                }
+                else if (resultMode == RouteResultMode.FullRouteFromFindComp)
+                {
+                    if (rResult.Routes != null && rResult.Routes.Any())
+                        routingResult = rResult;
+                    else
+                        runFullRoute = true;
+                }
+
+
+                if (runFullRoute)
+                {
+                    routingResult = FindRoute(new ACRoutingVertex[] { startVertex }, foundSuccessors, selectionRuleID, selectionRuleParams, maxRouteAlternatives, maxLoopDepth,
+                                              includeReserved, includeAllocated);
+                }
             }
 
             if (routingResult != null && routingResult.Message == null && rResult != null && rResult.Message != null && rResult.Message.MessageLevel == eMsgLevel.Warning)
@@ -263,22 +343,195 @@ namespace gip.core.autocomponent
             if (!routingPaths.Any())
                 return null;
 
-            //ACRoutingPath currentPath = routingPaths.Where(c => !c.Any(x => x.IsAllocated(x == c.LastOrDefault())))
-            //                                        .OrderBy(k => k.DeltaWeight).FirstOrDefault();
+            List<ACRoutingPath> paths = new List<ACRoutingPath>();
+            List<RouteHashItem> routeHashItems = null;
 
-            ACRoutingPath currentPath = routingPaths.OrderBy(k => k.DeltaWeight).FirstOrDefault();
+            //PREVIOUS ROUTE
+            if (_PreviousRoute != null)
+            {
+                List<Tuple<ACRoutingPath, int>> diffList = new List<Tuple<ACRoutingPath, int>>();
 
-            if (currentPath == null || !currentPath.Any())
-                currentPath = routingPaths.OrderBy(c => c.DeltaWeight).FirstOrDefault();
+                foreach (ACRoutingPath path in routingPaths)
+                {
+                    if (!path.Any())
+                        continue;
+
+                    List<PAEdge> diffItems = path.ToList();
+                    foreach (var itemInA in path)
+                    {
+                        ACClassPropertyRelation relation = itemInA.Relation;
+
+                        if (_PreviousRoute.Where(c => (c.SourceGuid == relation.SourceACClassID || c.TargetGuid == relation.TargetACClassID)).Any())
+                            diffItems.Remove(itemInA);
+                    }
+
+                    diffList.Add(new Tuple<ACRoutingPath, int>(path, diffItems.Count));
+                }
+
+                var groupedItem = diffList.GroupBy(c => c.Item2).OrderBy(c => c.Key).ToArray().FirstOrDefault();
+
+                //Difference max
+                if (groupedItem.Key != _PreviousRoute.Count)
+                {
+                    paths.AddRange(groupedItem.Select(c => c.Item1));
+                }
+            }
+
+            //RULES (Parallel / NonParallel)
+            if (!paths.Any() && routingPaths.Any(c => c.RouteItemsMode.Any()))
+            {
+                try
+                {
+                    List<ACRoutingPath> tempPaths = new List<ACRoutingPath>();
+                    List<Tuple<IACObject, RouteItemModeEnum>> routeItemsMode = routingPaths.SelectMany(c => c.RouteItemsMode).Distinct().ToList();
+
+                    int routingPathNo = 1;
+
+                    foreach (ACRoutingPath path in routingPaths.OrderBy(x => x.DeltaWeight).Where(c => c.Any(x => routeItemsMode.Any(k => k.Item1 == x.SourceParent))))
+                    {
+                        ACRoutingPath newPath = new ACRoutingPath();
+                        path.RoutingPathNo = routingPathNo;
+                        newPath.RoutingPathNo = routingPathNo;
+
+                        foreach (PAEdge edge in path)
+                        {
+                            if (!tempPaths.Any(x => x.Any(c => edge == c)))
+                                newPath.Add(edge);
+                        }
+
+                        if (newPath.Any())
+                        {
+                            tempPaths.Add(newPath);
+                            routingPathNo++;
+                        }
+                    }
+
+                    ACRoutingPath workingPath = tempPaths.FirstOrDefault();
+                    paths.Add(workingPath);
+
+                    foreach (ACRoutingPath path in tempPaths)
+                    {
+                        if (path == workingPath)
+                            continue;
+
+                        ACRoutingPath mainPath = path;
+                        int loopCounter = 0;
+
+                        while (true)
+                        {
+                            if (loopCounter > 500)
+                                break;
+
+                            loopCounter++;
+
+                            mainPath = tempPaths.FirstOrDefault(c => c != path && c.Any(k => k.SourceParent == mainPath.FirstOrDefault().SourceParent));
+
+                            if (mainPath == null)
+                                break;
+
+                            int index = mainPath.IndexWhere(c => c.SourceParent == path.Start.ParentACObject);
+                            if (index < 0 || index + 1 > mainPath.Count)
+                                continue;
+
+                            var mode = routeItemsMode.Where(c => mainPath.Take(index + 1).Any(x => x.SourceParent == c.Item1)).LastOrDefault();
+                            if (mode != null)
+                            {
+                                if (mode.Item2 == RouteItemModeEnum.RouteItemsNextParallel)
+                                {
+                                    ACRoutingPath pathToAdd = routingPaths.FirstOrDefault(c => c.RoutingPathNo == path.RoutingPathNo);
+                                    paths.Add(pathToAdd);
+                                }
+                            }
+
+                            if (mainPath == workingPath)
+                                break;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    _ACRoutingService.Messages.LogException(_ACRoutingService.GetACUrl(), nameof(ACRoutingSession) + "." + nameof(ACRoutingSession.CreateRoute), e);
+                }
+            }
+
+            //ROUTE USAGE 
+            if (!paths.Any())
+            {
+                if (_ACRoutingService.SelectRouteDependUsage)
+                {
+                    List<Guid> targetIDs = routingPaths.Select(c => c.LastOrDefault().Relation.SourceACClassID).Distinct().ToList();
+                    routeHashItems = _ACRoutingService.GetMostUsedRouteHash(targetIDs);
+                }
+
+                List<int> tempHashCodeItems = new List<int>();
+                if (routeHashItems != null && routeHashItems.Any())
+                {
+                    List<int> hashCodes = new List<int>();
+
+                    foreach (var itemPath in routingPaths)
+                    {
+                        PAEdge source = itemPath.FirstOrDefault();
+                        PAEdge target = itemPath.LastOrDefault();
+
+                        itemPath.Remove(source);
+                        itemPath.Remove(target);
+
+                        List<Guid> temp = null;
+                        if (itemPath.Any())
+                        {
+                            temp = itemPath.Select(c => c.Relation.SourceACClassID).ToList();
+                            temp.Add(itemPath.LastOrDefault().Relation.TargetACClassID);
+
+                        }
+                        else
+                            temp = new List<Guid>() { target.SourceParentComponent.ComponentClass.ACClassID };
+
+                        int hash = string.Join("", temp).GetHashCode();
+
+                        itemPath.Insert(0, source);
+                        itemPath.Add(target);
+
+                        var groupedByKey = routeHashItems.GroupBy(c => c.UseFactor).OrderByDescending(c => c.Key).FirstOrDefault();
+
+                        if (groupedByKey.Any(c => c.RouteHashCodes.Any(x => x == hash)))
+                            paths.Add(itemPath);
+                    }
+                }
+            }
+
+            if (paths == null || !paths.Any())
+            {
+                ACRoutingPath currentPath = routingPaths.OrderBy(k => k.DeltaWeight).FirstOrDefault();
+
+                if (currentPath == null || !currentPath.Any())
+                    currentPath = routingPaths.OrderBy(c => c.DeltaWeight).FirstOrDefault();
+
+                paths.Add(currentPath);
+            }
 
             List<RouteItem> tempList = new List<RouteItem>();
-            foreach (var item in currentPath)
-                tempList.Add(new RouteItem(item.Relation));
 
-            return new Route(tempList);
+            bool hasAnyReserved = false, hasAnyAllocated = false;
+
+            foreach (ACRoutingPath routingPath in paths)
+            {
+                if (routingPath.HasAnyAllocated)
+                    hasAnyAllocated = true;
+
+                if (routingPath.HasAnyReserved)
+                    hasAnyReserved = true;
+
+                int i = 0;
+                foreach (PAEdge pathEdge in routingPath)
+                    tempList.Add(new RouteItem(pathEdge.Relation) { RouteNo = i });
+
+                i++;
+            }
+
+            return new Route(tempList) { HasAnyReserved = hasAnyReserved, HasAnyAllocated = hasAnyAllocated };
         }
 
-        private RoutingResult CreateRouteFromMultipeSourcesTargets(IEnumerable<ACRoutingPath> routingPaths)
+        private RoutingResult CreateRouteFromMultipleSourcesTargets(IEnumerable<ACRoutingPath> routingPaths)
         {
             var groups = routingPaths.GroupBy(x => new { start = x.Start.ParentACComponent, end = x.End.ParentACComponent });
             List<Route> routes = new List<Route>();
@@ -353,7 +606,7 @@ namespace gip.core.autocomponent
                 return new ACRoutingPath(); // Invalid path
 
             // Returns path reconstructed from sidetracks
-            return RebuildPath(node.Sidetracks, this.Source.Component.ValueT, RoutingVertexList.Values.ToList());
+            return RebuildPath(node.Sidetracks, this.Source.Component.ValueT, RoutingVertexList.Values.ToList(), _ACRoutingService.GetRouteItemsMode());
         }
 
         /// <summary>
@@ -413,7 +666,9 @@ namespace gip.core.autocomponent
                     var edges = routingTargetVertex.RelatedEdges.Where(c => c.TargetParentComponent == routingTargetVertex.Component.ValueT).OrderBy(c => c.Weight).ToArray();
                     foreach (PAEdge edge in edges)
                     {
-                        if (!ValidateRouteRelation(edge, includeReserved, includeAllocated, isForEditor))
+                        bool hasReserved, hasAllocated;
+
+                        if (!ValidateRouteRelation(edge, includeReserved, includeAllocated, isForEditor, out hasAllocated, out hasReserved))
                             continue;
 
                         ACRoutingVertex currentVertex;
@@ -425,6 +680,9 @@ namespace gip.core.autocomponent
                             currentVertex = new ACRoutingVertex(edge.Target.ParentACComponent as ACComponent);
                             RoutingVertexList.Add(edge.TargetParentComponent, currentVertex);
                         }
+
+                        currentVertex.HasAnyAllocated = hasAllocated;
+                        currentVertex.HasAnyReserved = hasReserved;
 
                         if (currentVertex.Component.ValueT == routingTargetVertex.Component.ValueT && edge.Weight >= 0)  // Ignore negative edges
                             fringe.Enqueue(new SP_Node(edge, edge.Weight + currentVertex.Distance));
@@ -505,7 +763,7 @@ namespace gip.core.autocomponent
             this.PathsHeap = new PriorityQueue<ST_Node>();
             ACRoutingPath empty = new ACRoutingPath();
             this.PathsHeap.Enqueue(new ST_Node(empty));
-            AddSidetracks(empty, this.Source);
+            AddSidetracks(empty, this.Source,0);
             if (_anyLoop)
                 this.PathsHeap.Take(_MaxRouteAlternatives + 1);
         }
@@ -515,9 +773,9 @@ namespace gip.core.autocomponent
         /// <summary>Adds sidetracks recursively for specified vertex and new vertices in shortest path</summary>
         /// <param name="rp">Previous sidetrack collection</param>
         /// <param name="routingVertex"></param>
-        private void AddSidetracks(ACRoutingPath rp, ACRoutingVertex routingVertex)
+        private void AddSidetracks(ACRoutingPath rp, ACRoutingVertex routingVertex, int depth)
         {
-            if (routingVertex == null)
+            if (routingVertex == null || depth > _MaxRouteLoopDepth)
                 return;
 
             var edges = routingVertex.RelatedEdges.Where(c => c.SourceParentComponent == routingVertex.Component.ValueT).ToArray();
@@ -542,11 +800,11 @@ namespace gip.core.autocomponent
                     _AddedSidetracks++;
 
                     if (edge.Target.ParentACComponent != routingVertex.Component.ValueT)  // This avoids infinite cycling
-                        AddSidetracks(p, targetVertex);
+                        AddSidetracks(p, targetVertex, depth + 1);
                 }
             }
             if (routingVertex.Next != null && routingVertex.Distance > 0 && !(_anyLoop && _AddedSidetracks >= _MaxRouteAlternatives))
-                AddSidetracks(rp, RoutingVertexList[routingVertex.Next.ValueT]);
+                AddSidetracks(rp, RoutingVertexList[routingVertex.Next.ValueT], depth);
         }
 
         private IEnumerable<PAEdge> OrderEdges(IEnumerable<PAEdge> edges)
@@ -591,7 +849,7 @@ namespace gip.core.autocomponent
         /// <param name="sourceComponent"></param>
         /// <param name="vertexList"></param>
         /// <returns>Full path reconstructed from s to t, crossing sidetracks</returns>
-        public static ACRoutingPath RebuildPath(ACRoutingPath _sidetracks, IACComponent sourceComponent, List<ACRoutingVertex> vertexList)
+        public static ACRoutingPath RebuildPath(ACRoutingPath _sidetracks, IACComponent sourceComponent, List<ACRoutingVertex> vertexList, Dictionary<Guid,RouteItemModeEnum> routeModeItems)
         {
             ACRoutingPath path = new ACRoutingPath();
             IACComponent v = sourceComponent;
@@ -609,20 +867,41 @@ namespace gip.core.autocomponent
                 else // else continue walking on shortest path
                 {
                     ACRoutingVertex tempVertex = vertexList.FirstOrDefault(c => c.Component.ValueT == v);
+
+                    if (tempVertex != null)
+                    {
+                        if (tempVertex.HasAnyAllocated)
+                            path.HasAnyAllocated = tempVertex.HasAnyAllocated;
+
+                        if (tempVertex.HasAnyReserved)
+                            path.HasAnyReserved = tempVertex.HasAnyReserved;
+                    }
+
                     if (tempVertex != null && tempVertex.EdgeToPath == null || (path.Any(c => c.SourceParent == sourceComponent) && path.Any(c => c.TargetParent == sourceComponent)))
                         break;
                     path.Add(tempVertex.EdgeToPath);
                     v = tempVertex.Next.ValueT;
-                    //if (tempVertex.DistanceInLoop > 0)
-                    //{
-                    //    tempVertex.EdgeToPath = null;
-                    //}
+
+                    if (routeModeItems != null && routeModeItems.Any())
+                    {
+                        Guid tempVertexID = tempVertex.Component.ValueT.ComponentClass.ACClassID;
+
+                        RouteItemModeEnum mode = RouteItemModeEnum.None;
+
+                        if (routeModeItems.TryGetValue(tempVertexID, out mode))
+                        {
+                            if (mode != RouteItemModeEnum.None)
+                            {
+                                path.RouteItemsMode.Add(new Tuple<IACObject, RouteItemModeEnum>(tempVertex.EdgeToPath.SourceParent, mode));
+                            }
+                        }
+                    }
                 }
             }
             return path;
         }
 
-        private RoutingResult FindComponents(bool includeReserved, bool includeAllocated, RouteDirections routeDirection)
+        private RoutingResult FindComponents(bool includeReserved, bool includeAllocated, RouteDirections routeDirection, bool includeFullRoute = false)
         {
             SelectionRule selectionRule = ACRoutingService.GetSelectionQuery(_SelectionRuleID);
             if (selectionRule == null)
@@ -641,6 +920,9 @@ namespace gip.core.autocomponent
 
             if (routingTargetVertex == null)
                 return new RoutingResult(null, false, new Msg() { Source = "ACRoutingSession", Message = String.Format("Routing target component not exist!") });
+
+            routingTargetVertex.Distance = 0;
+            routingTargetVertex.DistanceInLoop = 0;
 
             if (RoutingVertexList.Any(c => c.Key == routingTargetVertex.Component.ValueT))
                 RoutingVertexList.Remove(routingTargetVertex.Component.ValueT);
@@ -663,7 +945,9 @@ namespace gip.core.autocomponent
 
                     foreach (PAEdge edge in relatedEdges)
                     {
-                        if (!ValidateRouteRelation(edge, includeReserved, includeAllocated, false))
+                        bool hasReserved, hasAllocated;
+
+                        if (!ValidateRouteRelation(edge, includeReserved, includeAllocated, false, out hasAllocated, out hasReserved))
                             continue;
 
                         ACRoutingVertex currentVertex;
@@ -676,6 +960,9 @@ namespace gip.core.autocomponent
 
                             RoutingVertexList.Add(Source != null ? edge.SourceParentComponent : edge.TargetParentComponent, currentVertex);
                         }
+
+                        currentVertex.HasAnyAllocated = hasAllocated;
+                        currentVertex.HasAnyReserved = hasReserved;
 
                         if (currentVertex.Component.ValueT == routingTargetVertex.Component.ValueT && edge.Weight >= 0)  // Ignore negative edges
                             fringe.Enqueue(new SP_Node(edge, edge.Weight + currentVertex.Distance));
@@ -690,6 +977,8 @@ namespace gip.core.autocomponent
                 if (!RoutingVertexList.TryGetValue(Source != null ? e.TargetParentComponent : e.SourceParentComponent, out routingTargetVertex))
                 {
                     routingTargetVertex = new ACRoutingVertex(Source != null ? e.TargetParent as ACComponent : e.SourceParent as ACComponent);
+                    routingTargetVertex.EdgeToPath = e;
+                    routingTargetVertex.Distance = node.Weight + e.Weight;
                     RoutingVertexList.Add(Source != null ? e.TargetParentComponent : e.SourceParentComponent, routingTargetVertex);
                 }
                 else
@@ -713,6 +1002,7 @@ namespace gip.core.autocomponent
                     }
                 }
 
+
                 if (selectionRule.Selector != null && selectionRule.Selector(routingTargetVertex, _SelectionRuleParams))
                 {
                     if (!result.Any(c => c.Component.ValueT == routingTargetVertex.Component.ValueT))
@@ -722,6 +1012,7 @@ namespace gip.core.autocomponent
                 else if (selectionRule.DeSelector != null && selectionRule.DeSelector(routingTargetVertex, _SelectionRuleParams))
                 {
                     excludedByDeselector += routingTargetVertex.Component.ACUrl + "; ";
+                    routingTargetVertex.EdgeToPath = null;
                     routingTargetVertex = null;
                 }
 
@@ -745,11 +1036,65 @@ namespace gip.core.autocomponent
                 msg1 = new Msg(warning, _ACRoutingService, eMsgLevel.Warning, "ACRoutingSession", "FindComponents(30)", 655);
             }
 
-            return new RoutingResult(null, false, msg1, result.Select(c => c.Component));
+            List<Route> routeResult = null;
+
+            if (includeFullRoute)
+            {
+                routeResult = new List<Route>();
+
+                foreach (ACRoutingVertex vertex in result)
+                {
+                    ACRoutingVertex tempVertex = vertex;
+                    PAEdge edge = tempVertex.EdgeToPath;
+                    List<PAEdge> resultList = new List<PAEdge>();
+                    List<RouteItem> routeItems = new List<RouteItem>();
+
+                    routeItems.Add(new RouteItem(edge.Relation));
+
+                    bool hasAnyReserved = tempVertex.HasAnyReserved;
+                    bool hasAnyAllocated = tempVertex.HasAnyAllocated;
+
+                    do
+                    {
+                        if (edge == null)
+                            break;
+
+                        resultList.Add(edge);
+
+                        IACComponent edgeComponent = routeDirection == RouteDirections.Forwards ? edge.SourceParentComponent : edge.TargetParentComponent;
+                        if (edgeComponent == null)
+                            break;
+
+                        if (RoutingVertexList.TryGetValue(edgeComponent, out tempVertex))
+                        {
+                            edge = tempVertex.EdgeToPath;
+                            if (edge == null)
+                                break;
+                            routeItems.Insert(0, new RouteItem(edge.Relation));
+
+                            if (tempVertex.HasAnyReserved)
+                                hasAnyReserved = true;
+
+                            if (tempVertex.HasAnyAllocated)
+                                hasAnyAllocated = true;
+                        }
+                        else
+                            break;
+                    }
+                    while (true);
+
+                    routeResult.Add(new Route(routeItems) { HasAnyReserved = hasAnyReserved, HasAnyAllocated = hasAnyAllocated });
+                }
+            }
+
+            return new RoutingResult(routeResult, false, msg1, result.Select(c => c.Component));
         }
 
-        private bool ValidateRouteRelation(PAEdge edge, bool includeReserved, bool includeAllocated, bool isForEditor)
+        private bool ValidateRouteRelation(PAEdge edge, bool includeReserved, bool includeAllocated, bool isForEditor, out bool allocated, out bool reserved)
         {
+            allocated = false;
+            reserved = false;
+
             if (isForEditor)
                 return true;
 
@@ -767,17 +1112,29 @@ namespace gip.core.autocomponent
                 )
                 return false;
 
-            BitAccessForAllocatedByWay allocatedSource = edge.IsAllocated(false);
-            BitAccessForAllocatedByWay allocatedTarget = edge.IsAllocated(true);
+            BitAccessForAllocatedByWay allocatedSource = edge.GetAllocationState(false);
+            BitAccessForAllocatedByWay allocatedTarget = edge.GetAllocationState(true);
 
             if (allocatedSource.ValueT == 0 && allocatedTarget.ValueT == 0)
                 return true;
+
+            reserved = allocatedSource.Bit00_Reserved || allocatedTarget.Bit00_Reserved;
+            allocated = allocatedSource.Bit01_Allocated || allocatedTarget.Bit01_Allocated;
+
+            if (_PreviousRoute != null && (reserved || allocated))
+            {
+                ACClassPropertyRelation relation = edge.Relation;
+                
+                if (relation != null && _PreviousRoute.Any(c => c.SourceGuid == relation.SourceACClassID || c.TargetGuid == relation.TargetACClassID))
+                    return true;
+            }
 
             if ((!includeReserved && allocatedSource.Bit00_Reserved) || (!includeAllocated && allocatedSource.Bit01_Allocated))
                 return false;
 
             if ((!includeReserved && allocatedTarget.Bit00_Reserved) || (!includeAllocated && allocatedTarget.Bit01_Allocated))
                 return false;
+
 
             return true;
         }

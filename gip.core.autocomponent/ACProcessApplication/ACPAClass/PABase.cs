@@ -374,9 +374,25 @@ namespace gip.core.autocomponent
             return ACStateCompare.WrongACStateMethod;
         }
 
-#endregion
+        protected override void OnExceptionCatched(string methodName, string position, Exception exception)
+        {
+            if (methodName == nameof(ExecuteMethod)
+                && !String.IsNullOrEmpty(position)
+                && CurrentACState != ACStateEnum.SMIdle
+                //&& Enum.GetNames(typeof(ACStateEnum)).Contains(position)
+                && _ACStateMethod != null 
+                && _ACStateMethod.IsPeriodic 
+                && _ACStateMethod.ACIdentifier == position
+                && !IsACStateInconsistent
+                && !IsSubscribedToWorkCycle)
+            {
+                SubscribeToProjectWorkCycle();
+            }
+        }
 
-#region TimeInfo
+        #endregion
+
+        #region TimeInfo
         [ACPropertyBindingSource(201, "", "en{'Time information'}de{'Zeitinformation'}", "", true, false)]
         public IACContainerTNet<PATimeInfo> TimeInfo { get; set; }
         #endregion
@@ -792,26 +808,6 @@ namespace gip.core.autocomponent
                 return pointInTime;
             }
         }
-
-
-        /// <summary>
-        /// Gets a value indicating whether this instance runs in simulation mode and the states will be changed automatically by the simulatorlogic.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is simulation on; otherwise, <c>false</c>.
-        /// </value>
-        public virtual bool IsSimulationOn
-        {
-            get
-            {
-                if (ACOperationMode != ACOperationModes.Live)
-                    return true;
-                if (ApplicationManager == null)
-                    return false;
-                return ApplicationManager.IsSimulationOn;
-            }
-        }
-
 
         /// <summary>
         /// Gets a value indicating whether this instance runs in simulation mode and the states will be changed manually by a operator.

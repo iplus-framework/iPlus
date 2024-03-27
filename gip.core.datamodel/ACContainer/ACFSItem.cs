@@ -675,7 +675,15 @@ namespace gip.core.datamodel
         {
             if (ACObject != null)
             {
-                IACEntityObjectContext context = (ACObject as VBEntityObject).GetObjectContext();
+                IACEntityObjectContext context = null;
+                if (ACObject is IACEntityObjectContext)
+                {
+                    context = ACObject as IACEntityObjectContext;
+                }
+                else if(ACObject is VBEntityObject)
+                {
+                    context = (ACObject as VBEntityObject).GetObjectContext();
+                }
                 if (context != null && !inputList.Contains(context))
                     inputList.Add(context);
             }

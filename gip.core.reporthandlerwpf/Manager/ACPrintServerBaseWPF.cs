@@ -19,25 +19,25 @@ namespace gip.core.reporthandlerwpf
         {
         }
 
-        protected override byte[] OnDoPrint(ACClassDesign aCClassDesign, int codePage, ReportData reportData)
+        protected override PrintJob OnDoPrint(ACClassDesign aCClassDesign, int codePage, ReportData reportData)
         {
-            byte[] bytes = null;
+            PrintJob printJob = null;
+
             try
             {
                 // FlowDocument generate (separate thread)
                 using (ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign))
                 {
                     FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
-                    PrintContext printContext = GetPrintContext(flowDoc, codePage);
-                    bytes = printContext.Main;
-                    return bytes;
+                    printJob = GetPrintJob(aCClassDesign.ACIdentifier, flowDoc);
                 }
             }
             catch (Exception e)
             {
                 this.Messages.LogException(this.GetACUrl(), "InvokeAsync", e);
             }
-            return bytes;
+
+            return printJob;
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace gip.core.reporthandlerwpf
         /// <param name="clientStream"></param>
         /// <param name="reportData"></param>
         /// <exception cref="NotImplementedException"></exception>
-        protected PrintContext GetPrintContext(FlowDocument flowDocument, int CodePage)
+        public override PrintJob GetPrintJob(string reportName, FlowDocument flowDocument)
         {
             Encoding encoder = Encoding.ASCII;
             VBFlowDocument vBFlowDocument = flowDocument as VBFlowDocument;
@@ -71,195 +71,197 @@ namespace gip.core.reporthandlerwpf
                 }
                 catch (Exception ex)
                 {
-                    Messages.LogException(GetACUrl(), nameof(GetPrintContext), ex);
+                    Messages.LogException(GetACUrl(), nameof(GetPrintJob), ex);
                 }
             }
 
-            PrintContext printContext = new PrintContext();
-            printContext.FlowDocument = flowDocument;
-            printContext.Encoding = encoder;
-            printContext.ColumnMultiplier = 1;
-            printContext.ColumnDivisor = 1;
-            OnRenderFlowDocment(printContext, printContext.FlowDocument);
-            return printContext;
+            PrintJob printJob = new PrintJob();
+            printJob.FlowDocument = flowDocument;
+            printJob.Encoding = encoder;
+            printJob.ColumnMultiplier = 1;
+            printJob.ColumnDivisor = 1;
+            OnRenderFlowDocument(printJob, printJob.FlowDocument);
+            return printJob;
         }
+
 
         #region Methods -> Render
 
         #region Methods -> Render -> Block
-        public virtual void OnRenderFlowDocment(PrintContext printContext, FlowDocument flowDoc)
+
+        public virtual void OnRenderFlowDocument(PrintJob printJob, FlowDocument flowDoc)
         {
-            OnRenderBlocks(printContext, flowDoc.Blocks, BlockDocumentPosition.General);
+            OnRenderBlocks(printJob, flowDoc.Blocks, BlockDocumentPosition.General);
         }
 
-        protected void OnRenderBlocks(PrintContext printContext, BlockCollection blocks, BlockDocumentPosition position)
+        protected void OnRenderBlocks(PrintJob printJob, BlockCollection blocks, BlockDocumentPosition position)
         {
             foreach (Block block in blocks)
-                OnRenderBlock(printContext, block, position);
+                OnRenderBlock(printJob, block, position);
         }
 
-        protected void OnRenderBlock(PrintContext printContext, Block block, BlockDocumentPosition position)
+        protected void OnRenderBlock(PrintJob printJob, Block block, BlockDocumentPosition position)
         {
-            OnRenderBlockHeader(printContext, block, position);
+            OnRenderBlockHeader(printJob, block, position);
             if (block is SectionReportHeader)
-                OnRenderSectionReportHeader(printContext, (SectionReportHeader)block);
+                OnRenderSectionReportHeader(printJob, (SectionReportHeader)block);
             else if (block is SectionReportFooter)
-                OnRenderSectionReportFooter(printContext, (SectionReportFooter)block);
+                OnRenderSectionReportFooter(printJob, (SectionReportFooter)block);
             else if (block is SectionDataGroup)
-                OnRenderSectionDataGroup(printContext, (SectionDataGroup)block);
+                OnRenderSectionDataGroup(printJob, (SectionDataGroup)block);
             else if (block is Table)
-                OnRenderSectionTable(printContext, (Table)block);
+                OnRenderSectionTable(printJob, (Table)block);
             else if (block is Paragraph)
-                OnRenderParagraph(printContext, (Paragraph)block);
-            OnRenderBlockFooter(printContext, block, position);
+                OnRenderParagraph(printJob, (Paragraph)block);
+            OnRenderBlockFooter(printJob, block, position);
         }
 
-        public abstract void OnRenderBlockHeader(PrintContext printContext, Block block, BlockDocumentPosition position);
+        public abstract void OnRenderBlockHeader(PrintJob printJob, Block block, BlockDocumentPosition position);
 
-        public abstract void OnRenderBlockFooter(PrintContext printContext, Block block, BlockDocumentPosition position);
+        public abstract void OnRenderBlockFooter(PrintJob printJob, Block block, BlockDocumentPosition position);
 
-        protected void OnRenderSectionReportHeader(PrintContext printContext, SectionReportHeader sectionReportHeader)
+        protected void OnRenderSectionReportHeader(PrintJob printJob, SectionReportHeader sectionReportHeader)
         {
-            OnRenderSectionReportHeaderHeader(printContext, sectionReportHeader);
-            OnRenderBlocks(printContext, sectionReportHeader.Blocks, BlockDocumentPosition.General);
-            OnRenderSectionReportHeaderFooter(printContext, sectionReportHeader);
+            OnRenderSectionReportHeaderHeader(printJob, sectionReportHeader);
+            OnRenderBlocks(printJob, sectionReportHeader.Blocks, BlockDocumentPosition.General);
+            OnRenderSectionReportHeaderFooter(printJob, sectionReportHeader);
         }
 
-        public abstract void OnRenderSectionReportHeaderHeader(PrintContext printContext, SectionReportHeader sectionReportHeader);
+        public abstract void OnRenderSectionReportHeaderHeader(PrintJob printJob, SectionReportHeader sectionReportHeader);
 
-        public abstract void OnRenderSectionReportHeaderFooter(PrintContext printContext, SectionReportHeader sectionReportHeader);
+        public abstract void OnRenderSectionReportHeaderFooter(PrintJob printJob, SectionReportHeader sectionReportHeader);
 
-        protected void OnRenderSectionReportFooter(PrintContext printContext, SectionReportFooter sectionReportFooter)
+        protected void OnRenderSectionReportFooter(PrintJob printJob, SectionReportFooter sectionReportFooter)
         {
-            OnRenderSectionReportFooterHeader(printContext, sectionReportFooter);
-            OnRenderBlocks(printContext, sectionReportFooter.Blocks, BlockDocumentPosition.General);
-            OnRenderSectionReportFooterFooter(printContext, sectionReportFooter);
+            OnRenderSectionReportFooterHeader(printJob, sectionReportFooter);
+            OnRenderBlocks(printJob, sectionReportFooter.Blocks, BlockDocumentPosition.General);
+            OnRenderSectionReportFooterFooter(printJob, sectionReportFooter);
         }
 
-        public abstract void OnRenderSectionReportFooterHeader(PrintContext printContext, SectionReportFooter sectionReportFooter);
+        public abstract void OnRenderSectionReportFooterHeader(PrintJob printJob, SectionReportFooter sectionReportFooter);
 
-        public abstract void OnRenderSectionReportFooterFooter(PrintContext printContext, SectionReportFooter sectionReportFooter);
+        public abstract void OnRenderSectionReportFooterFooter(PrintJob printJob, SectionReportFooter sectionReportFooter);
 
-        protected virtual void OnRenderSectionDataGroup(PrintContext printContext, SectionDataGroup sectionDataGroup)
+        protected virtual void OnRenderSectionDataGroup(PrintJob printJob, SectionDataGroup sectionDataGroup)
         {
-            OnRenderSectionDataGroupHeader(printContext, sectionDataGroup);
-            OnRenderBlocks(printContext, sectionDataGroup.Blocks, BlockDocumentPosition.General);
-            OnRenderSectionDataGroupFooter(printContext, sectionDataGroup);
+            OnRenderSectionDataGroupHeader(printJob, sectionDataGroup);
+            OnRenderBlocks(printJob, sectionDataGroup.Blocks, BlockDocumentPosition.General);
+            OnRenderSectionDataGroupFooter(printJob, sectionDataGroup);
         }
 
-        public abstract void OnRenderSectionDataGroupHeader(PrintContext printContext, SectionDataGroup sectionDataGroup);
+        public abstract void OnRenderSectionDataGroupHeader(PrintJob printJob, SectionDataGroup sectionDataGroup);
 
-        public abstract void OnRenderSectionDataGroupFooter(PrintContext printContext, SectionDataGroup sectionDataGroup);
+        public abstract void OnRenderSectionDataGroupFooter(PrintJob printJob, SectionDataGroup sectionDataGroup);
+
         #endregion
 
         #region Methods -> Render -> Table
 
-        protected void OnRenderSectionTable(PrintContext printContext, Table table)
+        protected void OnRenderSectionTable(PrintJob printJob, Table table)
         {
-            OnRenderSectionTableHeader(printContext, table);
+            OnRenderSectionTableHeader(printJob, table);
 
-            printContext.ColumnMultiplier = 1;
-            printContext.ColumnDivisor = table.Columns.Count;
+            printJob.ColumnMultiplier = 1;
+            printJob.ColumnDivisor = table.Columns.Count;
 
             foreach (TableColumn tableColumn in table.Columns)
-                OnRenderTableColumn(printContext, tableColumn);
+                OnRenderTableColumn(printJob, tableColumn);
 
             foreach (TableRowGroup tableRowGroup in table.RowGroups)
-                OnRenderTableRowGroup(printContext, tableRowGroup);
-            OnRenderSectionTableFooter(printContext, table);
+                OnRenderTableRowGroup(printJob, tableRowGroup);
+            OnRenderSectionTableFooter(printJob, table);
 
-            printContext.ColumnMultiplier = 1;
-            printContext.ColumnDivisor = 1;
+            printJob.ColumnMultiplier = 1;
+            printJob.ColumnDivisor = 1;
         }
 
-        public abstract void OnRenderSectionTableHeader(PrintContext printContext, Table table);
+        public abstract void OnRenderSectionTableHeader(PrintJob printJob, Table table);
 
-        public abstract void OnRenderSectionTableFooter(PrintContext printContext, Table table);
+        public abstract void OnRenderSectionTableFooter(PrintJob printJob, Table table);
 
-        public abstract void OnRenderTableColumn(PrintContext printContext, TableColumn tableColumn);
+        public abstract void OnRenderTableColumn(PrintJob printJob, TableColumn tableColumn);
 
-        protected void OnRenderTableRowGroup(PrintContext printContext, TableRowGroup tableRowGroup)
+        protected void OnRenderTableRowGroup(PrintJob printJob, TableRowGroup tableRowGroup)
         {
-            OnRenderTableRowGroupHeader(printContext, tableRowGroup);
+            OnRenderTableRowGroupHeader(printJob, tableRowGroup);
             foreach (TableRow tableRow in tableRowGroup.Rows)
-                OnRenderTableRow(printContext, tableRow);
-            OnRenderTableRowGroupFooter(printContext, tableRowGroup);
+                OnRenderTableRow(printJob, tableRow);
+            OnRenderTableRowGroupFooter(printJob, tableRowGroup);
         }
 
-        public abstract void OnRenderTableRowGroupHeader(PrintContext printContext, TableRowGroup tableRowGroup);
+        public abstract void OnRenderTableRowGroupHeader(PrintJob printJob, TableRowGroup tableRowGroup);
 
-        public abstract void OnRenderTableRowGroupFooter(PrintContext printContext, TableRowGroup tableRowGroup);
+        public abstract void OnRenderTableRowGroupFooter(PrintJob printJob, TableRowGroup tableRowGroup);
 
-        protected void OnRenderTableRow(PrintContext printContext, TableRow tableRow)
+        protected void OnRenderTableRow(PrintJob printJob, TableRow tableRow)
         {
-            OnRenderTableRowHeader(printContext, tableRow);
+            OnRenderTableRowHeader(printJob, tableRow);
             foreach (TableCell tableCell in tableRow.Cells)
             {
-                printContext.ColumnMultiplier = tableRow.Cells.IndexOf(tableCell);
-                OnRenderTableCell(printContext, tableCell);
+                printJob.ColumnMultiplier = tableRow.Cells.IndexOf(tableCell);
+                OnRenderTableCell(printJob, tableCell);
             }
-            OnRenderTableRowFooter(printContext, tableRow);
+            OnRenderTableRowFooter(printJob, tableRow);
         }
-        public abstract void OnRenderTableRowHeader(PrintContext printContext, TableRow tableRow);
+        public abstract void OnRenderTableRowHeader(PrintJob printJob, TableRow tableRow);
 
-        public abstract void OnRenderTableRowFooter(PrintContext printContext, TableRow tableRow);
+        public abstract void OnRenderTableRowFooter(PrintJob printJob, TableRow tableRow);
 
-        protected void OnRenderTableCell(PrintContext printContext, TableCell tableCell)
+        protected void OnRenderTableCell(PrintJob printJob, TableCell tableCell)
         {
             foreach (Block block in tableCell.Blocks)
-                OnRenderBlock(printContext, block, BlockDocumentPosition.InTable);
+                OnRenderBlock(printJob, block, BlockDocumentPosition.InTable);
         }
 
         #endregion
 
-
         #region Methods -> Render -> Inlines
 
-        protected void OnRenderParagraph(PrintContext printContext, Paragraph paragraph)
+        protected void OnRenderParagraph(PrintJob printJob, Paragraph paragraph)
         {
-            OnRenderParagraphHeader(printContext, paragraph);
+            OnRenderParagraphHeader(printJob, paragraph);
             foreach (Inline inline in paragraph.Inlines)
             {
                 if (inline is InlineContextValue)
-                    OnRenderInlineContextValue(printContext, (InlineContextValue)inline);
+                    OnRenderInlineContextValue(printJob, (InlineContextValue)inline);
                 else if (inline is InlineDocumentValue)
-                    OnRenderInlineDocumentValue(printContext, (InlineDocumentValue)inline);
+                    OnRenderInlineDocumentValue(printJob, (InlineDocumentValue)inline);
                 else if (inline is InlineACMethodValue)
-                    OnRenderInlineACMethodValue(printContext, (InlineACMethodValue)inline);
+                    OnRenderInlineACMethodValue(printJob, (InlineACMethodValue)inline);
                 else if (inline is InlineTableCellValue)
-                    OnRenderInlineTableCellValue(printContext, (InlineTableCellValue)inline);
+                    OnRenderInlineTableCellValue(printJob, (InlineTableCellValue)inline);
                 else if (inline is InlineBarcode)
-                    OnRenderInlineBarcode(printContext, (InlineBarcode)inline);
+                    OnRenderInlineBarcode(printJob, (InlineBarcode)inline);
                 else if (inline is InlineBoolValue)
-                    OnRenderInlineBoolValue(printContext, (InlineBoolValue)inline);
+                    OnRenderInlineBoolValue(printJob, (InlineBoolValue)inline);
                 else if (inline is Run)
-                    OnRenderRun(printContext, (Run)inline);
+                    OnRenderRun(printJob, (Run)inline);
                 else if (inline is LineBreak)
-                    OnRenderLineBreak(printContext, (LineBreak)inline);
+                    OnRenderLineBreak(printJob, (LineBreak)inline);
 
             }
-            OnRenderParagraphFooter(printContext, paragraph);
+            OnRenderParagraphFooter(printJob, paragraph);
         }
 
-        public abstract void OnRenderParagraphHeader(PrintContext printContext, Paragraph paragraph);
+        public abstract void OnRenderParagraphHeader(PrintJob printJob, Paragraph paragraph);
 
-        public abstract void OnRenderParagraphFooter(PrintContext printContext, Paragraph paragraph);
+        public abstract void OnRenderParagraphFooter(PrintJob printJob, Paragraph paragraph);
 
-        public abstract void OnRenderInlineContextValue(PrintContext printContext, InlineContextValue inlineContextValue);
+        public abstract void OnRenderInlineContextValue(PrintJob printJob, InlineContextValue inlineContextValue);
 
-        public abstract void OnRenderInlineDocumentValue(PrintContext printContext, InlineDocumentValue inlineDocumentValue);
+        public abstract void OnRenderInlineDocumentValue(PrintJob printJob, InlineDocumentValue inlineDocumentValue);
 
-        public abstract void OnRenderInlineACMethodValue(PrintContext printContext, InlineACMethodValue inlineACMethodValue);
+        public abstract void OnRenderInlineACMethodValue(PrintJob printJob, InlineACMethodValue inlineACMethodValue);
 
-        public abstract void OnRenderInlineTableCellValue(PrintContext printContext, InlineTableCellValue inlineTableCellValue);
+        public abstract void OnRenderInlineTableCellValue(PrintJob printJob, InlineTableCellValue inlineTableCellValue);
 
-        public abstract void OnRenderInlineBarcode(PrintContext printContext, InlineBarcode inlineBarcode);
+        public abstract void OnRenderInlineBarcode(PrintJob printJob, InlineBarcode inlineBarcode);
 
-        public abstract void OnRenderInlineBoolValue(PrintContext printContext, InlineBoolValue inlineBoolValue);
+        public abstract void OnRenderInlineBoolValue(PrintJob printJob, InlineBoolValue inlineBoolValue);
 
-        public abstract void OnRenderRun(PrintContext printContext, Run run);
+        public abstract void OnRenderRun(PrintJob printJob, Run run);
 
-        public abstract void OnRenderLineBreak(PrintContext printContext, LineBreak lineBreak);
+        public abstract void OnRenderLineBreak(PrintJob printJob, LineBreak lineBreak);
         #endregion
 
         #endregion
