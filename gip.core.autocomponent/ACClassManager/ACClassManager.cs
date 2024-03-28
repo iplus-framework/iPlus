@@ -893,6 +893,13 @@ namespace gip.core.autocomponent
 
         private void AddToRequiredList(ACClassReq acClassReq)
         {
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                if (acClassReq.TypeOfACClass.FullName == "System.Drawing.Bitmap")
+                {
+                    System.Diagnostics.Debugger.Break();
+                }
+            }
             _UpdateRequiredList.Add(acClassReq);
             return;
             //String assemblyFileName = acClassReq.TypeOfACClass.Assembly.ManifestModule.Name.ToLower();
@@ -1285,9 +1292,10 @@ namespace gip.core.autocomponent
 
                     if (Info == null)
                     {
-                        if (acClassToUpdate.ACKind == Global.ACKinds.TACInterface && !Method.IsSpecialName && !Method.IsGenericMethod)
-                            Info = new ACMethodInfo("", "en{'" + Method.Name + "'}de{'" + Method.Name + "'}", 9999, false, false, false);
-                        else
+                        // Don't refect methods from interfaces:
+                        //if (acClassToUpdate.ACKind == Global.ACKinds.TACInterface && !Method.IsSpecialName && !Method.IsGenericMethod)
+                            //Info = new ACMethodInfo("", "en{'" + Method.Name + "'}de{'" + Method.Name + "'}", 9999, false, false, false);
+                        //else
                             continue;
                     }
                     else if (Info.AttachToClass != null)

@@ -47,6 +47,13 @@ public partial class VBTranslationView : VBEntityObject
         set { SetProperty<string>(ref _MandatoryACIdentifier, value); }
     }
 
+    string _MandatoryACURLCached;
+    public string MandatoryACURLCached 
+    {
+        get { return _MandatoryACURLCached; }
+        set { SetProperty<string>(ref _MandatoryACURLCached, value); }
+    }
+
     Guid _ID;
     public Guid ID 
     {

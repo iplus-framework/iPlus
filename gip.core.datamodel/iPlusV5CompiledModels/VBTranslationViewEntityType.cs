@@ -52,6 +52,15 @@ namespace gip.core.datamodel
                 unicode: false);
             mandatoryACIdentifier.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var mandatoryACURLCached = runtimeEntityType.AddProperty(
+                "MandatoryACURLCached",
+                typeof(string),
+                propertyInfo: typeof(VBTranslationView).GetProperty("MandatoryACURLCached", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(VBTranslationView).GetField("_MandatoryACURLCached", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true,
+                unicode: false);
+            mandatoryACURLCached.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
             var mandatoryID = runtimeEntityType.AddProperty(
                 "MandatoryID",
                 typeof(Guid),
@@ -64,7 +73,7 @@ namespace gip.core.datamodel
                 typeof(string),
                 propertyInfo: typeof(VBTranslationView).GetProperty("TableName", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(VBTranslationView).GetField("_TableName", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                maxLength: 7,
+                maxLength: 250,
                 unicode: false);
             tableName.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -90,7 +99,7 @@ namespace gip.core.datamodel
                 typeof(string),
                 propertyInfo: typeof(VBTranslationView).GetProperty("UpdateName", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(VBTranslationView).GetField("_UpdateName", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                maxLength: 5,
+                maxLength: 20,
                 unicode: false);
             updateName.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
