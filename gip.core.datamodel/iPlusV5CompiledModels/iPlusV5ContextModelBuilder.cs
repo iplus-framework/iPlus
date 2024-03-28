@@ -22,6 +22,9 @@ namespace gip.core.datamodel
             var aCClassMethodConfig = ACClassMethodConfigEntityType.Create(this);
             var aCClassProperty = ACClassPropertyEntityType.Create(this);
             var aCClassPropertyRelation = ACClassPropertyRelationEntityType.Create(this);
+            var aCClassRouteUsage = ACClassRouteUsageEntityType.Create(this);
+            var aCClassRouteUsageGroup = ACClassRouteUsageGroupEntityType.Create(this);
+            var aCClassRouteUsagePos = ACClassRouteUsagePosEntityType.Create(this);
             var aCClassTask = ACClassTaskEntityType.Create(this);
             var aCClassTaskValue = ACClassTaskValueEntityType.Create(this);
             var aCClassTaskValuePos = ACClassTaskValuePosEntityType.Create(this);
@@ -92,6 +95,8 @@ namespace gip.core.datamodel
             ACClassPropertyRelationEntityType.CreateForeignKey2(aCClassPropertyRelation, aCClassProperty);
             ACClassPropertyRelationEntityType.CreateForeignKey3(aCClassPropertyRelation, aCClass);
             ACClassPropertyRelationEntityType.CreateForeignKey4(aCClassPropertyRelation, aCClassProperty);
+            ACClassRouteUsageGroupEntityType.CreateForeignKey1(aCClassRouteUsageGroup, aCClassRouteUsage);
+            ACClassRouteUsagePosEntityType.CreateForeignKey1(aCClassRouteUsagePos, aCClassRouteUsage);
             ACClassTaskEntityType.CreateForeignKey1(aCClassTask, aCProgram);
             ACClassTaskEntityType.CreateForeignKey2(aCClassTask, aCClassWF);
             ACClassTaskEntityType.CreateForeignKey3(aCClassTask, aCClassTask);
@@ -160,6 +165,9 @@ namespace gip.core.datamodel
             ACClassMethodConfigEntityType.CreateAnnotations(aCClassMethodConfig);
             ACClassPropertyEntityType.CreateAnnotations(aCClassProperty);
             ACClassPropertyRelationEntityType.CreateAnnotations(aCClassPropertyRelation);
+            ACClassRouteUsageEntityType.CreateAnnotations(aCClassRouteUsage);
+            ACClassRouteUsageGroupEntityType.CreateAnnotations(aCClassRouteUsageGroup);
+            ACClassRouteUsagePosEntityType.CreateAnnotations(aCClassRouteUsagePos);
             ACClassTaskEntityType.CreateAnnotations(aCClassTask);
             ACClassTaskValueEntityType.CreateAnnotations(aCClassTaskValue);
             ACClassTaskValuePosEntityType.CreateAnnotations(aCClassTaskValuePos);

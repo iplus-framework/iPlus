@@ -6,7 +6,7 @@ using gip.core.datamodel;
 
 namespace gip.core.datamodel;
 
-public partial class ACClassRouteUsagePos : VBEntityObject
+public partial class ACClassRouteUsagePos : VBEntityObject 
 {
 
     public ACClassRouteUsagePos()
@@ -27,14 +27,14 @@ public partial class ACClassRouteUsagePos : VBEntityObject
     }
 
     Guid _ACClassRouteUsageID;
-    public Guid ACClassRouteUsageID
+    public Guid ACClassRouteUsageID 
     {
         get { return _ACClassRouteUsageID; }
         set { SetProperty<Guid>(ref _ACClassRouteUsageID, value); }
     }
 
     int _HashCode;
-    public int HashCode
+    public int HashCode 
     {
         get { return _HashCode; }
         set { SetProperty<int>(ref _HashCode, value); }
@@ -42,7 +42,7 @@ public partial class ACClassRouteUsagePos : VBEntityObject
 
     private ACClassRouteUsage _ACClassRouteUsage;
     public virtual ACClassRouteUsage ACClassRouteUsage
-    {
+    { 
         get { return LazyLoader.Load(this, ref _ACClassRouteUsage); }
         set { SetProperty<ACClassRouteUsage>(ref _ACClassRouteUsage, value); }
     }
@@ -55,8 +55,8 @@ public partial class ACClassRouteUsagePos : VBEntityObject
         }
     }
 
-    public virtual ReferenceEntry ACClassRouteUsageReference
+    public virtual ReferenceEntry ACClassRouteUsageReference 
     {
         get { return Context.Entry(this).Reference("ACClassRouteUsage"); }
     }
-}
+    }

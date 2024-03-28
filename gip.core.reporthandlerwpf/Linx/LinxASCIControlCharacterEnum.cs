@@ -7,7 +7,7 @@ namespace gip.core.reporthandlerwpf
     /// </summary>
     [ACSerializeableInfo]
     [ACClassInfo("gip.VarioSystem", "en{'LinxASCIControlCharacterEnum'}de{'LinxASCIControlCharacterEnum'}", Global.ACKinds.TACEnum, Global.ACStorableTypes.NotStorable, false, false, "", "", 9999)]
-    public enum LinxASCIControlCharacterEnum : short
+    public enum LinxASCIControlCharacterEnum : byte
     {
         /// <summary>
         /// ASCII text terminator

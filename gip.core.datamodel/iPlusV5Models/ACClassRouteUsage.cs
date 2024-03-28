@@ -34,7 +34,7 @@ public partial class ACClassRouteUsage : VBEntityObject , IInsertInfo, IUpdateIn
     }
 
     int _UseFactor;
-    public int UseFactor
+    public int UseFactor 
     {
         get { return _UseFactor; }
         set { SetProperty<int>(ref _UseFactor, value); }
@@ -68,24 +68,24 @@ public partial class ACClassRouteUsage : VBEntityObject , IInsertInfo, IUpdateIn
         set { SetProperty<DateTime>(ref _UpdateDate, value); }
     }
 
-    private ACClass _ACClass;
-    public virtual ACClass ACClass
-    { 
-        get { return LazyLoader.Load(this, ref _ACClass); }
-        set { SetProperty<ACClass>(ref _ACClass, value); }
+    private ICollection<ACClassRouteUsageGroup> _ACClassRouteUsageGroup_ACClassRouteUsage;
+    public virtual ICollection<ACClassRouteUsageGroup> ACClassRouteUsageGroup_ACClassRouteUsage
+    {
+        get { return LazyLoader.Load(this, ref _ACClassRouteUsageGroup_ACClassRouteUsage); }
+        set { _ACClassRouteUsageGroup_ACClassRouteUsage = value; }
     }
 
-    public bool ACClass_IsLoaded
+    public bool ACClassRouteUsageGroup_ACClassRouteUsage_IsLoaded
     {
         get
         {
-            return ACClass != null;
+            return ACClassRouteUsageGroup_ACClassRouteUsage != null;
         }
     }
 
-    public virtual ReferenceEntry ACClassReference 
+    public virtual CollectionEntry ACClassRouteUsageGroup_ACClassRouteUsageReference
     {
-        get { return Context.Entry(this).Reference("ACClass"); }
+        get { return Context.Entry(this).Collection(c => c.ACClassRouteUsageGroup_ACClassRouteUsage); }
     }
 
     private ICollection<ACClassRouteUsagePos> _ACClassRouteUsagePos_ACClassRouteUsage;
@@ -106,25 +106,5 @@ public partial class ACClassRouteUsage : VBEntityObject , IInsertInfo, IUpdateIn
     public virtual CollectionEntry ACClassRouteUsagePos_ACClassRouteUsageReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassRouteUsagePos_ACClassRouteUsage); }
-    }
-
-    private ICollection<ACClassRouteUsageGroup> _ACClassRouteUsageGroup_ACClassRouteUsage;
-    public virtual ICollection<ACClassRouteUsageGroup> ACClassRouteUsageGroup_ACClassRouteUsage
-    {
-        get { return LazyLoader.Load(this, ref _ACClassRouteUsageGroup_ACClassRouteUsage); }
-        set { _ACClassRouteUsageGroup_ACClassRouteUsage = value; }
-    }
-
-    public bool ACClassRouteUsageGroup_ACClassRouteUsage_IsLoaded
-    {
-        get
-        {
-            return ACClassRouteUsageGroup_ACClassRouteUsage != null;
-        }
-    }
-
-    public virtual CollectionEntry ACClassRouteUsageGroup_ACClassRouteUsageReference
-    {
-        get { return Context.Entry(this).Collection(c => c.ACClassRouteUsageGroup_ACClassRouteUsage); }
     }
 }

@@ -6,7 +6,7 @@ using gip.core.datamodel;
 
 namespace gip.core.datamodel;
 
-public partial class ACClassRouteUsageGroup : VBEntityObject
+public partial class ACClassRouteUsageGroup : VBEntityObject 
 {
 
     public ACClassRouteUsageGroup()
@@ -26,22 +26,22 @@ public partial class ACClassRouteUsageGroup : VBEntityObject
         set { SetProperty<Guid>(ref _ACClassRouteUsageGroupID, value); }
     }
 
-    Guid _GroupID;
-    public Guid GroupID
-    {
-        get { return _GroupID; }
-        set { SetProperty<Guid>(ref _GroupID, value); }
-    }
-
     Guid _ACClassRouteUsageID;
-    public Guid ACClassRouteUsageID
+    public Guid ACClassRouteUsageID 
     {
         get { return _ACClassRouteUsageID; }
         set { SetProperty<Guid>(ref _ACClassRouteUsageID, value); }
     }
 
+    Guid _GroupID;
+    public Guid GroupID 
+    {
+        get { return _GroupID; }
+        set { SetProperty<Guid>(ref _GroupID, value); }
+    }
+
     int _UseFactor;
-    public int UseFactor
+    public int UseFactor 
     {
         get { return _UseFactor; }
         set { SetProperty<int>(ref _UseFactor, value); }
@@ -62,8 +62,8 @@ public partial class ACClassRouteUsageGroup : VBEntityObject
         }
     }
 
-    public virtual ReferenceEntry ACClassRouteUsageReference
+    public virtual ReferenceEntry ACClassRouteUsageReference 
     {
         get { return Context.Entry(this).Reference("ACClassRouteUsage"); }
     }
-}
+    }
