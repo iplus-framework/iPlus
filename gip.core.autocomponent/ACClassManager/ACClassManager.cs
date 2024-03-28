@@ -1298,10 +1298,11 @@ namespace gip.core.autocomponent
 
                     if (Info == null)
                     {
-                        if (acClassToUpdate.ACKind == Global.ACKinds.TACInterface && !Method.IsSpecialName && !Method.IsGenericMethod)
-                            Info = new ACMethodInfo("", "en{'" + Method.Name + "'}de{'" + Method.Name + "'}", 9999, false, false, false);
-                        else
-                            continue;
+                        // Don't refect methods from interfaces:
+                        //if (acClassToUpdate.ACKind == Global.ACKinds.TACInterface && !Method.IsSpecialName && !Method.IsGenericMethod)
+                        //    Info = new ACMethodInfo("", "en{'" + Method.Name + "'}de{'" + Method.Name + "'}", 9999, false, false, false);
+                        //else
+                        continue;
                     }
                     else if (Info.AttachToClass != null)
                     {
