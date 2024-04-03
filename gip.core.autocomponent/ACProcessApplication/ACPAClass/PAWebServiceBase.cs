@@ -336,12 +336,13 @@ namespace gip.core.autocomponent
                     _SvcHost.Opened -= _SvcHost_Opened;
                     _SvcHost.Faulted -= _SvcHost_Faulted;
                     _SvcHost.UnknownMessageReceived -= _SvcHost_UnknownMessageReceived;
+                    if (_SvcHost.State == CommunicationState.Opened)
+                    {
+                        //_SvcHost.Close();
+                        Host.StopAsync();
+                    }
                 }
-                if (_SvcHost.State == CommunicationState.Opened)
-                {
-                    //_SvcHost.Close();
-                    Host.StopAsync();
-                }
+
                 Host = null;
             }
             catch (Exception e)
