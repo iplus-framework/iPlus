@@ -761,7 +761,8 @@ namespace gip.bso.iplus
         }
 
         Bitmap _LicenseImage;
-        [ACPropertyInfo(540, "", "en{'LicenseImage'}de{'LicenseImage'}")]
+        // Dont publish System.Drawing.Bitmap because of conflict with System.Windows.Media.Imaging.BitmapImage
+        //[ACPropertyInfo(540, "", "en{'LicenseImage'}de{'LicenseImage'}")]
         public Bitmap LicenseImage
         {
             get
