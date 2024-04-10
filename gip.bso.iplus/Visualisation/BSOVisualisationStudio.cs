@@ -1011,7 +1011,7 @@ namespace gip.bso.iplus
                 && !ACUrlHelper.IsUrlDynamicInstance(acUrlToFind);
         }
 
-        [ACMethodInfo("", "en{'Search components'}de{'Suchkomponenten'}", 9999)]
+        [ACMethodInfo("", "en{'Search components'}de{'Suche Komponenten'}", 9999)]
         public void SearchComponents()
         {
             string searchText = SearchText.ToLower();
