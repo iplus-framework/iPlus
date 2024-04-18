@@ -880,6 +880,13 @@ namespace gip.core.datamodel
         {
             ACMethod acMethod = ACMethod.GetVirtualMethod(this.ObjectTypeParent, this.AssemblyMethodName, this.ACIdentifier, true);
 
+            if (acMethod == null)
+            {
+                ACClassMethod parentMethod = BasedOnACClassMethod;
+                if (parentMethod != null && parentMethod.ObjectTypeParent != null)
+                    acMethod = ACMethod.GetVirtualMethod(parentMethod.ObjectTypeParent, parentMethod.AssemblyMethodName, this.ACIdentifier, true);
+            }
+
             // If acMethod is null, then this virtual method was defined in database an not in source
             if (acMethod == null && !String.IsNullOrWhiteSpace(this.XMLACMethod))
             {
