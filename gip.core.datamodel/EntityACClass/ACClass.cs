@@ -2319,12 +2319,14 @@ namespace gip.core.datamodel
         private void BuildInheritedDesignList(ref List<ACClassDesign> acClassDesignList, bool forceRefreshFromDB, bool withOverrides)
         {
             ACClassDesign[] allDesigns = LoadDesignListWithRelations(forceRefreshFromDB);
-            foreach (var acClassDesign in allDesigns.OrderBy(c => c.ACKindIndex).ThenBy(c => c.SortIndex).ThenBy(c => c.ACIdentifier))
+            if(allDesigns != null)
             {
-                if (withOverrides || !acClassDesignList.Where(c => c.ACIdentifier == acClassDesign.ACIdentifier).Any())
-                    acClassDesignList.Add(acClassDesign);
+                foreach (var acClassDesign in allDesigns.OrderBy(c => c.ACKindIndex).ThenBy(c => c.SortIndex).ThenBy(c => c.ACIdentifier))
+                {
+                    if (withOverrides || !acClassDesignList.Where(c => c.ACIdentifier == acClassDesign.ACIdentifier).Any())
+                        acClassDesignList.Add(acClassDesign);
+                }
             }
-
             if (BaseClass != null)
                 BaseClass.BuildInheritedDesignList(ref acClassDesignList, forceRefreshFromDB, withOverrides);
         }
