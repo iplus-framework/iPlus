@@ -43,19 +43,31 @@ namespace gip.core.autocomponent
         {
             if (!base.ACInit(startChildMode))
                 return false;
+#if DEBUG
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                Messages.LogDebug(this.ACUrl, nameof(ACInit), "Proxy");
+            }
+#endif
             return true;
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
-
-                using (ACMonitor.Lock(_20015_LockValue))
+            using (ACMonitor.Lock(_20015_LockValue))
             {
                 if (_RMInvoker != null)
                     _RMInvoker.Close();
                 _IsEnabledCache = null;
             }
-            
+
+#if DEBUG
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                Messages.LogDebug(this.ACUrl, nameof(ACDeInit), "Proxy");
+            }
+#endif
+
             //_InstanceInfo = null;
             bool result = base.ACDeInit(deleteACClassTask);
             _SubscriptionState = ProxySubscriptionState.Unsubscribed;

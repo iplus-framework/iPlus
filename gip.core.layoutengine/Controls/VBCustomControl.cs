@@ -58,60 +58,11 @@ namespace gip.core.layoutengine
             = DependencyProperty.RegisterAttached("DragEnabled", typeof(DragMode), typeof(ContentPropertyHandler), new FrameworkPropertyMetadata(DragMode.Disabled, FrameworkPropertyMetadataOptions.Inherits));
 
 
-        //private static DependencyProperty _BSOACComponentProperty;
-        //public static DependencyProperty BSOACComponentProperty
-        //{
-        //    get
-        //    {
-        //        if (_BSOACComponentProperty == null)
-        //            _BSOACComponentProperty = DependencyProperty.RegisterAttached("BSOACComponent", typeof(IACBSO), typeof(VBCustomControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
-        //        return _BSOACComponentProperty;
-        //    }
-        //}
-
-        //private static DependencyProperty _VBValidationProperty;
-        //public static DependencyProperty VBValidationProperty
-        //{
-        //    get
-        //    {
-        //        if (_VBValidationProperty == null)
-        //            _VBValidationProperty = DependencyProperty.RegisterAttached("VBValidation", typeof(string), typeof(VBCustomControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
-        //        return _VBValidationProperty;
-        //    }
-        //}
-
-        //private static DependencyProperty _CanExecuteCyclicProperty;
-        //public static DependencyProperty CanExecuteCyclicProperty
-        //{
-        //    get
-        //    {
-        //        if (_CanExecuteCyclicProperty == null)
-        //            _CanExecuteCyclicProperty = DependencyProperty.RegisterAttached("CanExecuteCyclic", typeof(int), typeof(VBCustomControl), new FrameworkPropertyMetadata((int)0, FrameworkPropertyMetadataOptions.None));
-        //        return _CanExecuteCyclicProperty;
-        //    }
-        //}
-
-        //private static DependencyProperty _StringFormatProperty;
-        //public static DependencyProperty StringFormatProperty
-        //{
-        //    get
-        //    {
-        //        if (_StringFormatProperty == null)
-        //            _StringFormatProperty = DependencyProperty.RegisterAttached("StringFormat", typeof(string), typeof(VBCustomControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
-        //        return _StringFormatProperty;
-        //    }
-        //}
-
-        //private static DependencyProperty _DisableContextMenuProperty;
-        //public static DependencyProperty DisableContextMenuProperty
-        //{
-        //    get
-        //    {
-        //        if (_DisableContextMenuProperty == null)
-        //            _DisableContextMenuProperty = DependencyProperty.RegisterAttached("DisableContextMenu", typeof(bool), typeof(VBCustomControl), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
-        //        return _DisableContextMenuProperty;
-        //    }
-        //}
+        /// <summary>
+        /// Dependency property to control if animations should be switched off to save gpu/rendering performance.
+        /// </summary>
+        public static readonly DependencyProperty AnimationOffProperty
+            = DependencyProperty.RegisterAttached("AnimationOff", typeof(bool), typeof(ContentPropertyHandler), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
     }
 
     public class VBCustomControl : FrameworkElement
