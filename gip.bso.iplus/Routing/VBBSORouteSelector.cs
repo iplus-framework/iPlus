@@ -902,7 +902,7 @@ namespace gip.bso.iplus
 
                         foreach (PAEdge edge in path)
                         {
-                            if (!tempPaths.Any(x => x.Any(c => edge == c)))
+                            if (!tempPaths.Any(x => x.Any(c => edge == c || (edge.RelationID.HasValue && c.RelationID.HasValue && edge.RelationID == c.RelationID))))
                                 newPath.Add(edge);
                         }
 
