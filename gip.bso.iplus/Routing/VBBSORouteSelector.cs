@@ -729,7 +729,8 @@ namespace gip.bso.iplus
                         }
                         else if (paths.Any())
                         {
-                            var selected = SelectedActiveRoutingPaths.Where(c => paths.Any(x => x.Start == c.Start && x.End == c.End));
+                            var selected = SelectedActiveRoutingPaths.Where(c => paths.Any(x => x.Start.ParentACComponent.ACUrl == c.Start.ParentACComponent.ACUrl 
+                                                                                              && x.End.ParentACComponent.ACUrl == c.End.ParentACComponent.ACUrl));
                             if (!selected.Any())
                             {
                                 rPath = paths.OrderBy(c => c.RouteWeight).FirstOrDefault();
