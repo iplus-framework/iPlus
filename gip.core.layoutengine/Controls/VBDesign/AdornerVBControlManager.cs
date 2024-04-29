@@ -68,7 +68,7 @@ namespace gip.core.layoutengine
             {
                 foreach (var childAdorner in childs2)
                 {
-                    if(childAdorner is VBDesignSelectionAdorner)
+                    if (childAdorner is VBDesignSelectionAdorner)
                         AdornerLayerOfDesign.Remove(childAdorner);
                 }
             }
@@ -116,10 +116,10 @@ namespace gip.core.layoutengine
                                 layerOfLast.Remove(childAdorner);
                         }
                     }
-                    if(AdornerOfControl is VBDesignSelectionAdorner)
+                    if (AdornerOfControl is VBDesignSelectionAdorner)
                         layerOfLast.Remove(AdornerOfControl);
                 }
-                if(AdornerOfControl is VBDesignSelectionAdorner)
+                if (AdornerOfControl is VBDesignSelectionAdorner)
                     AdornerLayerOfDesign.Remove(AdornerOfControl);
             }
             AdornerOfControl = null;
