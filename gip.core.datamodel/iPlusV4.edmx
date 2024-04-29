@@ -262,6 +262,7 @@
           <Property Name="ChangeLogMax" Type="int" />
           <Property Name="LogBufferSize" Type="int" Nullable="false" />
           <Property Name="IsStatic" Type="bit" Nullable="false" />
+          <Property Name="IsCaptionCustomized" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="ACClassPropertyRelation">
           <Key>
@@ -4035,6 +4036,7 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
           <NavigationProperty Name="ValueTypeACClass" Relationship="VarioiplusV3_devModel.FK_ACClassProperty_ValueTypeACClassID" FromRole="ACClassProperty" ToRole="ACClass" />
           <NavigationProperty Name="ACPropertyLog_ACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACPropertyLog_ACClassProperty" FromRole="ACClassProperty" ToRole="ACPropertyLog" />
           <Property Name="IsStatic" Type="Boolean" Nullable="false" />
+          <Property Name="IsCaptionCustomized" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="ACClassPropertyRelation_SourceACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_SourceACClassPropertyID" FromRole="ACClassProperty" ToRole="ACClassPropertyRelation" />
           <NavigationProperty Name="ACClassPropertyRelation_TargetACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_TargetACClassPropertyID" FromRole="ACClassProperty" ToRole="ACClassPropertyRelation" />
         </EntityType>
@@ -5714,6 +5716,7 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
               <MappingFragment StoreEntitySet="ACClassProperty">
                 <ScalarProperty Name="IsStatic" ColumnName="IsStatic" />
                 <ScalarProperty Name="LogBufferSize" ColumnName="LogBufferSize" />
+                <ScalarProperty Name="IsCaptionCustomized" ColumnName="IsCaptionCustomized" />
                 <ScalarProperty Name="ChangeLogMax" ColumnName="ChangeLogMax" />
                 <ScalarProperty Name="RemotePropID" ColumnName="RemotePropID" />
                 <ScalarProperty Name="IsRPCEnabled" ColumnName="IsRPCEnabled" />

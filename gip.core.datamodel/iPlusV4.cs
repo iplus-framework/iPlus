@@ -7951,7 +7951,8 @@ namespace gip.core.datamodel
         /// <param name="remotePropID">Initial value of the RemotePropID property.</param>
         /// <param name="logBufferSize">Initial value of the LogBufferSize property.</param>
         /// <param name="isStatic">Initial value of the IsStatic property.</param>
-        public static ACClassProperty CreateACClassProperty(global::System.Guid aCClassPropertyID, global::System.Guid aCClassID, global::System.String aCIdentifier, global::System.Guid basedOnACClassPropertyID, global::System.Int16 aCKindIndex, global::System.Int16 sortIndex, global::System.Boolean isRightmanagement, global::System.Boolean isInteraction, global::System.Guid valueTypeACClassID, global::System.Int16 aCPropUsageIndex, global::System.Int16 deleteActionIndex, global::System.Boolean isBroadcast, global::System.Boolean forceBroadcast, global::System.Boolean isProxyProperty, global::System.Boolean isInput, global::System.Boolean isOutput, global::System.Boolean isContent, global::System.Boolean isPersistable, global::System.Boolean isSerializable, global::System.Boolean isEnumerable, global::System.Int32 aCPointCapacity, global::System.Int32 dataTypeLength, global::System.Boolean isNullable, global::System.Int16 logRefreshRateIndex, global::System.Int32 branchNo, global::System.String insertName, global::System.DateTime insertDate, global::System.String updateName, global::System.DateTime updateDate, global::System.Boolean isRPCEnabled, global::System.Int32 remotePropID, global::System.Int32 logBufferSize, global::System.Boolean isStatic)
+        /// <param name="isCaptionCustomized">Initial value of the IsCaptionCustomized property.</param>
+        public static ACClassProperty CreateACClassProperty(global::System.Guid aCClassPropertyID, global::System.Guid aCClassID, global::System.String aCIdentifier, global::System.Guid basedOnACClassPropertyID, global::System.Int16 aCKindIndex, global::System.Int16 sortIndex, global::System.Boolean isRightmanagement, global::System.Boolean isInteraction, global::System.Guid valueTypeACClassID, global::System.Int16 aCPropUsageIndex, global::System.Int16 deleteActionIndex, global::System.Boolean isBroadcast, global::System.Boolean forceBroadcast, global::System.Boolean isProxyProperty, global::System.Boolean isInput, global::System.Boolean isOutput, global::System.Boolean isContent, global::System.Boolean isPersistable, global::System.Boolean isSerializable, global::System.Boolean isEnumerable, global::System.Int32 aCPointCapacity, global::System.Int32 dataTypeLength, global::System.Boolean isNullable, global::System.Int16 logRefreshRateIndex, global::System.Int32 branchNo, global::System.String insertName, global::System.DateTime insertDate, global::System.String updateName, global::System.DateTime updateDate, global::System.Boolean isRPCEnabled, global::System.Int32 remotePropID, global::System.Int32 logBufferSize, global::System.Boolean isStatic, global::System.Boolean isCaptionCustomized)
         {
             ACClassProperty aCClassProperty = new ACClassProperty();
             aCClassProperty.ACClassPropertyID = aCClassPropertyID;
@@ -7987,6 +7988,7 @@ namespace gip.core.datamodel
             aCClassProperty.RemotePropID = remotePropID;
             aCClassProperty.LogBufferSize = logBufferSize;
             aCClassProperty.IsStatic = isStatic;
+            aCClassProperty.IsCaptionCustomized = isCaptionCustomized;
             return aCClassProperty;
         }
 
@@ -9268,6 +9270,30 @@ namespace gip.core.datamodel
         private global::System.Boolean _IsStatic;
         partial void OnIsStaticChanging(global::System.Boolean value);
         partial void OnIsStaticChanged();
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public  global::System.Boolean IsCaptionCustomized
+        {
+            get
+            {
+                return _IsCaptionCustomized;
+            }
+            set
+            {
+                OnIsCaptionCustomizedChanging(value);
+                ReportPropertyChanging("IsCaptionCustomized");
+                _IsCaptionCustomized = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("IsCaptionCustomized");
+                OnIsCaptionCustomizedChanged();
+            }
+        }
+        private global::System.Boolean _IsCaptionCustomized;
+        partial void OnIsCaptionCustomizedChanging(global::System.Boolean value);
+        partial void OnIsCaptionCustomizedChanged();
 
         #endregion
 
