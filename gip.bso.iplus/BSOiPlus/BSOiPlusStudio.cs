@@ -3027,7 +3027,6 @@ namespace gip.bso.iplus
                     return Global.ControlModes.Enabled;
 
                 case "CurrentACClassProperty\\ACIdentifier":
-                case "CurrentACClassProperty\\ACCaption":
                 case "CurrentACClassProperty\\ACGroup":
                 case "CurrentACClassProperty\\ACValueType":
                 case "CurrentACClassProperty\\ACPropUsageInfo":
@@ -3040,6 +3039,12 @@ namespace gip.bso.iplus
                         return Global.ControlModes.Disabled;
                     if (CurrentACClassProperty.ACKind == Global.ACKinds.PSProperty)
                         return Global.ControlModes.Disabled;
+                    break;
+                case "CurrentACClassProperty\\ACCaption":
+                    if (CurrentACClassProperty == null)
+                        return Global.ControlModes.Disabled;
+                    if (CurrentACClassProperty.ACKind == Global.ACKinds.PSProperty)
+                        return Global.ControlModes.Enabled;
                     break;
                 case "CurrentACClassDesign\\IsDefault":
                     if (CurrentACClass == null || CurrentACClassDesign == null)
