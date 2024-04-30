@@ -1,11 +1,6 @@
 ﻿using gip.core.datamodel;
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Objects;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -13,7 +8,7 @@ namespace gip.core.autocomponent
     public abstract class PAShowDlgManagerBase : PARole
     {
         #region c´tors
-        public  PAShowDlgManagerBase(gip.core.datamodel.ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
+        public PAShowDlgManagerBase(gip.core.datamodel.ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
             _C_BSONameForShowProgramLog = new ACPropertyConfigValue<string>(this, nameof(BSONameForShowProgamLog), "");
@@ -125,6 +120,40 @@ namespace gip.core.autocomponent
         public abstract string BuildAndSetOrderInfo(PAProcessModule pm);
 
         public abstract string BuildOrderInfo(PWBase pw);
+
+
+        public virtual string GetBSOName(string baseBSOName, string dialogName = "Dialog")
+        {
+            ACClass classOfBso = (Root.Database as Database).GetACType(baseBSOName);
+            return GetBSOName(baseBSOName, classOfBso, dialogName);
+        }
+
+        public virtual string GetBSOName(string baseBSOName, ACClass baseBSO, string dialogName)
+        {
+            string bsoName = baseBSOName;
+            if (baseBSO != null)
+            {
+                gip.core.datamodel.ACClass derivation = null;
+                using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
+                {
+                    derivation = gip.core.datamodel.Database.GlobalDatabase.ACClass
+                                            .Where(c => c.BasedOnACClassID == baseBSO.ACClassID
+                                                    && !String.IsNullOrEmpty(c.AssemblyQualifiedName)
+                                                    && c.AssemblyQualifiedName != baseBSO.AssemblyQualifiedName).FirstOrDefault();
+                }
+                if (derivation != null)
+                {
+                    bsoName = derivation.ACIdentifier;;
+                }
+            }
+
+            if(!string.IsNullOrEmpty(dialogName))
+            {
+                bsoName = $"{bsoName}({dialogName})";
+            }
+
+            return bsoName;
+        }
 
         #endregion
 
