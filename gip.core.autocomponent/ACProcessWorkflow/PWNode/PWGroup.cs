@@ -661,7 +661,7 @@ namespace gip.core.autocomponent
                 List<PAProcessModule> list = ProcessModuleList;
                 if (list == null || list.Count <= 0)
                     return new List<PAProcessModule>();
-                return list.Where(c => c.Semaphore.ConnectionListCount <= 0).ToList();
+                return list.Where(c => c.SemaphoreConnectionListCount <= 0).ToList();
             }
         }
 
