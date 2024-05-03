@@ -347,6 +347,19 @@ namespace gip.core.layoutengine
             set { SetValue(StringFormatProperty, value); }
         }
 
+
+
+        public static readonly DependencyProperty AnimationOffProperty = ContentPropertyHandler.AnimationOffProperty.AddOwner(typeof(VBStackPanel), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits));
+        /// <summary>
+        /// Dependency property to control if animations should be switched off to save gpu/rendering performance.
+        /// </summary>
+        [Category("VBControl")]
+        public bool AnimationOff
+        {
+            get { return (bool)GetValue(AnimationOffProperty); }
+            set { SetValue(AnimationOffProperty, value); }
+        }
+
         /// <summary>
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
         /// </summary>

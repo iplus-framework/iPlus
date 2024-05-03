@@ -115,6 +115,7 @@
                     <Condition Property="RunState" Value="False"/>
                     <Condition Property="SpeedFast" Value="False"/>
                     <Condition Property="FaultState" Value="Off"/>
+                    <Condition Property="AnimationOff" Value="False"/>
                 </MultiTrigger.Conditions>
                 <MultiTrigger.EnterActions>
                     <BeginStoryboard Name="StoryRunLeft">
@@ -140,6 +141,7 @@
                     <Condition Property="DirectionLeft" Value="True"/>
                     <Condition Property="SpeedFast" Value="False"/>
                     <Condition Property="FaultState" Value="Off"/>
+                    <Condition Property="AnimationOff" Value="False"/>
                 </MultiTrigger.Conditions>
                 <MultiTrigger.EnterActions>
                     <BeginStoryboard Name="StoryRunLeft2">
@@ -166,6 +168,7 @@
                     <Condition Property="RunState" Value="False"/>
                     <Condition Property="SpeedFast" Value="False"/>
                     <Condition Property="FaultState" Value="Off"/>
+                    <Condition Property="AnimationOff" Value="False"/>
                 </MultiTrigger.Conditions>
                 <MultiTrigger.EnterActions>
                     <BeginStoryboard Name="StoryRunRight">
@@ -191,6 +194,7 @@
                     <Condition Property="DirectionLeft" Value="False"/>
                     <Condition Property="SpeedFast" Value="False"/>
                     <Condition Property="FaultState" Value="Off"/>
+                    <Condition Property="AnimationOff" Value="False"/>
                 </MultiTrigger.Conditions>
                 <MultiTrigger.EnterActions>
                     <BeginStoryboard Name="StoryRunRight2">
@@ -217,6 +221,7 @@
                     <Condition Property="RunState" Value="False"/>
                     <Condition Property="SpeedFast" Value="True"/>
                     <Condition Property="FaultState" Value="Off"/>
+                    <Condition Property="AnimationOff" Value="False"/>
                 </MultiTrigger.Conditions>
                 <MultiTrigger.EnterActions>
                     <BeginStoryboard Name="StoryRunLeft_Fast">
@@ -242,6 +247,7 @@
                     <Condition Property="DirectionLeft" Value="True"/>
                     <Condition Property="SpeedFast" Value="True"/>
                     <Condition Property="FaultState" Value="Off"/>
+                    <Condition Property="AnimationOff" Value="False"/>
                 </MultiTrigger.Conditions>
                 <MultiTrigger.EnterActions>
                     <BeginStoryboard Name="StoryRunLeft_Fast2">
@@ -268,6 +274,7 @@
                     <Condition Property="RunState" Value="False"/>
                     <Condition Property="SpeedFast" Value="True"/>
                     <Condition Property="FaultState" Value="Off"/>
+                    <Condition Property="AnimationOff" Value="False"/>
                 </MultiTrigger.Conditions>
                 <MultiTrigger.EnterActions>
                     <BeginStoryboard Name="StoryRunRight_Fast">
@@ -293,6 +300,7 @@
                     <Condition Property="DirectionLeft" Value="False"/>
                     <Condition Property="SpeedFast" Value="True"/>
                     <Condition Property="FaultState" Value="Off"/>
+                    <Condition Property="AnimationOff" Value="False"/>
                 </MultiTrigger.Conditions>
                 <MultiTrigger.EnterActions>
                     <BeginStoryboard Name="StoryRunRight_Fast2">

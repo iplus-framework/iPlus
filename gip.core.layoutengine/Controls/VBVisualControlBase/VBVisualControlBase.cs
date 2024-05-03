@@ -65,6 +65,20 @@ namespace gip.core.layoutengine
         }
         #endregion
 
+
+
+        public static readonly DependencyProperty AnimationOffProperty = ContentPropertyHandler.AnimationOffProperty.AddOwner(typeof(VBVisualControlBase), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits));
+        /// <summary>
+        /// Dependency property to control if animations should be switched off to save gpu/rendering performance.
+        /// </summary>
+        [Category("VBControl")]
+        public bool AnimationOff
+        {
+            get { return (bool)GetValue(AnimationOffProperty); }
+            set { SetValue(AnimationOffProperty, value); }
+        }
+
+
         #endregion
 
     }

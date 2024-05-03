@@ -161,6 +161,9 @@
     <None Include="VBControlScripts\2024-03-27 11-42_mzitkovic.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="VBControlScripts\2024-04-29 10-03_aagincic.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.102.1" />

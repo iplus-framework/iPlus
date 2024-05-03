@@ -905,7 +905,6 @@ namespace gip.bso.iplus
             foreach (VBUserACClassDesign userClassDesign in userClassDesigns)
             {
                 userClassDesign.DeleteACObject(Database, false);
-                CurrentUser.VBUserACClassDesign_VBUser.Remove(userClassDesign);
             }
         }
 

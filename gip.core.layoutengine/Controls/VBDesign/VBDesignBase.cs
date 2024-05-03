@@ -603,6 +603,19 @@ namespace gip.core.layoutengine
         }
 
 
+        public static readonly DependencyProperty AnimationOffProperty = ContentPropertyHandler.AnimationOffProperty.AddOwner(typeof(VBDesignBase), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits));
+        /// <summary>
+        /// Dependency property to control if animations should be switched off to save gpu/rendering performance.
+        /// </summary>
+        [Category("VBControl")]
+        public bool AnimationOff
+        {
+            get { return (bool)GetValue(AnimationOffProperty); }
+            set { SetValue(AnimationOffProperty, value); }
+        }
+
+
+
         protected IACType _VBContentPropertyInfo = null;
         /// <summary>
         /// Gets the ACClassProperty which describes a bounded property by VBContent.
@@ -1383,6 +1396,11 @@ namespace gip.core.layoutengine
             }
         }
 
+        public System.Windows.Media.Color Invert(System.Windows.Media.Color color)
+        {
+            return System.Windows.Media.Color.FromRgb((byte)(255 - color.R), (byte)(255 - color.G), (byte)(255 - color.B));
+        }
+
         /// <summary>
         /// Adorns the VBControl.
         /// </summary>
@@ -1390,8 +1408,51 @@ namespace gip.core.layoutengine
         /// <param name="isMultiSelect">Determines is multi selection or single selection.</param>
         protected void AdornVBControl(IVBContent vbControlToAdorn, bool isMultiSelect)
         {
+            //this.Background
             if (ShowAdornerLayer && !IsDesignerActive)
             {
+                System.Windows.Media.Color selectionColor = System.Windows.Media.Colors.Red;
+                System.Windows.Media.Color selectionColor2 = System.Windows.Media.Colors.White;
+                //DependencyObject controlAsVisual = vbControlToAdorn as DependencyObject;
+                //if (controlAsVisual != null)
+                //{
+                //    DependencyObject depObj = VisualTreeHelper.GetParent(controlAsVisual);
+                //    Panel panel = depObj as Panel;
+                //    if (panel != null)
+                //    {
+                //        //GradientBrush brush2;
+                //        System.Windows.Media.Color bgColor = System.Windows.Media.Colors.Red;
+                //        SolidColorBrush brush = panel.Background as SolidColorBrush;
+                //        if (brush != null)
+                //            selectionColor = Invert(brush.Color);
+                //        else
+                //        {
+                //            GradientBrush brush2 = panel.Background as GradientBrush;
+                //            if (brush2 != null)
+                //                selectionColor = Invert(brush2.GradientStops.FirstOrDefault().Color);
+                //        }
+                //    }
+                //    else
+                //    {
+                //        Control parentControl = depObj as Control;
+                //        //VBVisualTreeHelper.FindParentObjectInVisualTree(VisualTreeHelper.GetParent(controlAsVisual), typeof(Control)) as Control;
+                //        if (parentControl != null)
+                //        {
+                //            //GradientBrush brush2;
+                //            System.Windows.Media.Color bgColor = System.Windows.Media.Colors.Red;
+                //            SolidColorBrush brush = parentControl.Background as SolidColorBrush;
+                //            if (brush != null)
+                //                selectionColor = Invert(brush.Color);
+                //            else
+                //            {
+                //                GradientBrush brush2 = parentControl.Background as GradientBrush;
+                //                if (brush2 != null)
+                //                    selectionColor = Invert(brush2.GradientStops.FirstOrDefault().Color);
+                //            }
+                //        }
+                //    }
+                //}
+
                 if (!isMultiSelect)
                 {
                     foreach (var item in AdornVBControlManagerList)
@@ -1403,20 +1464,20 @@ namespace gip.core.layoutengine
                 if (adornManagerForControl != null)
                 {
                     adornManagerForControl.RemoveAdornerFromElement();
-                    adornManagerForControl.AddAdornerToElement(System.Windows.Media.Colors.White);
+                    adornManagerForControl.AddAdornerToElement(selectionColor);
                 }
                 else
                 {
-                    adornManagerForControl = new AdornerVBControlManager(vbControlToAdorn, System.Windows.Media.Colors.White);
+                    adornManagerForControl = new AdornerVBControlManager(vbControlToAdorn, selectionColor);
                     AdornVBControlManagerList.Add(adornManagerForControl);
                 }
 
                 foreach (var item in AdornVBControlManagerList)
                 {
-                    if (item.ControlToAdorn != vbControlToAdorn && item.LastUsedColor == System.Windows.Media.Colors.White)
+                    if (item.ControlToAdorn != vbControlToAdorn && item.LastUsedColor == selectionColor)
                     {
                         item.RemoveAdornerFromElement();
-                        item.AddAdornerToElement(System.Windows.Media.Colors.Red);
+                        item.AddAdornerToElement(selectionColor2);
                     }
                 }
             }

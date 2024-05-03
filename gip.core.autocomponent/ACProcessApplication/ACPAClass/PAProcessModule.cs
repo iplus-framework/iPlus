@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using gip.core.datamodel;
 
 namespace gip.core.autocomponent
@@ -40,6 +41,7 @@ namespace gip.core.autocomponent
         {
             _RouteItemID = new ACPropertyConfigValue<string>(this, "RouteItemID", "0");
             _AllocationExternal = new ACPropertyConfigValue<bool>(this, "AllocationExternal", false);
+            _MirrorACUrl = new ACPropertyConfigValue<string>(this, "MirrorACUrl", "");
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -58,6 +60,7 @@ namespace gip.core.autocomponent
 
             _ = AllocationExternal;
             _ = RouteItemID;
+            _ = MirrorACUrl;
             return true;
         }
 
@@ -78,6 +81,10 @@ namespace gip.core.autocomponent
             if (_OrderInfoManager != null)
                 PAShowDlgManagerBase.DetachACRefFromServiceInstance(this, _OrderInfoManager);
             _OrderInfoManager = null;
+
+            if (_MirroredModule != null)
+                _MirroredModule.Detach();
+            _MirroredModule = null;
 
             AttachedAlarms = null;
 
@@ -102,6 +109,18 @@ namespace gip.core.autocomponent
             get
             {
                 return _Semaphore;
+            }
+        }
+
+        public int SemaphoreConnectionListCount
+        {
+            get
+            {
+                if (Semaphore == null)
+                    return 0;
+                if (MirroredModule != null && MirroredModule.Semaphore != null)
+                    return MirroredModule.Semaphore.ConnectionListCount + Semaphore.ConnectionListCount;
+                return Semaphore.ConnectionListCount;
             }
         }
 
@@ -206,6 +225,37 @@ namespace gip.core.autocomponent
             }
         }
 
+        private ACPropertyConfigValue<string> _MirrorACUrl;
+        [ACPropertyConfig("en{'ACUrl of mirrored Module'}de{'ACUrl gespiegeltes Modul'}")]
+        public string MirrorACUrl
+        {
+            get
+            {
+                return _MirrorACUrl.ValueT;
+            }
+            set
+            {
+                _MirrorACUrl.ValueT = value;
+            }
+        }
+
+        protected ACRef<PAProcessModule> _MirroredModule = null;
+        public PAProcessModule MirroredModule
+        {
+            get
+            {
+                if (_MirroredModule != null)
+                    return _MirroredModule.ValueT;
+                if (string.IsNullOrEmpty(MirrorACUrl))
+                    return null;
+                PAProcessModule mirroredModule = ACUrlCommand(MirrorACUrl) as PAProcessModule;
+                if (mirroredModule == null)
+                    return null;
+                _MirroredModule = new ACRef<PAProcessModule>(mirroredModule, this);
+                return mirroredModule;
+            }
+        }
+
         protected ACRef<PAShowDlgManagerBase> _OrderInfoManager = null;
         public PAShowDlgManagerBase OrderInfoManager
         {
@@ -279,10 +329,10 @@ namespace gip.core.autocomponent
                 case ACStateConst.TMReset:
                     Reset();
                     return true;
-                case "SemaphoreAccessedFrom":
+                case nameof(SemaphoreAccessedFrom):
                     result = SemaphoreAccessedFrom();
                     return true;
-                case Const.IsEnabledPrefix + ACStateConst.TMReset:
+                case nameof(IsEnabledReset):
                     result = IsEnabledReset();
                     return true;
             }
@@ -294,10 +344,10 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "WorkflowDialogOn":
+                case nameof(WorkflowDialogOn):
                     WorkflowDialogOn(acComponent);
                     return true;
-                case Const.IsEnabledPrefix + "WorkflowDialogOn":
+                case nameof(IsEnabledWorkflowDialogOn):
                     result = IsEnabledWorkflowDialogOn(acComponent);
                     return true;
             }

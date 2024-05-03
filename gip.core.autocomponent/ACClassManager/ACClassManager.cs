@@ -1996,7 +1996,11 @@ namespace gip.core.autocomponent
                     if (!string.IsNullOrEmpty(summary) && acClassProperty.Comment != summary)
                         acClassProperty.Comment = summary;
                 }
-                Translator.UpdateTranslation(acClassProperty, acPropertyInfo.ACCaptionTranslation);
+
+                if(!acClassProperty.IsCaptionCustomized)
+                {
+                    Translator.UpdateTranslation(acClassProperty, acPropertyInfo.ACCaptionTranslation);
+                }
 
                 if (acClassProperty.IsStatic != propertyInfo.GetAccessors(true)[0].IsStatic)
                 {
