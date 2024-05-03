@@ -105,6 +105,9 @@
     <None Include="DbScripts\iPlus\dbsync_2024-01-09_16-09_ihrastinski.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="DbScripts\iPlus\dbsync_2024-04-29_08-14_aagincic.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.11" />
