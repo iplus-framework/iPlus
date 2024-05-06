@@ -334,8 +334,12 @@ namespace gip.core.autocomponent
         private void DeleteOldDictionaries(DateTime stamp)
         {
             _LogDeletionChecked = true;
+#if DEBUG
+            return;
+#else
             if (String.IsNullOrEmpty(PathOfDirectory))
                 return;
+
             DateTime deleteDate = stamp.AddMonths(DeletePropLogAfterXMonths * -1);
             try
             {
@@ -362,6 +366,7 @@ namespace gip.core.autocomponent
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                     datamodel.Database.Root.Messages.LogException("ACPropertyLog<T>", "DeleteOldDictionaries", msg);
             }
+#endif
         }
 
         private static int? _DeletePropLogAfterXMonths;
