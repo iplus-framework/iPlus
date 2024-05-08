@@ -42,7 +42,14 @@ namespace gip.core.autocomponent
         internal void LogCurrentValue()
         {
             if (PropertyLogDict == null)
+            {
+                if (IsRefreshCycleElapsed && ApplyFilter_IsLogable)
+                {
+                    _LastLogTime = DateTime.Now;
+                    _LastLogValue = _property2Log.ValueT;
+                }
                 return;
+            }
 
             using (ACMonitor.Lock(_property2Log._20015_LockValue))
             {
@@ -179,7 +186,7 @@ namespace gip.core.autocomponent
             return pLInfo;
         }
 
-        private bool IsRefreshCycleElapsed
+        public bool IsRefreshCycleElapsed
         {
             get
             {
@@ -220,7 +227,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        private bool ApplyFilter_IsLogable
+        public bool ApplyFilter_IsLogable
         {
             get
             {

@@ -70,6 +70,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(36, "RemotePropID", "en{'Remote property ID'}de{'Remote property ID'}", "", "", true)]
     [ACPropertyEntity(37, "IsStatic", "en{'Static'}de{'Statisch'}", "", "", true)]
     [ACPropertyEntity(38, "IsCaptionCustomized", "en{'Customized caption'}de{'Individuelle Beschriftung'}", "", "", true)]
+    [ACPropertyEntity(39, "Precision", "en{'Precision'}de{'Präzision'}", "", "", true)]
     [ACPropertyEntity(9999, "XMLValue", "en{'Value'}de{'Wert'}")]
     [ACPropertyEntity(9999, "ACCaptionTranslation", "en{'Translation'}de{'Übersetzung'}", "", "", true)]
     [ACPropertyEntity(9999, "ConfigACClass", "en{'Configuration'}de{'Konfiguration'}", Const.ContextDatabaseIPlus + "\\ConfigACClassList", "", true)]
