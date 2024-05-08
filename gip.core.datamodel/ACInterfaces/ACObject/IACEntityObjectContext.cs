@@ -44,7 +44,7 @@ namespace gip.core.datamodel
         /// UNSAFE. Use QueryLock_1X000 outside for Custom-Database-Context as well as for the seperate iPlus-Context
         /// </summary>
         /// <returns></returns>
-        [ACMethodInfo("","",9999)]
+        [ACMethodInfo("", "", 9999)]
         MsgWithDetails ACSaveChanges(bool autoSaveContextIPlus = true, SaveOptions saveOptions = SaveOptions.AcceptAllChangesAfterSave, bool validationOff = false, bool writeUpdateInfo = true);
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <returns></returns>
         IList<T> GetUnchangedEntities<T>(Func<T, bool> selector = null) where T : class;
- 
+
         /// <summary>
         /// returns EntityState.Modified | EntityState.Added | EntityState.Deleted
         /// </summary>
@@ -126,7 +126,7 @@ namespace gip.core.datamodel
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
         void AutoLoad<T>(EntityCollection<T> entityCollection) where T : class;
-        
+
         void ParseException(MsgWithDetails msg, Exception e);
 
         void EnterCS();
@@ -159,6 +159,8 @@ namespace gip.core.datamodel
         EntityConnection SeparateConnection { get; }
 
         string UserName { get; set; }
+
+        bool PreventOnContextACChangesExecuted { get; set; }
 
         #endregion
 

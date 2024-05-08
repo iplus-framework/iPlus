@@ -287,6 +287,9 @@ namespace gip.core.datamodel
 
         public event ACChangesEventHandler ACChangesExecuted;
 
+        public bool PreventOnContextACChangesExecuted { get; set; }
+
+
         #endregion
 
         #region IACUrl Member
