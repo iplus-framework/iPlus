@@ -120,5 +120,11 @@ namespace gip.core.datamodel
         #region Query configuration from all config stores
         List<IACConfig> QueryAllCOnfigs(IACEntityObjectContext db, IACConfigStore sameConfigStore, string preConfigACUrl, string localConfigACUrl, Guid? vbiACClassID);
         #endregion
+
+        #region Planning
+
+        bool HasPlanning(IACEntityObjectContext db, IACConfigStore configStore, Guid acClassWFID);
+        
+        #endregion
     }
 }
