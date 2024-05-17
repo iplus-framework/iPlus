@@ -165,7 +165,7 @@ namespace gip.core.autocomponent
                     // 1. Refresh methods-infos of Workflow-Node
                     if (_CurrentACClassWF != null)
                         _PWNodeMethodList = _CurrentACClassWF.PWACClass.MethodsCached.Where(c => c.ACGroup == Const.ACState).OrderBy(c => c.SortIndex).ToList();
-                    OnPropertyChanged("PWNodeMethodList");
+                    OnPropertyChanged(nameof(PWNodeMethodList));
                     var firstMethod = _PWNodeMethodList.Where(c => c.ACIdentifier == ACStateConst.SMStarting).FirstOrDefault();
                     if (firstMethod == null)
                         firstMethod = _PWNodeMethodList.FirstOrDefault();
@@ -173,16 +173,16 @@ namespace gip.core.autocomponent
                     // RefreshPWNodeParamValueList(); Is done in CurrentPWNodeMethod
 
                     // 2. Refresh method-infos of PAFunction
-                    OnPropertyChanged("CurrentPAFunctionMethod");
+                    OnPropertyChanged(nameof(CurrentPAFunctionMethod));
                     RefreshPAFunctionParamValueList();
 
                     // 3. Refresh Rulesdp
                     //RefreshRules();
 
-                    OnPropertyChanged("IsMachineConfigReadyStore");
+                    OnPropertyChanged(nameof(IsMachineConfigReadyStore));
                     LoadMachineList(_CurrentACClassWF);
 
-                    OnPropertyChanged("CurrentACClassWF");
+                    OnPropertyChanged();
                 }
 
             }
@@ -206,8 +206,8 @@ namespace gip.core.autocomponent
             {
                 _CurrentPWNodeMethod = value;
                 RefreshPWNodeParamValueList();
-                OnPropertyChanged("PWNodeParamValueList");
-                OnPropertyChanged("CurrentPWNodeMethod");
+                OnPropertyChanged(nameof(PWNodeParamValueList));
+                OnPropertyChanged();
             }
         }
 
@@ -293,8 +293,8 @@ namespace gip.core.autocomponent
             _PWNodeMachineList = pwNodeMachineList;
             // @aagincic: bypass to show group nodes for function to
             _PAFunctionMachineList = pwNodeMachineList;
-            OnPropertyChanged("PWNodeMachineList");
-            OnPropertyChanged("PAFunctionMachineList");
+            OnPropertyChanged(nameof(PWNodeMachineList));
+            OnPropertyChanged(nameof(PAFunctionMachineList));
         }
         #endregion
 
@@ -320,10 +320,10 @@ namespace gip.core.autocomponent
                 {
                     _SelectedPWNodeParamValue = value;
                     _AllHistoryPWNodeParamValueList = null;
-                    OnPropertyChanged("SelectedPWNodeParamValue");
-                    OnPropertyChanged("HistoryPWNodeParamValueList");
-                    OnPropertyChanged("PWNodeMethodEditorVisible");
-                    OnPropertyChanged("AllHistoryPWNodeParamValueList");
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HistoryPWNodeParamValueList));
+                    OnPropertyChanged(nameof(PWNodeMethodEditorVisible));
+                    OnPropertyChanged(nameof(AllHistoryPWNodeParamValueList));
                 }
             }
         }
@@ -361,8 +361,8 @@ namespace gip.core.autocomponent
                       );
             }
 
-            OnPropertyChanged("PWNodeParamValueList");
-            OnPropertyChanged("HistoryPWNodeParamValueList");
+            OnPropertyChanged(nameof(PWNodeParamValueList));
+            OnPropertyChanged(nameof(HistoryPWNodeParamValueList));
         }
 
         #endregion
@@ -388,7 +388,7 @@ namespace gip.core.autocomponent
                 if (_SelectedPWNodeMachine != value)
                 {
                     _SelectedPWNodeMachine = value;
-                    OnPropertyChanged("SelectedPWNodeMachine");
+                    OnPropertyChanged();
                 }
             }
         }
@@ -415,7 +415,7 @@ namespace gip.core.autocomponent
             ACConfigParam additionalParam = ACConfigHelper.FactoryMachineParam(SelectedPWNodeParamValue, SelectedPWNodeMachine);
             tmpParamList.Insert(++currentIndex, additionalParam);
             _PWNodeParamValueList = tmpParamList;
-            OnPropertyChanged("PWNodeParamValueList");
+            OnPropertyChanged(nameof(PWNodeParamValueList));
             SelectedPWNodeParamValue = additionalParam;
         }
 
@@ -440,7 +440,7 @@ namespace gip.core.autocomponent
                 if (_SelectedHistoryPWNodeParamValue != value)
                 {
                     _SelectedHistoryPWNodeParamValue = value;
-                    OnPropertyChanged("SelectedHistoryPWNodeParamValue");
+                    OnPropertyChanged();
                 }
             }
         }
@@ -484,9 +484,9 @@ namespace gip.core.autocomponent
                     vbiACClassID);
             SelectedPWNodeParamValue.ConfigurationList.Insert(0, SelectedPWNodeParamValue.DefaultConfiguration);
             //CurrentPWInfo.CurrentConfigStore.ConfigurationEntries.Add(SelectedPWNodeParamValue.DefaultConfiguration);
-            OnPropertyChanged("HistoryPWNodeParamValueList");
-            OnPropertyChanged("SelectedPWNodeParamValue");
-            OnPropertyChanged("PWNodeMethodEditorVisible");
+            OnPropertyChanged(nameof(HistoryPWNodeParamValueList));
+            OnPropertyChanged(nameof(SelectedPWNodeParamValue));
+            OnPropertyChanged(nameof(PWNodeMethodEditorVisible));
         }
 
         public bool IsEnabledCreatePWNodeValue()
@@ -614,10 +614,10 @@ namespace gip.core.autocomponent
                 {
                     _SelectedPAFunctionParamValue = value;
                     _AllHistoryPAFunctionParamValueList = null;
-                    OnPropertyChanged("SelectedPAFunctionParamValue");
-                    OnPropertyChanged("HistoryPAFunctionParamValueList");
-                    OnPropertyChanged("PAFunctionMethodEditorVisible");
-                    OnPropertyChanged("AllHistoryPAFunctionParamValueList");
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HistoryPAFunctionParamValueList));
+                    OnPropertyChanged(nameof(PAFunctionMethodEditorVisible));
+                    OnPropertyChanged(nameof(AllHistoryPAFunctionParamValueList));
                 }
             }
         }
@@ -654,8 +654,8 @@ namespace gip.core.autocomponent
                         true);
             }
 
-            OnPropertyChanged("PAFunctionParamValueList");
-            OnPropertyChanged("HistoryPAFunctionParamValueList");
+            OnPropertyChanged(nameof(PAFunctionParamValueList));
+            OnPropertyChanged(nameof(HistoryPAFunctionParamValueList));
         }
 
         #endregion
@@ -681,7 +681,7 @@ namespace gip.core.autocomponent
                 if (_SelectedPAFunctionMachine != value)
                 {
                     _SelectedPAFunctionMachine = value;
-                    OnPropertyChanged("SelectedPAFunctionMachine");
+                    OnPropertyChanged();
                 }
             }
         }
@@ -707,7 +707,7 @@ namespace gip.core.autocomponent
             ACConfigParam additionalParam = ACConfigHelper.FactoryMachineParam(SelectedPAFunctionParamValue, SelectedPAFunctionMachine);
             tmpParamList.Insert(++currentIndex, additionalParam);
             _PAFunctionParamValueList = tmpParamList;
-            OnPropertyChanged("PAFunctionParamValueList");
+            OnPropertyChanged(nameof(PAFunctionParamValueList));
             SelectedPAFunctionParamValue = additionalParam;
         }
 
@@ -732,7 +732,7 @@ namespace gip.core.autocomponent
                 if (_SelectedHistoryPAFunctionParamValue != value)
                 {
                     _SelectedHistoryPAFunctionParamValue = value;
-                    OnPropertyChanged("SelectedHistoryPAFunctionParamValue");
+                    OnPropertyChanged();
                 }
             }
         }
@@ -778,9 +778,9 @@ namespace gip.core.autocomponent
                     vbiACClassID);
             SelectedPAFunctionParamValue.ConfigurationList.Insert(0, SelectedPAFunctionParamValue.DefaultConfiguration);
             //CurrentPWInfo.CurrentConfigStore.ConfigurationEntries.Add(SelectedPAFunctionParamValue.DefaultConfiguration);
-            OnPropertyChanged("SelectedPAFunctionParamValue");
-            OnPropertyChanged("HistoryPAFunctionParamValueList");
-            OnPropertyChanged("PAFunctionMethodEditorVisible");
+            OnPropertyChanged(nameof(SelectedPAFunctionParamValue));
+            OnPropertyChanged(nameof(HistoryPAFunctionParamValueList));
+            OnPropertyChanged(nameof(PAFunctionMethodEditorVisible));
         }
 
         public bool IsEnabledCreatePAFunctionValue()
@@ -852,8 +852,8 @@ namespace gip.core.autocomponent
                 if (_CurrentRuleType != value)
                 {
                     _CurrentRuleType = value;
-                    OnPropertyChanged("CurrentRuleType");
-                    OnPropertyChanged("IsMultiValueRuleType");
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsMultiValueRuleType));
                     LoadRuleObjectSelectItem();
                     if (_CurrentRuleType != null && _CurrentRuleType.RuleType == ACClassWFRuleTypes.ActiveRoutes)
                         InitRoutingValues();
@@ -1065,7 +1065,7 @@ namespace gip.core.autocomponent
                 _RuleTypeList = items.ToArray();
             }
 
-            OnPropertyChanged("RuleTypeList");
+            OnPropertyChanged(nameof(RuleTypeList));
 
             if (_RuleTypeList.Length > 0)
                 this.CurrentRuleType = _RuleTypeList[0];
@@ -1085,7 +1085,7 @@ namespace gip.core.autocomponent
             set
             {
                 _SelectedRuleValue = value;
-                OnPropertyChanged("SelectedRuleValue");
+                OnPropertyChanged();
             }
         }
 
@@ -1097,7 +1097,7 @@ namespace gip.core.autocomponent
             set
             {
                 _RuleValuesList = value;
-                OnPropertyChanged("RuleValuesList");
+                OnPropertyChanged();
             }
         }
 
@@ -1427,7 +1427,7 @@ namespace gip.core.autocomponent
                 if (_IsCopyNodeConfigOnParentLevel != value)
                 {
                     _IsCopyNodeConfigOnParentLevel = value;
-                    OnPropertyChanged(nameof(IsCopyNodeConfigOnParentLevel));
+                    OnPropertyChanged();
                 }
             }
         }
@@ -1885,7 +1885,7 @@ namespace gip.core.autocomponent
             allHistoryPWNodeParamValueList = FilterAllHistoryParamValue(allHistoryPWNodeParamValueList, FilterAllHyPWNodeParamValueMin, FilterAllHyPWNodeParamValueMax);
             if (allHistoryPWNodeParamValueList != null)
                 _AllHistoryPWNodeParamValueList = allHistoryPWNodeParamValueList.Select(p => new ACConfigSelected() { ACConfig = p, Selected = false }).ToList();
-            OnPropertyChanged("AllHistoryPWNodeParamValueList");
+            OnPropertyChanged(nameof(AllHistoryPWNodeParamValueList));
         }
 
         #endregion
@@ -1958,7 +1958,7 @@ namespace gip.core.autocomponent
             allHistoryPAFunctionParamValueList = FilterAllHistoryParamValue(allHistoryPAFunctionParamValueList, FilterAllHyPAFunctionParamValueMin, FilterAllHyPAFunctionParamValueMax);
             if (allHistoryPAFunctionParamValueList != null)
                 _AllHistoryPAFunctionParamValueList = allHistoryPAFunctionParamValueList.Select(p => new ACConfigSelected() { ACConfig = p, Selected = false }).ToList();
-            OnPropertyChanged("AllHistoryPAFunctionParamValueList");
+            OnPropertyChanged(nameof(AllHistoryPAFunctionParamValueList));
         }
         #endregion
 

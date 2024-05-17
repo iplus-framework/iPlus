@@ -85,7 +85,7 @@ namespace gip.core.datamodel
         /// String for individual usage.
         /// </summary>
         /// <value>The expression.</value>
-        [ACPropertyInfo(102, "Expression", "en{'Expression'}de{'Phrase'}")]
+        [ACPropertyInfo(102, "Expression", "en{'Expression'}de{'Ausdruck'}")]
         string Expression { get; set; }
 
         /// <summary>
