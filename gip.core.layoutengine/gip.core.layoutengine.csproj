@@ -380,6 +380,7 @@
       <DependentUpon>VBXMLViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\VBXpsViewer\VBXpsViewer.cs" />
+    <Compile Include="Converter\ConverterBoolToIndex.cs" />
     <Compile Include="Converter\ConverterComparable.cs" />
     <Compile Include="Converter\ConverterDataType.cs" />
     <Compile Include="Converter\ConverterDoubleOffset.cs" />
