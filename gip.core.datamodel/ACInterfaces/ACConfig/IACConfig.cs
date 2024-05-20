@@ -56,7 +56,7 @@ namespace gip.core.datamodel
         /// e.g. "MixeryDef\Mixer(0)\Dosing(0)\SMStarting\SkipComponents" or "MixeryDef\Mixer(0)\Dosing(0)\Dosing\FlowRate1"
         /// </summary>
         /// <value>ACUrl that points to a property</value>
-        [ACPropertyInfo(100, Const.PN_LocalConfigACUrl, "en{'LocalConfigACUrl'}de{'LocalConfigACUrl'}")]
+        [ACPropertyInfo(100, Const.PN_LocalConfigACUrl, Const.LocalConfigACUrl)]
         string LocalConfigACUrl { get; set; }
 
 
@@ -69,7 +69,7 @@ namespace gip.core.datamodel
         /// This is stored in this property.
         /// </summary>
         /// <value>ACUrl of the parent Workflow, that invoked this Workflow</value>
-        [ACPropertyInfo(99, Const.PN_PreConfigACUrl, "en{'PreConfigACUrl'}de{'PreConfigACUrl'}")]
+        [ACPropertyInfo(99, Const.PN_PreConfigACUrl, Const.PreConfigACUrl)]
         string PreConfigACUrl { get; set; }
 
 

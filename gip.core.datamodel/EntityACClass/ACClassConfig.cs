@@ -19,8 +19,8 @@ namespace gip.core.datamodel
     /// <summary>ACClassConfig is the Configuration-Table for ACClass. It implements the interface IACConfig.</summary>
     /// <seealso cref="gip.core.datamodel.IACConfig">Interface that enables to read/write config values.</seealso>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Class configuration'}de{'Klassen-Konfiguration'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(1, Const.PN_PreConfigACUrl, "en{'Parent WF URL'}de{'WF Eltern-URL'}", "", "", true)]
-    [ACPropertyEntity(2, Const.PN_LocalConfigACUrl, "en{'Property URL'}de{'Eigenschafts-URL'}", "", "", true)]
+    [ACPropertyEntity(1, Const.PN_PreConfigACUrl, Const.PreConfigACUrl, "", "", true)]
+    [ACPropertyEntity(2, Const.PN_LocalConfigACUrl, Const.LocalConfigACUrl, "", "", true)]
     [ACPropertyEntity(3, "XMLValue", "en{'Value'}de{'Wert'}")]
     [ACPropertyEntity(4, "ValueTypeACClass", "en{'Datatype'}de{'Datentyp'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName, "", true)]
     [ACPropertyEntity(5, "Expression", "en{'Expression'}de{'Ausdruck'}", "", "", true)]

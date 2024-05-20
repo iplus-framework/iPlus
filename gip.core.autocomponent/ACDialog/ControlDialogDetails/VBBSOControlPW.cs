@@ -5,7 +5,6 @@ using System.Linq;
 using gip.core.datamodel;
 using System.Data.Objects.DataClasses;
 using System.Data;
-using System.Windows;
 using System.Reflection;
 
 namespace gip.core.autocomponent
