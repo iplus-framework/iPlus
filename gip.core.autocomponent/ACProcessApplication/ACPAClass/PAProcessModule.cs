@@ -335,6 +335,9 @@ namespace gip.core.autocomponent
                 case nameof(IsEnabledReset):
                     result = IsEnabledReset();
                     return true;
+                case nameof(GetPAOrderInfo):
+                    result = GetPAOrderInfo();
+                    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
@@ -469,6 +472,20 @@ namespace gip.core.autocomponent
                 Allocated.ValueT = !String.IsNullOrEmpty(this.OrderInfo.ValueT);
             RefreshPWNodeInfo();
             FindChildComponents<PAProcessFunction>(c => c is PAProcessFunction, null, 1).ForEach(c => c.OnOrderInfoRefreshed());
+        }
+
+        [ACMethodInfo("", "en{'Get current order informations'}de{'Informationen über aktuellen Auftrag'}", 9999)]
+        public virtual PAOrderInfo GetPAOrderInfo()
+        {
+            if (!String.IsNullOrEmpty(this.OrderInfo.ValueT) && Semaphore.ConnectionList.Any())
+            {
+                PWGroup pwGroup = Semaphore.ConnectionList.FirstOrDefault().ValueT as PWGroup;
+                if (pwGroup != null && pwGroup.RootPW != null)
+                {
+                    pwGroup.GetPAOrderInfo();
+                }
+            }
+            return null;
         }
 
         public virtual void RefreshPWNodeInfo()

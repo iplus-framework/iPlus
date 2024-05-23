@@ -53,6 +53,14 @@ namespace gip.core.processapplication
             }
         }
 
+        public PAEScannerDecoder Decoder
+        {
+            get
+            {
+                return _Decoder?.ValueT;
+            }
+        }
+
         #endregion
 
         #region Constructors
