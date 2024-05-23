@@ -1,15 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace gip.core.datamodel
 {
     /// <summary>ACClassConfig is the Configuration-Table for ACClassMethod. It implements the interface IACConfig.</summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACClassMethod.config'}de{'ACClassMethod.config'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(1, Const.PN_PreConfigACUrl, "en{'Parent WF URL'}de{'WF Eltern-URL'}","", "", true)]
-    [ACPropertyEntity(2, Const.PN_LocalConfigACUrl, "en{'Property URL'}de{'Eigenschafts-URL'}","", "", true)]
+    [ACPropertyEntity(1, Const.PN_PreConfigACUrl, Const.PreConfigACUrl,"", "", true)]
+    [ACPropertyEntity(2, Const.PN_LocalConfigACUrl, Const.LocalConfigACUrl,"", "", true)]
     [ACPropertyEntity(4, "Expression", "en{'Expression'}de{'Ausdruck'}","", "", true)]
     [ACPropertyEntity(5, "Comment", "en{'Comment'}de{'Bemerkung'}","", "", true)]
     [ACPropertyEntity(100, Const.PN_KeyACUrl, "en{'Key'}de{'Schlüssel'}","", "", true)]
