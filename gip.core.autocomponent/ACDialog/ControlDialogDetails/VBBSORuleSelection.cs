@@ -162,7 +162,7 @@ namespace gip.core.autocomponent.ACDialog.ControlDialogDetails
             return DialogResult;
         }
 
-        [ACMethodInfo("Dialog", "en{'Ok'}de{'Ok'}", 9999)]
+        [ACMethodInfo("Dialog", Const.Ok, 9999)]
         public void SelectResultDlgOK()
         {
             if (_CurrentRuleType != null && RuleForConfig != null && RuleForConfig.Items != null && RuleForConfig.Items.Any())
@@ -172,7 +172,7 @@ namespace gip.core.autocomponent.ACDialog.ControlDialogDetails
             CloseTopDialog();
         }
 
-        [ACMethodInfo("Dialog", "en{'Cancel'}de{'Abbrechen'}", 9999)]
+        [ACMethodInfo("Dialog", Const.Cancel, 9999)]
         public void SelectResultDlgCancel()
         {
             Database.ACUndoChanges();

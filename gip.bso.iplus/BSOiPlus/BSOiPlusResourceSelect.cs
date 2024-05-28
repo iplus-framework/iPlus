@@ -481,13 +481,13 @@ namespace gip.bso.iplus
             return path;
         }
 
-        [ACMethodCommand("ResourceDlg", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("ResourceDlg", Const.Ok, (short)MISort.Okay)]
         public void OK()
         {
             CloseTopDialog();
         }
 
-        [ACMethodCommand("Folderdialog", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("Folderdialog", Const.Cancel, (short)MISort.Cancel)]
         public void Cancel()
         {
             CloseTopDialog();

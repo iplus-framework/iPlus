@@ -354,7 +354,7 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Cancelling a delete operation. Closes the confirmation dialog.
         /// </summary>
-        [ACMethodInfo("DeleteDialogCancel", "en{'Cancel'}de{'Abbrechen'}", (short) MISort.Cancel, false)]
+        [ACMethodInfo("DeleteDialogCancel", Const.Cancel, (short) MISort.Cancel, false)]
         public void DeleteDialogCancel()
         {
             CloseTopDialog();

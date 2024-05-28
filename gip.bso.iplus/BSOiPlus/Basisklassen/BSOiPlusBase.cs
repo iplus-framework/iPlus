@@ -776,7 +776,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the work AC class method OK.
         /// </summary>
-        [ACMethodCommand("NewWorkACClassMethod", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("NewWorkACClassMethod", Const.Ok, (short)MISort.Okay)]
         public virtual void NewWorkACClassMethodOK()
         {
             CloseTopDialog();
@@ -823,7 +823,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the work AC class method cancel.
         /// </summary>
-        [ACMethodCommand("NewWorkACClassMethod", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("NewWorkACClassMethod", Const.Cancel, (short)MISort.Cancel)]
         public void NewWorkACClassMethodCancel()
         {
             CloseTopDialog();
@@ -844,7 +844,7 @@ namespace gip.bso.iplus
             return CurrentACClassMethod != null && CurrentACClassMethod.ACClassWF_ACClassMethod.Any();
         }
 
-        [ACMethodCommand("ChangeRootWFClass", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("ChangeRootWFClass", Const.Ok, (short)MISort.Okay)]
         public void ChangeRootWFClassOK()
         {
             CloseTopDialog();

@@ -1018,7 +1018,7 @@ namespace gip.bso.iplus
             return IsEnabledExport();
         }
 
-        [ACMethodInfo("PackageDlgOk", "en{'Ok'}de{'Ok'}", 404, false, false, true, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInfo("PackageDlgOk", Const.Ok, 404, false, false, true, Global.ACKinds.MSMethodPrePost)]
         public void PackageDlgOk()
         {
             if (!IsEnabledPackageDlgOk()) return;

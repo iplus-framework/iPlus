@@ -800,14 +800,14 @@ namespace gip.core.reporthandler
 
         #region FlowDoc
 
-        [ACMethodCommand("Report", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("Report", Const.Cancel, (short)MISort.Cancel)]
         public void FlowDialogCancel()
         {
             UndoFlowDoc();
             CloseTopDialog();
         }
 
-        [ACMethodCommand("Report", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("Report", Const.Ok, (short)MISort.Okay)]
         public void FlowDialogOk()
         {
             SaveFlowDoc();
@@ -1068,7 +1068,7 @@ namespace gip.core.reporthandler
 
         #region ACPrintServer component
 
-        [ACMethodCommand("Report", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("Report", Const.Ok, (short)MISort.Okay)]
         public void PrintComponentDialogOk()
         {
             ACSaveChanges();

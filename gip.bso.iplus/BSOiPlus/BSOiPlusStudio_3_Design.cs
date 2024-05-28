@@ -528,7 +528,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the AC class design OK.
         /// </summary>
-        [ACMethodCommand("ACClassDesign", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("ACClassDesign", Const.Ok, (short)MISort.Okay)]
         public void NewACClassDesignOK()
         {
             CloseTopDialog();
@@ -642,7 +642,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the AC class design cancel.
         /// </summary>
-        [ACMethodCommand("ACClassDesign", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("ACClassDesign", Const.Cancel, (short)MISort.Cancel)]
         public void NewACClassDesignCancel()
         {
             CloseTopDialog();
