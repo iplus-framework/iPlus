@@ -448,7 +448,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the AC program OK.
         /// </summary>
-        [ACMethodCommand("NewACProgram", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("NewACProgram", Const.Ok, (short)MISort.Okay)]
         public void NewACProgramOK()
         {
             CloseTopDialog();
@@ -483,7 +483,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the AC program cancel.
         /// </summary>
-        [ACMethodCommand("NewACProgram", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("NewACProgram", Const.Cancel, (short)MISort.Cancel)]
         public void NewACProgramCancel()
         {
             CloseTopDialog();

@@ -1716,7 +1716,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Closes the configuration dialog.
         /// </summary>
-        [ACMethodInfo("", "en{'Cancel'}de{'Abbrechen'}", 411, true)]
+        [ACMethodInfo("", Const.Cancel, 411, true)]
         public void CloseConfigurationDialog()
         {
             CloseTopDialog();

@@ -949,7 +949,7 @@ namespace gip.core.autocomponent
         }
         #endregion
 
-        [ACMethodCommand("Querydialog", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("Querydialog", Const.Ok, (short)MISort.Okay)]
         public void OK()
         {
             switch (_EditMode)
@@ -1008,7 +1008,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        [ACMethodCommand("Querydialog", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("Querydialog", Const.Cancel, (short)MISort.Cancel)]
         public void Cancel()
         {
             Result = false;
@@ -1316,7 +1316,7 @@ namespace gip.core.autocomponent
             return Result;
         }
 
-        [ACMethodCommand("Querydialog", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("Querydialog", Const.Ok, (short)MISort.Okay)]
         public void OKColumnValues()
         {
             if (!IsEnabledOKColumnValues())

@@ -79,13 +79,13 @@ namespace gip.core.autocomponent
             return CurrentFolderPath;
         }
 
-        [ACMethodCommand("Folderdialog", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("Folderdialog", Const.Ok, (short)MISort.Okay)]
         public void OK()
         {
             CloseTopDialog();
         }
 
-        [ACMethodCommand("Folderdialog", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("Folderdialog", Const.Cancel, (short)MISort.Cancel)]
         public void Cancel()
         {
             CurrentFolderPath = null;

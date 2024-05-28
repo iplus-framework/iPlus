@@ -669,7 +669,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the OK.
         /// </summary>
-        [ACMethodCommand("NewText", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("NewText", Const.Ok, (short)MISort.Okay)]
         public void NewOK()
         {
             CloseTopDialog();
@@ -721,7 +721,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the cancel.
         /// </summary>
-        [ACMethodCommand("NewText", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("NewText", Const.Cancel, (short)MISort.Cancel)]
         public void NewCancel()
         {
             CloseTopDialog();

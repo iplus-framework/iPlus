@@ -679,7 +679,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the visualisation OK.
         /// </summary>
-        [ACMethodCommand("Visualisation", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("Visualisation", Const.Ok, (short)MISort.Okay)]
         public void NewVisualisationOK()
         {
             CloseTopDialog();
@@ -707,7 +707,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the visualisation cancel.
         /// </summary>
-        [ACMethodCommand("Visualisation", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("Visualisation", Const.Cancel, (short)MISort.Cancel)]
         public void NewVisualisationCancel()
         {
             CloseTopDialog();

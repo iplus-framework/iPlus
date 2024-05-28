@@ -1685,7 +1685,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the AC project OK.
         /// </summary>
-        [ACMethodCommand("ACProject", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("ACProject", Const.Ok, (short)MISort.Okay)]
         public void NewACProjectOK()
         {
             CloseTopDialog();
@@ -1715,7 +1715,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the AC project cancel.
         /// </summary>
-        [ACMethodCommand("ACProject", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("ACProject", Const.Cancel, (short)MISort.Cancel)]
         public void NewACProjectCancel()
         {
             CloseTopDialog();
@@ -1890,7 +1890,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the AC class OK.
         /// </summary>
-        [ACMethodCommand("NewACClass", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("NewACClass", Const.Ok, (short)MISort.Okay)]
         public void NewACClassOK()
         {
             CloseTopDialog();
@@ -1918,14 +1918,14 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the AC class cancel.
         /// </summary>
-        [ACMethodCommand("NewACClass", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("NewACClass", Const.Cancel, (short)MISort.Cancel)]
         public void NewACClassCancel()
         {
             CloseTopDialog();
             CurrentNewACClass = null;
         }
 
-        [ACMethodCommand("SwitchACClass", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("SwitchACClass", Const.Ok, (short)MISort.Okay)]
         public void SwitchACClassOK()
         {
             CloseTopDialog();
@@ -1985,7 +1985,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News the AC class cancel.
         /// </summary>
-        [ACMethodCommand("SwitchACClass", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("SwitchACClass", Const.Cancel, (short)MISort.Cancel)]
         public void SwitchACClassCancel()
         {
             CloseTopDialog();
@@ -2145,7 +2145,7 @@ namespace gip.bso.iplus
             return true;
         }
 
-        [ACMethodInfo("Clone", "en{'Ok'}de{'Ok'}", 9999, false)]
+        [ACMethodInfo("Clone", Const.Ok, 9999, false)]
         public void CloneDialogOK()
         {
             if (!IsEnabledCloneDialogOK())
