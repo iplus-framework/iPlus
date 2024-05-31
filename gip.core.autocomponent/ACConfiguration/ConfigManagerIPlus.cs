@@ -1,12 +1,9 @@
-using gip.core.autocomponent;
 using gip.core.datamodel;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -613,5 +610,13 @@ namespace gip.core.autocomponent
 
         #endregion
 
+        #region Planning
+
+        public virtual bool HasPlanning(IACEntityObjectContext db, IACConfigStore configStore, Guid acClassWFID)
+        {
+            return false;
+        }
+
+        #endregion
     }
 }

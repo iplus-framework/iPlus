@@ -153,6 +153,20 @@ namespace gip.core.autocomponent
                 PropertyLog.LogCurrentValue();
         }
 
+        protected override bool CanPersist
+        {
+            get
+            {
+                bool canPersist = base.CanPersist;
+                if (canPersist)
+                {
+                    if (PropertyLog != null && (!PropertyLog.IsRefreshCycleElapsed || !PropertyLog.ApplyFilter_IsLogable))
+                        return false;
+                }
+                return canPersist;
+            }
+        }
+
         #endregion
 
         #region IACPropertyNetServer Member

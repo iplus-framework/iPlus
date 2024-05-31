@@ -553,7 +553,7 @@ namespace gip.core.manager
         }
 
         /// <summary>Switches the ac class ok.</summary>
-        [ACMethodCommand("SwitchACClass", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("SwitchACClass", Const.Ok, (short)MISort.Okay)]
         public virtual void SwitchACClassOK()
         {
         }
@@ -570,7 +570,7 @@ namespace gip.core.manager
         /// <summary>
         /// News the AC class cancel.
         /// </summary>
-        [ACMethodCommand("SwitchACClass", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("SwitchACClass", Const.Cancel, (short)MISort.Cancel)]
         public void SwitchACClassCancel()
         {
             CloseTopDialog();

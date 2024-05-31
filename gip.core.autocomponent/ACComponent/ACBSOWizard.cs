@@ -103,7 +103,7 @@ namespace gip.core.autocomponent
             return pos > 0;
         }
 
-        [ACMethodCommand("Wizard", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand("Wizard", Const.Cancel, (short)MISort.Cancel)]
         public void Cancel()
         {
             CloseTopDialog();

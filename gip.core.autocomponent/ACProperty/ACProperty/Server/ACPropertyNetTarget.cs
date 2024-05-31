@@ -334,6 +334,9 @@ namespace gip.core.autocomponent
                     // Angelangt am Endpunkt, da Target nicht verbunden mit Source
                     else
                     {
+                        // Änderungen, die nicht von der Source-Quelle kommen können persistiert werden
+                        Persist();
+
                         newRequest = new ACPropertyValueEvent<T>(_Current_T_EventArgsForPropertyAccessor, EventTypes.Response,
                                                                                         EventRaiser.Target, ACRef.ValueT, this.ACType);
                         newRequest.ChangeValue(this, ValueTUnrequested);
@@ -341,9 +344,6 @@ namespace gip.core.autocomponent
 
                         // Löse OnSourceValueUpdatedOnReceival-Event aus, damit z.B. OPC-DAItems zum Versand angetriggert werden
                         OnValueUpdatedOnReceival(newRequest, ACPropertyChangedPhase.BeforeBroadcast);
-
-                        // Änderungen, die nicht von der Source-Quelle kommen können persistiert werden
-                        Persist();
 
                         // Löse PropertyChanged-Event aus
                         if (_LiveLog != null)
@@ -474,10 +474,11 @@ namespace gip.core.autocomponent
                         ACPropertyValueEvent<T> response = new ACPropertyValueEvent<T>(eventArgs, EventTypes.Response,
                                                                                         EventRaiser.Target, ACRef.ValueT, this.ACType);
                         response.ChangeValue(this, ValueTUnrequested);
-                        BroadcastToProxies(response);
 
                         // Änderungen, die nicht von der Source-Quelle kommen können persistiert werden
                         Persist();
+
+                        BroadcastToProxies(response);
 
                         // Löse PropertyChanged-Event aus
                         if (_LiveLog != null)
@@ -508,11 +509,12 @@ namespace gip.core.autocomponent
                 //OnPropertyChanged(Const.ValueT);
                 //OnPropertyChanged(Const.Value);
 
+                // Änderungen, die nicht von der Source-Quelle kommen können persistiert werden
+                Persist();
+
                 // Broadcast (mit eigener Request-ID, beachte EventType)
                 BroadcastValueChangedInSource(EventRaiser.Target, eventArgs);
 
-                // Änderungen, die nicht von der Source-Quelle kommen können persistiert werden
-                Persist();
                 return;
             }
             // Falls Aufruf von Source-Objekt
@@ -912,11 +914,10 @@ namespace gip.core.autocomponent
                         // Löse OnSourceValueUpdatedOnReceival-Event aus, damit z.B. OPC-DAItems zum Versand angetriggert werden
                         OnValueUpdatedOnReceival(newRequest, ACPropertyChangedPhase.BeforeBroadcast);
 
-                        BroadcastToProxies(newRequest);
-
-
                         // Änderungen, die nicht von der Source-Quelle kommen können persistiert werden
                         Persist();
+
+                        BroadcastToProxies(newRequest);
 
                         // Löse PropertyChanged-Event aus
                         if (_LiveLog != null)
@@ -1050,10 +1051,10 @@ namespace gip.core.autocomponent
                         // Löse OnSourceValueUpdatedOnReceival-Event aus, damit z.B. OPC-DAItems zum Versand angetriggert werden
                         OnValueUpdatedOnReceival(eventArgs, ACPropertyChangedPhase.BeforeBroadcast);
 
-                        BroadcastToProxies(response);
-
                         // Änderungen, die nicht von der Source-Quelle kommen können persistiert werden
                         Persist();
+
+                        BroadcastToProxies(response);
 
                         // Löse PropertyChanged-Event aus
                         if (_LiveLog != null)

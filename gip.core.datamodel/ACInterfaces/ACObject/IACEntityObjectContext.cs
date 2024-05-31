@@ -161,6 +161,7 @@ namespace gip.core.datamodel
         MergeOption RecommendedMergeOption { get; }
         DbConnection SeparateConnection { get; }
         string UserName { get; set; }
+		bool PreventOnContextACChangesExecuted { get; set; }
         DbConnection Connection { get; }
 
         // Compatibility to legacy code that uses EntityKey from EF4

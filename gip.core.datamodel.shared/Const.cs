@@ -62,6 +62,9 @@ namespace gip.core.datamodel
         public const string MN_GetEnumList = "GetEnumList";
         public const string DBSetAsEnumerablePostfix = "List";
 
+        public const string PreConfigACUrl = "en{'Parent WF URL'}de{'WF Eltern-URL'}";
+        public const string LocalConfigACUrl = "en{'Property URL'}de{'Eigenschafts-URL'}";
+
         public const string PN_KeyACUrl = "KeyACUrl";
         public const string PN_LocalConfigACUrl = "LocalConfigACUrl";
         public const string PN_PreConfigACUrl = "PreConfigACUrl";

@@ -587,7 +587,7 @@ namespace gip.bso.iplus
             PostExecute("New");
         }
 
-        [ACMethodCommand("NewWorkACClassMethod", "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand("NewWorkACClassMethod", Const.Ok, (short)MISort.Okay)]
         public override void NewWorkACClassMethodOK()
         {
             CloseTopDialog();

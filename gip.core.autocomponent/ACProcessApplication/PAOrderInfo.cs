@@ -66,6 +66,16 @@ namespace gip.core.autocomponent
             }
         }
 
+        public PAOrderInfo Clone()
+        {
+            PAOrderInfo orderInfo = new PAOrderInfo();
+            foreach (PAOrderInfoEntry entry in Entities)
+            {
+                orderInfo.Entities.Add(entry.Clone());
+            }
+            return orderInfo;
+        }
+
         #endregion
 
         public override string ToString()
@@ -108,5 +118,9 @@ namespace gip.core.autocomponent
             }
         }
 
+        public PAOrderInfoEntry Clone()
+        {
+            return new PAOrderInfoEntry(this.EntityName, this.EntityID);
+        }
     }
 }

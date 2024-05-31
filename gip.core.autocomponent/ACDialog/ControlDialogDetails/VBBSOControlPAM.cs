@@ -856,7 +856,7 @@ namespace gip.core.autocomponent
             return base.OnGetControlModes(vbControl);
         }
 
-        [ACMethodInfo("", "en{'Ok'}de{'Ok'}", 999)]
+        [ACMethodInfo("", Const.Ok, 999)]
         public void EditComplexValueOk()
         {
             string sourceACIdentifier = null;

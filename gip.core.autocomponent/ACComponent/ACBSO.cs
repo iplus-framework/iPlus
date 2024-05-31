@@ -841,7 +841,7 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Excecutes the Export-Logic when user has confirmed with the OK-Button.
         /// </summary>
-        [ACMethodInfo("Query", "en{'Ok'}de{'Ok'}", (short)MISort.QueryDesignDlg, true)]
+        [ACMethodInfo("Query", Const.Ok, (short)MISort.QueryDesignDlg, true)]
         public virtual void DataExportOk()
         {
             if (!IsEnabledDataExportOk())
@@ -860,7 +860,7 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Cancels the export and closes the Dialog for exporting.
         /// </summary>
-        [ACMethodInfo("Query", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.QueryDesignDlg, true)]
+        [ACMethodInfo("Query", Const.Cancel, (short)MISort.QueryDesignDlg, true)]
         public virtual void DataExportCancel()
         {
             CloseTopDialog();
@@ -924,7 +924,7 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Cancels the current asynchronous task in the BackgroundWorker
         /// </summary>
-        [ACMethodCommand("CancelBackgroundWorker", "en{'Cancel'}de{'Abbrechen'}", 9999, false, Global.ACKinds.MSMethodPrePost)]
+        [ACMethodCommand("CancelBackgroundWorker", Const.Cancel, 9999, false, Global.ACKinds.MSMethodPrePost)]
         public void CancelBackgroundWorker()
         {
             if (!BackgroundWorker.IsBusy) return;

@@ -42,7 +42,14 @@ namespace gip.core.autocomponent
         internal void LogCurrentValue()
         {
             if (PropertyLogDict == null)
+            {
+                if (IsRefreshCycleElapsed && ApplyFilter_IsLogable)
+                {
+                    _LastLogTime = DateTime.Now;
+                    _LastLogValue = _property2Log.ValueT;
+                }
                 return;
+            }
 
             using (ACMonitor.Lock(_property2Log._20015_LockValue))
             {
@@ -179,7 +186,7 @@ namespace gip.core.autocomponent
             return pLInfo;
         }
 
-        private bool IsRefreshCycleElapsed
+        public bool IsRefreshCycleElapsed
         {
             get
             {
@@ -220,7 +227,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        private bool ApplyFilter_IsLogable
+        public bool ApplyFilter_IsLogable
         {
             get
             {
@@ -334,8 +341,12 @@ namespace gip.core.autocomponent
         private void DeleteOldDictionaries(DateTime stamp)
         {
             _LogDeletionChecked = true;
+#if DEBUG
+            return;
+#else
             if (String.IsNullOrEmpty(PathOfDirectory))
                 return;
+
             DateTime deleteDate = stamp.AddMonths(DeletePropLogAfterXMonths * -1);
             try
             {
@@ -362,6 +373,7 @@ namespace gip.core.autocomponent
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                     datamodel.Database.Root.Messages.LogException("ACPropertyLog<T>", "DeleteOldDictionaries", msg);
             }
+#endif
         }
 
         private static int? _DeletePropLogAfterXMonths;

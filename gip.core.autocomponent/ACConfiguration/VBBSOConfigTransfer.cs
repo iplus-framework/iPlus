@@ -222,7 +222,7 @@ namespace gip.core.autocomponent
 
         #region Methods
 
-        [ACMethodInfo("BatchCreateAutomaticallyCreateDlgOk", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Okay)]
+        [ACMethodInfo("BatchCreateAutomaticallyCreateDlgOk", Const.Cancel, (short)MISort.Okay)]
         public void Cancel()
         {
             CloseWindow(this, "Mainlayout");

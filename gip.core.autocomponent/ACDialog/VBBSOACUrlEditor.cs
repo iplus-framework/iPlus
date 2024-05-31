@@ -233,7 +233,7 @@ namespace gip.core.autocomponent
             return null;
         }
 
-        [ACMethodCommand(Const.ACUrlPrefix, "en{'OK'}de{'OK'}", (short)MISort.Okay)]
+        [ACMethodCommand(Const.ACUrlPrefix, Const.Ok, (short)MISort.Okay)]
         public void OK()
         {
             Result = true;
@@ -241,7 +241,7 @@ namespace gip.core.autocomponent
             this.ParentACComponent.StopComponent(this);
         }
 
-        [ACMethodCommand(Const.ACUrlPrefix, "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        [ACMethodCommand(Const.ACUrlPrefix, Const.Cancel, (short)MISort.Cancel)]
         public void Cancel()
         {
             Result = false;

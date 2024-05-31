@@ -9,7 +9,7 @@ namespace gip.core.datamodel
     /// It helps to display the overridden according the IACConfigStore.OverridingOrder 
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACConfigParam'}de{'ACConfigParam'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
-    public class ACConfigParam 
+    public class ACConfigParam
     {
         [ACPropertyInfo(1, Const.ACIdentifierPrefix, "en{'Name'}de{'Name'}")]
         public string ACIdentifier { get; set; }
@@ -48,6 +48,21 @@ namespace gip.core.datamodel
         public gipCoreData.ACClass VBACClass { get; set; }
 
         public Guid? VBiACClassID { get; set; }
+
+
+        #region For mass preview - params from many nodes
+
+        [ACPropertyInfo(100, Const.PN_LocalConfigACUrl, Const.LocalConfigACUrl)]
+        public string LocalConfigACUrl { get; set; }
+
+
+        [ACPropertyInfo(99, Const.PN_PreConfigACUrl, Const.PreConfigACUrl)]
+        public string PreConfigACUrl { get; set; }
+
+
+        public string ACMehtodACIdentifier { get; set; }
+
+        #endregion
 
     }
 }

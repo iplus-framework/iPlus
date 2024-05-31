@@ -60,7 +60,7 @@ namespace gip.core.processapplication
 
 
         [ACMethodInteraction("", "en{'Register alibi weight'}de{'Registriere Gewicht'}", 450, true)]
-        public Msg RegisterAlibiWeight()
+        public virtual Msg RegisterAlibiWeight()
         {
             if (!IsEnabledRegisterAlibiWeight())
                 return null;

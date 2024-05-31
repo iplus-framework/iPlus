@@ -142,13 +142,13 @@ namespace gip.core.autocomponent.ACDialog
             return valueList[0] as string;
         }
 
-        [ACMethodInfo("", "en{'OK'}de{'OK'}", 9999)]
+        [ACMethodInfo("", Const.Ok, 9999)]
         public void OK()
         {
             CloseTopDialog();
         }
 
-        [ACMethodInfo("", "en{'Cancel'}de{'Abbrechen'}", 9999)]
+        [ACMethodInfo("", Const.Cancel, 9999)]
         public void Cancel()
         {
             _ACValueItemList = null;

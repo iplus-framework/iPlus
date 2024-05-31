@@ -375,7 +375,7 @@ namespace gip.bso.iplus
             return true;
         }
 
-        [ACMethodInfo("", "en{'Cancel'}de{'Abbrechen'}", 412, true)]
+        [ACMethodInfo("", Const.Cancel, 412, true)]
         public void DlgCancel()
         {
             BackgroundWorker.CancelAsync();

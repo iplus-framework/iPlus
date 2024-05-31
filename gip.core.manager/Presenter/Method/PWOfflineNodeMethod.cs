@@ -151,6 +151,25 @@ namespace gip.core.manager
                 return _HasRules.Value;
             }
         }
+
+        private short? _HasPlanning = null;
+        [ACPropertyInfo(5, "", "", "", false)]
+        public short HasPlanning
+        {
+            get
+            {
+
+                if (_HasPlanning.HasValue)
+                    return _HasPlanning.Value;
+                if (this.VBPresenter == null || this.VBPresenter.VarioConfigManager == null || ContentACClassWF == null)
+                    return 0;
+
+                _HasPlanning = (short)(VBPresenter.VarioConfigManager.HasPlanning(Database, CurrentConfigStore, ContentACClassWF.ACClassWFID) ? 1 : 0);
+
+                return _HasPlanning.Value;
+            }
+        }
+
         #endregion
 
         #region IACDesignProvider

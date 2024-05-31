@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using gip.core.datamodel;
-using gip.core.autocomponent;
 using System.Xml;
 
 namespace gip.core.autocomponent
@@ -86,14 +84,14 @@ namespace gip.core.autocomponent
                     RuleValueList ruleValueList = null;
                     //using (IACEntityObjectContext db = (IACEntityObjectContext)Activator.CreateInstance(ParentACComponent.Database.GetType()))
                     //{
-                        ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
-                        if (serviceInstance != null)
-                        {
-                            var mandantoryConfigStores = MandatoryConfigStores;
-                            if (!ValidateExpectedConfigStores())
-                                return new List<ACComponent>();
-                            ruleValueList = serviceInstance.GetRuleValueList(mandantoryConfigStores, PreValueACUrl, ConfigACUrl + @"\Rules\" + ACClassWFRuleTypes.Allowed_instances.ToString());
-                        }
+                    ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
+                    if (serviceInstance != null)
+                    {
+                        var mandantoryConfigStores = MandatoryConfigStores;
+                        if (!ValidateExpectedConfigStores())
+                            return new List<ACComponent>();
+                        ruleValueList = serviceInstance.GetRuleValueList(mandantoryConfigStores, PreValueACUrl, ConfigACUrl + @"\Rules\" + ACClassWFRuleTypes.Allowed_instances.ToString());
+                    }
                     //}
                     if (ruleValueList != null)
                     {
@@ -122,7 +120,7 @@ namespace gip.core.autocomponent
         protected virtual ACComponent FirstInvokableTaskExecutor
         {
             get
-            {             
+            {
                 List<ACComponent> list = InvokableTaskExecutors;
                 if (!list.Any())
                     return null;
@@ -193,6 +191,9 @@ namespace gip.core.autocomponent
             }
         }
 
+        [ACPropertyBindingSource(211, nameof(HasPlanning), "en{'Has planning'}de{'Hat Planung'}", "", false, false)]
+        public IACContainerTNet<short> HasPlanning { get; set; }
+
         #endregion
 
         #region Methods
@@ -224,6 +225,14 @@ namespace gip.core.autocomponent
             {
                 CurrentACState = ACStateEnum.SMRunning;
                 //PostExecute(PABaseState.SMStarting);
+            }
+
+            HasPlanning.ValueT = 0;
+            ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
+            if (serviceInstance != null && ContentACClassWF != null)
+            {
+                IACConfigStore currentConfigStore = MandatoryConfigStores.OrderBy(c => c.OverridingOrder).FirstOrDefault();
+                HasPlanning.ValueT = (short)(serviceInstance.HasPlanning(Database, currentConfigStore, ContentACClassWF.ACClassWFID) ? 1 : 0);
             }
         }
 
