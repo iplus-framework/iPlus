@@ -1,15 +1,16 @@
 ﻿using gip.core.datamodel;
-using gip.core.reporthandler.Flowdoc;
+using gip.core.reporthandlerwpf.Flowdoc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using gip.core.reporthandler;
 
-namespace gip.core.reporthandler
+namespace gip.core.reporthandlerwpf
 {
-    public class LP4Printer : ACPrintServerBase
+    public class LP4Printer : ACPrintServerBaseWPF
     {
         #region c'tors
 

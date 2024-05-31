@@ -323,9 +323,11 @@ namespace gip.core.datamodel
 
         public event ACChangesEventHandler ACChangesExecuted;
 
-#endregion
+        public bool PreventOnContextACChangesExecuted { get; set; }
 
-#region IACUrl Member
+        #endregion
+
+        #region IACUrl Member
         /// <summary>
         /// Returns the parent object
         /// </summary>
