@@ -177,6 +177,8 @@
     <Compile Include="LP4\LP4PrinterComm.cs" />
     <Compile Include="LP4\LP4PrinterCommands.cs" />
     <Compile Include="LP4\LP4Printer.cs" />
+    <Compile Include="LP4\LP4PrintJob.cs" />
+    <Compile Include="LP4\LP4Render.cs" />
     <Compile Include="Manager\BlockDocumentPosition.cs" />
     <Compile Include="Manager\ESCPosPrinter.cs" />
     <Compile Include="Manager\LinxPrinter.cs" />
