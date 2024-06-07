@@ -1,4 +1,5 @@
-﻿using gip.core.reporthandler.Flowdoc;
+﻿using gip.core.datamodel;
+using gip.core.reporthandler.Flowdoc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,18 +26,73 @@ namespace gip.core.reporthandler
 
         public override void OnRenderInlineACMethodValue(PrintJob printJob, InlineACMethodValue inlineACMethodValue)
         {
+            LP4PrintJob lp4PrintJob = printJob as LP4PrintJob;
+            if (lp4PrintJob != null)
+            {
+                lp4PrintJob.AddLayoutVariable(inlineACMethodValue.Name, inlineACMethodValue.Text);
+            }
         }
 
         public override void OnRenderInlineBarcode(PrintJob printJob, InlineBarcode inlineBarcode)
         {
+            LP4PrintJob lp4PrintJob = (LP4PrintJob)printJob;
+
+            if (lp4PrintJob != null)
+            {
+                string barcodeValue = "";
+
+                BarcodeType[] ianBarcodeTypes = new BarcodeType[] { BarcodeType.CODE128, BarcodeType.CODE128A, BarcodeType.CODE128B, BarcodeType.CODE128C };
+                bool isIanCodeType = ianBarcodeTypes.Contains(inlineBarcode.BarcodeType);
+                Dictionary<string, string> barcodeValues = new Dictionary<string, string>();
+
+                if (isIanCodeType)
+                {
+                    if (inlineBarcode.BarcodeValues != null && inlineBarcode.BarcodeValues.Any())
+                    {
+                        foreach (BarcodeValue tmpBarcodeValue in inlineBarcode.BarcodeValues)
+                        {
+                            try
+                            {
+                                string ai = tmpBarcodeValue.AI;
+                                string tmpValue = tmpBarcodeValue.Value?.ToString();
+                                if (tmpValue != null)
+                                {
+                                    barcodeValues.Add(ai, tmpValue);
+                                }
+                            }
+                            catch (Exception)
+                            {
+
+                            }
+                        }
+                    }
+                    barcodeValue = GS1.Generate(barcodeValues, isIanCodeType);
+                }
+                else
+                {
+                    barcodeValue = inlineBarcode.Value.ToString();
+                }
+
+                lp4PrintJob.AddLayoutVariable(inlineBarcode.Name, barcodeValue);
+            }
         }
 
         public override void OnRenderInlineBoolValue(PrintJob printJob, InlineBoolValue inlineBoolValue)
         {
+            LP4PrintJob lp4PrintJob = printJob as LP4PrintJob;
+            if (lp4PrintJob != null)
+            {
+                lp4PrintJob.AddLayoutVariable(inlineBoolValue.Name, inlineBoolValue.Value.ToString());
+            }
         }
 
         public override void OnRenderInlineContextValue(PrintJob printJob, InlineContextValue inlineContextValue)
         {
+            LP4PrintJob lp4PrintJob = printJob as LP4PrintJob;
+            if (lp4PrintJob != null)
+            {
+                lp4PrintJob.AddLayoutVariable(inlineContextValue.Name, inlineContextValue.Text);
+            }
         }
 
         public override void OnRenderInlineDocumentValue(PrintJob printJob, InlineDocumentValue inlineDocumentValue)
@@ -44,98 +100,85 @@ namespace gip.core.reporthandler
             LP4PrintJob lp4PrintJob = printJob as LP4PrintJob;
             if (lp4PrintJob != null)
             {
-
+                lp4PrintJob.AddLayoutVariable(inlineDocumentValue.Name, inlineDocumentValue.Text);
             }
         }
 
         public override void OnRenderInlineTableCellValue(PrintJob printJob, InlineTableCellValue inlineTableCellValue)
         {
-            throw new NotImplementedException();
+            LP4PrintJob lp4PrintJob = printJob as LP4PrintJob;
+            if (lp4PrintJob != null)
+            {
+                lp4PrintJob.AddLayoutVariable(inlineTableCellValue.Name, inlineTableCellValue.Text);
+            }
         }
 
         public override void OnRenderLineBreak(PrintJob printJob, LineBreak lineBreak)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderParagraphFooter(PrintJob printJob, Paragraph paragraph)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderParagraphHeader(PrintJob printJob, Paragraph paragraph)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderRun(PrintJob printJob, Run run)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderSectionDataGroupFooter(PrintJob printJob, SectionDataGroup sectionDataGroup)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderSectionDataGroupHeader(PrintJob printJob, SectionDataGroup sectionDataGroup)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderSectionReportFooterFooter(PrintJob printJob, SectionReportFooter sectionReportFooter)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderSectionReportFooterHeader(PrintJob printJob, SectionReportFooter sectionReportFooter)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderSectionReportHeaderFooter(PrintJob printJob, SectionReportHeader sectionReportHeader)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderSectionReportHeaderHeader(PrintJob printJob, SectionReportHeader sectionReportHeader)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderSectionTableFooter(PrintJob printJob, Table table)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderSectionTableHeader(PrintJob printJob, Table table)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderTableColumn(PrintJob printJob, TableColumn tableColumn)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderTableRowFooter(PrintJob printJob, TableRow tableRow)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderTableRowGroupFooter(PrintJob printJob, TableRowGroup tableRowGroup)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderTableRowGroupHeader(PrintJob printJob, TableRowGroup tableRowGroup)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnRenderTableRowHeader(PrintJob printJob, TableRow tableRow)
         {
-            throw new NotImplementedException();
         }
     }
 }

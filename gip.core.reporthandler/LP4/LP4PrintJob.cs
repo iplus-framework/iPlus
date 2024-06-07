@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace gip.core.reporthandler
 
         public LP4PrintJob() : base()
         {
-                
+
         }
 
         #endregion
@@ -24,7 +25,7 @@ namespace gip.core.reporthandler
             get;
             set;
         }
-        
+
         public string PrinterTask
         {
             get;
@@ -43,7 +44,7 @@ namespace gip.core.reporthandler
             set;
         }
 
-        public List<Tuple<string,string>> LayoutVariables
+        public List<Tuple<string, string>> LayoutVariables
         {
             get;
             set;
@@ -55,6 +56,46 @@ namespace gip.core.reporthandler
                 LayoutVariables = new List<Tuple<string, string>>();
 
             LayoutVariables.Add(new Tuple<string, string>(variableName, variableValue));
+        }
+
+        public string GetPrinterCommandAsString()
+        {
+            if (string.IsNullOrEmpty(PrinterTask))
+                return null;
+
+            switch (PrinterTask)
+            {
+                case LP4Printer.LP4PrinterCommands.EnumPrinters:
+                    {
+
+
+                        break;
+                    }
+                case LP4Printer.LP4PrinterCommands.EnumLayouts:
+                    {
+                        break;
+                    }
+                case LP4Printer.LP4PrinterCommands.EnumLayoutVariables:
+                    {
+                        break;
+                    }
+                case LP4Printer.LP4PrinterCommands.PrinterStatus:
+                    {
+                        break;
+                    }
+                case LP4Printer.LP4PrinterCommands.ResetCommand:
+                    {
+                        break;
+                    }
+                case LP4Printer.LP4PrinterCommands.PrintCommand:
+                    {
+                        break;
+                    }
+            }
+
+
+
+            return null;
         }
 
         public byte[] GetPrinterCommand()
