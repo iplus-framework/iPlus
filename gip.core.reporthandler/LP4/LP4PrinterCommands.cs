@@ -57,26 +57,88 @@ namespace gip.core.reporthandler
         
         public class LP4PrinterCommands
         {
-            public const string EnumPrinters = "E";
+            public LP4PrinterCommands(char startChar, char endChar, char separatorTab, char separatorCR)
+            {
+                StartCharacter = startChar;
+                EndCharacter = endChar;
+                SeparatorCharacterTab = separatorTab;
+                SeparatorCharachterCR = separatorCR;
+            }
 
-            public const string EnumLayouts = "L";
+            public char StartCharacter
+            {
+                get;
+                internal set;
+            }
 
-            public const string EnumLayoutVariables = "V";
+            public char EndCharacter
+            {
+                get;
+                internal set;
+            }
 
-            public const string PrintCommand = "P";
+            public char SeparatorCharacterTab
+            {
+                get;
+                internal set;
+            }
 
-            public const string ResetCommand = "R";
+            public char SeparatorCharachterCR
+            {
+                get;
+                internal set;
+            }
 
-            public const string PrinterStatus = "S";
+            public string EnumPrinters
+            {
+                get => C_EnumPrinters;
+            }
+
+            public string EnumLayouts
+            {
+                get => C_EnumLayouts;
+            }
+
+            public string EnumLayoutVariables 
+            {
+                get => C_EnumLayoutVariables;
+            }
+
+            public string PrintCommand
+            {
+                get => C_PrintCommand;
+            }
+
+            public string ResetCommand
+            {
+                get => C_ResetCommand;
+            }
+
+            public string PrinterStatus
+            {
+                get => C_PrinterStatus;
+            }
+
+            public const string C_EnumPrinters = "E";
+
+            public const string C_EnumLayouts = "L";
+
+            public const string C_EnumLayoutVariables = "V:";
+
+            public const string C_PrintCommand = "P";
+
+            public const string C_ResetCommand = "R:";
+
+            public const string C_PrinterStatus = "S:";
 
 
-            public const string PrintOptionNormalPrinting = "0";
+            public const string C_PrintOptionNormalPrinting = "0";
 
-            public const string PrintOptionSpoolFileCreatedNotTransfered = "99999A";
+            public const string C_PrintOptionSpoolFileCreatedNotTransfered = "99999A";
 
-            public const string PrintOptionNormalPrintingWithoutWindowForVariables = "999999998";
+            public const string C_PrintOptionNormalPrintingWithoutWindowForVariables = "999999998";
 
-            public const string PrintOptionWithoutInputWindowAndNoTransfer = "999999999";
+            public const string C_PrintOptionWithoutInputWindowAndNoTransfer = "999999999";
 
         }
 

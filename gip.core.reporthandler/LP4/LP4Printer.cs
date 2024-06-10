@@ -28,6 +28,15 @@ namespace gip.core.reporthandler
             return result;
         }
 
+        public override bool ACPostInit()
+        {
+            bool result = base.ACPostInit();
+
+            CurrentCommands = new LP4PrinterCommands(StartCharacter, EndCharacter, SeparatorCharacterTab, SeparatorCharachterCR);
+
+            return result;
+        }
+
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
             return base.ACDeInit(deleteACClassTask);
@@ -47,6 +56,12 @@ namespace gip.core.reporthandler
         {
             get;
             set;
+        }
+
+        public LP4PrinterCommands CurrentCommands
+        {
+            get;
+            private set;
         }
 
         #endregion
@@ -88,7 +103,6 @@ namespace gip.core.reporthandler
                 codePage = CodePage;
             }
 
-
             if (codePage != null)
             {
                 try
@@ -101,7 +115,7 @@ namespace gip.core.reporthandler
                 }
             }
 
-            LP4PrintJob printJob = new LP4PrintJob();
+            LP4PrintJob printJob = new LP4PrintJob(CurrentCommands, PrinterName, reportName);
             printJob.FlowDocument = flowDocument;
             printJob.Encoding = encoder;
             printJob.ColumnMultiplier = 1;
@@ -115,12 +129,6 @@ namespace gip.core.reporthandler
             OnRenderFlowDocument(printJob, printJob.FlowDocument);
             return printJob;
         }
-
-        #region Methods => Render
-
-
-
-        #endregion
 
         #endregion
     }

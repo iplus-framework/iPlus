@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Wordprocessing;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +12,22 @@ namespace gip.core.reporthandler
     {
         #region c'tors
 
-        public LP4PrintJob() : base()
+        public LP4PrintJob(LP4Printer.LP4PrinterCommands commands, string printerName, string layoutName = null) : base()
         {
-
+            LP4Commands = commands;
+            PrinterName = printerName;
+            LayoutName = layoutName;
         }
 
         #endregion
 
         #region Properties
+
+        public LP4Printer.LP4PrinterCommands LP4Commands
+        {
+            get;
+            set;
+        }
 
         public string PrinterName
         {
@@ -50,6 +59,16 @@ namespace gip.core.reporthandler
             set;
         }
 
+        public Msg PrintJobError
+        {
+            get;
+            set;
+        }
+
+        #endregion
+
+        #region Methods
+
         public void AddLayoutVariable(string variableName, string variableValue)
         {
             if (LayoutVariables == null)
@@ -65,36 +84,80 @@ namespace gip.core.reporthandler
 
             switch (PrinterTask)
             {
-                case LP4Printer.LP4PrinterCommands.EnumPrinters:
+                case LP4Printer.LP4PrinterCommands.C_EnumPrinters:
                     {
-
-
-                        break;
+                        return EnumeratePrinters();
                     }
-                case LP4Printer.LP4PrinterCommands.EnumLayouts:
+                case LP4Printer.LP4PrinterCommands.C_EnumLayouts:
                     {
-                        break;
+                        return EnumerateLayouts();
                     }
-                case LP4Printer.LP4PrinterCommands.EnumLayoutVariables:
+                case LP4Printer.LP4PrinterCommands.C_EnumLayoutVariables:
                     {
-                        break;
+                        return EnumerateLayoutVariables();
                     }
-                case LP4Printer.LP4PrinterCommands.PrinterStatus:
+                case LP4Printer.LP4PrinterCommands.C_PrinterStatus:
                     {
-                        break;
+                        return GetPrinterStatus();
                     }
-                case LP4Printer.LP4PrinterCommands.ResetCommand:
+                case LP4Printer.LP4PrinterCommands.C_ResetCommand:
                     {
-                        break;
+                        return ResetPrinter();
                     }
-                case LP4Printer.LP4PrinterCommands.PrintCommand:
+                case LP4Printer.LP4PrinterCommands.C_PrintCommand:
                     {
-                        break;
+                        return Print();
                     }
             }
 
+            return null;
+        }
 
+        private string EnumeratePrinters()
+        {
+            return string.Format("{0}{1}{2}", LP4Commands.StartCharacter, LP4Commands.EnumPrinters, LP4Commands.EndCharacter);
+        }
 
+        private string EnumerateLayouts()
+        {
+            return string.Format("{0}{1}{2}", LP4Commands.StartCharacter, LP4Commands.EnumLayouts, LP4Commands.EndCharacter);
+        }
+
+        private string EnumerateLayoutVariables()
+        {
+            if (string.IsNullOrEmpty(LayoutName))
+            {
+                PrintJobError = new Msg(eMsgLevel.Error, "The layout name is not defined!");
+                return null;
+            }
+
+            return string.Format("{0}{1}{2}{3}", LP4Commands.StartCharacter, LP4Commands.EnumLayoutVariables, LayoutName, LP4Commands.EndCharacter );
+        }
+
+        private string GetPrinterStatus()
+        {
+            if (string.IsNullOrEmpty(PrinterName))
+            {
+                PrintJobError = new Msg(eMsgLevel.Error, "The printer name is not defined!");
+                return null;
+            }
+
+            return string.Format("{0}{1}{2}{3}", LP4Commands.StartCharacter, LP4Commands.PrinterStatus, PrinterName, LP4Commands.EndCharacter);
+        }
+
+        public string ResetPrinter()
+        {
+            if (string.IsNullOrEmpty(PrinterName))
+            {
+                PrintJobError = new Msg(eMsgLevel.Error, "The printer name is not defined!");
+                return null;
+            }
+
+            return string.Format("{0}{1}{2}{3}", LP4Commands.StartCharacter, LP4Commands.ResetCommand, PrinterName, LP4Commands.EndCharacter);
+        }
+
+        public string Print()
+        {
             return null;
         }
 
