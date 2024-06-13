@@ -695,13 +695,13 @@ namespace gip.bso.iplus
                         if (edge.Source != null && !edge.Source.ACRef.IsAttached)
                         {
                             edge.Source.ACRef.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
-                            edge.Source.ACRef.Attach();
+                            //edge.Source.ACRef.Attach();
                         }
 
                         if (edge.Target != null && !edge.Target.ACRef.IsAttached)
                         {
                             edge.Target.ACRef.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
-                            edge.Target.ACRef.Attach();
+                            //edge.Target.ACRef.Attach();
                         }
                     }
                 }
