@@ -10,6 +10,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static gip.core.reporthandler.LinxPrintJob;
 
 namespace gip.core.reporthandler
 {
@@ -165,38 +166,134 @@ namespace gip.core.reporthandler
             {
                 while (!_ShutdownEvent.WaitOne(2000, false))
                 {
-                    //_PollThread.StartReportingExeTime();
+                    _PollThread.StartReportingExeTime();
 
-                    //LinxPrintJob linxPrintJob = null;
-                    ////LinxPrintJob linxPrintJob = LinxPrintJobs.Where(c => c.State == PrintJobStateEnum.New).OrderBy(c => c.InsertDate).FirstOrDefault();
-                    //using (ACMonitor.Lock(this._61000_LockPort))
-                    //{
-                    //    if (LinxPrintJobs.Any())
-                    //    {
-                    //        linxPrintJob = LinxPrintJobs.Dequeue();
-                    //    }
-                    //    if (linxPrintJob != null)
-                    //    {
-                    //        jobInfo = linxPrintJob.GetJobInfo();
-                    //        ProcessJob(linxPrintJob);
-                    //        Messages.LogInfo(GetACUrl(), $"{nameof(LinxPrinter)}.{nameof(Poll)}(10)", $"Job {jobInfo} processed!");
-                    //    }
-                    //}
-                    //_PollThread.StopReportingExeTime();
+                    LP4PrintJob lp4PrintJob = null;
+                    using (ACMonitor.Lock(this._61000_LockPort))
+                    {
+                        if (LP4PrintJobs.Any())
+                        {
+                            lp4PrintJob = LP4PrintJobs.Dequeue();
+                        }
+                        if (lp4PrintJob != null)
+                        {
+                            jobInfo = lp4PrintJob.GetJobInfo();
+                            ProcessJob(lp4PrintJob);
+                            Messages.LogInfo(GetACUrl(), $"{nameof(LP4Printer)}.{nameof(Poll)}(10)", $"Job {jobInfo} processed!");
+                        }
+                    }
+                    _PollThread.StopReportingExeTime();
                 }
             }
             catch (ThreadAbortException ec)
             {
-                //string message = $"Exception processing job {jobInfo}! Exception: {ec.Message}";
-                //LinxPrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
-                //if (IsAlarmActive(nameof(LinxPrinterAlarm), message) == null)
-                //{
-                //    Messages.LogException(GetACUrl(), $"{nameof(LinxPrinter)}.{nameof(Poll)}(20)", ec);
-                //}
-                //OnNewAlarmOccurred(LinxPrinterAlarm, message, true);
+                string message = $"Exception processing job {jobInfo}! Exception: {ec.Message}";
+                LP4PrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
+                if (IsAlarmActive(nameof(LP4PrinterAlarm), message) == null)
+                {
+                    Messages.LogException(GetACUrl(), $"{nameof(LP4Printer)}.{nameof(Poll)}(20)", ec);
+                }
+                OnNewAlarmOccurred(LP4PrinterAlarm, message, true);
             }
         }
 
+
+        public bool Request(byte[] packet)
+        {
+            bool success = OpenPort();
+
+            try
+            {
+                if (success)
+                {
+                    if (TCPCommEnabled)
+                    {
+                        if (TcpClient == null || !TcpClient.Connected)
+                            return false;
+                        NetworkStream stream = TcpClient.GetStream();
+                        if (stream != null && stream.CanWrite)
+                        {
+                            stream.Write(packet, 0, packet.Length);
+                            success = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LP4PrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
+                if (IsAlarmActive(nameof(LP4PrinterAlarm), ex.Message) == null)
+                {
+                    Messages.LogException(GetACUrl(), $"{nameof(LP4Printer)}.{nameof(Request)}(40)", ex);
+                }
+                OnNewAlarmOccurred(LP4PrinterAlarm, ex.Message, true);
+            }
+
+            return success;
+        }
+
+
+        public (bool, byte[]) Response(LP4PrintJob lp4PrintJob)
+        {
+            bool success = false;
+            List<byte> result = new List<byte>();
+            OpenPort();
+            if (TCPCommEnabled)
+            {
+                using (ACMonitor.Lock(_61000_LockPort))
+                {
+                    if (TcpClient != null || TcpClient.Connected)
+                    {
+                        try
+                        {
+                            NetworkStream stream = TcpClient.GetStream();
+                            if (stream != null)
+                            {
+                                if (stream.CanRead) // && stream.DataAvailable)
+                                {
+                                    byte[] myReadBuffer = new byte[1024];
+                                    int numberOfBytesRead = 0;
+                                    do
+                                    {
+                                        numberOfBytesRead = stream.Read(myReadBuffer, 0, myReadBuffer.Length);
+                                        if (numberOfBytesRead > 0)
+                                            result.AddRange(myReadBuffer.Take(numberOfBytesRead));
+                                    }
+                                    while (stream.DataAvailable);
+
+                                    success = result != null && result.Any();
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LP4PrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
+                            if (IsAlarmActive(nameof(LP4PrinterAlarm), ex.Message) == null)
+                            {
+                                Messages.LogException(GetACUrl(), $"{nameof(LP4Printer)}.{nameof(Response)}(50)", ex);
+                            }
+                            OnNewAlarmOccurred(LP4PrinterAlarm, ex.Message, true);
+                        }
+
+                    }
+                }
+            }
+
+            if (success)
+            {
+                //if (telegram.LinxPrintJobType != LinxPrintJobTypeEnum.RasterData
+                //    && telegram.LinxPrintJobType != LinxPrintJobTypeEnum.DeleteReport)
+                //    success = LinxHelper.ValidateChecksum(result.ToArray());
+                //if (!success)
+                //{
+                //    string message = $"Bad checksum for response: {linxPrintJob.GetJobInfo()}";
+                //    LP4PrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
+                //    Messages.LogError(GetACUrl(), $"{nameof(LP4Printer)}.{nameof(Request)}(70)", message);
+                //    OnNewAlarmOccurred(LP4PrinterAlarm, message, true);
+                //}
+            }
+            return (success, result.ToArray());
+        }
 
     }
 }

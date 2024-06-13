@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Documents;
 
@@ -58,10 +59,34 @@ namespace gip.core.reporthandler
             set;
         }
 
+        public string CurrentPrinterName
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(PrinterName))
+                    return ACIdentifier;
+
+                return PrinterName;
+            }
+        }
+
         public LP4PrinterCommands CurrentCommands
         {
             get;
             private set;
+        }
+
+        private Queue<LP4PrintJob> _LP4PrintJobs;
+        public Queue<LP4PrintJob> LP4PrintJobs
+        {
+            get
+            {
+                if (_LP4PrintJobs == null)
+                {
+                    _LP4PrintJobs = new Queue<LP4PrintJob>();
+                }
+                return _LP4PrintJobs;
+            }
         }
 
         #endregion
@@ -72,17 +97,22 @@ namespace gip.core.reporthandler
 
         public void EnumeratePrinters()
         {
+            LP4PrintJob lp4PrintJob = new LP4PrintJob(CurrentCommands, null);
+            lp4PrintJob.PrinterTask = CurrentCommands.EnumPrinters;
 
+            
         }
 
         public void EnumerateLayouts()
         {
-
+            LP4PrintJob lp4PrintJob = new LP4PrintJob(CurrentCommands, null);
+            lp4PrintJob.PrinterTask = CurrentCommands.EnumLayouts;
         }
 
         public void EnumerateLayoutVariables()
         {
-
+            LP4PrintJob lp4PrintJob = new LP4PrintJob(CurrentCommands, null, "TODO");
+            lp4PrintJob.PrinterTask = CurrentCommands.EnumLayoutVariables;
         }
 
         #endregion
@@ -115,19 +145,109 @@ namespace gip.core.reporthandler
                 }
             }
 
-            LP4PrintJob printJob = new LP4PrintJob(CurrentCommands, PrinterName, reportName);
+            LP4PrintJob printJob = new LP4PrintJob(CurrentCommands, CurrentPrinterName, reportName);
             printJob.FlowDocument = flowDocument;
             printJob.Encoding = encoder;
             printJob.ColumnMultiplier = 1;
             printJob.ColumnDivisor = 1;
-            printJob.LayoutName = reportName;
-            printJob.PrinterName = this.ACIdentifier;
-
-            if (!string.IsNullOrEmpty(PrinterName))
-                printJob.PrinterName = PrinterName;
+            printJob.PrinterTask = CurrentCommands.PrintCommand;
 
             OnRenderFlowDocument(printJob, printJob.FlowDocument);
             return printJob;
+        }
+
+        public bool ProcessJob(LP4PrintJob lp4PrintJob)
+        {
+            bool success = false;
+            try
+            {
+                if (lp4PrintJob.State == PrintJobStateEnum.New)
+                {
+                    using (ACMonitor.Lock(_61000_LockPort))
+                    {
+                        lp4PrintJob.State = PrintJobStateEnum.InProcess;
+                    }
+
+                    byte[] printerCommand = lp4PrintJob.GetPrinterCommand();
+                    if (printerCommand == null && lp4PrintJob.PrintJobError != null)
+                    {
+                        //todo: error
+                        return false;
+                    }
+
+                    bool requestSuccess = Request(printerCommand);
+                    if (requestSuccess)
+                    {
+                        Thread.Sleep(ReceiveTimeout);
+                        (bool responseSuccess, byte[] responseData) = Response(lp4PrintJob);
+
+                        if (responseSuccess)
+                        {
+                            ProcessResponse(responseData, lp4PrintJob);
+                        }
+                        else
+                        {
+                            //TODO: error
+                            return false;
+                        }
+
+                    }
+
+                    using (ACMonitor.Lock(_61000_LockPort))
+                    {
+                        lp4PrintJob.State = PrintJobStateEnum.Done;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LP4PrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
+                if (IsAlarmActive(nameof(LP4PrinterAlarm), ex.Message) == null)
+                {
+                    Messages.LogException(GetACUrl(), $"{nameof(LP4Printer)}.{nameof(ProcessJob)}(70)", ex);
+                }
+                OnNewAlarmOccurred(LP4PrinterAlarm, ex.Message, true);
+            }
+
+            ClosePort();
+            return success;
+        }
+
+        private void ProcessResponse(byte[] response, LP4PrintJob lp4PrintJob)
+        {
+            if (lp4PrintJob == null)
+                return;
+
+            if (response == null)
+                return;
+
+            switch(lp4PrintJob.PrinterTask)
+            {
+                case LP4PrinterCommands.C_EnumPrinters:
+                    {
+                        break;
+                    }
+                case LP4PrinterCommands.C_EnumLayouts:
+                    {
+                        break;
+                    }
+                case LP4PrinterCommands.C_EnumLayoutVariables:
+                    {
+                        break;
+                    }
+                case LP4PrinterCommands.C_PrinterStatus:
+                    {
+                        break;
+                    }
+                case LP4PrinterCommands.C_ResetCommand:
+                    {
+                        break;
+                    }
+                case LP4PrinterCommands.C_PrintCommand:
+                    {
+                        break;
+                    }
+            }
         }
 
         #endregion

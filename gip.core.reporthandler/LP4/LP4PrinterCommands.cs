@@ -125,7 +125,7 @@ namespace gip.core.reporthandler
 
             public const string C_EnumLayoutVariables = "V:";
 
-            public const string C_PrintCommand = "P";
+            public const string C_PrintCommand = "P:";
 
             public const string C_ResetCommand = "R:";
 

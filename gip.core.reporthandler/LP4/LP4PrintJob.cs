@@ -12,11 +12,12 @@ namespace gip.core.reporthandler
     {
         #region c'tors
 
-        public LP4PrintJob(LP4Printer.LP4PrinterCommands commands, string printerName, string layoutName = null) : base()
+        public LP4PrintJob(LP4Printer.LP4PrinterCommands commands, string printerName, string layoutName = null, int printCopies = 1) : base()
         {
             LP4Commands = commands;
             PrinterName = printerName;
             LayoutName = layoutName;
+            PrintCopies = printCopies;
         }
 
         #endregion
@@ -53,6 +54,12 @@ namespace gip.core.reporthandler
             set;
         }
 
+        public int PrintCopies
+        {
+            get;
+            set;
+        }
+
         public List<Tuple<string, string>> LayoutVariables
         {
             get;
@@ -77,40 +84,50 @@ namespace gip.core.reporthandler
             LayoutVariables.Add(new Tuple<string, string>(variableName, variableValue));
         }
 
-        public string GetPrinterCommandAsString()
+        public string GeneratePrinterCommand()
         {
             if (string.IsNullOrEmpty(PrinterTask))
                 return null;
+
+            string printerCommand = null;
 
             switch (PrinterTask)
             {
                 case LP4Printer.LP4PrinterCommands.C_EnumPrinters:
                     {
-                        return EnumeratePrinters();
+                        printerCommand = EnumeratePrinters();
+                        break;
                     }
                 case LP4Printer.LP4PrinterCommands.C_EnumLayouts:
                     {
-                        return EnumerateLayouts();
+                        printerCommand = EnumerateLayouts();
+                        break;
                     }
                 case LP4Printer.LP4PrinterCommands.C_EnumLayoutVariables:
                     {
-                        return EnumerateLayoutVariables();
+                        printerCommand = EnumerateLayoutVariables();
+                        break;
                     }
                 case LP4Printer.LP4PrinterCommands.C_PrinterStatus:
                     {
-                        return GetPrinterStatus();
+                        printerCommand = GetPrinterStatus();
+                        break;
                     }
                 case LP4Printer.LP4PrinterCommands.C_ResetCommand:
                     {
-                        return ResetPrinter();
+                        printerCommand = ResetPrinter();
+                        break;
                     }
                 case LP4Printer.LP4PrinterCommands.C_PrintCommand:
                     {
-                        return Print();
+                        printerCommand = Print();
+                        break;
                     }
             }
 
-            return null;
+            PrinterCommand = printerCommand;
+
+            return printerCommand;
         }
 
         private string EnumeratePrinters()
@@ -158,12 +175,64 @@ namespace gip.core.reporthandler
 
         public string Print()
         {
-            return null;
+            if (string.IsNullOrEmpty(PrinterName))
+            {
+                PrintJobError = new Msg(eMsgLevel.Error, "The printer name is not defined!");
+                return null;
+            }
+
+            if (string.IsNullOrEmpty(LayoutName))
+            {
+                PrintJobError = new Msg(eMsgLevel.Error, "The layout name is not defined!");
+                return null;
+            }
+
+            //<STX>P:Druckername<TAB>Etikettenlayout<TAB>Druckzahl<TAB>[ExtVar1=Wert<TAB>ExtVar2=Wert<TAB>…]<ETX>
+
+            string printCommand = string.Format("{0}{1}{2}{3}{4}{5}{6}", LP4Commands.StartCharacter, LP4Commands.PrintCommand, PrinterName, LP4Commands.SeparatorCharacterTab, LayoutName, 
+                                                                            LP4Commands.SeparatorCharacterTab, PrintCopies);
+
+            if (LayoutVariables != null && LayoutVariables.Any())
+            {
+                printCommand += "[";
+
+                var lastItem = LayoutVariables.Last();
+
+                foreach (Tuple<string,string> layoutVariable in LayoutVariables)
+                {
+                    printCommand += string.Format("{0}={1}", layoutVariable.Item1, layoutVariable.Item2);
+
+                    if (lastItem != layoutVariable)
+                        printCommand += LP4Commands.SeparatorCharacterTab;
+                }
+
+                printCommand += string.Format("]{0}", LP4Commands.EndCharacter);
+            }
+            else
+            {
+                printCommand += LP4Commands.EndCharacter;
+            }
+
+            return printCommand;
         }
 
         public byte[] GetPrinterCommand()
         {
-            return null;
+            if (string.IsNullOrEmpty(PrinterCommand))
+                GeneratePrinterCommand();
+
+            if (string.IsNullOrEmpty(PrinterCommand))
+            {
+                PrintJobError = new Msg(eMsgLevel.Error, "Printer command is empty!");
+                return null;
+            }
+
+            return Encoding.GetBytes(PrinterCommand);
+        }
+
+        public string GetJobInfo()
+        {
+            return $"PrintJobID: {PrintJobID} Name:{Name}";
         }
 
         #endregion
