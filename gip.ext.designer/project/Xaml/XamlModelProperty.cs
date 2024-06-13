@@ -30,12 +30,26 @@ namespace gip.ext.designer.Xaml
 
         public XamlModelProperty(XamlDesignItem designItem, XamlProperty property)
         {
-            Debug.Assert(designItem != null);
-            Debug.Assert(property != null);
+            try
+            {
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    if (designItem == null || property == null)
+                        Debugger.Break();
+                }
+                else
+                {
+                    Debug.Assert(designItem != null);
+                    Debug.Assert(property != null);
+                }
+            }
+            catch
+            {
+            }
 
             this._designItem = designItem;
             this._property = property;
-            if (property != null &&property.IsCollection)
+            if (property != null && property.IsCollection)
             {
                 _collectionElements = new XamlModelCollectionElementsCollection(this, property);
             }
@@ -164,7 +178,8 @@ namespace gip.ext.designer.Xaml
 				}
 				ValueChangedEventHandlers++;
 #endif
-                _property.ValueChanged += value;
+                if (_property != null)
+                    _property.ValueChanged += value;
             }
             remove
             {
@@ -174,14 +189,15 @@ namespace gip.ext.designer.Xaml
 					Debug.WriteLine("ValueChangedEventHandlers reached 0");
 				}
 #endif
-                _property.ValueChanged -= value;
+                if (_property != null)
+                    _property.ValueChanged -= value;
             }
         }
 
         public override event EventHandler ValueOnInstanceChanged
         {
-            add { _property.ValueOnInstanceChanged += value; }
-            remove { _property.ValueOnInstanceChanged -= value; }
+            add { if (_property != null) _property.ValueOnInstanceChanged += value; }
+            remove { if (_property != null) _property.ValueOnInstanceChanged -= value; }
         }
 
         public override object ValueOnInstance

@@ -86,14 +86,18 @@ namespace gip.ext.designer.Xaml
 #if EventHandlerDebugging
 				Debug.WriteLine("Add event handler to " + this.ComponentType.Name + " (handler count=" + (++totalEventHandlerCount) + ")");
 #endif
-                this.Properties["Name"].ValueChanged += value;
+                var prop = this.Properties["Name"];
+                if (prop != null)
+                    prop.ValueChanged += value;
             }
             remove
             {
 #if EventHandlerDebugging
 				Debug.WriteLine("Remove event handler from " + this.ComponentType.Name + " (handler count=" + (--totalEventHandlerCount) + ")");
 #endif
-                this.Properties["Name"].ValueChanged -= value;
+                var prop = this.Properties["Name"];
+                if (prop != null)
+                    prop.ValueChanged -= value;
             }
         }
 
