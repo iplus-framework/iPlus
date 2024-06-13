@@ -869,6 +869,11 @@ namespace gip.core.datamodel
         }
 #endregion
 
+        public void ChangeMode(RefInitMode mode)
+        {
+            _Mode = mode;
+        }
+
         //#region Critical Section
         ///// <summary>
         ///// Locks the ref.

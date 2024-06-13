@@ -21,6 +21,13 @@ namespace gip.core.autocomponent
     {
         public const string ClassName = "PAEdge";
 
+        public PAEdge(PAPoint target, PAPoint source, Guid relationID)
+        {
+            _Target = target;
+            _Source = source;
+            RelationID = relationID;
+        }
+
         public PAEdge(PAPoint target, PAPoint source, ACClassPropertyRelation relation)
         {
             _Target = target;

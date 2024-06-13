@@ -12,7 +12,7 @@ namespace gip.core.datamodel
         void ShowAvailableRoutes(IEnumerable<Tuple<ACClass, ACClassProperty>> startPoints, IEnumerable<Tuple<ACClass, ACClassProperty>> endPoints, string selectionRuleID = null, object[] selectionRuleParams = null, bool allowProcessModuleInRoute = true);
         void EditRoutes(Route route, bool isReadOnly, bool includeReserved, bool includeAllocated);
         void EditRoutesWithAttach(Route route, bool isReadOnly, bool includeReserved, bool includeAllocated);
-
+        void ShowRoute(Route route);
 
         IEnumerable<Route> RouteResult
         {
