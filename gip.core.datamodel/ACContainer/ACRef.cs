@@ -81,6 +81,7 @@ namespace gip.core.datamodel
         /// </summary>
         public ACRef()
         {
+            _Mode = RefInitMode.AutoStart;
             InitLockRef();
         }
 
@@ -91,6 +92,7 @@ namespace gip.core.datamodel
         /// <param name="parentACObject">Reference to the parent component that holds this instance</param>
         public ACRef(IACObject parentACObject)
         {
+            _Mode = RefInitMode.AutoStart;
             InitLockRef();
             this._ParentACObject = parentACObject;
         }
@@ -868,6 +870,11 @@ namespace gip.core.datamodel
             return this.ValueT.ACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
 #endregion
+
+        public void ChangeMode(RefInitMode mode)
+        {
+            _Mode = mode;
+        }
 
         //#region Critical Section
         ///// <summary>

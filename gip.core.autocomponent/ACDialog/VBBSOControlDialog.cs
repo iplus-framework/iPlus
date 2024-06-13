@@ -131,7 +131,8 @@ namespace gip.core.autocomponent
                 return;
             }
 
-            routeSelector.EditRoutesWithAttach(currentRoute, true, true, true);
+            //routeSelector.EditRoutesWithAttach(currentRoute, true, true, true);
+            routeSelector.ShowRoute(currentRoute);
         }
 
         public bool IsEnabledShowComplexValue(IACObjectBase selectedParameter)

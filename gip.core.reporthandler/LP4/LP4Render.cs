@@ -13,7 +13,12 @@ namespace gip.core.reporthandler
     {
         public override void OnRenderFlowDocument(PrintJob printJob, FlowDocument flowDoc)
         {
+            LP4PrintJob lp4PrintJob = printJob as LP4PrintJob;
+
             base.OnRenderFlowDocument(printJob, flowDoc);
+
+            if (lp4PrintJob != null)
+                lp4PrintJob.GeneratePrinterCommand();
         }
 
         public override void OnRenderBlockFooter(PrintJob printJob, Block block, BlockDocumentPosition position)

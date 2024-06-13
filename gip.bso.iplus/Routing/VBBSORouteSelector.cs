@@ -528,6 +528,41 @@ namespace gip.bso.iplus
             route.Detach();
         }
 
+        public void ShowRoute(Route route)
+        {
+            route.AttachTo(Database.ContextIPlus);
+            IEnumerable<Route> splitedRoutes = Route.SplitRoute(route);
+
+            List<IACObject> components = new List<IACObject>();
+            List<IACObject> routePath = new List<IACObject>();
+            SelectedRoutingPaths = new List<ACRoutingPath>();
+            List<List<ACRoutingPath>> tempPath = new List<List<ACRoutingPath>>();
+
+            foreach (Route r in splitedRoutes)
+            {
+                ACRoutingPath routingPath = new ACRoutingPath();
+                
+                foreach (RouteItem rItem in r)
+                {
+                    routingPath.Add(new PAEdge(rItem.TargetACPoint as PAPoint, rItem.SourceACPoint as PAPoint, rItem.RelationID));
+                }
+
+                tempPath.Add(new List<ACRoutingPath>() { routingPath });
+
+                ACRoutingPath selectedRoutePath = routingPath;
+                SetActiveRoutes(components, routePath, selectedRoutePath);
+            }
+            AvailableRoutes = tempPath;
+
+            ActiveRouteComponents = components;
+            ActiveRoutePaths = routePath;
+
+            ShowRoute(true);
+
+            route.Detach();
+
+        }
+
         public void ShowRoute(bool isReadOnly = false)
         {
             if (!isReadOnly)
@@ -652,7 +687,24 @@ namespace gip.bso.iplus
                     path.IsPrimaryRoute = true;
                 }
                 if (path != null && path.IsValid)
+                {
                     availableRoutingPaths.Add(path);
+
+                    foreach (PAEdge edge in path)
+                    {
+                        if (edge.Source != null && !edge.Source.ACRef.IsAttached)
+                        {
+                            edge.Source.ACRef.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
+                            //edge.Source.ACRef.Attach();
+                        }
+
+                        if (edge.Target != null && !edge.Target.ACRef.IsAttached)
+                        {
+                            edge.Target.ACRef.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
+                            //edge.Target.ACRef.Attach();
+                        }
+                    }
+                }
                 temp = buildRouteResult.Item2.Dequeue();
             }
             InsertIntoAvailableRoutes(availableRoutingPaths);
