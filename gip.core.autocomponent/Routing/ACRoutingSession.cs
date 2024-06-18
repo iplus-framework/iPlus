@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Converters;
 using gip.core.datamodel;
 using Microsoft.Isam.Esent.Interop;
 
@@ -91,6 +92,7 @@ namespace gip.core.autocomponent
 
         Route _PreviousRoute = null;
 
+        ACRoutingParameters _RoutingParameters = null;
 
         #endregion
 
@@ -139,15 +141,16 @@ namespace gip.core.autocomponent
             }
         }
 
-        public RoutingResult FindRoute(IEnumerable<ACRoutingVertex> startVertices, IEnumerable<ACRoutingVertex> endVertices, string selectionRuleID, object[] selectionRuleParams,
-                                       int maxRouteAlternatives, int maxLoopDepth, bool includeReserved, bool includeAllocated, Route previousRoute = null)
+        public RoutingResult FindRoute(IEnumerable<ACRoutingVertex> startVertices, IEnumerable<ACRoutingVertex> endVertices, ACRoutingParameters routingParameters)
         {
             RoutingPaths.Clear();
-            _MaxRouteAlternatives = maxRouteAlternatives;
-            _SelectionRuleID = selectionRuleID;
-            _SelectionRuleParams = selectionRuleParams;
-            _PreviousRoute = previousRoute;
-            _MaxRouteLoopDepth = maxLoopDepth;
+            _MaxRouteAlternatives = routingParameters.MaxRouteAlternativesInLoop;
+            _SelectionRuleID = routingParameters.SelectionRuleID;
+            _SelectionRuleParams = routingParameters.SelectionRuleParams;
+            _PreviousRoute = routingParameters.PreviousRoute;
+            _MaxRouteLoopDepth = routingParameters.MaxRouteLoopDepth;
+
+            _RoutingParameters = routingParameters;
 
             foreach (ACRoutingVertex start in startVertices)
             {
@@ -156,7 +159,7 @@ namespace gip.core.autocomponent
                 {
                     Target = end;
                     List<ACRoutingPath> tempPaths = new List<ACRoutingPath>();
-                    ACRoutingPath tempPath = FindShortestPath(includeReserved, includeAllocated);
+                    ACRoutingPath tempPath = FindShortestPath(routingParameters.IncludeReserved, routingParameters.IncludeAllocated);
                     if (tempPath.Any())
                         RoutingPaths.Add(tempPath);
                     while (tempPath.IsValid)
@@ -204,16 +207,15 @@ namespace gip.core.autocomponent
             return new RoutingResult(null, false, new Msg(message, _ACRoutingService, eMsgLevel.Error, "ACRoutingSession", "FindRoute(20)", 161));
         }
 
-        public RoutingResult FindSuccessors(ACRoutingVertex startVertex, string selectionRuleID, RouteDirections direction, object[] selectionRuleParams, int maxRouteAlternatives, int maxLoopDepth,
-                                            bool includeReserved, bool includeAllocated, RouteResultMode resultMode = RouteResultMode.FullRoute)
+        public RoutingResult FindSuccessors(ACRoutingVertex startVertex, ACRoutingParameters rp, RouteResultMode resultMode = RouteResultMode.FullRoute)
         {
-            RoutingResult rResult = FindAvailableComponents(startVertex, selectionRuleID, direction, selectionRuleParams, includeReserved, includeAllocated, resultMode == RouteResultMode.FullRouteFromFindComp);
+            RoutingResult rResult = FindAvailableComponents(startVertex, rp.SelectionRuleID, rp.Direction, rp.SelectionRuleParams, rp.IncludeReserved, rp.IncludeAllocated, resultMode == RouteResultMode.FullRouteFromFindComp);
             if (rResult != null && rResult.Message != null && rResult.Message.MessageLevel > eMsgLevel.Warning)
                 return rResult;
 
             if (rResult == null || !rResult.Components.Any())
             {
-                string message = "Can't find successors according selection rule (" + selectionRuleID + ")";
+                string message = "Can't find successors according selection rule (" + rp.SelectionRuleID + ")";
                 if (rResult != null && rResult.Message != null && rResult.Message.MessageLevel == eMsgLevel.Warning)
                     message += "Details: " + rResult.Message.Message;
 
@@ -226,7 +228,7 @@ namespace gip.core.autocomponent
             RoutingResult routingResult = null;
             bool runFullRoute = resultMode == RouteResultMode.FullRoute;
 
-            if (direction == RouteDirections.Backwards)
+            if (rp.Direction == RouteDirections.Backwards)
             {
                 if (resultMode == RouteResultMode.ShortRoute)
                 {
@@ -258,8 +260,7 @@ namespace gip.core.autocomponent
 
                 if (runFullRoute)
                 {
-                    routingResult = FindRoute(foundSuccessors, new ACRoutingVertex[] { startVertex }, selectionRuleID, selectionRuleParams, maxRouteAlternatives, maxLoopDepth,
-                                            includeReserved, includeAllocated);
+                    routingResult = FindRoute(foundSuccessors, new ACRoutingVertex[] { startVertex }, rp);
                 }
             }
             else
@@ -296,8 +297,7 @@ namespace gip.core.autocomponent
 
                 if (runFullRoute)
                 {
-                    routingResult = FindRoute(new ACRoutingVertex[] { startVertex }, foundSuccessors, selectionRuleID, selectionRuleParams, maxRouteAlternatives, maxLoopDepth,
-                                              includeReserved, includeAllocated);
+                    routingResult = FindRoute(new ACRoutingVertex[] { startVertex }, foundSuccessors, rp);
                 }
             }
 
@@ -375,8 +375,10 @@ namespace gip.core.autocomponent
                 }
             }
 
+            bool runPreferences = _RoutingParameters == null || !_RoutingParameters.IgnorePreferences;
+
             //RULES (Parallel / NonParallel)
-            if (!paths.Any() && routingPaths.Any(c => c.RouteItemsMode.Any()))
+            if (runPreferences && !paths.Any() && routingPaths.Any(c => c.RouteItemsMode.Any()))
             {
                 try
                 {
@@ -390,6 +392,8 @@ namespace gip.core.autocomponent
                         ACRoutingPath newPath = new ACRoutingPath();
                         path.RoutingPathNo = routingPathNo;
                         newPath.RoutingPathNo = routingPathNo;
+                        newPath.HasAnyAllocated = path.HasAnyAllocated;
+                        newPath.HasAnyReserved = path.HasAnyReserved;
 
                         foreach (PAEdge edge in path)
                         {
@@ -455,7 +459,7 @@ namespace gip.core.autocomponent
             //ROUTE USAGE 
             if (!paths.Any())
             {
-                if (_ACRoutingService.SelectRouteDependUsage)
+                if (runPreferences && _ACRoutingService.SelectRouteDependUsage)
                 {
                     List<Guid> targetIDs = routingPaths.Select(c => c.LastOrDefault().Relation.SourceACClassID).Distinct().ToList();
                     routeHashItems = _ACRoutingService.GetMostUsedRouteHash(targetIDs);

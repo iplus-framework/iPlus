@@ -1011,8 +1011,7 @@ namespace gip.core.autocomponent
             }
 
             Tuple<ACRoutingVertex[], ACRoutingVertex[]> routeVertices = CreateRoutingVertices(startComponents, endComponents);
-            RoutingResult rResult = new ACRoutingSession(this).FindRoute(routeVertices.Item1, routeVertices.Item2, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams, routingParameters.MaxRouteAlternativesInLoop, routingParameters.MaxRouteLoopDepth,
-                                                                         routingParameters.IncludeReserved, routingParameters.IncludeAllocated, routingParameters.PreviousRoute);
+            RoutingResult rResult = new ACRoutingSession(this).FindRoute(routeVertices.Item1, routeVertices.Item2, routingParameters);
 
             if (DumpRoutingData && rResult != null && rResult.Message != null && rResult.Message.MessageLevel <= eMsgLevel.Warning)
             {
@@ -1049,8 +1048,7 @@ namespace gip.core.autocomponent
             }
 
             Tuple<ACRoutingVertex[], ACRoutingVertex[]> routeVertices = CreateRoutingVerticesFromPoint(startComponents.FirstOrDefault(), sourcePointID, endComponents);
-            RoutingResult rResult = new ACRoutingSession(this).FindRoute(routeVertices.Item1, routeVertices.Item2, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams, routingParameters.MaxRouteAlternativesInLoop, 
-                                                                         routingParameters.MaxRouteLoopDepth, routingParameters.IncludeReserved, routingParameters.IncludeAllocated, routingParameters.PreviousRoute);
+            RoutingResult rResult = new ACRoutingSession(this).FindRoute(routeVertices.Item1, routeVertices.Item2, routingParameters);
 
             if (DumpRoutingData && rResult != null && rResult.Message != null && rResult.Message.MessageLevel <= eMsgLevel.Warning)
             {
@@ -1082,8 +1080,7 @@ namespace gip.core.autocomponent
                 return new RoutingResult(null, false, msg);
             }
 
-            var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp), routingParameters.SelectionRuleID, routingParameters.Direction, routingParameters.SelectionRuleParams, routingParameters.MaxRouteAlternativesInLoop,
-                                                                   routingParameters.MaxRouteLoopDepth, routingParameters.IncludeReserved, routingParameters.IncludeAllocated, routingParameters.ResultMode);
+            var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp), routingParameters, routingParameters.ResultMode);
             if (result != null && result.Message != null)
             {
                 if (result.Message.MessageLevel > eMsgLevel.Warning)
@@ -1134,8 +1131,7 @@ namespace gip.core.autocomponent
                 return new RoutingResult(null, false, msg);
             }
 
-            var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp, startPointACClassPropID), routingParameters.SelectionRuleID, routingParameters.Direction, routingParameters.SelectionRuleParams, 
-                                                                   routingParameters.MaxRouteAlternativesInLoop, routingParameters.MaxRouteLoopDepth, routingParameters.IncludeReserved, routingParameters.IncludeAllocated, routingParameters.ResultMode);
+            var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp, startPointACClassPropID), routingParameters, routingParameters.ResultMode);
             if (result != null && result.Message != null)
             {
                 if (result.Message.MessageLevel > eMsgLevel.Warning)
