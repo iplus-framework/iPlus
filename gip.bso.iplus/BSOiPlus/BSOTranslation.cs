@@ -2061,15 +2061,21 @@ namespace gip.bso.iplus
             int itemsCount = list.Count();
             foreach (var item in list)
             {
-                if (!item.EditTranslationList.Any(x => x.LangCode == targetLanguageCode))
+                TranslationPair sourcePair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == sourceLangaugeCode);
+                if (sourcePair != null)
                 {
-                    TranslationPair sourcePair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == sourceLangaugeCode);
-                    if (sourcePair != null)
+                    if (!item.EditTranslationList.Any(x => x.LangCode == targetLanguageCode))
                     {
-                        TranslationPair translationPair = new TranslationPair() { LangCode = targetLanguageCode, Translation = AutoGeneratePrefix + sourcePair.Translation };
-                        item.EditTranslationList.Add(translationPair);
+
                     }
+                    else
+                    {
+                        item
+                    }
+                    TranslationPair translationPair = new TranslationPair() { LangCode = targetLanguageCode, Translation = AutoGeneratePrefix + sourcePair.Translation };
+                    item.EditTranslationList.Add(translationPair);
                 }
+                
 
 
                 int itemIndex = list.IndexOf(item);
