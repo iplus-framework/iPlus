@@ -13,7 +13,7 @@ using System.Xml;
 
 namespace gip.bso.iplus
 {
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Favourites'}de{'Favoriten'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable,false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Favourites'}de{'Favoriten'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, false, true)]
     public class BSOFavorite : ACBSO
     {
         #region c'tors
@@ -82,10 +82,10 @@ namespace gip.bso.iplus
         {
             get
             {
-                if(_vbUserACClassDesign == null)
+                if (_vbUserACClassDesign == null)
                 {
-                    _vbUserACClassDesign = Db.VBUserACClassDesign.FirstOrDefault(c => c.VBUserID == Root.Environment.User.VBUserID && c.ACClassDesign == null && c.ACIdentifier =="ACFavorite");
-                    if(_vbUserACClassDesign == null)
+                    _vbUserACClassDesign = Db.VBUserACClassDesign.FirstOrDefault(c => c.VBUserID == Root.Environment.User.VBUserID && c.ACClassDesign == null && c.ACIdentifier == "ACFavorite");
+                    if (_vbUserACClassDesign == null)
                     {
                         _vbUserACClassDesign = VBUserACClassDesign.NewACObject(Db, null);
                         _vbUserACClassDesign.ACIdentifier = "ACFavorite";
@@ -155,7 +155,7 @@ namespace gip.bso.iplus
                         _CurrentMenuEntryRoot = Root.Environment.User.MenuACClassDesign.MenuEntry;
                     else
                         _CurrentMenuEntryRoot = core.autocomponent.ACRoot.SRoot.GetDesign(Global.ACKinds.DSDesignMenu).MenuEntry;
-                    
+
                 }
                 return _CurrentMenuEntryRoot;
             }
@@ -210,10 +210,10 @@ namespace gip.bso.iplus
         /// Creates a new favorite item (ACFavorite) and adds it to the FavoriteList based on <see cref="IVBTileGrid"/>  parameter. 
         /// </summary>
         /// <param name="vbTile">The vbTile item.</param>
-        [ACMethodInfo("","",403)]
+        [ACMethodInfo("", "", 403)]
         public void AddVBFavorite(IVBTileGrid vbTile)
         {
-            if(vbTile != null)
+            if (vbTile != null)
             {
                 ACFavorite fav = new ACFavorite();
                 fav.TileColumn = vbTile.TileColumn;
@@ -263,7 +263,7 @@ namespace gip.bso.iplus
                 if (_StartupItems == null)
                 {
                     _StartupItems = new List<ACFastStartupItem>();
-    
+
                     ACMenuItem mainMenu;
                     if (Root.Environment.User.MenuACClassDesign == null)
                     {
@@ -281,21 +281,29 @@ namespace gip.bso.iplus
 
                     if (Root.Environment.User.IsSuperuser)
                     {
-                        IEnumerable<ACClass> BSOs = Db.ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TACBSO
-                                                                       || c.ACKindIndex == (short)Global.ACKinds.TACBSOGlobal)
-                                                              .ToArray()
-                                                              .Where(bso => !_StartupItems.Any(sti => sti.ACIdentifier == bso.ACIdentifier) && !bso.IsAbstract &&
-                                                                     bso.ACClass1_ParentACClass.ObjectFullType != null &&
-                                                                     bso.ACClass1_ParentACClass.ObjectFullType.IsAssignableFrom(typeof(Businessobjects)));
+                        IEnumerable<ACClass> BSOs =
+                            Db
+                            .ACClass
+                            .Where(c =>
+                                    c.ACKindIndex == (short)Global.ACKinds.TACBSO
+                                    || c.ACKindIndex == (short)Global.ACKinds.TACBSOGlobal)
+                            .ToArray()
+                            .Where(bso =>
+                                    !_StartupItems.Any(sti => sti.ACIdentifier == bso.ACIdentifier) && !bso.IsAbstract
+                                    && bso.ACClass1_ParentACClass.ObjectFullType != null
+                                    && bso.ACClass1_ParentACClass.ObjectFullType.IsAssignableFrom(typeof(Businessobjects)));
 
                         IEnumerable<ACClass> DiffACCaptionBSOs = BSOs.Where(bso => !_StartupItems.Any(sti => sti.ACCaption == bso.ACCaption)).ToArray();
                         IEnumerable<ACClass> SameACCaptionBSOs = BSOs.Except(DiffACCaptionBSOs).ToArray();
 
                         _StartupItems.AddRange(DiffACCaptionBSOs.Select(bso => new ACFastStartupItem(bso.ACCaption, bso.ACIdentifier, "#" + bso.ACIdentifier, "")));
-                        if(SameACCaptionBSOs.Any())
-                            _StartupItems.AddRange(SameACCaptionBSOs.Select(bso => new ACFastStartupItem(string.Format("{0}({1})",bso.ACCaption, bso.ACIdentifier), 
+                        if (SameACCaptionBSOs.Any())
+                        {
+                            _StartupItems.AddRange(SameACCaptionBSOs.Select(bso => new ACFastStartupItem(string.Format("{0}({1})", bso.ACCaption, bso.ACIdentifier),
                                                                                                      bso.ACIdentifier, "#" + bso.ACIdentifier, "")));
+                        }
                     }
+                    _StartupItems = _StartupItems.OrderBy(c => c.ACIdentifier).ToList();
                 }
                 return _StartupItems;
             }
@@ -318,7 +326,7 @@ namespace gip.bso.iplus
 
         private void FillList(ACMenuItem menuItem)
         {
-            if (menuItem == null ||  menuItem.Items == null)
+            if (menuItem == null || menuItem.Items == null)
                 return;
 
             foreach (ACMenuItem item in menuItem.Items)
@@ -357,26 +365,26 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"Save":
+                case "Save":
                     Save();
                     return true;
-                case"AddFavorite":
+                case "AddFavorite":
                     AddFavorite();
                     return true;
-                case"AddVBFavorite":
+                case "AddVBFavorite":
                     AddVBFavorite((IVBTileGrid)acParameter[0]);
                     return true;
-                case"DeleteVBFavorite":
+                case "DeleteVBFavorite":
                     DeleteVBFavorite((IVBTileGrid)acParameter[0]);
                     return true;
-                case"OnTileClicked":
+                case "OnTileClicked":
                     OnTileClicked((String)acParameter[0], acParameter[1] as ACValueList);
                     return true;
                 case "StartBSO":
                     StartBSO();
                     return true;
             }
-                return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
         #endregion
