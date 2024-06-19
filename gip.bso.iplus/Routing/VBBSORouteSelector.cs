@@ -672,6 +672,13 @@ namespace gip.bso.iplus
             if (buildRouteResult == null)
                 return;
 
+            foreach (ACRoutingVertex v in buildRouteResult.Item1)
+            {
+                v.Component.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
+                if (v.Next != null)
+                    v.Next.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
+            }
+
             ACRoutingVertex startVertex = buildRouteResult.Item1.FirstOrDefault(c => c.Component.ValueT != null && c.Component.ValueT.ACUrl == startComponent);
             if (startVertex == null)
                 return;
