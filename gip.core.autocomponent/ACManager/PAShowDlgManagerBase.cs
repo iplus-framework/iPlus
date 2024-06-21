@@ -141,7 +141,7 @@ namespace gip.core.autocomponent
                                                     && !String.IsNullOrEmpty(c.AssemblyQualifiedName)
                                                     && c.AssemblyQualifiedName != baseBSO.AssemblyQualifiedName).FirstOrDefault();
                 }
-                if (derivation != null)
+                if (derivation != null && !derivation.IsAbstract)
                 {
                     bsoName = derivation.ACIdentifier;;
                 }
