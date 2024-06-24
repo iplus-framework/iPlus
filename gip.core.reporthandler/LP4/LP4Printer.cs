@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using System.Windows.Input;
 
 namespace gip.core.reporthandler
 {
@@ -87,6 +88,13 @@ namespace gip.core.reporthandler
                 }
                 return _LP4PrintJobs;
             }
+        }
+
+        [ACPropertyBindingSource]
+        public IACContainerTNet<string> PrinterResponse
+        {
+            get;
+            set;
         }
 
         #endregion
@@ -221,7 +229,26 @@ namespace gip.core.reporthandler
             if (response == null)
                 return;
 
-            switch(lp4PrintJob.PrinterTask)
+            string responseString = lp4PrintJob.Encoding.GetString(response);
+
+            char start = responseString.FirstOrDefault();
+            char end = responseString.LastOrDefault();
+
+            if (start != StartCharacter)
+            {
+                //TODO:error
+                return;
+            }
+
+            if (end != EndCharacter)
+            {
+                //TODO:error
+                return;
+            }
+
+            responseString = responseString.Substring(1, responseString.Length - 1);
+
+            switch (lp4PrintJob.PrinterTask)
             {
                 case LP4PrinterCommands.C_EnumPrinters:
                     {
@@ -248,6 +275,11 @@ namespace gip.core.reporthandler
                         break;
                     }
             }
+        }
+
+        private void ProcessEnumPrinters(string response, LP4PrintJob lp4PrintJob)
+        {
+            
         }
 
         #endregion
