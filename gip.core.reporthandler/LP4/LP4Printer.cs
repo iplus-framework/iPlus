@@ -231,6 +231,8 @@ namespace gip.core.reporthandler
 
             string responseString = lp4PrintJob.Encoding.GetString(response);
 
+            responseString = responseString.Trim();
+
             char start = responseString.FirstOrDefault();
             char end = responseString.LastOrDefault();
 
@@ -252,6 +254,7 @@ namespace gip.core.reporthandler
             {
                 case LP4PrinterCommands.C_EnumPrinters:
                     {
+                        ProcessEnumPrinters(responseString, lp4PrintJob);
                         break;
                     }
                 case LP4PrinterCommands.C_EnumLayouts:
@@ -279,7 +282,51 @@ namespace gip.core.reporthandler
 
         private void ProcessEnumPrinters(string response, LP4PrintJob lp4PrintJob)
         {
-            
+            if (string.IsNullOrEmpty(response))
+                return;
+
+            string[] printers = response.Split(SeparatorCharachterCR);
+
+            string command = printers.FirstOrDefault();
+            if (command == string.Format("{0}:", CurrentCommands.EnumPrinters))
+            {
+                List<string> printerQueryResult = new List<string>();
+
+                string[] printerInfos = printers.Skip(1).ToArray();
+
+                foreach (string printerInfo in printerInfos)
+                {
+                    string printer = "";
+                    string[] printerInfoParts = printerInfo.Split(SeparatorCharacterTab);
+                    if (printerInfoParts.Count() > 2)
+                    {
+                        printer = printerInfoParts[0];
+
+                        short driverType;
+                        if (short.TryParse(printerInfoParts[1], out driverType))
+                        {
+                            LP4PrinterType printerType = (LP4PrinterType)driverType;
+                            printer += string.Format(" {0}", printerType);
+                        }
+
+                        short commType;
+                        if (short.TryParse(printerInfoParts[2], out commType))
+                        {
+                            LP4CommType printerCommType = (LP4CommType)commType;
+                            printer += string.Format(" {0}", printerCommType);
+                        }
+                    }
+
+                    printerQueryResult.Add(printer);
+                }
+
+                PrinterResponse.ValueT = printerQueryResult.ToString();
+            }
+        }
+
+        private void ProcessEnumLayouts(string response, LP4PrintJob lp4PrintJob)
+        {
+
         }
 
         #endregion
