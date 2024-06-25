@@ -259,6 +259,7 @@ namespace gip.core.reporthandler
                     }
                 case LP4PrinterCommands.C_EnumLayouts:
                     {
+                        ProcessEnumLayouts(responseString, lp4PrintJob);
                         break;
                     }
                 case LP4PrinterCommands.C_EnumLayoutVariables:
@@ -282,6 +283,8 @@ namespace gip.core.reporthandler
 
         private void ProcessEnumPrinters(string response, LP4PrintJob lp4PrintJob)
         {
+            //<STX>E:<CR>Druckername1<TAB>Typ1<TAB>Comm1<CR>Druckername2<TAB>Typ2<TAB>Comm2<CR>…<ETX>
+
             if (string.IsNullOrEmpty(response))
                 return;
 
@@ -326,7 +329,24 @@ namespace gip.core.reporthandler
 
         private void ProcessEnumLayouts(string response, LP4PrintJob lp4PrintJob)
         {
+            //<STX>L:<CR>Layoutname1<CR>Layoutname2<CR>…<ETX>
 
+            if (string.IsNullOrEmpty(response))
+                return;
+
+            string[] layouts = response.Split(SeparatorCharachterCR);
+
+            string command = layouts.FirstOrDefault();
+            if (command == string.Format("{0}:", CurrentCommands.EnumLayouts))
+            {
+                layouts = layouts.Skip(1).ToArray();
+                PrinterResponse.ValueT = layouts.ToString();
+            }
+        }
+
+        private void ProcessEnumLayoutVariables(string response, LP4PrintJob lp4PrintJob)
+        {
+            //<STX>V:Etikettenlayout<CR>Varname1<CR>Varname2<CR>…<ETX>
         }
 
         #endregion
