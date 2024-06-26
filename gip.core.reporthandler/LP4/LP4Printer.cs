@@ -1,4 +1,5 @@
-﻿using gip.core.autocomponent;
+﻿using DocumentFormat.OpenXml.Drawing.Wordprocessing;
+using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.layoutengine;
 using gip.core.reporthandler.Flowdoc;
@@ -21,11 +22,14 @@ namespace gip.core.reporthandler
         public LP4Printer(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "") : 
             base(acType, content, parentACObject, parameter, acIdentifier)
         {
+            _PrinterName = new ACPropertyConfigValue<string>(this, nameof(PrinterName), null);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
             bool result = base.ACInit(startChildMode);
+
+            _ = PrinterName;
 
             return result;
         }
@@ -53,11 +57,18 @@ namespace gip.core.reporthandler
         [ACPropertyBindingSource(9999, "Error", "en{'LP4 printer alarm'}de{'LP4 Drucker Alarm'}", "", false, false)]
         public IACContainerTNet<PANotifyState> LP4PrinterAlarm { get; set; }
 
-        //todo config property
+        private ACPropertyConfigValue<string> _PrinterName;
+        [ACPropertyConfig("en{'Printer name'}de{'Druckername'}")]
         public string PrinterName
         {
-            get;
-            set;
+            get
+            {
+                return _PrinterName.ValueT;
+            }
+            set
+            {
+                _PrinterName.ValueT = value;
+            }
         }
 
         public string CurrentPrinterName
@@ -91,6 +102,13 @@ namespace gip.core.reporthandler
         }
 
         [ACPropertyBindingSource]
+        public IACContainerTNet<string> LayoutName
+        {
+            get;
+            set;
+        }
+
+        [ACPropertyBindingSource]
         public IACContainerTNet<string> PrinterResponse
         {
             get;
@@ -107,23 +125,48 @@ namespace gip.core.reporthandler
         {
             LP4PrintJob lp4PrintJob = new LP4PrintJob(CurrentCommands, null);
             lp4PrintJob.PrinterTask = CurrentCommands.EnumPrinters;
+            EnqueueJob(lp4PrintJob);
+        }
 
-            
+        public bool IsEnabledEnumeratePrinters()
+        {
+            return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
         }
 
         public void EnumerateLayouts()
         {
             LP4PrintJob lp4PrintJob = new LP4PrintJob(CurrentCommands, null);
             lp4PrintJob.PrinterTask = CurrentCommands.EnumLayouts;
+            EnqueueJob(lp4PrintJob);
+        }
+
+        public bool IsEnabledEnumerateLayouts()
+        {
+            return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
         }
 
         public void EnumerateLayoutVariables()
         {
-            LP4PrintJob lp4PrintJob = new LP4PrintJob(CurrentCommands, null, "TODO");
+            LP4PrintJob lp4PrintJob = new LP4PrintJob(CurrentCommands, null, LayoutName.ValueT);
             lp4PrintJob.PrinterTask = CurrentCommands.EnumLayoutVariables;
+            EnqueueJob(lp4PrintJob);
+        }
+
+        public bool IsEnabledEnumerateLayoutVariables()
+        {
+            return (IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort()) && !string.IsNullOrEmpty(LayoutName.ValueT);
         }
 
         #endregion
+
+        public void EnqueueJob(LP4PrintJob printJob)
+        {
+            using (ACMonitor.Lock(_61000_LockPort))
+            {
+                Messages.LogMessage(eMsgLevel.Info, GetACUrl(), nameof(EnqueueJob), $"Add LP4PrintJob:{printJob.PrintJobID} to queue...");
+                LP4PrintJobs.Enqueue(printJob);
+            }
+        }
 
         public override PrintJob GetPrintJob(string reportName, FlowDocument flowDocument)
         {
