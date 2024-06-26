@@ -264,18 +264,22 @@ namespace gip.core.reporthandler
                     }
                 case LP4PrinterCommands.C_EnumLayoutVariables:
                     {
+                        ProcessEnumLayoutVariables(responseString, lp4PrintJob);
                         break;
                     }
                 case LP4PrinterCommands.C_PrinterStatus:
                     {
+                        ProcessPrinterStatus(responseString, lp4PrintJob);
                         break;
                     }
                 case LP4PrinterCommands.C_ResetCommand:
                     {
+                        ProcessPrinterStatus(responseString, lp4PrintJob);
                         break;
                     }
                 case LP4PrinterCommands.C_PrintCommand:
                     {
+                        ProcessPrintCommand(responseString, lp4PrintJob);
                         break;
                     }
             }
@@ -347,6 +351,48 @@ namespace gip.core.reporthandler
         private void ProcessEnumLayoutVariables(string response, LP4PrintJob lp4PrintJob)
         {
             //<STX>V:Etikettenlayout<CR>Varname1<CR>Varname2<CR>…<ETX>
+
+            if (string.IsNullOrEmpty(response))
+                return;
+
+            string[] variables = response.Split(SeparatorCharachterCR);
+
+            string command = variables.FirstOrDefault().Take(2).ToString();
+            if (command == CurrentCommands.EnumLayoutVariables)
+            {
+                PrinterResponse.ValueT = variables.ToString();
+            }
+       }
+
+        private void ProcessPrinterStatus(string response, LP4PrintJob lp4PrintJob)
+        {
+            //TODO
+            PrinterResponse.ValueT = response;
+        }
+
+        private void ProcessResetCommand(string response, LP4PrintJob lp4PrintJob)
+        {
+            PrinterResponse.ValueT = response;
+        }
+
+        private void ProcessPrintCommand(string response, LP4PrintJob lp4PrintJob)
+        {
+            //<STX>P:Druckername<TAB>OK<ETX>
+            //<STX>P:Druckername<TAB>ERROR<TAB>Fehlernummer<ETX>
+
+            if (string.IsNullOrEmpty(response))
+                return;
+
+            string[] parts = response.Split(SeparatorCharacterTab);
+
+            string command = parts.FirstOrDefault().Take(2).ToString();
+            if (command == CurrentCommands.PrintCommand)
+            {
+                if (parts.Count() > 2)
+                {
+                    PrinterResponse.ValueT = parts.ToString();
+                }
+            }
         }
 
         #endregion
