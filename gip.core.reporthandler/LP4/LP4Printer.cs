@@ -121,6 +121,7 @@ namespace gip.core.reporthandler
 
         #region Methods => Commands
 
+        [ACMethodCommand("", "en{'Enumerate printers'}de{'Drucker aufzählen'}", 201, true)]
         public void EnumeratePrinters()
         {
             LP4PrintJob lp4PrintJob = new LP4PrintJob(CurrentCommands, null);
@@ -133,6 +134,7 @@ namespace gip.core.reporthandler
             return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
         }
 
+        [ACMethodCommand("", "en{'Enumerate layouts'}de{'Layouts aufzählen'}", 202, true)]
         public void EnumerateLayouts()
         {
             LP4PrintJob lp4PrintJob = new LP4PrintJob(CurrentCommands, null);
@@ -145,6 +147,7 @@ namespace gip.core.reporthandler
             return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
         }
 
+        [ACMethodCommand("", "en{'Enumerate layout variables'}de{'Aufzählen von Layoutvariablen'}", 201, true)]
         public void EnumerateLayoutVariables()
         {
             LP4PrintJob lp4PrintJob = new LP4PrintJob(CurrentCommands, null, LayoutName.ValueT);
@@ -155,6 +158,32 @@ namespace gip.core.reporthandler
         public bool IsEnabledEnumerateLayoutVariables()
         {
             return (IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort()) && !string.IsNullOrEmpty(LayoutName.ValueT);
+        }
+
+        [ACMethodCommand("", "en{'Check printer status'}de{'Druckerstatus überprüfen'}", 203, true)]
+        public void GetPrinterStatus()
+        {
+            LP4PrintJob lp4PrintJob = new LP4PrintJob(CurrentCommands, CurrentPrinterName);
+            lp4PrintJob.PrinterTask = CurrentCommands.PrinterStatus;
+            EnqueueJob(lp4PrintJob);
+        }
+
+        public bool IsEnabledGetPrinterStatus()
+        {
+            return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
+        }
+
+        [ACMethodCommand("", "en{'Reset printer'}de{'Drucker zurücksetzen'}", 204, true)]
+        public void ResetPrinter()
+        {
+            LP4PrintJob lp4PrintJob = new LP4PrintJob(CurrentCommands, CurrentPrinterName);
+            lp4PrintJob.PrinterTask = CurrentCommands.ResetCommand;
+            EnqueueJob(lp4PrintJob);
+        }
+
+        public bool IsEnabledResetPrinter()
+        {
+            return IsConnected.ValueT || IsEnabledOpenPort() || IsEnabledClosePort();
         }
 
         #endregion
@@ -205,6 +234,15 @@ namespace gip.core.reporthandler
 
             OnRenderFlowDocument(printJob, printJob.FlowDocument);
             return printJob;
+        }
+
+        public override bool SendDataToPrinter(PrintJob printJob)
+        {
+            LP4PrintJob lp4PrintJob = printJob as LP4PrintJob;
+            if (lp4PrintJob != null)
+                EnqueueJob(lp4PrintJob);
+
+            return true;
         }
 
         public bool ProcessJob(LP4PrintJob lp4PrintJob)
