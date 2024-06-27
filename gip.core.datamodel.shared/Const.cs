@@ -18,6 +18,7 @@ namespace gip.core.datamodel
         public const string Recalculate = "en{'Recalculate'}de{'Neu berechnen'}";
         public const string Login = "en{'Login'}de{'Anmeldung'}";
         public const string Logout = "en{'Logout'}de{'Abmeldung'}";
+        public const string Clear = "en{'Clear'}de{'Löschen'}";
 
         //Datamodel Konstanten
         public const string EntityInsertName = "InsertName";
