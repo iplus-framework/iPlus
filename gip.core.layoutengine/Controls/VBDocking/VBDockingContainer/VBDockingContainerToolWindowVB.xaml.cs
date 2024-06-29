@@ -1,22 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml;
 using System.ComponentModel;
-using System.Windows.Markup;
-using gip.core.layoutengine.Helperclasses;
 using gip.core.datamodel;
-using gip.core.layoutengine.VisualControlAnalyser;
-using System.Linq;
 
 namespace gip.core.layoutengine
 {
@@ -72,13 +59,31 @@ namespace gip.core.layoutengine
             IsCreated = true;
         }
 
+        private string GetCustomizedACCaption()
+        {
+            string customizedCaption = null;
+            if (VBDesignContent != null && VBDesignContent is VBDesign && !string.IsNullOrEmpty((VBDesignContent as VBDesign).CustomizedACCaption))
+            {
+                customizedCaption = (VBDesignContent as VBDesign).CustomizedACCaption;
+            }
+            return customizedCaption;
+        }
+
         public override void RefreshTitle()
         {
-            if(VBContent == null)
+            if (VBContent == null)
             {
                 if (ContextACObject != null)
                 {
-                    Title = ContextACObject.ACCaption;
+                    string customizedCaption = GetCustomizedACCaption();
+                    if (!string.IsNullOrEmpty(customizedCaption))
+                    {
+                        Title = customizedCaption;
+                    }
+                    else
+                    {
+                        Title = ContextACObject.ACCaption;
+                    }
                     if (ContextACObject is INotifyPropertyChanged)
                     {
                         (ContextACObject as INotifyPropertyChanged).PropertyChanged -= VBDockingContainerToolWindowVB_PropertyChanged;
@@ -112,7 +117,18 @@ namespace gip.core.layoutengine
             if (e.PropertyName == Const.ACCaptionPrefix)
             {
                 IACObject contextObj = sender as IACObject;
-                Title = contextObj.ACCaption;
+                if (VBDesignContent != null)
+                {
+                    string customizedCaption = GetCustomizedACCaption();
+                    if (!string.IsNullOrEmpty(customizedCaption))
+                    {
+                        Title = customizedCaption;
+                    }
+                    else
+                    {
+                        Title = contextObj.ACCaption;
+                    }
+                }
             }
         }
 

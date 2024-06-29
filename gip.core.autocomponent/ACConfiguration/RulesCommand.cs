@@ -410,7 +410,7 @@ namespace gip.core.autocomponent
         //    return GetProcessModulesInternal(item, db, out help);
         //}
 
-        public static Tuple<IEnumerable<ACClass>, List<Route>> GetProcessModules(ACClassWF item, Database db, out bool? isRecivalMaterial, IEnumerable<ACClass> allowedInstances = null)
+        public static Tuple<IEnumerable<ACClass>, List<Route>> GetProcessModules(ACClassWF item, Database db, out bool? isRecivalMaterial, IEnumerable<ACClass> allowedInstances = null, RouteResultMode routeResultMode = RouteResultMode.FullRoute)
         {
             isRecivalMaterial = null;
             if (item.RefPAACClassMethod == null)
@@ -464,7 +464,8 @@ namespace gip.core.autocomponent
                                 IncludeReserved = true,
                                 IncludeAllocated = true,
                                 DBRecursionLimit = 3,
-                                ForceReattachToDatabaseContext = true
+                                ForceReattachToDatabaseContext = true,
+                                ResultMode = routeResultMode
                             };
 
                             if (paPointMatIn1 != null)

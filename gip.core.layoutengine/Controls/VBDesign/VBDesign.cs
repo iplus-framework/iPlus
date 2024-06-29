@@ -731,6 +731,22 @@ namespace gip.core.layoutengine
             }
         }
 
+        private string _CustomizedACCaption;
+        /// <summary>
+        /// To know is set manually - not by ACCaption.get()
+        /// </summary>
+        public string CustomizedACCaption
+        {
+            get
+            {
+                return _CustomizedACCaption;
+            }
+            set
+            {
+                _CustomizedACCaption = value;
+            }
+        }
+
 
         /// <summary>
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
