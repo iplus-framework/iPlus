@@ -239,11 +239,23 @@ namespace gip.core.autocomponent
                     }
                     if (password != vbUser.Password)
                     {
-                        if (!ACCrypt.VerifyMd5Hash(password, vbUser.Password))
+                        try
                         {
-                            Messages.ConsoleMsg("System", "Wrong password!");
-                            errorMsg = "Wrong password!";
-                            return null;
+                            vbUser.AutoRefresh();
+                        }
+                        catch (Exception e)
+                        {
+                            Messages.ConsoleMsg("System", e.Message);
+                        }
+
+                        if (password != vbUser.Password)
+                        {
+                            if (!ACCrypt.VerifyMd5Hash(password, vbUser.Password))
+                            {
+                                Messages.ConsoleMsg("System", "Wrong password!");
+                                errorMsg = "Wrong password!";
+                                return null;
+                            }
                         }
                     }
 
