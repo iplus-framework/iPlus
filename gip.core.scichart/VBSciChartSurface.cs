@@ -630,11 +630,14 @@ namespace gip.core.scichart
 
             _Initialized = true;
 
+            bool bForceRedraw = false;
             foreach (var dataSeries in this.RenderableSeries.Where(c => c is BaseRenderableSeries && String.IsNullOrEmpty((c as BaseRenderableSeries).Name)).ToArray())
             {
+                bForceRedraw = true;
                 this.RenderableSeries.Remove(dataSeries);
             }
 
+            bool bAnyLines = false;
             foreach (VBPropertyLogChartItem propertylogitem in PropertyLogItems)
             {
                 if (propertylogitem == null)
@@ -694,8 +697,10 @@ namespace gip.core.scichart
 
                 if (!bExists)
                     RenderableSeries.Add(line);
-                AutoZoomExtents();
+                bAnyLines = true;
             }
+            if (bAnyLines)
+                AutoZoomExtents(bForceRedraw);
         }
 
         /// <summary>
@@ -1046,7 +1051,7 @@ namespace gip.core.scichart
         }
 
         private int _CountAutoExtents = 0;
-        public void AutoZoomExtents()
+        public void AutoZoomExtents(bool forceRedraw = false)
         {
             AutoRange autoExtendXAxis = CanAutoExtendXAxis;
             AutoRange autoExtendYAxis = CanAutoExtendYAxis;
@@ -1054,7 +1059,7 @@ namespace gip.core.scichart
             bool extendX = autoExtendXAxis == AutoRange.Always || autoExtendXAxis == AutoRange.Once && _CountAutoExtents == 0;
             bool extendY = autoExtendYAxis == AutoRange.Always || autoExtendYAxis == AutoRange.Once && _CountAutoExtents == 0;
 
-            if (extendX && extendY)
+            if ((extendX && extendY) || forceRedraw)
             {
                 ZoomExtents();
                 _CountAutoExtents++;
