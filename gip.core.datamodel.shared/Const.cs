@@ -13,12 +13,14 @@ namespace gip.core.datamodel
         public const string Select = "en{'Select'}de{'Auswahl'}";
         public const string Ok = "en{'Ok'}de{'Ok'}";
         public const string Add = "en{'Add'}de{'Hinzufügen'}";
+        public const string New = "en{'New'}de{'Neu'}";
         public const string Cancel = "en{'Cancel'}de{'Abbrechen'}";
         public const string Remove = "en{'Remove'}de{'Entfernen'}";
         public const string Recalculate = "en{'Recalculate'}de{'Neu berechnen'}";
         public const string Login = "en{'Login'}de{'Anmeldung'}";
         public const string Logout = "en{'Logout'}de{'Abmeldung'}";
         public const string Clear = "en{'Clear'}de{'Löschen'}";
+        public const string Canceled = "en{'Canceled'}de{'Abgesagt'}";
 
         //Datamodel Konstanten
         public const string EntityInsertName = "InsertName";
