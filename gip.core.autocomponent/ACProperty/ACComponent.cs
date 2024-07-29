@@ -864,7 +864,7 @@ namespace gip.core.autocomponent
         /// </summary>
         /// <param name="doc">The document.</param>
         /// <param name="xmlACPropertyList">The XML ac property list.</param>
-        protected virtual void DumpPropertyList(XmlDocument doc, XmlElement xmlACPropertyList)
+        protected virtual void DumpPropertyList(XmlDocument doc, XmlElement xmlACPropertyList, ref DumpStats dumpStats)
         {
             Type typeEnumerable = typeof(IEnumerable);
             foreach (IACPropertyBase property in ACDiagPropertyList)
@@ -892,6 +892,8 @@ namespace gip.core.autocomponent
                     xmlProperty.InnerText = xmlValue;
                 }
                 xmlACPropertyList.AppendChild(xmlProperty);
+                if (property is IACPropertyNetSource)
+                    dumpStats.Bindings += (property as IACPropertyNetSource).Targets != null ? (property as IACPropertyNetSource).Targets.Count : 0;
             }
 
             XmlElement xmlInitState = xmlACPropertyList["InitState"];

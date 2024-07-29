@@ -353,7 +353,7 @@ namespace gip.core.autocomponent
         /// Create an empty text file called "Invoke_Dump.txt" in the iPlus installation directory or in the directory where the iPlus service is executed.</para>
         ///   <para>The iPlus service starts to output all application trees including the root  tree in the temporary directory. An XML file with the name "RuntimeDump_ProcId_yyyyMMdd_HHmmss.xml" is created. The XML file contains all instances including all property values ​​and private fields as it is also displayed in the diagnostics dialog.</para>
         /// </summary>
-        [ACMethodInfo("", "en{'Dump'}de{'Ausgabe Speicherinhalt'}", 9999)]
+        [ACMethodCommand("", "en{'Dump'}de{'Ausgabe Speicherinhalt'}", 9999)]
         public void Dump()
         {
             string xmlDumpFileName = string.Format("{0}RuntimeDump_{1}_{2:yyyyMMdd_HHmmss}.xml", Messages.LogFilePath, Process.GetCurrentProcess().Id.ToString(), DateTime.Now);

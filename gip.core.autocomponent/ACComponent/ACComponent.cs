@@ -4798,11 +4798,17 @@ namespace gip.core.autocomponent
         public virtual XmlDocument DumpAsXMLDoc(int maxChildDepth = 0)
         {
             XmlDocument doc = new XmlDocument();
-            DumpCreateXMLElement(doc, null, 0, maxChildDepth);
+            DumpStats dumpStats = new DumpStats();
+            DumpCreateXMLElement(doc, null, 0, maxChildDepth, ref dumpStats);
             return doc;
         }
 
-        protected virtual void DumpCreateXMLElement(XmlDocument doc, XmlElement parent, int currentDepth, int maxChildDepth)
+        protected class DumpStats
+        {
+            public int Bindings { get; set; }
+        }
+
+        protected virtual void DumpCreateXMLElement(XmlDocument doc, XmlElement parent, int currentDepth, int maxChildDepth, ref DumpStats dumpStats)
         {
             currentDepth++;
             if ((maxChildDepth > 0) && (currentDepth > maxChildDepth))
@@ -4815,17 +4821,29 @@ namespace gip.core.autocomponent
             XmlElement xmlACComponentChilds = doc.CreateElement("ACComponentChilds");
             foreach (ACComponent subComponent in ACComponentChilds)
             {
-                subComponent.DumpCreateXMLElement(doc, xmlACComponentChilds, currentDepth, maxChildDepth);
+                subComponent.DumpCreateXMLElement(doc, xmlACComponentChilds, currentDepth, maxChildDepth, ref dumpStats);
             }
             xmlThis.AppendChild(xmlACComponentChilds);
 
             XmlElement xmlACPropertyList = doc.CreateElement("ACPropertyList");
-            DumpPropertyList(doc, xmlACPropertyList);
+            DumpPropertyList(doc, xmlACPropertyList, ref dumpStats);
             xmlThis.AppendChild(xmlACPropertyList);
 
             XmlElement xmlACPointList = doc.CreateElement("ACPointList");
             DumpPointList(doc, xmlACPointList);
             xmlThis.AppendChild(xmlACPointList);
+
+            if (currentDepth == 1)
+            {
+                XmlElement xmlChild = xmlACPropertyList["BindingCount"];
+                if (xmlChild == null)
+                {
+                    xmlChild = doc.CreateElement("BindingCount");
+                    if (xmlChild != null)
+                        xmlChild.InnerText = dumpStats.Bindings.ToString();
+                    xmlACPropertyList.AppendChild(xmlChild);
+                }
+            }
 
             if (parent != null)
                 parent.AppendChild(xmlThis);

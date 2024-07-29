@@ -581,7 +581,8 @@ namespace gip.core.autocomponent
             doc.AppendChild(xmlDump);
             XmlElement xmlProxy = doc.CreateElement("Proxy");
             xmlDump.AppendChild(xmlProxy);
-            DumpCreateXMLElement(doc, xmlProxy, 0, maxChildDepth);
+            DumpStats dumpStats = new DumpStats();
+            DumpCreateXMLElement(doc, xmlProxy, 0, maxChildDepth, ref dumpStats);
 
             XmlElement xmlReal = doc.CreateElement("Real");
             xmlDump.AppendChild(xmlReal);
@@ -598,9 +599,9 @@ namespace gip.core.autocomponent
             return doc;
         }
 
-        protected override void DumpPropertyList(XmlDocument doc, XmlElement xmlACPropertyList)
+        protected override void DumpPropertyList(XmlDocument doc, XmlElement xmlACPropertyList, ref DumpStats dumpStats)
         {
-            base.DumpPropertyList(doc, xmlACPropertyList);
+            base.DumpPropertyList(doc, xmlACPropertyList, ref dumpStats);
 
             XmlElement xmlConnectionState = xmlACPropertyList[nameof(ConnectionState)];
             if (xmlConnectionState == null)
