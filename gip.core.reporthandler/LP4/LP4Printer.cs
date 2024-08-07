@@ -38,6 +38,12 @@ namespace gip.core.reporthandler
         {
             bool result = base.ACPostInit();
 
+            _ShutdownEvent = new ManualResetEvent(false);
+            _PollThread = new ACThread(Poll);
+            _PollThread.Name = "ACUrl:" + this.GetACUrl() + ";Poll();";
+            //_PollThread.ApartmentState = ApartmentState.STA;
+            _PollThread.Start();
+
             CurrentCommands = new LP4PrinterCommands(StartCharacter, EndCharacter, SeparatorCharacterTab, SeparatorCharachterCR);
 
             return result;
