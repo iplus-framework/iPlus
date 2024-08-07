@@ -41,6 +41,9 @@ namespace gip.core.autocomponent
         [IgnoreDataMember]
         public VBDialogResult DialogResult { get; set; }
 
+        [IgnoreDataMember]
+        public short DialogSelectInfo { get; set; }
+
         #endregion
 
         #region Methods
@@ -102,6 +105,7 @@ namespace gip.core.autocomponent
 
         [DataMember]
         public String EntityName { get; set; }
+
         [DataMember]
         public Guid EntityID { get; set; }
 

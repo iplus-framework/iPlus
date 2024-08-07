@@ -965,15 +965,12 @@ namespace gip.core.autocomponent
                                                           routingParameters.IncludeAllocated, routingParameters.IsForEditor, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams);
         }
 
-        /// <summary>Searches a route from start components to end components.</summary>
+        /// <summary>
+        /// Searches a route from start components to end components.
+        /// </summary>
         /// <param name="startComponentsACUrl">The ACUrl array of start components.</param>
         /// <param name="endComponentsACUrl">The ACUrl array of end components.</param>
-        /// <param name="routeDirection">Determines a sources and targets in route from a start and end components.</param>
-        /// <param name="selectionRuleID"></param>
-        /// <param name="selectionRuleParams"></param>
-        /// <param name="maxRouteAlternatives"></param>
-        /// <param name="includeReserved"></param>
-        /// <param name="includeAllocated"></param>
+        /// <param name="routingParameters">Routing params</param>
         /// <returns>Available routes between start and end components.</returns>
         [ACMethodInfo("", "", 302, true)]
         public RoutingResult SelectRoutesInstance(string[] startComponentsACUrl, string[] endComponentsACUrl, ACRoutingParameters routingParameters)
@@ -1058,18 +1055,12 @@ namespace gip.core.autocomponent
             return rResult;
         }
 
-        /// <summary>Searches routes from the startComponentACUrl to the nearest component which is match to selector parameter.</summary>
-        /// <param name="startComponentACUrl">The start component in searching.</param>
-        /// <param name="selectionRuleID"></param>
-        /// <param name="routeDirection">The search diretion.</param>
-        /// <param name="selectionRuleParams"></param>
-        /// <param name="maxRouteAlternatives"></param>
-        /// <param name="includeReserved"></param>
-        /// <param name="includeAllocated"></param>
-        /// <param name="resultMode"></param>
-        /// <returns>
-        ///   <br />
-        /// </returns>
+        /// <summary>
+        /// Searches routes from the startComponentACUrl to the nearest component which is match to selector parameter.
+        /// </summary>
+        /// <param name="startComponentACUrl"></param>
+        /// <param name="routingParameters"></param>
+        /// <returns></returns>
         [ACMethodInfo("", "", 304, true)]
         public RoutingResult FindSuccessorsInstance(string startComponentACUrl, ACRoutingParameters routingParameters)
         {

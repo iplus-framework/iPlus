@@ -797,7 +797,7 @@
         <Setter Property="RowStyle" Value="{StaticResource RowStyleAero}" />
         <Setter Property="RowHeaderStyle" Value="{StaticResource RowHeaderStyleAero}" />
         <!--<Setter Property="RowHeaderTemplate" Value="{StaticResource RowHeaderContentTemplateAero}" />-->
-        <Setter Property="RowDetailsTemplate" Value="{StaticResource RowDetailsContentTemplateAero}" />
+        <!--<Setter Property="RowDetailsTemplate" Value="{StaticResource RowDetailsContentTemplateAero}" />-->
         <Setter Property="ColumnHeaderStyle" Value="{StaticResource ColumnHeaderStyleAero}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <!--<Setter Property="HeadersVisibility" Value="All"/>-->
