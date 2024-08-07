@@ -860,10 +860,10 @@ namespace gip.core.autocomponent
         #region Diagnostics and Dump        
         /// <summary>
         /// Override this method to add private fields to the XMLDump for Diagnostics.
-        /// First call base.DumpPropertyList() an then add you values to the xmlACPropertyList via AppendChild
-        /// </summary>
-        /// <param name="doc">The document.</param>
-        /// <param name="xmlACPropertyList">The XML ac property list.</param>
+        /// First call base.DumpPropertyList() an then add you values to the xmlACPropertyList via AppendChild        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="xmlACPropertyList"></param>
+        /// <param name="dumpStats"></param>
         protected virtual void DumpPropertyList(XmlDocument doc, XmlElement xmlACPropertyList, ref DumpStats dumpStats)
         {
             Type typeEnumerable = typeof(IEnumerable);

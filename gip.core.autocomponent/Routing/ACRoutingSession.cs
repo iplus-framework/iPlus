@@ -772,9 +772,12 @@ namespace gip.core.autocomponent
 
         private int _AddedSidetracks = 0;
 
-        /// <summary>Adds sidetracks recursively for specified vertex and new vertices in shortest path</summary>
-        /// <param name="rp">Previous sidetrack collection</param>
+        /// <summary>
+        /// Adds sidetracks recursively for specified vertex and new vertices in shortest path
+        /// </summary>
+        /// <param name="rp"></param>
         /// <param name="routingVertex"></param>
+        /// <param name="depth"></param>
         private void AddSidetracks(ACRoutingPath rp, ACRoutingVertex routingVertex, int depth)
         {
             if (routingVertex == null || depth > _MaxRouteLoopDepth)
@@ -846,10 +849,13 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        /// <summary>Reconstructs path from sidetracks</summary>
+        /// <summary>
+        /// econstructs path from sidetracks
+        /// </summary>
         /// <param name="_sidetracks">Sidetracks collections for this path, could be empty for shortest</param>
         /// <param name="sourceComponent"></param>
         /// <param name="vertexList"></param>
+        /// <param name="routeModeItems"></param>
         /// <returns>Full path reconstructed from s to t, crossing sidetracks</returns>
         public static ACRoutingPath RebuildPath(ACRoutingPath _sidetracks, IACComponent sourceComponent, List<ACRoutingVertex> vertexList, Dictionary<Guid,RouteItemModeEnum> routeModeItems)
         {
