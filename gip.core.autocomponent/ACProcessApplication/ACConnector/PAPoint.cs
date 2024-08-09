@@ -130,7 +130,7 @@ namespace gip.core.autocomponent
         /// <returns>True if edge is sidetrack of vertex, false if not</returns>
         public bool IsSidetrackOf(ACRoutingVertex _v)
         {
-            return (this.SourceParent == _v.Component.ValueT && this != _v.EdgeToPath && this.Weight >= 0);
+            return (this.SourceParent == _v.ComponentInstance && this != _v.EdgeToPath && this.Weight >= 0);
         }
 
         [IgnoreDataMember]

@@ -932,7 +932,7 @@ namespace gip.core.autocomponent
             if (startComponent == null || endComponent == null)
                 return null;
 
-            return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent), new ACRoutingVertex(endComponent), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved, 
+            return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, false), new ACRoutingVertex(endComponent, false), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved, 
                                                           routingParameters.IncludeAllocated, routingParameters.IsForEditor);
         }
 
@@ -945,24 +945,35 @@ namespace gip.core.autocomponent
             if (startComponent == null || endComponent == null)
                 return null;
 
+            Tuple<List<ACRoutingVertex>, PriorityQueue<ST_Node>> result;
+
             if (startPointID.HasValue && endPointID.HasValue)
             {
-                return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, startPointID.Value), new ACRoutingVertex(endComponent, endPointID.Value), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved,
+                result = new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, startPointID.Value, false), new ACRoutingVertex(endComponent, endPointID.Value, false), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved,
                                                           routingParameters.IncludeAllocated, routingParameters.IsForEditor, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams);
             }
             else if (startPointID.HasValue && !endPointID.HasValue)
             {
-                return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, startPointID.Value), new ACRoutingVertex(endComponent), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved,
+                result = new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, startPointID.Value, false), new ACRoutingVertex(endComponent, false), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved,
                                                           routingParameters.IncludeAllocated, routingParameters.IsForEditor, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams);
             }
             else if (!startPointID.HasValue && endPointID.HasValue)
             {
-                return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent), new ACRoutingVertex(endComponent, endPointID.Value), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved,
+                result = new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, false), new ACRoutingVertex(endComponent, endPointID.Value, false), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved,
                                                           routingParameters.IncludeAllocated, routingParameters.IsForEditor, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams);
             }
+            else
+            {
+                result = new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent, false), new ACRoutingVertex(endComponent, false), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved,
+                                                              routingParameters.IncludeAllocated, routingParameters.IsForEditor, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams);
+            }
 
-            return new ACRoutingSession(this).BuildRoutes(new ACRoutingVertex(startComponent), new ACRoutingVertex(endComponent), routingParameters.MaxRouteAlternativesInLoop, routingParameters.IncludeReserved,
-                                                          routingParameters.IncludeAllocated, routingParameters.IsForEditor, routingParameters.SelectionRuleID, routingParameters.SelectionRuleParams);
+            if (result != null && result.Item1 != null)
+            {
+                result.Item1.ForEach(c => c.AttachComponent());
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -1071,7 +1082,7 @@ namespace gip.core.autocomponent
                 return new RoutingResult(null, false, msg);
             }
 
-            var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp), routingParameters, routingParameters.ResultMode);
+            var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp, false), routingParameters, routingParameters.ResultMode);
             if (result != null && result.Message != null)
             {
                 if (result.Message.MessageLevel > eMsgLevel.Warning)
@@ -1101,7 +1112,7 @@ namespace gip.core.autocomponent
                 return new RoutingResult(null, false, msg);
             }
 
-            RoutingResult rResult = new ACRoutingSession(this).FindAvailableComponents(new ACRoutingVertex(startComp), routingParameters.SelectionRuleID, routingParameters.Direction, routingParameters.SelectionRuleParams, 
+            RoutingResult rResult = new ACRoutingSession(this).FindAvailableComponents(new ACRoutingVertex(startComp, false), routingParameters.SelectionRuleID, routingParameters.Direction, routingParameters.SelectionRuleParams, 
                                                                                        routingParameters.IncludeReserved, routingParameters.IncludeAllocated);
             
             if (DumpRoutingData && rResult != null && rResult.Message != null && rResult.Message.MessageLevel <= eMsgLevel.Warning)
@@ -1122,7 +1133,7 @@ namespace gip.core.autocomponent
                 return new RoutingResult(null, false, msg);
             }
 
-            var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp, startPointACClassPropID), routingParameters, routingParameters.ResultMode);
+            var result = new ACRoutingSession(this).FindSuccessors(new ACRoutingVertex(startComp, startPointACClassPropID, false), routingParameters, routingParameters.ResultMode);
             if (result != null && result.Message != null)
             {
                 if (result.Message.MessageLevel > eMsgLevel.Warning)
@@ -1632,10 +1643,10 @@ namespace gip.core.autocomponent
             ACRoutingVertex[] endVertices = new ACRoutingVertex[endCompCount];
 
             for (int i = 0; i < startCompCount; i++)
-                startVertices[i] = new ACRoutingVertex(startComponents[i]);
+                startVertices[i] = new ACRoutingVertex(startComponents[i], false);
 
             for (int i = 0; i < endCompCount; i++)
-                endVertices[i] = new ACRoutingVertex(endComponents[i]);
+                endVertices[i] = new ACRoutingVertex(endComponents[i], false);
 
             return new Tuple<ACRoutingVertex[], ACRoutingVertex[]>(startVertices, endVertices);
         }
@@ -1646,10 +1657,10 @@ namespace gip.core.autocomponent
             ACRoutingVertex[] startVertices = new ACRoutingVertex[1];
             ACRoutingVertex[] endVertices = new ACRoutingVertex[endCompCount];
 
-            startVertices[0] = new ACRoutingVertex(startComponent, startPointACClassProprertyID);
+            startVertices[0] = new ACRoutingVertex(startComponent, startPointACClassProprertyID, false);
 
             for (int i = 0; i < endCompCount; i++)
-                endVertices[i] = new ACRoutingVertex(endComponents[i]);
+                endVertices[i] = new ACRoutingVertex(endComponents[i], false);
 
             return new Tuple<ACRoutingVertex[], ACRoutingVertex[]>(startVertices, endVertices);
         }
