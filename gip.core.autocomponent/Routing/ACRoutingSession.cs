@@ -938,7 +938,7 @@ namespace gip.core.autocomponent
             RoutingVertexList.Add(routingTargetVertex.ComponentInstance, routingTargetVertex);
 
             PriorityQueue<SP_Node> fringe = new PriorityQueue<SP_Node>();
-            List<LoopItem> loopCounter = new List<LoopItem>();
+            Dictionary<PAEdge, short> loopCounter = new Dictionary<PAEdge, short>();
 
             string excludedByDeselector = "", excludedByLoop = "";
 
@@ -991,18 +991,19 @@ namespace gip.core.autocomponent
                 }
                 else
                 {
-                    var currentLoopEdge = loopCounter.FirstOrDefault(c => c.Edge == e);
-                    if (currentLoopEdge != null)
+                    short counter = 0;
+
+                    if (loopCounter.TryGetValue(e, out counter))
                     {
-                        currentLoopEdge.LoopCounter++;
+                        counter++;
+                        loopCounter[e] = counter;
                     }
                     else
                     {
-                        currentLoopEdge = new LoopItem(e);
-                        loopCounter.Add(currentLoopEdge);
+                        loopCounter.Add(e, 1);
                     }
 
-                    if (currentLoopEdge.LoopCounter > 15)
+                    if (counter > 15)
                     {
                         excludedByLoop += routingTargetVertex.ComponentInstance.ACUrl + "; ";
                         routingTargetVertex = null;

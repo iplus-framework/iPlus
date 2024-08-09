@@ -16,39 +16,34 @@ namespace gip.core.autocomponent
 
         public ACRoutingVertex(IACComponent component, bool includeACRef)
         {
-            ComponentInstance = component;
-
+            _ComponentInstance = component;
             if (includeACRef)
             {
-                ComponentRef = new ACRef<IACComponent>(component, ACRef<IACComponent>.RefInitMode.AutoStartStop, false, null);
+                _ComponentRef = new ACRef<IACComponent>(component, ACRef<IACComponent>.RefInitMode.AutoStartStop, false, null);
             }
 
-            RelatedEdges = ComponentInstance.ACPointList.OfType<PAPoint>()
+
+            IACComponent compInstance = _ComponentInstance;
+
+            _RelatedEdges = _ComponentInstance.ACPointList.OfType<PAPoint>()
                                                        //.Select(x => ((PAPoint)x).ConnectionList
                                                        .Select(x => ((PAPoint)x).ConnectionList.Where(c => (c as PAEdge).Relation.ConnectionType == Global.ConnectionTypes.ConnectionPhysical)
-                                                       .Where(k => k.Target.ParentACComponent == ComponentInstance || k.Source.ParentACComponent == ComponentInstance))
-                                                       .SelectMany(x => x).ToList();
-
-
-            //RelatedEdges = Component.ValueT.ACPointList.Where(c => c.GetType() == typeof(PAPoint))
-            //                                   .Select(x => ((PAPoint)x).ConnectionList
-            //                                   .Where(k => k.Target.ParentACComponent == Component.ValueT || k.Source.ParentACComponent == Component.ValueT))
-            //                                   .SelectMany(x => x).ToList();
+                                                       .Where(k => k.Target.ParentACComponent == compInstance || k.Source.ParentACComponent == compInstance))
+                                                       .SelectMany(x => x).ToArray();
             ResetRoutingState();
         }
 
         public ACRoutingVertex(IACComponent component, Guid targetPointACClassPropertyID, bool includeACRef)
         {
-            ComponentInstance = component;
+            _ComponentInstance = component;
 
             if (includeACRef)
             {
-                ComponentRef = new ACRef<IACComponent>(component, ACRef<IACComponent>.RefInitMode.AutoStartStop, false, null);
+                _ComponentRef = new ACRef<IACComponent>(component, ACRef<IACComponent>.RefInitMode.AutoStartStop, false, null);
             }
 
-            RelatedEdges = ComponentInstance.ACPointList.OfType<PAPoint>().FirstOrDefault(c => c.PropertyInfo.ACClassPropertyID == targetPointACClassPropertyID)
-                                                       .ConnectionList.Where(x => x.Relation.ConnectionType == Global.ConnectionTypes.ConnectionPhysical).ToList();
-
+            _RelatedEdges = _ComponentInstance.ACPointList.OfType<PAPoint>().FirstOrDefault(c => c.PropertyInfo.ACClassPropertyID == targetPointACClassPropertyID)
+                                                       .ConnectionList.Where(x => x.Relation.ConnectionType == Global.ConnectionTypes.ConnectionPhysical).ToArray();
             ResetRoutingState();
         }
 
@@ -101,9 +96,9 @@ namespace gip.core.autocomponent
         }
 
         [IgnoreDataMember]
-        private List<PAEdge> _RelatedEdges;
+        private PAEdge[] _RelatedEdges;
         [DataMember]
-        public List<PAEdge> RelatedEdges
+        public PAEdge[] RelatedEdges
         {
             get
             {
@@ -119,7 +114,8 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return RelatedEdges?.Where(c => c.SourceParentComponent == ComponentInstance);
+                var compInstance = ComponentInstance;
+                return RelatedEdges?.Where(c => c.SourceParentComponent == compInstance);
             }
         }
 
@@ -127,29 +123,36 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return RelatedEdges?.Where(c => c.TargetParentComponent == ComponentInstance);
+                var compInstance = ComponentInstance;
+                return RelatedEdges?.Where(c => c.TargetParentComponent == compInstance);
             }
         }
 
+        [IgnoreDataMember]
+        private int _Distance;
         [DataMember]
         public int Distance
         {
-            get;
-            set;
+            get => _Distance;
+            set => _Distance = value;
         }
 
+        [IgnoreDataMember]
+        public int? _DistanceInLoop;
         [DataMember]
         public int? DistanceInLoop
         {
-            get;
-            set;
+            get => _DistanceInLoop;
+            set => _DistanceInLoop = value;
         }
 
+        [IgnoreDataMember]
+        private PAEdge _EdgeToPath;
         [DataMember]
         public PAEdge EdgeToPath
         {
-            get;
-            set;
+            get => _EdgeToPath;
+            set => _EdgeToPath = value;
         }
         
         [IgnoreDataMember]
@@ -169,18 +172,22 @@ namespace gip.core.autocomponent
             }
         }
 
+        [IgnoreDataMember]
+        private bool _HasAnyReserved;
         [DataMember]
         public bool HasAnyReserved
         {
-            get;
-            set;
+            get => _HasAnyReserved;
+            set => _HasAnyReserved = value;
         }
 
+        [IgnoreDataMember]
+        private bool _HasAnyAllocated;
         [DataMember]
         public bool HasAnyAllocated
         {
-            get;
-            set;
+            get => _HasAnyAllocated;
+            set => _HasAnyAllocated = value;
         }
 
         #endregion
