@@ -675,7 +675,7 @@ namespace gip.core.autocomponent
                 //                    {
                 //                        builder.AppendLine(n.ToString() + ": " + String.Join(" >>>> ", list[n]));
                 //                    }
-                //                    Database.Root.Messages.LogDebug("Route", "SelectRoutes", builder.ToString());
+                //                    Database.Root.Messages.LogDebug(nameof(Route), "SelectRoutes", builder.ToString());
                 //                }
                 //#endif
                 if (routingParameters.AutoDetachFromDBContext)
@@ -767,7 +767,7 @@ namespace gip.core.autocomponent
                 //                    {
                 //                        builder.AppendLine(n.ToString() + ": " + String.Join(" >>>> ", list[n]));
                 //                    }
-                //                    Database.Root.Messages.LogDebug("Route", "SelectRoutes", builder.ToString());
+                //                    Database.Root.Messages.LogDebug(nameof(Route), "SelectRoutes", builder.ToString());
                 //                }
                 //#endif
                 if (routingParameters.AutoDetachFromDBContext)

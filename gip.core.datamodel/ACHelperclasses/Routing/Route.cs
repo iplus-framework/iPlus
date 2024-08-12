@@ -12,7 +12,7 @@ namespace gip.core.datamodel
     public class Route : IReadOnlyList<RouteItem>, IACAttach, ICloneable
     {
         #region const
-        public const string ClassName = "Route";
+        public const string ClassName = nameof(Route);
         #endregion
 
         #region Constructors
