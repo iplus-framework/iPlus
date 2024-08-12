@@ -323,7 +323,7 @@ namespace gip.core.autocomponent
     [ACClassInfo(Const.PackName_VarioSystem, "en{'RoutingResult'}de{'RoutingResult'}", Global.ACKinds.TACSimpleClass)]
     public class RoutingResult
     {
-        public RoutingResult(IEnumerable<Route> routes, bool isDbResult, Msg msg, IEnumerable<ACRef<IACComponent>> components = null)
+        public RoutingResult(IEnumerable<Route> routes, bool isDbResult, Msg msg, IEnumerable<IACComponent> components = null)
         {
             _Routes = routes;
             _IsDbResult = isDbResult;
@@ -347,9 +347,9 @@ namespace gip.core.autocomponent
         }
 
         [IgnoreDataMember]
-        private IEnumerable<ACRef<IACComponent>> _Components;
+        private IEnumerable<IACComponent> _Components;
         [DataMember]
-        public IEnumerable<ACRef<IACComponent>> Components
+        public IEnumerable<IACComponent> Components
         {
             get
             {

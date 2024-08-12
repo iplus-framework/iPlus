@@ -674,12 +674,12 @@ namespace gip.bso.iplus
 
             foreach (ACRoutingVertex v in buildRouteResult.Item1)
             {
-                v.Component.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
+                v.ComponentRef.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
                 if (v.Next != null)
                     v.Next.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
             }
 
-            ACRoutingVertex startVertex = buildRouteResult.Item1.FirstOrDefault(c => c.Component.ValueT != null && c.Component.ValueT.ACUrl == startComponent);
+            ACRoutingVertex startVertex = buildRouteResult.Item1.FirstOrDefault(c => c.ComponentRef.ValueT != null && c.ComponentRef.ValueT.ACUrl == startComponent);
             if (startVertex == null)
                 return;
 
@@ -688,7 +688,7 @@ namespace gip.bso.iplus
             ST_Node temp = buildRouteResult.Item2.Dequeue();
             while (temp != null)
             {
-                ACRoutingPath path = ACRoutingSession.RebuildPath(temp.Sidetracks, startVertex.Component.ValueT, buildRouteResult.Item1, _RouteModeItemCache.ToDictionary(c => c.Item1, c => (RouteItemModeEnum)c.Item2));
+                ACRoutingPath path = ACRoutingSession.RebuildPath(temp.Sidetracks, startVertex.ComponentRef.ValueT, buildRouteResult.Item1, _RouteModeItemCache.ToDictionary(c => c.Item1, c => (RouteItemModeEnum)c.Item2));
                 if (!temp.Sidetracks.Any())
                 {
                     path.IsPrimaryRoute = true;

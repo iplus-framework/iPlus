@@ -30,10 +30,10 @@ namespace gip.core.autocomponent
         static PAProcessModule()
         {
             RegisterExecuteHandler(typeof(PAProcessModule), HandleExecuteACMethod_PAProcessModule);
-            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule, (c, p) => c.Component.ValueT is PAProcessModule, null);
-            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule_Deselector, null, (c, p) => c.Component.ValueT is PAProcessModule);
-            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModuleParam_Deselector, null, (c, p) => c.Component.ValueT is PAProcessModule 
-                                                                                                         && !p.Contains(c.Component.ValueT.ComponentClass.ACClassID));
+            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule, (c, p) => c.ComponentInstance is PAProcessModule, null);
+            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule_Deselector, null, (c, p) => c.ComponentInstance is PAProcessModule);
+            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModuleParam_Deselector, null, (c, p) => c.ComponentInstance is PAProcessModule 
+                                                                                                         && !p.Contains(c.ComponentInstance.ComponentClass.ACClassID));
         }
 
         public PAProcessModule(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
