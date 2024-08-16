@@ -399,6 +399,26 @@ namespace gip.core.datamodel
             return string.Join("", guids).GetHashCode();
         }
 
+        public string GetRouteItemsHash()
+        {
+            var targets = this.GetRouteTargets().ToList();
+
+            List<Guid> guids = this.Select(c => c.SourceGuid).ToList();
+            foreach (var target in targets)
+            {
+                guids.Add(target.TargetGuid);
+            }
+
+            string result = "";
+
+            foreach (Guid guid in guids)
+            {
+                result += guid.GetHashCode() + ",";
+            }
+
+            return result;
+        }
+
         public (bool reserved, bool allocated) GetReservedAndAllocated(IACComponent acRoutingService)
         {
             if (Count == 0)
