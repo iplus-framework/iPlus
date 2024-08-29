@@ -56,7 +56,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        private List<ACRoutingPath> checkedEdges = new List<ACRoutingPath>();
+        List<ACRoutingPath> checkedEdges = new List<ACRoutingPath>();
 
         private string _SelectionRuleID;
         private object[] _SelectionRuleParams = new object[] { };
@@ -766,11 +766,15 @@ namespace gip.core.autocomponent
             ACRoutingPath empty = new ACRoutingPath();
             this.PathsHeap.Enqueue(new ST_Node(empty));
             AddSidetracks(empty, this.Source,0);
+            
             if (_anyLoop)
+            {
+                CalculateSidetracskDistance();
                 this.PathsHeap.Take(_MaxRouteAlternatives + 1);
+            }
         }
 
-        private int _AddedSidetracks = 0;
+        private Dictionary<int,int> _AddedSidetracks = new Dictionary<int, int>();
 
         /// <summary>
         /// Adds sidetracks recursively for specified vertex and new vertices in shortest path
@@ -802,13 +806,26 @@ namespace gip.core.autocomponent
                     if (!CheckLoop(p) || edge.TargetParent == this.Source.ComponentInstance)
                         continue;
                     this.PathsHeap.Enqueue(new ST_Node(p));
-                    _AddedSidetracks++;
+
+                    int addedSidetracks = 0;
+                    if (_AddedSidetracks.TryGetValue(depth, out addedSidetracks))
+                    {
+                        _AddedSidetracks[depth] = addedSidetracks + 1;
+                    }
+                    else
+                    {
+                        _AddedSidetracks.Add(depth, addedSidetracks + 1);
+                    }
 
                     if (edge.Target.ParentACComponent != routingVertex.ComponentInstance)  // This avoids infinite cycling
                         AddSidetracks(p, targetVertex, depth + 1);
                 }
             }
-            if (routingVertex.Next != null && routingVertex.Distance > 0 && !(_anyLoop && _AddedSidetracks >= _MaxRouteAlternatives))
+
+            int sidetracks = 0;
+            _AddedSidetracks.TryGetValue(depth, out sidetracks);
+
+             if (routingVertex.Next != null && routingVertex.Distance > 0 && !(_anyLoop && sidetracks >= _MaxRouteAlternatives))
                 AddSidetracks(rp, RoutingVertexList[routingVertex.Next.ValueT], depth);
         }
 
@@ -840,9 +857,9 @@ namespace gip.core.autocomponent
             if (_MaxRouteAlternatives == 0)
                 return false;
 
-            if (checkedEdges.Any(c => c.SequenceEqual(path.Distinct())) || (_anyLoop && this.PathsHeap.Count > _MaxRouteAlternatives))
+            if (checkedEdges.Any(c => c.SequenceEqual(path.Distinct()))/* || (_anyLoop && this.PathsHeap.Count > _MaxRouteAlternatives)*/)
             {
-                _anyLoop = true;
+                 _anyLoop = true;
                 return false;
             }
             checkedEdges.Add(path);
@@ -1146,6 +1163,59 @@ namespace gip.core.autocomponent
 
 
             return true;
+        }
+
+        private void CalculateSidetracskDistance()
+        {
+            List<ACRoutingVertex> mainPath = new List<ACRoutingVertex>();
+            ACRoutingVertex currentItem = this.Source;
+            mainPath.Add(currentItem);
+
+            while (true)
+            {
+                if (currentItem.Next == null || currentItem == this.Target)
+                    break;
+
+                currentItem = RoutingVertexList[currentItem.Next.ValueT];
+                mainPath.Add(currentItem);
+            }
+
+            PriorityQueue<ST_Node> tempList = new PriorityQueue<ST_Node>();
+
+            for (int j = 0; j < 200; j++)
+            {
+                ST_Node item = PathsHeap.Dequeue();
+
+                if (item == null)
+                    break;
+
+                if (item.Sidetracks == null || !item.Sidetracks.Any())
+                {
+                    tempList.Enqueue(item);
+                    continue;
+                }
+
+                int distance = item.Weight;
+                ACRoutingVertex v = RoutingVertexList[item.Sidetracks.LastOrDefault().TargetParentComponent];
+
+                for (int i=0; i < 200; i++)
+                {
+                    distance += 100;
+                    if (v == this.Source)
+                        distance += v.Distance;
+
+                    if (mainPath.Contains(v))
+                        break;
+
+                    v = RoutingVertexList[v.Next.ValueT];
+                }
+
+                item.Weight = distance;
+                tempList.Enqueue(item);
+            }
+
+            this.PathsHeap = tempList;
+
         }
 
         #endregion
