@@ -1168,6 +1168,9 @@ namespace gip.core.autocomponent
         private void CalculateSidetracskDistance()
         {
             List<ACRoutingVertex> mainPath = new List<ACRoutingVertex>();
+            if (this.Source == null)
+                return;
+
             ACRoutingVertex currentItem = this.Source;
             mainPath.Add(currentItem);
 
