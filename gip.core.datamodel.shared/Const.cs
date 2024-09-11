@@ -11,6 +11,7 @@ namespace gip.core.datamodel
         public const string ACRootProjectName = "Root";
         public const string ACRootProjectNameTest = "RootTest";
         public const string Select = "en{'Select'}de{'Auswahl'}";
+        public const string Sn = "en{'Sn'}de{'Sn'}";
         public const string Ok = "en{'Ok'}de{'Ok'}";
         public const string Add = "en{'Add'}de{'Hinzufügen'}";
         public const string New = "en{'New'}de{'Neu'}";
