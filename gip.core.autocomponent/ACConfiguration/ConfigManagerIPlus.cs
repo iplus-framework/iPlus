@@ -345,7 +345,11 @@ namespace gip.core.autocomponent
             if (ruleValueList == null)
                 return new List<RuleValue>();
             else
+            {
+                if (ruleValueList.Items == null)
+                    ruleValueList.Items = new List<RuleValue>();
                 return ruleValueList.Items;
+            }
         }
 
         public RuleValueList GetRuleValueList(List<IACConfigStore> callingConfigStores, string preConfigACUrl, string localConfigACUrl)

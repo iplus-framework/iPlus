@@ -955,6 +955,14 @@ namespace gip.core.autocomponent
                 return query.First() as PWNodeEnd;
             }
         }
+
+        public string CurrentProgramNo
+        {
+            get
+            {
+                return RootPW?.CurrentACProgram?.ProgramNo;
+            }
+        }
         #endregion
 
         #endregion

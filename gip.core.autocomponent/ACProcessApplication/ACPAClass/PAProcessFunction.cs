@@ -680,6 +680,19 @@ namespace gip.core.autocomponent
                 return _RepeatWFAfterReset;
             }
         }
+
+        /// <summary>
+        /// This property signals if this function is already active an can be passed to another a Worflow-Node
+        /// without starting this function again. This is sometimes necessary if functions should run "forever" and for the next start through a Workflow-Node the Function musntt be in idle state.
+        /// This property must be overriden in subclass an must return a true value.
+        /// </summary>
+        public virtual bool IsHandOverFunc
+        {
+            get
+            {
+                return false;
+            }
+        }
         #endregion
 
 
