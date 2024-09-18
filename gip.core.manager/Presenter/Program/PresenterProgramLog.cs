@@ -42,7 +42,6 @@ namespace gip.core.manager
 
         #region Properties
 
-
         private Database _BSODatabase = null;
         /// <summary>
         /// Overriden: Returns a separate database context.
@@ -723,6 +722,46 @@ namespace gip.core.manager
             //    Global.VBDesignDockPosition.Bottom,
             //    Global.ControlModes.Enabled);
             _IsFromVBBSOControlPA = false;
+        }
+
+        [ACMethodInfo("", "en{'Show complex value'}de{'Komplexen Wert anzeigen'}", 9999)]
+        public void ShowComplexValue()
+        {
+            ACValue selParam = SelectedACMethodParam;
+            if (selParam == null || selParam.Value == null)
+                return;
+
+            Route currentRoute = selParam.Value as Route;
+            if (currentRoute == null)
+                return;
+
+            IACVBBSORouteSelector routeSelector = ACUrlCommand("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
+            if (routeSelector == null)
+            {
+                Messages.Error(this, "Route selector is not installed");
+                return;
+            }
+
+            //routeSelector.EditRoutesWithAttach(currentRoute, true, true, true);
+            routeSelector.ShowRoute(currentRoute);
+
+            ACComponent comp = routeSelector as ACComponent;
+            if (comp != null)
+                comp.Stop();
+        }
+
+        public bool IsEnabledShowComplexValue()
+        {
+            ACValue selParam = SelectedACMethodParam;
+
+            if (selParam == null)
+                return false;
+            if (selParam.ObjectType == null)
+                return false;
+            if (selParam.ObjectType.IsValueType)
+                return false;
+
+            return true;
         }
 
         #endregion
