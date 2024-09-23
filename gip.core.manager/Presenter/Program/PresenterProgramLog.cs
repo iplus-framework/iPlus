@@ -758,7 +758,7 @@ namespace gip.core.manager
                 List<ACClass> processModules = new List<ACClass>();
 
                 RoutingResult rr = ACRoutingService.FindSuccessors(componentACClass, routingParameters);
-                if (rr != null && rr.Routes.Any())
+                if (rr != null && rr.Routes != null && rr.Routes.Any())
                 {
                     RouteItem[] routeItems = rr.Routes.Select(c => c.GetRouteSource()).ToArray();
                     foreach(RouteItem rItem in routeItems)
@@ -772,7 +772,7 @@ namespace gip.core.manager
 
                 routingParameters.Direction = RouteDirections.Forwards;
                 rr = ACRoutingService.FindSuccessors(componentACClass, routingParameters);
-                if (rr != null && rr.Routes.Any())
+                if (rr != null && rr.Routes != null && rr.Routes.Any())
                 {
                     RouteItem[] routeItems = rr.Routes.Select(c => c.GetRouteTarget()).ToArray();
                     foreach (RouteItem rItem in routeItems)
@@ -784,16 +784,48 @@ namespace gip.core.manager
                     processModules.AddRange(routeItems.Select(c => c.Target));
                 }
 
+                if (!processModules.Any())
+                {
+                    componentACClass = componentACClass.ACClass1_ParentACClass;
+
+                    routingParameters.Direction = RouteDirections.Backwards;
+                    rr = ACRoutingService.FindSuccessors(componentACClass, routingParameters);
+                    if (rr != null && rr.Routes != null && rr.Routes.Any())
+                    {
+                        RouteItem[] routeItems = rr.Routes.Select(c => c.GetRouteSource()).ToArray();
+                        foreach (RouteItem rItem in routeItems)
+                        {
+                            if (!rItem.IsAttached)
+                                rItem.AttachTo(Db);
+                        }
+
+                        processModules.AddRange(routeItems.Select(c => c.Source));
+                    }
+
+                    routingParameters.Direction = RouteDirections.Forwards;
+                    rr = ACRoutingService.FindSuccessors(componentACClass, routingParameters);
+                    if (rr != null && rr.Routes != null && rr.Routes.Any())
+                    {
+                        RouteItem[] routeItems = rr.Routes.Select(c => c.GetRouteTarget()).ToArray();
+                        foreach (RouteItem rItem in routeItems)
+                        {
+                            if (!rItem.IsAttached)
+                                rItem.AttachTo(Db);
+                        }
+
+                        processModules.AddRange(routeItems.Select(c => c.Target));
+                    }
+                }
+
                 if (processModules.Any())
                 {
                     string[] processModulesACUrl = processModules.Select(c => c.ACUrlComponent).ToArray();
 
                     string compClassID = componentACClass.ACClassID.ToString();
-                    var test = Db.ACProgramLog.Where(c => processModulesACUrl.Any(x => c.ACUrl.Contains(x) && c.StartDate >= timeFrom && c.EndDate < timeTo && c.XMLConfig.Contains(compClassID)));
-                    CreateProgramLogWrapper(test);
+                    CreateProgramLogWrapper(Db.ACProgramLog.Where(c => processModulesACUrl.Any(x => c.ACUrl.Contains(x) && c.StartDate >= timeFrom && c.EndDate < timeTo && c.XMLConfig.Contains(compClassID))));
                     ProgramLogWrapperList = wrapperList;
                     ProgramLogWrapperRootList = ProgramLogWrapperList;
-                    ShowDialog(this, "PresenterProgramLogDialog", componentACClass.ACCaption);
+                    ShowDialog(this, "PresenterProgramLogDialog", string.Format("{0} ({1})", componentACClass.ACCaption, componentACClass.ACUrlComponent));
                 }
             }
             _IsFromVBBSOControlPA = false;
