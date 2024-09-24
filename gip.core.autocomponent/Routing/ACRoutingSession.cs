@@ -146,7 +146,7 @@ namespace gip.core.autocomponent
             RoutingPaths.Clear();
             _MaxRouteAlternatives = routingParameters.MaxRouteAlternativesInLoop;
             _SelectionRuleID = routingParameters.SelectionRuleID;
-            _SelectionRuleParams = routingParameters.SelectionRuleParams;
+            _SelectionRuleParams = routingParameters.SelectionRuleParams != null ? routingParameters.SelectionRuleParams : new object[] { };
             _PreviousRoute = routingParameters.PreviousRoute;
             _MaxRouteLoopDepth = routingParameters.MaxRouteLoopDepth;
 
