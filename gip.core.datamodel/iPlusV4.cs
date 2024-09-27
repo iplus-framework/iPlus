@@ -5859,7 +5859,8 @@ namespace gip.core.datamodel
         /// <param name="isRPCEnabled">Initial value of the IsRPCEnabled property.</param>
         /// <param name="isStatic">Initial value of the IsStatic property.</param>
         /// <param name="executeByDoubleClick">Initial value of the ExecuteByDoubleClick property.</param>
-        public static ACClassMethod CreateACClassMethod(global::System.Guid aCClassMethodID, global::System.Guid aCClassID, global::System.String aCIdentifier, global::System.Int16 aCKindIndex, global::System.Int16 sortIndex, global::System.Boolean isRightmanagement, global::System.Boolean isCommand, global::System.Boolean isInteraction, global::System.Boolean isAsyncProcess, global::System.Boolean isPeriodic, global::System.Boolean isParameterACMethod, global::System.Boolean isSubMethod, global::System.Boolean isAutoenabled, global::System.Boolean isPersistable, global::System.Boolean continueByError, global::System.Int32 branchNo, global::System.String insertName, global::System.DateTime insertDate, global::System.String updateName, global::System.DateTime updateDate, global::System.Boolean isRPCEnabled, global::System.Boolean isStatic, global::System.Boolean executeByDoubleClick)
+        /// <param name="hasRequiredParams">Initial value of the HasRequiredParams property.</param>
+        public static ACClassMethod CreateACClassMethod(global::System.Guid aCClassMethodID, global::System.Guid aCClassID, global::System.String aCIdentifier, global::System.Int16 aCKindIndex, global::System.Int16 sortIndex, global::System.Boolean isRightmanagement, global::System.Boolean isCommand, global::System.Boolean isInteraction, global::System.Boolean isAsyncProcess, global::System.Boolean isPeriodic, global::System.Boolean isParameterACMethod, global::System.Boolean isSubMethod, global::System.Boolean isAutoenabled, global::System.Boolean isPersistable, global::System.Boolean continueByError, global::System.Int32 branchNo, global::System.String insertName, global::System.DateTime insertDate, global::System.String updateName, global::System.DateTime updateDate, global::System.Boolean isRPCEnabled, global::System.Boolean isStatic, global::System.Boolean executeByDoubleClick, global::System.Boolean hasRequiredParams)
         {
             ACClassMethod aCClassMethod = new ACClassMethod();
             aCClassMethod.ACClassMethodID = aCClassMethodID;
@@ -5885,6 +5886,7 @@ namespace gip.core.datamodel
             aCClassMethod.IsRPCEnabled = isRPCEnabled;
             aCClassMethod.IsStatic = isStatic;
             aCClassMethod.ExecuteByDoubleClick = executeByDoubleClick;
+            aCClassMethod.HasRequiredParams = hasRequiredParams;
             return aCClassMethod;
         }
 
@@ -6806,6 +6808,30 @@ namespace gip.core.datamodel
         private global::System.Boolean _ExecuteByDoubleClick;
         partial void OnExecuteByDoubleClickChanging(global::System.Boolean value);
         partial void OnExecuteByDoubleClickChanged();
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public  global::System.Boolean HasRequiredParams
+        {
+            get
+            {
+                return _HasRequiredParams;
+            }
+            set
+            {
+                OnHasRequiredParamsChanging(value);
+                ReportPropertyChanging("HasRequiredParams");
+                _HasRequiredParams = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("HasRequiredParams");
+                OnHasRequiredParamsChanged();
+            }
+        }
+        private global::System.Boolean _HasRequiredParams;
+        partial void OnHasRequiredParamsChanging(global::System.Boolean value);
+        partial void OnHasRequiredParamsChanged();
 
         #endregion
 
