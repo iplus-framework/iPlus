@@ -87,6 +87,7 @@ namespace gip.core.layoutengine
                 bool needBitmap = typeImageSource.IsAssignableFrom(targetType);
                 bool needBrush = typeBrush.IsAssignableFrom(targetType);
                 bool needStream = typeImageStream.IsAssignableFrom(targetType);
+                bool needString = typeof(string).IsAssignableFrom(targetType);
 
                 if (ResourceKey == null)
                 {
@@ -280,7 +281,7 @@ namespace gip.core.layoutengine
                                             wpfApplication.Resources.Add(strResKey, bitmapImage);
                                         return bitmapImage;
                                     }
-                                    catch(Exception e) 
+                                    catch (Exception e)
                                     {
                                         if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                                         {
@@ -342,6 +343,36 @@ namespace gip.core.layoutengine
                                 return new MemoryStream(acClassDesign.DesignBinary);
                             }
                             return new MemoryStream();
+                        }
+                        else if (needString)
+                        {
+                            // Lade Image und Füge es dem Resource-Dicitonary hinzu
+                            IACComponent acComponent = Layoutgenerator.CurrentACComponent;
+                            if (acComponent == null)
+                                acComponent = Layoutgenerator.Root;
+
+                            // Falls WPF-Applikation gestartet und nicht als Service
+                            Application wpfApplication = null;
+                            if (acComponent.Root.RootPageWPF != null && acComponent.Root.RootPageWPF.WPFApplication != null)
+                                wpfApplication = acComponent.Root.RootPageWPF.WPFApplication as Application;
+                            if (wpfApplication != null)
+                                result = wpfApplication.Resources[strResKey];
+                            if (result != null)
+                                return result;
+                            else
+                            {
+                                if (strResKey.StartsWith(Const.ContextDatabase + "\\"))
+                                {
+                                    string dbUrl = strResKey.Substring(9);
+                                    result = acComponent.Database.ContextIPlus.ACUrlCommand(dbUrl) as string;
+                                    if (result != null)
+                                    {
+                                        if (wpfApplication != null)
+                                            wpfApplication.Resources.Add(strResKey, result);
+                                        return result;
+                                    }
+                                }
+                            }
                         }
                     }
                 }

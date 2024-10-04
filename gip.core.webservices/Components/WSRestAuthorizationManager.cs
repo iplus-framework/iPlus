@@ -22,7 +22,7 @@ namespace gip.core.webservices
                 if (sessionId.HasValue)
                     return true;
 
-                var svcCredentials = System.Text.ASCIIEncoding.ASCII
+                var svcCredentials = System.Text.UTF8Encoding.UTF8
                     .GetString(Convert.FromBase64String(authHeader.Substring(6)))
                     .Split(':');
                 var user = new

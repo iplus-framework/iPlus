@@ -181,7 +181,7 @@ namespace gip.core.processapplication
 
 #endregion
 
-#region Points
+        #region Points
 
         protected ACPointEvent _ScanSequenceCompleteEvent;
         [ACPropertyEventPoint(9999, false)]
@@ -199,6 +199,11 @@ namespace gip.core.processapplication
         #endregion
 
         #region Public
+
+        public virtual void OnScan(string code)
+        {
+
+        }
 
         #endregion
 

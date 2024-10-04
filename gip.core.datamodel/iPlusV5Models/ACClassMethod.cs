@@ -285,6 +285,13 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
         set { SetProperty<bool>(ref _ExecuteByDoubleClick, value); }
     }
 
+    bool _HasRequiredParams;
+    public bool HasRequiredParams 
+    {
+        get { return _HasRequiredParams; }
+        set { SetProperty<bool>(ref _HasRequiredParams, value); }
+    }
+
     private ACClass _ACClass;
     public virtual ACClass ACClass
     { 

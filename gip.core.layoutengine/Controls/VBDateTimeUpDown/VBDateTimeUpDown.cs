@@ -673,7 +673,9 @@ namespace gip.core.layoutengine
                 return;
 
             int digitPosition = _keyPressedCounterInSel;
-            DateTime dtValue = (DateTime)Value;
+            DateTime dtValue = DateTime.Now;
+            if (Value != null)
+                dtValue = (DateTime)Value;
 
             try
             {

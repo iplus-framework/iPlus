@@ -75,8 +75,11 @@ namespace gip.ext.designer.OutlineView
                 // detach events from old properties
                 foreach (var property in _Properties)
                 {
-                    property.ValueChanged -= new EventHandler(property_ValueChanged);
-                    property.ValueOnInstanceChanged -= new EventHandler(property_ValueOnInstanceChanged);
+                    if (property != null)
+                    {
+                        property.ValueChanged -= new EventHandler(property_ValueChanged);
+                        property.ValueOnInstanceChanged -= new EventHandler(property_ValueOnInstanceChanged);
+                    }
                 }
             }
 
@@ -84,8 +87,11 @@ namespace gip.ext.designer.OutlineView
 
             foreach (var property in Properties)
             {
-                property.ValueChanged += new EventHandler(property_ValueChanged);
-                property.ValueOnInstanceChanged += new EventHandler(property_ValueOnInstanceChanged);
+                if (property != null)
+                {
+                    property.ValueChanged += new EventHandler(property_ValueChanged);
+                    property.ValueOnInstanceChanged += new EventHandler(property_ValueOnInstanceChanged);
+                }
             }
 
             try

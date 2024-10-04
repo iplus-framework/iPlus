@@ -251,9 +251,10 @@ namespace gip.core.datamodel
             UpdateFrom(msgDetails.MsgDetails);
         }
 
-        public void UpdateFrom(IList<Msg> msgDetails)
+        public void UpdateFrom(IList<Msg> msgDetails, bool clearDetails = true)
         {
-            ClearMsgDetails();
+            if (clearDetails)
+                ClearMsgDetails();
             if (msgDetails != null)
             {
                 foreach (Msg msg in msgDetails)
@@ -261,6 +262,13 @@ namespace gip.core.datamodel
                     AddDetailMessage(msg);
                 }
             }
+        }
+
+        public void Append(MsgWithDetails msgDetails)
+        {
+            if (msgDetails == null)
+                return;
+            UpdateFrom(msgDetails.MsgDetails, false);
         }
 
         public override bool IsSucceded()

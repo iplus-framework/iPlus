@@ -308,12 +308,12 @@ namespace gip.core.layoutengine
             // VBContent muß im XAML gestetzt sein
             System.Diagnostics.Debug.Assert(VBContent != "");
 
-            if (VBContentPropertyInfo == null)
-                return;
+            //if (VBContentPropertyInfo == null)
+            //    return;
 
-            if (Content == null && string.IsNullOrEmpty(ACCaption))
+            if (Content == null && string.IsNullOrEmpty(ACCaption) && VBContentPropertyInfo != null)
                 Content = VBContentPropertyInfo.ACCaption;
-            else if (Content == null && ContextACObject != null)
+            else if (Content == null && ContextACObject != null && !string.IsNullOrEmpty(ACCaption))
                 Content = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
 
             Binding binding = new Binding();

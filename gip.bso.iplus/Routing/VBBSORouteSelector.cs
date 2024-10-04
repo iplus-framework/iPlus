@@ -529,6 +529,41 @@ namespace gip.bso.iplus
             route.Detach();
         }
 
+        public void ShowRoute(Route route)
+        {
+            route.AttachTo(Database.ContextIPlus);
+            IEnumerable<Route> splitedRoutes = Route.SplitRoute(route);
+
+            List<IACObject> components = new List<IACObject>();
+            List<IACObject> routePath = new List<IACObject>();
+            SelectedRoutingPaths = new List<ACRoutingPath>();
+            List<List<ACRoutingPath>> tempPath = new List<List<ACRoutingPath>>();
+
+            foreach (Route r in splitedRoutes)
+            {
+                ACRoutingPath routingPath = new ACRoutingPath();
+                
+                foreach (RouteItem rItem in r)
+                {
+                    routingPath.Add(new PAEdge(rItem.TargetACPoint as PAPoint, rItem.SourceACPoint as PAPoint, rItem.RelationID));
+                }
+
+                tempPath.Add(new List<ACRoutingPath>() { routingPath });
+
+                ACRoutingPath selectedRoutePath = routingPath;
+                SetActiveRoutes(components, routePath, selectedRoutePath);
+            }
+            AvailableRoutes = tempPath;
+
+            ActiveRouteComponents = components;
+            ActiveRoutePaths = routePath;
+
+            ShowRoute(true);
+
+            route.Detach();
+
+        }
+
         public void ShowRoute(bool isReadOnly = false)
         {
             if (!isReadOnly)
@@ -638,7 +673,14 @@ namespace gip.bso.iplus
             if (buildRouteResult == null)
                 return;
 
-            ACRoutingVertex startVertex = buildRouteResult.Item1.FirstOrDefault(c => c.Component.ValueT != null && c.Component.ValueT.ACUrl == startComponent);
+            foreach (ACRoutingVertex v in buildRouteResult.Item1)
+            {
+                v.ComponentRef.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
+                if (v.Next != null)
+                    v.Next.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
+            }
+
+            ACRoutingVertex startVertex = buildRouteResult.Item1.FirstOrDefault(c => c.ComponentRef.ValueT != null && c.ComponentRef.ValueT.ACUrl == startComponent);
             if (startVertex == null)
                 return;
 
@@ -647,13 +689,30 @@ namespace gip.bso.iplus
             ST_Node temp = buildRouteResult.Item2.Dequeue();
             while (temp != null)
             {
-                ACRoutingPath path = ACRoutingSession.RebuildPath(temp.Sidetracks, startVertex.Component.ValueT, buildRouteResult.Item1, _RouteModeItemCache.ToDictionary(c => c.Item1, c => (RouteItemModeEnum)c.Item2));
+                ACRoutingPath path = ACRoutingSession.RebuildPath(temp.Sidetracks, startVertex.ComponentRef.ValueT, buildRouteResult.Item1, _RouteModeItemCache.ToDictionary(c => c.Item1, c => (RouteItemModeEnum)c.Item2));
                 if (!temp.Sidetracks.Any())
                 {
                     path.IsPrimaryRoute = true;
                 }
                 if (path != null && path.IsValid)
+                {
                     availableRoutingPaths.Add(path);
+
+                    foreach (PAEdge edge in path)
+                    {
+                        if (edge.Source != null && !edge.Source.ACRef.IsAttached)
+                        {
+                            edge.Source.ACRef.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
+                            //edge.Source.ACRef.Attach();
+                        }
+
+                        if (edge.Target != null && !edge.Target.ACRef.IsAttached)
+                        {
+                            edge.Target.ACRef.ChangeMode(ACRef<IACComponent>.RefInitMode.AutoStart);
+                            //edge.Target.ACRef.Attach();
+                        }
+                    }
+                }
                 temp = buildRouteResult.Item2.Dequeue();
             }
             InsertIntoAvailableRoutes(availableRoutingPaths);

@@ -768,7 +768,7 @@ namespace gip.bso.iplus
         {
             ACValueItemList aCValueItems = new ACValueItemList("AutoGenerateOptionList");
             aCValueItems.AddEntry((short)TranslationAutogenerateOption.GenerateEmptyTranslation, "en{'Generate empty translation'}de{'Leere Übersetzung generieren'}");
-            aCValueItems.AddEntry((short)TranslationAutogenerateOption.GeneratePairFromSourceLanguage, "en{'Copy from english'}de{'Kopie aus dem Englischen'}");
+            aCValueItems.AddEntry((short)TranslationAutogenerateOption.GeneratePairFromSourceLanguage, "en{'Copy from source language'}de{'Kopie aus dem Quellesprache'}");
             aCValueItems.AddEntry((short)TranslationAutogenerateOption.GeneratePairUsingGoogleApi, "en{'Use google translator'}de{'Benutze den Google Übersetzer'}");
             return aCValueItems;
         }
@@ -2090,16 +2090,20 @@ namespace gip.bso.iplus
             int itemsCount = list.Count();
             foreach (var item in list)
             {
-                if (!item.EditTranslationList.Any(x => x.LangCode == targetLanguageCode))
+                TranslationPair sourcePair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == sourceLangaugeCode);
+                if (sourcePair != null)
                 {
-                    TranslationPair sourcePair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == sourceLangaugeCode);
-                    if (sourcePair != null)
+                    TranslationPair targetPair = item.EditTranslationList.FirstOrDefault(c => c.LangCode == targetLanguageCode);
+                    if (targetPair != null)
+                    {
+                        targetPair.Translation = sourcePair.Translation;
+                    }
+                    else
                     {
                         TranslationPair translationPair = new TranslationPair() { LangCode = targetLanguageCode, Translation = AutoGeneratePrefix + sourcePair.Translation };
                         item.EditTranslationList.Add(translationPair);
                     }
                 }
-
 
                 int itemIndex = list.IndexOf(item);
                 int progressValue = (itemIndex / itemsCount) * half;

@@ -966,7 +966,10 @@ namespace gip.core.layoutengine
                 VBDesign vbDesign = new VBDesign();
                 vbDesign.Name = String.Format("BSO{0}", VBDesignList.Count);
                 if (!string.IsNullOrEmpty(acCaption))
+                {
                     vbDesign.ACCaption = acCaption;
+                    vbDesign.CustomizedACCaption = acCaption;
+                }
 
                 vbDesign.AutoStartACComponent = acUrl;
                 vbDesign.AutoStartParameter = parameterList;

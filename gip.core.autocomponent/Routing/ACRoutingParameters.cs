@@ -159,6 +159,16 @@ namespace gip.core.autocomponent
             get;
             set;
         }
+
+        /// <summary>
+        /// Ignores route usage and route item mode preferences
+        /// </summary>
+        [DataMember]
+        public bool IgnorePreferences
+        {
+            get;
+            set;
+        }
     }
 }
 

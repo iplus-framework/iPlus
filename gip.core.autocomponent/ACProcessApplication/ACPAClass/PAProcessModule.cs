@@ -24,16 +24,18 @@ namespace gip.core.autocomponent
         public const string SelRuleID_ProcessModule = "PAProcessModule";
         public const string SelRuleID_ProcessModule_Deselector = "PAProcessModule.Deselector";
         public const string SelRuleID_ProcessModuleParam_Deselector = "PAProcessModuleParam.Deselector";
+        public const string SelRuleID_ProcessModuleWithFunction = "PAProcessModule.PAFunc";
 
         public const string ClassName = nameof(PAProcessModule);
 
         static PAProcessModule()
         {
             RegisterExecuteHandler(typeof(PAProcessModule), HandleExecuteACMethod_PAProcessModule);
-            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule, (c, p) => c.Component.ValueT is PAProcessModule, null);
-            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule_Deselector, null, (c, p) => c.Component.ValueT is PAProcessModule);
-            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModuleParam_Deselector, null, (c, p) => c.Component.ValueT is PAProcessModule 
-                                                                                                         && !p.Contains(c.Component.ValueT.ComponentClass.ACClassID));
+            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule, (c, p) => c.ComponentInstance is PAProcessModule, null);
+            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule_Deselector, null, (c, p) => c.ComponentInstance is PAProcessModule);
+            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModuleParam_Deselector, null, (c, p) => c.ComponentInstance is PAProcessModule 
+                                                                                                         && !p.Contains(c.ComponentInstance.ComponentClass.ACClassID));
+            ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModuleWithFunction, (c, p) => c.ComponentInstance is PAProcessModule && c.ComponentInstance.FindChildComponents<PAProcessFunction>(x => x is PAProcessFunction).Any(), null);
         }
 
         public PAProcessModule(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
@@ -154,8 +156,17 @@ namespace gip.core.autocomponent
         [ACPropertyBindingSource(302, "Info", "en{'Order-Info'}de{'Auftragsinformation'}", "", false, false)]
         public IACContainerTNet<String> OrderInfo { get; set; }
 
-        [ACPropertyBindingSource(303, "Info", "en{'Reservation-Info'}de{'Reservierungsinformation'}", "", false, false)]
+        [ACPropertyBindingSource(303, "Info", "en{'Reservation-Info'}de{'Reservierungsinformation'}", "", false, true)]
         public IACContainerTNet<String> ReservationInfo { get; set; }
+        public string ReservationInfoSortString
+        {
+            get
+            {
+                if (ReservationInfo == null || ReservationInfo.ValueT == null)
+                    return string.Empty;
+                return ReservationInfo.ValueT;
+            }
+        }
 
         [ACPropertyBindingSource(304, "Info", "en{'Active WF-Nodes'}de{'Active Workflowknoten'}", "", false, false)]
         public IACContainerTNet<List<ACChildInstanceInfo>> WFNodes { get; set; }
@@ -337,6 +348,12 @@ namespace gip.core.autocomponent
                     return true;
                 case nameof(GetPAOrderInfo):
                     result = GetPAOrderInfo();
+                    return true;
+                case nameof(ResetReservationInfo):
+                    ResetReservationInfo();
+                    return true;
+                case nameof(IsEnabledResetReservationInfo):
+                    result = IsEnabledResetReservationInfo();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -597,8 +614,6 @@ namespace gip.core.autocomponent
         [ACMethodInteraction("", "en{'Reset'}de{'Reset'}", 302, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands)]
         public virtual void Reset()
         {
-            //Semaphore
-
             using (ACMonitor.Lock(Semaphore.LockLocalStorage_20033))
             {
                 if (Semaphore.LocalStorage.Any())
@@ -630,10 +645,21 @@ namespace gip.core.autocomponent
                 return false;
             return acComponent.Messages.Question(acComponent, "Question50037", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
-#endregion
+
+        [ACMethodInteraction("", "en{'Reset Rservationinfo'}de{'Reset Reservierungsinfo'}", 303, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands)]
+        public virtual void ResetReservationInfo()
+        {
+            ReservationInfo.ValueT = null;
+        }
+
+        public virtual bool IsEnabledResetReservationInfo()
+        {
+            return ReservationInfo != null && !String.IsNullOrEmpty(ReservationInfo.ValueT);
+        }
+        #endregion
 
 
-#region Workflow and Alarms
+        #region Workflow and Alarms
         [ACMethodInteractionClient("", "en{'Workflowdialog'}de{'Workflow-dialog'}", (short)MISort.ComponentExplorer-1, false)]
         public static void WorkflowDialogOn(IACComponent acComponent)
         {

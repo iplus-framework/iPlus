@@ -262,21 +262,31 @@ namespace gip.core.communication
                             if (msg != null)
                             {
                                 if (IsAlarmActive(IsExportingAlarm, msg.Message) == null)
+                                {
                                     Messages.LogMessageMsg(msg);
+                                }
                                 AddAlarm(msg);
                             }
                         }
 
                         if (currentAsyncRMI != null && !currentAsyncRMI.CallbackIsPending)
+                        {
                             TaskInvocationPoint.InvokeCallbackDelegate(new ACMethodEventArgs(currentAsyncRMI.RequestID, new ACValueList(), Global.ACMethodResultState.Succeeded));
+                        }
                         else
+                        {
                             CallbackTask(acMethod, new ACMethodEventArgs(acMethod.ACRequestID, new ACValueList(), Global.ACMethodResultState.Succeeded));
+                        }
                     }
                     else
+                    {
                         addToSendCache = true;
+                    }
                 }
                 else if (!ExportOff)
+                {
                     addToSendCache = true;
+                }
 
                 if (addToSendCache)
                 {
@@ -323,7 +333,9 @@ namespace gip.core.communication
             object objectToResend = null;
 
             if (ObjectToSendCache != null && ObjectToSendCache.Item1 == fileItem)
+            {
                 objectToResend = ObjectToSendCache.Item2;
+            }
 
             if (objectToResend == null)
             {
@@ -331,7 +343,9 @@ namespace gip.core.communication
                 if (msg != null && objectToResend == null)
                 {
                     if (IsAlarmActive(IsExportingAlarm, msg.Message) == null)
+                    {
                         Messages.LogMessageMsg(msg);
+                    }
                     AddAlarm(msg);
 
                     ParentExportGroup.RemoveFromSendCache(fileItem);
@@ -344,13 +358,19 @@ namespace gip.core.communication
             {
                 ObjectToSendCache = null;
                 if (ArchivingOn)
+                {
                     MoveFromTempDirToArchiveDir(fileItem.FilePath);
+                }
                 else
+                {
                     File.Delete(fileItem.FilePath);
+                }
                 return true;
             }
             else
+            {
                 ObjectToSendCache = new Tuple<ERPFileItem, object>(fileItem, objectToResend);
+            }
 
             return false;
         }

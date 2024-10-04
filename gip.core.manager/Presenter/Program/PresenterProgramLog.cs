@@ -42,7 +42,6 @@ namespace gip.core.manager
 
         #region Properties
 
-
         private Database _BSODatabase = null;
         /// <summary>
         /// Overriden: Returns a separate database context.
@@ -621,24 +620,37 @@ namespace gip.core.manager
 
         [ACMethodInfo("", "en{'ShowACProgramLog'}de{'ShowACProgramLog'}",901,false)]
         public void ShowACProgramLog(ACValueList param)
-        { 
-            if (param.Any(c => c.ObjectType == typeof(ACProgram)))
+        {
+            ACValue isForProcessModule = param.FirstOrDefault(c => c.ACIdentifier == "IsForProcessModule");
+            if (isForProcessModule == null || isForProcessModule.ParamAsBoolean)
             {
-                ACProgram acprogram = param.FirstOrDefault(c => c.ObjectType == typeof(ACProgram)).Value as ACProgram;
-                if (param.FirstOrDefault(c => c.ACIdentifier == "WorkflowACUrl").Value != null)
-                    ShowLogFromACProgram(acprogram, param.FirstOrDefault(c => c.ACIdentifier == "WorkflowACUrl").Value.ToString());
+                if (param.Any(c => c.ObjectType == typeof(ACProgram)))
+                {
+                    ACProgram acprogram = param.FirstOrDefault(c => c.ObjectType == typeof(ACProgram)).Value as ACProgram;
+                    if (param.FirstOrDefault(c => c.ACIdentifier == "WorkflowACUrl").Value != null)
+                        ShowLogFromACProgram(acprogram, param.FirstOrDefault(c => c.ACIdentifier == "WorkflowACUrl").Value.ToString());
+                    else
+                        ShowLogFromACProgram(acprogram, null);
+                }
                 else
-                    ShowLogFromACProgram(acprogram, null);
+                {
+                    string componentACUrl = param.FirstOrDefault(c => c.ACIdentifier == "ComponentACUrl").Value.ToString();
+                    DateTime from = DateTime.Parse(param.FirstOrDefault(c => c.ACIdentifier == "SearchFrom").Value.ToString());
+                    DateTime to = DateTime.Parse(param.FirstOrDefault(c => c.ACIdentifier == "SearchTo").Value.ToString());
+                    short searchMode = (short)param.FirstOrDefault(c => c.ACIdentifier == "SearchMode")?.Value;
+                    //param.Add(new ACValue("FindFirst", findFirst));
+                    if (componentACUrl != null)
+                        ShowLogFromVBBSOControlPA(componentACUrl, from, to, searchMode);
+                }
             }
             else
             {
                 string componentACUrl = param.FirstOrDefault(c => c.ACIdentifier == "ComponentACUrl").Value.ToString();
                 DateTime from = DateTime.Parse(param.FirstOrDefault(c => c.ACIdentifier == "SearchFrom").Value.ToString());
                 DateTime to = DateTime.Parse(param.FirstOrDefault(c => c.ACIdentifier == "SearchTo").Value.ToString());
-                short searchMode = (short) param.FirstOrDefault(c => c.ACIdentifier == "SearchMode")?.Value;
-                //param.Add(new ACValue("FindFirst", findFirst));
+
                 if (componentACUrl != null)
-                    ShowLogFromVBBSOControlPA(componentACUrl, from, to, searchMode);
+                    ShowLogFromVBBSOControlPAModule(componentACUrl, from, to);
             }
         }
 
@@ -723,6 +735,141 @@ namespace gip.core.manager
             //    Global.VBDesignDockPosition.Bottom,
             //    Global.ControlModes.Enabled);
             _IsFromVBBSOControlPA = false;
+        }
+
+        public void ShowLogFromVBBSOControlPAModule(string componentACUrl, DateTime timeFrom, DateTime timeTo)
+        {
+            _IsFromVBBSOControlPA = true;
+            _DisplayOrder = 0;
+            wrapperList.Clear();
+
+            ACClass componentACClass = Db.ACClass.Where(c => c.ACURLComponentCached == componentACUrl).FirstOrDefault();
+            if (componentACClass != null)
+            {
+                ACRoutingParameters routingParameters = new ACRoutingParameters()
+                {
+                    Direction = RouteDirections.Backwards,
+                    IncludeAllocated = true,
+                    IncludeReserved = true,
+                    SelectionRuleID = PAProcessModule.SelRuleID_ProcessModuleWithFunction,
+                    ResultMode = RouteResultMode.ShortRoute
+                };
+
+                List<ACClass> processModules = new List<ACClass>();
+
+                RoutingResult rr = ACRoutingService.FindSuccessors(componentACClass, routingParameters);
+                if (rr != null && rr.Routes != null && rr.Routes.Any())
+                {
+                    RouteItem[] routeItems = rr.Routes.Select(c => c.GetRouteSource()).ToArray();
+                    foreach(RouteItem rItem in routeItems)
+                    {
+                        if (!rItem.IsAttached)
+                            rItem.AttachTo(Db);
+                    }
+
+                    processModules.AddRange(routeItems.Select(c => c.Source));
+                }
+
+                routingParameters.Direction = RouteDirections.Forwards;
+                rr = ACRoutingService.FindSuccessors(componentACClass, routingParameters);
+                if (rr != null && rr.Routes != null && rr.Routes.Any())
+                {
+                    RouteItem[] routeItems = rr.Routes.Select(c => c.GetRouteTarget()).ToArray();
+                    foreach (RouteItem rItem in routeItems)
+                    {
+                        if (!rItem.IsAttached)
+                            rItem.AttachTo(Db);
+                    }
+
+                    processModules.AddRange(routeItems.Select(c => c.Target));
+                }
+
+                if (!processModules.Any())
+                {
+                    componentACClass = componentACClass.ACClass1_ParentACClass;
+
+                    routingParameters.Direction = RouteDirections.Backwards;
+                    rr = ACRoutingService.FindSuccessors(componentACClass, routingParameters);
+                    if (rr != null && rr.Routes != null && rr.Routes.Any())
+                    {
+                        RouteItem[] routeItems = rr.Routes.Select(c => c.GetRouteSource()).ToArray();
+                        foreach (RouteItem rItem in routeItems)
+                        {
+                            if (!rItem.IsAttached)
+                                rItem.AttachTo(Db);
+                        }
+
+                        processModules.AddRange(routeItems.Select(c => c.Source));
+                    }
+
+                    routingParameters.Direction = RouteDirections.Forwards;
+                    rr = ACRoutingService.FindSuccessors(componentACClass, routingParameters);
+                    if (rr != null && rr.Routes != null && rr.Routes.Any())
+                    {
+                        RouteItem[] routeItems = rr.Routes.Select(c => c.GetRouteTarget()).ToArray();
+                        foreach (RouteItem rItem in routeItems)
+                        {
+                            if (!rItem.IsAttached)
+                                rItem.AttachTo(Db);
+                        }
+
+                        processModules.AddRange(routeItems.Select(c => c.Target));
+                    }
+                }
+
+                if (processModules.Any())
+                {
+                    string[] processModulesACUrl = processModules.Select(c => c.ACUrlComponent).ToArray();
+
+                    string compClassID = componentACClass.ACClassID.ToString();
+                    CreateProgramLogWrapper(Db.ACProgramLog.Where(c => processModulesACUrl.Any(x => c.ACUrl.Contains(x) && c.StartDate >= timeFrom && c.EndDate < timeTo && c.XMLConfig.Contains(compClassID))));
+                    ProgramLogWrapperList = wrapperList;
+                    ProgramLogWrapperRootList = ProgramLogWrapperList;
+                    ShowDialog(this, "PresenterProgramLogDialog", string.Format("{0} ({1})", componentACClass.ACCaption, componentACClass.ACUrlComponent));
+                }
+            }
+            _IsFromVBBSOControlPA = false;
+        }
+
+
+        [ACMethodInfo("", "en{'Show complex value'}de{'Komplexen Wert anzeigen'}", 9999)]
+        public void ShowComplexValue()
+        {
+            ACValue selParam = SelectedACMethodParam;
+            if (selParam == null || selParam.Value == null)
+                return;
+
+            Route currentRoute = selParam.Value as Route;
+            if (currentRoute == null)
+                return;
+
+            IACVBBSORouteSelector routeSelector = ACUrlCommand("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
+            if (routeSelector == null)
+            {
+                Messages.Error(this, "Route selector is not installed");
+                return;
+            }
+
+            //routeSelector.EditRoutesWithAttach(currentRoute, true, true, true);
+            routeSelector.ShowRoute(currentRoute);
+
+            ACComponent comp = routeSelector as ACComponent;
+            if (comp != null)
+                comp.Stop();
+        }
+
+        public bool IsEnabledShowComplexValue()
+        {
+            ACValue selParam = SelectedACMethodParam;
+
+            if (selParam == null)
+                return false;
+            if (selParam.ObjectType == null)
+                return false;
+            if (selParam.ObjectType.IsValueType)
+                return false;
+
+            return true;
         }
 
         #endregion

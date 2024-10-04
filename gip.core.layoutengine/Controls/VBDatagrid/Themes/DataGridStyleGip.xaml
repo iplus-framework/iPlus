@@ -990,7 +990,7 @@
         <Setter Property="RowStyle" Value="{StaticResource RowStyleGip}" />
         <Setter Property="RowHeaderStyle" Value="{StaticResource RowHeaderStyleGip}" />
         <!--<Setter Property="RowHeaderTemplate" Value="{StaticResource RowHeaderContentTemplateGip}" />-->
-        <Setter Property="RowDetailsTemplate" Value="{StaticResource RowDetailsContentTemplateGip}" />
+        <!--<Setter Property="RowDetailsTemplate" Value="{StaticResource RowDetailsContentTemplateGip}" />-->
         <Setter Property="ColumnHeaderStyle" Value="{StaticResource ColumnHeaderStyleGip}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <!--<Setter Property="HeadersVisibility" Value="All"/>-->

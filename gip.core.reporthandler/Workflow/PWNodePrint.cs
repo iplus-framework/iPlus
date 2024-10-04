@@ -175,9 +175,9 @@ namespace gip.core.reporthandler
             return HandleExecuteACMethod_PWBaseNodeProcess(out result, acComponent, acMethodName, acClassMethod, acParameter);
         }
 
-        protected override void DumpPropertyList(XmlDocument doc, XmlElement xmlACPropertyList)
+        protected override void DumpPropertyList(XmlDocument doc, XmlElement xmlACPropertyList, ref DumpStats dumpStats)
         {
-            base.DumpPropertyList(doc, xmlACPropertyList);
+            base.DumpPropertyList(doc, xmlACPropertyList, ref dumpStats);
 
             XmlElement xmlChild = xmlACPropertyList["NumberOfCopies"];
             if (xmlChild == null)

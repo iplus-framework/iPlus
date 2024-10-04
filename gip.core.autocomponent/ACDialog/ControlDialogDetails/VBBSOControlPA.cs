@@ -973,6 +973,9 @@ namespace gip.core.autocomponent
                         searchMode = 2;
                 }
 
+                ACClass componentClass = (CurrentACComponent as ACComponent).ComponentClass;
+                bool isProcessModule = componentClass.ACKind == Global.ACKinds.TPAProcessModule;
+
                 PAShowDlgManagerBase service = PAShowDlgManagerBase.GetServiceInstance(this);
                 if (service != null)
                 {
@@ -981,6 +984,7 @@ namespace gip.core.autocomponent
                     param.Add(new ACValue("SearchFrom", SearchFrom));
                     param.Add(new ACValue("SearchTo", SearchTo));
                     param.Add(new ACValue("SearchMode", searchMode));
+                    param.Add(new ACValue("IsForProcessModule", isProcessModule));
                     service.ShowProgramLogViewer(this as IACComponent, param);
                 }
             }
