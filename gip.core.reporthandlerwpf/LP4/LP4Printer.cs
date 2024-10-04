@@ -482,4 +482,4 @@ namespace gip.core.reporthandlerwpf
 
         #endregion
     }
-    }
+}
