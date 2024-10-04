@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media.Converters;
 using gip.core.datamodel;
 using Microsoft.Isam.Esent.Interop;
 
