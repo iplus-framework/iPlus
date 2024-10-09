@@ -371,5 +371,14 @@ namespace gip.core.datamodel
             return true;
         }
         #endregion
+
+        #region Overrides
+
+        public override string ToString()
+        {
+            return $"[{MessageLevel}] {DetailsAsText}";
+        }
+
+        #endregion
     }
 }
