@@ -286,6 +286,7 @@ namespace gip.core.datamodel
         public const string CmdPrintScreenToIcon = "^CmdPrintScreenToIcon";
         public const string CmdPrintScreenToClipboard = "^CmdPrintScreenToClipboard";
         public const string CmdExportDesignToFile = "^CmdExportDesignToFile";
+        public const string CmdCopyTextToClipboard = "^CmdCopyTextToClipboard";
         public const string CmdFindGUI = "^CmdFindGUI";
         public const string CmdFindGUIResult = "^CmdFindGUIResult";
         public const string CmdOnCloseWindow = "^CmdOnCloseWindow";
