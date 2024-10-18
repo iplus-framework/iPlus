@@ -1394,13 +1394,19 @@ namespace gip.core.autocomponent
             return convertedResult;
         }
 
-
         public ACPropertyValueEvent<S> ConvertToS(ACPropertyValueEvent<T> eventT)
         {
             ACPropertyValueEvent<S> eventS = new ACPropertyValueEvent<S>();
             eventS.CopyFrom(eventT);
-            T valInUnitOfS = ApplyConvExpressionS(eventT.Value);
-            eventS.Value = ConvertToS(valInUnitOfS);
+            try
+            {
+                T valInUnitOfS = ApplyConvExpressionS(eventT.Value);
+                eventS.Value = ConvertToS(valInUnitOfS);
+            }
+            catch (Exception ex)
+            {
+                ParentACComponent?.Messages?.LogException(ParentACComponent.GetACUrl() + ACUrlHelper.Delimiter_DirSeperator + this.ACIdentifier, "ConvertToS(10)", ex);
+            }
             return eventS;
         }
 
@@ -1408,8 +1414,15 @@ namespace gip.core.autocomponent
         {
             ACPropertyValueEvent<T> eventT = new ACPropertyValueEvent<T>();
             eventT.CopyFrom(eventS);
-            T valInUnitOfT = ConvertToT(eventS.Value);
-            eventT.Value = ApplyConvExpressionT(valInUnitOfT);
+            try
+            {
+                T valInUnitOfT = ConvertToT(eventS.Value);
+                eventT.Value = ApplyConvExpressionT(valInUnitOfT);
+            }
+            catch (Exception ex)
+            {
+                ParentACComponent?.Messages?.LogException(ParentACComponent.GetACUrl() + ACUrlHelper.Delimiter_DirSeperator + this.ACIdentifier, "ConvertToT(10)", ex);
+            }
             return eventT;
         }
 

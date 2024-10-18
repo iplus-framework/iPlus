@@ -226,7 +226,7 @@ namespace gip.core.autocomponent
                 }
                 catch (Exception ec)
                 {
-                    TargetProperty.ParentACComponent.Messages.LogException(TargetProperty.ParentACComponent.GetACUrl(), "RedirectionHandler.ConvertS2T()", ec);
+                    TargetProperty.ParentACComponent.Messages.LogException(TargetProperty.ParentACComponent.GetACUrl() + ACUrlHelper.Delimiter_DirSeperator + TargetProperty.ACIdentifier, "RedirectionHandler.ConvertS2T()", ec);
                 }
             }
 
