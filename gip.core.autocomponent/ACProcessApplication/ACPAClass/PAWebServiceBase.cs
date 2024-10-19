@@ -165,14 +165,22 @@ namespace gip.core.autocomponent
             }
         }
 
-        public static TResult FindPAWebService<TResult>(bool findInheritedType = true) where TResult : PAWebServiceBase
+        public static TResult FindPAWebService<TResult>(int? servicePort = null, bool findInheritedType = true) where TResult : PAWebServiceBase
         {
             ACRoot root = gip.core.datamodel.Database.Root as ACRoot;
             if (root == null)
                 return null;
-            var webServices = ServiceTypeDict.GetComponentsOfType<TResult>();
+            TResult firstWebService;
+            var webServices = ServiceTypeDict.GetComponentsOfType<TResult>(findInheritedType);
             if (webServices != null && webServices.Any())
-                return webServices.FirstOrDefault();
+            {
+                if (servicePort.HasValue)
+                    firstWebService = webServices.Where(c => c.ServicePort == servicePort).FirstOrDefault();
+                else
+                    firstWebService = webServices.FirstOrDefault();
+                if (firstWebService != null)
+                    return firstWebService;
+            }
             var appManagers = root.FindChildComponents<ApplicationManager>(c => c is ApplicationManager, null, 1);
             if (appManagers == null)
                 return null;
@@ -181,11 +189,23 @@ namespace gip.core.autocomponent
                 webServices = appManager.ACCompTypeDict.GetComponentsOfType<TResult>(findInheritedType);
                 if (webServices != null && webServices.Any())
                 {
-                    TResult firstWebService = webServices.FirstOrDefault();
-                    ServiceTypeDict.AddComponent(firstWebService);
-                    return firstWebService;
+                    foreach (TResult webService in webServices)
+                    {
+                        ServiceTypeDict.AddComponent(webService);
+                    }
                 }
             }
+            webServices = ServiceTypeDict.GetComponentsOfType<TResult>(findInheritedType);
+            if (webServices != null && webServices.Any())
+            {
+                if (servicePort.HasValue)
+                    firstWebService = webServices.Where(c => c.ServicePort == servicePort).FirstOrDefault();
+                else
+                    firstWebService = webServices.FirstOrDefault();
+                if (firstWebService != null)
+                    return firstWebService;
+            }
+
             return null;
         }
 

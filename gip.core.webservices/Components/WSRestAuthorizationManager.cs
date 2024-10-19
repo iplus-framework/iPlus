@@ -61,5 +61,13 @@ namespace gip.core.webservices
                 return CoreWebServiceConst.DecodeSessionIdFromCookieHeader(cookieHeader);
             }
         }
+
+        public static int? ServicePort
+        {
+            get
+            {
+                return WebOperationContext.Current?.IncomingRequest?.UriTemplateMatch?.BaseUri.Port;
+            }
+        }
     }
 }
