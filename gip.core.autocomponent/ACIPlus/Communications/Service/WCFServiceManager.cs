@@ -30,7 +30,7 @@ namespace gip.core.autocomponent
     public class WCFServiceManager : ACComponent
     {
         #region private members
-        public const int MaxBufferSize = 4194304; // 2^22 byte
+        public const int MaxBufferSize = 0x800000; // 8388608; // 2^23 byte
         public const int MaxItemsInObjectGraph = Int32.MaxValue;
         public const int MaxStringLength = 1048576; // 2^20 byte
 

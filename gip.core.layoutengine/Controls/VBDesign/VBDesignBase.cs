@@ -806,8 +806,10 @@ namespace gip.core.layoutengine
                         //code to manipulate bmpNew goes here.
 
                         bmpNew.Save(fileName);
-
-
+                        break;
+                    case Const.CmdCopyTextToClipboard:
+                        string text = acUrlMessage.ACParameter[1].ToString();
+                        Clipboard.SetText(text);
                         break;
                     case Const.CmdInitSelectionManager:
                     {

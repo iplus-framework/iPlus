@@ -34,10 +34,11 @@ namespace gip.core.webservices
                 TransformToVBMenuItems(mainMenu, userRights);
 
             Guid? sessionId = WSRestAuthorizationManager.CurrentSessionID;
+            int? servicePort = WSRestAuthorizationManager.ServicePort;
             if (sessionId.HasValue)
             {
                 userRights.SessionID = sessionId;
-                PAJsonServiceHost myServiceHost = PAWebServiceBase.FindPAWebService<PAJsonServiceHost>(true);
+                PAJsonServiceHost myServiceHost = PAWebServiceBase.FindPAWebService<PAJsonServiceHost>(servicePort, true);
                 if (myServiceHost != null)
                     myServiceHost.AddSession(userRights);
             }
@@ -103,9 +104,10 @@ namespace gip.core.webservices
 
             bool succ = false;
             Guid? sessionId = WSRestAuthorizationManager.CurrentSessionID;
+            int? servicePort = WSRestAuthorizationManager.ServicePort;
             if (sessionId.HasValue)
             {
-                PAJsonServiceHost myServiceHost = PAWebServiceBase.FindPAWebService<PAJsonServiceHost>(true);
+                PAJsonServiceHost myServiceHost = PAWebServiceBase.FindPAWebService<PAJsonServiceHost>(servicePort, true);
                 if (myServiceHost != null)
                     succ = myServiceHost.RemoveSession(sessionId.Value);
             }
@@ -140,7 +142,8 @@ namespace gip.core.webservices
         {
             get
             {
-                PAJsonServiceHost myServiceHost = PAWebServiceBase.FindPAWebService<PAJsonServiceHost>(true);
+                int? servicePort = WSRestAuthorizationManager.ServicePort;
+                PAJsonServiceHost myServiceHost = PAWebServiceBase.FindPAWebService<PAJsonServiceHost>(servicePort, true);
                 return GetInvokingUser(myServiceHost);
             }
         }
@@ -162,7 +165,8 @@ namespace gip.core.webservices
         {
             if (!String.IsNullOrEmpty(perfLog))
             {
-                PAJsonServiceHost myServiceHost = PAWebServiceBase.FindPAWebService<PAJsonServiceHost>(true);
+                int? servicePort = WSRestAuthorizationManager.ServicePort;
+                PAJsonServiceHost myServiceHost = PAWebServiceBase.FindPAWebService<PAJsonServiceHost>(servicePort, true);
                 if (myServiceHost != null)
                 {
                     try
