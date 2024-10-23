@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package>
+	<metadata>
+		<id>gip.core.reporthandlerwpf</id>
+		<version>1.0.0</version>
+		<authors>gipSoft</authors>
+		<owners></owners>
+		<license type="expression">MIT</license>
+		<projectUrl>https://github.com/iplus-framework/test-iplus</projectUrl>
+		<icon>icons\icon.png</icon>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>gip.core.reporthandlerwpf</description>
+		<releaseNotes></releaseNotes>
+		<tags>core archiver</tags>
+		<readme>docs\gip.core.reporthandlerwpf.readme.md</readme>
+		<dependencies>
+			<group targetFramework=".NETCoreApp7.0">
+				<dependency id="BarcodeLib" version="3.0.0" />
+				<dependency id="ESCPOS" version="1.2.3" />
+				<dependency id="System.Data.DataSetExtensions" version="4.5.0" />
+				<dependency id="System.Reflection.Context" version="7.0.0" />
+				<dependency id="gip.core.autocomponent" version="1.0.0" />
+				<dependency id="gip.core.datamodel" version="1.0.0" />
+				<dependency id="gip.core.layoutengine" version="1.0.0" />
+				<dependency id="gip.core.reporthandler" version="1.0.0" />
+				<dependency id="gip.ext.fluent" version="1.0.0" />
+			</group>
+		</dependencies>
+	</metadata>
+	<files>
+		<file src="..\bin\Release\net7.0\gip.core.reporthandlerwpf.dll" target="lib\net7.0" />
+		<file src="..\bin\Release\net7.0\gip.core.reporthandlerwpf.pdb" target="lib\net7.0" />
+		<file src="gip.core.reporthandlerwpf.readme.md" target="docs\" />
+		<file src="icon.png" target="icons\" />
+	</files>
+</package>
