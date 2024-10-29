@@ -1,4 +1,4 @@
-# iPlus Framework
+# iPlus-Framework
 
 Welcome to the iPlus-Framework repository! This open-source project is designed to empower developers to create flexible, scalable, and efficient software solutions for the industry.
 
