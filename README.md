@@ -99,6 +99,12 @@ https://github.com/CoreWCF/CoreWCF/pull/512
 
 Please GIVE these issues a THUMBS-UP 👍 so that they can be prioritized and Microsoft developers can finally start implementing them.
 
+## Documentation
+
+For now, please use the [documentation on our website](https://iplus-framework.com/en/documentation/Home/Schema/View/bce1702a-7637-4b98-83db-01a9d7a3a156).
+
+We are working on transferring the content to the [iPlus.docs on gitHub](https://github.com/iplus-framework/iPlus.docs) and ask for your patience.
+
 ## License
 
 The iPlus-framework is licensed under the GPL-V3 License. See the [LICENSE](LICENSE) file for more details.
