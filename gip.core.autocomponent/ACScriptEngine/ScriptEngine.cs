@@ -250,8 +250,9 @@ namespace gip.core.autocomponent
             {
                 try
                 {
-                    if (classAssembly.GlobalAssemblyCache
-                        || classAssembly.IsDynamic
+                    if (//classAssembly.GlobalAssemblyCache
+                        //||
+                        classAssembly.IsDynamic
                         || classAssembly.EntryPoint != null
                         || String.IsNullOrEmpty(classAssembly.Location))
                         continue;

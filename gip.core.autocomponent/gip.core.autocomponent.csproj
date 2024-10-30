@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <OutputType>Library</OutputType>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -144,21 +144,21 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CoreWCF.ConfigurationManager" Version="1.4.1" />
-    <PackageReference Include="CoreWCF.Http" Version="1.4.1" />
-    <PackageReference Include="CoreWCF.NetTcp" Version="1.4.1" />
-    <PackageReference Include="CoreWCF.Primitives" Version="1.4.1" />
-    <PackageReference Include="CoreWCF.WebHttp" Version="1.4.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.4.0" />
+    <PackageReference Include="CoreWCF.ConfigurationManager" Version="1.6.0" />
+    <PackageReference Include="CoreWCF.Http" Version="1.6.0" />
+    <PackageReference Include="CoreWCF.NetTcp" Version="1.6.0" />
+    <PackageReference Include="CoreWCF.Primitives" Version="1.6.0" />
+    <PackageReference Include="CoreWCF.WebHttp" Version="1.6.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.11.0" />
     <PackageReference Include="Microsoft.Database.Collections.Generic" Version="2.0.4" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
     <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="6.0.0" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="ACIPlus\Communications\Helperclasses\SyncQueueEvents.cs" />

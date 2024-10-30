@@ -23,6 +23,7 @@ using CoreWCF;
 using CoreWCF.Channels;
 using System.Collections;
 using System.Reflection;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace gip.core.autocomponent
 {
@@ -98,8 +99,8 @@ namespace gip.core.autocomponent
             if (_useHttpConnection)
             {
                 //TODO: WSDualHttpBinding not implemented in WCFCore: https://github.com/dotnet/wcf/issues/4614
-                throw new NotImplementedException();
-                _host = WebHost.CreateDefaultBuilder()
+                // throw new NotImplementedException();
+                _ASPHost = WebHost.CreateDefaultBuilder()
                     .UseKestrel()
                     .ConfigureServices(services =>
                     {
@@ -136,7 +137,7 @@ namespace gip.core.autocomponent
             }
             else
             {
-                _host = WebHost.CreateDefaultBuilder()
+                _ASPHost = WebHost.CreateDefaultBuilder()
                     .UseNetTcp(endpointUri.Port)
                     .UseKestrel()
                     .ConfigureServices(services =>
@@ -242,7 +243,8 @@ namespace gip.core.autocomponent
                 _ACPDispatchPointsThread = null;
             }
             _ACPDispatchToProxies = null;
-            _host.StopAsync();
+            _ASPHost.StopAsync();
+            _ASPHostStarted = false;
 
             if (!base.ACDeInit(deleteACClassTask))
                 return false;
@@ -291,33 +293,13 @@ namespace gip.core.autocomponent
             }
         }
 
-        private IWebHost _host = null;
-        internal IWebHost host
+        private IWebHost _ASPHost = null;
+        private bool _ASPHostStarted = false;
+        internal IWebHost ASPHost
         {
             get
             {
-                return _host;
-            }
-        }
-
-        public ServiceHostBase serviceHost
-        {
-            get
-            {
-                var realizedServicesProperty = _host.Services.GetType().GetField("_realizedServices", BindingFlags.NonPublic | BindingFlags.Instance);
-                IEnumerable realizedServices = realizedServicesProperty.GetValue(_host.Services) as IEnumerable;
-                foreach (Object obj in realizedServices)
-                {
-                    if (obj.ToString().Contains("CoreWCF.ServiceHostObjectModel") && !obj.ToString().Contains("Logger"))
-                    {
-                        var objValues = obj.GetType().GetProperty("Value");
-                        var objValue = objValues.GetValue(obj);
-                        var serviceHostVal = objValue.GetType().GetProperty("Target").GetValue(objValue);
-                        var serviceHostBase = serviceHostVal.GetType().GetField("value").GetValue(serviceHostVal) as ServiceHostBase;
-                        return serviceHostBase;
-                    }
-                }
-                return null;
+                return _ASPHost;
             }
         }
 
@@ -467,7 +449,7 @@ namespace gip.core.autocomponent
         {
             if (ACOperationMode != ACOperationModes.Live)
                 return;
-            if (serviceHost == null || serviceHost.State != CommunicationState.Opened)
+            if (ASPHost != null && !_ASPHostStarted)
             {
                 _ACHostStartThread = new ACThread(StartHost);
                 _ACHostStartThread.Name = "ACUrl:" + this.GetACUrl() + ";StartHost();";
@@ -486,6 +468,7 @@ namespace gip.core.autocomponent
                 _ACPDispatchPointsThread.Name = "ACUrl:" + this.GetACUrl() + ";DispatchPoints();";
                 _ACPDispatchPointsThread.Start();
             }
+            //}
         }
 
         /// <summary>
@@ -772,7 +755,8 @@ namespace gip.core.autocomponent
 
         public void StartHost()
         {
-            host.Run();
+            _ASPHostStarted = true;
+            ASPHost.Run();
         }
 
         public void ShutdownClients()

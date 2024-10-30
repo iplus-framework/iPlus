@@ -30,10 +30,10 @@
     <Resource Include="Images\iPlusIconDesktop.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="System.Security.AccessControl" Version="6.0.0" />
+    <PackageReference Include="System.Security.AccessControl" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="InstallScripts\ihrastinski_2018-10-22 07-27_pre.cs" />

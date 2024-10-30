@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <OutputType>Library</OutputType>
     <WarningLevel>4</WarningLevel>
     <SccProjectName>SAK</SccProjectName>
@@ -178,20 +178,20 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
-    <PackageReference Include="ClosedXML" Version="0.102.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.4.0" />
+    <PackageReference Include="ClosedXML" Version="0.104.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.11.0" />
     <PackageReference Include="QuickGraphCore" Version="1.0.0" />
-    <PackageReference Include="RoslynPad.Editor.Windows" Version="4.4.0" />
-    <PackageReference Include="RoslynPad.Roslyn" Version="4.4.0" />
-    <PackageReference Include="RoslynPad.Roslyn.Windows" Version="4.4.0" />
+    <PackageReference Include="RoslynPad.Editor.Windows" Version="4.8.0" />
+    <PackageReference Include="RoslynPad.Roslyn" Version="4.8.0" />
+    <PackageReference Include="RoslynPad.Roslyn.Windows" Version="4.8.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="6.0.0" />
-    <PackageReference Include="System.ServiceModel.Federation" Version="6.0.0" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="8.0.0" />
+    <PackageReference Include="System.ServiceModel.Federation" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />

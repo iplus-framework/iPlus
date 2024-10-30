@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0-windows</TargetFramework>
+		<TargetFramework>net8.0-windows7.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<WarningLevel>4</WarningLevel>
 		<SccProjectName>SAK</SccProjectName>
@@ -70,10 +70,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="BarcodeLib" Version="3.0.0" />
-		<PackageReference Include="ESCPOS" Version="1.2.3" />
+		<PackageReference Include="BarcodeLib" Version="3.1.4" />
+		<PackageReference Include="ESCPOS" Version="1.2.4" />
 		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-		<PackageReference Include="System.Reflection.Context" Version="7.0.0" />
+		<PackageReference Include="System.Reflection.Context" Version="8.0.0" />
 	</ItemGroup>
 
 

@@ -80,29 +80,37 @@ namespace gip.core.autocomponent
         {
             get
             {
-                var engineProperty = Host.Services.GetType().GetField("_engine", BindingFlags.NonPublic | BindingFlags.Instance);
-                var engine = engineProperty.GetValue(Host.Services);
-                var serviceProviderProperty = engine.GetType().GetField("_serviceProvider", BindingFlags.NonPublic | BindingFlags.Instance);
-                if (serviceProviderProperty == null)
-                    return null;
-                var serviceProvider = serviceProviderProperty.GetValue(engine);
-                var realizedServicesProperty = serviceProvider.GetType().GetField("_realizedServices", BindingFlags.NonPublic | BindingFlags.Instance);
-                var realizedServices = realizedServicesProperty.GetValue(serviceProvider);
-                var realizedServicesIe = realizedServices as IEnumerable;
-                foreach (Object obj in realizedServicesIe)
+                try
                 {
-                    if (obj.ToString().Contains("CoreWCF.ServiceHostObjectModel") && !obj.ToString().Contains("Logger"))
+                    var engineProperty = Host.Services.GetType().GetField("_engine", BindingFlags.NonPublic | BindingFlags.Instance);
+                    var engine = engineProperty.GetValue(Host.Services);
+                    var serviceProviderProperty = engine.GetType().GetField("_serviceProvider", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (serviceProviderProperty == null)
+                        return null;
+                    var serviceProvider = serviceProviderProperty.GetValue(engine);
+                    var realizedServicesProperty = serviceProvider.GetType().GetField("_realizedServices", BindingFlags.NonPublic | BindingFlags.Instance);
+                    var realizedServices = realizedServicesProperty.GetValue(serviceProvider);
+                    var realizedServicesIe = realizedServices as IEnumerable;
+                    foreach (Object obj in realizedServicesIe)
                     {
-                        var objValueProperty = obj.GetType().GetProperty("Value");
-                        var objValue = objValueProperty.GetValue(obj);
-                        var svcBaseProperty = objValue.GetType().GetProperty("Target");
-                        var svcBaseValue = svcBaseProperty.GetValue(objValue);
-                        var serviceHostObjModelProperty = svcBaseValue.GetType().GetField("value");
-                        var serviceHostObjModelValue = serviceHostObjModelProperty.GetValue(svcBaseValue);
-                        _SvcHost = serviceHostObjModelValue as ServiceHostBase;
+                        if (obj.ToString().Contains("CoreWCF.ServiceHostObjectModel") && !obj.ToString().Contains("Logger"))
+                        {
+                            var objValueProperty = obj.GetType().GetProperty("Value");
+                            var objValue = objValueProperty.GetValue(obj);
+                            var svcBaseProperty = objValue.GetType().GetProperty("Target");
+                            var svcBaseValue = svcBaseProperty.GetValue(objValue);
+                            var serviceHostObjModelProperty = svcBaseValue.GetType().GetField("value");
+                            var serviceHostObjModelValue = serviceHostObjModelProperty.GetValue(svcBaseValue);
+                            _SvcHost = serviceHostObjModelValue as ServiceHostBase;
+                        }
                     }
+                    return _SvcHost;
                 }
-                return _SvcHost;
+                catch (Exception ex)
+                {
+                    this.Messages.LogException(this.GetACUrl(), "SvcHost", ex);
+                }
+                return null;
             }
         }
 

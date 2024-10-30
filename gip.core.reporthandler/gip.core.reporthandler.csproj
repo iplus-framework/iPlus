@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <OutputType>Library</OutputType>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -114,11 +114,11 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BarcodeLib" Version="3.0.0" />
-    <PackageReference Include="ESCPOS" Version="1.2.3" />
+    <PackageReference Include="BarcodeLib" Version="3.1.4" />
+    <PackageReference Include="ESCPOS" Version="1.2.4" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="System.Reflection.Context" Version="7.0.0" />
-    <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="System.Reflection.Context" Version="8.0.0" />
+    <PackageReference Include="EntityFramework" Version="6.5.1" />
   </ItemGroup>
   <PropertyGroup>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>

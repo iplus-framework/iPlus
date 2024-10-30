@@ -31,20 +31,20 @@ namespace gip.core.autocomponent
         {
         }
         
-        public WCFClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
-                base(callbackInstance, endpointConfigurationName)
-        {
-        }
+        //public WCFClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
+        //        base(callbackInstance, endpointConfigurationName)
+        //{
+        //}
         
-        public WCFClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress)
-        {
-        }
+        //public WCFClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
+        //        base(callbackInstance, endpointConfigurationName, remoteAddress)
+        //{
+        //}
         
-        public WCFClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress)
-        {
-        }
+        //public WCFClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
+        //        base(callbackInstance, endpointConfigurationName, remoteAddress)
+        //{
+        //}
         
         public WCFClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, binding, remoteAddress)
