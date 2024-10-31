@@ -14,6 +14,10 @@
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Update="icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

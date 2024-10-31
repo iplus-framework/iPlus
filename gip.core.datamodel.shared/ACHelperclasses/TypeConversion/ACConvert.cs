@@ -21,7 +21,9 @@ using System.Runtime.Serialization;
 using System.Data;
 using System.Globalization;
 using System.Threading;
+#if NETFRAMEWORK
 using Microsoft.EntityFrameworkCore;
+#endif
 
 namespace gip.core.datamodel
 {

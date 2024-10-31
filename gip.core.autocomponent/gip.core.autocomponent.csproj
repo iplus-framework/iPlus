@@ -39,6 +39,7 @@
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\gip.core.ControlScriptSync\gip.core.ControlScriptSync.csproj" />
@@ -46,6 +47,10 @@
     <ProjectReference Include="..\gip.core.dbsyncer\gip.core.dbsyncer.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Update="icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -176,12 +181,6 @@
   <ItemGroup>
     <Compile Remove="ACIPlus\Communications\Helperclasses\SyncQueueEvents.cs" />
     <Compile Remove="ACThreadHandling\ACEntityOpQueue.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="icon.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>$(DefineConstants);NETFRAMEWORK</DefineConstants>

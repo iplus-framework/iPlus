@@ -17,7 +17,9 @@
 //  Date        : 29-February-2008                                            |
 //                                                                            |
 //  Description : Assembly information                                        |
-//                                                                            |
+//
+// https://github.com/SoftingIndustrial/OPC-Classic-SDK
+// MIT License
 //-----------------------------------------------------------------------------
 
 using System.Reflection;
@@ -35,8 +37,8 @@ using System.Resources;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Softing AG")]
 [assembly: AssemblyProduct("Softing OPC Toolbox .NET")]
-[assembly: AssemblyCopyright("Copyright © 2005-2008 Softing AG")]
-[assembly: AssemblyTrademark("iplus-framework")]
+[assembly: AssemblyCopyright("MIT License, Copyright © 2005-2008 Softing AG")]
+[assembly: AssemblyTrademark("Softing AG")]
 [assembly: AssemblyCulture("")]		
 
 //

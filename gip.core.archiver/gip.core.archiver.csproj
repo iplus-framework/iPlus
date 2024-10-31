@@ -23,6 +23,7 @@
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj" />
@@ -48,6 +49,10 @@
     <Copy SourceFiles="@(MySourceFiles)" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)\VBControlScripts" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
   </Target>
   <ItemGroup>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Update="icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

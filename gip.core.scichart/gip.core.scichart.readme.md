@@ -1,1 +1,0 @@
-## gip.core.scichart
