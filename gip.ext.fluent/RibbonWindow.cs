@@ -1,10 +1,10 @@
 ﻿#region Copyright and License Information
-// Fluent Ribbon Control Suite
-// http://fluent.codeplex.com/
+// This is a modification for iplus-framework of the Fluent Ribbon Control Suite
+// https://github.com/fluentribbon/Fluent.Ribbon
 // Copyright © Degtyarev Daniel, Rikker Serg. 2009-2010.  All rights reserved.
 // 
-// Distributed under the terms of the Microsoft Public License (Ms-PL). 
-// The license is available online http://fluent.codeplex.com/license
+// This code was originally distributed under the Microsoft Public License (Ms-PL). The modifications by gipSoft d.o.o. are now distributed under GPLv3.
+// The license is available online https://github.com/fluentribbon/Fluent.Ribbonlicense
 #endregion
 
 // Based on WindowChrome code from WPF Shell Integration Library 
@@ -1352,7 +1352,7 @@ namespace Fluent
             // below code should fix issue 18229, but causes the minimize, restore and close button to be unreachable when window is maximized
             ////// Fixes the client rect to render edge to edge on one display if maximized
             ////// Issue fixed with this method: 
-            ////// http://fluent.codeplex.com/workitem/18229
+            ////// https://github.com/fluentribbon/Fluent.Ribbonworkitem/18229
             ////// "When maximized, client area goes 8px offscreen, killing perf on multimonitor"
             ////if (this.WindowState == WindowState.Maximized)
             ////{

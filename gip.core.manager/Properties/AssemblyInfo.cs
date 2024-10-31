@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿// gipSoft d.o.o. Copyright (c) for iplus-framework. This code ist distributed under GPLv3.
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows.Markup;
@@ -7,12 +8,12 @@ using System.Windows.Markup;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("gip.core.manager")]
-[assembly: AssemblyDescription("iPlus development helper classes")]
+[assembly: AssemblyDescription("iplus service components for the engineering environment")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("gipSoft d.o.o.")]
-[assembly: AssemblyProduct("iPlus gip.core.manager")]
-[assembly: AssemblyCopyright("Copyright © na 2008")]
-[assembly: AssemblyTrademark("IPlus")]
+[assembly: AssemblyProduct("iplus-framework")]
+[assembly: AssemblyCopyright("GPLv3 iplus-framework")]
+[assembly: AssemblyTrademark("iplus-framework")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 

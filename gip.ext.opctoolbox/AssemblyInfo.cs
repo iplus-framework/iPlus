@@ -36,7 +36,7 @@ using System.Resources;
 [assembly: AssemblyCompany("Softing AG")]
 [assembly: AssemblyProduct("Softing OPC Toolbox .NET")]
 [assembly: AssemblyCopyright("Copyright © 2005-2008 Softing AG")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTrademark("iplus-framework")]
 [assembly: AssemblyCulture("")]		
 
 //

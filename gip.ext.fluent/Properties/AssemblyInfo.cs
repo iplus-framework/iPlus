@@ -1,11 +1,8 @@
 #region Copyright and License Information
-// Fluent Ribbon Control Suite
-// http://fluent.codeplex.com/
-// Copyright © Degtyarev Daniel, Rikker Serg. 2009-2010.  All rights reserved.
-// 
-// Distributed under the terms of the Microsoft Public License (Ms-PL). 
-// The license is available online http://fluent.codeplex.com/license
+// This is a modification for iplus-framework from Copyright © Degtyarev Daniel, Rikker Serg. 2009-2010 of Fluent Ribbon Control Suite https://github.com/fluentribbon/Fluent.Ribbon
+// This code was originally distributed under the Microsoft Public License (Ms-PL). The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 #endregion
+
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -17,18 +14,15 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Fluent")]
-[assembly: AssemblyDescription("Fluent Ribbon Control Suite")]
-#if DEBUG
-[assembly: AssemblyConfiguration("Debug")]
-#else
-[assembly: AssemblyConfiguration("Release")]
-#endif
+[assembly: AssemblyTitle("gip.ext.fluent")]
+[assembly: AssemblyDescription("Ribbon controls for report designer based on Fluent.Ribbon")]
+[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("gipSoft d.o.o.")]
-[assembly: AssemblyProduct("Fluent Ribbon Control Suite")]
-[assembly: AssemblyCopyright("MIT License https://github.com/fluentribbon/Fluent.Ribbon")]
-[assembly: AssemblyTrademark("IPlus")]
+[assembly: AssemblyProduct("iplus-framework")]
+[assembly: AssemblyCopyright("GPLv3 iplus-framework")]
+[assembly: AssemblyTrademark("iplus-framework")]
 [assembly: AssemblyCulture("")]
+
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

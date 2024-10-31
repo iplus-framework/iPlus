@@ -1,4 +1,8 @@
-﻿using System.Reflection;
+﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
+// This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
+// https://github.com/icsharpcode/SharpDevelop
+
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -7,12 +11,12 @@ using System.Windows;
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
 [assembly: AssemblyTitle("gip.ext.design")]
-[assembly: AssemblyDescription("Extensions for Designer based on SharpDevelop 2.0")]
+[assembly: AssemblyDescription("Extensions for Designer based on SharpDevelop")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("gipSoft d.o.o.")]
-[assembly: AssemblyProduct("iPlus gip.ext.design")]
-[assembly: AssemblyCopyright("LGPL SharpDevelop 2.0")]
-[assembly: AssemblyTrademark("IPlus")]
+[assembly: AssemblyProduct("iplus-framework")]
+[assembly: AssemblyCopyright("GPLv3 iplus-framework")]
+[assembly: AssemblyTrademark("iplus-framework")]
 [assembly: AssemblyCulture("")]
 
 // Durch Festlegen von ComVisible auf "false" werden die Typen in dieser Assembly unsichtbar 

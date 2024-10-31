@@ -9,12 +9,12 @@ using System.Windows.Markup;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("gip.core.visualcontrols")]
-[assembly: AssemblyDescription("WPF Controls for process technology")]
+[assembly: AssemblyDescription("iplus library with base UI Controls for industrial automation")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("gipSoft d.o.o.")]
-[assembly: AssemblyProduct("iPlus gip.core.visualcontrols")]
-[assembly: AssemblyCopyright("Copyright © GIP mbH 2008")]
-[assembly: AssemblyTrademark("IPlus")]
+[assembly: AssemblyProduct("iplus-framework")]
+[assembly: AssemblyCopyright("GPLv3 iplus-framework")]
+[assembly: AssemblyTrademark("iplus-framework")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 

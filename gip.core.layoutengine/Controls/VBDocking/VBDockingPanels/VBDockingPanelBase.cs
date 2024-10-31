@@ -181,7 +181,7 @@ namespace gip.core.layoutengine
         
         }
 
-        #region Membri di IDropSurface 
+        #region IDropSurface 
 
         public Rect SurfaceRectangle
         {
@@ -233,7 +233,7 @@ namespace gip.core.layoutengine
 
         #endregion
 
-        #region IVBDockLayoutSerializable Membri di
+        #region IVBDockLayoutSerializable
         public void PersistStateToVBDesignContent()
         {
             foreach (VBDockingContainerBase content in ContainerToolWindowsList)

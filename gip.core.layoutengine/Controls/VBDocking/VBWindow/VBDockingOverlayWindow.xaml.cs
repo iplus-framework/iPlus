@@ -36,7 +36,7 @@ namespace gip.core.layoutengine
 
 
 
-        #region IDropSurface Membri di
+        #region IDropSurface
 
         public Rect SurfaceRectangle
         {

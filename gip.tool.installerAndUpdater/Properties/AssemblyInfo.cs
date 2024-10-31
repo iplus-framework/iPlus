@@ -13,7 +13,7 @@ using System.Windows;
 [assembly: AssemblyCompany("gipSoft d.o.o.")]
 [assembly: AssemblyProduct("gip.tool.installerAndUpdater")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTrademark("iplus-framework")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 

@@ -1,4 +1,8 @@
-﻿using System.Reflection;
+﻿// This is a modification for iplus-framework from Copyright (c) Microsoft Research Dynamic Data Display
+// This code was originally distributed under the Microsoft Public License (Ms-PL). The modifications by gipSoft d.o.o. are now distributed under GPLv3.
+// https://github.com/microsoft/InteractiveDataDisplay.WPF
+
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Resources;
@@ -6,13 +10,13 @@ using System.Resources;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Dynamic Data Display")]
-[assembly: AssemblyDescription("Controls for visualization of scientific data with adaptions for iPlus")]
+[assembly: AssemblyTitle("pig.ext.chart")]
+[assembly: AssemblyDescription("iPlus Controls for displaying charts")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("Microsoft Research Dynamic Data Display")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2009")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCompany("gipSoft d.o.o.")]
+[assembly: AssemblyProduct("iplus-framework")]
+[assembly: AssemblyCopyright("GPLv3 iplus-framework")]
+[assembly: AssemblyTrademark("iplus-framework")]
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]

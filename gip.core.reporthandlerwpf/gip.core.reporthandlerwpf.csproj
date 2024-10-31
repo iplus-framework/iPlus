@@ -29,7 +29,17 @@
 		<ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
 		<BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
 	</PropertyGroup>
-
+  <PropertyGroup>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>iplus-framework report wpf</Title>
+    <Description>Components for rendering reports with flowdocs</Description>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageTags>iplus-framework</PackageTags>
+    <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
+  </PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 		<OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
 		<WarningLevel>3</WarningLevel>
@@ -70,13 +80,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="BarcodeLib" Version="3.1.4" />
+    <None Update="icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <PackageReference Include="BarcodeLib" Version="3.1.4" />
 		<PackageReference Include="ESCPOS" Version="1.2.4" />
 		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
 		<PackageReference Include="System.Reflection.Context" Version="8.0.0" />
 	</ItemGroup>
-
-
 
 	<ItemGroup>
 		<ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj" />

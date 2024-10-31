@@ -1,4 +1,5 @@
-﻿using System;
+﻿// gipSoft d.o.o. Copyright (c) for iplus-framework. This code is distributed under GPLv3.
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -9,12 +10,12 @@ using System.Windows.Markup;
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
 [assembly: AssemblyTitle("gip.ext.widgets")]
-[assembly: AssemblyDescription("WPF-Controls for XAML-Editor based on SharpDevelop 2.0")]
+[assembly: AssemblyDescription("Controls for xaml designer based on SharpDevelop")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("gipSoft d.o.o.")]
-[assembly: AssemblyProduct("iPlus gip.ext.widgets")]
-[assembly: AssemblyCopyright("LGPL SharpDevelop 2.0")]
-[assembly: AssemblyTrademark("IPlus")]
+[assembly: AssemblyProduct("iplus-framework")]
+[assembly: AssemblyCopyright("GPLv3 iplus-framework")]
+[assembly: AssemblyTrademark("iplus-framework")]
 [assembly: AssemblyCulture("")]
 
 // Durch Festlegen von ComVisible auf "false" werden die Typen in dieser Assembly unsichtbar 

@@ -30,6 +30,15 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>iplus runtime core</Title>
+    <Description>Runtime and base components</Description>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageTags>iplus-framework</PackageTags>
+    <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\gip.core.ControlScriptSync\gip.core.ControlScriptSync.csproj" />
@@ -37,6 +46,10 @@
     <ProjectReference Include="..\gip.core.dbsyncer\gip.core.dbsyncer.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
@@ -163,6 +176,12 @@
   <ItemGroup>
     <Compile Remove="ACIPlus\Communications\Helperclasses\SyncQueueEvents.cs" />
     <Compile Remove="ACThreadHandling\ACEntityOpQueue.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>$(DefineConstants);NETFRAMEWORK</DefineConstants>

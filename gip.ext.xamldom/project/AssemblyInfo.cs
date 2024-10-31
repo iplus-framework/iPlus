@@ -1,5 +1,6 @@
-﻿// Copyright (c) AlphaSierraPapa for the SharpDevelop Team (for details please see \doc\copyright.txt)
-// This code is distributed under the GNU LGPL (for details please see \doc\license.txt)
+﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
+// This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
+// https://github.com/icsharpcode/SharpDevelop
 
 using System;
 using System.Reflection;
@@ -13,13 +14,10 @@ using System.Runtime.InteropServices;
 // you compile.
 
 [assembly: AssemblyTitle("gip.ext.xamldom")]
-[assembly: AssemblyDescription("XAML-Parser for Designer based on SharpDevelop 2.0")]
+[assembly: AssemblyDescription("xaml parser object model for WYSIWYG based on SharpDevelop")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyTrademark("IPlus")]
+[assembly: AssemblyCompany("gipSoft d.o.o.")]
+[assembly: AssemblyProduct("iplus-framework")]
+[assembly: AssemblyCopyright("GPLv3 iplus-framework")]
+[assembly: AssemblyTrademark("iplus-framework")]
 [assembly: AssemblyCulture("")]
-[assembly: CLSCompliant(false)]
-[assembly: AssemblyCompanyAttribute("gipSoft d.o.o.")]
-[assembly: AssemblyProductAttribute("iPlus gip.ext.xamldom")]
-[assembly: AssemblyCopyrightAttribute("LGPL SharpDevelop 2.0")]
-[assembly: AssemblyVersionAttribute("1.0.0.0")]
-[assembly: AssemblyFileVersionAttribute("1.0.0.0")]
