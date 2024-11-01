@@ -1644,7 +1644,7 @@ namespace gip.core.autocomponent
                 ChildClassMethod.InsertName = ACRoot.SRoot.CurrentInvokingUser.VBUserName;
 
                 ClassMethod.ACClass.AddNewACClassMethod(ClassMethod);
-                //_Database.ACClassMethod.AddObject(ChildClassMethod);
+                _Database.ACClassMethod.Add(ChildClassMethod);
             }
 
             if (ChildClassMethod.ACCaptionTranslation != VirtualMethod.CaptionTranslation && !string.IsNullOrEmpty(VirtualMethod.CaptionTranslation))
