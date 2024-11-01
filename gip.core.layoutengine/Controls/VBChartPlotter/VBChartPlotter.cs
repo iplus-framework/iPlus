@@ -669,42 +669,49 @@ namespace gip.core.layoutengine
             if (chartItems == null)
                 return;
 
-            if (chartItems.Where(c => c is IPropertyLogChartItem).Any() && !(this.HorizontalAxis is HorizontalDateTimeAxis))
+            try
             {
-                HorizontalDateTimeAxis horizontalDTAxis = new HorizontalDateTimeAxis();
-                horizontalDTAxis.Name = "X-Axis";
-                this.HorizontalAxis = horizontalDTAxis;
-            }
-
-            // TODO: Start/Stop: Logging Live-Wert
-            int countLogs = chartItems.Count();
-            if (countLogs <= 0)
-                return;
-            foreach (IVBChartItem chartItem in chartItems)
-            {
-                if (chartItem.ACProperty == null)
-                    continue;
-
-                IPropertyLogChartItem logChartItem = chartItem as IPropertyLogChartItem;
-                if (logChartItem != null)
+                if (chartItems.Where(c => c is IPropertyLogChartItem).Any() && !(this.HorizontalAxis is HorizontalDateTimeAxis))
                 {
-                    PropertyLogListInfo logListInfo = logChartItem.GetLiveLogList();
-                    IEnumerable<PropertyLogItem> propertyLog = logListInfo.PropertyLogList;
-
-                    if (propertyLog == null)
-                        continue;
-                    EnumerableDataSource<PropertyLogItem> ds = CreateChartDataSource(propertyLog);
-                    this.AddLineGraph(ds, chartItem.GetLineColor(), chartItem.LineThickness, chartItem.ACCaption);
+                    HorizontalDateTimeAxis horizontalDTAxis = new HorizontalDateTimeAxis();
+                    horizontalDTAxis.Name = "XAxis";
+                    this.HorizontalAxis = horizontalDTAxis;
                 }
-                else
+
+                // TODO: Start/Stop: Logging Live-Wert
+                int countLogs = chartItems.Count();
+                if (countLogs <= 0)
+                    return;
+                foreach (IVBChartItem chartItem in chartItems)
                 {
-                    IEnumerable<IVBChartTuple> chartSeries = chartItem.DataSeries;
-                    if (chartSeries != null)
+                    if (chartItem.ACProperty == null)
+                        continue;
+
+                    IPropertyLogChartItem logChartItem = chartItem as IPropertyLogChartItem;
+                    if (logChartItem != null)
                     {
-                        EnumerableDataSource<IVBChartTuple> ds = CreateChartDataSource(chartSeries, chartItem.DisplayMode);
+                        PropertyLogListInfo logListInfo = logChartItem.GetLiveLogList();
+                        IEnumerable<PropertyLogItem> propertyLog = logListInfo.PropertyLogList;
+
+                        if (propertyLog == null)
+                            continue;
+                        EnumerableDataSource<PropertyLogItem> ds = CreateChartDataSource(propertyLog);
                         this.AddLineGraph(ds, chartItem.GetLineColor(), chartItem.LineThickness, chartItem.ACCaption);
                     }
+                    else
+                    {
+                        IEnumerable<IVBChartTuple> chartSeries = chartItem.DataSeries;
+                        if (chartSeries != null)
+                        {
+                            EnumerableDataSource<IVBChartTuple> ds = CreateChartDataSource(chartSeries, chartItem.DisplayMode);
+                            this.AddLineGraph(ds, chartItem.GetLineColor(), chartItem.LineThickness, chartItem.ACCaption);
+                        }
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                this.Root().Messages.LogException("VBChartPlotter", "PlotLogs", ex);
             }
         }
 
@@ -719,6 +726,14 @@ namespace gip.core.layoutengine
             int countLogs = chartItems.Count();
             if (countLogs <= 0)
                 return;
+
+            if (chartItems.Where(c => c is IPropertyLogChartItem).Any() && !(this.HorizontalAxis is HorizontalDateTimeAxis))
+            {
+                HorizontalDateTimeAxis horizontalDTAxis = new HorizontalDateTimeAxis();
+                horizontalDTAxis.Name = "XAxis";
+                this.HorizontalAxis = horizontalDTAxis;
+            }
+
             foreach (IVBChartItem chartItem in chartItems)
             {
                 VBPropertyLogChartItem propertylogitem = chartItem as VBPropertyLogChartItem;
@@ -750,6 +765,8 @@ namespace gip.core.layoutengine
                 if (propertyLog == null)
                     continue;
                 EnumerableDataSource<PropertyLogItem> ds = CreateChartDataSource(propertyLog);
+                if (ds == null)
+                    continue;
                 this.AddLineGraph(ds, chartItem.GetLineColor(), chartItem.LineThickness, chartItem.ACCaption);
             }
         }
@@ -773,6 +790,8 @@ namespace gip.core.layoutengine
             if (propertyLog == null)
                 return null;
             var ds = new EnumerableDataSource<PropertyLogItem>(propertyLog);
+            if (HorizontalAxis == null || HorizontalAxis is HorizontalAxis)
+                return null;
             ds.SetXMapping(pi => ((HorizontalDateTimeAxis)HorizontalAxis).ConvertToDouble(pi.Time));
             ds.SetYMapping(pi => Convert.ToDouble(pi.Value));
             return ds;

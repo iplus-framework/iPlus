@@ -444,7 +444,7 @@ namespace gip.core.autocomponent
             if (!IsEnabledSearchDB())
                 return;
             IVBFindAndReplaceDBSearch parentFind = ParentACComponent as IVBFindAndReplaceDBSearch;
-            _EntityList = parentFind.FARSearchInDB(this, FindTextInput);
+            _EntityList = parentFind.FARSearchInDB(this, FindTextInput).ToArray();
             OnPropertyChanged("EntityList");
         }
 
