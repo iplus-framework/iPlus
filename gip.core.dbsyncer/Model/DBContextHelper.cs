@@ -20,7 +20,18 @@ namespace gip.core.dbsyncer.model
         public DBContextHelper(gip.core.datamodel.Database db, gip.core.datamodel.DbSyncerInfoContext dbInfoContext, string rootFolder)
         {
             FileAvailableVersions = DbSyncerInfoCommand.FileAvailableVersions(dbInfoContext, rootFolder);
-            DatabaseMaxScriptDate = DbSyncerInfoCommand.DatabaseMaxScriptDate(db, dbInfoContext);
+            try
+            {
+                DatabaseMaxScriptDate = DbSyncerInfoCommand.DatabaseMaxScriptDate(db, dbInfoContext);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // If new database registered and has no entries, than sql-server returns with a null message:
+                if (ex.HResult != -2146233079)
+                {
+                    throw new InvalidOperationException(ex.Message, ex);
+                }
+            }
             if (FileAvailableVersions != null && FileAvailableVersions.Any())
             {
                 FileMaxScriptDate = FileAvailableVersions.Max(c => c.ScriptDate);

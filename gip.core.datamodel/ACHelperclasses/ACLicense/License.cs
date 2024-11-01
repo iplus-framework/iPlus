@@ -43,13 +43,13 @@ namespace gip.core.datamodel.Licensing
         private void Initialize(Database db)
         {
             NeedRestart = false;
-#if DEBUG
+//#if DEBUG
             return;
-#else
-            _StartDT = DateTime.Now;
-            VerifyAndReadAllPackages(db);
-            ReadLicenseTypeFromDongle();
-#endif
+//#else
+//            _StartDT = DateTime.Now;
+//            VerifyAndReadAllPackages(db);
+//            ReadLicenseTypeFromDongle();
+//#endif
         }
         #endregion
 
@@ -57,22 +57,22 @@ namespace gip.core.datamodel.Licensing
         #region Private Fields
         private static bool _SingleInstance = false;
 
-        private string _SystemComm = "<RSAKeyValue><Modulus>3ZgedYpQrgIFSvW+77uVEZPObwbCSEtlzbp/hiY9rWK3+kWtopf5AZWweSiZ8+AUVp2jV7WQwsmvdO/kJ/86/U3EcRbNsfJPJDDYwjWdGP3+tG5FB0tGHc/eUlfa762cxm7bf0AZ76zkz19xnzpbNVWSAKquc+0YAhdl7b4jqlBrQ2ydogJkDMLPU1GF8hRTpIzEr951KFA+Ss0opH3JllCQL4WTlOqQDZje9DlUu64hIX8M7vRwHZblHAZtO+MT6bKgP43SYiCYo7KxYDyFpSl1Xh5GQsRL8Qcqhnr+Bq7DlzpUMsErkCWecR4iq0fMnIz7FEpHedYZ1LjDoZTKaQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
+        private string _SystemComm = "";
 
         private VBUser _VBUser;
 
 
-#if (!DEBUG)
-        private TimeSpan _TrialTime = new TimeSpan(0, 45, 0);
+//#if (!DEBUG)
+//        private TimeSpan _TrialTime = new TimeSpan(0, 45, 0);
 
-        private TimeSpan _PackageRemainingTime = new TimeSpan(48, 0, 0);
+//        private TimeSpan _PackageRemainingTime = new TimeSpan(48, 0, 0);
 
-        private TimeSpan _CyclicDongleReadInterval = new TimeSpan(0, 0, 30);
+//        private TimeSpan _CyclicDongleReadInterval = new TimeSpan(0, 0, 30);
 
-        private DateTime? _NextCyclicDongleRead = null;
+//        private DateTime? _NextCyclicDongleRead = null;
 
-        private DateTime _StartDT;
-#endif
+//        private DateTime _StartDT;
+//#endif
 
         private const int _UserCode = 4228216;
         private const short _Port = 85;
@@ -249,11 +249,11 @@ namespace gip.core.datamodel.Licensing
         {
             get
             {
-#if DEBUG
+//#if DEBUG
                 return false;
-#else
-                return _TrialTime < DateTime.Now - _StartDT;
-#endif
+//#else
+//                return _TrialTime < DateTime.Now - _StartDT;
+//#endif
             }
         }
 
@@ -261,11 +261,11 @@ namespace gip.core.datamodel.Licensing
         {
             get
             {
-#if DEBUG
+//#if DEBUG
                 return false;
-#else
-                return _PackageRemainingTime < DateTime.Now - _StartDT;
-#endif
+//#else
+//                return _PackageRemainingTime < DateTime.Now - _StartDT;
+//#endif
             }
         }
 
@@ -276,12 +276,12 @@ namespace gip.core.datamodel.Licensing
         {
             get
             {
-#if DEBUG
+//#if DEBUG
                 return true;
-#else
-                ReadLicenseTypeFromDongleCyclic();
-                return CurrentLicenseType != LicenseType.User;
-#endif
+//#else
+//                ReadLicenseTypeFromDongleCyclic();
+//                return CurrentLicenseType != LicenseType.User;
+//#endif
             }
         }
 
@@ -356,43 +356,43 @@ namespace gip.core.datamodel.Licensing
 #region Has package license checks
         public bool IsPackageLicensed(ACPackage acPackage)
         {
-#if DEBUG
+//#if DEBUG
             return true;
-#else
-            if (acPackage.ACPackageName == Const.PackName_VarioLicense || acPackage.ACPackageName == Const.PackName_System || acPackage.ACPackageName == Const.PackName_VarioSystem)
-                return true;
+//#else
+//            if (acPackage.ACPackageName == Const.PackName_VarioLicense || acPackage.ACPackageName == Const.PackName_System || acPackage.ACPackageName == Const.PackName_VarioSystem)
+//                return true;
 
-            lock (_LPLock)
-            {
-                if (_LicensedPackages == null || acPackage.ACPackageName == Const.PackName_VarioDevelopment)
-                    return false;
+//            lock (_LPLock)
+//            {
+//                if (_LicensedPackages == null || acPackage.ACPackageName == Const.PackName_VarioDevelopment)
+//                    return false;
 
-                if (_LicensedPackages.Any(c => c.ACPackageName == acPackage.ACPackageName))
-                    return true;
-            }
-            return false;
-#endif
+//                if (_LicensedPackages.Any(c => c.ACPackageName == acPackage.ACPackageName))
+//                    return true;
+//            }
+//            return false;
+//#endif
         }
 
         public ComponentLicense IsComponentLicensed(Guid packageID)
         {
-#if DEBUG
+//#if DEBUG
             return ComponentLicense.True;
-#else
-            if ((VarioSystemID.HasValue && VarioSystemID == packageID) || (_SystemID.HasValue && _SystemID == packageID))
-                return ComponentLicense.True;
+//#else
+//            if ((VarioSystemID.HasValue && VarioSystemID == packageID) || (_SystemID.HasValue && _SystemID == packageID))
+//                return ComponentLicense.True;
 
-            lock (_LPLock)
-            {
-                if (_LicensedPackages != null && _LicensedPackages.Any(c => c.ACPackageID == packageID))
-                    return ComponentLicense.True;
-            }
+//            lock (_LPLock)
+//            {
+//                if (_LicensedPackages != null && _LicensedPackages.Any(c => c.ACPackageID == packageID))
+//                    return ComponentLicense.True;
+//            }
 
-            if (!IsPackageTimeExpired)
-                return ComponentLicense.TimeCheck;
+//            if (!IsPackageTimeExpired)
+//                return ComponentLicense.TimeCheck;
 
-            return ComponentLicense.False;
-#endif
+//            return ComponentLicense.False;
+//#endif
         }
 #endregion
 
@@ -674,10 +674,10 @@ namespace gip.core.datamodel.Licensing
         /// <returns></returns>
         public bool GenerateLicenseFile(string licenseDir, string uniqueUserCode, ref VBLicense license)
         {
-#if (!DEBUG)
-            if (!IsDeveloperWithIssuingRights)
-                return false;
-#endif
+//#if (!DEBUG)
+//            if (!IsDeveloperWithIssuingRights)
+//                return false;
+//#endif
             VBSystem sysD = null;
 
             using (ACMonitor.Lock(_Database.QueryLock_1X000))
@@ -727,11 +727,11 @@ namespace gip.core.datamodel.Licensing
 
         public bool IsEnabledGenerateLicenseFile()
         {
-#if DEBUG
+//#if DEBUG
             return true;
-#else
-            return CurrentLicenseType == LicenseType.Developer_Issuer;
-#endif
+//#else
+//            return CurrentLicenseType == LicenseType.Developer_Issuer;
+//#endif
         }
 
 
@@ -833,11 +833,11 @@ namespace gip.core.datamodel.Licensing
         public bool IsEnabledGenerateRemoteUserKey()
         {
             bool isEnabled = false;
-#if DEBUG
+//#if DEBUG
             isEnabled = true;
-#else
-            isEnabled = CurrentLicenseType == LicenseType.Developer_EndUser || CurrentLicenseType == LicenseType.Developer_Issuer;
-#endif
+//#else
+//            isEnabled = CurrentLicenseType == LicenseType.Developer_EndUser || CurrentLicenseType == LicenseType.Developer_Issuer;
+//#endif
             return isEnabled;
         }
 
@@ -915,15 +915,15 @@ namespace gip.core.datamodel.Licensing
 
         private void ReadLicenseTypeFromDongleCyclic()
         {
-#if DEBUG
+//#if DEBUG
             return;
-#else
-            if (!_NextCyclicDongleRead.HasValue || DateTime.Now > _NextCyclicDongleRead.Value)
-            {
-                ReadLicenseTypeFromDongle();
-                _NextCyclicDongleRead = DateTime.Now + _CyclicDongleReadInterval;
-            }
-#endif
+//#else
+//            if (!_NextCyclicDongleRead.HasValue || DateTime.Now > _NextCyclicDongleRead.Value)
+//            {
+//                ReadLicenseTypeFromDongle();
+//                _NextCyclicDongleRead = DateTime.Now + _CyclicDongleReadInterval;
+//            }
+//#endif
         }
 
         private void ReadDongleData()

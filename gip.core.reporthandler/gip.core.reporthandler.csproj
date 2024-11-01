@@ -27,13 +27,13 @@
     <ImportWindowsDesktopTargets>false</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\bin\Debug\</OutputPath>
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>
     </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\bin\Release\</OutputPath>
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
     <NoWarn>1591</NoWarn>

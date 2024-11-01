@@ -65,9 +65,19 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\gip.bso.iplus\gip.bso.iplus.csproj" />
+    <ProjectReference Include="..\gip.core.archiver\gip.core.archiver.csproj" />
     <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj" />
+    <ProjectReference Include="..\gip.core.communication\gip.core.communication.csproj" />
+    <ProjectReference Include="..\gip.core.ControlScriptSync\gip.core.ControlScriptSync.csproj" />
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
+    <ProjectReference Include="..\gip.core.dbsyncer\gip.core.dbsyncer.csproj" />
     <ProjectReference Include="..\gip.core.layoutengine\gip.core.layoutengine.csproj" />
+    <ProjectReference Include="..\gip.core.manager\gip.core.manager.csproj" />
+    <ProjectReference Include="..\gip.core.processapplication\gip.core.processapplication.csproj" />
+    <ProjectReference Include="..\gip.core.reporthandlerwpf\gip.core.reporthandlerwpf.csproj" />
+    <ProjectReference Include="..\gip.core.scichart\gip.core.scichart.csproj" />
+    <ProjectReference Include="..\gip.core.visualcontrols\gip.core.visualcontrols.csproj" />
+    <ProjectReference Include="..\gip.core.webservices\gip.core.webservices.csproj" />
     <ProjectReference Include="..\gip.core.wpfservices\gip.core.wpfservices.csproj" />
   </ItemGroup>
   <ItemGroup>
