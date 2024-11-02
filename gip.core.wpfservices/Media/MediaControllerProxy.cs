@@ -1,4 +1,6 @@
-﻿using gip.core.datamodel;
+// Copyright (c) 2024, gipSoft d.o.o.
+// Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
+using gip.core.datamodel;
 using gip.core.manager;
 using gip.core.media;
 using gip.core.wpfservices.Manager;

@@ -1,3 +1,5 @@
+// Copyright (c) 2024, gipSoft d.o.o.
+// Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using gip.core.autocomponent;
 using gip.core.datamodel;
 using System;
@@ -338,17 +340,6 @@ namespace gip.core.reporthandler
                 windowsPrintersList
                 .Select(c => new PrinterInfo() { PrinterName = c, Name = c })
                 .ToList();
-        }
-
-        public static List<PrinterInfo> GetWindowsPrinters()
-        {
-            System.Drawing.Printing.PrinterSettings.StringCollection windowsPrinters = PrinterSettings.InstalledPrinters;
-            List<string> printerNames = new List<string>();
-            foreach (string printer in windowsPrinters)
-            {
-                printerNames.Add(printer);
-            }
-            return GetPrinters(printerNames);
         }
 
         public Msg AssignPrinter(Database db, PrinterInfo printerToAssign)

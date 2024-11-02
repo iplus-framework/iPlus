@@ -1,3 +1,5 @@
+// Copyright (c) 2024, gipSoft d.o.o.
+// Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 /* CSVReader - a simple open source C# class library to read CSV data
  * by Andrew Stellman - http://www.stellman-greene.com/CSVReader
  * 
