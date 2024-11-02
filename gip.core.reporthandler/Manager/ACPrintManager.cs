@@ -340,6 +340,17 @@ namespace gip.core.reporthandler
                 .ToList();
         }
 
+        public static List<PrinterInfo> GetWindowsPrinters()
+        {
+            System.Drawing.Printing.PrinterSettings.StringCollection windowsPrinters = PrinterSettings.InstalledPrinters;
+            List<string> printerNames = new List<string>();
+            foreach (string printer in windowsPrinters)
+            {
+                printerNames.Add(printer);
+            }
+            return GetPrinters(printerNames);
+        }
+
         public Msg AssignPrinter(Database db, PrinterInfo printerToAssign)
         {
             if (db == null || printerToAssign == null)
