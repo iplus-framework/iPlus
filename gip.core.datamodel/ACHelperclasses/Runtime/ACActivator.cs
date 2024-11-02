@@ -398,7 +398,9 @@ namespace gip.core.datamodel
                 if (newACObject != null)
                     newACObject.OnInitFailed(e);
                 if (e is ACCreateException)
-                    throw e;
+                {
+                    throw new ACCreateException((e as ACCreateException).InvalidObject, e.Message, e);
+                }
                 string message = String.Format("ACClass not created: {0}, {1}", acClass.GetACUrl(), e.Message);
                 if ((Database.Root != null) && (Database.Root.Messages != null))
                 {

@@ -797,7 +797,9 @@ namespace gip.core.autocomponent
         [ACMethodInfo("LoginOk", "en{'Login'}de{'Anmeldung'}", 999)]
         public void LoginOk()
         {
-            ActionResult<Tuple<Guid, string>> actionResult = HelpManager.Authenticate(HelpLogin);
+            var task = HelpManager.Authenticate(HelpLogin);
+            task.Wait();
+            ActionResult<Tuple<Guid, string>> actionResult = task.Result;
             RegisterMessageList = actionResult.Messages.Select(p => (BasicMessage)p).Select(p => (Msg)p).ToList();
             loginSuccess = actionResult.Success;
             LoginDataSave();

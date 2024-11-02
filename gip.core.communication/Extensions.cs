@@ -37,7 +37,7 @@ namespace gip.core.communication
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new Exception(ex.Message, ex);
             }
             finally 
             {

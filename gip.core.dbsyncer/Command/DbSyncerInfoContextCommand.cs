@@ -29,7 +29,7 @@ namespace gip.core.dbsyncer.Command
             {
                 if (cc.Number != 208) //cc.Message != @"Invalid object name 'dbo.@DbSyncerInfo'."
                 {
-                    throw cc;
+                    throw new Exception(cc.Message, cc);
                 }
                 else
                 {

@@ -331,11 +331,10 @@ namespace gip.core.reporthandler
             return printerInfos;
         }
 
-        public static List<PrinterInfo> GetWindowsPrinters()
+        public static List<PrinterInfo> GetPrinters(IEnumerable<string> printerNames)
         {
-            System.Drawing.Printing.PrinterSettings.StringCollection windowsPrinters = PrinterSettings.InstalledPrinters;
             List<string> windowsPrintersList = new List<string>();
-            foreach (string printer in windowsPrinters)
+            foreach (string printer in printerNames)
             {
                 windowsPrintersList.Add(printer);
             }
@@ -343,6 +342,17 @@ namespace gip.core.reporthandler
                 windowsPrintersList
                 .Select(c => new PrinterInfo() { PrinterName = c, Name = c })
                 .ToList();
+        }
+
+        public static List<PrinterInfo> GetWindowsPrinters()
+        {
+            System.Drawing.Printing.PrinterSettings.StringCollection windowsPrinters = PrinterSettings.InstalledPrinters;
+            List<string> printerNames = new List<string>();
+            foreach (string printer in windowsPrinters)
+            {
+                printerNames.Add(printer);
+            }
+            return GetPrinters(printerNames);
         }
 
         public Msg AssignPrinter(Database db, PrinterInfo printerToAssign)
