@@ -30,7 +30,7 @@
 		<BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
 	</PropertyGroup>
   <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework report wpf</Title>
     <Description>Components for rendering reports with flowdocs</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
@@ -112,9 +112,6 @@
 		</Reference>
 		<Reference Include="QRCoder.Xaml">
 			<HintPath>..\..\..\packages\qrcoder.xaml\1.4.3\lib\net6.0-windows7.0\QRCoder.Xaml.dll</HintPath>
-		</Reference>
-		<Reference Include="System.Speech">
-			<HintPath>..\..\..\packages\system.speech\6.0.0\lib\net6.0\System.Speech.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 

@@ -6,7 +6,7 @@
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
   </PropertyGroup>
   <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework webservices</Title>
     <Description>Components for integration of external systems</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>

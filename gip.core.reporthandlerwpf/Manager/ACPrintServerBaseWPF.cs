@@ -84,7 +84,6 @@ namespace gip.core.reporthandlerwpf
             return printJob;
         }
 
-
         #region Methods -> Render
 
         #region Methods -> Render -> Block

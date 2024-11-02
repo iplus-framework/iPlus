@@ -397,10 +397,6 @@ namespace Fluent
 
                 e.Handled = true;
             }
-            else
-            {
-                System.Media.SystemSounds.Beep.Play();
-            }
         }
 
         private void OnInputActionOccured(object sender, RoutedEventArgs e)

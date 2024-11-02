@@ -121,6 +121,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
+        /// <param name="entry"></param>
         void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class;
 
         /// <summary>
@@ -129,6 +130,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
+        /// <param name="entry"></param>
         void AutoLoad<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class;
 
         void ParseException(MsgWithDetails msg, Exception e);

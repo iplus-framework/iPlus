@@ -232,10 +232,10 @@
         /// </summary>
         private Type _mappableType;
 
-        /// <summary>
-        ///     Used to specify the exact metadata type of this parameter.
-        ///     Typically null, can only be set using the internal <see cref="TypeUsage"/> property.
-        /// </summary>
+        //// <summary>
+        ////     Used to specify the exact metadata type of this parameter.
+        ////     Typically null, can only be set using the internal <see cref="TypeUsage"/> property.
+        //// </summary>
         //private TypeUsage _effectiveType;
 
         /// <summary>

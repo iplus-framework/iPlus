@@ -2,7 +2,6 @@
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Printing;
 using System.Linq;
 using System.Reflection;
 
@@ -328,11 +327,10 @@ namespace gip.core.reporthandler
             return printerInfos;
         }
 
-        public static List<PrinterInfo> GetWindowsPrinters()
+        public static List<PrinterInfo> GetPrinters(IEnumerable<string> printerNames)
         {
-            System.Drawing.Printing.PrinterSettings.StringCollection windowsPrinters = PrinterSettings.InstalledPrinters;
             List<string> windowsPrintersList = new List<string>();
-            foreach (string printer in windowsPrinters)
+            foreach (string printer in printerNames)
             {
                 windowsPrintersList.Add(printer);
             }

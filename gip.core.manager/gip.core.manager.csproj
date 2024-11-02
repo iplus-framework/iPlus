@@ -114,7 +114,7 @@
   </ItemGroup>
   <PropertyGroup>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework manager</Title>
     <Description>Service components for the engineering environment</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>

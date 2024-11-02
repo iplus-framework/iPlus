@@ -24,7 +24,7 @@
     </None>
   </ItemGroup>
   <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework startup</Title>
     <Description>One-Click installer for local deployment</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>

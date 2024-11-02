@@ -43,7 +43,7 @@
   </ItemGroup>
   <PropertyGroup>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework charts extension</Title>
     <Description>Controls for displaying charts</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>

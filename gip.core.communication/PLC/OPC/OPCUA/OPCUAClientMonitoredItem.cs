@@ -125,9 +125,8 @@ namespace gip.core.communication
                     error = response.StringTable.ToString();
                 else
                 {
-                    var statusCode = status.FirstOrDefault();
-                    if (statusCode != null)
-                        error = statusCode.ToString();
+                    if (status.Any())
+                        error = status.FirstOrDefault().ToString();
                 }
 
                 _OPCUAClientACSubscr.OPCUASession.AddAlarm(new Msg("Write error: " + error, _OPCUAClientACSubscr, eMsgLevel.Error, "OPCUAClientMonitoredItem", "OnSendValueToOPCServer", 122));

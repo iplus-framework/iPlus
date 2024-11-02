@@ -56,7 +56,7 @@
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
   </PropertyGroup>
   <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework media</Title>
     <Description>Components for handling media resources</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>

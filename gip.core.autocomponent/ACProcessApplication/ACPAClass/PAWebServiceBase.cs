@@ -70,7 +70,6 @@ namespace gip.core.autocomponent
         public const int HTTPS_PORT = 8443;
         public const int NETTCP_PORT = 8089;
 
-        SyncQueueEvents _syncHostStart;
         ACThread _ACHostStartThread = null;
 
         public IWebHost Host{ get; set; }

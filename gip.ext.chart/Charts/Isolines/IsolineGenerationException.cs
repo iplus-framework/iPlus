@@ -15,7 +15,7 @@ namespace gip.ext.chart.Charts.Isolines
 		internal IsolineGenerationException() { }
 		internal IsolineGenerationException(string message) : base(message) { }
 		internal IsolineGenerationException(string message, Exception inner) : base(message, inner) { }
-		internal IsolineGenerationException(SerializationInfo info, StreamingContext context)
-			: base(info, context) { }
+		//internal IsolineGenerationException(SerializationInfo info, StreamingContext context)
+		//	: base(info, context) { }
 	}
 }

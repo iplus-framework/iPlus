@@ -82,7 +82,7 @@
   </ItemGroup>
   <PropertyGroup>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework OPC Classic Softing</Title>
     <Description>iplus-framework OPC Classic Softing</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

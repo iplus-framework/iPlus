@@ -18,5 +18,6 @@ namespace gip.core.datamodel
     {
         IVBMediaControllerProxy GetMediaControllerProxy(IACComponent component);
         void RemoveMediaControllerProxy(IACComponent component);
+        IEnumerable<string> GetWindowsPrinters();
     }
 }

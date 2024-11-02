@@ -75,7 +75,7 @@
   </ItemGroup>
   <PropertyGroup>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework xaml parser</Title>
     <Description>Controls for xaml designer</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>

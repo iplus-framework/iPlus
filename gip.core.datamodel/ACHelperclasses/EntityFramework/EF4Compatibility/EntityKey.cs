@@ -158,7 +158,6 @@ namespace gip.core.datamodel
         /// Constructs an EntityKey from an IExtendedDataRecord representing the entity.
         /// </summary>
         /// <param name="entitySet">EntitySet of the entity</param>
-        /// <param name="record">an IExtendedDataRecord that represents the entity</param>
         internal EntityKey(EntitySet entitySet)
         {
             Debug.Assert(entitySet != null, "entitySet is null");
@@ -172,8 +171,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Constructs an EntityKey from an IExtendedDataRecord representing the entity.
         /// </summary>
-        /// <param name="entitySet">EntitySet of the entity</param>
-        /// <param name="record">an IExtendedDataRecord that represents the entity</param>
+        /// <param name="qualifiedEntitySetName">EntitySet of the entity</param>
         internal EntityKey(string qualifiedEntitySetName)
         {
             GetEntitySetName(qualifiedEntitySetName, out _entitySetName, out _entityContainerName);
@@ -694,6 +692,7 @@ namespace gip.core.datamodel
         /// Asserts that the "state" of the EntityKey is correct, by validating assumptions
         /// based on whether the key is a singleton, composite, or temporary.
         /// </summary>
+        /// <param name="entitySet"></param>
         /// <param name="isTemporary">whether we expect this EntityKey to be marked temporary</param>
         [Conditional("DEBUG")]
         private void AssertCorrectState(EntitySetBase entitySet, bool isTemporary)
@@ -1020,10 +1019,9 @@ namespace gip.core.datamodel
         /// <param name="schema">The db schema</param>
         /// <param name="table">The db table</param>
         /// <param name="definingQuery">The provider specific query that should be used to retrieve the EntitySet</param>
-        /// <param name="entityType">The entity type of the entities that this entity set type contains</param> 
         /// <exception cref="System.ArgumentNullException">Thrown if the argument name or entityType is null</exception>
-        internal EntitySet(string name, string schema, string table, string definingQuery, EntityType entityType)
-            : base(name, schema, table, definingQuery, entityType)
+        internal EntitySet(string name, string schema, string table, string definingQuery)
+            : base(name, schema, table, definingQuery)
         {
         }
         #endregion
@@ -1064,9 +1062,8 @@ namespace gip.core.datamodel
         /// <param name="schema">The db schema</param>
         /// <param name="table">The db table</param>
         /// <param name="definingQuery">The provider specific query that should be used to retrieve the EntitySet</param>
-        /// <param name="entityType">The entity type of the entities that this entity set type contains</param>        
         /// <exception cref="System.ArgumentNullException">Thrown if the name or entityType argument is null</exception>
-        internal EntitySetBase(string name, string schema, string table, string definingQuery, EntityType entityType)
+        internal EntitySetBase(string name, string schema, string table, string definingQuery)
         {
             // SQLBU 480236: catalogName, schemaName & tableName are allowed to be null, empty & non-empty
 

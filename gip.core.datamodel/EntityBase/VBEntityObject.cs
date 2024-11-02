@@ -428,7 +428,6 @@ namespace gip.core.datamodel
         /// <summary>
         /// Refreshes the VBEntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
-        /// <param name="entityObject"></param>
         public void AutoRefresh()
         {
             if (this.Context != null)

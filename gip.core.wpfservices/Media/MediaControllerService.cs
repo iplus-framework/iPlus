@@ -36,5 +36,16 @@ namespace gip.core.wpfservices
                 _MediaControllerProxies.Remove(component, out proxy);
 
         }
+
+        public IEnumerable<string> GetWindowsPrinters()
+        {
+            System.Drawing.Printing.PrinterSettings.StringCollection windowsPrinters = System.Drawing.Printing.PrinterSettings.InstalledPrinters;
+            List<string> windowsPrintersList = new List<string>();
+            foreach (string printer in windowsPrinters)
+            {
+                windowsPrintersList.Add(printer);
+            }
+            return windowsPrintersList;
+        }
     }
 }

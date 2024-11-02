@@ -150,7 +150,7 @@
   </ItemGroup>
   <PropertyGroup>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework WPF App</Title>
     <Description>WPF Program to start iplus-framework</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>

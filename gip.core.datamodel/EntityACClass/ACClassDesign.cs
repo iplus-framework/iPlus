@@ -97,6 +97,7 @@ namespace gip.core.datamodel
             if (parentACObject is ACClass)
             {
                 entity.ACClassID = (parentACObject as ACClass).ACClassID;
+                entity.ACClass = parentACObject as ACClass;
             }
 
             entity.SetInsertAndUpdateInfo(database.UserName, database);

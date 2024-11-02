@@ -16,8 +16,8 @@ using System.Windows.Shapes;
 using System.Windows.Markup;
 using System.Data;
 using System.Diagnostics;
-using System.Speech;
-using System.Speech.Synthesis;
+//using System.Speech;
+//using System.Speech.Synthesis;
 using System.Windows.Shell;
 using System.IO;
 using Fluent;
@@ -54,7 +54,7 @@ namespace Document.Editor
                 OnPropertyChanged("SelectedDocument");
             }
         }
-        private SpeechSynthesizer Speech = new SpeechSynthesizer();
+        //private SpeechSynthesizer Speech = new SpeechSynthesizer();
         private JumpList myJumpList = new JumpList();
 
         private DocumentEditor DocumentPreview = new DocumentEditor();

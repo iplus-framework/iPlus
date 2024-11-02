@@ -1328,7 +1328,7 @@ namespace gip.core.autocomponent
                                                            .Sum() == tempGroups.Count).FirstOrDefault();
                         }
 
-                        if (existingGroup == null || existingGroup == Guid.Empty)
+                        if (existingGroup == Guid.Empty)
                         {
                             foreach (RouteHashItem rhItem in hashItems)
                             {
@@ -1360,7 +1360,7 @@ namespace gip.core.autocomponent
                                                       .Sum() == tempGroups.Count).FirstOrDefault();
                         }
 
-                        if (existingGroup != null && existingGroup != Guid.Empty)
+                        if (existingGroup != Guid.Empty)
                         {
                             hashItems.AddRange(hashItemToClear);
 

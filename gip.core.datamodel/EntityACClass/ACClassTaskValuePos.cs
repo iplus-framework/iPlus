@@ -179,9 +179,6 @@ namespace gip.core.datamodel
         }
 
 
-        /// Gets a value indicating whether [auto remove].
-        /// </summary>
-        /// <value><c>true</c> if [auto remove]; otherwise, <c>false</c>.</value>
         [NotMapped]
         public bool AutoRemove
         {

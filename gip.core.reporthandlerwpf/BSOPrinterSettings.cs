@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing.Printing;
 using System.Linq;
+using gip.core.reporthandler;
 
-namespace gip.core.reporthandler
+namespace gip.core.reporthandlerwpf
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Printer settings'}de{'Drucker-Einstellungen'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true)]
     public class BSOPrinterSettings : ACBSO
@@ -354,7 +355,10 @@ namespace gip.core.reporthandler
 
         private List<PrinterInfo> LoadWindowsPrinterList()
         {
-            return ACPrintManager.GetWindowsPrinters();
+            var printers = Root?.WPFServices?.VBMediaControllerService?.GetWindowsPrinters();
+            if (printers != null)
+                return ACPrintManager.GetPrinters(printers);
+            return new List<PrinterInfo>();
         }
 
         #endregion

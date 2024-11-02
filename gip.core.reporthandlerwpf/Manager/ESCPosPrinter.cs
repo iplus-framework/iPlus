@@ -317,7 +317,7 @@ namespace gip.core.reporthandlerwpf
             {
                 BarCodeType barCodeType = BarCodeType.EAN8;
                 if (Enum.TryParse(inlineBarcode.BarcodeType.ToString(), out barCodeType))
-                    (printJob as PrintJobWPF).Main = (printJob as PrintJobWPF).Main.Add(Commands.LF, Commands.PrintBarCode(barCodeType, barcodeValue));
+                    (printJob as PrintJobWPF).Main = (printJob as PrintJobWPF).Main.Add(Commands.LF, Commands.Barcode(barCodeType, barcodeValue));
             }
             (printJob as PrintJobWPF).Main = (printJob as PrintJobWPF).Main.Add(Commands.LF, Commands.LF, Commands.LF, Commands.LF, Commands.LF);
         }

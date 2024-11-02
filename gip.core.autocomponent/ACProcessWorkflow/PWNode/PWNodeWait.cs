@@ -326,13 +326,14 @@ namespace gip.core.autocomponent
             {
                 if (!ActsAsAlarmClock)
                 {
-                    if (LastPauseTime.ValueT != null && LastPauseTime.ValueT > DateTime.MinValue)
+                    if (LastPauseTime != null && LastPauseTime.ValueT > DateTime.MinValue)
                     {
                         TimeSpan pauseDuration = DateTimeUtils.NowDST - LastPauseTime.ValueT;
                         SumPausingTimes.ValueT = SumPausingTimes.ValueT + pauseDuration;
                         EndTime.ValueT = EndTime.ValueT + pauseDuration;
                     }
-                    LastPauseTime.ValueT = DateTime.MinValue;
+                    if (LastPauseTime != null)
+                        LastPauseTime.ValueT = DateTime.MinValue;
                 }
             }
         }
@@ -460,10 +461,10 @@ namespace gip.core.autocomponent
             }
             else
             {
-                if (CurrentACState == ACStateEnum.SMPaused && LastPauseTime.ValueT != null && LastPauseTime.ValueT > DateTime.MinValue)
+                if (CurrentACState == ACStateEnum.SMPaused && LastPauseTime != null && LastPauseTime.ValueT > DateTime.MinValue)
                 {
                     RemainingTime.ValueT = EndTime.ValueT - LastPauseTime.ValueT;
-                    if (SumPausingTimes.ValueT != null && SumPausingTimes.ValueT > TimeSpan.Zero)
+                    if (SumPausingTimes != null && SumPausingTimes.ValueT > TimeSpan.Zero)
                         ElapsedTime.ValueT = LastPauseTime.ValueT - StartTime.ValueT - SumPausingTimes.ValueT;
                     else
                         ElapsedTime.ValueT = LastPauseTime.ValueT - StartTime.ValueT;
@@ -472,7 +473,7 @@ namespace gip.core.autocomponent
                 {
                     DateTime nowDST = DateTimeUtils.NowDST;
                     RemainingTime.ValueT = EndTime.ValueT - nowDST;
-                    if (SumPausingTimes.ValueT != null && SumPausingTimes.ValueT > TimeSpan.Zero)
+                    if (SumPausingTimes != null && SumPausingTimes.ValueT > TimeSpan.Zero)
                         ElapsedTime.ValueT = nowDST - StartTime.ValueT - SumPausingTimes.ValueT;
                     else
                         ElapsedTime.ValueT = nowDST - StartTime.ValueT;

@@ -578,7 +578,10 @@ namespace gip.core.reporthandlerwpf
 
         private List<PrinterInfo> LoadWindowsPrinterList()
         {
-            List<PrinterInfo> printerInfos = ACPrintManager.GetWindowsPrinters();
+            List<PrinterInfo> printerInfos = new List<PrinterInfo>();
+            var printers = Root?.WPFServices?.VBMediaControllerService?.GetWindowsPrinters();
+            if (printers != null)
+                printerInfos = ACPrintManager.GetPrinters(printers);
             if (ConfiguredPrinterList != null && ConfiguredPrinterList.Any())
                 printerInfos = printerInfos.Where(c => !ConfiguredPrinterList.Select(x => x.ACCaption).Contains(c.PrinterName)).OrderBy(c => c.PrinterName).ToList();
             return printerInfos;

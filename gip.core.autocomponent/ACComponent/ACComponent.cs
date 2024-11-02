@@ -1150,7 +1150,7 @@ namespace gip.core.autocomponent
             {
                 if (acClass.IsWorkflowType)
                 {
-                    throw e;
+                    throw new ACCreateException((e as ACCreateException).InvalidObject, e.Message, e);
                 }
                 result = null;
 

@@ -34,17 +34,18 @@ namespace Document.Editor
         #region "Reuseable Code"
 
         public bool PathExists(string path, int timeout)
-	{
-		bool exists = true;
-		Thread t = new Thread(() => CheckPathFunction(path));
-		t.Start();
-		bool completed = t.Join(timeout);
-		if (!completed) {
-			exists = false;
-			t.Abort();
-		}
-		return exists;
-	}
+	    {
+            return false;
+	        //bool exists = true;
+	        //Thread t = new Thread(() => CheckPathFunction(path));
+	        //t.Start();
+	        //bool completed = t.Join(timeout);
+	        //if (!completed) {
+		       // exists = false;
+		       // t.Abort();
+	        //}
+	        //return exists;
+	    }
 
         public bool CheckPathFunction(string path)
         {
@@ -217,26 +218,26 @@ namespace Document.Editor
 
         #region "Update"
 
-        private WebClient withEventsField_webmanager = new WebClient();
-        public WebClient webmanager
-        {
-            get { return withEventsField_webmanager; }
-            set
-            {
-                if (withEventsField_webmanager != null)
-                {
-                    withEventsField_webmanager.DownloadProgressChanged -= webmanager_DownloadProgressChanged;
-                    withEventsField_webmanager.DownloadFileCompleted -= webmanager_DownloadFileCompleted;
-                }
-                withEventsField_webmanager = value;
-                if (withEventsField_webmanager != null)
-                {
-                    withEventsField_webmanager.DownloadProgressChanged += webmanager_DownloadProgressChanged;
-                    withEventsField_webmanager.DownloadFileCompleted += webmanager_DownloadFileCompleted;
-                }
-            }
+        //private WebClient withEventsField_webmanager = new WebClient();
+        //public WebClient webmanager
+        //{
+        //    get { return withEventsField_webmanager; }
+        //    set
+        //    {
+        //        if (withEventsField_webmanager != null)
+        //        {
+        //            withEventsField_webmanager.DownloadProgressChanged -= webmanager_DownloadProgressChanged;
+        //            withEventsField_webmanager.DownloadFileCompleted -= webmanager_DownloadFileCompleted;
+        //        }
+        //        withEventsField_webmanager = value;
+        //        if (withEventsField_webmanager != null)
+        //        {
+        //            withEventsField_webmanager.DownloadProgressChanged += webmanager_DownloadProgressChanged;
+        //            withEventsField_webmanager.DownloadFileCompleted += webmanager_DownloadFileCompleted;
+        //        }
+        //    }
 
-        }
+        //}
         private void ApplyUpdateButton_Click(object sender, RoutedEventArgs e)
         {
             //UpdateProgressbar.IsIndeterminate = false;

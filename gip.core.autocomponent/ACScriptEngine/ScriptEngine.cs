@@ -244,7 +244,7 @@ namespace gip.core.autocomponent
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "WindowsBase.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Core.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Data.dll"));
-            //references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Data.Entity.dll"));
+            references.Add(MetadataReference.CreateFromFile(dotNetPath + "Microsoft.EntityFrameworkCore.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Runtime.dll"));
             foreach (Assembly classAssembly in AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -281,7 +281,7 @@ namespace gip.core.autocomponent
                 string assemblyNameAndPath = ACRoot.SRoot.Environment.Rootpath + refAssemblyTemp;
                 if (!System.IO.File.Exists(assemblyNameAndPath))
                     assemblyNameAndPath = System.IO.Path.Combine(dotNetPath, refAssemblyTemp);
-                if (!references.OfType<string>().Any(c => System.IO.Path.GetFileName(c) == refAssemblyTemp))
+                if (!references.OfType<PortableExecutableReference>().Any(c => System.IO.Path.GetFileName(c.FilePath) == refAssemblyTemp))
                     references.Add(MetadataReference.CreateFromFile(assemblyNameAndPath));
             }
 

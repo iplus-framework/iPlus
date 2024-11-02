@@ -1,0 +1,1 @@
+﻿update ACClass set AssemblyQualifiedName = 'gip.core.reporthandlerwpf.BSOPrinterSettings, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where ACIdentifier = 'BSOPrinterSettings' and AssemblyQualifiedName <> 'gip.core.reporthandlerwpf.BSOPrinterSettings, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null';

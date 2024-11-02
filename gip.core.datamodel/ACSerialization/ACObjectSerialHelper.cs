@@ -77,7 +77,13 @@ namespace gip.core.datamodel
                     acObject = acFSParentItem.ACObject.ACUrlCommand(acUrl) as IACObject;
                     if (acObject == null)
                     {
-                        acObject = acFSParentItem.ACObject.ACUrlCommand("#" + urlParts.Last()) as IACObject;
+                        acObject = acFSParentItem.ACObject.ACUrlCommand(ACUrlHelper.Delimiter_Start + urlParts.Last()) as IACObject;
+                        if (acObject is VBEntityObject 
+                            && (acObject as VBEntityObject).EntityState == Microsoft.EntityFrameworkCore.EntityState.Detached
+                            && acFSParentItem.Container != null && acFSParentItem.Container.DB != null)
+                        {
+                            acFSParentItem.Container.DB.Add(acObject);
+                        }
                     }
                 }
                 else
@@ -113,11 +119,18 @@ namespace gip.core.datamodel
                             {
                                 if (tmpIACObject == null)
                                 {
-                                    tmpIACObject = tmpParentIACObject.ACUrlCommand("#" + urlParts.Last()) as IACObject;
+                                    tmpIACObject = tmpParentIACObject.ACUrlCommand(ACUrlHelper.Delimiter_Start + urlParts.Last()) as IACObject;
+                                    if (tmpIACObject is VBEntityObject
+                                        && (tmpIACObject as VBEntityObject).EntityState == Microsoft.EntityFrameworkCore.EntityState.Detached
+                                        && acFSParentItem.Container != null && acFSParentItem.Container.DB != null)
+                                    {
+                                        acFSParentItem.Container.DB.Add(tmpIACObject);
+                                    }
                                 }
 
                             }
-                            if (tmpIACObject == null) break;
+                            if (tmpIACObject == null) 
+                                break;
                             tmpParentIACObject = tmpIACObject;
                         }
                         acObject = tmpIACObject;

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
@@ -139,7 +140,7 @@ namespace gip.core.autocomponent
         /// </summary>
         /// <param name="loginModel"></param>
         /// <returns></returns>
-        public ActionResult<Tuple<Guid, string>> Authenticate(Login loginModel)
+        public async Task<ActionResult<Tuple<Guid, string>>> Authenticate(Login loginModel)
         {
             ActionResult<Tuple<Guid, string>> actionResult = new ActionResult<Tuple<Guid, string>>();
             try
@@ -147,32 +148,36 @@ namespace gip.core.autocomponent
                 KeyValuePair<bool, List<BasicMessage>> loginValidation = ValidateLogin(loginModel);
                 if (loginValidation.Key)
                 {
-                    WebClient cl = new WebClient();
-                    cl.BaseAddress = HelpConfigSection.Settings.HelpPageRootURL + HelpConfigSection.Settings.LoginRelativeURL.Replace("{lang}", "en");
-                    cl.QueryString.Add("Email", loginModel.Email);
-                    cl.QueryString.Add("Password", loginModel.Password);
-                    cl.QueryString.Add("Password", loginModel.Password);
-                    if(loginModel.Email == "aleksandar.agincic@gmail.com" && loginModel.Password == "sasa2603")
+                    HttpClient client = new HttpClient();
+                    string baseAddress = HelpConfigSection.Settings.HelpPageRootURL +
+                                                 HelpConfigSection.Settings.LoginRelativeURL.Replace("{lang}", "en");
+
+                    // Create the query string
+                    var queryString = new FormUrlEncodedContent(new[]
                     {
-                        BasicMessage registerSuccessMessage = new BasicMessage()
-                        {
-                            MessageLevel = MessageLevelEnum.Success,
-                            Message = "Login OK!"
-                        };
+                        new KeyValuePair<string, string>("Email", loginModel.Email),
+                        new KeyValuePair<string, string>("Password", loginModel.Password)
+                    });
+
+                    // Combine base address and query string
+                    string requestUri = $"{baseAddress}?{ queryString.ReadAsStringAsync()}";
+
+                    // Send the request
+                    HttpResponseMessage response = await client.GetAsync(requestUri);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Handle success
+                        string responseBody = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine(responseBody);
                         actionResult.Success = true;
                     }
                     else
                     {
-                        BasicMessage registerSuccessMessage = new BasicMessage()
-                        {
-                            MessageLevel = MessageLevelEnum.Error,
-                            Message = "Bad username of password!"
-                        };
+                        // Handle error
+                        Console.WriteLine($"Error: {response.StatusCode}");
+                        actionResult.Success = false;
                     }
-                    // TODO: there is place to call service
-                    // Proceeed with registration
-                    
-                    actionResult.Success = true; // Is temp so
                 }
                 else
                 {

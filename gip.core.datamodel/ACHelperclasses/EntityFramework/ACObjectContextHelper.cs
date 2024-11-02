@@ -761,6 +761,7 @@ namespace gip.core.datamodel
         ///<summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
+        /// <param name="entry"></param>
         ///</summary>
         public void AutoRefresh<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class
         {
@@ -780,6 +781,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entityCollection"></param>
+        /// <param name="entry"></param>
         public void AutoLoad<T>(ICollection<T> entityCollection, CollectionEntry entry) where T : class
         {
             try

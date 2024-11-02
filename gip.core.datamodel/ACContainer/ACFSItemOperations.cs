@@ -118,8 +118,12 @@ namespace gip.core.datamodel
                         {
                             VBEntityObject tempObject = (context as IACEntityObjectContext).GetObjectByKey(entityObject.EntityKey) as VBEntityObject;
                             if (tempObject != null)
+                            {
                                 context.Detach(tempObject);
-                            context.Attach(entityObject);
+                                context.Attach(entityObject);
+                            }
+                            else
+                                context.Add(entityObject);
                         }
                     }
                     else if (objectEntityState != EntityState.Detached && (!aCFSItem.IsChecked || (checkUpdateDate && aCFSItem.UpdateDateFail)))

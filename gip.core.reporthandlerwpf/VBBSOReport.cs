@@ -293,9 +293,9 @@ namespace gip.core.reporthandlerwpf
 
         #region Properties
 
-        #region private
-        private bool _LLEventsSubscribed;
-        #endregion
+        //#region private
+        //private bool _LLEventsSubscribed;
+        //#endregion
 
         #region public
         //private VBListLabel _LL;

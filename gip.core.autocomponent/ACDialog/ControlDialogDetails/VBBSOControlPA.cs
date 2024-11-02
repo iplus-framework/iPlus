@@ -586,7 +586,7 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledSearch()
         {
-            return ((CurrentACComponent != null) && (SearchFrom != null) && (SearchTo != null));
+            return ((CurrentACComponent != null) && (SearchFrom > DateTime.MinValue) && (SearchTo > DateTime.MinValue));
         }
 
         private bool _LastDBSearch = false;

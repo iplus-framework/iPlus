@@ -44,7 +44,7 @@
     <DefineConstants>TRACE;CODE_ANALYSIS</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRules>
     </CodeAnalysisRules>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
@@ -187,7 +187,7 @@ attrib -r $(ProjectDir)Themes\Metro\White.xaml
     </None>
   </ItemGroup>
   <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework ribbon</Title>
     <Description>Ribbon controls for report designer</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
