@@ -142,7 +142,7 @@ namespace gip.core.ControlScriptSync
                                 Message = msg.Message
                             });
                         }
-                        rootItem.CallAction(ACFSItemOperations.AttachOrDeattachToContext, true);
+                        rootItem.CallAction(ACFSItemOperations.AttachOrDeattachToContext, false);
                     }
                     catch (Exception xmlDeserializationException)
                     {

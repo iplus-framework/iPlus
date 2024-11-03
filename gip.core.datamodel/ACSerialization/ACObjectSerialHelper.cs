@@ -156,15 +156,20 @@ namespace gip.core.datamodel
             return acObject;
         }
 
+        static Type _TypeGuid1 = typeof(Guid);
+        static Type _TypeGuid2 = typeof(Guid?);
+        static Type _TypeString = typeof(string);
+        static Type _TypeIACObject = typeof(IACObject); // Type that can resolve ACUrl
+        static Type _TypeContext = typeof(IACEntityObjectContext);
+
         public static bool PropertyForIgnore(PropertyInfo pi)
         {
             return
-                (pi.GetIndexParameters().Length != 0)
-                || (pi.PropertyType == typeof(Guid) || pi.PropertyType == typeof(Guid?))
-                || ((pi.PropertyType.IsGenericType) && (pi.PropertyType.GetInterfaces().Where(c => c.Name == "IEnumerable").Any()))
-                || pi.PropertyType.BaseType == typeof(ReferenceEntry)
-                || pi.PropertyType.BaseType == typeof(CollectionEntry)
-                || !(pi.Name != "EntityKey");// not registred for data operate
+                !  pi.CanWrite
+                || pi.PropertyType == _TypeGuid1
+                || pi.PropertyType == _TypeGuid2
+                || !(pi.PropertyType.IsValueType || pi.PropertyType == _TypeString || (_TypeIACObject.IsAssignableFrom(pi.PropertyType) && !_TypeContext.IsAssignableFrom(pi.PropertyType)))
+                ;
         }
 
 #endregion
@@ -174,15 +179,16 @@ namespace gip.core.datamodel
         public static List<ACObjectSerialPropertyContainerModel> GetPropertyList(IACObject acObject, bool? onlyKeyMembers)
         {
             List<ACObjectSerialPropertyContainerModel> list = new List<ACObjectSerialPropertyContainerModel>();
-            PropertyInfo[] properties = acObject.GetType().GetProperties().ToArray();
+            Type typeOfObject = acObject.GetType();
+            PropertyInfo[] properties = typeOfObject.GetProperties().ToArray();
 
             properties = properties.Where(pi => !ACObjectSerialHelper.PropertyForIgnore(pi)).ToArray();
 
-            PropertyInfo keyMemberPropertyInfo = acObject.GetType().GetProperty("KeyACIdentifier");
-            string dataIdentifierStr = keyMemberPropertyInfo.GetValue(acObject.GetType(), null) as string;
-            string[] dataIdentifiers = dataIdentifierStr.Split(',');
+            PropertyInfo keyMemberPropertyInfo = typeOfObject.GetProperty(nameof(ACClass.KeyACIdentifier));
+            string dataIdentifierStr = keyMemberPropertyInfo?.GetValue(acObject.GetType(), null) as string;
+            string[] dataIdentifiers = dataIdentifierStr?.Split(',');
 
-            if (onlyKeyMembers != null)
+            if (onlyKeyMembers != null && keyMemberPropertyInfo != null && dataIdentifiers != null)
             {
                 // Setup key members
                 List<string> keyMembers = new List<string>();
@@ -231,7 +237,7 @@ namespace gip.core.datamodel
             {
                 acObjectPropertyType = ACObjectSerialPropertyHandlingTypesEnum.ACClassDesignByte;
             }
-            else if (pi.PropertyType.GetInterface("gip.core.datamodel.IACObject") != null)
+            else if (_TypeIACObject.IsAssignableFrom(pi.PropertyType))
             {
                 acObjectPropertyType = ACObjectSerialPropertyHandlingTypesEnum.IACObject;
             }
@@ -384,6 +390,7 @@ namespace gip.core.datamodel
             ACFSItemChanges itemChange = null;
             List<ACObjectSerialPropertyContainerModel> acObjectPropertyModelList = ACObjectSerialHelper.GetPropertyList(acFsItem.ACObject, setupKeyACIdentifier);
             foreach (ACObjectSerialPropertyContainerModel acObjectPropertyModel in acObjectPropertyModelList)
+            {
                 foreach (PropertyInfo pi in acObjectPropertyModel.Properties)
                 {
                     KeyValuePair<bool, string> propertyValue = acFsItem.ReadPropertyValue(pi, acObjectPropertyModel.PropertyType);
@@ -410,6 +417,7 @@ namespace gip.core.datamodel
                         throw (new Exception(msg.Message, ec));
                     }
                 }
+            }
         }
 
 #endregion
