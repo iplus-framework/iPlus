@@ -110,6 +110,9 @@ namespace gip.core.datamodel
         IList<T> GetChangedEntities<T>(Func<T, bool> selector = null) where T : class;
 
         IList<Msg> CheckChangedEntities();
+
+        public void Refresh(RefreshMode refreshMode, object entity);
+
         /// <summary>
         /// Refreshes the VBEntityObject if not in modified state. Else it leaves it untouched.
         /// </summary>
@@ -185,6 +188,10 @@ namespace gip.core.datamodel
         event EventHandler<SavingChangesEventArgs>? SavingChanges;
         event EventHandler<SavedChangesEventArgs>? SavedChanges;
         event EventHandler<SaveChangesFailedEventArgs>? SaveChangesFailed;
+        object? Find(Type entityType, params object?[]? keyValues);
+        TEntity? Find<TEntity>(params object?[]? keyValues) where TEntity : class;
+#nullable disable
+
         DatabaseFacade Database { get; }
 
         EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
@@ -211,10 +218,6 @@ namespace gip.core.datamodel
 
         DbSet<TEntity> CreateObjectSet<TEntity>() where TEntity : class;
         DbSet<TEntity> CreateObjectSet<TEntity>(string entitySetName) where TEntity : class;
-
-        object? Find(Type entityType, params object?[]? keyValues);
-        TEntity? Find<TEntity>(params object?[]? keyValues) where TEntity : class;
-#nullable disable
 
         #endregion
     }

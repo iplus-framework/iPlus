@@ -39,7 +39,7 @@ namespace gip.core.datamodel
                     // Exclude broadcast messages for ACProject type
                     if (checkStateMsg != null && entityTypeName != ACProject.ClassName)
                         msgWithDetails.AddDetailMessage(checkStateMsg);
-                    aCFSItem.UpdateDateFail = checkStateMsg != null;
+                    aCFSItem.UpdateDateFail = checkStateMsg != null && checkStateMsg.MessageLevel == eMsgLevel.Error;
                 }
             }
         }
@@ -81,7 +81,7 @@ namespace gip.core.datamodel
                    entityTypeName, importFileName, localRecordTime, importedRecordTime)
                 };
             }
-            else if(isSame)
+            else if (isSame)
             {
                 msg = new Msg()
                 {
@@ -108,9 +108,11 @@ namespace gip.core.datamodel
             if (aCFSItem.ACObject != null && aCFSItem.ACObject is VBEntityObject)
             {
                 VBEntityObject entityObject = aCFSItem.ACObject as VBEntityObject;
-                IACEntityObjectContext context = (aCFSItem.ACObject as VBEntityObject).Context;
+                if (entityObject == null)
+                    return;
+                IACEntityObjectContext context = entityObject.Context;
                 if (context == null)
-                    context = ACObjectContextManager.GetContextFromACUrl(null, aCFSItem.ACObject.ACType.ObjectFullType.FullName);
+                    context = ACObjectContextManager.GetContextFromACUrl(null, entityObject.ACType.ObjectFullType.FullName);
                 EntityState objectEntityState = entityObject.EntityState;
                 if (context != null)
                 {
@@ -128,9 +130,13 @@ namespace gip.core.datamodel
                                 context.Add(entityObject);
                         }
                     }
-                    else if (objectEntityState != EntityState.Detached && (!aCFSItem.IsChecked || (checkUpdateDate && aCFSItem.UpdateDateFail)))
+                    // Revert changes
+                    else if (!aCFSItem.IsChecked || (checkUpdateDate && aCFSItem.UpdateDateFail))
                     {
-                        context.Detach(aCFSItem.ACObject);
+                        if (objectEntityState == EntityState.Added)
+                            context.Detach(aCFSItem.ACObject);
+                        else if (objectEntityState == EntityState.Modified)
+                            context.Refresh(RefreshMode.StoreWins, entityObject);
                     }
                 }
             }

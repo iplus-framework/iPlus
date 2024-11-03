@@ -142,7 +142,7 @@ namespace gip.core.ControlScriptSync
                                 Message = msg.Message
                             });
                         }
-                        rootItem.CallAction(ACFSItemOperations.AttachOrDeattachToContext, false);
+                        rootItem.CallAction(ACFSItemOperations.AttachOrDeattachToContext, true);
                     }
                     catch (Exception xmlDeserializationException)
                     {
@@ -155,7 +155,7 @@ namespace gip.core.ControlScriptSync
                         Message = "Deserialized items: " + item.FileName
                     });
 
-                    MsgWithDetails msgSaveControlScripts = db.ACSaveChanges(true, false, false);
+                    MsgWithDetails msgSaveControlScripts = db.ACSaveChanges();
                     if (msgSaveControlScripts != null)
                     {
                         Console.WriteLine(string.Format(@"ControlSync Error, File:{0}", item.FileName));

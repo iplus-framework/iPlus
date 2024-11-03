@@ -640,8 +640,12 @@ namespace gip.core.datamodel
         {
             action(this, args);
             if (Items != null && Items.Any())
+            {
                 foreach (var item in Items)
+                {
                     (item as ACFSItem).CallAction(action, args);
+                }
+            }
         }
 
         public bool UpdateDateFail { get; set; }
