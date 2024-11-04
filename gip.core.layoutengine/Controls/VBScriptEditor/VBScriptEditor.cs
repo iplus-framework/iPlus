@@ -221,7 +221,7 @@ namespace gip.core.layoutengine
                     try
                     {
                         if(_roslynHost != null)
-                            _docId = this.InitializeAsync(_roslynHost, _classificationHighlightColors, AppContext.BaseDirectory, this.VBText, SourceCodeKind.Regular).Result;
+                            _docId = this.InitializeAsync(_roslynHost, _classificationHighlightColors, AppContext.BaseDirectory, this.VBText, SourceCodeKind.Script).Result;
                     }
                     catch (Exception e)
                     {
