@@ -70,7 +70,6 @@
   <PropertyGroup>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
-    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
   </PropertyGroup>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(OutDir)\gip.core.scichart.dll" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />

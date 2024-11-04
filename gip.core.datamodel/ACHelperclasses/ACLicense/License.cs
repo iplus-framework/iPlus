@@ -189,16 +189,17 @@ namespace gip.core.datamodel.Licensing
         {
             get
             {
-                if (_DongleType == LicenseType.Developer_Issuer || _DongleType == LicenseType.Developer_EndUser)
-                    return _DongleType;
-                else if (_IsRemoteLoginActive)
-                    return LicenseType.RemoteDeveloper;
-                lock (_LPLock)
-                {
-                    if (_LicensedPackages != null && _LicensedPackages.Any())
-                        return LicenseType.User;
-                }
-                return LicenseType.Trial;
+                //if (_DongleType == LicenseType.Developer_Issuer || _DongleType == LicenseType.Developer_EndUser)
+                //    return _DongleType;
+                //else if (_IsRemoteLoginActive)
+                //    return LicenseType.RemoteDeveloper;
+                //lock (_LPLock)
+                //{
+                //    if (_LicensedPackages != null && _LicensedPackages.Any())
+                //        return LicenseType.User;
+                //}
+                //return LicenseType.Trial;
+                return LicenseType.User;
             }
         }
 
