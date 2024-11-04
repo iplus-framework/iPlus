@@ -573,6 +573,11 @@ namespace gip.core.layoutengine
 
             if (!string.IsNullOrEmpty(VBText))
             {
+                string dotNetPath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
+                string wpfPath = dotNetPath.Replace("Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App");
+                if (!Directory.Exists(wpfPath))
+                    wpfPath = null;
+
                 string preCompStart = "/// <Precompiler>";
                 string preCompEnd = "/// </Precompiler>";
 
@@ -614,11 +619,19 @@ namespace gip.core.layoutengine
                             else
                             {
                                 string dllName = lineTemp.Replace("/// refassembly", "").Replace(";", "").Trim();
-                                path = Directory.EnumerateFiles(System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), dllName, SearchOption.AllDirectories)
+                                path = Directory.EnumerateFiles(dotNetPath, dllName, SearchOption.AllDirectories)
                                                               .FirstOrDefault();
 
                                 if (File.Exists(path) && !assemblyPath.Contains(path))
                                     assemblyPath.Add(path);
+                                else if (!String.IsNullOrEmpty(wpfPath))
+                                {
+                                    path = Directory.EnumerateFiles(wpfPath, dllName, SearchOption.AllDirectories)
+                                                                  .FirstOrDefault();
+
+                                    if (File.Exists(path) && !assemblyPath.Contains(path))
+                                        assemblyPath.Add(path);
+                                }
                             }
                         }
                         catch (Exception e)

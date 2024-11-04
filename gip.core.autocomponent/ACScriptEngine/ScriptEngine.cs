@@ -235,6 +235,10 @@ namespace gip.core.autocomponent
 
             // TODO: Add references Should these be configurable?
             string dotNetPath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
+            string wpfPath = dotNetPath.Replace("Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App");
+            if (!Directory.Exists(wpfPath))
+                wpfPath = null;
+            string exePath = ACRoot.SRoot.Environment.Rootpath;
 
             ACRoot.SRoot.Messages.LogDebug(_ACType.GetACUrl(), "ScriptEngine.Compile()", String.Format("Complier {0}, DotNetPath {1}", compilationOptions, dotNetPath));
 
@@ -242,11 +246,12 @@ namespace gip.core.autocomponent
 
             var references = new List<MetadataReference>();
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.dll"));
-            //references.Add(MetadataReference.CreateFromFile(dotNetPath + "WPF\\PresentationCore.dll"));
+            if (wpfPath != null)
+                references.Add(MetadataReference.CreateFromFile(wpfPath + "PresentationCore.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "WindowsBase.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Core.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Data.dll"));
-            references.Add(MetadataReference.CreateFromFile(dotNetPath + "Microsoft.EntityFrameworkCore.dll"));
+            references.Add(MetadataReference.CreateFromFile(exePath + "Microsoft.EntityFrameworkCore.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Runtime.dll"));
             foreach (Assembly classAssembly in AppDomain.CurrentDomain.GetAssemblies())
             {
