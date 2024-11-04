@@ -31,34 +31,38 @@ The iPlus Framework is designed to meet the complex requirements of modern softw
 
 ## What you can create with it
 - **SCADA:** Out of the box. With builtin PLC-Connections, OPC-UA-Client and OPC-UA-Server
-- **DCS, MES:** Distributed Control Systems, Manufacturing Execution System. Use the iPlus-MES repository for a out of the box usage.
+- **DCS, MES:** Distributed Control Systems, Manufacturing Execution System. Use the [iPlus-MES repository](https://github.com/iplus-framework/iPlusMES) for a out of the box usage in combination with [iplus-MES-Mobile](https://github.com/iplus-framework/Mobile).
 - **Custom industrial applications:** Any applications/components can be developed and provided as packages that are managed by the runtime.
-- **HMI or OEM Software**: Standalone installations. Software for single board computers.
+- **HMI or OEM Software**: Standalone installations. Software for single board computers with linux based operating systems (armbian, raspbian).
 - **ERP**: On Premise ERP-Software
-- **Mobile**: Mobile Solutions
+- **Mobile**: Mobile Solutions.
 - ...
 
-## Getting Started
+## Technology
+- Build on .NET Platform: .NET Core, Entity Framework, WCF, WPF
+- Serverside without UI: Windows, Linux
+- Clientside with UI: Windows. In the future with Avalonia XPF (see library exception in our GPL-v3 license) also on Linux, Android, macOS, iOS and Web-Browser.
 
+## Getting Started
 To get started with the iPlus Framework, follow these steps:
 
-1. **Clone the Repository:**
+1. **Clone the Repository:**  
 git clone https://github.com/iplus-framework/iPlus.git
 
-2. **Install a Microsoft SQL-Server Edition:**
+2. **Install a Microsoft SQL-Server Edition:**  
 https://learn.microsoft.com/en-us/sql/database-engine/install-windows/install-sql-server?view=sql-server-ver16
 
-3. **Restore a iplus-database file**
-Download the iplus-database file [on gipSoft's site](https://iplus-framework.com/en/Deploy/Serve?name=iPlusV4Database.zip).
+3. **Restore a iplus-database file**  
+Restore the SQL Server backup file located in the "Database" folder.
 
-4. **Open project in Microsoft Visual Studio:**
-Compile the solution an set gip.iplus.client.exe as start project.
-
-5. **Modify the ConnectionStrings.config file:**
+4. **Modify the ConnectionStrings.config file:**  
 Follow the instructions on [gipSoft's documentation site](https://iplus-framework.com/en/documentation/Read/Index/View/b00675a8-718c-4c13-9d6d-5e751397ac5f?chapterID=193d292e-df31-405e-a3e9-f1116846bf86#ItemTextTranslationID_d0551cc7-f767-4790-8ecb-8771836ebac7)
 
-6. Execute gip.iplus.client.exe
+5. **Open project in Microsoft Visual Studio:**  
+Compile the solution an set gip.iplus.client.exe as start project.
 
+6. **Execute gip.iplus.client.exe**  
+🤗 Have fun trying it out and watch our videos to get started. However, we recommend [online training](https://iplus-framework.com/en?section=Support%20%26%20Training#d57ccb45-9050-41cb-a177-9e8c05028931).
 
 ## Contributing
 
