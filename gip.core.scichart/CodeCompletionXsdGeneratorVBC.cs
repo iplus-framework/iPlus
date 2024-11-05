@@ -12,27 +12,17 @@ using System.Xml.Schema;
 
 namespace gip.core.scichart
 {
-    public class CodeCompletionXsdGeneratorVBC : MarshalByRefObject
+    public class CodeCompletionXsdGeneratorVBC
     {
         internal static XmlQualifiedName sNs = new XmlQualifiedName("http://schemas.abtsoftware.co.uk/scichart", "s");
         internal static XmlQualifiedName vbcNs = new XmlQualifiedName("http://www.iplus-framework.com/scichart/xaml", "vbc");
         internal static string vbcSchemaPath = @"\gip.core.scichart\VBXMLEditorSchemas\VBCSchema.xsd";
         internal static string sciChartSchemaPath = @"\gip.core.scichart\VBXMLEditorSchemas\SciChartSchema.xsd";
 
-
-        public override object InitializeLifetimeService()
-        {
-            var result = base.InitializeLifetimeService();
-
-            RunTool();
-
-            return result;
-        }
-
-        public void RunTool()
+        public static void RunTool()
         {
             CodeCompletionXsdGenerator gen = new CodeCompletionXsdGenerator();
-            CodeCompletionXsdGenerator.baseDir = AppContext.BaseDirectory + @"..\..\";
+            CodeCompletionXsdGenerator.baseDir = AppContext.BaseDirectory + @"..\..\..\..\";
 
             XmlSchemaImport importSchema = new XmlSchemaImport();
             importSchema.Namespace = CodeCompletionXsdGenerator.msNs.Name;

@@ -77,11 +77,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="CodeCompletionXsdGenerator.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>CodeCompletionXsdGenerator.tt</DependentUpon>
-    </Compile>
     <AppDesigner Include="Properties\" />
     <EmbeddedResource Include="VBXMLEditorSchemas\VBVSchema.xsd">
       <SubType>Designer</SubType>
@@ -119,12 +114,6 @@
     <Resource Include="Controls\VBOperatingMode\Themes\imageAuto.png" />
     <Resource Include="Controls\VBOperatingMode\Themes\imageMaint.png" />
     <Resource Include="Controls\VBOperatingMode\Themes\imageManual.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="CodeCompletionXsdGenerator.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>CodeCompletionXsdGenerator.cs</LastGenOutput>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

@@ -38,11 +38,6 @@
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>  
   <ItemGroup>
-    <Compile Update="CodeCompletionXsdGenerator.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>CodeCompletionXsdGenerator.tt</DependentUpon>
-    </Compile>
     <AppDesigner Include="Properties\" />
     <EmbeddedResource Include="VBXMLEditorSchemas\VBCSchema.xsd">
       <SubType>Designer</SubType>
@@ -54,12 +49,6 @@
   <ItemGroup>
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
     <ProjectReference Include="..\gip.core.layoutengine\gip.core.layoutengine.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="CodeCompletionXsdGenerator.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>CodeCompletionXsdGenerator.cs</LastGenOutput>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SciChart" Version="8.6.0.28199" />

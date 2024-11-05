@@ -855,6 +855,7 @@ namespace gip.bso.iplus
             return CurrentACClassDesign != null && !CurrentACClassDesign.IsDesignCompiled;
         }
 
+
         #endregion
 
         #region 1.1.3.1 ACClassMenu

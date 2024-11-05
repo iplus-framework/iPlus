@@ -16,24 +16,15 @@ namespace gip.core.reporthandlerwpf
     /// <summary>
     /// Code completion schema generator for VB report controls
     /// </summary>
-    public class CodeCompletionXsdGeneratorVBR : MarshalByRefObject
+    public class CodeCompletionXsdGeneratorVBR
     {
         internal static XmlQualifiedName vbrNs = new XmlQualifiedName("http://www.iplus-framework.com/report/xaml", "vbr");
         internal static string vbrSchemaPath = @"\gip.core.reporthandlerwpf\VBXMLEditorSchemas\VBRSchema.xsd";
 
-        public override object InitializeLifetimeService()
-        {
-            var result = base.InitializeLifetimeService();
-
-            RunTool();
-
-            return result;
-        }
-
-        public void RunTool()
+        public static void RunTool()
         {
             CodeCompletionXsdGenerator gen = new CodeCompletionXsdGenerator();
-            CodeCompletionXsdGenerator.baseDir = AppContext.BaseDirectory + @"..\..\";
+            CodeCompletionXsdGenerator.baseDir = AppContext.BaseDirectory + @"..\..\..\..\";
 
             XmlSchemaImport importSchema = new XmlSchemaImport();
             importSchema.Namespace = CodeCompletionXsdGenerator.msNs.Name;

@@ -12,24 +12,15 @@ using System.Xml.Schema;
 
 namespace gip.core.visualcontrols
 {
-    public class CodeCompletionXsdGeneratorVBV : MarshalByRefObject
+    public class CodeCompletionXsdGeneratorVBV
     {
         internal static XmlQualifiedName vbvNs = new XmlQualifiedName("http://www.iplus-framework.com/visual/xaml", "vbv");
         internal static string vbvSchemaPath = @"\gip.core.visualcontrols\VBXMLEditorSchemas\VBVSchema.xsd";
 
-        public override object InitializeLifetimeService()
-        {
-            var result = base.InitializeLifetimeService();
-
-            RunTool();
-
-            return result;
-        }
-
-        public void RunTool()
+        public static void RunTool()
         {
             CodeCompletionXsdGenerator gen = new CodeCompletionXsdGenerator();
-            CodeCompletionXsdGenerator.baseDir = AppContext.BaseDirectory + @"..\..\";
+            CodeCompletionXsdGenerator.baseDir = AppContext.BaseDirectory + @"..\..\..\..\";
 
             XmlSchemaImport importSchema = new XmlSchemaImport();
             importSchema.Namespace = CodeCompletionXsdGenerator.vbNs.Name;

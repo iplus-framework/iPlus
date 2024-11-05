@@ -341,23 +341,15 @@ namespace gip.core.layoutengine
     /// <summary>
     /// Code completion schema generator for VB controls
     /// </summary>
-    public class CodeCompletionXsdGeneratorVB : MarshalByRefObject
+    public class CodeCompletionXsdGeneratorVB
     {
-        public override object InitializeLifetimeService()
-        {
-            var result = base.InitializeLifetimeService();
-
-            RunTool();
-
-            return result;
-        }
         /// <summary>
         /// Run tool for gip.core.layoutengine
         /// </summary>
-        public void RunTool()
+        public static void RunTool()
         {
             CodeCompletionXsdGenerator gen = new CodeCompletionXsdGenerator();
-            CodeCompletionXsdGenerator.baseDir =  AppContext.BaseDirectory + @"..\..\";
+            CodeCompletionXsdGenerator.baseDir =  AppContext.BaseDirectory + @"..\..\..\..\";
 
             XmlSchemaImport importSchema = new XmlSchemaImport();
             importSchema.Namespace = CodeCompletionXsdGenerator.msNs.Name;

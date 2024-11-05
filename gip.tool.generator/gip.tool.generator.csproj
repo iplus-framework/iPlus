@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+    <UseWPF>True</UseWPF>
+    <StartupObject>gip.tool.generator.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\gip.core.layoutengine\gip.core.layoutengine.csproj" />
+    <ProjectReference Include="..\gip.core.reporthandlerwpf\gip.core.reporthandlerwpf.csproj" />
+    <ProjectReference Include="..\gip.core.scichart\gip.core.scichart.csproj" />
+    <ProjectReference Include="..\gip.core.visualcontrols\gip.core.visualcontrols.csproj" />
+  </ItemGroup>
+
+</Project>

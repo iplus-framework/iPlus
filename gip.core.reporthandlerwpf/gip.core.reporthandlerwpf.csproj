@@ -571,15 +571,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="CodeCompletionXsdGenerator.tt">
-			<Generator>TextTemplatingFileGenerator</Generator>
-			<LastGenOutput>CodeCompletionXsdGenerator.txt</LastGenOutput>
-		</None>
-		<None Update="CodeCompletionXsdGenerator.txt">
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>CodeCompletionXsdGenerator.tt</DependentUpon>
-		</None>
 		<None Update="Properties\Settings.settings">
 			<Generator>SettingsSingleFileGenerator</Generator>
 			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
