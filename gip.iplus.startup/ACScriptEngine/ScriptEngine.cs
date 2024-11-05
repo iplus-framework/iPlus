@@ -147,10 +147,14 @@ namespace gip.iplus.startup
 
             // TODO: Add references Should these be configurable?
             string dotNetPath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
+            string wpfPath = dotNetPath.Replace("Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App");
+            if (!Directory.Exists(wpfPath))
+                wpfPath = null;
 
             var references = new List<MetadataReference>();
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.dll"));
-            //references.Add(MetadataReference.CreateFromFile(dotNetPath + "WPF\\PresentationCore.dll"));
+            if (wpfPath != null)
+                references.Add(MetadataReference.CreateFromFile(wpfPath + "PresentationCore.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "WindowsBase.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Core.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Data.dll"));
@@ -160,8 +164,7 @@ namespace gip.iplus.startup
             {
                 try
                 {
-                    if (classAssembly.GlobalAssemblyCache
-                        || classAssembly.IsDynamic
+                    if (classAssembly.IsDynamic
                         || classAssembly.EntryPoint != null
                         || String.IsNullOrEmpty(classAssembly.Location))
                         continue;
@@ -190,7 +193,8 @@ namespace gip.iplus.startup
                 string assemblyNameAndPath = AppContext.BaseDirectory + refAssemblyTemp;
                 if (!System.IO.File.Exists(assemblyNameAndPath))
                     assemblyNameAndPath = System.IO.Path.Combine(dotNetPath, refAssemblyTemp);
-                if (!references.OfType<string>().Any(c => System.IO.Path.GetFileName(c) == refAssemblyTemp))
+
+                if (!references.OfType<PortableExecutableReference>().Any(c => System.IO.Path.GetFileName(c.FilePath) == refAssemblyTemp))
                     references.Add(MetadataReference.CreateFromFile(assemblyNameAndPath));
             }
 

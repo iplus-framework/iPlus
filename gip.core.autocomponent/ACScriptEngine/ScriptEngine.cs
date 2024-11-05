@@ -242,8 +242,6 @@ namespace gip.core.autocomponent
 
             ACRoot.SRoot.Messages.LogDebug(_ACType.GetACUrl(), "ScriptEngine.Compile()", String.Format("Complier {0}, DotNetPath {1}", compilationOptions, dotNetPath));
 
-
-
             var references = new List<MetadataReference>();
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.dll"));
             if (wpfPath != null)

@@ -26,6 +26,7 @@ using ICSharpCode.AvalonEdit.Editing;
 using Microsoft.CodeAnalysis.Rename;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Vml;
 
 namespace gip.core.layoutengine
 {
@@ -80,6 +81,7 @@ namespace gip.core.layoutengine
         private string _referencesArea;
         DocumentId _docId;
         string[] _roslynReferences;
+        IEnumerable<MetadataReference> _defaultReferences;
 
         #endregion
 
@@ -189,10 +191,46 @@ namespace gip.core.layoutengine
                     if (this.VBText == null)
                         this.VBText = "";
 
+                    string dotNetPath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
+                    string wpfPath = dotNetPath.Replace("Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App");
+                    if (!Directory.Exists(wpfPath))
+                        wpfPath = null;
+                    string exePath =  Database.Root.Environment.Rootpath;
+
+                    var references = new List<MetadataReference>();
+                    references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.dll"));
+                    if (wpfPath != null)
+                        references.Add(MetadataReference.CreateFromFile(wpfPath + "PresentationCore.dll"));
+                    references.Add(MetadataReference.CreateFromFile(dotNetPath + "WindowsBase.dll"));
+                    references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Core.dll"));
+                    references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Data.dll"));
+                    references.Add(MetadataReference.CreateFromFile(exePath + "Microsoft.EntityFrameworkCore.dll"));
+                    references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Runtime.dll"));
+                    foreach (Assembly classAssembly in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        try
+                        {
+                            if (//classAssembly.GlobalAssemblyCache
+                                //||
+                                classAssembly.IsDynamic
+                                || classAssembly.EntryPoint != null
+                                || String.IsNullOrEmpty(classAssembly.Location))
+                                continue;
+                            if (!references.Any(c => c.Display == classAssembly.Location))
+                                references.Add(MetadataReference.CreateFromFile(classAssembly.Location));
+                        }
+                        catch (Exception e)
+                        {
+                            Database.Root.Messages.LogDebug(this.GetACUrl(), "InitVBControl", String.Format("Exception1 {0}", e.Message));
+                        }
+                    }
+
+                    _defaultReferences = references;
+
                     //var assemblyPath = Directory.GetFiles(AppContext.BaseDirectory, "*.dll", SearchOption.TopDirectoryOnly);
                     try
                     {
-                        _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault.With(typeNamespaceImports: new[] { typeof(Object), typeof(Enumerable) }));
+                        _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault.With(references));
                     }
                     catch (Exception e)
                     {
@@ -205,7 +243,7 @@ namespace gip.core.layoutengine
                         }
                         try
                         {
-                            _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault.With(typeNamespaceImports: new[] { typeof(Object), typeof(Enumerable) }));
+                            _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault.With(references));
                         }
                         catch (Exception ec)
                         {
@@ -669,6 +707,9 @@ namespace gip.core.layoutengine
                         var refToRemove = project.MetadataReferences.Where(c => refsToRemove.Any(x => c.Display == x)).ToArray();
                         foreach(var refRem in refToRemove)
                         {
+                            if (_defaultReferences != null && _defaultReferences.Any(c => c.Display != null && c.Display == refRem.Display))
+                                continue;
+
                             project = project.RemoveMetadataReference(refRem);
                         }
 
