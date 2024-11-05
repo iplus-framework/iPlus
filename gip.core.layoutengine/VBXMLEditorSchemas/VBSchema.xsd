@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<xs:schema xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:vb="http://www.iplus-framework.com/xaml" targetNamespace="http://www.iplus-framework.com/xaml" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:vb="http://www.iplus-framework.com/xaml" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" targetNamespace="http://www.iplus-framework.com/xaml" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:import schemaLocation="pack://application:,,,/gip.core.layoutengine;component/VBXMLEditorSchemas/XamlPresentation2006.xsd" namespace="http://schemas.microsoft.com/winfx/2006/xaml/presentation" />
   <xs:simpleType name="enumFlowDirection">
     <xs:restriction base="xs:string">
@@ -390,6 +390,7 @@
           <xs:element name="VBAutoCompleteBox.ACCaptionTrans" />
           <xs:element name="VBAutoCompleteBox.ShowCaption" />
           <xs:element name="VBAutoCompleteBox.IsEnabledScrollIntoView" />
+          <xs:element name="VBAutoCompleteBox.CyclicDataRefresh" type="dInt32Container" />
           <xs:element name="VBAutoCompleteBox.WidthCaption" type="dGridLengthContainer" />
           <xs:element name="VBAutoCompleteBox.WidthCaptionMax" type="dDoubleContainer" />
           <xs:element name="VBAutoCompleteBox.WidthContent" type="dGridLengthContainer" />
@@ -401,6 +402,7 @@
           <xs:element name="VBAutoCompleteBox.VBShowColumns" />
           <xs:element name="VBAutoCompleteBox.VBDisabledColumns" />
           <xs:element name="VBAutoCompleteBox.VBChilds" />
+          <xs:element name="VBAutoCompleteBox.VBAccess" />
           <xs:element name="VBAutoCompleteBox.BSOACComponent" />
           <xs:element name="VBAutoCompleteBox.ACCompInitState" />
           <xs:element name="VBAutoCompleteBox.DblClick" />
@@ -547,6 +549,7 @@
         <xs:attribute name="ACCaptionTrans" />
         <xs:attribute name="ShowCaption" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="IsEnabledScrollIntoView" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="CyclicDataRefresh" />
         <xs:attribute name="WidthCaption" />
         <xs:attribute name="WidthCaptionMax" />
         <xs:attribute name="WidthContent" />
@@ -558,6 +561,7 @@
         <xs:attribute name="VBShowColumns" />
         <xs:attribute name="VBDisabledColumns" />
         <xs:attribute name="VBChilds" />
+        <xs:attribute name="VBAccess" />
         <xs:attribute name="BSOACComponent" />
         <xs:attribute name="ACCompInitState" type="vb:enumACInitState" />
         <xs:attribute name="DblClick" />
@@ -2899,6 +2903,14 @@
       <xs:documentation>Used within the template of a gip.core.layoutengine.VBDataGrid" /&gt; to specify the location in the control's visual tree where the column headers are to be added.</xs:documentation>
     </xs:annotation>
   </xs:element>
+  <xs:simpleType name="enumUpdateSourceTrigger">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Default" />
+      <xs:enumeration value="PropertyChanged" />
+      <xs:enumeration value="LostFocus" />
+      <xs:enumeration value="Explicit" />
+    </xs:restriction>
+  </xs:simpleType>
   <xs:complexType name="VBDataGridComboBoxColumn">
     <xs:complexContent mixed="true">
       <xs:extension base="dDataGridComboBoxColumn">
@@ -2907,6 +2919,7 @@
           <xs:element name="VBDataGridComboBoxColumn.VBContent" />
           <xs:element name="VBDataGridComboBoxColumn.VBIsReadOnly" />
           <xs:element name="VBDataGridComboBoxColumn.IsEditable" />
+          <xs:element name="VBDataGridComboBoxColumn.UpdateSourceTrigger" />
           <xs:element name="VBDataGridComboBoxColumn.VBShowColumns" />
           <xs:element name="VBDataGridComboBoxColumn.SelectedValueBinding" type="dBindingBaseContainer" />
           <xs:element name="VBDataGridComboBoxColumn.SelectedItemBinding" type="dBindingBaseContainer" />
@@ -2949,6 +2962,7 @@
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="IsEditable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UpdateSourceTrigger" type="vb:enumUpdateSourceTrigger" />
         <xs:attribute name="VBShowColumns">
           <xs:annotation>
             <xs:documentation>Gets or sets the VBShow columns.</xs:documentation>
@@ -5453,6 +5467,108 @@
       <xs:documentation xml:lang="de">Stellt einen Dekorateur dar, der ausgewählte Designobjekte schmückt.</xs:documentation>
     </xs:annotation>
   </xs:element>
+  <xs:complexType name="VBDesignVBContentAdorner">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dAdorner">
+        <xs:sequence>
+          <xs:group ref="vb:VBControls" />
+          <xs:element name="VBDesignVBContentAdorner.IsClipEnabled" />
+          <xs:element name="VBDesignVBContentAdorner.Style" type="dStyleContainer" />
+          <xs:element name="VBDesignVBContentAdorner.OverridesDefaultStyle" />
+          <xs:element name="VBDesignVBContentAdorner.UseLayoutRounding" />
+          <xs:element name="VBDesignVBContentAdorner.Resources" />
+          <xs:element name="VBDesignVBContentAdorner.DataContext" type="dObjectContainer" />
+          <xs:element name="VBDesignVBContentAdorner.BindingGroup" />
+          <xs:element name="VBDesignVBContentAdorner.Language" type="dXmlLanguageContainer" />
+          <xs:element name="VBDesignVBContentAdorner.Name" />
+          <xs:element name="VBDesignVBContentAdorner.Tag" type="dObjectContainer" />
+          <xs:element name="VBDesignVBContentAdorner.InputScope" type="dInputScopeContainer" />
+          <xs:element name="VBDesignVBContentAdorner.LayoutTransform" type="dTransformContainer" />
+          <xs:element name="VBDesignVBContentAdorner.Width" type="dDoubleContainer" />
+          <xs:element name="VBDesignVBContentAdorner.MinWidth" type="dDoubleContainer" />
+          <xs:element name="VBDesignVBContentAdorner.MaxWidth" type="dDoubleContainer" />
+          <xs:element name="VBDesignVBContentAdorner.Height" type="dDoubleContainer" />
+          <xs:element name="VBDesignVBContentAdorner.MinHeight" type="dDoubleContainer" />
+          <xs:element name="VBDesignVBContentAdorner.MaxHeight" type="dDoubleContainer" />
+          <xs:element name="VBDesignVBContentAdorner.FlowDirection" />
+          <xs:element name="VBDesignVBContentAdorner.Margin" type="dThicknessContainer" />
+          <xs:element name="VBDesignVBContentAdorner.HorizontalAlignment" />
+          <xs:element name="VBDesignVBContentAdorner.VerticalAlignment" />
+          <xs:element name="VBDesignVBContentAdorner.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="VBDesignVBContentAdorner.Cursor" type="dCursorContainer" />
+          <xs:element name="VBDesignVBContentAdorner.ForceCursor" />
+          <xs:element name="VBDesignVBContentAdorner.ToolTip" type="dObjectContainer" />
+          <xs:element name="VBDesignVBContentAdorner.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="VBDesignVBContentAdorner.AllowDrop" />
+          <xs:element name="VBDesignVBContentAdorner.RenderSize" type="dSizeContainer" />
+          <xs:element name="VBDesignVBContentAdorner.RenderTransform" type="dTransformContainer" />
+          <xs:element name="VBDesignVBContentAdorner.RenderTransformOrigin" type="dPointContainer" />
+          <xs:element name="VBDesignVBContentAdorner.Opacity" type="dDoubleContainer" />
+          <xs:element name="VBDesignVBContentAdorner.OpacityMask" type="dBrushContainer" />
+          <xs:element name="VBDesignVBContentAdorner.BitmapEffect" type="dBitmapEffectContainer" />
+          <xs:element name="VBDesignVBContentAdorner.Effect" />
+          <xs:element name="VBDesignVBContentAdorner.BitmapEffectInput" type="dBitmapEffectInputContainer" />
+          <xs:element name="VBDesignVBContentAdorner.CacheMode" />
+          <xs:element name="VBDesignVBContentAdorner.Uid" />
+          <xs:element name="VBDesignVBContentAdorner.Visibility" />
+          <xs:element name="VBDesignVBContentAdorner.ClipToBounds" />
+          <xs:element name="VBDesignVBContentAdorner.Clip" type="dGeometryContainer" />
+          <xs:element name="VBDesignVBContentAdorner.SnapsToDevicePixels" />
+          <xs:element name="VBDesignVBContentAdorner.IsEnabled" />
+          <xs:element name="VBDesignVBContentAdorner.IsHitTestVisible" />
+          <xs:element name="VBDesignVBContentAdorner.Focusable" />
+          <xs:element name="VBDesignVBContentAdorner.IsManipulationEnabled" />
+        </xs:sequence>
+        <xs:attribute name="IsClipEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UseLayoutRounding" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="LayoutTransform" />
+        <xs:attribute name="Width" />
+        <xs:attribute name="MinWidth" />
+        <xs:attribute name="MaxWidth" />
+        <xs:attribute name="Height" />
+        <xs:attribute name="MinHeight" />
+        <xs:attribute name="MaxHeight" />
+        <xs:attribute name="FlowDirection" type="vb:enumFlowDirection" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="HorizontalAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="RenderSize" />
+        <xs:attribute name="RenderTransform" />
+        <xs:attribute name="RenderTransformOrigin" />
+        <xs:attribute name="Opacity" />
+        <xs:attribute name="OpacityMask" />
+        <xs:attribute name="BitmapEffect" />
+        <xs:attribute name="Effect" />
+        <xs:attribute name="BitmapEffectInput" />
+        <xs:attribute name="CacheMode" />
+        <xs:attribute name="Uid" />
+        <xs:attribute name="Visibility" type="vb:enumVisibility" />
+        <xs:attribute name="ClipToBounds" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Clip" />
+        <xs:attribute name="SnapsToDevicePixels" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHitTestVisible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsManipulationEnabled" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VBDesignVBContentAdorner" type="vb:VBDesignVBContentAdorner" />
   <xs:complexType name="VBDynamicContent">
     <xs:complexContent mixed="true">
       <xs:extension base="vb:VBDesignBase">
@@ -5470,7 +5586,9 @@
           <xs:element name="VBDynamicContent.ACIdentifier" />
           <xs:element name="VBDynamicContent.CanExecuteCyclic" type="dInt32Container" />
           <xs:element name="VBDynamicContent.DisableContextMenu" />
+          <xs:element name="VBDynamicContent.DragEnabled" />
           <xs:element name="VBDynamicContent.StringFormat" />
+          <xs:element name="VBDynamicContent.AnimationOff" />
           <xs:element name="VBDynamicContent.RightControlMode" />
           <xs:element name="VBDynamicContent.VBContent" />
           <xs:element name="VBDynamicContent.ShowAdornerLayer" />
@@ -5573,7 +5691,9 @@
         <xs:attribute name="ACIdentifier" />
         <xs:attribute name="CanExecuteCyclic" />
         <xs:attribute name="DisableContextMenu" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="DragEnabled" type="vb:enumDragMode" />
         <xs:attribute name="StringFormat" />
+        <xs:attribute name="AnimationOff" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="RightControlMode" type="vb:enumControlModes" />
         <xs:attribute name="VBContent" />
         <xs:attribute name="ShowAdornerLayer" type="frlrfSystemBooleanClassTopic" />
@@ -6116,6 +6236,462 @@
     <xs:annotation>
       <xs:documentation>Represents the control that shows data in flip view.</xs:documentation>
       <xs:documentation xml:lang="de">Stellt das Steuerelement dar, das Daten in der Flip-Ansicht anzeigt.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:simpleType name="enumScrollBarVisibility">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Disabled" />
+      <xs:enumeration value="Auto" />
+      <xs:enumeration value="Hidden" />
+      <xs:enumeration value="Visible" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="VBFlowDocumentScrollViewer">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dFlowDocumentScrollViewer">
+        <xs:sequence>
+          <xs:group ref="vb:VBControls" />
+          <xs:element name="VBFlowDocumentScrollViewer.Document" />
+          <xs:element name="VBFlowDocumentScrollViewer.Zoom" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.MaxZoom" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.MinZoom" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.ZoomIncrement" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.IsSelectionEnabled" />
+          <xs:element name="VBFlowDocumentScrollViewer.IsToolBarVisible" />
+          <xs:element name="VBFlowDocumentScrollViewer.HorizontalScrollBarVisibility" />
+          <xs:element name="VBFlowDocumentScrollViewer.VerticalScrollBarVisibility" />
+          <xs:element name="VBFlowDocumentScrollViewer.SelectionBrush" type="dBrushContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.SelectionOpacity" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.IsInactiveSelectionHighlightEnabled" />
+          <xs:element name="VBFlowDocumentScrollViewer.BorderBrush" type="dBrushContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.BorderThickness" type="dThicknessContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.Background" type="dBrushContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.Foreground" type="dBrushContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.FontSize" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.HorizontalContentAlignment" />
+          <xs:element name="VBFlowDocumentScrollViewer.VerticalContentAlignment" />
+          <xs:element name="VBFlowDocumentScrollViewer.TabIndex" type="dInt32Container" />
+          <xs:element name="VBFlowDocumentScrollViewer.IsTabStop" />
+          <xs:element name="VBFlowDocumentScrollViewer.Padding" type="dThicknessContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.Template" type="dControlTemplateContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.Style" type="dStyleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.OverridesDefaultStyle" />
+          <xs:element name="VBFlowDocumentScrollViewer.UseLayoutRounding" />
+          <xs:element name="VBFlowDocumentScrollViewer.Resources" />
+          <xs:element name="VBFlowDocumentScrollViewer.DataContext" type="dObjectContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.BindingGroup" />
+          <xs:element name="VBFlowDocumentScrollViewer.Language" type="dXmlLanguageContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.Name" />
+          <xs:element name="VBFlowDocumentScrollViewer.Tag" type="dObjectContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.InputScope" type="dInputScopeContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.LayoutTransform" type="dTransformContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.Width" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.MinWidth" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.MaxWidth" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.Height" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.MinHeight" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.MaxHeight" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.FlowDirection" />
+          <xs:element name="VBFlowDocumentScrollViewer.Margin" type="dThicknessContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.HorizontalAlignment" />
+          <xs:element name="VBFlowDocumentScrollViewer.VerticalAlignment" />
+          <xs:element name="VBFlowDocumentScrollViewer.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.Cursor" type="dCursorContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.ForceCursor" />
+          <xs:element name="VBFlowDocumentScrollViewer.ToolTip" type="dObjectContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.AllowDrop" />
+          <xs:element name="VBFlowDocumentScrollViewer.RenderSize" type="dSizeContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.RenderTransform" type="dTransformContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.RenderTransformOrigin" type="dPointContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.Opacity" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.OpacityMask" type="dBrushContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.BitmapEffect" type="dBitmapEffectContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.Effect" />
+          <xs:element name="VBFlowDocumentScrollViewer.BitmapEffectInput" type="dBitmapEffectInputContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.CacheMode" />
+          <xs:element name="VBFlowDocumentScrollViewer.Uid" />
+          <xs:element name="VBFlowDocumentScrollViewer.Visibility" />
+          <xs:element name="VBFlowDocumentScrollViewer.ClipToBounds" />
+          <xs:element name="VBFlowDocumentScrollViewer.Clip" type="dGeometryContainer" />
+          <xs:element name="VBFlowDocumentScrollViewer.SnapsToDevicePixels" />
+          <xs:element name="VBFlowDocumentScrollViewer.IsEnabled" />
+          <xs:element name="VBFlowDocumentScrollViewer.IsHitTestVisible" />
+          <xs:element name="VBFlowDocumentScrollViewer.Focusable" />
+          <xs:element name="VBFlowDocumentScrollViewer.IsManipulationEnabled" />
+        </xs:sequence>
+        <xs:attribute name="Document" />
+        <xs:attribute name="Zoom" />
+        <xs:attribute name="MaxZoom" />
+        <xs:attribute name="MinZoom" />
+        <xs:attribute name="ZoomIncrement" />
+        <xs:attribute name="IsSelectionEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsToolBarVisible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="HorizontalScrollBarVisibility" type="vb:enumScrollBarVisibility" />
+        <xs:attribute name="VerticalScrollBarVisibility" type="vb:enumScrollBarVisibility" />
+        <xs:attribute name="SelectionBrush" />
+        <xs:attribute name="SelectionOpacity" />
+        <xs:attribute name="IsInactiveSelectionHighlightEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="BorderBrush" />
+        <xs:attribute name="BorderThickness" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="HorizontalContentAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalContentAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="TabIndex" />
+        <xs:attribute name="IsTabStop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Padding" />
+        <xs:attribute name="Template" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UseLayoutRounding" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="LayoutTransform" />
+        <xs:attribute name="Width" />
+        <xs:attribute name="MinWidth" />
+        <xs:attribute name="MaxWidth" />
+        <xs:attribute name="Height" />
+        <xs:attribute name="MinHeight" />
+        <xs:attribute name="MaxHeight" />
+        <xs:attribute name="FlowDirection" type="vb:enumFlowDirection" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="HorizontalAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="RenderSize" />
+        <xs:attribute name="RenderTransform" />
+        <xs:attribute name="RenderTransformOrigin" />
+        <xs:attribute name="Opacity" />
+        <xs:attribute name="OpacityMask" />
+        <xs:attribute name="BitmapEffect" />
+        <xs:attribute name="Effect" />
+        <xs:attribute name="BitmapEffectInput" />
+        <xs:attribute name="CacheMode" />
+        <xs:attribute name="Uid" />
+        <xs:attribute name="Visibility" type="vb:enumVisibility" />
+        <xs:attribute name="ClipToBounds" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Clip" />
+        <xs:attribute name="SnapsToDevicePixels" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHitTestVisible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsManipulationEnabled" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VBFlowDocumentScrollViewer" type="vb:VBFlowDocumentScrollViewer" />
+  <xs:simpleType name="enumTextAlignment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Left" />
+      <xs:enumeration value="Right" />
+      <xs:enumeration value="Center" />
+      <xs:enumeration value="Justify" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumLineStackingStrategy">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BlockLineHeight" />
+      <xs:enumeration value="MaxHeight" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="VBFlowDocument">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dFlowDocument">
+        <xs:sequence>
+          <xs:group ref="vb:VBControls" />
+          <xs:element name="VBFlowDocument.CodePage" type="dInt32Container" />
+          <xs:element name="VBFlowDocument.Custom01" />
+          <xs:element name="VBFlowDocument.Custom02" />
+          <xs:element name="VBFlowDocument.CustomInt01" type="dInt32Container" />
+          <xs:element name="VBFlowDocument.CustomInt02" type="dInt32Container" />
+          <xs:element name="VBFlowDocument.CustomInt03" type="dInt32Container" />
+          <xs:element name="VBFlowDocument.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="VBFlowDocument.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="VBFlowDocument.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="VBFlowDocument.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="VBFlowDocument.FontSize" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocument.Foreground" type="dBrushContainer" />
+          <xs:element name="VBFlowDocument.Background" type="dBrushContainer" />
+          <xs:element name="VBFlowDocument.TextEffects" />
+          <xs:element name="VBFlowDocument.TextAlignment" />
+          <xs:element name="VBFlowDocument.FlowDirection" />
+          <xs:element name="VBFlowDocument.LineHeight" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocument.LineStackingStrategy" />
+          <xs:element name="VBFlowDocument.ColumnWidth" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocument.ColumnGap" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocument.IsColumnWidthFlexible" />
+          <xs:element name="VBFlowDocument.ColumnRuleWidth" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocument.ColumnRuleBrush" type="dBrushContainer" />
+          <xs:element name="VBFlowDocument.IsOptimalParagraphEnabled" />
+          <xs:element name="VBFlowDocument.PageWidth" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocument.MinPageWidth" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocument.MaxPageWidth" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocument.PageHeight" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocument.MinPageHeight" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocument.MaxPageHeight" type="dDoubleContainer" />
+          <xs:element name="VBFlowDocument.PagePadding" type="dThicknessContainer" />
+          <xs:element name="VBFlowDocument.IsHyphenationEnabled" />
+          <xs:element name="VBFlowDocument.Style" type="dStyleContainer" />
+          <xs:element name="VBFlowDocument.OverridesDefaultStyle" />
+          <xs:element name="VBFlowDocument.Resources" />
+          <xs:element name="VBFlowDocument.Name" />
+          <xs:element name="VBFlowDocument.Tag" type="dObjectContainer" />
+          <xs:element name="VBFlowDocument.Language" type="dXmlLanguageContainer" />
+          <xs:element name="VBFlowDocument.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="VBFlowDocument.Cursor" type="dCursorContainer" />
+          <xs:element name="VBFlowDocument.ForceCursor" />
+          <xs:element name="VBFlowDocument.InputScope" type="dInputScopeContainer" />
+          <xs:element name="VBFlowDocument.DataContext" type="dObjectContainer" />
+          <xs:element name="VBFlowDocument.BindingGroup" />
+          <xs:element name="VBFlowDocument.ToolTip" type="dObjectContainer" />
+          <xs:element name="VBFlowDocument.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="VBFlowDocument.IsEnabled" />
+          <xs:element name="VBFlowDocument.Focusable" />
+          <xs:element name="VBFlowDocument.AllowDrop" />
+        </xs:sequence>
+        <xs:attribute name="CodePage" />
+        <xs:attribute name="Custom01" />
+        <xs:attribute name="Custom02" />
+        <xs:attribute name="CustomInt01" />
+        <xs:attribute name="CustomInt02" />
+        <xs:attribute name="CustomInt03" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="TextEffects" />
+        <xs:attribute name="TextAlignment" type="vb:enumTextAlignment" />
+        <xs:attribute name="FlowDirection" type="vb:enumFlowDirection" />
+        <xs:attribute name="LineHeight" />
+        <xs:attribute name="LineStackingStrategy" type="vb:enumLineStackingStrategy" />
+        <xs:attribute name="ColumnWidth" />
+        <xs:attribute name="ColumnGap" />
+        <xs:attribute name="IsColumnWidthFlexible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ColumnRuleWidth" />
+        <xs:attribute name="ColumnRuleBrush" />
+        <xs:attribute name="IsOptimalParagraphEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="PageWidth" />
+        <xs:attribute name="MinPageWidth" />
+        <xs:attribute name="MaxPageWidth" />
+        <xs:attribute name="PageHeight" />
+        <xs:attribute name="MinPageHeight" />
+        <xs:attribute name="MaxPageHeight" />
+        <xs:attribute name="PagePadding" />
+        <xs:attribute name="IsHyphenationEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VBFlowDocument" type="vb:VBFlowDocument" />
+  <xs:simpleType name="enumNavigationUIVisibility">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Automatic" />
+      <xs:enumeration value="Visible" />
+      <xs:enumeration value="Hidden" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumJournalOwnership">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Automatic" />
+      <xs:enumeration value="OwnsJournal" />
+      <xs:enumeration value="UsesParentJournal" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="VBFrameController">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dFrame">
+        <xs:sequence>
+          <xs:group ref="vb:VBControls" />
+          <xs:element name="VBFrameController.VBContent" />
+          <xs:element name="VBFrameController.Source" type="dUriContainer" />
+          <xs:element name="VBFrameController.NavigationUIVisibility" />
+          <xs:element name="VBFrameController.SandboxExternalContent" />
+          <xs:element name="VBFrameController.JournalOwnership" />
+          <xs:element name="VBFrameController.Content" type="dObjectContainer" />
+          <xs:element name="VBFrameController.ContentTemplate" type="dDataTemplateContainer" />
+          <xs:element name="VBFrameController.ContentTemplateSelector" type="dDataTemplateSelectorContainer" />
+          <xs:element name="VBFrameController.ContentStringFormat" />
+          <xs:element name="VBFrameController.BorderBrush" type="dBrushContainer" />
+          <xs:element name="VBFrameController.BorderThickness" type="dThicknessContainer" />
+          <xs:element name="VBFrameController.Background" type="dBrushContainer" />
+          <xs:element name="VBFrameController.Foreground" type="dBrushContainer" />
+          <xs:element name="VBFrameController.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="VBFrameController.FontSize" type="dDoubleContainer" />
+          <xs:element name="VBFrameController.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="VBFrameController.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="VBFrameController.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="VBFrameController.HorizontalContentAlignment" />
+          <xs:element name="VBFrameController.VerticalContentAlignment" />
+          <xs:element name="VBFrameController.TabIndex" type="dInt32Container" />
+          <xs:element name="VBFrameController.IsTabStop" />
+          <xs:element name="VBFrameController.Padding" type="dThicknessContainer" />
+          <xs:element name="VBFrameController.Template" type="dControlTemplateContainer" />
+          <xs:element name="VBFrameController.Style" type="dStyleContainer" />
+          <xs:element name="VBFrameController.OverridesDefaultStyle" />
+          <xs:element name="VBFrameController.UseLayoutRounding" />
+          <xs:element name="VBFrameController.Resources" />
+          <xs:element name="VBFrameController.DataContext" type="dObjectContainer" />
+          <xs:element name="VBFrameController.BindingGroup" />
+          <xs:element name="VBFrameController.Language" type="dXmlLanguageContainer" />
+          <xs:element name="VBFrameController.Name" />
+          <xs:element name="VBFrameController.Tag" type="dObjectContainer" />
+          <xs:element name="VBFrameController.InputScope" type="dInputScopeContainer" />
+          <xs:element name="VBFrameController.LayoutTransform" type="dTransformContainer" />
+          <xs:element name="VBFrameController.Width" type="dDoubleContainer" />
+          <xs:element name="VBFrameController.MinWidth" type="dDoubleContainer" />
+          <xs:element name="VBFrameController.MaxWidth" type="dDoubleContainer" />
+          <xs:element name="VBFrameController.Height" type="dDoubleContainer" />
+          <xs:element name="VBFrameController.MinHeight" type="dDoubleContainer" />
+          <xs:element name="VBFrameController.MaxHeight" type="dDoubleContainer" />
+          <xs:element name="VBFrameController.FlowDirection" />
+          <xs:element name="VBFrameController.Margin" type="dThicknessContainer" />
+          <xs:element name="VBFrameController.HorizontalAlignment" />
+          <xs:element name="VBFrameController.VerticalAlignment" />
+          <xs:element name="VBFrameController.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="VBFrameController.Cursor" type="dCursorContainer" />
+          <xs:element name="VBFrameController.ForceCursor" />
+          <xs:element name="VBFrameController.ToolTip" type="dObjectContainer" />
+          <xs:element name="VBFrameController.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="VBFrameController.AllowDrop" />
+          <xs:element name="VBFrameController.RenderSize" type="dSizeContainer" />
+          <xs:element name="VBFrameController.RenderTransform" type="dTransformContainer" />
+          <xs:element name="VBFrameController.RenderTransformOrigin" type="dPointContainer" />
+          <xs:element name="VBFrameController.Opacity" type="dDoubleContainer" />
+          <xs:element name="VBFrameController.OpacityMask" type="dBrushContainer" />
+          <xs:element name="VBFrameController.BitmapEffect" type="dBitmapEffectContainer" />
+          <xs:element name="VBFrameController.Effect" />
+          <xs:element name="VBFrameController.BitmapEffectInput" type="dBitmapEffectInputContainer" />
+          <xs:element name="VBFrameController.CacheMode" />
+          <xs:element name="VBFrameController.Uid" />
+          <xs:element name="VBFrameController.Visibility" />
+          <xs:element name="VBFrameController.ClipToBounds" />
+          <xs:element name="VBFrameController.Clip" type="dGeometryContainer" />
+          <xs:element name="VBFrameController.SnapsToDevicePixels" />
+          <xs:element name="VBFrameController.IsEnabled" />
+          <xs:element name="VBFrameController.IsHitTestVisible" />
+          <xs:element name="VBFrameController.Focusable" />
+          <xs:element name="VBFrameController.IsManipulationEnabled" />
+        </xs:sequence>
+        <xs:attribute name="VBContent">
+          <xs:annotation>
+            <xs:documentation>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
+            The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
+            ACUrl's can be either absolute or relative to the DataContext of the parent WPFControl (or the ContextACObject of the parent IACInteractiveObject)</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="Source" />
+        <xs:attribute name="NavigationUIVisibility" type="vb:enumNavigationUIVisibility" />
+        <xs:attribute name="SandboxExternalContent" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="JournalOwnership" type="vb:enumJournalOwnership" />
+        <xs:attribute name="Content" />
+        <xs:attribute name="ContentTemplate" />
+        <xs:attribute name="ContentTemplateSelector" />
+        <xs:attribute name="ContentStringFormat" />
+        <xs:attribute name="BorderBrush" />
+        <xs:attribute name="BorderThickness" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="HorizontalContentAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalContentAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="TabIndex" />
+        <xs:attribute name="IsTabStop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Padding" />
+        <xs:attribute name="Template" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UseLayoutRounding" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="LayoutTransform" />
+        <xs:attribute name="Width" />
+        <xs:attribute name="MinWidth" />
+        <xs:attribute name="MaxWidth" />
+        <xs:attribute name="Height" />
+        <xs:attribute name="MinHeight" />
+        <xs:attribute name="MaxHeight" />
+        <xs:attribute name="FlowDirection" type="vb:enumFlowDirection" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="HorizontalAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="RenderSize" />
+        <xs:attribute name="RenderTransform" />
+        <xs:attribute name="RenderTransformOrigin" />
+        <xs:attribute name="Opacity" />
+        <xs:attribute name="OpacityMask" />
+        <xs:attribute name="BitmapEffect" />
+        <xs:attribute name="Effect" />
+        <xs:attribute name="BitmapEffectInput" />
+        <xs:attribute name="CacheMode" />
+        <xs:attribute name="Uid" />
+        <xs:attribute name="Visibility" type="vb:enumVisibility" />
+        <xs:attribute name="ClipToBounds" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Clip" />
+        <xs:attribute name="SnapsToDevicePixels" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHitTestVisible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsManipulationEnabled" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VBFrameController" type="vb:VBFrameController">
+    <xs:annotation>
+      <xs:documentation>VBFrameController</xs:documentation>
     </xs:annotation>
   </xs:element>
   <xs:complexType name="VBGanttChart">
@@ -7015,6 +7591,210 @@
       <xs:documentation>Interaction logic for VBGraphSurface.xaml</xs:documentation>
     </xs:annotation>
   </xs:element>
+  <xs:complexType name="VBMenuItemMobile">
+    <xs:complexContent mixed="true">
+      <xs:extension base="vb:VBMenuItem">
+        <xs:sequence>
+          <xs:group ref="vb:VBControls" />
+          <xs:element name="VBMenuItemMobile.VBContentValueType" />
+          <xs:element name="VBMenuItemMobile.VBContent" />
+          <xs:element name="VBMenuItemMobile.ACCaption" />
+          <xs:element name="VBMenuItemMobile.ContextACObject" />
+          <xs:element name="VBMenuItemMobile.ACCommand" />
+          <xs:element name="VBMenuItemMobile.IsAutoEnabled" />
+          <xs:element name="VBMenuItemMobile.Command" type="dICommandContainer" />
+          <xs:element name="VBMenuItemMobile.CommandParameter" type="dObjectContainer" />
+          <xs:element name="VBMenuItemMobile.CommandTarget" type="dIInputElementContainer" />
+          <xs:element name="VBMenuItemMobile.IsSubmenuOpen" />
+          <xs:element name="VBMenuItemMobile.IsCheckable" />
+          <xs:element name="VBMenuItemMobile.IsPressed" />
+          <xs:element name="VBMenuItemMobile.IsHighlighted" />
+          <xs:element name="VBMenuItemMobile.IsChecked" />
+          <xs:element name="VBMenuItemMobile.StaysOpenOnClick" />
+          <xs:element name="VBMenuItemMobile.InputGestureText" />
+          <xs:element name="VBMenuItemMobile.Icon" type="dObjectContainer" />
+          <xs:element name="VBMenuItemMobile.IsSuspendingPopupAnimation" />
+          <xs:element name="VBMenuItemMobile.ItemContainerTemplateSelector" />
+          <xs:element name="VBMenuItemMobile.UsesItemContainerTemplate" />
+          <xs:element name="VBMenuItemMobile.Header" type="dObjectContainer" />
+          <xs:element name="VBMenuItemMobile.HeaderTemplate" type="dDataTemplateContainer" />
+          <xs:element name="VBMenuItemMobile.HeaderTemplateSelector" type="dDataTemplateSelectorContainer" />
+          <xs:element name="VBMenuItemMobile.HeaderStringFormat" />
+          <xs:element name="VBMenuItemMobile.ItemsSource" type="dIEnumerableContainer" />
+          <xs:element name="VBMenuItemMobile.DisplayMemberPath" />
+          <xs:element name="VBMenuItemMobile.ItemTemplate" type="dDataTemplateContainer" />
+          <xs:element name="VBMenuItemMobile.ItemTemplateSelector" type="dDataTemplateSelectorContainer" />
+          <xs:element name="VBMenuItemMobile.ItemStringFormat" />
+          <xs:element name="VBMenuItemMobile.ItemBindingGroup" />
+          <xs:element name="VBMenuItemMobile.ItemContainerStyle" type="dStyleContainer" />
+          <xs:element name="VBMenuItemMobile.ItemContainerStyleSelector" type="dStyleSelectorContainer" />
+          <xs:element name="VBMenuItemMobile.ItemsPanel" type="dItemsPanelTemplateContainer" />
+          <xs:element name="VBMenuItemMobile.GroupStyleSelector" type="dGroupStyleSelectorContainer" />
+          <xs:element name="VBMenuItemMobile.AlternationCount" type="dInt32Container" />
+          <xs:element name="VBMenuItemMobile.IsTextSearchEnabled" />
+          <xs:element name="VBMenuItemMobile.IsTextSearchCaseSensitive" />
+          <xs:element name="VBMenuItemMobile.BorderBrush" type="dBrushContainer" />
+          <xs:element name="VBMenuItemMobile.BorderThickness" type="dThicknessContainer" />
+          <xs:element name="VBMenuItemMobile.Background" type="dBrushContainer" />
+          <xs:element name="VBMenuItemMobile.Foreground" type="dBrushContainer" />
+          <xs:element name="VBMenuItemMobile.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="VBMenuItemMobile.FontSize" type="dDoubleContainer" />
+          <xs:element name="VBMenuItemMobile.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="VBMenuItemMobile.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="VBMenuItemMobile.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="VBMenuItemMobile.HorizontalContentAlignment" />
+          <xs:element name="VBMenuItemMobile.VerticalContentAlignment" />
+          <xs:element name="VBMenuItemMobile.TabIndex" type="dInt32Container" />
+          <xs:element name="VBMenuItemMobile.IsTabStop" />
+          <xs:element name="VBMenuItemMobile.Padding" type="dThicknessContainer" />
+          <xs:element name="VBMenuItemMobile.Template" type="dControlTemplateContainer" />
+          <xs:element name="VBMenuItemMobile.Style" type="dStyleContainer" />
+          <xs:element name="VBMenuItemMobile.OverridesDefaultStyle" />
+          <xs:element name="VBMenuItemMobile.UseLayoutRounding" />
+          <xs:element name="VBMenuItemMobile.Resources" />
+          <xs:element name="VBMenuItemMobile.DataContext" type="dObjectContainer" />
+          <xs:element name="VBMenuItemMobile.BindingGroup" />
+          <xs:element name="VBMenuItemMobile.Language" type="dXmlLanguageContainer" />
+          <xs:element name="VBMenuItemMobile.Name" />
+          <xs:element name="VBMenuItemMobile.Tag" type="dObjectContainer" />
+          <xs:element name="VBMenuItemMobile.InputScope" type="dInputScopeContainer" />
+          <xs:element name="VBMenuItemMobile.LayoutTransform" type="dTransformContainer" />
+          <xs:element name="VBMenuItemMobile.Width" type="dDoubleContainer" />
+          <xs:element name="VBMenuItemMobile.MinWidth" type="dDoubleContainer" />
+          <xs:element name="VBMenuItemMobile.MaxWidth" type="dDoubleContainer" />
+          <xs:element name="VBMenuItemMobile.Height" type="dDoubleContainer" />
+          <xs:element name="VBMenuItemMobile.MinHeight" type="dDoubleContainer" />
+          <xs:element name="VBMenuItemMobile.MaxHeight" type="dDoubleContainer" />
+          <xs:element name="VBMenuItemMobile.FlowDirection" />
+          <xs:element name="VBMenuItemMobile.Margin" type="dThicknessContainer" />
+          <xs:element name="VBMenuItemMobile.HorizontalAlignment" />
+          <xs:element name="VBMenuItemMobile.VerticalAlignment" />
+          <xs:element name="VBMenuItemMobile.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="VBMenuItemMobile.Cursor" type="dCursorContainer" />
+          <xs:element name="VBMenuItemMobile.ForceCursor" />
+          <xs:element name="VBMenuItemMobile.ToolTip" type="dObjectContainer" />
+          <xs:element name="VBMenuItemMobile.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="VBMenuItemMobile.AllowDrop" />
+          <xs:element name="VBMenuItemMobile.RenderSize" type="dSizeContainer" />
+          <xs:element name="VBMenuItemMobile.RenderTransform" type="dTransformContainer" />
+          <xs:element name="VBMenuItemMobile.RenderTransformOrigin" type="dPointContainer" />
+          <xs:element name="VBMenuItemMobile.Opacity" type="dDoubleContainer" />
+          <xs:element name="VBMenuItemMobile.OpacityMask" type="dBrushContainer" />
+          <xs:element name="VBMenuItemMobile.BitmapEffect" type="dBitmapEffectContainer" />
+          <xs:element name="VBMenuItemMobile.Effect" />
+          <xs:element name="VBMenuItemMobile.BitmapEffectInput" type="dBitmapEffectInputContainer" />
+          <xs:element name="VBMenuItemMobile.CacheMode" />
+          <xs:element name="VBMenuItemMobile.Uid" />
+          <xs:element name="VBMenuItemMobile.Visibility" />
+          <xs:element name="VBMenuItemMobile.ClipToBounds" />
+          <xs:element name="VBMenuItemMobile.Clip" type="dGeometryContainer" />
+          <xs:element name="VBMenuItemMobile.SnapsToDevicePixels" />
+          <xs:element name="VBMenuItemMobile.IsEnabled" />
+          <xs:element name="VBMenuItemMobile.IsHitTestVisible" />
+          <xs:element name="VBMenuItemMobile.Focusable" />
+          <xs:element name="VBMenuItemMobile.IsManipulationEnabled" />
+        </xs:sequence>
+        <xs:attribute name="VBContentValueType" />
+        <xs:attribute name="VBContent" />
+        <xs:attribute name="ACCaption" />
+        <xs:attribute name="ContextACObject" />
+        <xs:attribute name="ACCommand" />
+        <xs:attribute name="IsAutoEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Command" />
+        <xs:attribute name="CommandParameter" />
+        <xs:attribute name="CommandTarget" />
+        <xs:attribute name="IsSubmenuOpen" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsCheckable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsPressed" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHighlighted" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsChecked" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="StaysOpenOnClick" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="InputGestureText" />
+        <xs:attribute name="Icon" />
+        <xs:attribute name="IsSuspendingPopupAnimation" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ItemContainerTemplateSelector" />
+        <xs:attribute name="UsesItemContainerTemplate" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Header" />
+        <xs:attribute name="HeaderTemplate" />
+        <xs:attribute name="HeaderTemplateSelector" />
+        <xs:attribute name="HeaderStringFormat" />
+        <xs:attribute name="ItemsSource" />
+        <xs:attribute name="DisplayMemberPath" />
+        <xs:attribute name="ItemTemplate" />
+        <xs:attribute name="ItemTemplateSelector" />
+        <xs:attribute name="ItemStringFormat" />
+        <xs:attribute name="ItemBindingGroup" />
+        <xs:attribute name="ItemContainerStyle" />
+        <xs:attribute name="ItemContainerStyleSelector" />
+        <xs:attribute name="ItemsPanel" />
+        <xs:attribute name="GroupStyleSelector" />
+        <xs:attribute name="AlternationCount" />
+        <xs:attribute name="IsTextSearchEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsTextSearchCaseSensitive" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="BorderBrush" />
+        <xs:attribute name="BorderThickness" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="HorizontalContentAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalContentAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="TabIndex" />
+        <xs:attribute name="IsTabStop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Padding" />
+        <xs:attribute name="Template" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UseLayoutRounding" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="LayoutTransform" />
+        <xs:attribute name="Width" />
+        <xs:attribute name="MinWidth" />
+        <xs:attribute name="MaxWidth" />
+        <xs:attribute name="Height" />
+        <xs:attribute name="MinHeight" />
+        <xs:attribute name="MaxHeight" />
+        <xs:attribute name="FlowDirection" type="vb:enumFlowDirection" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="HorizontalAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="RenderSize" />
+        <xs:attribute name="RenderTransform" />
+        <xs:attribute name="RenderTransformOrigin" />
+        <xs:attribute name="Opacity" />
+        <xs:attribute name="OpacityMask" />
+        <xs:attribute name="BitmapEffect" />
+        <xs:attribute name="Effect" />
+        <xs:attribute name="BitmapEffectInput" />
+        <xs:attribute name="CacheMode" />
+        <xs:attribute name="Uid" />
+        <xs:attribute name="Visibility" type="vb:enumVisibility" />
+        <xs:attribute name="ClipToBounds" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Clip" />
+        <xs:attribute name="SnapsToDevicePixels" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHitTestVisible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsManipulationEnabled" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VBMenuItemMobile" type="vb:VBMenuItemMobile" />
   <xs:complexType name="VBNumericUpDown">
     <xs:complexContent mixed="true">
       <xs:extension base="vb:UpDownBase">
@@ -7235,14 +8015,935 @@
       <xs:documentation xml:lang="de">Stellt ein &lt;see cref="T:System.DateTime" /&gt; Up- oder Down-Steuerelement dar.</xs:documentation>
     </xs:annotation>
   </xs:element>
-  <xs:simpleType name="enumScrollBarVisibility">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="Disabled" />
-      <xs:enumeration value="Auto" />
-      <xs:enumeration value="Hidden" />
-      <xs:enumeration value="Visible" />
-    </xs:restriction>
-  </xs:simpleType>
+  <xs:complexType name="VBPage">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dPage">
+        <xs:sequence>
+          <xs:group ref="vb:VBControls" />
+          <xs:element name="VBPage.Content" type="dObjectContainer" />
+          <xs:element name="VBPage.WindowTitle" />
+          <xs:element name="VBPage.WindowHeight" type="dDoubleContainer" />
+          <xs:element name="VBPage.WindowWidth" type="dDoubleContainer" />
+          <xs:element name="VBPage.Background" type="dBrushContainer" />
+          <xs:element name="VBPage.Title" />
+          <xs:element name="VBPage.ShowsNavigationUI" />
+          <xs:element name="VBPage.KeepAlive" />
+          <xs:element name="VBPage.Foreground" type="dBrushContainer" />
+          <xs:element name="VBPage.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="VBPage.FontSize" type="dDoubleContainer" />
+          <xs:element name="VBPage.Template" type="dControlTemplateContainer" />
+          <xs:element name="VBPage.Style" type="dStyleContainer" />
+          <xs:element name="VBPage.OverridesDefaultStyle" />
+          <xs:element name="VBPage.UseLayoutRounding" />
+          <xs:element name="VBPage.Resources" />
+          <xs:element name="VBPage.DataContext" type="dObjectContainer" />
+          <xs:element name="VBPage.BindingGroup" />
+          <xs:element name="VBPage.Language" type="dXmlLanguageContainer" />
+          <xs:element name="VBPage.Name" />
+          <xs:element name="VBPage.Tag" type="dObjectContainer" />
+          <xs:element name="VBPage.InputScope" type="dInputScopeContainer" />
+          <xs:element name="VBPage.LayoutTransform" type="dTransformContainer" />
+          <xs:element name="VBPage.Width" type="dDoubleContainer" />
+          <xs:element name="VBPage.MinWidth" type="dDoubleContainer" />
+          <xs:element name="VBPage.MaxWidth" type="dDoubleContainer" />
+          <xs:element name="VBPage.Height" type="dDoubleContainer" />
+          <xs:element name="VBPage.MinHeight" type="dDoubleContainer" />
+          <xs:element name="VBPage.MaxHeight" type="dDoubleContainer" />
+          <xs:element name="VBPage.FlowDirection" />
+          <xs:element name="VBPage.Margin" type="dThicknessContainer" />
+          <xs:element name="VBPage.HorizontalAlignment" />
+          <xs:element name="VBPage.VerticalAlignment" />
+          <xs:element name="VBPage.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="VBPage.Cursor" type="dCursorContainer" />
+          <xs:element name="VBPage.ForceCursor" />
+          <xs:element name="VBPage.ToolTip" type="dObjectContainer" />
+          <xs:element name="VBPage.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="VBPage.AllowDrop" />
+          <xs:element name="VBPage.RenderSize" type="dSizeContainer" />
+          <xs:element name="VBPage.RenderTransform" type="dTransformContainer" />
+          <xs:element name="VBPage.RenderTransformOrigin" type="dPointContainer" />
+          <xs:element name="VBPage.Opacity" type="dDoubleContainer" />
+          <xs:element name="VBPage.OpacityMask" type="dBrushContainer" />
+          <xs:element name="VBPage.BitmapEffect" type="dBitmapEffectContainer" />
+          <xs:element name="VBPage.Effect" />
+          <xs:element name="VBPage.BitmapEffectInput" type="dBitmapEffectInputContainer" />
+          <xs:element name="VBPage.CacheMode" />
+          <xs:element name="VBPage.Uid" />
+          <xs:element name="VBPage.Visibility" />
+          <xs:element name="VBPage.ClipToBounds" />
+          <xs:element name="VBPage.Clip" type="dGeometryContainer" />
+          <xs:element name="VBPage.SnapsToDevicePixels" />
+          <xs:element name="VBPage.IsEnabled" />
+          <xs:element name="VBPage.IsHitTestVisible" />
+          <xs:element name="VBPage.Focusable" />
+          <xs:element name="VBPage.IsManipulationEnabled" />
+        </xs:sequence>
+        <xs:attribute name="Content" />
+        <xs:attribute name="WindowTitle" />
+        <xs:attribute name="WindowHeight" />
+        <xs:attribute name="WindowWidth" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="Title" />
+        <xs:attribute name="ShowsNavigationUI" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="KeepAlive" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="Template" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UseLayoutRounding" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="LayoutTransform" />
+        <xs:attribute name="Width" />
+        <xs:attribute name="MinWidth" />
+        <xs:attribute name="MaxWidth" />
+        <xs:attribute name="Height" />
+        <xs:attribute name="MinHeight" />
+        <xs:attribute name="MaxHeight" />
+        <xs:attribute name="FlowDirection" type="vb:enumFlowDirection" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="HorizontalAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="RenderSize" />
+        <xs:attribute name="RenderTransform" />
+        <xs:attribute name="RenderTransformOrigin" />
+        <xs:attribute name="Opacity" />
+        <xs:attribute name="OpacityMask" />
+        <xs:attribute name="BitmapEffect" />
+        <xs:attribute name="Effect" />
+        <xs:attribute name="BitmapEffectInput" />
+        <xs:attribute name="CacheMode" />
+        <xs:attribute name="Uid" />
+        <xs:attribute name="Visibility" type="vb:enumVisibility" />
+        <xs:attribute name="ClipToBounds" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Clip" />
+        <xs:attribute name="SnapsToDevicePixels" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHitTestVisible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsManipulationEnabled" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VBPage" type="vb:VBPage">
+    <xs:annotation>
+      <xs:documentation>VBPage</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="VBPageFunction`1">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dPageFunction`1">
+        <xs:sequence>
+          <xs:group ref="vb:VBControls" />
+          <xs:element name="VBPageFunction`1.RemoveFromJournal" />
+          <xs:element name="VBPageFunction`1.Content" type="dObjectContainer" />
+          <xs:element name="VBPageFunction`1.WindowTitle" />
+          <xs:element name="VBPageFunction`1.WindowHeight" type="dDoubleContainer" />
+          <xs:element name="VBPageFunction`1.WindowWidth" type="dDoubleContainer" />
+          <xs:element name="VBPageFunction`1.Background" type="dBrushContainer" />
+          <xs:element name="VBPageFunction`1.Title" />
+          <xs:element name="VBPageFunction`1.ShowsNavigationUI" />
+          <xs:element name="VBPageFunction`1.KeepAlive" />
+          <xs:element name="VBPageFunction`1.Foreground" type="dBrushContainer" />
+          <xs:element name="VBPageFunction`1.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="VBPageFunction`1.FontSize" type="dDoubleContainer" />
+          <xs:element name="VBPageFunction`1.Template" type="dControlTemplateContainer" />
+          <xs:element name="VBPageFunction`1.Style" type="dStyleContainer" />
+          <xs:element name="VBPageFunction`1.OverridesDefaultStyle" />
+          <xs:element name="VBPageFunction`1.UseLayoutRounding" />
+          <xs:element name="VBPageFunction`1.Resources" />
+          <xs:element name="VBPageFunction`1.DataContext" type="dObjectContainer" />
+          <xs:element name="VBPageFunction`1.BindingGroup" />
+          <xs:element name="VBPageFunction`1.Language" type="dXmlLanguageContainer" />
+          <xs:element name="VBPageFunction`1.Name" />
+          <xs:element name="VBPageFunction`1.Tag" type="dObjectContainer" />
+          <xs:element name="VBPageFunction`1.InputScope" type="dInputScopeContainer" />
+          <xs:element name="VBPageFunction`1.LayoutTransform" type="dTransformContainer" />
+          <xs:element name="VBPageFunction`1.Width" type="dDoubleContainer" />
+          <xs:element name="VBPageFunction`1.MinWidth" type="dDoubleContainer" />
+          <xs:element name="VBPageFunction`1.MaxWidth" type="dDoubleContainer" />
+          <xs:element name="VBPageFunction`1.Height" type="dDoubleContainer" />
+          <xs:element name="VBPageFunction`1.MinHeight" type="dDoubleContainer" />
+          <xs:element name="VBPageFunction`1.MaxHeight" type="dDoubleContainer" />
+          <xs:element name="VBPageFunction`1.FlowDirection" />
+          <xs:element name="VBPageFunction`1.Margin" type="dThicknessContainer" />
+          <xs:element name="VBPageFunction`1.HorizontalAlignment" />
+          <xs:element name="VBPageFunction`1.VerticalAlignment" />
+          <xs:element name="VBPageFunction`1.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="VBPageFunction`1.Cursor" type="dCursorContainer" />
+          <xs:element name="VBPageFunction`1.ForceCursor" />
+          <xs:element name="VBPageFunction`1.ToolTip" type="dObjectContainer" />
+          <xs:element name="VBPageFunction`1.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="VBPageFunction`1.AllowDrop" />
+          <xs:element name="VBPageFunction`1.RenderSize" type="dSizeContainer" />
+          <xs:element name="VBPageFunction`1.RenderTransform" type="dTransformContainer" />
+          <xs:element name="VBPageFunction`1.RenderTransformOrigin" type="dPointContainer" />
+          <xs:element name="VBPageFunction`1.Opacity" type="dDoubleContainer" />
+          <xs:element name="VBPageFunction`1.OpacityMask" type="dBrushContainer" />
+          <xs:element name="VBPageFunction`1.BitmapEffect" type="dBitmapEffectContainer" />
+          <xs:element name="VBPageFunction`1.Effect" />
+          <xs:element name="VBPageFunction`1.BitmapEffectInput" type="dBitmapEffectInputContainer" />
+          <xs:element name="VBPageFunction`1.CacheMode" />
+          <xs:element name="VBPageFunction`1.Uid" />
+          <xs:element name="VBPageFunction`1.Visibility" />
+          <xs:element name="VBPageFunction`1.ClipToBounds" />
+          <xs:element name="VBPageFunction`1.Clip" type="dGeometryContainer" />
+          <xs:element name="VBPageFunction`1.SnapsToDevicePixels" />
+          <xs:element name="VBPageFunction`1.IsEnabled" />
+          <xs:element name="VBPageFunction`1.IsHitTestVisible" />
+          <xs:element name="VBPageFunction`1.Focusable" />
+          <xs:element name="VBPageFunction`1.IsManipulationEnabled" />
+        </xs:sequence>
+        <xs:attribute name="RemoveFromJournal" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Content" />
+        <xs:attribute name="WindowTitle" />
+        <xs:attribute name="WindowHeight" />
+        <xs:attribute name="WindowWidth" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="Title" />
+        <xs:attribute name="ShowsNavigationUI" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="KeepAlive" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="Template" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UseLayoutRounding" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="LayoutTransform" />
+        <xs:attribute name="Width" />
+        <xs:attribute name="MinWidth" />
+        <xs:attribute name="MaxWidth" />
+        <xs:attribute name="Height" />
+        <xs:attribute name="MinHeight" />
+        <xs:attribute name="MaxHeight" />
+        <xs:attribute name="FlowDirection" type="vb:enumFlowDirection" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="HorizontalAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="RenderSize" />
+        <xs:attribute name="RenderTransform" />
+        <xs:attribute name="RenderTransformOrigin" />
+        <xs:attribute name="Opacity" />
+        <xs:attribute name="OpacityMask" />
+        <xs:attribute name="BitmapEffect" />
+        <xs:attribute name="Effect" />
+        <xs:attribute name="BitmapEffectInput" />
+        <xs:attribute name="CacheMode" />
+        <xs:attribute name="Uid" />
+        <xs:attribute name="Visibility" type="vb:enumVisibility" />
+        <xs:attribute name="ClipToBounds" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Clip" />
+        <xs:attribute name="SnapsToDevicePixels" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHitTestVisible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsManipulationEnabled" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VBPageFunction`1" type="vb:VBPageFunction`1" />
+  <xs:complexType name="VBOEEControl">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dUserControl">
+        <xs:sequence>
+          <xs:group ref="vb:VBControls" />
+          <xs:element name="VBOEEControl.AvailabilityOEE" type="dDoubleContainer" />
+          <xs:element name="VBOEEControl.PerformanceOEE" type="dDoubleContainer" />
+          <xs:element name="VBOEEControl.QualityOEE" type="dDoubleContainer" />
+          <xs:element name="VBOEEControl.TotalOEE" type="dDoubleContainer" />
+          <xs:element name="VBOEEControl.OEETextColor" />
+          <xs:element name="VBOEEControl.AvailabilityColor" />
+          <xs:element name="VBOEEControl.PerformanceColor" />
+          <xs:element name="VBOEEControl.QualityColor" />
+          <xs:element name="VBOEEControl.TotalOEEColor" />
+          <xs:element name="VBOEEControl.Content" type="dObjectContainer" />
+          <xs:element name="VBOEEControl.ContentTemplate" type="dDataTemplateContainer" />
+          <xs:element name="VBOEEControl.ContentTemplateSelector" type="dDataTemplateSelectorContainer" />
+          <xs:element name="VBOEEControl.ContentStringFormat" />
+          <xs:element name="VBOEEControl.BorderBrush" type="dBrushContainer" />
+          <xs:element name="VBOEEControl.BorderThickness" type="dThicknessContainer" />
+          <xs:element name="VBOEEControl.Background" type="dBrushContainer" />
+          <xs:element name="VBOEEControl.Foreground" type="dBrushContainer" />
+          <xs:element name="VBOEEControl.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="VBOEEControl.FontSize" type="dDoubleContainer" />
+          <xs:element name="VBOEEControl.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="VBOEEControl.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="VBOEEControl.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="VBOEEControl.HorizontalContentAlignment" />
+          <xs:element name="VBOEEControl.VerticalContentAlignment" />
+          <xs:element name="VBOEEControl.TabIndex" type="dInt32Container" />
+          <xs:element name="VBOEEControl.IsTabStop" />
+          <xs:element name="VBOEEControl.Padding" type="dThicknessContainer" />
+          <xs:element name="VBOEEControl.Template" type="dControlTemplateContainer" />
+          <xs:element name="VBOEEControl.Style" type="dStyleContainer" />
+          <xs:element name="VBOEEControl.OverridesDefaultStyle" />
+          <xs:element name="VBOEEControl.UseLayoutRounding" />
+          <xs:element name="VBOEEControl.Resources" />
+          <xs:element name="VBOEEControl.DataContext" type="dObjectContainer" />
+          <xs:element name="VBOEEControl.BindingGroup" />
+          <xs:element name="VBOEEControl.Language" type="dXmlLanguageContainer" />
+          <xs:element name="VBOEEControl.Name" />
+          <xs:element name="VBOEEControl.Tag" type="dObjectContainer" />
+          <xs:element name="VBOEEControl.InputScope" type="dInputScopeContainer" />
+          <xs:element name="VBOEEControl.LayoutTransform" type="dTransformContainer" />
+          <xs:element name="VBOEEControl.Width" type="dDoubleContainer" />
+          <xs:element name="VBOEEControl.MinWidth" type="dDoubleContainer" />
+          <xs:element name="VBOEEControl.MaxWidth" type="dDoubleContainer" />
+          <xs:element name="VBOEEControl.Height" type="dDoubleContainer" />
+          <xs:element name="VBOEEControl.MinHeight" type="dDoubleContainer" />
+          <xs:element name="VBOEEControl.MaxHeight" type="dDoubleContainer" />
+          <xs:element name="VBOEEControl.FlowDirection" />
+          <xs:element name="VBOEEControl.Margin" type="dThicknessContainer" />
+          <xs:element name="VBOEEControl.HorizontalAlignment" />
+          <xs:element name="VBOEEControl.VerticalAlignment" />
+          <xs:element name="VBOEEControl.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="VBOEEControl.Cursor" type="dCursorContainer" />
+          <xs:element name="VBOEEControl.ForceCursor" />
+          <xs:element name="VBOEEControl.ToolTip" type="dObjectContainer" />
+          <xs:element name="VBOEEControl.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="VBOEEControl.AllowDrop" />
+          <xs:element name="VBOEEControl.RenderSize" type="dSizeContainer" />
+          <xs:element name="VBOEEControl.RenderTransform" type="dTransformContainer" />
+          <xs:element name="VBOEEControl.RenderTransformOrigin" type="dPointContainer" />
+          <xs:element name="VBOEEControl.Opacity" type="dDoubleContainer" />
+          <xs:element name="VBOEEControl.OpacityMask" type="dBrushContainer" />
+          <xs:element name="VBOEEControl.BitmapEffect" type="dBitmapEffectContainer" />
+          <xs:element name="VBOEEControl.Effect" />
+          <xs:element name="VBOEEControl.BitmapEffectInput" type="dBitmapEffectInputContainer" />
+          <xs:element name="VBOEEControl.CacheMode" />
+          <xs:element name="VBOEEControl.Uid" />
+          <xs:element name="VBOEEControl.Visibility" />
+          <xs:element name="VBOEEControl.ClipToBounds" />
+          <xs:element name="VBOEEControl.Clip" type="dGeometryContainer" />
+          <xs:element name="VBOEEControl.SnapsToDevicePixels" />
+          <xs:element name="VBOEEControl.IsEnabled" />
+          <xs:element name="VBOEEControl.IsHitTestVisible" />
+          <xs:element name="VBOEEControl.Focusable" />
+          <xs:element name="VBOEEControl.IsManipulationEnabled" />
+        </xs:sequence>
+        <xs:attribute name="AvailabilityOEE" />
+        <xs:attribute name="PerformanceOEE" />
+        <xs:attribute name="QualityOEE" />
+        <xs:attribute name="TotalOEE" />
+        <xs:attribute name="OEETextColor" />
+        <xs:attribute name="AvailabilityColor" />
+        <xs:attribute name="PerformanceColor" />
+        <xs:attribute name="QualityColor" />
+        <xs:attribute name="TotalOEEColor" />
+        <xs:attribute name="Content" />
+        <xs:attribute name="ContentTemplate" />
+        <xs:attribute name="ContentTemplateSelector" />
+        <xs:attribute name="ContentStringFormat" />
+        <xs:attribute name="BorderBrush" />
+        <xs:attribute name="BorderThickness" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="HorizontalContentAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalContentAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="TabIndex" />
+        <xs:attribute name="IsTabStop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Padding" />
+        <xs:attribute name="Template" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UseLayoutRounding" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="LayoutTransform" />
+        <xs:attribute name="Width" />
+        <xs:attribute name="MinWidth" />
+        <xs:attribute name="MaxWidth" />
+        <xs:attribute name="Height" />
+        <xs:attribute name="MinHeight" />
+        <xs:attribute name="MaxHeight" />
+        <xs:attribute name="FlowDirection" type="vb:enumFlowDirection" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="HorizontalAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="RenderSize" />
+        <xs:attribute name="RenderTransform" />
+        <xs:attribute name="RenderTransformOrigin" />
+        <xs:attribute name="Opacity" />
+        <xs:attribute name="OpacityMask" />
+        <xs:attribute name="BitmapEffect" />
+        <xs:attribute name="Effect" />
+        <xs:attribute name="BitmapEffectInput" />
+        <xs:attribute name="CacheMode" />
+        <xs:attribute name="Uid" />
+        <xs:attribute name="Visibility" type="vb:enumVisibility" />
+        <xs:attribute name="ClipToBounds" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Clip" />
+        <xs:attribute name="SnapsToDevicePixels" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHitTestVisible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsManipulationEnabled" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VBOEEControl" type="vb:VBOEEControl">
+    <xs:annotation>
+      <xs:documentation>Interaction logic for VBOEEControl.xaml</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="VBRibbonBarMobile">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dToolBar">
+        <xs:sequence>
+          <xs:group ref="vb:VBControls" />
+          <xs:element name="VBRibbonBarMobile.Band" type="dInt32Container" />
+          <xs:element name="VBRibbonBarMobile.BandIndex" type="dInt32Container" />
+          <xs:element name="VBRibbonBarMobile.IsOverflowOpen" />
+          <xs:element name="VBRibbonBarMobile.Header" type="dObjectContainer" />
+          <xs:element name="VBRibbonBarMobile.HeaderTemplate" type="dDataTemplateContainer" />
+          <xs:element name="VBRibbonBarMobile.HeaderTemplateSelector" type="dDataTemplateSelectorContainer" />
+          <xs:element name="VBRibbonBarMobile.HeaderStringFormat" />
+          <xs:element name="VBRibbonBarMobile.ItemsSource" type="dIEnumerableContainer" />
+          <xs:element name="VBRibbonBarMobile.DisplayMemberPath" />
+          <xs:element name="VBRibbonBarMobile.ItemTemplate" type="dDataTemplateContainer" />
+          <xs:element name="VBRibbonBarMobile.ItemTemplateSelector" type="dDataTemplateSelectorContainer" />
+          <xs:element name="VBRibbonBarMobile.ItemStringFormat" />
+          <xs:element name="VBRibbonBarMobile.ItemBindingGroup" />
+          <xs:element name="VBRibbonBarMobile.ItemContainerStyle" type="dStyleContainer" />
+          <xs:element name="VBRibbonBarMobile.ItemContainerStyleSelector" type="dStyleSelectorContainer" />
+          <xs:element name="VBRibbonBarMobile.ItemsPanel" type="dItemsPanelTemplateContainer" />
+          <xs:element name="VBRibbonBarMobile.GroupStyleSelector" type="dGroupStyleSelectorContainer" />
+          <xs:element name="VBRibbonBarMobile.AlternationCount" type="dInt32Container" />
+          <xs:element name="VBRibbonBarMobile.IsTextSearchEnabled" />
+          <xs:element name="VBRibbonBarMobile.IsTextSearchCaseSensitive" />
+          <xs:element name="VBRibbonBarMobile.BorderBrush" type="dBrushContainer" />
+          <xs:element name="VBRibbonBarMobile.BorderThickness" type="dThicknessContainer" />
+          <xs:element name="VBRibbonBarMobile.Background" type="dBrushContainer" />
+          <xs:element name="VBRibbonBarMobile.Foreground" type="dBrushContainer" />
+          <xs:element name="VBRibbonBarMobile.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="VBRibbonBarMobile.FontSize" type="dDoubleContainer" />
+          <xs:element name="VBRibbonBarMobile.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="VBRibbonBarMobile.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="VBRibbonBarMobile.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="VBRibbonBarMobile.HorizontalContentAlignment" />
+          <xs:element name="VBRibbonBarMobile.VerticalContentAlignment" />
+          <xs:element name="VBRibbonBarMobile.TabIndex" type="dInt32Container" />
+          <xs:element name="VBRibbonBarMobile.IsTabStop" />
+          <xs:element name="VBRibbonBarMobile.Padding" type="dThicknessContainer" />
+          <xs:element name="VBRibbonBarMobile.Template" type="dControlTemplateContainer" />
+          <xs:element name="VBRibbonBarMobile.Style" type="dStyleContainer" />
+          <xs:element name="VBRibbonBarMobile.OverridesDefaultStyle" />
+          <xs:element name="VBRibbonBarMobile.UseLayoutRounding" />
+          <xs:element name="VBRibbonBarMobile.Resources" />
+          <xs:element name="VBRibbonBarMobile.DataContext" type="dObjectContainer" />
+          <xs:element name="VBRibbonBarMobile.BindingGroup" />
+          <xs:element name="VBRibbonBarMobile.Language" type="dXmlLanguageContainer" />
+          <xs:element name="VBRibbonBarMobile.Name" />
+          <xs:element name="VBRibbonBarMobile.Tag" type="dObjectContainer" />
+          <xs:element name="VBRibbonBarMobile.InputScope" type="dInputScopeContainer" />
+          <xs:element name="VBRibbonBarMobile.LayoutTransform" type="dTransformContainer" />
+          <xs:element name="VBRibbonBarMobile.Width" type="dDoubleContainer" />
+          <xs:element name="VBRibbonBarMobile.MinWidth" type="dDoubleContainer" />
+          <xs:element name="VBRibbonBarMobile.MaxWidth" type="dDoubleContainer" />
+          <xs:element name="VBRibbonBarMobile.Height" type="dDoubleContainer" />
+          <xs:element name="VBRibbonBarMobile.MinHeight" type="dDoubleContainer" />
+          <xs:element name="VBRibbonBarMobile.MaxHeight" type="dDoubleContainer" />
+          <xs:element name="VBRibbonBarMobile.FlowDirection" />
+          <xs:element name="VBRibbonBarMobile.Margin" type="dThicknessContainer" />
+          <xs:element name="VBRibbonBarMobile.HorizontalAlignment" />
+          <xs:element name="VBRibbonBarMobile.VerticalAlignment" />
+          <xs:element name="VBRibbonBarMobile.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="VBRibbonBarMobile.Cursor" type="dCursorContainer" />
+          <xs:element name="VBRibbonBarMobile.ForceCursor" />
+          <xs:element name="VBRibbonBarMobile.ToolTip" type="dObjectContainer" />
+          <xs:element name="VBRibbonBarMobile.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="VBRibbonBarMobile.AllowDrop" />
+          <xs:element name="VBRibbonBarMobile.RenderSize" type="dSizeContainer" />
+          <xs:element name="VBRibbonBarMobile.RenderTransform" type="dTransformContainer" />
+          <xs:element name="VBRibbonBarMobile.RenderTransformOrigin" type="dPointContainer" />
+          <xs:element name="VBRibbonBarMobile.Opacity" type="dDoubleContainer" />
+          <xs:element name="VBRibbonBarMobile.OpacityMask" type="dBrushContainer" />
+          <xs:element name="VBRibbonBarMobile.BitmapEffect" type="dBitmapEffectContainer" />
+          <xs:element name="VBRibbonBarMobile.Effect" />
+          <xs:element name="VBRibbonBarMobile.BitmapEffectInput" type="dBitmapEffectInputContainer" />
+          <xs:element name="VBRibbonBarMobile.CacheMode" />
+          <xs:element name="VBRibbonBarMobile.Uid" />
+          <xs:element name="VBRibbonBarMobile.Visibility" />
+          <xs:element name="VBRibbonBarMobile.ClipToBounds" />
+          <xs:element name="VBRibbonBarMobile.Clip" type="dGeometryContainer" />
+          <xs:element name="VBRibbonBarMobile.SnapsToDevicePixels" />
+          <xs:element name="VBRibbonBarMobile.IsEnabled" />
+          <xs:element name="VBRibbonBarMobile.IsHitTestVisible" />
+          <xs:element name="VBRibbonBarMobile.Focusable" />
+          <xs:element name="VBRibbonBarMobile.IsManipulationEnabled" />
+        </xs:sequence>
+        <xs:attribute name="Band" />
+        <xs:attribute name="BandIndex" />
+        <xs:attribute name="IsOverflowOpen" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Header" />
+        <xs:attribute name="HeaderTemplate" />
+        <xs:attribute name="HeaderTemplateSelector" />
+        <xs:attribute name="HeaderStringFormat" />
+        <xs:attribute name="ItemsSource" />
+        <xs:attribute name="DisplayMemberPath" />
+        <xs:attribute name="ItemTemplate" />
+        <xs:attribute name="ItemTemplateSelector" />
+        <xs:attribute name="ItemStringFormat" />
+        <xs:attribute name="ItemBindingGroup" />
+        <xs:attribute name="ItemContainerStyle" />
+        <xs:attribute name="ItemContainerStyleSelector" />
+        <xs:attribute name="ItemsPanel" />
+        <xs:attribute name="GroupStyleSelector" />
+        <xs:attribute name="AlternationCount" />
+        <xs:attribute name="IsTextSearchEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsTextSearchCaseSensitive" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="BorderBrush" />
+        <xs:attribute name="BorderThickness" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="HorizontalContentAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalContentAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="TabIndex" />
+        <xs:attribute name="IsTabStop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Padding" />
+        <xs:attribute name="Template" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UseLayoutRounding" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="LayoutTransform" />
+        <xs:attribute name="Width" />
+        <xs:attribute name="MinWidth" />
+        <xs:attribute name="MaxWidth" />
+        <xs:attribute name="Height" />
+        <xs:attribute name="MinHeight" />
+        <xs:attribute name="MaxHeight" />
+        <xs:attribute name="FlowDirection" type="vb:enumFlowDirection" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="HorizontalAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="RenderSize" />
+        <xs:attribute name="RenderTransform" />
+        <xs:attribute name="RenderTransformOrigin" />
+        <xs:attribute name="Opacity" />
+        <xs:attribute name="OpacityMask" />
+        <xs:attribute name="BitmapEffect" />
+        <xs:attribute name="Effect" />
+        <xs:attribute name="BitmapEffectInput" />
+        <xs:attribute name="CacheMode" />
+        <xs:attribute name="Uid" />
+        <xs:attribute name="Visibility" type="vb:enumVisibility" />
+        <xs:attribute name="ClipToBounds" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Clip" />
+        <xs:attribute name="SnapsToDevicePixels" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHitTestVisible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsManipulationEnabled" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VBRibbonBarMobile" type="vb:VBRibbonBarMobile" />
+  <xs:complexType name="VBRibbonButtonMobile">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dButton">
+        <xs:sequence>
+          <xs:group ref="vb:VBControls" />
+          <xs:element name="VBRibbonButtonMobile.IconName" />
+          <xs:element name="VBRibbonButtonMobile.ContentStroke" type="dBrushContainer" />
+          <xs:element name="VBRibbonButtonMobile.ContentFill" type="dBrushContainer" />
+          <xs:element name="VBRibbonButtonMobile.RightControlMode" />
+          <xs:element name="VBRibbonButtonMobile.IsDefault" />
+          <xs:element name="VBRibbonButtonMobile.IsCancel" />
+          <xs:element name="VBRibbonButtonMobile.IsPressed" />
+          <xs:element name="VBRibbonButtonMobile.Command" type="dICommandContainer" />
+          <xs:element name="VBRibbonButtonMobile.CommandParameter" type="dObjectContainer" />
+          <xs:element name="VBRibbonButtonMobile.CommandTarget" type="dIInputElementContainer" />
+          <xs:element name="VBRibbonButtonMobile.ClickMode" />
+          <xs:element name="VBRibbonButtonMobile.Content" type="dObjectContainer" />
+          <xs:element name="VBRibbonButtonMobile.ContentTemplate" type="dDataTemplateContainer" />
+          <xs:element name="VBRibbonButtonMobile.ContentTemplateSelector" type="dDataTemplateSelectorContainer" />
+          <xs:element name="VBRibbonButtonMobile.ContentStringFormat" />
+          <xs:element name="VBRibbonButtonMobile.BorderBrush" type="dBrushContainer" />
+          <xs:element name="VBRibbonButtonMobile.BorderThickness" type="dThicknessContainer" />
+          <xs:element name="VBRibbonButtonMobile.Background" type="dBrushContainer" />
+          <xs:element name="VBRibbonButtonMobile.Foreground" type="dBrushContainer" />
+          <xs:element name="VBRibbonButtonMobile.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="VBRibbonButtonMobile.FontSize" type="dDoubleContainer" />
+          <xs:element name="VBRibbonButtonMobile.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="VBRibbonButtonMobile.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="VBRibbonButtonMobile.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="VBRibbonButtonMobile.HorizontalContentAlignment" />
+          <xs:element name="VBRibbonButtonMobile.VerticalContentAlignment" />
+          <xs:element name="VBRibbonButtonMobile.TabIndex" type="dInt32Container" />
+          <xs:element name="VBRibbonButtonMobile.IsTabStop" />
+          <xs:element name="VBRibbonButtonMobile.Padding" type="dThicknessContainer" />
+          <xs:element name="VBRibbonButtonMobile.Template" type="dControlTemplateContainer" />
+          <xs:element name="VBRibbonButtonMobile.Style" type="dStyleContainer" />
+          <xs:element name="VBRibbonButtonMobile.OverridesDefaultStyle" />
+          <xs:element name="VBRibbonButtonMobile.UseLayoutRounding" />
+          <xs:element name="VBRibbonButtonMobile.Resources" />
+          <xs:element name="VBRibbonButtonMobile.DataContext" type="dObjectContainer" />
+          <xs:element name="VBRibbonButtonMobile.BindingGroup" />
+          <xs:element name="VBRibbonButtonMobile.Language" type="dXmlLanguageContainer" />
+          <xs:element name="VBRibbonButtonMobile.Name" />
+          <xs:element name="VBRibbonButtonMobile.Tag" type="dObjectContainer" />
+          <xs:element name="VBRibbonButtonMobile.InputScope" type="dInputScopeContainer" />
+          <xs:element name="VBRibbonButtonMobile.LayoutTransform" type="dTransformContainer" />
+          <xs:element name="VBRibbonButtonMobile.Width" type="dDoubleContainer" />
+          <xs:element name="VBRibbonButtonMobile.MinWidth" type="dDoubleContainer" />
+          <xs:element name="VBRibbonButtonMobile.MaxWidth" type="dDoubleContainer" />
+          <xs:element name="VBRibbonButtonMobile.Height" type="dDoubleContainer" />
+          <xs:element name="VBRibbonButtonMobile.MinHeight" type="dDoubleContainer" />
+          <xs:element name="VBRibbonButtonMobile.MaxHeight" type="dDoubleContainer" />
+          <xs:element name="VBRibbonButtonMobile.FlowDirection" />
+          <xs:element name="VBRibbonButtonMobile.Margin" type="dThicknessContainer" />
+          <xs:element name="VBRibbonButtonMobile.HorizontalAlignment" />
+          <xs:element name="VBRibbonButtonMobile.VerticalAlignment" />
+          <xs:element name="VBRibbonButtonMobile.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="VBRibbonButtonMobile.Cursor" type="dCursorContainer" />
+          <xs:element name="VBRibbonButtonMobile.ForceCursor" />
+          <xs:element name="VBRibbonButtonMobile.ToolTip" type="dObjectContainer" />
+          <xs:element name="VBRibbonButtonMobile.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="VBRibbonButtonMobile.AllowDrop" />
+          <xs:element name="VBRibbonButtonMobile.RenderSize" type="dSizeContainer" />
+          <xs:element name="VBRibbonButtonMobile.RenderTransform" type="dTransformContainer" />
+          <xs:element name="VBRibbonButtonMobile.RenderTransformOrigin" type="dPointContainer" />
+          <xs:element name="VBRibbonButtonMobile.Opacity" type="dDoubleContainer" />
+          <xs:element name="VBRibbonButtonMobile.OpacityMask" type="dBrushContainer" />
+          <xs:element name="VBRibbonButtonMobile.BitmapEffect" type="dBitmapEffectContainer" />
+          <xs:element name="VBRibbonButtonMobile.Effect" />
+          <xs:element name="VBRibbonButtonMobile.BitmapEffectInput" type="dBitmapEffectInputContainer" />
+          <xs:element name="VBRibbonButtonMobile.CacheMode" />
+          <xs:element name="VBRibbonButtonMobile.Uid" />
+          <xs:element name="VBRibbonButtonMobile.Visibility" />
+          <xs:element name="VBRibbonButtonMobile.ClipToBounds" />
+          <xs:element name="VBRibbonButtonMobile.Clip" type="dGeometryContainer" />
+          <xs:element name="VBRibbonButtonMobile.SnapsToDevicePixels" />
+          <xs:element name="VBRibbonButtonMobile.IsEnabled" />
+          <xs:element name="VBRibbonButtonMobile.IsHitTestVisible" />
+          <xs:element name="VBRibbonButtonMobile.Focusable" />
+          <xs:element name="VBRibbonButtonMobile.IsManipulationEnabled" />
+        </xs:sequence>
+        <xs:attribute name="IconName" />
+        <xs:attribute name="ContentStroke">
+          <xs:annotation>
+            <xs:documentation>Gets or sets the stroke of content.</xs:documentation>
+            <xs:documentation xml:lang="de">Liest oder setzt den Strich des Inhalts.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="ContentFill">
+          <xs:annotation>
+            <xs:documentation>Gets or sets the fill of content.</xs:documentation>
+            <xs:documentation xml:lang="de">Liest oder setzt die Füllung des Inhalts.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="RightControlMode" type="vb:enumControlModes">
+          <xs:annotation>
+            <xs:documentation>Gets or sets the right control mode.</xs:documentation>
+            <xs:documentation xml:lang="de">Liest oder setzt den richtigen Kontrollmodus.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="IsDefault" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsCancel" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsPressed" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Command" />
+        <xs:attribute name="CommandParameter" />
+        <xs:attribute name="CommandTarget" />
+        <xs:attribute name="ClickMode" type="vb:enumClickMode" />
+        <xs:attribute name="Content" />
+        <xs:attribute name="ContentTemplate" />
+        <xs:attribute name="ContentTemplateSelector" />
+        <xs:attribute name="ContentStringFormat" />
+        <xs:attribute name="BorderBrush" />
+        <xs:attribute name="BorderThickness" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="HorizontalContentAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalContentAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="TabIndex" />
+        <xs:attribute name="IsTabStop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Padding" />
+        <xs:attribute name="Template" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UseLayoutRounding" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="LayoutTransform" />
+        <xs:attribute name="Width" />
+        <xs:attribute name="MinWidth" />
+        <xs:attribute name="MaxWidth" />
+        <xs:attribute name="Height" />
+        <xs:attribute name="MinHeight" />
+        <xs:attribute name="MaxHeight" />
+        <xs:attribute name="FlowDirection" type="vb:enumFlowDirection" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="HorizontalAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="RenderSize" />
+        <xs:attribute name="RenderTransform" />
+        <xs:attribute name="RenderTransformOrigin" />
+        <xs:attribute name="Opacity" />
+        <xs:attribute name="OpacityMask" />
+        <xs:attribute name="BitmapEffect" />
+        <xs:attribute name="Effect" />
+        <xs:attribute name="BitmapEffectInput" />
+        <xs:attribute name="CacheMode" />
+        <xs:attribute name="Uid" />
+        <xs:attribute name="Visibility" type="vb:enumVisibility" />
+        <xs:attribute name="ClipToBounds" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Clip" />
+        <xs:attribute name="SnapsToDevicePixels" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHitTestVisible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsManipulationEnabled" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VBRibbonButtonMobile" type="vb:VBRibbonButtonMobile">
+    <xs:annotation>
+      <xs:documentation>Represents the ribbon button control for the Mobile application.</xs:documentation>
+      <xs:documentation xml:lang="de">Repräsentiert die Ribbon-Button-Steuerung.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="VBRibbonMobile">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dUserControl">
+        <xs:sequence>
+          <xs:group ref="vb:VBControls" />
+          <xs:element name="VBRibbonMobile.RightControlMode" />
+          <xs:element name="VBRibbonMobile.DisabledModes" />
+          <xs:element name="VBRibbonMobile.VBContent" />
+          <xs:element name="VBRibbonMobile.Content" type="dObjectContainer" />
+          <xs:element name="VBRibbonMobile.ContentTemplate" type="dDataTemplateContainer" />
+          <xs:element name="VBRibbonMobile.ContentTemplateSelector" type="dDataTemplateSelectorContainer" />
+          <xs:element name="VBRibbonMobile.ContentStringFormat" />
+          <xs:element name="VBRibbonMobile.BorderBrush" type="dBrushContainer" />
+          <xs:element name="VBRibbonMobile.BorderThickness" type="dThicknessContainer" />
+          <xs:element name="VBRibbonMobile.Background" type="dBrushContainer" />
+          <xs:element name="VBRibbonMobile.Foreground" type="dBrushContainer" />
+          <xs:element name="VBRibbonMobile.FontFamily" type="dFontFamilyContainer" />
+          <xs:element name="VBRibbonMobile.FontSize" type="dDoubleContainer" />
+          <xs:element name="VBRibbonMobile.FontStretch" type="dFontStretchContainer" />
+          <xs:element name="VBRibbonMobile.FontStyle" type="dFontStyleContainer" />
+          <xs:element name="VBRibbonMobile.FontWeight" type="dFontWeightContainer" />
+          <xs:element name="VBRibbonMobile.HorizontalContentAlignment" />
+          <xs:element name="VBRibbonMobile.VerticalContentAlignment" />
+          <xs:element name="VBRibbonMobile.TabIndex" type="dInt32Container" />
+          <xs:element name="VBRibbonMobile.IsTabStop" />
+          <xs:element name="VBRibbonMobile.Padding" type="dThicknessContainer" />
+          <xs:element name="VBRibbonMobile.Template" type="dControlTemplateContainer" />
+          <xs:element name="VBRibbonMobile.Style" type="dStyleContainer" />
+          <xs:element name="VBRibbonMobile.OverridesDefaultStyle" />
+          <xs:element name="VBRibbonMobile.UseLayoutRounding" />
+          <xs:element name="VBRibbonMobile.Resources" />
+          <xs:element name="VBRibbonMobile.DataContext" type="dObjectContainer" />
+          <xs:element name="VBRibbonMobile.BindingGroup" />
+          <xs:element name="VBRibbonMobile.Language" type="dXmlLanguageContainer" />
+          <xs:element name="VBRibbonMobile.Name" />
+          <xs:element name="VBRibbonMobile.Tag" type="dObjectContainer" />
+          <xs:element name="VBRibbonMobile.InputScope" type="dInputScopeContainer" />
+          <xs:element name="VBRibbonMobile.LayoutTransform" type="dTransformContainer" />
+          <xs:element name="VBRibbonMobile.Width" type="dDoubleContainer" />
+          <xs:element name="VBRibbonMobile.MinWidth" type="dDoubleContainer" />
+          <xs:element name="VBRibbonMobile.MaxWidth" type="dDoubleContainer" />
+          <xs:element name="VBRibbonMobile.Height" type="dDoubleContainer" />
+          <xs:element name="VBRibbonMobile.MinHeight" type="dDoubleContainer" />
+          <xs:element name="VBRibbonMobile.MaxHeight" type="dDoubleContainer" />
+          <xs:element name="VBRibbonMobile.FlowDirection" />
+          <xs:element name="VBRibbonMobile.Margin" type="dThicknessContainer" />
+          <xs:element name="VBRibbonMobile.HorizontalAlignment" />
+          <xs:element name="VBRibbonMobile.VerticalAlignment" />
+          <xs:element name="VBRibbonMobile.FocusVisualStyle" type="dStyleContainer" />
+          <xs:element name="VBRibbonMobile.Cursor" type="dCursorContainer" />
+          <xs:element name="VBRibbonMobile.ForceCursor" />
+          <xs:element name="VBRibbonMobile.ToolTip" type="dObjectContainer" />
+          <xs:element name="VBRibbonMobile.ContextMenu" type="dContextMenuContainer" />
+          <xs:element name="VBRibbonMobile.AllowDrop" />
+          <xs:element name="VBRibbonMobile.RenderSize" type="dSizeContainer" />
+          <xs:element name="VBRibbonMobile.RenderTransform" type="dTransformContainer" />
+          <xs:element name="VBRibbonMobile.RenderTransformOrigin" type="dPointContainer" />
+          <xs:element name="VBRibbonMobile.Opacity" type="dDoubleContainer" />
+          <xs:element name="VBRibbonMobile.OpacityMask" type="dBrushContainer" />
+          <xs:element name="VBRibbonMobile.BitmapEffect" type="dBitmapEffectContainer" />
+          <xs:element name="VBRibbonMobile.Effect" />
+          <xs:element name="VBRibbonMobile.BitmapEffectInput" type="dBitmapEffectInputContainer" />
+          <xs:element name="VBRibbonMobile.CacheMode" />
+          <xs:element name="VBRibbonMobile.Uid" />
+          <xs:element name="VBRibbonMobile.Visibility" />
+          <xs:element name="VBRibbonMobile.ClipToBounds" />
+          <xs:element name="VBRibbonMobile.Clip" type="dGeometryContainer" />
+          <xs:element name="VBRibbonMobile.SnapsToDevicePixels" />
+          <xs:element name="VBRibbonMobile.IsEnabled" />
+          <xs:element name="VBRibbonMobile.IsHitTestVisible" />
+          <xs:element name="VBRibbonMobile.Focusable" />
+          <xs:element name="VBRibbonMobile.IsManipulationEnabled" />
+        </xs:sequence>
+        <xs:attribute name="RightControlMode" type="vb:enumControlModes">
+          <xs:annotation>
+            <xs:documentation>Gets or sets the right control mode.</xs:documentation>
+            <xs:documentation xml:lang="de">Liest oder setzt den richtigen Kontrollmodus.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="DisabledModes">
+          <xs:annotation>
+            <xs:documentation>Disables the control. XAML sample: DisabledModes="Disabled"</xs:documentation>
+            <xs:documentation xml:lang="de">Deaktiviert die Steuerung. XAML-Probe: DisabledModes="Disabled"</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="VBContent">
+          <xs:annotation>
+            <xs:documentation>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
+            The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
+            ACUrl's can be either absolute or relative to the DataContext of the parent WPFControl (or the ContextACObject of the parent IACInteractiveObject)</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="Content" />
+        <xs:attribute name="ContentTemplate" />
+        <xs:attribute name="ContentTemplateSelector" />
+        <xs:attribute name="ContentStringFormat" />
+        <xs:attribute name="BorderBrush" />
+        <xs:attribute name="BorderThickness" />
+        <xs:attribute name="Background" />
+        <xs:attribute name="Foreground" />
+        <xs:attribute name="FontFamily" />
+        <xs:attribute name="FontSize" />
+        <xs:attribute name="FontStretch" />
+        <xs:attribute name="FontStyle" />
+        <xs:attribute name="FontWeight" />
+        <xs:attribute name="HorizontalContentAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalContentAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="TabIndex" />
+        <xs:attribute name="IsTabStop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Padding" />
+        <xs:attribute name="Template" />
+        <xs:attribute name="Style" />
+        <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UseLayoutRounding" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Resources" />
+        <xs:attribute name="DataContext" />
+        <xs:attribute name="BindingGroup" />
+        <xs:attribute name="Language" />
+        <xs:attribute name="Name" />
+        <xs:attribute name="Tag" />
+        <xs:attribute name="InputScope" />
+        <xs:attribute name="LayoutTransform" />
+        <xs:attribute name="Width" />
+        <xs:attribute name="MinWidth" />
+        <xs:attribute name="MaxWidth" />
+        <xs:attribute name="Height" />
+        <xs:attribute name="MinHeight" />
+        <xs:attribute name="MaxHeight" />
+        <xs:attribute name="FlowDirection" type="vb:enumFlowDirection" />
+        <xs:attribute name="Margin" />
+        <xs:attribute name="HorizontalAlignment" type="vb:enumHorizontalAlignment" />
+        <xs:attribute name="VerticalAlignment" type="vb:enumVerticalAlignment" />
+        <xs:attribute name="FocusVisualStyle" />
+        <xs:attribute name="Cursor" />
+        <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ToolTip" />
+        <xs:attribute name="ContextMenu" />
+        <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="RenderSize" />
+        <xs:attribute name="RenderTransform" />
+        <xs:attribute name="RenderTransformOrigin" />
+        <xs:attribute name="Opacity" />
+        <xs:attribute name="OpacityMask" />
+        <xs:attribute name="BitmapEffect" />
+        <xs:attribute name="Effect" />
+        <xs:attribute name="BitmapEffectInput" />
+        <xs:attribute name="CacheMode" />
+        <xs:attribute name="Uid" />
+        <xs:attribute name="Visibility" type="vb:enumVisibility" />
+        <xs:attribute name="ClipToBounds" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Clip" />
+        <xs:attribute name="SnapsToDevicePixels" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsHitTestVisible" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="IsManipulationEnabled" type="frlrfSystemBooleanClassTopic" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VBRibbonMobile" type="vb:VBRibbonMobile">
+    <xs:annotation>
+      <xs:documentation>Represents the control for panel bar.</xs:documentation>
+      <xs:documentation xml:lang="de">Stellt die Steuerung für die Panel-Leiste dar.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
   <xs:complexType name="VBTextEditor">
     <xs:sequence>
       <xs:group ref="vb:VBControls" />
@@ -8675,14 +10376,6 @@
       <xs:documentation xml:lang="de">Stellt das Steuerelement dar, das die Rating-Evaluierung bereitstellt.</xs:documentation>
     </xs:annotation>
   </xs:element>
-  <xs:simpleType name="enumTextAlignment">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="Left" />
-      <xs:enumeration value="Right" />
-      <xs:enumeration value="Center" />
-      <xs:enumeration value="Justify" />
-    </xs:restriction>
-  </xs:simpleType>
   <xs:simpleType name="enumTextWrapping">
     <xs:restriction base="xs:string">
       <xs:enumeration value="WrapWithOverflow" />
@@ -8725,6 +10418,7 @@
           <xs:element name="VBTextBox3.IsNullable" />
           <xs:element name="VBTextBox3.OverrideTemplateTrigger" />
           <xs:element name="VBTextBox3.ResourceKeyTestOn" />
+          <xs:element name="VBTextBox3.ACUrlCmdMessage" />
           <xs:element name="VBTextBox3.ACCompInitState" />
           <xs:element name="VBTextBox3.ACIdentifier" />
           <xs:element name="VBTextBox3.VBValidation" />
@@ -8864,6 +10558,7 @@
         <xs:attribute name="IsNullable" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="OverrideTemplateTrigger" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="ResourceKeyTestOn" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ACUrlCmdMessage" />
         <xs:attribute name="ACCompInitState" type="vb:enumACInitState" />
         <xs:attribute name="ACIdentifier" />
         <xs:attribute name="VBValidation" />
@@ -9336,12 +11031,6 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="VBTimelineView" type="vb:VBTimelineView" />
-  <xs:simpleType name="enumLineStackingStrategy">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="BlockLineHeight" />
-      <xs:enumeration value="MaxHeight" />
-    </xs:restriction>
-  </xs:simpleType>
   <xs:simpleType name="enumTextTrimming">
     <xs:restriction base="xs:string">
       <xs:enumeration value="None" />
@@ -12042,6 +13731,7 @@
           <xs:group ref="vb:VBControls" />
           <xs:element name="VBDesignBase.DisableContextMenu" />
           <xs:element name="VBDesignBase.StringFormat" />
+          <xs:element name="VBDesignBase.AnimationOff" />
           <xs:element name="VBDesignBase.RightControlMode" />
           <xs:element name="VBDesignBase.VBContent" />
           <xs:element name="VBDesignBase.ShowAdornerLayer" />
@@ -12123,6 +13813,11 @@
           <xs:annotation>
             <xs:documentation>Gets or sets the string format for the control.</xs:documentation>
             <xs:documentation xml:lang="de">Liest oder setzt das Stringformat für das Steuerelement.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="AnimationOff" type="frlrfSystemBooleanClassTopic">
+          <xs:annotation>
+            <xs:documentation>Dependency property to control if animations should be switched off to save gpu/rendering performance.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="RightControlMode" type="vb:enumControlModes">
@@ -12574,6 +14269,7 @@
           <xs:element name="VBComboBox2.ACCaption" />
           <xs:element name="VBComboBox2.ACCaptionTrans" />
           <xs:element name="VBComboBox2.ShowCaption" />
+          <xs:element name="VBComboBox2.UpdateSourceTrigger" />
           <xs:element name="VBComboBox2.WidthCaption" type="dGridLengthContainer" />
           <xs:element name="VBComboBox2.WidthCaptionMax" type="dDoubleContainer" />
           <xs:element name="VBComboBox2.WidthContent" type="dGridLengthContainer" />
@@ -12586,6 +14282,7 @@
           <xs:element name="VBComboBox2.VBShowColumns" />
           <xs:element name="VBComboBox2.VBDisabledColumns" />
           <xs:element name="VBComboBox2.VBChilds" />
+          <xs:element name="VBComboBox2.VBAccess" />
           <xs:element name="VBComboBox2.ACAccessComposite" />
           <xs:element name="VBComboBox2.BSOACComponent" />
           <xs:element name="VBComboBox2.ACUrlCmdMessage" />
@@ -12717,6 +14414,7 @@
         <xs:attribute name="ACCaption" />
         <xs:attribute name="ACCaptionTrans" />
         <xs:attribute name="ShowCaption" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UpdateSourceTrigger" type="vb:enumUpdateSourceTrigger" />
         <xs:attribute name="WidthCaption" />
         <xs:attribute name="WidthCaptionMax" />
         <xs:attribute name="WidthContent" />
@@ -12729,6 +14427,7 @@
         <xs:attribute name="VBShowColumns" />
         <xs:attribute name="VBDisabledColumns" />
         <xs:attribute name="VBChilds" />
+        <xs:attribute name="VBAccess" />
         <xs:attribute name="ACAccessComposite" />
         <xs:attribute name="BSOACComponent" />
         <xs:attribute name="ACUrlCmdMessage" />
@@ -12847,7 +14546,9 @@
           <xs:element name="VBDynamic.ACIdentifier" />
           <xs:element name="VBDynamic.CanExecuteCyclic" type="dInt32Container" />
           <xs:element name="VBDynamic.DisableContextMenu" />
+          <xs:element name="VBDynamic.DragEnabled" />
           <xs:element name="VBDynamic.StringFormat" />
+          <xs:element name="VBDynamic.AnimationOff" />
           <xs:element name="VBDynamic.RightControlMode" />
           <xs:element name="VBDynamic.VBContent" />
           <xs:element name="VBDynamic.ShowAdornerLayer" />
@@ -12944,7 +14645,9 @@
         <xs:attribute name="ACIdentifier" />
         <xs:attribute name="CanExecuteCyclic" />
         <xs:attribute name="DisableContextMenu" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="DragEnabled" type="vb:enumDragMode" />
         <xs:attribute name="StringFormat" />
+        <xs:attribute name="AnimationOff" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="RightControlMode" type="vb:enumControlModes" />
         <xs:attribute name="VBContent" />
         <xs:attribute name="ShowAdornerLayer" type="frlrfSystemBooleanClassTopic" />
@@ -17521,6 +19224,7 @@
           <xs:element name="VBGrid.CanExecuteCyclic" type="dInt32Container" />
           <xs:element name="VBGrid.DisableContextMenu" />
           <xs:element name="VBGrid.StringFormat" />
+          <xs:element name="VBGrid.AnimationOff" />
           <xs:element name="VBGrid.VBContent" />
           <xs:element name="VBGrid.ACCaption" />
           <xs:element name="VBGrid.RightControlMode" />
@@ -17595,6 +19299,11 @@
           <xs:annotation>
             <xs:documentation>Gets or sets the string format for the control.</xs:documentation>
             <xs:documentation xml:lang="de">Liest oder setzt das Stringformat für das Steuerelement.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="AnimationOff" type="frlrfSystemBooleanClassTopic">
+          <xs:annotation>
+            <xs:documentation>Dependency property to control if animations should be switched off to save gpu/rendering performance.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="VBContent">
@@ -20142,6 +21851,7 @@
           <xs:element name="VBComboBox.ACCaption" />
           <xs:element name="VBComboBox.ACCaptionTrans" />
           <xs:element name="VBComboBox.ShowCaption" />
+          <xs:element name="VBComboBox.UpdateSourceTrigger" />
           <xs:element name="VBComboBox.WidthCaption" type="dGridLengthContainer" />
           <xs:element name="VBComboBox.WidthCaptionMax" type="dDoubleContainer" />
           <xs:element name="VBComboBox.WidthContent" type="dGridLengthContainer" />
@@ -20152,6 +21862,7 @@
           <xs:element name="VBComboBox.VBSource" />
           <xs:element name="VBComboBox.VBShowColumns" />
           <xs:element name="VBComboBox.VBDisabledColumns" />
+          <xs:element name="VBComboBox.VBAccess" />
           <xs:element name="VBComboBox.DisabledModes" />
           <xs:element name="VBComboBox.RightControlMode" />
           <xs:element name="VBComboBox.MaxDropDownHeight" type="dDoubleContainer" />
@@ -20263,6 +21974,7 @@
             <xs:documentation xml:lang="de">Legt fest, ob die Steuertitel angezeigt werden oder nicht.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="UpdateSourceTrigger" type="vb:enumUpdateSourceTrigger" />
         <xs:attribute name="WidthCaption">
           <xs:annotation>
             <xs:documentation>Gets or sets the width of caption.</xs:documentation>
@@ -20316,6 +22028,12 @@
         <xs:attribute name="VBDisabledColumns">
           <xs:annotation>
             <xs:documentation>Determines which columns will be disabled in VBComboBox.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="VBAccess">
+          <xs:annotation>
+            <xs:documentation>Represents the property in which you enter the name of BSO's list property marked with [ACPropertyList(...)] attribute. In usage with ACPropertySelected with same ACGroup,
+            this property is not necessary to be setted. Only if you want to use different list instead, you must set this property to name of that list which must be marked with ACPropertyList attribute.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="DisabledModes">
@@ -20674,9 +22392,13 @@
           <xs:element name="VBDataGrid.VerticalRows" />
           <xs:element name="VBDataGrid.IsSumEnabled" />
           <xs:element name="VBDataGrid.VBSumColumns" />
+          <xs:element name="VBDataGrid.CyclicDataRefresh" type="dInt32Container" />
           <xs:element name="VBDataGrid.VBContent" />
           <xs:element name="VBDataGrid.VBSource" />
           <xs:element name="VBDataGrid.ACCaption" />
+          <xs:element name="VBDataGrid.VBAccess" />
+          <xs:element name="VBDataGrid.BindItemsSourceToContext" />
+          <xs:element name="VBDataGrid.BindSelectedItemToContext" />
           <xs:element name="VBDataGrid.VBShowColumns" />
           <xs:element name="VBDataGrid.VBDisabledColumns" />
           <xs:element name="VBDataGrid.SimpleCellElements" />
@@ -20836,6 +22558,12 @@
             <xs:documentation>Represents the property in which you define sum columns. XAML Sample: VBSumColumns="SumCol1,SumCol2,SumCol3"</xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="CyclicDataRefresh">
+          <xs:annotation>
+            <xs:documentation>Determines is cyclic refresh enabled or disabled.The value (integer) in this property determines the interval of cyclic execution in miliseconds.</xs:documentation>
+            <xs:documentation xml:lang="de">Bestimmt, ob die zyklische Aktualisier aktiviert oder deaktiviert ist. Der Wert (Integer) in dieser Eigenschaft bestimmt das Intervall der zyklischen Ausführung in Millisekunden.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
         <xs:attribute name="VBContent">
           <xs:annotation>
             <xs:documentation>Represents the property in which you enter the name of BSO's Selected property. Selected property must be marked with [ACPropertySelected(...)] attribute.
@@ -20860,6 +22588,14 @@
             <xs:documentation>Translated Label/Description of this instance (depends on the current logon)</xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="VBAccess">
+          <xs:annotation>
+            <xs:documentation>Represents the property in which you enter the name of BSO's list property marked with [ACPropertyList(...)] attribute. In usage with ACPropertySelected with same ACGroup,
+            this property is not necessary to be setted. Only if you want to use different list instead, you must set this property to name of that list which must be marked with ACPropertyList attribute.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="BindItemsSourceToContext" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="BindSelectedItemToContext" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="VBShowColumns">
           <xs:annotation>
             <xs:documentation>Determines which properties of bounded object will be shown in VBDataGrid. XAML sample: VBShowColumns="PropName1,PropName2,PropName3"</xs:documentation>
@@ -21332,6 +23068,7 @@
           <xs:element name="VBDockPanel.CanExecuteCyclic" type="dInt32Container" />
           <xs:element name="VBDockPanel.DisableContextMenu" />
           <xs:element name="VBDockPanel.StringFormat" />
+          <xs:element name="VBDockPanel.AnimationOff" />
           <xs:element name="VBDockPanel.VBContent" />
           <xs:element name="VBDockPanel.ACCaption" />
           <xs:element name="VBDockPanel.DisabledModes" />
@@ -21405,6 +23142,11 @@
           <xs:annotation>
             <xs:documentation>Gets or sets the string format for the control.</xs:documentation>
             <xs:documentation xml:lang="de">Liest oder setzt das Stringformat für das Steuerelement.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="AnimationOff" type="frlrfSystemBooleanClassTopic">
+          <xs:annotation>
+            <xs:documentation>Dependency property to control if animations should be switched off to save gpu/rendering performance.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="VBContent">
@@ -21493,6 +23235,7 @@
           <xs:element name="VBListBox.ACCaptionTrans" />
           <xs:element name="VBListBox.ShowCaption" />
           <xs:element name="VBListBox.IsEnabledScrollIntoView" />
+          <xs:element name="VBListBox.CyclicDataRefresh" type="dInt32Container" />
           <xs:element name="VBListBox.WidthCaption" type="dGridLengthContainer" />
           <xs:element name="VBListBox.WidthCaptionMax" type="dDoubleContainer" />
           <xs:element name="VBListBox.WidthContent" type="dGridLengthContainer" />
@@ -21502,6 +23245,7 @@
           <xs:element name="VBListBox.VBSource" />
           <xs:element name="VBListBox.VBShowColumns" />
           <xs:element name="VBListBox.VBDisabledColumns" />
+          <xs:element name="VBListBox.VBAccess" />
           <xs:element name="VBListBox.DblClick" />
           <xs:element name="VBListBox.VBValidation" />
           <xs:element name="VBListBox.DisableContextMenu" />
@@ -21612,6 +23356,12 @@
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="IsEnabledScrollIntoView" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="CyclicDataRefresh">
+          <xs:annotation>
+            <xs:documentation>Determines is cyclic refresh enabled or disabled.The value (integer) in this property determines the interval of cyclic execution in miliseconds.</xs:documentation>
+            <xs:documentation xml:lang="de">Bestimmt, ob die zyklische Aktualisier aktiviert oder deaktiviert ist. Der Wert (Integer) in dieser Eigenschaft bestimmt das Intervall der zyklischen Ausführung in Millisekunden.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
         <xs:attribute name="WidthCaption">
           <xs:annotation>
             <xs:documentation>Gets or sets the width of caption.</xs:documentation>
@@ -21662,6 +23412,12 @@
         <xs:attribute name="VBDisabledColumns">
           <xs:annotation>
             <xs:documentation>Determines which columns will be disabled in VBListBox.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="VBAccess">
+          <xs:annotation>
+            <xs:documentation>Represents the property in which you enter the name of BSO's list property marked with [ACPropertyList(...)] attribute. In usage with ACPropertySelected with same ACGroup,
+            this property is not necessary to be setted. Only if you want to use different list instead, you must set this property to name of that list which must be marked with ACPropertyList attribute.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="DblClick">
@@ -22321,6 +24077,9 @@
         <xs:sequence>
           <xs:group ref="vb:VBControls" />
           <xs:element name="VBProgressBar.ProgressBarStyle" />
+          <xs:element name="VBProgressBar.PieFill" />
+          <xs:element name="VBProgressBar.PieStroke" />
+          <xs:element name="VBProgressBar.PieTextColor" />
           <xs:element name="VBProgressBar.VBContent" />
           <xs:element name="VBProgressBar.ACCaption" />
           <xs:element name="VBProgressBar.AcceptsReturn" />
@@ -22399,6 +24158,9 @@
             <xs:documentation>Gets or sets the progress bar style.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="PieFill" />
+        <xs:attribute name="PieStroke" />
+        <xs:attribute name="PieTextColor" />
         <xs:attribute name="VBContent">
           <xs:annotation>
             <xs:documentation>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
@@ -22876,6 +24638,7 @@
           <xs:element name="VBStackPanel.CanExecuteCyclic" type="dInt32Container" />
           <xs:element name="VBStackPanel.DisableContextMenu" />
           <xs:element name="VBStackPanel.StringFormat" />
+          <xs:element name="VBStackPanel.AnimationOff" />
           <xs:element name="VBStackPanel.DisabledModes" />
           <xs:element name="VBStackPanel.Orientation" />
           <xs:element name="VBStackPanel.CanHorizontallyScroll" />
@@ -22957,6 +24720,11 @@
           <xs:annotation>
             <xs:documentation>Gets or sets the string format for the control.</xs:documentation>
             <xs:documentation xml:lang="de">Liest oder setzt das Stringformat für das Steuerelement.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="AnimationOff" type="frlrfSystemBooleanClassTopic">
+          <xs:annotation>
+            <xs:documentation>Dependency property to control if animations should be switched off to save gpu/rendering performance.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="DisabledModes">
@@ -23909,6 +25677,7 @@
           <xs:element name="VBTextBox2.IsNullable" />
           <xs:element name="VBTextBox2.OverrideTemplateTrigger" />
           <xs:element name="VBTextBox2.ResourceKeyTestOn" />
+          <xs:element name="VBTextBox2.ACUrlCmdMessage" />
           <xs:element name="VBTextBox2.ACCompInitState" />
           <xs:element name="VBTextBox2.ACIdentifier" />
           <xs:element name="VBTextBox2.VBValidation" />
@@ -24045,6 +25814,7 @@
         <xs:attribute name="IsNullable" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="OverrideTemplateTrigger" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="ResourceKeyTestOn" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ACUrlCmdMessage" />
         <xs:attribute name="ACCompInitState" type="vb:enumACInitState" />
         <xs:attribute name="ACIdentifier" />
         <xs:attribute name="VBValidation" />
@@ -24964,7 +26734,9 @@
           <xs:element name="VBDesign.ACIdentifier" />
           <xs:element name="VBDesign.CanExecuteCyclic" type="dInt32Container" />
           <xs:element name="VBDesign.DisableContextMenu" />
+          <xs:element name="VBDesign.DragEnabled" />
           <xs:element name="VBDesign.StringFormat" />
+          <xs:element name="VBDesign.AnimationOff" />
           <xs:element name="VBDesign.RightControlMode" />
           <xs:element name="VBDesign.VBContent" />
           <xs:element name="VBDesign.ShowAdornerLayer" />
@@ -25058,7 +26830,9 @@
         <xs:attribute name="ACIdentifier" />
         <xs:attribute name="CanExecuteCyclic" />
         <xs:attribute name="DisableContextMenu" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="DragEnabled" type="vb:enumDragMode" />
         <xs:attribute name="StringFormat" />
+        <xs:attribute name="AnimationOff" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="RightControlMode" type="vb:enumControlModes" />
         <xs:attribute name="VBContent" />
         <xs:attribute name="ShowAdornerLayer" type="frlrfSystemBooleanClassTopic" />
@@ -25599,6 +27373,7 @@
       <xs:extension base="dControl">
         <xs:sequence>
           <xs:group ref="vb:VBControls" />
+          <xs:element name="VBVisualControlBase.AnimationOff" />
           <xs:element name="VBVisualControlBase.BorderBrush" type="dBrushContainer" />
           <xs:element name="VBVisualControlBase.BorderThickness" type="dThicknessContainer" />
           <xs:element name="VBVisualControlBase.Background" type="dBrushContainer" />
@@ -25660,6 +27435,11 @@
           <xs:element name="VBVisualControlBase.Focusable" />
           <xs:element name="VBVisualControlBase.IsManipulationEnabled" />
         </xs:sequence>
+        <xs:attribute name="AnimationOff" type="frlrfSystemBooleanClassTopic">
+          <xs:annotation>
+            <xs:documentation>Dependency property to control if animations should be switched off to save gpu/rendering performance.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
         <xs:attribute name="BorderBrush" />
         <xs:attribute name="BorderThickness" />
         <xs:attribute name="Background" />
@@ -26420,14 +28200,6 @@
       <xs:enumeration value="OneTime" />
       <xs:enumeration value="OneWayToSource" />
       <xs:enumeration value="Default" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:simpleType name="enumUpdateSourceTrigger">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="Default" />
-      <xs:enumeration value="PropertyChanged" />
-      <xs:enumeration value="LostFocus" />
-      <xs:enumeration value="Explicit" />
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="VBBinding">
@@ -27754,6 +29526,7 @@
           <xs:element name="VBCanvas.CanExecuteCyclic" type="dInt32Container" />
           <xs:element name="VBCanvas.DisableContextMenu" />
           <xs:element name="VBCanvas.StringFormat" />
+          <xs:element name="VBCanvas.AnimationOff" />
           <xs:element name="VBCanvas.VBContent" />
           <xs:element name="VBCanvas.ACCaption" />
           <xs:element name="VBCanvas.Background" type="dBrushContainer" />
@@ -27831,6 +29604,11 @@
         <xs:attribute name="StringFormat">
           <xs:annotation>
             <xs:documentation>Gets or sets the string format for the control.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="AnimationOff" type="frlrfSystemBooleanClassTopic">
+          <xs:annotation>
+            <xs:documentation>Dependency property to control if animations should be switched off to save gpu/rendering performance.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="VBContent">
@@ -28730,6 +30508,7 @@
           <xs:element name="VBComboBoxEditor.ACCaption" />
           <xs:element name="VBComboBoxEditor.ACCaptionTrans" />
           <xs:element name="VBComboBoxEditor.ShowCaption" />
+          <xs:element name="VBComboBoxEditor.UpdateSourceTrigger" />
           <xs:element name="VBComboBoxEditor.WidthCaption" type="dGridLengthContainer" />
           <xs:element name="VBComboBoxEditor.WidthCaptionMax" type="dDoubleContainer" />
           <xs:element name="VBComboBoxEditor.WidthContent" type="dGridLengthContainer" />
@@ -28742,6 +30521,7 @@
           <xs:element name="VBComboBoxEditor.VBShowColumns" />
           <xs:element name="VBComboBoxEditor.VBDisabledColumns" />
           <xs:element name="VBComboBoxEditor.VBChilds" />
+          <xs:element name="VBComboBoxEditor.VBAccess" />
           <xs:element name="VBComboBoxEditor.ACAccessComposite" />
           <xs:element name="VBComboBoxEditor.BSOACComponent" />
           <xs:element name="VBComboBoxEditor.ACUrlCmdMessage" />
@@ -28841,6 +30621,7 @@
         <xs:attribute name="ACCaption" />
         <xs:attribute name="ACCaptionTrans" />
         <xs:attribute name="ShowCaption" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="UpdateSourceTrigger" type="vb:enumUpdateSourceTrigger" />
         <xs:attribute name="WidthCaption" />
         <xs:attribute name="WidthCaptionMax" />
         <xs:attribute name="WidthContent" />
@@ -28853,6 +30634,7 @@
         <xs:attribute name="VBShowColumns" />
         <xs:attribute name="VBDisabledColumns" />
         <xs:attribute name="VBChilds" />
+        <xs:attribute name="VBAccess" />
         <xs:attribute name="ACAccessComposite" />
         <xs:attribute name="BSOACComponent" />
         <xs:attribute name="ACUrlCmdMessage" />
@@ -30069,6 +31851,7 @@
           <xs:element name="VBBindingsEditor.ACCaptionTrans" />
           <xs:element name="VBBindingsEditor.ShowCaption" />
           <xs:element name="VBBindingsEditor.IsEnabledScrollIntoView" />
+          <xs:element name="VBBindingsEditor.CyclicDataRefresh" type="dInt32Container" />
           <xs:element name="VBBindingsEditor.WidthCaption" type="dGridLengthContainer" />
           <xs:element name="VBBindingsEditor.WidthCaptionMax" type="dDoubleContainer" />
           <xs:element name="VBBindingsEditor.WidthContent" type="dGridLengthContainer" />
@@ -30080,6 +31863,7 @@
           <xs:element name="VBBindingsEditor.VBShowColumns" />
           <xs:element name="VBBindingsEditor.VBDisabledColumns" />
           <xs:element name="VBBindingsEditor.VBChilds" />
+          <xs:element name="VBBindingsEditor.VBAccess" />
           <xs:element name="VBBindingsEditor.BSOACComponent" />
           <xs:element name="VBBindingsEditor.ACCompInitState" />
           <xs:element name="VBBindingsEditor.DblClick" />
@@ -30174,6 +31958,7 @@
         <xs:attribute name="ACCaptionTrans" />
         <xs:attribute name="ShowCaption" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="IsEnabledScrollIntoView" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="CyclicDataRefresh" />
         <xs:attribute name="WidthCaption" />
         <xs:attribute name="WidthCaptionMax" />
         <xs:attribute name="WidthContent" />
@@ -30185,6 +31970,7 @@
         <xs:attribute name="VBShowColumns" />
         <xs:attribute name="VBDisabledColumns" />
         <xs:attribute name="VBChilds" />
+        <xs:attribute name="VBAccess" />
         <xs:attribute name="BSOACComponent" />
         <xs:attribute name="ACCompInitState" type="vb:enumACInitState" />
         <xs:attribute name="DblClick" />
@@ -30493,6 +32279,7 @@
           <xs:element name="VBTextBoxEditor.IsNullable" />
           <xs:element name="VBTextBoxEditor.OverrideTemplateTrigger" />
           <xs:element name="VBTextBoxEditor.ResourceKeyTestOn" />
+          <xs:element name="VBTextBoxEditor.ACUrlCmdMessage" />
           <xs:element name="VBTextBoxEditor.ACCompInitState" />
           <xs:element name="VBTextBoxEditor.ACIdentifier" />
           <xs:element name="VBTextBoxEditor.VBValidation" />
@@ -30607,6 +32394,7 @@
         <xs:attribute name="IsNullable" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="OverrideTemplateTrigger" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="ResourceKeyTestOn" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="ACUrlCmdMessage" />
         <xs:attribute name="ACCompInitState" type="vb:enumACInitState" />
         <xs:attribute name="ACIdentifier" />
         <xs:attribute name="VBValidation" />
@@ -30749,15 +32537,26 @@
       <xs:element ref="vb:VBStyleTriggerWindow" />
       <xs:element ref="vb:VBTriggersCollectionEditor" />
       <xs:element ref="vb:VBDesignSelectionAdorner" />
+      <xs:element ref="vb:VBDesignVBContentAdorner" />
       <xs:element ref="vb:VBDynamicContent" />
       <xs:element ref="vb:VBExpander" />
       <xs:element ref="vb:VBFlipView" />
+      <xs:element ref="vb:VBFlowDocumentScrollViewer" />
+      <xs:element ref="vb:VBFlowDocument" />
+      <xs:element ref="vb:VBFrameController" />
       <xs:element ref="vb:VBGanttChart" />
       <xs:element ref="vb:VBGanttChartView" />
       <xs:element ref="vb:VBGraphEdge" />
       <xs:element ref="vb:VBGraphItem" />
       <xs:element ref="vb:VBGraphSurface" />
+      <xs:element ref="vb:VBMenuItemMobile" />
       <xs:element ref="vb:VBNumericUpDown" />
+      <xs:element ref="vb:VBPage" />
+      <xs:element ref="vb:VBPageFunction`1" />
+      <xs:element ref="vb:VBOEEControl" />
+      <xs:element ref="vb:VBRibbonBarMobile" />
+      <xs:element ref="vb:VBRibbonButtonMobile" />
+      <xs:element ref="vb:VBRibbonMobile" />
       <xs:element ref="vb:VBTextEditor" />
       <xs:element ref="vb:VBTile" />
       <xs:element ref="vb:VBTileGrid" />
