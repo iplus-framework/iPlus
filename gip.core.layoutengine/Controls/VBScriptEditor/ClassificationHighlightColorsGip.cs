@@ -21,6 +21,7 @@ namespace gip.core.layoutengine
             PreprocessorKeywordBrush = new HighlightingColor { Foreground = new SimpleHighlightingBrush(Colors.Green) };
             StringBrush = new HighlightingColor { Foreground = new SimpleHighlightingBrush(Colors.DarkOrange) };
             BraceMatchingBrush = new HighlightingColor { Foreground = new SimpleHighlightingBrush(Colors.White), Background = new SimpleHighlightingBrush(Colors.Gray) };
+            ParameterBrush = new HighlightingColor { Foreground = new SimpleHighlightingBrush(Colors.DodgerBlue) };
         }
     }
 }

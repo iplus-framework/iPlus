@@ -5,33 +5,33 @@ using System.Reflection;
 using System.Linq;
 using gip.core.datamodel;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis;
 
 namespace gip.core.autocomponent
 {
 	/// <summary>
-	/// The Function class contains the C# function definition that is compiled into the <see cref="ScriptEngine"/>
+	/// Script with Method declaration, that is compiled into the <see cref="ScriptEngine"/>
 	/// </summary>
 	public class Script 
 	{
-		#region private members
-
-		internal ScriptEngine myEngine = null;
-        string _SourceCode = string.Empty;
-        string _ACMethodName = string.Empty;
-        ScriptTrigger _ScriptTrigger;
-        bool _ContionueByError = false;
-        int _SortIndex = 0;
+        #region private members
+        private ScriptEngine _ScriptEngine;
 		#endregion
 
+
         #region c'tors
-        public Script(string acMethodName)
+        public Script(string acMethodName, ScriptEngine engine, string sourceCode, bool continueOnError)
         {
             _ACMethodName = acMethodName;
-            var query = ScriptTrigger.ScriptTriggers.Where(c => acMethodName.StartsWith(c.MethodNamePrefix));
-            if (query.Any())
-                _ScriptTrigger = query.First();
+            _ScriptEngine = engine;
+            if (string.IsNullOrEmpty(sourceCode))
+                throw new ArgumentNullException("sourceCode is empty");
+            _SourceCode = ScriptEngine.RemovePrecompilerRegionAndMakeStatic(sourceCode);
+            _ContinueOnError = continueOnError;
+            _ScriptTrigger = ScriptTrigger.ScriptTriggers.Where(c => acMethodName.StartsWith(c.MethodNamePrefix)).FirstOrDefault();
         }
         #endregion
+
 
         #region Public Methods
 
@@ -60,23 +60,23 @@ namespace gip.core.autocomponent
 		/// <returns>An <see cref="object"/> representing the return type of the defined C# function.</returns>
 		public object Invoke(object[] parms)
 		{
-			if (myEngine == null) throw new ApplicationException("Function has not been compiled");
-			if (!myEngine.ExistsScript(this.ACMethodName)) throw new ApplicationException("Function does not exist in ScriptEngine");
+            if (_ScriptEngine == null)
+                throw new ApplicationException("Function has not been compiled");
+            if (!_ScriptEngine.ExistsScript(this.ACMethodName))
+                throw new ApplicationException("Function does not exist in ScriptEngine");
 
             // Wenn noch nicht kompiliert wurde, dann jetzt automatisch
-            if (!myEngine.IsCompiled)
-            {
-                myEngine.Compile();
-            }
-			if (!myEngine.IsCompiled) throw new ApplicationException("Function has not been compiled");
-            //Type t = myEngine.myResults.CompiledAssembly.GetType("RulesScript.ScriptFunctions");
-            Type t = myEngine.compilation.GetSemanticModel(myEngine.syntaxTree).Compilation.GetTypeByMetadataName("RulesScript.ScriptFunctions").GetType();
-			MethodInfo info = t.GetMethod(this.ACMethodName);
-			object o = null;
-			if (parms == null) parms = new object[0];
+            if (!_ScriptEngine.IsCompiled)
+                _ScriptEngine.Compile();
+            if (!_ScriptEngine.IsCompiled)
+                throw new ApplicationException("Function has not been compiled");
+
+            Type t = _ScriptEngine.CompiledAssembly.GetType(ScriptEngine.C_TypeNameScriptStaticClass);
+            MethodInfo info = t.GetMethod(this.ACMethodName);
+            object o = null;
+            if (parms == null) parms = new object[0];
             try
             {
-                //o = Invoke(parms);
                 if (info != null)
                     o = info.Invoke(null, parms);
             }
@@ -89,9 +89,13 @@ namespace gip.core.autocomponent
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                     datamodel.Database.Root.Messages.LogException("Script", "Invoke", msg);
             }
-			return o;
+            return o;
 		}
-		
+        #endregion
+
+
+        #region Properties
+        string _ACMethodName;
         public string ACMethodName
         {
             get
@@ -104,30 +108,25 @@ namespace gip.core.autocomponent
             }
         }
 
+        string _SourceCode;
         public string Sourcecode
         {
             get
             {
                 return _SourceCode;
             }
-            set
-            {
-                _SourceCode = value;
-            }
         }
 
+        ScriptTrigger _ScriptTrigger;
         public ScriptTrigger ScriptTrigger
         {
             get
             {
                 return _ScriptTrigger;
             }
-            set
-            {
-                _ScriptTrigger = value;
-            }
         }
 
+        int _SortIndex;
         public int SortIndex
         {
             get
@@ -140,16 +139,13 @@ namespace gip.core.autocomponent
             }
         }
 
-        
-        public bool ContionueByError
+
+        bool _ContinueOnError;
+        public bool ContionueOnError
         {
             get
             {
-                return _ContionueByError;
-            }
-            set
-            {
-                _ContionueByError = value;
+                return _ContinueOnError;
             }
         }
         #endregion
