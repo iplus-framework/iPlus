@@ -513,6 +513,7 @@ namespace gip.core.autocomponent
         /// <param name="dotNETType">In ACClass einzufügender Type</param>
         /// <param name="updateIfExists">True=Auf jeden Fall aktualisieren</param>
         /// <param name="onlyClass">True=Nur Klasse wird eingefügt</param>
+        /// <param name="recursionDepth">Rekusiondepth</param>
         /// <returns></returns>
         public ACClass InsertOrUpdateValueTypeACClass(Type dotNETType, bool updateIfExists, bool onlyClass, int recursionDepth)
         {
@@ -1475,6 +1476,7 @@ namespace gip.core.autocomponent
         /// <param name="ClassType"></param>
         /// <param name="ClassMethod"></param>
         /// <param name="Method"></param>
+        /// <param name="recursionDepth">Rekusiondepth</param>
         void InsertOrUpdateMethodParameters(Type ClassType, ACClassMethod ClassMethod, MethodInfo Method, int recursionDepth)
         {
             recursionDepth++;
