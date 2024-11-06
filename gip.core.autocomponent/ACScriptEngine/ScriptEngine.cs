@@ -9,64 +9,23 @@ using System.Linq;
 namespace gip.core.autocomponent
 {
     /// <summary>
-    /// Die ScriptEngine kann C#-Funktionen compilieren und ausf�hren.
-    /// 
-    /// Die Funktion muss folgende Voraussetzungen erf�llen, damit ausreichend 
-    /// Neutralit�t f�r die verschiedenen Anwendungsf�lle gew�hrleistet ist:
-    /// 1. Deklaration ist immer "public static"
-    /// 2. Es darf immer nur einen R�ckgabewert vom Typ bool geben. Nur so kann das Framework
-    ///    das Gesamtverhalten bei Erfolg oder Mi�erfolg steuern.
-    /// 4. �bergebene Objekte oder Interfaces k�nnen in der Funktion manipuliert werden.
-    /// 5. Es ist auch erlaubt ein komplettes BSO oder den AppContext zu �bergeben.
-    /// 6. Je EventTrigger (z.B. "PreExecuteCommand") kann es immer nur genau eine 
-    ///    Funktionssignatur geben.
-    /// 7. Alle Eventtrigger sind bei der ScriptEngine zu registrieren.
-    ///    Die Registrierung erfolgt immer in der Klasse AppContext und der 
-    ///    Funktion "RegisterEventtrigger()". 
-    /// 
-    /// 
-    /// 
-    /// Das Beispiel stammt noch aus der Prototypimplementierung:
-    /// 
-    ///     Taschenrechner tr = new Taschenrechner();
-    ///
-    ///     string code = @"public static int Berechne(ITaschenrechner tr, int value1, int value2, int value3)
-    ///		{
-    ///         int summe = tr.Addiere(value1, value2);
-    ///         int differenz = tr.Subtrahiere(summe, value3);
-    ///		    return differenz;
-    ///	    }";
-    ///
-    ///     ScriptEngine se = new ScriptEngine();
-    ///     Function f = new Function();
-    ///     f.Name = "Berechne";
-    ///     f.Text = code;
-    ///     se.Functions.Add(f);
-    ///     se.Compile();
-    ///
-    ///     int value1 = 10;
-    ///     int value2 = 20;
-    ///     int value3 = 5;
-    ///
-    ///     int s = (int)se.Functions["Berechne"].Invoke(new Object[] {tr, value1, value2, value3 });
+    /// Script Engine for exceuting extended static methods for ACComponents
     /// </summary>
-    /// 
-
-    public class ScriptEngine : IScriptEngine
+    public class ScriptEngine
     {
+        #region Private Members
         private static Dictionary<Guid, ScriptEngine> _ProxyEngines = new Dictionary<Guid, ScriptEngine>();
         private static readonly ACMonitorObject _20091_LockProxyEngines = new ACMonitorObject(20091);
         private static Dictionary<Guid, ScriptEngine> _RealEngines = new Dictionary<Guid, ScriptEngine>();
         private static readonly ACMonitorObject _20092_LockRealEngines = new ACMonitorObject(20092);
-
-        #region Private Members
-        internal CompilerResults myResults;
-        List<string> mAsemblies;
-        List<string> mNamespaces;
-        ScriptList mScripts;
-        bool myIsCompiled = false;
-        List<Msg> mCompileErrors = null;
+        private ScriptList _Scripts;
         IACType _ACType = null;
+        #endregion
+
+        #region Constants
+        public const string C_ScriptNamespace = "Scripts";
+        public const string C_ScriptStaticClassName = "ScriptMethods";
+        public const string C_TypeNameScriptStaticClass = C_ScriptNamespace + "." + C_ScriptStaticClassName;
         #endregion
 
         #region Constructors
@@ -77,13 +36,7 @@ namespace gip.core.autocomponent
         public ScriptEngine(IACType acType)
         {
             _ACType = acType;
-            mScripts = new ScriptList(this);
-            mAsemblies = new List<string>();
-            mNamespaces = new List<string>();
-
-            RegisterNamespace("gip.core.datamodel");
-            RegisterNamespace("gip.core.autocomponent");
-            RegisterNamespace("System.Linq");
+            _Scripts = new ScriptList(this);
         }
 
         public static ScriptEngine GetScriptEngine(IACType acType, bool isProxy)
@@ -160,43 +113,47 @@ namespace gip.core.autocomponent
             return engine;
         }
 
-#endregion
+        #endregion
 
-#region Properties
+        #region Properties
+        internal CompilerResults _CompiledAssembly;
+        public CompilerResults CompiledAssembly
+        {
+            get
+            {
+                return _CompiledAssembly;
+            }
+        }
 
         /// <summary>
         /// Gets a boolean value indicating whether the code has been compiled successfully.
         /// </summary>
         public bool IsCompiled
         {
-            get { return myIsCompiled; }
+            get { return _CompiledAssembly != null; }
         }
 
+        List<Msg> _CompileErrors = null;
         /// <summary>
         /// </summary>
         public List<Msg> CompileErrors
         {
             get
             {
-                return mCompileErrors;
+                return _CompileErrors;
             }
         }
 
 
         #endregion
 
-        #region Public Methods
+        #region Methods
         /// <summary>Compiles the C# functions contained in the collection.</summary>
         /// <returns>
         ///   <br />
         /// </returns>
         public bool Compile()
         {
-            foreach(var script in mScripts)
-            {
-                script.Sourcecode = CommentPrecompilerRegion(script.Sourcecode);
-            }
-
             CodeDomProvider provider = new Microsoft.CSharp.CSharpCodeProvider();
             CompilerParameters parms = new CompilerParameters();
 
@@ -244,14 +201,8 @@ namespace gip.core.autocomponent
                 }
             }
 
-            // Using deklarations in Script-Code
-            foreach (string usingNamespace in mScripts.UsingNamespaces)
-            {
-                RegisterNamespace(usingNamespace);
-            }
-
             // Assembly deklarations in Script-Code
-            foreach (string refAssembly in mScripts.Assemblies)
+            foreach (string refAssembly in _Scripts.Assemblies)
             {
                 string refAssemblyTemp = refAssembly;
                 if (!refAssemblyTemp.EndsWith(".dll"))
@@ -266,17 +217,20 @@ namespace gip.core.autocomponent
 
             try
             {
+                _CompiledAssembly = null;
                 // Get the code
-                CodeCompileUnit compileUnit = GetCode();
+                List<string> namespaces = _Scripts.UsingNamespaces;
+                AddDefaultNamespaces(namespaces);
+                CodeCompileUnit compileUnit = GetCode(namespaces);
                 // Compile the code
 
-                myResults = provider.CompileAssemblyFromDom(parms, compileUnit);
+                _CompiledAssembly = provider.CompileAssemblyFromDom(parms, compileUnit);
 
-                if (myResults.Errors.Count > 0)
+                if (_CompiledAssembly.Errors.Count > 0)
                 {
                     // There are errors
-                    mCompileErrors = new List<Msg>();
-                    foreach (CompilerError err in myResults.Errors)
+                    _CompileErrors = new List<Msg>();
+                    foreach (CompilerError err in _CompiledAssembly.Errors)
                     {
                         Msg ce = new Msg();
                         ce.Column = err.Column;
@@ -284,16 +238,15 @@ namespace gip.core.autocomponent
                         ce.ACIdentifier = err.ErrorNumber;
                         ce.Message = err.ErrorText;
                         ce.MessageLevel = err.IsWarning ? eMsgLevel.Warning : eMsgLevel.Error;
-                        mCompileErrors.Add(ce);
+                        _CompileErrors.Add(ce);
                         ACRoot.SRoot.Messages.LogError(_ACType.GetACUrl(), "ScriptEngine.Compile()", String.Format("Error at Row {0}, Column {1}, ErrorNumber {2}, Message {3}", ce.Row, ce.Column, ce.ACIdentifier, ce.Message));
                     }
-                    myIsCompiled = false;
+                    _CompiledAssembly = null;
                     return false;
                 }
                 else
                 {
                     // Success
-                    myIsCompiled = true;
                     return true;
                 }
             }
@@ -301,8 +254,7 @@ namespace gip.core.autocomponent
             {
                 ACRoot.SRoot.Messages.LogException(_ACType.GetACUrl(), "ScriptEngine.Compile()", String.Format("Exeption {0}", e.Message));
             }
-            myIsCompiled = false;
-            return false;
+            return _CompiledAssembly != null;
         }
 
 #endregion
@@ -312,27 +264,27 @@ namespace gip.core.autocomponent
         /// This method creates the <see cref="CodeCompileUnit"/> containing the actual C# code that will be compiled.
         /// </summary>
         /// <returns>A <see cref="CodeCompileUnit"/> containing the code to be compiled.</returns>
-        private CodeCompileUnit GetCode()
+        private CodeCompileUnit GetCode(IEnumerable<string> namespaces)
         {
             // Create a new CodeCompileUnit to contain the program graph
             CodeCompileUnit compileUnit = new CodeCompileUnit();
             // Declare a new namespace 
-            CodeNamespace rulesScript = new CodeNamespace("RulesScript");
+            CodeNamespace rulesScript = new CodeNamespace(C_ScriptNamespace);
             // Add the new namespace to the compile unit.
             compileUnit.Namespaces.Add(rulesScript);
 
             // Add the new namespace using for the required namespaces.
             rulesScript.Imports.Add(new CodeNamespaceImport("System"));
-            foreach (string mynamespace in mNamespaces)
+            foreach (string mynamespace in namespaces)
             {
                 rulesScript.Imports.Add(new CodeNamespaceImport(mynamespace));
             }
 
             // Declare a new type called ScriptFunctions.
-            CodeTypeDeclaration scriptFunctions = new CodeTypeDeclaration("ScriptFunctions");
+            CodeTypeDeclaration scriptFunctions = new CodeTypeDeclaration(C_ScriptStaticClassName);
 
             // Add the code here
-            CodeSnippetTypeMember mem = new CodeSnippetTypeMember(mScripts.ToString());
+            CodeSnippetTypeMember mem = new CodeSnippetTypeMember(_Scripts.ToString());
             scriptFunctions.Members.Add(mem);
 
             // Add the type to the namespace
@@ -340,77 +292,44 @@ namespace gip.core.autocomponent
 
             return compileUnit;
         }
-#endregion
-
-#region IScriptEngine Member
-
-        public void RegisterAssembly(string useAssembly)
+        public void RegisterScript(string acMethodName, string sourcecode, bool continueOnError)
         {
-            myIsCompiled = false;
-            if (!mAsemblies.Contains(useAssembly))
-                mAsemblies.Add(useAssembly);
+            _CompiledAssembly = null;
+            Script script = new Script(acMethodName, this, sourcecode, continueOnError);
+            _Scripts.AddScript(script);
         }
 
-        public void UnregisterAssembly(string useAssembly)
+        public void AddScript(string acMethodName)
         {
-            myIsCompiled = false;
-            mAsemblies.Remove(useAssembly);
-        }
-
-        public void RegisterNamespace(string useNamespace)
-        {
-            myIsCompiled = false;
-            if (!mNamespaces.Contains(useNamespace))
-                mNamespaces.Add(useNamespace);
-        }
-
-        public void UnregisterNamespace(string useNamespace)
-        {
-            myIsCompiled = false;
-            mNamespaces.Remove(useNamespace);
-        }
-
-        public void RegisterScript(string acMethodName, string sourcecode, bool continueByError)
-        {
-            myIsCompiled = false;
-            Script script = new Script(acMethodName);
-            script.Sourcecode += "static " + sourcecode;
-            script.ContionueByError = continueByError;
-            mScripts.AddScript(script);
-        }
-
-        public void UnregisterScript(string acMethodName)
-        {
-            myIsCompiled = false;
-            mScripts.Remove(acMethodName);
+            _CompiledAssembly = null;
+            _Scripts.Remove(acMethodName);
         }
 
         public bool ExistsScript(ScriptTrigger.Type triggerType, String methodNamePostfix)
         {
-            if (mScripts == null || !mScripts.Any())
+            if (_Scripts == null || !_Scripts.Any())
                 return false;
             ScriptTrigger scriptTrigger = ScriptTrigger.ScriptTriggers[(int)triggerType];
             int pos = methodNamePostfix.IndexOf('!');
             if (pos == 0)
                 methodNamePostfix = methodNamePostfix.Substring(1);
-            var query = mScripts.GetTriggerScripts(scriptTrigger, methodNamePostfix);
+            var query = _Scripts.GetTriggerScripts(scriptTrigger, methodNamePostfix);
             return (query != null && query.Any());
-            //return mScripts.Contains(scriptTrigger.GetMethodName(methodNamePostfix));
         }
 
         public bool ExistsScript(string acMethodName)
         {
-            return mScripts.Contains(acMethodName);
+            return _Scripts.Contains(acMethodName);
         }
 
         public object Execute(string acMethodName, object[] parameters)
         {
-            return mScripts[acMethodName].Invoke(parameters);
+            return _Scripts[acMethodName].Invoke(parameters);
         }
 
         public object TriggerScript(ScriptTrigger.Type triggerType, String methodNamePostFix, object[] parameters)
         {
-            if (mScripts == null || !mScripts.Any())
+            if (_Scripts == null || !_Scripts.Any())
                 return true;
 
             ScriptTrigger scriptTrigger = ScriptTrigger.ScriptTriggers[(int)triggerType];
@@ -418,7 +337,7 @@ namespace gip.core.autocomponent
             if (pos == 0)
                 methodNamePostFix = methodNamePostFix.Substring(1);
 
-            var scripts = mScripts.GetTriggerScripts(scriptTrigger, methodNamePostFix);
+            var scripts = _Scripts.GetTriggerScripts(scriptTrigger, methodNamePostFix);
             if (scripts != null && scripts.Any())
             {
                 foreach (Script script in scripts)
@@ -434,7 +353,7 @@ namespace gip.core.autocomponent
                                 {
                                     if (!(bool)script.Invoke())
                                     {
-                                        if (script.ContionueByError)
+                                        if (script.ContionueOnError)
                                             continue;
 
                                         return false;
@@ -445,7 +364,7 @@ namespace gip.core.autocomponent
                                     object result = script.Invoke();
                                     if (result != null)
                                     {
-                                        if (script.ContionueByError)
+                                        if (script.ContionueOnError)
                                             continue;
 
                                         return false;
@@ -467,7 +386,7 @@ namespace gip.core.autocomponent
                                 {
                                     if (!(bool)script.Invoke(parameters))
                                     {
-                                        if (script.ContionueByError)
+                                        if (script.ContionueOnError)
                                             continue;
 
                                         return false;
@@ -478,7 +397,7 @@ namespace gip.core.autocomponent
                                     object result = script.Invoke(parameters);
                                     if (result != null)
                                     {
-                                        if (script.ContionueByError)
+                                        if (script.ContionueOnError)
                                             continue;
 
                                         return false;
@@ -494,7 +413,7 @@ namespace gip.core.autocomponent
                     }
                     catch (Exception e)
                     {
-                        if (script.ContionueByError)
+                        if (script.ContionueOnError)
                             continue;
 
                         string msg = e.Message;
@@ -511,9 +430,9 @@ namespace gip.core.autocomponent
             return true;
         }
 
-#endregion
+        #endregion
 
-#region Static Members
+        #region Static Members
         /// <summary>
         /// Extrahiert den Funktionsnamen aus der Funktionssignatur
         /// </summary>
@@ -529,7 +448,7 @@ namespace gip.core.autocomponent
             return functionCall.Substring(pos1 + 1, pos2 - (pos1 + 1));
         }
 
-        public static string CommentPrecompilerRegion(string source)
+        public static string RemovePrecompilerRegionAndMakeStatic(string source)
         {
             if (string.IsNullOrEmpty(source))
                 return string.Empty;
@@ -562,9 +481,19 @@ namespace gip.core.autocomponent
                     result += newLine.Insert(0, "/// ") + ";" + System.Environment.NewLine;
             }
 
-            return source.Replace(precompilerRegion, result);
+            source = source.Replace(precompilerRegion, result); // Declare Method as static
+            return "static" + System.Environment.NewLine + source;
         }
 
+        public static void AddDefaultNamespaces(List<string> namespaces)
+        {
+            if (!namespaces.Contains("gip.core.datamodel"))
+                namespaces.Add("gip.core.datamodel");
+            if (!namespaces.Contains("gip.core.autocomponent"))
+                namespaces.Add("gip.core.autocomponent");
+            if (!namespaces.Contains("System.Linq"))
+                namespaces.Add("System.Linq");
+        }
         #endregion
     }
 }

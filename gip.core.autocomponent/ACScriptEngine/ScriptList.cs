@@ -13,16 +13,14 @@ namespace gip.core.autocomponent
     public class ScriptList : List<Script> // DictionaryBase
     {
         #region Private Members
-
-        private ScriptEngine myEngine = null;
-
+        private ScriptEngine _ScriptEngine = null;
         #endregion
 
         #region Constructors
 
         internal ScriptList(ScriptEngine engine)
         {
-            myEngine = engine;
+            _ScriptEngine = engine;
         }
 
         #endregion
@@ -33,7 +31,6 @@ namespace gip.core.autocomponent
         /// <param name="function"></param>
         public void AddScript(Script function)
         {
-            function.myEngine = myEngine;
             function.SortIndex = Count + 1;
             base.Add(function);
         }
@@ -94,6 +91,10 @@ namespace gip.core.autocomponent
                         .OrderBy(c => c.SortIndex);
         }
 
+        #endregion
+
+        #region Properties
+
         public List<String> UsingNamespaces
         {
             get
@@ -104,15 +105,16 @@ namespace gip.core.autocomponent
                     int startindex = 0;
                     while (startindex >= 0)
                     {
-                        startindex = f.Sourcecode.IndexOf("/// using ", startindex);
-                        if (startindex > 0)
+                        int teststartindex = f.Sourcecode.IndexOf("/// using ", startindex);
+                        if (teststartindex > 0)
+                            startindex = AddNamespace(usingNamespaces, f.Sourcecode, teststartindex);
+                        else
                         {
-                            int to = f.Sourcecode.IndexOf(";", startindex);
-                            int from = startindex + 10;
-                            int length = to - from;
-                            if (length > 1)
-                                usingNamespaces.Add(f.Sourcecode.Substring(from, length));
-                            startindex = to;
+                            teststartindex = f.Sourcecode.IndexOf("using ", startindex);
+                            if (teststartindex > 0)
+                                startindex = AddNamespace(usingNamespaces, f.Sourcecode, teststartindex);
+                            else
+                                break;
                         }
                     }
                 }
@@ -120,11 +122,25 @@ namespace gip.core.autocomponent
             }
         }
 
+        private int AddNamespace(List<String> usingNamespaces, string source, int startIndex)
+        {
+            int to = source.IndexOf(";", startIndex);
+            int from = startIndex + 10;
+            int length = to - from;
+            if (length > 1)
+            {
+                string sNamespace = source.Substring(from, length);
+                if (!usingNamespaces.Contains(sNamespace))
+                    usingNamespaces.Add(sNamespace);
+            }
+            return to;
+        }
+
         public List<String> Assemblies
         {
             get
             {
-                List<String> usingNamespaces = new List<string>();
+                List<String> assemblies = new List<string>();
                 foreach (Script f in this)
                 {
                     int startindex = 0;
@@ -137,18 +153,18 @@ namespace gip.core.autocomponent
                             int from = startindex + 16;
                             int length = to - from;
                             if (length > 1)
-                                usingNamespaces.Add(f.Sourcecode.Substring(from, length));
+                            {
+                                string assName = f.Sourcecode.Substring(from, length);
+                                if (!assemblies.Contains(assName))
+                                    assemblies.Add(assName);
+                            }
                             startindex = to;
                         }
                     }
                 }
-                return usingNamespaces;
+                return assemblies;
             }
         }
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// Provides an indexer to override the returned object type to a function/>

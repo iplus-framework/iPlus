@@ -348,7 +348,6 @@
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeDecisionMsg.cs" />
     <Compile Include="ACProcessWorkflow\PWNode\PWNodeOr.cs" />
     <Compile Include="ACClassManager\ACClassManager.cs" />
-    <Compile Include="ACScriptEngine\IScriptEngine.cs" />
     <Compile Include="ACScriptEngine\CompileErrors.cs" />
     <Compile Include="ACScriptEngine\Script.cs" />
     <Compile Include="ACScriptEngine\ScriptEngine.cs" />
