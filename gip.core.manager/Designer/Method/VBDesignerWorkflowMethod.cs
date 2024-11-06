@@ -1100,6 +1100,7 @@ namespace gip.core.manager
             ACClassWF acClassWF = null;
             string secondaryKey = Root.NoManager.GetNewNo(Database, typeof(ACClassWF), ACClassWF.NoColumnName, ACClassWF.FormatNewNo, this);
             acClassWF = ACClassWF.NewACClassWF(database, rootACClassMethod, pwACClass, paACClass, paACClassMethod, groupVisualClass, secondaryKey);
+            database.ACClassWF.Add(acClassWF);
             var acClassDesign = acClassWF.PWACClass.GetDesign(acClassWF.PWACClass, Global.ACUsages.DUControl, Global.ACKinds.DSDesignLayout);
             rootACClassMethod.AddNode(acClassWF);
             WPFProxyWorkflowMethod.AddToVisualChangeListRectParam(acClassWF, (short)VBDesigner.LayoutActionType.Insert, acClassDesign.VisualWidth, acClassDesign.VisualHeight, "", "");

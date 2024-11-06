@@ -78,7 +78,6 @@
     <ProjectReference Include="..\gip.core.scichart\gip.core.scichart.csproj" />
     <ProjectReference Include="..\gip.core.visualcontrols\gip.core.visualcontrols.csproj" />
     <ProjectReference Include="..\gip.core.webservices\gip.core.webservices.csproj" />
-    <ProjectReference Include="..\gip.core.wpfservices\gip.core.wpfservices.csproj" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

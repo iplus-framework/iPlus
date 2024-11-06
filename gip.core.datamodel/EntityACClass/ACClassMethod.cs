@@ -1683,6 +1683,7 @@ namespace gip.core.datamodel
         {
             string secondaryKey = Database.Root.NoManager.GetNewNo(database, typeof(ACClassWFEdge), ACClassWFEdge.NoColumnName, ACClassWFEdge.FormatNewNo, null);
             ACClassWFEdge edge = ACClassWFEdge.NewACObject(database as Database, this, secondaryKey);
+            database.Add(edge);
             return edge;
         }
 
