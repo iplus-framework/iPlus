@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel.Channels;
 using System.Text;
 
 namespace gip.core.datamodel
@@ -170,6 +171,7 @@ namespace gip.core.datamodel
             if (!queryRelation.Any())
             {
                 relation = ACClassPropertyRelation.NewACClassPropertyRelation(database, acClassOfPoint, acClassPropertyOfPoint.TopBaseACClassProperty, acClassTarget, acClassTargetProperty.TopBaseACClassProperty);
+                database.ACClassPropertyRelation.Add(relation);
                 acClassPropertyOfPoint.TopBaseACClassProperty.ACClassPropertyRelation_SourceACClassProperty.Add(relation);
             }
             else

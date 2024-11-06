@@ -25,6 +25,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
+using DocumentFormat.OpenXml.Vml.Office;
 
 namespace gip.bso.iplus
 {
@@ -3419,13 +3420,15 @@ namespace gip.bso.iplus
                         }
 
                         ACClassPropertyRelation binding = ACClassPropertyRelation.NewACClassPropertyRelation(this.Database, CurrentPBSourceACClass, sourceProp.TopBaseACClassProperty, classOfTarget, targetProp.TopBaseACClassProperty);
+                        Database.ACClassPropertyRelation.Add(binding);
                         binding.ConnectionType = Global.ConnectionTypes.Binding;
                         targetProp.TopBaseACClassProperty.RaiseOnPropertyChanged("ACClassPropertyBindingToSource");
                         targetProp.TopBaseACClassProperty.RaiseOnPropertyChanged("ACClassPropertySource");
                         return true;
                     }
                 case Global.PropertyModes.Connections:
-                    ACClassPropertyRelation.NewACClassPropertyRelation(Database, CurrentPBSourceACClass, sourceProp.TopBaseACClassProperty, classOfTarget, targetProp.TopBaseACClassProperty);
+                    ACClassPropertyRelation newRelation = ACClassPropertyRelation.NewACClassPropertyRelation(Database, CurrentPBSourceACClass, sourceProp.TopBaseACClassProperty, classOfTarget, targetProp.TopBaseACClassProperty);
+                    Database.ACClassPropertyRelation.Add(newRelation);
                     return true;
             }
             return false;
