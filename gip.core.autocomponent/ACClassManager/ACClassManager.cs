@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using gip.core.ControlScriptSync;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Formats.Asn1;
 
 namespace gip.core.autocomponent
 {
@@ -470,7 +471,7 @@ namespace gip.core.autocomponent
                     return;
                 foreach (var acType in acTypeList)
                 {
-                    InsertOrUpdateValueTypeACClass(acType, true, false);
+                    InsertOrUpdateValueTypeACClass(acType, true, false, 0);
                 }
                 // Jetzt alle Typen aktualisieren, bei denen nur ACClass, aber noch nicht ACClassProperty und ACClassMethod eingefügt wurde
                 while (_UpdateRequiredList.Any())
@@ -479,7 +480,7 @@ namespace gip.core.autocomponent
                     _UpdateRequiredList.Clear();
                     foreach (var acClassInfo in updateRequiredList)
                     {
-                         InsertOrUpdateValueTypeACClass(acClassInfo.TypeOfACClass, true, false);
+                         InsertOrUpdateValueTypeACClass(acClassInfo.TypeOfACClass, true, false, 0);
                     }
                 }
 
@@ -513,8 +514,9 @@ namespace gip.core.autocomponent
         /// <param name="updateIfExists">True=Auf jeden Fall aktualisieren</param>
         /// <param name="onlyClass">True=Nur Klasse wird eingefügt</param>
         /// <returns></returns>
-        public ACClass InsertOrUpdateValueTypeACClass(Type dotNETType, bool updateIfExists, bool onlyClass)
+        public ACClass InsertOrUpdateValueTypeACClass(Type dotNETType, bool updateIfExists, bool onlyClass, int recursionDepth)
         {
+            recursionDepth++;
             #region Test debug insert / update class
             //string searchValue = "ACProgramLogView";
             //searchValue = searchValue.ToLower();
@@ -642,7 +644,8 @@ namespace gip.core.autocomponent
                 }
 
 
-                _Database.ACClass.Add(acClass);
+                if (acClass.EntityState == EntityState.Detached)
+                    _Database.ACClass.Add(acClass);
                 _CheckedAssemblyACClassList.Add(acClass.AssemblyQualifiedName, acClass);
                 if (acProject.ACProjectType == Global.ACProjectTypes.Root)
                     acClass.ACClass1_ParentACClass = GetManagerACClass(acClass.ACKind, dotNETType);
@@ -777,7 +780,7 @@ namespace gip.core.autocomponent
                     {
                         Type baseType = dotNETType.BaseType.GetGenericTypeDefinition();
                         string baseFullName = baseType.FullName;
-                        ACClass basedACClass = InsertOrUpdateValueTypeACClass(baseType, !_CheckedAssemblyACClassList.ContainsKey(baseFullName), onlyClass);
+                        ACClass basedACClass = InsertOrUpdateValueTypeACClass(baseType, !_CheckedAssemblyACClassList.ContainsKey(baseFullName), onlyClass, recursionDepth);
                         if (acClass.ACClass1_BasedOnACClass != basedACClass)
                             acClass.ACClass1_BasedOnACClass = basedACClass;
                     }
@@ -786,7 +789,7 @@ namespace gip.core.autocomponent
                     {
                         Type baseType = dotNETType.BaseType.GetGenericTypeDefinition(); // Auch nur Type-Definition als Basisklasse, weil sonst tausende von Kombinationsmöglichkeiten erzeugt werden
                         string baseFullName = baseType.FullName;
-                        ACClass basedACClass = InsertOrUpdateValueTypeACClass(baseType, !_CheckedAssemblyACClassList.ContainsKey(baseFullName), onlyClass);
+                        ACClass basedACClass = InsertOrUpdateValueTypeACClass(baseType, !_CheckedAssemblyACClassList.ContainsKey(baseFullName), onlyClass, recursionDepth);
                         if (acClass.ACClass1_BasedOnACClass != basedACClass)
                             acClass.ACClass1_BasedOnACClass = basedACClass;
                     }
@@ -802,13 +805,13 @@ namespace gip.core.autocomponent
                     if (dotNETType.IsEnum)
                     {
                         var typeOfShort = typeof(short);
-                        ACClass basedACClass = InsertOrUpdateValueTypeACClass(typeOfShort, !_CheckedAssemblyACClassList.ContainsKey(typeOfShort.Name), onlyClass);
+                        ACClass basedACClass = InsertOrUpdateValueTypeACClass(typeOfShort, !_CheckedAssemblyACClassList.ContainsKey(typeOfShort.Name), onlyClass, recursionDepth);
                         if (acClass.ACClass1_BasedOnACClass != basedACClass)
                             acClass.ACClass1_BasedOnACClass = basedACClass;
                     }
                     else
                     {
-                        ACClass basedACClass = InsertOrUpdateValueTypeACClass(tempbaseType, !_CheckedAssemblyACClassList.ContainsKey(baseFullName), onlyClass);
+                        ACClass basedACClass = InsertOrUpdateValueTypeACClass(tempbaseType, !_CheckedAssemblyACClassList.ContainsKey(baseFullName), onlyClass, recursionDepth);
                         if (acClass.ACClass1_BasedOnACClass != basedACClass)
                             acClass.ACClass1_BasedOnACClass = basedACClass;
                     }
@@ -827,7 +830,7 @@ namespace gip.core.autocomponent
                         {
                             Type baseType2 = baseType.GetGenericTypeDefinition();
                             string baseFullName = baseType2.FullName;
-                            ACClass basedACClass = InsertOrUpdateValueTypeACClass(baseType2, !_CheckedAssemblyACClassList.ContainsKey(baseFullName), onlyClass);
+                            ACClass basedACClass = InsertOrUpdateValueTypeACClass(baseType2, !_CheckedAssemblyACClassList.ContainsKey(baseFullName), onlyClass, recursionDepth);
                             if (acClass.ACClass1_BasedOnACClass != basedACClass)
                                 acClass.ACClass1_BasedOnACClass = basedACClass;
                         }
@@ -836,7 +839,7 @@ namespace gip.core.autocomponent
                         {
                             Type baseType2 = baseType.GetGenericTypeDefinition(); // Auch nur Type-Definition als Basisklasse, weil sonst tausende von Kombinationsmöglichkeiten erzeugt werden
                             string baseFullName = baseType2.FullName;
-                            ACClass basedACClass = InsertOrUpdateValueTypeACClass(baseType2, !_CheckedAssemblyACClassList.ContainsKey(baseFullName), onlyClass);
+                            ACClass basedACClass = InsertOrUpdateValueTypeACClass(baseType2, !_CheckedAssemblyACClassList.ContainsKey(baseFullName), onlyClass, recursionDepth);
                             if (acClass.ACClass1_BasedOnACClass != basedACClass)
                                 acClass.ACClass1_BasedOnACClass = basedACClass;
                         }
@@ -849,7 +852,7 @@ namespace gip.core.autocomponent
                             tempbaseType = tempbaseType.BaseType;
                         }
                         string baseFullName = tempbaseType.FullName;
-                        ACClass basedACClass = InsertOrUpdateValueTypeACClass(tempbaseType, !_CheckedAssemblyACClassList.ContainsKey(baseFullName), onlyClass);
+                        ACClass basedACClass = InsertOrUpdateValueTypeACClass(tempbaseType, !_CheckedAssemblyACClassList.ContainsKey(baseFullName), onlyClass, recursionDepth);
                         if (acClass.ACClass1_BasedOnACClass != basedACClass)
                             acClass.ACClass1_BasedOnACClass = basedACClass;
                     }
@@ -867,17 +870,20 @@ namespace gip.core.autocomponent
             //UpdateACClassConstructorInfo2(acClass, classType);
 
 
-            InsertOrUpdateMethods(acClass, dotNETType);
-            InsertOrUpdateACClassProperties(acClass, dotNETType, updateIfExists);
+            InsertOrUpdateMethods(acClass, dotNETType, recursionDepth);
+            InsertOrUpdateACClassProperties(acClass, dotNETType, updateIfExists, recursionDepth);
 
             try
             {
-                MsgWithDetails saveResult = _Database.ACSaveChanges(true, true, true);
-                if (saveResult != null)
+                if (recursionDepth <= 1)
                 {
-                    Messages.GlobalMsg.AddDetailMessage(saveResult);
-                    _Database.ACUndoChanges();
-                    throw new Exception("InsertOrUpdateValueTypeACClass(), ACClass(" + acClass.ACIdentifier + ") " + saveResult.InnerMessage);
+                    MsgWithDetails saveResult = _Database.ACSaveChanges(true, true, true);
+                    if (saveResult != null)
+                    {
+                        Messages.GlobalMsg.AddDetailMessage(saveResult);
+                        _Database.ACUndoChanges();
+                        throw new Exception("InsertOrUpdateValueTypeACClass(), ACClass(" + acClass.ACIdentifier + ") " + saveResult.InnerMessage);
+                    }
                 }
             }
             catch (Exception e)
@@ -1265,8 +1271,9 @@ namespace gip.core.autocomponent
         }
         #endregion
 
-        void InsertOrUpdateMethods(ACClass acClass, Type ClassType)
+        void InsertOrUpdateMethods(ACClass acClass, Type ClassType, int recursionDepth)
         {
+            recursionDepth++;
             if (acClass.ACKind != Global.ACKinds.TACUndefined)
             {
                 List<string> ClassMethodsList = new List<string>();
@@ -1340,6 +1347,8 @@ namespace gip.core.autocomponent
 
                         ClassMethod.IsRightmanagement = Info.IsRightmanagement;
                         ClassMethod.ContextMenuCategoryIndex = Info.ContextMenuCategoryIndex;
+                        if (ClassMethod.EntityState == EntityState.Detached)
+                            _Database.ACClassMethod.Add(ClassMethod);
                     }
 
                     // Get method description
@@ -1414,7 +1423,7 @@ namespace gip.core.autocomponent
 
                     // If return type is not registered in database, create new one
                     if (ValueClass == null)
-                        ValueClass = InsertOrUpdateValueTypeACClass(DataType, false, true);
+                        ValueClass = InsertOrUpdateValueTypeACClass(DataType, false, true, recursionDepth);
 
                     // Check and update return value type property, if needed
                     if (ClassMethod.ValueTypeACClass != ValueClass)
@@ -1430,7 +1439,7 @@ namespace gip.core.autocomponent
                     }
 
                     // Update ACMethod (Method parameters) and virtual methods, if any
-                    InsertOrUpdateMethodParameters(ClassType, ClassMethod, Method);
+                    InsertOrUpdateMethodParameters(ClassType, ClassMethod, Method, recursionDepth);
 
                     if (ClassMethod.EntityState != EntityState.Unchanged)
                     {
@@ -1466,8 +1475,9 @@ namespace gip.core.autocomponent
         /// <param name="ClassType"></param>
         /// <param name="ClassMethod"></param>
         /// <param name="Method"></param>
-        void InsertOrUpdateMethodParameters(Type ClassType, ACClassMethod ClassMethod, MethodInfo Method)
+        void InsertOrUpdateMethodParameters(Type ClassType, ACClassMethod ClassMethod, MethodInfo Method, int recursionDepth)
         {
+            recursionDepth++;
             string XML = null;
             ACMethod Argument = null;
             ACMethodWrapper virtMethodInfoWithSameAssemblyMethodName = null;
@@ -1528,7 +1538,7 @@ namespace gip.core.autocomponent
                     // Check if parameter type is registered in database
                     if (!DataType.IsGenericParameter && !_Database.ACClass.Where(c => c.AssemblyQualifiedName == DataType.AssemblyQualifiedName).Any())
                     {
-                        InsertOrUpdateValueTypeACClass(DataType, false, true);
+                        InsertOrUpdateValueTypeACClass(DataType, false, true, recursionDepth);
 
                         MsgWithDetails Result = _Database.ACSaveChanges(true, true, true);
                         if (Result != null)
@@ -1550,7 +1560,7 @@ namespace gip.core.autocomponent
 
                     if (!_Database.ACClass.Where(c => c.AssemblyQualifiedName == DataType.AssemblyQualifiedName).Any())
                     {
-                        InsertOrUpdateValueTypeACClass(DataType, false, true);
+                        InsertOrUpdateValueTypeACClass(DataType, false, true, recursionDepth);
 
                         MsgWithDetails Result = _Database.ACSaveChanges(true, true, true);
                         if (Result != null)
@@ -1646,7 +1656,8 @@ namespace gip.core.autocomponent
                 ChildClassMethod.InsertName = ACRoot.SRoot.CurrentInvokingUser.VBUserName;
 
                 ClassMethod.ACClass.AddNewACClassMethod(ClassMethod);
-                _Database.ACClassMethod.Add(ChildClassMethod);
+                if (ChildClassMethod.EntityState == EntityState.Detached)
+                    _Database.ACClassMethod.Add(ChildClassMethod);
             }
 
             if (ChildClassMethod.ACCaptionTranslation != VirtualMethod.CaptionTranslation && !string.IsNullOrEmpty(VirtualMethod.CaptionTranslation))
@@ -1716,8 +1727,9 @@ namespace gip.core.autocomponent
 
         private bool _OverwriteXMLACMethods = false;
 
-        void InsertOrUpdateACClassProperties(ACClass acClass, Type acClassType, bool updateIfExists)
+        void InsertOrUpdateACClassProperties(ACClass acClass, Type acClassType, bool updateIfExists, int recursionDepth)
         {
+            recursionDepth++;
             if (acClass.ACKind == Global.ACKinds.TACUndefined)
                 return;
 
@@ -1739,7 +1751,7 @@ namespace gip.core.autocomponent
                     // Falls "Configuration", dann kein ACClassProperty, sondern ein ACClassConfig-Eintrag
                     if (acPropertyInfo.ACPropUsage == Global.ACPropUsages.Configuration)
                     {
-                        InsertOrUpdateConfiguration(acClass, property, acPropertyInfo as ACPropertyConfig);
+                        InsertOrUpdateConfiguration(acClass, property, acPropertyInfo as ACPropertyConfig, recursionDepth);
                         continue;
                     }
                 }
@@ -1815,7 +1827,7 @@ namespace gip.core.autocomponent
                             continue;
                     }
                 }
-                InsertOrUpdateACClassProperty(acClass, property, acPropertyInfo, acClassType);
+                InsertOrUpdateACClassProperty(acClass, property, acPropertyInfo, acClassType, recursionDepth);
             }
 
             foreach (ACClassProperty acClassProperty in acClass.ACClassProperty_ACClass.Where(c => !c.IsStatic
@@ -1848,7 +1860,7 @@ namespace gip.core.autocomponent
                         {
                             if (!property.GetAccessors().Where(c => c.IsPublic).Any() || property.GetAccessors().Where(c => c.IsStatic).Any())
                                 continue;
-                            InsertOrUpdateACClassProperty(acClass, property, propDekl, acClassType);
+                            InsertOrUpdateACClassProperty(acClass, property, propDekl, acClassType, recursionDepth);
                         }
                     }
                 }
@@ -1922,14 +1934,15 @@ namespace gip.core.autocomponent
                 Messages.ConsoleMsg("System", msg.Message);
         }
 
-        private void InsertOrUpdateConfiguration(ACClass acClass, PropertyInfo propertyInfo, ACPropertyConfig acPropertyConfig)
+        private void InsertOrUpdateConfiguration(ACClass acClass, PropertyInfo propertyInfo, ACPropertyConfig acPropertyConfig, int recursionDepth)
         {
+            recursionDepth++;
             try
             {
                 ACClassConfig acClassConfig = acClass.ConfigurationEntries.Where(c => c.KeyACUrl == acClass.ACConfigKeyACUrl && c.LocalConfigACUrl == propertyInfo.Name).FirstOrDefault() as ACClassConfig;
                 var valueTypeACClass = GetCheckedAssemblyACClass(propertyInfo.PropertyType.AssemblyQualifiedName);
                 if (valueTypeACClass == null)
-                    valueTypeACClass = InsertOrUpdateValueTypeACClass(propertyInfo.PropertyType, false, true);
+                    valueTypeACClass = InsertOrUpdateValueTypeACClass(propertyInfo.PropertyType, false, true, recursionDepth);
                 if (acClassConfig == null)
                     acClassConfig = acClass.NewACConfig(null, valueTypeACClass, propertyInfo.Name) as ACClassConfig;
 
@@ -1964,8 +1977,9 @@ namespace gip.core.autocomponent
             }
         }
 
-        private void InsertOrUpdateACClassProperty(ACClass acClass, PropertyInfo propertyInfo, ACPropertyBase acPropertyInfo, Type classType)
+        private void InsertOrUpdateACClassProperty(ACClass acClass, PropertyInfo propertyInfo, ACPropertyBase acPropertyInfo, Type classType, int recursionDepth)
         {
+            recursionDepth++;
             try
             {
                 // TODO: Properties mit Delegate-Typen können nicht angelegt werden
@@ -1976,7 +1990,8 @@ namespace gip.core.autocomponent
                 {
                     acClassProperty = ACClassProperty.NewACObject(_Database, acClass);
                     acClassProperty.ConfigACClass = null;
-                    _Database.ACClassProperty.Add(acClassProperty);
+                    if (acClassProperty.EntityState == EntityState.Detached)
+                        _Database.ACClassProperty.Add(acClassProperty);
                     acClassProperty.ACIdentifier = propertyInfo.Name.Length > 100 ? propertyInfo.Name.Substring(0, 100) : propertyInfo.Name;
                     acClassProperty.ACKind = Global.ACKinds.PSProperty;
                     acClassProperty.IsStatic = propertyInfo.GetAccessors(true)[0].IsStatic;
@@ -2248,7 +2263,7 @@ namespace gip.core.autocomponent
                         valueTypeACClass = GetCheckedAssemblyACClass(assemblyQualifiedName);
                         if (valueTypeACClass == null)
                         {
-                            valueTypeACClass = InsertOrUpdateValueTypeACClass(dataType, false, true);
+                            valueTypeACClass = InsertOrUpdateValueTypeACClass(dataType, false, true, recursionDepth);
                         }
                     }
                     else
@@ -2256,7 +2271,7 @@ namespace gip.core.autocomponent
                         valueTypeACClass = GetCheckedAssemblyACClass(typeof(object).AssemblyQualifiedName);
                         if (valueTypeACClass == null)
                         {
-                            valueTypeACClass = InsertOrUpdateValueTypeACClass(typeof(object), false, true);
+                            valueTypeACClass = InsertOrUpdateValueTypeACClass(typeof(object), false, true, recursionDepth);
                         }
                     }
                 }
@@ -2275,7 +2290,7 @@ namespace gip.core.autocomponent
                     if (configACClass == null)
                     {
                         if (configDataType != null)
-                            configACClass = InsertOrUpdateValueTypeACClass(configDataType, false, true); // Fall 2: Datentyp in Datenbank einfügen
+                            configACClass = InsertOrUpdateValueTypeACClass(configDataType, false, true, recursionDepth); // Fall 2: Datentyp in Datenbank einfügen
                     }
                 }
 
@@ -2452,7 +2467,8 @@ namespace gip.core.autocomponent
                     childACClass.ACStartType = Global.ACStartTypes.Manually;
                     childACClass.IsRightmanagement = basedOnAcclass.IsRightmanagement;
 
-                    _Database.ACClass.Add(childACClass);
+                    if (childACClass.EntityState == EntityState.Detached)
+                        _Database.ACClass.Add(childACClass);
                 }
             }
         }
@@ -2638,6 +2654,8 @@ namespace gip.core.autocomponent
                 acClass.IsAbstract = false;
                 acClass.ACStartType = Global.ACStartTypes.Automatic;
                 acClass.IsRightmanagement = false;
+                if (acClass.EntityState == EntityState.Detached)
+                    _Database.ACClass.Add(acClass);
             }
             else
             {
@@ -2757,6 +2775,8 @@ namespace gip.core.autocomponent
                 acClass.IsAssembly = true;
                 acClass.ACStartType = GetACStartTypeByACType(Global.ACKinds.TACQRY);
                 acClass.IsRightmanagement = false;
+                if (acClass.EntityState == EntityState.Detached)
+                    _Database.ACClass.Add(acClass);
             }
             else
             {
@@ -3009,7 +3029,8 @@ namespace gip.core.autocomponent
                 dummyACClass.ACCaptionTranslation = "en{'Unknown Class'}de{'Unbekannte Klasse'}";
                 dummyACClass.ACKind = Global.ACKinds.TACUndefined;
                 dummyACClass.IsAssembly = true;
-
+                if (dummyACClass.EntityState == EntityState.Detached)
+                    _Database.ACClass.Add(dummyACClass);
             }
             else
             {
@@ -3029,6 +3050,8 @@ namespace gip.core.autocomponent
                 dummyACClassProperty.ValueTypeACClass = GetCheckedAssemblyACClass(TypeAnalyser._TypeName_Boolean);
                 if (dummyACClassProperty.ValueTypeACClass == null)
                     dummyACClassProperty.ValueTypeACClass = _Database.ACClass.Where(c => c.AssemblyQualifiedName.StartsWith(TypeAnalyser._TypeName_Boolean)).FirstOrDefault();
+                if (dummyACClassProperty.EntityState == EntityState.Detached)
+                    _Database.ACClassProperty.Add(dummyACClassProperty);
             }
 
             // ACClassMethod
@@ -3039,6 +3062,8 @@ namespace gip.core.autocomponent
                 dummyACClassMethod.ACIdentifier = Const.UnknownMethod;
                 dummyACClassMethod.ACCaptionTranslation = "en{'Unknown Method'}de{'Unbekannte Eigenschaft'}";
                 dummyACClassMethod.ACKind = Global.ACKinds.TACUndefined;
+                if (dummyACClassMethod.EntityState == EntityState.Detached)
+                    _Database.ACClassMethod.Add(dummyACClassMethod);
             }
 
             // ACClassWF
@@ -3049,6 +3074,8 @@ namespace gip.core.autocomponent
                 dummyACClassWF = ACClassWF.NewACObject(_Database, dummyACClassMethod, secondaryKey);
                 dummyACClassWF.ACIdentifier = Const.UnknownWorkflow;
                 dummyACClassWF.PWACClass = dummyACClass;
+                if (dummyACClassWF.EntityState == EntityState.Detached)
+                    _Database.ACClassWF.Add(dummyACClassWF);
             }
 
             // ACClassDesign
@@ -3060,6 +3087,8 @@ namespace gip.core.autocomponent
                 dummyACClassDesign.ACIdentifier = Const.UnknownDesign;
                 dummyACClassDesign.ACCaptionTranslation = "en{'Unknown Design'}de{'Unbekannte Eigenschaft'}";
                 dummyACClassDesign.ACKind = Global.ACKinds.TACUndefined;
+                if (dummyACClassDesign.EntityState == EntityState.Detached)
+                    _Database.ACClassDesign.Add(dummyACClassDesign);
             }
 
             try

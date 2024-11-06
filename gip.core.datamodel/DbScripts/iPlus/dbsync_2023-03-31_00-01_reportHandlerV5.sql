@@ -1,7 +1,8 @@
-﻿update ACClass set AssemblyQualifiedName = 'gip.core.reporthandlerwpf.ESCPosPrinter, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where ACIdentifier = 'ESCPosPrinter' and AssemblyQualifiedName <> 'gip.core.reporthandlerwpf.ESCPosPrinter, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' and ParentACClassID is null;
-update ACClass set AssemblyQualifiedName = 'gip.core.reporthandlerwpf.VBBSOReport, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where ACIdentifier = 'VBBSOReport' and AssemblyQualifiedName <> 'gip.core.reporthandlerwpf.VBBSOReport, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null';
-update ACClass set AssemblyQualifiedName = 'gip.core.reporthandlerwpf.VBBSOReportDialog, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where ACIdentifier = 'VBBSOReportDialog' and AssemblyQualifiedName <> 'gip.core.reporthandlerwpf.VBBSOReportDialog, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null';
-update ACClass set AssemblyQualifiedName = 'gip.core.reporthandlerwpf.Flowdoc.VBReportEditor, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where ACIdentifier = 'VBReportEditor' and AssemblyQualifiedName <> 'gip.core.reporthandlerwpf.Flowdoc.VBReportEditor, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' and ParentACClassID is null;
-update ACClass set AssemblyQualifiedName = 'gip.core.reporthandlerwpf.Flowdoc.VBReportViewer, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where ACIdentifier = 'VBReportViewer' and AssemblyQualifiedName <> 'gip.core.reporthandlerwpf.Flowdoc.VBReportViewer, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' and ParentACClassID is null;
-update ACClass set AssemblyQualifiedName = 'gip.core.reporthandlerwpf.ACMethodReportConfigWrapper, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where ACIdentifier = 'ACMethodReportConfigWrapper' and AssemblyQualifiedName <> 'gip.core.reporthandlerwpf.ACMethodReportConfigWrapper, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' and ParentACClassID is null;
-update ACClass set AssemblyQualifiedName = 'gip.core.reporthandlerwpf.BSOPrinterSettings, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where ACIdentifier = 'BSOPrinterSettings' and AssemblyQualifiedName <> 'gip.core.reporthandlerwpf.BSOPrinterSettings, gip.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null';
+﻿update ACClass set AssemblyQualifiedName = REPLACE(AssemblyQualifiedName, 'gip.core.reporthandler', 'gip.core.reporthandlerwpf') 
+where AssemblyQualifiedName like '%gip.core.reporthandler.%'
+and not (ACIdentifier = 'ACPrintManager'
+or ACIdentifier = 'ACPrintServerBase'
+or ACIdentifier = 'ReportConfigurationWrapper'
+or ACIdentifier = 'PAOrderInfoManagerBase'
+or ACIdentifier = 'PrinterInfo'
+or ACIdentifier = 'PWNodePrint');
