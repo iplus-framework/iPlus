@@ -155,7 +155,7 @@
     <CodeAnalysisDictionary Include="Configuration\CodeAnalysisDictionary.xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\GIP-SNKey.snk">
+    <None Include="..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
     <None Include="ReadMe.txt" />
