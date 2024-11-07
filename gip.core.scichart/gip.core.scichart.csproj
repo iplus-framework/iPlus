@@ -36,7 +36,7 @@
   <ItemGroup>
     <Reference Include="Abt.Controls.SciChart.Wpf, Version=3.5.0.7128, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\SciChart\Abt.Controls.SciChart.Wpf.dll</HintPath>
+      <HintPath>..\..\packages\SciChart\Abt.Controls.SciChart.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -118,8 +118,8 @@
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(OutDir)\gip.core.scichart.dll" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
     <Copy SourceFiles="$(OutDir)\gip.core.scichart.pdb" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
-    <Copy SourceFiles="..\..\..\packages\SciChart\Abt.Controls.SciChart.Wpf.dll" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
-    <Copy SourceFiles="..\..\..\packages\SciChart\Abt.Controls.SciChart.Wpf.xml" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="..\..\packages\SciChart\Abt.Controls.SciChart.Wpf.dll" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="..\..\packages\SciChart\Abt.Controls.SciChart.Wpf.xml" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

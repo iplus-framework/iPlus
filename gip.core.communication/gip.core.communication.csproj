@@ -65,54 +65,54 @@
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.8.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\Portable.BouncyCastle.1.8.10\lib\net40\BouncyCastle.Crypto.dll</HintPath>
+      <HintPath>..\..\packages\Portable.BouncyCastle.1.8.10\lib\net40\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NModbus4, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\NModbus4.2.1.0\lib\net40\NModbus4.dll</HintPath>
+      <HintPath>..\..\packages\NModbus4.2.1.0\lib\net40\NModbus4.dll</HintPath>
     </Reference>
     <Reference Include="Opc.Ua.Client, Version=1.4.363.0, Culture=neutral, PublicKeyToken=bfa7a73c5cf4b6e8, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Client.1.4.366.38\lib\net462\Opc.Ua.Client.dll</HintPath>
+      <HintPath>..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Client.1.4.366.38\lib\net462\Opc.Ua.Client.dll</HintPath>
     </Reference>
     <Reference Include="Opc.Ua.Configuration, Version=1.4.363.0, Culture=neutral, PublicKeyToken=bfa7a73c5cf4b6e8, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Configuration.1.4.366.38\lib\net462\Opc.Ua.Configuration.dll</HintPath>
+      <HintPath>..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Configuration.1.4.366.38\lib\net462\Opc.Ua.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="Opc.Ua.Core, Version=1.4.363.0, Culture=neutral, PublicKeyToken=bfa7a73c5cf4b6e8, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Core.1.4.366.38\lib\net462\Opc.Ua.Core.dll</HintPath>
+      <HintPath>..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Core.1.4.366.38\lib\net462\Opc.Ua.Core.dll</HintPath>
     </Reference>
     <Reference Include="Opc.Ua.Security.Certificates">
-      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Security.Certificates.1.4.366.38\lib\net462\Opc.Ua.Security.Certificates.dll</HintPath>
+      <HintPath>..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Security.Certificates.1.4.366.38\lib\net462\Opc.Ua.Security.Certificates.dll</HintPath>
     </Reference>
     <Reference Include="Opc.Ua.Server">
-      <HintPath>..\..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Server.1.4.366.38\lib\net462\Opc.Ua.Server.dll</HintPath>
+      <HintPath>..\..\packages\OPCFoundation.NetStandard.Opc.Ua.Server.1.4.366.38\lib\net462\Opc.Ua.Server.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\System.Buffers.4.5.1\lib\netstandard2.0\System.Buffers.dll</HintPath>
+      <HintPath>..\..\packages\System.Buffers.4.5.1\lib\netstandard2.0\System.Buffers.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.Entity">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Formats.Asn1">
-      <HintPath>..\..\..\packages\System.Formats.Asn1.5.0.0\lib\netstandard2.0\System.Formats.Asn1.dll</HintPath>
+      <HintPath>..\..\packages\System.Formats.Asn1.5.0.0\lib\netstandard2.0\System.Formats.Asn1.dll</HintPath>
     </Reference>
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.IdentityModel.Selectors" />
     <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+      <HintPath>..\..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\System.Numerics.Vectors.4.5.0\lib\netstandard2.0\System.Numerics.Vectors.dll</HintPath>
+      <HintPath>..\..\packages\System.Numerics.Vectors.4.5.0\lib\netstandard2.0\System.Numerics.Vectors.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
