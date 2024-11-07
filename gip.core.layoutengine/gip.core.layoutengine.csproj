@@ -70,7 +70,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ClosedXML, Version=0.95.4.0, Culture=neutral, PublicKeyToken=fd1eb21b62ae805b, processorArchitecture=MSIL">
@@ -1773,7 +1773,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\VBXMLEditor\Highlighting\XML-ModeStyleGip.xshd" />
     <EmbeddedResource Include="Controls\VBXMLEditor\Highlighting\XML-ModeStyleAero.xshd" />
-    <None Include="..\..\GIP-SNKey.snk">
+    <None Include="..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
     <None Include="app.config" />
