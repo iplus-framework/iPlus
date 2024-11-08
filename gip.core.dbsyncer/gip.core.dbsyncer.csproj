@@ -15,7 +15,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework db model updater</Title>
@@ -43,7 +43,7 @@
     <Content Include="_doc\HowToUse.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\GIP-SNKey.snk">
+    <None Include="..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
   </ItemGroup>

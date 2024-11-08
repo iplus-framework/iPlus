@@ -1397,7 +1397,6 @@ namespace gip.core.communication
                     source,
                     subscriptionId,
                     monitoredItemId,
-                    context.OperationContext.Session,
                     itemToCreate.ItemToMonitor,
                     diagnosticsMasks,
                     timestampsToReturn,
@@ -1598,6 +1597,11 @@ namespace gip.core.communication
                     rightManager = component.GetRightsForUser(user);
             }
             return rightManager;
+        }
+
+        public void TransferMonitoredItems(OperationContext context, bool sendInitialValues, IList<IMonitoredItem> monitoredItems, IList<bool> processedItems, IList<ServiceResult> errors)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

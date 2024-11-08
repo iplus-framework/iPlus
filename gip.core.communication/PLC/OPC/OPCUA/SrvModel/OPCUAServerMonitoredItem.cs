@@ -19,10 +19,9 @@ namespace gip.core.communication
         public OPCUAServerMonitoredItem(
             IServerInternal server,
             INodeManager nodeManager,
-            UAStateACProperty mangerHandle,
+            object mangerHandle,
             uint subscriptionId,
             uint id,
-            Session session,
             ReadValueId itemToMonitor,
             DiagnosticsMasks diagnosticsMasks,
             TimestampsToReturn timestampsToReturn,
@@ -34,7 +33,7 @@ namespace gip.core.communication
             double samplingInterval,
             uint queueSize,
             bool discardOldest,
-            double minimumSamplingInterval)
+            double sourceSamplingInterval)
         :
             base(
                 server,
@@ -42,7 +41,6 @@ namespace gip.core.communication
                 mangerHandle,
                 subscriptionId,
                 id,
-                session,
                 itemToMonitor,
                 diagnosticsMasks,
                 timestampsToReturn,
@@ -54,7 +52,7 @@ namespace gip.core.communication
                 samplingInterval,
                 queueSize,
                 discardOldest,
-                minimumSamplingInterval)
+                sourceSamplingInterval)
         {
             Subscribe();
         }

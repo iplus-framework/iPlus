@@ -91,6 +91,8 @@
     </None>
     <PackageReference Include="BarcodeLib" Version="3.1.4" />
 		<PackageReference Include="ESCPOS" Version="1.2.4" />
+		<PackageReference Include="QRCoder" Version="1.6.0" />
+		<PackageReference Include="QRCoder.Xaml" Version="1.6.0" />
 		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
 		<PackageReference Include="System.Reflection.Context" Version="8.0.0" />
 	</ItemGroup>
@@ -106,12 +108,6 @@
 	<ItemGroup>
 		<Reference Include="BarcodeStandard">
 			<HintPath>..\..\..\packages\barcodelib\2.4.0\lib\netstandard2.0\BarcodeStandard.dll</HintPath>
-		</Reference>
-		<Reference Include="QRCoder">
-			<HintPath>..\..\..\packages\QRCoder.1.4.3\lib\net6.0-windows7.0\QRCoder.dll</HintPath>
-		</Reference>
-		<Reference Include="QRCoder.Xaml">
-			<HintPath>..\..\..\packages\qrcoder.xaml\1.4.3\lib\net6.0-windows7.0\QRCoder.Xaml.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 

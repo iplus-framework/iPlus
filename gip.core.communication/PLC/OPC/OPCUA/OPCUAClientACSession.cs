@@ -481,7 +481,7 @@ namespace gip.core.communication
 
         #region Methods => Reconnect
 
-        private void UASession_KeepAlive(Session session, KeepAliveEventArgs e)
+        private void UASession_KeepAlive(ISession session, KeepAliveEventArgs e)
         {
             if (e.Status != null)
             {
@@ -518,7 +518,7 @@ namespace gip.core.communication
             if (!Object.ReferenceEquals(sender, reconnectHandler))
                 return;
 
-            _UASession = reconnectHandler.Session;
+            _UASession = reconnectHandler.Session as Session;
 
             try
             {
@@ -620,7 +620,7 @@ namespace gip.core.communication
             session.Notification -= Session_Notification;
         }
 
-        private void Session_Notification(Session session, NotificationEventArgs e)
+        private void Session_Notification(ISession session, NotificationEventArgs e)
         {
             
         }
@@ -748,7 +748,7 @@ namespace gip.core.communication
             X509Certificate2 serverCertificate = new X509Certificate2(endpoint.Description.ServerCertificate);
 
             // check the certificate domains.
-            IList<string> domains = X509Utils.GetDomainsFromCertficate(serverCertificate);
+            IList<string> domains = X509Utils.GetDomainsFromCertificate(serverCertificate);
 
             if (domains != null)
             {

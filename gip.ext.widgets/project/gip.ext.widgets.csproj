@@ -59,7 +59,7 @@
     <Folder Include="Configuration\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\GIP-SNKey.snk">
+    <None Include="..\..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
   </ItemGroup>

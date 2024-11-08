@@ -105,7 +105,7 @@ namespace gip.core.communication
             {
                 Session activeSession = _OPCUAClientACSubscr?.OPCUASession?.UASession;
                 if (activeSession == null || activeSession.Disposed)
-                    activeSession = Subscription.Session;
+                    activeSession = Subscription.Session as Session;
                 response = activeSession.Write(null, _WriteValues, out status, out diagnostic);
                 ClientBase.ValidateResponse(status, _WriteValues);
                 ClientBase.ValidateDiagnosticInfos(diagnostic, _WriteValues);
