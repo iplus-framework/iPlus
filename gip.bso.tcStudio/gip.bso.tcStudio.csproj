@@ -34,7 +34,7 @@
   <ItemGroup>
     <Reference Include="ClosedXML, Version=0.95.4.0, Culture=neutral, PublicKeyToken=fd1eb21b62ae805b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\ClosedXML.Signed.0.95.4\lib\net46\ClosedXML.dll</HintPath>
+      <HintPath>..\..\packages\ClosedXML.Signed.0.95.4\lib\net46\ClosedXML.dll</HintPath>
     </Reference>
     <Reference Include="envdte, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>

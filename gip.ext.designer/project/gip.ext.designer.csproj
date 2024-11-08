@@ -7,7 +7,7 @@
     <DocumentationFile>..\..\..\..\..\..\AddIns\DisplayBindings\WpfDesign\ICSharpCode.WpfDesign.Designer.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
     <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
     <RunCodeAnalysis>False</RunCodeAnalysis>
@@ -77,7 +77,7 @@
     <CodeAnalysisDictionary Include="Configuration\CodeAnalysisDictionary.xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\GIP-SNKey.snk">
+    <None Include="..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
   </ItemGroup>

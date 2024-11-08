@@ -5,7 +5,7 @@
     <OutputPath>..\..\..\..\bin\</OutputPath>
     <NoStdLib>False</NoStdLib>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
     <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
     <SccProjectName>SAK</SccProjectName>
@@ -59,7 +59,7 @@
     <Folder Include="Configuration\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\GIP-SNKey.snk">
+    <None Include="..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
   </ItemGroup>
