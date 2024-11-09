@@ -59,7 +59,7 @@ Restore the SQL Server backup file located in the "Database" folder.
 Follow the instructions on [gipSoft's documentation site](https://iplus-framework.com/en/documentation/Read/Index/View/b00675a8-718c-4c13-9d6d-5e751397ac5f?chapterID=193d292e-df31-405e-a3e9-f1116846bf86#ItemTextTranslationID_d0551cc7-f767-4790-8ecb-8771836ebac7)
 
 5. **Open project in Microsoft Visual Studio:**  
-Compile the solution an set gip.iplus.client.exe as start project.
+Compile the solution an set gip.iplus.client.exe as start project. Login with "superuser":"superuser".
 
 6. **Execute gip.iplus.client.exe**  
 🤗 Have fun trying it out and watch our videos to get started. However, we recommend [online training](https://iplus-framework.com/en?section=Support%20%26%20Training#d57ccb45-9050-41cb-a177-9e8c05028931).
