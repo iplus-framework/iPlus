@@ -21,6 +21,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using System.Reflection;
 using System.Security.Policy;
+using System.ServiceModel;
+using Swashbuckle.AspNetCore.Swagger;
+using System.Xml;
 
 namespace gip.core.webservices
 {
@@ -48,15 +51,42 @@ namespace gip.core.webservices
             // Kommando um alle Einträge anzuzeigen:
             // >netsh http show urlacl
 
-            Host = WebHost.CreateDefaultBuilder()
-                .UseKestrel()
+            IWebHost host = WebHost.CreateDefaultBuilder()
+                .UseKestrel(options =>
+                {
+                    int servicePort = ServicePort;
+                    if (servicePort <= 0)
+                    {
+                        servicePort = 8730;
+                        ServicePort = servicePort;
+                    }
+                    options.ListenAnyIP(servicePort);
+                    //options.ListenAnyIP(8731, listenOptions =>
+                    //{
+                    //    listenOptions.UseHttps();
+                    //});
+                })
                 .ConfigureServices(services =>
                 {
-                    services.AddServiceModelServices()
-                    .AddServiceModelMetadata();
+                    services.AddServiceModelWebServices(o =>
+                    {
+                        o.Title = "Mobile Service API";
+                        o.Version = "1";
+                        o.Description = "API Description";
+                        o.TermsOfService = new("https://github.com/iplus-framework/iPlus");
+                        o.ContactName = "Contact";
+                        o.ContactEmail = "info@iplus-framework.com";
+                        //o.ContactUrl = new("http://example.com/contact");
+                        //o.ExternalDocumentUrl = new("http://example.com/doc.pdf");
+                        //o.ExternalDocumentDescription = "Documentation";
+                    });
+
+                    services.AddSingleton(new SwaggerOptions());
                 })
                 .Configure(app =>
                 {
+                    app.UseMiddleware<SwaggerMiddleware>();
+                    app.UseSwaggerUI();
                     app.UseServiceModel(builder =>
                     {
                         int servicePort = ServicePort;
@@ -68,38 +98,16 @@ namespace gip.core.webservices
 
                         string strUri = String.Format("http://{0}:{1}/", this.Root.Environment.UserInstance.Hostname, servicePort);
                         Uri uri = new Uri(strUri);
-                        //builder.Authorization.ServiceAuthorizationManager = new WSRestAuthorizationManager();
                         WebHttpBinding httpBinding = new WebHttpBinding() { ContentTypeMapper = new WSJsonServiceContentTypeMapper() };
-                        //Can't enable AllowCookies in httpBinding, not updated in CoreWCF; AllowCookies = true
                         httpBinding.MaxReceivedMessageSize = int.MaxValue;
                         httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
                         httpBinding.MaxBufferSize = int.MaxValue;
                         httpBinding.MaxBufferPoolSize = int.MaxValue;
                         builder.AddService(ServiceType);
+                        builder.AddServiceWebEndpoint(ServiceType, ServiceInterfaceType, httpBinding, uri, null);
 
-                        MethodInfo addServiceEndpointMethod = typeof(IServiceBuilder)
-                            .GetMethods()
-                            .FirstOrDefault(m =>
-                                m.Name == "AddServiceEndpoint" &&
-                                m.GetParameters().Length == 3 &&
-                                m.GetParameters()[0].ParameterType == typeof(Type) &&
-                                m.GetParameters()[1].ParameterType == typeof(Binding) &&
-                                m.GetParameters()[2].ParameterType == typeof(Uri))
-                            ?.MakeGenericMethod(ServiceType);
-
-                        var serviceEndpoint = addServiceEndpointMethod.Invoke(builder, new object[] { ServiceInterfaceType, httpBinding, uri });
-
-                        builder.ConfigureServiceHostBase<CoreWebService>(serviceHostBase =>
+                        builder.ConfigureAllServiceHostBase((serviceHostBase) =>
                         {
-                            serviceHostBase.Description.Behaviors.Add(new ServiceAuthorizationBehavior { ServiceAuthorizationManager = new WSRestAuthorizationManager() });
-                            if (serviceEndpoint != null)
-                            {
-                                foreach (var endpoint in serviceHostBase.Description.Endpoints)
-                                {
-                                    endpoint.EndpointBehaviors.Add(new PAWebServiceBaseErrorBehavior(this.GetACUrl()));
-                                }
-                            }
-
                             ServiceMetadataBehavior metad = serviceHostBase.Description.Behaviors.Find<ServiceMetadataBehavior>();
                             if (metad == null)
                             {
@@ -107,7 +115,6 @@ namespace gip.core.webservices
                                 serviceHostBase.Description.Behaviors.Add(metad);
                             }
                             metad.HttpGetEnabled = true;
-
                             foreach (CoreWCF.Description.ServiceEndpoint endpoint in serviceHostBase.Description.Endpoints)
                             {
                                 foreach (OperationDescription opDescr in endpoint.Contract.Operations)
@@ -120,7 +127,7 @@ namespace gip.core.webservices
                 })
                 .Build();
 
-            return Host;
+            return host;
         }
 
         public override Type ServiceType

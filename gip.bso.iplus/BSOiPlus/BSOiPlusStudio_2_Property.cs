@@ -1027,6 +1027,7 @@ namespace gip.bso.iplus
             // Einfügen einer neuen Eigenschaft und der aktuellen Eigenschaft zuweisen
             ACClassProperty acClassProperty = ACClassProperty.NewACObject(Database.ContextIPlus, CurrentACClass);
             CurrentACClass.ACClassProperty_ACClass.Add(acClassProperty);
+            Database.ContextIPlus.ACClassProperty.Add(acClassProperty);
             if (_ACClassPropertyList != null)
                 _ACClassPropertyList.Insert(0, acClassProperty);
             //_ACClassPropertyList = null;

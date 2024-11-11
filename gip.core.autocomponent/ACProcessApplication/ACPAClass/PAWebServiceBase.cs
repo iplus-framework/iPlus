@@ -74,46 +74,53 @@ namespace gip.core.autocomponent
 
         ACThread _ACHostStartThread = null;
 
-        public IWebHost Host{ get; set; }
-
-        private ServiceHostBase _SvcHost;
-        public ServiceHostBase SvcHost
+        private IWebHost _Host = null;
+        public IWebHost Host
         {
             get
             {
-                try
-                {
-                    var engineProperty = Host.Services.GetType().GetField("_engine", BindingFlags.NonPublic | BindingFlags.Instance);
-                    var engine = engineProperty.GetValue(Host.Services);
-                    var serviceProviderProperty = engine.GetType().GetField("_serviceProvider", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (serviceProviderProperty == null)
-                        return null;
-                    var serviceProvider = serviceProviderProperty.GetValue(engine);
-                    var realizedServicesProperty = serviceProvider.GetType().GetField("_realizedServices", BindingFlags.NonPublic | BindingFlags.Instance);
-                    var realizedServices = realizedServicesProperty.GetValue(serviceProvider);
-                    var realizedServicesIe = realizedServices as IEnumerable;
-                    foreach (Object obj in realizedServicesIe)
-                    {
-                        if (obj.ToString().Contains("CoreWCF.ServiceHostObjectModel") && !obj.ToString().Contains("Logger"))
-                        {
-                            var objValueProperty = obj.GetType().GetProperty("Value");
-                            var objValue = objValueProperty.GetValue(obj);
-                            var svcBaseProperty = objValue.GetType().GetProperty("Target");
-                            var svcBaseValue = svcBaseProperty.GetValue(objValue);
-                            var serviceHostObjModelProperty = svcBaseValue.GetType().GetField("value");
-                            var serviceHostObjModelValue = serviceHostObjModelProperty.GetValue(svcBaseValue);
-                            _SvcHost = serviceHostObjModelValue as ServiceHostBase;
-                        }
-                    }
-                    return _SvcHost;
-                }
-                catch (Exception ex)
-                {
-                    this.Messages.LogException(this.GetACUrl(), "SvcHost", ex);
-                }
-                return null;
+                return _Host;
             }
         }
+
+        //private ServiceHostBase _SvcHost;
+        //public ServiceHostBase SvcHost
+        //{
+        //    get
+        //    {
+        //        try
+        //        {
+        //            var engineProperty = Host.Services.GetType().GetField("_engine", BindingFlags.NonPublic | BindingFlags.Instance);
+        //            var engine = engineProperty.GetValue(Host.Services);
+        //            var serviceProviderProperty = engine.GetType().GetField("_serviceProvider", BindingFlags.NonPublic | BindingFlags.Instance);
+        //            if (serviceProviderProperty == null)
+        //                return null;
+        //            var serviceProvider = serviceProviderProperty.GetValue(engine);
+        //            var realizedServicesProperty = serviceProvider.GetType().GetField("_realizedServices", BindingFlags.NonPublic | BindingFlags.Instance);
+        //            var realizedServices = realizedServicesProperty.GetValue(serviceProvider);
+        //            var realizedServicesIe = realizedServices as IEnumerable;
+        //            foreach (Object obj in realizedServicesIe)
+        //            {
+        //                if (obj.ToString().Contains("CoreWCF.ServiceHostObjectModel") && !obj.ToString().Contains("Logger"))
+        //                {
+        //                    var objValueProperty = obj.GetType().GetProperty("Value");
+        //                    var objValue = objValueProperty.GetValue(obj);
+        //                    var svcBaseProperty = objValue.GetType().GetProperty("Target");
+        //                    var svcBaseValue = svcBaseProperty.GetValue(objValue);
+        //                    var serviceHostObjModelProperty = svcBaseValue.GetType().GetField("value");
+        //                    var serviceHostObjModelValue = serviceHostObjModelProperty.GetValue(svcBaseValue);
+        //                    _SvcHost = serviceHostObjModelValue as ServiceHostBase;
+        //                }
+        //            }
+        //            return _SvcHost;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            this.Messages.LogException(this.GetACUrl(), "SvcHost", ex);
+        //        }
+        //        return null;
+        //    }
+        //}
 
         /// <summary>
         /// Type of the Service-Class that implements ServiceInterfaceType
@@ -190,10 +197,6 @@ namespace gip.core.autocomponent
 
         /// <summary>
         /// Override this method and create the ServiceHost.
-        /// Afterwards the events will be automatically subscribed:
-        /// _SvcHost.Opened += _SvcHost_Opened;
-        /// _SvcHost.Faulted += _SvcHost_Faulted;
-        /// _SvcHost.UnknownMessageReceived += _SvcHost_UnknownMessageReceived;
         /// </summary>
         /// <returns></returns>
         public abstract IWebHost CreateService();
@@ -269,17 +272,17 @@ namespace gip.core.autocomponent
 
             try
             {
-                Host = CreateService();
+                _Host = CreateService();
                 _ACHostStartThread = new ACThread(StartHost);
                 _ACHostStartThread.Name = "ACUrl:" + this.GetACUrl() + ";StartHost();";
                 _ACHostStartThread.Start();
 
-                if (_SvcHost != null)
-                {
-                    _SvcHost.Opened += _SvcHost_Opened;
-                    _SvcHost.Faulted += _SvcHost_Faulted;
-                    _SvcHost.UnknownMessageReceived += _SvcHost_UnknownMessageReceived;
-                }
+                //if (_SvcHost != null)
+                //{
+                //    _SvcHost.Opened += _SvcHost_Opened;
+                //    _SvcHost.Faulted += _SvcHost_Faulted;
+                //    _SvcHost.UnknownMessageReceived += _SvcHost_UnknownMessageReceived;
+                //}
             }
             catch (Exception e)
             {
@@ -292,7 +295,7 @@ namespace gip.core.autocomponent
 
         public void StartHost()
         {
-            Host.Run();
+            Host?.Run();
         }
 
         public virtual void OnAddKnownTypesToOperationContract(CoreWCF.Description.ServiceEndpoint endpoint, OperationDescription opDescr)
@@ -313,32 +316,32 @@ namespace gip.core.autocomponent
             }
         }
 
-        protected void _SvcHost_Opened(object sender, EventArgs e)
-        {
-            this.CommState.ValueT = (int)_SvcHost.State;
-        }
+        //protected void _SvcHost_Opened(object sender, EventArgs e)
+        //{
+        //    this.CommState.ValueT = (int)_SvcHost.State;
+        //}
 
-        protected void _SvcHost_UnknownMessageReceived(object sender, UnknownMessageReceivedEventArgs e)
-        {
-            this.CommState.ValueT = (int)_SvcHost.State;
-            if (e != null)
-            {
-                IsServiceAlarm.ValueT = PANotifyState.AlarmOrFault;
-                Messages.LogException(this.GetACUrl(), "_SvcHost_UnknownMessageReceived", e.Message.ToString());
-                OnNewAlarmOccurred(IsServiceAlarm, "_SvcHost_UnknownMessageReceived", true);
-            }
-        }
+        //protected void _SvcHost_UnknownMessageReceived(object sender, UnknownMessageReceivedEventArgs e)
+        //{
+        //    this.CommState.ValueT = (int)_SvcHost.State;
+        //    if (e != null)
+        //    {
+        //        IsServiceAlarm.ValueT = PANotifyState.AlarmOrFault;
+        //        Messages.LogException(this.GetACUrl(), "_SvcHost_UnknownMessageReceived", e.Message.ToString());
+        //        OnNewAlarmOccurred(IsServiceAlarm, "_SvcHost_UnknownMessageReceived", true);
+        //    }
+        //}
 
-        protected void _SvcHost_Faulted(object sender, EventArgs e)
-        {
-            this.CommState.ValueT = (int)_SvcHost.State;
-            if (e != null)
-            {
-                IsServiceAlarm.ValueT = PANotifyState.AlarmOrFault;
-                Messages.LogException(this.GetACUrl(), "_SvcHost_Faulted", "_SvcHost_Faulted");
-                OnNewAlarmOccurred(IsServiceAlarm, "_SvcHost_Faulted", true);
-            }
-        }
+        //protected void _SvcHost_Faulted(object sender, EventArgs e)
+        //{
+        //    this.CommState.ValueT = (int)_SvcHost.State;
+        //    if (e != null)
+        //    {
+        //        IsServiceAlarm.ValueT = PANotifyState.AlarmOrFault;
+        //        Messages.LogException(this.GetACUrl(), "_SvcHost_Faulted", "_SvcHost_Faulted");
+        //        OnNewAlarmOccurred(IsServiceAlarm, "_SvcHost_Faulted", true);
+        //    }
+        //}
 
         public void AddWebServiceAlarm(string message)
         {
@@ -360,19 +363,23 @@ namespace gip.core.autocomponent
 
             try
             {
-                if (_SvcHost != null)
+                if (Host != null)
                 {
-                    _SvcHost.Opened -= _SvcHost_Opened;
-                    _SvcHost.Faulted -= _SvcHost_Faulted;
-                    _SvcHost.UnknownMessageReceived -= _SvcHost_UnknownMessageReceived;
-                    if (_SvcHost.State == CommunicationState.Opened)
-                    {
-                        //_SvcHost.Close();
-                        Host.StopAsync();
-                    }
+                    Host.StopAsync();
+                    _Host = null;
                 }
 
-                Host = null;
+                //if (_SvcHost != null)
+                //{
+                //    _SvcHost.Opened -= _SvcHost_Opened;
+                //    _SvcHost.Faulted -= _SvcHost_Faulted;
+                //    _SvcHost.UnknownMessageReceived -= _SvcHost_UnknownMessageReceived;
+                //    if (_SvcHost.State == CommunicationState.Opened)
+                //    {
+                //        //_SvcHost.Close();
+                //        Host.StopAsync();
+                //    }
+                //}
             }
             catch (Exception e)
             {

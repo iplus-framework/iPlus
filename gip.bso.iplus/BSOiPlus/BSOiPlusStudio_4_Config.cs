@@ -257,6 +257,7 @@ namespace gip.bso.iplus
             {
                 mi.Invoke(t, new object[] { Database.ContextIPlus, acClassProperty });
             }
+            Database.ContextIPlus.ACClassProperty.Add(acClassProperty);
 
             OnPropertyChanged("ConfigACClassPropertyList");
             PostExecute("NewConfigACClassProperty");

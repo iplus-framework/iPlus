@@ -44,6 +44,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\gip.bso.iplus\gip.bso.iplus.csproj" />
     <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj" />
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
   </ItemGroup>

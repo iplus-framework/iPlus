@@ -45,6 +45,7 @@
     <PackageReference Include="CoreWCF.Http" Version="1.6.0" />
     <PackageReference Include="CoreWCF.Primitives" Version="1.6.0" />
     <PackageReference Include="CoreWCF.WebHttp" Version="1.6.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.9.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="EntityFramework" Version="6.5.1" />
   </ItemGroup>
