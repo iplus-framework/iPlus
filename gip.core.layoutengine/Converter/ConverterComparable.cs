@@ -29,10 +29,26 @@ namespace gip.core.layoutengine
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            double intValue = (int)value;
-            double compareToValue = int.Parse(parameter as string);
+            int intValue = (int)value;
+            int compareToValue = int.Parse(parameter as string);
 
             return intValue <= compareToValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class IntegerEqualsOrGreatherThan : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            int intValue = (int)value;
+            int compareToValue = int.Parse(parameter as string);
+
+            return intValue >= compareToValue;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
