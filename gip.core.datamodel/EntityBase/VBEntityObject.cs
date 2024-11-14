@@ -477,6 +477,13 @@ namespace gip.core.datamodel
                         return entry.State;
                 }
             }
+            set
+            {
+                if (_context == null)
+                    return;
+                var entry = _context.Entry(this);
+                entry.State = value;
+            }
         }
 
         public virtual void OnObjectMaterialized(IACEntityObjectContext context)

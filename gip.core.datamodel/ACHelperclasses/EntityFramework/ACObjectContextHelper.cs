@@ -284,9 +284,13 @@ namespace gip.core.datamodel
                     {
                         var entityList = entityStateList.Where(c => c.Entity != null).Select(c => c.Entity);
                         if (entityList != null && entityList.Any())
+                        {
                             // Leere liste indem die Objekte aus der Datenbank nachgeladen werden (StoreWins)
                             foreach (EntityEntry entity in entityStateList)
+                            {
                                 entity.Reload();
+                            }
+                        }
                     }
                 }
                 catch (Exception e)
@@ -316,8 +320,10 @@ namespace gip.core.datamodel
                             // Lade Objekte aus der Datenbank nach (StoreWins)
                             //_ObjectContext.Refresh(entityList);
                             foreach (VBEntityObject entity in entityList)
+                            {
+                                entity.EntityState = EntityState.Unchanged;
                                 entity.AutoRefresh();
-                                //entity.Reload();
+                            }
                         }
                     }
                 }

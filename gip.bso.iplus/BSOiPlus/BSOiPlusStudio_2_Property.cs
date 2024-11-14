@@ -384,6 +384,7 @@ namespace gip.bso.iplus
                 foreach (ACClassPropertyRelation acClassPropertyRelation in CurrentACClassProperty.ACClassPropertyRelation_SourceACClassProperty
                                                                             .Where(c => c.SourceACClass.ACClassID == CurrentACClass.ACClassID)
                                                                             .AsEnumerable()
+                                                                            .Where(c => c.EntityState != EntityState.Detached && c.EntityState != EntityState.Deleted)
                                                                             .OrderBy(c => c.ConnectionTypeIndex)
                                                                             .ThenBy(c => c.SourceACClass.GetACUrlComponent()))
                 {
@@ -438,6 +439,7 @@ namespace gip.bso.iplus
                 foreach (ACClassPropertyRelation acClassPropertyRelation in CurrentACClassProperty.ACClassPropertyRelation_TargetACClassProperty
                                                         .Where(c => c.TargetACClass.ACClassID == CurrentACClass.ACClassID)
                                                         .AsEnumerable()
+                                                        .Where(c => c.EntityState != EntityState.Detached && c.EntityState != EntityState.Deleted)
                                                         .OrderBy(c => c.ConnectionTypeIndex)
                                                         .ThenBy(c => c.SourceACClass.GetACUrlComponent()))
                 {                    
