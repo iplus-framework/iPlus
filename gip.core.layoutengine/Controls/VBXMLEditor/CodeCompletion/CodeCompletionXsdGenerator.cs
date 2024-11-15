@@ -84,7 +84,7 @@ namespace gip.core.layoutengine
                 if (!string.IsNullOrEmpty(itemPrefix) &&  !depType.Name.StartsWith(itemPrefix))
                     continue;
 
-                if (depType.Name.Any(ch => !XmlConvert.IsXmlChar(ch)))
+                if (depType.Name.Any(ch => !XmlConvert.IsXmlChar(ch)) || depType.IsGenericType)
                     continue;
 
                 XmlSchemaElement schemaElement = new XmlSchemaElement();
