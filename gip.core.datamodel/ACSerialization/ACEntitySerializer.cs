@@ -93,7 +93,7 @@ namespace gip.core.datamodel
             xElement.Add(new XAttribute("ACUrl", acObject.GetACUrl()));
 
             // Transpose element attributes into xml sub-elements
-            PropertyInfo[] properties = acObject.GetType().GetProperties();
+            PropertyInfo[] properties = acObject.GetType().GetProperties().Where(pi => !ACObjectSerialHelper.PropertyForIgnore(pi)).ToArray();
             foreach (PropertyInfo pi in properties)
             {
                 if (pi.GetIndexParameters().Length != 0)
@@ -108,52 +108,49 @@ namespace gip.core.datamodel
                         continue;
                     }
                 }
-                if (pi.GetCustomAttributes(typeof(DataMemberAttribute), true).Any() && pi.Name != "EntityKey")
+                var value = pi.GetValue(acObject, null);
+                if (pi.PropertyType == typeof(Guid))
                 {
-                    var value = pi.GetValue(acObject, null);
-                    if (pi.PropertyType == typeof(Guid))
-                    {
-                        continue;
-                    }
-                    if (value == null)
-                    {
-                        xElement.Add(new XElement(pi.Name, "i:NULL"));
-                        continue;
-                    }
+                    continue;
+                }
+                if (value == null)
+                {
+                    xElement.Add(new XElement(pi.Name, "i:NULL"));
+                    continue;
+                }
 
-                    bool isNullablePrimitive =
-                        pi.PropertyType.GetGenericArguments() != null &&
-                        pi.PropertyType.GetGenericArguments().Any() &&
-                        pi.PropertyType.GetGenericArguments().First().IsPrimitive;
-                    if (pi.PropertyType.IsPrimitive || isNullablePrimitive)
+                bool isNullablePrimitive =
+                    pi.PropertyType.GetGenericArguments() != null &&
+                    pi.PropertyType.GetGenericArguments().Any() &&
+                    pi.PropertyType.GetGenericArguments().First().IsPrimitive;
+                if (pi.PropertyType.IsPrimitive || isNullablePrimitive)
+                {
+                    xElement.Add(new XElement(pi.Name, value.ToString()));
+                }
+                else if (pi.PropertyType == typeof(string))
+                {
+                    xElement.Add(new XElement(pi.Name, (string)value));
+                }
+                else if (pi.PropertyType == typeof(DateTime))
+                {
+                    xElement.Add(new XElement(pi.Name, ((DateTime)value).ToString("o")));
+                }
+                else if (pi.PropertyType == typeof(System.Byte[]))
+                {
+                    if (acObject is ACClassDesign)
                     {
-                        xElement.Add(new XElement(pi.Name, value.ToString()));
-                    }
-                    else if (pi.PropertyType == typeof(string))
-                    {
-                        xElement.Add(new XElement(pi.Name, (string)value));
-                    }
-                    else if (pi.PropertyType == typeof(DateTime))
-                    {
-                        xElement.Add(new XElement(pi.Name, ((DateTime)value).ToString("o")));
-                    }
-                    else if (pi.PropertyType == typeof(System.Byte[]))
-                    {
-                        if (acObject is ACClassDesign)
-                        {
-                            ACClassDesign acClassDesign = acObject as ACClassDesign;
-                            acClassDesign.DownloadReportFile(folderPath);
+                        ACClassDesign acClassDesign = acObject as ACClassDesign;
+                        acClassDesign.DownloadReportFile(folderPath);
 
-                            xElement.Add(new XElement(pi.Name, "\\Resources\\#" + folderPath + "\\" + acClassDesign.ReportFileName));
-                        }
+                        xElement.Add(new XElement(pi.Name, "\\Resources\\#" + folderPath + "\\" + acClassDesign.ReportFileName));
                     }
-                    else if (value is IACObject)
-                    {
-                        // Falls ParentObjekt, dann nicht mit serialisieren
-                        if (acObject.ParentACObject == value)
-                            continue;
-                        xElement.Add(new XElement(pi.Name, (value as IACObject).GetACUrl()));
-                    }
+                }
+                else if (value is IACObject)
+                {
+                    // Falls ParentObjekt, dann nicht mit serialisieren
+                    if (acObject.ParentACObject == value)
+                        continue;
+                    xElement.Add(new XElement(pi.Name, (value as IACObject).GetACUrl()));
                 }
             }
 
