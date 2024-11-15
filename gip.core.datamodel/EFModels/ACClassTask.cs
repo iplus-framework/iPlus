@@ -135,7 +135,7 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassTaskValue_ACClassTask != null;
+            return _ACClassTaskValue_ACClassTask != null;
         }
     }
 
@@ -155,7 +155,7 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACProgram != null;
+            return _ACProgram != null;
         }
     }
 
@@ -175,7 +175,7 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ContentACClassWF != null;
+            return _ContentACClassWF != null;
         }
     }
 
@@ -195,7 +195,7 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassTask_ParentACClassTask != null;
+            return _ACClassTask_ParentACClassTask != null;
         }
     }
 
@@ -215,7 +215,7 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassTask1_ParentACClassTask != null;
+            return _ACClassTask1_ParentACClassTask != null;
         }
     }
 
@@ -235,7 +235,7 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return TaskTypeACClass != null;
+            return _TaskTypeACClass != null;
         }
     }
 

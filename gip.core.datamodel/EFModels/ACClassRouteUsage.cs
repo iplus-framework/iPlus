@@ -79,7 +79,7 @@ public partial class ACClassRouteUsage : VBEntityObject , IInsertInfo, IUpdateIn
     {
         get
         {
-            return ACClassRouteUsageGroup_ACClassRouteUsage != null;
+            return _ACClassRouteUsageGroup_ACClassRouteUsage != null;
         }
     }
 
@@ -99,7 +99,7 @@ public partial class ACClassRouteUsage : VBEntityObject , IInsertInfo, IUpdateIn
     {
         get
         {
-            return ACClassRouteUsagePos_ACClassRouteUsage != null;
+            return _ACClassRouteUsagePos_ACClassRouteUsage != null;
         }
     }
 

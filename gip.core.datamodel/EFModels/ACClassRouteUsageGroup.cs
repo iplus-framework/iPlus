@@ -58,7 +58,7 @@ public partial class ACClassRouteUsageGroup : VBEntityObject
     {
         get
         {
-            return ACClassRouteUsage != null;
+            return _ACClassRouteUsage != null;
         }
     }
 

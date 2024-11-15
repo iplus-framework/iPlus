@@ -121,7 +121,7 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassTask_ACProgram != null;
+            return _ACClassTask_ACProgram != null;
         }
     }
 
@@ -141,7 +141,7 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACProgramConfig_ACProgram != null;
+            return _ACProgramConfig_ACProgram != null;
         }
     }
 
@@ -161,7 +161,7 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACProgramLog_ACProgram != null;
+            return _ACProgramLog_ACProgram != null;
         }
     }
 
@@ -181,7 +181,7 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ProgramACClassMethod != null;
+            return _ProgramACClassMethod != null;
         }
     }
 
@@ -201,7 +201,7 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return WorkflowTypeACClass != null;
+            return _WorkflowTypeACClass != null;
         }
     }
 

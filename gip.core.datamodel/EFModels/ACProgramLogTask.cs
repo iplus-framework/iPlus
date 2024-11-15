@@ -93,7 +93,7 @@ public partial class ACProgramLogTask : VBEntityObject , IInsertInfo, IUpdateInf
     {
         get
         {
-            return ACProgramLog != null;
+            return _ACProgramLog != null;
         }
     }
 

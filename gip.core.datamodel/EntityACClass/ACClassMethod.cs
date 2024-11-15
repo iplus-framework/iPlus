@@ -167,7 +167,7 @@ namespace gip.core.datamodel
                 }
             }
 
-            database.Remove(this);
+            base.DeleteACObject(database, withCheck, softDelete);
             return null;
         }
 

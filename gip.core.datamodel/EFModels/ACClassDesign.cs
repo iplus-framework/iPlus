@@ -226,7 +226,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClass != null;
+            return _ACClass != null;
         }
     }
 
@@ -246,7 +246,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBGroupRight_ACClassDesign != null;
+            return _VBGroupRight_ACClassDesign != null;
         }
     }
 
@@ -266,7 +266,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBUserACClassDesign_ACClassDesign != null;
+            return _VBUserACClassDesign_ACClassDesign != null;
         }
     }
 
@@ -286,7 +286,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBUser_MenuACClassDesign != null;
+            return _VBUser_MenuACClassDesign != null;
         }
     }
 
@@ -306,7 +306,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ValueTypeACClass != null;
+            return _ValueTypeACClass != null;
         }
     }
 

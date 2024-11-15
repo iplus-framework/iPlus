@@ -321,8 +321,7 @@ namespace gip.core.datamodel
                             //_ObjectContext.Refresh(entityList);
                             foreach (VBEntityObject entity in entityList)
                             {
-                                entity.EntityState = EntityState.Unchanged;
-                                entity.AutoRefresh();
+                                entity.RevertDeleteACObject(_ObjectContext);
                             }
                         }
                     }

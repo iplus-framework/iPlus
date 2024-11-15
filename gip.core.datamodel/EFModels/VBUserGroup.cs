@@ -79,7 +79,7 @@ public partial class VBUserGroup : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBGroup != null;
+            return _VBGroup != null;
         }
     }
 
@@ -99,7 +99,7 @@ public partial class VBUserGroup : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBUser != null;
+            return _VBUser != null;
         }
     }
 

@@ -100,7 +100,7 @@ public partial class ACClassTaskValue : VBEntityObject , IInsertInfo, IUpdateInf
     {
         get
         {
-            return ACClassProperty != null;
+            return _ACClassProperty != null;
         }
     }
 
@@ -120,7 +120,7 @@ public partial class ACClassTaskValue : VBEntityObject , IInsertInfo, IUpdateInf
     {
         get
         {
-            return ACClassTask != null;
+            return _ACClassTask != null;
         }
     }
 
@@ -140,7 +140,7 @@ public partial class ACClassTaskValue : VBEntityObject , IInsertInfo, IUpdateInf
     {
         get
         {
-            return ACClassTaskValuePos_ACClassTaskValue != null;
+            return _ACClassTaskValuePos_ACClassTaskValue != null;
         }
     }
 
@@ -160,7 +160,7 @@ public partial class ACClassTaskValue : VBEntityObject , IInsertInfo, IUpdateInf
     {
         get
         {
-            return VBUser != null;
+            return _VBUser != null;
         }
     }
 

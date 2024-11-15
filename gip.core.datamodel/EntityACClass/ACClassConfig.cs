@@ -125,7 +125,7 @@ namespace gip.core.datamodel
             MsgWithDetails msg = null;
             if (this.ACClassPropertyRelation != null && !softDelete)
                 this.ACClassPropertyRelation.DeleteACObject(database, withCheck);
-            database.Remove(this);
+            base.DeleteACObject(database, withCheck, softDelete);
             return msg;
         }
 

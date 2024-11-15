@@ -198,7 +198,7 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     {
         get
         {
-            return ACClassConfig_ACClassPropertyRelation != null;
+            return _ACClassConfig_ACClassPropertyRelation != null;
         }
     }
 
@@ -218,7 +218,7 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     {
         get
         {
-            return ACClassMethodConfig_VBiACClassPropertyRelation != null;
+            return _ACClassMethodConfig_VBiACClassPropertyRelation != null;
         }
     }
 
@@ -238,7 +238,7 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     {
         get
         {
-            return ACProgramConfig_ACClassPropertyRelation != null;
+            return _ACProgramConfig_ACClassPropertyRelation != null;
         }
     }
 
@@ -258,7 +258,7 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     {
         get
         {
-            return SourceACClass != null;
+            return _SourceACClass != null;
         }
     }
 
@@ -278,7 +278,7 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     {
         get
         {
-            return SourceACClassProperty != null;
+            return _SourceACClassProperty != null;
         }
     }
 
@@ -298,7 +298,7 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     {
         get
         {
-            return TargetACClass != null;
+            return _TargetACClass != null;
         }
     }
 
@@ -318,7 +318,7 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     {
         get
         {
-            return TargetACClassProperty != null;
+            return _TargetACClassProperty != null;
         }
     }
 
@@ -338,7 +338,7 @@ public partial class ACClassPropertyRelation : VBEntityObject , IInsertInfo, IUp
     {
         get
         {
-            return VBConfig_ACClassPropertyRelation != null;
+            return _VBConfig_ACClassPropertyRelation != null;
         }
     }
 

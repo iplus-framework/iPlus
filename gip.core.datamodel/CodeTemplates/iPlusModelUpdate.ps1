@@ -23,6 +23,9 @@ Write-Host "Commenting the connection string in the Context class"
 (Get-Content $contextFilePath) -replace '\.ConfigureWarnings\(warnings => warnings.Ignore\(CoreEventId.ManyServiceProvidersCreatedWarning\)\);', '.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))' | Set-Content $contextFilePath
 (Get-Content $contextFilePath) -replace '//.*UseSqlServer.*', ".UseSqlServer(ConfigurationManager.ConnectionStrings[`"$entitiesName`"].ConnectionString);" | Set-Content $contextFilePath
 
+Write-Host "Wait Running the command to generate compiled models, closing in 5 seconds"
+Start-Sleep -Seconds 10;
+
 # Optimize models
 Write-Host "Running the command to generate compiled models"
 dotnet ef dbcontext optimize --output-dir $compiledOutputDir --namespace $namespace --project $projectPath --context $contextName

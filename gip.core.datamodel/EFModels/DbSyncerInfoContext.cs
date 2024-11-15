@@ -58,7 +58,7 @@ public partial class DbSyncerInfoContext : VBEntityObject
     {
         get
         {
-            return DbSyncerInfo_DbSyncerInfoContext != null;
+            return _DbSyncerInfo_DbSyncerInfoContext != null;
         }
     }
 

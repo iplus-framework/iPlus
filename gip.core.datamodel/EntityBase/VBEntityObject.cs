@@ -229,6 +229,13 @@ namespace gip.core.datamodel
             return this.ReflectIsEnabledDelete();
         }
 
+        public virtual void RevertDeleteACObject(IACEntityObjectContext database)
+        {
+            EntityState = EntityState.Modified;
+            EntityState = EntityState.Unchanged;
+            AutoRefresh();
+        }
+
 
         /// <summary>
         /// Returns a related EF-Object which is in a Child-Relationship to this.

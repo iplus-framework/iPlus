@@ -232,7 +232,9 @@ namespace gip.core.datamodel
             ACClass unknownClass = database.ContextIPlus.ACClass.FirstOrDefault(c => c.ACIdentifier == Const.UnknownClass);
             List<ACClassProperty> referencedProperties = database.ContextIPlus.ACClassProperty.Where(c => c.ValueTypeACClassID == ACClassID).ToList();
             foreach (var item in referencedProperties)
+            {
                 item.ValueTypeACClass = unknownClass;
+            }
 
 
             var properties = ACClassProperty_ACClass.ToList();
@@ -245,7 +247,9 @@ namespace gip.core.datamodel
 
             var valueReferencedClassMethods = database.ContextIPlus.ACClassMethod.Where(c => c.ValueTypeACClassID == ACClassID).ToList();
             foreach (var method in valueReferencedClassMethods)
+            {
                 method.ValueTypeACClass = unknownClass;
+            }
 
 
 
@@ -321,7 +325,7 @@ namespace gip.core.datamodel
                 acClassPropertyBinding.DeleteACObject(database, withCheck);
             }
 
-            database.Remove(this);
+            base.DeleteACObject(database, withCheck, softDelete);
             return null;
         }
 

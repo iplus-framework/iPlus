@@ -100,7 +100,7 @@ public partial class ACClassMessage : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClass != null;
+            return _ACClass != null;
         }
     }
 

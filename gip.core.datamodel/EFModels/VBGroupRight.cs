@@ -79,7 +79,7 @@ public partial class VBGroupRight : VBEntityObject
     {
         get
         {
-            return ACClass != null;
+            return _ACClass != null;
         }
     }
 
@@ -99,7 +99,7 @@ public partial class VBGroupRight : VBEntityObject
     {
         get
         {
-            return ACClassDesign != null;
+            return _ACClassDesign != null;
         }
     }
 
@@ -119,7 +119,7 @@ public partial class VBGroupRight : VBEntityObject
     {
         get
         {
-            return ACClassMethod != null;
+            return _ACClassMethod != null;
         }
     }
 
@@ -139,7 +139,7 @@ public partial class VBGroupRight : VBEntityObject
     {
         get
         {
-            return ACClassProperty != null;
+            return _ACClassProperty != null;
         }
     }
 
@@ -159,7 +159,7 @@ public partial class VBGroupRight : VBEntityObject
     {
         get
         {
-            return VBGroup != null;
+            return _VBGroup != null;
         }
     }
 

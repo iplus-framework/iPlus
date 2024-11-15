@@ -142,7 +142,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassMethod != null;
+            return _ACClassMethod != null;
         }
     }
 
@@ -162,7 +162,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassMethodConfig_ACClassWF != null;
+            return _ACClassMethodConfig_ACClassWF != null;
         }
     }
 
@@ -182,7 +182,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassTask_ContentACClassWF != null;
+            return _ACClassTask_ContentACClassWF != null;
         }
     }
 
@@ -202,7 +202,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassWFEdge_SourceACClassWF != null;
+            return _ACClassWFEdge_SourceACClassWF != null;
         }
     }
 
@@ -222,7 +222,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassWFEdge_TargetACClassWF != null;
+            return _ACClassWFEdge_TargetACClassWF != null;
         }
     }
 
@@ -242,7 +242,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassWF_ParentACClassWF != null;
+            return _ACClassWF_ParentACClassWF != null;
         }
     }
 
@@ -262,7 +262,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return PWACClass != null;
+            return _PWACClass != null;
         }
     }
 
@@ -282,7 +282,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassWF1_ParentACClassWF != null;
+            return _ACClassWF1_ParentACClassWF != null;
         }
     }
 
@@ -302,7 +302,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return RefPAACClass != null;
+            return _RefPAACClass != null;
         }
     }
 
@@ -322,7 +322,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return RefPAACClassMethod != null;
+            return _RefPAACClassMethod != null;
         }
     }
 

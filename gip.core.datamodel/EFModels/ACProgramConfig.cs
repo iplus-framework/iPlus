@@ -142,7 +142,7 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClass != null;
+            return _ACClass != null;
         }
     }
 
@@ -162,7 +162,7 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassPropertyRelation != null;
+            return _ACClassPropertyRelation != null;
         }
     }
 
@@ -182,7 +182,7 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACProgram != null;
+            return _ACProgram != null;
         }
     }
 
@@ -202,7 +202,7 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACProgramConfig_ParentACProgramConfig != null;
+            return _ACProgramConfig_ParentACProgramConfig != null;
         }
     }
 
@@ -222,7 +222,7 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACProgramConfig1_ParentACProgramConfig != null;
+            return _ACProgramConfig1_ParentACProgramConfig != null;
         }
     }
 
@@ -242,7 +242,7 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ValueTypeACClass != null;
+            return _ValueTypeACClass != null;
         }
     }
 

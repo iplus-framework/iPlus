@@ -149,7 +149,7 @@ public partial class MsgAlarmLog : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClass != null;
+            return _ACClass != null;
         }
     }
 
@@ -169,7 +169,7 @@ public partial class MsgAlarmLog : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACProgramLog != null;
+            return _ACProgramLog != null;
         }
     }
 

@@ -114,7 +114,7 @@ public partial class VBLanguage : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBUser_VBLanguage != null;
+            return _VBUser_VBLanguage != null;
         }
     }
 

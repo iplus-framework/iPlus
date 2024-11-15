@@ -79,7 +79,7 @@ public partial class ACPropertyLogRule : VBEntityObject , IInsertInfo, IUpdateIn
     {
         get
         {
-            return ACClass != null;
+            return _ACClass != null;
         }
     }
 

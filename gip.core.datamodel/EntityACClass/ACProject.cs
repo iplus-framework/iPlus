@@ -119,7 +119,7 @@ namespace gip.core.datamodel
                 acClass.DeleteACObject(database, withCheck);
             }
 
-            database.Remove(this);
+            base.DeleteACObject(database, withCheck, softDelete);
             return null;
         }
 

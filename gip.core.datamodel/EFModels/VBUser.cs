@@ -128,7 +128,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACChangeLog_VBUser != null;
+            return _ACChangeLog_VBUser != null;
         }
     }
 
@@ -148,7 +148,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassTaskValue_VBUser != null;
+            return _ACClassTaskValue_VBUser != null;
         }
     }
 
@@ -168,7 +168,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return MenuACClassDesign != null;
+            return _MenuACClassDesign != null;
         }
     }
 
@@ -188,7 +188,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBLanguage != null;
+            return _VBLanguage != null;
         }
     }
 
@@ -208,7 +208,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBUserACClassDesign_VBUser != null;
+            return _VBUserACClassDesign_VBUser != null;
         }
     }
 
@@ -228,7 +228,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBUserACProject_VBUser != null;
+            return _VBUserACProject_VBUser != null;
         }
     }
 
@@ -248,7 +248,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBUserGroup_VBUser != null;
+            return _VBUserGroup_VBUser != null;
         }
     }
 
@@ -268,7 +268,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBUserInstance_VBUser != null;
+            return _VBUserInstance_VBUser != null;
         }
     }
 

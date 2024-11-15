@@ -303,7 +303,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClass != null;
+            return _ACClass != null;
         }
     }
 
@@ -323,7 +323,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassMethodConfig_ACClassMethod != null;
+            return _ACClassMethodConfig_ACClassMethod != null;
         }
     }
 
@@ -343,7 +343,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassWF_ACClassMethod != null;
+            return _ACClassWF_ACClassMethod != null;
         }
     }
 
@@ -363,7 +363,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassWFEdge_ACClassMethod != null;
+            return _ACClassWFEdge_ACClassMethod != null;
         }
     }
 
@@ -383,7 +383,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassWFEdge_SourceACClassMethod != null;
+            return _ACClassWFEdge_SourceACClassMethod != null;
         }
     }
 
@@ -403,7 +403,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassWFEdge_TargetACClassMethod != null;
+            return _ACClassWFEdge_TargetACClassMethod != null;
         }
     }
 
@@ -423,7 +423,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassWF_RefPAACClassMethod != null;
+            return _ACClassWF_RefPAACClassMethod != null;
         }
     }
 
@@ -443,7 +443,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACProgram_ProgramACClassMethod != null;
+            return _ACProgram_ProgramACClassMethod != null;
         }
     }
 
@@ -463,7 +463,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return AttachedFromACClass != null;
+            return _AttachedFromACClass != null;
         }
     }
 
@@ -483,7 +483,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassMethod_ParentACClassMethod != null;
+            return _ACClassMethod_ParentACClassMethod != null;
         }
     }
 
@@ -503,7 +503,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return PWACClass != null;
+            return _PWACClass != null;
         }
     }
 
@@ -523,7 +523,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassMethod1_ParentACClassMethod != null;
+            return _ACClassMethod1_ParentACClassMethod != null;
         }
     }
 
@@ -543,7 +543,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBGroupRight_ACClassMethod != null;
+            return _VBGroupRight_ACClassMethod != null;
         }
     }
 
@@ -563,7 +563,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ValueTypeACClass != null;
+            return _ValueTypeACClass != null;
         }
     }
 

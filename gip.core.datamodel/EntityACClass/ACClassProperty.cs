@@ -188,7 +188,7 @@ namespace gip.core.datamodel
                 vbGroupRight.DeleteACObject(database, withCheck);
             }
 
-            database.Remove(this);
+            base.DeleteACObject(database, withCheck, softDelete);
             return null;
         }
 

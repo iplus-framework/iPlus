@@ -72,7 +72,7 @@ public partial class ACPropertyLog : VBEntityObject
     {
         get
         {
-            return ACClass != null;
+            return _ACClass != null;
         }
     }
 
@@ -92,7 +92,7 @@ public partial class ACPropertyLog : VBEntityObject
     {
         get
         {
-            return ACClassProperty != null;
+            return _ACClassProperty != null;
         }
     }
 

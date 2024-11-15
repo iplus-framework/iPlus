@@ -408,7 +408,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACChangeLog_ACClassProperty != null;
+            return _ACChangeLog_ACClassProperty != null;
         }
     }
 
@@ -428,7 +428,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClass != null;
+            return _ACClass != null;
         }
     }
 
@@ -448,7 +448,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassPropertyRelation_SourceACClassProperty != null;
+            return _ACClassPropertyRelation_SourceACClassProperty != null;
         }
     }
 
@@ -468,7 +468,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassPropertyRelation_TargetACClassProperty != null;
+            return _ACClassPropertyRelation_TargetACClassProperty != null;
         }
     }
 
@@ -488,7 +488,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassTaskValue_ACClassProperty != null;
+            return _ACClassTaskValue_ACClassProperty != null;
         }
     }
 
@@ -508,7 +508,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassWFEdge_SourceACClassProperty != null;
+            return _ACClassWFEdge_SourceACClassProperty != null;
         }
     }
 
@@ -528,7 +528,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassWFEdge_TargetACClassProperty != null;
+            return _ACClassWFEdge_TargetACClassProperty != null;
         }
     }
 
@@ -548,7 +548,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACPropertyLog_ACClassProperty != null;
+            return _ACPropertyLog_ACClassProperty != null;
         }
     }
 
@@ -568,7 +568,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassProperty1_BasedOnACClassProperty != null;
+            return _ACClassProperty1_BasedOnACClassProperty != null;
         }
     }
 
@@ -588,7 +588,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ConfigACClass != null;
+            return _ConfigACClass != null;
         }
     }
 
@@ -608,7 +608,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassProperty_BasedOnACClassProperty != null;
+            return _ACClassProperty_BasedOnACClassProperty != null;
         }
     }
 
@@ -628,7 +628,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassProperty_ParentACClassProperty != null;
+            return _ACClassProperty_ParentACClassProperty != null;
         }
     }
 
@@ -648,7 +648,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ACClassProperty1_ParentACClassProperty != null;
+            return _ACClassProperty1_ParentACClassProperty != null;
         }
     }
 
@@ -668,7 +668,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return VBGroupRight_ACClassProperty != null;
+            return _VBGroupRight_ACClassProperty != null;
         }
     }
 
@@ -688,7 +688,7 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     {
         get
         {
-            return ValueTypeACClass != null;
+            return _ValueTypeACClass != null;
         }
     }
 
