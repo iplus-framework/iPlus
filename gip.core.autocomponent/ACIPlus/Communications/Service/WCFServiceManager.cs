@@ -140,7 +140,7 @@ namespace gip.core.autocomponent
             else
             {
                 _ASPHost = WebHost.CreateDefaultBuilder()
-                    .UseNetTcp(endpointUri.Port)
+                    .UseNetTcp(EndpointUri.Port)
                     .UseKestrel()
                     .ConfigureServices(services =>
                     {
@@ -161,7 +161,7 @@ namespace gip.core.autocomponent
                                 netTcpBinding.MaxBufferPoolSize = WCFServiceManager.MaxBufferSize;
                                 netTcpBinding.ReceiveTimeout = WCFServiceManager.ReceiveTimeout;
                                 builder.AddService<WCFService>();
-                                builder.AddServiceEndpoint<WCFService>(typeof(IWCFService), netTcpBinding, endpointUri);
+                                builder.AddServiceEndpoint<WCFService>(typeof(IWCFService), netTcpBinding, EndpointUri);
 
                                 // When to use reliable session
                                 // http://msdn.microsoft.com/en-us/library/ms733136(v=vs.110).aspx
@@ -194,7 +194,7 @@ namespace gip.core.autocomponent
                                 netTcpBinding.Elements.Add(tcpTransport);
                                 netTcpBinding.ReceiveTimeout = WCFServiceManager.ReceiveTimeout;
                                 builder.AddService<WCFService>();
-                                builder.AddServiceEndpoint<WCFService, IWCFService>(netTcpBinding, endpointUri);
+                                builder.AddServiceEndpoint<WCFService, IWCFService>(netTcpBinding, EndpointUri);
                             }
 
                             builder.ConfigureAllServiceHostBase((serviceHostBase) =>
@@ -264,13 +264,13 @@ namespace gip.core.autocomponent
             }
         }
 
-        private Uri _endpointUri = null;
-        public Uri endpointUri
+        private Uri _EndpointUri = null;
+        public Uri EndpointUri
         {
             get
             {
-                if (_endpointUri != null)
-                    return _endpointUri;
+                if (_EndpointUri != null)
+                    return _EndpointUri;
 
                 // Schema / protocol
                 string scheme = "net.tcp";
@@ -279,10 +279,12 @@ namespace gip.core.autocomponent
 
                 // Authority
                 string authority = this.Root.Environment.UserInstance.ServerIPV4;
-                if (_useIPV6)
-                    authority = this.Root.Environment.UserInstance.ServerIPV6;
-                else if (_nameResolutionOn)
+                if (_nameResolutionOn)
                     authority = this.Root.Environment.UserInstance.Hostname;
+                else if ((_useIPV6 || string.IsNullOrEmpty(authority)) && !String.IsNullOrEmpty(this.Root.Environment.UserInstance.ServerIPV6))
+                    authority = "[" + Communications.GetIPV6WithoutInterface(this.Root.Environment.UserInstance.ServerIPV6) + "]";
+                if (String.IsNullOrEmpty(authority))
+                    authority = "127.0.0.1";
 
                 if (_useHttpConnection)
                     authority += ":" + this.Root.Environment.UserInstance.ServicePortHTTP;
@@ -290,8 +292,8 @@ namespace gip.core.autocomponent
                     authority += ":" + this.Root.Environment.UserInstance.ServicePortTCP;
 
                 // Address
-                _endpointUri = new Uri(String.Format("{0}://{1}/", scheme, authority));
-                return _endpointUri;
+                _EndpointUri = new Uri(String.Format("{0}://{1}/", scheme, authority));
+                return _EndpointUri;
             }
         }
 

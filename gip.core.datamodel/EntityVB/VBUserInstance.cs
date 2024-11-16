@@ -33,7 +33,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "ServiceWorkflowEnabledTCP", "en{'deprecated-ServiceWorkflowEnabledTCP'}de{'Veraltet-ServiceWorkflowEnabledTCP'}", "", "", true)]
     [ACPropertyEntity(9999, "ServiceObserverEnabledTCP", "en{'deprecated-ServiceObserverEnabledTCP'}de{'Veraltet-ServiceObserverEnabledTCP'}", "", "", true)]
 
-    [ACPropertyEntity(11, "IsUserDefined", "en{'Userdefined'}de{'Benutzerdefiniert'}","", "", true)]
+    [ACPropertyEntity(11, "IsUserDefined", "en{'No IP-Address change if 127.0.0.1 is set'}de{'Keine IP-Adresskorrektur wenn 127.0.0.1 gesetzt'}","", "", true)]
     [ACPropertyEntity(12, "LoginDate", "en{'Login Date'}de{'Login Datum'}","", "", true)]
     [ACPropertyEntity(13, "LogoutDate", "en{'Logout Date'}de{'Logout Datum'}","", "", true)]
     [ACPropertyEntity(14, "SessionCount", "en{'Session count'}de{'Anzahl Sitzungen'}", "", "", false)]
@@ -64,10 +64,10 @@ namespace gip.core.datamodel
             entity.ServicePortObserverHTTP = 4503;
 
             entity.ServiceAppEnbledHTTP = false;
-            entity.ServiceAppEnabledTCP = true;
+            entity.ServiceAppEnabledTCP = false;
             entity.ServiceWorkflowEnabledHTTP = false;
-            entity.ServiceWorkflowEnabledTCP = true;
-            entity.ServiceObserverEnabledTCP = true;
+            entity.ServiceWorkflowEnabledTCP = false;
+            entity.ServiceObserverEnabledTCP = false;
             entity.Hostname = "localhost";
             entity.NameResolutionOn = true;
             entity.UseIPV6 = false;

@@ -268,10 +268,12 @@ namespace gip.core.autocomponent
 
                 // Authority
                 string authority = _VBUserInstance.ServerIPV4;
-                if (_useIPV6)
-                    authority = _VBUserInstance.ServerIPV6;
-                else if (_nameResolutionOn)
+                if (_nameResolutionOn)
                     authority = _VBUserInstance.Hostname;
+                else if ((_useIPV6 || string.IsNullOrEmpty(authority)) && !String.IsNullOrEmpty(this.Root.Environment.UserInstance.ServerIPV6))
+                    authority = "[" + Communications.GetIPV6WithoutInterface(this.Root.Environment.UserInstance.ServerIPV6) + "]";
+                if (String.IsNullOrEmpty(authority))
+                    authority = "127.0.0.1";
 
                 if ((Root as ACRoot).WCFOff)
                     authority = "localhost";

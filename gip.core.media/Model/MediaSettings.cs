@@ -35,7 +35,7 @@ namespace gip.core.media
                 {
                     ACClass bsoMedia = database.ACClass.FirstOrDefault(c => c.ACIdentifier == @"BSOMedia");
                     ACClassConfig configItem = bsoMedia.ACClassConfig_ACClass.FirstOrDefault(c => c.ACIdentifier == @"ACClassConfig(MediaRootFolder)");
-                    if (configItem != null)
+                    if (configItem != null && configItem.Value != null)
                     {
                         object configValue = configItem.Value.ToString();
                         if (configValue != null)
@@ -45,7 +45,7 @@ namespace gip.core.media
             }
 
             TempFolder = Path.Combine(Path.GetTempPath(), "MediaTemp");
-            if(!Directory.Exists(TempFolder))
+            if (!Directory.Exists(TempFolder))
             {
                 Directory.CreateDirectory(TempFolder);
             }
