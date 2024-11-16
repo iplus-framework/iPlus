@@ -34,25 +34,25 @@ namespace gip.core.datamodel
         /// <param name="args">The args.</param>
         public CommandLineHelper(string[] args)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                for (int i = 0; i < args.Length; i++)
-                {
-                    if (args[i].ToLower() == "-u" && i + 1 < args.Length)
-                    {
-                        LoginUser = args[i + 1];
-                        i++;
-                    }
-                    else if (args[i].ToLower() == "-p" && i + 1 < args.Length)
-                    {
-                        LoginPassword = args[i + 1];
-                        i++;
-                    }
-                }
-            }
+            //if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            //{
+            //    for (int i = 0; i < args.Length; i++)
+            //    {
+            //        if (args[i].ToLower() == "-u" && i + 1 < args.Length)
+            //        {
+            //            LoginUser = args[i + 1];
+            //            i++;
+            //        }
+            //        else if (args[i].ToLower() == "-p" && i + 1 < args.Length)
+            //        {
+            //            LoginPassword = args[i + 1];
+            //            i++;
+            //        }
+            //    }
+            //}
 
-            else
-            {
+            //else
+            //{
                 foreach (string arg in args)
                 {
                     string kennung = arg.Substring(1, 1).ToUpper();
@@ -66,7 +66,7 @@ namespace gip.core.datamodel
                             break;
                     }
                 }
-            }
+            //}
 
         }
         /// <summary>
