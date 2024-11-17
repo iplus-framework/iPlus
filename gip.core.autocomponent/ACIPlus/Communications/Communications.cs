@@ -69,63 +69,73 @@ namespace gip.core.autocomponent
                 {
                     bool changed = false;
                     IPAddress firstIPV4 = null;
-                    if (!string.IsNullOrEmpty(this.Root.Environment.UserInstance.ServerIPV4))
+                    // If automatic discovering of interface is allowed. Else fixed IP-Address is used how user has setup in BSOiPlusNetConfig
+                    if (Root.Environment.UserInstance.ServiceObserverEnabledTCP)
                     {
-                        IPAddress serverIPV4Predefined = IPAddress.Parse(this.Root.Environment.UserInstance.ServerIPV4);
-                        firstIPV4 = ips.Where(c => c.AddressFamily == AddressFamily.InterNetwork && c.ToString() == serverIPV4Predefined.ToString() && c.ToString() != loopbackIPV4.ToString()).FirstOrDefault();
-                    }
-                    if (firstIPV4 == null)
-                        firstIPV4 = ips.Where(c => c.AddressFamily == AddressFamily.InterNetwork && c != loopbackIPV4).FirstOrDefault();
-                    string ip4 = firstIPV4 != null ? firstIPV4.ToString() : "";
-                    Messages.LogDebug(this.GetACUrl(), "Communications.InitServiceHost()", "ServerIPV4: " + ip4);
-                    if (   this.Root.Environment.UserInstance.ServerIPV4 != ip4
-                        && !(this.Root.Environment.UserInstance.IsUserDefined && this.Root.Environment.UserInstance.ServerIPV4 == loopbackIPV4.ToString())) // For WSL-Testing only loopbackadpater can be used for connection, therefore don't change IP
-                    {
-                        this.Root.Environment.UserInstance.ServerIPV4 = ip4;
-                        changed = true;
-                    }
-
-                    IPAddress firstIPV6 = null;
-                    if (!string.IsNullOrEmpty(this.Root.Environment.UserInstance.ServerIPV6))
-                    {
-                        IPAddress serverIPV6Predefined = IPAddress.Parse(this.Root.Environment.UserInstance.ServerIPV6);
-                        firstIPV6 = ips.Where(c => c.AddressFamily == AddressFamily.InterNetworkV6 
-                                                    && GetIPV6WithoutInterface(c.ToString()) == GetIPV6WithoutInterface(serverIPV6Predefined.ToString()) 
-                                                    && GetIPV6WithoutInterface(c.ToString()) != GetIPV6WithoutInterface(loopbackIPV6.ToString()))
-                                                        .FirstOrDefault();
-                    }
-                    if (firstIPV6 == null)
-                        firstIPV6 = ips.Where(c => c.AddressFamily == AddressFamily.InterNetworkV6 && c != loopbackIPV6).FirstOrDefault();
-                    string ip6 = firstIPV6 != null ? GetIPV6WithoutInterface(firstIPV6.ToString()) : "";
-                    Messages.LogDebug(this.GetACUrl(), "Communications.InitServiceHost()", "ServerIPV6: " + ip6);
-                    if (this.Root.Environment.UserInstance.ServerIPV6 != ip6
-                        && !(this.Root.Environment.UserInstance.IsUserDefined && GetIPV6WithoutInterface(this.Root.Environment.UserInstance.ServerIPV6) == GetIPV6WithoutInterface(loopbackIPV6.ToString()))) // For WSL-Testing only loopbackadpater can be used for connection, therefore don't change IP
-                    {
-                        this.Root.Environment.UserInstance.ServerIPV6 = ip6;
-                        changed = true;
-                    }
-
-                    if (this.Root.Environment.UserInstance.UseIPV6 && firstIPV6 == null && firstIPV4 != null)
-                    {
-                        this.Root.Environment.UserInstance.UseIPV6 = false;
-                        changed = true;
-                    }
-                    else if (!this.Root.Environment.UserInstance.UseIPV6 && firstIPV6 != null && firstIPV4 == null)
-                    {
-                        this.Root.Environment.UserInstance.UseIPV6 = true;
-                        changed = true;
-                    }
-                    if (firstIPV4 == null && firstIPV6 == null)
-                    {
-                        firstIPV4 = ips.Where(c => c.AddressFamily == AddressFamily.InterNetwork && c.ToString() == loopbackIPV4.ToString()).FirstOrDefault();
-                        ip4 = firstIPV4 != null ? firstIPV4.ToString() : "";
-                        Messages.LogDebug(this.GetACUrl(), "Communications.InitServiceHost()", "ServerIPV4 loopback: " + ip4);
-                        if (this.Root.Environment.UserInstance.ServerIPV4 != ip4 
-                            && !(this.Root.Environment.UserInstance.IsUserDefined && this.Root.Environment.UserInstance.ServerIPV4 == loopbackIPV4.ToString()))
+                        if (!string.IsNullOrEmpty(this.Root.Environment.UserInstance.ServerIPV4))
                         {
-                            this.Root.Environment.UserInstance.UseIPV6 = false;
+                            IPAddress serverIPV4Predefined = IPAddress.Parse(this.Root.Environment.UserInstance.ServerIPV4);
+                            firstIPV4 = ips.Where(c => c.AddressFamily == AddressFamily.InterNetwork && c.ToString() == serverIPV4Predefined.ToString() && c.ToString() != loopbackIPV4.ToString()).FirstOrDefault();
+                        }
+                        if (firstIPV4 == null)
+                            firstIPV4 = ips.Where(c => c.AddressFamily == AddressFamily.InterNetwork && c != loopbackIPV4).FirstOrDefault();
+                        string ip4 = firstIPV4 != null ? firstIPV4.ToString() : "";
+                        Messages.LogDebug(this.GetACUrl(), "Communications.InitServiceHost()", "ServerIPV4: " + ip4);
+                        if (this.Root.Environment.UserInstance.ServerIPV4 != ip4
+                            && !(this.Root.Environment.UserInstance.IsUserDefined && this.Root.Environment.UserInstance.ServerIPV4 == loopbackIPV4.ToString())) // For WSL-Testing only loopbackadpater can be used for connection, therefore don't change IP
+                        {
                             this.Root.Environment.UserInstance.ServerIPV4 = ip4;
                             changed = true;
+                        }
+
+                        IPAddress firstIPV6 = null;
+                        if (!string.IsNullOrEmpty(this.Root.Environment.UserInstance.ServerIPV6))
+                        {
+                            IPAddress serverIPV6Predefined = IPAddress.Parse(this.Root.Environment.UserInstance.ServerIPV6);
+                            firstIPV6 = ips.Where(c => c.AddressFamily == AddressFamily.InterNetworkV6
+                                                        && GetIPV6WithoutInterface(c.ToString()) == GetIPV6WithoutInterface(serverIPV6Predefined.ToString())
+                                                        && GetIPV6WithoutInterface(c.ToString()) != GetIPV6WithoutInterface(loopbackIPV6.ToString())
+                                                        && c.ScopeId == 0) // ScopeId == 0: Public address
+                                                            .FirstOrDefault();
+                        }
+                        if (firstIPV6 == null)
+                        {
+                            firstIPV6 = ips.Where(c => c.AddressFamily == AddressFamily.InterNetworkV6 && c != loopbackIPV6 && c.ScopeId == 0).FirstOrDefault();
+                            // If Public address not found:
+                            if (firstIPV6 == null)
+                                firstIPV6 = ips.Where(c => c.AddressFamily == AddressFamily.InterNetworkV6 && c != loopbackIPV6).FirstOrDefault();
+                        }
+                        string ip6 = firstIPV6 != null ? GetIPV6WithoutInterface(firstIPV6.ToString()) : "";
+                        Messages.LogDebug(this.GetACUrl(), "Communications.InitServiceHost()", "ServerIPV6: " + ip6);
+                        if (this.Root.Environment.UserInstance.ServerIPV6 != ip6
+                            && !(this.Root.Environment.UserInstance.IsUserDefined && GetIPV6WithoutInterface(this.Root.Environment.UserInstance.ServerIPV6) == GetIPV6WithoutInterface(loopbackIPV6.ToString()))) // For WSL-Testing only loopbackadpater can be used for connection, therefore don't change IP
+                        {
+                            this.Root.Environment.UserInstance.ServerIPV6 = ip6;
+                            changed = true;
+                        }
+
+                        if (this.Root.Environment.UserInstance.UseIPV6 && firstIPV6 == null && firstIPV4 != null)
+                        {
+                            this.Root.Environment.UserInstance.UseIPV6 = false;
+                            changed = true;
+                        }
+                        else if (!this.Root.Environment.UserInstance.UseIPV6 && firstIPV6 != null && firstIPV4 == null)
+                        {
+                            this.Root.Environment.UserInstance.UseIPV6 = true;
+                            changed = true;
+                        }
+                        if (firstIPV4 == null && firstIPV6 == null)
+                        {
+                            firstIPV4 = ips.Where(c => c.AddressFamily == AddressFamily.InterNetwork && c.ToString() == loopbackIPV4.ToString()).FirstOrDefault();
+                            ip4 = firstIPV4 != null ? firstIPV4.ToString() : "";
+                            Messages.LogDebug(this.GetACUrl(), "Communications.InitServiceHost()", "ServerIPV4 loopback: " + ip4);
+                            if (this.Root.Environment.UserInstance.ServerIPV4 != ip4
+                                && !(this.Root.Environment.UserInstance.IsUserDefined && this.Root.Environment.UserInstance.ServerIPV4 == loopbackIPV4.ToString()))
+                            {
+                                this.Root.Environment.UserInstance.UseIPV6 = false;
+                                this.Root.Environment.UserInstance.ServerIPV4 = ip4;
+                                changed = true;
+                            }
                         }
                     }
 

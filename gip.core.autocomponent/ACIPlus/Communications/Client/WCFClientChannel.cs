@@ -270,8 +270,8 @@ namespace gip.core.autocomponent
                 string authority = _VBUserInstance.ServerIPV4;
                 if (_nameResolutionOn)
                     authority = _VBUserInstance.Hostname;
-                else if ((_useIPV6 || string.IsNullOrEmpty(authority)) && !String.IsNullOrEmpty(this.Root.Environment.UserInstance.ServerIPV6))
-                    authority = "[" + Communications.GetIPV6WithoutInterface(this.Root.Environment.UserInstance.ServerIPV6) + "]";
+                else if ((_useIPV6 || string.IsNullOrEmpty(authority)) && !String.IsNullOrEmpty(_VBUserInstance.ServerIPV6))
+                    authority = "[" + Communications.GetIPV6WithoutInterface(_VBUserInstance.ServerIPV6) + "]";
                 if (String.IsNullOrEmpty(authority))
                     authority = "127.0.0.1";
 

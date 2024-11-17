@@ -140,7 +140,7 @@ namespace gip.core.autocomponent
             else
             {
                 _ASPHost = WebHost.CreateDefaultBuilder()
-                    .UseNetTcp(EndpointUri.Port)
+                    .UseNetTcp(_useIPV6 ? IPAddress.IPv6Any: IPAddress.Any, EndpointUri.Port)
                     .UseKestrel()
                     .ConfigureServices(services =>
                     {

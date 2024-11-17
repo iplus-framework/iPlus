@@ -31,7 +31,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "ServiceAppEnabledTCP", "en{'deprecated-ServiceAppEnabledTCP'}de{'Veraltet-ServiceAppEnabledTCP'}", "", "", true)]
     [ACPropertyEntity(9999, "ServiceWorkflowEnabledHTTP", "en{'deprecated-ServiceWorkflowEnabledHTTP'}de{'Veraltet-ServiceWorkflowEnabledHTTP'}", "", "", true)]
     [ACPropertyEntity(9999, "ServiceWorkflowEnabledTCP", "en{'deprecated-ServiceWorkflowEnabledTCP'}de{'Veraltet-ServiceWorkflowEnabledTCP'}", "", "", true)]
-    [ACPropertyEntity(9999, "ServiceObserverEnabledTCP", "en{'deprecated-ServiceObserverEnabledTCP'}de{'Veraltet-ServiceObserverEnabledTCP'}", "", "", true)]
+    [ACPropertyEntity(10, "ServiceObserverEnabledTCP", "en{'Autodiscover IP-Interface'}de{'Automatische Suche nach IP-Interface'}", "", "", true)]
 
     [ACPropertyEntity(11, "IsUserDefined", "en{'No IP-Address change if 127.0.0.1 is set'}de{'Keine IP-Adresskorrektur wenn 127.0.0.1 gesetzt'}","", "", true)]
     [ACPropertyEntity(12, "LoginDate", "en{'Login Date'}de{'Login Datum'}","", "", true)]
@@ -67,7 +67,7 @@ namespace gip.core.datamodel
             entity.ServiceAppEnabledTCP = false;
             entity.ServiceWorkflowEnabledHTTP = false;
             entity.ServiceWorkflowEnabledTCP = false;
-            entity.ServiceObserverEnabledTCP = false;
+            entity.ServiceObserverEnabledTCP = true;
             entity.Hostname = "localhost";
             entity.NameResolutionOn = true;
             entity.UseIPV6 = false;
