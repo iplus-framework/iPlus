@@ -38,7 +38,8 @@ namespace gip.core.datamodel
 
         #region project
 
-        public string ExportProject(ACEntitySerializer aCEntitySerializer, ACProject aCProject, ACQueryDefinition qryACProject, string rootFolder)
+        public string ExportProject(ACEntitySerializer aCEntitySerializer, ACProject aCProject,
+            ACQueryDefinition qryACProject, ACClassInfoWithItems exportProjectItemRoot, string rootFolder)
         {
             string folderPath = rootFolder + "\\" + aCProject.ACIdentifier;
             if (!CheckOrCreateDirectory(folderPath))
@@ -47,7 +48,10 @@ namespace gip.core.datamodel
             XElement element = aCEntitySerializer.SerializeACObject(aCProject, qryACProject, folderPath, false);
             string xmlACProject = element != null ? element.ToString() : "";
 
-            WriteAllText(folderPath + "\\" + aCProject.ACIdentifier + Const.ACQueryExportFileType, xmlACProject, aCProject.GetACUrl());
+            if (exportProjectItemRoot.IsChecked)
+            {
+                WriteAllText(folderPath + "\\" + aCProject.ACIdentifier + Const.ACQueryExportFileType, xmlACProject, aCProject.GetACUrl());
+            }
 
             return folderPath;
         }
@@ -56,7 +60,7 @@ namespace gip.core.datamodel
         {
             BackgroundWorker = worker;
             DoWorkEventArgs = doWorkEventArgs;
-            string folderPath = ExportProject(aCEntitySerializer, aCProject, qryACProject, rootFolder);
+            string folderPath = ExportProject(aCEntitySerializer, aCProject, qryACProject, exportProjectItemRoot, rootFolder);
             ExportACClass(aCEntitySerializer, qryACClass, exportProjectItemRoot, folderPath, ref currentItem, totalItems);
         }
 
@@ -569,20 +573,24 @@ namespace gip.core.datamodel
         public void OnExportError(ExportErrosEnum exportErrorType, string acUrl, Exception ec, string path)
         {
             if (ExportErrorEvent != null)
+            {
                 ExportErrorEvent(
-                        new ExportErrorEventArgs()
-                        {
-                            Exception = ec,
-                            ExportErrorType = exportErrorType,
-                            ACUrl = acUrl,
-                            Path = path
-                        });
+                    new ExportErrorEventArgs()
+                    {
+                        Exception = ec,
+                        ExportErrorType = exportErrorType,
+                        ACUrl = acUrl,
+                        Path = path
+                    });
+            }
         }
 
         public void OnExportReportProgress(int currentItem, string progressMessage)
         {
             if (ExportProgressEvent != null)
+            {
                 ExportProgressEvent(currentItem, progressMessage);
+            }
         }
 
         #endregion
