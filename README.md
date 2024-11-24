@@ -43,7 +43,7 @@ The iPlus Framework is designed to meet the complex requirements of modern softw
 ## Technology
 - Build on .NET Platform: .NET Core, Entity Framework, WCF, WPF
 - Serverside without UI: Windows, Linux
-- Clientside with UI: Windows. In the future with Avalonia XPF (see library exception in our GPL-v3 license) also on Linux, Android, macOS, iOS and Web-Browser.
+- Clientside with UI: Windows. On Linux/Android currently with WINE, but in the future with Avalonia XPF (see library exception in our GPL-v3 license) also on Linux, Android, macOS, iOS and Web-Browser.
 
 ## Getting Started
 To get started with the iPlus Framework, follow these steps:
@@ -62,8 +62,9 @@ Restore the SQL Server backup file located in the "Database" folder.
   - Compile the solution an set gip.iplus.client.exe as start project.
 
 5. **Execute gip.iplus.client.exe**  
-  - Login with user "superuser" and password "superuser" to **start as a client**. Login with user "00" and password "00" to **start as a service**. After starting the service, your local IP is remembered and you can start a second instance an logon as client to establish the Client-Server-Connection. If you have problems, that the Client doesn't connect with the server read the [network configuration section](https://iplus-framework.com/en/documentation/Read/Index/View/b00675a8-718c-4c13-9d6d-5e751397ac5f?chapterID=a7424f03-cbff-4f68-90eb-262b3fdcba1c#ItemTextTranslationID_bf788469-8a2f-4a7c-ad78-2710960096dc).
+  - Login with user "superuser" and password "superuser" to **start as a client**. Login with user "00" and password "00" to **start as a service**. After starting the service, your local IP is remembered and you can start a second instance an logon as client to establish the Client-Server-Connection. If you have problems, that the Client doesn't connect with the server read the [network configuration section](https://iplus-framework.com/en/documentation/Read/Index/View/b00675a8-718c-4c13-9d6d-5e751397ac5f?chapterID=a7424f03-cbff-4f68-90eb-262b3fdcba1c#ItemTextTranslationID_bf788469-8a2f-4a7c-ad78-2710960096dc). For [running on Linux read here](https://iplus-framework.com/en/documentation/Read/Index/View/b00675a8-718c-4c13-9d6d-5e751397ac5f?chapterID=9df14383-a4e5-4a3d-81d5-5dccf80d6c4e).
   - 🤗 Have fun trying it out and watch our videos to get started. However, we recommend [online training](https://iplus-framework.com/en?section=Support%20%26%20Training#d57ccb45-9050-41cb-a177-9e8c05028931).
+
 
 ## Contributing
 
