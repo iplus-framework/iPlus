@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using static gip.core.datamodel.Global;
 
 namespace gip.bso.iplus
@@ -21,6 +22,9 @@ namespace gip.bso.iplus
 
         public const string BackgroundWorker_Export = "Export";
         public const string BackgroundWorker_Package = "Package";
+
+        private SynchronizationContext _MainSyncContext;
+
 
         #endregion
 
@@ -68,6 +72,9 @@ namespace gip.bso.iplus
             _ExportCommand.ExportErrorEvent += ExportCommand_ExportErrorEvent;
             _ExportCommand.ExportProgressEvent += ExportCommand_ExportProgressEvent;
             PackageExportUser = Root.Environment.User.Initials;
+
+            _MainSyncContext = SynchronizationContext.Current;
+
             return true;
         }
 
@@ -95,6 +102,9 @@ namespace gip.bso.iplus
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);
                 _BSODatabase = null;
             }
+
+            _MainSyncContext = null;
+
             return done;
         }
 
@@ -740,6 +750,8 @@ namespace gip.bso.iplus
             if (BackgroundWorker.IsBusy) return;
             if (!IsTreeFilterWithoutNameAndGroup()) return;
 
+            ClearMessage();
+
             BackgroundWorker.RunWorkerAsync(BackgroundWorker_Export);
             ShowDialog(this, DesignNameProgressBar);
         }
@@ -1026,6 +1038,9 @@ namespace gip.bso.iplus
             if (!IsEnabledPackageDlgOk()) return;
             if (BackgroundWorker.IsBusy) return;
             CloseTopDialog();
+
+            ClearMessage();
+
             BackgroundWorker.RunWorkerAsync(BackgroundWorker_Package);
             ShowDialog(this, DesignNameProgressBar);
         }
@@ -1086,7 +1101,17 @@ namespace gip.bso.iplus
 
         public void SendMessage(Msg msg)
         {
-            MsgList.Add(msg);
+            _MainSyncContext?.Send((object state) =>
+            {
+                MsgList.Add(msg);
+                OnPropertyChanged(nameof(MsgList));
+            }, new object());
+        }
+
+
+        public void ClearMessage()
+        {
+            MsgList.Clear();
             OnPropertyChanged(nameof(MsgList));
         }
 
