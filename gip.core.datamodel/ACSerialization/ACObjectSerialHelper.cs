@@ -143,10 +143,8 @@ namespace gip.core.datamodel
                 if (acObject == null)
                 {
                     IACObject tmpNewObject = acFSParentItem.Container.DB.ACUrlCommand(acUrl) as IACObject;
-                    if(tmpNewObject != null && (tmpNewObject is ACProject || tmpNewObject is ACClass))
-                    {
+                    if (tmpNewObject != null) // && (tmpNewObject is ACProject || tmpNewObject is ACClass))
                         acObject = tmpNewObject;
-                    }
                     if (acObject != null && !acFSParentItem.Container.CachedIACObjects.Keys.Contains(acUrl))
                         acFSParentItem.Container.CachedIACObjects.Add(acUrl, acObject);
                 }

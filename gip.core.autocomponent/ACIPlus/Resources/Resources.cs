@@ -58,8 +58,6 @@ namespace gip.core.autocomponent
             ACFSItem rootACObjectItem = new ACFSItem(this, container, null, folderName, ResourceTypeEnum.Folder, "\\Resources\\" + path);
             int index = 0;
 
-
-
             if (withFiles)
             {
                 ACEntitySerializer serializer = new ACEntitySerializer();

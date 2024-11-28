@@ -717,13 +717,8 @@ namespace gip.bso.iplus
         {
             string secondaryKey = Root.NoManager.GetNewNo(Database, typeof(ACClassDesign), ACClassDesign.NoColumnName, ACClassDesign.FormatNewNo, this);
             ACClassDesign duplDesign = ACClassDesign.NewACObject(Database.ContextIPlus, CurrentACClass, secondaryKey);
-            duplDesign.ACKindIndex = CurrentACClassDesign.ACKindIndex;
-            duplDesign.ACUsageIndex = CurrentACClassDesign.ACUsageIndex;
-            duplDesign.ACCaptionTranslation = CurrentACClassDesign.ACCaptionTranslation;
-            duplDesign.XMLDesign = CurrentACClassDesign.XMLDesign;
-            duplDesign.ValueTypeACClassID = CurrentACClassDesign.ValueTypeACClassID;
+            CurrentACClassDesign.CopyFieldsTo(duplDesign);
             duplDesign.ACIdentifier = GetDuplicatedDesignACIdentifier();
-
             CurrentACClassDesign = duplDesign;
             Database.ContextIPlus.ACClassDesign.Add(duplDesign);
 

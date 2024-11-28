@@ -1191,31 +1191,36 @@ namespace gip.core.datamodel
             ACClassDesign clonedObject = new ACClassDesign();
             clonedObject.ACClassDesignID = this.ACClassDesignID;
             clonedObject.ACClassID = this.ACClassID;
-            clonedObject.ACIdentifier = this.ACIdentifier;
-            clonedObject.ACIdentifierKey = this.ACIdentifierKey;
-            clonedObject.ACCaptionTranslation = this.ACCaptionTranslation;
-            clonedObject.ACGroup = this.ACGroup;
-            clonedObject.XMLDesign = this.XMLDesign;
-            clonedObject.DesignBinary = this.DesignBinary;
-            clonedObject.DesignNo = this.DesignNo;
-            clonedObject.ValueTypeACClassID = this.ValueTypeACClassID;
-            clonedObject.ACKindIndex = this.ACKindIndex;
-            clonedObject.ACUsageIndex = this.ACUsageIndex;
-            clonedObject.SortIndex = this.SortIndex;
-            clonedObject.IsRightmanagement = this.IsRightmanagement;
-            clonedObject.Comment = this.Comment;
-            clonedObject.IsDefault = this.IsDefault;
-            clonedObject.IsResourceStyle = this.IsResourceStyle;
-            clonedObject.VisualHeight = this.VisualHeight;
-            clonedObject.VisualWidth = this.VisualWidth;
-            clonedObject.XMLConfig = this.XMLConfig;
-            clonedObject.BranchNo = this.BranchNo;
-            clonedObject.DesignerMaxRecursion = this.DesignerMaxRecursion;
-            clonedObject.BAMLDesign = this.BAMLDesign;
-            clonedObject.BAMLDate = this.BAMLDate;
+            CopyFieldsTo(clonedObject);
             return clonedObject;
         }
-#endregion
+
+        public void CopyFieldsTo(ACClassDesign toDesign)
+        {
+            toDesign.ACIdentifier = this.ACIdentifier;
+            toDesign.ACIdentifierKey = this.ACIdentifierKey;
+            toDesign.ACCaptionTranslation = this.ACCaptionTranslation;
+            toDesign.ACGroup = this.ACGroup;
+            toDesign.XMLDesign = this.XMLDesign;
+            toDesign.DesignBinary = this.DesignBinary;
+            toDesign.DesignNo = this.DesignNo;
+            toDesign.ValueTypeACClassID = this.ValueTypeACClassID;
+            toDesign.ACKindIndex = this.ACKindIndex;
+            toDesign.ACUsageIndex = this.ACUsageIndex;
+            toDesign.SortIndex = this.SortIndex;
+            toDesign.IsRightmanagement = this.IsRightmanagement;
+            toDesign.Comment = this.Comment;
+            toDesign.IsDefault = this.IsDefault;
+            toDesign.IsResourceStyle = this.IsResourceStyle;
+            toDesign.VisualHeight = this.VisualHeight;
+            toDesign.VisualWidth = this.VisualWidth;
+            toDesign.XMLConfig = this.XMLConfig;
+            toDesign.BranchNo = this.BranchNo;
+            toDesign.DesignerMaxRecursion = this.DesignerMaxRecursion;
+            toDesign.BAMLDesign = this.BAMLDesign;
+            toDesign.BAMLDate = this.BAMLDate;
+        }
+        #endregion
 
 
         internal ACClass Safe_ACClass
