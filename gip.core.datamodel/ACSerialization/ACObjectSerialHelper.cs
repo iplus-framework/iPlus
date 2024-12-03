@@ -116,6 +116,10 @@ namespace gip.core.datamodel
                                 }
 
                             }
+                            if (tmpIACObject == null)
+                            {
+                                tmpIACObject = acFSParentItem.Container.DB.ACUrlCommand(urlParts[i]) as IACObject;
+                            }
                             if (tmpIACObject == null) 
                                 break;
                             tmpParentIACObject = tmpIACObject;
