@@ -12,7 +12,9 @@ using BinaryKits.Zpl.Label;
 using BinaryKits.Zpl.Label.Elements;
 using gip.core.layoutengine;
 using gip.core.autocomponent;
-using DocumentFormat.OpenXml.Drawing.ChartDrawing;
+using System.Net.Sockets;
+using ESCPOS.Utils;
+using System.IO;
 
 namespace gip.core.reporthandler
 {
@@ -24,21 +26,46 @@ namespace gip.core.reporthandler
         public ZPLPrinter(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "") : 
             base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            _ResolutionDPI = new ACPropertyConfigValue<short>(this, nameof(ResolutionDPI), 203);
+            _PrintDPI = new ACPropertyConfigValue<short>(this, nameof(PrintDPI), 203);
         }
 
         #endregion
 
         #region Properties
 
-        private ACPropertyConfigValue<short> _ResolutionDPI;
-        [ACPropertyConfig("en{'Resolution DPI'}de{'Resolution DPI'}")]
-        public short ResolutionDPI
+        private Queue<ZPLPrintJob> _ZPLPrintJobs;
+        public Queue<ZPLPrintJob> ZPLPrintJobs
         {
-            get => _ResolutionDPI.ValueT;
-            set => _ResolutionDPI.ValueT = value;
+            get
+            {
+                if (_ZPLPrintJobs == null)
+                    _ZPLPrintJobs = new Queue<ZPLPrintJob>();
+                return _ZPLPrintJobs;
+            }
         }
 
+        private ACPropertyConfigValue<short> _PrintDPI;
+        [ACPropertyConfig("en{'Print DPI'}de{'Print DPI'}")]
+        public short PrintDPI
+        {
+            get => _PrintDPI.ValueT;
+            set => _PrintDPI.ValueT = value;
+        }
+
+        public string _LastPrintCommand;
+        [ACPropertyInfo(9999)]
+        public string LastPrintCommand
+        {
+            get => _LastPrintCommand;
+            set
+            {
+                _LastPrintCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [ACPropertyBindingSource(9999, "Error", "en{'ZPL printer alarm'}de{'ZPL Drucker Alarm'}", "", false, false)]
+        public IACContainerTNet<PANotifyState> ZPLPrinterAlarm { get; set; }
 
         #endregion
 
@@ -62,32 +89,68 @@ namespace gip.core.reporthandler
             {
                 try
                 {
-                    ZplRenderOptions renderOptions = new ZplRenderOptions(); //TODO add configuration
+                    ZplRenderOptions renderOptions = new ZplRenderOptions();
+                    renderOptions.TargetPrintDpi = PrintDPI;
                     ZplEngine zplEngine = new ZplEngine(zplPrintJob.ZplElements);
                     string commands = zplEngine.ToZplString(renderOptions);
 
                     if (string.IsNullOrEmpty(commands))
                     {
-                        //todo error
+                        return false;
                     }
 
+                    LastPrintCommand = commands;
+                    SendData(commands);
 
-                    if (IsAlarmActive(IsConnected) != null)
-                        AcknowledgeAlarms();
-                    IsConnected.ValueT = true;
                     return true;
                 }
                 catch (Exception e)
                 {
                     string message = String.Format("Print failed on {0}. See log for further details.", IPAddress);
-                    if (IsAlarmActive(IsConnected, message) == null)
-                        Messages.LogException(GetACUrl(), "SendDataToPrinter(20)", e);
-                    OnNewAlarmOccurred(IsConnected, message);
+                    if (IsAlarmActive(ZPLPrinterAlarm, message) == null)
+                        Messages.LogException(GetACUrl(), "SendDataToPrinter(10)", e);
+                    OnNewAlarmOccurred(ZPLPrinterAlarm, message);
                     IsConnected.ValueT = false;
                     Thread.Sleep(5000);
                 }
             }
             return false;
+        }
+
+        public void SendData(string printCommand)
+        {
+            try
+            {
+                TcpClient tcpClient = new TcpClient();
+                tcpClient.Connect(IPAddress, Port);
+
+                if (tcpClient.Connected)
+                {
+                    IsConnected.ValueT = true;
+
+                    // Send Zpl data to printer
+                    StreamWriter writer = new System.IO.StreamWriter(tcpClient.GetStream());
+                    writer.Write(printCommand);
+                    writer.Flush();
+
+                    // Close Connection
+                    writer.Close();
+                }
+                else
+                {
+                    IsConnected.ValueT = false;
+                }
+
+                tcpClient.Close();
+            }
+            catch (Exception e)
+            {
+                ZPLPrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
+                if (IsAlarmActive(nameof(ZPLPrinterAlarm), e.Message) == null)
+                    Messages.LogException(GetACUrl(), $"{nameof(LP4Printer)}.{nameof(SendData)}(10)", e);
+
+                OnNewAlarmOccurred(ZPLPrinterAlarm, e.Message, true);
+            }
         }
 
         public override PrintJob GetPrintJob(string reportName, FlowDocument flowDocument)

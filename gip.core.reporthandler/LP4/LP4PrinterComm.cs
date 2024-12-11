@@ -3,14 +3,10 @@ using gip.core.autocomponent;
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
-using System.IO.Ports;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using static gip.core.reporthandler.LinxPrintJob;
 
 namespace gip.core.reporthandler
 {
