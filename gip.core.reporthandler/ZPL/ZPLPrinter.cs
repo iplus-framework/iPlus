@@ -96,6 +96,11 @@ namespace gip.core.reporthandler
 
                     if (string.IsNullOrEmpty(commands))
                     {
+                        string message = "Print command is empty!";
+                        if (IsAlarmActive(ZPLPrinterAlarm, message) == null)
+                            Messages.LogError(GetACUrl(), "SendDataToPrinter(10)", message);
+                        OnNewAlarmOccurred(ZPLPrinterAlarm, message);
+
                         return false;
                     }
 
@@ -108,7 +113,7 @@ namespace gip.core.reporthandler
                 {
                     string message = String.Format("Print failed on {0}. See log for further details.", IPAddress);
                     if (IsAlarmActive(ZPLPrinterAlarm, message) == null)
-                        Messages.LogException(GetACUrl(), "SendDataToPrinter(10)", e);
+                        Messages.LogException(GetACUrl(), "SendDataToPrinter(20)", e);
                     OnNewAlarmOccurred(ZPLPrinterAlarm, message);
                     IsConnected.ValueT = false;
                     Thread.Sleep(5000);
@@ -324,25 +329,24 @@ namespace gip.core.reporthandler
                 return;
 
             string barcodeValue = inlineBarcode.Value.ToString();
+            (int posX, int posY) = GetInlineUIPos(inlineBarcode, zplPrintJob);
+
             if (inlineBarcode.BarcodeType == BarcodeType.QRCODE)
             {
                 int qrCodeHeight = inlineBarcode.BarcodeHeight;
                 if (qrCodeHeight > 6)
                     qrCodeHeight = 6;
-                else if (qrCodeHeight < 1)
-                    qrCodeHeight = 2;
-
-                (int posX, int posY) = GetInlineUIPos(inlineBarcode, zplPrintJob);
+                else if (qrCodeHeight <= 1)
+                    qrCodeHeight = 1;
+                
                 ZplQrCode qrCode = new ZplQrCode(barcodeValue, posX, posY, 2, qrCodeHeight);
-                zplPrintJob.AddToJob(qrCode, 50); //TODO
+                zplPrintJob.AddToJob(qrCode, qrCodeHeight * 34);
             }
             else
             {
-                //BarCodeType barCodeType = BarCodeType.EAN8;
-                //if (Enum.TryParse(inlineBarcode.BarcodeType.ToString(), out barCodeType))
-                //    printJob.Main = printJob.Main.Add(Commands.LF, Commands.PrintBarCode(barCodeType, barcodeValue));
+                ZplBarcode128 barcode = new ZplBarcode128(barcodeValue, posX, posY, inlineBarcode.BarcodeHeight);
+                zplPrintJob.AddToJob(barcode, inlineBarcode.BarcodeHeight);
             }
-            //printJob.Main = printJob.Main.Add(Commands.LF, Commands.LF, Commands.LF, Commands.LF, Commands.LF);
         }
 
         public override void OnRenderInlineBoolValue(PrintJob printJob, InlineBoolValue inlineBoolValue)
