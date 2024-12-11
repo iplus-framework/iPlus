@@ -334,8 +334,8 @@ namespace gip.core.reporthandler
             if (inlineBarcode.BarcodeType == BarcodeType.QRCODE)
             {
                 int qrCodeHeight = inlineBarcode.BarcodeHeight;
-                if (qrCodeHeight > 6)
-                    qrCodeHeight = 6;
+                if (qrCodeHeight > 10)
+                    qrCodeHeight = 10;
                 else if (qrCodeHeight <= 1)
                     qrCodeHeight = 1;
                 
