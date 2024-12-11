@@ -53,6 +53,28 @@ namespace gip.core.reporthandler.Flowdoc
         }
         public static readonly DependencyProperty MaxHeightProperty = DependencyProperty.Register("MaxHeight", typeof(double), typeof(InlineUIValueBase), new UIPropertyMetadata(0.0));
 
+        public int FontWidth
+        {
+            get { return (int)GetValue(FontWidthProperty); }
+            set { SetValue(FontWidthProperty, value); }
+        }
+
+        public static readonly DependencyProperty XPosProperty = DependencyProperty.Register("XPos", typeof(int), typeof(InlineUIValueBase), new PropertyMetadata(0));
+        public int XPos
+        {
+            get { return (int)GetValue(XPosProperty); }
+            set { SetValue(XPosProperty, value); }
+        }
+
+        public static readonly DependencyProperty YPosProperty = DependencyProperty.Register("YPos", typeof(int), typeof(InlineUIValueBase), new PropertyMetadata(0));
+        public int YPos
+        {
+            get { return (int)GetValue(YPosProperty); }
+            set { SetValue(YPosProperty, value); }
+        }
+
+        public static readonly DependencyProperty FontWidthProperty = DependencyProperty.Register("FontWidth", typeof(int), typeof(InlineUIValueBase), new PropertyMetadata(20));
+
         /// <summary>
         /// Gets or sets the object value
         /// </summary>

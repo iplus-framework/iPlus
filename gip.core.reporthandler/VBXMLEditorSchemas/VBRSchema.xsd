@@ -1,6 +1,118 @@
 <?xml version="1.0"?>
-<xs:schema xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:vbr="http://www.iplus-framework.com/report/xaml" targetNamespace="http://www.iplus-framework.com/report/xaml" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:vbr="http://www.iplus-framework.com/report/xaml" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" targetNamespace="http://www.iplus-framework.com/report/xaml" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:import schemaLocation="pack://application:,,,/gip.core.layoutengine;component/VBXMLEditorSchemas/XamlPresentation2006.xsd" namespace="http://schemas.microsoft.com/winfx/2006/xaml/presentation" />
+  <xs:simpleType name="enumBaselineAlignment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Top" />
+      <xs:enumeration value="Center" />
+      <xs:enumeration value="Bottom" />
+      <xs:enumeration value="Baseline" />
+      <xs:enumeration value="TextTop" />
+      <xs:enumeration value="TextBottom" />
+      <xs:enumeration value="Subscript" />
+      <xs:enumeration value="Superscript" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumFlowDirection">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="LeftToRight" />
+      <xs:enumeration value="RightToLeft" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="BarcodeValue">
+    <xs:sequence>
+      <xs:group ref="vbr:VBReportItems" />
+      <xs:element name="BarcodeValue.AI" />
+      <xs:element name="BarcodeValue.DictKey" />
+      <xs:element name="BarcodeValue.VBContent" />
+      <xs:element name="BarcodeValue.AggregateGroup" />
+      <xs:element name="BarcodeValue.CustomInt01" type="dInt32Container" />
+      <xs:element name="BarcodeValue.CustomInt02" type="dInt32Container" />
+      <xs:element name="BarcodeValue.CustomInt03" type="dInt32Container" />
+      <xs:element name="BarcodeValue.XPos" type="dInt32Container" />
+      <xs:element name="BarcodeValue.YPos" type="dInt32Container" />
+      <xs:element name="BarcodeValue.StringFormat" />
+      <xs:element name="BarcodeValue.CultureInfo" />
+      <xs:element name="BarcodeValue.MaxLength" type="dInt32Container" />
+      <xs:element name="BarcodeValue.Truncate" type="dInt32Container" />
+      <xs:element name="BarcodeValue.FontWidth" type="dInt32Container" />
+      <xs:element name="BarcodeValue.Value" type="dObjectContainer" />
+      <xs:element name="BarcodeValue.Text" />
+      <xs:element name="BarcodeValue.BaselineAlignment" />
+      <xs:element name="BarcodeValue.TextDecorations" />
+      <xs:element name="BarcodeValue.FlowDirection" />
+      <xs:element name="BarcodeValue.FontFamily" type="dFontFamilyContainer" />
+      <xs:element name="BarcodeValue.FontStyle" type="dFontStyleContainer" />
+      <xs:element name="BarcodeValue.FontWeight" type="dFontWeightContainer" />
+      <xs:element name="BarcodeValue.FontStretch" type="dFontStretchContainer" />
+      <xs:element name="BarcodeValue.FontSize" type="dDoubleContainer" />
+      <xs:element name="BarcodeValue.Foreground" type="dBrushContainer" />
+      <xs:element name="BarcodeValue.Background" type="dBrushContainer" />
+      <xs:element name="BarcodeValue.TextEffects" />
+      <xs:element name="BarcodeValue.Style" type="dStyleContainer" />
+      <xs:element name="BarcodeValue.OverridesDefaultStyle" />
+      <xs:element name="BarcodeValue.Resources" />
+      <xs:element name="BarcodeValue.Name" />
+      <xs:element name="BarcodeValue.Tag" type="dObjectContainer" />
+      <xs:element name="BarcodeValue.Language" type="dXmlLanguageContainer" />
+      <xs:element name="BarcodeValue.FocusVisualStyle" type="dStyleContainer" />
+      <xs:element name="BarcodeValue.Cursor" type="dCursorContainer" />
+      <xs:element name="BarcodeValue.ForceCursor" />
+      <xs:element name="BarcodeValue.InputScope" type="dInputScopeContainer" />
+      <xs:element name="BarcodeValue.DataContext" type="dObjectContainer" />
+      <xs:element name="BarcodeValue.BindingGroup" />
+      <xs:element name="BarcodeValue.ToolTip" type="dObjectContainer" />
+      <xs:element name="BarcodeValue.ContextMenu" type="dContextMenuContainer" />
+      <xs:element name="BarcodeValue.IsEnabled" />
+      <xs:element name="BarcodeValue.Focusable" />
+      <xs:element name="BarcodeValue.AllowDrop" />
+    </xs:sequence>
+    <xs:attribute name="AI" />
+    <xs:attribute name="DictKey" />
+    <xs:attribute name="VBContent" />
+    <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="CustomInt01" />
+    <xs:attribute name="CustomInt02" />
+    <xs:attribute name="CustomInt03" />
+    <xs:attribute name="XPos" />
+    <xs:attribute name="YPos" />
+    <xs:attribute name="StringFormat" />
+    <xs:attribute name="CultureInfo" />
+    <xs:attribute name="MaxLength" />
+    <xs:attribute name="Truncate" />
+    <xs:attribute name="FontWidth" />
+    <xs:attribute name="Value" />
+    <xs:attribute name="Text" />
+    <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
+    <xs:attribute name="TextDecorations" />
+    <xs:attribute name="FlowDirection" type="vbr:enumFlowDirection" />
+    <xs:attribute name="FontFamily" />
+    <xs:attribute name="FontStyle" />
+    <xs:attribute name="FontWeight" />
+    <xs:attribute name="FontStretch" />
+    <xs:attribute name="FontSize" />
+    <xs:attribute name="Foreground" />
+    <xs:attribute name="Background" />
+    <xs:attribute name="TextEffects" />
+    <xs:attribute name="Style" />
+    <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Resources" />
+    <xs:attribute name="Name" />
+    <xs:attribute name="Tag" />
+    <xs:attribute name="Language" />
+    <xs:attribute name="FocusVisualStyle" />
+    <xs:attribute name="Cursor" />
+    <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="InputScope" />
+    <xs:attribute name="DataContext" />
+    <xs:attribute name="BindingGroup" />
+    <xs:attribute name="ToolTip" />
+    <xs:attribute name="ContextMenu" />
+    <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+  </xs:complexType>
+  <xs:element name="BarcodeValue" type="vbr:BarcodeValue" />
   <xs:simpleType name="enumBarcodeType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="UNSPECIFIED" />
@@ -46,24 +158,6 @@
       <xs:enumeration value="QRCODE" />
     </xs:restriction>
   </xs:simpleType>
-  <xs:simpleType name="enumBaselineAlignment">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="Top" />
-      <xs:enumeration value="Center" />
-      <xs:enumeration value="Bottom" />
-      <xs:enumeration value="Baseline" />
-      <xs:enumeration value="TextTop" />
-      <xs:enumeration value="TextBottom" />
-      <xs:enumeration value="Subscript" />
-      <xs:enumeration value="Superscript" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:simpleType name="enumFlowDirection">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="LeftToRight" />
-      <xs:enumeration value="RightToLeft" />
-    </xs:restriction>
-  </xs:simpleType>
   <xs:complexType name="InlineBarcode">
     <xs:sequence>
       <xs:group ref="vbr:VBReportItems" />
@@ -71,6 +165,7 @@
       <xs:element name="InlineBarcode.BarcodeWidth" type="dInt32Container" />
       <xs:element name="InlineBarcode.BarcodeHeight" type="dInt32Container" />
       <xs:element name="InlineBarcode.QRPixelsPerModule" type="dInt32Container" />
+      <xs:element name="InlineBarcode.BarcodeValues" />
       <xs:element name="InlineBarcode.Value" type="dObjectContainer" />
       <xs:element name="InlineBarcode.StringFormat" />
       <xs:element name="InlineBarcode.CultureInfo" />
@@ -78,6 +173,7 @@
       <xs:element name="InlineBarcode.Truncate" type="dInt32Container" />
       <xs:element name="InlineBarcode.MaxWidth" type="dDoubleContainer" />
       <xs:element name="InlineBarcode.MaxHeight" type="dDoubleContainer" />
+      <xs:element name="InlineBarcode.FontWidth" type="dInt32Container" />
       <xs:element name="InlineBarcode.DictKey" />
       <xs:element name="InlineBarcode.VBContent" />
       <xs:element name="InlineBarcode.AggregateGroup" />
@@ -115,6 +211,7 @@
     <xs:attribute name="BarcodeWidth" />
     <xs:attribute name="BarcodeHeight" />
     <xs:attribute name="QRPixelsPerModule" />
+    <xs:attribute name="BarcodeValues" />
     <xs:attribute name="Value" />
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
@@ -122,6 +219,7 @@
     <xs:attribute name="Truncate" />
     <xs:attribute name="MaxWidth" />
     <xs:attribute name="MaxHeight" />
+    <xs:attribute name="FontWidth" />
     <xs:attribute name="DictKey" />
     <xs:attribute name="VBContent" />
     <xs:attribute name="AggregateGroup" />
@@ -162,10 +260,16 @@
       <xs:element name="InlineFlowDocContentValue.DictKey" />
       <xs:element name="InlineFlowDocContentValue.VBContent" />
       <xs:element name="InlineFlowDocContentValue.AggregateGroup" />
+      <xs:element name="InlineFlowDocContentValue.CustomInt01" type="dInt32Container" />
+      <xs:element name="InlineFlowDocContentValue.CustomInt02" type="dInt32Container" />
+      <xs:element name="InlineFlowDocContentValue.CustomInt03" type="dInt32Container" />
+      <xs:element name="InlineFlowDocContentValue.XPos" type="dInt32Container" />
+      <xs:element name="InlineFlowDocContentValue.YPos" type="dInt32Container" />
       <xs:element name="InlineFlowDocContentValue.StringFormat" />
       <xs:element name="InlineFlowDocContentValue.CultureInfo" />
       <xs:element name="InlineFlowDocContentValue.MaxLength" type="dInt32Container" />
       <xs:element name="InlineFlowDocContentValue.Truncate" type="dInt32Container" />
+      <xs:element name="InlineFlowDocContentValue.FontWidth" type="dInt32Container" />
       <xs:element name="InlineFlowDocContentValue.Value" type="dObjectContainer" />
       <xs:element name="InlineFlowDocContentValue.Text" />
       <xs:element name="InlineFlowDocContentValue.BaselineAlignment" />
@@ -200,10 +304,16 @@
     <xs:attribute name="DictKey" />
     <xs:attribute name="VBContent" />
     <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="CustomInt01" />
+    <xs:attribute name="CustomInt02" />
+    <xs:attribute name="CustomInt03" />
+    <xs:attribute name="XPos" />
+    <xs:attribute name="YPos" />
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
     <xs:attribute name="Truncate" />
+    <xs:attribute name="FontWidth" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -247,6 +357,7 @@
           <xs:element name="InlineUIValueBase.Truncate" type="dInt32Container" />
           <xs:element name="InlineUIValueBase.MaxWidth" type="dDoubleContainer" />
           <xs:element name="InlineUIValueBase.MaxHeight" type="dDoubleContainer" />
+          <xs:element name="InlineUIValueBase.FontWidth" type="dInt32Container" />
           <xs:element name="InlineUIValueBase.Value" type="dObjectContainer" />
           <xs:element name="InlineUIValueBase.DictKey" />
           <xs:element name="InlineUIValueBase.VBContent" />
@@ -287,6 +398,7 @@
         <xs:attribute name="Truncate" />
         <xs:attribute name="MaxWidth" />
         <xs:attribute name="MaxHeight" />
+        <xs:attribute name="FontWidth" />
         <xs:attribute name="Value" />
         <xs:attribute name="DictKey" />
         <xs:attribute name="VBContent" />
@@ -393,10 +505,16 @@
       <xs:element name="InlineACMethodValue.DictKey" />
       <xs:element name="InlineACMethodValue.VBContent" />
       <xs:element name="InlineACMethodValue.AggregateGroup" />
+      <xs:element name="InlineACMethodValue.CustomInt01" type="dInt32Container" />
+      <xs:element name="InlineACMethodValue.CustomInt02" type="dInt32Container" />
+      <xs:element name="InlineACMethodValue.CustomInt03" type="dInt32Container" />
+      <xs:element name="InlineACMethodValue.XPos" type="dInt32Container" />
+      <xs:element name="InlineACMethodValue.YPos" type="dInt32Container" />
       <xs:element name="InlineACMethodValue.StringFormat" />
       <xs:element name="InlineACMethodValue.CultureInfo" />
       <xs:element name="InlineACMethodValue.MaxLength" type="dInt32Container" />
       <xs:element name="InlineACMethodValue.Truncate" type="dInt32Container" />
+      <xs:element name="InlineACMethodValue.FontWidth" type="dInt32Container" />
       <xs:element name="InlineACMethodValue.Value" type="dObjectContainer" />
       <xs:element name="InlineACMethodValue.Text" />
       <xs:element name="InlineACMethodValue.BaselineAlignment" />
@@ -432,10 +550,16 @@
     <xs:attribute name="DictKey" />
     <xs:attribute name="VBContent" />
     <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="CustomInt01" />
+    <xs:attribute name="CustomInt02" />
+    <xs:attribute name="CustomInt03" />
+    <xs:attribute name="XPos" />
+    <xs:attribute name="YPos" />
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
     <xs:attribute name="Truncate" />
+    <xs:attribute name="FontWidth" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -475,10 +599,16 @@
       <xs:element name="InlineTableCellConfigurationValue.DictKey" />
       <xs:element name="InlineTableCellConfigurationValue.VBContent" />
       <xs:element name="InlineTableCellConfigurationValue.AggregateGroup" />
+      <xs:element name="InlineTableCellConfigurationValue.CustomInt01" type="dInt32Container" />
+      <xs:element name="InlineTableCellConfigurationValue.CustomInt02" type="dInt32Container" />
+      <xs:element name="InlineTableCellConfigurationValue.CustomInt03" type="dInt32Container" />
+      <xs:element name="InlineTableCellConfigurationValue.XPos" type="dInt32Container" />
+      <xs:element name="InlineTableCellConfigurationValue.YPos" type="dInt32Container" />
       <xs:element name="InlineTableCellConfigurationValue.StringFormat" />
       <xs:element name="InlineTableCellConfigurationValue.CultureInfo" />
       <xs:element name="InlineTableCellConfigurationValue.MaxLength" type="dInt32Container" />
       <xs:element name="InlineTableCellConfigurationValue.Truncate" type="dInt32Container" />
+      <xs:element name="InlineTableCellConfigurationValue.FontWidth" type="dInt32Container" />
       <xs:element name="InlineTableCellConfigurationValue.Value" type="dObjectContainer" />
       <xs:element name="InlineTableCellConfigurationValue.Text" />
       <xs:element name="InlineTableCellConfigurationValue.BaselineAlignment" />
@@ -514,10 +644,16 @@
     <xs:attribute name="DictKey" />
     <xs:attribute name="VBContent" />
     <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="CustomInt01" />
+    <xs:attribute name="CustomInt02" />
+    <xs:attribute name="CustomInt03" />
+    <xs:attribute name="XPos" />
+    <xs:attribute name="YPos" />
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
     <xs:attribute name="Truncate" />
+    <xs:attribute name="FontWidth" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -646,6 +782,7 @@
       <xs:element name="InlineAggregateValue.CultureInfo" />
       <xs:element name="InlineAggregateValue.MaxLength" type="dInt32Container" />
       <xs:element name="InlineAggregateValue.Truncate" type="dInt32Container" />
+      <xs:element name="InlineAggregateValue.FontWidth" type="dInt32Container" />
       <xs:element name="InlineAggregateValue.Value" type="dObjectContainer" />
       <xs:element name="InlineAggregateValue.Text" />
       <xs:element name="InlineAggregateValue.BaselineAlignment" />
@@ -685,6 +822,7 @@
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
     <xs:attribute name="Truncate" />
+    <xs:attribute name="FontWidth" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -723,10 +861,16 @@
       <xs:element name="InlineContextValue.DictKey" />
       <xs:element name="InlineContextValue.VBContent" />
       <xs:element name="InlineContextValue.AggregateGroup" />
+      <xs:element name="InlineContextValue.CustomInt01" type="dInt32Container" />
+      <xs:element name="InlineContextValue.CustomInt02" type="dInt32Container" />
+      <xs:element name="InlineContextValue.CustomInt03" type="dInt32Container" />
+      <xs:element name="InlineContextValue.XPos" type="dInt32Container" />
+      <xs:element name="InlineContextValue.YPos" type="dInt32Container" />
       <xs:element name="InlineContextValue.StringFormat" />
       <xs:element name="InlineContextValue.CultureInfo" />
       <xs:element name="InlineContextValue.MaxLength" type="dInt32Container" />
       <xs:element name="InlineContextValue.Truncate" type="dInt32Container" />
+      <xs:element name="InlineContextValue.FontWidth" type="dInt32Container" />
       <xs:element name="InlineContextValue.Value" type="dObjectContainer" />
       <xs:element name="InlineContextValue.Text" />
       <xs:element name="InlineContextValue.BaselineAlignment" />
@@ -761,10 +905,16 @@
     <xs:attribute name="DictKey" />
     <xs:attribute name="VBContent" />
     <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="CustomInt01" />
+    <xs:attribute name="CustomInt02" />
+    <xs:attribute name="CustomInt03" />
+    <xs:attribute name="XPos" />
+    <xs:attribute name="YPos" />
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
     <xs:attribute name="Truncate" />
+    <xs:attribute name="FontWidth" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -803,10 +953,16 @@
       <xs:element name="InlineDocumentValue.DictKey" />
       <xs:element name="InlineDocumentValue.VBContent" />
       <xs:element name="InlineDocumentValue.AggregateGroup" />
+      <xs:element name="InlineDocumentValue.CustomInt01" type="dInt32Container" />
+      <xs:element name="InlineDocumentValue.CustomInt02" type="dInt32Container" />
+      <xs:element name="InlineDocumentValue.CustomInt03" type="dInt32Container" />
+      <xs:element name="InlineDocumentValue.XPos" type="dInt32Container" />
+      <xs:element name="InlineDocumentValue.YPos" type="dInt32Container" />
       <xs:element name="InlineDocumentValue.StringFormat" />
       <xs:element name="InlineDocumentValue.CultureInfo" />
       <xs:element name="InlineDocumentValue.MaxLength" type="dInt32Container" />
       <xs:element name="InlineDocumentValue.Truncate" type="dInt32Container" />
+      <xs:element name="InlineDocumentValue.FontWidth" type="dInt32Container" />
       <xs:element name="InlineDocumentValue.Value" type="dObjectContainer" />
       <xs:element name="InlineDocumentValue.Text" />
       <xs:element name="InlineDocumentValue.BaselineAlignment" />
@@ -841,10 +997,16 @@
     <xs:attribute name="DictKey" />
     <xs:attribute name="VBContent" />
     <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="CustomInt01" />
+    <xs:attribute name="CustomInt02" />
+    <xs:attribute name="CustomInt03" />
+    <xs:attribute name="XPos" />
+    <xs:attribute name="YPos" />
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
     <xs:attribute name="Truncate" />
+    <xs:attribute name="FontWidth" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -883,10 +1045,16 @@
       <xs:element name="InlineTableCellValue.DictKey" />
       <xs:element name="InlineTableCellValue.VBContent" />
       <xs:element name="InlineTableCellValue.AggregateGroup" />
+      <xs:element name="InlineTableCellValue.CustomInt01" type="dInt32Container" />
+      <xs:element name="InlineTableCellValue.CustomInt02" type="dInt32Container" />
+      <xs:element name="InlineTableCellValue.CustomInt03" type="dInt32Container" />
+      <xs:element name="InlineTableCellValue.XPos" type="dInt32Container" />
+      <xs:element name="InlineTableCellValue.YPos" type="dInt32Container" />
       <xs:element name="InlineTableCellValue.StringFormat" />
       <xs:element name="InlineTableCellValue.CultureInfo" />
       <xs:element name="InlineTableCellValue.MaxLength" type="dInt32Container" />
       <xs:element name="InlineTableCellValue.Truncate" type="dInt32Container" />
+      <xs:element name="InlineTableCellValue.FontWidth" type="dInt32Container" />
       <xs:element name="InlineTableCellValue.Value" type="dObjectContainer" />
       <xs:element name="InlineTableCellValue.Text" />
       <xs:element name="InlineTableCellValue.BaselineAlignment" />
@@ -921,10 +1089,16 @@
     <xs:attribute name="DictKey" />
     <xs:attribute name="VBContent" />
     <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="CustomInt01" />
+    <xs:attribute name="CustomInt02" />
+    <xs:attribute name="CustomInt03" />
+    <xs:attribute name="XPos" />
+    <xs:attribute name="YPos" />
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
     <xs:attribute name="Truncate" />
+    <xs:attribute name="FontWidth" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -1578,6 +1752,7 @@
           <xs:element name="InlineValueBase.CultureInfo" />
           <xs:element name="InlineValueBase.MaxLength" type="dInt32Container" />
           <xs:element name="InlineValueBase.Truncate" type="dInt32Container" />
+          <xs:element name="InlineValueBase.FontWidth" type="dInt32Container" />
           <xs:element name="InlineValueBase.Value" type="dObjectContainer" />
           <xs:element name="InlineValueBase.Text" />
           <xs:element name="InlineValueBase.BaselineAlignment" />
@@ -1613,6 +1788,7 @@
         <xs:attribute name="CultureInfo" />
         <xs:attribute name="MaxLength" />
         <xs:attribute name="Truncate" />
+        <xs:attribute name="FontWidth" />
         <xs:attribute name="Value" />
         <xs:attribute name="Text" />
         <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -1653,10 +1829,16 @@
       <xs:element name="InlinePropertyValueBase.DictKey" />
       <xs:element name="InlinePropertyValueBase.VBContent" />
       <xs:element name="InlinePropertyValueBase.AggregateGroup" />
+      <xs:element name="InlinePropertyValueBase.CustomInt01" type="dInt32Container" />
+      <xs:element name="InlinePropertyValueBase.CustomInt02" type="dInt32Container" />
+      <xs:element name="InlinePropertyValueBase.CustomInt03" type="dInt32Container" />
+      <xs:element name="InlinePropertyValueBase.XPos" type="dInt32Container" />
+      <xs:element name="InlinePropertyValueBase.YPos" type="dInt32Container" />
       <xs:element name="InlinePropertyValueBase.StringFormat" />
       <xs:element name="InlinePropertyValueBase.CultureInfo" />
       <xs:element name="InlinePropertyValueBase.MaxLength" type="dInt32Container" />
       <xs:element name="InlinePropertyValueBase.Truncate" type="dInt32Container" />
+      <xs:element name="InlinePropertyValueBase.FontWidth" type="dInt32Container" />
       <xs:element name="InlinePropertyValueBase.Value" type="dObjectContainer" />
       <xs:element name="InlinePropertyValueBase.Text" />
       <xs:element name="InlinePropertyValueBase.BaselineAlignment" />
@@ -1691,10 +1873,16 @@
     <xs:attribute name="DictKey" />
     <xs:attribute name="VBContent" />
     <xs:attribute name="AggregateGroup" />
+    <xs:attribute name="CustomInt01" />
+    <xs:attribute name="CustomInt02" />
+    <xs:attribute name="CustomInt03" />
+    <xs:attribute name="XPos" />
+    <xs:attribute name="YPos" />
     <xs:attribute name="StringFormat" />
     <xs:attribute name="CultureInfo" />
     <xs:attribute name="MaxLength" />
     <xs:attribute name="Truncate" />
+    <xs:attribute name="FontWidth" />
     <xs:attribute name="Value" />
     <xs:attribute name="Text" />
     <xs:attribute name="BaselineAlignment" type="vbr:enumBaselineAlignment" />
@@ -1737,6 +1925,7 @@
       <xs:element name="InlineBoolValue.Truncate" type="dInt32Container" />
       <xs:element name="InlineBoolValue.MaxWidth" type="dDoubleContainer" />
       <xs:element name="InlineBoolValue.MaxHeight" type="dDoubleContainer" />
+      <xs:element name="InlineBoolValue.FontWidth" type="dInt32Container" />
       <xs:element name="InlineBoolValue.DictKey" />
       <xs:element name="InlineBoolValue.VBContent" />
       <xs:element name="InlineBoolValue.AggregateGroup" />
@@ -1777,6 +1966,7 @@
     <xs:attribute name="Truncate" />
     <xs:attribute name="MaxWidth" />
     <xs:attribute name="MaxHeight" />
+    <xs:attribute name="FontWidth" />
     <xs:attribute name="DictKey" />
     <xs:attribute name="VBContent" />
     <xs:attribute name="AggregateGroup" />
@@ -1813,6 +2003,7 @@
   <xs:element name="InlineBoolValue" type="vbr:InlineBoolValue" />
   <xs:group name="VBReportItems">
     <xs:choice>
+      <xs:element ref="vbr:BarcodeValue" />
       <xs:element ref="vbr:InlineBarcode" />
       <xs:element ref="vbr:InlineFlowDocContentValue" />
       <xs:element ref="vbr:InlineUIValueBase" />

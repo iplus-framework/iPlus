@@ -1,2 +1,2 @@
 ﻿
-Xsd file is succesfully generated at 21.10.2021. 10:01:32
+Xsd file is succesfully generated at 11.12.2024. 8:59:50
