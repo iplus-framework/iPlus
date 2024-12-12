@@ -70,9 +70,6 @@
     <Reference Include="BarcodeStandard, Version=2.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\BarcodeLib.2.2.3\lib\netstandard2.0\BarcodeStandard.dll</HintPath>
     </Reference>
-    <Reference Include="BinaryKits.Zpl.Label, Version=3.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\BinaryKits.Zpl.Label.3.2.1\lib\net472\BinaryKits.Zpl.Label.dll</HintPath>
-    </Reference>
     <Reference Include="combit.ListLabel17, Version=17.3.4478.22246, Culture=neutral, PublicKeyToken=a7a30592cb4a94be, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\combit.ListLabel17.dll</HintPath>
@@ -82,9 +79,6 @@
     </Reference>
     <Reference Include="DocumentFormat.OpenXml, Version=2.11.3.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
       <HintPath>..\..\packages\DocumentFormat.OpenXml.2.11.3\lib\netstandard2.0\DocumentFormat.OpenXml.dll</HintPath>
-    </Reference>
-    <Reference Include="ESCPOS">
-      <HintPath>..\..\packages\escpos.1.2.2\lib\netstandard2.0\ESCPOS.dll</HintPath>
     </Reference>
     <Reference Include="ExcelNumberFormat, Version=1.0.10.0, Culture=neutral, PublicKeyToken=23c6f5d73be07eca, processorArchitecture=MSIL">
       <HintPath>..\..\packages\ExcelNumberFormat.1.0.10\lib\net20\ExcelNumberFormat.dll</HintPath>
@@ -202,17 +196,13 @@
     <Compile Include="LP4\LP4PrintJob.cs" />
     <Compile Include="LP4\LP4Render.cs" />
     <Compile Include="Manager\BlockDocumentPosition.cs" />
-    <Compile Include="Manager\ESCPosPrinter.cs" />
     <Compile Include="Manager\LinxPrinter.cs" />
     <Compile Include="Manager\PAPrintInfo.cs" />
-    <Compile Include="Print\ESCPosExt.cs" />
     <Compile Include="Print\PrintFormat.cs" />
     <Compile Include="Print\PrintJob.cs" />
     <Compile Include="Print\PrintJobStateEnum.cs" />
     <Compile Include="Print\QRCodeSizeExt.cs" />
     <Compile Include="Workflow\PWNodePrint.cs" />
-    <Compile Include="ZPL\ZPLPrinter.cs" />
-    <Compile Include="ZPL\ZPLPrintJob.cs" />
     <None Include="app.config" />
     <Compile Include="CodeCompletionXsdGeneratorVBR.cs" />
     <Compile Include="Configuration\ReportConfigurationWrapper.cs" />
@@ -429,9 +419,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="VBControlScripts\2024-12-11 13-54_ihrastinski.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="VBControlScripts\2024-12-11 14-39_ihrastinski.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

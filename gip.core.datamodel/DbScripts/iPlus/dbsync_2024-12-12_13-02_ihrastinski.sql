@@ -1,0 +1,3 @@
+update ACClass set AssemblyQualifiedName = 'escpos.core.reporthandlerwpf.ESCPosPrinter, escpos.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where AssemblyQualifiedName = 'gip.core.reporthandler.ESCPosPrinter, gip.core.reporthandler, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+GO
+update ACClass set AssemblyQualifiedName = 'zpl.core.reporthandlerwpf.ZPLPrinter, zpl.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' where AssemblyQualifiedName = 'gip.core.reporthandler.ZPLPrinter, gip.core.reporthandler, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
