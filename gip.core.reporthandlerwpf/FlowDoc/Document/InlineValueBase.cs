@@ -41,6 +41,16 @@ namespace gip.core.reporthandlerwpf.Flowdoc
         }
         public static readonly DependencyProperty TruncateProperty = ReportDocument.TruncateProperty.AddOwner(typeof(InlineValueBase));
 
+        public int FontWidth
+        {
+            get { return (int)GetValue(FontWidthProperty); }
+            set { SetValue(FontWidthProperty, value); }
+        }
+
+        public static readonly DependencyProperty FontWidthProperty =
+            DependencyProperty.Register("FontWidth", typeof(int), typeof(InlineValueBase), new PropertyMetadata(0));
+
+
 
         /// <summary>
         /// Gets or sets the object value
@@ -54,7 +64,15 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                 if (value is InlineUIContainer && this.Parent is Paragraph)
                     ((Paragraph)this.Parent).Inlines.Add(value as InlineUIContainer);
                 else
+                {
+                    if (!string.IsNullOrEmpty(Text))
+                    {
+                        Type valueType = value.GetType();
+                        if (!valueType.IsPrimitive)
+                            return;
+                    }
                     Text = FormatValue(value, StringFormat, CultureInfo, MaxLength, Truncate);
+                }
             }
         }
 

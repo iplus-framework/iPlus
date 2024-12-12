@@ -90,6 +90,7 @@
       <PackagePath>\</PackagePath>
     </None>
     <PackageReference Include="BarcodeLib" Version="3.1.4" />
+    <PackageReference Include="BinaryKits.Zpl.Label" Version="3.2.1" />
 		<PackageReference Include="ESCPOS" Version="1.2.4" />
 		<PackageReference Include="QRCoder" Version="1.6.0" />
 		<PackageReference Include="QRCoder.Xaml" Version="1.6.0" />
@@ -570,6 +571,12 @@
 		<None Update="Properties\Settings.settings">
 			<Generator>SettingsSingleFileGenerator</Generator>
 			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+		<None Update="VBControlScripts\2024-12-11 13-54_ihrastinski.zip">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="VBControlScripts\2024-12-11 14-39_ihrastinski.zip">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 
