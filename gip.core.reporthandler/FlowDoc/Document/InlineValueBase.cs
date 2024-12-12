@@ -46,7 +46,7 @@ namespace gip.core.reporthandler.Flowdoc
         }
 
         public static readonly DependencyProperty FontWidthProperty =
-            DependencyProperty.Register("FontWidth", typeof(int), typeof(InlineValueBase), new PropertyMetadata(20));
+            DependencyProperty.Register("FontWidth", typeof(int), typeof(InlineValueBase), new PropertyMetadata(0));
 
 
 

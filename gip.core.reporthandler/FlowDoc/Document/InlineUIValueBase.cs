@@ -73,7 +73,7 @@ namespace gip.core.reporthandler.Flowdoc
             set { SetValue(YPosProperty, value); }
         }
 
-        public static readonly DependencyProperty FontWidthProperty = DependencyProperty.Register("FontWidth", typeof(int), typeof(InlineUIValueBase), new PropertyMetadata(20));
+        public static readonly DependencyProperty FontWidthProperty = DependencyProperty.Register("FontWidth", typeof(int), typeof(InlineUIValueBase), new PropertyMetadata(0));
 
         /// <summary>
         /// Gets or sets the object value
