@@ -97,19 +97,22 @@ This point is problematic if you are working with long-term database contexts an
 https://github.com/dotnet/efcore/issues/31819  
 This point is problematic when you work with long-term database contexts and larger amounts of data, because the system then becomes slow.
 
-3. Obsolete constructor public StackTrace(Thread targetThread, bool needFileInfo)
+3. Reverting changes
+https://github.com/dotnet/efcore/issues/14594
+
+4. Obsolete constructor public StackTrace(Thread targetThread, bool needFileInfo)
 https://github.com/dotnet/runtime/issues/80555  
 This point is more of an important "nice to have". Pausing threads, analyzing the stack trace and then letting them continue running is used to [analyze deadlocks](https://iplus-framework.com/en/documentation/Read/Index/View/6a220db6-a767-40bb-bf95-395e4a289881?chapterID=a09687ec-ede3-4cba-827c-478c74b16b1a#ItemTextTranslationID_0b319477-1658-403a-bbac-bb6da719415b) in multi-threaded applications and to be able to perform good [system diagnostics](https://iplus-framework.com/en/documentation/Read/Index/View/6a220db6-a767-40bb-bf95-395e4a289881?chapterID=d45d9a09-c4d9-4cdf-8a83-910c5fdb99ba#ItemTextTranslationID_08c43200-1b1d-437b-9a1b-846d14e820d7) so that you can identify which program parts and objects are responsible for higher system loads.
 
-4. Improved INotifyCollectionChanged Handling
+5. Improved INotifyCollectionChanged Handling
 https://github.com/dotnet/wpf/issues/52  
 We have a workaround, but it should still be resolved by MS.
 
-5. DataContractSerializerOperationBehavior: Create a serializer with Resolver
+6. DataContractSerializerOperationBehavior: Create a serializer with Resolver
 https://github.com/CoreWCF/CoreWCF/pull/512  
 We have a workaround, but it should still be resolved by MS.
 
-**IMPORTANT: Please GIVE these issues a THUMBS-UP 👍 so that they can be prioritized and Microsoft developers can finally start implementing them.**  
+>**IMPORTANT: Please GIVE these issues a THUMBS-UP 👍 so that they can be prioritized and Microsoft developers can finally start implementing them.**
 If you want to use iplus-framework as a pure SCADA system, then the issues mentioned above are no obstacle to productive use and you can use it. If you develop your own database-based products where long-term contexts are required, then you have to wait for the fix from the EF team or you can use our previous version 4 of iplus-framework, which works with Entity Framework 4. The program code that you develop is compatible with this V5 version and you can then later convert your libraries to dotNET 8 with little adaptation work.
 
 ## Documentation
