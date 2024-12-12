@@ -122,7 +122,12 @@ namespace gip.core.processapplication
                             if (e.InnerException != null && e.InnerException.Message != null)
                                 msg += " Inner:" + e.InnerException.Message;
 
-                            Messages.LogException("PAMSerialBusDK800", "ReadOnBus", msg);
+                            if (IsAlarmActive(IsConnectedAlarm, msg) == null)
+                            {
+                                Messages.LogException(this.GetACUrl(), "ReadOnBus(0)", e);
+                                Messages.LogException(this.GetACUrl(), "ReadOnBus(DeviceID)", scale.DeviceID);
+                            }
+                            OnNewAlarmOccurred(IsConnectedAlarm, msg, true);
                         }
                     }
                 }
@@ -133,7 +138,9 @@ namespace gip.core.processapplication
                 if (e.InnerException != null && e.InnerException.Message != null)
                     msg += " Inner:" + e.InnerException.Message;
 
-                Messages.LogException("PAMSerialBusDK800", "ReadOnBus(10)", msg);
+                if (IsAlarmActive(IsConnectedAlarm, msg) == null)
+                    Messages.LogException(this.GetACUrl(), "ReadOnBus(10)", e);
+                OnNewAlarmOccurred(IsConnectedAlarm, msg, true);
             }
             catch (Exception e)
             {
@@ -141,7 +148,9 @@ namespace gip.core.processapplication
                 if (e.InnerException != null && e.InnerException.Message != null)
                     msg += " Inner:" + e.InnerException.Message;
 
-                Messages.LogException("PAMSerialBusDK800", "ReadOnBus(20)", msg);
+                if (IsAlarmActive(IsConnectedAlarm, msg) == null)
+                    Messages.LogException(this.GetACUrl(), "ReadOnBus(20)", e);
+                OnNewAlarmOccurred(IsConnectedAlarm, msg, true);
             }
         }
 
