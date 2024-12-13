@@ -504,7 +504,7 @@ namespace gip.bso.iplus
                     // TODO: Im Grid darstellen
                     if (_ScriptEngine.CompileErrors.Any())
                     {
-                        foreach (var error in _ScriptEngine.CompileErrors) 
+                        foreach (var error in _ScriptEngine.CompileErrors)
                         {
                             stringBuilder.AppendLine(string.Format("{0}\n{1}\nRow {2}\tColumn {3}",
                             error.ACIdentifier,
@@ -540,10 +540,10 @@ namespace gip.bso.iplus
         #region ContextMenuCategory
 
         private ACValueItem _CurrentContextMenuCategory;
-        [ACPropertyCurrent(999,"ContextMenuCategory","en{'Category'}de{'Category'}")]
+        [ACPropertyCurrent(999, "ContextMenuCategory", "en{'Category'}de{'Category'}")]
         public ACValueItem CurrentContextMenuCategory
         {
-            get 
+            get
             {
                 return _CurrentContextMenuCategory;
             }
@@ -565,7 +565,7 @@ namespace gip.bso.iplus
             }
         }
 
-        [ACPropertyList(999,"ContextMenuCategory")]
+        [ACPropertyList(999, "ContextMenuCategory")]
         public ACValueItemList ContextMenuCategoryList
         {
             get
@@ -617,7 +617,7 @@ namespace gip.bso.iplus
             }
         }
 
-        private string GenerateExecuteHandlerInternal(ACClass currentACClass, string classCode = null)
+        public static string GenerateExecuteHandlerInternal(ACClass currentACClass, string classCode = null)
         {
             Type voidTyp = typeof(void);
             string methodText = "";
@@ -632,7 +632,8 @@ namespace gip.bso.iplus
                 if (typeof(IACComponent).IsAssignableFrom(ClassType))
                     System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(ClassType.TypeHandle); // Invoke Static Constructor, to get virtual method infos
 
-                foreach (MethodInfo method in ClassType.GetMethods())
+                MethodInfo[] methodInfos = ClassType.GetMethods().OrderBy(c=>c.Name).ToArray();
+                foreach (MethodInfo method in methodInfos)
                 {
                     if (ClassType != method.DeclaringType) continue;
 
@@ -734,6 +735,7 @@ namespace gip.bso.iplus
                 return methodText;
             return null;
         }
+
         #endregion
 
     }
