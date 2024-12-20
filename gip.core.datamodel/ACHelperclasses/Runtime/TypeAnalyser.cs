@@ -445,6 +445,8 @@ namespace gip.core.datamodel
             else
             {
                 PropertyInfo pi = null;
+                if (acUrlOrPropPath.IndexOf('.') == 0)
+                    acUrlOrPropPath = acUrlOrPropPath.Substring(1);
                 obj = TypeAnalyser.GetPropertyPathValue(obj, acUrlOrPropPath, out pi);
             }
             return obj;
