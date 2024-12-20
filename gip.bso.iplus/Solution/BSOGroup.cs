@@ -1568,7 +1568,20 @@ namespace gip.bso.iplus
             VBGroup clonedGroup = VBGroup.NewACObject(database, null);
             database.VBGroup.AddObject(clonedGroup);
 
-            clonedGroup.VBGroupName = group.VBGroupName + "-clone";
+            int count = database.VBGroup.Where(c => c.VBGroupName.StartsWith(group.VBGroupName)).Count();
+            bool exist = true;
+            string groupName = $"{group.VBGroupName}({count})";
+            while (exist)
+            {
+                exist = database.VBGroup.Where(c => c.VBGroupName == groupName).Any();
+                if(exist)
+                {
+                    count++;
+                    groupName = $"{group.VBGroupName}({count})";
+                }
+            }
+
+            clonedGroup.VBGroupName = groupName;
             clonedGroup.Description = group.Description;
 
             VBUserGroup[] userGroups = group.VBUserGroup_VBGroup.ToArray();
@@ -1692,7 +1705,7 @@ namespace gip.bso.iplus
                     UndoSave();
                     return true;
             }
-                return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
         #endregion
