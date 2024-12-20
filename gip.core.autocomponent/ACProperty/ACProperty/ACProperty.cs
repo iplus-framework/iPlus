@@ -1686,19 +1686,33 @@ namespace gip.core.autocomponent
                                         }
                                         else
                                         {
-                                            source1 = TypeAnalyser.GetPropertyPathValue(source1, path, out pi);
-
-                                            if (pi == null)
+                                            if (source1 == null)
                                                 return false;
 
                                             rightControlMode = Global.ControlModes.Enabled;
-                                            path = dotNetPath;
-                                            source = Value;
-
-
-                                            using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
+                                            Type source1Type = source1.GetType();
+                                            if (source1Type != null && typeof(IBitAccess).IsAssignableFrom(source1Type))
                                             {
-                                                acTypeInfo = gip.core.datamodel.Database.GlobalDatabase.GetACType(pi.PropertyType);
+                                                source1 = TypeAnalyser.GetPropertyPathValue(source1, path, out pi);
+                                                if (pi == null)
+                                                    return false;
+                                                path = path + "." + dotNetPath;
+                                                using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
+                                                {
+                                                    acTypeInfo = gip.core.datamodel.Database.GlobalDatabase.GetACType(pi.PropertyType);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                source1 = TypeAnalyser.GetPropertyPathValue(source1, path, out pi);
+                                                if (pi == null)
+                                                    return false;
+                                                path = dotNetPath;
+                                                source = Value;
+                                                using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
+                                                {
+                                                    acTypeInfo = gip.core.datamodel.Database.GlobalDatabase.GetACType(pi.PropertyType);
+                                                }
                                             }
                                         }
 
