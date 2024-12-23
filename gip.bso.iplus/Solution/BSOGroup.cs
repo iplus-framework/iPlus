@@ -16,6 +16,7 @@ using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Common.CommandTrees;
 using System.Linq;
 
 namespace gip.bso.iplus
@@ -1063,7 +1064,6 @@ namespace gip.bso.iplus
 
         #endregion
 
-
         #region UnassignAllRights
         public const string MN_UnassignAllRights = "UnassignAllRights";
 
@@ -1098,7 +1098,6 @@ namespace gip.bso.iplus
         }
         #endregion
 
-
         #region AssignAllReadonlyRights
         public const string MN_AssignAllReadonlyRights = "AssignAllReadonlyRights";
 
@@ -1130,7 +1129,6 @@ namespace gip.bso.iplus
         }
         #endregion
 
-
         #region SelectedMethodRightAssignOnAllChilds
         public const string MN_SelectedMethodRightAssignOnAllChilds = "SelectedMethodRightAssignOnAllChilds";
 
@@ -1159,7 +1157,6 @@ namespace gip.bso.iplus
             _IsNeedRefreshAfterSave = true;
         }
         #endregion
-
 
         #region MN_SelectedPropertyRightAssignOnAllChilds
         public const string MN_SelectedPropertyRightAssignOnAllChilds = "SelectedPropertyRightAssignOnAllChilds";
@@ -1190,7 +1187,6 @@ namespace gip.bso.iplus
         }
         #endregion
 
-
         #region SelectedMethodRightAssignOnAllItemsInTree
         public const string MN_SelectedMethodRightAssignOnAllItemsInTree = "SelectedMethodRightAssignOnAllItemsInTree";
 
@@ -1219,7 +1215,6 @@ namespace gip.bso.iplus
             _IsNeedRefreshAfterSave = true;
         }
         #endregion
-
 
         #region SelectedPropertyRightAssignOnAllItemsInTree
         public const string MN_SelectedPropertyRightAssignOnAllItemsInTree = "SelectedPropertyRightAssignOnAllItemsInTree";
@@ -1546,6 +1541,76 @@ namespace gip.bso.iplus
 
         #endregion
 
+        #region Clone
+
+        [ACMethodInteraction(nameof(GroupClone), "en{'Clone'}de{'Duplizieren'}", (short)MISort.New, true, nameof(SelectedGroup), Global.ACKinds.MSMethodPrePost)]
+        public void GroupClone()
+        {
+            if (!IsEnabledGroupClone())
+            {
+                return;
+            }
+            if (BackgroundWorker.IsBusy)
+            {
+                return;
+            }
+            BackgroundWorker.RunWorkerAsync(nameof(DoGroupClone));
+            ShowDialog(this, DesignNameProgressBar);
+        }
+
+        public bool IsEnabledGroupClone()
+        {
+            return CurrentGroup != null;
+        }
+
+        public VBGroup DoGroupClone(Database database, VBGroup group)
+        {
+            VBGroup clonedGroup = VBGroup.NewACObject(database, null);
+            database.VBGroup.AddObject(clonedGroup);
+
+            int count = database.VBGroup.Where(c => c.VBGroupName.StartsWith(group.VBGroupName)).Count();
+            bool exist = true;
+            string groupName = $"{group.VBGroupName}({count})";
+            while (exist)
+            {
+                exist = database.VBGroup.Where(c => c.VBGroupName == groupName).Any();
+                if(exist)
+                {
+                    count++;
+                    groupName = $"{group.VBGroupName}({count})";
+                }
+            }
+
+            clonedGroup.VBGroupName = groupName;
+            clonedGroup.Description = group.Description;
+
+            VBUserGroup[] userGroups = group.VBUserGroup_VBGroup.ToArray();
+            foreach (VBUserGroup userGroup in userGroups)
+            {
+                VBUserGroup clonedUserGroup = VBUserGroup.NewACObject(database, null);
+                clonedUserGroup.VBGroup = clonedGroup;
+                clonedUserGroup.VBUser = userGroup.VBUser;
+                clonedGroup.VBUserGroup_VBGroup.Add(clonedUserGroup);
+            }
+
+            VBGroupRight[] groupRights = group.VBGroupRight_VBGroup.ToArray();
+            foreach (VBGroupRight right in groupRights)
+            {
+                VBGroupRight clonedGroupRights = VBGroupRight.NewACObject(database, clonedGroup);
+                clonedGroupRights.ACClass = right.ACClass;
+                clonedGroupRights.ACClassProperty = right.ACClassProperty;
+                clonedGroupRights.ACClassMethod = right.ACClassMethod;
+                clonedGroupRights.ACClassDesign = right.ACClassDesign;
+                clonedGroupRights.ControlModeIndex = right.ControlModeIndex;
+                clonedGroup.VBGroupRight_VBGroup.Add(clonedGroupRights);
+            }
+
+            database.ACSaveChanges();
+            return clonedGroup;
+        }
+
+        #endregion
+
         #endregion
 
         #region Execute-Helper-Handlers
@@ -1555,83 +1620,89 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "Save":
-                    Save();
-                    return true;
-                case "IsEnabledSave":
-                    result = IsEnabledSave();
-                    return true;
-                case "UndoSave":
-                    UndoSave();
-                    return true;
-                case "IsEnabledUndoSave":
-                    result = IsEnabledUndoSave();
-                    return true;
-                case "Load":
-                    Load(acParameter.Count() == 1 ? (Boolean)acParameter[0] : false);
-                    return true;
-                case "IsEnabledLoad":
-                    result = IsEnabledLoad();
-                    return true;
-                case "New":
-                    New();
-                    return true;
-                case "IsEnabledNew":
-                    result = IsEnabledNew();
-                    return true;
-                case "Delete":
-                    Delete();
-                    return true;
-                case "IsEnabledDelete":
-                    result = IsEnabledDelete();
-                    return true;
-                case "Search":
-                    Search();
-                    return true;
-                case MN_AssignAllRights:
-                    AssignAllRights();
-                    return true;
-                case Const.IsEnabled + MN_AssignAllRights:
-                    result = IsEnabledAssignAllRights();
-                    return true;
-                case MN_UnassignAllRights:
-                    UnassignAllRights();
-                    return true;
-                case Const.IsEnabled + MN_UnassignAllRights:
-                    result = IsEnabledUnassignAllRights();
-                    return true;
-                case MN_AssignAllReadonlyRights:
+                case nameof(AssignAllReadonlyRights):
                     AssignAllReadonlyRights();
                     return true;
-                case Const.IsEnabled + MN_AssignAllReadonlyRights:
+                case nameof(AssignAllRights):
+                    AssignAllRights();
+                    return true;
+                case nameof(Delete):
+                    Delete();
+                    return true;
+                case nameof(GroupClone):
+                    GroupClone();
+                    return true;
+                case nameof(IsEnabledAssignAllReadonlyRights):
                     result = IsEnabledAssignAllReadonlyRights();
                     return true;
-                case MN_SelectedMethodRightAssignOnAllChilds:
-                    SelectedMethodRightAssignOnAllChilds();
+                case nameof(IsEnabledAssignAllRights):
+                    result = IsEnabledAssignAllRights();
                     return true;
-                case Const.IsEnabled + MN_SelectedMethodRightAssignOnAllChilds:
+                case nameof(IsEnabledDelete):
+                    result = IsEnabledDelete();
+                    return true;
+                case nameof(IsEnabledGroupClone):
+                    result = IsEnabledGroupClone();
+                    return true;
+                case nameof(IsEnabledLoad):
+                    result = IsEnabledLoad();
+                    return true;
+                case nameof(IsEnabledNew):
+                    result = IsEnabledNew();
+                    return true;
+                case nameof(IsEnabledSave):
+                    result = IsEnabledSave();
+                    return true;
+                case nameof(IsEnabledSelectedMethodRightAssignOnAllChilds):
                     result = IsEnabledSelectedMethodRightAssignOnAllChilds();
                     return true;
-                case MN_SelectedPropertyRightAssignOnAllChilds:
-                    SelectedPropertyRightAssignOnAllChilds();
-                    return true;
-                case Const.IsEnabled + MN_SelectedPropertyRightAssignOnAllChilds:
-                    result = IsEnabledSelectedPropertyRightAssignOnAllChilds();
-                    return true;
-                case MN_SelectedMethodRightAssignOnAllItemsInTree:
-                    SelectedMethodRightAssignOnAllItemsInTree();
-                    return true;
-                case Const.IsEnabled + MN_SelectedMethodRightAssignOnAllItemsInTree:
+                case nameof(IsEnabledSelectedMethodRightAssignOnAllItemsInTree):
                     result = IsEnabledSelectedMethodRightAssignOnAllItemsInTree();
                     return true;
-                case MN_SelectedPropertyRightAssignOnAllItemsInTree:
-                    SelectedPropertyRightAssignOnAllItemsInTree();
+                case nameof(IsEnabledSelectedPropertyRightAssignOnAllChilds):
+                    result = IsEnabledSelectedPropertyRightAssignOnAllChilds();
                     return true;
-                case Const.IsEnabled + MN_SelectedPropertyRightAssignOnAllItemsInTree:
+                case nameof(IsEnabledSelectedPropertyRightAssignOnAllItemsInTree):
                     result = IsEnabledSelectedPropertyRightAssignOnAllItemsInTree();
                     return true;
-                case "OnTreeViewItemExpand":
-                    OnTreeViewItemExpand((ACClassInfoWithItems)acParameter[0]);
+                case nameof(IsEnabledUnassignAllRights):
+                    result = IsEnabledUnassignAllRights();
+                    return true;
+                case nameof(IsEnabledUndoSave):
+                    result = IsEnabledUndoSave();
+                    return true;
+                case nameof(Load):
+                    Load(acParameter.Count() == 1 ? (System.Boolean)acParameter[0] : false);
+                    return true;
+                case nameof(New):
+                    New();
+                    return true;
+                case nameof(OnTreeViewItemExpand):
+                    OnTreeViewItemExpand((gip.core.datamodel.ACClassInfoWithItems)acParameter[0]);
+                    return true;
+                case nameof(Save):
+                    Save();
+                    return true;
+                case nameof(Search):
+                    Search();
+                    return true;
+                case nameof(SelectedMethodRightAssignOnAllChilds):
+                    SelectedMethodRightAssignOnAllChilds();
+                    return true;
+                case nameof(SelectedMethodRightAssignOnAllItemsInTree):
+                    SelectedMethodRightAssignOnAllItemsInTree();
+                    return true;
+                case nameof(SelectedPropertyRightAssignOnAllChilds):
+                    SelectedPropertyRightAssignOnAllChilds();
+                    return true;
+                case nameof(SelectedPropertyRightAssignOnAllItemsInTree):
+                    SelectedPropertyRightAssignOnAllItemsInTree();
+                    return true;
+                case nameof(UnassignAllRights):
+                    UnassignAllRights();
+                    return true;
+                case nameof(UndoSave):
+                    UndoSave();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -1676,15 +1747,37 @@ namespace gip.bso.iplus
                 case MN_SelectedPropertyRightAssignOnAllItemsInTree:
                     SelectedPropertyRightAssignOnAllItemsInTreeAsync();
                     break;
+                case (nameof(DoGroupClone)):
+                    e.Result = DoGroupClone(Db, CurrentGroup);
+                    break;
             }
         }
 
         public override void BgWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             base.BgWorkerCompleted(sender, e);
-            CloseWindow(this, DesignNameProgressBar);
+            ACBackgroundWorker worker = sender as ACBackgroundWorker;
+            string command = worker.EventArgs.Argument.ToString();
+            if (e.Cancelled)
+            {
+            }
+            if (e.Error != null)
+            {
+            }
+            else
+            {
+                switch (command)
+                {
+                    case (nameof(DoGroupClone)):
+                        VBGroup clonedGroup = e.Result as VBGroup;
+                        AccessPrimary.NavList.Insert(0, clonedGroup);
+                        OnPropertyChanged(nameof(GroupList));
+                        CurrentGroup = clonedGroup;
+                        break;
+                }
+            }
         }
-        #endregion
 
+        #endregion
     }
 }
