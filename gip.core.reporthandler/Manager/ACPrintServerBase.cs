@@ -272,7 +272,12 @@ namespace gip.core.reporthandler
             }
 
             if (printJob != null)
-                SendDataToPrinter(printJob);
+            {
+                for (int i = 1; i <= copies; i++)
+                {
+                    SendDataToPrinter(printJob);
+                }
+            }
         }
 
         /// <summary>
