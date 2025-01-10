@@ -90,7 +90,11 @@ namespace gip.core.processapplication
 
         [ACPropertyBindingTarget(751, "Write to PLC", "en{'Fault acknowledge VFD'}de{'Störungsquittung FU'}", "", true, false, RemotePropID = 46)]
         public IACContainerTNet<bool> VFDStateACK { get; set; }
+        #endregion
 
+        #region Configuration
+        [ACPropertyBindingTarget(752, "Configuration", "en{'requested speed automatic'}de{'Geschwindigkeit Automatik'}", "", false, true)]
+        public IACContainerTNet<Double> ReqSpeedAuto { get; set; }
         #endregion
 
         #endregion
