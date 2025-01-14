@@ -273,10 +273,10 @@ namespace gip.core.autocomponent
                 case nameof(FindSuccessorsFromPointInstance):
                     result = FindSuccessorsFromPointInstance(acParameter[0] as string, (Guid) acParameter[1], acParameter[2] as ACRoutingParameters);
                     return true;
-                case MN_SetPriority:
+                case nameof(SetPriority):
                     SetPriority(acParameter[0] as Route);
                     return true;
-                case MN_IncreasePriorityStepwise:
+                case nameof(IncreasePriorityStepwise):
                     IncreasePriorityStepwise(acParameter[0] as Route);
                     return true;
                 case nameof(BuildAvailableRoutes):
@@ -284,6 +284,21 @@ namespace gip.core.autocomponent
                     return true;
                 case nameof(BuildAvailableRoutesFromPoints):
                     result = BuildAvailableRoutesFromPoints(acParameter[0] as string, acParameter[1] as Guid?, acParameter[2] as string, acParameter[3] as Guid?, acParameter[4] as ACRoutingParameters);
+                    return true;
+                case nameof(GetAllocatedAndReserved):
+                    result = GetAllocatedAndReserved(acParameter[0] as Route);
+                    return true;
+                case nameof(GetSelectionRuleQueries):
+                    result = GetSelectionRuleQueries();
+                    return true;
+                case nameof(OnRouteUsed):
+                    OnRouteUsed(acParameter[0] as Route);
+                    return true;
+                case nameof(ClearUsedRouteCache):
+                    ClearUsedRouteCache(acParameter[0] as GuidList);
+                    return true;
+                case nameof(SaveRouteItemModes):
+                    SaveRouteItemModes(acParameter[0] as string);
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
