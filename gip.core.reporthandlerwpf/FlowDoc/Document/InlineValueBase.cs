@@ -65,7 +65,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                     ((Paragraph)this.Parent).Inlines.Add(value as InlineUIContainer);
                 else
                 {
-                    if (!string.IsNullOrEmpty(Text))
+                    if (!string.IsNullOrEmpty(Text) && Text != "<NULL>" && value != null)
                     {
                         Type valueType = value.GetType();
                         if (!valueType.IsPrimitive)
