@@ -302,6 +302,7 @@ namespace gip.core.reporthandler
                 {
                     PrinterInfo printerInfo = new PrinterInfo();
                     printerInfo.Name = aCClass.ACIdentifier;
+                    printerInfo.PrinterName = aCClass.ACCaption;
                     printerInfo.PrinterACUrl = ACItem.FactoryACUrlComponent(aCClass);
                     printServers.Add(printerInfo);
                 }

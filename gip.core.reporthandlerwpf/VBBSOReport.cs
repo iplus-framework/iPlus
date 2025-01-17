@@ -37,6 +37,8 @@ namespace gip.core.reporthandlerwpf
 
             ACInitScriptEngineContent();
 
+            _VarioConfigManager = ConfigManagerIPlus.ACRefToServiceInstance(this);
+
             return true;
         }
 
@@ -56,6 +58,11 @@ namespace gip.core.reporthandlerwpf
             //}
             this._CurrentACClassDesign = null;
             this._CurrentReportData = null;
+
+            if (_VarioConfigManager != null)
+                ConfigManagerIPlus.DetachACRefFromServiceInstance(this, _VarioConfigManager);
+            _VarioConfigManager = null;
+
             return base.ACDeInit(deleteACClassTask);
         }
 
@@ -99,7 +106,21 @@ namespace gip.core.reporthandlerwpf
         #endregion
 
         #region Common
-        //private int _Copies;
+
+        #region Manager
+
+        protected ACRef<ConfigManagerIPlus> _VarioConfigManager = null;
+        public ConfigManagerIPlus VarioConfigManager
+        {
+            get
+            {
+                if (_VarioConfigManager == null)
+                    return null;
+                return _VarioConfigManager.ValueT;
+            }
+        }
+
+        #endregion
 
         #region public Properties
         public bool WithDialog
@@ -286,9 +307,43 @@ namespace gip.core.reporthandlerwpf
             {
                 if (_PrintServerList == null)
                     _PrintServerList = ACPrintManager.GetPrintServers(Database.ContextIPlus);
+
+                if (ConfiguredPrinterList != null && ConfiguredPrinterList.Any())
+                {
+                    return _PrintServerList.Where(c => ConfiguredPrinterList.Select(x => x.ACCaption).Contains(c.PrinterACUrl)).OrderBy(c => c.PrinterACUrl).ToList();
+                }
+
                 return _PrintServerList;
             }
         }
+        #endregion
+
+        #region ConfiguredPrinters
+
+        private ACValueItemList _ConfiguredPrinterList;
+        public IEnumerable<ACValueItem> ConfiguredPrinterList
+        {
+            get
+            {
+                if (_ConfiguredPrinterList == null)
+                    _ConfiguredPrinterList = LoadConfiguredPrinterList();
+                return _ConfiguredPrinterList;
+            }
+        }
+
+        private ACValueItemList LoadConfiguredPrinterList()
+        {
+            ACValueItemList aCValueItems = new ACValueItemList("ConfiguredPrinters");
+            if (CurrentACClassDesign != null)
+            {
+                List<IACConfig> configs = VarioConfigManager.GetConfigurationList(new List<IACConfigStore>() { CurrentACClassDesign.ACClass }, null, new List<string>() { ACBSO.Const_PrinterPreConfigACUrl }, null);
+                configs = configs.Where(c => c.KeyACUrl == CurrentACClassDesign.ACConfigKeyACUrl).ToList();
+                configs.ForEach(c => aCValueItems.AddEntry(c, c.Value.ToString()));
+                configs = configs.OrderBy(c => c.Value.ToString()).ToList();
+            }
+            return aCValueItems;
+        }
+
         #endregion
 
         #region List & Label

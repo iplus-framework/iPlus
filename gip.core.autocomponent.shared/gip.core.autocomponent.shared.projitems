@@ -9,6 +9,7 @@
     <Import_RootNamespace>gip.core.autocomponent.shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Model\PAUserTimeInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\WSResponse.cs" />
   </ItemGroup>
 </Project>

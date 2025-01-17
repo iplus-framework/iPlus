@@ -578,6 +578,8 @@
 		<None Update="VBControlScripts\2024-12-11 14-39_ihrastinski.zip">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Include="VBControlScripts\2025-01-04 15-48_ihrastinski.zip">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
-
 </Project>

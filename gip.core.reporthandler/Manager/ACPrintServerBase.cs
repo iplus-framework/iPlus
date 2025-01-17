@@ -245,7 +245,7 @@ namespace gip.core.reporthandler
             }
         }
 
-        public void DoPrint(ACBSO acBSO, string designACIdentifier, PAOrderInfo pAOrderInfo, int copiess, bool reloadReport)
+        public void DoPrint(ACBSO acBSO, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies, bool reloadReport)
         {
             ACClassDesign aCClassDesign = acBSO.GetDesignForPrinting(GetACUrl(), designACIdentifier, pAOrderInfo);
             if (aCClassDesign == null)
@@ -253,7 +253,12 @@ namespace gip.core.reporthandler
             ReportData reportData = GetReportData(acBSO, aCClassDesign);
             PrintJob printJob = OnDoPrint(aCClassDesign, CodePage, reportData);
             if (printJob != null)
-                SendDataToPrinter(printJob);
+            {
+                for (int i = 1; i <= copies; i++)
+                {
+                    SendDataToPrinter(printJob);
+                }
+            }
         }
 
         protected abstract PrintJob OnDoPrint(ACClassDesign aCClassDesign, int codePage, ReportData reportData);
