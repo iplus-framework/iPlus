@@ -16,7 +16,6 @@ using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Common.CommandTrees;
 using System.Linq;
 
 namespace gip.bso.iplus
