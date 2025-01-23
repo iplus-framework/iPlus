@@ -921,5 +921,55 @@ namespace gip.bso.iplus
 
         #endregion
 
+        #region Custom messages
+
+        /// <summary>
+        /// Source Property: 
+        /// </summary>
+        private string _CustomMessagePrefix;
+        [ACPropertyInfo(999, nameof(CustomMessagePrefix), "en{'Prefix'}de{'Präfix'}")]
+        public string CustomMessagePrefix
+        {
+            get
+            {
+                return _CustomMessagePrefix;
+            }
+            set
+            {
+                if (_CustomMessagePrefix != value)
+                {
+                    _CustomMessagePrefix = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// News the message info.
+        /// </summary>
+        [ACMethodInteraction(nameof(NewCustomMessage), "en{'New'}de{'Neue'}", (short)MISort.New, true, nameof(CurrentACTranslation))]
+        public void NewCustomMessage()
+        {
+            if (!IsEnabledNewCustomMessage())
+            {
+                return;
+            }
+            _NewPrefix = CustomMessagePrefix;
+            CurrentNewACIdentifier = ACClassMessage.GetUniqueNameIdentifier(Database.ContextIPlus, _NewPrefix, IsSystem);
+            ShowDialog(this, "NewMessage");
+        }
+
+        /// <summary>
+        /// Determines whether [is enabled new message info].
+        /// </summary>
+        /// <returns><c>true</c> if [is enabled new message info]; otherwise, <c>false</c>.</returns>
+        public bool IsEnabledNewCustomMessage()
+        {
+            return CustomMessagePrefix != null && CustomMessagePrefix.Length >= 3 && CustomMessagePrefix.Length < 51;
+        }
+
+
+        #endregion
+
     }
 }
