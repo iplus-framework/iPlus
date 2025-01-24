@@ -1,0 +1,1 @@
+alter table dbo.ACPropertyLog add ACClassMessageID uniqueidentifier null;

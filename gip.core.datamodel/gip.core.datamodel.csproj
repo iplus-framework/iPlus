@@ -126,6 +126,7 @@
     <Compile Include="ACInterfaces\ACEntity\IScheduledOrder.cs" />
     <Compile Include="ACInterfaces\ACEntity\MDTrans.cs" />
     <Compile Include="ACInterfaces\ACIPlus\IACVBNoManager.cs" />
+    <Compile Include="ACQueryDefinition\IncludeExtension.cs" />
     <Compile Include="ACSerialization\ACObjectSerialHelper.cs" />
     <Compile Include="ACHelperclasses\Runtime\ACMemberIndexer.cs" />
     <Compile Include="ACHelperclasses\ACLicense\License.cs" />
@@ -480,6 +481,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="DbScripts\iPlus\dbsync_2025-01-24_08-00_aagincic.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Content Include="DbScripts\iPlus\dbsync_2024-12-12_13-02_ihrastinski.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

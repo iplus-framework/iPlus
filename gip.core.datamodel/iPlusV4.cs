@@ -17561,6 +17561,30 @@ namespace gip.core.datamodel
         private global::System.String _Value;
         partial void OnValueChanging(global::System.String value);
         partial void OnValueChanged();
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public  Nullable<global::System.Guid> ACClassMessageID
+        {
+            get
+            {
+                return _ACClassMessageID;
+            }
+            set
+            {
+                OnACClassMessageIDChanging(value);
+                ReportPropertyChanging("ACClassMessageID");
+                _ACClassMessageID = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("ACClassMessageID");
+                OnACClassMessageIDChanged();
+            }
+        }
+        private Nullable<global::System.Guid> _ACClassMessageID;
+        partial void OnACClassMessageIDChanging(Nullable<global::System.Guid> value);
+        partial void OnACClassMessageIDChanged();
 
         #endregion
 

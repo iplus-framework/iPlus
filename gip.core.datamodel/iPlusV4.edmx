@@ -556,6 +556,7 @@
           <Property Name="ACProgramLogID" Type="uniqueidentifier" />
           <Property Name="EventTime" Type="datetime" Nullable="false" />
           <Property Name="Value" Type="varchar(max)" Nullable="false" />
+		  <Property Name="ACClassMessageID" Type="uniqueidentifier" />
         </EntityType>
         <EntityType Name="ACPropertyLogRule">
           <Key>
@@ -4663,6 +4664,7 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
           <Property Name="ACProgramLogID" Type="Guid" />
           <Property Name="EventTime" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="Value" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="ACClassMessageID" Type="Guid" />
           <NavigationProperty Name="ACClass" Relationship="VarioiplusV3_devModel.FK_ACPropertyLog_ACClass" FromRole="ACPropertyLog" ToRole="ACClass" />
           <NavigationProperty Name="ACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACPropertyLog_ACClassProperty" FromRole="ACPropertyLog" ToRole="ACClassProperty" />
         </EntityType>
@@ -5875,7 +5877,8 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
                 <ScalarProperty Name="ACProgramLogID" ColumnName="ACProgramLogID" />
                 <ScalarProperty Name="ACClassPropertyID" ColumnName="ACClassPropertyID" />
                 <ScalarProperty Name="ACClassID" ColumnName="ACClassID" />
-                <ScalarProperty Name="ACPropertyLogID" ColumnName="ACPropertyLogID" />
+				<ScalarProperty Name="ACPropertyLogID" ColumnName="ACPropertyLogID" />
+				<ScalarProperty Name="ACClassMessageID" ColumnName="ACClassMessageID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
