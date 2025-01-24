@@ -529,10 +529,14 @@ namespace gip.core.autocomponent
         public ACClass InsertOrUpdateValueTypeACClass(Type dotNETType, bool updateIfExists, bool onlyClass)
         {
             #region Test debug insert / update class
-            string searchValue = "PAJobSchedulerBergophor";
+#if DEBUG
+            string searchValue = "ACProgram";
             searchValue = searchValue.ToLower();
             if (dotNETType.Name.ToLower().Contains(searchValue))
-                System.Diagnostics.Debugger.Break();
+            {
+                //System.Diagnostics.Debugger.Break();
+            }
+#endif
             #endregion
 
             // Variable will be used later for different types of attributes so it is defined as object array
@@ -1994,7 +1998,7 @@ namespace gip.core.autocomponent
                         acClassProperty.Comment = summary;
                 }
 
-                if(!acClassProperty.IsCaptionCustomized)
+                if (!acClassProperty.IsCaptionCustomized)
                 {
                     Translator.UpdateTranslation(acClassProperty, acPropertyInfo.ACCaptionTranslation);
                 }
@@ -2955,10 +2959,10 @@ namespace gip.core.autocomponent
             else
             {
                 ACComposition acComposition = acConfig[Const.Value] as ACComposition;
-                if (   acComposition != null
+                if (acComposition != null
                     && acComposition.IsSystem
-                    && (   acComposition.ACUrlComposition != compositionACClass.GetACUrl()
-                        || acComposition.Appendix != appendix 
+                    && (acComposition.ACUrlComposition != compositionACClass.GetACUrl()
+                        || acComposition.Appendix != appendix
                         || acComposition.IsPrimary != isPrimary))
                 {
                     acComposition.SetComposition(compositionACClass);
@@ -3178,7 +3182,7 @@ namespace gip.core.autocomponent
             if (paramCount > 4)
                 acParameterDefinition.SetValueFromString(parameter[4] as string);
             //else
-                //acParameterDefinition.SetDefaultValue();
+            //acParameterDefinition.SetDefaultValue();
 
             return acParameterDefinition;
         }
