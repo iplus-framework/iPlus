@@ -16,6 +16,8 @@ using System.Windows.Markup;
 using gip.core.datamodel;
 using System.Windows.Controls.Primitives;
 using gip.core.layoutengine;
+using gip.core.autocomponent;
+using gip.core.layoutengine.Helperclasses;
 
 namespace gip.core.visualcontrols
 {
@@ -77,6 +79,41 @@ namespace gip.core.visualcontrols
         {
             get { return (Boolean)GetValue(ShowTickBarProperty); }
             set { SetValue(ShowTickBarProperty, value); }
+        }
+
+        public static readonly DependencyProperty TicksCollectionProperty
+            = DependencyProperty.Register("TicksCollection", typeof(IEnumerable<double>), typeof(VBFillLevel), new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public IEnumerable<double> TicksCollection
+        {
+            get { return (IEnumerable<double>)GetValue(TicksCollectionProperty); }
+            set { SetValue(TicksCollectionProperty, value); }
+        }
+
+        public static readonly DependencyProperty TicksViewProperty
+            = DependencyProperty.Register("TicksView", typeof(DoubleCollection), typeof(VBFillLevel), new PropertyMetadata());
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public DoubleCollection TicksView
+        {
+            get { return (DoubleCollection)GetValue(TicksViewProperty); }
+            set { SetValue(TicksViewProperty, value); }
+        }
+
+        private static void OnDepPropChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
+        {
+            VBFillLevel thisControl = dependencyObject as VBFillLevel;
+            if (thisControl == null)
+                return;
+            if (args.Property == TicksCollectionProperty)
+            {
+                if (thisControl.TicksCollection == null)
+                    thisControl.TicksView = null;
+                else
+                    thisControl.TicksView = new DoubleCollection(thisControl.TicksCollection);
+            }
         }
         #endregion
 

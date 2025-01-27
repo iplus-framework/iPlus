@@ -93,7 +93,7 @@
                     </Grid>
                 </Decorator>
                 <Border Grid.Row="0" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2"/>
-                <TickBar x:Name="BottomTick" Grid.Row="0" Fill="{TemplateBinding Foreground}" Placement="Bottom" Visibility="Collapsed" TickFrequency="{TemplateBinding TickFrequency}"/>
+                <TickBar x:Name="BottomTick" Grid.Row="0" Fill="{TemplateBinding Foreground}" Placement="Bottom" Visibility="Collapsed" TickFrequency="{TemplateBinding TickFrequency}" Ticks="{TemplateBinding TicksView}" Maximum="{TemplateBinding Maximum}" Minimum="{TemplateBinding Minimum}" />
             </Grid>
         </Border>
         <ControlTemplate.Triggers>
@@ -151,7 +151,7 @@
                     </Grid>
                 </Decorator>
                 <Border Grid.Row="0" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2"/>
-                <TickBar x:Name="BottomTick" Grid.Row="0" Fill="{TemplateBinding Foreground}" Placement="Bottom" Visibility="Collapsed" TickFrequency="{TemplateBinding TickFrequency}"/>
+                <TickBar x:Name="BottomTick" Grid.Row="0" Fill="{TemplateBinding Foreground}" Placement="Bottom" Visibility="Collapsed" TickFrequency="{TemplateBinding TickFrequency}" Ticks="{TemplateBinding TicksView}" Maximum="{TemplateBinding Maximum}" Minimum="{TemplateBinding Minimum}" />
             </Grid>
         </Border>
         <ControlTemplate.Triggers>
