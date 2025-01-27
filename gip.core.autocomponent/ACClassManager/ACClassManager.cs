@@ -528,16 +528,14 @@ namespace gip.core.autocomponent
         /// <returns></returns>
         public ACClass InsertOrUpdateValueTypeACClass(Type dotNETType, bool updateIfExists, bool onlyClass)
         {
-            #region Test debug insert / update class
-#if DEBUG
-            string searchValue = "ACProgram";
-            searchValue = searchValue.ToLower();
-            if (dotNETType.Name.ToLower().Contains(searchValue))
-            {
-                //System.Diagnostics.Debugger.Break();
-            }
-#endif
-            #endregion
+            //#region Test debug insert / update class
+            //string searchValue = "ACProgram";
+            //searchValue = searchValue.ToLower();
+            //if (dotNETType.Name.ToLower().Contains(searchValue))
+            //{
+            //    System.Diagnostics.Debugger.Break();
+            //}
+            //#endregion
 
             // Variable will be used later for different types of attributes so it is defined as object array
             object[] attributes;
