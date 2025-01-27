@@ -39,7 +39,6 @@ namespace gip.core.processapplication
 
         #region Methods
 
-
         protected override void OnPropertyValueChanged(object sender, ACPropertyNetSendEventArgs e)
         {
             if (IsOEERelevantProperty(sender, e))
@@ -105,6 +104,17 @@ namespace gip.core.processapplication
         protected virtual AvailabilityState OnChangingAvailabilityState(AvailabilityState newAvailabilityState, IPAOEEProvider oeeProvider, object sender, ACPropertyNetSendEventArgs e)
         {
             return newAvailabilityState;
+        }
+
+        protected override Guid? OnGetPropertyLogMessageID(ACPropertyNetSendEventArgs args)
+        {
+            IPAOEEProvider oeeProvider = (args.ForACComponent is PAProcessFunction) ? args.ForACComponent.ParentACComponent as IPAOEEProvider : args.ForACComponent as IPAOEEProvider;
+            if (oeeProvider != null)
+            {
+                return oeeProvider.OEEReason;
+            }
+
+            return base.OnGetPropertyLogMessageID(args);
         }
         #endregion
     }

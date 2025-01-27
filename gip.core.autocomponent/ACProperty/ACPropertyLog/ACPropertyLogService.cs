@@ -166,8 +166,15 @@ namespace gip.core.autocomponent
             if (programLog != null)
                 acProgramLogID = programLog.ACProgramLogID;
 
+            Guid? acclassMessageID = OnGetPropertyLogMessageID(args);
+
             this.ApplicationManager.ApplicationQueue.Add(() => LogProperty(args.ForACComponent.ComponentClass.ACClassID, args.NetValueEventArgs.ACIdentifier,
-                                                                           args.NetValueEventArgs.ChangedValue, eventTime, acProgramLogID));
+                                                                           args.NetValueEventArgs.ChangedValue, eventTime, acProgramLogID, acclassMessageID));
+        }
+
+        protected virtual Guid? OnGetPropertyLogMessageID(ACPropertyNetSendEventArgs args)
+        {
+            return null;
         }
 
         private bool IsComponentAffectedHierahically(string acUrlComponent)
@@ -194,7 +201,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        private void LogProperty(Guid acClassID, string propACIdentifier, object value, DateTime eventTime, Guid? acProgramLogID = null)
+        private void LogProperty(Guid acClassID, string propACIdentifier, object value, DateTime eventTime, Guid? acProgramLogID = null, Guid? acClassMessageID = null)
         {
             try
             {
@@ -214,6 +221,7 @@ namespace gip.core.autocomponent
                     propertyLog.EventTime = eventTime;
                     propertyLog.Value = ACConvert.ChangeType(value, typeof(string), true, db) as string;
                     propertyLog.ACProgramLogID = acProgramLogID;
+                    propertyLog.ACClassMessageID = acClassMessageID;
 
                     db.ACPropertyLog.AddObject(propertyLog);
                     var msg = db.ACSaveChanges();
