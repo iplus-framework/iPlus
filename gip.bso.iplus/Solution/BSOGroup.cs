@@ -1582,16 +1582,7 @@ namespace gip.bso.iplus
 
             clonedGroup.VBGroupName = groupName;
             clonedGroup.Description = group.Description;
-
-            VBUserGroup[] userGroups = group.VBUserGroup_VBGroup.ToArray();
-            foreach (VBUserGroup userGroup in userGroups)
-            {
-                VBUserGroup clonedUserGroup = VBUserGroup.NewACObject(database, null);
-                clonedUserGroup.VBGroup = clonedGroup;
-                clonedUserGroup.VBUser = userGroup.VBUser;
-                clonedGroup.VBUserGroup_VBGroup.Add(clonedUserGroup);
-            }
-
+            
             VBGroupRight[] groupRights = group.VBGroupRight_VBGroup.ToArray();
             foreach (VBGroupRight right in groupRights)
             {
