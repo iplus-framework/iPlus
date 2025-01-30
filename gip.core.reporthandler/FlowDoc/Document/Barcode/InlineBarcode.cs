@@ -91,6 +91,18 @@ namespace gip.core.reporthandler.Flowdoc
         public static readonly DependencyProperty QRPixelsPerModuleProperty =
             DependencyProperty.Register("QRPixelsPerModule", typeof(int), typeof(InlineBarcode), new UIPropertyMetadata(20));
 
+        public bool DrawQuietZones
+        {
+            get { return (bool)GetValue(DrawQuietZonesProperty); }
+            set { SetValue(DrawQuietZonesProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for DrawQuietZones.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty DrawQuietZonesProperty =
+            DependencyProperty.Register("DrawQuietZones", typeof(bool), typeof(InlineBarcode), new PropertyMetadata(true));
+
+
+
 
         public BarcodeValueCollection BarcodeValues { get;set;} = new BarcodeValueCollection();
 
@@ -132,7 +144,7 @@ namespace gip.core.reporthandler.Flowdoc
                 using (QRCoder.QRCodeData qrCodeData = qrGenerator.CreateQrCode(strValue, QRCoder.QRCodeGenerator.ECCLevel.Q))
                 using (XamlQRCode xamlQRCode = new XamlQRCode(qrCodeData))
                 {
-                    DrawingImage dw = xamlQRCode.GetGraphic(QRPixelsPerModule);
+                    DrawingImage dw = xamlQRCode.GetGraphic(QRPixelsPerModule, DrawQuietZones);
                     wpfImage.Source = dw;
                     wpfImage.MaxHeight = MaxHeight > 0.1 ? MaxHeight : 200;
                     wpfImage.MaxWidth = MaxWidth > 0.1 ? MaxWidth : 200;
