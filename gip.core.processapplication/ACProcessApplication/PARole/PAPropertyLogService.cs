@@ -82,6 +82,12 @@ namespace gip.core.processapplication
                         }
                     }
                     newAvailabilityState = OnChangingAvailabilityState(newAvailabilityState, oeeProvider, sender, e);
+                    if (oeeProvider.AvailabilityState.ValueT == AvailabilityState.Standby && newAvailabilityState == AvailabilityState.InOperation)
+                    {
+                        //The property logs of state Stanby and InOperation sometime has same Event-time. This causes a wrong display of the AvailabilityState in the PropertyPresenterLog.
+                        Thread.Sleep(10);
+                    }
+
                     oeeProvider.AvailabilityState.ValueT = newAvailabilityState;
                 }
             }

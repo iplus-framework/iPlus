@@ -314,11 +314,11 @@ namespace gip.core.datamodel
             IEnumerable<ACPropertyLog_ACProgramLog> relevantLogs = db.ACPropertyLog
                                                         .Include(c => c.ACClass.ACClass1_ParentACClass.ACClass1_ParentACClass)
                                                         .Include(c => c.ACClassProperty)
-                                                        .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog })
+                                                        .GroupJoin(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog })
                                                         .Where(c =>    c.propLog.EventTime > from 
                                                                     && c.propLog.EventTime < to 
                                                                     && (!projectID.HasValue || c.propLog.ACClass.ACProjectID == projectID.Value) )
-                                                        .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.propLog, ProgramLog = c.programLog })
+                                                        .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.propLog, ProgramLog = c.programLog.FirstOrDefault() })
                                                         .ToArray();
 
             if (componentClassID.HasValue && componentClassID.Value != Guid.Empty)
