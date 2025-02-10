@@ -182,9 +182,12 @@
   <ItemGroup>
     <Compile Include="Alarm\BSOAlarmMessengerConfig.cs" />
     <Compile Include="Alarm\BSOAlarmExplorer.cs" />
+    <Compile Include="BSOiPlus\BSOSQLQuery.cs" />
+    <Compile Include="BSOiPlus\Model\SQLScriptQuery.cs" />
     <Compile Include="Manager\ACProjectManager.cs" />
     <Compile Include="Manager\InsertInMarksSQL.cs" />
     <Compile Include="Manager\IPlusDefSQLExportManager.cs" />
+    <Compile Include="BSOiPlus\Model\SQLScriptResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Manager\ACUserManager.cs" />
     <Compile Include="Routing\BSORouteSelector.cs" />
@@ -385,6 +388,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="VBControlScripts\2025-02-05 11-17_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="VBControlScripts\2025-02-10 17-13_aagincic.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
