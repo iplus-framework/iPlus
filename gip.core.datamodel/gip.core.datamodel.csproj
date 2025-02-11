@@ -279,6 +279,7 @@
     <Compile Include="EntityACProgram\ACProgram.cs" />
     <Compile Include="EntityACProgram\ACProgramConfig.cs" />
     <Compile Include="EntityACProgram\ACProgramLog.cs" />
+    <Compile Include="EntityACProgram\ACProgramLogPropertyLog.cs" />
     <Compile Include="EntityACProgram\ACProgramLogTask.cs" />
     <Compile Include="EntityACClass\ACClassMessage.cs" />
     <Compile Include="EntityACClass\ACClassText.cs" />
@@ -480,6 +481,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="DbScripts\iPlus\dbsync_2025-02-11_08-08_ihrastinski.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="DbScripts\iPlus\dbsync_2025-01-24_08-00_aagincic.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

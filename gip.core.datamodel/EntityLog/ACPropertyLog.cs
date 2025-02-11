@@ -17,7 +17,7 @@ namespace gip.core.datamodel
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACPropertyLog.ClassName, "en{'ACPropertyLog'}de{'ACPropertyLog'}", typeof(ACPropertyLog), ACPropertyLog.ClassName, "", "EventTime")]
     public partial class ACPropertyLog
     {
-        public const string ClassName = "ACPropertyLog";
+        public const string ClassName = nameof(ACPropertyLog);
 
         /// <summary>
         /// Creates a new object of the ACPropertyLog.

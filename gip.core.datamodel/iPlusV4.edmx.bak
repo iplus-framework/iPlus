@@ -182,6 +182,7 @@
           <Property Name="AttachedFromACClassID" Type="uniqueidentifier" />
           <Property Name="IsStatic" Type="bit" Nullable="false" />
           <Property Name="ExecuteByDoubleClick" Type="bit" Nullable="false" />
+          <Property Name="HasRequiredParams" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="ACClassMethodConfig">
           <Key>
@@ -507,6 +508,14 @@
           <Property Name="ACClassID" Type="uniqueidentifier" />
           <Property Name="RefACClassID" Type="uniqueidentifier" />
         </EntityType>
+        <EntityType Name="ACProgramLogPropertyLog">
+          <Key>
+            <PropertyRef Name="ACProgramLogPropertyLogID" />
+          </Key>
+          <Property Name="ACProgramLogPropertyLogID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ACProgramLogID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ACPropertyLogID" Type="uniqueidentifier" Nullable="false" />
+        </EntityType>
         <EntityType Name="ACProgramLogTask">
           <Key>
             <PropertyRef Name="ACProgramLogTaskID" />
@@ -555,6 +564,7 @@
           <Property Name="ACProgramLogID" Type="uniqueidentifier" />
           <Property Name="EventTime" Type="datetime" Nullable="false" />
           <Property Name="Value" Type="varchar(max)" Nullable="false" />
+          <Property Name="ACClassMessageID" Type="uniqueidentifier" />
         </EntityType>
         <EntityType Name="ACPropertyLogRule">
           <Key>
@@ -797,7 +807,7 @@
           <Property Name="SessionCount" Type="int" Nullable="false" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'PanPekZGV4.dbo.VBSystemColumns' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+warning 6002: The table/view 'IPlusMESV4demo.dbo.VBSystemColumns' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="VBSystemColumns">
           <Key>
             <PropertyRef Name="tablename" />
@@ -810,7 +820,7 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBSystemColumns' does not have a pr
           <Property Name="columnnullable" Type="int" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="VBTranslationView">
           <Key>
             <PropertyRef Name="ACProjectName" />
@@ -1683,6 +1693,18 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ACProgramLogPropertyLog_ACPropertyLogID">
+          <End Role="ACPropertyLog" Type="Self.ACPropertyLog" Multiplicity="1" />
+          <End Role="ACProgramLogPropertyLog" Type="Self.ACProgramLogPropertyLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACPropertyLog">
+              <PropertyRef Name="ACPropertyLogID" />
+            </Principal>
+            <Dependent Role="ACProgramLogPropertyLog">
+              <PropertyRef Name="ACPropertyLogID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_ACProgramLogTask_ACProgramLogID">
           <End Role="ACProgramLog" Type="Self.ACProgramLog" Multiplicity="1">
             <OnDelete Action="Cascade" />
@@ -2070,6 +2092,7 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <EntitySet Name="ACProgram" EntityType="Self.ACProgram" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACProgramConfig" EntityType="Self.ACProgramConfig" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACProgramLog" EntityType="Self.ACProgramLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ACProgramLogPropertyLog" EntityType="Self.ACProgramLogPropertyLog" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACProgramLogTask" EntityType="Self.ACProgramLogTask" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACProject" EntityType="Self.ACProject" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACPropertyLog" EntityType="Self.ACPropertyLog" Schema="dbo" store:Type="Tables" />
@@ -2381,6 +2404,10 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <AssociationSet Name="FK_ACProgramLog_ParentACProgramLogID" Association="Self.FK_ACProgramLog_ParentACProgramLogID">
             <End Role="ACProgramLog" EntitySet="ACProgramLog" />
             <End Role="ACProgramLog1" EntitySet="ACProgramLog" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ACProgramLogPropertyLog_ACPropertyLogID" Association="Self.FK_ACProgramLogPropertyLog_ACPropertyLogID">
+            <End Role="ACPropertyLog" EntitySet="ACPropertyLog" />
+            <End Role="ACProgramLogPropertyLog" EntitySet="ACProgramLogPropertyLog" />
           </AssociationSet>
           <AssociationSet Name="FK_ACProgramLogTask_ACProgramLogID" Association="Self.FK_ACProgramLogTask_ACProgramLogID">
             <End Role="ACProgramLog" EntitySet="ACProgramLog" />
@@ -2935,58 +2962,10 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
             <End Role="ACClassRouteUsage" EntitySet="ACClassRouteUsage" />
             <End Role="ACClassRouteUsageGroup" EntitySet="ACClassRouteUsageGroup" />
           </AssociationSet>
-          <EntitySet Name="ACClassProperty1Set" EntityType="VarioiplusV3_devModel.ACClassProperty1" />
-          <AssociationSet Name="FK_ACChangeLog_ACClassProperty1" Association="VarioiplusV3_devModel.FK_ACChangeLog_ACClassProperty1">
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
-            <End Role="ACChangeLog" EntitySet="ACChangeLog" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACClassProperty_ACClassID1" Association="VarioiplusV3_devModel.FK_ACClassProperty_ACClassID1">
-            <End Role="ACClass" EntitySet="ACClass" />
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACClassProperty_ConfigACClassID1" Association="VarioiplusV3_devModel.FK_ACClassProperty_ConfigACClassID1">
-            <End Role="ACClass" EntitySet="ACClass" />
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACClassProperty_ValueTypeACClassID1" Association="VarioiplusV3_devModel.FK_ACClassProperty_ValueTypeACClassID1">
-            <End Role="ACClass" EntitySet="ACClass" />
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACClassProperty_BasedOnACClassPropertyID1" Association="VarioiplusV3_devModel.FK_ACClassProperty_BasedOnACClassPropertyID1">
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
-            <End Role="ACClassProperty11" EntitySet="ACClassProperty1Set" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACClassProperty_ParentACClassPropertyID1" Association="VarioiplusV3_devModel.FK_ACClassProperty_ParentACClassPropertyID1">
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
-            <End Role="ACClassProperty11" EntitySet="ACClassProperty1Set" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACClassPropertyRelation_SourceACClassPropertyID1" Association="VarioiplusV3_devModel.FK_ACClassPropertyRelation_SourceACClassPropertyID1">
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
-            <End Role="ACClassPropertyRelation" EntitySet="ACClassPropertyRelation" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACClassPropertyRelation_TargetACClassPropertyID1" Association="VarioiplusV3_devModel.FK_ACClassPropertyRelation_TargetACClassPropertyID1">
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
-            <End Role="ACClassPropertyRelation" EntitySet="ACClassPropertyRelation" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACClassTaskValue_ACClassPropertyID1" Association="VarioiplusV3_devModel.FK_ACClassTaskValue_ACClassPropertyID1">
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
-            <End Role="ACClassTaskValue" EntitySet="ACClassTaskValue" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACClassWFEdge_SourceACClassPropertyID1" Association="VarioiplusV3_devModel.FK_ACClassWFEdge_SourceACClassPropertyID1">
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
-            <End Role="ACClassWFEdge" EntitySet="ACClassWFEdge" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACClassWFEdge_TargetACClassPropertyID1" Association="VarioiplusV3_devModel.FK_ACClassWFEdge_TargetACClassPropertyID1">
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
-            <End Role="ACClassWFEdge" EntitySet="ACClassWFEdge" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACPropertyLog_ACClassProperty1" Association="VarioiplusV3_devModel.FK_ACPropertyLog_ACClassProperty1">
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
+          <EntitySet Name="ACProgramLogPropertyLog" EntityType="VarioiplusV3_devModel.ACProgramLogPropertyLog" />
+          <AssociationSet Name="FK_ACProgramLogPropertyLog_ACPropertyLogID" Association="VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID">
             <End Role="ACPropertyLog" EntitySet="ACPropertyLog" />
-          </AssociationSet>
-          <AssociationSet Name="FK_VBGroupRight_ACClassPropertyID1" Association="VarioiplusV3_devModel.FK_VBGroupRight_ACClassPropertyID1">
-            <End Role="ACClassProperty1" EntitySet="ACClassProperty1Set" />
-            <End Role="VBGroupRight" EntitySet="VBGroupRight" />
+            <End Role="ACProgramLogPropertyLog" EntitySet="ACProgramLogPropertyLog" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="ACAssembly">
@@ -3156,7 +3135,6 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <NavigationProperty Name="VBUser" Relationship="VarioiplusV3_devModel.FK_ACClassTaskValue_VBUserID" FromRole="ACClassTaskValue" ToRole="VBUser" />
           <NavigationProperty Name="ACClassTaskValuePos_ACClassTaskValue" Relationship="VarioiplusV3_devModel.FK_ACClassTaskValuePos_ACClassTaskValueID" FromRole="ACClassTaskValue" ToRole="ACClassTaskValuePos" />
           <NavigationProperty Name="ACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACClassTaskValue_ACClassPropertyID" FromRole="ACClassTaskValue" ToRole="ACClassProperty" />
-          <NavigationProperty Name="ACClassProperty1" Relationship="VarioiplusV3_devModel.FK_ACClassTaskValue_ACClassPropertyID1" FromRole="ACClassTaskValue" ToRole="ACClassProperty1" />
         </EntityType>
         <EntityType Name="ACClassTaskValuePos">
           <Key>
@@ -3251,8 +3229,6 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <NavigationProperty Name="ACClassMethod" Relationship="VarioiplusV3_devModel.FK_ACClassWFEdge_ACClassMethodID" FromRole="ACClassWFEdge" ToRole="ACClassMethod" />
           <NavigationProperty Name="SourceACClassMethod" Relationship="VarioiplusV3_devModel.FK_ACClassWFEdge_SourceACClassMethodID" FromRole="ACClassWFEdge" ToRole="ACClassMethod" />
           <NavigationProperty Name="TargetACClassMethod" Relationship="VarioiplusV3_devModel.FK_ACClassWFEdge_TargetACClassMethodID" FromRole="ACClassWFEdge" ToRole="ACClassMethod" />
-          <NavigationProperty Name="ACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACClassWFEdge_SourceACClassPropertyID1" FromRole="ACClassWFEdge" ToRole="ACClassProperty1" />
-          <NavigationProperty Name="ACClassProperty1" Relationship="VarioiplusV3_devModel.FK_ACClassWFEdge_TargetACClassPropertyID1" FromRole="ACClassWFEdge" ToRole="ACClassProperty1" />
         </EntityType>
         <EntityType Name="ACPackage">
           <Key>
@@ -3445,7 +3421,6 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <NavigationProperty Name="ACClassProperty" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_ACClassPropertyID" FromRole="VBGroupRight" ToRole="ACClassProperty" />
           <NavigationProperty Name="ACClass" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_ACClassID" FromRole="VBGroupRight" ToRole="ACClass" />
           <NavigationProperty Name="ACClassMethod" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_ACClassMethodID" FromRole="VBGroupRight" ToRole="ACClassMethod" />
-          <NavigationProperty Name="ACClassProperty1" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_ACClassPropertyID1" FromRole="VBGroupRight" ToRole="ACClassProperty1" />
         </EntityType>
         <EntityType Name="VBLanguage">
           <Key>
@@ -4096,6 +4071,7 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <NavigationProperty Name="ValueTypeACClass" Relationship="VarioiplusV3_devModel.FK_ACClassProperty_ValueTypeACClassID" FromRole="ACClassProperty" ToRole="ACClass" />
           <NavigationProperty Name="ACPropertyLog_ACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACPropertyLog_ACClassProperty" FromRole="ACClassProperty" ToRole="ACPropertyLog" />
           <Property Name="IsStatic" Type="Boolean" Nullable="false" />
+          <Property Name="IsCaptionCustomized" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="ACClassPropertyRelation_SourceACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_SourceACClassPropertyID" FromRole="ACClassProperty" ToRole="ACClassPropertyRelation" />
           <NavigationProperty Name="ACClassPropertyRelation_TargetACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_TargetACClassPropertyID" FromRole="ACClassProperty" ToRole="ACClassPropertyRelation" />
         </EntityType>
@@ -4204,7 +4180,6 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <NavigationProperty Name="ACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACChangeLog_ACClassProperty" FromRole="ACChangeLog" ToRole="ACClassProperty" />
           <NavigationProperty Name="VBUser" Relationship="VarioiplusV3_devModel.FK_ACChangeLog_VBUser" FromRole="ACChangeLog" ToRole="VBUser" />
           <NavigationProperty Name="ACClass" Relationship="VarioiplusV3_devModel.FK_ACChangeLog_ACClass" FromRole="ACChangeLog" ToRole="ACClass" />
-          <NavigationProperty Name="ACClassProperty1" Relationship="VarioiplusV3_devModel.FK_ACChangeLog_ACClassProperty1" FromRole="ACChangeLog" ToRole="ACClassProperty1" />
         </EntityType>
         <Association Name="FK_ACChangeLog_ACClassProperty">
           <End Type="VarioiplusV3_devModel.ACClassProperty" Role="ACClassProperty" Multiplicity="1" />
@@ -4309,9 +4284,6 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <NavigationProperty Name="ACClassMethod_ValueTypeACClass" Relationship="VarioiplusV3_devModel.FK_ACClassMethod_ValueTypeACClassID" FromRole="ACClass" ToRole="ACClassMethod" />
           <NavigationProperty Name="ACClassPropertyRelation_SourceACClass" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_SourceACClassID" FromRole="ACClass" ToRole="ACClassPropertyRelation" />
           <NavigationProperty Name="ACClassPropertyRelation_TargetACClass" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_TargetACClassID" FromRole="ACClass" ToRole="ACClassPropertyRelation" />
-          <NavigationProperty Name="ACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACClassProperty_ACClassID1" FromRole="ACClass" ToRole="ACClassProperty1" />
-          <NavigationProperty Name="ACClassProperty1" Relationship="VarioiplusV3_devModel.FK_ACClassProperty_ConfigACClassID1" FromRole="ACClass" ToRole="ACClassProperty1" />
-          <NavigationProperty Name="ACClassProperty2" Relationship="VarioiplusV3_devModel.FK_ACClassProperty_ValueTypeACClassID1" FromRole="ACClass" ToRole="ACClassProperty1" />
         </EntityType>
         <Association Name="FK_ACChangeLog_ACClass">
           <End Type="VarioiplusV3_devModel.ACClass" Role="ACClass" Multiplicity="1" />
@@ -4725,9 +4697,10 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <Property Name="ACProgramLogID" Type="Guid" />
           <Property Name="EventTime" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="Value" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="ACClassMessageID" Type="Guid" />
           <NavigationProperty Name="ACClass" Relationship="VarioiplusV3_devModel.FK_ACPropertyLog_ACClass" FromRole="ACPropertyLog" ToRole="ACClass" />
           <NavigationProperty Name="ACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACPropertyLog_ACClassProperty" FromRole="ACPropertyLog" ToRole="ACClassProperty" />
-          <NavigationProperty Name="ACClassProperty1" Relationship="VarioiplusV3_devModel.FK_ACPropertyLog_ACClassProperty1" FromRole="ACPropertyLog" ToRole="ACClassProperty1" />
+          <NavigationProperty Name="ACProgramLogPropertyLog" Relationship="VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID" FromRole="ACPropertyLog" ToRole="ACProgramLogPropertyLog" />
         </EntityType>
         <EntityType Name="ACPropertyLogRule">
           <Key>
@@ -4824,6 +4797,7 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <Property Name="AttachedFromACClassID" Type="Guid" />
           <Property Name="IsStatic" Type="Boolean" Nullable="false" />
           <Property Name="ExecuteByDoubleClick" Type="Boolean" Nullable="false" />
+          <Property Name="HasRequiredParams" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="ACClass" Relationship="VarioiplusV3_devModel.FK_ACClassMethod_ACClassID" FromRole="ACClassMethod" ToRole="ACClass" />
           <NavigationProperty Name="AttachedFromACClass" Relationship="VarioiplusV3_devModel.FK_ACClassMethod_AttachedFromACClass" FromRole="ACClassMethod" ToRole="ACClass" />
           <NavigationProperty Name="PWACClass" Relationship="VarioiplusV3_devModel.FK_ACClassMethod_PWACClassID" FromRole="ACClassMethod" ToRole="ACClass" />
@@ -5037,8 +5011,6 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <NavigationProperty Name="TargetACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_TargetACClassPropertyID" FromRole="ACClassPropertyRelation" ToRole="ACClassProperty" />
           <NavigationProperty Name="ACProgramConfig_ACClassPropertyRelation" Relationship="VarioiplusV3_devModel.FK_ACProgramConfig_ACClassPropertyRelationID" FromRole="ACClassPropertyRelation" ToRole="ACProgramConfig" />
           <NavigationProperty Name="VBConfig_ACClassPropertyRelation" Relationship="VarioiplusV3_devModel.FK_VBConfig_ACClassPropertyRelationID" FromRole="ACClassPropertyRelation" ToRole="VBConfig" />
-          <NavigationProperty Name="ACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_SourceACClassPropertyID1" FromRole="ACClassPropertyRelation" ToRole="ACClassProperty1" />
-          <NavigationProperty Name="ACClassProperty1" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_TargetACClassPropertyID1" FromRole="ACClassPropertyRelation" ToRole="ACClassProperty1" />
         </EntityType>
         <Association Name="FK_ACClassPropertyRelation_SourceACClassID">
           <End Type="VarioiplusV3_devModel.ACClass" Role="ACClass" Multiplicity="1">
@@ -5195,235 +5167,24 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="ACClassProperty1">
+        <EntityType Name="ACProgramLogPropertyLog">
           <Key>
-            <PropertyRef Name="ACClassPropertyID" />
+            <PropertyRef Name="ACProgramLogPropertyLogID" />
           </Key>
-          <Property Name="ACClassPropertyID" Type="Guid" Nullable="false" />
-          <Property Name="ACClassID" Type="Guid" Nullable="false" />
-          <Property Name="ACIdentifier" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ACIdentifierKey" Type="Int32" />
-          <Property Name="ACCaptionTranslation" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="ACGroup" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="BasedOnACClassPropertyID" Type="Guid" Nullable="false" />
-          <Property Name="ACKindIndex" Type="Int16" Nullable="false" />
-          <Property Name="SortIndex" Type="Int16" Nullable="false" />
-          <Property Name="IsRightmanagement" Type="Boolean" Nullable="false" />
-          <Property Name="ACSource" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="IsInteraction" Type="Boolean" Nullable="false" />
-          <Property Name="ValueTypeACClassID" Type="Guid" Nullable="false" />
-          <Property Name="GenericType" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ConfigACClassID" Type="Guid" />
-          <Property Name="ACPropUsageIndex" Type="Int16" Nullable="false" />
-          <Property Name="DeleteActionIndex" Type="Int16" Nullable="false" />
-          <Property Name="IsBroadcast" Type="Boolean" Nullable="false" />
-          <Property Name="ForceBroadcast" Type="Boolean" Nullable="false" />
-          <Property Name="IsProxyProperty" Type="Boolean" Nullable="false" />
-          <Property Name="IsInput" Type="Boolean" Nullable="false" />
-          <Property Name="IsOutput" Type="Boolean" Nullable="false" />
-          <Property Name="IsContent" Type="Boolean" Nullable="false" />
-          <Property Name="IsPersistable" Type="Boolean" Nullable="false" />
-          <Property Name="IsSerializable" Type="Boolean" Nullable="false" />
-          <Property Name="IsEnumerable" Type="Boolean" Nullable="false" />
-          <Property Name="ACPointCapacity" Type="Int32" Nullable="false" />
-          <Property Name="CallbackMethodName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ParentACClassPropertyID" Type="Guid" />
-          <Property Name="DataTypeLength" Type="Int32" Nullable="false" />
-          <Property Name="IsNullable" Type="Boolean" Nullable="false" />
-          <Property Name="InputMask" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="MinLength" Type="Int32" />
-          <Property Name="MaxLength" Type="Int32" />
-          <Property Name="MinValue" Type="Double" />
-          <Property Name="MaxValue" Type="Double" />
-          <Property Name="XMLValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="LogRefreshRateIndex" Type="Int16" Nullable="false" />
-          <Property Name="LogFilter" Type="Double" />
-          <Property Name="Precision" Type="Int16" />
-          <Property Name="XMLACEventArgs" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="XMLConfig" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="BranchNo" Type="Int32" Nullable="false" />
-          <Property Name="InsertName" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="InsertDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="UpdateName" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="UpdateDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="IsRPCEnabled" Type="Boolean" Nullable="false" />
-          <Property Name="RemotePropID" Type="Int32" Nullable="false" />
-          <Property Name="ChangeLogMax" Type="Int32" />
-          <Property Name="LogBufferSize" Type="Int32" Nullable="false" />
-          <Property Name="IsStatic" Type="Boolean" Nullable="false" />
-          <Property Name="IsCaptionCustomized" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="ACChangeLog" Relationship="VarioiplusV3_devModel.FK_ACChangeLog_ACClassProperty1" FromRole="ACClassProperty1" ToRole="ACChangeLog" />
-          <NavigationProperty Name="ACClass" Relationship="VarioiplusV3_devModel.FK_ACClassProperty_ACClassID1" FromRole="ACClassProperty1" ToRole="ACClass" />
-          <NavigationProperty Name="ACClass1" Relationship="VarioiplusV3_devModel.FK_ACClassProperty_ConfigACClassID1" FromRole="ACClassProperty1" ToRole="ACClass" />
-          <NavigationProperty Name="ACClass2" Relationship="VarioiplusV3_devModel.FK_ACClassProperty_ValueTypeACClassID1" FromRole="ACClassProperty1" ToRole="ACClass" />
-          <NavigationProperty Name="ACClassProperty11" Relationship="VarioiplusV3_devModel.FK_ACClassProperty_BasedOnACClassPropertyID1" FromRole="ACClassProperty1" ToRole="ACClassProperty11" />
-          <NavigationProperty Name="ACClassProperty2" Relationship="VarioiplusV3_devModel.FK_ACClassProperty_BasedOnACClassPropertyID1" FromRole="ACClassProperty11" ToRole="ACClassProperty1" />
-          <NavigationProperty Name="ACClassProperty111" Relationship="VarioiplusV3_devModel.FK_ACClassProperty_ParentACClassPropertyID1" FromRole="ACClassProperty1" ToRole="ACClassProperty11" />
-          <NavigationProperty Name="ACClassProperty3" Relationship="VarioiplusV3_devModel.FK_ACClassProperty_ParentACClassPropertyID1" FromRole="ACClassProperty11" ToRole="ACClassProperty1" />
-          <NavigationProperty Name="ACClassPropertyRelation" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_SourceACClassPropertyID1" FromRole="ACClassProperty1" ToRole="ACClassPropertyRelation" />
-          <NavigationProperty Name="ACClassPropertyRelation1" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_TargetACClassPropertyID1" FromRole="ACClassProperty1" ToRole="ACClassPropertyRelation" />
-          <NavigationProperty Name="ACClassTaskValue" Relationship="VarioiplusV3_devModel.FK_ACClassTaskValue_ACClassPropertyID1" FromRole="ACClassProperty1" ToRole="ACClassTaskValue" />
-          <NavigationProperty Name="ACClassWFEdge" Relationship="VarioiplusV3_devModel.FK_ACClassWFEdge_SourceACClassPropertyID1" FromRole="ACClassProperty1" ToRole="ACClassWFEdge" />
-          <NavigationProperty Name="ACClassWFEdge1" Relationship="VarioiplusV3_devModel.FK_ACClassWFEdge_TargetACClassPropertyID1" FromRole="ACClassProperty1" ToRole="ACClassWFEdge" />
-          <NavigationProperty Name="ACPropertyLog" Relationship="VarioiplusV3_devModel.FK_ACPropertyLog_ACClassProperty1" FromRole="ACClassProperty1" ToRole="ACPropertyLog" />
-          <NavigationProperty Name="VBGroupRight" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_ACClassPropertyID1" FromRole="ACClassProperty1" ToRole="VBGroupRight" />
+          <Property Name="ACProgramLogPropertyLogID" Type="Guid" Nullable="false" />
+          <Property Name="ACProgramLogID" Type="Guid" Nullable="false" />
+          <Property Name="ACPropertyLogID" Type="Guid" Nullable="false" />
+          <NavigationProperty Name="ACPropertyLog" Relationship="VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID" FromRole="ACProgramLogPropertyLog" ToRole="ACPropertyLog" />
         </EntityType>
-        <Association Name="FK_ACChangeLog_ACClassProperty1">
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="1" />
-          <End Type="VarioiplusV3_devModel.ACChangeLog" Role="ACChangeLog" Multiplicity="*" />
+        <Association Name="FK_ACProgramLogPropertyLog_ACPropertyLogID">
+          <End Type="VarioiplusV3_devModel.ACPropertyLog" Role="ACPropertyLog" Multiplicity="1" />
+          <End Type="VarioiplusV3_devModel.ACProgramLogPropertyLog" Role="ACProgramLogPropertyLog" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="ACClassProperty1">
-              <PropertyRef Name="ACClassPropertyID" />
+            <Principal Role="ACPropertyLog">
+              <PropertyRef Name="ACPropertyLogID" />
             </Principal>
-            <Dependent Role="ACChangeLog">
-              <PropertyRef Name="ACClassPropertyID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACClassProperty_ACClassID1">
-          <End Type="VarioiplusV3_devModel.ACClass" Role="ACClass" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClass">
-              <PropertyRef Name="ACClassID" />
-            </Principal>
-            <Dependent Role="ACClassProperty1">
-              <PropertyRef Name="ACClassID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACClassProperty_ConfigACClassID1">
-          <End Type="VarioiplusV3_devModel.ACClass" Role="ACClass" Multiplicity="0..1" />
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClass">
-              <PropertyRef Name="ACClassID" />
-            </Principal>
-            <Dependent Role="ACClassProperty1">
-              <PropertyRef Name="ConfigACClassID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACClassProperty_ValueTypeACClassID1">
-          <End Type="VarioiplusV3_devModel.ACClass" Role="ACClass" Multiplicity="1" />
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClass">
-              <PropertyRef Name="ACClassID" />
-            </Principal>
-            <Dependent Role="ACClassProperty1">
-              <PropertyRef Name="ValueTypeACClassID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACClassProperty_BasedOnACClassPropertyID1">
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="1" />
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty11" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClassProperty1">
-              <PropertyRef Name="ACClassPropertyID" />
-            </Principal>
-            <Dependent Role="ACClassProperty11">
-              <PropertyRef Name="BasedOnACClassPropertyID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACClassProperty_ParentACClassPropertyID1">
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="0..1" />
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty11" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClassProperty1">
-              <PropertyRef Name="ACClassPropertyID" />
-            </Principal>
-            <Dependent Role="ACClassProperty11">
-              <PropertyRef Name="ParentACClassPropertyID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACClassPropertyRelation_SourceACClassPropertyID1">
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="0..1" />
-          <End Type="VarioiplusV3_devModel.ACClassPropertyRelation" Role="ACClassPropertyRelation" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClassProperty1">
-              <PropertyRef Name="ACClassPropertyID" />
-            </Principal>
-            <Dependent Role="ACClassPropertyRelation">
-              <PropertyRef Name="SourceACClassPropertyID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACClassPropertyRelation_TargetACClassPropertyID1">
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="0..1" />
-          <End Type="VarioiplusV3_devModel.ACClassPropertyRelation" Role="ACClassPropertyRelation" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClassProperty1">
-              <PropertyRef Name="ACClassPropertyID" />
-            </Principal>
-            <Dependent Role="ACClassPropertyRelation">
-              <PropertyRef Name="TargetACClassPropertyID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACClassTaskValue_ACClassPropertyID1">
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="1" />
-          <End Type="VarioiplusV3_devModel.ACClassTaskValue" Role="ACClassTaskValue" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClassProperty1">
-              <PropertyRef Name="ACClassPropertyID" />
-            </Principal>
-            <Dependent Role="ACClassTaskValue">
-              <PropertyRef Name="ACClassPropertyID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACClassWFEdge_SourceACClassPropertyID1">
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="1" />
-          <End Type="VarioiplusV3_devModel.ACClassWFEdge" Role="ACClassWFEdge" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClassProperty1">
-              <PropertyRef Name="ACClassPropertyID" />
-            </Principal>
-            <Dependent Role="ACClassWFEdge">
-              <PropertyRef Name="SourceACClassPropertyID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACClassWFEdge_TargetACClassPropertyID1">
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="1" />
-          <End Type="VarioiplusV3_devModel.ACClassWFEdge" Role="ACClassWFEdge" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClassProperty1">
-              <PropertyRef Name="ACClassPropertyID" />
-            </Principal>
-            <Dependent Role="ACClassWFEdge">
-              <PropertyRef Name="TargetACClassPropertyID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACPropertyLog_ACClassProperty1">
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="1" />
-          <End Type="VarioiplusV3_devModel.ACPropertyLog" Role="ACPropertyLog" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClassProperty1">
-              <PropertyRef Name="ACClassPropertyID" />
-            </Principal>
-            <Dependent Role="ACPropertyLog">
-              <PropertyRef Name="ACClassPropertyID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_VBGroupRight_ACClassPropertyID1">
-          <End Type="VarioiplusV3_devModel.ACClassProperty1" Role="ACClassProperty1" Multiplicity="0..1" />
-          <End Type="VarioiplusV3_devModel.VBGroupRight" Role="VBGroupRight" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClassProperty1">
-              <PropertyRef Name="ACClassPropertyID" />
-            </Principal>
-            <Dependent Role="VBGroupRight">
-              <PropertyRef Name="ACClassPropertyID" />
+            <Dependent Role="ACProgramLogPropertyLog">
+              <PropertyRef Name="ACPropertyLogID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -6009,6 +5770,66 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="ACClassProperty">
+            <EntityTypeMapping TypeName="VarioiplusV3_devModel.ACClassProperty">
+              <MappingFragment StoreEntitySet="ACClassProperty">
+                <ScalarProperty Name="IsStatic" ColumnName="IsStatic" />
+                <ScalarProperty Name="LogBufferSize" ColumnName="LogBufferSize" />
+                <ScalarProperty Name="IsCaptionCustomized" ColumnName="IsCaptionCustomized" />
+                <ScalarProperty Name="ChangeLogMax" ColumnName="ChangeLogMax" />
+                <ScalarProperty Name="RemotePropID" ColumnName="RemotePropID" />
+                <ScalarProperty Name="IsRPCEnabled" ColumnName="IsRPCEnabled" />
+                <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
+                <ScalarProperty Name="UpdateName" ColumnName="UpdateName" />
+                <ScalarProperty Name="InsertDate" ColumnName="InsertDate" />
+                <ScalarProperty Name="InsertName" ColumnName="InsertName" />
+                <ScalarProperty Name="BranchNo" ColumnName="BranchNo" />
+                <ScalarProperty Name="XMLConfig" ColumnName="XMLConfig" />
+                <ScalarProperty Name="XMLACEventArgs" ColumnName="XMLACEventArgs" />
+                <ScalarProperty Name="Precision" ColumnName="Precision" />
+                <ScalarProperty Name="LogFilter" ColumnName="LogFilter" />
+                <ScalarProperty Name="LogRefreshRateIndex" ColumnName="LogRefreshRateIndex" />
+                <ScalarProperty Name="XMLValue" ColumnName="XMLValue" />
+                <ScalarProperty Name="MaxValue" ColumnName="MaxValue" />
+                <ScalarProperty Name="MinValue" ColumnName="MinValue" />
+                <ScalarProperty Name="MaxLength" ColumnName="MaxLength" />
+                <ScalarProperty Name="MinLength" ColumnName="MinLength" />
+                <ScalarProperty Name="InputMask" ColumnName="InputMask" />
+                <ScalarProperty Name="IsNullable" ColumnName="IsNullable" />
+                <ScalarProperty Name="DataTypeLength" ColumnName="DataTypeLength" />
+                <ScalarProperty Name="ParentACClassPropertyID" ColumnName="ParentACClassPropertyID" />
+                <ScalarProperty Name="CallbackMethodName" ColumnName="CallbackMethodName" />
+                <ScalarProperty Name="ACPointCapacity" ColumnName="ACPointCapacity" />
+                <ScalarProperty Name="IsEnumerable" ColumnName="IsEnumerable" />
+                <ScalarProperty Name="IsSerializable" ColumnName="IsSerializable" />
+                <ScalarProperty Name="IsPersistable" ColumnName="IsPersistable" />
+                <ScalarProperty Name="IsContent" ColumnName="IsContent" />
+                <ScalarProperty Name="IsOutput" ColumnName="IsOutput" />
+                <ScalarProperty Name="IsInput" ColumnName="IsInput" />
+                <ScalarProperty Name="IsProxyProperty" ColumnName="IsProxyProperty" />
+                <ScalarProperty Name="ForceBroadcast" ColumnName="ForceBroadcast" />
+                <ScalarProperty Name="IsBroadcast" ColumnName="IsBroadcast" />
+                <ScalarProperty Name="DeleteActionIndex" ColumnName="DeleteActionIndex" />
+                <ScalarProperty Name="ACPropUsageIndex" ColumnName="ACPropUsageIndex" />
+                <ScalarProperty Name="ConfigACClassID" ColumnName="ConfigACClassID" />
+                <ScalarProperty Name="GenericType" ColumnName="GenericType" />
+                <ScalarProperty Name="ValueTypeACClassID" ColumnName="ValueTypeACClassID" />
+                <ScalarProperty Name="IsInteraction" ColumnName="IsInteraction" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="ACSource" ColumnName="ACSource" />
+                <ScalarProperty Name="IsRightmanagement" ColumnName="IsRightmanagement" />
+                <ScalarProperty Name="SortIndex" ColumnName="SortIndex" />
+                <ScalarProperty Name="ACKindIndex" ColumnName="ACKindIndex" />
+                <ScalarProperty Name="BasedOnACClassPropertyID" ColumnName="BasedOnACClassPropertyID" />
+                <ScalarProperty Name="ACGroup" ColumnName="ACGroup" />
+                <ScalarProperty Name="ACCaptionTranslation" ColumnName="ACCaptionTranslation" />
+                <ScalarProperty Name="ACIdentifierKey" ColumnName="ACIdentifierKey" />
+                <ScalarProperty Name="ACIdentifier" ColumnName="ACIdentifier" />
+                <ScalarProperty Name="ACClassID" ColumnName="ACClassID" />
+                <ScalarProperty Name="ACClassPropertyID" ColumnName="ACClassPropertyID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <FunctionImportMapping FunctionImportName="udpTranslation" FunctionName="VarioiplusV3_devModel.Store.udpTranslation" />
           <EntitySetMapping Name="VBTranslationView">
             <EntityTypeMapping TypeName="VarioiplusV3_devModel.VBTranslationView">
@@ -6111,7 +5932,8 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
                 <ScalarProperty Name="ACProgramLogID" ColumnName="ACProgramLogID" />
                 <ScalarProperty Name="ACClassPropertyID" ColumnName="ACClassPropertyID" />
                 <ScalarProperty Name="ACClassID" ColumnName="ACClassID" />
-                <ScalarProperty Name="ACPropertyLogID" ColumnName="ACPropertyLogID" />
+				<ScalarProperty Name="ACPropertyLogID" ColumnName="ACPropertyLogID" />
+				<ScalarProperty Name="ACClassMessageID" ColumnName="ACClassMessageID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -6131,6 +5953,7 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
           <EntitySetMapping Name="ACClassMethod">
             <EntityTypeMapping TypeName="VarioiplusV3_devModel.ACClassMethod">
               <MappingFragment StoreEntitySet="ACClassMethod">
+                <ScalarProperty Name="HasRequiredParams" ColumnName="HasRequiredParams" />
                 <ScalarProperty Name="ExecuteByDoubleClick" ColumnName="ExecuteByDoubleClick" />
                 <ScalarProperty Name="IsStatic" ColumnName="IsStatic" />
                 <ScalarProperty Name="AttachedFromACClassID" ColumnName="AttachedFromACClassID" />
@@ -6234,63 +6057,12 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="ACClassProperty1Set">
-            <EntityTypeMapping TypeName="VarioiplusV3_devModel.ACClassProperty1">
-              <MappingFragment StoreEntitySet="ACClassProperty">
-                <ScalarProperty Name="IsCaptionCustomized" ColumnName="IsCaptionCustomized" />
-                <ScalarProperty Name="IsStatic" ColumnName="IsStatic" />
-                <ScalarProperty Name="LogBufferSize" ColumnName="LogBufferSize" />
-                <ScalarProperty Name="ChangeLogMax" ColumnName="ChangeLogMax" />
-                <ScalarProperty Name="RemotePropID" ColumnName="RemotePropID" />
-                <ScalarProperty Name="IsRPCEnabled" ColumnName="IsRPCEnabled" />
-                <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
-                <ScalarProperty Name="UpdateName" ColumnName="UpdateName" />
-                <ScalarProperty Name="InsertDate" ColumnName="InsertDate" />
-                <ScalarProperty Name="InsertName" ColumnName="InsertName" />
-                <ScalarProperty Name="BranchNo" ColumnName="BranchNo" />
-                <ScalarProperty Name="XMLConfig" ColumnName="XMLConfig" />
-                <ScalarProperty Name="XMLACEventArgs" ColumnName="XMLACEventArgs" />
-                <ScalarProperty Name="Precision" ColumnName="Precision" />
-                <ScalarProperty Name="LogFilter" ColumnName="LogFilter" />
-                <ScalarProperty Name="LogRefreshRateIndex" ColumnName="LogRefreshRateIndex" />
-                <ScalarProperty Name="XMLValue" ColumnName="XMLValue" />
-                <ScalarProperty Name="MaxValue" ColumnName="MaxValue" />
-                <ScalarProperty Name="MinValue" ColumnName="MinValue" />
-                <ScalarProperty Name="MaxLength" ColumnName="MaxLength" />
-                <ScalarProperty Name="MinLength" ColumnName="MinLength" />
-                <ScalarProperty Name="InputMask" ColumnName="InputMask" />
-                <ScalarProperty Name="IsNullable" ColumnName="IsNullable" />
-                <ScalarProperty Name="DataTypeLength" ColumnName="DataTypeLength" />
-                <ScalarProperty Name="ParentACClassPropertyID" ColumnName="ParentACClassPropertyID" />
-                <ScalarProperty Name="CallbackMethodName" ColumnName="CallbackMethodName" />
-                <ScalarProperty Name="ACPointCapacity" ColumnName="ACPointCapacity" />
-                <ScalarProperty Name="IsEnumerable" ColumnName="IsEnumerable" />
-                <ScalarProperty Name="IsSerializable" ColumnName="IsSerializable" />
-                <ScalarProperty Name="IsPersistable" ColumnName="IsPersistable" />
-                <ScalarProperty Name="IsContent" ColumnName="IsContent" />
-                <ScalarProperty Name="IsOutput" ColumnName="IsOutput" />
-                <ScalarProperty Name="IsInput" ColumnName="IsInput" />
-                <ScalarProperty Name="IsProxyProperty" ColumnName="IsProxyProperty" />
-                <ScalarProperty Name="ForceBroadcast" ColumnName="ForceBroadcast" />
-                <ScalarProperty Name="IsBroadcast" ColumnName="IsBroadcast" />
-                <ScalarProperty Name="DeleteActionIndex" ColumnName="DeleteActionIndex" />
-                <ScalarProperty Name="ACPropUsageIndex" ColumnName="ACPropUsageIndex" />
-                <ScalarProperty Name="ConfigACClassID" ColumnName="ConfigACClassID" />
-                <ScalarProperty Name="GenericType" ColumnName="GenericType" />
-                <ScalarProperty Name="ValueTypeACClassID" ColumnName="ValueTypeACClassID" />
-                <ScalarProperty Name="IsInteraction" ColumnName="IsInteraction" />
-                <ScalarProperty Name="Comment" ColumnName="Comment" />
-                <ScalarProperty Name="ACSource" ColumnName="ACSource" />
-                <ScalarProperty Name="IsRightmanagement" ColumnName="IsRightmanagement" />
-                <ScalarProperty Name="SortIndex" ColumnName="SortIndex" />
-                <ScalarProperty Name="ACKindIndex" ColumnName="ACKindIndex" />
-                <ScalarProperty Name="BasedOnACClassPropertyID" ColumnName="BasedOnACClassPropertyID" />
-                <ScalarProperty Name="ACGroup" ColumnName="ACGroup" />
-                <ScalarProperty Name="ACCaptionTranslation" ColumnName="ACCaptionTranslation" />
-                <ScalarProperty Name="ACIdentifierKey" ColumnName="ACIdentifierKey" />
-                <ScalarProperty Name="ACIdentifier" ColumnName="ACIdentifier" />
-                <ScalarProperty Name="ACClassID" ColumnName="ACClassID" />
-                <ScalarProperty Name="ACClassPropertyID" ColumnName="ACClassPropertyID" />
+          <EntitySetMapping Name="ACProgramLogPropertyLog">
+            <EntityTypeMapping TypeName="VarioiplusV3_devModel.ACProgramLogPropertyLog">
+              <MappingFragment StoreEntitySet="ACProgramLogPropertyLog">
+                <ScalarProperty Name="ACPropertyLogID" ColumnName="ACPropertyLogID" />
+                <ScalarProperty Name="ACProgramLogID" ColumnName="ACProgramLogID" />
+                <ScalarProperty Name="ACProgramLogPropertyLogID" ColumnName="ACProgramLogPropertyLogID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -6453,20 +6225,8 @@ warning 6002: The table/view 'PanPekZGV4.dbo.VBTranslationView' does not have a 
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassRouteUsagePos_ACClassRouteUsage" />
         <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassRouteUsageGroup" Width="1.5" PointX="9.625" PointY="4.375" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage" />
-        <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassProperty1" Width="1.5" PointX="14.75" PointY="9.625" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACChangeLog_ACClassProperty1" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassProperty_ACClassID1" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassProperty_ConfigACClassID1" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassProperty_ValueTypeACClassID1" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassProperty_BasedOnACClassPropertyID1" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassProperty_ParentACClassPropertyID1" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassPropertyRelation_SourceACClassPropertyID1" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassPropertyRelation_TargetACClassPropertyID1" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassTaskValue_ACClassPropertyID1" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassWFEdge_SourceACClassPropertyID1" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassWFEdge_TargetACClassPropertyID1" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACPropertyLog_ACClassProperty1" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_VBGroupRight_ACClassPropertyID1" />
+        <EntityTypeShape EntityType="VarioiplusV3_devModel.ACProgramLogPropertyLog" Width="1.5" PointX="17" PointY="43.875" />
+        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID" />
       </Diagram>
     </Diagrams>
   </Designer>

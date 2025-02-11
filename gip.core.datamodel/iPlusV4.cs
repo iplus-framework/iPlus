@@ -114,6 +114,7 @@ using gip.core.datamodel;
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_VBConfig_ACClassPropertyRelationID", "ACClassPropertyRelation", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClassPropertyRelation), "VBConfig", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.VBConfig), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassRouteUsagePos_ACClassRouteUsage", "ACClassRouteUsage", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACClassRouteUsage), "ACClassRouteUsagePos", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassRouteUsagePos), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassRouteUsageGroup_ACClassRouteUsage", "ACClassRouteUsage", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACClassRouteUsage), "ACClassRouteUsageGroup", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassRouteUsageGroup), true)]
+[assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACProgramLogPropertyLog_ACPropertyLogID", "ACPropertyLog", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACPropertyLog), "ACProgramLogPropertyLog", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACProgramLogPropertyLog), true)]
 
 #endregion
 
@@ -836,6 +837,22 @@ namespace gip.core.datamodel
             }
         }
         private ObjectSet<ACClassRouteUsageGroup> _ACClassRouteUsageGroup;
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        public ObjectSet<ACProgramLogPropertyLog> ACProgramLogPropertyLog
+        {
+            get
+            {
+                if ((_ACProgramLogPropertyLog == null))
+                {
+                    _ACProgramLogPropertyLog = base.CreateObjectSet<ACProgramLogPropertyLog>("ACProgramLogPropertyLog");
+                }
+                return _ACProgramLogPropertyLog;
+            }
+        }
+        private ObjectSet<ACProgramLogPropertyLog> _ACProgramLogPropertyLog;
 
         #endregion
 
@@ -1175,6 +1192,14 @@ namespace gip.core.datamodel
         public void AddToACClassRouteUsageGroup(ACClassRouteUsageGroup aCClassRouteUsageGroup)
         {
             base.AddObject("ACClassRouteUsageGroup", aCClassRouteUsageGroup);
+        }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the ACProgramLogPropertyLog EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToACProgramLogPropertyLog(ACProgramLogPropertyLog aCProgramLogPropertyLog)
+        {
+            base.AddObject("ACProgramLogPropertyLog", aCProgramLogPropertyLog);
         }
 
         #endregion
@@ -16427,6 +16452,153 @@ namespace gip.core.datamodel
 
     }
     
+    [EdmEntityTypeAttribute(NamespaceName="VarioiplusV3_devModel", Name="ACProgramLogPropertyLog")]
+    [Serializable()]
+    [DataContractAttribute(IsReference=true)]
+    public partial class ACProgramLogPropertyLog : VBEntityObject 
+    {
+        #region Factory Method
+    
+        /// <summary>
+        /// Create a new ACProgramLogPropertyLog object.
+        /// </summary>
+        /// <param name="aCProgramLogPropertyLogID">Initial value of the ACProgramLogPropertyLogID property.</param>
+        /// <param name="aCProgramLogID">Initial value of the ACProgramLogID property.</param>
+        /// <param name="aCPropertyLogID">Initial value of the ACPropertyLogID property.</param>
+        public static ACProgramLogPropertyLog CreateACProgramLogPropertyLog(global::System.Guid aCProgramLogPropertyLogID, global::System.Guid aCProgramLogID, global::System.Guid aCPropertyLogID)
+        {
+            ACProgramLogPropertyLog aCProgramLogPropertyLog = new ACProgramLogPropertyLog();
+            aCProgramLogPropertyLog.ACProgramLogPropertyLogID = aCProgramLogPropertyLogID;
+            aCProgramLogPropertyLog.ACProgramLogID = aCProgramLogID;
+            aCProgramLogPropertyLog.ACPropertyLogID = aCPropertyLogID;
+            return aCProgramLogPropertyLog;
+        }
+
+        #endregion
+
+        #region Simple Properties
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public  global::System.Guid ACProgramLogPropertyLogID
+        {
+            get
+            {
+                return _ACProgramLogPropertyLogID;
+            }
+            set
+            {
+                if (_ACProgramLogPropertyLogID != value)
+                {
+                    OnACProgramLogPropertyLogIDChanging(value);
+                    ReportPropertyChanging("ACProgramLogPropertyLogID");
+                    _ACProgramLogPropertyLogID = StructuralObject.SetValidValue(value);
+                    ReportPropertyChanged("ACProgramLogPropertyLogID");
+                    OnACProgramLogPropertyLogIDChanged();
+                }
+            }
+        }
+        private global::System.Guid _ACProgramLogPropertyLogID;
+        partial void OnACProgramLogPropertyLogIDChanging(global::System.Guid value);
+        partial void OnACProgramLogPropertyLogIDChanged();
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public  global::System.Guid ACProgramLogID
+        {
+            get
+            {
+                return _ACProgramLogID;
+            }
+            set
+            {
+                OnACProgramLogIDChanging(value);
+                ReportPropertyChanging("ACProgramLogID");
+                _ACProgramLogID = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("ACProgramLogID");
+                OnACProgramLogIDChanged();
+            }
+        }
+        private global::System.Guid _ACProgramLogID;
+        partial void OnACProgramLogIDChanging(global::System.Guid value);
+        partial void OnACProgramLogIDChanged();
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public  global::System.Guid ACPropertyLogID
+        {
+            get
+            {
+                return _ACPropertyLogID;
+            }
+            set
+            {
+                OnACPropertyLogIDChanging(value);
+                ReportPropertyChanging("ACPropertyLogID");
+                _ACPropertyLogID = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("ACPropertyLogID");
+                OnACPropertyLogIDChanged();
+            }
+        }
+        private global::System.Guid _ACPropertyLogID;
+        partial void OnACPropertyLogIDChanging(global::System.Guid value);
+        partial void OnACPropertyLogIDChanged();
+
+        #endregion
+
+        #region Navigation Properties
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_ACProgramLogPropertyLog_ACPropertyLogID", "ACPropertyLog")]
+        public ACPropertyLog ACPropertyLog
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACPropertyLog>("VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID", "ACPropertyLog").Value;
+            }
+            set
+            {
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACPropertyLog>("VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID", "ACPropertyLog").Value = value;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        [BrowsableAttribute(false)]
+        [DataMemberAttribute()]
+        public EntityReference<ACPropertyLog> ACPropertyLogReference
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACPropertyLog>("VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID", "ACPropertyLog");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<ACPropertyLog>("VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID", "ACPropertyLog", value);
+                }
+            }
+        }
+
+        #endregion
+
+    }
+    
     [EdmEntityTypeAttribute(NamespaceName="VarioiplusV3_devModel", Name="ACProgramLogTask")]
     [Serializable()]
     [DataContractAttribute(IsReference=true)]
@@ -17662,6 +17834,28 @@ namespace gip.core.datamodel
                 if ((value != null))
                 {
                     ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<ACClassProperty>("VarioiplusV3_devModel.FK_ACPropertyLog_ACClassProperty", "ACClassProperty", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_ACProgramLogPropertyLog_ACPropertyLogID", "ACProgramLogPropertyLog")]
+        public EntityCollection<ACProgramLogPropertyLog> ACProgramLogPropertyLog_ACPropertyLog
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<ACProgramLogPropertyLog>("VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID", "ACProgramLogPropertyLog");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<ACProgramLogPropertyLog>("VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID", "ACProgramLogPropertyLog", value);
                 }
             }
         }

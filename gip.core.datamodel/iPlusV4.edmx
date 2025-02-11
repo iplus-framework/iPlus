@@ -278,9 +278,6 @@
           <Property Name="DirectionIndex" Type="smallint" Nullable="false" />
           <Property Name="XMLValue" Type="text" />
           <Property Name="LogicalOperationIndex" Type="smallint" Nullable="false" />
-          <Property Name="RelationWeight" Type="smallint" Nullable="false" />
-          <Property Name="UseFactor" Type="smallint" Nullable="false" />
-          <Property Name="LastManipulationDT" Type="datetime" Nullable="false" />
           <Property Name="InsertName" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="InsertDate" Type="datetime" Nullable="false" />
           <Property Name="UpdateName" Type="varchar" MaxLength="20" Nullable="false" />
@@ -289,6 +286,9 @@
           <Property Name="Divisor" Type="float" />
           <Property Name="ConvExpressionT" Type="varchar" MaxLength="200" />
           <Property Name="ConvExpressionS" Type="varchar" MaxLength="200" />
+          <Property Name="RelationWeight" Type="smallint" Nullable="false" />
+          <Property Name="UseFactor" Type="smallint" Nullable="false" />
+          <Property Name="LastManipulationDT" Type="datetime" Nullable="false" />
           <Property Name="IsDeactivated" Type="bit" Nullable="false" />
           <Property Name="DisplayGroup" Type="smallint" />
           <Property Name="GroupName" Type="varchar(max)" />
@@ -508,6 +508,14 @@
           <Property Name="ACClassID" Type="uniqueidentifier" />
           <Property Name="RefACClassID" Type="uniqueidentifier" />
         </EntityType>
+        <EntityType Name="ACProgramLogPropertyLog">
+          <Key>
+            <PropertyRef Name="ACProgramLogPropertyLogID" />
+          </Key>
+          <Property Name="ACProgramLogPropertyLogID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ACProgramLogID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ACPropertyLogID" Type="uniqueidentifier" Nullable="false" />
+        </EntityType>
         <EntityType Name="ACProgramLogTask">
           <Key>
             <PropertyRef Name="ACProgramLogTaskID" />
@@ -556,7 +564,7 @@
           <Property Name="ACProgramLogID" Type="uniqueidentifier" />
           <Property Name="EventTime" Type="datetime" Nullable="false" />
           <Property Name="Value" Type="varchar(max)" Nullable="false" />
-		  <Property Name="ACClassMessageID" Type="uniqueidentifier" />
+          <Property Name="ACClassMessageID" Type="uniqueidentifier" />
         </EntityType>
         <EntityType Name="ACPropertyLogRule">
           <Key>
@@ -799,7 +807,7 @@
           <Property Name="SessionCount" Type="int" Nullable="false" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'NKGV4.dbo.VBSystemColumns' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+warning 6002: The table/view 'IPlusMESV4demo.dbo.VBSystemColumns' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="VBSystemColumns">
           <Key>
             <PropertyRef Name="tablename" />
@@ -812,7 +820,7 @@ warning 6002: The table/view 'NKGV4.dbo.VBSystemColumns' does not have a primary
           <Property Name="columnnullable" Type="int" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="VBTranslationView">
           <Key>
             <PropertyRef Name="ACProjectName" />
@@ -1681,6 +1689,18 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ACProgramLogPropertyLog_ACPropertyLogID">
+          <End Role="ACPropertyLog" Type="Self.ACPropertyLog" Multiplicity="1" />
+          <End Role="ACProgramLogPropertyLog" Type="Self.ACProgramLogPropertyLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACPropertyLog">
+              <PropertyRef Name="ACPropertyLogID" />
+            </Principal>
+            <Dependent Role="ACProgramLogPropertyLog">
+              <PropertyRef Name="ACPropertyLogID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_ACProgramLogTask_ACProgramLogID">
           <End Role="ACProgramLog" Type="Self.ACProgramLog" Multiplicity="1">
             <OnDelete Action="Cascade" />
@@ -2068,6 +2088,7 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
           <EntitySet Name="ACProgram" EntityType="Self.ACProgram" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACProgramConfig" EntityType="Self.ACProgramConfig" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACProgramLog" EntityType="Self.ACProgramLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ACProgramLogPropertyLog" EntityType="Self.ACProgramLogPropertyLog" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACProgramLogTask" EntityType="Self.ACProgramLogTask" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACProject" EntityType="Self.ACProject" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ACPropertyLog" EntityType="Self.ACPropertyLog" Schema="dbo" store:Type="Tables" />
@@ -2379,6 +2400,10 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
           <AssociationSet Name="FK_ACProgramLog_ParentACProgramLogID" Association="Self.FK_ACProgramLog_ParentACProgramLogID">
             <End Role="ACProgramLog" EntitySet="ACProgramLog" />
             <End Role="ACProgramLog1" EntitySet="ACProgramLog" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ACProgramLogPropertyLog_ACPropertyLogID" Association="Self.FK_ACProgramLogPropertyLog_ACPropertyLogID">
+            <End Role="ACPropertyLog" EntitySet="ACPropertyLog" />
+            <End Role="ACProgramLogPropertyLog" EntitySet="ACProgramLogPropertyLog" />
           </AssociationSet>
           <AssociationSet Name="FK_ACProgramLogTask_ACProgramLogID" Association="Self.FK_ACProgramLogTask_ACProgramLogID">
             <End Role="ACProgramLog" EntitySet="ACProgramLog" />
@@ -2933,6 +2958,11 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
           <AssociationSet Name="FK_ACClassRouteUsageGroup_ACClassRouteUsage" Association="VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage">
             <End Role="ACClassRouteUsage" EntitySet="ACClassRouteUsage" />
             <End Role="ACClassRouteUsageGroup" EntitySet="ACClassRouteUsageGroup" />
+          </AssociationSet>
+          <EntitySet Name="ACProgramLogPropertyLog" EntityType="VarioiplusV3_devModel.ACProgramLogPropertyLog" />
+          <AssociationSet Name="FK_ACProgramLogPropertyLog_ACPropertyLogID" Association="VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID">
+            <End Role="ACPropertyLog" EntitySet="ACPropertyLog" />
+            <End Role="ACProgramLogPropertyLog" EntitySet="ACProgramLogPropertyLog" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="ACAssembly">
@@ -4667,6 +4697,7 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
           <Property Name="ACClassMessageID" Type="Guid" />
           <NavigationProperty Name="ACClass" Relationship="VarioiplusV3_devModel.FK_ACPropertyLog_ACClass" FromRole="ACPropertyLog" ToRole="ACClass" />
           <NavigationProperty Name="ACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACPropertyLog_ACClassProperty" FromRole="ACPropertyLog" ToRole="ACClassProperty" />
+          <NavigationProperty Name="ACProgramLogPropertyLog_ACPropertyLog" Relationship="VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID" FromRole="ACPropertyLog" ToRole="ACProgramLogPropertyLog" />
         </EntityType>
         <EntityType Name="ACPropertyLogRule">
           <Key>
@@ -5130,6 +5161,27 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
             </Principal>
             <Dependent Role="ACClassRouteUsageGroup">
               <PropertyRef Name="ACClassRouteUsageID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="ACProgramLogPropertyLog">
+          <Key>
+            <PropertyRef Name="ACProgramLogPropertyLogID" />
+          </Key>
+          <Property Name="ACProgramLogPropertyLogID" Type="Guid" Nullable="false" />
+          <Property Name="ACProgramLogID" Type="Guid" Nullable="false" />
+          <Property Name="ACPropertyLogID" Type="Guid" Nullable="false" />
+          <NavigationProperty Name="ACPropertyLog" Relationship="VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID" FromRole="ACProgramLogPropertyLog" ToRole="ACPropertyLog" />
+        </EntityType>
+        <Association Name="FK_ACProgramLogPropertyLog_ACPropertyLogID">
+          <End Type="VarioiplusV3_devModel.ACPropertyLog" Role="ACPropertyLog" Multiplicity="1" />
+          <End Type="VarioiplusV3_devModel.ACProgramLogPropertyLog" Role="ACProgramLogPropertyLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACPropertyLog">
+              <PropertyRef Name="ACPropertyLogID" />
+            </Principal>
+            <Dependent Role="ACProgramLogPropertyLog">
+              <PropertyRef Name="ACPropertyLogID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -5877,8 +5929,8 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
                 <ScalarProperty Name="ACProgramLogID" ColumnName="ACProgramLogID" />
                 <ScalarProperty Name="ACClassPropertyID" ColumnName="ACClassPropertyID" />
                 <ScalarProperty Name="ACClassID" ColumnName="ACClassID" />
-				<ScalarProperty Name="ACPropertyLogID" ColumnName="ACPropertyLogID" />
-				<ScalarProperty Name="ACClassMessageID" ColumnName="ACClassMessageID" />
+                <ScalarProperty Name="ACPropertyLogID" ColumnName="ACPropertyLogID" />
+                <ScalarProperty Name="ACClassMessageID" ColumnName="ACClassMessageID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -5999,6 +6051,15 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
                 <ScalarProperty Name="GroupID" ColumnName="GroupID" />
                 <ScalarProperty Name="ACClassRouteUsageID" ColumnName="ACClassRouteUsageID" />
                 <ScalarProperty Name="ACClassRouteUsageGroupID" ColumnName="ACClassRouteUsageGroupID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ACProgramLogPropertyLog">
+            <EntityTypeMapping TypeName="VarioiplusV3_devModel.ACProgramLogPropertyLog">
+              <MappingFragment StoreEntitySet="ACProgramLogPropertyLog">
+                <ScalarProperty Name="ACPropertyLogID" ColumnName="ACPropertyLogID" />
+                <ScalarProperty Name="ACProgramLogID" ColumnName="ACProgramLogID" />
+                <ScalarProperty Name="ACProgramLogPropertyLogID" ColumnName="ACProgramLogPropertyLogID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -6161,6 +6222,8 @@ warning 6002: The table/view 'NKGV4.dbo.VBTranslationView' does not have a prima
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassRouteUsagePos_ACClassRouteUsage" />
         <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassRouteUsageGroup" Width="1.5" PointX="9.625" PointY="4.375" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage" />
+        <EntityTypeShape EntityType="VarioiplusV3_devModel.ACProgramLogPropertyLog" Width="1.5" PointX="17" PointY="43.875" />
+        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID" />
       </Diagram>
     </Diagrams>
   </Designer>
