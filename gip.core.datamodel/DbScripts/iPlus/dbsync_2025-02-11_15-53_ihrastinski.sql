@@ -1,0 +1,1 @@
+alter table ACProgramLogPropertyLog alter column ACProgramLogID uniqueidentifier null

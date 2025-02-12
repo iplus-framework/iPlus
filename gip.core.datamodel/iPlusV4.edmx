@@ -513,7 +513,7 @@
             <PropertyRef Name="ACProgramLogPropertyLogID" />
           </Key>
           <Property Name="ACProgramLogPropertyLogID" Type="uniqueidentifier" Nullable="false" />
-          <Property Name="ACProgramLogID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ACProgramLogID" Type="uniqueidentifier" />
           <Property Name="ACPropertyLogID" Type="uniqueidentifier" Nullable="false" />
         </EntityType>
         <EntityType Name="ACProgramLogTask">
@@ -5169,7 +5169,7 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
             <PropertyRef Name="ACProgramLogPropertyLogID" />
           </Key>
           <Property Name="ACProgramLogPropertyLogID" Type="Guid" Nullable="false" />
-          <Property Name="ACProgramLogID" Type="Guid" Nullable="false" />
+          <Property Name="ACProgramLogID" Type="Guid" />
           <Property Name="ACPropertyLogID" Type="Guid" Nullable="false" />
           <NavigationProperty Name="ACPropertyLog" Relationship="VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID" FromRole="ACProgramLogPropertyLog" ToRole="ACPropertyLog" />
         </EntityType>

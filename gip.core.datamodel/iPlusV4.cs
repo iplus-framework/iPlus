@@ -16463,13 +16463,11 @@ namespace gip.core.datamodel
         /// Create a new ACProgramLogPropertyLog object.
         /// </summary>
         /// <param name="aCProgramLogPropertyLogID">Initial value of the ACProgramLogPropertyLogID property.</param>
-        /// <param name="aCProgramLogID">Initial value of the ACProgramLogID property.</param>
         /// <param name="aCPropertyLogID">Initial value of the ACPropertyLogID property.</param>
-        public static ACProgramLogPropertyLog CreateACProgramLogPropertyLog(global::System.Guid aCProgramLogPropertyLogID, global::System.Guid aCProgramLogID, global::System.Guid aCPropertyLogID)
+        public static ACProgramLogPropertyLog CreateACProgramLogPropertyLog(global::System.Guid aCProgramLogPropertyLogID, global::System.Guid aCPropertyLogID)
         {
             ACProgramLogPropertyLog aCProgramLogPropertyLog = new ACProgramLogPropertyLog();
             aCProgramLogPropertyLog.ACProgramLogPropertyLogID = aCProgramLogPropertyLogID;
-            aCProgramLogPropertyLog.ACProgramLogID = aCProgramLogID;
             aCProgramLogPropertyLog.ACPropertyLogID = aCPropertyLogID;
             return aCProgramLogPropertyLog;
         }
@@ -16508,9 +16506,9 @@ namespace gip.core.datamodel
         /// <summary>
         /// 
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
         [DataMemberAttribute()]
-        public  global::System.Guid ACProgramLogID
+        public  Nullable<global::System.Guid> ACProgramLogID
         {
             get
             {
@@ -16525,8 +16523,8 @@ namespace gip.core.datamodel
                 OnACProgramLogIDChanged();
             }
         }
-        private global::System.Guid _ACProgramLogID;
-        partial void OnACProgramLogIDChanging(global::System.Guid value);
+        private Nullable<global::System.Guid> _ACProgramLogID;
+        partial void OnACProgramLogIDChanging(Nullable<global::System.Guid> value);
         partial void OnACProgramLogIDChanged();
     
         /// <summary>
