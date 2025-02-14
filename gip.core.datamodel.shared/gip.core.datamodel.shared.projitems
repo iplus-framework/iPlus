@@ -10,8 +10,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\ACUrl\ACUrlHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\CallerArgumentExpressionAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\EntityBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\GS1Parser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\ValueTracer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Performance\PerformanceEvent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Performance\PerformanceLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Performance\PerformanceLoggerInstance.cs" />

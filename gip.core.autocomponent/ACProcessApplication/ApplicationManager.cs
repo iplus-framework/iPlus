@@ -179,6 +179,21 @@ namespace gip.core.autocomponent
             set;
         }
 
+        bool _ValueTraceOn = false;
+        [ACPropertyInfo(true, 999, "ACConfig", "en{'Trace value changes'}de{'Wertänderungsnachverfolgung'}", "", DefaultValue = false)]
+        public bool ValueTraceOn
+        {
+            get
+            {
+                return _ValueTraceOn;
+            }
+            set
+            {
+                _ValueTraceOn = value;
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>
         /// Overriden: Returns the Database-Context for Application-Managers (RootDbOpQueue.AppContext)
         /// </summary>
