@@ -33,11 +33,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.visualcontrols", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.chart", "gip.ext.chart\gip.ext.chart.csproj", "{25779059-D15F-48CD-88BD-7DEA111A2036}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.designer", "gip.ext.designer\Project\gip.ext.designer.csproj", "{78CC29AC-CC79-4355-B1F2-97936DF198AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.designer", "gip.ext.designer\project\gip.ext.designer.csproj", "{78CC29AC-CC79-4355-B1F2-97936DF198AC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.widgets", "gip.ext.widgets\Project\gip.ext.widgets.csproj", "{8035765F-D51F-4A0C-A746-2FD100E19419}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.widgets", "gip.ext.widgets\project\gip.ext.widgets.csproj", "{8035765F-D51F-4A0C-A746-2FD100E19419}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.xamldom", "gip.ext.xamldom\Project\gip.ext.xamldom.csproj", "{88DA149F-21B2-48AB-82C4-28FB6BDFD783}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.xamldom", "gip.ext.xamldom\project\gip.ext.xamldom.csproj", "{88DA149F-21B2-48AB-82C4-28FB6BDFD783}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.ext.graphics", "gip.ext.graphics\gip.ext.graphics.csproj", "{889DAD2E-8E03-4A47-9A24-8EE759B37A70}"
 EndProject
