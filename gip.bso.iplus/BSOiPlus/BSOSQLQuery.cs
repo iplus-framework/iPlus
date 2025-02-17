@@ -62,6 +62,16 @@ namespace gip.bso.iplus
             return true;
         }
 
+        public override bool ACDeInit(bool deleteACClassTask = false)
+        {
+            if (_SelectedSQLScript != null)
+            {
+                CorrectEmptyScript(_SelectedSQLScript);
+            }
+            ACSaveChanges();
+            return base.ACDeInit(deleteACClassTask);
+        }
+
 
         #endregion
 
@@ -142,31 +152,14 @@ namespace gip.bso.iplus
             {
                 if (_SelectedSQLScript != value)
                 {
-                    if (_SelectedSQLScript != null)
+                    if(_SelectedSQLScript != null)
                     {
-                        _SelectedSQLScript.PropertyChanged -= _SelectedSQLScript_PropertyChanged;
+                        CorrectEmptyScript(_SelectedSQLScript);
                     }
                     _SelectedSQLScript = value;
-                    if (_SelectedSQLScript != null)
-                    {
-                        _SelectedSQLScript.PropertyChanged += _SelectedSQLScript_PropertyChanged;
-                    }
                     OnPropertyChanged(nameof(SelectedSQLScript));
-
                     SQLScriptResult = null;
                     OnPropertyChanged(nameof(SQLScriptResult));
-                }
-            }
-        }
-
-        private void _SelectedSQLScript_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(SelectedSQLScript.Sourcecode))
-            {
-                ACClassMethod mth = (ACClassMethod)sender;
-                if (mth.Sourcecode == null)
-                {
-                    mth.Sourcecode = "";
                 }
             }
         }
@@ -495,6 +488,14 @@ namespace gip.bso.iplus
             return query;
         }
 
+
+        private void CorrectEmptyScript(ACClassMethod mth)
+        {
+            if (string.IsNullOrEmpty(mth.Sourcecode))
+            {
+                mth.Sourcecode = "--";
+            }
+        }
         #endregion
 
         #endregion
