@@ -144,7 +144,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        public void UpdateDate(bool updateEndDateTime)
+        public bool UpdateDate(bool updateEndDateTime)
         {
             if (UserStartDate.HasValue)
             {
@@ -157,6 +157,11 @@ namespace gip.core.autocomponent
                 DateTime temp = UserEndDateTemp.Value;
                 UserEndDate = new DateTime(temp.Year, temp.Month, temp.Day, UserEndTime.Hours, UserEndTime.Minutes, UserEndTime.Seconds);
             }
+
+            if (UserEndDate.HasValue)
+                return UserStartDate < UserEndDate;
+
+            return UserStartDate < UserEndDateTemp;
         }
     }
 }
