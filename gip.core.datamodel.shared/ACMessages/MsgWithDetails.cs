@@ -221,8 +221,10 @@ namespace gip.core.datamodel
                         _MsgDetails.Add(chMsg);
                     }
                 }
-                else
+                else if(!string.IsNullOrEmpty(msg.Message))
+                {
                     _MsgDetails.Add(msg);
+                }
             }
             else
             {
