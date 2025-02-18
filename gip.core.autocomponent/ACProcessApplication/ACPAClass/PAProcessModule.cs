@@ -413,6 +413,20 @@ namespace gip.core.autocomponent
             }
         }
 
+        public IEnumerable<ACProgramLog> CurrentProgramLogs
+        {
+            get
+            {
+                if (Semaphore.ConnectionListCount <= 0)
+                    return null;
+                var wrapPWGroups = Semaphore.ConnectionList.ToList();
+                if (wrapPWGroups == null || !wrapPWGroups.Any())
+                    return null;
+
+                return wrapPWGroups.Where(c => c.ValueT != null && c.ValueT is PWGroup).Select(c => (c.ValueT as PWGroup).CurrentProgramLog);
+            }
+        }
+
         public SafeList<Msg> AttachedAlarms 
         {
             get;
@@ -551,10 +565,40 @@ namespace gip.core.autocomponent
 
         public virtual void OnProcessModuleOccupied(PWGroup pwGroup)
         {
+            ConnectProgramLogWithPropertyLog(pwGroup);
         }
 
         public virtual void OnProcessModuleReleased(PWGroup pwGroup)
         {
+        }
+
+        private void ConnectProgramLogWithPropertyLog(PWGroup pwGroup)
+        {
+            Guid? primaryProgramLogID = CurrentProgramLog?.ACProgramLogID;
+            Guid? programLogID = pwGroup?.CurrentProgramLog?.ACProgramLogID;
+            if (programLogID.HasValue && primaryProgramLogID.HasValue && programLogID.Value != primaryProgramLogID.Value)
+            {
+                using (Database db = new core.datamodel.Database())
+                {
+                    ACProgramLogPropertyLog currentPropertyLog = db.ACProgramLogPropertyLog.Where(c => c.ACProgramLogID.HasValue && c.ACProgramLogID.Value == primaryProgramLogID)
+                                                                                           .OrderByDescending(c => c.ACPropertyLog.EventTime)
+                                                                                           .FirstOrDefault();
+                    if (currentPropertyLog != null && currentPropertyLog.ACProgramLogID != programLogID)
+                    {
+                        bool exist = db.ACProgramLogPropertyLog.Where(c => c.ACProgramLogID == programLogID.Value
+                                                           && c.ACPropertyLogID == currentPropertyLog.ACProgramLogID).Any();
+
+                        if (!exist)
+                        {
+                            ACProgramLogPropertyLog newPropertyLog = ACProgramLogPropertyLog.NewACObject(db, currentPropertyLog.ACPropertyLog);
+                            newPropertyLog.ACProgramLogID = programLogID.Value;
+                            db.ACProgramLogPropertyLog.AddObject(newPropertyLog);
+                            db.ACSaveChanges();
+                        }
+                    }
+                }
+            }
+
         }
 
         #region IACComponentTaskExec

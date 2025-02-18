@@ -1078,21 +1078,24 @@ namespace gip.bso.iplus
             {
                 ACPropertyLog_ACProgramLog currentLog = propLogs.FirstOrDefault();
                 DateTime dateTime = currentLog.PropertyLog.EventTime.AddMilliseconds(-2);
-                ACPropertyLog_ACProgramLog prevLog = db.ACPropertyLog
-                                                        .Include(c => c.ACClass.ACClass1_ParentACClass.ACClass1_ParentACClass)
-                                                        .Include(c => c.ACClassProperty)
-                                                        .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog })
-                                                        .Where(c =>    c.propLog.ACClassID == currentLog.PropertyLog.ACClassID 
-                                                                    && c.propLog.ACClassPropertyID == currentLog.PropertyLog.ACClassPropertyID 
-                                                                    && c.propLog.EventTime < dateTime)
-                                                        .OrderByDescending(x => x.propLog.EventTime)
-                                                        .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.propLog, ProgramLog = c.programLog })
-                                                        .FirstOrDefault();
+                ACPropertyLog_ACProgramLog prevLog = db.ACProgramLogPropertyLog.Include(c => c.ACPropertyLog.ACClassProperty)
+                                                             .Include(c => c.ACPropertyLog.ACClass.ACClass1_ParentACClass.ACClass1_ParentACClass)
+                                                             .GroupJoin(db.ACProgramLog,
+                                                                        propLog => propLog.ACProgramLogID,
+                                                                        programLog => programLog.ACProgramLogID,
+                                                                        (propLog, programLog) => new { propLog, programLog })
+                                                             .Where(c => c.propLog.ACPropertyLog.ACClassID == currentLog.PropertyLog.ACClassID
+                                                                      && c.propLog.ACPropertyLog.ACClassProperty.ACClassPropertyID == currentLog.PropertyLog.ACClassPropertyID
+                                                                      && c.propLog.ACPropertyLog.EventTime < dateTime)
+                                                             .GroupBy(c => c.propLog.ACPropertyLog)
+                                                             .OrderByDescending(x => x.Key.EventTime)
+                                                             .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.Key, ProgramLog = c.SelectMany(x => x.programLog) })
+                                                             .FirstOrDefault();
 
                 if (prevLog != null)
                 {
                     object logValue = ACConvert.XMLToObject(acClassProperty.ObjectType, prevLog.PropertyLog.Value, true, db);
-                    resultList.Add(new ACPropertyLogInfo(FromDate, currentLog.PropertyLog.EventTime, logValue, "") { PropertyLog = prevLog.PropertyLog, ProgramLog = prevLog.ProgramLog });
+                    resultList.Add(new ACPropertyLogInfo(FromDate, currentLog.PropertyLog.EventTime, logValue, "") { PropertyLog = prevLog.PropertyLog, ProgramLog = prevLog.ProgramLog.ToList() });
                 }
             }
             else
@@ -1103,13 +1106,13 @@ namespace gip.bso.iplus
                     ACPropertyLog_ACProgramLog propLogNext = propLogs[i + 1];
 
                     object logValue = ACConvert.XMLToObject(acClassProperty.ObjectType, propLog.PropertyLog.Value, true, db);
-                    resultList.Add(new ACPropertyLogInfo(propLog.PropertyLog.EventTime, propLogNext.PropertyLog.EventTime, logValue, "") { PropertyLog = propLog.PropertyLog, ProgramLog = propLog.ProgramLog });
+                    resultList.Add(new ACPropertyLogInfo(propLog.PropertyLog.EventTime, propLogNext.PropertyLog.EventTime, logValue, "") { PropertyLog = propLog.PropertyLog, ProgramLog = propLog.ProgramLog.ToList() });
                 }
             }
 
             ACPropertyLog_ACProgramLog lastLog = propLogs.LastOrDefault();
             object logValueLast = ACConvert.XMLToObject(acClassProperty.ObjectType, lastLog.PropertyLog.Value, true, db);
-            resultList.Add(new ACPropertyLogInfo(lastLog.PropertyLog.EventTime, ToDate, logValueLast, "") { PropertyLog = lastLog.PropertyLog, ProgramLog = lastLog.ProgramLog });
+            resultList.Add(new ACPropertyLogInfo(lastLog.PropertyLog.EventTime, ToDate, logValueLast, "") { PropertyLog = lastLog.PropertyLog, ProgramLog = lastLog.ProgramLog.ToList() });
 
             return resultList;
         }
