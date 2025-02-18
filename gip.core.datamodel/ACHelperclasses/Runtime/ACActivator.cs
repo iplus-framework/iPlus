@@ -289,7 +289,17 @@ namespace gip.core.datamodel
                 bool recycled = false;
                 IACComponent componentParent = acComponentParent as IACComponent;
                 if (componentParent != null)
-                    newACObject = componentParent.Root.ComponentPool.Pop(acClass);
+                {
+                    // If not multiinstance verify if component already exists
+                    if (!acClass.IsMultiInstanceInherited)
+                    {
+                        newACObject = componentParent.ACComponentChilds.Where(c => c.ACIdentifier == acClass.ACIdentifier).FirstOrDefault();
+                        if (newACObject != null)
+                            return newACObject;
+                    }
+                    if (newACObject == null)
+                        newACObject = componentParent.Root.ComponentPool.Pop(acClass);
+                }
                 if (newACObject != null)
                 {
 #if DEBUG
@@ -317,21 +327,21 @@ namespace gip.core.datamodel
                     newACObject = Activator.CreateInstance(acObjectType, new Object[] { acClass, content, acComponentParent, parameter, acIdentifier }) as IACObjectWithInit;
                 }
 
-                // Wenn nicht IsMultiInstance und schon instanziiert dann keine neue Instanz möglich
-                if (!acClass.IsMultiInstanceInherited && componentParent != null)
-                {
-                    if (componentParent.ACComponentChilds.Where(c => c.ACIdentifier == newACObject.ACIdentifier).Any())
-                    {
-                        if (recycled)
-                        {
-                            if (newACObject.ACPreDeInit(true))
-                            {
-                                newACObject.ACDeInit(true);
-                            }
-                        }
-                        return null;
-                    }
-                }
+                // If not multiinstance verify if component already exists
+                //if (!acClass.IsMultiInstanceInherited && componentParent != null)
+                //{
+                //    if (componentParent.ACComponentChilds.Where(c => c.ACIdentifier == newACObject.ACIdentifier).Any())
+                //    {
+                //        if (recycled)
+                //        {
+                //            if (newACObject.ACPreDeInit(true))
+                //            {
+                //                newACObject.ACDeInit(true);
+                //            }
+                //        }
+                //        return null;
+                //    }
+                //}
 
                 currentThreadInACInit = ACActivator.CurrentInitializingThread;
                 if (currentThreadInACInit.InstanceDepth <= 0)

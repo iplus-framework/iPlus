@@ -18,7 +18,7 @@ namespace gip.bso.iplus
         void SwitchToViewOnAlarm(Msg msgAlarm);
     }
 
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Alarm explorer'}de{'Alarm explorer'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Alarm explorer'}de{'Alarm explorer'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true)]
     public class BSOAlarmExplorer : ACBSO
     {
         #region c'tors
@@ -43,6 +43,10 @@ namespace gip.bso.iplus
                 SearchTo = DateTime.Now;
 
             InitializeBackgroundWorker();
+            if (!_backgroundWorker.IsBusy)
+                _backgroundWorker.RunWorkerAsync();
+
+            SubscribeEvents();
 
             return true;
         }
@@ -408,8 +412,12 @@ namespace gip.bso.iplus
 
         #region Methods => Live
 
+        private bool _Subscribed = false;
         private void SubscribeEvents()
         {
+            if (_Subscribed)
+                return;
+            _Subscribed = true;
             foreach (IACComponent appManager in Root.ACComponentChilds.Where(c => c is ApplicationManager || c is ApplicationManagerProxy))
             {
                 EventSubscription.SubscribeEvent(appManager, "AlarmChangedEvent", EventCallback);
@@ -420,10 +428,13 @@ namespace gip.bso.iplus
 
         private void UnSubscribeEvents()
         {
+            if (!_Subscribed)
+                return;
             foreach (IACComponent appManager in Root.ACComponentChilds.Where(c => c is ApplicationManager || c is ApplicationManagerProxy))
             {
                 EventSubscription.UnSubscribeAllEvents(appManager);
             }
+            _Subscribed = false;
         }
 
         private void InitializeBackgroundWorker()
@@ -667,7 +678,7 @@ namespace gip.bso.iplus
         public void NavigateToVisualisation()
         {
             bool startNewBSO = false;
-            if (_BSOAlarmPresenter != null)
+            if (_BSOAlarmPresenter != null || CurrentACMsgAlarm == null)
                 return;
             _DelegateFocus = null;
             _DelegatedMsgAlarm = null;
@@ -875,24 +886,37 @@ namespace gip.bso.iplus
                 {
                     using (ACMonitor.Lock(_60201_AppManagerInvokersLock))
                     {
+                        //foreach (var item in _QueryResultNew)
+                        //{
+                        //    List<Msg> existingAlarms;
+                        //    if (_QueryResultCache.TryGetValue(item.Key, out existingAlarms))
+                        //    {
+                        //        foreach (Msg alarm in existingAlarms)
+                        //        {
+                        //            _ACMsgAlarmList.Remove(alarm);
+                        //        }
+                        //    }
+                        //    else
+                        //        _QueryResultCache.Add(item.Key, null);
+
+                        //    _QueryResultCache[item.Key] = item.Value;
+                        //    foreach (Msg alarm in item.Value.OrderBy(c => c.TimeStampOccurred))
+                        //    {
+                        //        _ACMsgAlarmList.Insert(0, alarm);
+                        //    }
+                        //}
+
+                        List <Msg> allNewAlarms = new List<Msg>();
+
                         foreach (var item in _QueryResultNew)
                         {
-                            List<Msg> existingAlarms;
-                            if (_QueryResultCache.TryGetValue(item.Key, out existingAlarms))
-                            {
-                                foreach (Msg alarm in existingAlarms)
-                                {
-                                    _ACMsgAlarmList.Remove(alarm);
-                                }
-                            }
-                            else
-                                _QueryResultCache.Add(item.Key, null);
-
                             _QueryResultCache[item.Key] = item.Value;
-                            foreach (Msg alarm in item.Value.OrderBy(c => c.TimeStampOccurred))
-                            {
-                                _ACMsgAlarmList.Insert(0, alarm);
-                            }
+                            allNewAlarms.AddRange(item.Value);
+                        }
+                        _ACMsgAlarmList.Clear();
+                        foreach (var item in allNewAlarms.OrderByDescending(c => c.TimeStampOccurred))
+                        {
+                            _ACMsgAlarmList.Add(item);
                         }
                     }
 
@@ -912,61 +936,61 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"ShowAlarmExplorer":
+                case nameof(ShowAlarmExplorer):
                     ShowAlarmExplorer();
                     return true;
-                case"AcknowledgeCurrent":
+                case nameof(AcknowledgeCurrent):
                     AcknowledgeCurrent();
                     return true;
-                case"IsEnabledAcknowledgeCurrent":
+                case nameof(IsEnabledAcknowledgeCurrent):
                     result = IsEnabledAcknowledgeCurrent();
                     return true;
-                case"AcknowledgeAll":
+                case nameof(AcknowledgeAll):
                     AcknowledgeAll();
                     return true;
-                case"IsEnabledAcknowledgeAll":
+                case nameof(IsEnabledAcknowledgeAll):
                     result = IsEnabledAcknowledgeAll();
                     return true;
-                case "SetAlarmMessengerConfig":
+                case nameof(SetAlarmMessengerConfig):
                     SetAlarmMessengerConfig();
                     return true;
-                case "IsEnabledSetAlarmMessengerConfig":
+                case nameof(IsEnabledSetAlarmMessengerConfig):
                     result = IsEnabledSetAlarmMessengerConfig();
                     return true;
-                case "UnsetAlarmMessengerConfig":
+                case nameof(UnsetAlarmMessengerConfig):
                     UnsetAlarmMessengerConfig();
                     return true;
-                case "IsEnabledUnsetAlarmMessengerConfig":
+                case nameof(IsEnabledUnsetAlarmMessengerConfig):
                     result = IsEnabledUnsetAlarmMessengerConfig();
                     return true;
-                case "SetExclusionRule":
+                case nameof(SetExclusionRule):
                     SetExclusionRule();
                     return true;
-                case "IsEnabledSetExclusionRule":
+                case nameof(IsEnabledSetExclusionRule):
                     result = IsEnabledSetExclusionRule();
                     return true;
-                case "RemoveExclusionRule":
+                case nameof(RemoveExclusionRule):
                     RemoveExclusionRule();
                     return true;
-                case "IsEnabledRemoveExclusionRule":
+                case nameof(IsEnabledRemoveExclusionRule):
                     result = IsEnabledRemoveExclusionRule();
                     return true;
-                case "NavigateToVisualisation":
+                case nameof(NavigateToVisualisation):
                     NavigateToVisualisation();
                     return true;
-                case "IsEnabledNavigateToVisualisation":
+                case nameof(IsEnabledNavigateToVisualisation):
                     result = IsEnabledNavigateToVisualisation();
                     return true;
-                case "EventCallback":
+                case nameof(EventCallback):
                     EventCallback((IACPointNetBase)acParameter[0], (ACEventArgs)acParameter[1], (IACObject)acParameter[2]);
                     return true;
-                case "ShowAlarmArchiveExplorer":
+                case nameof(ShowAlarmArchiveExplorer):
                     ShowAlarmArchiveExplorer();
                     return true;
-                case "Search":
+                case nameof(Search):
                     Search();
                     return true;
-                case "IsEnabledSearch":
+                case nameof(IsEnabledSearch):
                     result = IsEnabledSearch();
                     return true;
                     

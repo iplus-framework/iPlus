@@ -1107,18 +1107,12 @@ namespace gip.iplus.client
 
         private void WarningIcon_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            bool isNewComponent = false;
-            IACComponent bsoAlarmExplorer = ACRoot.SRoot.Businessobjects.FindChildComponents<gip.bso.iplus.BSOAlarmExplorer>().FirstOrDefault();
-            if (bsoAlarmExplorer == null)
-            {
-                bsoAlarmExplorer = ACRoot.SRoot.Businessobjects.StartComponent("BSOAlarmExplorer", this, null);
-                isNewComponent = true;
-            }
+            IACComponent bsoAlarmExplorer = ACRoot.SRoot.Businessobjects.StartComponent("BSOAlarmExplorer", this, null);
             if (bsoAlarmExplorer != null)
+            {
                 bsoAlarmExplorer.ACUrlCommand("!ShowAlarmExplorer");
-
-            if (isNewComponent && bsoAlarmExplorer != null)
                 bsoAlarmExplorer.Stop();
+            }
         }
 
     }
