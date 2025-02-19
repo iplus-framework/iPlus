@@ -217,7 +217,7 @@ namespace gip.core.autocomponent
 
                     ACPropertyLog propertyLog = ACPropertyLog.NewACObject(db, acClass);
                     propertyLog.ACClassPropertyID = acClassProperty.ACClassPropertyID;
-                    propertyLog.EventTime = eventTime;
+                    propertyLog.EventTime = OnEditEventTime(eventTime, acClass, acClassProperty, value, db);
                     propertyLog.Value = ACConvert.ChangeType(value, typeof(string), true, db) as string;
                     //propertyLog.ACProgramLogID = acProgramLogID;
                     propertyLog.ACClassMessageID = acClassMessageID;
@@ -247,6 +247,11 @@ namespace gip.core.autocomponent
             {
                 Messages.LogException(this.GetACUrl(), "LogProperty(30)", e);
             }
+        }
+
+        protected virtual DateTime OnEditEventTime(DateTime eventTime, ACClass acClass, ACClassProperty acClassProperty, object value, Database db)
+        {
+            return eventTime;
         }
 
         private void ApplicationManager_ProjectWorkCycleR1min(object sender, EventArgs e)

@@ -122,6 +122,43 @@ namespace gip.core.processapplication
 
             return base.OnGetPropertyLogMessageID(args);
         }
+
+        protected override DateTime OnEditEventTime(DateTime eventTime, ACClass acClass, ACClassProperty acClassProperty, object value, Database db)
+        {
+            if (acClassProperty.ACIdentifier == nameof(IPAOEEProvider.AvailabilityState))
+            {
+                AvailabilityState? state = value as AvailabilityState?;
+                if (state.HasValue && state.Value == AvailabilityState.Idle)
+                {
+                    var propertyLog = db.ACProgramLogPropertyLog.Include(c => c.ACPropertyLog.ACClassProperty)
+                                                                .Include(c => c.ACPropertyLog.ACClass)
+                                                                .GroupJoin(db.ACProgramLog,
+                                                                           propLog => propLog.ACProgramLogID,
+                                                                           programLog => programLog.ACProgramLogID,
+                                                                           (propLog, programLog) => new { propLog, programLog })
+                                                                .Where(c => c.propLog.ACPropertyLog.ACClassID == acClass.ACClassID
+                                                                         && c.propLog.ACPropertyLog.ACClassPropertyID == acClassProperty.ACClassPropertyID)
+                                                                .OrderByDescending(c => c.propLog.ACPropertyLog.EventTime)
+                                                                .FirstOrDefault();
+
+                    if (propertyLog != null)
+                    {
+                        DateTime? programLogEnd = propertyLog.programLog.Where(c => c.EndDate.HasValue).OrderByDescending(c => c.EndDate).FirstOrDefault()?.EndDate;
+                        if (programLogEnd.HasValue)
+                        {
+                            TimeSpan diff = eventTime - programLogEnd.Value;
+                            double totalSec = Math.Abs(diff.TotalSeconds);
+
+                            if (totalSec > 300)
+                                return programLogEnd.Value;
+                        }
+                    }
+                }
+            }
+
+            return base.OnEditEventTime(eventTime, acClass, acClassProperty, value, db);
+        }
+
         #endregion
     }
 }
