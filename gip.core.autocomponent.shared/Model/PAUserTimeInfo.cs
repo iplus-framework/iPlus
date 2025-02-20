@@ -76,6 +76,8 @@ namespace gip.core.autocomponent
             {
                 _UserStartTime = value;
                 OnPropertyChanged();
+                UpdateDate(false);
+                OnPropertyChanged(nameof(Duration));
             }
         }
 
@@ -106,19 +108,20 @@ namespace gip.core.autocomponent
             {
                 _UserEndDateTemp = value;
                 OnPropertyChanged();
+                UpdateDate(true);
                 OnPropertyChanged(nameof(Duration));
             }
         }
 
         [IgnoreDataMember]
-        public TimeSpan Duration
+        public string Duration
         {
             get
             {
                 if (!UserStartDate.HasValue || !UserEndDateTemp.HasValue)
-                    return TimeSpan.Zero;
+                    return TimeSpan.Zero.ToString(@"d\.hh\:mm");
 
-                return UserEndDateTemp.Value - UserStartDate.Value;
+                return (UserEndDateTemp.Value - UserStartDate.Value).ToString(@"d\.hh\:mm");
             }
         }
 
