@@ -158,7 +158,10 @@ namespace gip.core.autocomponent
             if (updateEndDateTime)
             {
                 DateTime temp = UserEndDateTemp.Value;
-                UserEndDate = new DateTime(temp.Year, temp.Month, temp.Day, UserEndTime.Hours, UserEndTime.Minutes, UserEndTime.Seconds);
+                if(UserEndTime.TotalSeconds != 0)
+                {
+                    UserEndDate = new DateTime(temp.Year, temp.Month, temp.Day, UserEndTime.Hours, UserEndTime.Minutes, UserEndTime.Seconds);
+                }
             }
 
             if (UserEndDate.HasValue)
