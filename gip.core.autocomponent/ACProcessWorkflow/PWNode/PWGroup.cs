@@ -1260,8 +1260,13 @@ namespace gip.core.autocomponent
             UnSubscribeToProjectWorkCycle();
 
             PAProcessModule module = AccessedProcessModule;
-            if (!OccupationByScan || !(TimeInfo.ValueT != null && TimeInfo.ValueT.ActualTimes != null && TimeInfo.ValueT.ActualTimes.EndTimeValue.HasValue))
+            if (!OccupationByScan || !(TimeInfo.ValueT != null && TimeInfo.ValueT.ActualTimes != null
+                                                               && TimeInfo.ValueT.ActualTimes.EndTimeValue.HasValue
+                                                               && TimeInfo.ValueT.ActualTimes.StartTimeValue != TimeInfo.ValueT.ActualTimes.EndTimeValue))
+            {
                 RecalcTimeInfo();
+            }
+
             FinishProgramLog(ExecutingACMethod, module != null ? module.ComponentClass.ACClassID : (Guid?)null);
             IterationCount.ValueT++;
 
