@@ -16,7 +16,7 @@ namespace gip.core.datamodel
         /// Creates a new object of the ACProgramLogPropertyLog.
         /// </summary>
         /// <param name="db">The database context.</param>
-        /// <param name="acClass">The ACClass reference.</param>
+        /// <param name="propertyLog">The ACPropertyLog reference.</param>
         /// <returns>The created object.</returns>
         public static ACProgramLogPropertyLog NewACObject(Database db, ACPropertyLog propertyLog)
         {

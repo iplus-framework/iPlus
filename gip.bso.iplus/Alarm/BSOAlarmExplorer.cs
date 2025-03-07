@@ -886,38 +886,38 @@ namespace gip.bso.iplus
                 {
                     using (ACMonitor.Lock(_60201_AppManagerInvokersLock))
                     {
-                        //foreach (var item in _QueryResultNew)
-                        //{
-                        //    List<Msg> existingAlarms;
-                        //    if (_QueryResultCache.TryGetValue(item.Key, out existingAlarms))
-                        //    {
-                        //        foreach (Msg alarm in existingAlarms)
-                        //        {
-                        //            _ACMsgAlarmList.Remove(alarm);
-                        //        }
-                        //    }
-                        //    else
-                        //        _QueryResultCache.Add(item.Key, null);
-
-                        //    _QueryResultCache[item.Key] = item.Value;
-                        //    foreach (Msg alarm in item.Value.OrderBy(c => c.TimeStampOccurred))
-                        //    {
-                        //        _ACMsgAlarmList.Insert(0, alarm);
-                        //    }
-                        //}
-
-                        List <Msg> allNewAlarms = new List<Msg>();
-
                         foreach (var item in _QueryResultNew)
                         {
+                            List<Msg> existingAlarms;
+                            if (_QueryResultCache.TryGetValue(item.Key, out existingAlarms))
+                            {
+                                foreach (Msg alarm in existingAlarms)
+                                {
+                                    _ACMsgAlarmList.Remove(alarm);
+                                }
+                            }
+                            else
+                                _QueryResultCache.Add(item.Key, null);
+
                             _QueryResultCache[item.Key] = item.Value;
-                            allNewAlarms.AddRange(item.Value);
+                            foreach (Msg alarm in item.Value.OrderBy(c => c.TimeStampOccurred))
+                            {
+                                _ACMsgAlarmList.Insert(0, alarm);
+                            }
                         }
-                        _ACMsgAlarmList.Clear();
-                        foreach (var item in allNewAlarms.OrderByDescending(c => c.TimeStampOccurred))
-                        {
-                            _ACMsgAlarmList.Add(item);
-                        }
+
+                        //List <Msg> allNewAlarms = new List<Msg>();
+
+                        //foreach (var item in _QueryResultNew)
+                        //{
+                        //    _QueryResultCache[item.Key] = item.Value;
+                        //    allNewAlarms.AddRange(item.Value);
+                        //}
+                        //_ACMsgAlarmList.Clear();
+                        //foreach (var item in allNewAlarms.OrderByDescending(c => c.TimeStampOccurred))
+                        //{
+                        //    _ACMsgAlarmList.Add(item);
+                        //}
                     }
 
                     _QueryDone = false;

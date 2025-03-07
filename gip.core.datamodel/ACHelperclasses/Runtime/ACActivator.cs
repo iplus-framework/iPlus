@@ -286,7 +286,9 @@ namespace gip.core.datamodel
             int creationToken = -1;
             try
             {
+#if DEBUG
                 bool recycled = false;
+#endif
                 IACComponent componentParent = acComponentParent as IACComponent;
                 if (componentParent != null)
                 {
@@ -313,7 +315,9 @@ namespace gip.core.datamodel
                     IACObject contentACObject = content as IACObject;
                     creationToken = NewCreationToken();
                     newACComponent.Recycle(contentACObject, acComponentParent, parameter, acIdentifier);
+#if DEBUG
                     recycled = true;
+#endif
                 }
                 else
                 {
