@@ -1815,6 +1815,19 @@ namespace gip.core.datamodel
             }
         }
 
+        public static ACValueItemList _DayOfWeekList;
+        public static ACValueItemList DayOfWeekList
+        {
+            get
+            {
+                if(_DayOfWeekList == null)
+                {
+                    _DayOfWeekList = new ACValueListDayOfWeekEnum();
+                }
+                return _DayOfWeekList;
+            }
+        }
+
         public static string GetCategoryIconACUrl(ContextMenuCategory category)
         {
             if (IconCategory.ContainsKey(category))
@@ -2094,6 +2107,23 @@ namespace gip.core.datamodel
                 default:
                     return 0;
             }
+        }
+    }
+
+
+
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Week days'}de{'Wochentage'}", Global.ACKinds.TACEnumACValueList)]
+    public class ACValueListDayOfWeekEnum : ACValueItemList
+    {
+        public ACValueListDayOfWeekEnum() : base("ACValueItemListWeekDays")
+        {
+            AddEntry((short)DayOfWeek.Monday, "en{'Monday'}de{'Montag'}");
+            AddEntry((short)DayOfWeek.Tuesday, "en{'Tuesday'}de{'Dienstag'}");
+            AddEntry((short)DayOfWeek.Wednesday, "en{'Wednesday'}de{'Mittwoch'}");
+            AddEntry((short)DayOfWeek.Thursday, "en{'Thursday'}de{'Donnerstag'}");
+            AddEntry((short)DayOfWeek.Friday, "en{'Friday'}de{'Freitag'}");
+            AddEntry((short)DayOfWeek.Saturday, "en{'Saturday'}de{'Samstag'}");
+            AddEntry((short)DayOfWeek.Sunday, "en{'Sunday'}de{'Sonntag'}");
         }
     }
 }
