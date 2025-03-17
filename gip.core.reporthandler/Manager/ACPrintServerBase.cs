@@ -89,6 +89,8 @@ namespace gip.core.reporthandler
 
         #region Properties
 
+        private bool _CancelPrint = false;
+
         private ACPropertyConfigValue<string> _IPAddress;
         [ACPropertyConfig("en{'IP Address'}de{'IP Addresse'}")]
         public string IPAddress
@@ -182,6 +184,12 @@ namespace gip.core.reporthandler
             });
         }
 
+        [ACMethodInteraction("Print", "en{'Cancel print'}de{'Drucken abbrechen'}", 300, true)]
+        public virtual void CancelPrintJob()
+        {
+            _CancelPrint = true;
+        }
+
         public void DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies, bool reloadReport)
         {
             ACBSO acBSO = null;
@@ -271,10 +279,15 @@ namespace gip.core.reporthandler
                 this.Messages.LogException(this.GetACUrl(), "InvokeAsync", e);
             }
 
+            _CancelPrint = false;
+
             if (printJob != null)
             {
                 for (int i = 1; i <= copies; i++)
                 {
+                    if (_CancelPrint)
+                        break;
+
                     SendDataToPrinter(printJob);
                 }
             }
