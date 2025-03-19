@@ -182,6 +182,7 @@
   <ItemGroup>
     <Compile Include="Alarm\BSOAlarmMessengerConfig.cs" />
     <Compile Include="Alarm\BSOAlarmExplorer.cs" />
+    <Compile Include="BSOiPlus\BSOACClassMessageSelector.cs" />
     <Compile Include="BSOiPlus\BSOSQLQuery.cs" />
     <Compile Include="BSOiPlus\Model\SQLScriptQuery.cs" />
     <Compile Include="Manager\ACProjectManager.cs" />
@@ -394,6 +395,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="VBControlScripts\2025-02-17 10-14_aagincic.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="VBControlScripts\2025-03-19 13-18_ihrastinski.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
