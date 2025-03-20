@@ -1061,6 +1061,21 @@ namespace gip.bso.iplus
         }
 
         /// <summary>
+        /// Opens the equipment analysis module from Visualisation for the component in parameter.
+        /// </summary>
+        /// <param name="componentClass">The component class parameter.</param>
+        [ACMethodInfo("", "", 404)]
+        public void ShowPropertyLogsWithFilterDialog(ACClass componentClass, DateTime from, DateTime to)
+        {
+            CurrentComponentClass = componentClass.FromIPlusContext<ACClass>(Db);
+            FromDate = from;
+            ToDate = to;
+            ShowLogsOnTimeline();
+            ShowDialog(this, "PropertyLogPresenterDialog");
+            CurrentComponentClass = null;
+        }
+
+        /// <summary>
         /// Updates the display order for a propertyLog models. It is used for sort from treeListView control.
         /// </summary>
         /// <param name="treeViewItems"></param>

@@ -117,6 +117,23 @@ namespace gip.core.autocomponent
             bso.Stop();
         }
 
+        public virtual void ShowPropertyLogViewer(IACComponent caller, ACClass selectedItem, DateTime from, DateTime to)
+        {
+            if (caller == null || selectedItem == null)
+                return;
+            string bsoName = BSONameForShowPropertyLog;
+            if (String.IsNullOrEmpty(bsoName))
+                return;
+
+            ACComponent bso = caller.Root.Businessobjects.ACUrlCommand("?" + bsoName) as ACComponent;
+            if (bso == null)
+                bso = caller.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as ACComponent;
+            if (bso == null)
+                return;
+            bso.ExecuteMethod("ShowPropertyLogsWithFilterDialog", selectedItem, from, to);
+            bso.Stop();
+        }
+
         public abstract string BuildAndSetOrderInfo(PAProcessModule pm);
 
         public abstract string BuildOrderInfo(PWBase pw);
