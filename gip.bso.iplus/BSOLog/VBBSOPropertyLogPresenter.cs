@@ -1014,7 +1014,7 @@ namespace gip.bso.iplus
         }
 
 
-        [ACMethodInteraction("", "en{'Show details'}de{'Show details'}", 403, true, "SelectedPropertyLog")]
+        [ACMethodInteraction("", "en{'Show details'}de{'Details anzeigen'}", 403, true, "SelectedPropertyLog")]
         public void ShowDetails()
         {
             if (!IsEnabledShowDetails())
@@ -1588,21 +1588,31 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "ShowLogsOnTimeline":
+                case nameof(ShowLogsOnTimeline):
                     ShowLogsOnTimeline();
                     return true;
-                case "ShowPropertyLogsDialog":
+                case nameof(ShowPropertyLogsDialog):
                     ShowPropertyLogsDialog(acParameter[0] as ACClass);
                     return true;
-                case "ShowAlarms":
+                case nameof(ShowAlarms):
                     ShowAlarms();
                     return true;
-                case "IsEnabledShowAlarms":
+                case nameof(IsEnabledShowAlarms):
                     result = IsEnabledShowAlarms();
                     return true;
-                case "UpdateDisplayOrder":
+                case nameof(UpdateDisplayOrder):
                     UpdateDisplayOrder(acParameter[0] as ICollectionView);
                     return true;
+                case nameof(ShowDetails):
+                    ShowDetails();
+                    return true;
+                case nameof(IsEnabledShowDetails):
+                    result = IsEnabledShowDetails();
+                    return true;
+                case nameof(ShowPropertyLogsWithFilterDialog):
+                    ShowPropertyLogsWithFilterDialog(acParameter[0] as ACClass, (DateTime)acParameter[1], (DateTime)acParameter[2]);
+                    return true;
+                    
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
