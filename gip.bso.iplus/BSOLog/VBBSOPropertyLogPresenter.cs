@@ -475,6 +475,36 @@ namespace gip.bso.iplus
             }
         }
 
+        private ACPropertyLogModel _SelectedOEEReason;
+        [ACPropertySelected(417, "OEEReason")]
+        public ACPropertyLogModel SelectedOEEReason
+        {
+            get
+            {
+                return _SelectedOEEReason;
+            }
+            set
+            {
+                _SelectedOEEReason = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private IEnumerable<ACPropertyLogModel> _OEEReasonList;
+        [ACPropertyList(417, "OEEReason")]
+        public IEnumerable<ACPropertyLogModel> OEEReasonList
+        {
+            get
+            {
+                return _OEEReasonList;
+            }
+            set
+            {
+                _OEEReasonList = value;
+                OnPropertyChanged();
+            }
+        }
+
         private static ACClassProperty _OEERelevantProperty;
         /// <summary>
         /// Gets the property which is used for OEE presentation on a PA modules.
@@ -979,6 +1009,41 @@ namespace gip.bso.iplus
         }
 
         public bool IsEnabledShowAllAlarms()
+        {
+            return SelectedPropertyLog != null && (PresenterViewMode)SelectedPresenterViewMode.Value != PresenterViewMode.Grouped;
+        }
+
+
+        [ACMethodInteraction("", "en{'Show details'}de{'Show details'}", 403, true, "SelectedPropertyLog")]
+        public void ShowDetails()
+        {
+            if (!IsEnabledShowDetails())
+                return;
+
+            List<ACPropertyLogModel> messages = new List<ACPropertyLogModel>();
+
+            using (Database db = new core.datamodel.Database())
+            {
+                foreach (var propLog in ACPropertyLogs)
+                {
+                    if (propLog.PropertyLog != null && propLog.PropertyLog.ACClassMessageID.HasValue)
+                    {
+                        ACClassMessage acClassMessage = db.ACClassMessage.Where(c => c.ACClassMessageID == propLog.PropertyLog.ACClassMessageID).FirstOrDefault();
+                        if (acClassMessage != null)
+                        {
+                            messages.Add(new ACPropertyLogModel(ACPropertyLogModelType.PropertyLog, propLog.StartDate, propLog.EndDate, propLog.PropertyValue, propLog.DisplayOrder, propLog.ACCaption) { OEEReason = acClassMessage.ACCaption });
+                        }
+                    }
+                }
+            }
+
+            OEEReasonList = messages;
+
+            ShowDialog(this, "DetailsDialog");
+
+        }
+
+        public bool IsEnabledShowDetails()
         {
             return SelectedPropertyLog != null && (PresenterViewMode)SelectedPresenterViewMode.Value != PresenterViewMode.Grouped;
         }
@@ -2016,6 +2081,18 @@ namespace gip.bso.iplus
                     _Status.Add(Global.TimelineItemStatus.OK);
 
                 return _Status;
+            }
+        }
+
+        private string _OEEReason;
+        [ACPropertyInfo(9999)]
+        public string OEEReason
+        {
+            get => _OEEReason;
+            set
+            {
+                _OEEReason = value; ;
+                OnPropertyChanged();
             }
         }
 

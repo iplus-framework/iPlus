@@ -400,6 +400,9 @@
     <None Include="VBControlScripts\2025-03-19 13-18_ihrastinski.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="VBControlScripts\2025-03-20 10-43_ihrastinski.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
