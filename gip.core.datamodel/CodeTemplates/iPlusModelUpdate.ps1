@@ -1,5 +1,5 @@
 # Define variables for paths, connection strings, and model names
-$databaseConnectionString = "data source=.\SQLEXP12;Initial Catalog=iPlusV5;Trusted_Connection=False;Encrypt=False;user id=gip;password=netspirit;"
+$databaseConnectionString = "data source=.\SQLEXP16;Initial Catalog=iPlusV5;Trusted_Connection=False;Encrypt=False;user id=gip;password=netspirit;"
 $namespace = "gip.core.datamodel"
 $outputDir = "EFModels"
 $compiledOutputDir = "EFCompiledModels"

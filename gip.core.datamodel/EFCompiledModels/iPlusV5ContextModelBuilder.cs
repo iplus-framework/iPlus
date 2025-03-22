@@ -39,6 +39,7 @@ namespace gip.core.datamodel
             var aCProgram = ACProgramEntityType.Create(this);
             var aCProgramConfig = ACProgramConfigEntityType.Create(this);
             var aCProgramLog = ACProgramLogEntityType.Create(this);
+            var aCProgramLogPropertyLog = ACProgramLogPropertyLogEntityType.Create(this);
             var aCProgramLogTask = ACProgramLogTaskEntityType.Create(this);
             var aCProject = ACProjectEntityType.Create(this);
             var aCPropertyLog = ACPropertyLogEntityType.Create(this);
@@ -131,6 +132,7 @@ namespace gip.core.datamodel
             ACProgramConfigEntityType.CreateForeignKey5(aCProgramConfig, aCClass);
             ACProgramLogEntityType.CreateForeignKey1(aCProgramLog, aCProgram);
             ACProgramLogEntityType.CreateForeignKey2(aCProgramLog, aCProgramLog);
+            ACProgramLogPropertyLogEntityType.CreateForeignKey1(aCProgramLogPropertyLog, aCPropertyLog);
             ACProgramLogTaskEntityType.CreateForeignKey1(aCProgramLogTask, aCProgramLog);
             ACProjectEntityType.CreateForeignKey1(aCProject, aCProject);
             ACProjectEntityType.CreateForeignKey2(aCProject, aCClass);
@@ -182,6 +184,7 @@ namespace gip.core.datamodel
             ACProgramEntityType.CreateAnnotations(aCProgram);
             ACProgramConfigEntityType.CreateAnnotations(aCProgramConfig);
             ACProgramLogEntityType.CreateAnnotations(aCProgramLog);
+            ACProgramLogPropertyLogEntityType.CreateAnnotations(aCProgramLogPropertyLog);
             ACProgramLogTaskEntityType.CreateAnnotations(aCProgramLogTask);
             ACProjectEntityType.CreateAnnotations(aCProject);
             ACPropertyLogEntityType.CreateAnnotations(aCPropertyLog);
@@ -4476,18 +4479,76 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping(updateNameColumn17, aCProgramLog.FindProperty("UpdateName")!, aCProgramLogTableMapping);
             RelationalModel.CreateColumnMapping(xMLConfigColumn9, aCProgramLog.FindProperty("XMLConfig")!, aCProgramLogTableMapping);
 
-            var aCProgramLogTask = FindEntityType("gip.core.datamodel.ACProgramLogTask")!;
+            var aCProgramLogPropertyLog = FindEntityType("gip.core.datamodel.ACProgramLogPropertyLog")!;
 
             var defaultTableMappings22 = new List<TableMappingBase<ColumnMappingBase>>();
-            aCProgramLogTask.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings22);
+            aCProgramLogPropertyLog.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings22);
+            var gipcoredatamodelACProgramLogPropertyLogTableBase = new TableBase("gip.core.datamodel.ACProgramLogPropertyLog", null, relationalModel);
+            var aCProgramLogIDColumnBase0 = new ColumnBase<ColumnMappingBase>("ACProgramLogID", "uniqueidentifier", gipcoredatamodelACProgramLogPropertyLogTableBase)
+            {
+                IsNullable = true
+            };
+            gipcoredatamodelACProgramLogPropertyLogTableBase.Columns.Add("ACProgramLogID", aCProgramLogIDColumnBase0);
+            var aCProgramLogPropertyLogIDColumnBase = new ColumnBase<ColumnMappingBase>("ACProgramLogPropertyLogID", "uniqueidentifier", gipcoredatamodelACProgramLogPropertyLogTableBase);
+            gipcoredatamodelACProgramLogPropertyLogTableBase.Columns.Add("ACProgramLogPropertyLogID", aCProgramLogPropertyLogIDColumnBase);
+            var aCPropertyLogIDColumnBase = new ColumnBase<ColumnMappingBase>("ACPropertyLogID", "uniqueidentifier", gipcoredatamodelACProgramLogPropertyLogTableBase);
+            gipcoredatamodelACProgramLogPropertyLogTableBase.Columns.Add("ACPropertyLogID", aCPropertyLogIDColumnBase);
+            relationalModel.DefaultTables.Add("gip.core.datamodel.ACProgramLogPropertyLog", gipcoredatamodelACProgramLogPropertyLogTableBase);
+            var gipcoredatamodelACProgramLogPropertyLogMappingBase = new TableMappingBase<ColumnMappingBase>(aCProgramLogPropertyLog, gipcoredatamodelACProgramLogPropertyLogTableBase, true);
+            gipcoredatamodelACProgramLogPropertyLogTableBase.AddTypeMapping(gipcoredatamodelACProgramLogPropertyLogMappingBase, false);
+            defaultTableMappings22.Add(gipcoredatamodelACProgramLogPropertyLogMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProgramLogPropertyLogIDColumnBase, aCProgramLogPropertyLog.FindProperty("ACProgramLogPropertyLogID")!, gipcoredatamodelACProgramLogPropertyLogMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProgramLogIDColumnBase0, aCProgramLogPropertyLog.FindProperty("ACProgramLogID")!, gipcoredatamodelACProgramLogPropertyLogMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCPropertyLogIDColumnBase, aCProgramLogPropertyLog.FindProperty("ACPropertyLogID")!, gipcoredatamodelACProgramLogPropertyLogMappingBase);
+
+            var tableMappings22 = new List<TableMapping>();
+            aCProgramLogPropertyLog.SetRuntimeAnnotation("Relational:TableMappings", tableMappings22);
+            var aCProgramLogPropertyLogTable = new Table("ACProgramLogPropertyLog", null, relationalModel);
+            var aCProgramLogPropertyLogIDColumn = new Column("ACProgramLogPropertyLogID", "uniqueidentifier", aCProgramLogPropertyLogTable);
+            aCProgramLogPropertyLogTable.Columns.Add("ACProgramLogPropertyLogID", aCProgramLogPropertyLogIDColumn);
+            var aCProgramLogIDColumn0 = new Column("ACProgramLogID", "uniqueidentifier", aCProgramLogPropertyLogTable)
+            {
+                IsNullable = true
+            };
+            aCProgramLogPropertyLogTable.Columns.Add("ACProgramLogID", aCProgramLogIDColumn0);
+            var aCPropertyLogIDColumn = new Column("ACPropertyLogID", "uniqueidentifier", aCProgramLogPropertyLogTable);
+            aCProgramLogPropertyLogTable.Columns.Add("ACPropertyLogID", aCPropertyLogIDColumn);
+            var pK_ACProgramLogPropertyLog = new UniqueConstraint("PK_ACProgramLogPropertyLog", aCProgramLogPropertyLogTable, new[] { aCProgramLogPropertyLogIDColumn });
+            aCProgramLogPropertyLogTable.PrimaryKey = pK_ACProgramLogPropertyLog;
+            var pK_ACProgramLogPropertyLogUc = RelationalModel.GetKey(this,
+                "gip.core.datamodel.ACProgramLogPropertyLog",
+                new[] { "ACProgramLogPropertyLogID" });
+            pK_ACProgramLogPropertyLog.MappedKeys.Add(pK_ACProgramLogPropertyLogUc);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_ACProgramLogPropertyLogUc).Add(pK_ACProgramLogPropertyLog);
+            aCProgramLogPropertyLogTable.UniqueConstraints.Add("PK_ACProgramLogPropertyLog", pK_ACProgramLogPropertyLog);
+            var iX_ACProgramLogPropertyLog_ACPropertyLogID = new TableIndex(
+            "IX_ACProgramLogPropertyLog_ACPropertyLogID", aCProgramLogPropertyLogTable, new[] { aCPropertyLogIDColumn }, false);
+            var iX_ACProgramLogPropertyLog_ACPropertyLogIDIx = RelationalModel.GetIndex(this,
+                "gip.core.datamodel.ACProgramLogPropertyLog",
+                new[] { "ACPropertyLogID" });
+            iX_ACProgramLogPropertyLog_ACPropertyLogID.MappedIndexes.Add(iX_ACProgramLogPropertyLog_ACPropertyLogIDIx);
+            RelationalModel.GetOrCreateTableIndexes(iX_ACProgramLogPropertyLog_ACPropertyLogIDIx).Add(iX_ACProgramLogPropertyLog_ACPropertyLogID);
+            aCProgramLogPropertyLogTable.Indexes.Add("IX_ACProgramLogPropertyLog_ACPropertyLogID", iX_ACProgramLogPropertyLog_ACPropertyLogID);
+            relationalModel.Tables.Add(("ACProgramLogPropertyLog", null), aCProgramLogPropertyLogTable);
+            var aCProgramLogPropertyLogTableMapping = new TableMapping(aCProgramLogPropertyLog, aCProgramLogPropertyLogTable, true);
+            aCProgramLogPropertyLogTable.AddTypeMapping(aCProgramLogPropertyLogTableMapping, false);
+            tableMappings22.Add(aCProgramLogPropertyLogTableMapping);
+            RelationalModel.CreateColumnMapping(aCProgramLogPropertyLogIDColumn, aCProgramLogPropertyLog.FindProperty("ACProgramLogPropertyLogID")!, aCProgramLogPropertyLogTableMapping);
+            RelationalModel.CreateColumnMapping(aCProgramLogIDColumn0, aCProgramLogPropertyLog.FindProperty("ACProgramLogID")!, aCProgramLogPropertyLogTableMapping);
+            RelationalModel.CreateColumnMapping(aCPropertyLogIDColumn, aCProgramLogPropertyLog.FindProperty("ACPropertyLogID")!, aCProgramLogPropertyLogTableMapping);
+
+            var aCProgramLogTask = FindEntityType("gip.core.datamodel.ACProgramLogTask")!;
+
+            var defaultTableMappings23 = new List<TableMappingBase<ColumnMappingBase>>();
+            aCProgramLogTask.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings23);
             var gipcoredatamodelACProgramLogTaskTableBase = new TableBase("gip.core.datamodel.ACProgramLogTask", null, relationalModel);
             var aCClassMethodXAMLColumnBase = new ColumnBase<ColumnMappingBase>("ACClassMethodXAML", "text", gipcoredatamodelACProgramLogTaskTableBase)
             {
                 IsNullable = true
             };
             gipcoredatamodelACProgramLogTaskTableBase.Columns.Add("ACClassMethodXAML", aCClassMethodXAMLColumnBase);
-            var aCProgramLogIDColumnBase0 = new ColumnBase<ColumnMappingBase>("ACProgramLogID", "uniqueidentifier", gipcoredatamodelACProgramLogTaskTableBase);
-            gipcoredatamodelACProgramLogTaskTableBase.Columns.Add("ACProgramLogID", aCProgramLogIDColumnBase0);
+            var aCProgramLogIDColumnBase1 = new ColumnBase<ColumnMappingBase>("ACProgramLogID", "uniqueidentifier", gipcoredatamodelACProgramLogTaskTableBase);
+            gipcoredatamodelACProgramLogTaskTableBase.Columns.Add("ACProgramLogID", aCProgramLogIDColumnBase1);
             var aCProgramLogTaskIDColumnBase = new ColumnBase<ColumnMappingBase>("ACProgramLogTaskID", "uniqueidentifier", gipcoredatamodelACProgramLogTaskTableBase);
             gipcoredatamodelACProgramLogTaskTableBase.Columns.Add("ACProgramLogTaskID", aCProgramLogTaskIDColumnBase);
             var insertDateColumnBase18 = new ColumnBase<ColumnMappingBase>("InsertDate", "datetime", gipcoredatamodelACProgramLogTaskTableBase);
@@ -4508,10 +4569,10 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.ACProgramLogTask", gipcoredatamodelACProgramLogTaskTableBase);
             var gipcoredatamodelACProgramLogTaskMappingBase = new TableMappingBase<ColumnMappingBase>(aCProgramLogTask, gipcoredatamodelACProgramLogTaskTableBase, true);
             gipcoredatamodelACProgramLogTaskTableBase.AddTypeMapping(gipcoredatamodelACProgramLogTaskMappingBase, false);
-            defaultTableMappings22.Add(gipcoredatamodelACProgramLogTaskMappingBase);
+            defaultTableMappings23.Add(gipcoredatamodelACProgramLogTaskMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProgramLogTaskIDColumnBase, aCProgramLogTask.FindProperty("ACProgramLogTaskID")!, gipcoredatamodelACProgramLogTaskMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCClassMethodXAMLColumnBase, aCProgramLogTask.FindProperty("ACClassMethodXAML")!, gipcoredatamodelACProgramLogTaskMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProgramLogIDColumnBase0, aCProgramLogTask.FindProperty("ACProgramLogID")!, gipcoredatamodelACProgramLogTaskMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProgramLogIDColumnBase1, aCProgramLogTask.FindProperty("ACProgramLogID")!, gipcoredatamodelACProgramLogTaskMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)insertDateColumnBase18, aCProgramLogTask.FindProperty("InsertDate")!, gipcoredatamodelACProgramLogTaskMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)insertNameColumnBase18, aCProgramLogTask.FindProperty("InsertName")!, gipcoredatamodelACProgramLogTaskMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)loopNoColumnBase, aCProgramLogTask.FindProperty("LoopNo")!, gipcoredatamodelACProgramLogTaskMappingBase);
@@ -4519,8 +4580,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)updateNameColumnBase18, aCProgramLogTask.FindProperty("UpdateName")!, gipcoredatamodelACProgramLogTaskMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)xMLConfigColumnBase10, aCProgramLogTask.FindProperty("XMLConfig")!, gipcoredatamodelACProgramLogTaskMappingBase);
 
-            var tableMappings22 = new List<TableMapping>();
-            aCProgramLogTask.SetRuntimeAnnotation("Relational:TableMappings", tableMappings22);
+            var tableMappings23 = new List<TableMapping>();
+            aCProgramLogTask.SetRuntimeAnnotation("Relational:TableMappings", tableMappings23);
             var aCProgramLogTaskTable = new Table("ACProgramLogTask", null, relationalModel);
             var aCProgramLogTaskIDColumn = new Column("ACProgramLogTaskID", "uniqueidentifier", aCProgramLogTaskTable);
             aCProgramLogTaskTable.Columns.Add("ACProgramLogTaskID", aCProgramLogTaskIDColumn);
@@ -4529,8 +4590,8 @@ namespace gip.core.datamodel
                 IsNullable = true
             };
             aCProgramLogTaskTable.Columns.Add("ACClassMethodXAML", aCClassMethodXAMLColumn);
-            var aCProgramLogIDColumn0 = new Column("ACProgramLogID", "uniqueidentifier", aCProgramLogTaskTable);
-            aCProgramLogTaskTable.Columns.Add("ACProgramLogID", aCProgramLogIDColumn0);
+            var aCProgramLogIDColumn1 = new Column("ACProgramLogID", "uniqueidentifier", aCProgramLogTaskTable);
+            aCProgramLogTaskTable.Columns.Add("ACProgramLogID", aCProgramLogIDColumn1);
             var insertDateColumn18 = new Column("InsertDate", "datetime", aCProgramLogTaskTable);
             aCProgramLogTaskTable.Columns.Add("InsertDate", insertDateColumn18);
             var insertNameColumn18 = new Column("InsertName", "varchar(20)", aCProgramLogTaskTable);
@@ -4555,7 +4616,7 @@ namespace gip.core.datamodel
             RelationalModel.GetOrCreateUniqueConstraints(pK_ACProgramLogTaskUc).Add(pK_ACProgramLogTask);
             aCProgramLogTaskTable.UniqueConstraints.Add("PK_ACProgramLogTask", pK_ACProgramLogTask);
             var nCI_FK_ACProgramLogTask_ACProgramLogID = new TableIndex(
-            "NCI_FK_ACProgramLogTask_ACProgramLogID", aCProgramLogTaskTable, new[] { aCProgramLogIDColumn0 }, false);
+            "NCI_FK_ACProgramLogTask_ACProgramLogID", aCProgramLogTaskTable, new[] { aCProgramLogIDColumn1 }, false);
             var nCI_FK_ACProgramLogTask_ACProgramLogIDIx = RelationalModel.GetIndex(this,
                 "gip.core.datamodel.ACProgramLogTask",
                 "NCI_FK_ACProgramLogTask_ACProgramLogID");
@@ -4565,10 +4626,10 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("ACProgramLogTask", null), aCProgramLogTaskTable);
             var aCProgramLogTaskTableMapping = new TableMapping(aCProgramLogTask, aCProgramLogTaskTable, true);
             aCProgramLogTaskTable.AddTypeMapping(aCProgramLogTaskTableMapping, false);
-            tableMappings22.Add(aCProgramLogTaskTableMapping);
+            tableMappings23.Add(aCProgramLogTaskTableMapping);
             RelationalModel.CreateColumnMapping(aCProgramLogTaskIDColumn, aCProgramLogTask.FindProperty("ACProgramLogTaskID")!, aCProgramLogTaskTableMapping);
             RelationalModel.CreateColumnMapping(aCClassMethodXAMLColumn, aCProgramLogTask.FindProperty("ACClassMethodXAML")!, aCProgramLogTaskTableMapping);
-            RelationalModel.CreateColumnMapping(aCProgramLogIDColumn0, aCProgramLogTask.FindProperty("ACProgramLogID")!, aCProgramLogTaskTableMapping);
+            RelationalModel.CreateColumnMapping(aCProgramLogIDColumn1, aCProgramLogTask.FindProperty("ACProgramLogID")!, aCProgramLogTaskTableMapping);
             RelationalModel.CreateColumnMapping(insertDateColumn18, aCProgramLogTask.FindProperty("InsertDate")!, aCProgramLogTaskTableMapping);
             RelationalModel.CreateColumnMapping(insertNameColumn18, aCProgramLogTask.FindProperty("InsertName")!, aCProgramLogTaskTableMapping);
             RelationalModel.CreateColumnMapping(loopNoColumn, aCProgramLogTask.FindProperty("LoopNo")!, aCProgramLogTaskTableMapping);
@@ -4578,8 +4639,8 @@ namespace gip.core.datamodel
 
             var aCProject = FindEntityType("gip.core.datamodel.ACProject")!;
 
-            var defaultTableMappings23 = new List<TableMappingBase<ColumnMappingBase>>();
-            aCProject.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings23);
+            var defaultTableMappings24 = new List<TableMappingBase<ColumnMappingBase>>();
+            aCProject.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings24);
             var gipcoredatamodelACProjectTableBase = new TableBase("gip.core.datamodel.ACProject", null, relationalModel);
             var aCProjectIDColumnBase0 = new ColumnBase<ColumnMappingBase>("ACProjectID", "uniqueidentifier", gipcoredatamodelACProjectTableBase);
             gipcoredatamodelACProjectTableBase.Columns.Add("ACProjectID", aCProjectIDColumnBase0);
@@ -4634,7 +4695,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.ACProject", gipcoredatamodelACProjectTableBase);
             var gipcoredatamodelACProjectMappingBase = new TableMappingBase<ColumnMappingBase>(aCProject, gipcoredatamodelACProjectTableBase, true);
             gipcoredatamodelACProjectTableBase.AddTypeMapping(gipcoredatamodelACProjectMappingBase, false);
-            defaultTableMappings23.Add(gipcoredatamodelACProjectMappingBase);
+            defaultTableMappings24.Add(gipcoredatamodelACProjectMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProjectIDColumnBase0, aCProject.FindProperty("ACProjectID")!, gipcoredatamodelACProjectMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProjectNameColumnBase, aCProject.FindProperty("ACProjectName")!, gipcoredatamodelACProjectMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProjectNoColumnBase, aCProject.FindProperty("ACProjectNo")!, gipcoredatamodelACProjectMappingBase);
@@ -4655,8 +4716,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)updateNameColumnBase19, aCProject.FindProperty("UpdateName")!, gipcoredatamodelACProjectMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)xMLConfigColumnBase11, aCProject.FindProperty("XMLConfig")!, gipcoredatamodelACProjectMappingBase);
 
-            var tableMappings23 = new List<TableMapping>();
-            aCProject.SetRuntimeAnnotation("Relational:TableMappings", tableMappings23);
+            var tableMappings24 = new List<TableMapping>();
+            aCProject.SetRuntimeAnnotation("Relational:TableMappings", tableMappings24);
             var aCProjectTable = new Table("ACProject", null, relationalModel);
             var aCProjectIDColumn0 = new Column("ACProjectID", "uniqueidentifier", aCProjectTable);
             aCProjectTable.Columns.Add("ACProjectID", aCProjectIDColumn0);
@@ -4743,7 +4804,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("ACProject", null), aCProjectTable);
             var aCProjectTableMapping = new TableMapping(aCProject, aCProjectTable, true);
             aCProjectTable.AddTypeMapping(aCProjectTableMapping, false);
-            tableMappings23.Add(aCProjectTableMapping);
+            tableMappings24.Add(aCProjectTableMapping);
             RelationalModel.CreateColumnMapping(aCProjectIDColumn0, aCProject.FindProperty("ACProjectID")!, aCProjectTableMapping);
             RelationalModel.CreateColumnMapping(aCProjectNameColumn, aCProject.FindProperty("ACProjectName")!, aCProjectTableMapping);
             RelationalModel.CreateColumnMapping(aCProjectNoColumn, aCProject.FindProperty("ACProjectNo")!, aCProjectTableMapping);
@@ -4766,20 +4827,25 @@ namespace gip.core.datamodel
 
             var aCPropertyLog = FindEntityType("gip.core.datamodel.ACPropertyLog")!;
 
-            var defaultTableMappings24 = new List<TableMappingBase<ColumnMappingBase>>();
-            aCPropertyLog.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings24);
+            var defaultTableMappings25 = new List<TableMappingBase<ColumnMappingBase>>();
+            aCPropertyLog.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings25);
             var gipcoredatamodelACPropertyLogTableBase = new TableBase("gip.core.datamodel.ACPropertyLog", null, relationalModel);
             var aCClassIDColumnBase10 = new ColumnBase<ColumnMappingBase>("ACClassID", "uniqueidentifier", gipcoredatamodelACPropertyLogTableBase);
             gipcoredatamodelACPropertyLogTableBase.Columns.Add("ACClassID", aCClassIDColumnBase10);
-            var aCClassPropertyIDColumnBase2 = new ColumnBase<ColumnMappingBase>("ACClassPropertyID", "uniqueidentifier", gipcoredatamodelACPropertyLogTableBase);
-            gipcoredatamodelACPropertyLogTableBase.Columns.Add("ACClassPropertyID", aCClassPropertyIDColumnBase2);
-            var aCProgramLogIDColumnBase1 = new ColumnBase<ColumnMappingBase>("ACProgramLogID", "uniqueidentifier", gipcoredatamodelACPropertyLogTableBase)
+            var aCClassMessageIDColumnBase0 = new ColumnBase<ColumnMappingBase>("ACClassMessageID", "uniqueidentifier", gipcoredatamodelACPropertyLogTableBase)
             {
                 IsNullable = true
             };
-            gipcoredatamodelACPropertyLogTableBase.Columns.Add("ACProgramLogID", aCProgramLogIDColumnBase1);
-            var aCPropertyLogIDColumnBase = new ColumnBase<ColumnMappingBase>("ACPropertyLogID", "uniqueidentifier", gipcoredatamodelACPropertyLogTableBase);
-            gipcoredatamodelACPropertyLogTableBase.Columns.Add("ACPropertyLogID", aCPropertyLogIDColumnBase);
+            gipcoredatamodelACPropertyLogTableBase.Columns.Add("ACClassMessageID", aCClassMessageIDColumnBase0);
+            var aCClassPropertyIDColumnBase2 = new ColumnBase<ColumnMappingBase>("ACClassPropertyID", "uniqueidentifier", gipcoredatamodelACPropertyLogTableBase);
+            gipcoredatamodelACPropertyLogTableBase.Columns.Add("ACClassPropertyID", aCClassPropertyIDColumnBase2);
+            var aCProgramLogIDColumnBase2 = new ColumnBase<ColumnMappingBase>("ACProgramLogID", "uniqueidentifier", gipcoredatamodelACPropertyLogTableBase)
+            {
+                IsNullable = true
+            };
+            gipcoredatamodelACPropertyLogTableBase.Columns.Add("ACProgramLogID", aCProgramLogIDColumnBase2);
+            var aCPropertyLogIDColumnBase0 = new ColumnBase<ColumnMappingBase>("ACPropertyLogID", "uniqueidentifier", gipcoredatamodelACPropertyLogTableBase);
+            gipcoredatamodelACPropertyLogTableBase.Columns.Add("ACPropertyLogID", aCPropertyLogIDColumnBase0);
             var eventTimeColumnBase = new ColumnBase<ColumnMappingBase>("EventTime", "datetime", gipcoredatamodelACPropertyLogTableBase);
             gipcoredatamodelACPropertyLogTableBase.Columns.Add("EventTime", eventTimeColumnBase);
             var valueColumnBase = new ColumnBase<ColumnMappingBase>("Value", "varchar(max)", gipcoredatamodelACPropertyLogTableBase);
@@ -4787,33 +4853,39 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.ACPropertyLog", gipcoredatamodelACPropertyLogTableBase);
             var gipcoredatamodelACPropertyLogMappingBase = new TableMappingBase<ColumnMappingBase>(aCPropertyLog, gipcoredatamodelACPropertyLogTableBase, true);
             gipcoredatamodelACPropertyLogTableBase.AddTypeMapping(gipcoredatamodelACPropertyLogMappingBase, false);
-            defaultTableMappings24.Add(gipcoredatamodelACPropertyLogMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCPropertyLogIDColumnBase, aCPropertyLog.FindProperty("ACPropertyLogID")!, gipcoredatamodelACPropertyLogMappingBase);
+            defaultTableMappings25.Add(gipcoredatamodelACPropertyLogMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCPropertyLogIDColumnBase0, aCPropertyLog.FindProperty("ACPropertyLogID")!, gipcoredatamodelACPropertyLogMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCClassIDColumnBase10, aCPropertyLog.FindProperty("ACClassID")!, gipcoredatamodelACPropertyLogMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCClassMessageIDColumnBase0, aCPropertyLog.FindProperty("ACClassMessageID")!, gipcoredatamodelACPropertyLogMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCClassPropertyIDColumnBase2, aCPropertyLog.FindProperty("ACClassPropertyID")!, gipcoredatamodelACPropertyLogMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProgramLogIDColumnBase1, aCPropertyLog.FindProperty("ACProgramLogID")!, gipcoredatamodelACPropertyLogMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProgramLogIDColumnBase2, aCPropertyLog.FindProperty("ACProgramLogID")!, gipcoredatamodelACPropertyLogMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)eventTimeColumnBase, aCPropertyLog.FindProperty("EventTime")!, gipcoredatamodelACPropertyLogMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)valueColumnBase, aCPropertyLog.FindProperty("Value")!, gipcoredatamodelACPropertyLogMappingBase);
 
-            var tableMappings24 = new List<TableMapping>();
-            aCPropertyLog.SetRuntimeAnnotation("Relational:TableMappings", tableMappings24);
+            var tableMappings25 = new List<TableMapping>();
+            aCPropertyLog.SetRuntimeAnnotation("Relational:TableMappings", tableMappings25);
             var aCPropertyLogTable = new Table("ACPropertyLog", null, relationalModel);
-            var aCPropertyLogIDColumn = new Column("ACPropertyLogID", "uniqueidentifier", aCPropertyLogTable);
-            aCPropertyLogTable.Columns.Add("ACPropertyLogID", aCPropertyLogIDColumn);
+            var aCPropertyLogIDColumn0 = new Column("ACPropertyLogID", "uniqueidentifier", aCPropertyLogTable);
+            aCPropertyLogTable.Columns.Add("ACPropertyLogID", aCPropertyLogIDColumn0);
             var aCClassIDColumn10 = new Column("ACClassID", "uniqueidentifier", aCPropertyLogTable);
             aCPropertyLogTable.Columns.Add("ACClassID", aCClassIDColumn10);
-            var aCClassPropertyIDColumn2 = new Column("ACClassPropertyID", "uniqueidentifier", aCPropertyLogTable);
-            aCPropertyLogTable.Columns.Add("ACClassPropertyID", aCClassPropertyIDColumn2);
-            var aCProgramLogIDColumn1 = new Column("ACProgramLogID", "uniqueidentifier", aCPropertyLogTable)
+            var aCClassMessageIDColumn0 = new Column("ACClassMessageID", "uniqueidentifier", aCPropertyLogTable)
             {
                 IsNullable = true
             };
-            aCPropertyLogTable.Columns.Add("ACProgramLogID", aCProgramLogIDColumn1);
+            aCPropertyLogTable.Columns.Add("ACClassMessageID", aCClassMessageIDColumn0);
+            var aCClassPropertyIDColumn2 = new Column("ACClassPropertyID", "uniqueidentifier", aCPropertyLogTable);
+            aCPropertyLogTable.Columns.Add("ACClassPropertyID", aCClassPropertyIDColumn2);
+            var aCProgramLogIDColumn2 = new Column("ACProgramLogID", "uniqueidentifier", aCPropertyLogTable)
+            {
+                IsNullable = true
+            };
+            aCPropertyLogTable.Columns.Add("ACProgramLogID", aCProgramLogIDColumn2);
             var eventTimeColumn = new Column("EventTime", "datetime", aCPropertyLogTable);
             aCPropertyLogTable.Columns.Add("EventTime", eventTimeColumn);
             var valueColumn = new Column("Value", "varchar(max)", aCPropertyLogTable);
             aCPropertyLogTable.Columns.Add("Value", valueColumn);
-            var pK_ACPropertyLog = new UniqueConstraint("PK_ACPropertyLog", aCPropertyLogTable, new[] { aCPropertyLogIDColumn });
+            var pK_ACPropertyLog = new UniqueConstraint("PK_ACPropertyLog", aCPropertyLogTable, new[] { aCPropertyLogIDColumn0 });
             aCPropertyLogTable.PrimaryKey = pK_ACPropertyLog;
             var pK_ACPropertyLogUc = RelationalModel.GetKey(this,
                 "gip.core.datamodel.ACPropertyLog",
@@ -4840,18 +4912,19 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("ACPropertyLog", null), aCPropertyLogTable);
             var aCPropertyLogTableMapping = new TableMapping(aCPropertyLog, aCPropertyLogTable, true);
             aCPropertyLogTable.AddTypeMapping(aCPropertyLogTableMapping, false);
-            tableMappings24.Add(aCPropertyLogTableMapping);
-            RelationalModel.CreateColumnMapping(aCPropertyLogIDColumn, aCPropertyLog.FindProperty("ACPropertyLogID")!, aCPropertyLogTableMapping);
+            tableMappings25.Add(aCPropertyLogTableMapping);
+            RelationalModel.CreateColumnMapping(aCPropertyLogIDColumn0, aCPropertyLog.FindProperty("ACPropertyLogID")!, aCPropertyLogTableMapping);
             RelationalModel.CreateColumnMapping(aCClassIDColumn10, aCPropertyLog.FindProperty("ACClassID")!, aCPropertyLogTableMapping);
+            RelationalModel.CreateColumnMapping(aCClassMessageIDColumn0, aCPropertyLog.FindProperty("ACClassMessageID")!, aCPropertyLogTableMapping);
             RelationalModel.CreateColumnMapping(aCClassPropertyIDColumn2, aCPropertyLog.FindProperty("ACClassPropertyID")!, aCPropertyLogTableMapping);
-            RelationalModel.CreateColumnMapping(aCProgramLogIDColumn1, aCPropertyLog.FindProperty("ACProgramLogID")!, aCPropertyLogTableMapping);
+            RelationalModel.CreateColumnMapping(aCProgramLogIDColumn2, aCPropertyLog.FindProperty("ACProgramLogID")!, aCPropertyLogTableMapping);
             RelationalModel.CreateColumnMapping(eventTimeColumn, aCPropertyLog.FindProperty("EventTime")!, aCPropertyLogTableMapping);
             RelationalModel.CreateColumnMapping(valueColumn, aCPropertyLog.FindProperty("Value")!, aCPropertyLogTableMapping);
 
             var aCPropertyLogRule = FindEntityType("gip.core.datamodel.ACPropertyLogRule")!;
 
-            var defaultTableMappings25 = new List<TableMappingBase<ColumnMappingBase>>();
-            aCPropertyLogRule.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings25);
+            var defaultTableMappings26 = new List<TableMappingBase<ColumnMappingBase>>();
+            aCPropertyLogRule.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings26);
             var gipcoredatamodelACPropertyLogRuleTableBase = new TableBase("gip.core.datamodel.ACPropertyLogRule", null, relationalModel);
             var aCClassIDColumnBase11 = new ColumnBase<ColumnMappingBase>("ACClassID", "uniqueidentifier", gipcoredatamodelACPropertyLogRuleTableBase);
             gipcoredatamodelACPropertyLogRuleTableBase.Columns.Add("ACClassID", aCClassIDColumnBase11);
@@ -4870,7 +4943,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.ACPropertyLogRule", gipcoredatamodelACPropertyLogRuleTableBase);
             var gipcoredatamodelACPropertyLogRuleMappingBase = new TableMappingBase<ColumnMappingBase>(aCPropertyLogRule, gipcoredatamodelACPropertyLogRuleTableBase, true);
             gipcoredatamodelACPropertyLogRuleTableBase.AddTypeMapping(gipcoredatamodelACPropertyLogRuleMappingBase, false);
-            defaultTableMappings25.Add(gipcoredatamodelACPropertyLogRuleMappingBase);
+            defaultTableMappings26.Add(gipcoredatamodelACPropertyLogRuleMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCPropertyLogRuleIDColumnBase, aCPropertyLogRule.FindProperty("ACPropertyLogRuleID")!, gipcoredatamodelACPropertyLogRuleMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCClassIDColumnBase11, aCPropertyLogRule.FindProperty("ACClassID")!, gipcoredatamodelACPropertyLogRuleMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)insertDateColumnBase20, aCPropertyLogRule.FindProperty("InsertDate")!, gipcoredatamodelACPropertyLogRuleMappingBase);
@@ -4879,8 +4952,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)updateDateColumnBase20, aCPropertyLogRule.FindProperty("UpdateDate")!, gipcoredatamodelACPropertyLogRuleMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)updateNameColumnBase20, aCPropertyLogRule.FindProperty("UpdateName")!, gipcoredatamodelACPropertyLogRuleMappingBase);
 
-            var tableMappings25 = new List<TableMapping>();
-            aCPropertyLogRule.SetRuntimeAnnotation("Relational:TableMappings", tableMappings25);
+            var tableMappings26 = new List<TableMapping>();
+            aCPropertyLogRule.SetRuntimeAnnotation("Relational:TableMappings", tableMappings26);
             var aCPropertyLogRuleTable = new Table("ACPropertyLogRule", null, relationalModel);
             var aCPropertyLogRuleIDColumn = new Column("ACPropertyLogRuleID", "uniqueidentifier", aCPropertyLogRuleTable);
             aCPropertyLogRuleTable.Columns.Add("ACPropertyLogRuleID", aCPropertyLogRuleIDColumn);
@@ -4915,7 +4988,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("ACPropertyLogRule", null), aCPropertyLogRuleTable);
             var aCPropertyLogRuleTableMapping = new TableMapping(aCPropertyLogRule, aCPropertyLogRuleTable, true);
             aCPropertyLogRuleTable.AddTypeMapping(aCPropertyLogRuleTableMapping, false);
-            tableMappings25.Add(aCPropertyLogRuleTableMapping);
+            tableMappings26.Add(aCPropertyLogRuleTableMapping);
             RelationalModel.CreateColumnMapping(aCPropertyLogRuleIDColumn, aCPropertyLogRule.FindProperty("ACPropertyLogRuleID")!, aCPropertyLogRuleTableMapping);
             RelationalModel.CreateColumnMapping(aCClassIDColumn11, aCPropertyLogRule.FindProperty("ACClassID")!, aCPropertyLogRuleTableMapping);
             RelationalModel.CreateColumnMapping(insertDateColumn20, aCPropertyLogRule.FindProperty("InsertDate")!, aCPropertyLogRuleTableMapping);
@@ -4926,8 +4999,8 @@ namespace gip.core.datamodel
 
             var controlScriptSyncInfo = FindEntityType("gip.core.datamodel.ControlScriptSyncInfo")!;
 
-            var defaultTableMappings26 = new List<TableMappingBase<ColumnMappingBase>>();
-            controlScriptSyncInfo.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings26);
+            var defaultTableMappings27 = new List<TableMappingBase<ColumnMappingBase>>();
+            controlScriptSyncInfo.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings27);
             var gipcoredatamodelControlScriptSyncInfoTableBase = new TableBase("gip.core.datamodel.ControlScriptSyncInfo", null, relationalModel);
             var controlScriptSyncInfoIDColumnBase = new ColumnBase<ColumnMappingBase>("ControlScriptSyncInfoID", "int", gipcoredatamodelControlScriptSyncInfoTableBase);
             gipcoredatamodelControlScriptSyncInfoTableBase.Columns.Add("ControlScriptSyncInfoID", controlScriptSyncInfoIDColumnBase);
@@ -4940,14 +5013,14 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.ControlScriptSyncInfo", gipcoredatamodelControlScriptSyncInfoTableBase);
             var gipcoredatamodelControlScriptSyncInfoMappingBase = new TableMappingBase<ColumnMappingBase>(controlScriptSyncInfo, gipcoredatamodelControlScriptSyncInfoTableBase, true);
             gipcoredatamodelControlScriptSyncInfoTableBase.AddTypeMapping(gipcoredatamodelControlScriptSyncInfoMappingBase, false);
-            defaultTableMappings26.Add(gipcoredatamodelControlScriptSyncInfoMappingBase);
+            defaultTableMappings27.Add(gipcoredatamodelControlScriptSyncInfoMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)controlScriptSyncInfoIDColumnBase, controlScriptSyncInfo.FindProperty("ControlScriptSyncInfoID")!, gipcoredatamodelControlScriptSyncInfoMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)updateAuthorColumnBase, controlScriptSyncInfo.FindProperty("UpdateAuthor")!, gipcoredatamodelControlScriptSyncInfoMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)updateTimeColumnBase, controlScriptSyncInfo.FindProperty("UpdateTime")!, gipcoredatamodelControlScriptSyncInfoMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)versionTimeColumnBase, controlScriptSyncInfo.FindProperty("VersionTime")!, gipcoredatamodelControlScriptSyncInfoMappingBase);
 
-            var tableMappings26 = new List<TableMapping>();
-            controlScriptSyncInfo.SetRuntimeAnnotation("Relational:TableMappings", tableMappings26);
+            var tableMappings27 = new List<TableMapping>();
+            controlScriptSyncInfo.SetRuntimeAnnotation("Relational:TableMappings", tableMappings27);
             var controlScriptSyncInfoTable = new Table("@ControlScriptSyncInfo", null, relationalModel);
             var controlScriptSyncInfoIDColumn = new Column("ControlScriptSyncInfoID", "int", controlScriptSyncInfoTable);
             controlScriptSyncInfoTable.Columns.Add("ControlScriptSyncInfoID", controlScriptSyncInfoIDColumn);
@@ -4968,7 +5041,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("@ControlScriptSyncInfo", null), controlScriptSyncInfoTable);
             var controlScriptSyncInfoTableMapping = new TableMapping(controlScriptSyncInfo, controlScriptSyncInfoTable, true);
             controlScriptSyncInfoTable.AddTypeMapping(controlScriptSyncInfoTableMapping, false);
-            tableMappings26.Add(controlScriptSyncInfoTableMapping);
+            tableMappings27.Add(controlScriptSyncInfoTableMapping);
             RelationalModel.CreateColumnMapping(controlScriptSyncInfoIDColumn, controlScriptSyncInfo.FindProperty("ControlScriptSyncInfoID")!, controlScriptSyncInfoTableMapping);
             RelationalModel.CreateColumnMapping(updateAuthorColumn, controlScriptSyncInfo.FindProperty("UpdateAuthor")!, controlScriptSyncInfoTableMapping);
             RelationalModel.CreateColumnMapping(updateTimeColumn, controlScriptSyncInfo.FindProperty("UpdateTime")!, controlScriptSyncInfoTableMapping);
@@ -4976,8 +5049,8 @@ namespace gip.core.datamodel
 
             var dBSyncerVersion = FindEntityType("gip.core.datamodel.DBSyncerVersion")!;
 
-            var defaultTableMappings27 = new List<TableMappingBase<ColumnMappingBase>>();
-            dBSyncerVersion.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings27);
+            var defaultTableMappings28 = new List<TableMappingBase<ColumnMappingBase>>();
+            dBSyncerVersion.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings28);
             var gipcoredatamodelDBSyncerVersionTableBase = new TableBase("gip.core.datamodel.DBSyncerVersion", null, relationalModel);
             var updateDateColumnBase21 = new ColumnBase<ColumnMappingBase>("UpdateDate", "datetime", gipcoredatamodelDBSyncerVersionTableBase);
             gipcoredatamodelDBSyncerVersionTableBase.Columns.Add("UpdateDate", updateDateColumnBase21);
@@ -4986,12 +5059,12 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.DBSyncerVersion", gipcoredatamodelDBSyncerVersionTableBase);
             var gipcoredatamodelDBSyncerVersionMappingBase = new TableMappingBase<ColumnMappingBase>(dBSyncerVersion, gipcoredatamodelDBSyncerVersionTableBase, true);
             gipcoredatamodelDBSyncerVersionTableBase.AddTypeMapping(gipcoredatamodelDBSyncerVersionMappingBase, false);
-            defaultTableMappings27.Add(gipcoredatamodelDBSyncerVersionMappingBase);
+            defaultTableMappings28.Add(gipcoredatamodelDBSyncerVersionMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)versionColumnBase, dBSyncerVersion.FindProperty("Version")!, gipcoredatamodelDBSyncerVersionMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)updateDateColumnBase21, dBSyncerVersion.FindProperty("UpdateDate")!, gipcoredatamodelDBSyncerVersionMappingBase);
 
-            var tableMappings27 = new List<TableMapping>();
-            dBSyncerVersion.SetRuntimeAnnotation("Relational:TableMappings", tableMappings27);
+            var tableMappings28 = new List<TableMapping>();
+            dBSyncerVersion.SetRuntimeAnnotation("Relational:TableMappings", tableMappings28);
             var dBSyncerVersionTable = new Table("@DBSyncerVersion", null, relationalModel);
             var versionColumn = new Column("Version", "nvarchar(10)", dBSyncerVersionTable);
             dBSyncerVersionTable.Columns.Add("Version", versionColumn);
@@ -5008,14 +5081,14 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("@DBSyncerVersion", null), dBSyncerVersionTable);
             var dBSyncerVersionTableMapping = new TableMapping(dBSyncerVersion, dBSyncerVersionTable, true);
             dBSyncerVersionTable.AddTypeMapping(dBSyncerVersionTableMapping, false);
-            tableMappings27.Add(dBSyncerVersionTableMapping);
+            tableMappings28.Add(dBSyncerVersionTableMapping);
             RelationalModel.CreateColumnMapping(versionColumn, dBSyncerVersion.FindProperty("Version")!, dBSyncerVersionTableMapping);
             RelationalModel.CreateColumnMapping(updateDateColumn21, dBSyncerVersion.FindProperty("UpdateDate")!, dBSyncerVersionTableMapping);
 
             var dbSyncerInfo = FindEntityType("gip.core.datamodel.DbSyncerInfo")!;
 
-            var defaultTableMappings28 = new List<TableMappingBase<ColumnMappingBase>>();
-            dbSyncerInfo.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings28);
+            var defaultTableMappings29 = new List<TableMappingBase<ColumnMappingBase>>();
+            dbSyncerInfo.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings29);
             var gipcoredatamodelDbSyncerInfoTableBase = new TableBase("gip.core.datamodel.DbSyncerInfo", null, relationalModel);
             var dbSyncerInfoContextIDColumnBase = new ColumnBase<ColumnMappingBase>("DbSyncerInfoContextID", "nvarchar(10)", gipcoredatamodelDbSyncerInfoTableBase);
             gipcoredatamodelDbSyncerInfoTableBase.Columns.Add("DbSyncerInfoContextID", dbSyncerInfoContextIDColumnBase);
@@ -5030,15 +5103,15 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.DbSyncerInfo", gipcoredatamodelDbSyncerInfoTableBase);
             var gipcoredatamodelDbSyncerInfoMappingBase = new TableMappingBase<ColumnMappingBase>(dbSyncerInfo, gipcoredatamodelDbSyncerInfoTableBase, true);
             gipcoredatamodelDbSyncerInfoTableBase.AddTypeMapping(gipcoredatamodelDbSyncerInfoMappingBase, false);
-            defaultTableMappings28.Add(gipcoredatamodelDbSyncerInfoMappingBase);
+            defaultTableMappings29.Add(gipcoredatamodelDbSyncerInfoMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)dbSyncerInfoIDColumnBase, dbSyncerInfo.FindProperty("DbSyncerInfoID")!, gipcoredatamodelDbSyncerInfoMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)dbSyncerInfoContextIDColumnBase, dbSyncerInfo.FindProperty("DbSyncerInfoContextID")!, gipcoredatamodelDbSyncerInfoMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)scriptDateColumnBase, dbSyncerInfo.FindProperty("ScriptDate")!, gipcoredatamodelDbSyncerInfoMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)updateAuthorColumnBase0, dbSyncerInfo.FindProperty("UpdateAuthor")!, gipcoredatamodelDbSyncerInfoMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)updateDateColumnBase22, dbSyncerInfo.FindProperty("UpdateDate")!, gipcoredatamodelDbSyncerInfoMappingBase);
 
-            var tableMappings28 = new List<TableMapping>();
-            dbSyncerInfo.SetRuntimeAnnotation("Relational:TableMappings", tableMappings28);
+            var tableMappings29 = new List<TableMapping>();
+            dbSyncerInfo.SetRuntimeAnnotation("Relational:TableMappings", tableMappings29);
             var dbSyncerInfoTable = new Table("@DbSyncerInfo", null, relationalModel);
             var dbSyncerInfoIDColumn = new Column("DbSyncerInfoID", "int", dbSyncerInfoTable);
             dbSyncerInfoTable.Columns.Add("DbSyncerInfoID", dbSyncerInfoIDColumn);
@@ -5069,7 +5142,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("@DbSyncerInfo", null), dbSyncerInfoTable);
             var dbSyncerInfoTableMapping = new TableMapping(dbSyncerInfo, dbSyncerInfoTable, true);
             dbSyncerInfoTable.AddTypeMapping(dbSyncerInfoTableMapping, false);
-            tableMappings28.Add(dbSyncerInfoTableMapping);
+            tableMappings29.Add(dbSyncerInfoTableMapping);
             RelationalModel.CreateColumnMapping(dbSyncerInfoIDColumn, dbSyncerInfo.FindProperty("DbSyncerInfoID")!, dbSyncerInfoTableMapping);
             RelationalModel.CreateColumnMapping(dbSyncerInfoContextIDColumn, dbSyncerInfo.FindProperty("DbSyncerInfoContextID")!, dbSyncerInfoTableMapping);
             RelationalModel.CreateColumnMapping(scriptDateColumn, dbSyncerInfo.FindProperty("ScriptDate")!, dbSyncerInfoTableMapping);
@@ -5078,8 +5151,8 @@ namespace gip.core.datamodel
 
             var dbSyncerInfoContext = FindEntityType("gip.core.datamodel.DbSyncerInfoContext")!;
 
-            var defaultTableMappings29 = new List<TableMappingBase<ColumnMappingBase>>();
-            dbSyncerInfoContext.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings29);
+            var defaultTableMappings30 = new List<TableMappingBase<ColumnMappingBase>>();
+            dbSyncerInfoContext.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings30);
             var gipcoredatamodelDbSyncerInfoContextTableBase = new TableBase("gip.core.datamodel.DbSyncerInfoContext", null, relationalModel);
             var connectionNameColumnBase = new ColumnBase<ColumnMappingBase>("ConnectionName", "nvarchar(150)", gipcoredatamodelDbSyncerInfoContextTableBase);
             gipcoredatamodelDbSyncerInfoContextTableBase.Columns.Add("ConnectionName", connectionNameColumnBase);
@@ -5092,14 +5165,14 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.DbSyncerInfoContext", gipcoredatamodelDbSyncerInfoContextTableBase);
             var gipcoredatamodelDbSyncerInfoContextMappingBase = new TableMappingBase<ColumnMappingBase>(dbSyncerInfoContext, gipcoredatamodelDbSyncerInfoContextTableBase, true);
             gipcoredatamodelDbSyncerInfoContextTableBase.AddTypeMapping(gipcoredatamodelDbSyncerInfoContextMappingBase, false);
-            defaultTableMappings29.Add(gipcoredatamodelDbSyncerInfoContextMappingBase);
+            defaultTableMappings30.Add(gipcoredatamodelDbSyncerInfoContextMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)dbSyncerInfoContextIDColumnBase0, dbSyncerInfoContext.FindProperty("DbSyncerInfoContextID")!, gipcoredatamodelDbSyncerInfoContextMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)connectionNameColumnBase, dbSyncerInfoContext.FindProperty("ConnectionName")!, gipcoredatamodelDbSyncerInfoContextMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nameColumnBase, dbSyncerInfoContext.FindProperty("Name")!, gipcoredatamodelDbSyncerInfoContextMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)orderColumnBase, dbSyncerInfoContext.FindProperty("Order")!, gipcoredatamodelDbSyncerInfoContextMappingBase);
 
-            var tableMappings29 = new List<TableMapping>();
-            dbSyncerInfoContext.SetRuntimeAnnotation("Relational:TableMappings", tableMappings29);
+            var tableMappings30 = new List<TableMapping>();
+            dbSyncerInfoContext.SetRuntimeAnnotation("Relational:TableMappings", tableMappings30);
             var dbSyncerInfoContextTable = new Table("@DbSyncerInfoContext", null, relationalModel);
             var dbSyncerInfoContextIDColumn0 = new Column("DbSyncerInfoContextID", "nvarchar(10)", dbSyncerInfoContextTable);
             dbSyncerInfoContextTable.Columns.Add("DbSyncerInfoContextID", dbSyncerInfoContextIDColumn0);
@@ -5120,7 +5193,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("@DbSyncerInfoContext", null), dbSyncerInfoContextTable);
             var dbSyncerInfoContextTableMapping = new TableMapping(dbSyncerInfoContext, dbSyncerInfoContextTable, true);
             dbSyncerInfoContextTable.AddTypeMapping(dbSyncerInfoContextTableMapping, false);
-            tableMappings29.Add(dbSyncerInfoContextTableMapping);
+            tableMappings30.Add(dbSyncerInfoContextTableMapping);
             RelationalModel.CreateColumnMapping(dbSyncerInfoContextIDColumn0, dbSyncerInfoContext.FindProperty("DbSyncerInfoContextID")!, dbSyncerInfoContextTableMapping);
             RelationalModel.CreateColumnMapping(connectionNameColumn, dbSyncerInfoContext.FindProperty("ConnectionName")!, dbSyncerInfoContextTableMapping);
             RelationalModel.CreateColumnMapping(nameColumn, dbSyncerInfoContext.FindProperty("Name")!, dbSyncerInfoContextTableMapping);
@@ -5128,8 +5201,8 @@ namespace gip.core.datamodel
 
             var msgAlarmLog = FindEntityType("gip.core.datamodel.MsgAlarmLog")!;
 
-            var defaultTableMappings30 = new List<TableMappingBase<ColumnMappingBase>>();
-            msgAlarmLog.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings30);
+            var defaultTableMappings31 = new List<TableMappingBase<ColumnMappingBase>>();
+            msgAlarmLog.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings31);
             var gipcoredatamodelMsgAlarmLogTableBase = new TableBase("gip.core.datamodel.MsgAlarmLog", null, relationalModel);
             var aCClassIDColumnBase12 = new ColumnBase<ColumnMappingBase>("ACClassID", "uniqueidentifier", gipcoredatamodelMsgAlarmLogTableBase)
             {
@@ -5138,11 +5211,11 @@ namespace gip.core.datamodel
             gipcoredatamodelMsgAlarmLogTableBase.Columns.Add("ACClassID", aCClassIDColumnBase12);
             var aCIdentifierColumnBase9 = new ColumnBase<ColumnMappingBase>("ACIdentifier", "varchar(100)", gipcoredatamodelMsgAlarmLogTableBase);
             gipcoredatamodelMsgAlarmLogTableBase.Columns.Add("ACIdentifier", aCIdentifierColumnBase9);
-            var aCProgramLogIDColumnBase2 = new ColumnBase<ColumnMappingBase>("ACProgramLogID", "uniqueidentifier", gipcoredatamodelMsgAlarmLogTableBase)
+            var aCProgramLogIDColumnBase3 = new ColumnBase<ColumnMappingBase>("ACProgramLogID", "uniqueidentifier", gipcoredatamodelMsgAlarmLogTableBase)
             {
                 IsNullable = true
             };
-            gipcoredatamodelMsgAlarmLogTableBase.Columns.Add("ACProgramLogID", aCProgramLogIDColumnBase2);
+            gipcoredatamodelMsgAlarmLogTableBase.Columns.Add("ACProgramLogID", aCProgramLogIDColumnBase3);
             var acknowledgedByColumnBase = new ColumnBase<ColumnMappingBase>("AcknowledgedBy", "varchar(20)", gipcoredatamodelMsgAlarmLogTableBase);
             gipcoredatamodelMsgAlarmLogTableBase.Columns.Add("AcknowledgedBy", acknowledgedByColumnBase);
             var columnColumnBase = new ColumnBase<ColumnMappingBase>("Column", "int", gipcoredatamodelMsgAlarmLogTableBase);
@@ -5180,11 +5253,11 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.MsgAlarmLog", gipcoredatamodelMsgAlarmLogTableBase);
             var gipcoredatamodelMsgAlarmLogMappingBase = new TableMappingBase<ColumnMappingBase>(msgAlarmLog, gipcoredatamodelMsgAlarmLogTableBase, true);
             gipcoredatamodelMsgAlarmLogTableBase.AddTypeMapping(gipcoredatamodelMsgAlarmLogMappingBase, false);
-            defaultTableMappings30.Add(gipcoredatamodelMsgAlarmLogMappingBase);
+            defaultTableMappings31.Add(gipcoredatamodelMsgAlarmLogMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)msgAlarmLogIDColumnBase, msgAlarmLog.FindProperty("MsgAlarmLogID")!, gipcoredatamodelMsgAlarmLogMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCClassIDColumnBase12, msgAlarmLog.FindProperty("ACClassID")!, gipcoredatamodelMsgAlarmLogMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCIdentifierColumnBase9, msgAlarmLog.FindProperty("ACIdentifier")!, gipcoredatamodelMsgAlarmLogMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProgramLogIDColumnBase2, msgAlarmLog.FindProperty("ACProgramLogID")!, gipcoredatamodelMsgAlarmLogMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProgramLogIDColumnBase3, msgAlarmLog.FindProperty("ACProgramLogID")!, gipcoredatamodelMsgAlarmLogMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)acknowledgedByColumnBase, msgAlarmLog.FindProperty("AcknowledgedBy")!, gipcoredatamodelMsgAlarmLogMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)columnColumnBase, msgAlarmLog.FindProperty("Column")!, gipcoredatamodelMsgAlarmLogMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)insertDateColumnBase21, msgAlarmLog.FindProperty("InsertDate")!, gipcoredatamodelMsgAlarmLogMappingBase);
@@ -5199,8 +5272,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)updateNameColumnBase21, msgAlarmLog.FindProperty("UpdateName")!, gipcoredatamodelMsgAlarmLogMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)xMLConfigColumnBase12, msgAlarmLog.FindProperty("XMLConfig")!, gipcoredatamodelMsgAlarmLogMappingBase);
 
-            var tableMappings30 = new List<TableMapping>();
-            msgAlarmLog.SetRuntimeAnnotation("Relational:TableMappings", tableMappings30);
+            var tableMappings31 = new List<TableMapping>();
+            msgAlarmLog.SetRuntimeAnnotation("Relational:TableMappings", tableMappings31);
             var msgAlarmLogTable = new Table("MsgAlarmLog", null, relationalModel);
             var msgAlarmLogIDColumn = new Column("MsgAlarmLogID", "uniqueidentifier", msgAlarmLogTable);
             msgAlarmLogTable.Columns.Add("MsgAlarmLogID", msgAlarmLogIDColumn);
@@ -5211,11 +5284,11 @@ namespace gip.core.datamodel
             msgAlarmLogTable.Columns.Add("ACClassID", aCClassIDColumn12);
             var aCIdentifierColumn9 = new Column("ACIdentifier", "varchar(100)", msgAlarmLogTable);
             msgAlarmLogTable.Columns.Add("ACIdentifier", aCIdentifierColumn9);
-            var aCProgramLogIDColumn2 = new Column("ACProgramLogID", "uniqueidentifier", msgAlarmLogTable)
+            var aCProgramLogIDColumn3 = new Column("ACProgramLogID", "uniqueidentifier", msgAlarmLogTable)
             {
                 IsNullable = true
             };
-            msgAlarmLogTable.Columns.Add("ACProgramLogID", aCProgramLogIDColumn2);
+            msgAlarmLogTable.Columns.Add("ACProgramLogID", aCProgramLogIDColumn3);
             var acknowledgedByColumn = new Column("AcknowledgedBy", "varchar(20)", msgAlarmLogTable);
             msgAlarmLogTable.Columns.Add("AcknowledgedBy", acknowledgedByColumn);
             var columnColumn = new Column("Column", "int", msgAlarmLogTable);
@@ -5257,7 +5330,7 @@ namespace gip.core.datamodel
             RelationalModel.GetOrCreateUniqueConstraints(pK_MsgAlarmLogUc).Add(pK_MsgAlarmLog);
             msgAlarmLogTable.UniqueConstraints.Add("PK_MsgAlarmLog", pK_MsgAlarmLog);
             var nCI_FK_MsgAlarmLog_ACProgramLogID = new TableIndex(
-            "NCI_FK_MsgAlarmLog_ACProgramLogID", msgAlarmLogTable, new[] { aCProgramLogIDColumn2 }, false);
+            "NCI_FK_MsgAlarmLog_ACProgramLogID", msgAlarmLogTable, new[] { aCProgramLogIDColumn3 }, false);
             var nCI_FK_MsgAlarmLog_ACProgramLogIDIx = RelationalModel.GetIndex(this,
                 "gip.core.datamodel.MsgAlarmLog",
                 "NCI_FK_MsgAlarmLog_ACProgramLogID");
@@ -5275,11 +5348,11 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("MsgAlarmLog", null), msgAlarmLogTable);
             var msgAlarmLogTableMapping = new TableMapping(msgAlarmLog, msgAlarmLogTable, true);
             msgAlarmLogTable.AddTypeMapping(msgAlarmLogTableMapping, false);
-            tableMappings30.Add(msgAlarmLogTableMapping);
+            tableMappings31.Add(msgAlarmLogTableMapping);
             RelationalModel.CreateColumnMapping(msgAlarmLogIDColumn, msgAlarmLog.FindProperty("MsgAlarmLogID")!, msgAlarmLogTableMapping);
             RelationalModel.CreateColumnMapping(aCClassIDColumn12, msgAlarmLog.FindProperty("ACClassID")!, msgAlarmLogTableMapping);
             RelationalModel.CreateColumnMapping(aCIdentifierColumn9, msgAlarmLog.FindProperty("ACIdentifier")!, msgAlarmLogTableMapping);
-            RelationalModel.CreateColumnMapping(aCProgramLogIDColumn2, msgAlarmLog.FindProperty("ACProgramLogID")!, msgAlarmLogTableMapping);
+            RelationalModel.CreateColumnMapping(aCProgramLogIDColumn3, msgAlarmLog.FindProperty("ACProgramLogID")!, msgAlarmLogTableMapping);
             RelationalModel.CreateColumnMapping(acknowledgedByColumn, msgAlarmLog.FindProperty("AcknowledgedBy")!, msgAlarmLogTableMapping);
             RelationalModel.CreateColumnMapping(columnColumn, msgAlarmLog.FindProperty("Column")!, msgAlarmLogTableMapping);
             RelationalModel.CreateColumnMapping(insertDateColumn21, msgAlarmLog.FindProperty("InsertDate")!, msgAlarmLogTableMapping);
@@ -5296,8 +5369,8 @@ namespace gip.core.datamodel
 
             var vBConfig = FindEntityType("gip.core.datamodel.VBConfig")!;
 
-            var defaultTableMappings31 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBConfig.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings31);
+            var defaultTableMappings32 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBConfig.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings32);
             var gipcoredatamodelVBConfigTableBase = new TableBase("gip.core.datamodel.VBConfig", null, relationalModel);
             var aCClassIDColumnBase13 = new ColumnBase<ColumnMappingBase>("ACClassID", "uniqueidentifier", gipcoredatamodelVBConfigTableBase)
             {
@@ -5356,7 +5429,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBConfig", gipcoredatamodelVBConfigTableBase);
             var gipcoredatamodelVBConfigMappingBase = new TableMappingBase<ColumnMappingBase>(vBConfig, gipcoredatamodelVBConfigTableBase, true);
             gipcoredatamodelVBConfigTableBase.AddTypeMapping(gipcoredatamodelVBConfigMappingBase, false);
-            defaultTableMappings31.Add(gipcoredatamodelVBConfigMappingBase);
+            defaultTableMappings32.Add(gipcoredatamodelVBConfigMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBConfigIDColumnBase, vBConfig.FindProperty("VBConfigID")!, gipcoredatamodelVBConfigMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCClassIDColumnBase13, vBConfig.FindProperty("ACClassID")!, gipcoredatamodelVBConfigMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCClassPropertyRelationIDColumnBase2, vBConfig.FindProperty("ACClassPropertyRelationID")!, gipcoredatamodelVBConfigMappingBase);
@@ -5373,8 +5446,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)valueTypeACClassIDColumnBase5, vBConfig.FindProperty("ValueTypeACClassID")!, gipcoredatamodelVBConfigMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)xMLConfigColumnBase13, vBConfig.FindProperty("XMLConfig")!, gipcoredatamodelVBConfigMappingBase);
 
-            var tableMappings31 = new List<TableMapping>();
-            vBConfig.SetRuntimeAnnotation("Relational:TableMappings", tableMappings31);
+            var tableMappings32 = new List<TableMapping>();
+            vBConfig.SetRuntimeAnnotation("Relational:TableMappings", tableMappings32);
             var vBConfigTable = new Table("VBConfig", null, relationalModel);
             var vBConfigIDColumn = new Column("VBConfigID", "uniqueidentifier", vBConfigTable);
             vBConfigTable.Columns.Add("VBConfigID", vBConfigIDColumn);
@@ -5473,7 +5546,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("VBConfig", null), vBConfigTable);
             var vBConfigTableMapping = new TableMapping(vBConfig, vBConfigTable, true);
             vBConfigTable.AddTypeMapping(vBConfigTableMapping, false);
-            tableMappings31.Add(vBConfigTableMapping);
+            tableMappings32.Add(vBConfigTableMapping);
             RelationalModel.CreateColumnMapping(vBConfigIDColumn, vBConfig.FindProperty("VBConfigID")!, vBConfigTableMapping);
             RelationalModel.CreateColumnMapping(aCClassIDColumn13, vBConfig.FindProperty("ACClassID")!, vBConfigTableMapping);
             RelationalModel.CreateColumnMapping(aCClassPropertyRelationIDColumn2, vBConfig.FindProperty("ACClassPropertyRelationID")!, vBConfigTableMapping);
@@ -5492,8 +5565,8 @@ namespace gip.core.datamodel
 
             var vBGroup = FindEntityType("gip.core.datamodel.VBGroup")!;
 
-            var defaultTableMappings32 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBGroup.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings32);
+            var defaultTableMappings33 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBGroup.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings33);
             var gipcoredatamodelVBGroupTableBase = new TableBase("gip.core.datamodel.VBGroup", null, relationalModel);
             var descriptionColumnBase = new ColumnBase<ColumnMappingBase>("Description", "varchar(250)", gipcoredatamodelVBGroupTableBase)
             {
@@ -5515,7 +5588,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBGroup", gipcoredatamodelVBGroupTableBase);
             var gipcoredatamodelVBGroupMappingBase = new TableMappingBase<ColumnMappingBase>(vBGroup, gipcoredatamodelVBGroupTableBase, true);
             gipcoredatamodelVBGroupTableBase.AddTypeMapping(gipcoredatamodelVBGroupMappingBase, false);
-            defaultTableMappings32.Add(gipcoredatamodelVBGroupMappingBase);
+            defaultTableMappings33.Add(gipcoredatamodelVBGroupMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBGroupIDColumnBase, vBGroup.FindProperty("VBGroupID")!, gipcoredatamodelVBGroupMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)descriptionColumnBase, vBGroup.FindProperty("Description")!, gipcoredatamodelVBGroupMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)insertDateColumnBase23, vBGroup.FindProperty("InsertDate")!, gipcoredatamodelVBGroupMappingBase);
@@ -5524,8 +5597,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)updateNameColumnBase23, vBGroup.FindProperty("UpdateName")!, gipcoredatamodelVBGroupMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBGroupNameColumnBase, vBGroup.FindProperty("VBGroupName")!, gipcoredatamodelVBGroupMappingBase);
 
-            var tableMappings32 = new List<TableMapping>();
-            vBGroup.SetRuntimeAnnotation("Relational:TableMappings", tableMappings32);
+            var tableMappings33 = new List<TableMapping>();
+            vBGroup.SetRuntimeAnnotation("Relational:TableMappings", tableMappings33);
             var vBGroupTable = new Table("VBGroup", null, relationalModel);
             var vBGroupIDColumn = new Column("VBGroupID", "uniqueidentifier", vBGroupTable);
             vBGroupTable.Columns.Add("VBGroupID", vBGroupIDColumn);
@@ -5555,7 +5628,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("VBGroup", null), vBGroupTable);
             var vBGroupTableMapping = new TableMapping(vBGroup, vBGroupTable, true);
             vBGroupTable.AddTypeMapping(vBGroupTableMapping, false);
-            tableMappings32.Add(vBGroupTableMapping);
+            tableMappings33.Add(vBGroupTableMapping);
             RelationalModel.CreateColumnMapping(vBGroupIDColumn, vBGroup.FindProperty("VBGroupID")!, vBGroupTableMapping);
             RelationalModel.CreateColumnMapping(descriptionColumn, vBGroup.FindProperty("Description")!, vBGroupTableMapping);
             RelationalModel.CreateColumnMapping(insertDateColumn23, vBGroup.FindProperty("InsertDate")!, vBGroupTableMapping);
@@ -5566,8 +5639,8 @@ namespace gip.core.datamodel
 
             var vBGroupRight = FindEntityType("gip.core.datamodel.VBGroupRight")!;
 
-            var defaultTableMappings33 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBGroupRight.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings33);
+            var defaultTableMappings34 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBGroupRight.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings34);
             var gipcoredatamodelVBGroupRightTableBase = new TableBase("gip.core.datamodel.VBGroupRight", null, relationalModel);
             var aCClassDesignIDColumnBase0 = new ColumnBase<ColumnMappingBase>("ACClassDesignID", "uniqueidentifier", gipcoredatamodelVBGroupRightTableBase)
             {
@@ -5595,7 +5668,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBGroupRight", gipcoredatamodelVBGroupRightTableBase);
             var gipcoredatamodelVBGroupRightMappingBase = new TableMappingBase<ColumnMappingBase>(vBGroupRight, gipcoredatamodelVBGroupRightTableBase, true);
             gipcoredatamodelVBGroupRightTableBase.AddTypeMapping(gipcoredatamodelVBGroupRightMappingBase, false);
-            defaultTableMappings33.Add(gipcoredatamodelVBGroupRightMappingBase);
+            defaultTableMappings34.Add(gipcoredatamodelVBGroupRightMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBGroupRightIDColumnBase, vBGroupRight.FindProperty("VBGroupRightID")!, gipcoredatamodelVBGroupRightMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCClassDesignIDColumnBase0, vBGroupRight.FindProperty("ACClassDesignID")!, gipcoredatamodelVBGroupRightMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCClassIDColumnBase14, vBGroupRight.FindProperty("ACClassID")!, gipcoredatamodelVBGroupRightMappingBase);
@@ -5604,8 +5677,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)controlModeIndexColumnBase, vBGroupRight.FindProperty("ControlModeIndex")!, gipcoredatamodelVBGroupRightMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBGroupIDColumnBase0, vBGroupRight.FindProperty("VBGroupID")!, gipcoredatamodelVBGroupRightMappingBase);
 
-            var tableMappings33 = new List<TableMapping>();
-            vBGroupRight.SetRuntimeAnnotation("Relational:TableMappings", tableMappings33);
+            var tableMappings34 = new List<TableMapping>();
+            vBGroupRight.SetRuntimeAnnotation("Relational:TableMappings", tableMappings34);
             var vBGroupRightTable = new Table("VBGroupRight", null, relationalModel);
             var vBGroupRightIDColumn = new Column("VBGroupRightID", "uniqueidentifier", vBGroupRightTable);
             vBGroupRightTable.Columns.Add("VBGroupRightID", vBGroupRightIDColumn);
@@ -5681,7 +5754,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("VBGroupRight", null), vBGroupRightTable);
             var vBGroupRightTableMapping = new TableMapping(vBGroupRight, vBGroupRightTable, true);
             vBGroupRightTable.AddTypeMapping(vBGroupRightTableMapping, false);
-            tableMappings33.Add(vBGroupRightTableMapping);
+            tableMappings34.Add(vBGroupRightTableMapping);
             RelationalModel.CreateColumnMapping(vBGroupRightIDColumn, vBGroupRight.FindProperty("VBGroupRightID")!, vBGroupRightTableMapping);
             RelationalModel.CreateColumnMapping(aCClassDesignIDColumn0, vBGroupRight.FindProperty("ACClassDesignID")!, vBGroupRightTableMapping);
             RelationalModel.CreateColumnMapping(aCClassIDColumn14, vBGroupRight.FindProperty("ACClassID")!, vBGroupRightTableMapping);
@@ -5692,8 +5765,8 @@ namespace gip.core.datamodel
 
             var vBLanguage = FindEntityType("gip.core.datamodel.VBLanguage")!;
 
-            var defaultTableMappings34 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBLanguage.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings34);
+            var defaultTableMappings35 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBLanguage.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings35);
             var gipcoredatamodelVBLanguageTableBase = new TableBase("gip.core.datamodel.VBLanguage", null, relationalModel);
             var insertDateColumnBase24 = new ColumnBase<ColumnMappingBase>("InsertDate", "datetime", gipcoredatamodelVBLanguageTableBase);
             gipcoredatamodelVBLanguageTableBase.Columns.Add("InsertDate", insertDateColumnBase24);
@@ -5725,7 +5798,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBLanguage", gipcoredatamodelVBLanguageTableBase);
             var gipcoredatamodelVBLanguageMappingBase = new TableMappingBase<ColumnMappingBase>(vBLanguage, gipcoredatamodelVBLanguageTableBase, true);
             gipcoredatamodelVBLanguageTableBase.AddTypeMapping(gipcoredatamodelVBLanguageMappingBase, false);
-            defaultTableMappings34.Add(gipcoredatamodelVBLanguageMappingBase);
+            defaultTableMappings35.Add(gipcoredatamodelVBLanguageMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBLanguageIDColumnBase, vBLanguage.FindProperty("VBLanguageID")!, gipcoredatamodelVBLanguageMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)insertDateColumnBase24, vBLanguage.FindProperty("InsertDate")!, gipcoredatamodelVBLanguageMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)insertNameColumnBase24, vBLanguage.FindProperty("InsertName")!, gipcoredatamodelVBLanguageMappingBase);
@@ -5739,8 +5812,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBNameTransColumnBase, vBLanguage.FindProperty("VBNameTrans")!, gipcoredatamodelVBLanguageMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)xMLConfigColumnBase14, vBLanguage.FindProperty("XMLConfig")!, gipcoredatamodelVBLanguageMappingBase);
 
-            var tableMappings34 = new List<TableMapping>();
-            vBLanguage.SetRuntimeAnnotation("Relational:TableMappings", tableMappings34);
+            var tableMappings35 = new List<TableMapping>();
+            vBLanguage.SetRuntimeAnnotation("Relational:TableMappings", tableMappings35);
             var vBLanguageTable = new Table("VBLanguage", null, relationalModel);
             var vBLanguageIDColumn = new Column("VBLanguageID", "uniqueidentifier", vBLanguageTable);
             vBLanguageTable.Columns.Add("VBLanguageID", vBLanguageIDColumn);
@@ -5788,7 +5861,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("VBLanguage", null), vBLanguageTable);
             var vBLanguageTableMapping = new TableMapping(vBLanguage, vBLanguageTable, true);
             vBLanguageTable.AddTypeMapping(vBLanguageTableMapping, false);
-            tableMappings34.Add(vBLanguageTableMapping);
+            tableMappings35.Add(vBLanguageTableMapping);
             RelationalModel.CreateColumnMapping(vBLanguageIDColumn, vBLanguage.FindProperty("VBLanguageID")!, vBLanguageTableMapping);
             RelationalModel.CreateColumnMapping(insertDateColumn24, vBLanguage.FindProperty("InsertDate")!, vBLanguageTableMapping);
             RelationalModel.CreateColumnMapping(insertNameColumn24, vBLanguage.FindProperty("InsertName")!, vBLanguageTableMapping);
@@ -5804,8 +5877,8 @@ namespace gip.core.datamodel
 
             var vBLicense = FindEntityType("gip.core.datamodel.VBLicense")!;
 
-            var defaultTableMappings35 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBLicense.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings35);
+            var defaultTableMappings36 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBLicense.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings36);
             var gipcoredatamodelVBLicenseTableBase = new TableBase("gip.core.datamodel.VBLicense", null, relationalModel);
             var customerNameColumnBase = new ColumnBase<ColumnMappingBase>("CustomerName", "varchar(100)", gipcoredatamodelVBLicenseTableBase);
             gipcoredatamodelVBLicenseTableBase.Columns.Add("CustomerName", customerNameColumnBase);
@@ -5849,7 +5922,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBLicense", gipcoredatamodelVBLicenseTableBase);
             var gipcoredatamodelVBLicenseMappingBase = new TableMappingBase<ColumnMappingBase>(vBLicense, gipcoredatamodelVBLicenseTableBase, true);
             gipcoredatamodelVBLicenseTableBase.AddTypeMapping(gipcoredatamodelVBLicenseMappingBase, false);
-            defaultTableMappings35.Add(gipcoredatamodelVBLicenseMappingBase);
+            defaultTableMappings36.Add(gipcoredatamodelVBLicenseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBLicenseIDColumnBase, vBLicense.FindProperty("VBLicenseID")!, gipcoredatamodelVBLicenseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)customerNameColumnBase, vBLicense.FindProperty("CustomerName")!, gipcoredatamodelVBLicenseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)licenseNoColumnBase, vBLicense.FindProperty("LicenseNo")!, gipcoredatamodelVBLicenseMappingBase);
@@ -5863,8 +5936,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)systemKeyColumnBase, vBLicense.FindProperty("SystemKey")!, gipcoredatamodelVBLicenseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)systemRemoteColumnBase, vBLicense.FindProperty("SystemRemote")!, gipcoredatamodelVBLicenseMappingBase);
 
-            var tableMappings35 = new List<TableMapping>();
-            vBLicense.SetRuntimeAnnotation("Relational:TableMappings", tableMappings35);
+            var tableMappings36 = new List<TableMapping>();
+            vBLicense.SetRuntimeAnnotation("Relational:TableMappings", tableMappings36);
             var vBLicenseTable = new Table("VBLicense", null, relationalModel);
             var vBLicenseIDColumn = new Column("VBLicenseID", "uniqueidentifier", vBLicenseTable);
             vBLicenseTable.Columns.Add("VBLicenseID", vBLicenseIDColumn);
@@ -5916,7 +5989,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("VBLicense", null), vBLicenseTable);
             var vBLicenseTableMapping = new TableMapping(vBLicense, vBLicenseTable, true);
             vBLicenseTable.AddTypeMapping(vBLicenseTableMapping, false);
-            tableMappings35.Add(vBLicenseTableMapping);
+            tableMappings36.Add(vBLicenseTableMapping);
             RelationalModel.CreateColumnMapping(vBLicenseIDColumn, vBLicense.FindProperty("VBLicenseID")!, vBLicenseTableMapping);
             RelationalModel.CreateColumnMapping(customerNameColumn, vBLicense.FindProperty("CustomerName")!, vBLicenseTableMapping);
             RelationalModel.CreateColumnMapping(licenseNoColumn, vBLicense.FindProperty("LicenseNo")!, vBLicenseTableMapping);
@@ -5932,8 +6005,8 @@ namespace gip.core.datamodel
 
             var vBNoConfiguration = FindEntityType("gip.core.datamodel.VBNoConfiguration")!;
 
-            var defaultTableMappings36 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBNoConfiguration.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings36);
+            var defaultTableMappings37 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBNoConfiguration.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings37);
             var gipcoredatamodelVBNoConfigurationTableBase = new TableBase("gip.core.datamodel.VBNoConfiguration", null, relationalModel);
             var currentCounterColumnBase = new ColumnBase<ColumnMappingBase>("CurrentCounter", "int", gipcoredatamodelVBNoConfigurationTableBase);
             gipcoredatamodelVBNoConfigurationTableBase.Columns.Add("CurrentCounter", currentCounterColumnBase);
@@ -5974,7 +6047,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBNoConfiguration", gipcoredatamodelVBNoConfigurationTableBase);
             var gipcoredatamodelVBNoConfigurationMappingBase = new TableMappingBase<ColumnMappingBase>(vBNoConfiguration, gipcoredatamodelVBNoConfigurationTableBase, true);
             gipcoredatamodelVBNoConfigurationTableBase.AddTypeMapping(gipcoredatamodelVBNoConfigurationMappingBase, false);
-            defaultTableMappings36.Add(gipcoredatamodelVBNoConfigurationMappingBase);
+            defaultTableMappings37.Add(gipcoredatamodelVBNoConfigurationMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBNoConfigurationIDColumnBase, vBNoConfiguration.FindProperty("VBNoConfigurationID")!, gipcoredatamodelVBNoConfigurationMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)currentCounterColumnBase, vBNoConfiguration.FindProperty("CurrentCounter")!, gipcoredatamodelVBNoConfigurationMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)currentDateColumnBase, vBNoConfiguration.FindProperty("CurrentDate")!, gipcoredatamodelVBNoConfigurationMappingBase);
@@ -5991,8 +6064,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBNoConfigurationNameColumnBase, vBNoConfiguration.FindProperty("VBNoConfigurationName")!, gipcoredatamodelVBNoConfigurationMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)xMLConfigColumnBase15, vBNoConfiguration.FindProperty("XMLConfig")!, gipcoredatamodelVBNoConfigurationMappingBase);
 
-            var tableMappings36 = new List<TableMapping>();
-            vBNoConfiguration.SetRuntimeAnnotation("Relational:TableMappings", tableMappings36);
+            var tableMappings37 = new List<TableMapping>();
+            vBNoConfiguration.SetRuntimeAnnotation("Relational:TableMappings", tableMappings37);
             var vBNoConfigurationTable = new Table("VBNoConfiguration", null, relationalModel);
             var vBNoConfigurationIDColumn = new Column("VBNoConfigurationID", "uniqueidentifier", vBNoConfigurationTable);
             vBNoConfigurationTable.Columns.Add("VBNoConfigurationID", vBNoConfigurationIDColumn);
@@ -6041,7 +6114,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("VBNoConfiguration", null), vBNoConfigurationTable);
             var vBNoConfigurationTableMapping = new TableMapping(vBNoConfiguration, vBNoConfigurationTable, true);
             vBNoConfigurationTable.AddTypeMapping(vBNoConfigurationTableMapping, false);
-            tableMappings36.Add(vBNoConfigurationTableMapping);
+            tableMappings37.Add(vBNoConfigurationTableMapping);
             RelationalModel.CreateColumnMapping(vBNoConfigurationIDColumn, vBNoConfiguration.FindProperty("VBNoConfigurationID")!, vBNoConfigurationTableMapping);
             RelationalModel.CreateColumnMapping(currentCounterColumn, vBNoConfiguration.FindProperty("CurrentCounter")!, vBNoConfigurationTableMapping);
             RelationalModel.CreateColumnMapping(currentDateColumn, vBNoConfiguration.FindProperty("CurrentDate")!, vBNoConfigurationTableMapping);
@@ -6060,8 +6133,8 @@ namespace gip.core.datamodel
 
             var vBSystem = FindEntityType("gip.core.datamodel.VBSystem")!;
 
-            var defaultTableMappings37 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBSystem.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings37);
+            var defaultTableMappings38 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBSystem.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings38);
             var gipcoredatamodelVBSystemTableBase = new TableBase("gip.core.datamodel.VBSystem", null, relationalModel);
             var companyColumnBase = new ColumnBase<ColumnMappingBase>("Company", "varchar(200)", gipcoredatamodelVBSystemTableBase);
             gipcoredatamodelVBSystemTableBase.Columns.Add("Company", companyColumnBase);
@@ -6118,7 +6191,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBSystem", gipcoredatamodelVBSystemTableBase);
             var gipcoredatamodelVBSystemMappingBase = new TableMappingBase<ColumnMappingBase>(vBSystem, gipcoredatamodelVBSystemTableBase, true);
             gipcoredatamodelVBSystemTableBase.AddTypeMapping(gipcoredatamodelVBSystemMappingBase, false);
-            defaultTableMappings37.Add(gipcoredatamodelVBSystemMappingBase);
+            defaultTableMappings38.Add(gipcoredatamodelVBSystemMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBSystemIDColumnBase, vBSystem.FindProperty("VBSystemID")!, gipcoredatamodelVBSystemMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)companyColumnBase, vBSystem.FindProperty("Company")!, gipcoredatamodelVBSystemMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)customerNameColumnBase0, vBSystem.FindProperty("CustomerName")!, gipcoredatamodelVBSystemMappingBase);
@@ -6134,8 +6207,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)systemPrivateColumnBase, vBSystem.FindProperty("SystemPrivate")!, gipcoredatamodelVBSystemMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)systemRemoteColumnBase0, vBSystem.FindProperty("SystemRemote")!, gipcoredatamodelVBSystemMappingBase);
 
-            var tableMappings37 = new List<TableMapping>();
-            vBSystem.SetRuntimeAnnotation("Relational:TableMappings", tableMappings37);
+            var tableMappings38 = new List<TableMapping>();
+            vBSystem.SetRuntimeAnnotation("Relational:TableMappings", tableMappings38);
             var vBSystemTable = new Table("VBSystem", null, relationalModel);
             var vBSystemIDColumn = new Column("VBSystemID", "uniqueidentifier", vBSystemTable);
             vBSystemTable.Columns.Add("VBSystemID", vBSystemIDColumn);
@@ -6200,7 +6273,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("VBSystem", null), vBSystemTable);
             var vBSystemTableMapping = new TableMapping(vBSystem, vBSystemTable, true);
             vBSystemTable.AddTypeMapping(vBSystemTableMapping, false);
-            tableMappings37.Add(vBSystemTableMapping);
+            tableMappings38.Add(vBSystemTableMapping);
             RelationalModel.CreateColumnMapping(vBSystemIDColumn, vBSystem.FindProperty("VBSystemID")!, vBSystemTableMapping);
             RelationalModel.CreateColumnMapping(companyColumn, vBSystem.FindProperty("Company")!, vBSystemTableMapping);
             RelationalModel.CreateColumnMapping(customerNameColumn0, vBSystem.FindProperty("CustomerName")!, vBSystemTableMapping);
@@ -6218,8 +6291,8 @@ namespace gip.core.datamodel
 
             var vBSystemColumns = FindEntityType("gip.core.datamodel.VBSystemColumns")!;
 
-            var defaultTableMappings38 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBSystemColumns.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings38);
+            var defaultTableMappings39 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBSystemColumns.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings39);
             var gipcoredatamodelVBSystemColumnsTableBase = new TableBase("gip.core.datamodel.VBSystemColumns", null, relationalModel);
             var columnlengthColumnBase = new ColumnBase<ColumnMappingBase>("columnlength", "smallint", gipcoredatamodelVBSystemColumnsTableBase)
             {
@@ -6243,7 +6316,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBSystemColumns", gipcoredatamodelVBSystemColumnsTableBase);
             var gipcoredatamodelVBSystemColumnsMappingBase = new TableMappingBase<ColumnMappingBase>(vBSystemColumns, gipcoredatamodelVBSystemColumnsTableBase, true);
             gipcoredatamodelVBSystemColumnsTableBase.AddTypeMapping(gipcoredatamodelVBSystemColumnsMappingBase, false);
-            defaultTableMappings38.Add(gipcoredatamodelVBSystemColumnsMappingBase);
+            defaultTableMappings39.Add(gipcoredatamodelVBSystemColumnsMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)columnlengthColumnBase, vBSystemColumns.FindProperty("columnlength")!, gipcoredatamodelVBSystemColumnsMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)columnnameColumnBase, vBSystemColumns.FindProperty("columnname")!, gipcoredatamodelVBSystemColumnsMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)columnnullableColumnBase, vBSystemColumns.FindProperty("columnnullable")!, gipcoredatamodelVBSystemColumnsMappingBase);
@@ -6284,8 +6357,8 @@ namespace gip.core.datamodel
 
             var vBTranslationView = FindEntityType("gip.core.datamodel.VBTranslationView")!;
 
-            var defaultTableMappings39 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBTranslationView.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings39);
+            var defaultTableMappings40 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBTranslationView.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings40);
             var gipcoredatamodelVBTranslationViewTableBase = new TableBase("gip.core.datamodel.VBTranslationView", null, relationalModel);
             var aCIdentifierColumnBase10 = new ColumnBase<ColumnMappingBase>("ACIdentifier", "varchar(100)", gipcoredatamodelVBTranslationViewTableBase);
             gipcoredatamodelVBTranslationViewTableBase.Columns.Add("ACIdentifier", aCIdentifierColumnBase10);
@@ -6316,7 +6389,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBTranslationView", gipcoredatamodelVBTranslationViewTableBase);
             var gipcoredatamodelVBTranslationViewMappingBase = new TableMappingBase<ColumnMappingBase>(vBTranslationView, gipcoredatamodelVBTranslationViewTableBase, true);
             gipcoredatamodelVBTranslationViewTableBase.AddTypeMapping(gipcoredatamodelVBTranslationViewMappingBase, false);
-            defaultTableMappings39.Add(gipcoredatamodelVBTranslationViewMappingBase);
+            defaultTableMappings40.Add(gipcoredatamodelVBTranslationViewMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCIdentifierColumnBase10, vBTranslationView.FindProperty("ACIdentifier")!, gipcoredatamodelVBTranslationViewMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProjectNameColumnBase0, vBTranslationView.FindProperty("ACProjectName")!, gipcoredatamodelVBTranslationViewMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)iDColumnBase, vBTranslationView.FindProperty("ID")!, gipcoredatamodelVBTranslationViewMappingBase);
@@ -6374,8 +6447,8 @@ namespace gip.core.datamodel
 
             var vBUser = FindEntityType("gip.core.datamodel.VBUser")!;
 
-            var defaultTableMappings40 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBUser.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings40);
+            var defaultTableMappings41 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBUser.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings41);
             var gipcoredatamodelVBUserTableBase = new TableBase("gip.core.datamodel.VBUser", null, relationalModel);
             var allowChangePWColumnBase = new ColumnBase<ColumnMappingBase>("AllowChangePW", "bit", gipcoredatamodelVBUserTableBase);
             gipcoredatamodelVBUserTableBase.Columns.Add("AllowChangePW", allowChangePWColumnBase);
@@ -6414,7 +6487,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBUser", gipcoredatamodelVBUserTableBase);
             var gipcoredatamodelVBUserMappingBase = new TableMappingBase<ColumnMappingBase>(vBUser, gipcoredatamodelVBUserTableBase, true);
             gipcoredatamodelVBUserTableBase.AddTypeMapping(gipcoredatamodelVBUserMappingBase, false);
-            defaultTableMappings40.Add(gipcoredatamodelVBUserMappingBase);
+            defaultTableMappings41.Add(gipcoredatamodelVBUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBUserIDColumnBase1, vBUser.FindProperty("VBUserID")!, gipcoredatamodelVBUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)allowChangePWColumnBase, vBUser.FindProperty("AllowChangePW")!, gipcoredatamodelVBUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)initialsColumnBase, vBUser.FindProperty("Initials")!, gipcoredatamodelVBUserMappingBase);
@@ -6430,8 +6503,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBUserNoColumnBase, vBUser.FindProperty("VBUserNo")!, gipcoredatamodelVBUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)xMLConfigColumnBase16, vBUser.FindProperty("XMLConfig")!, gipcoredatamodelVBUserMappingBase);
 
-            var tableMappings38 = new List<TableMapping>();
-            vBUser.SetRuntimeAnnotation("Relational:TableMappings", tableMappings38);
+            var tableMappings39 = new List<TableMapping>();
+            vBUser.SetRuntimeAnnotation("Relational:TableMappings", tableMappings39);
             var vBUserTable = new Table("VBUser", null, relationalModel);
             var vBUserIDColumn1 = new Column("VBUserID", "uniqueidentifier", vBUserTable);
             vBUserTable.Columns.Add("VBUserID", vBUserIDColumn1);
@@ -6494,7 +6567,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("VBUser", null), vBUserTable);
             var vBUserTableMapping = new TableMapping(vBUser, vBUserTable, true);
             vBUserTable.AddTypeMapping(vBUserTableMapping, false);
-            tableMappings38.Add(vBUserTableMapping);
+            tableMappings39.Add(vBUserTableMapping);
             RelationalModel.CreateColumnMapping(vBUserIDColumn1, vBUser.FindProperty("VBUserID")!, vBUserTableMapping);
             RelationalModel.CreateColumnMapping(allowChangePWColumn, vBUser.FindProperty("AllowChangePW")!, vBUserTableMapping);
             RelationalModel.CreateColumnMapping(initialsColumn, vBUser.FindProperty("Initials")!, vBUserTableMapping);
@@ -6512,8 +6585,8 @@ namespace gip.core.datamodel
 
             var vBUserACClassDesign = FindEntityType("gip.core.datamodel.VBUserACClassDesign")!;
 
-            var defaultTableMappings41 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBUserACClassDesign.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings41);
+            var defaultTableMappings42 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBUserACClassDesign.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings42);
             var gipcoredatamodelVBUserACClassDesignTableBase = new TableBase("gip.core.datamodel.VBUserACClassDesign", null, relationalModel);
             var aCClassDesignIDColumnBase1 = new ColumnBase<ColumnMappingBase>("ACClassDesignID", "uniqueidentifier", gipcoredatamodelVBUserACClassDesignTableBase)
             {
@@ -6542,7 +6615,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBUserACClassDesign", gipcoredatamodelVBUserACClassDesignTableBase);
             var gipcoredatamodelVBUserACClassDesignMappingBase = new TableMappingBase<ColumnMappingBase>(vBUserACClassDesign, gipcoredatamodelVBUserACClassDesignTableBase, true);
             gipcoredatamodelVBUserACClassDesignTableBase.AddTypeMapping(gipcoredatamodelVBUserACClassDesignMappingBase, false);
-            defaultTableMappings41.Add(gipcoredatamodelVBUserACClassDesignMappingBase);
+            defaultTableMappings42.Add(gipcoredatamodelVBUserACClassDesignMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBUserACClassDesignIDColumnBase, vBUserACClassDesign.FindProperty("VBUserACClassDesignID")!, gipcoredatamodelVBUserACClassDesignMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCClassDesignIDColumnBase1, vBUserACClassDesign.FindProperty("ACClassDesignID")!, gipcoredatamodelVBUserACClassDesignMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCIdentifierColumnBase11, vBUserACClassDesign.FindProperty("ACIdentifier")!, gipcoredatamodelVBUserACClassDesignMappingBase);
@@ -6553,8 +6626,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBUserIDColumnBase2, vBUserACClassDesign.FindProperty("VBUserID")!, gipcoredatamodelVBUserACClassDesignMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)xMLDesignColumnBase1, vBUserACClassDesign.FindProperty("XMLDesign")!, gipcoredatamodelVBUserACClassDesignMappingBase);
 
-            var tableMappings39 = new List<TableMapping>();
-            vBUserACClassDesign.SetRuntimeAnnotation("Relational:TableMappings", tableMappings39);
+            var tableMappings40 = new List<TableMapping>();
+            vBUserACClassDesign.SetRuntimeAnnotation("Relational:TableMappings", tableMappings40);
             var vBUserACClassDesignTable = new Table("VBUserACClassDesign", null, relationalModel);
             var vBUserACClassDesignIDColumn = new Column("VBUserACClassDesignID", "uniqueidentifier", vBUserACClassDesignTable);
             vBUserACClassDesignTable.Columns.Add("VBUserACClassDesignID", vBUserACClassDesignIDColumn);
@@ -6607,7 +6680,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("VBUserACClassDesign", null), vBUserACClassDesignTable);
             var vBUserACClassDesignTableMapping = new TableMapping(vBUserACClassDesign, vBUserACClassDesignTable, true);
             vBUserACClassDesignTable.AddTypeMapping(vBUserACClassDesignTableMapping, false);
-            tableMappings39.Add(vBUserACClassDesignTableMapping);
+            tableMappings40.Add(vBUserACClassDesignTableMapping);
             RelationalModel.CreateColumnMapping(vBUserACClassDesignIDColumn, vBUserACClassDesign.FindProperty("VBUserACClassDesignID")!, vBUserACClassDesignTableMapping);
             RelationalModel.CreateColumnMapping(aCClassDesignIDColumn1, vBUserACClassDesign.FindProperty("ACClassDesignID")!, vBUserACClassDesignTableMapping);
             RelationalModel.CreateColumnMapping(aCIdentifierColumn10, vBUserACClassDesign.FindProperty("ACIdentifier")!, vBUserACClassDesignTableMapping);
@@ -6620,8 +6693,8 @@ namespace gip.core.datamodel
 
             var vBUserACProject = FindEntityType("gip.core.datamodel.VBUserACProject")!;
 
-            var defaultTableMappings42 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBUserACProject.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings42);
+            var defaultTableMappings43 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBUserACProject.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings43);
             var gipcoredatamodelVBUserACProjectTableBase = new TableBase("gip.core.datamodel.VBUserACProject", null, relationalModel);
             var aCProjectIDColumnBase1 = new ColumnBase<ColumnMappingBase>("ACProjectID", "uniqueidentifier", gipcoredatamodelVBUserACProjectTableBase);
             gipcoredatamodelVBUserACProjectTableBase.Columns.Add("ACProjectID", aCProjectIDColumnBase1);
@@ -6644,7 +6717,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBUserACProject", gipcoredatamodelVBUserACProjectTableBase);
             var gipcoredatamodelVBUserACProjectMappingBase = new TableMappingBase<ColumnMappingBase>(vBUserACProject, gipcoredatamodelVBUserACProjectTableBase, true);
             gipcoredatamodelVBUserACProjectTableBase.AddTypeMapping(gipcoredatamodelVBUserACProjectMappingBase, false);
-            defaultTableMappings42.Add(gipcoredatamodelVBUserACProjectMappingBase);
+            defaultTableMappings43.Add(gipcoredatamodelVBUserACProjectMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBUserACProjectIDColumnBase, vBUserACProject.FindProperty("VBUserACProjectID")!, gipcoredatamodelVBUserACProjectMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)aCProjectIDColumnBase1, vBUserACProject.FindProperty("ACProjectID")!, gipcoredatamodelVBUserACProjectMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)insertDateColumnBase28, vBUserACProject.FindProperty("InsertDate")!, gipcoredatamodelVBUserACProjectMappingBase);
@@ -6655,8 +6728,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)updateNameColumnBase29, vBUserACProject.FindProperty("UpdateName")!, gipcoredatamodelVBUserACProjectMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBUserIDColumnBase3, vBUserACProject.FindProperty("VBUserID")!, gipcoredatamodelVBUserACProjectMappingBase);
 
-            var tableMappings40 = new List<TableMapping>();
-            vBUserACProject.SetRuntimeAnnotation("Relational:TableMappings", tableMappings40);
+            var tableMappings41 = new List<TableMapping>();
+            vBUserACProject.SetRuntimeAnnotation("Relational:TableMappings", tableMappings41);
             var vBUserACProjectTable = new Table("VBUserACProject", null, relationalModel);
             var vBUserACProjectIDColumn = new Column("VBUserACProjectID", "uniqueidentifier", vBUserACProjectTable);
             vBUserACProjectTable.Columns.Add("VBUserACProjectID", vBUserACProjectIDColumn);
@@ -6703,7 +6776,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("VBUserACProject", null), vBUserACProjectTable);
             var vBUserACProjectTableMapping = new TableMapping(vBUserACProject, vBUserACProjectTable, true);
             vBUserACProjectTable.AddTypeMapping(vBUserACProjectTableMapping, false);
-            tableMappings40.Add(vBUserACProjectTableMapping);
+            tableMappings41.Add(vBUserACProjectTableMapping);
             RelationalModel.CreateColumnMapping(vBUserACProjectIDColumn, vBUserACProject.FindProperty("VBUserACProjectID")!, vBUserACProjectTableMapping);
             RelationalModel.CreateColumnMapping(aCProjectIDColumn1, vBUserACProject.FindProperty("ACProjectID")!, vBUserACProjectTableMapping);
             RelationalModel.CreateColumnMapping(insertDateColumn28, vBUserACProject.FindProperty("InsertDate")!, vBUserACProjectTableMapping);
@@ -6716,8 +6789,8 @@ namespace gip.core.datamodel
 
             var vBUserGroup = FindEntityType("gip.core.datamodel.VBUserGroup")!;
 
-            var defaultTableMappings43 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBUserGroup.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings43);
+            var defaultTableMappings44 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBUserGroup.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings44);
             var gipcoredatamodelVBUserGroupTableBase = new TableBase("gip.core.datamodel.VBUserGroup", null, relationalModel);
             var insertDateColumnBase29 = new ColumnBase<ColumnMappingBase>("InsertDate", "datetime", gipcoredatamodelVBUserGroupTableBase);
             gipcoredatamodelVBUserGroupTableBase.Columns.Add("InsertDate", insertDateColumnBase29);
@@ -6736,7 +6809,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBUserGroup", gipcoredatamodelVBUserGroupTableBase);
             var gipcoredatamodelVBUserGroupMappingBase = new TableMappingBase<ColumnMappingBase>(vBUserGroup, gipcoredatamodelVBUserGroupTableBase, true);
             gipcoredatamodelVBUserGroupTableBase.AddTypeMapping(gipcoredatamodelVBUserGroupMappingBase, false);
-            defaultTableMappings43.Add(gipcoredatamodelVBUserGroupMappingBase);
+            defaultTableMappings44.Add(gipcoredatamodelVBUserGroupMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBUserGroupIDColumnBase, vBUserGroup.FindProperty("VBUserGroupID")!, gipcoredatamodelVBUserGroupMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)insertDateColumnBase29, vBUserGroup.FindProperty("InsertDate")!, gipcoredatamodelVBUserGroupMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)insertNameColumnBase29, vBUserGroup.FindProperty("InsertName")!, gipcoredatamodelVBUserGroupMappingBase);
@@ -6745,8 +6818,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBGroupIDColumnBase1, vBUserGroup.FindProperty("VBGroupID")!, gipcoredatamodelVBUserGroupMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBUserIDColumnBase4, vBUserGroup.FindProperty("VBUserID")!, gipcoredatamodelVBUserGroupMappingBase);
 
-            var tableMappings41 = new List<TableMapping>();
-            vBUserGroup.SetRuntimeAnnotation("Relational:TableMappings", tableMappings41);
+            var tableMappings42 = new List<TableMapping>();
+            vBUserGroup.SetRuntimeAnnotation("Relational:TableMappings", tableMappings42);
             var vBUserGroupTable = new Table("VBUserGroup", null, relationalModel);
             var vBUserGroupIDColumn = new Column("VBUserGroupID", "uniqueidentifier", vBUserGroupTable);
             vBUserGroupTable.Columns.Add("VBUserGroupID", vBUserGroupIDColumn);
@@ -6789,7 +6862,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("VBUserGroup", null), vBUserGroupTable);
             var vBUserGroupTableMapping = new TableMapping(vBUserGroup, vBUserGroupTable, true);
             vBUserGroupTable.AddTypeMapping(vBUserGroupTableMapping, false);
-            tableMappings41.Add(vBUserGroupTableMapping);
+            tableMappings42.Add(vBUserGroupTableMapping);
             RelationalModel.CreateColumnMapping(vBUserGroupIDColumn, vBUserGroup.FindProperty("VBUserGroupID")!, vBUserGroupTableMapping);
             RelationalModel.CreateColumnMapping(insertDateColumn29, vBUserGroup.FindProperty("InsertDate")!, vBUserGroupTableMapping);
             RelationalModel.CreateColumnMapping(insertNameColumn29, vBUserGroup.FindProperty("InsertName")!, vBUserGroupTableMapping);
@@ -6800,8 +6873,8 @@ namespace gip.core.datamodel
 
             var vBUserInstance = FindEntityType("gip.core.datamodel.VBUserInstance")!;
 
-            var defaultTableMappings44 = new List<TableMappingBase<ColumnMappingBase>>();
-            vBUserInstance.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings44);
+            var defaultTableMappings45 = new List<TableMappingBase<ColumnMappingBase>>();
+            vBUserInstance.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings45);
             var gipcoredatamodelVBUserInstanceTableBase = new TableBase("gip.core.datamodel.VBUserInstance", null, relationalModel);
             var hostnameColumnBase = new ColumnBase<ColumnMappingBase>("Hostname", "nvarchar(100)", gipcoredatamodelVBUserInstanceTableBase);
             gipcoredatamodelVBUserInstanceTableBase.Columns.Add("Hostname", hostnameColumnBase);
@@ -6865,7 +6938,7 @@ namespace gip.core.datamodel
             relationalModel.DefaultTables.Add("gip.core.datamodel.VBUserInstance", gipcoredatamodelVBUserInstanceTableBase);
             var gipcoredatamodelVBUserInstanceMappingBase = new TableMappingBase<ColumnMappingBase>(vBUserInstance, gipcoredatamodelVBUserInstanceTableBase, true);
             gipcoredatamodelVBUserInstanceTableBase.AddTypeMapping(gipcoredatamodelVBUserInstanceMappingBase, false);
-            defaultTableMappings44.Add(gipcoredatamodelVBUserInstanceMappingBase);
+            defaultTableMappings45.Add(gipcoredatamodelVBUserInstanceMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBUserInstanceIDColumnBase, vBUserInstance.FindProperty("VBUserInstanceID")!, gipcoredatamodelVBUserInstanceMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)hostnameColumnBase, vBUserInstance.FindProperty("Hostname")!, gipcoredatamodelVBUserInstanceMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)insertDateColumnBase30, vBUserInstance.FindProperty("InsertDate")!, gipcoredatamodelVBUserInstanceMappingBase);
@@ -6892,8 +6965,8 @@ namespace gip.core.datamodel
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)useTextEncodingColumnBase, vBUserInstance.FindProperty("UseTextEncoding")!, gipcoredatamodelVBUserInstanceMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)vBUserIDColumnBase5, vBUserInstance.FindProperty("VBUserID")!, gipcoredatamodelVBUserInstanceMappingBase);
 
-            var tableMappings42 = new List<TableMapping>();
-            vBUserInstance.SetRuntimeAnnotation("Relational:TableMappings", tableMappings42);
+            var tableMappings43 = new List<TableMapping>();
+            vBUserInstance.SetRuntimeAnnotation("Relational:TableMappings", tableMappings43);
             var vBUserInstanceTable = new Table("VBUserInstance", null, relationalModel);
             var vBUserInstanceIDColumn = new Column("VBUserInstanceID", "uniqueidentifier", vBUserInstanceTable);
             vBUserInstanceTable.Columns.Add("VBUserInstanceID", vBUserInstanceIDColumn);
@@ -6973,7 +7046,7 @@ namespace gip.core.datamodel
             relationalModel.Tables.Add(("VBUserInstance", null), vBUserInstanceTable);
             var vBUserInstanceTableMapping = new TableMapping(vBUserInstance, vBUserInstanceTable, true);
             vBUserInstanceTable.AddTypeMapping(vBUserInstanceTableMapping, false);
-            tableMappings42.Add(vBUserInstanceTableMapping);
+            tableMappings43.Add(vBUserInstanceTableMapping);
             RelationalModel.CreateColumnMapping(vBUserInstanceIDColumn, vBUserInstance.FindProperty("VBUserInstanceID")!, vBUserInstanceTableMapping);
             RelationalModel.CreateColumnMapping(hostnameColumn, vBUserInstance.FindProperty("Hostname")!, vBUserInstanceTableMapping);
             RelationalModel.CreateColumnMapping(insertDateColumn30, vBUserInstance.FindProperty("InsertDate")!, vBUserInstanceTableMapping);
@@ -7896,9 +7969,22 @@ namespace gip.core.datamodel
             RelationalModel.GetOrCreateForeignKeyConstraints(fK_ACProgramLog_ParentACProgramLogIDFk).Add(fK_ACProgramLog_ParentACProgramLogID);
             aCProgramLogTable.ForeignKeyConstraints.Add(fK_ACProgramLog_ParentACProgramLogID);
             aCProgramLogTable.ReferencingForeignKeyConstraints.Add(fK_ACProgramLog_ParentACProgramLogID);
+            var fK_ACProgramLogPropertyLog_ACPropertyLogID = new ForeignKeyConstraint(
+                "FK_ACProgramLogPropertyLog_ACPropertyLogID", aCProgramLogPropertyLogTable, aCPropertyLogTable,
+                new[] { aCPropertyLogIDColumn },
+                aCPropertyLogTable.FindUniqueConstraint("PK_ACPropertyLog")!, ReferentialAction.NoAction);
+            var fK_ACProgramLogPropertyLog_ACPropertyLogIDFk = RelationalModel.GetForeignKey(this,
+                "gip.core.datamodel.ACProgramLogPropertyLog",
+                new[] { "ACPropertyLogID" },
+                "gip.core.datamodel.ACPropertyLog",
+                new[] { "ACPropertyLogID" });
+            fK_ACProgramLogPropertyLog_ACPropertyLogID.MappedForeignKeys.Add(fK_ACProgramLogPropertyLog_ACPropertyLogIDFk);
+            RelationalModel.GetOrCreateForeignKeyConstraints(fK_ACProgramLogPropertyLog_ACPropertyLogIDFk).Add(fK_ACProgramLogPropertyLog_ACPropertyLogID);
+            aCProgramLogPropertyLogTable.ForeignKeyConstraints.Add(fK_ACProgramLogPropertyLog_ACPropertyLogID);
+            aCPropertyLogTable.ReferencingForeignKeyConstraints.Add(fK_ACProgramLogPropertyLog_ACPropertyLogID);
             var fK_ACProgramLogTask_ACProgramLogID = new ForeignKeyConstraint(
                 "FK_ACProgramLogTask_ACProgramLogID", aCProgramLogTaskTable, aCProgramLogTable,
-                new[] { aCProgramLogIDColumn0 },
+                new[] { aCProgramLogIDColumn1 },
                 aCProgramLogTable.FindUniqueConstraint("PK_ACProgramLog")!, ReferentialAction.Cascade);
             var fK_ACProgramLogTask_ACProgramLogIDFk = RelationalModel.GetForeignKey(this,
                 "gip.core.datamodel.ACProgramLogTask",
@@ -7989,7 +8075,7 @@ namespace gip.core.datamodel
             aCClassTable.ReferencingForeignKeyConstraints.Add(fK_MsgAlarmLog_ACClass);
             var fK_MsgAlarmLog_ACProgramLogID = new ForeignKeyConstraint(
                 "FK_MsgAlarmLog_ACProgramLogID", msgAlarmLogTable, aCProgramLogTable,
-                new[] { aCProgramLogIDColumn2 },
+                new[] { aCProgramLogIDColumn3 },
                 aCProgramLogTable.FindUniqueConstraint("PK_ACProgramLog")!, ReferentialAction.NoAction);
             var fK_MsgAlarmLog_ACProgramLogIDFk = RelationalModel.GetForeignKey(this,
                 "gip.core.datamodel.MsgAlarmLog",
