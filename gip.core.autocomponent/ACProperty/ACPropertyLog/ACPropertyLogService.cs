@@ -83,7 +83,7 @@ namespace gip.core.autocomponent
         #region Methods
 
         #region Methods => RebuildCache
-        [ACMethodInfo("", "en{'Rebuild rule cache'}de{'Cache für den Neuaufbau von Regeln'}", 999,true)]
+        [ACMethodCommand("", "en{'Rebuild rule cache'}de{'Cache für den Neuaufbau von Regeln'}", 500,true)]
         public void RebuildRuleCache()
         {
             _RuleCacheRebuildAt = DateTime.Now.AddMinutes(3);
