@@ -128,7 +128,7 @@ namespace gip.core.processapplication
         }
 
         #region Scale State
-        [ACPropertyBindingTarget(634, "Read from PLC", "en{'State of Scale'}de{'Status Waage'}", "", false, false, RemotePropID = 58)]
+        [ACPropertyBindingTarget(634, "Read from PLC", "en{'Scale malfunction'}de{'Störung Waage'}", "", false, false, RemotePropID = 58)]
         public IACContainerTNet<PANotifyState> StateScale { get; set; }
         public void OnSetStateScale(IACPropertyNetValueEvent valueEvent)
         {
@@ -162,7 +162,7 @@ namespace gip.core.processapplication
         #endregion
 
         #region Tolerance State
-        [ACPropertyBindingTarget(635, "Read from PLC", "en{'State of Tolerance'}de{'Status Toleranz'}", "", false, false, RemotePropID = 60)]
+        [ACPropertyBindingTarget(635, "Read from PLC", "en{'Out of Tolerance'}de{'Außerhalb Toleranz'}", "", false, false, RemotePropID = 60)]
         public IACContainerTNet<PANotifyState> StateTolerance { get; set; }
         public void OnSetStateTolerance(IACPropertyNetValueEvent valueEvent)
         {
@@ -196,7 +196,7 @@ namespace gip.core.processapplication
         #endregion
 
         #region LackOfMaterial State
-        [ACPropertyBindingTarget(636, "Read from PLC", "en{'State of lack of material'}de{'Status Materialmangel'}", "", false, false, RemotePropID = 62)]
+        [ACPropertyBindingTarget(636, "Read from PLC", "en{'Lack of material'}de{'Materialmangel'}", "", false, false, RemotePropID = 62)]
         public IACContainerTNet<PANotifyState> StateLackOfMaterial { get; set; }
         public void OnSetStateLackOfMaterial(IACPropertyNetValueEvent valueEvent)
         {
@@ -230,7 +230,7 @@ namespace gip.core.processapplication
         #endregion
 
         #region DosingTime State
-        [ACPropertyBindingTarget(637, "Read from PLC", "en{'State of dosingtime-fault'}de{'Status Dosierzeitfehler'}", "", false, false, RemotePropID = 64)]
+        [ACPropertyBindingTarget(637, "Read from PLC", "en{'Dosing time exceeded'}de{'Dosierzeitüberschreitung'}", "", false, false, RemotePropID = 64)]
         public IACContainerTNet<PANotifyState> StateDosingTime { get; set; }
         public void OnSetStateDosingTime(IACPropertyNetValueEvent valueEvent)
         {
@@ -263,13 +263,13 @@ namespace gip.core.processapplication
         public IACContainerTNet<bool> FaultAckDosingTime { get; set; }
         #endregion
 
-        [ACPropertyBindingTarget(638, "Read from PLC", "en{'is dosing'}de{'Dosiert'}", "", false, false, RemotePropID = 66)]
+        [ACPropertyBindingTarget(638, "Read from PLC", "en{'Dosing'}de{'Dosiert'}", "", false, false, RemotePropID = 66)]
         public IACContainerTNet<Boolean> IsDosing { get; set; }
 
-        [ACPropertyBindingTarget(639, "Read from PLC", "en{'in rough dosing'}de{'In Grobdosierung'}", "", false, false, RemotePropID = 67)]
+        [ACPropertyBindingTarget(639, "Read from PLC", "en{'Rough dosing'}de{'Grobdosierung'}", "", false, false, RemotePropID = 67)]
         public IACContainerTNet<Boolean> IsRough { get; set; }
 
-        [ACPropertyBindingTarget(640, "Read from PLC", "en{'in finde dosing'}de{'In Feindosierung'}", "", false, false, RemotePropID = 68)]
+        [ACPropertyBindingTarget(640, "Read from PLC", "en{'Fine dosing'}de{'Feindosierung'}", "", false, false, RemotePropID = 68)]
         public IACContainerTNet<Boolean> IsFine { get; set; }
 
         [ACPropertyBindingTarget]

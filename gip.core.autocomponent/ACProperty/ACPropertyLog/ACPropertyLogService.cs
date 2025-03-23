@@ -1,4 +1,4 @@
-// Copyright (c) 2024, gipSoft d.o.o.
+﻿// Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using gip.core.datamodel;
 using Microsoft.EntityFrameworkCore;
@@ -154,23 +154,29 @@ namespace gip.core.autocomponent
                 && !IsComponentAffectedBasedOn(args.ForACComponent.ComponentClass))
                 return;
 
-            ACProgramLog programLog = null;
+            ACProgramLog[] programLogs = null;
             PABase paComp = args.ForACComponent as PABase;
             if (paComp != null)
-                programLog = paComp.CurrentProgramLog;
+                programLogs = new ACProgramLog[] { paComp.CurrentProgramLog };
             else
             {
                 PAProcessModule pAProcessModule = args.ForACComponent as PAProcessModule;
                 if (pAProcessModule == null)
                     pAProcessModule = args.ForACComponent.FindParentComponent<PAProcessModule>(c => c is PAProcessModule);
-                programLog = pAProcessModule?.CurrentProgramLog;
+                programLogs = pAProcessModule?.CurrentProgramLogs?.ToArray();
             }
-            Guid? acProgramLogID = null;
-            if (programLog != null)
-                acProgramLogID = programLog.ACProgramLogID;
+            Guid[] acProgramLogIDs = null;
+            if (programLogs != null && programLogs.Any())
+                acProgramLogIDs = programLogs.Select(c => c.ACProgramLogID).ToArray();
+            Guid? acclassMessageID = OnGetPropertyLogMessageID(args);
 
             this.ApplicationManager.ApplicationQueue.Add(() => LogProperty(args.ForACComponent.ComponentClass.ACClassID, args.NetValueEventArgs.ACIdentifier,
-                                                                           args.NetValueEventArgs.ChangedValue, eventTime, acProgramLogID));
+                                                                           args.NetValueEventArgs.ChangedValue, eventTime, acProgramLogIDs, acclassMessageID));
+        }
+
+        protected virtual Guid? OnGetPropertyLogMessageID(ACPropertyNetSendEventArgs args)
+        {
+            return null;
         }
 
         private bool IsComponentAffectedHierahically(string acUrlComponent)
@@ -197,7 +203,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        private void LogProperty(Guid acClassID, string propACIdentifier, object value, DateTime eventTime, Guid? acProgramLogID = null)
+        private void LogProperty(Guid acClassID, string propACIdentifier, object value, DateTime eventTime, Guid[] acProgramLogIDs = null, Guid? acClassMessageID = null)
         {
             try
             {
@@ -214,11 +220,27 @@ namespace gip.core.autocomponent
 
                     ACPropertyLog propertyLog = ACPropertyLog.NewACObject(db, acClass);
                     propertyLog.ACClassPropertyID = acClassProperty.ACClassPropertyID;
-                    propertyLog.EventTime = eventTime;
+                    propertyLog.EventTime = OnEditEventTime(eventTime, acClass, acClassProperty, value, db);
                     propertyLog.Value = ACConvert.ChangeType(value, typeof(string), true, db) as string;
-                    propertyLog.ACProgramLogID = acProgramLogID;
+                    //propertyLog.ACProgramLogID = acProgramLogID;
+                    propertyLog.ACClassMessageID = acClassMessageID;
 
                     db.ACPropertyLog.Add(propertyLog);
+                    if (acProgramLogIDs != null && acProgramLogIDs.Any())
+                    {
+                        foreach (Guid acProgramLogID in acProgramLogIDs)
+                        {
+                            ACProgramLogPropertyLog log = ACProgramLogPropertyLog.NewACObject(db, propertyLog);
+                            log.ACProgramLogID = acProgramLogID;
+                            db.ACProgramLogPropertyLog.Add(log);
+                        }
+                    }
+                    else
+                    {
+                        ACProgramLogPropertyLog log = ACProgramLogPropertyLog.NewACObject(db, propertyLog);
+                        db.ACProgramLogPropertyLog.Add(log);
+                    }
+
                     var msg = db.ACSaveChanges();
                     if (msg != null)
                         Messages.LogError(this.GetACUrl(), "LogProperty(20)", msg.Message);
@@ -228,6 +250,11 @@ namespace gip.core.autocomponent
             {
                 Messages.LogException(this.GetACUrl(), "LogProperty(30)", e);
             }
+        }
+
+        protected virtual DateTime OnEditEventTime(DateTime eventTime, ACClass acClass, ACClassProperty acClassProperty, object value, Database db)
+        {
+            return eventTime;
         }
 
         private void ApplicationManager_ProjectWorkCycleR1min(object sender, EventArgs e)

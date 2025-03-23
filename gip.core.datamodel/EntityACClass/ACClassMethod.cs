@@ -57,6 +57,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(23, nameof(IsStatic), "en{'Static'}de{'Statisch'}", "", "", true)]
     [ACPropertyEntity(24, nameof(ExecuteByDoubleClick), "en{'Execute by DoubleClick'}de{'Ausführen mit DoubleClick'}", "", "", true)]
     [ACPropertyEntity(25, nameof(HasRequiredParams), "en{'Has required parameters'}de{'Hat erforderliche Parameter'}", "", "", true)]
+    [ACPropertyEntity(25, nameof(Sourcecode), "en{'Source code'}de{'Quellcode'}", "", "", true)]
     [ACPropertyEntity(496, Const.EntityInsertDate, Const.EntityTransInsertDate)]
     [ACPropertyEntity(497, Const.EntityInsertName, Const.EntityTransInsertName)]
     [ACPropertyEntity(498, Const.EntityUpdateDate, Const.EntityTransUpdateDate)]

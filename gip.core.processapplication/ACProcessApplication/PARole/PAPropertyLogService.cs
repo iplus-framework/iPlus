@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.processapplication
 {
@@ -40,7 +41,6 @@ namespace gip.core.processapplication
         #endregion
 
         #region Methods
-
 
         protected override void OnPropertyValueChanged(object sender, ACPropertyNetSendEventArgs e)
         {
@@ -85,6 +85,12 @@ namespace gip.core.processapplication
                         }
                     }
                     newAvailabilityState = OnChangingAvailabilityState(newAvailabilityState, oeeProvider, sender, e);
+                    if (oeeProvider.AvailabilityState.ValueT == AvailabilityState.Standby && newAvailabilityState == AvailabilityState.InOperation)
+                    {
+                        //The property logs of state Standby and InOperation sometime has same Event-time. This causes a wrong display of the AvailabilityState in the PropertyPresenterLog.
+                        Thread.Sleep(10);
+                    }
+
                     oeeProvider.AvailabilityState.ValueT = newAvailabilityState;
                 }
             }
@@ -108,6 +114,54 @@ namespace gip.core.processapplication
         {
             return newAvailabilityState;
         }
+
+        protected override Guid? OnGetPropertyLogMessageID(ACPropertyNetSendEventArgs args)
+        {
+            IPAOEEProvider oeeProvider = (args.ForACComponent is PAProcessFunction) ? args.ForACComponent.ParentACComponent as IPAOEEProvider : args.ForACComponent as IPAOEEProvider;
+            if (oeeProvider != null)
+            {
+                return oeeProvider.OEEReason;
+            }
+
+            return base.OnGetPropertyLogMessageID(args);
+        }
+
+        protected override DateTime OnEditEventTime(DateTime eventTime, ACClass acClass, ACClassProperty acClassProperty, object value, Database db)
+        {
+            if (acClassProperty.ACIdentifier == nameof(IPAOEEProvider.AvailabilityState))
+            {
+                AvailabilityState? state = value as AvailabilityState?;
+                if (state.HasValue && state.Value == AvailabilityState.Idle)
+                {
+                    var propertyLog = db.ACProgramLogPropertyLog.Include(c => c.ACPropertyLog.ACClassProperty)
+                                                                .Include(c => c.ACPropertyLog.ACClass)
+                                                                .GroupJoin(db.ACProgramLog,
+                                                                           propLog => propLog.ACProgramLogID,
+                                                                           programLog => programLog.ACProgramLogID,
+                                                                           (propLog, programLog) => new { propLog, programLog })
+                                                                .Where(c => c.propLog.ACPropertyLog.ACClassID == acClass.ACClassID
+                                                                         && c.propLog.ACPropertyLog.ACClassPropertyID == acClassProperty.ACClassPropertyID)
+                                                                .OrderByDescending(c => c.propLog.ACPropertyLog.EventTime)
+                                                                .FirstOrDefault();
+
+                    if (propertyLog != null)
+                    {
+                        DateTime? programLogEnd = propertyLog.programLog.Where(c => c.EndDate.HasValue).OrderByDescending(c => c.EndDate).FirstOrDefault()?.EndDate;
+                        if (programLogEnd.HasValue)
+                        {
+                            TimeSpan diff = eventTime - programLogEnd.Value;
+                            double totalSec = Math.Abs(diff.TotalSeconds);
+
+                            if (totalSec > 300)
+                                return programLogEnd.Value;
+                        }
+                    }
+                }
+            }
+
+            return base.OnEditEventTime(eventTime, acClass, acClassProperty, value, db);
+        }
+
         #endregion
     }
 }

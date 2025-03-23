@@ -526,6 +526,21 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
+        /// Resets this instance.
+        /// </summary>
+        public void ResetEnd()
+        {
+            lock (Lock)
+            {
+                _DurationValue = null;
+                _EndTimeValue = null;
+                _LastManipulatedProperties[0] = Property.None;
+                _LastManipulatedProperties[1] = Property.None;
+            }
+            OnPropertyChangedAll();
+        }
+
+        /// <summary>
         /// Setzt StartTime und Duration und berechnet EndTime durch Addition
         /// </summary>
         /// <param name="startTime">The start time.</param>

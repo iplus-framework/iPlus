@@ -44,6 +44,9 @@
     <None Include="VBControlScripts\2025-01-10 14-49_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="VBControlScripts\2025-02-25 19-51_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.IO.Ports" Version="7.0.0" />

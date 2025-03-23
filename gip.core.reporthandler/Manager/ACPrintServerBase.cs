@@ -1,4 +1,4 @@
-// Copyright (c) 2024, gipSoft d.o.o.
+﻿// Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using gip.core.datamodel;
 using gip.core.autocomponent;
@@ -86,6 +86,8 @@ namespace gip.core.reporthandler
         #endregion
 
         #region Properties
+
+        private bool _CancelPrint = false;
 
         private ACPropertyConfigValue<string> _IPAddress;
         [ACPropertyConfig("en{'IP Address'}de{'IP Addresse'}")]
@@ -180,6 +182,12 @@ namespace gip.core.reporthandler
             });
         }
 
+        [ACMethodInteraction("Print", "en{'Cancel print'}de{'Drucken abbrechen'}", 300, true)]
+        public virtual void CancelPrintJob()
+        {
+            _CancelPrint = true;
+        }
+
         public void DoPrint(Guid bsoClassID, string designACIdentifier, PAOrderInfo pAOrderInfo, int copies, bool reloadReport)
         {
             ACBSO acBSO = null;
@@ -252,10 +260,15 @@ namespace gip.core.reporthandler
                 return;
             ReportData reportData = GetReportData(acBSO, aCClassDesign);
             PrintJob printJob = OnDoPrint(aCClassDesign, CodePage, reportData);
+            _CancelPrint = false;
+
             if (printJob != null)
             {
                 for (int i = 1; i <= copies; i++)
                 {
+                    if (_CancelPrint)
+                        break;
+
                     SendDataToPrinter(printJob);
                 }
             }

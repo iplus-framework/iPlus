@@ -593,10 +593,16 @@ namespace gip.core.layoutengine
             this.Loaded -= VBProgressBar_Loaded;
             this.Unloaded -= VBProgressBar_Unloaded;
 
-            BindingOperations.ClearBinding(this, ProgressBar.ValueProperty);
-            //BindingOperations.ClearBinding(this, VBProgressBar.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBProgressBar.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            try
+            {
+                BindingOperations.ClearBinding(this, ProgressBar.ValueProperty);
+                //BindingOperations.ClearBinding(this, VBProgressBar.ACUrlCmdMessageProperty);
+                BindingOperations.ClearBinding(this, VBProgressBar.ACCompInitStateProperty);
+                BindingOperations.ClearAllBindings(this);
+            }
+            catch 
+            { 
+            }
         }
 
         /// <summary>

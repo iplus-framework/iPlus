@@ -914,6 +914,11 @@ string _ACCaption;
             this.XMLValue = from.XMLValue;
         }
 
+        public void SetValueDirect(object value)
+        {
+            XMLValue = value;
+        }
+
 #region TypeConversion
         /// <summary>
         /// Gets the param as boolean.

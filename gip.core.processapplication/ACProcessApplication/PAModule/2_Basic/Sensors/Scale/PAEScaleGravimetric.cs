@@ -211,7 +211,7 @@ namespace gip.core.processapplication
         [ACPropertyBindingTarget(734, "Read from PLC", "en{'Is set zero'}de{'Ist Nullgesetzt'}", "", false, false, RemotePropID = 80)]
         public IACContainerTNet<Boolean> ZeroSet { get; set; }
 
-        [ACPropertyBindingTarget(735, "Read from PLC", "en{'Is manual dosing'}de{'Ist Handdosierung'}", "", false, false, RemotePropID = 81)]
+        [ACPropertyBindingTarget(735, "Read from PLC", "en{'Manual dosing'}de{'Handdosierung'}", "", false, false, RemotePropID = 81)]
         public IACContainerTNet<Boolean> IsManualDosing { get; set; }
 
         [ACPropertyBindingTarget(736, "Read from PLC", "en{'Actual-/Netweight [kg]'}de{'Ist-/Nettogewicht [kg]'}", "", false, false, RemotePropID = 84)]

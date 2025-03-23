@@ -141,7 +141,6 @@ namespace gip.bso.iplus
         }
         #endregion
 
-
         #region VBGroup
         /// <summary>
         /// Gets or sets the current group.
@@ -159,11 +158,14 @@ namespace gip.bso.iplus
                 if (CurrentGroup != value)
                 {
                     AccessPrimary.Current = value;
-                    OnPropertyChanged("CurrentGroup");
-                    OnPropertyChanged("ACProjectList");
+                    OnPropertyChanged(nameof(CurrentGroup));
+                    OnPropertyChanged(nameof(ACProjectList));
                     if (SelectedGroup != CurrentGroup)
+                    {
                         SelectedGroup = CurrentGroup;
+                    }
                     CurrentACProject = null;
+                    LoadGroupUsers(Database as Database, CurrentGroup);
                 }
             }
         }
@@ -202,7 +204,6 @@ namespace gip.bso.iplus
             }
         }
         #endregion
-
 
         #region Presentation Modes
         private ACObjectItem _CurrentGroupMode;
@@ -329,7 +330,6 @@ namespace gip.bso.iplus
         }
         #endregion
 
-
         #region ACProject
         /// <summary>
         /// The _ selected AC project
@@ -401,7 +401,6 @@ namespace gip.bso.iplus
         }
 
         #endregion
-
 
         #region Project Tree
 
@@ -592,7 +591,6 @@ namespace gip.bso.iplus
 
         #endregion
 
-
         #region RightItemInfoClassProperty
         /// <summary>
         /// The _ selected right item info class property
@@ -685,7 +683,6 @@ namespace gip.bso.iplus
             }
         }
         #endregion
-
 
         #region RightItemInfoClassMethod
         /// <summary>
@@ -780,7 +777,6 @@ namespace gip.bso.iplus
         }
         #endregion
 
-
         #region RightItemInfoClassDesign
         /// <summary>
         /// The _ selected right item info class design
@@ -874,6 +870,100 @@ namespace gip.bso.iplus
         }
         #endregion
 
+        #region Group VBUser
+
+        public const string GroupUser = "GroupUser";
+
+        private VBUser _SelectedGroupUser;
+        /// <summary>
+        /// Selected property for VBUser
+        /// </summary>
+        /// <value>The selected GroupUser</value>
+        [ACPropertySelected(9999, nameof(GroupUser), "en{'TODO: GroupUser'}de{'TODO: GroupUser'}")]
+        public VBUser SelectedGroupUser
+        {
+            get
+            {
+                return _SelectedGroupUser;
+            }
+            set
+            {
+                if (_SelectedGroupUser != value)
+                {
+                    _SelectedGroupUser = value;
+                    OnPropertyChanged(nameof(SelectedGroupUser));
+                }
+            }
+        }
+
+        private List<VBUser> _GroupUserList;
+        /// <summary>
+        /// List property for VBUser
+        /// </summary>
+        /// <value>The GroupUser list</value>
+        [ACPropertyList(9999, nameof(GroupUser))]
+        public List<VBUser> GroupUserList
+        {
+            get
+            {
+                return _GroupUserList;
+            }
+            set
+            {
+                _GroupUserList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        #endregion
+
+        #region OtherUser
+        public const string OtherUser = "OtherUser";
+
+        private VBUser _SelectedOtherUser;
+        /// <summary>
+        /// Selected property for VBUser
+        /// </summary>
+        /// <value>The selected OtherUser</value>
+        [ACPropertySelected(9999, nameof(OtherUser), "en{'TODO: OtherUser'}de{'TODO: OtherUser'}")]
+        public VBUser SelectedOtherUser
+        {
+            get
+            {
+                return _SelectedOtherUser;
+            }
+            set
+            {
+                if (_SelectedOtherUser != value)
+                {
+                    _SelectedOtherUser = value;
+                    OnPropertyChanged(nameof(SelectedOtherUser));
+                }
+            }
+        }
+
+
+        private List<VBUser> _OtherUserList;
+        /// <summary>
+        /// List property for VBUser
+        /// </summary>
+        /// <value>The OtherUser list</value>
+        [ACPropertyList(9999, nameof(OtherUser))]
+        public List<VBUser> OtherUserList
+        {
+            get
+            {
+                return _OtherUserList;
+            }
+            set
+            {
+                _OtherUserList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region BSO->ACMethod
@@ -922,6 +1012,7 @@ namespace gip.bso.iplus
         public void UndoSave()
         {
             OnUndoSave();
+            LoadGroupUsers(Database as Database, CurrentGroup);
         }
 
         /// <summary>
@@ -1244,6 +1335,70 @@ namespace gip.bso.iplus
         }
         #endregion
 
+        #region (Un)AssignUser
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [ACMethodInfo(nameof(AssignUser), "en{'>'}de{'>'}", 999)]
+        public void AssignUser()
+        {
+            if (!IsEnabledAssignUser())
+            {
+                return;
+            }
+
+            VBUser user = SelectedOtherUser;
+
+            VBUserGroup vBUserGroup = VBUserGroup.NewACObject(Database as Database, user);
+            vBUserGroup.VBGroup = CurrentGroup;
+            CurrentGroup.VBUserGroup_VBGroup.Add(vBUserGroup);
+
+            GroupUserList.Add(user);
+            OtherUserList.Remove(user);
+
+            GroupUserList = GroupUserList.OrderBy(c => c.Initials).ToList();
+            SelectedGroupUser = user;
+            SelectedOtherUser = OtherUserList.FirstOrDefault();
+        }
+
+        public bool IsEnabledAssignUser()
+        {
+            return SelectedOtherUser != null;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [ACMethodInfo(nameof(UnAssignUser), "en{'<'}de{'<'}", 999)]
+        public void UnAssignUser()
+        {
+            if (!IsEnabledUnAssignUser())
+            {
+                return;
+            }
+
+            VBUser user = SelectedGroupUser;
+
+            VBUserGroup vBUserGroup = CurrentGroup.VBUserGroup_VBGroup.Where(c=>c.VBUserID == user.VBUserID).FirstOrDefault();
+            CurrentGroup.VBUserGroup_VBGroup.Remove(vBUserGroup);
+            vBUserGroup.DeleteACObject(Database, false);
+
+            OtherUserList.Add(user);
+            GroupUserList.Remove(user);
+
+            OtherUserList = OtherUserList.OrderBy(c => c.Initials).ToList();
+            SelectedOtherUser = user;
+            SelectedGroupUser = GroupUserList.FirstOrDefault();
+        }
+
+        public bool IsEnabledUnAssignUser()
+        {
+            return SelectedGroupUser != null;
+        }
+
+        #endregion
+
         #endregion
 
         #region Manipulation of Rights (Private)
@@ -1262,7 +1417,6 @@ namespace gip.bso.iplus
                 UpdateRightsRecursive(infoChild, controlMode);
             }
         }
-
         private List<VBGroupRight> GetRightsForItem(ACClassInfoWithItems infoItem)
         {
             if (infoItem == null)
@@ -1272,7 +1426,6 @@ namespace gip.bso.iplus
                 return null;
             return acClass.VBGroupRight_ACClass.ToArray().Where(c => c.VBGroup.VBGroupID == CurrentGroup.VBGroupID).ToList();
         }
-
 
         private void UpdatePropertyRightsRecursive(ACClassInfoWithItems infoItem, Global.ControlModes controlMode, ACClassPropertyInfo targetProperty)
         {
@@ -1302,7 +1455,6 @@ namespace gip.bso.iplus
             }
         }
 
-
         private void UpdateMethodRightsRecursive(ACClassInfoWithItems infoItem, Global.ControlModes controlMode, ACClassMethodInfo targetMethod)
         {
             if (BackgroundWorker.IsBusy)
@@ -1330,8 +1482,6 @@ namespace gip.bso.iplus
                 UpdateMethodRightsRecursive(infoChild, controlMode, targetMethod);
             }
         }
-
-
         private void UpdateRightsOnClassItem(ACClassInfoWithItems infoItem, Global.ControlModes controlMode, bool applyOnlyOnClass = false)
         {
             List<VBGroupRight> rightsForClass = GetRightsForItem(infoItem);
@@ -1470,6 +1620,33 @@ namespace gip.bso.iplus
                 rightForItem.ControlMode = controlMode;
         }
 
+        private void LoadGroupUsers(Database database, VBGroup vBGroup)
+        {
+            _GroupUserList = new List<VBUser>();
+
+            if (vBGroup != null)
+            {
+                _GroupUserList =
+                vBGroup
+                .VBUserGroup_VBGroup
+                .Select(c => c.VBUser)
+                .OrderBy(c => c.Initials)
+                .ToList();
+            }
+
+            Guid[] userIds = _GroupUserList.Select(c => c.VBUserID).ToArray();
+
+            _OtherUserList =
+                database
+                .VBUser
+                .Where(c => !userIds.Contains(c.VBUserID))
+                .OrderBy(c => c.Initials)
+                .ToList();
+
+            OnPropertyChanged(nameof(GroupUserList));
+            OnPropertyChanged(nameof(OtherUserList));
+        }
+
         #endregion
 
         #region Tree-Handling
@@ -1573,7 +1750,7 @@ namespace gip.bso.iplus
             while (exist)
             {
                 exist = database.VBGroup.Where(c => c.VBGroupName == groupName).Any();
-                if(exist)
+                if (exist)
                 {
                     count++;
                     groupName = $"{group.VBGroupName}({count})";
@@ -1582,15 +1759,6 @@ namespace gip.bso.iplus
 
             clonedGroup.VBGroupName = groupName;
             clonedGroup.Description = group.Description;
-
-            VBUserGroup[] userGroups = group.VBUserGroup_VBGroup.ToArray();
-            foreach (VBUserGroup userGroup in userGroups)
-            {
-                VBUserGroup clonedUserGroup = VBUserGroup.NewACObject(database, null);
-                clonedUserGroup.VBGroup = clonedGroup;
-                clonedUserGroup.VBUser = userGroup.VBUser;
-                clonedGroup.VBUserGroup_VBGroup.Add(clonedUserGroup);
-            }
 
             VBGroupRight[] groupRights = group.VBGroupRight_VBGroup.ToArray();
             foreach (VBGroupRight right in groupRights)

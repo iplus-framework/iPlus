@@ -1,4 +1,4 @@
-// Copyright (c) 2024, gipSoft d.o.o.
+﻿// Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using ClosedXML.Excel;
 using gip.core.autocomponent;
@@ -475,6 +475,36 @@ namespace gip.bso.iplus
             {
                 _AlarmsSubAlarmsList = value;
                 OnPropertyChanged("AlarmsSubAlarmsList");
+            }
+        }
+
+        private ACPropertyLogModel _SelectedOEEReason;
+        [ACPropertySelected(417, "OEEReason")]
+        public ACPropertyLogModel SelectedOEEReason
+        {
+            get
+            {
+                return _SelectedOEEReason;
+            }
+            set
+            {
+                _SelectedOEEReason = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private IEnumerable<ACPropertyLogModel> _OEEReasonList;
+        [ACPropertyList(417, "OEEReason")]
+        public IEnumerable<ACPropertyLogModel> OEEReasonList
+        {
+            get
+            {
+                return _OEEReasonList;
+            }
+            set
+            {
+                _OEEReasonList = value;
+                OnPropertyChanged();
             }
         }
 
@@ -986,6 +1016,41 @@ namespace gip.bso.iplus
             return SelectedPropertyLog != null && (PresenterViewMode)SelectedPresenterViewMode.Value != PresenterViewMode.Grouped;
         }
 
+
+        [ACMethodInteraction("", "en{'Show details'}de{'Details anzeigen'}", 403, true, "SelectedPropertyLog")]
+        public void ShowDetails()
+        {
+            if (!IsEnabledShowDetails())
+                return;
+
+            List<ACPropertyLogModel> messages = new List<ACPropertyLogModel>();
+
+            using (Database db = new core.datamodel.Database())
+            {
+                foreach (var propLog in ACPropertyLogs)
+                {
+                    if (propLog.PropertyLog != null && propLog.PropertyLog.ACClassMessageID.HasValue)
+                    {
+                        ACClassMessage acClassMessage = db.ACClassMessage.Where(c => c.ACClassMessageID == propLog.PropertyLog.ACClassMessageID).FirstOrDefault();
+                        if (acClassMessage != null)
+                        {
+                            messages.Add(new ACPropertyLogModel(ACPropertyLogModelType.PropertyLog, propLog.StartDate, propLog.EndDate, propLog.PropertyValue, propLog.DisplayOrder, propLog.ACCaption) { OEEReason = acClassMessage.ACCaption });
+                        }
+                    }
+                }
+            }
+
+            OEEReasonList = messages;
+
+            ShowDialog(this, "DetailsDialog");
+
+        }
+
+        public bool IsEnabledShowDetails()
+        {
+            return SelectedPropertyLog != null && (PresenterViewMode)SelectedPresenterViewMode.Value != PresenterViewMode.Grouped;
+        }
+
         /// <summary>
         /// Opens the equipment analysis module from Visualisation for the component in parameter.
         /// </summary>
@@ -994,6 +1059,21 @@ namespace gip.bso.iplus
         public void ShowPropertyLogsDialog(ACClass componentClass)
         {
             CurrentComponentClass = componentClass.FromIPlusContext<ACClass>(Db);
+            ShowDialog(this, "PropertyLogPresenterDialog");
+            CurrentComponentClass = null;
+        }
+
+        /// <summary>
+        /// Opens the equipment analysis module from Visualisation for the component in parameter.
+        /// </summary>
+        /// <param name="componentClass">The component class parameter.</param>
+        [ACMethodInfo("", "", 404)]
+        public void ShowPropertyLogsWithFilterDialog(ACClass componentClass, DateTime from, DateTime to)
+        {
+            CurrentComponentClass = componentClass.FromIPlusContext<ACClass>(Db);
+            FromDate = from;
+            ToDate = to;
+            ShowLogsOnTimeline();
             ShowDialog(this, "PropertyLogPresenterDialog");
             CurrentComponentClass = null;
         }
@@ -1081,21 +1161,24 @@ namespace gip.bso.iplus
             {
                 ACPropertyLog_ACProgramLog currentLog = propLogs.FirstOrDefault();
                 DateTime dateTime = currentLog.PropertyLog.EventTime.AddMilliseconds(-2);
-                ACPropertyLog_ACProgramLog prevLog = db.ACPropertyLog
-                                                        .Include(c => c.ACClass.ACClass1_ParentACClass.ACClass1_ParentACClass)
-                                                        .Include(c => c.ACClassProperty)
-                                                        .Join(db.ACProgramLog, propLog => propLog.ACProgramLogID, programLog => programLog.ACProgramLogID, (propLog, programLog) => new { propLog, programLog })
-                                                        .Where(c =>    c.propLog.ACClassID == currentLog.PropertyLog.ACClassID 
-                                                                    && c.propLog.ACClassPropertyID == currentLog.PropertyLog.ACClassPropertyID 
-                                                                    && c.propLog.EventTime < dateTime)
-                                                        .OrderByDescending(x => x.propLog.EventTime)
-                                                        .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.propLog, ProgramLog = c.programLog })
-                                                        .FirstOrDefault();
+                ACPropertyLog_ACProgramLog prevLog = db.ACProgramLogPropertyLog.Include(c => c.ACPropertyLog.ACClassProperty)
+                                                             .Include(c => c.ACPropertyLog.ACClass.ACClass1_ParentACClass.ACClass1_ParentACClass)
+                                                             .GroupJoin(db.ACProgramLog,
+                                                                        propLog => propLog.ACProgramLogID,
+                                                                        programLog => programLog.ACProgramLogID,
+                                                                        (propLog, programLog) => new { propLog, programLog })
+                                                             .Where(c => c.propLog.ACPropertyLog.ACClassID == currentLog.PropertyLog.ACClassID
+                                                                      && c.propLog.ACPropertyLog.ACClassProperty.ACClassPropertyID == currentLog.PropertyLog.ACClassPropertyID
+                                                                      && c.propLog.ACPropertyLog.EventTime < dateTime)
+                                                             .GroupBy(c => c.propLog.ACPropertyLog)
+                                                             .OrderByDescending(x => x.Key.EventTime)
+                                                             .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.Key, ProgramLog = c.SelectMany(x => x.programLog) })
+                                                             .FirstOrDefault();
 
                 if (prevLog != null)
                 {
                     object logValue = ACConvert.XMLToObject(acClassProperty.ObjectType, prevLog.PropertyLog.Value, true, db);
-                    resultList.Add(new ACPropertyLogInfo(FromDate, currentLog.PropertyLog.EventTime, logValue, "") { PropertyLog = prevLog.PropertyLog, ProgramLog = prevLog.ProgramLog });
+                    resultList.Add(new ACPropertyLogInfo(FromDate, currentLog.PropertyLog.EventTime, logValue, "") { PropertyLog = prevLog.PropertyLog, ProgramLog = prevLog.ProgramLog.ToList() });
                 }
             }
             else
@@ -1106,13 +1189,13 @@ namespace gip.bso.iplus
                     ACPropertyLog_ACProgramLog propLogNext = propLogs[i + 1];
 
                     object logValue = ACConvert.XMLToObject(acClassProperty.ObjectType, propLog.PropertyLog.Value, true, db);
-                    resultList.Add(new ACPropertyLogInfo(propLog.PropertyLog.EventTime, propLogNext.PropertyLog.EventTime, logValue, "") { PropertyLog = propLog.PropertyLog, ProgramLog = propLog.ProgramLog });
+                    resultList.Add(new ACPropertyLogInfo(propLog.PropertyLog.EventTime, propLogNext.PropertyLog.EventTime, logValue, "") { PropertyLog = propLog.PropertyLog, ProgramLog = propLog.ProgramLog.ToList() });
                 }
             }
 
             ACPropertyLog_ACProgramLog lastLog = propLogs.LastOrDefault();
             object logValueLast = ACConvert.XMLToObject(acClassProperty.ObjectType, lastLog.PropertyLog.Value, true, db);
-            resultList.Add(new ACPropertyLogInfo(lastLog.PropertyLog.EventTime, ToDate, logValueLast, "") { PropertyLog = lastLog.PropertyLog, ProgramLog = lastLog.ProgramLog });
+            resultList.Add(new ACPropertyLogInfo(lastLog.PropertyLog.EventTime, ToDate, logValueLast, "") { PropertyLog = lastLog.PropertyLog, ProgramLog = lastLog.ProgramLog.ToList() });
 
             return resultList;
         }
@@ -1508,21 +1591,31 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "ShowLogsOnTimeline":
+                case nameof(ShowLogsOnTimeline):
                     ShowLogsOnTimeline();
                     return true;
-                case "ShowPropertyLogsDialog":
+                case nameof(ShowPropertyLogsDialog):
                     ShowPropertyLogsDialog(acParameter[0] as ACClass);
                     return true;
-                case "ShowAlarms":
+                case nameof(ShowAlarms):
                     ShowAlarms();
                     return true;
-                case "IsEnabledShowAlarms":
+                case nameof(IsEnabledShowAlarms):
                     result = IsEnabledShowAlarms();
                     return true;
-                case "UpdateDisplayOrder":
+                case nameof(UpdateDisplayOrder):
                     UpdateDisplayOrder(acParameter[0] as IEnumerable);
                     return true;
+                case nameof(ShowDetails):
+                    ShowDetails();
+                    return true;
+                case nameof(IsEnabledShowDetails):
+                    result = IsEnabledShowDetails();
+                    return true;
+                case nameof(ShowPropertyLogsWithFilterDialog):
+                    ShowPropertyLogsWithFilterDialog(acParameter[0] as ACClass, (DateTime)acParameter[1], (DateTime)acParameter[2]);
+                    return true;
+                    
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
@@ -2016,6 +2109,18 @@ namespace gip.bso.iplus
                     _Status.Add(Global.TimelineItemStatus.OK);
 
                 return _Status;
+            }
+        }
+
+        private string _OEEReason;
+        [ACPropertyInfo(9999)]
+        public string OEEReason
+        {
+            get => _OEEReason;
+            set
+            {
+                _OEEReason = value; ;
+                OnPropertyChanged();
             }
         }
 

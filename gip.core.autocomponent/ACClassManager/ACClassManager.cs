@@ -2016,7 +2016,7 @@ namespace gip.core.autocomponent
                         acClassProperty.Comment = summary;
                 }
 
-                if(!acClassProperty.IsCaptionCustomized)
+                if (!acClassProperty.IsCaptionCustomized)
                 {
                     Translator.UpdateTranslation(acClassProperty, acPropertyInfo.ACCaptionTranslation);
                 }
@@ -2984,10 +2984,10 @@ namespace gip.core.autocomponent
             else
             {
                 ACComposition acComposition = acConfig[Const.Value] as ACComposition;
-                if (   acComposition != null
+                if (acComposition != null
                     && acComposition.IsSystem
-                    && (   acComposition.ACUrlComposition != compositionACClass.GetACUrl()
-                        || acComposition.Appendix != appendix 
+                    && (acComposition.ACUrlComposition != compositionACClass.GetACUrl()
+                        || acComposition.Appendix != appendix
                         || acComposition.IsPrimary != isPrimary))
                 {
                     acComposition.SetComposition(compositionACClass);
@@ -3216,7 +3216,7 @@ namespace gip.core.autocomponent
             if (paramCount > 4)
                 acParameterDefinition.SetValueFromString(parameter[4] as string);
             //else
-                //acParameterDefinition.SetDefaultValue();
+            //acParameterDefinition.SetDefaultValue();
 
             return acParameterDefinition;
         }

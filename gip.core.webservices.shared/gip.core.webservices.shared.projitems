@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\ICoreWebService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\CoreWebServiceConst.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Model\ACClassMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\ACClassProperty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\WSTranslation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\ACClass.cs" />
