@@ -1064,6 +1064,8 @@ namespace gip.bso.iplus
         /// Opens the equipment analysis module from Visualisation for the component in parameter.
         /// </summary>
         /// <param name="componentClass">The component class parameter.</param>
+        /// <param name="from">From</param>
+        /// <param name="to">To</param>
         [ACMethodInfo("", "", 404)]
         public void ShowPropertyLogsWithFilterDialog(ACClass componentClass, DateTime from, DateTime to)
         {
