@@ -17,6 +17,7 @@ using System.Text;
 using System.Diagnostics;
 using SkiaSharp;
 using System.Runtime.Loader;
+using System.Runtime.InteropServices;
 
 namespace gip.core.autocomponent
 {
@@ -185,7 +186,7 @@ namespace gip.core.autocomponent
             // TODO: Add references Should these be configurable?
             string dotNetPath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
             string wpfPath = dotNetPath.Replace("Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App");
-            if (!Directory.Exists(wpfPath))
+            if (!Directory.Exists(wpfPath) || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 wpfPath = null;
             string exePath = ACRoot.SRoot.Environment.Rootpath;
 
