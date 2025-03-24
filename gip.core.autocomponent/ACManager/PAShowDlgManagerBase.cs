@@ -1,11 +1,11 @@
-// Copyright (c) 2024, gipSoft d.o.o.
+﻿// Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using gip.core.datamodel;
 using System;
+
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-
 namespace gip.core.autocomponent
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PAShowDlgManagerBase'}de{'PAShowDlgManagerBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, false, false)]
@@ -17,6 +17,7 @@ namespace gip.core.autocomponent
         {
             _C_BSONameForShowProgramLog = new ACPropertyConfigValue<string>(this, nameof(BSONameForShowProgamLog), "");
             _C_BSONameForShowPropertyLog = new ACPropertyConfigValue<string>(this, nameof(BSONameForShowPropertyLog), "");
+            _C_BSONameForACClassMessageSelector = new ACPropertyConfigValue<string>(this, nameof(BSONameForACClassMessageSelector), "");
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -24,6 +25,7 @@ namespace gip.core.autocomponent
             bool result = base.ACInit(startChildMode);
             _ = BSONameForShowProgamLog;
             _ = BSONameForShowPropertyLog;
+            _ = BSONameForACClassMessageSelector;
             return result;
         }
         public const string C_DefaultServiceACIdentifier = "DlgManager";
@@ -78,6 +80,24 @@ namespace gip.core.autocomponent
                 _C_BSONameForShowPropertyLog.ValueT = value;
             }
         }
+
+        protected ACPropertyConfigValue<string> _C_BSONameForACClassMessageSelector;
+        [ACPropertyConfig("en{'Classname and ACIdentifier for BSOACClassMessageSelector'}de{'Klassenname und ACIdentifier für BSOACClassMessageSelector'}")]
+        public virtual string BSONameForACClassMessageSelector
+        {
+            get
+            {
+                if (!String.IsNullOrEmpty(_C_BSONameForACClassMessageSelector.ValueT))
+                    return _C_BSONameForACClassMessageSelector.ValueT;
+                _C_BSONameForACClassMessageSelector.ValueT = "BSOACClassMessageSelector";
+                return _C_BSONameForACClassMessageSelector.ValueT;
+            }
+            set
+            {
+                _C_BSONameForACClassMessageSelector.ValueT = value;
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -142,6 +162,22 @@ namespace gip.core.autocomponent
 
         public abstract string BuildOrderInfo(PWBase pw);
 
+        public virtual object ShowACClassMessageDialog(IACComponent caller, List<ACClassMessage> messagesList, string acCaption = null, string buttonACCaption = null, string dialogHeader = null)
+        {
+            if (caller == null)
+                return null;
+            string bsoName = BSONameForACClassMessageSelector;
+            if (String.IsNullOrEmpty(bsoName))
+                return null;
+            ACComponent bso = caller.Root.Businessobjects.ACUrlCommand("?" + bsoName) as ACComponent;
+            if (bso == null)
+                bso = caller.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as ACComponent;
+            if (bso == null)
+                return null;
+            object result = bso.ACUrlCommand("!SelectMessage", new object[] { messagesList, acCaption, buttonACCaption, dialogHeader });
+            bso.Stop();
+            return result;
+        }
 
         public virtual string GetBSOName(string baseBSOName, string dialogName = "Dialog")
         {

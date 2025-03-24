@@ -11,10 +11,16 @@ namespace gip.bso.iplus
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Message Selector'}de{'Message Selector'}", Global.ACKinds.TACBSOGlobal)]
     public class BSOACClassMessageSelector : ACBSO
     {
+        #region c'tors
+
         public BSOACClassMessageSelector(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "") :
             base(acType, content, parentACObject, parameter, acIdentifier)
         {
         }
+
+        #endregion
+
+        #region Properties
 
         private ACClassMessage _SelectedACClassMessage;
         [ACPropertySelected(9999, "ACClassMessage", "en{'Select'}de{'Wählen'}")]
@@ -73,6 +79,11 @@ namespace gip.bso.iplus
             }
         }
 
+        #endregion
+
+        #region Methods
+
+        [ACMethodInfo("","",9999)]
         public ACClassMessage SelectMessage(List<ACClassMessage> messagesList, string acCaption = null, string buttonACCaption = null, string dialogHeader = null)
         {
             ACClassMessageList = messagesList;
@@ -86,5 +97,25 @@ namespace gip.bso.iplus
 
             return SelectedACClassMessage;
         }
+
+        #endregion
+
+        #region HandleExecuteACMethod
+
+        protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, ACClassMethod acClassMethod, params object[] acParameter)
+        {
+            result = null;
+
+            switch (acMethodName)
+            {
+                case nameof(SelectMessage):
+                    result = SelectMessage(acParameter[0] as List<ACClassMessage>, acParameter[1] as string, acParameter[2] as string, acParameter[3] as string);
+                    return true;
+            }
+
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        #endregion
     }
 }
