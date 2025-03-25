@@ -74,6 +74,16 @@ namespace gip.core.autocomponent
         private DateTime? _RuleCacheRebuildAt;
 
         private bool _CacheRebuilded = false;
+        private bool _RulesRebuilded = false;
+
+        [ACPropertyInfo(500)]
+        public bool RulesRebuilded
+        {
+            get
+            {
+                return _RulesRebuilded;
+            }
+        }
 
         #endregion
 
@@ -83,7 +93,20 @@ namespace gip.core.autocomponent
         [ACMethodCommand("", "en{'Rebuild rule cache'}de{'Cache für den Neuaufbau von Regeln'}", 500,true)]
         public void RebuildRuleCache()
         {
-            _RuleCacheRebuildAt = DateTime.Now.AddMinutes(3);
+            using(ACMonitor.Lock(_20015_LockValue))
+                _RuleCacheRebuildAt = DateTime.Now.AddMinutes(3);
+            _RulesRebuilded = false;
+        }
+
+        [ACMethodCommand("", "en{'Rebuild rule cache immediately'}de{'Cache für den Neuaufbau von Regeln sofort'}", 501, true)]
+        public void RebuildRuleCacheImmediately()
+        {
+            if (!_CacheRebuilded)
+                return;
+
+            _RulesRebuilded = false;
+
+            ThreadPool.QueueUserWorkItem((object state) => RebuildPropertyLogRuleCache());
         }
 
         private void RebuildPropertyLogRuleCache()
@@ -110,6 +133,7 @@ namespace gip.core.autocomponent
                 }
             }
             _CacheRebuilded = true;
+            _RulesRebuilded = true;
         }
 
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
@@ -256,10 +280,15 @@ namespace gip.core.autocomponent
 
         private void ApplicationManager_ProjectWorkCycleR1min(object sender, EventArgs e)
         {
-            if (_RuleCacheRebuildAt == null || !_CacheRebuilded)
+            DateTime? rebuildCacheAt = null;
+
+            using (ACMonitor.Lock(_20015_LockValue))
+                rebuildCacheAt = _RuleCacheRebuildAt;
+
+            if (rebuildCacheAt == null || !_CacheRebuilded)
                 return;
 
-            if (DateTime.Now < _RuleCacheRebuildAt.Value)
+            if (DateTime.Now < rebuildCacheAt.Value)
                 return;
 
             ThreadPool.QueueUserWorkItem((object state) => RebuildPropertyLogRuleCache());
