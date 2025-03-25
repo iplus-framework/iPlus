@@ -144,6 +144,9 @@ namespace gip.core.autocomponent
                 case nameof(RebuildRuleCache):
                     RebuildRuleCache();
                     return true;
+                case nameof(RebuildRuleCacheImmediately):
+                    RebuildRuleCacheImmediately();
+                    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
