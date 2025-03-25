@@ -39,10 +39,17 @@ namespace gip.iplus.service
                 CommandLineHelper cmdHelper = new CommandLineHelper(args);
                 bool WCFOff = args.Contains("/WCFOff");
                 bool simulation = args.Contains("/Simulation");
+                bool waitToAttachDebugger = args.Contains("/Debug");
 
                 ACStartUpRoot startUpManager = new ACStartUpRoot(null);
                 String errorMsg = "";
                 _logger.LogInformation(String.Format("Starting iPlus Service with user {0}", cmdHelper.LoginUser));
+
+                if (waitToAttachDebugger)
+                {
+                    Thread.Sleep(60000);
+                }
+
                 if (startUpManager.LoginUser(cmdHelper.LoginUser, cmdHelper.LoginPassword, false, false, ref errorMsg, WCFOff, simulation) != 1)
                     _logger.LogInformation(String.Format("Starting iPlus-Service failed {0}", errorMsg));
                 _logger.LogInformation("iPlus Service started");
