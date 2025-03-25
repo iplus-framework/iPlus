@@ -395,6 +395,8 @@ namespace gip.bso.iplus
 
             if (PropertyLogService != null)
                 PropertyLogService.ValueT.ACUrlCommand("!RebuildRuleCache");
+            else
+                Messages.Error(this, "The PropertyLogService is not available! Run rule refresh manually on the property log service.");
         }
 
         /// <summary>
@@ -450,9 +452,15 @@ namespace gip.bso.iplus
                 else
                 {
                     if (PropertyLogService != null)
+                    {
                         PropertyLogService.ValueT.ACUrlCommand("!RebuildRuleCache");
-                    //Info50030:The rule for properties logging is succesfully activated.
-                    Messages.Info(this, "Info50030");
+                        //Info50030:The rule for properties logging is succesfully activated.
+                        Messages.Info(this, "Info50030");
+                    }
+                    else
+                    {
+                        Messages.Error(this, "The PropertyLogService is not available! Run rule refresh manually on the property log service.");
+                    }
                 }
             }
         }
@@ -497,9 +505,15 @@ namespace gip.bso.iplus
                     else
                     {
                         if (PropertyLogService != null)
+                        {
                             PropertyLogService.ValueT.ACUrlCommand("!RebuildRuleCache");
-                        //Info50031: The rule for properties logging is succesfully deactivated.
-                        Messages.Info(this, "Info50031");
+                            //Info50030:The rule for properties logging is succesfully activated.
+                            Messages.Info(this, "Info50030");
+                        }
+                        else
+                        {
+                            Messages.Error(this, "The PropertyLogService is not available! Run rule refresh manually on the property log service.");
+                        }
                     }
                 }
             }
