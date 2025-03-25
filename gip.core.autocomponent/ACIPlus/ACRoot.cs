@@ -141,12 +141,6 @@ namespace gip.core.autocomponent
 
             if (_Root == this)
             {
-                ACClassTaskQueue.StartTaskWorkerThreads();
-                RootDbOpQueue.AppContextQueue.StartWorkerThread();
-                GarbageCollector.Instance.StartWorkerThread();
-                ACDispatchedDelegateQueue.PrintQueue.StartWorkerThreadSTA();
-                Dispatcher.StartWorkerThread();
-
                 try
                 {
                     if (_RegisterACObjects)
@@ -161,6 +155,12 @@ namespace gip.core.autocomponent
                         msg += " Inner:" + ec.InnerException.Message;
                     _Messages.LogException(ACRoot.ClassName, "ACInit", msg);
                 }
+
+                ACClassTaskQueue.StartTaskWorkerThreads();
+                RootDbOpQueue.AppContextQueue.StartWorkerThread();
+                GarbageCollector.Instance.StartWorkerThread();
+                ACDispatchedDelegateQueue.PrintQueue.StartWorkerThreadSTA();
+                Dispatcher.StartWorkerThread();
             }
 
             gip.core.autocomponent.Messages.ConsoleMsg("System", "Initializing iPlus...");
