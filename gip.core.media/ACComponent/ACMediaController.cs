@@ -574,6 +574,11 @@ namespace gip.core.media
                     {
                         dialog.InitialDirectory = Path.GetDirectoryName(initialDirectory);
                     }
+                    else if(Directory.Exists(Path.GetDirectoryName(initialDirectory)))
+                    {
+                        dialog.InitialDirectory = Path.GetDirectoryName(initialDirectory);
+                    }
+                    dialog.DefaultFileName = Path.GetFileName(initialDirectory);
                 }
 
                 if(defaultExtension != null)
