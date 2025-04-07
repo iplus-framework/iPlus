@@ -125,25 +125,14 @@ namespace gip.core.dbsyncer.helper
         public static string ConnectionStringRemoveEntityPart(string connString)
         {
             string rawConnString = "";
-            string[] regexes = new string[] { regexConnectionStringPartIplus, regexConnectionStringPartMES };
-            foreach (string regex in regexes)
+            Match match = Regex.Match(connString, regexConnectionStringExtract, RegexOptions.IgnoreCase);
+            if(match.Success && match.Groups.Count > 2)
             {
-                rawConnString = ExcapeConnectionPartContent(regex, connString);
-                if (!string.IsNullOrEmpty(rawConnString))
-                    break;
+                rawConnString = match.Groups[2].Value;
             }
             return rawConnString;
         }
 
-        public static string ExcapeConnectionPartContent(string regex, string connString)
-        {
-            var match = Regex.Match(connString, regex);
-            if (match.Groups.Count > 0)
-                return match.Groups[match.Groups.Count - 1].Value;
-            return null;
-        }
-
-        public static string regexConnectionStringPartIplus = @"connection string=(["",\',\s,\&quot;]+)(.*)iPlus_db";
-        public static string regexConnectionStringPartMES = @"connection string=(["",\',\s,\&quot;]+)(.*)Framework";
+        public static string regexConnectionStringExtract = @"connection string=(["",\',\s,\&quot;]+)(.*)multipleactiveresultsets";
     }
 }
