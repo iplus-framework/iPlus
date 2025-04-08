@@ -283,6 +283,8 @@ namespace gip.core.reporthandler
 
             if (printJob != null)
             {
+                SendDataBeforePrint(printJob);
+
                 for (int i = 1; i <= copies; i++)
                 {
                     if (_CancelPrint)
@@ -290,6 +292,8 @@ namespace gip.core.reporthandler
 
                     SendDataToPrinter(printJob);
                 }
+
+                SendDataAfterPrint(printJob);
             }
         }
 
@@ -390,6 +394,16 @@ namespace gip.core.reporthandler
             //OnAlarmDisappeared(IsConnected);
             IsConnected.ValueT = true;
             return true;
+        }
+
+        public virtual void SendDataBeforePrint(PrintJob printJob)
+        {
+
+        }
+
+        public virtual void SendDataAfterPrint(PrintJob printJob)
+        {
+
         }
 
         /// <summary>
