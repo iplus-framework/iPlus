@@ -116,7 +116,7 @@ namespace gip.core.communication
 
 
         private string _BearerToken;
-        [ACPropertyInfo(true, 203, "", "en{'BearerToken'}de{'BearerToken'}", "", true)]
+        [ACPropertyInfo(false, 203, "", "en{'BearerToken'}de{'BearerToken'}", "", true)]
         public string BearerToken
         {
             get
@@ -241,16 +241,16 @@ namespace gip.core.communication
         protected void OnCreateDefaultRequestHeaders(HttpClient client)
         {
             client.DefaultRequestHeaders.Accept.Clear();
+            if (!String.IsNullOrEmpty(BearerToken))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
+            }
             if (!String.IsNullOrEmpty(User) && !String.IsNullOrEmpty(Password))
             {
                 client.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue(
                             "Basic", Convert.ToBase64String(
                                 System.Text.ASCIIEncoding.ASCII.GetBytes(User + ":" + Password)));
-            }
-            else if (!String.IsNullOrEmpty(BearerToken))
-            {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
             }
         }
 
@@ -388,6 +388,7 @@ namespace gip.core.communication
         {
             using (ACMonitor.Lock(_30210_LockValue))
             {
+                BearerToken = null;
                 if (_Client == null)
                     return true;
                 _Client.Dispose();
