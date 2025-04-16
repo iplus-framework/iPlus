@@ -21,6 +21,16 @@ using System.Numerics;
 using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography;
+using IM.Xades;
+using Egelke.EHealth.Client.Pki;
+using Org.BouncyCastle.Crypto;
+using Egelke.EHealth.Client.Pki.DSS;
+using System.ServiceModel;
+using IM.Xades.Extra;
+using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.Tsp;
+using System.Text;
+using Disig.TimeStampClient;
 
 namespace gip.core.crypto
 {
@@ -56,7 +66,7 @@ namespace gip.core.crypto
         public static void SignWithXAdES(XmlDocument xmlDocument, X509Certificate2 signingCertificate, bool withNewerC14N = true, bool insertSignatureAtBeginning = false)
         {
             XmlElement signatureXML = DigitalSignature.SignWithXAdES(signingCertificate, xmlDocument, withNewerC14N);
-            XmlNode signatureNode = xmlDocument.ImportNode(signatureXML, true);
+            XmlNode signatureNode = signatureXML; // xmlDocument.ImportNode(signatureXML, true);
             XmlElement root = xmlDocument.DocumentElement;
             if (insertSignatureAtBeginning)
                 root.InsertBefore(signatureNode, root.FirstChild);
@@ -87,6 +97,28 @@ namespace gip.core.crypto
             signedXml.ComputeSignature();
 
             return signedXml.GetXml();
+        }
+
+        public static void SignWithImXAdES(XmlDocument xmlDocument, X509Certificate2 signingCertificate, bool insertSignatureAtBeginning = false, DateTime? timestamp = null)
+        {
+            XadesCreator creator = new XadesCreator(signingCertificate);
+            if (!timestamp.HasValue)
+                timestamp = DateTime.UtcNow;
+
+            //TimeStampAuthorityClient tsa = new TimeStampAuthorityClient(new StsBinding(), new EndpointAddress("https://services-acpt.ehealth.fgov.be/TimestampAuthority/v2"));
+            //tsa.ClientCredentials.ClientCertificate.Certificate = signingCertificate;
+            //creator.TimestampProvider = new EHealthTimestampProvider(tsa);
+            creator.TimestampProvider = new DigitalSignaturTimeProvider(xmlDocument);
+            //creator.DataTransforms.Add(new XmlDsigBase64Transform());
+            //creator.DataTransforms.Add(new OptionalDeflateTransform());
+            XmlElement signatureXML = creator.CreateXadesT(xmlDocument);
+
+            XmlNode signatureNode = signatureXML; // xmlDocument.ImportNode(signatureXML, true);
+            XmlElement root = xmlDocument.DocumentElement;
+            if (insertSignatureAtBeginning)
+                root.InsertBefore(signatureNode, root.FirstChild);
+            else
+                root.AppendChild(signatureNode);
         }
 
         public static XmlElement Sign(X509Certificate2 signingCertificate, XmlDocument xmlDocument, bool withNewerC14N = true)
@@ -229,5 +261,32 @@ namespace gip.core.crypto
             }
         }
         #endregion Private methods
+    }
+
+    internal class DigitalSignaturTimeProvider : ITimestampProvider
+    {
+        public DigitalSignaturTimeProvider(XmlDocument document, string rfc3161Server = "https://rfc3161.ai.moda/microsoft")
+        {
+            _Document = document;
+            _rfc3161Server = rfc3161Server;
+        }
+
+        private XmlDocument _Document;
+        private string _rfc3161Server;
+
+        public byte[] GetTimestampFromDocumentHash(byte[] hash, string digestMethod)
+        {
+            // https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710?permalink_comment_id=3810141
+
+            byte[] xmlBytes = Encoding.UTF8.GetBytes(_Document.OuterXml);
+            byte[] reqHash;
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                reqHash = sha256.ComputeHash(xmlBytes);
+            }
+
+            var timeStampToken = Disig.TimeStampClient.TimeStampClient.RequestTimeStampToken(_rfc3161Server, reqHash);
+            return timeStampToken.ToByteArray();
+        }
     }
 }
