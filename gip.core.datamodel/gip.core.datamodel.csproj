@@ -65,9 +65,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="BouncyCastle.Cryptography, Version=2.0.0.0, Culture=neutral, PublicKeyToken=072edcf4a5328938, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\BouncyCastle.Cryptography.2.5.1\lib\net461\BouncyCastle.Cryptography.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -111,11 +108,6 @@
     <Compile Include="ACContainer\ACItem.cs" />
     <Compile Include="ACContainer\ACMenuItemLight.cs" />
     <Compile Include="ACContainer\InstallImportTypeFilter.cs" />
-    <Compile Include="ACHelperclasses\Cryptography\X509CertificateCreator.cs" />
-    <Compile Include="ACHelperclasses\Cryptography\DigitalSignature.cs" />
-    <Compile Include="ACHelperclasses\Cryptography\XMLHelper.cs" />
-    <Compile Include="ACHelperclasses\Cryptography\XadesSignedXml.cs" />
-    <Compile Include="ACHelperclasses\Cryptography\ByteExtensions.cs" />
     <Compile Include="ACHelperclasses\EntityFramework\ScheduledOrderManager.cs" />
     <Compile Include="ACHelperclasses\Misc4Components\ACActionArgs.cs" />
     <Compile Include="ACHelperclasses\Performance\IRuntimeDump.cs" />
@@ -354,6 +346,7 @@
     <Compile Include="ACInterfaces\ACContainer\IACContainerWithItems.cs" />
     <Compile Include="ACContainer\ACRef.cs" />
     <Compile Include="ACHelperclasses\Cryptography\ACCrypt.cs" />
+    <Compile Include="ACHelperclasses\Cryptography\ByteExtensions.cs" />
     <Compile Include="ACHelperclasses\PropertyLog\PropertyLogItem.cs" />
     <Compile Include="ACHelperclasses\PropertyLog\PropertyLogListInfo.cs" />
     <Compile Include="ACHelperclasses\PropertyLog\PropertyLogRing.cs" />

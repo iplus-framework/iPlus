@@ -114,6 +114,22 @@ namespace gip.core.communication
             }
         }
 
+
+        private string _BearerToken;
+        [ACPropertyInfo(true, 203, "", "en{'BearerToken'}de{'BearerToken'}", "", true)]
+        public string BearerToken
+        {
+            get
+            {
+                return _BearerToken;
+            }
+            set
+            {
+                _BearerToken = value;
+                OnPropertyChanged("BearerToken");
+            }
+        }
+
         private TimeSpan _TimeOut;
         [ACPropertyInfo(true, 203, "", "en{'TimeOut'}de{'TimeOut'}", "", true)]
         public TimeSpan TimeOut
@@ -231,6 +247,10 @@ namespace gip.core.communication
                         new AuthenticationHeaderValue(
                             "Basic", Convert.ToBase64String(
                                 System.Text.ASCIIEncoding.ASCII.GetBytes(User + ":" + Password)));
+            }
+            else if (!String.IsNullOrEmpty(BearerToken))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
             }
         }
 

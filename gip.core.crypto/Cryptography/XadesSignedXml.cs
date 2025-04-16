@@ -21,7 +21,7 @@ using System.IO;
 using System.Security.Cryptography.Xml;
 using System.Xml;
 
-namespace gip.core.datamodel
+namespace gip.core.crypto
 {
 
     public class XadesSignedXml : SignedXml

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("gip.core.media")]
+[assembly: AssemblyTitle("gip.core.crypto")]
 [assembly: AssemblyDescription("Archiving Programlogs")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("gipSoft d.o.o.")]
-[assembly: AssemblyProduct("iPlus gip.core.media")]
+[assembly: AssemblyProduct("iPlus gip.core.crypto")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("IPlus")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("73cbd3fc-f4ee-4bed-80b0-4f74e9d77034")]
+[assembly: Guid("73cbd3fc-f4ee-4bed-80b0-4f74e9d77025")]
 
 // Version information for an assembly consists of the following four values:
 //

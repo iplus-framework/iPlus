@@ -22,7 +22,7 @@ using System.Security.Cryptography.Xml;
 using System.Xml;
 using System.Xml.Schema;
 
-namespace gip.core.datamodel
+namespace gip.core.crypto
 {
     public class XmlHelper
     {

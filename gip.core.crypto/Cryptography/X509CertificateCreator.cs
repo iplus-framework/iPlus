@@ -31,7 +31,7 @@ using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Crypto.Prng;
 using System.Security.Cryptography;
 
-namespace gip.core.datamodel
+namespace gip.core.crypto
 {
     public static class X509CertificateCreator
     {

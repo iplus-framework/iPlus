@@ -22,7 +22,7 @@ using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography;
 
-namespace gip.core.datamodel
+namespace gip.core.crypto
 {
     public static class DigitalSignature
     {
