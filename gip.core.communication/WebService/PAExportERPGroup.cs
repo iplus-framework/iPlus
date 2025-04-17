@@ -257,15 +257,17 @@ namespace gip.core.communication
 
     public class ERPFileItem
     {
+        private const string C_FormatStamp = "dd_MM_yyyy-HH_mm_ss_ffffff";
+        private const string C_ACIdentifierSeparator = "_#_";
         public ERPFileItem(string filePath)
         {
             FilePath = filePath;
 
             string fileName = Path.GetFileNameWithoutExtension(filePath);
-            var fileNameSplited = fileName.Split(new string[] { "__" }, StringSplitOptions.None);
+            var fileNameSplited = fileName.Split(new string[] { C_ACIdentifierSeparator }, StringSplitOptions.None);
 
             DateTime dt = DateTime.MinValue;
-            if(DateTime.TryParseExact(fileNameSplited[0], "dd_MM_yyyy-HH_mm_ss_fff", null, System.Globalization.DateTimeStyles.None, out dt))
+            if (DateTime.TryParseExact(fileNameSplited[0], C_FormatStamp, null, System.Globalization.DateTimeStyles.None, out dt))
             {
                 SendTime = dt;
                 ACIdentifier = fileNameSplited[1];
@@ -305,7 +307,7 @@ namespace gip.core.communication
 
         public static string GenerateFileName(DateTime dateTime, string exporterACIdentifier)
         {
-            return string.Format("{0}__{1}.xml", dateTime.ToString("dd_MM_yyyy-HH_mm_ss_fff"), exporterACIdentifier);
+            return string.Format("{0}{1}{2}.xml", dateTime.ToString(C_FormatStamp), C_ACIdentifierSeparator, exporterACIdentifier);
         }
     }
 }
