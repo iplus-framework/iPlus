@@ -6,23 +6,12 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
-    <NoWarn>1701;1702;CA1416</NoWarn>
+    <NoWarn>1701;1702;CA1416;SYSLIB0021;SYSLIB0022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
-    <NoWarn>1591;CA1416</NoWarn>
+    <NoWarn>1591;CA1416;SYSLIB0021;SYSLIB0022</NoWarn>
   </PropertyGroup>
-  <ItemGroup>
-    <None Update="VBControlScripts\2023-09-12 15-29_aagincic.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="VBControlScripts\2023-09-14 12-06_aagincic.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="VBControlScripts\2023-12-06 16-00_ihrastinski.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj" />
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
@@ -31,6 +20,10 @@
     <MySourceFiles Include="$(ProjectDir)\VBControlScripts\*.*">
       <InProject>false</InProject>
     </MySourceFiles>
+    <PackageReference Include="Egelke.EHealth.Client.Pki" Version="2.4.0" />
+    <PackageReference Include="IM.Xades" Version="3.0.0" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+    <PackageReference Include="TimeStampClient" Version="1.2.0" />
     <None Update="readme.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -41,15 +34,15 @@
     </None>
   </ItemGroup>
   <Target Name="AfterBuild">
-    <Copy SourceFiles="$(OutDir)\gip.core.media.dll" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
-    <Copy SourceFiles="$(OutDir)\gip.core.media.pdb" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="$(OutDir)\gip.core.crypto.dll" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="$(OutDir)\gip.core.crypto.pdb" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
     <Copy SourceFiles="@(MySourceFiles)" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)\VBControlScripts" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
   </Target>
   <PropertyGroup>
-    <AssemblyTitle>gip.core.media</AssemblyTitle>
+    <AssemblyTitle>gip.core.crypto</AssemblyTitle>
     <Description>Archiving Programlogs</Description>
     <Company>gipSoft d.o.o.</Company>
-    <Product>iPlus gip.core.media</Product>
+    <Product>iPlus gip.core.crypto</Product>
     <Copyright>Copyright ©  2017</Copyright>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>

@@ -1522,7 +1522,7 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(acClass.Database.QueryLock_1X000))
                 {
-                    if (acClass.ACClassConfig_ACClass_IsLoaded)
+                    if (acClass.ACClassConfig_ACClass_IsLoaded && !acClass.Database.IsChanged)
                     {
                         //acClass.ACClassConfig_ACClass.AutoRefresh(acClass.ACClassConfig_ACClassReference, acClass.Database);
                         acClass.ACClassConfig_ACClass.AutoLoad(acClass.ACClassConfig_ACClassReference, acClass);

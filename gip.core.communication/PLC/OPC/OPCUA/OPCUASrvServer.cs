@@ -196,7 +196,7 @@ namespace gip.core.communication
                         configuration.SecurityConfiguration.UserIssuerCertificates != null)
                     {
                         CertificateValidator certificateValidator = new CertificateValidator();
-                        certificateValidator.Update(configuration.SecurityConfiguration).Wait();
+                        certificateValidator.Update(configuration).Wait();
                         certificateValidator.Update(configuration.SecurityConfiguration.UserIssuerCertificates,
                             configuration.SecurityConfiguration.TrustedUserCertificates,
                             configuration.SecurityConfiguration.RejectedCertificateStore);

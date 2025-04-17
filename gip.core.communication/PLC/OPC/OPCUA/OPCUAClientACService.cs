@@ -159,7 +159,7 @@ namespace gip.core.communication
 
             if (UseCertificate)
             {
-                Task<bool> taskCert = _AppInstance.CheckApplicationInstanceCertificate(true, 0);
+                Task<bool> taskCert = _AppInstance.CheckApplicationInstanceCertificates(true);
                 if (taskCert != null)
                 {
                     _HasAppCertificate = taskCert.Result;

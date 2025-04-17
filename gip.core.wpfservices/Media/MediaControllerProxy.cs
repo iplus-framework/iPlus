@@ -211,6 +211,11 @@ namespace gip.core.wpfservices
                     {
                         dialog.InitialDirectory = Path.GetDirectoryName(initialDirectory);
                     }
+                    else if (Directory.Exists(Path.GetDirectoryName(initialDirectory)))
+                    {
+                        dialog.InitialDirectory = Path.GetDirectoryName(initialDirectory);
+                    }
+                    dialog.DefaultFileName = Path.GetFileName(initialDirectory);
                 }
 
                 if (defaultExtension != null)
@@ -245,6 +250,7 @@ namespace gip.core.wpfservices
                 }
             }
             return path;
+
         }
 
         #endregion

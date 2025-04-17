@@ -296,7 +296,7 @@ namespace gip.core.communication
 
             try
             {
-                EndpointDescription selectedEndpoint = CoreClientUtils.SelectEndpoint(EndpointURL, ParentOPCUAClientACService.HasAppCertificate, 15000);
+                EndpointDescription selectedEndpoint = CoreClientUtils.SelectEndpoint(AppInstance.ApplicationConfiguration, EndpointURL, ParentOPCUAClientACService.HasAppCertificate, 1500);
                 EndpointConfiguration endpointConfiguration = EndpointConfiguration.Create(AppInstance.ApplicationConfiguration);
                 ConfiguredEndpoint endpoint = new ConfiguredEndpoint(null, selectedEndpoint, endpointConfiguration);
 

@@ -79,6 +79,8 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "gip.core.processapplication
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.media", "gip.core.media\gip.core.media.csproj", "{5075F800-E2FF-4A81-8631-A77CCB438053}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.crypto", "gip.core.crypto\gip.core.crypto.csproj", "{F9620201-705D-432C-8941-353E9BFFE5E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -203,6 +205,10 @@ Global
 		{5075F800-E2FF-4A81-8631-A77CCB438053}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5075F800-E2FF-4A81-8631-A77CCB438053}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5075F800-E2FF-4A81-8631-A77CCB438053}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9620201-705D-432C-8941-353E9BFFE5E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9620201-705D-432C-8941-353E9BFFE5E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9620201-705D-432C-8941-353E9BFFE5E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9620201-705D-432C-8941-353E9BFFE5E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -241,6 +247,7 @@ Global
 		{C2EE6F16-ABD1-4B0C-80C6-AACE6A3212A1} = {2089D22B-FC62-4E94-8776-093570EA4032}
 		{38889580-0345-42CC-AB4D-931CA15AFA85} = {2089D22B-FC62-4E94-8776-093570EA4032}
 		{5075F800-E2FF-4A81-8631-A77CCB438053} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{F9620201-705D-432C-8941-353E9BFFE5E1} = {2089D22B-FC62-4E94-8776-093570EA4032}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {98B3D62C-99C4-441A-BDBB-AA6225B4CF1C}

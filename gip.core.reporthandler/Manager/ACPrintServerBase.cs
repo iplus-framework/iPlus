@@ -264,6 +264,8 @@ namespace gip.core.reporthandler
 
             if (printJob != null)
             {
+                SendDataBeforePrint(printJob);
+
                 for (int i = 1; i <= copies; i++)
                 {
                     if (_CancelPrint)
@@ -271,6 +273,8 @@ namespace gip.core.reporthandler
 
                     SendDataToPrinter(printJob);
                 }
+
+                SendDataAfterPrint(printJob);
             }
         }
 
@@ -375,6 +379,15 @@ namespace gip.core.reporthandler
             return true;
         }
 
+        public virtual void SendDataBeforePrint(PrintJob printJob)
+        {
+
+        }
+
+        public virtual void SendDataAfterPrint(PrintJob printJob)
+        {
+
+        }
         #endregion
 
         #region Execute-Helper
