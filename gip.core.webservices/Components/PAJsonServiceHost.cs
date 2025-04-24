@@ -2,15 +2,10 @@
 using gip.core.datamodel;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
-using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Web;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace gip.core.webservices
 {
@@ -49,7 +44,11 @@ namespace gip.core.webservices
             Uri uri = new Uri(strUri);
             WebServiceHost serviceHost = new WebServiceHost(ServiceType, uri);
             serviceHost.Authorization.ServiceAuthorizationManager = new WSRestAuthorizationManager();
-            WebHttpBinding httpBinding = new WebHttpBinding() { ContentTypeMapper = new WSJsonServiceContentTypeMapper(), AllowCookies = true };
+            WebHttpBinding httpBinding = new WebHttpBinding() 
+            { 
+                ContentTypeMapper = GetContentTypeMapper(), 
+                AllowCookies = true 
+            };
             httpBinding.MaxReceivedMessageSize = int.MaxValue;
             httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
             httpBinding.MaxBufferSize = int.MaxValue;
@@ -76,6 +75,11 @@ namespace gip.core.webservices
                 }
             }
             return serviceHost;
+        }
+
+        public virtual WebContentTypeMapper GetContentTypeMapper()
+        {
+            return new WSJsonServiceContentTypeMapper();
         }
 
         protected virtual void OnAddKnownTypesToOperationContract(ServiceEndpoint endpoint, OperationDescription opDescr)
