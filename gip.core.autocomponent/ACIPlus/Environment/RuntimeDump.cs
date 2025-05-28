@@ -211,52 +211,52 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "Dump":
+                case nameof(Dump):
                     Dump();
                     return true;
-                case "DumpCPU":
+                case nameof(DumpCPU):
                     DumpCPU();
                     return true;
-                case "DumpPerfLog":
+                case nameof(DumpPerfLog):
                     DumpPerfLog();
                     return true;
-                //case "ACStateLoggingOn":
+                //case nameof(ACStateLoggingOn):
                 //    ACStateLoggingOn();
                 //    return true;
-                //case "ACStateLoggingOff":
+                //case nameof(ACStateLoggingOff):
                 //    ACStateLoggingOff();
                 //    return true;
-                case "PerfLoggingOn":
+                case nameof(PerfLoggingOn):
                     PerfLoggingOn();
                     return true;
-                case "PerfLoggingOff":
+                case nameof(PerfLoggingOff):
                     PerfLoggingOff();
                     return true;
-                case "DumpDelegateQueues":
+                case nameof(DumpDelegateQueues):
                     DumpDelegateQueues();
                     return true;
-                case "DumpSubscribedComponents":
+                case nameof(DumpSubscribedComponents):
                     DumpSubscribedComponents();
                     return true;
-                case "RestartDelegateQueue":
+                case nameof(RestartDelegateQueue):
                     RestartDelegateQueue(acParameter[0] as string);
                     return true;
-                case Const.IsEnabledPrefix + "DumpCPU":
+                case nameof(IsEnabledDumpCPU):
                     result = IsEnabledDumpCPU();
                     return true;
-                case Const.IsEnabledPrefix + "DumpPerfLog":
+                case nameof(IsEnabledDumpPerfLog):
                     result = IsEnabledDumpPerfLog();
                     return true;
-                //case Const.IsEnabledPrefix + "ACStateLoggingOn":
+                //case Const.IsEnabledPrefix + "ACStateLoggingOn):
                 //    result = IsEnabledACStateLoggingOn();
                 //    return true;
-                //case Const.IsEnabledPrefix + "ACStateLoggingOff":
+                //case Const.IsEnabledPrefix + "ACStateLoggingOff):
                 //    result = IsEnabledACStateLoggingOff();
                 //    return true;
-                case Const.IsEnabledPrefix + "PerfLoggingOn":
+                case nameof(IsEnabledPerfLoggingOn):
                     result = IsEnabledPerfLoggingOn();
                     return true;
-                case Const.IsEnabledPrefix + "PerfLoggingOff":
+                case nameof(IsEnabledPerfLoggingOff):
                     result = IsEnabledPerfLoggingOff();
                     return true;
             }
@@ -268,7 +268,7 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "RestartDelegateQueueC":
+                case nameof(RestartDelegateQueueC):
                     RestartDelegateQueueC(acComponent);
                     return true;
             }

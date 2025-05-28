@@ -1,9 +1,12 @@
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data;
 using System.Data.Objects.DataClasses;
+using System.Globalization;
 using System.Linq;
+using System.Web;
 
 namespace gip.core.autocomponent
 {
@@ -156,10 +159,80 @@ namespace gip.core.autocomponent
                         hasRuleLevel = priorityLevel == 1 ? (short)1 : (short)2;
                     else if (hasRuleLevel == 2 && priorityLevel == 1)
                         hasRuleLevel = 1;
+                    Global.ControlModesInfo validationResult = ValidateExpressionParams(configItem, configItem, true);
                     acValue.Value = configItem.Value;
+                    if (validationResult.Mode == Global.ControlModes.EnabledWrong && validationResult.FixedValue != null)
+                        acValue.Value = validationResult.FixedValue;
                 }
             }
             return hasRuleLevel;
+        }
+
+        public virtual Global.ControlModesInfo ValidateExpressionParams(IACConfig configItem, IACConfig configItemWithExpression = null, bool fixValue = false)
+        {
+            if (configItemWithExpression == null)
+                configItemWithExpression = configItem;
+            if (string.IsNullOrEmpty(configItemWithExpression.Expression))
+                return Global.ControlModesInfo.Enabled;
+            int codeStart = configItemWithExpression.Expression.IndexOf(ACUrlHelper.OpeningBrace);
+            int codeEnd = configItemWithExpression.Expression.LastIndexOf(ACUrlHelper.ClosingBrace);
+            if (codeEnd - 1 > codeStart)
+            {
+                string paramString = configItemWithExpression.Expression.Substring(codeStart + 1, codeEnd - 1);
+                try
+                {
+                    Dictionary<string, double> kvpParams = new Dictionary<string, double>();
+                    paramString = paramString.Trim();
+                    NameValueCollection nvCol = HttpUtility.ParseQueryString(paramString);
+                    foreach (string key in nvCol.AllKeys)
+                    {
+                        string sVal = nvCol.Get(key);
+                        if (!string.IsNullOrEmpty(sVal))
+                        {
+                            sVal = sVal.Trim(';', ' ');
+                            kvpParams.Add(key, Double.Parse(sVal, CultureInfo.InvariantCulture));
+                        }
+                    }
+
+                    //Example: {MinValue=5&MaxValue=6}
+                    return ValidateExpressionParams(configItem, kvpParams, fixValue);
+                }
+                catch (Exception ex)
+                {
+                    Messages.LogException(this.GetACUrl(), "OnGetControlModes(10)", ex);
+                }
+            }
+            return Global.ControlModesInfo.Enabled;
+        }
+
+
+        public virtual Global.ControlModesInfo ValidateExpressionParams(IACConfig configItem, Dictionary<string, double> expressionParams, bool fixValue = false)
+        {
+            Type objectFullType = configItem.ValueTypeACClass?.ObjectFullType;
+            if (objectFullType == null)
+                return Global.ControlModesInfo.Enabled;
+
+            double? minValue = null;
+            double? maxValue = null;
+            int? minLength = null;
+            int? maxLength = null;
+            double val = 0.0;
+            if (expressionParams.TryGetValue(nameof(ACClassProperty.MinValue), out val))
+                minValue = val;
+            val = 0.0;
+            if (expressionParams.TryGetValue(nameof(ACClassProperty.MaxValue), out val))
+                maxValue = val;
+            val = 0.0;
+            if (expressionParams.TryGetValue(nameof(ACClassProperty.MinLength), out val))
+                minLength = Convert.ToInt32(val);
+            val = 0.0;
+            if (expressionParams.TryGetValue(nameof(ACClassProperty.MaxLength), out val))
+                maxLength = Convert.ToInt32(val);
+
+            Global.ControlModesInfo result = IACObjectReflectionExtension.CheckPropertyMinMax(null, configItem.Value, null, objectFullType, false,
+                                                minLength, maxLength,
+                                                minValue, maxValue, null, fixValue);
+            return result;
         }
 
         #endregion
@@ -291,7 +364,14 @@ namespace gip.core.autocomponent
 
         public static IACConfig ACConfigFactory(IACConfigStore configStore, ACConfigParam acConfigParam, string preValueACUrl, string localConfigACUrl, Guid? vbiACClassID)
         {
-            return ACConfigFactory(configStore, acConfigParam.ACClassWF, acConfigParam.ValueTypeACClassID, preValueACUrl, localConfigACUrl, vbiACClassID);
+            IACConfig newconfiguration = ACConfigFactory(configStore, acConfigParam.ACClassWF, acConfigParam.ValueTypeACClassID, preValueACUrl, localConfigACUrl, vbiACClassID);
+            if (acConfigParam.DefaultConfiguration != null && newconfiguration != null)
+            {
+                newconfiguration.Value = acConfigParam.DefaultConfiguration.Value;
+                newconfiguration.Comment = acConfigParam.DefaultConfiguration.Comment;
+                newconfiguration.Expression = acConfigParam.DefaultConfiguration.Expression;
+            }
+            return newconfiguration;
         }
 
         public static IACConfig ACConfigFactory(IACConfigStore configStore, ACClassWF acClassWF, Guid valueTypeACClassID, string preValueACUrl, string localConfigACUrl, Guid? vbiACClassID)
@@ -536,7 +616,7 @@ namespace gip.core.autocomponent
                     configStores
                     .SelectMany(c => c.ConfigurationEntries.Select(x => new Tuple<decimal, IACConfig>(c.OverridingOrder, x)))
                     .GroupBy(x => x.Item2.LocalConfigACUrl)
-                    .Where(x => x.Any(c => !string.IsNullOrEmpty(c.Item2.Expression)))
+                    .Where(x => x.Any(c => !string.IsNullOrEmpty(c.Item2.Expression) && c.Item2.Expression[0] != ACUrlHelper.OpeningBrace))
                     .OrderBy(x => x.Key).ToArray();
 
                 string result = "";
@@ -544,7 +624,7 @@ namespace gip.core.autocomponent
                 foreach (var configEntry in configEntries)
                 {
                     // Search if any expresion is configured
-                    string expression = configEntry.Where(c => c.Item2 != null && !string.IsNullOrEmpty(c.Item2.Expression)).Select(c => c.Item2.Expression).FirstOrDefault();
+                    string expression = configEntry.Where(c => c.Item2 != null && !string.IsNullOrEmpty(c.Item2.Expression) && c.Item2.Expression[0] != ACUrlHelper.OpeningBrace).Select(c => c.Item2.Expression).FirstOrDefault();
                     if (!string.IsNullOrEmpty(expression))
                     {
                         // by configuration order descending - last in hierarchy is first in list

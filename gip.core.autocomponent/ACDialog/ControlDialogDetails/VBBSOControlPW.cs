@@ -1,11 +1,14 @@
-using System;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Linq;
 using gip.core.datamodel;
-using System.Data.Objects.DataClasses;
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Data;
+using System.Data.Objects.DataClasses;
+using System.Globalization;
+using System.Linq;
 using System.Reflection;
+using System.Web;
 
 namespace gip.core.autocomponent
 {
@@ -1362,6 +1365,23 @@ namespace gip.core.autocomponent
                             return result;
                         else
                             return Global.ControlModes.Disabled;
+                    }
+                case "SelectedPAFunctionParamValue\\DefaultConfiguration\\Value":
+                case "SelectedPWNodeParamValue\\DefaultConfiguration\\Value":
+                    {
+                        ACConfigParam aCConfigParam = vbControl.VBContent == "SelectedPAFunctionParamValue\\DefaultConfiguration\\Value" ? SelectedPAFunctionParamValue : SelectedPWNodeParamValue;
+                        IACConfig lastExpressionEntry = aCConfigParam.ConfigurationList.Where(c => !string.IsNullOrEmpty(c.Expression) && c.Expression.IndexOf(ACUrlHelper.OpeningBrace) >= 0).LastOrDefault();
+                        if (lastExpressionEntry != null)
+                        {
+                            int codeStart = lastExpressionEntry.Expression.IndexOf(ACUrlHelper.OpeningBrace);
+                            int codeEnd = lastExpressionEntry.Expression.LastIndexOf(ACUrlHelper.ClosingBrace);
+                            if (codeEnd - 1 > codeStart)
+                            {
+                                Global.ControlModesInfo validationResult = VarioConfigManager.ValidateExpressionParams(aCConfigParam.DefaultConfiguration, lastExpressionEntry);
+                                result = validationResult.Mode;
+                            }
+                        }
+                        return result;
                     }
                 default:
                     return result;

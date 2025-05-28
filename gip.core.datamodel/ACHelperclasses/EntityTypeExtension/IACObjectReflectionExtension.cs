@@ -1165,7 +1165,8 @@ namespace gip.core.datamodel
         public static Global.ControlModesInfo CheckPropertyMinMax(ACClassProperty acClassProperty, object valueToCheck, IACObject parentObject, Type typeOfProperty,
                                                                     bool IsNullable, Nullable<int> MinLength, Nullable<int> MaxLength,
                                                                     Nullable<Double> MinValue, Nullable<Double> MaxValue,
-                                                                    Database databaseForMessageText = null)
+                                                                    Database databaseForMessageText = null,
+                                                                    bool fixValue = false)
         {
             if (typeOfProperty == null)
                 return Global.ControlModesInfo.Disabled;
@@ -1181,7 +1182,7 @@ namespace gip.core.datamodel
                 EntityObject entityObject = parentObject as EntityObject;
                 if (entityObject != null && entityObject.EntityState != System.Data.EntityState.Added && entityObject.EntityState != System.Data.EntityState.Detached)
                 {
-                    ACClass saveClass = acClassProperty.Safe_ACClass;
+                    ACClass saveClass = acClassProperty?.Safe_ACClass;
                     if (saveClass != null && !String.IsNullOrEmpty(saveClass.ACFilterColumns))
                     {
                         if (saveClass.ACFilterColumns.Contains(acClassProperty.ACIdentifier))
@@ -1201,24 +1202,28 @@ namespace gip.core.datamodel
                 if (!IsNullable)
                 {
                     newMode.Mode = Global.ControlModes.EnabledRequired;
-                    if (databaseForMessageText != null)
+                    if (databaseForMessageText != null && acClassProperty != null)
+                    {
                         newMode.Message = new Msg
                         {
                             ACIdentifier = acClassProperty.ACIdentifier,
                             Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50000", acClassProperty.ACIdentifier, acClassProperty.ACCaption),
                             MessageLevel = eMsgLevel.Error
                         };
+                    }
                 }
                 else if (MinLength.HasValue)
                 {
                     newMode.Mode = Global.ControlModes.EnabledRequired;
-                    if (databaseForMessageText != null)
+                    if (databaseForMessageText != null && acClassProperty != null)
+                    {
                         newMode.Message = new Msg
                         {
                             ACIdentifier = acClassProperty.ACIdentifier,
                             Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50001", acClassProperty.ACIdentifier, acClassProperty.ACCaption, MinLength.Value),
                             MessageLevel = eMsgLevel.Error
                         };
+                    }
                 }
                 return newMode;
             }
@@ -1242,13 +1247,15 @@ namespace gip.core.datamodel
                     if (valueToCheck == null)
                     {
                         newMode.Mode = Global.ControlModes.EnabledRequired;
-                        if (databaseForMessageText != null)
+                        if (databaseForMessageText != null && acClassProperty != null)
+                        {
                             newMode.Message = new Msg
                             {
                                 ACIdentifier = acClassProperty.ACIdentifier,
                                 Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50001", acClassProperty.ACIdentifier, acClassProperty.ACCaption, MinLength.Value),
                                 MessageLevel = eMsgLevel.Error
                             };
+                        }
                         return newMode;
                     }
                     // Überprüfe Mindest Länge falls String
@@ -1258,13 +1265,15 @@ namespace gip.core.datamodel
                         if (valueString.Length < MinLength)
                         {
                             newMode.Mode = Global.ControlModes.EnabledRequired;
-                            if (databaseForMessageText != null)
+                            if (databaseForMessageText != null && acClassProperty != null)
+                            {
                                 newMode.Message = new Msg
                                 {
                                     ACIdentifier = acClassProperty.ACIdentifier,
                                     Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50002", acClassProperty.ACIdentifier, acClassProperty.ACCaption, MinLength.Value),
                                     MessageLevel = eMsgLevel.Error
                                 };
+                            }
                             return newMode;
                         }
                         else if (bNotEditableEntityKey)
@@ -1283,13 +1292,15 @@ namespace gip.core.datamodel
                         if (valueString.Length < MinLength)
                         {
                             newMode.Mode = Global.ControlModes.EnabledRequired;
-                            if (databaseForMessageText != null)
+                            if (databaseForMessageText != null && acClassProperty != null)
+                            {
                                 newMode.Message = new Msg
                                 {
                                     ACIdentifier = acClassProperty.ACIdentifier,
                                     Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50002", acClassProperty.ACIdentifier, acClassProperty.ACCaption, MinLength.Value),
                                     MessageLevel = eMsgLevel.Error
                                 };
+                            }
                             return newMode;
                         }
                         else if (bNotEditableEntityKey)
@@ -1325,13 +1336,17 @@ namespace gip.core.datamodel
                     if (valueString.Length > MaxLength)
                     {
                         newMode = Global.ControlModesInfo.EnabledWrong;
-                        if (databaseForMessageText != null)
+                        if (databaseForMessageText != null && acClassProperty != null)
+                        {
                             newMode.Message = new Msg
                             {
                                 ACIdentifier = acClassProperty.ACIdentifier,
                                 Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50003", acClassProperty.ACIdentifier, acClassProperty.ACCaption, acClassProperty.MaxLength.Value),
                                 MessageLevel = eMsgLevel.Error
                             };
+                        }
+                        if (fixValue)
+                            newMode.FixedValue = valueString.Substring(0, MaxLength.Value);
                     }
                     else if (bNotEditableEntityKey)
                     {
@@ -1339,7 +1354,7 @@ namespace gip.core.datamodel
                     }
                 }
                 // Falls Datenbankfeldlänge überschritten
-                if (acClassProperty.DataTypeLength > 0)
+                if (acClassProperty != null && acClassProperty.DataTypeLength > 0)
                 {
                     string valueString = valueToCheck as String;
                     if (valueString.Length > acClassProperty.DataTypeLength)
@@ -1352,6 +1367,8 @@ namespace gip.core.datamodel
                                 Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50003", acClassProperty.ACIdentifier, acClassProperty.ACCaption, acClassProperty.DataTypeLength),
                                 MessageLevel = eMsgLevel.Error
                             };
+                        if (fixValue)
+                            newMode.FixedValue = valueString.Substring(0, acClassProperty.DataTypeLength);
                     }
                     else if (bNotEditableEntityKey && !String.IsNullOrEmpty(valueString))
                     {
@@ -1374,24 +1391,32 @@ namespace gip.core.datamodel
                         if (MinValue.HasValue && ((valueToCheck as IComparable).CompareTo(System.Convert.ChangeType(MinValue, typeToConvert)) < 0))
                         {
                             newMode = Global.ControlModesInfo.EnabledWrong;
-                            if (databaseForMessageText != null)
+                            if (databaseForMessageText != null && acClassProperty != null)
+                            {
                                 newMode.Message = new Msg
                                 {
                                     ACIdentifier = acClassProperty.ACIdentifier,
                                     Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50004", acClassProperty.ACIdentifier, acClassProperty.ACCaption, MinValue.Value),
                                     MessageLevel = eMsgLevel.Error
                                 };
+                            }
+                            if (fixValue)
+                                newMode.FixedValue = System.Convert.ChangeType(MinValue, typeToConvert);
                         }
                         if (MaxValue.HasValue && ((valueToCheck as IComparable).CompareTo(System.Convert.ChangeType(MaxValue, typeToConvert)) > 0))
                         {
                             newMode = Global.ControlModesInfo.EnabledWrong;
-                            if (databaseForMessageText != null)
+                            if (databaseForMessageText != null && acClassProperty != null)
+                            {
                                 newMode.Message = new Msg
                                 {
                                     ACIdentifier = acClassProperty.ACIdentifier,
                                     Message = Database.Root.Environment.TranslateMessage(databaseForMessageText, "Error50005", acClassProperty.ACIdentifier, acClassProperty.ACCaption, MaxValue.Value),
                                     MessageLevel = eMsgLevel.Error
                                 };
+                            }
+                            if (fixValue)
+                                newMode.FixedValue = System.Convert.ChangeType(MaxValue, typeToConvert);
                         }
                         else if (newMode.Mode != Global.ControlModes.EnabledWrong && bNotEditableEntityKey)
                         {
