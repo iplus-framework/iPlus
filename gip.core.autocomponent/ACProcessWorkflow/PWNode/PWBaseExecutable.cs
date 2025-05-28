@@ -229,6 +229,16 @@ namespace gip.core.autocomponent
             return null;
         }
 
+        public bool IsConfigurationLoaded
+        {
+            get
+            {
+                using (ACMonitor.Lock(_20015_LockValue))
+                {
+                    return _MyConfiguration != null;
+                }
+            }
+        }
 
         protected ACMethod _MyConfiguration;
         [ACPropertyInfo(999)]

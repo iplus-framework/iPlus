@@ -15,6 +15,7 @@ namespace gip.core.autocomponent
     /// <seealso cref="gip.core.datamodel.IACComponentPWNode" />
     public interface IACMyConfigCache : IACComponentPWNode
     {
+        bool IsConfigurationLoaded { get;  }
         ACMethod MyConfiguration { get; }
         void ClearMyConfiguration();
     }

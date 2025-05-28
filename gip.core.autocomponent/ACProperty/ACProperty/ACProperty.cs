@@ -1808,7 +1808,7 @@ namespace gip.core.autocomponent
 
         public string GetACUrlComponent(IACObject rootACObject = null)
         {
-            return ParentACComponent.GetACUrl(rootACObject) + "\\" + ACIdentifier;
+            return ParentACComponent.GetACUrl(rootACObject) + ACUrlHelper.Delimiter_DirSeperator + ACIdentifier;
         }
 
         /// <summary>

@@ -419,9 +419,10 @@ namespace gip.core.autocomponent
             if (!IsEnabledAckStartClient(acComponent))
                 return;
             ACStateEnum acState = (ACStateEnum) _this.ACUrlCommand("ACState");
-
+            object oPwDlg = _this.ACUrlCommand("PasswordDlg");
+            bool pwDlg = oPwDlg != null ? (bool)oPwDlg : false;
             // If needs Password
-            if (acState == ACStateEnum.SMStarting)
+            if (acState == ACStateEnum.SMStarting && pwDlg)
             {
                 string bsoName = "BSOChangeMyPW";
                 ACBSO childBSO = acComponent.Root.Businessobjects.ACUrlCommand("?" + bsoName) as ACBSO;
