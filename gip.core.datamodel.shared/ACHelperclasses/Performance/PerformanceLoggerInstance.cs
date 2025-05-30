@@ -76,6 +76,32 @@ namespace gip.core.datamodel
             return added;
         }
 
+        /// <summary>
+        /// Gets performance data without resetting the internal structures
+        /// </summary>
+        /// <returns>Performance data for Excel export</returns>
+        public PerformanceLoggerInstanceData GetPerformanceData()
+        {
+            lock (_StatLock)
+            {
+                var data = new PerformanceLoggerInstanceData
+                {
+                    InstanceName = this.InstanceName,
+                    TotalExecutionTime = this.TotalExecutionTime,
+                    Statistics = new List<PerformanceStatisticData>()
+                };
+
+                foreach (var statEntry in _PerformanceLog.OrderByDescending(c => c.Value.TotalExecutionTime))
+                {
+                    var statData = statEntry.Value.GetPerformanceData();
+                    if (statData != null)
+                        data.Statistics.Add(statData);
+                }
+
+                return data;
+            }
+        }
+
         public void DumpAndReset(StringBuilder sb, PerformanceLogger parent, TimeSpan totalExecutionTimeParent)
         {
             lock (_StatLock)

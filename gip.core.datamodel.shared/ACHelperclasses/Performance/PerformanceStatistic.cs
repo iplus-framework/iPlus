@@ -129,6 +129,40 @@ namespace gip.core.datamodel
             }
         }
 
+        /// <summary>
+        /// Gets performance data without resetting the internal structures
+        /// </summary>
+        /// <returns>Performance data for Excel export</returns>
+        public PerformanceStatisticData GetPerformanceData()
+        {
+            lock (_LockEvents)
+            {
+                var data = new PerformanceStatisticData
+                {
+                    Id = this.Id,
+                    TotalExecutionTime = this.TotalExecutionTime,
+                    Events = new List<PerformanceEventData>()
+                };
+
+                // Calculate usage percentages and create event data
+                foreach (var perfEvent in Events.OrderByDescending(c => c.Elapsed))
+                {
+                    double usagePercent = TotalExecutionTime.TotalMilliseconds > 0
+                        ? (perfEvent.Elapsed.TotalMilliseconds / TotalExecutionTime.TotalMilliseconds) * 100
+                        : 0;
+
+                    data.Events.Add(new PerformanceEventData
+                    {
+                        StartTime = perfEvent.StartTime,
+                        Elapsed = perfEvent.Elapsed,
+                        UsagePercent = usagePercent
+                    });
+                }
+
+                return data;
+            }
+        }
+
         public void DumpAndReset(StringBuilder sb, PerformanceLoggerInstance parent)
         {
             lock (_LockEvents)
