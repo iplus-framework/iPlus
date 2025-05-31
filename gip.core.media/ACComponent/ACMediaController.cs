@@ -460,7 +460,7 @@ namespace gip.core.media
             }
         }
 
-        public byte[] ResizeImage(string fileName, int maxWidth, int maxHeight, SKFilterQuality quality = SKFilterQuality.Medium)
+        public byte[] ResizeImage(string fileName, int maxWidth, int maxHeight)
         {
             SKData data = null;
             using (FileStream ms = new FileStream(fileName, FileMode.Open))
@@ -469,7 +469,8 @@ namespace gip.core.media
                 {
                     int height = Math.Min(maxHeight, sourceBitmap.Height);
                     int width = Math.Min(maxWidth, sourceBitmap.Width);
-                    using (SKBitmap scaledBitmap = sourceBitmap.Resize(new SKImageInfo(width, height), quality))
+                    SKSamplingOptions samplingOptions = new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Nearest);
+                    using (SKBitmap scaledBitmap = sourceBitmap.Resize(new SKImageInfo(width, height), samplingOptions))
                     {
                         using (SKImage scaledImage = SKImage.FromBitmap(scaledBitmap))
                         {
