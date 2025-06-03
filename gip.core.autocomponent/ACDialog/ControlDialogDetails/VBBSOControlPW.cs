@@ -1,14 +1,11 @@
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Objects.DataClasses;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Web;
 
 namespace gip.core.autocomponent
 {
@@ -1571,13 +1568,8 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledCopyConfigToSimilarNodes()
         {
-            return CurrentPWInfo != null
-                    && CurrentPWInfo.CurrentConfigStore != null
-                    && CurrentACClassWF != null
-                    && PWNodeParamValueList != null
-                    && PWNodeParamValueList.Any();
+            return IsCConfigParamsForCopy();
         }
-
 
         public List<IACComponentPWNode> GetSimilarNodes(List<IACComponentPWNode> rootNodes, IACComponentPWNode templateNode)
         {
@@ -1795,7 +1787,24 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledCopyValuesToEqualSubWF()
         {
-            return IsEnabledCopyConfigToSimilarNodes();
+            return IsCConfigParamsForCopy();
+        }
+
+        private bool IsCConfigParamsForCopy()
+        {
+
+            bool isSelected = 
+                CurrentPWInfo != null
+                && CurrentPWInfo.CurrentConfigStore != null
+                && CurrentACClassWF != null
+                && CurrentPWInfo?.ParentRootWFNode != null
+                && CurrentPWInfo?.ParentRootWFNode?.ContentACClassWF != null
+                && CurrentPWInfo?.ParentRootWFNode?.ContentACClassWF?.ACClassMethod != null;
+
+            bool nodeHaveParams = PWNodeParamValueList != null && PWNodeParamValueList.Any();
+            bool methodHaveParams = PAFunctionParamValueList != null && PAFunctionParamValueList.Any();
+
+            return isSelected && (nodeHaveParams || methodHaveParams);
         }
 
         #endregion
