@@ -152,33 +152,14 @@ namespace gip.core.wpfservices
         public byte[] ResizeImage(string fileName, int maxWidth, int maxHeight, string quality = "Medium")
         {
             SKData data = null;
-            SKFilterQuality qualitySK;
-
-            switch (quality.ToLower())
-            {
-                case "medium":
-                    qualitySK = SKFilterQuality.Medium;
-                    break;
-                case "low":
-                    qualitySK = SKFilterQuality.Low;
-                    break;
-                case "high":
-                    qualitySK = SKFilterQuality.High;
-                    break;
-                case "none":
-                    qualitySK = SKFilterQuality.None;
-                    break;
-                default:
-                    throw new ArgumentException("Invalid quality value.");
-            }
-
             using (FileStream ms = new FileStream(fileName, FileMode.Open))
             {
                 using (SKBitmap sourceBitmap = SKBitmap.Decode(ms))
                 {
                     int height = Math.Min(maxHeight, sourceBitmap.Height);
                     int width = Math.Min(maxWidth, sourceBitmap.Width);
-                    using (SKBitmap scaledBitmap = sourceBitmap.Resize(new SKImageInfo(width, height), qualitySK))
+                    SKSamplingOptions samplingOptions = new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Nearest);
+                    using (SKBitmap scaledBitmap = sourceBitmap.Resize(new SKImageInfo(width, height), samplingOptions))
                     {
                         using (SKImage scaledImage = SKImage.FromBitmap(scaledBitmap))
                         {

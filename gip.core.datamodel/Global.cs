@@ -1387,6 +1387,8 @@ namespace gip.core.datamodel
             /// <value>The message for presentation.</value>
             public Msg Message { get; set; }
 
+            public object FixedValue { get; set; }
+
             public static ControlModesInfo Collapsed
             {
                 get

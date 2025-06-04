@@ -515,7 +515,7 @@ namespace gip.core.autocomponent
                 PWGroup pwGroup = Semaphore.ConnectionList.FirstOrDefault().ValueT as PWGroup;
                 if (pwGroup != null && pwGroup.RootPW != null)
                 {
-                    pwGroup.GetPAOrderInfo();
+                    return pwGroup.GetPAOrderInfo();
                 }
             }
             return null;

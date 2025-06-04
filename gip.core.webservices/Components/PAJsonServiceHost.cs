@@ -98,7 +98,7 @@ namespace gip.core.webservices
 
                         string strUri = String.Format("http://{0}:{1}/", this.Root.Environment.UserInstance.Hostname, servicePort);
                         Uri uri = new Uri(strUri);
-                        WebHttpBinding httpBinding = new WebHttpBinding() { ContentTypeMapper = new WSJsonServiceContentTypeMapper() };
+                        WebHttpBinding httpBinding = new WebHttpBinding() { ContentTypeMapper = GetContentTypeMapper() };
                         httpBinding.MaxReceivedMessageSize = int.MaxValue;
                         httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
                         httpBinding.MaxBufferSize = int.MaxValue;
@@ -128,6 +128,11 @@ namespace gip.core.webservices
                 .Build();
 
             return host;
+        }
+
+        public virtual WebContentTypeMapper GetContentTypeMapper()
+        {
+            return new WSJsonServiceContentTypeMapper();
         }
 
         public override Type ServiceType

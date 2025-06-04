@@ -412,6 +412,14 @@ namespace gip.core.autocomponent
             }
         }
 
+        public virtual bool? IsLastRun
+        {
+            get
+            {
+                return null;
+            }
+        }
+
         #endregion
 
         #region Private members

@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Xml.Linq;
+using System.Runtime.Serialization;
 
 
 namespace gip.core.communication
@@ -24,6 +25,7 @@ namespace gip.core.communication
         XMLDocument = 1, // Zugriff per XPath (DOM-Parser, langsam)
         XDocument = 2, // Zugriff per LINQ
         XMLSerializer = 3, // Erzeugnung eines Objektbaums anhand von XSD per XMLReader
+        DataContractSerializer = 4
     }
 
 
@@ -180,6 +182,10 @@ namespace gip.core.communication
                     case PAXMLDocImportParserType.XDocument:
                         parseSucc = ParseWithXDocument(CurrentFileName);
                         break;
+                    case PAXMLDocImportParserType.DataContractSerializer:
+                        parseSucc = ParseWithDCS(CurrentFileName);
+                        break;
+
                 }
 
                 if (!String.IsNullOrWhiteSpace(ForwardDir))
@@ -379,6 +385,33 @@ namespace gip.core.communication
             xDocument = null;
             return succ;
         }
+
+        protected virtual bool ParseWithDCS(string fileName)
+        {
+            bool succ = true;
+
+            try
+            {
+                using (FileStream fs = new FileStream(fileName, FileMode.Open))
+                {
+                    DataContractSerializer serializer = new DataContractSerializer(TypeOfDeserialization);
+                    object result = serializer.ReadObject(fs);
+                    if (result == null)
+                        return false;
+
+                    succ = ProcessObject(result, serializer);
+                }
+            }
+            catch (Exception e)
+            {
+                Messages.LogException(this.GetACUrl(), "PAXMLDocImporterBase.ParseWithDCS()", e.Message);
+                return false;
+            }
+
+
+            return succ;
+        }
+
 
         #endregion
 

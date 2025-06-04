@@ -1,11 +1,11 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-using System;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Linq;
 using gip.core.datamodel;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -1365,6 +1365,23 @@ namespace gip.core.autocomponent
                         else
                             return Global.ControlModes.Disabled;
                     }
+                case "SelectedPAFunctionParamValue\\DefaultConfiguration\\Value":
+                case "SelectedPWNodeParamValue\\DefaultConfiguration\\Value":
+                    {
+                        ACConfigParam aCConfigParam = vbControl.VBContent == "SelectedPAFunctionParamValue\\DefaultConfiguration\\Value" ? SelectedPAFunctionParamValue : SelectedPWNodeParamValue;
+                        IACConfig lastExpressionEntry = aCConfigParam.ConfigurationList.Where(c => !string.IsNullOrEmpty(c.Expression) && c.Expression.IndexOf(ACUrlHelper.OpeningBrace) >= 0).LastOrDefault();
+                        if (lastExpressionEntry != null)
+                        {
+                            int codeStart = lastExpressionEntry.Expression.IndexOf(ACUrlHelper.OpeningBrace);
+                            int codeEnd = lastExpressionEntry.Expression.LastIndexOf(ACUrlHelper.ClosingBrace);
+                            if (codeEnd - 1 > codeStart)
+                            {
+                                Global.ControlModesInfo validationResult = VarioConfigManager.ValidateExpressionParams(aCConfigParam.DefaultConfiguration, lastExpressionEntry);
+                                result = validationResult.Mode;
+                            }
+                        }
+                        return result;
+                    }
                 default:
                     return result;
 
@@ -1553,13 +1570,8 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledCopyConfigToSimilarNodes()
         {
-            return CurrentPWInfo != null
-                    && CurrentPWInfo.CurrentConfigStore != null
-                    && CurrentACClassWF != null
-                    && PWNodeParamValueList != null
-                    && PWNodeParamValueList.Any();
+            return IsCConfigParamsForCopy();
         }
-
 
         public List<IACComponentPWNode> GetSimilarNodes(List<IACComponentPWNode> rootNodes, IACComponentPWNode templateNode)
         {
@@ -1777,7 +1789,24 @@ namespace gip.core.autocomponent
 
         public bool IsEnabledCopyValuesToEqualSubWF()
         {
-            return IsEnabledCopyConfigToSimilarNodes();
+            return IsCConfigParamsForCopy();
+        }
+
+        private bool IsCConfigParamsForCopy()
+        {
+
+            bool isSelected = 
+                CurrentPWInfo != null
+                && CurrentPWInfo.CurrentConfigStore != null
+                && CurrentACClassWF != null
+                && CurrentPWInfo?.ParentRootWFNode != null
+                && CurrentPWInfo?.ParentRootWFNode?.ContentACClassWF != null
+                && CurrentPWInfo?.ParentRootWFNode?.ContentACClassWF?.ACClassMethod != null;
+
+            bool nodeHaveParams = PWNodeParamValueList != null && PWNodeParamValueList.Any();
+            bool methodHaveParams = PAFunctionParamValueList != null && PAFunctionParamValueList.Any();
+
+            return isSelected && (nodeHaveParams || methodHaveParams);
         }
 
         #endregion

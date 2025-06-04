@@ -2233,12 +2233,45 @@ namespace gip.core.autocomponent
                         }
                         else if (string.IsNullOrEmpty(acUrlHelper.NextACUrl)) // Konfiguration
                         {
-                            if ((acParameter == null) || (!acParameter.Any()))
-                                return this[acUrlHelper.ACUrlPart];
+                            if (!IsProxy)
+                            {
+                                IACPropertyConfigValue configValue = ACPropertyConfigValueList?.Where(c => c.ACIdentifier == acUrlHelper.ACUrlPart).FirstOrDefault();
+                                if (configValue != null)
+                                {
+                                    if ((acParameter == null) || (!acParameter.Any()))
+                                        return configValue.Value;
+                                    else
+                                    {
+                                        configValue.Value = acParameter[0];
+                                        return null;
+                                    }
+                                }
+                                else if (this is IACMyConfigCache && (this as IACMyConfigCache).IsConfigurationLoaded)
+                                {
+                                    ACValue acValue = (this as IACMyConfigCache).MyConfiguration?.ParameterValueList?.Where(c => c.ACIdentifier == acUrlHelper.ACUrlPart).FirstOrDefault();
+                                    if (acValue != null)
+                                    {
+                                        if ((acParameter == null) || (!acParameter.Any()))
+                                            return acValue.Value;
+                                        else
+                                        {
+                                            acValue.Value = acParameter[0];
+                                            return null;
+                                        }
+                                    }
+                                }
+                                if ((acParameter == null) || (!acParameter.Any()))
+                                    return this[acUrlHelper.ACUrlPart];
+                                else
+                                {
+                                    this[acUrlHelper.ACUrlPart] = acParameter[0];
+                                    return null;
+                                }
+                            }
                             else
                             {
-                                this[acUrlHelper.ACUrlPart] = acParameter[0];
-                                return null;
+                                object configResult = (this as ACComponentProxy).InvokeACUrlCommand(this.GetACUrl() + ACUrlHelper.Delimiter_DirSeperator + acUrlHelper.ACUrlPart, acParameter);
+                                return configResult;
                             }
                         }
                         return null;

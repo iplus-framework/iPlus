@@ -29,7 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="SkiaSharp" Version="2.88.8" />
     <PackageReference Include="WindowsAPICodePack" Version="8.0.6" />
     <!--<PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.8.0" />

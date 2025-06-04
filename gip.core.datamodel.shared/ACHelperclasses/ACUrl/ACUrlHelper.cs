@@ -112,6 +112,10 @@ namespace gip.core.datamodel
         /// </summary>
         public const char AttachedMethodIDConcatenator = '@';
 
+        public const char OpeningBrace = '{';
+
+        public const char ClosingBrace = '}';
+
         /// <summary>
         /// All reserved Characters, which are not allowed to use in a ACIdentifer
         /// </summary>

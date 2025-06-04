@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\CallerArgumentExpressionAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\EntityBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\GS1Parser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Performance\PerformanceDataDump.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\ValueTracer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Performance\PerformanceEvent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ACHelperclasses\Performance\PerformanceLogger.cs" />

@@ -194,7 +194,7 @@ namespace gip.core.autocomponent
             }
             Guid[] acProgramLogIDs = null;
             if (programLogs != null && programLogs.Any())
-                acProgramLogIDs = programLogs.Select(c => c.ACProgramLogID).ToArray();
+                acProgramLogIDs = programLogs.Where(c => c != null).Select(c => c.ACProgramLogID).ToArray();
             Guid? acclassMessageID = OnGetPropertyLogMessageID(args);
 
             this.ApplicationManager.ApplicationQueue.Add(() => LogProperty(args.ForACComponent.ComponentClass.ACClassID, args.NetValueEventArgs.ACIdentifier,

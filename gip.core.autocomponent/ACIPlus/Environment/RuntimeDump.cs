@@ -1,14 +1,14 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.Tracing;
+using System.IO;
 using System.Linq;
 using System.Text;
-using gip.core.datamodel;
-using System.IO;
-using System.Diagnostics;
 using System.Threading;
-using System.Diagnostics.Tracing;
 
 namespace gip.core.autocomponent
 {
@@ -105,6 +105,14 @@ namespace gip.core.autocomponent
         [ACPropertyInfo(true, 201, DefaultValue = 0)]
         public int PerfMonitoringTimeout { get; set; }
 
+        /// <summary>
+        /// Interval when Performce-Logs shoud be dumped automatically in background.
+        /// </summary>
+        [ACPropertyInfo(true, 202, DefaultValue = 0)]
+        public int PerfDumpIntervalMin { get; set; }
+
+        [ACPropertyInfo(true, 204)]
+        public DateTime PerfDumpLastRun { get; set; }
 
         private object _LockPerfMonLock = new object();
         private string[] _PerfMonIgnoreList = new string[] { };
@@ -213,52 +221,52 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "Dump":
+                case nameof(Dump):
                     Dump();
                     return true;
-                case "DumpCPU":
+                case nameof(DumpCPU):
                     DumpCPU();
                     return true;
-                case "DumpPerfLog":
+                case nameof(DumpPerfLog):
                     DumpPerfLog();
                     return true;
-                //case "ACStateLoggingOn":
+                //case nameof(ACStateLoggingOn):
                 //    ACStateLoggingOn();
                 //    return true;
-                //case "ACStateLoggingOff":
+                //case nameof(ACStateLoggingOff):
                 //    ACStateLoggingOff();
                 //    return true;
-                case "PerfLoggingOn":
+                case nameof(PerfLoggingOn):
                     PerfLoggingOn();
                     return true;
-                case "PerfLoggingOff":
+                case nameof(PerfLoggingOff):
                     PerfLoggingOff();
                     return true;
-                case "DumpDelegateQueues":
+                case nameof(DumpDelegateQueues):
                     DumpDelegateQueues();
                     return true;
-                case "DumpSubscribedComponents":
+                case nameof(DumpSubscribedComponents):
                     DumpSubscribedComponents();
                     return true;
-                case "RestartDelegateQueue":
+                case nameof(RestartDelegateQueue):
                     RestartDelegateQueue(acParameter[0] as string);
                     return true;
-                case Const.IsEnabledPrefix + "DumpCPU":
+                case nameof(IsEnabledDumpCPU):
                     result = IsEnabledDumpCPU();
                     return true;
-                case Const.IsEnabledPrefix + "DumpPerfLog":
+                case nameof(IsEnabledDumpPerfLog):
                     result = IsEnabledDumpPerfLog();
                     return true;
-                //case Const.IsEnabledPrefix + "ACStateLoggingOn":
+                //case Const.IsEnabledPrefix + "ACStateLoggingOn):
                 //    result = IsEnabledACStateLoggingOn();
                 //    return true;
-                //case Const.IsEnabledPrefix + "ACStateLoggingOff":
+                //case Const.IsEnabledPrefix + "ACStateLoggingOff):
                 //    result = IsEnabledACStateLoggingOff();
                 //    return true;
-                case Const.IsEnabledPrefix + "PerfLoggingOn":
+                case nameof(IsEnabledPerfLoggingOn):
                     result = IsEnabledPerfLoggingOn();
                     return true;
-                case Const.IsEnabledPrefix + "PerfLoggingOff":
+                case nameof(IsEnabledPerfLoggingOff):
                     result = IsEnabledPerfLoggingOff();
                     return true;
             }
@@ -270,7 +278,7 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "RestartDelegateQueueC":
+                case nameof(RestartDelegateQueueC):
                     RestartDelegateQueueC(acComponent);
                     return true;
             }
@@ -290,6 +298,7 @@ namespace gip.core.autocomponent
                     _WorkCycleThread.StartReportingExeTime();
                     MonitorActivePerfEvents();
                     _WorkCycleThread.StopReportingExeTime();
+                    CyclicDump();
                 }
                 catch (Exception e)
                 {
@@ -349,6 +358,19 @@ namespace gip.core.autocomponent
                 return;
             PerfLogger.MonitorActivePerfEvents(this.PerfMonitoringTimeout, this, PerfMonIgnoreList, PerfMonIncludeList);
         }
+
+        private void CyclicDump()
+        {
+            if (PerfDumpIntervalMin <= 0)
+                return;
+            if (PerfDumpLastRun == DateTime.MinValue || DateTime.Now > PerfDumpLastRun.AddMinutes(PerfDumpIntervalMin))
+            {
+                DumpCPU();
+                DumpPerfLog();
+                PerfDumpLastRun = DateTime.Now;
+            }
+        }
+
 #pragma warning disable CS0618
         /// <summary>
         ///   <para>
@@ -415,7 +437,23 @@ namespace gip.core.autocomponent
         {
             if (!ACThread.PerfLogger.Active)
                 return;
-            string dumpFilePath = string.Format("{0}UsageCPU_{1:yyyyMMdd_HHmmss}.txt", Messages.LogFilePath, DateTime.Now);
+
+            DateTime now = DateTime.Now;
+            List<IPerfLogWriter> dumpWriter = FindChildComponents<IPerfLogWriter>();
+            if (dumpWriter != null && dumpWriter.Any())
+            {
+                // First, get the performance data without resetting
+                var perfData = ACThread.PerfLogger.GetPerformanceData();
+                if (perfData != null)
+                {
+                    foreach (IPerfLogWriter writer in dumpWriter)
+                    {
+                        writer.WritePerformanceData(now, perfData, ACThread.PerfLogger);
+                    }
+                }
+            }
+
+            string dumpFilePath = string.Format("{0}UsageCPU_{1:yyyyMMdd_HHmmss}.txt", Messages.LogFilePath, now);
             string log = ACThread.DumpStatisticsAndReset();
             if (log != null)
                 File.WriteAllText(dumpFilePath, log);
@@ -437,7 +475,23 @@ namespace gip.core.autocomponent
         {
             if (!PerfLogger.Active)
                 return;
-            string dumpFilePath = string.Format("{0}PerfLog_{1:yyyyMMdd_HHmmss}.txt", Messages.LogFilePath, DateTime.Now);
+
+            DateTime now = DateTime.Now;
+            List<IPerfLogWriter> dumpWriter = FindChildComponents<IPerfLogWriter>();
+            if (dumpWriter != null && dumpWriter.Any())
+            {
+                // First, get the performance data without resetting
+                var perfData = PerfLogger.GetPerformanceData();
+                if (perfData != null)
+                {
+                    foreach (IPerfLogWriter writer in dumpWriter)
+                    {
+                        writer.WritePerformanceData(now, perfData, PerfLogger);
+                    }
+                }
+            }
+
+            string dumpFilePath = string.Format("{0}PerfLog_{1:yyyyMMdd_HHmmss}.txt", Messages.LogFilePath, now);
             string log = PerfLogger.DumpAndReset();
             if (log != null)
                 File.WriteAllText(dumpFilePath, log);
@@ -567,8 +621,7 @@ namespace gip.core.autocomponent
             threadOfQueue.ParentQueue.RestartQueue(abortThread);
         }
 
-
-#region Client-Methods
+        #region Client-Methods
         [ACMethodInteractionClient("", "en{'Restart Delegate-Queue'}de{'Restart Delegate-Queue'}", 111, false, "", false)]
         public static void RestartDelegateQueueC(IACComponent acComponent)
         {

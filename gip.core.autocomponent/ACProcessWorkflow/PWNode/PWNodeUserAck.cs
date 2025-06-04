@@ -35,7 +35,7 @@ namespace gip.core.autocomponent
             method.ParameterValueList.Add(new ACValue("PasswordDlg", typeof(bool), false, Global.ParamOption.Required));
             paramTranslation.Add("PasswordDlg", "en{'With password dialogue'}de{'Mit Passwort-Dialog'}");
             method.ParameterValueList.Add(new ACValue("SkipMode", typeof(ushort), 0, Global.ParamOption.Optional));
-            paramTranslation.Add("SkipMode", "en{'Skipmode: 1=Always, 2=From the second run'}de{'Überspringen: 1=Ständig, 2=Ab zweitem Durchlauf'}");
+            paramTranslation.Add("SkipMode", "en{'Skipmode-Flags: 1=Always, 2=From the second run, 4=Not at last run'}de{'Überspringen: 1=Ständig, 2=Ab zweitem Durchlauf, 4=Nicht bei letztem Durchlauf'}");
             method.ParameterValueList.Add(new ACValue("ACUrlCmd", typeof(string), "", Global.ParamOption.Required));
             paramTranslation.Add("ACUrlCmd", "en{'Invoke ACUrl-Command'}de{'ACUrl-Kommando ausführen'}");
 
@@ -97,11 +97,13 @@ namespace gip.core.autocomponent
             }
         }
 
+        [Flags]
         public enum SkipModeEnum : ushort
         {
-            Never = 0,
-            Always = 1,
-            FromSecondRun = 2 
+            Never = 0x0,
+            Always = 0x1,
+            FromSecondRun = 0x2,
+            ExceptLastRun = 0x4
         }
 
         public ushort SkipMode
@@ -121,12 +123,35 @@ namespace gip.core.autocomponent
             }
         }
 
+        public SkipModeEnum SkipModeEnumValue
+        {
+            get
+            {
+                return (SkipModeEnum)SkipMode;
+            }
+        }
+
         public bool IsSkippingNeeded
         {
             get
             {
-                return SkipMode == (ushort)SkipModeEnum.Always
-                || (SkipMode == (ushort)SkipModeEnum.FromSecondRun && RootPW != null && RootPW.InvocationCounter.HasValue && RootPW.InvocationCounter.Value > 1);
+                if (SkipMode == 0)
+                    return false;
+                if (SkipModeEnumValue.HasFlag(SkipModeEnum.Always))
+                    return true;
+                if (RootPW == null || !RootPW.InvocationCounter.HasValue)
+                    return false;
+                bool skip = true;
+                if (SkipModeEnumValue.HasFlag(SkipModeEnum.FromSecondRun) && RootPW.InvocationCounter.Value <= 1)
+                {
+                    if (!SkipModeEnumValue.HasFlag(SkipModeEnum.ExceptLastRun))
+                        skip = false;
+                    else if (RootPW.IsLastRun.HasValue && RootPW.IsLastRun.Value)
+                        skip = false;
+                }
+                if (skip && SkipModeEnumValue.HasFlag(SkipModeEnum.ExceptLastRun) && RootPW.IsLastRun.HasValue && RootPW.IsLastRun.Value)
+                    skip = false;
+                return skip;
             }
         }
 
@@ -168,10 +193,10 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "AckStart":
+                case nameof(AckStartClient):
                     AckStart();
                     return true;
-                case Const.IsEnabledPrefix + "AckStart":
+                case nameof(IsEnabledAckStart):
                     result = IsEnabledAckStart();
                     return true;
             }
@@ -219,13 +244,21 @@ namespace gip.core.autocomponent
             }
 
             RefreshNodeInfoOnModule();
-            if (!CPasswordDlg)
+            if (!MustWaitForClientSideAction)
             {
                 if (CanRaiseRunningEvent)
                     RaiseRunningEvent();
                 CurrentACState = ACStateEnum.SMRunning;
             }
             AlarmsAsText.ValueT = CMessageText;
+        }
+
+        public virtual bool MustWaitForClientSideAction
+        {
+            get
+            {
+                return CPasswordDlg;
+            }
         }
 
         private void KeySwitch_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -388,9 +421,10 @@ namespace gip.core.autocomponent
             if (!IsEnabledAckStartClient(acComponent))
                 return;
             ACStateEnum acState = (ACStateEnum) _this.ACUrlCommand("ACState");
-
+            object oPwDlg = _this.ACUrlCommand("PasswordDlg");
+            bool pwDlg = oPwDlg != null ? (bool)oPwDlg : false;
             // If needs Password
-            if (acState == ACStateEnum.SMStarting)
+            if (acState == ACStateEnum.SMStarting && pwDlg)
             {
                 string bsoName = "BSOChangeMyPW";
                 ACBSO childBSO = acComponent.Root.Businessobjects.ACUrlCommand("?" + bsoName) as ACBSO;
