@@ -51,7 +51,7 @@
     <ProjectReference Include="..\gip.core.layoutengine\gip.core.layoutengine.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="SciChart" Version="8.6.0.28199" />
+    <PackageReference Include="SciChart" Version="8.8.0.28567" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

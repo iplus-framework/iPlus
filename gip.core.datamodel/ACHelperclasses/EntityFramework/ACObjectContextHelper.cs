@@ -836,7 +836,7 @@ namespace gip.core.datamodel
 
             isDisconnectedException = e.InnerException != null
                                     && (   (e.InnerException is InvalidOperationException && e.InnerException.HResult == Const.EF_HResult_InvalidOperationException)
-                                        || (e.InnerException is System.Data.SqlClient.SqlException && e.InnerException.HResult == Const.EF_HResult_SqlException));
+                                        || (e.InnerException is Microsoft.Data.SqlClient.SqlException && e.InnerException.HResult == Const.EF_HResult_SqlException));
             return isDisconnectedException;
         }
 
@@ -902,7 +902,7 @@ namespace gip.core.datamodel
                     exceptionType = Const.EF_HResult_EntityException;
                 else if (e is InvalidOperationException)
                     exceptionType = Const.EF_HResult_InvalidOperationException;
-                else if (e is System.Data.SqlClient.SqlException)
+                else if (e is Microsoft.Data.SqlClient.SqlException)
                     exceptionType = Const.EF_HResult_SqlException;
             }
 

@@ -198,6 +198,6 @@ attrib -r $(ProjectDir)Themes\Metro\White.xaml
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>  
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.5" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="9.0.5" />
   </ItemGroup>
 </Project>

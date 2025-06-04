@@ -49,7 +49,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.IO.Ports" Version="7.0.0" />
+    <PackageReference Include="System.IO.Ports" Version="9.0.5" />
     <None Update="readme.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

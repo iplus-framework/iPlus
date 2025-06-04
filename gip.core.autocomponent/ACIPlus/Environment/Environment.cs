@@ -7,7 +7,7 @@ using System.Text;
 using gip.core.datamodel;
 using gip.core.datamodel.Licensing;
 using System.IO;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;

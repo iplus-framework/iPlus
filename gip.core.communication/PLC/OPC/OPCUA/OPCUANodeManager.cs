@@ -1604,6 +1604,16 @@ namespace gip.core.communication
             throw new NotImplementedException();
         }
 
+        public void CreateMonitoredItems(OperationContext context, uint subscriptionId, double publishingInterval, TimestampsToReturn timestampsToReturn, IList<MonitoredItemCreateRequest> itemsToCreate, IList<ServiceResult> errors, IList<MonitoringFilterResult> filterErrors, IList<IMonitoredItem> monitoredItems, bool createDurable, ref long globalIdCounter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RestoreMonitoredItems(IList<IStoredMonitoredItem> itemsToRestore, IList<IMonitoredItem> monitoredItems, IUserIdentity savedOwnerIdentity)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

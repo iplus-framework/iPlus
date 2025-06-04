@@ -180,10 +180,10 @@ namespace gip.ext.xamldom
 		/// <summary>
 		/// Create a new XamlMarkupExtensionParseException instance.
 		/// </summary>
-		protected XamlMarkupExtensionParseException(SerializationInfo info, StreamingContext context)
-			: base(info, context)
-		{
-		}
+		//protected XamlMarkupExtensionParseException(SerializationInfo info, StreamingContext context)
+		//	: base(info, context)
+		//{
+		//}
 	}
 	
 	enum MarkupExtensionTokenKind

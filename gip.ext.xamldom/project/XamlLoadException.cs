@@ -36,9 +36,9 @@ namespace gip.ext.xamldom
 		/// <summary>
 		/// Create a new XamlLoadException instance.
 		/// </summary>
-		protected XamlLoadException(SerializationInfo info, StreamingContext context)
-			: base(info, context)
-		{
-		}
+		//protected XamlLoadException(SerializationInfo info, StreamingContext context)
+		//	: base(info, context)
+		//{
+		//}
 	}
 }

@@ -111,12 +111,12 @@ namespace gip.core.layoutengine
 
         #region Submenu
 
-        private static void OnIsExpandedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static async void OnIsExpandedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var menuItem = d as VBMenuItemMobile;
             if (menuItem != null && menuItem.IsExpanded)
             {
-                menuItem.ShowSubMenu(menuItem);
+                await menuItem.ShowSubMenuAsync(menuItem);
             }
         }
 
@@ -152,7 +152,27 @@ namespace gip.core.layoutengine
             return subMenu;
         }
 
+        [Obsolete("Use ShowSubMenuAsync instead to properly handle asynchronous operations")]
         public async void ShowSubMenu(VBMenuItemMobile menuItem)
+        {
+            if (this.Parent is VBMenu parentMenu && parentMenu.Name == "Submenu")
+            {
+                parentMenu.SwitchMainMenuItems();
+                await Task.Delay(200);
+                MoveItems(this.subMenu.Items, mainSubMenu.Items);
+                this.subMenuExpanded = true;
+                subMenu.ToggleMenu();
+            }
+            else if (menuItem != null && this.Parent is VBMenu)
+            {
+                (this.Parent as VBMenu).ToggleMenu();
+                await Task.Delay(300);
+                MoveItems(this.subMenu.Items, mainSubMenu.Items);
+                mainSubMenu.ToggleMenu();
+            }
+        }
+
+        public async Task ShowSubMenuAsync(VBMenuItemMobile menuItem)
         {
             if (this.Parent is VBMenu parentMenu && parentMenu.Name == "Submenu")
             {
@@ -198,12 +218,12 @@ namespace gip.core.layoutengine
             }
         }
 
-        protected override void OnSubmenuOpened(RoutedEventArgs e)
+        protected override async void OnSubmenuOpened(RoutedEventArgs e)
         {
             base.OnSubmenuOpened(e);
             if (e.OriginalSource is VBMenuItemMobile vbMenuItem)
             {
-                ShowSubMenu(vbMenuItem);
+                await ShowSubMenuAsync(vbMenuItem);
             }
         }
 

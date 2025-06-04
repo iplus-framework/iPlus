@@ -36,9 +36,9 @@ namespace gip.ext.design
 		/// <summary>
 		/// Create a new DesignerException instance.
 		/// </summary>
-		protected DesignerException(SerializationInfo info, StreamingContext context)
-			: base(info, context)
-		{
-		}
+		//protected DesignerException(SerializationInfo info, StreamingContext context)
+		//	: base(info, context)
+		//{
+		//}
 	}
 }

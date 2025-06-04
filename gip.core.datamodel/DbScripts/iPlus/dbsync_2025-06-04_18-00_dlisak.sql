@@ -1,0 +1,1 @@
+update ACClass set AssemblyQualifiedName = 'Microsoft.Data.SqlClient.SqlConnectionStringBuilder, Microsoft.Data.SqlClient, Version=6.0.0.0, Culture=neutral, PublicKeyToken=23ec7fc2d6eaa4a5' where AssemblyQualifiedName = 'System.Data.SqlClient.SqlConnectionStringBuilder, System.Data.SqlClient, Version=4.6.1.6, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
