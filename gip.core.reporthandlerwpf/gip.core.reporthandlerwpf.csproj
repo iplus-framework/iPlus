@@ -46,14 +46,14 @@
 		<WarningLevel>3</WarningLevel>
 		<DocumentationFile>
 		</DocumentationFile>
-		<NoWarn>1701;1702;CA1416</NoWarn>
+		<NoWarn>1701;1702;CA1416;1591;VSTHRD100;VSTHRD110;VSTHRD200</NoWarn>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 		<OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
 		<DocumentationFile>
 		</DocumentationFile>
-		<NoWarn>1591</NoWarn>
-	</PropertyGroup>
+    <NoWarn>1701;1702;CA1416;1591;VSTHRD100;VSTHRD110;VSTHRD200</NoWarn>
+  </PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="FlowDoc\Document\Chart\**" />
 		<EmbeddedResource Remove="FlowDoc\Document\Chart\**" />

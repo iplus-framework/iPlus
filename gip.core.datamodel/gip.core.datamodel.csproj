@@ -17,14 +17,14 @@
     </DocumentationFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <NoWarn>1591</NoWarn>
-    <NoWarn>SYSLIB0006</NoWarn>
+    <NoWarn>CS1591</NoWarn>
+    <NoWarn>SYSLIB0006,CS1591,1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DefineConstants>TRACE;NETFRAMEWORK;EFCR</DefineConstants>
     <DocumentationFile>$(SolutionDir)bin\Release\gip.core.datamodel.XML</DocumentationFile>
-    <NoWarn>1591</NoWarn>
-    <NoWarn>SYSLIB0006</NoWarn>
+    <NoWarn>SYSLIB0006,CS1591,1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
