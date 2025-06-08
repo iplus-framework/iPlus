@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "iPlus": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "http://localhost:8750/sse",
+        "--allow-http"
+      ]
+    }
+  }
+}
