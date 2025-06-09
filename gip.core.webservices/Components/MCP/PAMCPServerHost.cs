@@ -35,6 +35,8 @@ namespace gip.core.webservices
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
             bool result = base.ACInit(startChildMode);
+            _ = IsEnabled;
+            _ = ServicePort;
             return result;
         }
 
