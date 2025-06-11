@@ -1008,7 +1008,7 @@ namespace gip.core.autocomponent
             {
                 return stores
                         .Where(c => c is EntityObject)
-                        .Select(c => new ACConfigStoreInfo((c as EntityObject).EntityKey, c.OverridingOrder)).ToList();
+                        .Select(c => new ACConfigStoreInfo((c as EntityObject).EntityKey, c.OverridingOrder, this.PreValueACUrl)).ToList();
             }
             return new List<ACConfigStoreInfo>();
         }

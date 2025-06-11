@@ -356,7 +356,7 @@ namespace gip.core.autocomponent
                         CurrentPWInfo.MandatoryConfigStores,
                         CurrentPWInfo.PreValueACUrl,
                         CurrentPWNodeURL,
-                        true
+                        !(CurrentPWInfo is PWBase || CurrentPWInfo is PWNodeProxy)
                       );
             }
 
@@ -650,7 +650,7 @@ namespace gip.core.autocomponent
                         CurrentPWInfo.MandatoryConfigStores,
                         CurrentPWInfo.PreValueACUrl,
                         CurrentPAFunctionURL,
-                        true);
+                        !(CurrentPWInfo is PWBase || CurrentPWInfo is PWNodeProxy));
             }
 
             OnPropertyChanged(nameof(PAFunctionParamValueList));
