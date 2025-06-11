@@ -162,6 +162,7 @@ namespace gip.core.datamodel
 
         bool PreventOnContextACChangesExecuted { get; set; }
 
+        string GetQualifiedEntitySetNameForEntityKey(string entitySetName);
         #endregion
 
         #region ObjectContext

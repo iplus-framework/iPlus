@@ -984,6 +984,10 @@ namespace gip.core.datamodel
             ObjectContext.ExecuteStoreCommand(SET_READ_COMMITED);
         }
 
+        public string GetQualifiedEntitySetNameForEntityKey(string entitySetName)
+        {
+            return ObjectContext.DefaultContainerName + "." + entitySetName;
+        }
         #endregion
 
         #region Critical Section

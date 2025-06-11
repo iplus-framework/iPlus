@@ -21,8 +21,7 @@ namespace gip.core.datamodel
         {
             if (entityApp == null)
                 return default(TEntityIPlus);
-            EntityKey key = new EntityKey(gip.core.datamodel.Database.GlobalDatabase.DefaultContainerName + "." + entityApp.EntityKey.EntitySetName, entityApp.EntityKey.EntityKeyValues);
-            //key.EntityContainerName = gip.core.datamodel.Database.GlobalDatabase.DefaultContainerName;
+            EntityKey key = new EntityKey(gip.core.datamodel.Database.GlobalDatabase.GetQualifiedEntitySetNameForEntityKey(entityApp.EntityKey.EntitySetName), entityApp.EntityKey.EntityKeyValues);
             object obj = null;
             if (dbIPlus == null)
                 dbIPlus = entityApp.GetObjectContext().ContextIPlus;
@@ -283,6 +282,11 @@ namespace gip.core.datamodel
                 return MergeOption.AppendOnly;
                 //return IsChanged ? MergeOption.AppendOnly : MergeOption.OverwriteChanges;
             }
+        }
+
+        public string GetQualifiedEntitySetNameForEntityKey(string entitySetName)
+        {
+            return this._ObjectContextHelper.GetQualifiedEntitySetNameForEntityKey(entitySetName);
         }
 
         public event ACChangesEventHandler ACChangesExecuted;
