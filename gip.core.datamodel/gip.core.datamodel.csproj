@@ -112,6 +112,7 @@
     <Compile Include="ACHelperclasses\Performance\IPerfLogWriter.cs" />
     <Compile Include="ACHelperclasses\Performance\IRuntimeDump.cs" />
     <Compile Include="ACHelperclasses\Runtime\ACActivator.cs" />
+    <Compile Include="ACHelperclasses\Runtime\StartCompResult.cs" />
     <Compile Include="ACHelperclasses\ThreadHandling\ACBackgroundWorker.cs">
       <SubType>Component</SubType>
     </Compile>
