@@ -43,6 +43,7 @@ namespace gip.core.autocomponent
                     _ContentACClassWF = acClassTask.ContentACClassWF;
                 }
             }
+            _PreValueACUrl = null;
         }
 
         internal virtual void CheckAndReplaceContent(ACChildInstanceInfo instanceInfo)
@@ -92,6 +93,7 @@ namespace gip.core.autocomponent
         {
             bool result = base.ACDeInit(deleteACClassTask);
             _ContentACClassWF = null;
+            _PreValueACUrl = null;
 
             using (ACMonitor.Lock(_20015_LockValue))
             {
@@ -421,6 +423,7 @@ namespace gip.core.autocomponent
             }
         }
 
+        private string _PreValueACUrl;
         public string PreValueACUrl
         {
             get
@@ -437,11 +440,19 @@ namespace gip.core.autocomponent
                             preACUrl = pwNodeMethod2.ACIdentifier + "\\" + preACUrl;
                             pwNodeMethod2 = pwNodeMethod2.ParentACObject as PWNodeProxy;
                         }
+                        if (String.IsNullOrEmpty(preACUrl))
+                        {
+                            if (!String.IsNullOrEmpty(_PreValueACUrl))
+                                return _PreValueACUrl;
+                            else if (!String.IsNullOrEmpty(pWNodeProxy.PreValueACUrl))
+                                return pWNodeProxy.PreValueACUrl;
+                            return "";
+                        }
                         return preACUrl;
                     }
                     pWNodeProxy = pWNodeProxy.ParentACObject as PWNodeProxy;
                 }
-                return "";
+                return String.IsNullOrEmpty(_PreValueACUrl) ? "" : _PreValueACUrl;
             }
         }
 
@@ -497,7 +508,9 @@ namespace gip.core.autocomponent
                 }
                 if (rootPWProxy == this)
                 {
-                    List<ACConfigStoreInfo> rmiResult = RMInvoker.ExecuteMethod("GetACConfigStoreInfo", new Object[] { }) as List<ACConfigStoreInfo>;
+                    List<ACConfigStoreInfo> rmiResult = RMInvoker.ExecuteMethod(nameof(PWBase.GetACConfigStoreInfo), new Object[] { }) as List<ACConfigStoreInfo>;
+                    if (rmiResult != null && rmiResult.Any() && string.IsNullOrEmpty(_PreValueACUrl))
+                        _PreValueACUrl = rmiResult.Where(c => !string.IsNullOrEmpty(c.PreValueACUrl)).FirstOrDefault()?.PreValueACUrl;
                     ConfigManagerIPlus serviceInstance = ConfigManagerIPlus.GetServiceInstance(this);
 
                     using (ACMonitor.Lock(this.Database.QueryLock_1X000))

@@ -1030,9 +1030,23 @@ namespace gip.core.datamodel
             ObjectContext.Database.ExecuteSql(SET_READ_COMMITED);
         }
 
-#endregion
+        public string GetQualifiedEntitySetNameForEntityKey(string entitySetName)
+        {
+            return EntityKey.GetQualifiedEntitySetNameForEntityKey(entitySetName, ObjectContext.GetType().AssemblyQualifiedName);
+        }
 
-#region Critical Section
+        public string DefaultContainerName
+        {
+            get
+            {
+                string containerName, className;
+                EntityKey.ExtractContainerNameFromAQN(ObjectContext.GetType().AssemblyQualifiedName, out className, out containerName);
+                return containerName;
+            }
+        }
+        #endregion
+
+        #region Critical Section
         public void EnterCS()
         {
             EnterCS(false);

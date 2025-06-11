@@ -1,18 +1,20 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Diagnostics;
-using System;
-using System.Runtime.Serialization;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Collections.ObjectModel;
-using System.Threading;
 using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Web;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace gip.core.datamodel
 {
@@ -105,7 +107,6 @@ namespace gip.core.datamodel
         public EntityKey(string qualifiedEntitySetName, IEnumerable<KeyValuePair<string, object>> entityKeyValues)
         {
             GetEntitySetName(qualifiedEntitySetName, out _entitySetName, out _entityContainerName);
-            _entityContainerName = qualifiedEntitySetName;
             CheckKeyValues(entityKeyValues, out _keyNames, out _singletonKeyValue, out _compositeKeyValues);
             AssertCorrectState(null, false);
             _isLocked = true;
@@ -124,7 +125,6 @@ namespace gip.core.datamodel
         public EntityKey(string qualifiedEntitySetName, IEnumerable<EntityKeyMember> entityKeyValues)
         {
             GetEntitySetName(qualifiedEntitySetName, out _entitySetName, out _entityContainerName);
-            _entityContainerName = qualifiedEntitySetName;
             EntityUtil.CheckArgumentNull(entityKeyValues, "entityKeyValues");
             CheckKeyValues(new KeyValueReader(entityKeyValues), out _keyNames, out _singletonKeyValue, out _compositeKeyValues);
             AssertCorrectState(null, false);
@@ -140,7 +140,6 @@ namespace gip.core.datamodel
         public EntityKey(string qualifiedEntitySetName, string keyName, object keyValue)
         {
             GetEntitySetName(qualifiedEntitySetName, out _entitySetName, out _entityContainerName);
-            _entityContainerName = qualifiedEntitySetName;
             EntityUtil.CheckStringArgument(keyName, "keyName");
             EntityUtil.CheckArgumentNull(keyValue, "keyValue");
 
@@ -177,7 +176,6 @@ namespace gip.core.datamodel
         internal EntityKey(string qualifiedEntitySetName)
         {
             GetEntitySetName(qualifiedEntitySetName, out _entitySetName, out _entityContainerName);
-            _entityContainerName = qualifiedEntitySetName;
             _isLocked = true;
         }
 
@@ -218,36 +216,45 @@ namespace gip.core.datamodel
                 ValidateWritable(_entityContainerName);
                 lock (_nameLookup)
                 {
-                    if (value != null && value.Contains("Version") && value.Contains("Culture") && value.Contains("PublicKeyToken"))
+                    if (!string.IsNullOrEmpty(value))
                     {
-                        _entityContainerName = EntityKey.LookupSingletonName(value);
-                    }
-
-                    else
-                    {
-                        if (EntityContainerName != null && EntityContainerName.Contains("Version") && EntityContainerName.Contains("Culture") && EntityContainerName.Contains("PublicKeyToken"))
+                        if (value.Contains("Version") && value.Contains("Culture") && value.Contains("PublicKeyToken"))
                         {
-                            _entityContainerName = EntityContainerName;
+                            // Compatibility since change on 11.06.2025:
+                            if (!value.Contains(C_PlaceHolderClass))
+                            {
+                                string className;
+                                ExtractContainerNameFromAQN(value, out className, out _entityContainerName);
+                                _entityContainerName = EntityKey.LookupSingletonName(_entityContainerName);
+                            }
+                            else
+                                _entityContainerName = EntityKey.LookupSingletonName(value);
                         }
-
+                        // If V4-Database was attached and migrated to V5, some persisted EntityKeys may still contain the old V4 container name:
                         else
                         {
-                            if (EntityContainerName == "iPlusMESV5_Entities")
+                            if (value.Contains(Database.C_DefaultContainerName))
                             {
-                                _entityContainerName = "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
+                                string className;
+                                ExtractContainerNameFromAQN(typeof(Database).AssemblyQualifiedName, out className, out _entityContainerName);
+                                _entityContainerName = EntityKey.LookupSingletonName(_entityContainerName);
                             }
-
-                            else if (EntityContainerName == "iPlusV5_Entities")
-                            {
-                                _entityContainerName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
-                            }
-
                             else
                             {
-                                _entityContainerName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
+                                IACEntityObjectContext context = ACObjectContextManager.Contexts.Where(c => c.DefaultContainerNameV4 == value).FirstOrDefault();
+                                if (context != null)
+                                {
+                                    _entityContainerName = EntityKey.LookupSingletonName(context.DefaultContainerName);
+                                }
+                                // TODO: Read loaded Assemblies, an search which implements IACEntityObjectContext. Read C_DefaultContainerName from it.
+                                //else
+                                //{
+                                //}
                             }
                         }
                     }
+                    else
+                        _entityContainerName = value;
                 }
             }
         }
@@ -736,45 +743,62 @@ namespace gip.core.datamodel
 
         internal static void GetEntitySetName(string qualifiedEntitySetName, out string entitySet, out string container)
         {
-            if (qualifiedEntitySetName.Contains("Version") && qualifiedEntitySetName.Contains("Culture") && qualifiedEntitySetName.Contains("PublicKeyToken"))
-            {
-                string[] resultQfName = qualifiedEntitySetName.Split(',');
-                qualifiedEntitySetName = resultQfName[0];
-            }
-
             entitySet = null;
             container = null;
             EntityUtil.CheckStringArgument(qualifiedEntitySetName, "qualifiedEntitySetName");
 
-            string[] result = qualifiedEntitySetName.Split('.');
-            if (result.Length != 4 && result.Length != 2)
+            // New Version:
+            if (qualifiedEntitySetName.Contains("Version") && qualifiedEntitySetName.Contains("Culture") && qualifiedEntitySetName.Contains("PublicKeyToken"))
             {
-                throw new ArgumentException("InvalidQualifiedEntitySetName", qualifiedEntitySetName);
+                ExtractContainerNameFromAQN(qualifiedEntitySetName, out entitySet, out container);
             }
-
-            if (result.Length == 4)
-            {
-                container = result[0] + "." + result[1] + "." + result[2];
-                entitySet = result[3];
-            }
-            else if (result.Length == 2)
-            {
-                container = result[0];
-                entitySet = result[1];
-            }
+            // Old EF-Version 4 with ContainerName
             else
             {
-                throw new ArgumentException("InvalidQualifiedEntitySetName", qualifiedEntitySetName);
+                entitySet = null;
+                container = null;
+                EntityUtil.CheckStringArgument(qualifiedEntitySetName, "qualifiedEntitySetName");
+                string[] array = qualifiedEntitySetName.Split('.');
+                if (array.Length != 2)
+                    throw new ArgumentException("InvalidQualifiedEntitySetName", qualifiedEntitySetName);
+                container = array[0];
+                entitySet = array[1];
+                if (container == null || container.Length == 0 || entitySet == null || entitySet.Length == 0)
+                    throw new ArgumentException("InvalidQualifiedEntitySetName", qualifiedEntitySetName);
             }
 
-
             // both parts must be non-empty
-            if (container == null || container.Length == 0 ||
-                entitySet == null || entitySet.Length == 0)
+            if (string.IsNullOrEmpty(container) || string.IsNullOrEmpty(entitySet))
             {
                 throw new ArgumentException("InvalidQualifiedEntitySetName", qualifiedEntitySetName);
             }
+        }
 
+
+        const string C_PlaceHolderClass = ".{0}";
+
+        public static void ExtractContainerNameFromAQN(string aqn, out string className, out string container)
+        {
+            string[] parts = aqn.Split(',');
+            if (parts.Length < 5)
+                throw new ArgumentException("InvalidAssemblyQualifiedName", aqn);
+            int iOfClass = parts[0].LastIndexOf('.');
+            if (iOfClass < 0 || iOfClass >= parts[0].Length - 1)
+                throw new ArgumentException("InvalidAssemblyQualifiedName", aqn);
+            className = parts[0].Substring(iOfClass);
+            container = aqn.Replace(className, C_PlaceHolderClass);
+            className = className.Substring(1);
+        }
+
+        public static string GetQualifiedEntitySetNameForEntityKey(string entitySetName, string aqn)
+        {
+            string containerName, className;
+            ExtractContainerNameFromAQN(aqn, out className, out containerName);
+            if (string.IsNullOrEmpty(containerName))
+                throw new ArgumentException("InvalidAssemblyQualifiedName", aqn);
+            if (!containerName.Contains(C_PlaceHolderClass))
+                throw new ArgumentException("InvalidContainerName", aqn);
+            return String.Format(containerName, entitySetName);
         }
 
         #endregion
@@ -900,26 +924,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                string assemblyQfName = "";
-                if (EntityContainerName.Contains("Version") && EntityContainerName.Contains("Culture") && EntityContainerName.Contains("PublicKeyToken") && EntityContainerName.Contains(EntitySetName))
-                {
-                    assemblyQfName = EntityContainerName;
-                }
-                else 
-                {
-                    if (EntityContainerName == "iPlusMESV5_Entities" || EntityContainerName.Contains("gip.mes.datamodel"))
-                    {
-                        assemblyQfName = "gip.mes.datamodel." + EntitySetName + ", gip.mes.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = 12adb6357a02d860";
-                    }
-
-                    else if (EntityContainerName == "iPlusV5_Entities" || EntityContainerName.Contains("gip.core.datamodel"))
-                    {
-                        assemblyQfName = "gip.core.datamodel." + EntitySetName + ", gip.core.datamodel, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = adb6357a02d860";
-                    }
-                }
-
-                Type type = Type.GetType(assemblyQfName);
-                return type;
+                return Type.GetType(String.Format(EntityContainerName, EntitySetName));
             }
         }
     }

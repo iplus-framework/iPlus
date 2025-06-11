@@ -8,8 +8,6 @@ namespace gip.core.ControlScriptSync.sql
     {
         #region Settings
 
-        public static string DefaultConnectionStringName = "iPlusV5_Entities";
-
         #endregion
 
         private Configuration _ConfigCurrentDir;
@@ -69,12 +67,12 @@ namespace gip.core.ControlScriptSync.sql
             {
                 if (!string.IsNullOrEmpty(_DefaultConnectionString))
                     return _DefaultConnectionString;
-                _DefaultConnectionString = "name=iPlusV5_Entities";
+                _DefaultConnectionString = "name=" + gip.core.datamodel.Database.C_DefaultContainerName;
                 if (ConfigCurrentDir != null && ConfigCurrentDir.ConnectionStrings != null)
                 {
                     try
                     {
-                        ConnectionStringSettings setting = ConfigCurrentDir.ConnectionStrings.ConnectionStrings[DefaultConnectionStringName];
+                        ConnectionStringSettings setting = ConfigCurrentDir.ConnectionStrings.ConnectionStrings[gip.core.datamodel.Database.C_DefaultContainerName];
                         _DefaultConnectionString = setting.ConnectionString;
                     }
                     catch (Exception e)

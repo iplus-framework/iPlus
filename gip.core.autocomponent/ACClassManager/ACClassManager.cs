@@ -969,7 +969,7 @@ namespace gip.core.autocomponent
                 {
                     acPackage = ACPackage.GetACPackage(_Database, "System");
                 }
-                else if (acClass.AssemblyQualifiedName.StartsWith("gip.ext.") || acClass.ACIdentifier == "iPlusV5_Entities")
+                else if (acClass.AssemblyQualifiedName.StartsWith("gip.ext.") || acClass.ACIdentifier == Database.C_DefaultContainerName)
                 {
                     acPackage = ACPackage.GetACPackage(_Database, Const.PackName_VarioSystem);
                 }

@@ -1009,7 +1009,7 @@ namespace gip.core.autocomponent
             {
                 return stores
                         .Where(c => c is VBEntityObject)
-                        .Select(c => new ACConfigStoreInfo((c as VBEntityObject).EntityKey, c.OverridingOrder)).ToList();
+                        .Select(c => new ACConfigStoreInfo((c as VBEntityObject).EntityKey, c.OverridingOrder, this.PreValueACUrl)).ToList();
             }
             return new List<ACConfigStoreInfo>();
         }

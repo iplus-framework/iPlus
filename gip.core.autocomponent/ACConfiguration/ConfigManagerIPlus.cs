@@ -77,7 +77,7 @@ namespace gip.core.autocomponent
             {
                 if (reloadParams)
                     configStore.ClearCacheOfConfigurationEntries(); // do refresh of config items
-                List<IACConfig> tmpConfigList = ACConfigHelper.GetStoreConfigurationList(configStore.ConfigurationEntries, preConfigACUrl, localConfigACUrlListFiltered, vbiACClassID);
+                List<IACConfig> tmpConfigList = ACConfigHelper.GetStoreConfigurationList(configStore.ConfigurationEntries, preConfigACUrl, localConfigACUrlListFiltered, !reloadParams, vbiACClassID);
                 if (fetchFirstConfig && tmpConfigList != null && tmpConfigList.Any())
                     localConfigACUrlListFiltered.RemoveAll(x => tmpConfigList.Select(c => c.LocalConfigACUrl).Contains(x)); // Remove all founded configurations on higher level
                 if (tmpConfigList != null)
@@ -131,6 +131,7 @@ namespace gip.core.autocomponent
                     .ToList();
             }
             if (configList != null)
+            {
                 foreach (ACConfigParam acConfigParam in aCConfigParamList)
                 {
                     acConfigParam.ConfigurationList =
@@ -140,10 +141,11 @@ namespace gip.core.autocomponent
                             &&
                            x.VBiACClassID == acConfigParam.VBiACClassID
                         )
-                        .OrderByDescending(x => x.ConfigStore.OverridingOrder)
+                        .OrderByDescending(x => x.ConfigStore != null ? x.ConfigStore.OverridingOrder : 1)
                         .ToList();
-                    acConfigParam.DefaultConfiguration = acConfigParam.ConfigurationList.OrderByDescending(x => x.ConfigStore.OverridingOrder).FirstOrDefault();
+                    acConfigParam.DefaultConfiguration = acConfigParam.ConfigurationList.OrderByDescending(x => x.ConfigStore != null ? x.ConfigStore.OverridingOrder : 1).FirstOrDefault();
                 }
+            }
             return aCConfigParamList;
         }
 
@@ -245,12 +247,12 @@ namespace gip.core.autocomponent
         {
             List<IACConfigStore> configStoreList = GetACConfigStores(callingConfigStoreList).OrderByDescending(x => x.OverridingOrder).ToList();
             callingConfigStoreList.Remove(configStore);
-            List<IACConfig> result = ACConfigHelper.GetStoreConfigurationList(configStore.ConfigurationEntries, preConfigACUrl, startsWithLocalConfigACUrl, vbiACClassID);
+            List<IACConfig> result = ACConfigHelper.GetStoreConfigurationList(configStore.ConfigurationEntries, preConfigACUrl, startsWithLocalConfigACUrl, false, vbiACClassID);
             if (result != null && result.Any())
                 return 1;
             foreach (IACConfigStore tmpConfigStore in configStoreList)
             {
-                result = ACConfigHelper.GetStoreConfigurationList(tmpConfigStore.ConfigurationEntries, preConfigACUrl, startsWithLocalConfigACUrl, vbiACClassID);
+                result = ACConfigHelper.GetStoreConfigurationList(tmpConfigStore.ConfigurationEntries, preConfigACUrl, startsWithLocalConfigACUrl, false, vbiACClassID);
                 if (result != null && result.Any())
                     return 2;
             }

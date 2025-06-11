@@ -34,10 +34,11 @@ namespace gip.core.datamodel
         {
         }
 
-        public ACConfigStoreInfo(EntityKey configStoreEntity, decimal priority)
+        public ACConfigStoreInfo(EntityKey configStoreEntity, decimal priority, string preValueACUrl)
         {
             _ConfigStoreEntity = configStoreEntity;
             _Priority = priority;
+            _PreValueACUrl = preValueACUrl;
         }
 
         [DataMember(Name="CSE")]
@@ -63,6 +64,19 @@ namespace gip.core.datamodel
             get
             {
                 return _Priority;
+            }
+        }
+
+        [DataMember(Name = "PVU")]
+        private string _PreValueACUrl;
+
+        [IgnoreDataMember]
+        [ACPropertyInfo(3, "", "en{'PreValueACUrl'}de{'PreValueACUrl'}")]
+        public string PreValueACUrl
+        {
+            get
+            {
+                return _PreValueACUrl;
             }
         }
 

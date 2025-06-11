@@ -1,11 +1,11 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
+using gip.core.datamodel;
+using gip.core.autocomponent;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using gip.core.datamodel;
-using gip.core.autocomponent;
 using System.Xml;
 
 namespace gip.core.autocomponent
@@ -563,6 +563,100 @@ namespace gip.core.autocomponent
             if (serviceInstance == null)
                 return false;
             return serviceInstance.IsEnabledShowDialogOrder(acComponent);
+        }
+        #endregion
+
+        #region Configuration
+        public virtual IACConfig AddOrReplaceConfigParamOnStore<T>(T value2Set, bool isForPAF, string paramACIdentifier, 
+                                                                    Func<IACConfigStore, bool> storeSelector, 
+                                                                    Func<VBEntityObject, IACEntityObjectContext, VBEntityObject> configStoreFromContext, IACEntityObjectContext dbContext, 
+                                                                    bool autoSaveAndReloadConfig = true)
+        {
+            IACConfigStore currentConfigStore = MandatoryConfigStores.Where(c => storeSelector(c)).FirstOrDefault();
+            if (currentConfigStore == null)
+                return null;
+            IACConfigStore configStoreFromDBContext = configStoreFromContext(currentConfigStore as VBEntityObject, dbContext) as IACConfigStore;
+            if (configStoreFromDBContext == null)
+                return null;
+            return AddOrReplaceConfigParam(value2Set, isForPAF, paramACIdentifier, configStoreFromDBContext, dbContext, autoSaveAndReloadConfig);
+        }
+
+        public virtual IACConfig AddOrReplaceConfigParam<T>(T value2Set, bool isForPAF, string paramACIdentifier, IACConfigStore configStore, IACEntityObjectContext dbContext, bool autoSaveAndReloadConfig)
+        {
+            if (configStore == null)
+                return null;
+            if (isForPAF && !(this is PWNodeProcessMethod))
+                return null;
+            var configEntries = configStore.ConfigurationEntries.Where(c => c.PreConfigACUrl == PreValueACUrl && c.LocalConfigACUrl.StartsWith(ConfigACUrl))
+                                                                        .OrderBy(x => x.VBiACClassID == null ? "" : x.VBACClass.ACIdentifier);
+            if (configEntries == null)
+                return null;
+            IACConfig configParam = null;
+            core.datamodel.ACClassMethod refPAACClassMethod = null;
+            string propertyACUrl = null;
+            if (isForPAF)
+            {
+                refPAACClassMethod = RefACClassMethodOfContentWF;
+                if (refPAACClassMethod == null)
+                    return null;
+                propertyACUrl = string.Format("{0}\\{1}\\{2}", ConfigACUrl, refPAACClassMethod.ACIdentifier, paramACIdentifier);
+            }
+            else
+            {
+                propertyACUrl = string.Format("{0}\\{1}\\{2}", ConfigACUrl, ACStateEnum.SMStarting, paramACIdentifier);
+            }
+            if (configEntries.Any())
+                configParam = configEntries.Where(c => c.LocalConfigACUrl == propertyACUrl).FirstOrDefault();
+            if (configParam == null)
+            {
+                ACMethod paramMethod = null;
+                if (isForPAF)
+                    paramMethod = refPAACClassMethod.TypeACSignature();
+                else
+                    paramMethod = NewACMethod();
+                if (paramMethod == null)
+                    return null;
+                configParam = CreateNewConfigParam(paramMethod, propertyACUrl, paramACIdentifier, configStore);
+            }
+            configParam.Value = value2Set;
+            if (autoSaveAndReloadConfig)
+            {
+                Msg result = dbContext.ACSaveChanges();
+                if (result != null)
+                {
+                    if (IsAlarmActive(ProcessAlarm, result.Message) == null)
+                        Messages.LogError(this.GetACUrl(), result.ACIdentifier, result.InnerMessage);
+                    OnNewAlarmOccurred(ProcessAlarm, result, false);
+                }
+
+                RootPW.ReloadConfig();
+            }
+
+            return configParam;
+        }
+
+        private IACConfig CreateNewConfigParam(ACMethod paramMethod, string propertyACUrl, string paramACIdentifier, IACConfigStore configStore)
+        {
+            if (paramMethod == null)
+                return null;
+            ACValue valItem = paramMethod.ParameterValueList.GetACValue(paramACIdentifier);
+            if (valItem == null)
+                return null;
+            ACConfigParam param = new ACConfigParam()
+            {
+                ACIdentifier = valItem.ACIdentifier,
+                ACCaption = paramMethod.GetACCaptionForACIdentifier(valItem.ACIdentifier),
+                ValueTypeACClassID = valItem.ValueTypeACClass.ACClassID,
+                ACClassWF = ContentACClassWF
+            };
+
+            IACConfig configParam = ConfigManagerIPlus.ACConfigFactory(configStore, param, PreValueACUrl, propertyACUrl, null);
+            param.ConfigurationList.Insert(0, configParam);
+
+            configStore.ConfigurationEntries.Append(configParam);
+
+            return configParam;
+
         }
         #endregion
 

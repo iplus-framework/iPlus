@@ -38,12 +38,9 @@ namespace gip.core.dbsyncer.helper
         public static string GetDefaultConnectionString(Configuration configuration, string connectionStringName = null )
         {
             if (connectionStringName == null)
-                connectionStringName = DbSyncerSettings.DefaultConnectionStringName;
-            if (connectionStringName == "iPlusV4_Entities")
-            {
+                connectionStringName = gip.core.datamodel.Database.C_DefaultContainerName;
 
-            }
-            string defaultConnectionString = "name=iPlusV5_Entities";
+            string defaultConnectionString = "name=" + gip.core.datamodel.Database.C_DefaultContainerName;
             if (configuration != null && configuration.ConnectionStrings != null)
             {
                 try

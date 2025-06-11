@@ -175,6 +175,14 @@ namespace gip.core.datamodel
         object GetObjectByKey(EntityKey key);
         bool TryGetObjectByKey(EntityKey key, out object entity);
 
+        /// <summary>
+        /// Compatibility for legacy code that uses EntityKey from EF4
+        /// used in EF4 to identify the context, now it is the namespace of the DbContext to be able to build a assemby qualified name to consturct an assembly qualified name for the EntityKey
+        /// </summary>
+        string DefaultContainerName { get; }
+        string DefaultContainerNameV4 { get; }
+
+        string GetQualifiedEntitySetNameForEntityKey(string entitySetName);
         #endregion
 
         #region DBContext

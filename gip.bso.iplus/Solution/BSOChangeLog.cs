@@ -250,7 +250,7 @@ namespace gip.bso.iplus
 
                 KeyValuePair<string, object> kvp = new KeyValuePair<string, object>(SelectedACClass.ACIdentifier+"ID", entityKey);
                 KeyValuePair<string, object>[] kvpList = new KeyValuePair<string, object>[] { kvp };
-                EntityKey eKey = new EntityKey(tmpDatabase.GetType().Namespace + "." + _SelectedACClass.ACIdentifier, kvpList);
+                EntityKey eKey = new EntityKey(tmpDatabase.GetQualifiedEntitySetNameForEntityKey(_SelectedACClass.ACIdentifier), kvpList);
                 object result;
                 try
                 {

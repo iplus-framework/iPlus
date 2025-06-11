@@ -37,7 +37,7 @@ namespace gip.core.datamodel
             if (typeOfTargetEntity == null)
                 throw new ArgumentException(String.Format("Type {0} not found in assembly {1}", fullName, typeOfTargetContext.Assembly.ToString()));
 
-            EntityKey key = new EntityKey(typeOfTargetEntity, entityApp.EntityKey.EntityKeyValues);
+            EntityKey key = new EntityKey(gip.core.datamodel.Database.GlobalDatabase.GetQualifiedEntitySetNameForEntityKey(entityApp.EntityKey.EntitySetName), entityApp.EntityKey.EntityKeyValues);
             using (ACMonitor.Lock(dbIPlus.QueryLock_1X000))
             {
                 if (!dbIPlus.TryGetObjectByKey(key, out obj))
@@ -152,7 +152,7 @@ namespace gip.core.datamodel
                 {
                     try
                     {
-                        ConnectionStringSettings setting = CommandLineHelper.ConfigCurrentDir.ConnectionStrings.ConnectionStrings["iPlusV5_Entities"];
+                        ConnectionStringSettings setting = CommandLineHelper.ConfigCurrentDir.ConnectionStrings.ConnectionStrings[C_DefaultContainerName];
                         return setting.ConnectionString;
                     }
                     catch (Exception e)
@@ -166,7 +166,7 @@ namespace gip.core.datamodel
                     }
                 }
 
-                return ConfigurationManager.ConnectionStrings["iPlusV5_Entities"].ConnectionString;
+                return ConfigurationManager.ConnectionStrings[C_DefaultContainerName].ConnectionString;
             }
         }
 
@@ -177,7 +177,7 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public static string ModifiedConnectionString(string appName)
         {
-            var connString = ConfigurationManager.ConnectionStrings["iPlusV5_Entities"].ConnectionString.Replace("iPlus_db", appName);
+            var connString = ConfigurationManager.ConnectionStrings[C_DefaultContainerName].ConnectionString.Replace("iPlus_db", appName);
             return connString;
         }
 
@@ -1562,9 +1562,30 @@ namespace gip.core.datamodel
             get { return Database.GetDbConnection(); } 
         }
 
-        public string DefaultContainerName 
+        public const string C_DefaultContainerName = "iPlusV5_Entities";
+        /// <summary>
+        /// Compatibility for legacy code that uses EntityKey from EF4
+        /// used in EF4 to identify the context, now it is the namespace of the DbContext to be able to build a assemby qualified name to consturct an assembly qualified name for the EntityKey
+        /// </summary>
+        public string DefaultContainerName
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                return this._ObjectContextHelper.DefaultContainerName;
+            }
+        }
+
+        public string DefaultContainerNameV4
+        {
+            get
+            {
+                return C_DefaultContainerName;
+            }
+        }
+
+        public string GetQualifiedEntitySetNameForEntityKey(string entitySetName)
+        {
+            return this._ObjectContextHelper.GetQualifiedEntitySetNameForEntityKey(entitySetName);
         }
 
         // Build Cache over Type-System to avoid Deadlocks when quering Global dabatbase
