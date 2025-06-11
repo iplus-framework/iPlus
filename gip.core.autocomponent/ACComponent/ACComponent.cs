@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Xml;
+using static gip.core.datamodel.Global;
 using static Microsoft.Isam.Esent.Interop.EnumeratedColumn;
 
 namespace gip.core.autocomponent
@@ -293,12 +294,12 @@ namespace gip.core.autocomponent
                         appManager.ACCompUrlDict.AddComponent(this);
                     }
                 }
-//#if DEBUG
-//                if (System.Diagnostics.Debugger.IsAttached)
-//                {
-//                    System.Diagnostics.Debug.WriteLine(this.GetACUrl());
-//                }
-//#endif
+                //#if DEBUG
+                //                if (System.Diagnostics.Debugger.IsAttached)
+                //                {
+                //                    System.Diagnostics.Debug.WriteLine(this.GetACUrl());
+                //                }
+                //#endif
 
                 // 1. Lade zuerst Modelkomponenten
                 foreach (ACClass acClassOfChild in ComponentClass.Childs.Where(c => c.ACStartType > Global.ACStartTypes.None && c.ACStartType <= startChildMode))
@@ -857,7 +858,7 @@ namespace gip.core.autocomponent
             return this.ACComponentChilds.Where(c => type.IsAssignableFrom(c.GetType())).FirstOrDefault();
         }
         #endregion
-        
+
         #endregion
 
 
@@ -979,7 +980,7 @@ namespace gip.core.autocomponent
         /// <param name="searchForChildInBaseClasses">If set to true, than the search is extended over the entire class-hierarchy.</param>
         /// <param name="searchForGlobals">If set to true, than a global BSO (TACBSOGlobal) or global report (TACBSOReport) is searched.</param>
         /// <returns>ACClass if child-class or global class was found</returns>
-        protected ACClass GetACClassFromACClassName(ref string acClassName, bool searchForChildInBaseClasses = false, bool searchForGlobals = true)
+        protected ACClass GetACClassFromACClassName(string acClassName, bool searchForChildInBaseClasses = false, bool searchForGlobals = true)
         {
             ACClass acClass = null;
             ACClass acType = ComponentClass;
@@ -989,8 +990,8 @@ namespace gip.core.autocomponent
             acClass = acType.Childs.Where(c => c.ACIdentifier == acClassNameSearch).FirstOrDefault();
             if (acClass != null)
                 return acClass;
-            else if (searchForChildInBaseClasses 
-                    || acType.ACKind == Global.ACKinds.TACBSO 
+            else if (searchForChildInBaseClasses
+                    || acType.ACKind == Global.ACKinds.TACBSO
                     || acType.ACKind == Global.ACKinds.TACBSOGlobal)
             {
                 ACClass baseClass = acType;
@@ -1007,15 +1008,15 @@ namespace gip.core.autocomponent
             }
 
             // Global BSO-ACComponent
-            if (searchForGlobals 
+            if (searchForGlobals
                 && Root.Businessobjects != null
-                && Root.Businessobjects.ComponentClass != null 
+                && Root.Businessobjects.ComponentClass != null
                 && Root.Businessobjects.ComponentClass.Childs != null)
             {
                 acClassNameSearch = Root.Businessobjects.GetDerivedClassnameIfConfigured(acClassNameSearch);
                 acClass = Root.Businessobjects.ComponentClass.Childs
-                            .Where(c => c.ACIdentifier == acClassNameSearch 
-                                        && (   c.ACKindIndex == (Int16)Global.ACKinds.TACBSOGlobal 
+                            .Where(c => c.ACIdentifier == acClassNameSearch
+                                        && (c.ACKindIndex == (Int16)Global.ACKinds.TACBSOGlobal
                                             || c.ACKindIndex == (Int16)Global.ACKinds.TACBSOReport))
                             .FirstOrDefault();
                 acClassName = acClassNameSearch;
@@ -1024,6 +1025,18 @@ namespace gip.core.autocomponent
             }
             return null;
         }
+
+        protected StartCompResult CreateStartCompResult(string childACIdentifier)
+        {
+            StartCompResult childInfo = new StartCompResult(childACIdentifier);
+            childInfo.ControlMode = Global.ControlModes.Enabled;
+            childInfo.ACClass = GetACClassFromACClassName(childInfo.ACClassName);
+            if (childInfo.ACClass == null)
+                return childInfo;
+            childInfo.ControlMode = childInfo.ACClass.GetRight(childInfo.ACClass);
+            return childInfo;
+        }
+
 
         /// <summary>
         /// Starts/Creates a new Instance as a child of this instance
@@ -1044,55 +1057,60 @@ namespace gip.core.autocomponent
         [ACMethodInfo("ACComponent", "en{'Start ACComponent'}de{'Start ACComponent'}", 9999)]
         public virtual IACComponent StartComponent(string acIdentifier, object content, Object[] acParameter, ACStartCompOptions startOptions = ACStartCompOptions.Default)
         {
-            string acClassName = ACUrlHelper.ExtractTypeName(acIdentifier);
-            string acInstance = ACUrlHelper.ExtractInstanceName(acIdentifier);
-            ACClass acClass = GetACClassFromACClassName(ref acClassName);
+            return StartComponent(CreateStartCompResult(acIdentifier), content, acParameter, startOptions);
+        }
 
-            if (acClass != null)
+        protected virtual IACComponent StartComponent(StartCompResult startCompResult, object content, Object[] acParameter, ACStartCompOptions startOptions = ACStartCompOptions.Default)
+        {
+            if (startCompResult == null)
+                return null;
+            if (startCompResult.ACClass != null)
             {
                 // Starten von RootTest
-                if (acClass.ACKind == Global.ACKinds.TACRoot)
+                if (startCompResult.ACClass.ACKind == Global.ACKinds.TACRoot)
                 {
-                    ACValueList acParameter1 = acClass.ACParameter;
+                    ACValueList acParameter1 = startCompResult.ACClass.ACParameter;
                     acParameter1["User"] = Root.Environment.User;
                     acParameter1["IsRegisterACObjects"] = false;
                     acParameter1["IsPropPersistenceOff"] = false;
                     acParameter1["IsWCFOff"] = true;
                     acParameter1["Simulation"] = false;
 
-                    return StartComponent(acClass, null, acParameter1, Global.ACStartTypes.Automatic, false, Const.ACRootProjectNameTest);
+                    return StartComponent(startCompResult.ACClass, null, acParameter1, Global.ACStartTypes.Automatic, false, Const.ACRootProjectNameTest);
                 }
 
                 if (    (startOptions & ACStartCompOptions.OnlyAutomatic) == ACStartCompOptions.OnlyAutomatic
-                    && !(acClass.ACStartType == Global.ACStartTypes.AutomaticOnDemand || acClass.ACStartType == Global.ACStartTypes.Automatic))
+                    && !(startCompResult.ACClass.ACStartType == Global.ACStartTypes.AutomaticOnDemand || startCompResult.ACClass.ACStartType == Global.ACStartTypes.Automatic))
                     return null;
 
-                ACValueList acValueList = acClass.GetACParameter(acParameter);
-                if (string.IsNullOrEmpty(acInstance))
+                ACValueList acValueList = startCompResult.ACClass.GetACParameter(acParameter);
+                if (string.IsNullOrEmpty(startCompResult.ACInstance))
                 {
-                    return StartComponent(acClass, content, acValueList, Global.ACStartTypes.Automatic, IsProxy);
+                    return StartComponent(startCompResult.ACClass, content, acValueList, Global.ACStartTypes.Automatic, IsProxy);
                 }
                 else
                 {
-                    return StartComponent(acClass, content, acValueList, Global.ACStartTypes.Automatic, IsProxy, acIdentifier);
+                    return StartComponent(startCompResult.ACClass, content, acValueList, Global.ACStartTypes.Automatic, IsProxy, startCompResult.ACIdentifier);
                 }
             }
             // Falls Proxy und Aufruf ACUrl-Command per ACRef, dann muss zuerst vom Server information über die Child-Instanz abgefragt werden
             else if (IsProxy && !((startOptions & ACStartCompOptions.NoServerReqFromProxy) == ACStartCompOptions.NoServerReqFromProxy))
             {
-                var query = GetChildInstanceInfo(1, false, acIdentifier);
+                var query = GetChildInstanceInfo(1, false, startCompResult.ACIdentifier);
                 if (query != null && query.Any())
                 {
-                    ACChildInstanceInfo instanceInfo = query.First();
-                    if (instanceInfo != null)
+                    startCompResult.ChildInstanceInfo = query.First();
+                    if (startCompResult.ChildInstanceInfo != null)
                     {
-                        return StartComponent(instanceInfo, Global.ACStartTypes.Automatic, true);
+                        return StartComponent(startCompResult.ChildInstanceInfo, Global.ACStartTypes.Automatic, true);
                     }
                 }
                 else if (this.ConnectionState != ACObjectConnectionState.DisConnected)
                 {
-                    Messages.LogWarning(this.GetACUrl(), "StartComponent(0)", String.Format("Child {0} doesn't exist on Server-Side. IsWorkflowType: {1}.", acIdentifier, this.ComponentClass.IsWorkflowType));
+                    Messages.LogWarning(this.GetACUrl(), "StartComponent(0)", String.Format("Child {0} doesn't exist on Server-Side. IsWorkflowType: {1}.", startCompResult.ACIdentifier, this.ComponentClass.IsWorkflowType));
                 }
+                else if (this.ConnectionState == ACObjectConnectionState.Connected)
+                    startCompResult.ChildInstanceInfo = new ACChildInstanceInfo();
                 return null;
             }
             else
@@ -1778,7 +1796,7 @@ namespace gip.core.autocomponent
 
             string acClassName = ACUrlHelper.ExtractTypeName(acIdentifier);
             string acInstance = ACUrlHelper.ExtractInstanceName(acIdentifier);
-            ACClass acClass = GetACClassFromACClassName(ref acClassName);
+            ACClass acClass = GetACClassFromACClassName(acClassName);
             if (!String.IsNullOrEmpty(acInstance))
                 acIdentifier = String.Format("{0}({1})", acClassName, acInstance);
             else
@@ -2205,10 +2223,14 @@ namespace gip.core.autocomponent
                                 case ACUrlHelper.UrlTypes.QueryType:
                                     return null;
                             }
+
+                            StartCompResult startCompResult = CreateStartCompResult(acUrlHelper.ACUrlPart);
                             if (string.IsNullOrEmpty(acUrlHelper.NextACUrl))
-                                acMember = StartComponent(acUrlHelper.ACUrlPart, null, acParameter, ACStartCompOptions.OnlyAutomatic);
+                                acMember = StartComponent(startCompResult, null, acParameter, ACStartCompOptions.OnlyAutomatic);
                             else
-                                acMember = StartComponent(acUrlHelper.ACUrlPart, null, null, ACStartCompOptions.OnlyAutomatic);
+                                acMember = StartComponent(startCompResult, null, null, ACStartCompOptions.OnlyAutomatic);
+                            if (startCompResult.IsComponentChild && acMember == null)
+                                return null;
                         }
                         if (acMember != null)
                         {
@@ -2354,7 +2376,7 @@ namespace gip.core.autocomponent
                 case ACUrlHelper.UrlKeys.Start:
                     {
                         string acUrlPart = acUrlHelper.ACUrlPart;
-                        ACClass rightItem = GetACClassFromACClassName(ref acUrlPart);
+                        ACClass rightItem = GetACClassFromACClassName(acUrlPart);
                         if (rightItem == null)
                             return false;
                         return true;
@@ -5076,7 +5098,7 @@ namespace gip.core.autocomponent
             try
             {
                 string acClassName = "VBBSOReport";
-                gip.core.datamodel.ACClass acClass = GetACClassFromACClassName(ref acClassName);
+                gip.core.datamodel.ACClass acClass = GetACClassFromACClassName(acClassName);
                 if (acClass == null)
                     return new Msg("The parameter design is null!", this, eMsgLevel.Error, nameof(ACComponent), nameof(PrintDesign) + "(20)", 4639);
 

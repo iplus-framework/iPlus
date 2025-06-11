@@ -1393,7 +1393,7 @@ namespace gip.core.reporthandlerwpf
         protected virtual VBBSOReport StartVBBSOReport()
         {
             string acClassName = "VBBSOReport";
-            ACClass acClass = GetACClassFromACClassName(ref acClassName);
+            ACClass acClass = GetACClassFromACClassName(acClassName);
             if (acClass == null)
                 return null;
             return StartComponent(acClass, acClass, null, Global.ACStartTypes.Automatic) as VBBSOReport;
