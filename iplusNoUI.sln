@@ -1,0 +1,165 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32922.545
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Businesslayer", "2. Businesslayer", "{AF7F207F-AE68-4199-9316-91411DFF93E4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Clientlayer", "1. Clientlayer", "{2BADE20B-33ED-4F31-B56A-C847CF134A7D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Framework", "Framework", "{2089D22B-FC62-4E94-8776-093570EA4032}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Datalayer", "3. Datalayer", "{4A180E41-9761-46E2-ACA3-4BD41764496C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.reporthandler", "gip.core.reporthandler\gip.core.reporthandler.csproj", "{6AD88CAF-A168-4BC2-9ECE-F62E7B216465}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.autocomponent", "gip.core.autocomponent\gip.core.autocomponent.csproj", "{893D3B1B-DC55-4684-8B5D-941F1049151B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.datamodel", "gip.core.datamodel\gip.core.datamodel.csproj", "{16FB4111-5110-46E5-851D-38A4D7522F85}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extension", "Extension", "{B8BA799D-B3ED-4E8B-A22F-E0A099A48862}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.communication", "gip.core.communication\gip.core.communication.csproj", "{96014A57-E700-478F-850E-452E9BFCAA90}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.processapplication", "gip.core.processapplication\gip.core.processapplication.csproj", "{66484708-85BD-47C4-92DD-3010387465F4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.manager", "gip.core.manager\gip.core.manager.csproj", "{3A9383D8-5C6D-429C-89D3-57C1D2565AD1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.bso.iplus", "gip.bso.iplus\gip.bso.iplus.csproj", "{763EA3DC-3FB4-4D74-A252-A6A8811F0461}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.iplus.console", "gip.iplus.console\gip.iplus.console.csproj", "{220E6D9A-907A-44A2-9FA7-945972475ABA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.iplus.startup", "gip.iplus.startup\gip.iplus.startup.csproj", "{906813D8-6A71-4CC3-9033-22609FC865B7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.iplus.service", "gip.iplus.service\gip.iplus.service.csproj", "{02211577-F0BE-4511-A9B5-A4026ACC1979}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.ControlScriptSync", "gip.core.ControlScriptSync\gip.core.ControlScriptSync.csproj", "{AA244D31-0BE9-4AD9-BCAF-25D21298552E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.dbsyncer", "gip.core.dbsyncer\gip.core.dbsyncer.csproj", "{06002742-2A42-4E40-8CA0-011A9093791B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.archiver", "gip.core.archiver\gip.core.archiver.csproj", "{7D912622-055C-4B2C-8EE4-52D8F1C25F73}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.webservices", "gip.core.webservices\gip.core.webservices.csproj", "{7931F65B-3C2A-4DB9-A5A6-4BC5B4D12C00}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "gip.core.webservices.shared", "gip.core.webservices.shared\gip.core.webservices.shared.shproj", "{0C232936-48B8-4CCD-951E-8AD3D439D264}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "gip.core.datamodel.shared", "gip.core.datamodel.shared\gip.core.datamodel.shared.shproj", "{FE279FBA-181F-4D15-BBE8-8820CAF186B2}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "gip.core.autocomponent.shared", "gip.core.autocomponent.shared\gip.core.autocomponent.shared.shproj", "{6D353DD2-970B-45BB-9AB6-D23A28E0233F}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "gip.core.processapplication.shared", "gip.core.processapplication.shared\gip.core.processapplication.shared.shproj", "{38889580-0345-42CC-AB4D-931CA15AFA85}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gip.core.media", "gip.core.media\gip.core.media.csproj", "{5075F800-E2FF-4A81-8631-A77CCB438053}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.crypto", "gip.core.crypto\gip.core.crypto.csproj", "{F9620201-705D-432C-8941-353E9BFFE5E1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6AD88CAF-A168-4BC2-9ECE-F62E7B216465}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AD88CAF-A168-4BC2-9ECE-F62E7B216465}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AD88CAF-A168-4BC2-9ECE-F62E7B216465}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AD88CAF-A168-4BC2-9ECE-F62E7B216465}.Release|Any CPU.Build.0 = Release|Any CPU
+		{893D3B1B-DC55-4684-8B5D-941F1049151B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{893D3B1B-DC55-4684-8B5D-941F1049151B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{893D3B1B-DC55-4684-8B5D-941F1049151B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{893D3B1B-DC55-4684-8B5D-941F1049151B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16FB4111-5110-46E5-851D-38A4D7522F85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16FB4111-5110-46E5-851D-38A4D7522F85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16FB4111-5110-46E5-851D-38A4D7522F85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16FB4111-5110-46E5-851D-38A4D7522F85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96014A57-E700-478F-850E-452E9BFCAA90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96014A57-E700-478F-850E-452E9BFCAA90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96014A57-E700-478F-850E-452E9BFCAA90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96014A57-E700-478F-850E-452E9BFCAA90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66484708-85BD-47C4-92DD-3010387465F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66484708-85BD-47C4-92DD-3010387465F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66484708-85BD-47C4-92DD-3010387465F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66484708-85BD-47C4-92DD-3010387465F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A9383D8-5C6D-429C-89D3-57C1D2565AD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A9383D8-5C6D-429C-89D3-57C1D2565AD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A9383D8-5C6D-429C-89D3-57C1D2565AD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A9383D8-5C6D-429C-89D3-57C1D2565AD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{763EA3DC-3FB4-4D74-A252-A6A8811F0461}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{763EA3DC-3FB4-4D74-A252-A6A8811F0461}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{763EA3DC-3FB4-4D74-A252-A6A8811F0461}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{763EA3DC-3FB4-4D74-A252-A6A8811F0461}.Release|Any CPU.Build.0 = Release|Any CPU
+		{220E6D9A-907A-44A2-9FA7-945972475ABA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{220E6D9A-907A-44A2-9FA7-945972475ABA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{220E6D9A-907A-44A2-9FA7-945972475ABA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{220E6D9A-907A-44A2-9FA7-945972475ABA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{906813D8-6A71-4CC3-9033-22609FC865B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{906813D8-6A71-4CC3-9033-22609FC865B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{906813D8-6A71-4CC3-9033-22609FC865B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{906813D8-6A71-4CC3-9033-22609FC865B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02211577-F0BE-4511-A9B5-A4026ACC1979}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02211577-F0BE-4511-A9B5-A4026ACC1979}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02211577-F0BE-4511-A9B5-A4026ACC1979}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02211577-F0BE-4511-A9B5-A4026ACC1979}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA244D31-0BE9-4AD9-BCAF-25D21298552E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA244D31-0BE9-4AD9-BCAF-25D21298552E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA244D31-0BE9-4AD9-BCAF-25D21298552E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA244D31-0BE9-4AD9-BCAF-25D21298552E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06002742-2A42-4E40-8CA0-011A9093791B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06002742-2A42-4E40-8CA0-011A9093791B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06002742-2A42-4E40-8CA0-011A9093791B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06002742-2A42-4E40-8CA0-011A9093791B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D912622-055C-4B2C-8EE4-52D8F1C25F73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D912622-055C-4B2C-8EE4-52D8F1C25F73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D912622-055C-4B2C-8EE4-52D8F1C25F73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D912622-055C-4B2C-8EE4-52D8F1C25F73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7931F65B-3C2A-4DB9-A5A6-4BC5B4D12C00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7931F65B-3C2A-4DB9-A5A6-4BC5B4D12C00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7931F65B-3C2A-4DB9-A5A6-4BC5B4D12C00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7931F65B-3C2A-4DB9-A5A6-4BC5B4D12C00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5075F800-E2FF-4A81-8631-A77CCB438053}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5075F800-E2FF-4A81-8631-A77CCB438053}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5075F800-E2FF-4A81-8631-A77CCB438053}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5075F800-E2FF-4A81-8631-A77CCB438053}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9620201-705D-432C-8941-353E9BFFE5E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9620201-705D-432C-8941-353E9BFFE5E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9620201-705D-432C-8941-353E9BFFE5E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9620201-705D-432C-8941-353E9BFFE5E1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6AD88CAF-A168-4BC2-9ECE-F62E7B216465} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{893D3B1B-DC55-4684-8B5D-941F1049151B} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{16FB4111-5110-46E5-851D-38A4D7522F85} = {4A180E41-9761-46E2-ACA3-4BD41764496C}
+		{96014A57-E700-478F-850E-452E9BFCAA90} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{66484708-85BD-47C4-92DD-3010387465F4} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{3A9383D8-5C6D-429C-89D3-57C1D2565AD1} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{763EA3DC-3FB4-4D74-A252-A6A8811F0461} = {AF7F207F-AE68-4199-9316-91411DFF93E4}
+		{220E6D9A-907A-44A2-9FA7-945972475ABA} = {2BADE20B-33ED-4F31-B56A-C847CF134A7D}
+		{906813D8-6A71-4CC3-9033-22609FC865B7} = {2BADE20B-33ED-4F31-B56A-C847CF134A7D}
+		{02211577-F0BE-4511-A9B5-A4026ACC1979} = {2BADE20B-33ED-4F31-B56A-C847CF134A7D}
+		{AA244D31-0BE9-4AD9-BCAF-25D21298552E} = {4A180E41-9761-46E2-ACA3-4BD41764496C}
+		{06002742-2A42-4E40-8CA0-011A9093791B} = {4A180E41-9761-46E2-ACA3-4BD41764496C}
+		{7D912622-055C-4B2C-8EE4-52D8F1C25F73} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{7931F65B-3C2A-4DB9-A5A6-4BC5B4D12C00} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{0C232936-48B8-4CCD-951E-8AD3D439D264} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{FE279FBA-181F-4D15-BBE8-8820CAF186B2} = {4A180E41-9761-46E2-ACA3-4BD41764496C}
+		{6D353DD2-970B-45BB-9AB6-D23A28E0233F} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{38889580-0345-42CC-AB4D-931CA15AFA85} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{5075F800-E2FF-4A81-8631-A77CCB438053} = {2089D22B-FC62-4E94-8776-093570EA4032}
+		{F9620201-705D-432C-8941-353E9BFFE5E1} = {2089D22B-FC62-4E94-8776-093570EA4032}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {98B3D62C-99C4-441A-BDBB-AA6225B4CF1C}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		gip.core.webservices.shared\gip.core.webservices.shared.projitems*{0c232936-48b8-4ccd-951e-8ad3d439d264}*SharedItemsImports = 13
+		gip.core.datamodel.shared\gip.core.datamodel.shared.projitems*{16fb4111-5110-46e5-851d-38a4d7522f85}*SharedItemsImports = 5
+		gip.core.processapplication.shared\gip.core.processapplication.shared.projitems*{38889580-0345-42cc-ab4d-931ca15afa85}*SharedItemsImports = 13
+		gip.core.processapplication.shared\gip.core.processapplication.shared.projitems*{66484708-85bd-47c4-92dd-3010387465f4}*SharedItemsImports = 5
+		gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems*{6d353dd2-970b-45bb-9ab6-d23a28e0233f}*SharedItemsImports = 13
+		gip.core.webservices.shared\gip.core.webservices.shared.projitems*{7931f65b-3c2a-4db9-a5a6-4bc5b4d12c00}*SharedItemsImports = 5
+		gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems*{893d3b1b-dc55-4684-8b5d-941f1049151b}*SharedItemsImports = 5
+		gip.core.datamodel.shared\gip.core.datamodel.shared.projitems*{fe279fba-181f-4d15-bbe8-8820caf186b2}*SharedItemsImports = 13
+	EndGlobalSection
+EndGlobal
