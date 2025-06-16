@@ -3,279 +3,134 @@
 
 using gip.core.autocomponent;
 using gip.core.datamodel;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Database.Isam;
 using ModelContextProtocol;
+using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Diagnostics.Contracts;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Intrinsics.X86;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static Azure.Core.HttpHeader;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace gip.core.webservices
 {
     [McpServerToolType]
     public sealed class MCPIPlusTools
     {
+        #region Properties
+        private static MCPToolAppTree _appTree = new MCPToolAppTree();
+        #endregion
+
+        #region App-Services
+
+        #region MCP-Tools
         [McpServerTool]
-        [Description("Discover iPlus components, their properties and methods based on search criteria. Use this to find objects before executing commands.")]
-        public static async Task<string> DiscoverComponents(
-            IACComponent root,
-            [Description("Search term to filter components by ACIdentifier, ACCaption, or ACType.Comment. Leave empty to get all components.")]
-            string searchTerm = "",
-            [Description("Maximum depth to search in the component tree. 0 means unlimited depth.")]
-            int maxDepth = 2,
-            [Description("Include detailed property information in the result.")]
-            bool includeProperties = true,
-            [Description("Include detailed method information in the result.")]
-            bool includeMethods = true)
+        [Description("(1) Application Tree Discovery: Returns all available component types (classes) in the current application tree. " +
+            "Each result contains an ACIdentifier (unique type name) and Description. " +
+            "Use this tool FIRST to discover what component types exist in the system before querying specific instances or type information.")]
+        public static string AppGetThesaurus(
+            IACComponent mcpHost,
+            [Description("Language code for localized descriptions (e.g., 'en', 'de')")]
+            string i18nLangTag)
         {
-            try
-            {
-                var discoveryResult = new ComponentDiscoveryResult();
-
-                // Find components based on search criteria
-                var components = root.FindChildComponents<IACComponent>(component =>
-                {
-                    if (string.IsNullOrEmpty(searchTerm))
-                        return true;
-
-                    return component.ACIdentifier?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true ||
-                           component.ACCaption?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true ||
-                           component.ACType?.Comment?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true;
-                }, null, maxDepth);
-
-                foreach (var component in components.Take(100)) // Limit results to prevent overwhelming response
-                {
-                    var componentInfo = new ComponentInfo
-                    {
-                        ACUrl = component.GetACUrl(),
-                        ACIdentifier = component.ACIdentifier,
-                        ACCaption = component.ACCaption,
-                        TypeName = component.ACType?.ACIdentifier,
-                        Comment = component.ACType?.Comment
-                    };
-
-                    if (includeProperties)
-                    {
-                        componentInfo.Properties = GetComponentProperties(component);
-                    }
-
-                    if (includeMethods)
-                    {
-                        componentInfo.Methods = GetComponentMethods(component);
-                    }
-
-                    discoveryResult.Components.Add(componentInfo);
-                }
-
-                discoveryResult.TotalFound = components.Count;
-                discoveryResult.ResultsLimited = components.Count > 100;
-
-                return JsonSerializer.Serialize(discoveryResult, new JsonSerializerOptions { WriteIndented = true });
-            }
-            catch (Exception ex)
-            {
-                return JsonSerializer.Serialize(new { error = ex.Message });
-            }
+            return _appTree.AppGetThesaurus(mcpHost, i18nLangTag);
         }
 
+
         [McpServerTool]
-        [Description("Execute ACUrlCommand on iPlus components. Use this to get property values, set property values, or invoke methods.")]
-        public static async Task<string> ExecuteACUrlCommand(
-            IACComponent root,
-            [Description("The ACUrl command to execute. Examples: '\\\\MyComponent\\MyProperty' (get property), '\\\\MyComponent\\MyProperty=NewValue' (set property), '\\\\MyComponent\\!MyMethod' (invoke method)")]
+        [Description("(2) Component Type Information: Returns detailed information about specific component types, including their unique ClassID (CId field) which is required for other tool operations. " +
+            "Pass ACIdentifiers obtained from AppGetThesaurus to get the ClassIDs needed for instance queries and property/method discovery.")]
+        public static string AppGetTypeInfos(
+            IACComponent mcpHost,
+            [Description("Comma-separated list of ACIdentifiers (type names) from the thesaurus")]
+            string acIdentifiers,
+            [Description("Language code for localized descriptions (e.g., 'en', 'de')")]
+            string i18nLangTag)
+        {
+            return _appTree.AppGetTypeInfos(mcpHost, acIdentifiers, i18nLangTag);
+        }
+
+        // (6) Component Interaction: Execute operations on specific component instances using ACUrl addressing (like file system paths). SUPPORTS BULK OPERATIONS - pass multiple comma-separated ACUrls for efficient batch execution. The ACUrl uses ACIdentifiers separated by backslashes to address the complete path from root to target component. For state changes and operations, use method invocation (!MethodName) rather than property assignment. Check available methods first with AppGetMethodInfo.
+        [McpServerTool]
+        [Description("(3) Application Tree Navigation: Explores the hierarchical tree structure of component instances, similar to a file system directory listing. " +
+            "Returns the tree with ACIdentifiers that form the path for ACUrl addressing. " +
+            "ALWAYS think hierarchically and PASS MULTIPLE ClassIDs separated by commas in a single call if possible to efficiently examine parent-child relationships (e.g. \"ParentClassID,ChildClassID\"). " +
+            "Search conditions correspond positionally to ClassIDs - use partial matches like numbers or keywords rather than full identifiers (e.g., '4,' to find items with '4' in the first ClassID and any items for the second ClassID). " +
+            "This single call approach reveals the complete hierarchy and relationships between components, avoiding multiple queries.")]
+        public static string AppGetInstanceInfo(
+            IACComponent mcpHost,
+            [Description("Comma-separated list of ClassIDs (CId values from AppGetTypeInfos) for the component types you want to find. Include both parent and child type IDs when exploring hierarchical relationships. Order by compositional logic (parent -> children).")]
+            string classIDs,
+            [Description("Comma-separated list of search filters for each ClassID to narrow results. Each condition corresponds to the ClassID in the same position. Use text values (e.g., component names, numbers as text). Leave empty positions for ClassIDs without search criteria, but maintain comma separation.")]
+            string searchConditions)
+        {
+            return _appTree.AppGetInstanceInfo(mcpHost, classIDs, searchConditions);
+        }
+
+
+        [McpServerTool]
+        [Description("(4) Component Property Discovery: Lists all available properties of a component type or instance. Use this before reading/writing property values to discover available property names and their data types.")]
+        public static string AppGetPropertyInfo(
+            IACComponent mcpHost,
+            [Description("ClassID (CId field) of the component type whose properties you want to discover.")]
+            string classID)
+        {
+            return _appTree.AppGetPropertyInfo(mcpHost, classID);
+        }
+
+
+        [McpServerTool]
+        [Description("(5) Component Method Discovery: " +
+            "Use this before invoking methods to discover available method names and their parameters. " +
+            "ALWAYS check available methods FIRST when you need to perform operations or change component states. " +
+            "Many operations are performed through methods rather than direct property assignment. " +
+            "Lists all available methods of a component type or instance with their parameters.")]
+        public static string AppGetMethodInfo(
+            IACComponent mcpHost,
+            [Description("ClassID (CId field) of the component type whose methods you want to discover")]
+            string classID)
+        {
+            return _appTree.AppGetMethodInfo(mcpHost, classID);
+        }
+
+
+        [McpServerTool]
+        [Description("(6) Component Interaction: Execute operations on specific component instances using ACUrl addressing (like file system paths). " +
+            "SUPPORTS BULK OPERATIONS - pass multiple comma-separated ACUrls for efficient batch execution. " +
+            "The ACUrl uses ACIdentifiers separated by backslashes to address the complete path from root to target component. " +
+            "For state changes and operations, use method invocation (!MethodName) rather than property assignment. Check available methods first with AppGetMethodInfo.")]
+        public static string ExecuteACUrlCommand(
+            IACComponent mcpHost,
+            [Description("Component address path using format: \\Root\\Parent\\Child\\...\\Target\\Operation" +
+            "Examples: " +
+            "- Single operation read/write property: \\Root\\Component\\PropertyName" +
+            "- Bulk operation read/write property: \\Root\\Component1\\PropertyName,\\Root\\Component2\\PropertyName" +
+            "- Single operation Invoke method: \\Root\\Component!MethodName" +
+            "- Bulk operation invoke method: \\Root\\Component1!MethodName,\\Root\\Component2!MethodName" +
+            "Use ACIdentifiers (ACId field) from AppGetInstanceInfo to construct the path. " +
+            "Bulk-Execution: If several commands are to be executed one after the other, the ACUrls can be passed comma-separated as a list.")]
             string acUrl,
-            [Description("Optional parameters for method calls as JSON array. Example: '[\"param1\", 123, true]'")]
+            [Description("Optional: For property writes set the value here. " +
+            "For bulk property writes pass values commas-separated. " +
+            "For method-calls use JSON array: [\"param1\", 123, true]")]
             string parametersJson = "")
         {
-            try
-            {
-                object[] parameters = null;
-
-                if (!string.IsNullOrEmpty(parametersJson))
-                {
-                    var jsonParams = JsonSerializer.Deserialize<JsonElement[]>(parametersJson);
-                    parameters = ConvertJsonParametersToObjects(jsonParams);
-                }
-
-                object result = root.ACUrlCommand(acUrl, parameters);
-
-                var response = new ACUrlCommandResult
-                {
-                    Success = true,
-                    ACUrl = acUrl,
-                    Result = ConvertResultToJson(result),
-                    ResultType = result?.GetType()?.Name
-                };
-
-                return JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = true });
-            }
-            catch (Exception ex)
-            {
-                var errorResponse = new ACUrlCommandResult
-                {
-                    Success = false,
-                    ACUrl = acUrl,
-                    Error = ex.Message,
-                    ErrorType = ex.GetType().Name
-                };
-
-                return JsonSerializer.Serialize(errorResponse, new JsonSerializerOptions { WriteIndented = true });
-            }
+            return _appTree.ExecuteACUrlCommand(mcpHost, acUrl, parametersJson);
         }
+        #endregion
 
-        private static List<PropertyInfo> GetComponentProperties(IACComponent component)
-        {
-            var properties = new List<PropertyInfo>();
 
-            try
-            {
-                if (component.ComponentClass?.Properties != null)
-                {
-                    foreach (var property in component.ComponentClass.Properties)
-                    {
-                        var propInfo = new PropertyInfo
-                        {
-                            ACIdentifier = property.ACIdentifier,
-                            ACCaption = property.ACCaption,
-                            DataType = property.ObjectType?.Name,
-                            ACUrl = component.GetACUrl() + "\\" + property.ACIdentifier,
-                            IsReadOnly = property.IsInput,
-                            Comment = property.Comment
-                        };
-
-                        properties.Add(propInfo);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                properties.Add(new PropertyInfo
-                {
-                    ACIdentifier = "ERROR",
-                    Comment = $"Error reading properties: {ex.Message}"
-                });
-            }
-
-            return properties;
-        }
-
-        private static List<MethodInfo> GetComponentMethods(IACComponent component)
-        {
-            var methods = new List<MethodInfo>();
-
-            try
-            {
-                foreach (var method in component.ACClassMethods)
-                {
-                    var methodInfo = new MethodInfo
-                    {
-                        ACIdentifier = method.ACIdentifier,
-                        ACCaption = method.ACCaption,
-                        ACUrl = component.GetACUrl() + "!" + method.ACIdentifier,
-                        Comment = method.Comment
-                    };
-
-                    // Try to get parameter information from XML
-                    if (!string.IsNullOrEmpty(method.XMLACMethod))
-                    {
-                        try
-                        {
-                            var acMethod = ACClassMethod.DeserializeACMethod(method.XMLACMethod);
-                            if (acMethod != null)
-                            {
-                                methodInfo.Parameters = acMethod.ParameterValueList?.Select(p => new ParameterInfo
-                                {
-                                    Name = p.ACIdentifier,
-                                    DataType = p.ObjectType?.Name,
-                                    IsRequired = p.Option == Global.ParamOption.Required
-                                }).ToList() ?? new List<ParameterInfo>();
-
-                                methodInfo.ReturnType = acMethod.ResultValueList?.FirstOrDefault()?.ObjectType?.Name;
-                            }
-                        }
-                        catch
-                        {
-                            // If XML parsing fails, continue without parameter info
-                        }
-                    }
-
-                    methods.Add(methodInfo);
-                }
-            }
-            catch (Exception ex)
-            {
-                methods.Add(new MethodInfo
-                {
-                    ACIdentifier = "ERROR",
-                    Comment = $"Error reading methods: {ex.Message}"
-                });
-            }
-
-            return methods;
-        }
-
-        private static object[] ConvertJsonParametersToObjects(JsonElement[] jsonParams)
-        {
-            if (jsonParams == null || jsonParams.Length == 0)
-                return null;
-
-            var parameters = new object[jsonParams.Length];
-
-            for (int i = 0; i < jsonParams.Length; i++)
-            {
-                var param = jsonParams[i];
-
-                parameters[i] = param.ValueKind switch
-                {
-                    JsonValueKind.String => param.GetString(),
-                    JsonValueKind.Number => param.TryGetInt32(out int intVal) ? intVal : param.GetDouble(),
-                    JsonValueKind.True => true,
-                    JsonValueKind.False => false,
-                    JsonValueKind.Null => null,
-                    _ => param.ToString()
-                };
-            }
-
-            return parameters;
-        }
-
-        private static object ConvertResultToJson(object result)
-        {
-            if (result == null)
-                return null;
-
-            // Handle common types
-            if (result is string || result is bool || result.GetType().IsPrimitive)
-                return result;
-
-            // For complex objects, try to convert to XML first, then to a readable format
-            try
-            {
-                if (result is IACObject)
-                {
-                    // For ACObjects, return basic information
-                    var acObject = result as IACObject;
-                    return new
-                    {
-                        ACIdentifier = acObject.ACIdentifier,
-                        ACCaption = acObject.ACCaption,
-                        TypeName = acObject.GetType().Name,
-                        ACUrl = acObject.GetACUrl()
-                    };
-                }
-
-                // Try XML serialization for other objects
-                string xmlResult = ACConvert.ObjectToXML(result, true);
-                return new { XmlData = xmlResult, TypeName = result.GetType().Name };
-            }
-            catch
-            {
-                // Fallback to string representation
-                return new { StringValue = result.ToString(), TypeName = result.GetType().Name };
-            }
-        }
+        #endregion
     }
 }

@@ -390,7 +390,7 @@ namespace gip.core.layoutengine
 
         void foldingUpdateTimer_Tick(object sender, EventArgs e)
         {
-            if (foldingStrategy != null)
+            if (foldingStrategy != null && foldingManager != null)
             {
                 int firstErrorOffset;
                 IEnumerable<NewFolding> foldings = foldingStrategy.CreateNewFoldings(Document, out firstErrorOffset);

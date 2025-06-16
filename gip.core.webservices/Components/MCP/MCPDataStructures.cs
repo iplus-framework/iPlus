@@ -2,55 +2,83 @@
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace gip.core.webservices
 {
-    public class ComponentDiscoveryResult
+    public class MCP_Exception
     {
-        public List<ComponentInfo> Components { get; set; } = new List<ComponentInfo>();
+        public bool Success { get; set; }
+        public string Error { get; set; }
+    }
+
+    public class MCP_BaseType
+    {
+        [JsonPropertyName("ACId")]
+        public string ACIdentifier { get; set; }
+        [JsonPropertyName("D")]
+        public string Description { get; set; }
+    }
+
+    public class MCP_TypeInfoBase : MCP_BaseType
+    {
+        [JsonPropertyName("CId")]
+        public string ClassID { get; set; }
+    }
+
+    public class MCP_TypeInfo : MCP_TypeInfoBase
+    {
+        public bool IsTypeOfInstance { get; set; }
+        public bool IsTypeOfDbTable { get; set; }
+    }
+
+
+    public class MCP_InstanceInfo : MCP_TypeInfoBase
+    {
+        [JsonPropertyName("BCID")]
+        public string BaseClassID { get; set; }
+        public List<MCP_InstanceInfo> Childs { get; set; } = new List<MCP_InstanceInfo>();
+    }
+
+
+    public class MCP_ComponentDiscoveryResult
+    {
+        public List<MCP_ComponentInfo> Components { get; set; } = new List<MCP_ComponentInfo>();
         public int TotalFound { get; set; }
         public bool ResultsLimited { get; set; }
     }
 
-    public class ComponentInfo
+    public class MCP_ComponentInfo
     {
         public string ACUrl { get; set; }
         public string ACIdentifier { get; set; }
         public string ACCaption { get; set; }
         public string TypeName { get; set; }
         public string Comment { get; set; }
-        public List<PropertyInfo> Properties { get; set; } = new List<PropertyInfo>();
-        public List<MethodInfo> Methods { get; set; } = new List<MethodInfo>();
+        public List<MCP_PropertyInfo> Properties { get; set; } = new List<MCP_PropertyInfo>();
+        public List<MCP_MethodInfo> Methods { get; set; } = new List<MCP_MethodInfo>();
     }
 
-    public class PropertyInfo
+    public class MCP_PropertyInfo : MCP_BaseType
     {
-        public string ACIdentifier { get; set; }
-        public string ACCaption { get; set; }
         public string DataType { get; set; }
-        public string ACUrl { get; set; }
         public bool IsReadOnly { get; set; }
-        public string Comment { get; set; }
     }
 
-    public class MethodInfo
+    public class MCP_MethodInfo : MCP_BaseType
     {
-        public string ACIdentifier { get; set; }
-        public string ACCaption { get; set; }
-        public string ACUrl { get; set; }
-        public string Comment { get; set; }
         public string ReturnType { get; set; }
-        public List<ParameterInfo> Parameters { get; set; } = new List<ParameterInfo>();
+        public List<MCP_ParameterInfo> Parameters { get; set; } = new List<MCP_ParameterInfo>();
     }
 
-    public class ParameterInfo
+    public class MCP_ParameterInfo
     {
         public string Name { get; set; }
         public string DataType { get; set; }
         public bool IsRequired { get; set; }
     }
 
-    public class ACUrlCommandResult
+    public class MCP_ACUrlCommandResult
     {
         public bool Success { get; set; }
         public string ACUrl { get; set; }

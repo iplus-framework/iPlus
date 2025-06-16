@@ -136,7 +136,7 @@ namespace gip.core.webservices
                 });
 
                 // Register the ACRoot as a singleton service so tools can access it
-                builder.Services.AddSingleton<IACComponent>(provider => ACRoot.SRoot);
+                builder.Services.AddSingleton<IACComponent>(provider => this);
 
                 _McpHost = builder.Build();
                 (_McpHost as WebApplication).MapMcp();
