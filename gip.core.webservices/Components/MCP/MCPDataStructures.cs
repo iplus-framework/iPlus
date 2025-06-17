@@ -24,19 +24,21 @@ namespace gip.core.webservices
     {
         [JsonPropertyName("CId")]
         public string ClassID { get; set; }
+        [JsonPropertyName("BCID")]
+        public string BaseClassID { get; set; }
     }
 
     public class MCP_TypeInfo : MCP_TypeInfoBase
     {
-        public bool IsTypeOfInstance { get; set; }
-        public bool IsTypeOfDbTable { get; set; }
+        public bool IsTypeOfAInstance { get; set; }
+        public bool IsTypeOfADbTable { get; set; }
+        public bool IsWorkflowType { get; set; }
+        public bool IsMultiInstanceType { get; set; }
     }
 
 
     public class MCP_InstanceInfo : MCP_TypeInfoBase
     {
-        [JsonPropertyName("BCID")]
-        public string BaseClassID { get; set; }
         public List<MCP_InstanceInfo> Childs { get; set; } = new List<MCP_InstanceInfo>();
     }
 

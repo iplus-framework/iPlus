@@ -56,9 +56,11 @@ namespace gip.core.webservices
             [Description("Comma-separated list of ACIdentifiers (type names) from the thesaurus")]
             string acIdentifiers,
             [Description("Language code for localized descriptions (e.g., 'en', 'de')")]
-            string i18nLangTag)
+            string i18nLangTag,
+            [Description("Optional: Also return all derived types from the thesaurus (Inheritance).")]
+            bool getDerivedTypes = false)
         {
-            return _appTree.AppGetTypeInfos(mcpHost, acIdentifiers, i18nLangTag);
+            return _appTree.AppGetTypeInfos(mcpHost, acIdentifiers, i18nLangTag, getDerivedTypes);
         }
 
         // (6) Component Interaction: Execute operations on specific component instances using ACUrl addressing (like file system paths). SUPPORTS BULK OPERATIONS - pass multiple comma-separated ACUrls for efficient batch execution. The ACUrl uses ACIdentifiers separated by backslashes to address the complete path from root to target component. For state changes and operations, use method invocation (!MethodName) rather than property assignment. Check available methods first with AppGetMethodInfo.

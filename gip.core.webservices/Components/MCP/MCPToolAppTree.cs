@@ -98,13 +98,14 @@ namespace gip.core.webservices
 
         protected virtual void PopulateThesaurus(IACComponent aCComponent, ref Dictionary<Guid, gip.core.datamodel.ACClass> thesaurusByCId, ref Dictionary<string, gip.core.datamodel.ACClass> thesaurusByACId)
         {
-            gip.core.datamodel.ACClass cls = GetBaseClassForThesaurus(aCComponent);
-            if (cls != null)
+            gip.core.datamodel.ACClass cls = GetBaseClassesForThesaurus(aCComponent);
+            while (cls != null)
             {
                 if (!thesaurusByCId.ContainsKey(cls.ACClassID))
                     thesaurusByCId.Add(cls.ACClassID, cls);
                 if (!thesaurusByACId.ContainsKey(cls.ACIdentifier))
                     thesaurusByACId.Add(cls.ACIdentifier, cls);
+                cls = cls.BaseClass; // Traverse up to the base class in the class library
             }
 
             foreach (IACComponent child in aCComponent.ACComponentChilds)
@@ -113,7 +114,7 @@ namespace gip.core.webservices
             }
         }
 
-        protected virtual gip.core.datamodel.ACClass GetBaseClassForThesaurus(IACComponent aCComponent)
+        protected virtual gip.core.datamodel.ACClass GetBaseClassesForThesaurus(IACComponent aCComponent)
         {
             gip.core.datamodel.ACClass cls = aCComponent.ComponentClass;
             do
@@ -135,7 +136,7 @@ namespace gip.core.webservices
 
 
         #region TypeInfo
-        public string AppGetTypeInfos(IACComponent requester, string acIdentifiers, string i18nLangTag)
+        public string AppGetTypeInfos(IACComponent requester, string acIdentifiers, string i18nLangTag, bool getDerivedTypes = false)
         {
             try
             {
@@ -152,9 +153,38 @@ namespace gip.core.webservices
                                 ACIdentifier = cls.ACIdentifier,
                                 Description = Translator.GetTranslation(null, cls.ACCaption, string.IsNullOrEmpty(i18nLangTag) ? "en" : i18nLangTag.ToLower()),
                                 ClassID = cls.ACClassID.ToString(),
-                                IsTypeOfInstance = true, // TODO
-                                IsTypeOfDbTable = cls.ACKind == Global.ACKinds.TACDBA
+                                BaseClassID = cls.BaseClass?.ACClassID.ToString() ?? Guid.Empty.ToString(),
+                                IsTypeOfAInstance =   cls.ACProject?.ACProjectType == Global.ACProjectTypes.Application
+                                                  || cls.ACProject?.ACProjectType == Global.ACProjectTypes.Service,
+                                IsTypeOfADbTable = cls.ACKind == Global.ACKinds.TACDBA,
+                                IsWorkflowType = cls.IsWorkflowType,
+                                IsMultiInstanceType = cls.IsMultiInstance || cls.IsWorkflowType,
                             });
+
+                            if (getDerivedTypes)
+                            {
+                                foreach (gip.core.datamodel.ACClass tClass in ThesaurusByCId.Values)
+                                {
+                                    if (tClass.IsDerivedClassFrom(cls))
+                                    {
+                                        string sClId = tClass.ACClassID.ToString();
+                                        if (typeInfos.Any(ti => ti.ClassID == sClId))
+                                            continue; // Skip if already added
+                                        typeInfos.Add(new MCP_TypeInfo
+                                        {
+                                            ACIdentifier = cls.ACIdentifier,
+                                            Description = Translator.GetTranslation(null, tClass.ACCaption, string.IsNullOrEmpty(i18nLangTag) ? "en" : i18nLangTag.ToLower()),
+                                            ClassID = tClass.ACClassID.ToString(),
+                                            BaseClassID = tClass.BaseClass?.ACClassID.ToString() ?? Guid.Empty.ToString(),
+                                            IsTypeOfAInstance = tClass.ACProject?.ACProjectType == Global.ACProjectTypes.Application
+                                                                || tClass.ACProject?.ACProjectType == Global.ACProjectTypes.Service,
+                                            IsTypeOfADbTable = tClass.ACKind == Global.ACKinds.TACDBA,
+                                            IsWorkflowType = tClass.IsWorkflowType,
+                                            IsMultiInstanceType = tClass.IsMultiInstance || tClass.IsWorkflowType,
+                                        });
+                                    }
+                                }
+                            }
                         }
                     }
                 }
