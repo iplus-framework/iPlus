@@ -469,10 +469,16 @@ namespace gip.bso.iplus
             IACComponent component = Root.ACUrlCommand(CurrentACMsgAlarm.Source) as IACComponent;
             if (component != null)
             {
+                if (!HasRightsForAcknowledge(component as ACComponent))
+                {
+                    // Warning50093: You do not have permission to acknowledge the alarm!
+                    Messages.Warning(this, "Warning50093");
+                    return;
+                }
                 MsgList alarmListToAck = new MsgList();
                 var msgAlarm = CurrentACMsgAlarm;
                 alarmListToAck.Add(msgAlarm);
-                component.ACUrlCommand("!AcknowledgeSubAlarmsMsgList", alarmListToAck);
+                component.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(PAClassAlarmingBase.AcknowledgeSubAlarmsMsgList), alarmListToAck);
                 using (ACMonitor.Lock(_60201_AppManagerInvokersLock))
                 {
                     _ACMsgAlarmList.Remove(msgAlarm);
@@ -487,18 +493,44 @@ namespace gip.bso.iplus
             return false;
         }
 
+        private ACClassMethod _AcknowledgeAlarmsMethod = null;
+        public bool HasRightsForAcknowledge(ACComponent component)
+        {
+            if (component == null)
+                return false;
+            string methodName;
+            if (_AcknowledgeAlarmsMethod == null)
+                _AcknowledgeAlarmsMethod = component.GetACClassMethod(nameof(PAClassAlarmingBase.AcknowledgeAlarms), out methodName);
+            if (_AcknowledgeAlarmsMethod == null)
+                return false;
+            Global.ControlModes rightMode = component.ComponentClass.RightManager.GetControlMode(_AcknowledgeAlarmsMethod);
+            return !(rightMode <= Global.ControlModes.Disabled);
+        }
+
         [ACMethodInfo("", "en{'Acknowledge All'}de{'Alle quittieren'}", 101)]
         public void AcknowledgeAll()
         {
+            bool refusedAcknowledge = false;
             foreach (Msg msg in ACMsgAlarmList)
             {
                 IACComponent component = Root.ACUrlCommand(msg.Source) as IACComponent;
                 if (component != null)
                 {
+                    if (!HasRightsForAcknowledge(component as ACComponent))
+                    {
+                        refusedAcknowledge = true;
+                        continue;
+                    }
+
                     MsgList alarmListToAck = new MsgList();
                     alarmListToAck.Add(msg);
-                    component.ACUrlCommand("!AcknowledgeSubAlarmsMsgList", alarmListToAck);
+                    component.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(PAClassAlarmingBase.AcknowledgeSubAlarmsMsgList), alarmListToAck);
                 }
+            }
+            if (refusedAcknowledge)
+            {
+                // Warning50094: For some alarms you do not have permission to acknowledge!
+                Messages.Warning(this, "Warning50094");
             }
         }
 

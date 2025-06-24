@@ -14,7 +14,7 @@ namespace gip.core.communication
     /// </summary>
     [ACSerializeableInfo(new Type[] { typeof(WSResponse<string>) })]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACRestClient'}de{'ACRestClient'}", Global.ACKinds.TACDAClass, Global.ACStorableTypes.Required, false, false)]
-    public class ACRestClient : ACSession
+    public partial class ACRestClient : ACSession
     {
         #region Constructors
         static ACRestClient()
@@ -238,22 +238,6 @@ namespace gip.core.communication
         #endregion
 
         #region virtual
-        protected void OnCreateDefaultRequestHeaders(HttpClient client)
-        {
-            client.DefaultRequestHeaders.Accept.Clear();
-            if (!String.IsNullOrEmpty(BearerToken))
-            {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
-            }
-            if (!String.IsNullOrEmpty(User) && !String.IsNullOrEmpty(Password))
-            {
-                client.DefaultRequestHeaders.Authorization =
-                        new AuthenticationHeaderValue(
-                            "Basic", Convert.ToBase64String(
-                                System.Text.ASCIIEncoding.ASCII.GetBytes(User + ":" + Password)));
-            }
-        }
-
         #endregion
 
         #region ACMethod
@@ -461,10 +445,18 @@ namespace gip.core.communication
         {
             if (Client == null)
                 return new WSResponse<string>(null, new Msg(eMsgLevel.Error, "Disconnected"));
+
             try
             {
-                Task<WSResponse<string>> task = GetAsync(uri);
-                return task.Result;
+                if (AuthenticationType?.ToUpper() == "DIGEST")
+                {
+                    return GetWithDigestAuth(uri);
+                }
+                else
+                {
+                    Task<WSResponse<string>> task = GetAsync(uri);
+                    return task.Result;
+                }
             }
             catch (Exception ex)
             {
@@ -484,8 +476,16 @@ namespace gip.core.communication
                 return new WSResponse<TResult>(default(TResult), new Msg(eMsgLevel.Error, "Disconnected"));
             try
             {
-                Task<WSResponse<TResult>> task = GetAsync<TResult>(uri);
-                return task.Result;
+                if (AuthenticationType?.ToUpper() == "DIGEST")
+                {
+                    Task<WSResponse<TResult>> task = GetAsyncWithDigestAuth<TResult>(uri);
+                    return task.Result;
+                }
+                else
+                {
+                    Task<WSResponse<TResult>> task = GetAsync<TResult>(uri);
+                    return task.Result;
+                }
             }
             catch (Exception ex)
             {
@@ -508,18 +508,38 @@ namespace gip.core.communication
 
         public async Task<WSResponse<string>> GetAsync(Uri uri)
         {
-            HttpClient client = Client;
-            if (client == null)
-                return await Task.FromResult(new WSResponse<string>(new Msg(eMsgLevel.Error, "Disconnected")));
-            HttpResponseMessage response = null;
-            response = await client.GetAsync(uri);
-            if (response.IsSuccessStatusCode)
-            {
-                IsConnected.ValueT = true;
-                string result = await response.Content.ReadAsStringAsync();
-                return new WSResponse<string>(result, response.StatusCode);
+            try 
+            { 
+                HttpClient client = Client;
+                if (client == null)
+                    return await Task.FromResult(new WSResponse<string>(new Msg(eMsgLevel.Error, "Disconnected")));
+                if (AuthenticationType?.ToUpper() == "DIGEST")
+                {
+                    return await GetAsyncWithDigestAuth<string>(uri);
+                }
+                else
+                {
+                    HttpResponseMessage response = null;
+                    response = await client.GetAsync(uri);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        IsConnected.ValueT = true;
+                        string result = await response.Content.ReadAsStringAsync();
+                        return new WSResponse<string>(result, response.StatusCode);
+                    }
+                    return await Task.FromResult(new WSResponse<string>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
+                }
             }
-            return await Task.FromResult(new WSResponse<string>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
+            catch (Exception ex)
+            {
+                var msg = new Msg(eMsgLevel.Exception, ex.Message);
+                Messages.LogException(this.GetACUrl(), "Get(40)", ex);
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
+                if (ex is HttpRequestException)
+                    IsConnected.ValueT = false;
+                return await Task.FromResult(new WSResponse<string>(msg));
+            }
         }
 
         public async Task<WSResponse<TResult>> GetAsync<TResult>(string relativeUri)
@@ -529,19 +549,39 @@ namespace gip.core.communication
 
         public async Task<WSResponse<TResult>> GetAsync<TResult>(Uri uri)
         {
-            HttpClient client = Client;
-            if (client == null)
-                return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Error, "Disconnected")));
-            HttpResponseMessage response = null;
-            response = await client.GetAsync(uri);
-            if (response.IsSuccessStatusCode)
+            try
             {
-                IsConnected.ValueT = true;
-                string json = await response.Content.ReadAsStringAsync();
-                var result = await Task.Run(() => JsonConvert.DeserializeObject<TResult>(json));
-                return new WSResponse<TResult>(result, response.StatusCode);
+                HttpClient client = Client;
+                if (client == null)
+                    return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Error, "Disconnected")));
+                if (AuthenticationType?.ToUpper() == "DIGEST")
+                {
+                    return await GetAsyncWithDigestAuth<TResult>(uri);
+                }
+                else
+                {
+                    HttpResponseMessage response = null;
+                    response = await client.GetAsync(uri);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        IsConnected.ValueT = true;
+                        string json = await response.Content.ReadAsStringAsync();
+                        var result = await Task.Run(() => JsonConvert.DeserializeObject<TResult>(json));
+                        return new WSResponse<TResult>(result, response.StatusCode);
+                    }
+                    return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
+                }
             }
-            return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode))));
+            catch (Exception ex)
+            {
+                var msg = new Msg(eMsgLevel.Exception, ex.Message);
+                Messages.LogException(this.GetACUrl(), "Get(40)", ex);
+                IsConnectedAlarm.ValueT = PANotifyState.AlarmOrFault;
+                OnNewAlarmOccurred(IsConnectedAlarm, new Msg(eMsgLevel.Exception, ex.Message));
+                if (ex is HttpRequestException)
+                    IsConnected.ValueT = false;
+                return await Task.FromResult(new WSResponse<TResult>(msg));
+            }
         }
         #endregion
 
@@ -569,10 +609,18 @@ namespace gip.core.communication
         {
             if (Client == null)
                 return new WSResponse<string>(null, new Msg(eMsgLevel.Error, "Disconnected"));
+
             try
             {
-                Task<WSResponse<string>> task = PostAsync(content, uri);
-                return task.Result;
+                if (AuthenticationType?.ToUpper() == "DIGEST")
+                {
+                    return PostWithDigestAuth(content, uri);
+                }
+                else
+                {
+                    Task<WSResponse<string>> task = PostAsync(content, uri);
+                    return task.Result;
+                }
             }
             catch (Exception ex)
             {
@@ -599,8 +647,16 @@ namespace gip.core.communication
                 return new WSResponse<TResult>(default(TResult), new Msg(eMsgLevel.Error, "Disconnected"));
             try
             {
-                Task<WSResponse<TResult>> task = PostAsync<TResult>(content, uri);
-                return task.Result;
+                if (AuthenticationType?.ToUpper() == "DIGEST")
+                {
+                    Task<WSResponse<TResult>> task = PostAsyncWithDigestAuth<TResult>(content, uri);
+                    return task.Result;
+                }
+                else
+                {
+                    Task<WSResponse<TResult>> task = PostAsync<TResult>(content, uri);
+                    return task.Result;
+                }
             }
             catch (Exception ex)
             {
@@ -620,8 +676,16 @@ namespace gip.core.communication
                 return new WSResponse<TResult>(default(TResult), new Msg(eMsgLevel.Error, "Disconnected"));
             try
             {
-                Task<WSResponse<TResult>> task = PostAsync<TResult, TParam>(item, uri);
-                return task.Result;
+                if (AuthenticationType?.ToUpper() == "DIGEST")
+                {
+                    Task<WSResponse<TResult>> task = PostAsyncWithDigestAuth<TResult, TParam>(item, uri);
+                    return task.Result;
+                }
+                else
+                {
+                    Task<WSResponse<TResult>> task = PostAsync<TResult, TParam>(item, uri);
+                    return task.Result;
+                }
             }
             catch (Exception ex)
             {
@@ -711,8 +775,16 @@ namespace gip.core.communication
                 return new WSResponse<string>(null, new Msg(eMsgLevel.Error, "Disconnected"));
             try
             {
-                Task<WSResponse<string>> task = PutAsync(content, uri);
-                return task.Result;
+                if (AuthenticationType?.ToUpper() == "DIGEST")
+                {
+                    Task<WSResponse<string>> task = PutAsyncWithDigestAuth<string>(content, uri);
+                    return task.Result;
+                }
+                else
+                {
+                    Task<WSResponse<string>> task = PutAsync(content, uri);
+                    return task.Result;
+                }
             }
             catch (Exception ex)
             {
@@ -732,8 +804,16 @@ namespace gip.core.communication
                 return new WSResponse<TResult>(default(TResult), new Msg(eMsgLevel.Error, "Disconnected"));
             try
             {
-                Task<WSResponse<TResult>> task = PutAsync<TResult>(content, uri);
-                return task.Result;
+                if (AuthenticationType?.ToUpper() == "DIGEST")
+                {
+                    Task<WSResponse<TResult>> task = PutAsyncWithDigestAuth<TResult>(content, uri);
+                    return task.Result;
+                }
+                else
+                {
+                    Task<WSResponse<TResult>> task = PutAsync<TResult>(content, uri);
+                    return task.Result;
+                }
             }
             catch (Exception ex)
             {
@@ -753,8 +833,16 @@ namespace gip.core.communication
                 return new WSResponse<TResult>(default(TResult), new Msg(eMsgLevel.Error, "Disconnected"));
             try
             {
-                Task<WSResponse<TResult>> task = PutAsync<TResult, TParam>(item, uri);
-                return task.Result;
+                if (AuthenticationType?.ToUpper() == "DIGEST")
+                {
+                    Task<WSResponse<TResult>> task = PutAsyncWithDigestAuth<TResult, TParam>(item, uri);
+                    return task.Result;
+                }
+                else
+                {
+                    Task<WSResponse<TResult>> task = PutAsync<TResult, TParam>(item, uri);
+                    return task.Result;
+                }
             }
             catch (Exception ex)
             {

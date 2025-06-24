@@ -66,12 +66,11 @@
     <Reference Include="BouncyCastle.Crypto, Version=1.8.8.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Portable.BouncyCastle.1.8.10\lib\net40\BouncyCastle.Crypto.dll</HintPath>
-    </Reference>    
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-
     <Reference Include="NModbus4, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\NModbus4.2.1.0\lib\net40\NModbus4.dll</HintPath>
     </Reference>
@@ -222,6 +221,7 @@
     <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP_RFC1006\Types\Timer.cs" />
     <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP_RFC1006\Types\Word.cs" />
     <Compile Include="WebService\ACRestClient.cs" />
+    <Compile Include="WebService\ACRestClient_DigestExtension.cs" />
     <Compile Include="WebService\PAExportERPGroup.cs" />
     <Compile Include="WebService\PAExporterERPBase.cs" />
   </ItemGroup>
