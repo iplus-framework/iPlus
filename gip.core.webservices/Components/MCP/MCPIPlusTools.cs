@@ -50,14 +50,19 @@ namespace gip.core.webservices
 
         [McpServerTool]
         [Description("(2) Component Type Information: Returns detailed information about specific component types, including their unique ClassID (CId field) which is required for other tool operations. " +
-            "Pass ACIdentifiers obtained from AppGetThesaurus to get the ClassIDs needed for instance queries and property/method discovery.")]
+            "Pass ACIdentifiers obtained from AppGetThesaurus to get the ClassIDs needed for instance queries and property/method discovery. " +
+            "Use this tool BEFORE you call AppGetInstanceInfo so that you can pass the correct types or ClassIds (Field CId) there while the types are still unknown to you.")]
         public static string AppGetTypeInfos(
             IACComponent mcpHost,
-            [Description("Comma-separated list of ACIdentifiers (type names) from the thesaurus")]
+            [Description("(required) Comma-separated list of ACIdentifiers (type names) from the thesaurus. Can be base class names to find derived types when used with `getDerivedTypes=true`")]
             string acIdentifiers,
             [Description("Language code for localized descriptions (e.g., 'en', 'de')")]
             string i18nLangTag,
-            [Description("Optional: Also return all derived types from the thesaurus (Inheritance).")]
+            [Description(" (optional) When set to `true`, returns all types that inherit from the specified type(s). This is particularly valuable for:\r\n" +
+            "- Discovering all implementations of an interface or base class\r\n" +
+            "- Enabling bulk operations on polymorphic components\r\n" +
+            "- Understanding the complete type hierarchy\r\n" +
+            "Default: `false`")]
             bool getDerivedTypes = false)
         {
             return _appTree.AppGetTypeInfos(mcpHost, acIdentifiers, i18nLangTag, getDerivedTypes);
@@ -66,15 +71,15 @@ namespace gip.core.webservices
         // (6) Component Interaction: Execute operations on specific component instances using ACUrl addressing (like file system paths). SUPPORTS BULK OPERATIONS - pass multiple comma-separated ACUrls for efficient batch execution. The ACUrl uses ACIdentifiers separated by backslashes to address the complete path from root to target component. For state changes and operations, use method invocation (!MethodName) rather than property assignment. Check available methods first with AppGetMethodInfo.
         [McpServerTool]
         [Description("(3) Application Tree Navigation: Explores the hierarchical tree structure of component instances, similar to a file system directory listing. " +
-            "Returns the tree with ACIdentifiers that form the path for ACUrl addressing. " +
+            "Returns the tree with ACIdentifiers (ACId field) that form the path for ACUrl addressing. " +
             "ALWAYS think hierarchically and PASS MULTIPLE ClassIDs separated by commas in a single call if possible to efficiently examine parent-child relationships (e.g. \"ParentClassID,ChildClassID\"). " +
             "Search conditions correspond positionally to ClassIDs - use partial matches like numbers or keywords rather than full identifiers (e.g., '4,' to find items with '4' in the first ClassID and any items for the second ClassID). " +
             "This single call approach reveals the complete hierarchy and relationships between components, avoiding multiple queries.")]
         public static string AppGetInstanceInfo(
             IACComponent mcpHost,
-            [Description("Comma-separated list of ClassIDs (CId values from AppGetTypeInfos) for the component types you want to find. Include both parent and child type IDs when exploring hierarchical relationships. Order by compositional logic (parent -> children).")]
+            [Description("Comma-separated list of ClassIDs (CId values that you got from tool AppGetTypeInfos) for the component types you want to find. Include both parent and child type IDs when exploring hierarchical relationships. Order by compositional logic (parent -> children).")]
             string classIDs,
-            [Description("Comma-separated list of search filters for each ClassID to narrow results. Each condition corresponds to the ClassID in the same position. Use text values (e.g., component names, numbers as text). Leave empty positions for ClassIDs without search criteria, but maintain comma separation.")]
+            [Description("Comma-separated list of search filters for each ClassID to narrow results. Each condition corresponds to the ClassID in the same position. Use partial matches like numbers or keywords rather than full identifiers (e.g., '4,' to find items with '4' in the first ClassID and any items for the second ClassID). Leave empty positions for ClassIDs without search criteria, but maintain comma separation.")]
             string searchConditions)
         {
             return _appTree.AppGetInstanceInfo(mcpHost, classIDs, searchConditions);
@@ -82,7 +87,10 @@ namespace gip.core.webservices
 
 
         [McpServerTool]
-        [Description("(4) Component Property Discovery: Lists all available properties of a component type or instance. Use this before reading/writing property values to discover available property names and their data types.")]
+        [Description("(4) Component Property Discovery: Lists all available properties of a component type or instance. " +
+            "Use this before reading/writing property values to discover available property names and their data types. " +
+            "To effect state changes, ALWAYS prefer to FIRST find a suitable method via AppGetMethodInfo and execute it via ExecuteACUrlCommand instead of changing the property value directly, " +
+            "because the methods validate whether a command may be executed or not. ")]
         public static string AppGetPropertyInfo(
             IACComponent mcpHost,
             [Description("ClassID (CId field) of the component type whose properties you want to discover.")]
@@ -94,10 +102,12 @@ namespace gip.core.webservices
 
         [McpServerTool]
         [Description("(5) Component Method Discovery: " +
-            "Use this before invoking methods to discover available method names and their parameters. " +
-            "ALWAYS check available methods FIRST when you need to perform operations or change component states. " +
-            "Many operations are performed through methods rather than direct property assignment. " +
-            "Lists all available methods of a component type or instance with their parameters.")]
+            "Lists all available methods of a component type or instance with their parameters. " +
+            "Use this before invoking methods via ExecuteACUrlCommand to discover available method names and their parameters. " +
+            "ALWAYS check available methods FIRST when you need to perform operations or change component states BEFORE you set property values directly which you have discovered via AppGetPropertyInfo. " +
+            "Method names (ACId field) with the 'IsEnabled' prefix should be called first, before the same named method without this prefix, " +
+            "so that you can check whether the method is allowed to be executed at all. " +
+            "If there is no suitable IsEnabled method, you can always call the method. ")]
         public static string AppGetMethodInfo(
             IACComponent mcpHost,
             [Description("ClassID (CId field) of the component type whose methods you want to discover")]
@@ -110,7 +120,7 @@ namespace gip.core.webservices
         [McpServerTool]
         [Description("(6) Component Interaction: Execute operations on specific component instances using ACUrl addressing (like file system paths). " +
             "SUPPORTS BULK OPERATIONS - pass multiple comma-separated ACUrls for efficient batch execution. " +
-            "The ACUrl uses ACIdentifiers separated by backslashes to address the complete path from root to target component. " +
+            "The ACUrl uses ACIdentifiers (ACId field) separated by backslashes to address the complete path from root to target component. " +
             "For state changes and operations, use method invocation (!MethodName) rather than property assignment. Check available methods first with AppGetMethodInfo.")]
         public static string ExecuteACUrlCommand(
             IACComponent mcpHost,

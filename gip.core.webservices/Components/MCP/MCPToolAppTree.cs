@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static gip.core.webservices.MCPIPlusTools;
@@ -207,12 +208,27 @@ namespace gip.core.webservices
                 string[] arrClassIDs = SplitParamsToArray(classIDs);
                 string[] arrSearch = SplitParamsToArray(searchConditions);
 
+                bool sendRecommendation = false;
+                StringBuilder sb = new StringBuilder();
                 if (arrClassIDs != null && arrClassIDs.Any())
                 {
                     List<SearchCondition> classSearchConditions = new List<SearchCondition>();
                     foreach (string classId in arrClassIDs)
                     {
-                        Guid.TryParse(classId, out Guid classGuid);
+                        if (!Guid.TryParse(classId, out Guid classGuid))
+                        {
+                            if (ThesaurusByACId.TryGetValue(classId, out gip.core.datamodel.ACClass thesaurausCls))
+                            {
+                                classGuid = thesaurausCls.ACClassID;
+                                sb.AppendLine(string.Format("You didn't provide a valid ClassID (CId field) but you passed a valid ACIdentifer '{0}' instead. It was resolved to {1}. Next time, please call the {2} method first.", classId, classGuid, nameof(AppGetTypeInfos)));
+                                sendRecommendation = true;
+                            }
+                            else
+                            {
+                                sb.AppendLine($"You didn't provide a valid ClassID (CId field) with '{classId}'");
+                                sendRecommendation = true;
+                            }
+                        }
                         if (classGuid != Guid.Empty && ThesaurusByCId.TryGetValue(classGuid, out gip.core.datamodel.ACClass cls))
                         {
                             string searchCondition = null;
@@ -244,15 +260,19 @@ namespace gip.core.webservices
 
                 if (instanceInfo == null)
                 {
+                    sb.AppendLine("No instances found for the given criteria.");
                     instanceInfo = new MCP_InstanceInfo
                     {
                         ACIdentifier = ACRoot.SRoot.ACIdentifier,
-                        Description = "No instances found for the given criteria.",
+                        Description = sb.ToString(),
                         ClassID = ACRoot.SRoot.ComponentClass.ACClassID.ToString(),
                         BaseClassID = Guid.Empty.ToString()
                     };
                 }
-
+                else if (sendRecommendation)
+                {
+                    instanceInfo.Description = sb.ToString();
+                }
                 return JsonSerializer.Serialize(instanceInfo, new JsonSerializerOptions { WriteIndented = false });
             }
             catch (Exception ex)
@@ -476,6 +496,17 @@ namespace gip.core.webservices
                             }
 
                             methods.Add(methodInfo);
+
+                            if (!method.IsAutoenabled)
+                            {
+                                methodInfo = new MCP_MethodInfo
+                                {
+                                    ACIdentifier = Const.IsEnabledPrefix + method.ACIdentifier,
+                                    Description = Const.IsEnabledPrefix + ": " + method.ACCaption,
+                                    ReturnType = "bool"
+                                };
+                                methods.Add(methodInfo);
+                            }
                         }
                     }
                 }
