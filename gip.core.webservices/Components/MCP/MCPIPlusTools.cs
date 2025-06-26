@@ -49,9 +49,14 @@ namespace gip.core.webservices
 
 
         [McpServerTool]
-        [Description("(2) Component Type Information: Returns detailed information about specific component types, including their unique ClassID (CId field) which is required for other tool operations. " +
+        [Description("(2) Component Type Information: Returns detailed information about specific component types, including their unique ClassID which is required for other tool operations. " +
             "Pass ACIdentifiers obtained from AppGetThesaurus to get the ClassIDs needed for instance queries and property/method discovery. " +
-            "Use this tool BEFORE you call AppGetInstanceInfo so that you can pass the correct types or ClassIds (Field CId) there while the types are still unknown to you.")]
+            "Use this tool BEFORE you call AppGetInstanceInfo so that you can pass the correct types or ClassIds there while the types are still unknown to you. " +
+            "If you have access to the github-mcp-server, use the search_code tool by passing 'org:iplus-framework' + ACIdentifier to the search query parameter. " +
+            "If the search is successful, you can read the class's source code to better understand how it works and in which states you can call which methods and properties using ExecuteACUrlCommand. " +
+            "You can only retrieve source code for classes that are not virtual (Field: IsVirtual). " +
+            "Therefore, you must traverse the base classes (BaseClassId) until you find a class where IsVirtual = false. " +
+            "Only then can you find the corresponding code on GitHub.")]
         public static string AppGetTypeInfos(
             IACComponent mcpHost,
             [Description("(required) Comma-separated list of ACIdentifiers (type names) from the thesaurus. Can be base class names to find derived types when used with `getDerivedTypes=true`")]
@@ -77,7 +82,7 @@ namespace gip.core.webservices
             "This single call approach reveals the complete hierarchy and relationships between components, avoiding multiple queries.")]
         public static string AppGetInstanceInfo(
             IACComponent mcpHost,
-            [Description("Comma-separated list of ClassIDs (CId values that you got from tool AppGetTypeInfos) for the component types you want to find. Include both parent and child type IDs when exploring hierarchical relationships. Order by compositional logic (parent -> children).")]
+            [Description("Comma-separated list of ClassIDs (values that you got from tool AppGetTypeInfos) for the component types you want to find. Include both parent and child type IDs when exploring hierarchical relationships. Order by compositional logic (parent -> children).")]
             string classIDs,
             [Description("Comma-separated list of search filters for each ClassID to narrow results. Each condition corresponds to the ClassID in the same position. Use partial matches like numbers or keywords rather than full identifiers (e.g., '4,' to find items with '4' in the first ClassID and any items for the second ClassID). Leave empty positions for ClassIDs without search criteria, but maintain comma separation.")]
             string searchConditions)
@@ -93,7 +98,7 @@ namespace gip.core.webservices
             "because the methods validate whether a command may be executed or not. ")]
         public static string AppGetPropertyInfo(
             IACComponent mcpHost,
-            [Description("ClassID (CId field) of the component type whose properties you want to discover.")]
+            [Description("ClassID of the component type whose properties you want to discover.")]
             string classID)
         {
             return _appTree.AppGetPropertyInfo(mcpHost, classID);
@@ -110,7 +115,7 @@ namespace gip.core.webservices
             "If there is no suitable IsEnabled method, you can always call the method. ")]
         public static string AppGetMethodInfo(
             IACComponent mcpHost,
-            [Description("ClassID (CId field) of the component type whose methods you want to discover")]
+            [Description("ClassID of the component type whose methods you want to discover")]
             string classID)
         {
             return _appTree.AppGetMethodInfo(mcpHost, classID);
@@ -121,7 +126,8 @@ namespace gip.core.webservices
         [Description("(6) Component Interaction: Execute operations on specific component instances using ACUrl addressing (like file system paths). " +
             "SUPPORTS BULK OPERATIONS - pass multiple comma-separated ACUrls for efficient batch execution. " +
             "The ACUrl uses ACIdentifiers (ACId field) separated by backslashes to address the complete path from root to target component. " +
-            "For state changes and operations, use method invocation (!MethodName) rather than property assignment. Check available methods first with AppGetMethodInfo.")]
+            "For state changes and operations, use method invocation (!MethodName) rather than property assignment. Check available methods first with AppGetMethodInfo. " +
+            "Consider to use github-mcp-server before for a better unterstanding when commands can be executed.")]
         public static string ExecuteACUrlCommand(
             IACComponent mcpHost,
             [Description("Component address path using format: \\Root\\Parent\\Child\\...\\Target\\Operation" +

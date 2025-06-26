@@ -160,6 +160,7 @@ namespace gip.core.webservices
                                 IsTypeOfADbTable = cls.ACKind == Global.ACKinds.TACDBA,
                                 IsWorkflowType = cls.IsWorkflowType,
                                 IsMultiInstanceType = cls.IsMultiInstance || cls.IsWorkflowType,
+                                IsVirtual = string.IsNullOrEmpty(cls.AssemblyQualifiedName)
                             });
 
                             if (getDerivedTypes)
@@ -182,6 +183,7 @@ namespace gip.core.webservices
                                             IsTypeOfADbTable = tClass.ACKind == Global.ACKinds.TACDBA,
                                             IsWorkflowType = tClass.IsWorkflowType,
                                             IsMultiInstanceType = tClass.IsMultiInstance || tClass.IsWorkflowType,
+                                            IsVirtual = string.IsNullOrEmpty(cls.AssemblyQualifiedName)
                                         });
                                     }
                                 }

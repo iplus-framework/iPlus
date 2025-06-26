@@ -22,9 +22,9 @@ namespace gip.core.webservices
 
     public class MCP_TypeInfoBase : MCP_BaseType
     {
-        [JsonPropertyName("CId")]
+        //[JsonPropertyName("CId")]
         public string ClassID { get; set; }
-        [JsonPropertyName("BCID")]
+        //[JsonPropertyName("BCID")]
         public string BaseClassID { get; set; }
     }
 
@@ -34,6 +34,7 @@ namespace gip.core.webservices
         public bool IsTypeOfADbTable { get; set; }
         public bool IsWorkflowType { get; set; }
         public bool IsMultiInstanceType { get; set; }
+        public bool IsVirtual { get ; set; }
     }
 
 

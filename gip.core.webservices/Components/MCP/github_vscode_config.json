@@ -1,0 +1,14 @@
+{
+  "mcp": {
+    "servers": {
+      "iPlus": {
+        "type": "http",
+        "url": "http://localhost:8750/sse"
+      },
+      "github": {
+        "type": "http",
+        "url": "https://api.githubcopilot.com/mcp/"
+      }
+    }
+  }
+}
