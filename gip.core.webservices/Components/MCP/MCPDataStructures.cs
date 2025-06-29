@@ -34,7 +34,7 @@ namespace gip.core.webservices
         public bool IsTypeOfADbTable { get; set; }
         public bool IsWorkflowType { get; set; }
         public bool IsMultiInstanceType { get; set; }
-        public bool IsVirtual { get ; set; }
+        public bool IsCodeOnGithub { get ; set; }
     }
 
 

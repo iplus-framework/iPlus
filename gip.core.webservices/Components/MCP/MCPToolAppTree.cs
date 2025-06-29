@@ -137,17 +137,32 @@ namespace gip.core.webservices
 
 
         #region TypeInfo
-        public string AppGetTypeInfos(IACComponent requester, string acIdentifiers, string i18nLangTag, bool getDerivedTypes = false)
+        public string AppGetTypeInfos(IACComponent requester, string acIdentifiers, string i18nLangTag, bool getDerivedTypes = false, bool getBaseTypes = false)
         {
             try
             {
+                // TODO: mehrere Classids in Instance suche
                 List<MCP_TypeInfo> typeInfos = new List<MCP_TypeInfo>();
                 string[] arrIdentifiers = SplitParamsToArray(acIdentifiers);
                 if (arrIdentifiers != null && arrIdentifiers.Any())
                 {
                     foreach (string acId in arrIdentifiers)
                     {
-                        if (ThesaurusByACId.TryGetValue(acId, out gip.core.datamodel.ACClass cls))
+                        gip.core.datamodel.ACClass cls = null;
+                        if (Guid.TryParse(acId, out Guid classGuid))
+                        {
+                            if (!ThesaurusByCId.TryGetValue(classGuid, out cls))
+                                cls = null;
+                        }
+                        else
+                        {
+                            if (!ThesaurusByACId.TryGetValue(acId, out cls))
+                                cls = null;
+                        }
+                        if (cls == null)
+                            cls = ACRoot.SRoot.Database.ContextIPlus.GetACType(classGuid);
+
+                        if (cls != null)
                         {
                             typeInfos.Add(new MCP_TypeInfo
                             {
@@ -155,19 +170,20 @@ namespace gip.core.webservices
                                 Description = Translator.GetTranslation(null, cls.ACCaption, string.IsNullOrEmpty(i18nLangTag) ? "en" : i18nLangTag.ToLower()),
                                 ClassID = cls.ACClassID.ToString(),
                                 BaseClassID = cls.BaseClass?.ACClassID.ToString() ?? Guid.Empty.ToString(),
-                                IsTypeOfAInstance =   cls.ACProject?.ACProjectType == Global.ACProjectTypes.Application
+                                IsTypeOfAInstance = cls.ACProject?.ACProjectType == Global.ACProjectTypes.Application
                                                   || cls.ACProject?.ACProjectType == Global.ACProjectTypes.Service,
                                 IsTypeOfADbTable = cls.ACKind == Global.ACKinds.TACDBA,
                                 IsWorkflowType = cls.IsWorkflowType,
                                 IsMultiInstanceType = cls.IsMultiInstance || cls.IsWorkflowType,
-                                IsVirtual = string.IsNullOrEmpty(cls.AssemblyQualifiedName)
+                                IsCodeOnGithub = !string.IsNullOrEmpty(cls.AssemblyQualifiedName)
                             });
 
-                            if (getDerivedTypes)
+                            if (getDerivedTypes || getBaseTypes)
                             {
                                 foreach (gip.core.datamodel.ACClass tClass in ThesaurusByCId.Values)
                                 {
-                                    if (tClass.IsDerivedClassFrom(cls))
+                                    if ((getDerivedTypes && tClass.IsDerivedClassFrom(cls))
+                                        || (getBaseTypes && cls.IsDerivedClassFrom(tClass)))
                                     {
                                         string sClId = tClass.ACClassID.ToString();
                                         if (typeInfos.Any(ti => ti.ClassID == sClId))
@@ -183,7 +199,7 @@ namespace gip.core.webservices
                                             IsTypeOfADbTable = tClass.ACKind == Global.ACKinds.TACDBA,
                                             IsWorkflowType = tClass.IsWorkflowType,
                                             IsMultiInstanceType = tClass.IsMultiInstance || tClass.IsWorkflowType,
-                                            IsVirtual = string.IsNullOrEmpty(cls.AssemblyQualifiedName)
+                                            IsCodeOnGithub = !string.IsNullOrEmpty(cls.AssemblyQualifiedName)
                                         });
                                     }
                                 }
@@ -202,7 +218,7 @@ namespace gip.core.webservices
         #endregion
 
         #region InstanceInfo
-        public virtual string AppGetInstanceInfo(IACComponent requester, string classIDs, string searchConditions)
+        public virtual string AppGetInstanceInfo(IACComponent requester, string classIDs, string searchConditions, bool isCompositeSearch)
         {
             try
             { 
@@ -253,7 +269,7 @@ namespace gip.core.webservices
                             if (rootApp is IAppManager manager)
                             {
                                 // TODO: Optimize, Ignore unecessary applications
-                                SearchMatchingComponents(rootApp, ref matchedComponents, classSearchConditions);
+                                SearchMatchingComponents(rootApp, ref matchedComponents, classSearchConditions, isCompositeSearch);
                             }
                         }
                         instanceInfo = BuildInstanceInfo(ACRoot.SRoot, matchedComponents);
@@ -317,9 +333,17 @@ namespace gip.core.webservices
                     return this.All(c => c.IsMatched);
                 }
             }
+
+            public bool IsAnyMatched
+            {
+                get
+                {
+                    return this.Any(c => c.IsMatched);
+                }
+            }
         }
 
-        protected void SearchMatchingComponents(IACComponent component, ref List<IACComponent> matchedComponents, List<SearchCondition> classSearchConditions)
+        protected void SearchMatchingComponents(IACComponent component, ref List<IACComponent> matchedComponents, List<SearchCondition> classSearchConditions, bool isCompositeSearch)
         {
             MatchingConditions matchingConditions = new MatchingConditions(classSearchConditions);
             IACComponent nextComp = component;
@@ -339,13 +363,18 @@ namespace gip.core.webservices
                         if (firstMatch == null)
                             firstMatch = nextComp;
                         matchingCondition.IsMatched = true; // Mark this condition as matched
+                        if (!isCompositeSearch)
+                            matchedComponents.Add(nextComp);
+                        break;
                     }
                 }
-                if (matchingConditions.IsFullyMatched)
+                if (isCompositeSearch && matchingConditions.IsFullyMatched)
                 {
                     matchedComponents.Add(firstMatch != null ? firstMatch : nextComp);
                     break;
                 }
+                if (!isCompositeSearch)
+                    break;
                 // Move to the next component in the hierarchy
                 nextComp = nextComp.ParentACComponent; // This should be set to the next component in your logic
             }
@@ -353,7 +382,7 @@ namespace gip.core.webservices
             foreach (var child in component.ACComponentChilds)
             {
                 // Recursively search in child components
-                SearchMatchingComponents(child, ref matchedComponents, classSearchConditions);
+                SearchMatchingComponents(child, ref matchedComponents, classSearchConditions, isCompositeSearch);
             }
         }
 

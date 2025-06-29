@@ -54,13 +54,11 @@ namespace gip.core.webservices
             "Use this tool BEFORE you call AppGetInstanceInfo so that you can pass the correct types or ClassIds there while the types are still unknown to you. " +
             "If you have access to the github-mcp-server, use the search_code tool by passing 'org:iplus-framework' + ACIdentifier to the search query parameter. " +
             "If the search is successful, you can read the class's source code to better understand how it works and in which states you can call which methods and properties using ExecuteACUrlCommand. " +
-            "You can only retrieve source code for classes that are not virtual (Field: IsVirtual). " +
-            "Therefore, you must traverse the base classes (BaseClassId) until you find a class where IsVirtual = false. " +
-            "Only then can you find the corresponding code on GitHub.")]
+            "Source code can only be retrieved for types with IsCodeOnGithub set to true. If false, traverse the inheritance hierarchy (BaseClassId) until a class with IsCodeOnGithub true is found. ")]
         public static string AppGetTypeInfos(
             IACComponent mcpHost,
-            [Description("(required) Comma-separated list of ACIdentifiers (type names) from the thesaurus. Can be base class names to find derived types when used with `getDerivedTypes=true`")]
-            string acIdentifiers,
+            [Description("(required) Comma-separated list of ACIdentifiers (type names) from the thesaurus or ClassIDs that have already been resolved using the ACIdentifier. Can be base class names to find derived types when used with `getDerivedTypes=true`")]
+            string acIdentifiersOrClassIDs,
             [Description("Language code for localized descriptions (e.g., 'en', 'de')")]
             string i18nLangTag,
             [Description(" (optional) When set to `true`, returns all types that inherit from the specified type(s). This is particularly valuable for:\r\n" +
@@ -68,9 +66,14 @@ namespace gip.core.webservices
             "- Enabling bulk operations on polymorphic components\r\n" +
             "- Understanding the complete type hierarchy\r\n" +
             "Default: `false`")]
-            bool getDerivedTypes = false)
+            bool getDerivedTypes = false,
+            [Description(" (optional) When set to `true`, returns all base classes/types along the inheritance hierarchy from the specified type(s). This is particularly valuable for:\r\n" +
+            "- Finding the right base class to effectively perform bulk operations on polymorphic components\r\n" +
+            "- Understanding the complete type hierarchy\r\n" +
+            "Default: `false`")]
+            bool getBaseTypes = false)
         {
-            return _appTree.AppGetTypeInfos(mcpHost, acIdentifiers, i18nLangTag, getDerivedTypes);
+            return _appTree.AppGetTypeInfos(mcpHost, acIdentifiersOrClassIDs, i18nLangTag, getDerivedTypes);
         }
 
         // (6) Component Interaction: Execute operations on specific component instances using ACUrl addressing (like file system paths). SUPPORTS BULK OPERATIONS - pass multiple comma-separated ACUrls for efficient batch execution. The ACUrl uses ACIdentifiers separated by backslashes to address the complete path from root to target component. For state changes and operations, use method invocation (!MethodName) rather than property assignment. Check available methods first with AppGetMethodInfo.
@@ -79,15 +82,19 @@ namespace gip.core.webservices
             "Returns the tree with ACIdentifiers (ACId field) that form the path for ACUrl addressing. " +
             "ALWAYS think hierarchically and PASS MULTIPLE ClassIDs separated by commas in a single call if possible to efficiently examine parent-child relationships (e.g. \"ParentClassID,ChildClassID\"). " +
             "Search conditions correspond positionally to ClassIDs - use partial matches like numbers or keywords rather than full identifiers (e.g., '4,' to find items with '4' in the first ClassID and any items for the second ClassID). " +
-            "This single call approach reveals the complete hierarchy and relationships between components, avoiding multiple queries.")]
+            "This single call approach reveals the complete hierarchy and relationships between components, avoiding multiple queries. " +
+            "Each instance in the result also has a unique ClassId but is not a real class. Source code on GitHub can only be retrieved for base classes determined via AppGetTypeInfos.")]
         public static string AppGetInstanceInfo(
             IACComponent mcpHost,
             [Description("Comma-separated list of ClassIDs (values that you got from tool AppGetTypeInfos) for the component types you want to find. Include both parent and child type IDs when exploring hierarchical relationships. Order by compositional logic (parent -> children).")]
             string classIDs,
             [Description("Comma-separated list of search filters for each ClassID to narrow results. Each condition corresponds to the ClassID in the same position. Use partial matches like numbers or keywords rather than full identifiers (e.g., '4,' to find items with '4' in the first ClassID and any items for the second ClassID). Leave empty positions for ClassIDs without search criteria, but maintain comma separation.")]
-            string searchConditions)
+            string searchConditions,
+            [Description("If true, only instances with a parent-child (composite) relationship, as defined by the ClassID list, are returned. If false, all instances of the specified type or its subtypes are retrieved, regardless of parent-child relationships, which may result in a large result set. For more targeted searches, set this parameter to true.\r\n" +
+            "Default: `true`")]
+            bool isCompositeSearch = true)
         {
-            return _appTree.AppGetInstanceInfo(mcpHost, classIDs, searchConditions);
+            return _appTree.AppGetInstanceInfo(mcpHost, classIDs, searchConditions, isCompositeSearch);
         }
 
 
@@ -127,7 +134,7 @@ namespace gip.core.webservices
             "SUPPORTS BULK OPERATIONS - pass multiple comma-separated ACUrls for efficient batch execution. " +
             "The ACUrl uses ACIdentifiers (ACId field) separated by backslashes to address the complete path from root to target component. " +
             "For state changes and operations, use method invocation (!MethodName) rather than property assignment. Check available methods first with AppGetMethodInfo. " +
-            "Consider to use github-mcp-server before for a better unterstanding when commands can be executed.")]
+            "Consider using the GitHub MCP server to read the source code before calling ExecuteACUrlCommand to better understand which methods can be executed in which object state.")]
         public static string ExecuteACUrlCommand(
             IACComponent mcpHost,
             [Description("Component address path using format: \\Root\\Parent\\Child\\...\\Target\\Operation" +
