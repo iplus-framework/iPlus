@@ -765,7 +765,7 @@ namespace gip.core.autocomponent
         /// <param name="from">Filter time from</param>
         /// <param name="to">Filter time to</param>
         /// <returns>PropertyLogListInfo.</returns>
-        [ACMethodInfo("ACComponent", "en{'Archivelog'}de{'Archivelog'}", 9999)]
+        [ACMethodInfo("ACComponent", "en{'Get archived values (historical data)'}de{'Lese archivierte Werte (Historische Daten)'}", 9999)]
         public virtual PropertyLogListInfo GetArchiveLog(string propertyName, DateTime from, DateTime to)
         {
             IACMember member = this.GetMember(propertyName);
