@@ -4,6 +4,7 @@
 using Azure.Core;
 using gip.core.autocomponent;
 using gip.core.datamodel;
+using Microsoft.AspNetCore.Components;
 using ModelContextProtocol.Protocol;
 using System;
 using System.Collections.Generic;
@@ -503,7 +504,8 @@ namespace gip.core.webservices
                             {
                                 try
                                 {
-                                    var acMethod = ACClassMethod.DeserializeACMethod(method.XMLACMethod);
+                                    var acMethod = method.TypeACSignature();
+                                    //var acMethod = ACClassMethod.DeserializeACMethod(method.XMLACMethod);
                                     if (acMethod != null)
                                     {
                                         methodInfo.Parameters = acMethod.ParameterValueList?.Select(p => new MCP_ParameterInfo
@@ -557,15 +559,15 @@ namespace gip.core.webservices
         {
             try
             {
-                object[] parameters = null;
+                List<KeyValuePair<string, object>> parametersKVP = null;
                 string[] bulkValues = null;
 
                 if (!string.IsNullOrEmpty(parametersJson))
                 {
                     if (acUrl.Contains(ACUrlHelper.Delimiter_InvokeMethod))
                     {
-                        var jsonParams = JsonSerializer.Deserialize<JsonElement[]>(parametersJson);
-                        parameters = ConvertJsonParametersToObjects(jsonParams);
+                        // Use the enhanced method that can handle both JSON arrays and key-value pairs
+                        parametersKVP = ConvertJsonParametersToObjects(parametersJson);
                     }
                     else
                     {
@@ -584,9 +586,28 @@ namespace gip.core.webservices
                         acUrlCommand = acUrlCommand.Replace("\\ACComponentManager", "");
 
                         object result = null;
-
-                        if (acUrl.Contains(ACUrlHelper.Delimiter_InvokeMethod))
-                            result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, parameters);
+                        string errorMsg = null; 
+                        int indexMethodDelimiter = acUrlCommand.IndexOf(ACUrlHelper.Delimiter_InvokeMethod);
+                        if (indexMethodDelimiter > 0)
+                        {
+                            string acUrlOfInstance = acUrlCommand.Substring(0, indexMethodDelimiter);
+                            string methodName = acUrlCommand.Substring(indexMethodDelimiter + 1);
+                            if (!string.IsNullOrEmpty(acUrlOfInstance) && !string.IsNullOrEmpty(methodName))
+                            {
+                                ACComponent acComp = ACRoot.SRoot.ACUrlCommand(acUrlOfInstance, null) as ACComponent;
+                                if (acComp != null)
+                                {
+                                    object[] parameters = null;
+                                    if (parametersKVP != null && parametersKVP.Any())
+                                        parameters = ConvertKVPValues(acComp, methodName, parametersKVP);
+                                    result = acComp.ExecuteMethod(methodName, parameters);
+                                }
+                                else
+                                    errorMsg = string.Format("Instance {0} not found", acUrlOfInstance);
+                            }
+                            else
+                                result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, parametersKVP.Select(c => c.Value).ToArray());
+                        }
                         else
                         {
                             if (bulkValues != null && bulkValues.Any())
@@ -597,10 +618,11 @@ namespace gip.core.webservices
 
                         var response = new MCP_ACUrlCommandResult
                         {
-                            Success = true,
+                            Success = string.IsNullOrEmpty(errorMsg),
                             ACUrl = command,
                             Result = ConvertResultToJson(result),
-                            ResultType = result?.GetType()?.Name
+                            ResultType = result?.GetType()?.Name,
+                            Error = errorMsg
                         };
                         results.Add(response);
                         i++;

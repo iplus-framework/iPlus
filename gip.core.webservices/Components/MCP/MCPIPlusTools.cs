@@ -137,18 +137,17 @@ namespace gip.core.webservices
             "Consider using the GitHub MCP server to read the source code before calling ExecuteACUrlCommand to better understand which methods can be executed in which object state.")]
         public static string ExecuteACUrlCommand(
             IACComponent mcpHost,
-            [Description("Component address path using format: \\Root\\Parent\\Child\\...\\Target\\Operation" +
-            "Examples: " +
-            "- Single operation read/write property: \\Root\\Component\\PropertyName" +
-            "- Bulk operation read/write property: \\Root\\Component1\\PropertyName,\\Root\\Component2\\PropertyName" +
-            "- Single operation Invoke method: \\Root\\Component!MethodName" +
-            "- Bulk operation invoke method: \\Root\\Component1!MethodName,\\Root\\Component2!MethodName" +
-            "Use ACIdentifiers (ACId field) from AppGetInstanceInfo to construct the path. " +
-            "Bulk-Execution: If several commands are to be executed one after the other, the ACUrls can be passed comma-separated as a list.")]
+            [Description("Component address path using format: \\Root\\Parent\\Child\\...\\Target\\Operation\r\n" +
+            "Examples: \r\n" +
+            "- Single operation read/write property: \\Root\\Component\\PropertyName\r\n" +
+            "- Bulk operation read/write property: \\Root\\Component1\\PropertyName,\\Root\\Component2\\PropertyName\r\n" +
+            "- Single operation Invoke method: \\Root\\Component!MethodName\r\n" +
+            "- Bulk operation invoke method: \\Root\\Component1!MethodName,\\Root\\Component2!MethodName\r\n" +
+            "Use ACIdentifiers (ACId field) from AppGetInstanceInfo to construct the path. \r\n" +
+            "Bulk-Execution: If several commands are to be executed one after the other, the ACUrls can be passed comma-separated as a list.\r\n")]
             string acUrl,
-            [Description("Optional: For property writes set the value here. " +
-            "For bulk property writes pass values commas-separated. " +
-            "For method-calls use JSON array: [\"param1\", 123, true]")]
+            [Description("Optional: For property writes set the value here. For bulk property writes pass values comma-separated. \r\n" +
+            "For method-calls with parameters use JSON object with key-value pairs: {\"param1\": \"value1\", \"param2\": 123, \"param3\": true}")]
             string parametersJson = "")
         {
             return _appTree.ExecuteACUrlCommand(mcpHost, acUrl, parametersJson);
