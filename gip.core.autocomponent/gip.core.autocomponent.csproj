@@ -160,6 +160,9 @@
     <None Include="VBControlScripts\2024-09-16 14-20_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="VBControlScripts\2025-06-12 13-24_aagincic.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CoreWCF.ConfigurationManager" Version="1.6.0" />

@@ -867,7 +867,6 @@ namespace gip.core.autocomponent
                 {
                     kvpAlarm.Value.Acknowledge(Root.CurrentInvokingUser);
 
-
                     ApplicationManager compManager = ApplicationManager;
                     if (compManager != null)
                     {
