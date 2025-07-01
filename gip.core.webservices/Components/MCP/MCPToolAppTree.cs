@@ -14,6 +14,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static gip.core.webservices.MCPIPlusTools;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace gip.core.webservices
 {
@@ -38,8 +39,15 @@ namespace gip.core.webservices
             }
         }
 
-        private Dictionary<string, gip.core.datamodel.ACClass> _ThesaurusByACId;
-        public Dictionary<string, gip.core.datamodel.ACClass> ThesaurusByACId
+        private Dictionary<string, gip.core.datamodel.ACClass>[] _ThesaurusByACId = null;
+        /// <summary>
+        /// Index/Categories:
+        /// 0 = Types for static components that are instantiated during startup and added to the application tree, thus existing statically throughout runtime.
+        /// 1 = Types for dynamic components that are created during runtime and automatically added to or removed from the application tree when they are no longer needed. These are usually workflow components.
+        /// 2 = Types for dynamic components (so-called business objects or apps) that are instantiated at the request of a user and used exclusively by that user to operate apps and primarily work with database data.
+        /// 3 = Types of database objects (Entity Framework) or tables.
+        /// </summary>
+        public Dictionary<string, gip.core.datamodel.ACClass>[] ThesaurusByACId
         {
             get
             {
@@ -60,11 +68,11 @@ namespace gip.core.webservices
         #region Methods
 
         #region Thesaurus
-        public string AppGetThesaurus(IACComponent requester, string i18nLangTag)
+        public string AppGetThesaurus(IACComponent requester, string i18nLangTag, int category = 0)
         {
             try
             {
-                MCP_BaseType[] thesaurus = ThesaurusByACId.Select(kvp => new MCP_BaseType
+                MCP_BaseType[] thesaurus = ThesaurusByACId[category].Select(kvp => new MCP_BaseType
                 {
                     ACIdentifier = kvp.Key,
                     Description = Translator.GetTranslation(null, kvp.Value.ACCaption, string.IsNullOrEmpty(i18nLangTag) ? "en" : i18nLangTag.ToLower())
@@ -82,12 +90,69 @@ namespace gip.core.webservices
         {
             // TODO: Thread-Safety
             Dictionary<Guid, gip.core.datamodel.ACClass> thesaurusByCId = new Dictionary<Guid, gip.core.datamodel.ACClass>();
-            Dictionary<string, gip.core.datamodel.ACClass> thesaurusByACId = new Dictionary<string, gip.core.datamodel.ACClass>();
+            Dictionary<string, gip.core.datamodel.ACClass>[] thesaurusByACId = new Dictionary<string, gip.core.datamodel.ACClass>[4];
+            for (int i = 0; i < thesaurusByACId.Length; i++)
+            {
+                thesaurusByACId[i] = new Dictionary<string, gip.core.datamodel.ACClass>();
+            }
+
+            // Populate thesaurus for static components (category 0)
             foreach (var rootApp in ACRoot.SRoot.ACComponentChilds)
             {
                 if (rootApp is IAppManager manager)
                 {
-                    PopulateThesaurus(manager, ref thesaurusByCId, ref thesaurusByACId);
+                    bool skipChilds = (rootApp == ACRoot.SRoot.Businessobjects
+                         || rootApp == ACRoot.SRoot.Messages
+                         //|| rootApp == ACRoot.SRoot.LocalServiceObjects
+                         || rootApp == ACRoot.SRoot.WPFServices
+                         || rootApp == ACRoot.SRoot.Environment
+                         || rootApp == ACRoot.SRoot.Queries
+                         || rootApp == ACRoot.SRoot.Communications
+                         );
+                    PopulateThesaurus(manager, ref thesaurusByCId, ref thesaurusByACId[0], skipChilds);
+                }
+            }
+
+            // Populate thesaurus for dynamic components (category 1)
+            Database db = ACRoot.SRoot.Database as Database;
+            IEnumerable<gip.core.datamodel.ACClass> dynamicClasses;
+            using (ACMonitor.Lock(db.QueryLock_1X000))
+            //using (Database db = new Database())
+            {
+                dynamicClasses = db.ACClass.Where(c => c.ACKindIndex >= (short)Global.ACKinds.TPWMethod && c.ACKindIndex <= (short)Global.ACKinds.TPWNodeEnd).AsEnumerable();
+            }
+            foreach (gip.core.datamodel.ACClass cls in dynamicClasses)
+            {
+                PopulateThesaurus(cls, ref thesaurusByCId, ref thesaurusByACId[1]);
+            }
+
+            // Populate thesaurus for business objects (category 2)
+            dynamicClasses = null;
+            using (ACMonitor.Lock(db.QueryLock_1X000))
+            //using (Database db = new Database())
+            {
+                dynamicClasses = db.ACClass.Where(c => c.ACKindIndex >= (short)Global.ACKinds.TACBSO && c.ACKindIndex <= (short)Global.ACKinds.TACBSOReport).AsEnumerable();
+            }
+            if (dynamicClasses != null)
+            {
+                foreach (gip.core.datamodel.ACClass cls in dynamicClasses)
+                {
+                    PopulateThesaurus(cls, ref thesaurusByCId, ref thesaurusByACId[2]);
+                }
+            }
+
+            // Populate thesaurus for tables (category 3)
+            dynamicClasses = null;
+            using (ACMonitor.Lock(db.QueryLock_1X000))
+            //using (Database db = new Database())
+            {
+                dynamicClasses = db.ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TACDBA).AsEnumerable();
+            }
+            if (dynamicClasses != null)
+            {
+                foreach (gip.core.datamodel.ACClass cls in dynamicClasses)
+                {
+                    PopulateThesaurus(cls, ref thesaurusByCId, ref thesaurusByACId[3]);
                 }
             }
 
@@ -98,9 +163,21 @@ namespace gip.core.webservices
             }
         }
 
-        protected virtual void PopulateThesaurus(IACComponent aCComponent, ref Dictionary<Guid, gip.core.datamodel.ACClass> thesaurusByCId, ref Dictionary<string, gip.core.datamodel.ACClass> thesaurusByACId)
+        protected virtual void PopulateThesaurus(IACComponent aCComponent, ref Dictionary<Guid, gip.core.datamodel.ACClass> thesaurusByCId, ref Dictionary<string, gip.core.datamodel.ACClass> thesaurusByACId, bool skipChilds = false)
         {
-            gip.core.datamodel.ACClass cls = GetBaseClassesForThesaurus(aCComponent);
+            gip.core.datamodel.ACClass cls = GetBaseClassesForThesaurus(aCComponent.ComponentClass);
+            PopulateThesaurus(cls, ref thesaurusByCId, ref thesaurusByACId);
+            if (skipChilds)
+                return;
+
+            foreach (IACComponent child in aCComponent.ACComponentChilds)
+            {
+                PopulateThesaurus(child, ref thesaurusByCId, ref thesaurusByACId);
+            }
+        }
+
+        protected virtual void PopulateThesaurus(gip.core.datamodel.ACClass cls, ref Dictionary<Guid, gip.core.datamodel.ACClass> thesaurusByCId, ref Dictionary<string, gip.core.datamodel.ACClass> thesaurusByACId)
+        {
             while (cls != null)
             {
                 if (!thesaurusByCId.ContainsKey(cls.ACClassID))
@@ -109,16 +186,11 @@ namespace gip.core.webservices
                     thesaurusByACId.Add(cls.ACIdentifier, cls);
                 cls = cls.BaseClass; // Traverse up to the base class in the class library
             }
-
-            foreach (IACComponent child in aCComponent.ACComponentChilds)
-            {
-                PopulateThesaurus(child, ref thesaurusByCId, ref thesaurusByACId);
-            }
         }
 
-        protected virtual gip.core.datamodel.ACClass GetBaseClassesForThesaurus(IACComponent aCComponent)
+        protected virtual gip.core.datamodel.ACClass GetBaseClassesForThesaurus(gip.core.datamodel.ACClass acClass)
         {
-            gip.core.datamodel.ACClass cls = aCComponent.ComponentClass;
+            gip.core.datamodel.ACClass cls = acClass;
             do
             {
                 if (cls == null)
@@ -157,8 +229,11 @@ namespace gip.core.webservices
                         }
                         else
                         {
-                            if (!ThesaurusByACId.TryGetValue(acId, out cls))
-                                cls = null;
+                            foreach (var thesaurus in ThesaurusByACId)
+                            {
+                                if (thesaurus.TryGetValue(acId, out cls))
+                                    break;
+                            }
                         }
                         if (cls == null)
                             cls = ACRoot.SRoot.Database.ContextIPlus.GetACType(classGuid);
@@ -236,7 +311,14 @@ namespace gip.core.webservices
                     {
                         if (!Guid.TryParse(classId, out Guid classGuid))
                         {
-                            if (ThesaurusByACId.TryGetValue(classId, out gip.core.datamodel.ACClass thesaurausCls))
+                            gip.core.datamodel.ACClass thesaurausCls = null;
+                            foreach (var thesaurus in ThesaurusByACId)
+                            {
+                                if (thesaurus.TryGetValue(classId, out thesaurausCls))
+                                    break;
+                            }
+
+                            if (thesaurausCls != null)
                             {
                                 classGuid = thesaurausCls.ACClassID;
                                 sb.AppendLine(string.Format("You didn't provide a valid ClassID (CId field) but you passed a valid ACIdentifer '{0}' instead. It was resolved to {1}. Next time, please call the {2} method first.", classId, classGuid, nameof(AppGetTypeInfos)));
@@ -453,14 +535,27 @@ namespace gip.core.webservices
                     {
                         foreach (gip.core.datamodel.ACClassProperty acProp in acType.Properties)
                         {
-                            if (acProp.ACPropUsage <= Global.ACPropUsages.Property || acProp.ACPropUsage == Global.ACPropUsages.Configuration)
+                            if (acProp.ACPropUsage <= Global.ACPropUsages.Property 
+                                || acProp.ACPropUsage == Global.ACPropUsages.Configuration
+                                || acProp.ACPropUsage == Global.ACPropUsages.AccessPrimary
+                                || acProp.ACPropUsage == Global.ACPropUsages.Access)
                             {
+                                gip.core.datamodel.ACClass genericACClass = null;
+                                if (!string.IsNullOrEmpty(acProp.GenericType))
+                                {
+                                    int indexOfType = acProp.GenericType.LastIndexOf(".");
+                                    string acTypeName = indexOfType > 0 ? acProp.GenericType.Substring(indexOfType + 1) : acProp.GenericType;
+                                    // Else find via Assembly QualifiedName
+                                    genericACClass = ACRoot.SRoot.Database.ContextIPlus.GetACType(acTypeName);
+                                }
                                 var propInfo = new MCP_PropertyInfo
                                 {
                                     ACIdentifier = acProp.ACIdentifier,
                                     Description = acProp.ACCaption,
-                                    DataType = acProp.ObjectType?.Name,
+                                    DataType = acProp.ObjectFullType != null ? acProp.ObjectFullType.Name : acProp.ObjectType?.Name,
                                     IsReadOnly = acProp.IsInput,
+                                    InnerDataTypeClassID = acProp.ValueTypeACClassID.ToString(),
+                                    GenericTypeClassID = genericACClass != null ? genericACClass.ACClassID.ToString() : null
                                 };
 
                                 properties.Add(propInfo);
@@ -634,6 +729,87 @@ namespace gip.core.webservices
             catch (Exception ex)
             {
                 requester.Messages.LogException(requester.GetACUrl(), nameof(ExecuteACUrlCommand), ex, true);
+                return CreateExceptionResponse(ex);
+            }
+        }
+        #endregion
+
+        #region Create new Instance
+        public virtual string AppCreateNewInstance(IACComponent requester, string classID, string acUrl)
+        {
+            try
+            {
+                if (!String.IsNullOrEmpty(acUrl))
+                    acUrl = acUrl.Replace("\\Root", "");
+                else
+                    acUrl = Const.BusinessobjectsACUrl;
+
+                MCP_InstanceInfo instanceInfo = null;
+                bool sendRecommendation = false;
+                StringBuilder sb = new StringBuilder();
+                if (!Guid.TryParse(classID, out Guid classGuid))
+                {
+                    gip.core.datamodel.ACClass thesaurausCls = null;
+                    foreach (var thesaurus in ThesaurusByACId)
+                    {
+                        if (thesaurus.TryGetValue(classID, out thesaurausCls))
+                            break;
+                    }
+
+                    if (thesaurausCls == null)
+                    {
+                        sb.AppendLine($"You didn't provide a valid ClassID (CId field) with '{classID}'");
+                        sendRecommendation = true;
+                    }
+                }
+                if (classGuid != Guid.Empty && ThesaurusByCId.TryGetValue(classGuid, out gip.core.datamodel.ACClass cls))
+                {
+                    IACComponent parentComp = ACRoot.SRoot.ACUrlCommand(acUrl, null) as IACComponent;
+                    if (parentComp != null)
+                    {
+                        IACComponent newInstance = parentComp.StartComponent(cls.ACIdentifier, null, new object[] { }) as IACComponent;
+                        if (newInstance != null)
+                        {
+                            instanceInfo = BuildInstanceInfo(ACRoot.SRoot, new List<IACComponent>() { newInstance });
+                        }
+                        else
+                        {
+                            sb.AppendLine($"Failed to create new instance of class '{cls.ACIdentifier}' at ACUrl '{acUrl}'");
+                            sendRecommendation = true;
+                        }
+                    }
+                    else
+                    {
+                        sb.AppendLine($"Parent component not found for ACUrl '{acUrl}'");
+                        sendRecommendation = true;
+                    }
+                }
+                else
+                {
+                    sb.AppendLine($"Class with ID '{classID}' not found in thesaurus.");
+                    sendRecommendation = true;
+                }
+
+                if (instanceInfo == null)
+                {
+                    sb.AppendLine("Instance not created.");
+                    instanceInfo = new MCP_InstanceInfo
+                    {
+                        ACIdentifier = ACRoot.SRoot.ACIdentifier,
+                        Description = sb.ToString(),
+                        ClassID = ACRoot.SRoot.ComponentClass.ACClassID.ToString(),
+                        BaseClassID = Guid.Empty.ToString()
+                    };
+                }
+                else if (sendRecommendation)
+                {
+                    instanceInfo.Description = sb.ToString();
+                }
+                return JsonSerializer.Serialize(instanceInfo, new JsonSerializerOptions { WriteIndented = false });
+            }
+            catch (Exception ex)
+            {
+                requester.Messages.LogException(requester.GetACUrl(), nameof(AppGetInstanceInfo), ex, true);
                 return CreateExceptionResponse(ex);
             }
         }

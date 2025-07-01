@@ -185,7 +185,7 @@ namespace gip.core.datamodel
 
             /// <summary>
             /// ONLY INTERNAL USAGE! Represents a Database-Context (ObjectContext)
-            /// </summary>
+            /// </summary>h
             TACDBAManager = 0900,
 
             /// <summary>
@@ -395,9 +395,9 @@ namespace gip.core.datamodel
                     Global._ACKindList.AddEntry((short)ACKinds.TACRoot, "en{'Root'}de{'Root'}");
 
                     Global._ACKindList.AddEntry((short)ACKinds.TACBusinessobjects, "en{'Businessobject-Manager'}de{'Geschäftsobjekt-Manager'}");
-                    Global._ACKindList.AddEntry((short)ACKinds.TACBSO, "en{'Businessobject'}de{'Geschäftsobjekt'}");
-                    Global._ACKindList.AddEntry((short)ACKinds.TACBSOGlobal, "en{'Businessobject global'}de{'Geschäftsobjekt global'}");
-                    Global._ACKindList.AddEntry((short)ACKinds.TACBSOReport, "en{'BSO for Report'}de{'Geschäftsobjekt Bericht'}");
+                    Global._ACKindList.AddEntry((short)ACKinds.TACBSO, "en{'Businessobjects/Apps'}de{'Geschäftsobjekte/Apps'}");
+                    Global._ACKindList.AddEntry((short)ACKinds.TACBSOGlobal, "en{'Shared Businessobjects/Apps'}de{'Gemeinsam genutzte Geschäftsobjekte/Apps'}");
+                    Global._ACKindList.AddEntry((short)ACKinds.TACBSOReport, "en{'Businessobjects/Apps for Reporting'}de{'Geschäftsobjekte/Apps für Berichte'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TACDBAManager, "en{'Database'}de{'Datenbank'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TACDBA, "en{'Entity/Table'}de{'Entität/Tabelle'}");
 
@@ -405,8 +405,8 @@ namespace gip.core.datamodel
                     Global._ACKindList.AddEntry((short)ACKinds.TACLocalServiceObjects, "en{'Local Service Objects'}de{'Lokale Serviceobjekte'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TACRuntimeDump, "en{'System-Dump'}de{'System-Dump'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TACMessages, "en{'Messages'}de{'Meldungen'}");
-                    Global._ACKindList.AddEntry((short)ACKinds.TACQueries, "en{'Queries'}de{'Abfragen'}");
-                    Global._ACKindList.AddEntry((short)ACKinds.TACQRY, "en{'Query'}de{'Abfrage'}");
+                    Global._ACKindList.AddEntry((short)ACKinds.TACQueries, "en{'Query-Manager'}de{'Abfragenmanager'}");
+                    Global._ACKindList.AddEntry((short)ACKinds.TACQRY, "en{'Database-Query'}de{'Datenbankabfrage'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TACCommunications, "en{'Network-Manager'}de{'Netzwerk-Manager'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TACWCFServiceManager, "en{'Network-Service-Manager'}de{'Netzwerk-Service-Manager'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TACWCFServiceChannel, "en{'Network-Servicechannel'}de{'Netzwerk Servicekanal'}");
@@ -428,7 +428,7 @@ namespace gip.core.datamodel
                     Global._ACKindList.AddEntry((short)ACKinds.TACApplicationManager, "en{'Applicationmanager'}de{'Anwendungsmanager'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TPAModule, "en{'Control-Module'}de{'Steuerungsmodul'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TPAProcessModule, "en{'Process-Module'}de{'Prozessmodul'}");
-                    Global._ACKindList.AddEntry((short)ACKinds.TPAProcessModuleGroup, "en{'Group of process modulea'}de{'Prozessmodulgruppe'}");
+                    Global._ACKindList.AddEntry((short)ACKinds.TPAProcessModuleGroup, "en{'Group of process modules'}de{'Prozessmodulgruppe'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TPAProcessFunction, "en{'Function'}de{'Funktion'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TPABGModule, "en{'Software-Module in Background)'}de{'Softwaremodul im Hintergrund)'}");
                     Global._ACKindList.AddEntry((short)ACKinds.TPARole, "en{'Role'}de{'Rolle'}");
@@ -459,9 +459,11 @@ namespace gip.core.datamodel
             }
         }
 
-        public class KindInfo
+        public class KindInfo : ACValueItem
         {
-            public string ACCaption { get; set; }
+            public KindInfo(string acCaption) : base(acCaption, null, null)
+            {
+            }
             public ACKinds RangeFrom { get; set; }
             public ACKinds RangeTo { get; set; }
         }
@@ -474,25 +476,26 @@ namespace gip.core.datamodel
                 if (_KindInfoList == null)
                 {
                     _KindInfoList = new List<KindInfo>();
-                    _KindInfoList.Add(new KindInfo { ACCaption = "VB Class", RangeFrom = ACKinds.TACClass, RangeTo = ACKinds.TACClass });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "VB Control", RangeFrom = ACKinds.TACUIControl	, RangeTo = ACKinds.TACVBControl	});
+                    _KindInfoList.Add(new KindInfo("VB Class") { RangeFrom = ACKinds.TACClass, RangeTo = ACKinds.TACClass });
+                    _KindInfoList.Add(new KindInfo("VB Control") { RangeFrom = ACKinds.TACUIControl	, RangeTo = ACKinds.TACVBControl	});
 
-                    _KindInfoList.Add(new KindInfo { ACCaption = "VB Simple Type", RangeFrom = ACKinds.TACLRBaseTypes, RangeTo = ACKinds.TACLRBaseTypes });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "VB Simple Class", RangeFrom = ACKinds.TACSimpleClass, RangeTo = ACKinds.TACSimpleClass });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "VB Interface", RangeFrom = ACKinds.TACInterface, RangeTo = ACKinds.TACInterface });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "VB Enum", RangeFrom = ACKinds.TACEnum, RangeTo = ACKinds.TACEnumACValueList });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "VB Class (Abstract)", RangeFrom = ACKinds.TACAbstractClass, RangeTo = ACKinds.TACAbstractClass });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "AC Objects", RangeFrom = ACKinds.TACDAClass, RangeTo = ACKinds.TACObject });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "VB Query", RangeFrom = ACKinds.TACQueries, RangeTo = ACKinds.TACQRY });
+                    _KindInfoList.Add(new KindInfo("VB Simple Type") { RangeFrom = ACKinds.TACLRBaseTypes, RangeTo = ACKinds.TACLRBaseTypes });
+                    _KindInfoList.Add(new KindInfo("VB Simple Class") { RangeFrom = ACKinds.TACSimpleClass, RangeTo = ACKinds.TACSimpleClass });
+                    _KindInfoList.Add(new KindInfo("VB Interface") { RangeFrom = ACKinds.TACInterface, RangeTo = ACKinds.TACInterface });
+                    _KindInfoList.Add(new KindInfo("VB Enum") { RangeFrom = ACKinds.TACEnum, RangeTo = ACKinds.TACEnumACValueList });
+                    _KindInfoList.Add(new KindInfo("VB Class (Abstract)") { RangeFrom = ACKinds.TACAbstractClass, RangeTo = ACKinds.TACAbstractClass });
+                    _KindInfoList.Add(new KindInfo("AC Objects") { RangeFrom = ACKinds.TACDAClass, RangeTo = ACKinds.TACObject });
+                    //_KindInfoList.Add(new KindInfo("en{'Businessobjects, Apps'}de{'Geschäftsobjekte, Apps'}") { RangeFrom = ACKinds.TACBusinessobjects, RangeTo = ACKinds.TACBSOReport });
+                    //_KindInfoList.Add(new KindInfo("en{'Database-Query'}de{'Datenbankabfrage'}") { RangeFrom = ACKinds.TACQueries, RangeTo = ACKinds.TACQRY });
 
-                    _KindInfoList.Add(new KindInfo { ACCaption = "PA Module", RangeFrom = ACKinds.TPAModule, RangeTo = ACKinds.TACApplicationManager });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "PA Process Module", RangeFrom = ACKinds.TPAProcessModule, RangeTo = ACKinds.TPAProcessModuleGroup});
-                    _KindInfoList.Add(new KindInfo { ACCaption = "PA Process Function", RangeFrom = ACKinds.TPAProcessFunction, RangeTo = ACKinds.TPAProcessFunction });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "PA Background Module", RangeFrom = ACKinds.TPABGModule, RangeTo = ACKinds.TPABGModule });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "PA Role", RangeFrom = ACKinds.TPARole, RangeTo = ACKinds.TPARole });
+                    _KindInfoList.Add(new KindInfo("PA Module") { RangeFrom = ACKinds.TPAModule, RangeTo = ACKinds.TACApplicationManager });
+                    _KindInfoList.Add(new KindInfo("PA Process Module") { RangeFrom = ACKinds.TPAProcessModule, RangeTo = ACKinds.TPAProcessModuleGroup});
+                    _KindInfoList.Add(new KindInfo("PA Process Function") { RangeFrom = ACKinds.TPAProcessFunction, RangeTo = ACKinds.TPAProcessFunction });
+                    _KindInfoList.Add(new KindInfo("PA Background Module") { RangeFrom = ACKinds.TPABGModule, RangeTo = ACKinds.TPABGModule });
+                    _KindInfoList.Add(new KindInfo("PA Role") { RangeFrom = ACKinds.TPARole, RangeTo = ACKinds.TPARole });
 
-                    _KindInfoList.Add(new KindInfo { ACCaption = "PW Program", RangeFrom = ACKinds.TPWMethod, RangeTo = ACKinds.TPWMethod });
-                    _KindInfoList.Add(new KindInfo { ACCaption = "PW Workflownode", RangeFrom = ACKinds.TPWGroup, RangeTo = ACKinds.TPWNodeEnd });
+                    _KindInfoList.Add(new KindInfo("PW Program") { RangeFrom = ACKinds.TPWMethod, RangeTo = ACKinds.TPWMethod });
+                    _KindInfoList.Add(new KindInfo("PW Workflownode") { RangeFrom = ACKinds.TPWGroup, RangeTo = ACKinds.TPWNodeEnd });
                 }
                 return _KindInfoList;
             }

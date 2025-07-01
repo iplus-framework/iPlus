@@ -4,24 +4,31 @@
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Database.Isam;
+using Microsoft.Isam.Esent.Interop;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Diagnostics.Contracts;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
 using static Azure.Core.HttpHeader;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace gip.core.webservices
 {
@@ -36,15 +43,21 @@ namespace gip.core.webservices
 
         #region MCP-Tools
         [McpServerTool]
-        [Description("(1) Application Tree Discovery: Returns all available component types (classes) in the current application tree. " +
+        [Description("(1) Thesaurus for the agent: " +
+            "Overview of the types used in the system in order to be able to derive from the terms chosen by the user what intention he has and which objects he is talking about. " +
             "Each result contains an ACIdentifier (unique type name) and Description. " +
             "Use this tool FIRST to discover what component types exist in the system before querying specific instances or type information.")]
         public static string AppGetThesaurus(
             IACComponent mcpHost,
             [Description("Language code for localized descriptions (e.g., 'en', 'de')")]
-            string i18nLangTag)
+            string i18nLangTag,
+            [Description("0 = Types for static components that are instantiated during startup and added to the application tree, thus existing statically throughout runtime (Default).\r\n" +
+                        "1 = Types for dynamic components that are created during runtime and automatically added to or removed from the application tree when they are no longer needed. These are usually workflow components.\r\n" +
+                        "2 = Types for dynamic components (so-called business objects or apps) that are instantiated at the request of a user and used exclusively by that user to operate apps and primarily work with database data.\r\n" +
+                        "3 = Types of database objects (Entity Framework) or tables.")]
+            int category = 0)
         {
-            return _appTree.AppGetThesaurus(mcpHost, i18nLangTag);
+            return _appTree.AppGetThesaurus(mcpHost, i18nLangTag, category);
         }
 
 
@@ -76,7 +89,6 @@ namespace gip.core.webservices
             return _appTree.AppGetTypeInfos(mcpHost, acIdentifiersOrClassIDs, i18nLangTag, getDerivedTypes);
         }
 
-        // (6) Component Interaction: Execute operations on specific component instances using ACUrl addressing (like file system paths). SUPPORTS BULK OPERATIONS - pass multiple comma-separated ACUrls for efficient batch execution. The ACUrl uses ACIdentifiers separated by backslashes to address the complete path from root to target component. For state changes and operations, use method invocation (!MethodName) rather than property assignment. Check available methods first with AppGetMethodInfo.
         [McpServerTool]
         [Description("(3) Application Tree Navigation: Explores the hierarchical tree structure of component instances, similar to a file system directory listing. " +
             "Returns the tree with ACIdentifiers (ACId field) that form the path for ACUrl addressing. " +
@@ -101,6 +113,8 @@ namespace gip.core.webservices
         [McpServerTool]
         [Description("(4) Component Property Discovery: Lists all available properties of a component type or instance. " +
             "Use this before reading/writing property values to discover available property names and their data types. " +
+            "If the data type is a complex value, the value of the DataTypeClassID field can be passed recursively to AppGetPropertyInfo to analyze its structure. " +
+            "This is useful, for example, for Entity Framework objects to be able to read and modify field values.\r\n " +
             "To effect state changes, ALWAYS prefer to FIRST find a suitable method via AppGetMethodInfo and execute it via ExecuteACUrlCommand instead of changing the property value directly, " +
             "because the methods validate whether a command may be executed or not. ")]
         public static string AppGetPropertyInfo(
@@ -143,7 +157,9 @@ namespace gip.core.webservices
             "- Bulk operation read/write property: \\Root\\Component1\\PropertyName,\\Root\\Component2\\PropertyName\r\n" +
             "- Single operation Invoke method: \\Root\\Component!MethodName\r\n" +
             "- Bulk operation invoke method: \\Root\\Component1!MethodName,\\Root\\Component2!MethodName\r\n" +
-            "Use ACIdentifiers (ACId field) from AppGetInstanceInfo to construct the path. \r\n" +
+            "- Stopping components with a tilde ~: \\Root\\~Component\r\n" +
+            "- Starting components (new instance) with hashtag - Prefer using AppCreateNewInstance instead: \\Root\\#Component\r\n" +
+            "Use ACIdentifiers (ACId field) from AppGetInstanceInfo to construct the path. If properties are complex objects, such as Entity Framework objects, their sub-properties can be addressed by continuing the path.\r\n" +
             "Bulk-Execution: If several commands are to be executed one after the other, the ACUrls can be passed comma-separated as a list.\r\n")]
             string acUrl,
             [Description("Optional: For property writes set the value here. For bulk property writes pass values comma-separated. \r\n" +
@@ -151,6 +167,26 @@ namespace gip.core.webservices
             string parametersJson = "")
         {
             return _appTree.ExecuteACUrlCommand(mcpHost, acUrl, parametersJson);
+        }
+
+        [McpServerTool]
+        [Description("(7) Component instantiation: " +
+            "Business objects/apps are dynamic instances(types from AppGetThesaurus in category 3) and must first be instantiated." +
+            "Upon successful instantiation, they return the same tree structure as with AppGetInstanceInfo." +
+            "The instance receives a unique ID enclosed in parentheses in the ACUrl string. " +
+            "To work with the business object/app, use ExecuteACUrlCommand as with all other instances in categories 1 and 2. " +
+            "Please note that instances are stateful, and only the caller is allowed to work with their own objects to avoid collisions with other users." +
+            "Therefore, do not use other instances that you did not create yourself to ensure exclusive access.When the app is no longer needed, terminate the instance by calling ExecuteACUrlCommand with a tilde:" +
+            "\\Root\\Businessobjects\\~ACIdentifier(InstanceID)")]
+        public static string AppCreateNewInstance(
+            IACComponent mcpHost,
+            [Description("ClassID (values that you got from tool AppGetTypeInfos) for the component type you want to instantiate.")]
+            string classID,
+            [Description("Address (ACUrl) of the parent component under which the new instance should be inserted as a child in the application tree. " +
+            "For business objects/apps, the address should always be \\Root\\Businessobjects. This is also the default address if the parameter is left empty.")]
+            string acUrl)
+        {
+            return _appTree.AppCreateNewInstance(mcpHost, classID, acUrl);
         }
         #endregion
 

@@ -65,6 +65,8 @@ namespace gip.core.webservices
     public class MCP_PropertyInfo : MCP_BaseType
     {
         public string DataType { get; set; }
+        public string InnerDataTypeClassID { get; set; }
+        public string GenericTypeClassID { get; set; }
         public bool IsReadOnly { get; set; }
     }
 

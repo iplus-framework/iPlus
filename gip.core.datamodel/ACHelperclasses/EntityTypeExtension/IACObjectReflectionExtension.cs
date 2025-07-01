@@ -88,7 +88,16 @@ namespace gip.core.datamodel
         public static IACType ReflectGetACTypeInfo(this IACObject reflectedObject, string acName)
         {
             ACClass typeAsACClass = reflectedObject.ACType as ACClass;
-            return typeAsACClass != null ? typeAsACClass.Properties.Where(c => c.ACIdentifier == acName).FirstOrDefault() : null;
+            IACType childProp = null;
+            if (typeAsACClass != null)
+                childProp = typeAsACClass.Properties.Where(c => c.ACIdentifier == acName).FirstOrDefault();
+            if (childProp == null && reflectedObject is ACGenericObject)
+            {
+                typeAsACClass = (reflectedObject as ACGenericObject).ACTypeIfGeneric as ACClass;
+                if (typeAsACClass != null)
+                    childProp = typeAsACClass.Properties.Where(c => c.ACIdentifier == acName).FirstOrDefault();
+            }
+            return childProp;
         }
 
         /// <summary>
