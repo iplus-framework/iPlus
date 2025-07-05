@@ -2511,6 +2511,7 @@ namespace gip.core.autocomponent
                             }
                             else
                             {
+                                acUrlTypeInfo.AddSegment(this.GetACUrl(), this.ACType, this, Global.ControlModes.Enabled);
                                 return acMember.ACUrlTypeInfo(acUrlHelper.NextACUrl, ref acUrlTypeInfo);
                             }
                         }
