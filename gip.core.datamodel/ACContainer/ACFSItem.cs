@@ -1,4 +1,4 @@
-// Copyright (c) 2024, gipSoft d.o.o.
+﻿// Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿// ***********************************************************************
 // Assembly         : gip.core.datamodel
@@ -450,7 +450,12 @@ namespace gip.core.datamodel
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
 
-#endregion
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+
+        #endregion
 
 #region IACObjectEntity Members
         /// <summary>

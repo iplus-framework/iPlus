@@ -1673,10 +1673,16 @@ namespace gip.core.layoutengine
         {
             return false;
         }
-#endregion
+
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+        
+        #endregion
 
 
-#region Context-Menu Methods
+        #region Context-Menu Methods
         /// <summary>
         /// Opens the control dialog.
         /// </summary>

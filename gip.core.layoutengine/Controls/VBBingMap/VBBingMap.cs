@@ -129,18 +129,23 @@
 //            return false;
 //        }
 
-//        /// <summary>
-//        /// Represents the dependency property for BSOACComponent.
-//        /// </summary>
-//        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBBingMap), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
-//        /// <summary>
-//        /// Gets or sets the BSOACComponent.
-//        /// </summary>
-//        public IACBSO BSOACComponent
-//        {
-//            get { return (IACBSO)GetValue(BSOACComponentProperty); }
-//            set { SetValue(BSOACComponentProperty, value); }
-//        }
+        //public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        //{
+        //    return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        //}
+
+        ///// <summary>
+        ///// Represents the dependency property for BSOACComponent.
+        ///// </summary>
+        //public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBBingMap), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        ///// <summary>
+        ///// Gets or sets the BSOACComponent.
+        ///// </summary>
+        //public IACBSO BSOACComponent
+        //{
+        //    get { return (IACBSO)GetValue(BSOACComponentProperty); }
+        //    set { SetValue(BSOACComponentProperty, value); }
+        //}
 
 
 

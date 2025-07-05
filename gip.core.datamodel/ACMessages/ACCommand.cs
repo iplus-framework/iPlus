@@ -114,6 +114,11 @@ namespace gip.core.datamodel
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
 
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>
         [ACPropertyInfo(9999)]

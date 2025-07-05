@@ -221,6 +221,11 @@ namespace gip.core.autocomponent
             return false;
         }
 
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+
         public string GetACUrlComponent(IACObject rootACObject = null)
         {
             return null;

@@ -515,6 +515,11 @@ namespace gip.core.layoutengine
             return TextBoxVB.ACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
 
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+
         public void AppendMenu(string vbContent, string vbControl, ref ACMenuItemList acMenuItemList)
         {
             TextBoxVB.AppendMenu(vbContent, vbControl, ref acMenuItemList);

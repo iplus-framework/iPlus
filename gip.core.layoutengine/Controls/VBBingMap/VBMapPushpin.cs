@@ -237,20 +237,26 @@
 //            return ACIdentifier;
 //        }
 
-//        /// <summary>
-//        /// Method that returns a source and path for WPF-Bindings by passing a ACUrl.
-//        /// </summary>
-//        /// <param name="acUrl">ACUrl of the Component, Property or Method</param>
-//        /// <param name="acTypeInfo">Reference to the iPlus-Type (ACClass)</param>
-//        /// <param name="source">The Source for WPF-Databinding</param>
-//        /// <param name="path">Relative path from the returned source for WPF-Databinding</param>
-//        /// <param name="rightControlMode">Information about access rights for the requested object</param>
-//        /// <returns><c>true</c> if binding could resolved for the passed ACUrl<c>false</c> otherwise</returns>
-//        public bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode)
-//        {
-//            return false;
-//        }
-//        #endregion
+        ///// <summary>
+        ///// Method that returns a source and path for WPF-Bindings by passing a ACUrl.
+        ///// </summary>
+        ///// <param name="acUrl">ACUrl of the Component, Property or Method</param>
+        ///// <param name="acTypeInfo">Reference to the iPlus-Type (ACClass)</param>
+        ///// <param name="source">The Source for WPF-Databinding</param>
+        ///// <param name="path">Relative path from the returned source for WPF-Databinding</param>
+        ///// <param name="rightControlMode">Information about access rights for the requested object</param>
+        ///// <returns><c>true</c> if binding could resolved for the passed ACUrl<c>false</c> otherwise</returns>
+        //public bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode)
+        //{
+        //    return false;
+        //}
+
+        //public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        //{
+        //    return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        //}
+        
+        //#endregion
 
 //        /// <summary>
 //        /// Gets the context menu.

@@ -347,6 +347,11 @@ namespace gip.core.datamodel
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
 
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+
         /// <summary>Gets a value indicating whether the encapuslated objects are attached.</summary>
         /// <value>
         ///   <c>true</c> if the encapuslated objects are attached; otherwise, <c>false</c>.</value>

@@ -567,6 +567,11 @@ namespace gip.core.layoutengine
             return false;
         }
 
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+
         /// <summary>
         /// Returns a ACUrl relatively to the passed object.
         /// If the passed object is null then the absolute path is returned

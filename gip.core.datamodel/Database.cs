@@ -683,6 +683,11 @@ namespace gip.core.datamodel
             return _ObjectContextHelper.ACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
 
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return _ObjectContextHelper.ACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+
         /// <summary>
         /// Returns a ACUrl relatively to the passed object.
         /// If the passed object is null then the absolute path is returned

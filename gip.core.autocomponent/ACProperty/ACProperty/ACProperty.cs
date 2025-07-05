@@ -1,20 +1,17 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-using System.Runtime.CompilerServices;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
-using System.Xml;
-using System.Xml.Serialization;
-using System.Reflection;
-using gip.core.datamodel;
-using System.Threading;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Xml;
 using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
@@ -1800,7 +1797,7 @@ namespace gip.core.autocomponent
                         }
                         acTypeInfo = cm;
                         source = this.Value;
-                        path = "!" + methodName;
+                        path = ACUrlHelper.Delimiter_InvokeMethod + methodName;
                     }
                     return true;
                 case ACUrlHelper.UrlKeys.Parent:
@@ -1809,6 +1806,402 @@ namespace gip.core.autocomponent
                     return false; // TODO: Fehlerbehandlung
             }
         }
+
+
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            if (acUrlTypeInfo == null)
+                return false;
+            IACType acTypeInfo = ACType;
+            Global.ControlModes rightControlMode = Global.ControlModes.Enabled;
+            object source = null;
+            string path = "";
+            if (typeof(IACComponent).IsAssignableFrom(typeof(T)))
+            {
+                if ((Value != null) && !string.IsNullOrEmpty(acUrl))
+                {
+                    return ((IACComponent)Value).ACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+                }
+                else
+                {
+                    source = ParentACComponent;
+                    path = ACType.GetACPath(true);
+                    acUrlTypeInfo.AddSegment(this.GetACUrl(), acTypeInfo, Value, Global.ControlModes.Enabled);
+                    acUrlTypeInfo.SubPath = path;
+                }
+                if (!string.IsNullOrEmpty(acUrl))
+                    return false;
+            }
+            else if (typeof(IACEntityObjectContext).IsAssignableFrom(typeof(T)) && Value != null)
+            {
+                if (!string.IsNullOrEmpty(acUrl))
+                {
+                    acUrlTypeInfo.AddSegment(this.GetACUrl(), acTypeInfo, Value, Global.ControlModes.Enabled);
+                    acUrlTypeInfo.SubPath = ACType.GetACPath(true);
+                    return ((IACEntityObjectContext)Value).ACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+                }
+                else
+                {
+                    acUrlTypeInfo.AddSegment(this.GetACUrl(), acTypeInfo, Value, Global.ControlModes.Enabled);
+                    acUrlTypeInfo.SubPath = ACType.GetACPath(true);
+                }
+                return true;
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(acUrl) && (acUrl.Length > 7) && acUrl.StartsWith("typeof?"))
+                {
+                    string acTypeMembername = acUrl.Substring(7);
+                    source = _ACTypeInfo;
+                    path = acTypeMembername;
+                    acUrl = "";
+                }
+                // Falls Proxy-Objekt, dann muss wert über die Value-Eigenschaft (Netzwerkzugriff)
+                else if (IsProxy)
+                {
+                    source = this;
+                    path = Const.ValueT;
+                    if (!String.IsNullOrEmpty(this.PropertyInfo.GenericType))
+                    {
+                        if (this.PropertyInfo.GenericType == typeof(ACRef<>).FullName
+                            || this.PropertyInfo.GenericType == typeof(IACContainerT<>).FullName)
+                            path = Const.ValueT + ACUrlHelper.Delimiter_RelativePath + Const.ValueT;
+                    }
+                }
+                // Sonst reales Objekt
+                // Falls dem reales Objekt eine zusätzlich virtuelle Eigenschaft in der virtuellen Abtleitung hinzugefügt worden ist
+                // oder die Property-Deklaration im realen Objekt eine IACProperty-Deklaration ist und keine normale getter/setter-Property ist,
+                // dann Zugriff auch per Value
+                else if ((ACType.ACKind == Global.ACKinds.PSPropertyExt)
+                        || (PropertyAccessor == null))
+                {
+                    // If Attached Property in a Businessobject
+                    if (this.PropertyInfo.IsProxyProperty && !(this is IACPropertyNetBase))
+                    {
+                        source = ParentACComponent;
+                        path = ACType.GetACPath(true) + ACUrlHelper.Delimiter_RelativePath + Const.ValueT;
+                    }
+                    else
+                    {
+                        source = this;
+                        path = Const.ValueT;
+                    }
+                    if (!String.IsNullOrEmpty(this.PropertyInfo.GenericType))
+                    {
+                        if (this.PropertyInfo.GenericType == typeof(ACRef<>).FullName
+                            || this.PropertyInfo.GenericType == typeof(IACContainerT<>).FullName)
+                            path = Const.ValueT + ACUrlHelper.Delimiter_RelativePath + Const.ValueT;
+                    }
+                }
+                // Sonst Zugriff per getter/setter-Methode im realen Objekt
+                else
+                {
+                    source = ParentACComponent;
+                    path = ACType.GetACPath(true);
+                }
+            }
+            if (string.IsNullOrEmpty(acUrl))
+            {
+                ACClassProperty cp = acTypeInfo as ACClassProperty;
+                ACClass acClassRight = cp.ACClass; // Basisklasse in der die PRoperty definiert ist
+                rightControlMode = acClassRight.RightManager.GetControlMode(cp);
+                if ((ParentACComponent != null) && (ParentACComponent.ACType != null))
+                {
+                    acClassRight = ParentACComponent.ACType as ACClass; // Am weitest unten abgeleitetet Klasse
+                    rightControlMode = acClassRight.RightManager.GetControlMode(cp);
+                }
+                acUrlTypeInfo.AddSegment(this.GetACUrl(), acTypeInfo, Value, rightControlMode);
+                return true;
+            }
+
+            ACUrlHelper acUrlHelper = new ACUrlHelper(acUrl);
+            switch (acUrlHelper.UrlKey)
+            {
+                case ACUrlHelper.UrlKeys.Root:
+                    if (ParentACComponent == null)
+                        return false;
+                    return ParentACComponent.ACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+                case ACUrlHelper.UrlKeys.Child:
+                    {
+                        string baseUrl = this.GetACUrl();
+                        string[] parts = acUrl.Split(ACUrlHelper.Delimiter_DirSeperator);
+                        foreach (var part in parts)
+                        {
+                            baseUrl += ACUrlHelper.Delimiter_DirSeperator + part;
+                            ACClassProperty acp = null;
+                            IACType memberTypeInfo = acTypeInfo.GetMember(part);
+                            // Falls Property(memberTypeInfo) nicht exisitiert, dann ist es ein Generischer Typ z.B. ACRef<>
+                            if (memberTypeInfo == null && acTypeInfo is ACClassProperty && !String.IsNullOrEmpty((acTypeInfo as ACClassProperty).GenericType))
+                            {
+                                acp = acTypeInfo as ACClassProperty;
+                                if (acp != null)
+                                {
+                                    memberTypeInfo = Database.GlobalDatabase.GetACType(acp.ObjectGenericType);
+                                    if (memberTypeInfo != null)
+                                        memberTypeInfo = memberTypeInfo.GetMember(part);
+                                }
+                            }
+                            else if (memberTypeInfo == null && Value != null && Value is IACObject)
+                            {
+                                IACObject sourceACObject = Value as IACObject;
+                                if (sourceACObject.ACType != null)
+                                    memberTypeInfo = sourceACObject.ACType.GetMember(part);
+                            }
+                            acTypeInfo = memberTypeInfo;
+
+                            //ACClassMethod MyClassMethod(string acMethodName)
+                            if (acTypeInfo == null)
+                            {
+                                try
+                                {
+                                    if (path != Const.Value && path != Const.ValueT && path != "ValueT.ValueT")
+                                    {
+                                        PropertyInfo pi;
+                                        object sourcePrev = source;
+                                        source = TypeAnalyser.GetPropertyPathValue(sourcePrev, path, out pi);
+
+                                        path = acUrl;
+                                        rightControlMode = Global.ControlModes.Enabled;
+
+                                        if (source != null)
+                                        {
+                                            if (source is IACObject)
+                                            {
+                                                IACObject sourceACObject = source as IACObject;
+                                                ACClass acClassOfObject = sourceACObject.ACType as ACClass;
+                                                if (acClassOfObject != null)
+                                                    acTypeInfo = acClassOfObject.GetProperty(path);
+                                            }
+                                            else
+                                            {
+                                                PropertyInfo pi1 = null;
+                                                object source1 = TypeAnalyser.GetPropertyPathValue(source, path, out pi1);
+
+                                                //Type sourceType1 = source.GetType();
+                                                //PropertyInfo pi1 = sourceType1.GetProperty(path);
+
+                                                if (pi1 == null)
+                                                    return false;
+
+
+                                                using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
+                                                {
+                                                    acTypeInfo = gip.core.datamodel.Database.GlobalDatabase.GetACType(pi1.PropertyType);
+                                                }
+                                            }
+                                        }
+                                        if (acTypeInfo == null)
+                                            return false;
+                                        acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, source, rightControlMode);
+                                        return true;
+                                    }
+                                    // Sonst ACRef
+                                    else
+                                    {
+                                        string dotNetPath = acUrl.Replace("\\", ".");
+                                        //Type sourceType = null;
+                                        object source1 = Value;
+                                        PropertyInfo pi = null;
+                                        // Fall wenn: ACComponent ein IACProperty hat, die ACRef<ACComponent> ist: IACProperty<ACRef<ACComponent>>
+                                        // Dann darf als source-Object für Bindung nicht das ZielObjekt sein, sondern die Root-ACProperty, die die ACRef hält
+                                        if (path == "ValueT.ValueT")
+                                        {
+                                            // Falls ACRef null ist
+                                            if (source1 != null)
+                                            {
+                                                object valueTVal = TypeAnalyser.GetPropertyPathValue(source1, Const.ValueT, out pi);
+                                                IACObject valueTAsIACObject = valueTVal as IACObject;
+                                                if (valueTAsIACObject != null)
+                                                {
+                                                    IACType acRefTypeInfo = null;
+                                                    //object acRefSource = null;
+                                                    string acRefPath = "";
+                                                    if (valueTAsIACObject.ACUrlTypeInfo(dotNetPath, ref acUrlTypeInfo))
+                                                    {
+                                                        if (acRefPath.IndexOf(Const.ValueT) >= 0)
+                                                        {
+                                                            dotNetPath = dotNetPath + ".ValueT";
+                                                        }
+                                                        acTypeInfo = acRefTypeInfo;
+                                                    }
+                                                    else
+                                                    {
+                                                        ACClass acClassOfObject = valueTAsIACObject.ACType as ACClass;
+                                                        if (acClassOfObject != null)
+                                                            acTypeInfo = acClassOfObject.GetProperty(dotNetPath);
+                                                        source1 = valueTAsIACObject.ACUrlCommand(dotNetPath);
+                                                        rightControlMode = Global.ControlModes.Enabled;
+                                                    }
+                                                }
+                                                else if (valueTVal != null)
+                                                {
+                                                    source1 = TypeAnalyser.GetPropertyPathValue(valueTVal, dotNetPath, out pi);
+                                                    if (pi == null)
+                                                        return false;
+                                                    if (pi != null)
+                                                    {
+
+                                                        using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
+                                                        {
+                                                            acTypeInfo = gip.core.datamodel.Database.GlobalDatabase.GetACType(pi.PropertyType);
+                                                        }
+                                                    }
+                                                    rightControlMode = Global.ControlModes.Enabled;
+                                                }
+                                                if (acTypeInfo == null)
+                                                    return false;
+
+
+                                                path = path + "." + dotNetPath;
+                                                // Source-Objekt darf nicht verändert werden, da ACRef-Änderungen bemerkt werden müssen
+                                                //source = Value;
+                                            }
+                                            // Wenn ACRef null ist, dann hole Beschreibung aus Datenbank
+                                            else if (acp != null)
+                                            {
+                                                // Eine ACRef hat meist als Inhalt ine IACComponent und keinen konkreten Typ damit Proxy-Objekte drin sein können
+                                                // => Der Pfad kann nicht verifiziert werden und ist evtl. auch dynamisch
+                                                // daher muss der Pfad so akzeptiert werden
+                                                // TODO: PRopertyInfo-Attributklasse werweitern, dass der Assembly-Typ drin steht obwohl als INstanz im ACRef ein ACComponent deklariert ist
+                                                // Dann kann man ermitteln welche Typ die PRoperty ist
+                                                if (typeof(IACObject).IsAssignableFrom(acp.ObjectType))
+                                                {
+                                                    path = path + "." + dotNetPath + ".ValueT";
+                                                }
+                                                else
+                                                    return false;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (source1 == null)
+                                                return false;
+
+                                            rightControlMode = Global.ControlModes.Enabled;
+                                            Type source1Type = source1.GetType();
+                                            if (source1Type != null && typeof(IBitAccess).IsAssignableFrom(source1Type))
+                                            {
+                                                source1 = TypeAnalyser.GetPropertyPathValue(source1, path, out pi);
+                                                if (pi == null)
+                                                    return false;
+                                                path = path + "." + dotNetPath;
+                                                using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
+                                                {
+                                                    acTypeInfo = gip.core.datamodel.Database.GlobalDatabase.GetACType(pi.PropertyType);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                source1 = TypeAnalyser.GetPropertyPathValue(source1, path, out pi);
+                                                if (pi == null)
+                                                    return false;
+                                                path = dotNetPath;
+                                                source = Value;
+                                                using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
+                                                {
+                                                    acTypeInfo = gip.core.datamodel.Database.GlobalDatabase.GetACType(pi.PropertyType);
+                                                }
+                                            }
+                                        }
+
+                                        acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, source, rightControlMode);
+                                        return true;
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    string msg = e.Message;
+                                    if (e.InnerException != null && e.InnerException.Message != null)
+                                        msg += " Inner:" + e.InnerException.Message;
+
+                                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                                        datamodel.Database.Root.Messages.LogException("ACProperty<T>", "ACUrlBinding", msg);
+                                }
+
+                                return false;
+                            }
+                            switch (acTypeInfo.ACKind)
+                            {
+                                case Global.ACKinds.MSMethod:
+                                case Global.ACKinds.MSMethodClient:
+                                case Global.ACKinds.MSMethodPrePost:
+                                    {
+                                        PropertyInfo pi = null;
+                                        source = TypeAnalyser.GetPropertyPathValue(source, path, out pi);
+
+                                        path = acUrlHelper.ACUrlPart;
+                                        ACClassMethod cm = acTypeInfo as ACClassMethod;
+                                        ACClass acClassRight = cm.Safe_ACClass; // Basisklasse in der die PRoperty definiert ist
+                                        rightControlMode = acClassRight.RightManager.GetControlMode(cm);
+                                        if ((ParentACComponent != null) && (ParentACComponent.ACType != null) && rightControlMode == Global.ControlModes.Hidden)
+                                        {
+                                            acClassRight = ParentACComponent.ACType as ACClass; // Am weitest unten abgeleitetet Klasse
+                                            rightControlMode = acClassRight.RightManager.GetControlMode(cm);
+                                        }
+
+                                        acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, source, rightControlMode);
+                                        return true;
+                                    }
+                                default:
+                                    path += acTypeInfo.GetACPath(false);
+                                    break;
+                            }
+                        }
+
+                        ACClassProperty cp = acTypeInfo as ACClassProperty;
+                        if (cp != null)
+                        {
+                            var lastSegement = acUrlTypeInfo.LastOrDefault();
+                            ACClass acClassRight2 = cp.ACClass; // Basisklasse in der die PRoperty definiert ist
+                            rightControlMode = acClassRight2.RightManager.GetControlMode(cp);
+                            if ((ParentACComponent != null) && (ParentACComponent.ACType != null) && rightControlMode == Global.ControlModes.Hidden)
+                            {
+                                acClassRight2 = ParentACComponent.ACType as ACClass; // Am weitest unten abgeleitetet Klasse
+                                rightControlMode = acClassRight2.RightManager.GetControlMode(cp);
+                            }
+                            if (rightControlMode == Global.ControlModes.Enabled)
+                            {
+                                if (!cp.IsNullable)
+                                    rightControlMode = Global.ControlModes.EnabledRequired;
+                            }
+                            lastSegement.RightControlMode = rightControlMode;
+                        }
+
+                        return true;
+                    }
+                case ACUrlHelper.UrlKeys.InvokeMethod:
+                    {
+                        int pos = acUrlHelper.ACUrlPart.IndexOf('(');
+                        string methodName;
+                        if (pos == -1)
+                        {
+                            methodName = acUrlHelper.ACUrlPart;
+                        }
+                        else
+                        {
+                            methodName = acUrlHelper.ACUrlPart.Substring(0, pos);
+                        }
+                        // acTypeInfo = this.ACType.GetACType(methodName);
+                        ACClassMethod cm = (this.Value as IACObject).ACType.GetMember(methodName) as ACClassMethod;
+                        ACClass acClassRight = cm.Safe_ACClass; // Basisklasse in der die PRoperty definiert ist
+                        rightControlMode = acClassRight.RightManager.GetControlMode(cm);
+                        if ((ParentACComponent != null) && (ParentACComponent.ACType != null) && rightControlMode == Global.ControlModes.Hidden)
+                        {
+                            acClassRight = ParentACComponent.ACType as ACClass; // Am weitest unten abgeleitetet Klasse
+                            rightControlMode = acClassRight.RightManager.GetControlMode(cm);
+                        }
+
+                        acUrlTypeInfo.AddSegment(this.GetACUrl() + ACUrlHelper.Delimiter_InvokeMethod + methodName, cm, this.Value, rightControlMode);
+
+                    }
+                    return true;
+                case ACUrlHelper.UrlKeys.Parent:
+                    return ParentACComponent.ACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+                default:
+                    return false; // TODO: Fehlerbehandlung
+            }
+        }
+
 
         public string GetACUrlComponent(IACObject rootACObject = null)
         {

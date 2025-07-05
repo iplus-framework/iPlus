@@ -172,10 +172,10 @@ namespace gip.core.webservices
             // For complex objects, try to convert to XML first, then to a readable format
             try
             {
-                if (result is IACObject)
+                if (result is IACObjectWithInit)
                 {
                     // For ACObjects, return basic information
-                    var acObject = result as IACObject;
+                    var acObject = result as IACObjectWithInit;
                     return new
                     {
                         ACIdentifier = acObject.ACIdentifier,
@@ -184,6 +184,10 @@ namespace gip.core.webservices
                         ACUrl = acObject.GetACUrl()
                     };
                 }
+
+                string jsonResult = JsonSerializer.Serialize(result, SerializerOptions);
+                if (!string.IsNullOrEmpty(jsonResult))
+                    return jsonResult;
 
                 // Try XML serialization for other objects
                 string xmlResult = ACConvert.ObjectToXML(result, true);
@@ -274,6 +278,57 @@ namespace gip.core.webservices
 
             return convParams.ToArray();
         }
+
+        public object[] ConvertBulkValues(ACComponent aCComponent, string acMethodName, IEnumerable<string> bulkValues)
+        {
+            string acMethodName1;
+            ACClassMethod acClassMethod = aCComponent.GetACClassMethod(acMethodName, out acMethodName1);
+            if (acClassMethod == null || String.IsNullOrEmpty(acMethodName1))
+                return bulkValues.Select(c => (object)c).ToArray();
+
+            ACMethod acMethod = acClassMethod.TypeACSignature();
+            if (acMethod == null)
+                return bulkValues.Select(c => (object)c).ToArray();
+            bool passACMethodAsParam = acClassMethod.IsParameterACMethod || (acClassMethod.BasedOnACClassMethod != null && acClassMethod.BasedOnACClassMethod.IsParameterACMethod);
+            int i = 0;
+            bool hasKeys = true;
+            List<object> convParams = new List<object>();
+            foreach (string bulkValue in bulkValues)
+            {
+                if (!hasKeys)
+                {
+                    ACValue acValue = acMethod.ParameterValueList[i];
+                    if (acValue != null)
+                        convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, bulkValue, true, aCComponent.Database.ContextIPlus));
+                }
+                i++;
+            }
+
+            if (passACMethodAsParam)
+                convParams.Add(acMethod);
+
+            return convParams.ToArray();
+        }
+
+        private static JsonSerializerOptions _SerializerOptions;
+        public static JsonSerializerOptions SerializerOptions
+        {
+            get
+            {
+                if (_SerializerOptions != null)
+                    return _SerializerOptions;
+                _SerializerOptions = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    //MaxDepth = 2
+                };
+                _SerializerOptions.Converters.Add(new ACPropertyJsonConverterFactory());
+                return _SerializerOptions;
+            }
+        }
+
         #endregion
 
     }

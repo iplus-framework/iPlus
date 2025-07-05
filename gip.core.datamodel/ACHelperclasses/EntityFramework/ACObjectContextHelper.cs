@@ -1,31 +1,14 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-// ***********************************************************************
-// Assembly         : gip.core.datamodel
-// Author           : DLisak
-// Created          : 10-16-2012
-//
-// Last Modified By : DLisak
-// Last Modified On : 10-16-2012
-// ***********************************************************************
-// <copyright file="ACMonitor.cs" company="gip mbh, Oftersheim, Germany">
-//     Copyright (c) gip mbh, Oftersheim, Germany. All rights reserved.
-// </copyright>
-// <summary></summary>
-// ***********************************************************************
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Runtime.CompilerServices;
 using System.Data;
-using System.Reflection;
 using System.Data.Common;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Win32;
-using System.Configuration;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace gip.core.datamodel
@@ -1131,11 +1114,8 @@ namespace gip.core.datamodel
 
                             using (ACMonitor.Lock(_ObjectContext.QueryLock_1X000))
                             {
-#if !EFCR
-#endif
                                 //No replacement for ObjectQuery, used IQueryable instead
                                 IQueryable objectQuery = (IQueryable)piEntity.GetValue(_ObjectContext, null);
-                                // TODO: @aagincic - handle getting new added items
                                 var resultQuery = objectQuery.Where(filter, filterValues);
                                 foreach (object resultObject in resultQuery)
                                 {
@@ -1220,6 +1200,8 @@ namespace gip.core.datamodel
 
         public bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode)
         {
+            if (string.IsNullOrEmpty(acUrl))
+                return false;
             ACUrlHelper acUrlHelper = new ACUrlHelper(acUrl);
             switch (acUrlHelper.UrlKey)
             {
@@ -1416,7 +1398,218 @@ namespace gip.core.datamodel
                     return false; // TODO: Fehlerbehandlung
             }
         }
-#endregion
+
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            if (string.IsNullOrEmpty(acUrl) || acUrlTypeInfo == null)
+                return false;
+            IACType acTypeInfo = null;
+            ACUrlHelper acUrlHelper = new ACUrlHelper(acUrl);
+            switch (acUrlHelper.UrlKey)
+            {
+                case ACUrlHelper.UrlKeys.Root:
+                    return false;
+                case ACUrlHelper.UrlKeys.Child:
+                    {
+                        acTypeInfo = _ObjectContext.ACType;
+                        acUrlTypeInfo.AddSegment(_ObjectContext.GetACUrl(), acTypeInfo, _ObjectContext, Global.ControlModes.Enabled);
+                        if (acUrlHelper.ACUrlPart == Const.ContextIPlus)
+                        {
+                            IACType memberTypeInfo = acTypeInfo.GetMember(acUrlHelper.ACUrlPart);
+                            if (memberTypeInfo != null)
+                            {
+                                acTypeInfo = memberTypeInfo;
+                                acUrlTypeInfo.SubPath += "." + acUrlHelper.ACUrlPart;
+                                return _ObjectContext.ContextIPlus.ACUrlTypeInfo(acUrlHelper.NextACUrl, ref acUrlTypeInfo);
+                            }
+                        }
+
+                        object[] filterValues = ACUrlHelper.GetFilterValues(acUrlHelper.ACUrlPart);
+                        // Falls Database-ACRUL: Database\\ACProject(...)\\ACClass(...)\\...
+                        if (filterValues != null)
+                        {
+                            string acName = ACUrlHelper.ExtractTypeName(acUrlHelper.ACUrlPart);
+                            Type dbType = _ObjectContext.GetType();
+                            PropertyInfo piEntity = dbType.GetProperty(acName);
+                            if (piEntity == null)
+                                return false;
+                            Type entityType = piEntity.PropertyType.GetGenericArguments()[0];
+                            PropertyInfo piDataIdentifier = entityType.GetProperty("KeyACIdentifier");
+                            string[] filterColumns = ((string)piDataIdentifier.GetValue(null, null)).Split(',');
+
+                            if (filterValues.Count() != filterColumns.Count())
+                                return false;
+                            string filter = "";
+                            int i = 0;
+                            foreach (var filterColumn in filterColumns)
+                            {
+                                if (!string.IsNullOrEmpty(filter))
+                                    filter += " && ";
+                                filter += filterColumn + " == @" + i.ToString();
+                                i++;
+                            }
+
+                            using (ACMonitor.Lock(_ObjectContext.QueryLock_1X000))
+                            {
+                                //No replacement for ObjectQuery, used IQueryable instead
+                                IQueryable objectQuery = (IQueryable)piEntity.GetValue(_ObjectContext, null);
+                                var resultQuery = objectQuery.Where(filter, filterValues);
+                                foreach (object resultObject in resultQuery)
+                                {
+                                    if (string.IsNullOrEmpty(acUrlHelper.NextACUrl))
+                                    {
+                                        acUrlTypeInfo.AddSegment(_ObjectContext.GetACUrl() + ACUrlHelper.Delimiter_DirSeperator + acUrlHelper.ACUrlPart, acTypeInfo, resultObject, Global.ControlModes.Enabled);
+                                        return true;
+                                    }
+                                    else
+                                    {
+                                        return ((IACObject)resultObject).ACUrlTypeInfo(acUrlHelper.NextACUrl, ref acUrlTypeInfo);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            string baseUrl = _ObjectContext.GetACUrl();
+
+                            string[] parts;
+                            if (acUrl.IndexOf('.') >= 0)
+                                acUrl = acUrl.Replace('.', '\\');
+                            parts = acUrl.Split('\\');
+
+                            object loopValueOfDeclaringType = _ObjectContext;
+                            Type loopDeclaringType = loopValueOfDeclaringType.GetType();
+                            IACType loopDeclaringACType = acTypeInfo;
+                            string acURLtoDeclaringType = "";
+                            string acUrlRestFromDeclaringType = acUrl;
+
+                            Type memberType = loopDeclaringType; //.NET-Type
+                            IACType memberACType = loopDeclaringACType; // AC-Type
+                            object memberValue = loopValueOfDeclaringType;
+
+                            int i = 0;
+                            foreach (string part in parts)
+                            {
+                                baseUrl += ACUrlHelper.Delimiter_DirSeperator + part;
+                                loopDeclaringType = memberType;
+                                loopDeclaringACType = memberACType;
+                                loopValueOfDeclaringType = memberValue;
+
+                                // Bilde URL bis zum letzten Objekt das existiert
+                                if (loopValueOfDeclaringType != null && (i > 0))
+                                {
+                                    if (i == 1)
+                                        acURLtoDeclaringType = part;
+                                    else
+                                        acURLtoDeclaringType += "\\" + part;
+                                    acUrlRestFromDeclaringType = new ACUrlHelper(acURLtoDeclaringType).NextACUrl;
+
+                                    IACObject iACObject = loopValueOfDeclaringType as IACObject;
+                                    // Falls Child-Object ein IACObject ist, dann kann Childobjekt das ACURLBinding selbst weiter Auflösen
+                                    if (iACObject != null && !String.IsNullOrEmpty(acUrlRestFromDeclaringType))
+                                    {
+                                        acTypeInfo = loopDeclaringACType;
+                                        //source = iACObject;
+                                        //path = "";
+                                        return iACObject.ACUrlTypeInfo(acUrlHelper.NextACUrl, ref acUrlTypeInfo);
+
+                                    }
+                                }
+
+                                if (loopDeclaringType == null)
+                                    return false;
+                                PropertyInfo pi = loopDeclaringType.GetProperty(part);
+                                if (pi == null)
+                                    return false;
+
+                                // Hole ACType des Members
+                                if (loopDeclaringACType != null)
+                                    memberACType = loopDeclaringACType.GetMember(part);
+                                // Ermittle .NET-Typ des Members
+                                if (memberACType == null)
+                                    memberType = pi.PropertyType;
+                                else
+                                    memberType = memberACType.ObjectType;
+
+                                // Hole aktuellen Wert des Members
+                                memberValue = null;
+                                if (loopValueOfDeclaringType != null && loopValueOfDeclaringType != null)
+                                    memberValue = pi.GetValue(loopValueOfDeclaringType, null);
+
+                                // Member nicht mit ACPropertyInfo bekanntgegeben oder 
+                                // für dieses Objekt, das im Parent-Objekt seiner Property referenziert hatte keine ACTypeInfo 
+                                if (memberACType == null)
+                                {
+                                    using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
+                                    {
+                                        memberACType = gip.core.datamodel.Database.GlobalDatabase.GetACType(memberType);
+                                        if (memberACType == null && memberType.IsGenericType)
+                                            memberACType = gip.core.datamodel.Database.GlobalDatabase.GetACType(memberType.GetGenericArguments()[0]);
+                                    }
+                                }
+
+                                if (memberType == null)
+                                    return false;
+
+                                acUrlTypeInfo.AddSegment(_ObjectContext.GetACUrl() + ACUrlHelper.Delimiter_DirSeperator + acUrlHelper.ACUrlPart, memberACType, memberValue, Global.ControlModes.Enabled);
+                                i++;
+                            }
+
+                            var lastSegement = acUrlTypeInfo.LastOrDefault();
+                            if (loopValueOfDeclaringType != null)
+                            {
+                                //source = loopValueOfDeclaringType;
+                                //path = acUrlRestFromDeclaringType;
+                                if (lastSegement != null)
+                                {
+                                    lastSegement.Value = loopValueOfDeclaringType;
+                                }
+                            }
+                            else
+                            {
+                                //source = _ObjectContext;
+                                //path = acUrl;
+                            }
+                            //if (!String.IsNullOrEmpty(path))
+                            //{
+                            //    if (path.IndexOf('\\') >= 0)
+                            //        path = path.Replace('\\', '.');
+                            //}
+
+                            if (memberACType == null)
+                                return false;
+                            acTypeInfo = memberACType;
+
+                            ACClass acClassRight = null;
+                            ACClassProperty acProp = acTypeInfo as ACClassProperty;
+                            bool isNullable = true;
+                            if (acProp != null)
+                            {
+                                acClassRight = acProp.Safe_ACClass;
+                                isNullable = acProp.IsNullable;
+                            }
+                            else if (acTypeInfo is ACClassMethod)
+                                acClassRight = (acTypeInfo as ACClassMethod).Safe_ACClass;
+                            else
+                                return false;
+                            if (lastSegement != null)
+                            {
+                                lastSegement.RightControlMode = acClassRight.RightManager.GetControlMode(acTypeInfo);
+                                if (lastSegement.RightControlMode == Global.ControlModes.Enabled)
+                                {
+                                    if (!isNullable)
+                                        lastSegement.RightControlMode = Global.ControlModes.EnabledRequired;
+                                }
+                            }
+                            return true;
+                        }
+                        return false;
+                    }
+                default:
+                    return false; // TODO: Fehlerbehandlung
+            }
+        }
+        #endregion
 
 #endregion
 

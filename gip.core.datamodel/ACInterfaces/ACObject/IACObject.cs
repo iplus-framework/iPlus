@@ -79,5 +79,14 @@ namespace gip.core.datamodel
         /// <param name="rightControlMode">Information about access rights for the requested object</param>
         /// <returns><c>true</c> if binding could resolved for the passed ACUrl<c>false</c> otherwise</returns>
         bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode);
+
+
+        /// <summary>
+        /// Resolves the type information for each segment of the passed ACUrl.
+        /// </summary>
+        /// <param name="acUrl"></param>
+        /// <param name="acUrlTypeInfo"></param>
+        /// <returns></returns>
+        bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo);
     }
 }

@@ -997,6 +997,11 @@ namespace gip.core.reporthandlerwpf.Flowdoc
             return false;
         }
 
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+
         /// <summary>
         /// DeInitVBControl is used to remove all References which a WPF-Control refers to.
         /// It's needed that the Garbage-Collerctor can delete the object when it's removed from the Logical-Tree.

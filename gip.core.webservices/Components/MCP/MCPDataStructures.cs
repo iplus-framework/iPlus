@@ -87,9 +87,11 @@ namespace gip.core.webservices
     {
         public bool Success { get; set; }
         public string ACUrl { get; set; }
+        [JsonConverter(typeof(RawJsonConverter))]
         public object Result { get; set; }
         public string ResultType { get; set; }
         public string Error { get; set; }
-        public string ErrorType { get; set; }
+        public string Recommendation { get; set; }
+
     }
 }

@@ -656,18 +656,20 @@ namespace gip.core.webservices
             {
                 List<KeyValuePair<string, object>> parametersKVP = null;
                 string[] bulkValues = null;
+                string recommendation = null;
+                // Normalize ACUrl if LLM tries to use dots
+                if (!string.IsNullOrEmpty(acUrl))
+                {
+                    acUrl = acUrl.Replace(ACUrlHelper.Delimiter_RelativePath, ACUrlHelper.Delimiter_DirSeperator);
+                    recommendation = "Do not use dots '.' for addressing in ACUrl. Only backslashes '\\'!";
+                }
 
                 if (!string.IsNullOrEmpty(parametersJson))
                 {
-                    if (acUrl.Contains(ACUrlHelper.Delimiter_InvokeMethod))
-                    {
-                        // Use the enhanced method that can handle both JSON arrays and key-value pairs
-                        parametersKVP = ConvertJsonParametersToObjects(parametersJson);
-                    }
-                    else
-                    {
+                    // Use the enhanced method that can handle both JSON arrays and key-value pairs
+                    parametersKVP = ConvertJsonParametersToObjects(parametersJson);
+                    if (parametersKVP == null)
                         bulkValues = SplitParamsToArray(parametersJson);
-                    }
                 }
 
                 List<MCP_ACUrlCommandResult> results = new List<MCP_ACUrlCommandResult>();
@@ -683,6 +685,7 @@ namespace gip.core.webservices
                         object result = null;
                         string errorMsg = null; 
                         int indexMethodDelimiter = acUrlCommand.IndexOf(ACUrlHelper.Delimiter_InvokeMethod);
+                        // If Method invocation is specified
                         if (indexMethodDelimiter > 0)
                         {
                             string acUrlOfInstance = acUrlCommand.Substring(0, indexMethodDelimiter);
@@ -695,18 +698,34 @@ namespace gip.core.webservices
                                     object[] parameters = null;
                                     if (parametersKVP != null && parametersKVP.Any())
                                         parameters = ConvertKVPValues(acComp, methodName, parametersKVP);
+                                    else if (bulkValues != null && bulkValues.Any())
+                                        parameters = ConvertBulkValues(acComp, methodName, bulkValues);
                                     result = acComp.ExecuteMethod(methodName, parameters);
                                 }
                                 else
                                     errorMsg = string.Format("Instance {0} not found", acUrlOfInstance);
                             }
                             else
-                                result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, parametersKVP.Select(c => c.Value).ToArray());
+                            {
+                                if (parametersKVP  != null && parametersKVP.Any())
+                                    result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, parametersKVP.Select(c => c.Value).ToArray());
+                                else if (bulkValues != null && bulkValues.Any())
+                                    result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, bulkValues.Select(c => (object) c).ToArray());
+                                else
+                                    result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, null);
+                            }
                         }
+                        // Property read / write
                         else
                         {
+                            // Typ-Konvertierung:
                             if (bulkValues != null && bulkValues.Any())
+                            {
                                 result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, bulkValues[i]);
+                            }
+                            else if (parametersKVP != null && parametersKVP.Any())
+                            {
+                            }
                             else
                                 result = ACRoot.SRoot.ACUrlCommand(acUrlCommand);
                         }
@@ -717,7 +736,8 @@ namespace gip.core.webservices
                             ACUrl = command,
                             Result = ConvertResultToJson(result),
                             ResultType = result?.GetType()?.Name,
-                            Error = errorMsg
+                            Error = errorMsg,
+                            Recommendation = recommendation
                         };
                         results.Add(response);
                         i++;
@@ -805,7 +825,7 @@ namespace gip.core.webservices
                 {
                     instanceInfo.Description = sb.ToString();
                 }
-                return JsonSerializer.Serialize(instanceInfo, new JsonSerializerOptions { WriteIndented = false });
+                return JsonSerializer.Serialize(instanceInfo, SerializerOptions);
             }
             catch (Exception ex)
             {
