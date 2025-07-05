@@ -15,15 +15,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Objects;
-using System.Data.Objects.DataClasses;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices.ComTypes;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Xml;
+using System.Data.Objects;
+using System.Data.Objects.DataClasses;
 
 namespace gip.core.datamodel
 {

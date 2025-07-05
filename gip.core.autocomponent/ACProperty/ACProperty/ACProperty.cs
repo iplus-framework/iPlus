@@ -8,12 +8,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Threading;
-using System.Windows.Shapes;
 using System.Xml;
-using System.Xml.Serialization;
 
 namespace gip.core.autocomponent
 {
