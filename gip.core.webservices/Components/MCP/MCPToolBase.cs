@@ -185,9 +185,18 @@ namespace gip.core.webservices
                     };
                 }
 
-                string jsonResult = JsonSerializer.Serialize(result, SerializerOptions);
-                if (!string.IsNullOrEmpty(jsonResult))
-                    return jsonResult;
+                Type type = result.GetType();
+
+                if (  !type.IsEnum
+                    && (   (!type.IsGenericType && typeof(VBEntityObject).IsAssignableFrom(type))
+                        || (type.IsGenericType && typeof(VBEntityObject).IsAssignableFrom(type.GetGenericArguments()[0]))
+                        )
+                   )
+                {
+                    string jsonResult = JsonSerializer.Serialize(result, SerializerOptions);
+                    if (!string.IsNullOrEmpty(jsonResult))
+                        return jsonResult;
+                }
 
                 // Try XML serialization for other objects
                 string xmlResult = ACConvert.ObjectToXML(result, true);

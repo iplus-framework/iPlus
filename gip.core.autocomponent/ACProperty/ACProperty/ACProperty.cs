@@ -1924,6 +1924,7 @@ namespace gip.core.autocomponent
                 case ACUrlHelper.UrlKeys.Child:
                     {
                         string baseUrl = this.GetACUrl();
+                        acUrlTypeInfo.AddSegment(baseUrl, this.ACType, this.Value, rightControlMode);
                         string[] parts = acUrl.Split(ACUrlHelper.Delimiter_DirSeperator);
                         foreach (var part in parts)
                         {
@@ -2143,6 +2144,7 @@ namespace gip.core.autocomponent
                                         return true;
                                     }
                                 default:
+                                    acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo.ValueTypeACClass, null, rightControlMode);
                                     path += acTypeInfo.GetACPath(false);
                                     break;
                             }

@@ -553,7 +553,7 @@ namespace gip.core.webservices
                                     ACIdentifier = acProp.ACIdentifier,
                                     Description = acProp.ACCaption,
                                     DataType = acProp.ObjectFullType != null ? acProp.ObjectFullType.Name : acProp.ObjectType?.Name,
-                                    IsReadOnly = acProp.IsInput,
+                                    IsReadOnly = !acProp.IsInput,
                                     InnerDataTypeClassID = acProp.ValueTypeACClassID.ToString(),
                                     GenericTypeClassID = genericACClass != null ? genericACClass.ACClassID.ToString() : null
                                 };
@@ -660,8 +660,11 @@ namespace gip.core.webservices
                 // Normalize ACUrl if LLM tries to use dots
                 if (!string.IsNullOrEmpty(acUrl))
                 {
-                    acUrl = acUrl.Replace(ACUrlHelper.Delimiter_RelativePath, ACUrlHelper.Delimiter_DirSeperator);
-                    recommendation = "Do not use dots '.' for addressing in ACUrl. Only backslashes '\\'!";
+                    if (acUrl.IndexOf(ACUrlHelper.Delimiter_RelativePath) >= 0)
+                    {
+                        acUrl = acUrl.Replace(ACUrlHelper.Delimiter_RelativePath, ACUrlHelper.Delimiter_DirSeperator);
+                        recommendation = "Do not use dots '.' for addressing in ACUrl. Only backslashes '\\'!";
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(parametersJson))
@@ -676,6 +679,7 @@ namespace gip.core.webservices
                 string[] acUrlCommands = SplitParamsToArray(acUrl);
                 if (acUrlCommands != null && acUrlCommands.Length > 0)
                 {
+                    int countACUrlCommands = acUrlCommands.Length;
                     int i = 0;
                     foreach (var command in acUrlCommands)
                     {
@@ -718,13 +722,77 @@ namespace gip.core.webservices
                         // Property read / write
                         else
                         {
+                            object convertedValue = null;
                             // Typ-Konvertierung:
                             if (bulkValues != null && bulkValues.Any())
                             {
-                                result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, bulkValues[i]);
+                                ACUrlTypeInfo acUrlTypeInfo = new ACUrlTypeInfo();
+                                if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommand, ref acUrlTypeInfo))
+                                {
+                                    ACUrlTypeSegmentInfo lastSegment = acUrlTypeInfo.LastOrDefault();
+                                    if (lastSegment != null)
+                                    {
+                                        convertedValue = ACConvert.XMLToObject(lastSegment.ACType.ObjectFullType, bulkValues[i], true, ACRoot.SRoot.Database.ContextIPlus);
+                                        result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
+                                    }
+                                    else
+                                        errorMsg = string.Format("Path {0} not found", acUrlCommand);
+                                }
+                                else
+                                {
+                                    errorMsg = string.Format("Path {0} not found", acUrlCommand);
+                                }
                             }
                             else if (parametersKVP != null && parametersKVP.Any())
                             {
+                                ACUrlTypeInfo acUrlTypeInfo = new ACUrlTypeInfo();
+                                if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommand, ref acUrlTypeInfo))
+                                {
+                                    ACUrlTypeSegmentInfo lastComponentInfo = acUrlTypeInfo.GetLastComponent();
+                                    if (lastComponentInfo != null)
+                                    {
+                                        if (parametersKVP[0].Key == "0")
+                                        {
+                                            ACUrlTypeSegmentInfo lastSegment = acUrlTypeInfo.LastOrDefault();
+                                            convertedValue = ACConvert.XMLToObject(lastSegment.ACType.ObjectFullType, parametersKVP[i].Value.ToString(), true, ACRoot.SRoot.Database.ContextIPlus);
+                                            result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
+                                        }
+                                        else
+                                        {
+                                            // If one command and mulle parameters are given, then each parameter is a ACIdentifier of child of the component
+                                            if (countACUrlCommands == 1)
+                                            {
+                                                foreach (var kvpValue in parametersKVP)
+                                                {
+                                                    ACUrlTypeInfo acUrlTypeInfo2 = new ACUrlTypeInfo();
+                                                    if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommand + ACUrlHelper.Delimiter_DirSeperator + kvpValue.Key, ref acUrlTypeInfo2))
+                                                    {
+                                                        ACUrlTypeSegmentInfo lastSegment = acUrlTypeInfo2.LastOrDefault();
+                                                        convertedValue = ACConvert.XMLToObject(lastSegment.ACType.ObjectFullType, kvpValue.Value.ToString(), true, ACRoot.SRoot.Database.ContextIPlus);
+                                                        result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                ACUrlTypeInfo acUrlTypeInfo2 = new ACUrlTypeInfo();
+                                                if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommand + ACUrlHelper.Delimiter_DirSeperator + parametersKVP[i].Key, ref acUrlTypeInfo2))
+                                                {
+                                                    ACUrlTypeSegmentInfo lastSegment = acUrlTypeInfo2.LastOrDefault();
+                                                    convertedValue = ACConvert.XMLToObject(lastSegment.ACType.ObjectFullType, parametersKVP[i].Value.ToString(), true, ACRoot.SRoot.Database.ContextIPlus);
+                                                    result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
+                                                }
+                                            }
+                                            result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
+                                        }
+                                    }
+                                    else
+                                        errorMsg = string.Format("Path {0} not found", acUrlCommand);
+                                }
+                                else
+                                {
+                                    errorMsg = string.Format("Path {0} not found", acUrlCommand);
+                                }
                             }
                             else
                                 result = ACRoot.SRoot.ACUrlCommand(acUrlCommand);
