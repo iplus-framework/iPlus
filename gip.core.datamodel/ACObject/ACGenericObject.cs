@@ -246,6 +246,11 @@ namespace gip.core.datamodel
             return this.ReflectACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
 
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>Translated description</value>
         [ACPropertyInfo(2)]

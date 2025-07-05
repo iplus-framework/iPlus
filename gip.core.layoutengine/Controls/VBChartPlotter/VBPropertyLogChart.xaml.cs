@@ -803,6 +803,10 @@ namespace gip.core.layoutengine
             return false;
         }
 
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
         /// <summary>
         /// Disables the control. XAML sample: DisabledModes="Disabled"
         /// </summary>

@@ -983,6 +983,11 @@ namespace gip.core.layoutengine
             return false;
         }
 
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+
         public static readonly DependencyProperty VBValidationProperty = ContentPropertyHandler.VBValidationProperty.AddOwner(typeof(VBScriptEditor), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
         [Category("VBControl")]
         public string VBValidation

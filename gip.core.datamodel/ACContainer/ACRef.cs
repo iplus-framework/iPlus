@@ -869,7 +869,13 @@ namespace gip.core.datamodel
         {
             return this.ValueT.ACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
         }
-#endregion
+
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+        
+        #endregion
 
         public void ChangeMode(RefInitMode mode)
         {

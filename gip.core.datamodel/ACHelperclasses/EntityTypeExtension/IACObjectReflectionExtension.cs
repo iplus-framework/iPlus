@@ -12,17 +12,18 @@
 // <summary></summary>
 // ***********************************************************************
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Xml;
-using System.IO;
-using System.ComponentModel;
-using System.Data.Objects.DataClasses;
 using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Objects;
+using System.Data.Objects.DataClasses;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Xml;
 
 namespace gip.core.datamodel
 {
@@ -621,7 +622,7 @@ namespace gip.core.datamodel
                     return false;
                 case ACUrlHelper.UrlKeys.Child:
                     {
-                        string[] parts = acUrl.Split('\\');
+                        string[] parts = acUrl.Split(ACUrlHelper.Delimiter_DirSeperator);
                         foreach (var part in parts)
                         {
                             if (acTypeInfo == null)
@@ -734,6 +735,150 @@ namespace gip.core.datamodel
                     return false; // TODO: Fehlerbehandlung
             }
         }
+
+
+        public static bool ReflectACUrlTypeInfo(this IACObject reflectedObject, string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            //ACUrlTypeSegmentInfo aCUrlTypeSegment = new ACUrlTypeSegmentInfo();
+            //aCUrlTypeSegment.Value = reflectedObject; // ParentACObject;
+            //aCUrlTypeSegment.ACUrl = reflectedObject.GetACUrl();
+            //aCUrlTypeSegment.ACType = reflectedObject.ACType;
+            //aCUrlTypeSegment.RightControlMode = Global.ControlModes.Enabled;
+            string path = "";
+            if (string.IsNullOrEmpty(acUrl) || acUrlTypeInfo == null)
+                return true;
+            string baseUrl = reflectedObject.GetACUrl();
+            acUrlTypeInfo.AddSegment(baseUrl, reflectedObject.ACType, reflectedObject, Global.ControlModes.Enabled);
+            IACType acTypeInfo = null;
+
+            ACUrlHelper acUrlHelper = new ACUrlHelper(acUrl);
+            switch (acUrlHelper.UrlKey)
+            {
+                case ACUrlHelper.UrlKeys.Root:
+                    return false;
+                case ACUrlHelper.UrlKeys.Child:
+                    {
+                        string[] parts = acUrl.Split(ACUrlHelper.Delimiter_DirSeperator);
+                        foreach (var part in parts)
+                        {
+                            baseUrl += ACUrlHelper.Delimiter_DirSeperator + part;
+                            if (acTypeInfo == null)
+                                acTypeInfo = reflectedObject.ACType;
+
+                            if (path == Const.Value && reflectedObject is IACContainer)
+                            {
+                                var acEntityProperty = reflectedObject as IACContainer;
+                                var query = acEntityProperty.ValueTypeACClass.Properties.Where(c => c.ACIdentifier == part);
+                                if (query.Any())
+                                {
+                                    acTypeInfo = query.First();
+                                    path += "." + part;
+                                    //path += "[" + part + "]";
+                                    acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, reflectedObject, Global.ControlModes.Enabled);
+                                }
+                            }
+                            else if (path == "ConfigValue" && reflectedObject is ACClassProperty)
+                            {
+                                var acEntityProperty = reflectedObject as ACClassProperty;
+                                var query = acEntityProperty.ConfigACClass.Properties.Where(c => c.ACIdentifier == part);
+                                if (query.Any())
+                                {
+                                    acTypeInfo = query.First();
+                                    path += "." + part;
+                                    //path += "[" + part + "]";
+                                    acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, reflectedObject, Global.ControlModes.Enabled);
+                                }
+                            }
+                            else
+                            {
+                                IACType childACTypeInfo = acTypeInfo.GetMember(part);
+                                if (childACTypeInfo == null)
+                                {
+                                    if (reflectedObject is IACObjectEntity)
+                                    {
+                                        string[] filterValues = ACUrlHelper.GetFilterValues(acUrlHelper.ACUrlPart);
+                                        if (filterValues != null)
+                                        {
+                                            var result = ((IACObjectEntity)reflectedObject).GetChildEntityObject(ACUrlHelper.ExtractTypeName(acUrlHelper.ACUrlPart), filterValues);
+                                            if (result == null)
+                                                return false;
+                                            if (string.IsNullOrEmpty(acUrlHelper.NextACUrl))
+                                            {
+                                                path = "";
+                                                IACObject sourceACObject = result as IACObject;
+                                                if (sourceACObject != null)
+                                                {
+                                                    acTypeInfo = sourceACObject.ACType;
+                                                    acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, sourceACObject, Global.ControlModes.Enabled);
+                                                    return true;
+                                                }
+                                                else
+                                                {
+                                                    acTypeInfo = null;
+                                                    return false;
+                                                }
+                                            }
+                                            return ((IACObject)result).ACUrlTypeInfo(acUrlHelper.NextACUrl, ref acUrlTypeInfo); //ref path
+                                        }
+                                        else
+                                            return false;
+                                    }
+                                    else if (reflectedObject is ACGenericObject)
+                                    {
+                                        var query = (reflectedObject as ACGenericObject).ACObjectChilds.Where(c => c.ACIdentifier == acUrlHelper.ACUrlPart);
+                                        if (!query.Any())
+                                            return false;
+                                        var result = query.First();
+                                        if (result == null)
+                                            return false;
+                                        if (string.IsNullOrEmpty(acUrlHelper.NextACUrl))
+                                        {
+                                            path = "";
+                                            IACObject sourceACObject = result as IACObject;
+                                            if (sourceACObject != null)
+                                            {
+                                                acTypeInfo = sourceACObject.ACType;
+                                                acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, sourceACObject, Global.ControlModes.Enabled);
+                                                return true;
+                                            }
+                                            else
+                                            {
+                                                acTypeInfo = null;
+                                                return false;
+                                            }
+                                        }
+                                        return ((IACObject)result).ACUrlTypeInfo(acUrlHelper.NextACUrl, ref acUrlTypeInfo); //ref path
+                                    }
+                                    return false;
+                                }
+                                else
+                                {
+                                    acTypeInfo = childACTypeInfo;
+                                    path += acTypeInfo.GetACPath(string.IsNullOrEmpty(path));
+                                }
+                            }
+                        }
+                        ACClassProperty cp = acTypeInfo as ACClassProperty;
+                        if (cp != null)
+                        {
+                            var lastSegement = acUrlTypeInfo.LastOrDefault();
+                            if (lastSegement != null)
+                            {
+                                lastSegement.RightControlMode = cp.Safe_ACClass.RightManager.GetControlMode(cp);
+                                if (path == Const.Value && acUrl == Const.Value && parts.Count() == 1 && reflectedObject is IACContainer)
+                                    lastSegement.ACType = (reflectedObject as IACContainer).ValueTypeACClass;
+                            }
+                        }
+
+                        return true;
+                    }
+                case ACUrlHelper.UrlKeys.Parent:
+                    return false;
+                default:
+                    return false; // TODO: Fehlerbehandlung
+            }
+        }
+
 
         /// <summary>
         /// Reflects the is enabled delete.

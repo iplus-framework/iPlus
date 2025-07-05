@@ -729,6 +729,11 @@ namespace gip.core.datamodel
         {
             return false;
         }
+
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
         #endregion
     }
 }

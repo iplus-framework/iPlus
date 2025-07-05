@@ -107,6 +107,7 @@
     <Compile Include="ACContainer\ACItem.cs" />
     <Compile Include="ACContainer\ACMenuItemLight.cs" />
     <Compile Include="ACContainer\InstallImportTypeFilter.cs" />
+    <Compile Include="ACHelperclasses\ACUrl\ACUrlTypeInfo.cs" />
     <Compile Include="ACHelperclasses\EntityFramework\ScheduledOrderManager.cs" />
     <Compile Include="ACHelperclasses\Misc4Components\ACActionArgs.cs" />
     <Compile Include="ACHelperclasses\Performance\IPerfLogWriter.cs" />

@@ -309,11 +309,16 @@ namespace gip.core.layoutengine
             return false;
         }
 
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+
         #endregion
 
         #region Private
-            
-        private  ACProgramLog GetRootProgramLog(ACProgramLog Item, ref int Level)
+
+        private ACProgramLog GetRootProgramLog(ACProgramLog Item, ref int Level)
         {
             Level = 0;
 

@@ -437,6 +437,11 @@ namespace gip.core.communication
         {
             return false;
         }
-#endregion
+
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+        #endregion
     }
 }

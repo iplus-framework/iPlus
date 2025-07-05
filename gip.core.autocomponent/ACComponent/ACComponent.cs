@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -2447,7 +2448,7 @@ namespace gip.core.autocomponent
                         if (acTypeInfo == null)
                             return false;
                         source = this;
-                        path = "!" + methodName;
+                        path = ACUrlHelper.Delimiter_InvokeMethod + methodName;
                         rightControlMode = this.ComponentClass.GetRight(acTypeInfo);
                         return true;
                     }
@@ -2462,8 +2463,85 @@ namespace gip.core.autocomponent
                                 return false;
                         }
                         source = this;
-                        path = "§" + messageID;
+                        path = ACUrlHelper.Delimiter_Translate + messageID;
                         rightControlMode = this.ComponentClass.GetRight(ACType);
+                        return true;
+                    }
+                default:
+                    return false; // TODO: Fehlerbehandlung
+            }
+        }
+
+        /// <summary>
+        /// Resolves the type information for each segment of the passed ACUrl.
+        /// </summary>
+        /// <param name="acUrl"></param>
+        /// <param name="acUrlTypeInfo"></param>
+        /// <returns></returns>
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            if (string.IsNullOrEmpty(acUrl) || acUrlTypeInfo == null)
+                return false;
+            ACUrlHelper acUrlHelper = new ACUrlHelper(acUrl);
+            switch (acUrlHelper.UrlKey)
+            {
+                case ACUrlHelper.UrlKeys.Root:
+                    if (string.IsNullOrEmpty(acUrlHelper.NextACUrl))
+                    {
+                        acUrlTypeInfo.AddSegment(this.GetACUrl(), this.ACType, this, Global.ControlModes.Enabled);
+                        return true;
+                    }
+                    else
+                    {
+                        return Root.ACUrlTypeInfo(acUrlHelper.NextACUrl, ref acUrlTypeInfo);
+                    }
+                case ACUrlHelper.UrlKeys.Child:
+                    {
+                        IACMember acMember = GetMember(acUrlHelper.ACUrlPart);
+                        if (acMember == null)
+                        {
+                            acMember = StartComponent(acUrlHelper.ACUrlPart, null, null, ACStartCompOptions.OnlyAutomatic);
+                        }
+                        if (acMember != null)
+                        {
+                            if (string.IsNullOrEmpty(acUrlHelper.NextACUrl) && acMember is ACComponent)
+                            {
+                                acUrlTypeInfo.AddSegment(this.GetACUrl(), acMember.ACType, acMember, Global.ControlModes.Enabled);
+                                return true;
+                            }
+                            else
+                            {
+                                return acMember.ACUrlTypeInfo(acUrlHelper.NextACUrl, ref acUrlTypeInfo);
+                            }
+                        }
+                        return false;
+                    }
+                case ACUrlHelper.UrlKeys.Parent:
+                    return ParentACComponent.ACUrlTypeInfo(acUrlHelper.NextACUrl, ref acUrlTypeInfo);
+                case ACUrlHelper.UrlKeys.InvokeMethod:
+                    {
+                        string methodName = ACUrlHelper.ExtractTypeName(acUrlHelper.ACUrlPart);
+                        IACType acTypeInfo = ACClassMethods.FirstOrDefault(c => c.ACIdentifier == methodName);
+                        if (acTypeInfo == null)
+                            return false;
+                        acUrlTypeInfo.AddSegment(this.GetACUrl() + ACUrlHelper.Delimiter_InvokeMethod + methodName, acTypeInfo, this, this.ComponentClass.GetRight(acTypeInfo));
+                        return true;
+                    }
+                case ACUrlHelper.UrlKeys.TranslationText:
+                    {
+                        string messageID = ACUrlHelper.ExtractTypeName(acUrlHelper.ACUrlPart);
+                        ACClassMessage acClassMessage = ComponentClass.GetMessage(messageID);
+                        IACType acTypeInfo = acClassMessage?.ACType;
+                        if (acClassMessage == null)
+                        {
+                            ACClassText acClassText = ComponentClass.GetText(messageID);
+                            acTypeInfo = acClassText?.ACType;
+                            if (acClassText == null)
+                                return false;
+                        }
+
+                        acUrlTypeInfo.AddSegment(this.GetACUrl() + ACUrlHelper.Delimiter_Translate + messageID, acTypeInfo, this, this.ComponentClass.GetRight(ACType));
+
                         return true;
                     }
                 default:

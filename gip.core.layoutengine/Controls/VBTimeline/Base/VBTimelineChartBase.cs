@@ -1189,6 +1189,11 @@ namespace gip.core.layoutengine.timeline
             return false;
         }
 
+        public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
+        {
+            return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
+        }
+
         #endregion
 
         /// <summary>
