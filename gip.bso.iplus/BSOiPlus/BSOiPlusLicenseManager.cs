@@ -365,7 +365,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News this instance.
         /// </summary>
-        [ACMethodInteraction(VBLicense.ClassName, "en{'New'}de{'Neu'}", (short)MISort.New, true, "CurrentVBLicense", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction(VBLicense.ClassName, Const.New, (short)MISort.New, true, "CurrentVBLicense", Global.ACKinds.MSMethodPrePost)]
         public void New()
         {
             if (!PreExecute("New"))
@@ -390,7 +390,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Deletes this instance.
         /// </summary>
-        [ACMethodInteraction(VBLicense.ClassName, "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true, "CurrentVBLicense", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction(VBLicense.ClassName, Const.Delete, (short)MISort.Delete, true, "CurrentVBLicense", Global.ACKinds.MSMethodPrePost)]
         public void Delete()
         {
             if (!PreExecute("Delete"))

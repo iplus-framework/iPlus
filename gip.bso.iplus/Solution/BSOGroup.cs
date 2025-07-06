@@ -1054,7 +1054,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News this instance.
         /// </summary>
-        [ACMethodInteraction("VBGroup", "en{'New'}de{'Neu'}", (short)MISort.New, true, "SelectedGroup")]
+        [ACMethodInteraction("VBGroup", Const.New, (short)MISort.New, true, "SelectedGroup")]
         public void New()
         {
             CurrentGroup = VBGroup.NewACObject(Db, null);
@@ -1079,7 +1079,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Deletes this instance.
         /// </summary>
-        [ACMethodInteraction("VBGroup", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true, "CurrentGroup")]
+        [ACMethodInteraction("VBGroup", Const.Delete, (short)MISort.Delete, true, "CurrentGroup")]
         public void Delete()
         {
             Msg msg = CurrentGroup.DeleteACObject(Db, true);

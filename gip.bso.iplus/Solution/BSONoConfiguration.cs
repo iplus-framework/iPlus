@@ -319,7 +319,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News this instance.
         /// </summary>
-        [ACMethodCommand("VBNoConfiguration", "en{'New'}de{'Neu'}", (short)MISort.New, true)]
+        [ACMethodCommand("VBNoConfiguration", Const.New, (short)MISort.New, true)]
         public void New()
         {
             CurrentNoConfiguration = (Root.NoManager as ACVBNoManager).NewNoConfiguration(Db,false);
@@ -338,7 +338,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Deletes this instance.
         /// </summary>
-        [ACMethodInteraction("VBNoConfiguration", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true, "CurrentNoConfiguration")]
+        [ACMethodInteraction("VBNoConfiguration", Const.Delete, (short)MISort.Delete, true, "CurrentNoConfiguration")]
         public void Delete()
         {
             Msg msg = CurrentNoConfiguration.DeleteACObject(Db, true);

@@ -354,7 +354,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News this instance.
         /// </summary>
-        [ACMethodInteraction("ACProgram", "en{'New'}de{'Neu'}", (short)MISort.New, true, "SelectedACProgram", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction("ACProgram", Const.New, (short)MISort.New, true, "SelectedACProgram", Global.ACKinds.MSMethodPrePost)]
         public void New()
         {
             if (!PreExecute("New")) return;
@@ -408,7 +408,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Deletes this instance.
         /// </summary>
-        [ACMethodInteraction("ACProgram", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true, "CurrentACProgram", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction("ACProgram", Const.Delete, (short)MISort.Delete, true, "CurrentACProgram", Global.ACKinds.MSMethodPrePost)]
         public void Delete()
         {
             if (Messages.Question(this, "Question00002", Global.MsgResult.Yes, false, CurrentACProgram.ToString()) == Global.MsgResult.Yes)

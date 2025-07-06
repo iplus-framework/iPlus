@@ -895,7 +895,7 @@ namespace gip.core.reporthandler
         #region Neu anlegen, Laden, Speichern und Löschen
 
         #region Neu anlegen
-        [ACMethodCommand("Report", "en{'New'}de{'Neu'}", (short)MISort.New)]
+        [ACMethodCommand("Report", Const.New, (short)MISort.New)]
         public void ReportNew()
         {
             ACClassDesign newDesign = null;
@@ -1055,7 +1055,7 @@ namespace gip.core.reporthandler
 
         #region Löschen
 
-        [ACMethodCommand("Report", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete)]
+        [ACMethodCommand("Report", Const.Delete, (short)MISort.Delete)]
         public void ReportDelete()
         {
             if (!IsEnabledReportDelete())

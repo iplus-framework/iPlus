@@ -198,7 +198,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Navigates to the first entry in the NavObjectList-Property.
         /// </summary>
-        [ACMethodCommand("Navigation", "en{'First'}de{'Erster'}", (short)MISort.NavigateFirst)]
+        [ACMethodCommand("Navigation", "en{'Navigate to the first record'}de{'Zum ersten Datensatz navigieren'}", (short)MISort.NavigateFirst)]
         public void NavigateFirst()
         {
             if (ParentACComponent == null)
@@ -227,7 +227,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Navigates to the previous element of the CurrentNavObject
         /// </summary>
-        [ACMethodCommand("Navigation", "en{'Previous'}de{'Vorheriger'}", (short)MISort.NavigatePrev)]
+        [ACMethodCommand("Navigate to the previous record", "en{'Previous'}de{'Zum vorherigen Datensatz navigieren'}", (short)MISort.NavigatePrev)]
         public void NavigatePrev()
         {
             if (ParentACComponent == null)
@@ -257,7 +257,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Navigates to the next entry of the CurrentNavObject
         /// </summary>
-        [ACMethodCommand("Navigation", "en{'Next'}de{'Nächster'}", (short)MISort.NavigateNext)]
+        [ACMethodCommand("Navigation", "en{'Navigate to the next record'}de{'Zum nächsten Datensatz navigieren'}", (short)MISort.NavigateNext)]
         public void NavigateNext()
         {
             if (ParentACComponent == null)
@@ -287,7 +287,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// Navigates to the last entry in the NavObjectList-Property.
         /// </summary>
-        [ACMethodCommand("Navigation", "en{'Last'}de{'Letzter'}", (short)MISort.NavigateLast)]
+        [ACMethodCommand("Navigation", "en{'Navigate to the last record'}de{'Zum letzten Datensatz navigieren'}", (short)MISort.NavigateLast)]
         public void NavigateLast()
         {
             if (ParentACComponent == null)

@@ -597,7 +597,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News this instance.
         /// </summary>
-        [ACMethodInteraction("VBUser", "en{'New'}de{'Neu'}", (short)MISort.New, true, "SelectedUser")]
+        [ACMethodInteraction("VBUser", Const.New, (short)MISort.New, true, "SelectedUser")]
         public void New()
         {
             CurrentUser = _UserManager.NewUser();
@@ -617,7 +617,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Deletes this instance.
         /// </summary>
-        [ACMethodInteraction("VBUser", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true, "CurrentUser")]
+        [ACMethodInteraction("VBUser", Const.Delete, (short)MISort.Delete, true, "CurrentUser")]
         public void Delete()
         {
             Msg msg = CurrentUser.DeleteACObject(Db, true);
