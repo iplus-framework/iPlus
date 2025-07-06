@@ -152,21 +152,36 @@ namespace gip.core.webservices
         public static string ExecuteACUrlCommand(
             IACComponent mcpHost,
             [Description("Component address path using format: \\Root\\Parent\\Child\\...\\Target\\Operation\r\n" +
-            "Examples: \r\n" +
-            "- Single operation read/write property: \\Root\\Component\\PropertyName\r\n" +
-            "- Bulk operation read/write property: \\Root\\Component1\\PropertyName,\\Root\\Component2\\PropertyName\r\n" +
-            "- Single operation Invoke method: \\Root\\Component!MethodName\r\n" +
-            "- Bulk operation invoke method: \\Root\\Component1!MethodName,\\Root\\Component2!MethodName\r\n" +
-            "- Stopping components with a tilde ~: \\Root\\~Component\r\n" +
-            "- Starting components (new instance) with hashtag - Prefer using AppCreateNewInstance instead: \\Root\\#Component\r\n" +
-            "Use ACIdentifiers (ACId field) from AppGetInstanceInfo to construct the path. If properties are complex objects, such as Entity Framework objects, their sub-properties can be addressed by continuing the path.\r\n" +
-            "Bulk-Execution: If several commands are to be executed one after the other, the ACUrls can be passed comma-separated as a list.\r\n")]
+                "Examples: \r\n" +
+                "- Single operation read/write property: \\Root\\Component\\PropertyName\r\n" +
+                "- Bulk operation read/write property: \\Root\\Component1\\PropertyName,\\Root\\Component2\\PropertyName\r\n" +
+                "- Single operation Invoke method: \\Root\\Component!MethodName\r\n" +
+                "- Bulk operation invoke method: \\Root\\Component1!MethodName,\\Root\\Component2!MethodName\r\n" +
+                "- Stopping components with a tilde ~: \\Root\\~Component\r\n" +
+                "- Starting components (new instance) with hashtag - Prefer using AppCreateNewInstance instead: \\Root\\#Component\r\n" +
+                "Use ACIdentifiers (ACId field) from AppGetInstanceInfo to construct the path. If properties are complex objects, such as Entity Framework objects, their sub-properties can be addressed by continuing the path.\r\n" +
+                "Bulk-Execution: If several commands are to be executed one after the other, the ACUrls can be passed comma-separated as a list.\r\n")]
             string acUrl,
-            [Description("Optional: For property writes set the value here. For bulk property writes pass values comma-separated. \r\n" +
-            "For method-calls with parameters use JSON object with key-value pairs: {\"param1\": \"value1\", \"param2\": 123, \"param3\": true}")]
+            [Description("To write properties, set this parameter to true. Otherwise, set it to false (default).")]
+            bool writeProperty = false,
+            [Description("Controls the level of detail in JSON serialization for complex objects and Entity Framework entities when reading properties:\r\n" +
+                "0 = Minimal: Returns only basic type information and primitive values. Complex objects are represented with minimal metadata.\r\n" +
+                "1 = First-degree table relationships: Includes direct foreign key relationships and immediate child collections from Entity Framework models.\r\n" +
+                "2 = Complete: Full object serialization including all nested relationships and properties (may result in large JSON responses).\r\n" +
+                "3 = User-defined: Allows custom field selection via the parametersJson parameter. You can specify exactly which fields to include in the JSON output. Use AppGetPropertyInfo first to discover available field names.\r\n" +
+                "Default: 0 (Minimal)")]
+            ushort detailLevel = 0,
+            [Description("Multi-purpose parameter with different uses depending on the operation and detailLevel:\r\n" +
+                "FOR PROPERTY WRITES: Set the value here. For bulk property writes, pass values comma-separated.\r\n" +
+                "FOR METHOD CALLS: Use JSON object with key-value pairs for parameters: {\"param1\": \"value1\", \"param2\": 123, \"param3\": true}\r\n" +
+                "FOR USER-DEFINED SERIALIZATION (detailLevel=3): Specify which fields to include in JSON output using one of these formats:\r\n" +
+                "  - JSON array: [\"FieldName1\", \"FieldName2\", \"RelatedEntity.SubField\"]\r\n" +
+                "  - Comma-separated string: \"FieldName1,FieldName2,RelatedEntity.SubField\"\r\n" +
+                "Use dot notation for nested properties (e.g., \"Customer.Name\", \"OrderItems.Product.Description\"). " +
+                "Call AppGetPropertyInfo beforehand to discover available field names and their data types.")]
             string parametersJson = "")
         {
-            return _appTree.ExecuteACUrlCommand(mcpHost, acUrl, parametersJson);
+            return _appTree.ExecuteACUrlCommand(mcpHost, acUrl, writeProperty, detailLevel, parametersJson);
         }
 
         [McpServerTool]

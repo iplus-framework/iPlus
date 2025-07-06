@@ -63,6 +63,15 @@ namespace gip.core.webservices
                 }
             }
         }
+
+        protected override Dictionary<string, gip.core.datamodel.ACClass> EntityTypes 
+        { 
+            get
+            {
+                return ThesaurusByACId[3];
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -293,6 +302,7 @@ namespace gip.core.webservices
         }
         #endregion
 
+
         #region InstanceInfo
         public virtual string AppGetInstanceInfo(IACComponent requester, string classIDs, string searchConditions, bool isCompositeSearch)
         {
@@ -349,11 +359,11 @@ namespace gip.core.webservices
                         List<IACComponent> matchedComponents = new List<IACComponent>();
                         foreach (var rootApp in ACRoot.SRoot.ACComponentChilds)
                         {
-                            if (rootApp is IAppManager manager)
-                            {
+                            //if (rootApp is IAppManager manager)
+                            //{
                                 // TODO: Optimize, Ignore unecessary applications
                                 SearchMatchingComponents(rootApp, ref matchedComponents, classSearchConditions, isCompositeSearch);
-                            }
+                            //}
                         }
                         instanceInfo = BuildInstanceInfo(ACRoot.SRoot, matchedComponents);
                     }
@@ -575,6 +585,7 @@ namespace gip.core.webservices
         }
         #endregion
 
+
         #region Method Info
         public string AppGetMethodInfo(IACComponent requester, string classID)
         {
@@ -649,8 +660,9 @@ namespace gip.core.webservices
         }
         #endregion
 
+
         #region ACUrlCommand
-        public string ExecuteACUrlCommand(IACComponent requester, string acUrl, string parametersJson = "")
+        public string ExecuteACUrlCommand(IACComponent requester, string acUrl, bool writeProperty = false, ushort detailLevel = 0, string parametersJson = "")
         {
             try
             {
@@ -723,8 +735,8 @@ namespace gip.core.webservices
                         else
                         {
                             object convertedValue = null;
-                            // Typ-Konvertierung:
-                            if (bulkValues != null && bulkValues.Any())
+                            // type conversion:
+                            if (writeProperty && bulkValues != null && bulkValues.Any())
                             {
                                 ACUrlTypeInfo acUrlTypeInfo = new ACUrlTypeInfo();
                                 if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommand, ref acUrlTypeInfo))
@@ -743,7 +755,7 @@ namespace gip.core.webservices
                                     errorMsg = string.Format("Path {0} not found", acUrlCommand);
                                 }
                             }
-                            else if (parametersKVP != null && parametersKVP.Any())
+                            else if (writeProperty && parametersKVP != null && parametersKVP.Any())
                             {
                                 ACUrlTypeInfo acUrlTypeInfo = new ACUrlTypeInfo();
                                 if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommand, ref acUrlTypeInfo))
@@ -802,7 +814,7 @@ namespace gip.core.webservices
                         {
                             Success = string.IsNullOrEmpty(errorMsg),
                             ACUrl = command,
-                            Result = ConvertResultToJson(result),
+                            Result = ConvertResultToJson(result, detailLevel, parametersKVP, bulkValues),
                             ResultType = result?.GetType()?.Name,
                             Error = errorMsg,
                             Recommendation = recommendation
@@ -821,6 +833,7 @@ namespace gip.core.webservices
             }
         }
         #endregion
+
 
         #region Create new Instance
         public virtual string AppCreateNewInstance(IACComponent requester, string classID, string acUrl)

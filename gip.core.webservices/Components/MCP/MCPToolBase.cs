@@ -160,21 +160,20 @@ namespace gip.core.webservices
             }
         }
 
-        public object ConvertResultToJson(object result)
+
+        // Updated code to handle custom options using the dictionary
+        public object ConvertResultToJson(object result, ushort detailLevel, List<KeyValuePair<string, object>> parametersKVP = null, string[] bulkParams = null)
         {
             if (result == null)
                 return null;
 
-            // Handle common types
             if (result is string || result is bool || result.GetType().IsPrimitive)
                 return result;
 
-            // For complex objects, try to convert to XML first, then to a readable format
             try
             {
                 if (result is IACObjectWithInit)
                 {
-                    // For ACObjects, return basic information
                     var acObject = result as IACObjectWithInit;
                     return new
                     {
@@ -187,27 +186,34 @@ namespace gip.core.webservices
 
                 Type type = result.GetType();
 
-                if (  !type.IsEnum
-                    && (   (!type.IsGenericType && typeof(VBEntityObject).IsAssignableFrom(type))
+                if (!type.IsEnum
+                    && ((!type.IsGenericType && typeof(VBEntityObject).IsAssignableFrom(type))
                         || (type.IsGenericType && typeof(VBEntityObject).IsAssignableFrom(type.GetGenericArguments()[0]))
                         )
                    )
                 {
-                    string jsonResult = JsonSerializer.Serialize(result, SerializerOptions);
+                    string[] requestedFields = null;
+                    if (bulkParams != null && bulkParams.Length > 0)
+                        requestedFields = bulkParams;
+                    else if (parametersKVP != null && parametersKVP.Count > 0)
+                        requestedFields = parametersKVP.Select(c => c.Key).ToArray();
+
+                    JsonSerializerOptions customOptions = GetNewSerializerOptions(detailLevel, requestedFields, EntityTypes);
+                    string jsonResult = JsonSerializer.Serialize(result, customOptions);
                     if (!string.IsNullOrEmpty(jsonResult))
                         return jsonResult;
                 }
 
-                // Try XML serialization for other objects
                 string xmlResult = ACConvert.ObjectToXML(result, true);
                 return new { XmlData = xmlResult, TypeName = result.GetType().Name };
             }
             catch
             {
-                // Fallback to string representation
                 return new { StringValue = result.ToString(), TypeName = result.GetType().Name };
             }
         }
+
+        protected abstract Dictionary<string, gip.core.datamodel.ACClass> EntityTypes { get; }
 
         public string CreateExceptionResponse(Exception ex)
         {
@@ -319,6 +325,19 @@ namespace gip.core.webservices
             return convParams.ToArray();
         }
 
+        public static JsonSerializerOptions GetNewSerializerOptions(ushort detailLevel, string[] requestedFields, Dictionary<string, gip.core.datamodel.ACClass> entityTypes)
+        {
+            JsonSerializerOptions serializerOptions = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                //MaxDepth = 2
+            };
+            serializerOptions.Converters.Add(new ACPropertyJsonConverterFactory(detailLevel, requestedFields, entityTypes));
+            return serializerOptions;
+        }
+
         private static JsonSerializerOptions _SerializerOptions;
         public static JsonSerializerOptions SerializerOptions
         {
@@ -333,7 +352,6 @@ namespace gip.core.webservices
                     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                     //MaxDepth = 2
                 };
-                _SerializerOptions.Converters.Add(new ACPropertyJsonConverterFactory());
                 return _SerializerOptions;
             }
         }

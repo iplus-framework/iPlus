@@ -11,9 +11,44 @@ using System.Runtime.Serialization.DataContracts;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Linq;
+using System.Collections.Generic;
+using gip.core.autocomponent;
 
-public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObject
+
+public interface IACPropertyJsonConverter
 {
+    ushort DetailLevel { get; set; }
+    string[] RequestedFields { get; set; }
+    Dictionary<string, gip.core.datamodel.ACClass> EntityTypes { get; set; }
+}
+
+public class ACPropertyJsonConverter<T> : JsonConverter<T>, IACPropertyJsonConverter where T : VBEntityObject
+{
+    private ushort _detailLevel;
+    public ushort DetailLevel
+    {
+        get => _detailLevel;
+        set
+        {
+            if (value < 0 || value > 3)
+                throw new ArgumentOutOfRangeException(nameof(value), "Detail level must be between 0 and 3.");
+            _detailLevel = value;
+        }
+    }
+
+    private string[] _requestedFields;
+    public string[] RequestedFields
+    {
+        get => _requestedFields;
+        set
+        {
+            _requestedFields = value;
+        }
+    }
+
+    public Dictionary<string, gip.core.datamodel.ACClass> EntityTypes { get; set; }
+
+
     public override bool CanConvert(Type typeToConvert)
     {
         return typeof(VBEntityObject).IsAssignableFrom(typeToConvert);
@@ -36,6 +71,10 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObj
 
         var type = value.GetType();
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        EntityTypes.TryGetValue(type.Name, out ACClass entityType);
+        Dictionary<string, gip.core.datamodel.ACClassProperty> acProperties = null;
+        if (entityType != null)
+            acProperties = entityType.Properties.ToDictionary<gip.core.datamodel.ACClassProperty, string, gip.core.datamodel.ACClassProperty>(p => p.ACIdentifier, p => p);
 
         foreach (var property in properties)
         {
@@ -50,13 +89,25 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObj
             if (IgnoreNaming(property))
                 continue;
 
+            // Handle user-defined field selection (detailLevel = 3)
+            if (DetailLevel == 3 && RequestedFields != null && RequestedFields.Count() > 0)
+            {
+                if (!ShouldIncludeProperty(property.Name, RequestedFields))
+                    continue;
+            }
+
             // Only include properties that have ACPropertyInfo attribute OR DataMember attribute
-            var hasACPropertyInfo = property.GetCustomAttribute<ACPropertyBase>() != null;
+            //ACPropertyBase acPropertyInfo = property.GetCustomAttribute<ACPropertyBase>(true);
+
+            ACClassProperty acPropertyInfo = null;
+            acProperties?.TryGetValue(property.Name, out acPropertyInfo);
+            var hasACPropertyInfo = acPropertyInfo != null;
             var hasDataMember = property.GetCustomAttribute<DataMemberAttribute>() != null;
             bool isCollection = false;
             bool isNavigationProp = IsNavigationProperty(property, out isCollection);
 
-            if (isNavigationProp && (writer.CurrentDepth >= 3 || isCollection))
+            // Apply detail level filtering
+            if (!ShouldIncludePropertyByDetailLevel(property, acPropertyInfo, DetailLevel, isNavigationProp, isCollection, writer.CurrentDepth))
                 continue;
 
             if (!hasACPropertyInfo && !hasDataMember && !isNavigationProp && !IsSimpleType(property.PropertyType))
@@ -85,13 +136,13 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObj
                 }
                 else if (typeof(VBEntityObject).IsAssignableFrom(property.PropertyType))
                 {
-                    WriteComplexProperty(writer, propertyName, propertyValue, options);
+                    WriteComplexProperty(writer, propertyName, propertyValue, options, DetailLevel);
                 }
-                else if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType) && 
-                         property.PropertyType != typeof(string) && 
+                else if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType) &&
+                         property.PropertyType != typeof(string) &&
                          property.PropertyType != typeof(byte[]))
                 {
-                    WriteCollectionProperty(writer, propertyName, propertyValue, options);
+                    WriteCollectionProperty(writer, propertyName, propertyValue, options, DetailLevel);
                 }
                 else
                 {
@@ -109,7 +160,69 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObj
         writer.WriteEndObject();
     }
 
-    private void WriteComplexProperty(Utf8JsonWriter writer, string propertyName, object value, JsonSerializerOptions options)
+    private HashSet<string> GetUserDefinedFields(JsonSerializerOptions options, List<KeyValuePair<string, object>> parametersKVP)
+    {
+        var detailLevel = DetailLevel;
+        if (detailLevel != 3 || parametersKVP == null)
+            return null;
+
+        var fields = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var kvp in parametersKVP)
+        {
+            if (kvp.Value is string fieldList)
+            {
+                // Handle comma-separated field list
+                if (fieldList.Contains(','))
+                {
+                    var fieldNames = fieldList.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                            .Select(f => f.Trim())
+                                            .Where(f => !string.IsNullOrEmpty(f));
+                    foreach (var field in fieldNames)
+                        fields.Add(field);
+                }
+                else
+                {
+                    fields.Add(fieldList.Trim());
+                }
+            }
+        }
+
+        return fields.Count > 0 ? fields : null;
+    }
+
+    private bool ShouldIncludeProperty(string propertyName, string[] userDefinedFields)
+    {
+        return userDefinedFields.Contains(propertyName) ||
+               userDefinedFields.Any(field => field.Contains($"{propertyName}.", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private bool ShouldIncludePropertyByDetailLevel(PropertyInfo property, ACClassProperty acPropertyInfo, ushort detailLevel, bool isNavigationProp, bool isCollection, int currentDepth)
+    {
+        switch (detailLevel)
+        {
+            case 0: // Minimal
+                return !isNavigationProp || currentDepth <= 1 || (acPropertyInfo != null && acPropertyInfo.SortIndex < 10);
+
+            case 1: // First-degree relationships
+                if (isNavigationProp && isCollection)
+                    return currentDepth <= 1;
+                if (isNavigationProp && !isCollection)
+                    return currentDepth <= 2;
+                return (acPropertyInfo != null && acPropertyInfo.SortIndex < 10);
+
+            case 2: // Complete
+                return currentDepth <= 3; // Prevent infinite recursion
+
+            case 3: // User-defined - handled separately
+                return true;
+
+            default:
+                return !isNavigationProp || currentDepth <= 1;
+        }
+    }
+
+    private void WriteComplexProperty(Utf8JsonWriter writer, string propertyName, object value, JsonSerializerOptions options, ushort detailLevel)
     {
         if (value == null)
         {
@@ -117,21 +230,29 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObj
             return;
         }
 
-        // Prevent deep recursion
-        if (writer.CurrentDepth >= 3)
+        // Apply detail level limits
+        if ((detailLevel == 0 && writer.CurrentDepth >= 2) ||
+            (detailLevel == 1 && writer.CurrentDepth >= 3) ||
+            (writer.CurrentDepth >= 5)) // Hard limit to prevent stack overflow
         {
             writer.WriteString(propertyName, $"[{value.GetType().Name}]");
             return;
         }
 
         writer.WritePropertyName(propertyName);
-        
+
         if (value is VBEntityObject entityObject)
         {
             // Create a new converter instance for the specific type
             var converterType = typeof(ACPropertyJsonConverter<>).MakeGenericType(value.GetType());
             var converter = (JsonConverter)Activator.CreateInstance(converterType);
-            
+            if (converter is IACPropertyJsonConverter aCPropertyJsonConverter)
+            {
+                aCPropertyJsonConverter.DetailLevel = DetailLevel;
+                aCPropertyJsonConverter.RequestedFields = RequestedFields;
+                aCPropertyJsonConverter.EntityTypes = EntityTypes;
+            }
+
             // Use reflection to call the Write method
             var writeMethod = converterType.GetMethod("Write");
             writeMethod.Invoke(converter, new object[] { writer, value, options });
@@ -142,7 +263,7 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObj
         }
     }
 
-    private void WriteCollectionProperty(Utf8JsonWriter writer, string propertyName, object value, JsonSerializerOptions options)
+    private void WriteCollectionProperty(Utf8JsonWriter writer, string propertyName, object value, JsonSerializerOptions options, ushort detailLevel)
     {
         if (value == null)
         {
@@ -150,8 +271,10 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObj
             return;
         }
 
-        // Prevent deep recursion for collections
-        if (writer.CurrentDepth >= 2)
+        // Apply detail level limits for collections
+        if ((detailLevel == 0 && writer.CurrentDepth >= 1) ||
+            (detailLevel == 1 && writer.CurrentDepth >= 2) ||
+            (writer.CurrentDepth >= 3))
         {
             writer.WriteString(propertyName, $"[Collection of {value.GetType().Name}]");
             return;
@@ -163,13 +286,20 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObj
         if (value is IEnumerable enumerable)
         {
             int count = 0;
-            const int maxItems = 10; // Limit collection size to prevent large JSON
+            int maxItems = detailLevel switch
+            {
+                0 => 3,  // Minimal - very few items
+                1 => 10, // First-degree - moderate items
+                2 => 50, // Complete - many items
+                3 => 10, // User-defined - moderate items
+                _ => 10
+            };
 
             foreach (var item in enumerable)
             {
                 if (count >= maxItems)
                 {
-                    writer.WriteStringValue($"... and more items");
+                    writer.WriteStringValue($"... and more items (showing {maxItems} of collection)");
                     break;
                 }
 
@@ -186,7 +316,7 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObj
                     // For VBEntityObject items, create a simplified representation
                     writer.WriteStartObject();
                     writer.WriteString("Type", item.GetType().Name);
-                    
+
                     // Try to get an identifier property
                     var identifierProp = item.GetType().GetProperty("ACIdentifier");
                     if (identifierProp != null)
@@ -194,7 +324,7 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObj
                         var identifierValue = identifierProp.GetValue(item);
                         writer.WriteString("ACIdentifier", identifierValue?.ToString() ?? "");
                     }
-                    
+
                     writer.WriteEndObject();
                 }
                 else
@@ -208,6 +338,7 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObj
 
         writer.WriteEndArray();
     }
+
     private void WriteSimpleValue(Utf8JsonWriter writer, object value)
     {
         switch (value)
@@ -352,6 +483,18 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T> where T : VBEntityObj
 // Generic converter that works for any VBEntityObject
 public class ACPropertyJsonConverterFactory : JsonConverterFactory
 {
+    private ushort _detailLevel;
+    private string[] _requestedFields;
+    private Dictionary<string, gip.core.datamodel.ACClass> _EntityTypes;
+
+
+    public ACPropertyJsonConverterFactory(ushort detailLevel, string[] requestedFields, Dictionary<string, gip.core.datamodel.ACClass> entityTypes)
+    {
+        _detailLevel = detailLevel;
+        _requestedFields = requestedFields;
+        _EntityTypes = entityTypes;
+    }
+
     public override bool CanConvert(Type typeToConvert)
     {
         return typeof(VBEntityObject).IsAssignableFrom(typeToConvert);
@@ -360,10 +503,16 @@ public class ACPropertyJsonConverterFactory : JsonConverterFactory
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
         var converterType = typeof(ACPropertyJsonConverter<>).MakeGenericType(typeToConvert);
-        return (JsonConverter)Activator.CreateInstance(converterType);
+        var converter = (JsonConverter)Activator.CreateInstance(converterType);
+        if (converter is IACPropertyJsonConverter aCPropertyJsonConverter)
+        {
+            aCPropertyJsonConverter.DetailLevel = _detailLevel;
+            aCPropertyJsonConverter.RequestedFields = _requestedFields;
+            aCPropertyJsonConverter.EntityTypes = _EntityTypes;
+        }
+        return converter;
     }
 }
-
 
 public class RawJsonConverter : JsonConverter<object>
 {
