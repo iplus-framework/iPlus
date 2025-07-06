@@ -51,7 +51,7 @@ namespace gip.core.autocomponent
                 if (AccessNav != null)
                 {
                     AccessNav.NavACQueryDefinition.SearchWord = autoFilter;
-                    ACUrlCommand("!Search");
+                    ACUrlCommand(Const.CmdSearch);
                 }
             }
             return true;
@@ -186,6 +186,89 @@ namespace gip.core.autocomponent
         }
         #endregion
 
+        #region Attached from Navigation
+        [ACMethodCommand("Navigation", "en{'Navigate to the first record'}de{'Zum ersten Datensatz navigieren'}", (short)MISort.NavigateFirst)]
+        public void NavigateFirst()
+        {
+            AccessNav?.NavigateFirst();
+        }
+
+
+        public bool IsEnabledNavigateFirst()
+        {
+            return AccessNav?.IsEnabledNavigateFirst() ?? false;
+        }
+
+
+        [ACMethodCommand("Navigate to the previous record", "en{'Previous'}de{'Zum vorherigen Datensatz navigieren'}", (short)MISort.NavigatePrev)]
+        public void NavigatePrev()
+        {
+            AccessNav?.NavigatePrev();
+        }
+
+
+        public bool IsEnabledNavigatePrev()
+        {
+            return AccessNav?.IsEnabledNavigatePrev() ?? false;
+        }
+
+
+        [ACMethodCommand("Navigation", "en{'Navigate to the next record'}de{'Zum nächsten Datensatz navigieren'}", (short)MISort.NavigateNext)]
+        public void NavigateNext()
+        {
+            AccessNav?.NavigateNext();
+        }
+
+
+        public bool IsEnabledNavigateNext()
+        {
+            return AccessNav?.IsEnabledNavigateNext() ?? false;
+        }
+
+
+        [ACMethodCommand("Navigation", "en{'Navigate to the last record'}de{'Zum letzten Datensatz navigieren'}", (short)MISort.NavigateLast)]
+        public void NavigateLast()
+        {
+            AccessNav?.NavigateLast();
+        }
+
+
+        public bool IsEnabledNavigateLast()
+        {
+            return AccessNav?.IsEnabledNavigateLast() ?? false;
+        }
+
+        [ACPropertyInfo(1, "", "en{'Search text for data set filtering'}de{'Suchtext zur Datensatzfilterung'}")]
+        public string NavSearchWord
+        {
+            get
+            {
+                return AccessNav?.NavACQueryDefinition.SearchWord;
+            }
+            set
+            {
+                if (AccessNav != null)
+                    AccessNav.NavACQueryDefinition.SearchWord = value;
+            }
+        }
+
+        [ACPropertyInfo(1, "", "en{'Limit Record Count'}de{'Limit Anzahl Datensätze'}")]
+        public int NavTakeCount
+        {
+            get
+            {
+                return AccessNav?.NavACQueryDefinition.TakeCount ?? 0;
+            }
+            set
+            {
+                if (AccessNav != null)
+                    AccessNav.NavACQueryDefinition.TakeCount = value;
+            }
+        }
+
+
+        #endregion
+
         #region Configuration
         public ACClass PrimaryNavigationquery()
         {
@@ -286,29 +369,53 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "SMReadOnly":
+                case nameof(SMReadOnly):
                     SMReadOnly();
                     return true;
-                case "SMNew":
+                case nameof(SMNew):
                     SMNew();
                     return true;
-                case "SMEdit":
+                case nameof(SMEdit):
                     SMEdit();
                     return true;
-                case "SMSearch":
+                case nameof(SMSearch):
                     SMSearch();
                     return true;
-                case "DeleteDialogSoftOk":
+                case nameof(DeleteDialogSoftOk):
                     DeleteDialogSoftOk();
                     return true;
-                case "DeleteDialogHardOk":
+                case nameof(DeleteDialogHardOk):
                     DeleteDialogHardOk();
                     return true;
-                case "DeleteDialogCancel":
+                case nameof(DeleteDialogCancel):
                     DeleteDialogCancel();
                     return true;
-                case Const.IsEnabledPrefix + "DeleteDialogSoftOk":
+                case nameof(IsEnabledDeleteDialogSoftOk):
                     result = IsEnabledDeleteDialogSoftOk();
+                    return true;
+                case nameof(IsEnabledNavigateFirst):
+                    result = IsEnabledNavigateFirst();
+                    return true;
+                case nameof(IsEnabledNavigatePrev):
+                    result = IsEnabledNavigatePrev();
+                    return true;
+                case nameof(IsEnabledNavigateNext):
+                    result = IsEnabledNavigateNext();
+                    return true;
+                case nameof(IsEnabledNavigateLast):
+                    result = IsEnabledNavigateLast();
+                    return true;
+                case nameof(NavigateFirst):
+                    NavigateFirst();
+                    return true;
+                case nameof(NavigatePrev):
+                    NavigatePrev();
+                    return true;
+                case nameof(NavigateNext):
+                    NavigateNext();
+                    return true;
+                case nameof(NavigateLast):
+                    NavigateLast();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);

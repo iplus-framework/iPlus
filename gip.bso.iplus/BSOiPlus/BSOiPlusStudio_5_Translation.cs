@@ -735,7 +735,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Deletes the AC translation.
         /// </summary>
-        [ACMethodInteraction("ACTranslation", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true, "CurrentACTranslation", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction("ACTranslation", Const.Delete, (short)MISort.Delete, true, "CurrentACTranslation", Global.ACKinds.MSMethodPrePost)]
         public void DeleteACTranslation()
         {
             if (!PreExecute("Delete")) return;

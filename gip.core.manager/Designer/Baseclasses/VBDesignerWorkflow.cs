@@ -494,7 +494,7 @@ namespace gip.core.manager
         #endregion
 
         #region Delete
-        [ACMethodInteraction("WF", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true)]
+        [ACMethodInteraction("WF", Const.Delete, (short)MISort.Delete, true)]
         public virtual bool DeleteVBVisual()
         {
             return false;

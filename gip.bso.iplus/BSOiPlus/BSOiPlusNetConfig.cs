@@ -199,7 +199,7 @@ namespace gip.bso.iplus
             return SelectedUserInstance != null;
         }
 
-        [ACMethodInteraction("UserInstance", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true)]
+        [ACMethodInteraction("UserInstance", Const.Delete, (short)MISort.Delete, true)]
         public void Delete()
         {
             Msg msg = CurrentUserInstance.DeleteACObject(Db, true);

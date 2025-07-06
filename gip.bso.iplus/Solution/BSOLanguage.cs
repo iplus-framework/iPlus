@@ -259,7 +259,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News this instance.
         /// </summary>
-        [ACMethodInteraction("VBLanguage", "en{'New'}de{'Neu'}", (short)MISort.New, true, "SelectedLanguage", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction("VBLanguage", Const.New, (short)MISort.New, true, "SelectedLanguage", Global.ACKinds.MSMethodPrePost)]
         public void New()
         {
             if (!PreExecute("New")) return;
@@ -284,7 +284,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Deletes this instance.
         /// </summary>
-        [ACMethodInteraction("VBLanguage", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true, "CurrentLanguage", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction("VBLanguage", Const.Delete, (short)MISort.Delete, true, "CurrentLanguage", Global.ACKinds.MSMethodPrePost)]
         public void Delete()
         {
             if (!PreExecute("Delete")) return;

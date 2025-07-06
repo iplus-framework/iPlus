@@ -271,7 +271,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Deletes this instance.
         /// </summary>
-        [ACMethodInteraction("ACPackage", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true, "CurrentACPackage", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction("ACPackage", Const.Delete, (short)MISort.Delete, true, "CurrentACPackage", Global.ACKinds.MSMethodPrePost)]
         public void Delete()
         {
             if (!PreExecute("Delete")) return;

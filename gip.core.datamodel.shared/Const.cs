@@ -16,7 +16,8 @@ namespace gip.core.datamodel
         public const string Sn = "en{'Sn'}de{'Sn'}";
         public const string Ok = "en{'Ok'}de{'Ok'}";
         public const string Add = "en{'Add'}de{'Hinzufügen'}";
-        public const string New = "en{'New'}de{'Neu'}";
+        public const string New = "en{'Create new record'}de{'Neuen Datensatz anlegen'}";
+        public const string Delete = "en{'Delete current record'}de{'Aktuellen Datensatz Löschen'}";
         public const string Cancel = "en{'Cancel'}de{'Abbrechen'}";
         public const string Close = "en{'Close'}de{'Schließen'}";
         public const string Remove = "en{'Remove'}de{'Entfernen'}";

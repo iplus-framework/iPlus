@@ -650,7 +650,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News this instance.
         /// </summary>
-        [ACMethodInteraction("Visualisation", "en{'New'}de{'Neu'}", (short)MISort.New, true, "SelectedVisualisation", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction("Visualisation", Const.New, (short)MISort.New, true, "SelectedVisualisation", Global.ACKinds.MSMethodPrePost)]
         public void New()
         {
             if (!PreExecute("New")) return;
@@ -713,7 +713,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Deletes this instance.
         /// </summary>
-        [ACMethodInteraction("ACVisual", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true, "SelectedVisualisation", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction("ACVisual", Const.Delete, (short)MISort.Delete, true, "SelectedVisualisation", Global.ACKinds.MSMethodPrePost)]
         public void Delete()
         {
             if (!PreExecute("Delete")) return;

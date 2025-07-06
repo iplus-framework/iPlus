@@ -1662,7 +1662,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// News this instance.
         /// </summary>
-        [ACMethodInteraction("ACProject", "en{'New'}de{'Neu'}", (short)MISort.New, true, "SelectedACProject", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction("ACProject", Const.New, (short)MISort.New, true, "SelectedACProject", Global.ACKinds.MSMethodPrePost)]
         public void New()
         {
             if (!PreExecute("New")) return;
@@ -1726,7 +1726,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Deletes this instance.
         /// </summary>
-        [ACMethodInteraction("ACProject", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true, "CurrentACProject", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction("ACProject", Const.Delete, (short)MISort.Delete, true, "CurrentACProject", Global.ACKinds.MSMethodPrePost)]
         public void Delete()
         {
             if (Messages.Question(this, "Question00002", Global.MsgResult.Yes, false, CurrentACProject.ACProjectName) == Global.MsgResult.Yes)
