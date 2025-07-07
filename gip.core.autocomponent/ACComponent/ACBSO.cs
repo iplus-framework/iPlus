@@ -14,9 +14,37 @@ using System.IO;
 namespace gip.core.autocomponent
 {
     /// <summary>
-    /// Basisklasse für alle Businessobjekte
+    /// ACBSO is the abstract base class for all business objects (BSOs) in the iPlus framework. It provides the core logic and infrastructure for handling business components, including their initialization, data export, background processing, change notification, printing, and undo/redo operations. The class is designed for use in WPF and supports interaction with the UI via method and property attributes that enable dynamic UI generation and method invocation through MCP (Meta Command Processor).
+    /// Key points for automated usage:
+    /// ACSaveOrUndoChanges() is the main public method to trigger save or undo operations on the database context.It prompts the user to save, undo, or cancel via a dialog and then calls either OnSave() or OnUndoSave() as appropriate.ACSaveOrUndoChanges() is called from the Save()-Methods, that are implemented in the derived classes.So prefer alway to call the Save()-Method before uing ACSaveOrUndoChanges().
+    /// Printing:
+    /// QueryPrintDlg(), QueryPreviewDlg(), and QueryDesignDlg() (ACMethodCommand) open dialogs for print, preview, and report design, respectively.
+    /// Boolean methods like IsEnabledQueryPrintDlg(), IsEnabledQueryPreviewDlg(), and IsEnabledQueryDesignDlg() determine if their respective dialogs should be enabled.
+    /// Usage Order and Guidelines:
+    /// Set or read properties as needed, such as CurrentQueryACClassDesign, CurrentProgressInfo, or DataExportFilePath.
+    /// To interact with printing, call IsEnabledQueryPrintDlg(), QueryPrintDlg(), IsEnabledQueryPreviewDlg(), QueryPreviewDlg(), or QueryDesignDlg() depending on the workflow.
+    /// To manage changes, call Save() method, that is implemented in the derived classes, to prompt the user for save or undo actions. Undo logic can be invoked via UndoSave(), that is also implemented in the derived classes.
+    /// Visit the https://github.com/search?q=org%3Aiplus-framework+ACBSO.cs&type=code on github to read the source code and get a full understanding, or use the github MCP API and search for the class name.
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass BSO stateless'}de{'Basisklasse BSO zustandslos'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, true, true)]
+    [ACClassInfo(
+        Const.PackName_VarioSystem,
+        "en{'Base class for all business objects'}de{'Basisklasse für alle Geschäftsobjekte}",
+        Global.ACKinds.TACAbstractClass,
+        Global.ACStorableTypes.NotStorable,
+        true,
+        true,
+        Description = @"ACBSO is the abstract base class for all business objects (BSOs) in the iPlus framework. It provides the core logic and infrastructure for handling business components, including their initialization, data export, background processing, change notification, printing, and undo/redo operations. The class is designed for use in WPF and supports interaction with the UI via method and property attributes that enable dynamic UI generation and method invocation through MCP (Meta Command Processor).
+    Key points for automated usage:
+    ACSaveOrUndoChanges() is the main public method to trigger save or undo operations on the database context. It prompts the user to save, undo, or cancel via a dialog and then calls either OnSave() or OnUndoSave() as appropriate. ACSaveOrUndoChanges() is called from the Save()-Methods, that are implemented in the derived classes. So prefer alway to call the Save()-Method before uing ACSaveOrUndoChanges().
+    Printing:
+    QueryPrintDlg(), QueryPreviewDlg(), and QueryDesignDlg() (ACMethodCommand) open dialogs for print, preview, and report design, respectively.
+    Boolean methods like IsEnabledQueryPrintDlg(), IsEnabledQueryPreviewDlg(), and IsEnabledQueryDesignDlg() determine if their respective dialogs should be enabled.
+    Usage Order and Guidelines:
+    Set or read properties as needed, such as CurrentQueryACClassDesign, CurrentProgressInfo, or DataExportFilePath.
+    To interact with printing, call IsEnabledQueryPrintDlg(), QueryPrintDlg(), IsEnabledQueryPreviewDlg(), QueryPreviewDlg(), or QueryDesignDlg() depending on the workflow.
+    To manage changes, call Save() method, that is implemented in the derived classes, to prompt the user for save or undo actions. Undo logic can be invoked via UndoSave(), that is also implemented in the derived classes.
+    Visit the https://github.com/search?q=org%3Aiplus-framework+ACBSO.cs&type=code on github to read the source code and get a full understanding, or use the github MCP API and search for the class name."
+    )]
     public abstract class ACBSO : ACComponentState, IACBSO, IACComponentTaskSubscr
     {
         #region const

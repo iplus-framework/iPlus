@@ -171,6 +171,11 @@ namespace gip.core.datamodel
         public string ACCaptionTranslation { get; set; }
 
         /// <summary>
+        /// Description of what the class does and how it should be used. It primarily serves to help understand language models when using the MCP API.
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
         /// Gets or sets the kind of the AC.
         /// </summary>
         /// <value>The kind of the AC.</value>

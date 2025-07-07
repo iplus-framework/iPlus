@@ -770,6 +770,8 @@ namespace gip.core.autocomponent
             Translator.UpdateTranslation(acClass, acClassInfo.ACCaptionTranslation);
             if (typeof(ACValueItemList) != acClass.ObjectType && typeof(ACValueItemList).IsAssignableFrom(acClass.ObjectType))
                 Translator.UpdateTranslationACValueItemList(acClass);
+            if (!string.IsNullOrEmpty(acClassInfo.Description) && acClass.Comment != acClassInfo.Description)
+                acClass.Comment = acClassInfo.Description;
 
             if (dotNETType.BaseType != null && dotNETType.BaseType != typeof(System.Object)
                 && acClass.ACKind != Global.ACKinds.TACUndefined)
