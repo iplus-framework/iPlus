@@ -626,7 +626,8 @@ namespace gip.core.webservices
                             var methodInfo = new MCP_MethodInfo
                             {
                                 ACIdentifier = method.ACIdentifier,
-                                Description = method.ACCaption
+                                Description = method.ACCaption,
+                                ManualMCP = method.Comment
                             };
 
                             // Try to get parameter information from XML
@@ -910,7 +911,12 @@ namespace gip.core.webservices
                     IACComponent parentComp = ACRoot.SRoot.ACUrlCommand(acUrl, null) as IACComponent;
                     if (parentComp != null)
                     {
-                        IACComponent newInstance = parentComp.StartComponent(cls.ACIdentifier, null, new object[] { }) as IACComponent;
+                        IACComponent newInstance = parentComp.StartComponent(cls, cls, new ACValueList()
+                                    {
+                                            // Always use a separate Context for new instances when using MCP to avoid conflicts if multiple Agents are working with iplus at the same time
+                                            new ACValue(Const.ParamSeperateContext, typeof(bool), true)
+                                            //,new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
+                                    }) as IACComponent;
                         if (newInstance != null)
                         {
                             instanceInfo = BuildInstanceInfo(ACRoot.SRoot, new List<IACComponent>() { newInstance });

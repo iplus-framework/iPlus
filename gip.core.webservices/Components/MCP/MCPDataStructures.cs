@@ -82,6 +82,7 @@ namespace gip.core.webservices
     public class MCP_MethodInfo : MCP_BaseType
     {
         public string ReturnType { get; set; }
+        public string ManualMCP { get; set; }
         public List<MCP_ParameterInfo> Parameters { get; set; } = new List<MCP_ParameterInfo>();
     }
 

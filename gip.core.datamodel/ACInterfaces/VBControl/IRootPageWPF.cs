@@ -164,6 +164,8 @@ namespace gip.core.datamodel
 
         bool InFullscreen { get; }
 
+        bool SuppressOpenMessageBoxes { get; set; }
+
         void SwitchFullScreen();
 
         FocusBSOResult FocusBSO(IACBSO bso);

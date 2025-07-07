@@ -118,6 +118,8 @@ namespace gip.core.webservices
 
             StopMcpServer();
 
+            if (this.Root.RootPageWPF != null)
+                this.Root.RootPageWPF.SuppressOpenMessageBoxes = true;
             try
             {
                 //var builder = Host.CreateApplicationBuilder();
