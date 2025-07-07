@@ -35,14 +35,23 @@ namespace gip.core.webservices
         public bool IsWorkflowType { get; set; }
         public bool IsMultiInstanceType { get; set; }
         public bool IsCodeOnGithub { get ; set; }
+        public string ManualMCP { get; set; }
     }
 
+    public class MCP_TypeInfoWithProperties : MCP_TypeInfo
+    {
+        public List<MCP_PropertyInfo> Properties { get; set; } = new List<MCP_PropertyInfo>();
+    }
+
+    public class MCP_TypeInfoWithMethods : MCP_TypeInfo
+    {
+        public List<MCP_MethodInfo> Methods { get; set; } = new List<MCP_MethodInfo>();
+    }
 
     public class MCP_InstanceInfo : MCP_TypeInfoBase
     {
         public List<MCP_InstanceInfo> Childs { get; set; } = new List<MCP_InstanceInfo>();
     }
-
 
     public class MCP_ComponentDiscoveryResult
     {

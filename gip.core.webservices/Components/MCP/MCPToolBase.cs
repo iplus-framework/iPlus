@@ -196,7 +196,11 @@ namespace gip.core.webservices
                     if (bulkParams != null && bulkParams.Length > 0)
                         requestedFields = bulkParams;
                     else if (parametersKVP != null && parametersKVP.Count > 0)
+                    {
                         requestedFields = parametersKVP.Select(c => c.Key).ToArray();
+                        if (requestedFields[0] == "0")
+                            requestedFields = parametersKVP.Select(c => c.Value as string).ToArray();
+                    }
 
                     JsonSerializerOptions customOptions = GetNewSerializerOptions(detailLevel, requestedFields, EntityTypes);
                     string jsonResult = JsonSerializer.Serialize(result, customOptions);

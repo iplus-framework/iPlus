@@ -1971,7 +1971,18 @@ namespace gip.core.autocomponent
                                                 IACObject sourceACObject = source as IACObject;
                                                 ACClass acClassOfObject = sourceACObject.ACType as ACClass;
                                                 if (acClassOfObject != null)
+                                                {
                                                     acTypeInfo = acClassOfObject.GetProperty(path);
+                                                    if (acTypeInfo == null)
+                                                    {
+                                                        TypeAnalyser.GetPropertyPathValue(source, path, out pi);
+                                                        if (pi != null)
+                                                        {
+                                                            acUrlTypeInfo.AddSegment(baseUrl, pi.PropertyType, pi.GetValue(source), rightControlMode);
+                                                            return true;
+                                                        }
+                                                    }
+                                                }
                                             }
                                             else
                                             {

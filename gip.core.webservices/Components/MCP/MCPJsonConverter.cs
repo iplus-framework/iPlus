@@ -138,17 +138,18 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T>, IACPropertyJsonConve
                 {
                     WriteComplexProperty(writer, propertyName, propertyValue, options, DetailLevel);
                 }
-                else if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType) &&
-                         property.PropertyType != typeof(string) &&
-                         property.PropertyType != typeof(byte[]))
+                else if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType) 
+                        && property.PropertyType != typeof(string) 
+                        && property.PropertyType != typeof(byte[])
+                        && hasACPropertyInfo)
                 {
-                    WriteCollectionProperty(writer, propertyName, propertyValue, options, DetailLevel);
+                    WriteCollectionProperty(writer, propertyName, propertyValue, acPropertyInfo, options, DetailLevel);
                 }
-                else
-                {
-                    // For other complex types, write a simplified representation
-                    writer.WriteString(propertyName, $"[{property.PropertyType.Name}]");
-                }
+                //else
+                //{
+                //    // For other complex types, write a simplified representation
+                //    writer.WriteString(propertyName, $"[{property.PropertyType.Name}]");
+                //}
             }
             catch (Exception ex)
             {
@@ -202,14 +203,14 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T>, IACPropertyJsonConve
         switch (detailLevel)
         {
             case 0: // Minimal
-                return !isNavigationProp || currentDepth <= 1 || (acPropertyInfo != null && acPropertyInfo.SortIndex < 10);
+                return currentDepth <= 1 && !isNavigationProp && (acPropertyInfo != null && acPropertyInfo.SortIndex < 10);
 
             case 1: // First-degree relationships
                 if (isNavigationProp && isCollection)
                     return currentDepth <= 1;
                 if (isNavigationProp && !isCollection)
                     return currentDepth <= 2;
-                return (acPropertyInfo != null && acPropertyInfo.SortIndex < 10);
+                return (acPropertyInfo != null && acPropertyInfo.SortIndex < 10) || IsEntityKey(property);
 
             case 2: // Complete
                 return currentDepth <= 3; // Prevent infinite recursion
@@ -218,7 +219,7 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T>, IACPropertyJsonConve
                 return true;
 
             default:
-                return !isNavigationProp || currentDepth <= 1;
+                return currentDepth <= 1 && !isNavigationProp && (acPropertyInfo != null && acPropertyInfo.SortIndex < 10);
         }
     }
 
@@ -263,7 +264,7 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T>, IACPropertyJsonConve
         }
     }
 
-    private void WriteCollectionProperty(Utf8JsonWriter writer, string propertyName, object value, JsonSerializerOptions options, ushort detailLevel)
+    private void WriteCollectionProperty(Utf8JsonWriter writer, string propertyName, object value, ACClassProperty acPropertyInfo, JsonSerializerOptions options, ushort detailLevel)
     {
         if (value == null)
         {
@@ -426,6 +427,18 @@ public class ACPropertyJsonConverter<T> : JsonConverter<T>, IACPropertyJsonConve
                type == typeof(DateTimeOffset) ||
                type == typeof(TimeSpan) ||
                type == typeof(Guid);
+    }
+
+    private bool IsEntityKey(PropertyInfo property)
+    {
+        // Check if the property is decorated with KeyAttribute or is named "Id"
+        if (property.Name.EndsWith("Id", StringComparison.OrdinalIgnoreCase))
+            return true;
+        Type type = property.PropertyType;
+        var nullableType = Nullable.GetUnderlyingType(type);
+        if (nullableType != null)
+            type = nullableType;
+        return type == typeof(Guid);
     }
 
     private void WriteSimpleProperty(Utf8JsonWriter writer, string propertyName, object value, JsonSerializerOptions options)

@@ -5,7 +5,6 @@ using Azure.Core;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using Microsoft.AspNetCore.Components;
-using ModelContextProtocol.Protocol;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -260,7 +259,8 @@ namespace gip.core.webservices
                                 IsTypeOfADbTable = cls.ACKind == Global.ACKinds.TACDBA,
                                 IsWorkflowType = cls.IsWorkflowType,
                                 IsMultiInstanceType = cls.IsMultiInstance || cls.IsWorkflowType,
-                                IsCodeOnGithub = !string.IsNullOrEmpty(cls.AssemblyQualifiedName)
+                                IsCodeOnGithub = !string.IsNullOrEmpty(cls.AssemblyQualifiedName),
+                                ManualMCP = cls.Comment
                             });
 
                             if (getDerivedTypes || getBaseTypes)
@@ -284,7 +284,8 @@ namespace gip.core.webservices
                                             IsTypeOfADbTable = tClass.ACKind == Global.ACKinds.TACDBA,
                                             IsWorkflowType = tClass.IsWorkflowType,
                                             IsMultiInstanceType = tClass.IsMultiInstance || tClass.IsWorkflowType,
-                                            IsCodeOnGithub = !string.IsNullOrEmpty(cls.AssemblyQualifiedName)
+                                            IsCodeOnGithub = !string.IsNullOrEmpty(cls.AssemblyQualifiedName),
+                                            ManualMCP = tClass.Comment
                                         });
                                     }
                                 }
@@ -535,7 +536,6 @@ namespace gip.core.webservices
         #region Property Info
         public string AppGetPropertyInfo(IACComponent requester, string classID)
         {
-            var properties = new List<MCP_PropertyInfo>();
             try
             {
                 if (!string.IsNullOrEmpty(classID) && Guid.TryParse(classID, out Guid classGuid))
@@ -543,9 +543,11 @@ namespace gip.core.webservices
                     gip.core.datamodel.ACClass acType = ACRoot.SRoot.Database.ContextIPlus.GetACType(classGuid);
                     if (acType != null)
                     {
+                        var properties = new List<MCP_PropertyInfo>();
+
                         foreach (gip.core.datamodel.ACClassProperty acProp in acType.Properties)
                         {
-                            if (acProp.ACPropUsage <= Global.ACPropUsages.Property 
+                            if (acProp.ACPropUsage <= Global.ACPropUsages.Property
                                 || acProp.ACPropUsage == Global.ACPropUsages.Configuration
                                 || acProp.ACPropUsage == Global.ACPropUsages.AccessPrimary
                                 || acProp.ACPropUsage == Global.ACPropUsages.Access)
@@ -555,7 +557,6 @@ namespace gip.core.webservices
                                 {
                                     int indexOfType = acProp.GenericType.LastIndexOf(".");
                                     string acTypeName = indexOfType > 0 ? acProp.GenericType.Substring(indexOfType + 1) : acProp.GenericType;
-                                    // Else find via Assembly QualifiedName
                                     genericACClass = ACRoot.SRoot.Database.ContextIPlus.GetACType(acTypeName);
                                 }
                                 var propInfo = new MCP_PropertyInfo
@@ -571,8 +572,26 @@ namespace gip.core.webservices
                                 properties.Add(propInfo);
                             }
                         }
-                    }
 
+                        // Wrap properties in a type context
+                        var response = new MCP_TypeInfoWithProperties
+                        {
+                            ACIdentifier = acType.ACIdentifier,
+                            Description = acType.ACCaption,
+                            ClassID = acType.ACClassID.ToString(),
+                            BaseClassID = acType.BaseClass?.ACClassID.ToString() ?? Guid.Empty.ToString(),
+                            IsTypeOfAInstance = acType.ACProject?.ACProjectType == Global.ACProjectTypes.Application
+                                              || acType.ACProject?.ACProjectType == Global.ACProjectTypes.Service,
+                            IsTypeOfADbTable = acType.ACKind == Global.ACKinds.TACDBA,
+                            IsWorkflowType = acType.IsWorkflowType,
+                            IsMultiInstanceType = acType.IsMultiInstance || acType.IsWorkflowType,
+                            IsCodeOnGithub = !string.IsNullOrEmpty(acType.AssemblyQualifiedName),
+                            ManualMCP = acType.Comment,
+                            Properties = properties
+                        };
+
+                        return JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = false });
+                    }
                 }
             }
             catch (Exception ex)
@@ -581,7 +600,7 @@ namespace gip.core.webservices
                 return CreateExceptionResponse(ex);
             }
 
-            return JsonSerializer.Serialize(properties, new JsonSerializerOptions { WriteIndented = false });
+            return JsonSerializer.Serialize(new MCP_TypeInfoWithProperties(), new JsonSerializerOptions { WriteIndented = false });
         }
         #endregion
 
@@ -589,7 +608,6 @@ namespace gip.core.webservices
         #region Method Info
         public string AppGetMethodInfo(IACComponent requester, string classID)
         {
-            var methods = new List<MCP_MethodInfo>();
             try
             {
                 if (!string.IsNullOrEmpty(classID) && Guid.TryParse(classID, out Guid classGuid))
@@ -597,8 +615,14 @@ namespace gip.core.webservices
                     gip.core.datamodel.ACClass acType = ACRoot.SRoot.Database.ContextIPlus.GetACType(classGuid);
                     if (acType != null)
                     {
+                        var methods = new List<MCP_MethodInfo>();
+
                         foreach (var method in acType.Methods)
                         {
+                            if (method.ACKind == Global.ACKinds.MSMethod)
+                            {
+                            }
+
                             var methodInfo = new MCP_MethodInfo
                             {
                                 ACIdentifier = method.ACIdentifier,
@@ -647,6 +671,25 @@ namespace gip.core.webservices
                                 methods.Add(methodInfo);
                             }
                         }
+
+                        // Wrap methods in a type context
+                        var response = new MCP_TypeInfoWithMethods
+                        {
+                            ACIdentifier = acType.ACIdentifier,
+                            Description = acType.ACCaption,
+                            ClassID = acType.ACClassID.ToString(),
+                            BaseClassID = acType.BaseClass?.ACClassID.ToString() ?? Guid.Empty.ToString(),
+                            IsTypeOfAInstance = acType.ACProject?.ACProjectType == Global.ACProjectTypes.Application
+                                              || acType.ACProject?.ACProjectType == Global.ACProjectTypes.Service,
+                            IsTypeOfADbTable = acType.ACKind == Global.ACKinds.TACDBA,
+                            IsWorkflowType = acType.IsWorkflowType,
+                            IsMultiInstanceType = acType.IsMultiInstance || acType.IsWorkflowType,
+                            IsCodeOnGithub = !string.IsNullOrEmpty(acType.AssemblyQualifiedName),
+                            ManualMCP = acType.Comment,
+                            Methods = methods
+                        };
+
+                        return JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = false });
                     }
                 }
             }
@@ -656,10 +699,9 @@ namespace gip.core.webservices
                 return CreateExceptionResponse(ex);
             }
 
-            return JsonSerializer.Serialize(methods, new JsonSerializerOptions { WriteIndented = false });
+            return JsonSerializer.Serialize(new MCP_TypeInfoWithMethods(), new JsonSerializerOptions { WriteIndented = false });
         }
         #endregion
-
 
         #region ACUrlCommand
         public string ExecuteACUrlCommand(IACComponent requester, string acUrl, bool writeProperty = false, ushort detailLevel = 0, string parametersJson = "")
@@ -744,7 +786,7 @@ namespace gip.core.webservices
                                     ACUrlTypeSegmentInfo lastSegment = acUrlTypeInfo.LastOrDefault();
                                     if (lastSegment != null)
                                     {
-                                        convertedValue = ACConvert.XMLToObject(lastSegment.ACType.ObjectFullType, bulkValues[i], true, ACRoot.SRoot.Database.ContextIPlus);
+                                        convertedValue = ACConvert.XMLToObject(lastSegment.ObjectFullType, bulkValues[i], true, ACRoot.SRoot.Database.ContextIPlus);
                                         result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
                                     }
                                     else
@@ -766,7 +808,7 @@ namespace gip.core.webservices
                                         if (parametersKVP[0].Key == "0")
                                         {
                                             ACUrlTypeSegmentInfo lastSegment = acUrlTypeInfo.LastOrDefault();
-                                            convertedValue = ACConvert.XMLToObject(lastSegment.ACType.ObjectFullType, parametersKVP[i].Value.ToString(), true, ACRoot.SRoot.Database.ContextIPlus);
+                                            convertedValue = ACConvert.XMLToObject(lastSegment.ObjectFullType, parametersKVP[i].Value.ToString(), true, ACRoot.SRoot.Database.ContextIPlus);
                                             result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
                                         }
                                         else
@@ -780,7 +822,7 @@ namespace gip.core.webservices
                                                     if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommand + ACUrlHelper.Delimiter_DirSeperator + kvpValue.Key, ref acUrlTypeInfo2))
                                                     {
                                                         ACUrlTypeSegmentInfo lastSegment = acUrlTypeInfo2.LastOrDefault();
-                                                        convertedValue = ACConvert.XMLToObject(lastSegment.ACType.ObjectFullType, kvpValue.Value.ToString(), true, ACRoot.SRoot.Database.ContextIPlus);
+                                                        convertedValue = ACConvert.XMLToObject(lastSegment.ObjectFullType, kvpValue.Value.ToString(), true, ACRoot.SRoot.Database.ContextIPlus);
                                                         result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
                                                     }
                                                 }
@@ -791,7 +833,7 @@ namespace gip.core.webservices
                                                 if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommand + ACUrlHelper.Delimiter_DirSeperator + parametersKVP[i].Key, ref acUrlTypeInfo2))
                                                 {
                                                     ACUrlTypeSegmentInfo lastSegment = acUrlTypeInfo2.LastOrDefault();
-                                                    convertedValue = ACConvert.XMLToObject(lastSegment.ACType.ObjectFullType, parametersKVP[i].Value.ToString(), true, ACRoot.SRoot.Database.ContextIPlus);
+                                                    convertedValue = ACConvert.XMLToObject(lastSegment.ObjectFullType, parametersKVP[i].Value.ToString(), true, ACRoot.SRoot.Database.ContextIPlus);
                                                     result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
                                                 }
                                             }

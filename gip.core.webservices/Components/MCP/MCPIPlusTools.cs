@@ -1,4 +1,4 @@
-// Copyright (c) 2024, gipSoft d.o.o.
+﻿// Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 
 using gip.core.autocomponent;
@@ -167,7 +167,8 @@ namespace gip.core.webservices
             [Description("Controls the level of detail in JSON serialization for complex objects and Entity Framework entities when reading properties:\r\n" +
                 "0 = Minimal: Returns only basic type information and primitive values. Complex objects are represented with minimal metadata.\r\n" +
                 "1 = First-degree table relationships: Includes direct foreign key relationships and immediate child collections from Entity Framework models.\r\n" +
-                "2 = Complete: Full object serialization including all nested relationships and properties (may result in large JSON responses).\r\n" +
+                "2 = Complete: Full object serialization including all nested relationships and properties (may result in large JSON responses). Avoid using this option for reading lists, but primarily for reading a current record. " +
+                "Use it mainly when you want to copy field values ​​from one entity object that will serve as a template to a new one. Use the ID field with the GUID to copy foreign keys.\r\n" +
                 "3 = User-defined: Allows custom field selection via the parametersJson parameter. You can specify exactly which fields to include in the JSON output. Use AppGetPropertyInfo first to discover available field names.\r\n" +
                 "Default: 0 (Minimal)")]
             ushort detailLevel = 0,

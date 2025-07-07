@@ -13,6 +13,16 @@ namespace gip.core.datamodel
     {
         public string ACUrl { get; set; }
         public IACType ACType { get; set; }
+        public Type CLRType { get; set; }
+        public Type ObjectFullType         
+        {
+            get
+            {
+                if (ACType != null)
+                    return ACType.ObjectFullType;
+                return CLRType;
+            }
+        }
         public object Value { get; set; }
         public Global.ControlModes RightControlMode { get; set; }
     }
@@ -43,6 +53,17 @@ namespace gip.core.datamodel
             {
                 ACUrl = acUrl,
                 ACType = acType,
+                Value = value,
+                RightControlMode = rightControlMode
+            });
+        }
+
+        public void AddSegment(string acUrl, Type type, object value, Global.ControlModes rightControlMode)
+        {
+            this.Add(new ACUrlTypeSegmentInfo
+            {
+                ACUrl = acUrl,
+                CLRType = type,
                 Value = value,
                 RightControlMode = rightControlMode
             });
