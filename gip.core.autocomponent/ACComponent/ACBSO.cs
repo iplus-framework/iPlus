@@ -28,7 +28,7 @@ namespace gip.core.autocomponent
     /// </summary>
     [ACClassInfo(
         Const.PackName_VarioSystem,
-        "en{'Base class for all business objects'}de{'Basisklasse für alle Geschäftsobjekte}",
+        "en{'Base class for all business objects'}de{'Basisklasse für alle Geschäftsobjekte'}",
         Global.ACKinds.TACAbstractClass,
         Global.ACStorableTypes.NotStorable,
         true,
