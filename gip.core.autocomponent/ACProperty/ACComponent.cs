@@ -759,13 +759,20 @@ namespace gip.core.autocomponent
         }
 
         /// <summary>
-        /// PAClassPhysicalBaseProperty values ​​can also be stored in long-term archives. To do this, the update rate must be set in the iPlus development environment (see picture above). Set a threshold value in the "Log Filter" field so that not every marginal change in value is persisted. This is particularly useful for double and float values. Use this method to query these archived values.
+        /// This method returns the archived or historical values ​​of a property as a time series. 
+        /// In SCADA systems, it is also called a historian. 
+        /// If the result is empty, then no historical data was recorded because the user did not enable archiving in the iplus engineering environment by setting the refresh rate in the LogRefreshRate property of the table/entity object ACClassProperty. 
+        /// If necessary, also search for other suitable property names defined in the base classes that are not immediately recognizable in the context of the derived class. For example ActualValue auf an analog sensor is the gross weight of gravimetric scales.
         /// </summary>
         /// <param name="propertyName">ACIdentifier of the property that should be queried</param>
         /// <param name="from">Filter time from</param>
         /// <param name="to">Filter time to</param>
         /// <returns>PropertyLogListInfo.</returns>
-        [ACMethodInfo("ACComponent", "en{'Get archived values (historical data)'}de{'Lese archivierte Werte (Historische Daten)'}", 9999)]
+        [ACMethodInfo("ACComponent", "en{'Get archived values (historical data)'}de{'Lese archivierte Werte (Historische Daten)'}", 9999, 
+            Description = @"This method returns the archived or historical values ​​of a property as a time series. 
+            In SCADA systems, it is also called a historian. 
+            If the result is empty, then no historical data was recorded because the user did not enable archiving in the iplus engineering environment by setting the refresh rate in the LogRefreshRate property of the table/entity object ACClassProperty. 
+            If necessary, also search for other suitable property names defined in the base classes that are not immediately recognizable in the context of the derived class. For example ActualValue auf an analog sensor is the gross weight of gravimetric scales.")]
         public virtual PropertyLogListInfo GetArchiveLog(string propertyName, DateTime from, DateTime to)
         {
             IACMember member = this.GetMember(propertyName);
