@@ -154,6 +154,11 @@ namespace gip.core.datamodel
         /// </summary>
         public Type AttachToClass { get; set; }
 
+        /// <summary>
+        /// Description of what the Method does and how it should be used. It primarily serves to help understand language models when using the MCP API.
+        /// </summary>
+        public string Description { get; set; }
+
         #endregion
     }
 
