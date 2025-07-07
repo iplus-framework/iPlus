@@ -1405,6 +1405,9 @@ namespace gip.core.autocomponent
                     if (ClassMethod.IsStatic != Method.IsStatic)
                         ClassMethod.IsStatic = Method.IsStatic;
 
+                    if (ClassMethod.Comment != Info.Description)
+                        ClassMethod.Comment = Info.Description;
+
                     // Check method return type
                     DetermineDataType(Method.ReturnType, ref AssemblyQualifiedName, ref GenericTypeString, ref GenericType, ref DataType);
 

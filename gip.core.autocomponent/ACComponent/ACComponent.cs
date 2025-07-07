@@ -4881,11 +4881,19 @@ namespace gip.core.autocomponent
 
 
         /// <summary>
-        /// Dumps the state of this instance and returns the result as a xml-string.
+        /// For diagnostic purposes: Dumps the state of this instance (Properties, Points) and returns a xml-string.
+        /// The parameter maxChildDepth can be used to limit the depth of child components that are included in the dump.
+        /// If maxChildDepth is 0, all child components are included.
+        /// In order to better investigate error states or generally answer user questions, please also read the program code on github by using the current live values ​​to find out where the program is at the moment.
         /// </summary>
         /// <param name="maxChildDepth">The maximum child depth.</param>
         /// <returns></returns>
-        [ACMethodInfo("ACComponent", "en{'DumpAsXMLString'}de{'DumpAsXMLString'}", 9999)]
+        [ACMethodInfo("ACComponent", "en{'Dumps the current component state'}de{'Gibt den aktuellen Komponentenstatus aus'}", 9999, 
+            Description = @"For diagnostic purposes: Dumps the state of this instance (Properties, Points) and returns a xml-string. 
+                            The parameter maxChildDepth can be used to limit the depth of child components that are included in the dump.
+                            If maxChildDepth is 0, all child components are included. 
+                            In order to better investigate error states or generally answer user questions, please also read the program code on github by using the current live values ​​to find out where the program is at the moment.
+                            Use the GitHub MCP API and search for the class name of this instance which is also in this XML string.")]
         public string DumpAsXMLString(int maxChildDepth = 0)
         {
             XmlDocument doc = DumpAsXMLDoc(maxChildDepth);
@@ -4924,11 +4932,14 @@ namespace gip.core.autocomponent
 
 
         /// <summary>
-        /// Dumps the state of this instance (Properties, Points) and returns a XmlDocument
+        /// Dumps the state of this instance (Properties, Points) and returns a XmlDocument.
+        /// This method is intended for internal use in iPlus only. Use DumpAsXMLString instead.
         /// </summary>
         /// <param name="maxChildDepth">The maximum child depth.</param>
         /// <returns>XmlDocument</returns>
-        [ACMethodInfo("ACComponent", "en{'DumpAsXMLDoc'}de{'DumpAsXMLDoc'}", 9999)]
+        [ACMethodInfo("ACComponent", "en{'DumpAsXMLDoc'}de{'DumpAsXMLDoc'}", 9999,
+                        Description = @"Dumps the state of this instance (Properties, Points) and returns a XmlDocument. 
+                            This method is intended for internal use in iPlus only. Use DumpAsXMLString instead.")]
         public virtual XmlDocument DumpAsXMLDoc(int maxChildDepth = 0)
         {
             XmlDocument doc = new XmlDocument();
