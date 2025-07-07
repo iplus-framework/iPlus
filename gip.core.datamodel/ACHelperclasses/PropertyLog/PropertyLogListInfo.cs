@@ -69,6 +69,7 @@ namespace gip.core.datamodel
         /// <param name="decay"></param>
         public PropertyLogListInfo(Global.MaxRefreshRates refreshRateOfItems, IList<PropertyLogItem> archiveLogList, Global.InterpolationMethod iPolMethod = Global.InterpolationMethod.None, double? range = null, double? decay = null)
         {
+            _RefreshRate = refreshRateOfItems;
             _ArchiveLogList = archiveLogList;
             _IsLiveLog = false;
             _LiveLogList = null;
