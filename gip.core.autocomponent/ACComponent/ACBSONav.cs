@@ -10,14 +10,7 @@ using System.IO;
 namespace gip.core.autocomponent
 {
     /// <summary>
-    /// Basisklasse für Bussinessobjekte mit Navigationsfunktion
-    /// 
-    /// Mögliche ACState:
-    /// SMIdle      (Definiert in ACComponent)
-    /// SMReadOnly  
-    /// SMNew       
-    /// SMEdit      
-    /// SMSearch    
+
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass ACBSONav'}de{'Basisklasse ACBSONav'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, true, true)]
     [ACClassConstructorInfo(
@@ -102,7 +95,7 @@ namespace gip.core.autocomponent
         #endregion
 
         #region ACState
-        [ACMethodState("en{'Readonly'}de{'Schreibgeschützt'}", 1000)]
+        [ACMethodState("en{'Callback method on state change to SMReadOnly'}de{'Rückrufmethode bei Statusänderung SMReadOnly'}", 1000)]
         public virtual void SMReadOnly()
         {
             if (!PreExecute(Const.SMReadOnly))
@@ -110,7 +103,7 @@ namespace gip.core.autocomponent
             PostExecute(Const.SMReadOnly);
         }
 
-        [ACMethodState("en{'New'}de{'Neu'}", 1010)]
+        [ACMethodState("en{'Callback method on state change to SMNew'}de{'Rückrufmethode bei Statusänderung SMNew'}", 1010)]
         public virtual void SMNew()
         {
             if (!PreExecute(Const.SMNew))
@@ -118,7 +111,7 @@ namespace gip.core.autocomponent
             PostExecute(Const.SMNew);
         }
 
-        [ACMethodState("en{'Edit'}de{'Bearbeiten'}", 1020)]
+        [ACMethodState("en{'Callback method on state change to SMEdit'}de{'Rückrufmethode bei Statusänderung SMEdit'}", 1020)]
         public virtual void SMEdit()
         {
             if (!PreExecute(Const.SMEdit))
@@ -126,7 +119,7 @@ namespace gip.core.autocomponent
             PostExecute(Const.SMEdit);
         }
 
-        [ACMethodState("en{'Search'}de{'Suchen'}", 1030)]
+        [ACMethodState("en{'Callback method on state change to SMSearch'}de{'Rückrufmethode bei Statusänderung SMSearch'}", 1030)]
         public virtual void SMSearch()
         {
             if (!PreExecute(Const.SMSearch))
@@ -239,16 +232,23 @@ namespace gip.core.autocomponent
         }
 
         [ACPropertyInfo(1, "", "en{'Search text for data set filtering'}de{'Suchtext zur Datensatzfilterung'}")]
-        public string NavSearchWord
+        public virtual string SearchWord
         {
             get
             {
-                return AccessNav?.NavACQueryDefinition.SearchWord;
+                return AccessNav?.NavACQueryDefinition?.SearchWord;
             }
             set
             {
-                if (AccessNav != null)
-                    AccessNav.NavACQueryDefinition.SearchWord = value;
+                if (AccessNav != null && AccessNav.NavACQueryDefinition != null)
+                {
+                    if (AccessNav.NavACQueryDefinition.SearchWord != value)
+                    {
+                        AccessNav.NavACQueryDefinition.SearchWord = value;
+                        OnPropertyChanged();
+                        ExecuteMethod(Const.CmdNameSearch, null);
+                    }
+                }
             }
         }
 
