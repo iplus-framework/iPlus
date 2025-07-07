@@ -8,9 +8,65 @@ using System.IO;
 namespace gip.core.autocomponent
 {
     /// <summary>
-
+    /// The ACBSONav class is an abstract base class for business objects with navigation functionality in the iPlus Framework. 
+    /// It extends the ACBSO (AC Business Object) class and provides standardized navigation, state management, and CRUD operations for data-driven applications.
+    /// Purpose and Core Functionality:
+    /// This class serves as the foundation for business objects that need to navigate through data records, handle data filtering and searching, provide standardized delete operations and manage queries and reports.
+    /// Navigation Controls:
+    /// The class provides comprehensive navigation methods for moving through data records.
+    /// The NavigateFirst method moves to the first record in the dataset, NavigatePrev navigates to the previous record, NavigateNext moves to the next record, and NavigateLast jumps to the last record.
+    /// Each navigation method has a corresponding IsEnabled method that should be checked before execution to ensure the operation is valid in the current context.
+    /// Search and Filtering Operations:
+    /// Search functionality is implemented through the SearchWord property which allows setting text-based filtering criteria for the dataset. 
+    /// The NavTakeCount property controls the maximum number of records to retrieve, enabling pagination and performance optimization for large datasets. 
+    /// The class supports auto-filter capability through constructor parameters, allowing automatic search execution during initialization.
+    /// To perform search operations, set the SearchWord property with the desired search criteria, optionally set NavTakeCount to limit results, then execute the search by calling Search-Method in the derived class or using ACUrlCommand with the search constant.
+    /// The search will filter the navigation dataset based on the specified criteria.
+    /// Method Invocation Order for MCP:
+    /// For navigation operations, always check the enabled state using IsEnabledNavigateFirst, IsEnabledNavigatePrev, IsEnabledNavigateNext, or IsEnabledNavigateLast before executing the corresponding navigation method.
+    /// This ensures the UI remains consistent and prevents invalid operations.
+    /// For search operations, set search parameters by assigning values to SearchWord and NavTakeCount properties, then trigger the search by calling the Search method in the derived (implementing) class or using the search command through ACUrlCommand.
+    /// Key Properties for MCP Access:
+    /// SearchWord allows getting and setting search filter text for dataset filtering. 
+    /// NavTakeCount controls the maximum number of records to retrieve.
+    /// Once the user has completed the task and the value have been changed, call the Save method in the derived class to save the changes to the database. 
+    /// Do this whenever changes have been made and before navigating to another record.
+    /// Implementation Requirements:
+    /// Derived classes must implement the abstract AccessNav property which returns an IAccessNav instance.
+    /// This property provides access to the underlying navigation functionality and dataset management.
+    /// The AccessNav instance should be created as an ACAccessNav typed to the specific entity class being managed.
+    /// Visit the https://github.com/search?q=org%3Aiplus-framework+ACBSONav&type=code on github to read the source code and get a full understanding, or use the github MCP API and search for the class name.
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass ACBSONav'}de{'Basisklasse ACBSONav'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, true, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, @"en{'Baseclass for navigatable Businessobjects'}de{'Basisklasse für navigierbare Geschäftsobjekte'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, true, true, 
+        Description = @"The ACBSONav class is an abstract base class for business objects with navigation functionality in the iPlus Framework. 
+                        It extends the ACBSO (AC Business Object) class and provides standardized navigation, state management, and CRUD operations for data-driven applications.
+                        Purpose and Core Functionality:
+                        This class serves as the foundation for business objects that need to navigate through data records, handle data filtering and searching, provide standardized delete operations and manage queries and reports.
+                        Navigation Controls:
+                        The class provides comprehensive navigation methods for moving through data records.
+                        The NavigateFirst method moves to the first record in the dataset, NavigatePrev navigates to the previous record, NavigateNext moves to the next record, and NavigateLast jumps to the last record.
+                        Each navigation method has a corresponding IsEnabled method that should be checked before execution to ensure the operation is valid in the current context.
+                        Search and Filtering Operations:
+                        Search functionality is implemented through the SearchWord property which allows setting text-based filtering criteria for the dataset. 
+                        The NavTakeCount property controls the maximum number of records to retrieve, enabling pagination and performance optimization for large datasets. 
+                        The class supports auto-filter capability through constructor parameters, allowing automatic search execution during initialization.
+                        To perform search operations, set the SearchWord property with the desired search criteria, optionally set NavTakeCount to limit results, then execute the search by calling Search-Method in the derived class or using ACUrlCommand with the search constant.
+                        The search will filter the navigation dataset based on the specified criteria.
+                        Method Invocation Order for MCP:
+                        For navigation operations, always check the enabled state using IsEnabledNavigateFirst, IsEnabledNavigatePrev, IsEnabledNavigateNext, or IsEnabledNavigateLast before executing the corresponding navigation method.
+                        This ensures the UI remains consistent and prevents invalid operations.
+                        For search operations, set search parameters by assigning values to SearchWord and NavTakeCount properties, then trigger the search by calling the Search method in the derived (implementing) class or using the search command through ACUrlCommand.
+                        Key Properties for MCP Access:
+                        SearchWord allows getting and setting search filter text for dataset filtering. 
+                        NavTakeCount controls the maximum number of records to retrieve.
+                        Once the user has completed the task and the value have been changed, call the Save method in the derived class to save the changes to the database. 
+                        Do this whenever changes have been made and before navigating to another record.
+                        Implementation Requirements:
+                        Derived classes must implement the abstract AccessNav property which returns an IAccessNav instance.
+                        This property provides access to the underlying navigation functionality and dataset management.
+                        The AccessNav instance should be created as an ACAccessNav typed to the specific entity class being managed.
+                        Visit the https://github.com/search?q=org%3Aiplus-framework+ACBSONav&type=code on github to read the source code and get a full understanding, or use the github MCP API and search for the class name.
+        ")]
     [ACClassConstructorInfo(
         new object[]
         {
@@ -245,6 +301,7 @@ namespace gip.core.autocomponent
                         AccessNav.NavACQueryDefinition.SearchWord = value;
                         OnPropertyChanged();
                         ExecuteMethod(Const.CmdNameSearch, null);
+                        NavigateFirst();
                     }
                 }
             }
