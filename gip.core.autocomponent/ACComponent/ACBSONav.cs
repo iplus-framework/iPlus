@@ -30,7 +30,7 @@ namespace gip.core.autocomponent
     /// SearchWord allows getting and setting search filter text for dataset filtering. 
     /// NavTakeCount controls the maximum number of records to retrieve.
     /// Once the user has completed the task and the value have been changed, call the Save method in the derived class to save the changes to the database. 
-    /// Do this whenever changes have been made and before navigating to another record.
+    /// Call Save whenever changes have been made and before navigating to another record or when a Delete-Method was called in the derived class.
     /// Implementation Requirements:
     /// Derived classes must implement the abstract AccessNav property which returns an IAccessNav instance.
     /// This property provides access to the underlying navigation functionality and dataset management.

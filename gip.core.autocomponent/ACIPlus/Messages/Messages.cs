@@ -158,7 +158,7 @@ namespace gip.core.autocomponent
         public Global.MsgResult Msg(Msg msg, Global.MsgResult defaultResult = Global.MsgResult.OK, eMsgButton msgButton = eMsgButton.OK)
         {
             Global.MsgResult msgResult = defaultResult;
-            if (Root.RootPageWPF != null)
+            if (Root.RootPageWPF != null && !Root.RootPageWPF.SuppressOpenMessageBoxes)
                 msgResult = Root.RootPageWPF.ShowMsgBox(msg, msgButton);
 
             Messages.LogMessage(msg.MessageLevel, "MsgHandler", msg.ACIdentifier, string.Format("{0}\r\nResult:{1}", msg.Message, msgResult.ToString()));
