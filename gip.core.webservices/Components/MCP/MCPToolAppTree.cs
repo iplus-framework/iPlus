@@ -357,7 +357,7 @@ namespace gip.core.webservices
                     }
                     if (classSearchConditions.Any())
                     {
-                        List<IACComponent> matchedComponents = new List<IACComponent>();
+                        List<Tuple<MatchingCondition, IACComponent>> matchedComponents = new List<Tuple<MatchingCondition, IACComponent>>();
                         foreach (var rootApp in ACRoot.SRoot.ACComponentChilds)
                         {
                             //if (rootApp is IAppManager manager)
@@ -437,11 +437,13 @@ namespace gip.core.webservices
             }
         }
 
-        protected void SearchMatchingComponents(IACComponent component, ref List<IACComponent> matchedComponents, List<SearchCondition> classSearchConditions, bool isCompositeSearch)
+        protected void SearchMatchingComponents(IACComponent component, ref List<Tuple<MatchingCondition, IACComponent>> matchedComponents, List<SearchCondition> classSearchConditions, bool isCompositeSearch)
         {
             MatchingConditions matchingConditions = new MatchingConditions(classSearchConditions);
             IACComponent nextComp = component;
+            MatchingCondition mcNextComp = null;
             IACComponent firstMatch = null;
+            MatchingCondition mcFirstMatch = null;
             while (nextComp != null && nextComp != ACRoot.SRoot)
             {
                 // Check if the component matches any of the search conditions
@@ -454,17 +456,21 @@ namespace gip.core.webservices
                            || nextComp.ComponentClass.ACIdentifier.Contains(matchingCondition.SearchTerm, StringComparison.InvariantCultureIgnoreCase)
                            || nextComp.ComponentClass.ACCaption.Contains(matchingCondition.SearchTerm, StringComparison.InvariantCultureIgnoreCase)))
                     {
+                        mcNextComp = matchingCondition;
                         if (firstMatch == null)
+                        {
                             firstMatch = nextComp;
+                            mcFirstMatch = matchingCondition;
+                        }
                         matchingCondition.IsMatched = true; // Mark this condition as matched
                         if (!isCompositeSearch)
-                            matchedComponents.Add(nextComp);
+                            matchedComponents.Add(new Tuple<MatchingCondition, IACComponent>(matchingCondition, nextComp));
                         break;
                     }
                 }
                 if (isCompositeSearch && matchingConditions.IsFullyMatched)
                 {
-                    matchedComponents.Add(firstMatch != null ? firstMatch : nextComp);
+                    matchedComponents.Add(firstMatch != null ? new Tuple<MatchingCondition, IACComponent>(mcFirstMatch, firstMatch) : new Tuple<MatchingCondition, IACComponent>(mcNextComp,nextComp));
                     break;
                 }
                 if (!isCompositeSearch)
@@ -480,7 +486,7 @@ namespace gip.core.webservices
             }
         }
 
-        protected MCP_InstanceInfo BuildInstanceInfo(IACComponent root, List<IACComponent> matchedComponents)
+        protected MCP_InstanceInfo BuildInstanceInfo(IACComponent root, List<Tuple<MatchingCondition, IACComponent>> matchedComponents)
         {
             if (matchedComponents == null || !matchedComponents.Any())
                 return null;
@@ -492,10 +498,10 @@ namespace gip.core.webservices
                 ClassID = root.ComponentClass.ACClassID.ToString()
             };
 
-            foreach (var component in matchedComponents)
+            foreach (var matchingTuple in matchedComponents)
             {
                 MCP_InstanceInfo mcpInstance = mcpRoot;
-                List<IACComponent> reversePath = GetReversePath(root, component);
+                List<IACComponent> reversePath = GetReversePath(root, matchingTuple.Item2);
                 foreach (IACComponent instanceInPath in reversePath)
                 {
                     MCP_InstanceInfo mcpChild = mcpInstance.Childs.Where(c => c.ACIdentifier == instanceInPath.ACIdentifier).FirstOrDefault();
@@ -506,7 +512,8 @@ namespace gip.core.webservices
                             ACIdentifier = instanceInPath.ACIdentifier,
                             Description = instanceInPath.ACCaption,
                             ClassID = instanceInPath.ComponentClass?.ACClassID.ToString(),
-                            BaseClassID = instanceInPath.ComponentClass?.BaseClass?.ACClassID.ToString()
+                            BaseClassID = instanceInPath.ComponentClass?.BaseClass?.ACClassID.ToString(),
+                            MatchingBaseClassID = matchingTuple.Item2 == instanceInPath ? matchingTuple.Item1.Class.ACClassID.ToString() : null
                         };
                         mcpInstance.Childs.Add(mcpChild);
                     }
@@ -755,14 +762,39 @@ namespace gip.core.webservices
                                 if (acComp != null)
                                 {
                                     object[] parameters = null;
+                                    recommendation = "";
                                     if (parametersKVP != null && parametersKVP.Any())
-                                        parameters = ConvertKVPValues(acComp, methodName, parametersKVP);
+                                        parameters = ConvertKVPValues(acComp, methodName, parametersKVP, i, countACUrlCommands, ref recommendation);
                                     else if (bulkValues != null && bulkValues.Any())
-                                        parameters = ConvertBulkValues(acComp, methodName, bulkValues);
+                                        parameters = ConvertBulkValues(acComp, methodName, bulkValues, i, countACUrlCommands);
                                     result = acComp.ExecuteMethod(methodName, parameters);
                                 }
                                 else
-                                    errorMsg = string.Format("Instance {0} not found", acUrlOfInstance);
+                                {
+                                    ACUrlTypeInfo acUrlTypeInfo = new ACUrlTypeInfo();
+                                    if (ACRoot.SRoot.ACUrlTypeInfo(acUrlOfInstance, ref acUrlTypeInfo))
+                                    {
+                                        ACUrlTypeSegmentInfo lastComp = acUrlTypeInfo.GetLastComponent();
+                                        ACUrlTypeSegmentInfo lastElement = acUrlTypeInfo.LastOrDefault();
+                                        if (lastComp != lastElement)
+                                        {
+                                            errorMsg = string.Format("Incorrect addressing of method calls! You cannot make method calls on properties. Use the next parent element with address {0}, which is an instance derived from ACComponent. " +
+                                                "Check the method signature of method {1} using AppGetMethodInfo and you may need to pass the property name {2} as a parameter.", lastComp.ACUrl, methodName, lastElement.ACUrl.Replace(lastComp.ACUrl, ""));
+                                        }
+                                        else
+                                        {
+                                            errorMsg = "Incorrect addressing of method calls! You cannot make method calls on properties. Use the next parent element which is an instance derived from ACComponent. " +
+                                                "Check the method signature of method {0} using AppGetMethodInfo and you may need to pass the property name as a parameter.";
+                                        }
+                                    }
+                                    else
+                                    {
+
+                                        // You can't make method calls on properties. Use the parent element, which is a component, for that.
+                                        errorMsg = "Incorrect addressing of method calls! You cannot make method calls on properties. Use the next parent element which is an instance derived from ACComponent. " +
+                                            "Check the method signature of method {0} using AppGetMethodInfo and you may need to pass the property name as a parameter.";
+                                    }
+                                }
                             }
                             else
                             {
@@ -919,7 +951,12 @@ namespace gip.core.webservices
                                     }) as IACComponent;
                         if (newInstance != null)
                         {
-                            instanceInfo = BuildInstanceInfo(ACRoot.SRoot, new List<IACComponent>() { newInstance });
+                            instanceInfo = BuildInstanceInfo(ACRoot.SRoot, 
+                                new List<Tuple<MatchingCondition, IACComponent>>() 
+                                { 
+                                    new Tuple<MatchingCondition, IACComponent>(new MatchingCondition() { Class = cls, IsMatched = true }, newInstance) 
+                                }
+                                );
                         }
                         else
                         {

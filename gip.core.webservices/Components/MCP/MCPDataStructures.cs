@@ -50,6 +50,7 @@ namespace gip.core.webservices
 
     public class MCP_InstanceInfo : MCP_TypeInfoBase
     {
+        public string MatchingBaseClassID { get; set; }
         public List<MCP_InstanceInfo> Childs { get; set; } = new List<MCP_InstanceInfo>();
     }
 

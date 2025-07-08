@@ -19,6 +19,11 @@ namespace gip.core.webservices
         protected ACMonitorObject _80000_Lock = new ACMonitorObject(80000);
 
         protected IACComponent _ACRoot;
+
+        public const ushort DetailLevel_Minimal = 0;
+        public const ushort DetailLevel_FirstDegree = 1;
+        public const ushort DetailLevel_Complete = 2;
+        public const ushort DetailLevel_UserDefined = 3;
         #endregion
 
         #region Methods
@@ -172,16 +177,35 @@ namespace gip.core.webservices
 
             try
             {
+                string xmlResult = null;
                 if (result is IACObjectWithInit)
                 {
                     var acObject = result as IACObjectWithInit;
-                    return new
+                    var acComponent = acObject as ACComponent;
+                    if (acComponent != null)
                     {
-                        ACIdentifier = acObject.ACIdentifier,
-                        ACCaption = acObject.ACCaption,
-                        TypeName = acObject.GetType().Name,
-                        ACUrl = acObject.GetACUrl()
-                    };
+                        int maxChildDepth = detailLevel switch
+                        {
+                            MCPToolBase.DetailLevel_Minimal => 1,
+                            MCPToolBase.DetailLevel_FirstDegree => 2,
+                            MCPToolBase.DetailLevel_Complete => 0,
+                            3 => 0,
+                            _ => 0
+                        };
+
+                        xmlResult = acComponent.DumpAsXMLString(maxChildDepth);
+                        return new { XmlData = xmlResult, TypeName = result.GetType().Name };
+                    }
+                    else
+                    {
+                        return new
+                        {
+                            ACIdentifier = acObject.ACIdentifier,
+                            ACCaption = acObject.ACCaption,
+                            TypeName = acObject.GetType().Name,
+                            ACUrl = acObject.GetACUrl()
+                        };
+                    }
                 }
 
                 Type type = result.GetType();
@@ -208,7 +232,7 @@ namespace gip.core.webservices
                         return jsonResult;
                 }
 
-                string xmlResult = ACConvert.ObjectToXML(result, true);
+                xmlResult = ACConvert.ObjectToXML(result, true);
                 return new { XmlData = xmlResult, TypeName = result.GetType().Name };
             }
             catch
@@ -233,12 +257,15 @@ namespace gip.core.webservices
                                             new JsonSerializerOptions { WriteIndented = false });
         }
 
-        public object[] ConvertKVPValues(ACComponent aCComponent, string acMethodName, List<KeyValuePair<string, object>> kvpParams)
+        public object[] ConvertKVPValues(ACComponent aCComponent, string acMethodName, List<KeyValuePair<string, object>> kvpParams, int currCommandPos, int countACUrlCommands, ref string recommendations)
         {
             string acMethodName1;
             ACClassMethod acClassMethod = aCComponent.GetACClassMethod(acMethodName, out acMethodName1);
             if (acClassMethod == null || String.IsNullOrEmpty(acMethodName1))
-                return kvpParams.Select(c => c.Value).ToArray();
+            {
+                throw new ArgumentException(String.Format("Methodname {0} doesn't exist. First, search for the correct method using AppGetMethodInfo() and read the required parameter list of the method signature.", acMethodName));
+                //return kvpParams.Select(c => c.Value).ToArray();
+            }
 
             ACMethod acMethod = acClassMethod.TypeACSignature();
             if (acMethod == null)
@@ -247,7 +274,24 @@ namespace gip.core.webservices
             int i = 0;
             bool hasKeys = true;
             List<object> convParams = new List<object>();
-            foreach (KeyValuePair<string, object> kvp in kvpParams)
+            List<KeyValuePair<string, object>> kvpParams1 = kvpParams;
+            // If bulk operations and for each method the LLM has passed separate parameterset, then split the parameters
+            if (acMethod.ParameterValueList.Count < kvpParams.Count)
+            {
+                kvpParams1 = new List<KeyValuePair<string, object>>();
+                int offset = currCommandPos * acMethod.ParameterValueList.Count;
+                for (int j = 0; j < acMethod.ParameterValueList.Count; j++)
+                {
+                    kvpParams1.Add(kvpParams[j + offset]);
+                }
+            }
+            else if (acMethod.ParameterValueList.Count > kvpParams.Count)
+            {
+                throw new ArgumentException(String.Format("Too few parameters were passed {0}. The method {1} requires {2} parameters. Read the method signature and correct your parameter passing accordingly.", kvpParams.Count, acMethodName, acMethod.ParameterValueList.Count));
+            }
+
+            StringBuilder stringBuilder = null;
+            foreach (KeyValuePair<string, object> kvp in kvpParams1)
             {
                 if (i == 0 && kvp.Key == "0")
                     hasKeys = false;
@@ -285,8 +329,23 @@ namespace gip.core.webservices
                     }
                     else
                     {
-                        // If the key does not match any parameter, just add the value as is
-                        convParams.Add(kvp.Value);
+                        if (stringBuilder == null)
+                        {
+                            stringBuilder = new StringBuilder();
+                            stringBuilder.AppendLine(String.Format("You passed wrong parameter names! The method {0} requires the following parameters:", acMethodName));
+                        }
+                        if (kvp.Value is string)
+                        {
+                            acValue = acMethod.ParameterValueList[i];
+                            if (acValue != null)
+                            {
+                                convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, aCComponent.Database.ContextIPlus));
+                                stringBuilder.AppendLine(String.Format("Right Parametername is {0} and you passed {1}. This value {2} was used and the method call may fail.", acValue.ACIdentifier, kvp.Key, kvp.Value));
+                            }
+                        }
+                        else
+                            // If the key does not match any parameter, just add the value as is
+                            convParams.Add(kvp.Value);
                     }
                 }
                 i++;
@@ -295,15 +354,21 @@ namespace gip.core.webservices
             if (passACMethodAsParam)
                 convParams.Add(acMethod);
 
+            if (stringBuilder != null)
+                recommendations = stringBuilder.ToString();
+
             return convParams.ToArray();
         }
 
-        public object[] ConvertBulkValues(ACComponent aCComponent, string acMethodName, IEnumerable<string> bulkValues)
+        public object[] ConvertBulkValues(ACComponent aCComponent, string acMethodName, string[] bulkValues, int currCommandPos, int countACUrlCommands)
         {
             string acMethodName1;
             ACClassMethod acClassMethod = aCComponent.GetACClassMethod(acMethodName, out acMethodName1);
             if (acClassMethod == null || String.IsNullOrEmpty(acMethodName1))
-                return bulkValues.Select(c => (object)c).ToArray();
+            {
+                throw new ArgumentException(String.Format("Methodname {0} doesn't exist. First, search for the correct method using AppGetMethodInfo() and read the required parameter list of the method signature.", acMethodName));
+                //return bulkValues.Select(c => (object)c).ToArray();
+            }
 
             ACMethod acMethod = acClassMethod.TypeACSignature();
             if (acMethod == null)
@@ -312,7 +377,24 @@ namespace gip.core.webservices
             int i = 0;
             bool hasKeys = true;
             List<object> convParams = new List<object>();
-            foreach (string bulkValue in bulkValues)
+
+            List<string> bulkValues1 = bulkValues.ToList();
+            // If bulk operations and for each method the LLM has passed separate parameterset, then split the parameters
+            if (acMethod.ParameterValueList.Count < bulkValues.Count())
+            {
+                bulkValues1 = new List<string>();
+                int offset = currCommandPos * acMethod.ParameterValueList.Count;
+                for (int j = 0; j < acMethod.ParameterValueList.Count; j++)
+                {
+                    bulkValues1.Add(bulkValues[j + offset]);
+                }
+            }
+            else if (acMethod.ParameterValueList.Count > bulkValues.Count())
+            {
+                throw new ArgumentException(String.Format("Too few parameters were passed {0}. The method {1} requires {2} parameters. Read the method signature and correct your parameter passing accordingly.", bulkValues.Count(), acMethodName, acMethod.ParameterValueList.Count));
+            }
+
+            foreach (string bulkValue in bulkValues1)
             {
                 if (!hasKeys)
                 {

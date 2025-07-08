@@ -164,7 +164,7 @@ namespace gip.core.datamodel
         /// <returns>ACValue.</returns>
         public ACValue GetACValue(string propertyName)
         {
-            return this.Where(c => c.ACIdentifier == propertyName).FirstOrDefault();
+            return this.Where(c => c.ACIdentifier.Equals(propertyName, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
         }
         #endregion
 
