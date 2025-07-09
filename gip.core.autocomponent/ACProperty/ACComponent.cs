@@ -772,7 +772,8 @@ namespace gip.core.autocomponent
             Description = @"This method returns the archived or historical values ​​of a property as a time series. 
             In SCADA systems, it is also called a historian. 
             If the result is empty, then no historical data was recorded because the user did not enable archiving in the iplus engineering environment by setting the refresh rate in the LogRefreshRate property of the table/entity object ACClassProperty. 
-            If necessary, also search for other suitable property names defined in the base classes that are not immediately recognizable in the context of the derived class. For example ActualValue auf an analog sensor is the gross weight of gravimetric scales.")]
+            If necessary, also search for other suitable property names defined in the base classes that are not immediately recognizable in the context of the derived class. For example ActualValue auf an analog sensor is the gross weight of gravimetric scales.
+            Pass the from/to parameters with date AND time.")]
         public virtual PropertyLogListInfo GetArchiveLog(string propertyName, DateTime from, DateTime to)
         {
             IACMember member = this.GetMember(propertyName);
