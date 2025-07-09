@@ -6,8 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace gip.core.media
@@ -669,7 +671,31 @@ namespace gip.core.media
         {
             if (!IsEnabledOpenItem())
                 return;
-            System.Diagnostics.Process.Start(SelectedMediaItemPresentation.FilePath);
+
+            var filePath = SelectedMediaItemPresentation.FilePath;
+
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    // .NET 5+ way to open a file with the default application
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = filePath,
+                        UseShellExecute = true
+                    };
+                    Process.Start(psi);
+                }
+                catch (Exception ex)
+                {
+                    // Handle error (e.g., show a message to the user)
+                    SendMessage(new Msg { MessageLevel = eMsgLevel.Error, Message = $"Could not open file: {ex.Message}" });
+                }
+            }
+            else
+            {
+                SendMessage(new Msg { MessageLevel = eMsgLevel.Warning, Message = "File does not exist." });
+            }
         }
 
         public bool IsEnabledOpenItem()
@@ -687,7 +713,32 @@ namespace gip.core.media
         {
             if (!IsEnabledOpenItem())
                 return;
-            System.Diagnostics.Process.Start(Path.GetDirectoryName(SelectedMediaItemPresentation.FilePath));
+
+            // System.Diagnostics.Process.Start(Path.GetDirectoryName(SelectedMediaItemPresentation.FilePath));
+            var folderPath = Path.GetDirectoryName(SelectedMediaItemPresentation.FilePath);
+
+            if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
+            {
+                try
+                {
+                    // .NET 5+ way to open a file with the default application
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = folderPath,
+                        UseShellExecute = true
+                    };
+                    Process.Start(psi);
+                }
+                catch (Exception ex)
+                {
+                    // Handle error (e.g., show a message to the user)
+                    SendMessage(new Msg { MessageLevel = eMsgLevel.Error, Message = $"Could not open file: {ex.Message}" });
+                }
+            }
+            else
+            {
+                SendMessage(new Msg { MessageLevel = eMsgLevel.Warning, Message = "File does not exist." });
+            }
         }
 
         public bool IsEnabledShowInFolder()
