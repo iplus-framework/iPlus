@@ -49,7 +49,7 @@ namespace gip.core.autocomponent
 
         /// <summary>Gets or sets the encapsulated value as a boxed type</summary>
         /// <value>The boxed value.</value>
-        [ACPropertyInfo(9999)]
+        [ACPropertyInfo(1, "", "en{'Value/Key'}de{'Wert/Schlüssel'}")]
         public abstract object Value { get; set; }
 
         /// <summary>Metadata (iPlus-Type) of the Value-Property. ATTENTION: ACClass is a EF-Object. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!</summary>

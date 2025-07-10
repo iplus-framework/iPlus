@@ -572,6 +572,7 @@ namespace gip.core.webservices
                                     Description = acProp.ACCaption,
                                     DataType = acProp.ObjectFullType != null ? acProp.ObjectFullType.Name : acProp.ObjectType?.Name,
                                     IsReadOnly = !acProp.IsInput,
+                                    Group = acProp.ACGroup,
                                     InnerDataTypeClassID = acProp.ValueTypeACClassID.ToString(),
                                     GenericTypeClassID = genericACClass != null ? genericACClass.ACClassID.ToString() : null
                                 };
@@ -718,14 +719,15 @@ namespace gip.core.webservices
             {
                 List<KeyValuePair<string, object>> parametersKVP = null;
                 string[] bulkValues = null;
-                string recommendation = null;
+                StringBuilder sbErr = new StringBuilder();
+                StringBuilder sbRec = new StringBuilder();
                 // Normalize ACUrl if LLM tries to use dots
                 if (!string.IsNullOrEmpty(acUrl))
                 {
                     if (acUrl.IndexOf(ACUrlHelper.Delimiter_RelativePath) >= 0)
                     {
                         acUrl = acUrl.Replace(ACUrlHelper.Delimiter_RelativePath, ACUrlHelper.Delimiter_DirSeperator);
-                        recommendation = "Do not use dots '.' for addressing in ACUrl. Only backslashes '\\'!";
+                        sbRec.AppendLine("Do not use dots '.' for addressing in ACUrl. Only backslashes '\\'!");
                     }
                 }
 
@@ -749,7 +751,6 @@ namespace gip.core.webservices
                         acUrlCommand = acUrlCommand.Replace("\\ACComponentManager", "");
 
                         object result = null;
-                        string errorMsg = null; 
                         int indexMethodDelimiter = acUrlCommand.IndexOf(ACUrlHelper.Delimiter_InvokeMethod);
                         // If Method invocation is specified
                         if (indexMethodDelimiter > 0)
@@ -762,11 +763,10 @@ namespace gip.core.webservices
                                 if (acComp != null)
                                 {
                                     object[] parameters = null;
-                                    recommendation = "";
                                     if (parametersKVP != null && parametersKVP.Any())
-                                        parameters = ConvertKVPValues(acComp, methodName, parametersKVP, i, countACUrlCommands, ref recommendation);
+                                        parameters = ConvertKVPValues(acComp, methodName, parametersKVP, i, countACUrlCommands, sbErr, sbRec);
                                     else if (bulkValues != null && bulkValues.Any())
-                                        parameters = ConvertBulkValues(acComp, methodName, bulkValues, i, countACUrlCommands);
+                                        parameters = ConvertBulkValues(acComp, methodName, bulkValues, i, countACUrlCommands, sbErr, sbRec);
                                     result = acComp.ExecuteMethod(methodName, parameters);
                                 }
                                 else
@@ -778,21 +778,21 @@ namespace gip.core.webservices
                                         ACUrlTypeSegmentInfo lastElement = acUrlTypeInfo.LastOrDefault();
                                         if (lastComp != lastElement)
                                         {
-                                            errorMsg = string.Format("Incorrect addressing of method calls! You cannot make method calls on properties. Use the next parent element with address {0}, which is an instance derived from ACComponent. " +
-                                                "Check the method signature of method {1} using AppGetMethodInfo and you may need to pass the property name {2} as a parameter.", lastComp.ACUrl, methodName, lastElement.ACUrl.Replace(lastComp.ACUrl, ""));
+                                            sbErr.AppendLine(string.Format("Incorrect addressing of method calls! You cannot make method calls on properties. Use the next parent element with address {0}, which is an instance derived from ACComponent. " +
+                                                "Check the method signature of method {1} using AppGetMethodInfo and you may need to pass the property name {2} as a parameter.", lastComp.ACUrl, methodName, lastElement.ACUrl.Replace(lastComp.ACUrl, "")));
                                         }
                                         else
                                         {
-                                            errorMsg = "Incorrect addressing of method calls! You cannot make method calls on properties. Use the next parent element which is an instance derived from ACComponent. " +
-                                                "Check the method signature of method {0} using AppGetMethodInfo and you may need to pass the property name as a parameter.";
+                                            sbErr.AppendLine("Incorrect addressing of method calls! You cannot make method calls on properties. Use the next parent element which is an instance derived from ACComponent. " +
+                                                "Check the method signature of method {0} using AppGetMethodInfo and you may need to pass the property name as a parameter.");
                                         }
                                     }
                                     else
                                     {
 
                                         // You can't make method calls on properties. Use the parent element, which is a component, for that.
-                                        errorMsg = "Incorrect addressing of method calls! You cannot make method calls on properties. Use the next parent element which is an instance derived from ACComponent. " +
-                                            "Check the method signature of method {0} using AppGetMethodInfo and you may need to pass the property name as a parameter.";
+                                        sbErr.AppendLine("Incorrect addressing of method calls! You cannot make method calls on properties. Use the next parent element which is an instance derived from ACComponent. " +
+                                            "Check the method signature of method {0} using AppGetMethodInfo and you may need to pass the property name as a parameter.");
                                     }
                                 }
                             }
@@ -809,25 +809,18 @@ namespace gip.core.webservices
                         // Property read / write
                         else
                         {
-                            object convertedValue = null;
                             // type conversion:
                             if (writeProperty && bulkValues != null && bulkValues.Any())
                             {
                                 ACUrlTypeInfo acUrlTypeInfo = new ACUrlTypeInfo();
                                 if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommand, ref acUrlTypeInfo))
                                 {
-                                    ACUrlTypeSegmentInfo lastSegment = acUrlTypeInfo.LastOrDefault();
-                                    if (lastSegment != null)
-                                    {
-                                        convertedValue = ACConvert.XMLToObject(lastSegment.ObjectFullType, bulkValues[i], true, ACRoot.SRoot.Database.ContextIPlus);
-                                        result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
-                                    }
-                                    else
-                                        errorMsg = string.Format("Path {0} not found", acUrlCommand);
-                                }
+                                    ACUrlTypeSegmentInfo componentInfo = acUrlTypeInfo.GetLastComponent();
+                                    ACUrlTypeSegmentInfo propertyInfo = acUrlTypeInfo.LastOrDefault();
+                                    result = SetACPropertyValue(acUrlCommand, acUrlTypeInfo, componentInfo, propertyInfo, null, bulkValues[i], sbErr, sbRec);                                }
                                 else
                                 {
-                                    errorMsg = string.Format("Path {0} not found", acUrlCommand);
+                                    sbErr.AppendLine(string.Format("Path {0} not found", acUrlCommand));
                                 }
                             }
                             else if (writeProperty && parametersKVP != null && parametersKVP.Any())
@@ -835,14 +828,13 @@ namespace gip.core.webservices
                                 ACUrlTypeInfo acUrlTypeInfo = new ACUrlTypeInfo();
                                 if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommand, ref acUrlTypeInfo))
                                 {
-                                    ACUrlTypeSegmentInfo lastComponentInfo = acUrlTypeInfo.GetLastComponent();
-                                    if (lastComponentInfo != null)
+                                    ACUrlTypeSegmentInfo componentInfo = acUrlTypeInfo.GetLastComponent();
+                                    if (componentInfo != null)
                                     {
                                         if (parametersKVP[0].Key == "0")
                                         {
-                                            ACUrlTypeSegmentInfo lastSegment = acUrlTypeInfo.LastOrDefault();
-                                            convertedValue = ACConvert.XMLToObject(lastSegment.ObjectFullType, parametersKVP[i].Value.ToString(), true, ACRoot.SRoot.Database.ContextIPlus);
-                                            result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
+                                            ACUrlTypeSegmentInfo propertyInfo = acUrlTypeInfo.LastOrDefault();
+                                            result = SetACPropertyValue(acUrlCommand, acUrlTypeInfo, componentInfo, propertyInfo, null, parametersKVP[i].Value.ToString(), sbErr, sbRec);
                                         }
                                         else
                                         {
@@ -852,39 +844,46 @@ namespace gip.core.webservices
                                                 foreach (var kvpValue in parametersKVP)
                                                 {
                                                     ACUrlTypeInfo acUrlTypeInfo2 = new ACUrlTypeInfo();
-                                                    if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommand + ACUrlHelper.Delimiter_DirSeperator + kvpValue.Key, ref acUrlTypeInfo2))
+                                                    string acUrlCommandChild = acUrlCommand + ACUrlHelper.Delimiter_DirSeperator + kvpValue.Key;
+                                                    if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommandChild, ref acUrlTypeInfo2))
                                                     {
-                                                        ACUrlTypeSegmentInfo lastSegment = acUrlTypeInfo2.LastOrDefault();
-                                                        convertedValue = ACConvert.XMLToObject(lastSegment.ObjectFullType, kvpValue.Value.ToString(), true, ACRoot.SRoot.Database.ContextIPlus);
-                                                        result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
+                                                        ACUrlTypeSegmentInfo propertyInfoParent = acUrlTypeInfo.LastOrDefault();
+                                                        ACUrlTypeSegmentInfo propertyInfo = acUrlTypeInfo2.LastOrDefault();
+                                                        result = SetACPropertyValue(acUrlCommandChild, acUrlTypeInfo2, componentInfo, propertyInfo, propertyInfoParent, kvpValue.Value.ToString(), sbErr, sbRec);
                                                     }
                                                 }
                                             }
                                             else
                                             {
                                                 ACUrlTypeInfo acUrlTypeInfo2 = new ACUrlTypeInfo();
-                                                if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommand + ACUrlHelper.Delimiter_DirSeperator + parametersKVP[i].Key, ref acUrlTypeInfo2))
+                                                string acUrlCommandChild = acUrlCommand + ACUrlHelper.Delimiter_DirSeperator + parametersKVP[i].Key;
+                                                if (ACRoot.SRoot.ACUrlTypeInfo(acUrlCommandChild, ref acUrlTypeInfo2))
                                                 {
-                                                    ACUrlTypeSegmentInfo lastSegment = acUrlTypeInfo2.LastOrDefault();
-                                                    convertedValue = ACConvert.XMLToObject(lastSegment.ObjectFullType, parametersKVP[i].Value.ToString(), true, ACRoot.SRoot.Database.ContextIPlus);
-                                                    result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
+                                                    ACUrlTypeSegmentInfo propertyInfoParent = acUrlTypeInfo.LastOrDefault();
+                                                    ACUrlTypeSegmentInfo propertyInfo = acUrlTypeInfo2.LastOrDefault();
+                                                    result = SetACPropertyValue(acUrlCommandChild, acUrlTypeInfo2, componentInfo, propertyInfo, propertyInfoParent, parametersKVP[i].Value.ToString(), sbErr, sbRec);
+                                                }
+                                                else
+                                                {
+                                                    sbErr.AppendLine(string.Format("Path {0} not found", acUrlCommandChild));
                                                 }
                                             }
-                                            result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
                                         }
                                     }
                                     else
-                                        errorMsg = string.Format("Path {0} not found", acUrlCommand);
+                                        sbErr.AppendLine(string.Format("Path {0} not found", acUrlCommand));
                                 }
                                 else
                                 {
-                                    errorMsg = string.Format("Path {0} not found", acUrlCommand);
+                                    sbErr.AppendLine(string.Format("Path {0} not found", acUrlCommand));
                                 }
                             }
                             else
                                 result = ACRoot.SRoot.ACUrlCommand(acUrlCommand);
                         }
 
+                        string errorMsg = sbErr.ToString();
+                        string recommendation = sbRec.ToString();
                         var response = new MCP_ACUrlCommandResult
                         {
                             Success = string.IsNullOrEmpty(errorMsg),
@@ -906,6 +905,140 @@ namespace gip.core.webservices
                 requester.Messages.LogException(requester.GetACUrl(), nameof(ExecuteACUrlCommand), ex, true);
                 return CreateExceptionResponse(ex);
             }
+        }
+
+        protected readonly static Type _TypeGuid = typeof(Guid);
+        protected object SetACPropertyValue(string acUrlCommand, ACUrlTypeInfo acUrlTypeInfo, ACUrlTypeSegmentInfo componentInfo, ACUrlTypeSegmentInfo propertyInfo, ACUrlTypeSegmentInfo parentPropertyInfo, string value, StringBuilder sbErr, StringBuilder sbRec)
+        {
+            if (componentInfo == null)
+            {
+                sbErr.AppendLine(string.Format("Component not found for ACUrl '{0}'\r\n", acUrlCommand));
+                return null;
+            }
+            if (propertyInfo == null)
+            {
+                sbErr.AppendLine(string.Format("Property not found for ACUrl '{0}'\r\n", acUrlCommand));
+                return null;
+            }
+            if (string.IsNullOrEmpty(value))
+            {
+                sbErr.AppendLine(string.Format("Value is empty for ACUrl '{0}'\r\n", acUrlCommand));
+                return null;
+            }
+            IACComponent component = componentInfo.Value as IACComponent;
+            if (component == null)
+            {
+                sbErr.AppendLine(string.Format("Component not found for ACUrl '{0}'\r\n", acUrlCommand));
+                return null;
+            }
+            if (componentInfo == propertyInfo)
+            {
+                sbErr.AppendLine(string.Format("You cannot set a value on the component '{0}' itself. Append the ACIdentifier (Name) of the property to the ACUrl.\r\n", propertyInfo.ACUrl));
+                return null;
+            }
+
+
+            object convertedValue = null;
+            ACUrlTypeSegmentInfo selectionPropertyInfo = propertyInfo;
+
+            if (_TypeGuid == propertyInfo.ObjectFullType)
+            {
+                Guid guidKey;
+                if (!Guid.TryParse(value, out guidKey))
+                {
+                    sbErr.AppendLine(string.Format("You cannot set a GUID value on '{0}' because passed value is not a GUID\r\n", acUrlCommand));
+                    return null;
+                }
+
+                if (parentPropertyInfo == null)
+                {
+                    int countInfos = acUrlTypeInfo.Count;
+                    if (countInfos > 2)
+                    {
+                        var penultimate = acUrlTypeInfo[countInfos - 2];
+                        if (penultimate != propertyInfo && penultimate != componentInfo)
+                            parentPropertyInfo = penultimate;
+                    }
+                }
+                if (parentPropertyInfo != null)
+                {
+                    string fieldName = propertyInfo.SegmentName;
+                    if (typeof(VBEntityObject).IsAssignableFrom(parentPropertyInfo.ObjectFullType))
+                    {
+                        string typeNameOfEntityObject = parentPropertyInfo.ObjectFullType.Name;
+                        // Check if the property is a primary key of an EntityObject
+                        if (fieldName.Equals(typeNameOfEntityObject + "ID", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // LLM want's to set the primary key of the EntityObject but means a selection change
+                            if (parentPropertyInfo.ACType is gip.core.datamodel.ACClassProperty aCClassPropertySelOrCurrA
+                                && ((aCClassPropertySelOrCurrA.ACPropUsage == Global.ACPropUsages.Current || aCClassPropertySelOrCurrA.ACPropUsage == Global.ACPropUsages.Selected) && !string.IsNullOrEmpty(aCClassPropertySelOrCurrA.ACGroup)))
+                            {
+                                selectionPropertyInfo = parentPropertyInfo;
+                            }
+                            else
+                            {
+                                sbErr.AppendLine(string.Format("Changing primary Keys on Entity framework objects is not allowed! ACUrl: '{0}'\r\n", acUrlCommand));
+                                return null;
+                            }
+                        }
+                    }
+                    else if (typeof(IACObjectKeyComparer).IsAssignableFrom(selectionPropertyInfo.ObjectFullType))
+                    {
+                        // LLM want's to set the primary key of the EntityObject but means a selection change
+                        if (parentPropertyInfo.ACType is gip.core.datamodel.ACClassProperty aCClassPropertySelOrCurrA
+                            && ((aCClassPropertySelOrCurrA.ACPropUsage == Global.ACPropUsages.Current || aCClassPropertySelOrCurrA.ACPropUsage == Global.ACPropUsages.Selected) && !string.IsNullOrEmpty(aCClassPropertySelOrCurrA.ACGroup)))
+                        {
+                            selectionPropertyInfo = parentPropertyInfo;
+                        }
+                        else if (parentPropertyInfo.Value != null && parentPropertyInfo.Value is IACObjectKeyComparer comparer && comparer.IsKey(fieldName))
+                        {
+                            sbErr.AppendLine(string.Format("Changing keys on complex objects is not allowed! ACUrl: '{0}'\r\n", acUrlCommand));
+                            return null;
+                        }
+                    }
+                }
+            }
+
+            if (selectionPropertyInfo.ACType != null
+                && selectionPropertyInfo.ACType is gip.core.datamodel.ACClassProperty aCClassPropertySelOrCurr
+                && ((aCClassPropertySelOrCurr.ACPropUsage == Global.ACPropUsages.Current || aCClassPropertySelOrCurr.ACPropUsage == Global.ACPropUsages.Selected) && !string.IsNullOrEmpty(aCClassPropertySelOrCurr.ACGroup)))
+            {
+                gip.core.datamodel.ACClassProperty aCClassPropertyList = component.ComponentClass.Properties.Where(c => c.ACGroup == aCClassPropertySelOrCurr.ACGroup && c.ACPropUsage == Global.ACPropUsages.List).FirstOrDefault();
+                if (aCClassPropertyList != null)
+                {
+                    IACPropertyBase propListInstance = component.GetProperty(aCClassPropertyList.ACIdentifier);
+                    if (typeof(IACObjectKeyComparer).IsAssignableFrom(selectionPropertyInfo.ObjectFullType))
+                    {
+                        foreach (IACObjectKeyComparer objectRef in propListInstance.Value as System.Collections.IEnumerable)
+                        {
+                            if (objectRef != null && objectRef.KeyEquals(value))
+                            {
+                                convertedValue = objectRef;
+                                break;
+                            }
+                        }
+                        if (convertedValue == null)
+                        {
+                            sbErr.AppendLine(string.Format("This property with ACUrl '{0}' is a complex value. " +
+                                "You can only set references by passing a key {1}. " +
+                                "First, read the list value {2} of the common group {3} with a detail level of 1 or 2 to determine the ID and execute this command again.",
+                                selectionPropertyInfo.ACUrl, selectionPropertyInfo.ObjectFullType.Name + "ID", aCClassPropertyList.ACIdentifier, aCClassPropertyList.ACGroup));
+                            return null;
+                        }
+                    }
+                }
+            }
+
+            if (convertedValue == null)
+            {
+                convertedValue = ACConvert.XMLToObject(propertyInfo.ObjectFullType, value, true, component != null && component.Database != null ? component.Database : ACRoot.SRoot.Database.ContextIPlus);
+                if (convertedValue == null)
+                {
+                    sbErr.AppendLine(string.Format("Failed to convert value '{0}' to type '{1}' for ACUrl '{2}'", value, propertyInfo.ObjectFullType?.Name ?? "unknown", acUrlCommand));
+                    return null;
+                }
+            }
+            return ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
         }
         #endregion
 

@@ -210,11 +210,33 @@ namespace gip.core.webservices
 
                 Type type = result.GetType();
 
-                if (!type.IsEnum
-                    && ((!type.IsGenericType && typeof(VBEntityObject).IsAssignableFrom(type))
-                        || (type.IsGenericType && typeof(VBEntityObject).IsAssignableFrom(type.GetGenericArguments()[0]))
-                        )
-                   )
+                bool serializeJSON = false;
+                if (!type.IsEnum)
+                {
+                    if (typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
+                    {
+                        // Collections must be minimum detail level 1 because Serializers needs two steps
+                        if (detailLevel == 0)
+                            detailLevel++;
+                        while (type != null)
+                        {
+                            if ((!type.IsGenericType && typeof(IACObjectKeyComparer).IsAssignableFrom(type))
+                                || (type.IsGenericType && typeof(IACObjectKeyComparer).IsAssignableFrom(type.GetGenericArguments()[0])))
+                            {
+                                serializeJSON = true;
+                                break;
+                            }
+                            type = type.BaseType;
+                        }
+                    }
+                    else if ((!type.IsGenericType && typeof(IACObjectKeyComparer).IsAssignableFrom(type))
+                                || (type.IsGenericType && typeof(IACObjectKeyComparer).IsAssignableFrom(type.GetGenericArguments()[0])))
+                    {
+                        serializeJSON = true;
+                    }
+                }
+
+                if (serializeJSON)
                 {
                     string[] requestedFields = null;
                     if (bulkParams != null && bulkParams.Length > 0)
@@ -257,7 +279,7 @@ namespace gip.core.webservices
                                             new JsonSerializerOptions { WriteIndented = false });
         }
 
-        public object[] ConvertKVPValues(ACComponent aCComponent, string acMethodName, List<KeyValuePair<string, object>> kvpParams, int currCommandPos, int countACUrlCommands, ref string recommendations)
+        public object[] ConvertKVPValues(ACComponent aCComponent, string acMethodName, List<KeyValuePair<string, object>> kvpParams, int currCommandPos, int countACUrlCommands, StringBuilder sbErr, StringBuilder sbRec)
         {
             string acMethodName1;
             ACClassMethod acClassMethod = aCComponent.GetACClassMethod(acMethodName, out acMethodName1);
@@ -266,6 +288,8 @@ namespace gip.core.webservices
                 throw new ArgumentException(String.Format("Methodname {0} doesn't exist. First, search for the correct method using AppGetMethodInfo() and read the required parameter list of the method signature.", acMethodName));
                 //return kvpParams.Select(c => c.Value).ToArray();
             }
+
+            IACEntityObjectContext dbContext = aCComponent.Database != null ? aCComponent.Database : ACRoot.SRoot.Database.ContextIPlus;
 
             ACMethod acMethod = acClassMethod.TypeACSignature();
             if (acMethod == null)
@@ -290,7 +314,6 @@ namespace gip.core.webservices
                 throw new ArgumentException(String.Format("Too few parameters were passed {0}. The method {1} requires {2} parameters. Read the method signature and correct your parameter passing accordingly.", kvpParams.Count, acMethodName, acMethod.ParameterValueList.Count));
             }
 
-            StringBuilder stringBuilder = null;
             foreach (KeyValuePair<string, object> kvp in kvpParams1)
             {
                 if (i == 0 && kvp.Key == "0")
@@ -302,7 +325,7 @@ namespace gip.core.webservices
                     {
                         ACValue acValue = acMethod.ParameterValueList[i];
                         if (acValue != null)
-                            convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, aCComponent.Database.ContextIPlus));
+                            convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, dbContext));
                     }
                     else
                         convParams.Add(kvp.Value);
@@ -315,9 +338,9 @@ namespace gip.core.webservices
                         if (kvp.Value is string)
                         {
                             if (passACMethodAsParam)
-                                acValue.Value = ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, aCComponent.Database.ContextIPlus);
+                                acValue.Value = ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, dbContext);
                             else
-                                convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, aCComponent.Database.ContextIPlus));
+                                convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, dbContext));
                         }
                         else
                         {
@@ -329,18 +352,18 @@ namespace gip.core.webservices
                     }
                     else
                     {
-                        if (stringBuilder == null)
+                        if (sbRec == null)
                         {
-                            stringBuilder = new StringBuilder();
-                            stringBuilder.AppendLine(String.Format("You passed wrong parameter names! The method {0} requires the following parameters:", acMethodName));
+                            sbRec = new StringBuilder();
+                            sbRec.AppendLine(String.Format("You passed wrong parameter names! The method {0} requires the following parameters:", acMethodName));
                         }
                         if (kvp.Value is string)
                         {
                             acValue = acMethod.ParameterValueList[i];
                             if (acValue != null)
                             {
-                                convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, aCComponent.Database.ContextIPlus));
-                                stringBuilder.AppendLine(String.Format("Right Parametername is {0} and you passed {1}. This value {2} was used and the method call may fail.", acValue.ACIdentifier, kvp.Key, kvp.Value));
+                                convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, dbContext));
+                                sbRec.AppendLine(String.Format("Right Parametername is {0} and you passed {1}. This value {2} was used and the method call may fail.", acValue.ACIdentifier, kvp.Key, kvp.Value));
                             }
                         }
                         else
@@ -354,13 +377,10 @@ namespace gip.core.webservices
             if (passACMethodAsParam)
                 convParams.Add(acMethod);
 
-            if (stringBuilder != null)
-                recommendations = stringBuilder.ToString();
-
             return convParams.ToArray();
         }
 
-        public object[] ConvertBulkValues(ACComponent aCComponent, string acMethodName, string[] bulkValues, int currCommandPos, int countACUrlCommands)
+        public object[] ConvertBulkValues(ACComponent aCComponent, string acMethodName, string[] bulkValues, int currCommandPos, int countACUrlCommands, StringBuilder sbErr, StringBuilder sbRec)
         {
             string acMethodName1;
             ACClassMethod acClassMethod = aCComponent.GetACClassMethod(acMethodName, out acMethodName1);

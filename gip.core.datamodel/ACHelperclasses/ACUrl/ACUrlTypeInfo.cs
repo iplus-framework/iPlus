@@ -25,6 +25,13 @@ namespace gip.core.datamodel
         }
         public object Value { get; set; }
         public Global.ControlModes RightControlMode { get; set; }
+        public string SegmentName
+        {
+            get
+            {
+                return ACUrlHelper.ResolveParents(ACUrl).LastOrDefault();
+            }
+        }
     }
 
     public class ACUrlTypeInfo : List<ACUrlTypeSegmentInfo>

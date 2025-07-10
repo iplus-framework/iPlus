@@ -114,7 +114,10 @@ namespace gip.core.webservices
         [Description("(4) Component Property Discovery: Lists all available properties of a component type or instance. " +
             "Use this before reading/writing property values to discover available property names and their data types. " +
             "If the data type is a complex value, the value of the DataTypeClassID field can be passed recursively to AppGetPropertyInfo to analyze its structure. " +
-            "This is useful, for example, for Entity Framework objects to be able to read and modify field values.\r\n " +
+            "This is useful, for example, for Entity Framework objects to be able to read and modify field values. " +
+            "Related properties that are in a master-detail relationship are marked with the same 'Group'. " +
+            "For a selection of such complex objects (references) via ExecuteACUrlCommand, use the key (ID) from the list and pass the ID as a param to Current and Selected property. " +
+            "The ID is then implicitly resolved into an object reference and assigned to the property. " +
             "To effect state changes, ALWAYS prefer to FIRST find a suitable method via AppGetMethodInfo and execute it via ExecuteACUrlCommand instead of changing the property value directly, " +
             "because the methods validate whether a command may be executed or not. ")]
         public static string AppGetPropertyInfo(
@@ -179,7 +182,9 @@ namespace gip.core.webservices
                 "  - JSON array: [\"FieldName1\", \"FieldName2\", \"RelatedEntity.SubField\"]\r\n" +
                 "  - Comma-separated string: \"FieldName1,FieldName2,RelatedEntity.SubField\"\r\n" +
                 "Use dot notation for nested properties (e.g., \"Customer.Name\", \"OrderItems.Product.Description\"). " +
-                "Call AppGetPropertyInfo beforehand to discover available field names and their data types.")]
+                "Call AppGetPropertyInfo beforehand to discover available field names and their data types. " +
+                "To set property values ​​that are complex objects (references), pass the key (ID) which in most cases you have taken from the associated list of the master-detail relationship with the same 'Group' name. " +
+                "The passed ID is then implicitly resolved into an object reference and assigned to the property.")]
             string parametersJson = "")
         {
             return _appTree.ExecuteACUrlCommand(mcpHost, acUrl, writeProperty, detailLevel, parametersJson);

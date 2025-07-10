@@ -78,6 +78,7 @@ namespace gip.core.webservices
         public string InnerDataTypeClassID { get; set; }
         public string GenericTypeClassID { get; set; }
         public bool IsReadOnly { get; set; }
+        public string Group { get; set; }
     }
 
     public class MCP_MethodInfo : MCP_BaseType

@@ -23,7 +23,7 @@ namespace gip.core.webservices
         Dictionary<string, gip.core.datamodel.ACClass> EntityTypes { get; set; }
     }
 
-    public class ACPropertyJsonConverter<T> : JsonConverter<T>, IACPropertyJsonConverter where T : VBEntityObject
+    public class ACPropertyJsonConverter<T> : JsonConverter<T>, IACPropertyJsonConverter where T : IACObjectKeyComparer
     {
         private ushort _detailLevel;
         public ushort DetailLevel
@@ -72,7 +72,11 @@ namespace gip.core.webservices
 
             var type = value.GetType();
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            EntityTypes.TryGetValue(type.Name, out gip.core.datamodel.ACClass entityType);
+            if (!EntityTypes.TryGetValue(type.Name, out gip.core.datamodel.ACClass entityType))
+            {
+                Database db = ACRoot.SRoot.Database as Database;
+                entityType = db?.GetACType(type);
+            }
             Dictionary<string, gip.core.datamodel.ACClassProperty> acProperties = null;
             if (entityType != null)
                 acProperties = entityType.Properties.ToDictionary<gip.core.datamodel.ACClassProperty, string, gip.core.datamodel.ACClassProperty>(p => p.ACIdentifier, p => p);
@@ -146,11 +150,15 @@ namespace gip.core.webservices
                     {
                         WriteCollectionProperty(writer, propertyName, propertyValue, acPropertyInfo, options, DetailLevel);
                     }
-                    //else
-                    //{
-                    //    // For other complex types, write a simplified representation
-                    //    writer.WriteString(propertyName, $"[{property.PropertyType.Name}]");
-                    //}
+                    else if (property.PropertyType == typeof(object) && hasACPropertyInfo)
+                    {
+                        writer.WriteString(propertyName, propertyValue.ToString());
+                    }
+                    else
+                    {
+                        // For other complex types, write a simplified representation
+                        //writer.WriteString(propertyName, $"[{property.PropertyType.Name}]");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -511,7 +519,19 @@ namespace gip.core.webservices
 
         public override bool CanConvert(Type typeToConvert)
         {
-            return typeof(VBEntityObject).IsAssignableFrom(typeToConvert);
+            if (typeof(IACObjectKeyComparer).IsAssignableFrom(typeToConvert))
+                return true;
+            //Type type = typeToConvert;
+            //while (type != null)
+            //{
+            //    if ((!type.IsGenericType && typeof(IACObjectKeyComparer).IsAssignableFrom(type))
+            //        || (type.IsGenericType && typeof(IACObjectKeyComparer).IsAssignableFrom(type.GetGenericArguments()[0])))
+            //    {
+            //        return true;
+            //    }
+            //    type = type.BaseType;
+            //}
+            return false;
         }
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)

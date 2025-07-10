@@ -40,7 +40,7 @@ namespace gip.core.datamodel
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACValue", "en{'ACValue'}de{'ACValue'}", typeof(ACValue), "ACValue", Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValue'}de{'ACValue'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     [NotMapped]
-    public class ACValue : IACContainer, INotifyPropertyChanged, ICloneable, IACAttach
+    public class ACValue : IACContainer, INotifyPropertyChanged, ICloneable, IACAttach, IACObjectKeyComparer
 #else
     [DataContract]
     public class ACValue : INotifyPropertyChanged
@@ -171,7 +171,7 @@ namespace gip.core.datamodel
         /// <value>The Unique Identifier as string</value>
         [DataMember]
 #if NETFRAMEWORK
-        [ACPropertyInfo(10, "", "en{'Propertyname'}de{'Eigenschaftsname'}")]
+        [ACPropertyInfo(10, "", "en{'Propertyname/Key'}de{'Eigenschaftsname/Schlüssel'}")]
 #endif
         [NotMapped]
         public string ACIdentifier
@@ -919,7 +919,30 @@ string _ACCaption;
             XMLValue = value;
         }
 
-#region TypeConversion
+        /// <summary>
+        /// Helps selecting the current value via passed string key.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool KeyEquals(object key)
+        {
+            if (key == null)
+                return false;
+            string searchWord = key as string;
+            if (searchWord == null)
+                return false;
+            if (ACIdentifier.Equals(searchWord, StringComparison.InvariantCultureIgnoreCase))
+                return true;
+            return this.ACCaption.Equals(searchWord, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public bool IsKey(string propertyName)
+        {
+            return propertyName.Equals(nameof(ACIdentifier), StringComparison.InvariantCultureIgnoreCase) ||
+                   propertyName.Equals(nameof(ACCaption), StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        #region TypeConversion
         /// <summary>
         /// Gets the param as boolean.
         /// </summary>

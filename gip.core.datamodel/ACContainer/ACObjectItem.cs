@@ -35,7 +35,7 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACObjectItem'}de{'ACObjectItem'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     // 1 ACCaption
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACObjectItem", "en{'ACObjectItem'}de{'ACObjectItem'}", typeof(ACObjectItem), "ACObjectItem", Const.ACCaptionPrefix, Const.ACCaptionPrefix)]
-    public class ACObjectItem : IACContainerWithItemsT<ACObjectItem, IACObject>, IACObject, INotifyPropertyChanged
+    public class ACObjectItem : IACContainerWithItemsT<ACObjectItem, IACObject>, IACObject, INotifyPropertyChanged, IACObjectKeyComparer
     {
         #region c´tors
         /// <summary>
@@ -249,6 +249,7 @@ namespace gip.core.datamodel
                 return ACObject == null ? null : ACObject.ACType as ACClass;
             }
         }
+
         #endregion
 
         /// <summary>
@@ -389,6 +390,31 @@ namespace gip.core.datamodel
             return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
         }
 
+        /// <summary>
+        /// Helps selecting the current value via passed string key.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool KeyEquals(object key)
+        {
+            if (key == null)
+                return false;
+            string searchWord = key as string;
+            if (searchWord == null)
+                return false;
+            if (this.Value != null && this.Value.ToString().Equals(searchWord, StringComparison.InvariantCultureIgnoreCase))
+                return true;
+            if (ACIdentifier.Equals(searchWord, StringComparison.InvariantCultureIgnoreCase))
+                return true;
+            return this.ACCaption.Equals(searchWord, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public bool IsKey(string propertyName)
+        {
+            return propertyName.Equals(nameof(ACIdentifier), StringComparison.InvariantCultureIgnoreCase) ||
+                   propertyName.Equals(nameof(ACCaption), StringComparison.InvariantCultureIgnoreCase) ||
+                   propertyName.Equals(nameof(Value), StringComparison.InvariantCultureIgnoreCase);
+        }
         #endregion
 
         #region IACObjectEntity Members

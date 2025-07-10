@@ -38,7 +38,7 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACValueItem'}de{'ACValueItem'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     // 1 ACCaption
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACValueItem", "en{'ACValueItem'}de{'ACValueItem'}", typeof(ACValueItem), "ACValueItem", Const.ACCaptionPrefix, Const.ACCaptionPrefix)]
-    public class ACValueItem : IACContainer, IACObject, INotifyPropertyChanged
+    public class ACValueItem : IACContainer, IACObject, INotifyPropertyChanged, IACObjectKeyComparer
     {
         #region c´tors
         /// <summary>
@@ -97,7 +97,7 @@ namespace gip.core.datamodel
         /// <summary>Gets or sets the encapsulated value as a boxed type</summary>
         /// <value>The boxed value.</value>
         [DataMember]
-        [ACPropertyInfo(9999)]
+        [ACPropertyInfo(2, "", "en{'Value/Key'}de{'Wert/Schlüssel'}")]
         public object Value
         {
             get
@@ -165,7 +165,7 @@ namespace gip.core.datamodel
 
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
-        [ACPropertyInfo(1)]
+        [ACPropertyInfo(1, "", "en{'Label'}de{'Beschreibung'}")]
         public string ACCaption
         {
             get
@@ -424,6 +424,32 @@ namespace gip.core.datamodel
         //    Value = GetDefaultValue();
         //}
 
+
+        /// <summary>
+        /// Helps selecting the current value via passed string key.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool KeyEquals(object key)
+        {
+            if (key == null)
+                return false;
+            string searchWord = key as string;
+            if (searchWord == null)
+                return false;
+            if (this.Value != null && this.Value.ToString().Equals(searchWord, StringComparison.InvariantCultureIgnoreCase))
+                return true;
+            if (ACIdentifier.Equals(searchWord, StringComparison.InvariantCultureIgnoreCase))
+                return true;
+            return this.ACCaption.Equals(searchWord, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public bool IsKey(string propertyName)
+        {
+            return propertyName.Equals(nameof(ACIdentifier), StringComparison.InvariantCultureIgnoreCase) ||
+                   propertyName.Equals(nameof(ACCaption), StringComparison.InvariantCultureIgnoreCase) ||
+                   propertyName.Equals(nameof(Value), StringComparison.InvariantCultureIgnoreCase);
+        }
     }
 
 }
