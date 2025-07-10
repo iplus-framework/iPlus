@@ -129,6 +129,7 @@
     <Compile Include="ACInterfaces\ACEntity\IScheduledOrder.cs" />
     <Compile Include="ACInterfaces\ACEntity\MDTrans.cs" />
     <Compile Include="ACInterfaces\ACIPlus\IACVBNoManager.cs" />
+    <Compile Include="ACInterfaces\ACObject\IACObjectKeyComparer.cs" />
     <Compile Include="ACSerialization\ACObjectSerialHelper.cs" />
     <Compile Include="ACHelperclasses\Runtime\ACMemberIndexer.cs" />
     <Compile Include="ACHelperclasses\ACLicense\License.cs" />

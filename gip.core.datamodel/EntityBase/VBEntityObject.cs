@@ -30,7 +30,7 @@ namespace gip.core.datamodel
     /// </summary>
     [Serializable]
     [DataContract(IsReference = true)]
-    public class VBEntityObject : EntityObject, IACObjectEntity, IACEntityProperty
+    public class VBEntityObject : EntityObject, IACObjectEntity, IACEntityProperty, IACObjectKeyComparer
     {
 
         #region IACObject
@@ -391,36 +391,58 @@ namespace gip.core.datamodel
         [IgnoreDataMember]
         ACPropertyManager _ACPropertyManager = null;
         #endregion end private members
+
+        /// <summary>
+        /// Helps selecting the current value via passed string key.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool KeyEquals(object key)
+        {
+            if (key == null)
+                return false;
+            Guid guid;
+            if (key is Guid)
+                guid = (Guid)key;
+            else if (key is string)
+            {
+                if (!Guid.TryParse((string)key, out guid))
+                    return false;
+            }
+            else
+            {
+                return false;
+            }
+
+            if (EntityKey != null)
+            {
+                var keyValue = EntityKey.EntityKeyValues;
+                if (keyValue != null && keyValue.Any())
+                {
+                    var firstKey = keyValue.FirstOrDefault();
+                    if (firstKey.Value is Guid)
+                    {
+                        return (Guid)firstKey.Value == guid;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public bool IsKey(string propertyName)
+        {
+            if (string.IsNullOrEmpty(propertyName))
+                return false;
+            if (EntityKey != null)
+            {
+                var keyValue = EntityKey.EntityKeyValues;
+                if (keyValue != null && keyValue.Any())
+                {
+                    return keyValue.Any(c => c.Key == propertyName);
+                }
+            }
+            return false;
+        }
     }
 }
-
-
-
-/*
-    Some note:
- * =========================
-    * Class list they uses setter for ACCaption:
-        ACClass
-        ACClassDesign
-        ACClassMessage
-        ACClassMethod
-        ACClassProperty
-        ACClassText
-        VBDesign
-        VBDynamic
-        VBDynamicContent
-
-
-    ** Common implementation of ACType - maybe performance issue?? (now is removed):
-        private static ACClass _ReflectedACType = null;
-        public IACType ACType
-        {
-            get
-            {
-                if (_ReflectedACType == null)
-                    _ReflectedACType = this.ReflectACType() as ACClass;
-                return _ReflectedACType;
-            }
-        }
- * 
-*/

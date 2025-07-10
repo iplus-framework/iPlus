@@ -2133,6 +2133,17 @@ namespace gip.core.autocomponent
                             overriddenProperty.RemotePropID = acClassProperty.RemotePropID;
                     }
                 }
+
+                if (acClassProperty.Comment != acPropertyInfo.Description)
+                {
+                    acClassProperty.Comment = acPropertyInfo.Description;
+                    if (acClassProperty.ACClassProperty_BasedOnACClassProperty.Any())
+                    {
+                        foreach (var overriddenProperty in acClassProperty.ACClassProperty_BasedOnACClassProperty)
+                            overriddenProperty.Comment = acClassProperty.Comment;
+                    }
+                }
+
                 Int32 pointCapacity = 0;
                 if (acPropertyInfo is ACPropertyPoint)
                     pointCapacity = Convert.ToInt32((acPropertyInfo as ACPropertyPoint).PointCapacity);

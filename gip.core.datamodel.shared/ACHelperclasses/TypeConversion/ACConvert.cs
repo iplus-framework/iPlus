@@ -265,7 +265,16 @@ namespace gip.core.datamodel
                         if (valueString.StartsWith(Const.ContextDatabase + "\\"))
                             return database.ACUrlCommand(valueString.Substring(9));
                         else
-                            return database.ACUrlCommand(valueString);
+                        {
+                            Guid tableId = Guid.Empty;
+                            if (Guid.TryParse(valueString, out tableId))
+                            {
+                                EntityKey entityKey = new EntityKey(database.GetQualifiedEntitySetNameForEntityKey(conversionType.Name.ToString()), conversionType.Name.ToString() + "ID", tableId);
+                                return GetObjectFromEntityKey(database, value as EntityKey);
+                            }
+                            else
+                                return database.ACUrlCommand(valueString);
+                        }
                     }
                 }
                 // Falls zu konvertierender Wert ein TimeSpan ist
@@ -582,31 +591,7 @@ namespace gip.core.datamodel
                     // Hole EntityObject über EntityKey
                     if (typeof(EntityObject).IsAssignableFrom(conversionType))
                     {
-                        object result = null;
-                        if (database == null)
-                            database = Database.GlobalDatabase;
-                        EntityKey _EntityKey = value as EntityKey;
-                        if (_EntityKey != null)
-                        {
-                            try
-                            {
-
-                                using (ACMonitor.Lock(database.QueryLock_1X000))
-                                {
-                                    result = database.GetObjectByKey(_EntityKey);
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                string msg = e.Message;
-                                if (e.InnerException != null && e.InnerException.Message != null)
-                                    msg += " Inner:" + e.InnerException.Message;
-
-                                if (Database.Root != null && Database.Root.Messages != null)
-                                    Database.Root.Messages.LogException("ACConvert", "ChangeType(20)", msg);
-                            }
-                        }
-                        return result;
+                        return GetObjectFromEntityKey(database, value as EntityKey);
                     }
                     // Serialisiere Entity-Key nach String
                     else if (typeof(string).IsAssignableFrom(conversionType))
@@ -664,6 +649,45 @@ namespace gip.core.datamodel
 
                 throw new InvalidCastException("Not supported Type");
             }
+        }
+
+        private static object GetObjectFromEntityKey(IACEntityObjectContext database, EntityKey entityKey)
+        {
+            object result = null;
+            if (database == null)
+                database = Database.GlobalDatabase;
+            if (entityKey == null)
+                return null;
+            try
+            {
+                using (ACMonitor.Lock(database.QueryLock_1X000))
+                {
+                    result = database.GetObjectByKey(entityKey);
+                }
+            }
+            catch (Exception e)
+            {
+                if (database != Database.GlobalDatabase && database.ContextIPlus != null && database.ContextIPlus != database)
+                {
+                    try
+                    {
+                        using (ACMonitor.Lock(database.QueryLock_1X000))
+                        {
+                            result = database.ContextIPlus.GetObjectByKey(entityKey);
+                        }
+                    }
+                    catch (Exception e2)
+                    {
+                        string msg = e.Message + e2.Message;
+                        if (e.InnerException != null && e.InnerException.Message != null)
+                            msg += " Inner:" + e.InnerException.Message;
+
+                        if (Database.Root != null && Database.Root.Messages != null)
+                            Database.Root.Messages.LogException("ACConvert", "ChangeType(20)", msg);
+                    }
+                }
+            }
+            return result;
         }
 
         /// <summary>

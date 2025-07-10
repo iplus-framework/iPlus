@@ -261,6 +261,11 @@ namespace gip.core.datamodel
             }
         }
 
+        /// <summary>
+        /// Description the Property. It primarily serves to help understand language models when using the MCP API.
+        /// </summary>
+        public string Description { get; set; }
+
         #endregion
     }
 
