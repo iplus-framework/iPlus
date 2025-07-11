@@ -29,7 +29,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                return ACUrlHelper.ResolveParents(ACUrl).LastOrDefault();
+                return ACUrlHelper.SplitSegments(ACUrl).LastOrDefault();
             }
         }
     }

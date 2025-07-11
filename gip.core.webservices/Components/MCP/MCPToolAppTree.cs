@@ -974,6 +974,7 @@ namespace gip.core.webservices
                                 && ((aCClassPropertySelOrCurrA.ACPropUsage == Global.ACPropUsages.Current || aCClassPropertySelOrCurrA.ACPropUsage == Global.ACPropUsages.Selected) && !string.IsNullOrEmpty(aCClassPropertySelOrCurrA.ACGroup)))
                             {
                                 selectionPropertyInfo = parentPropertyInfo;
+                                acUrlCommand = selectionPropertyInfo.ACUrl;
                             }
                             else
                             {
@@ -989,6 +990,7 @@ namespace gip.core.webservices
                             && ((aCClassPropertySelOrCurrA.ACPropUsage == Global.ACPropUsages.Current || aCClassPropertySelOrCurrA.ACPropUsage == Global.ACPropUsages.Selected) && !string.IsNullOrEmpty(aCClassPropertySelOrCurrA.ACGroup)))
                         {
                             selectionPropertyInfo = parentPropertyInfo;
+                            acUrlCommand = selectionPropertyInfo.ACUrl;
                         }
                         else if (parentPropertyInfo.Value != null && parentPropertyInfo.Value is IACObjectKeyComparer comparer && comparer.IsKey(fieldName))
                         {
