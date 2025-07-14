@@ -26,6 +26,7 @@ using System.Collections;
 using gip.core.datamodel;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
 namespace gip.core.datamodel
 {
@@ -120,18 +121,22 @@ namespace gip.core.datamodel
             {
                 if (acObject is DbContext)
                 {
-                    //PropertyInfo pi = typeParent.GetProperty(childACUrl);
-                    //if (pi != null)
-                    //{
-                    //    return SearchWithEntitySQL<T>(acObject, queryDefinition, childACUrl, mergeOption);
-                    //}
-                    //else
-                    //{
+                    PropertyInfo pi = typeParent.GetProperty(childACUrl);
+                    if (pi != null && (!UseDynLINQ || !string.IsNullOrEmpty(queryDefinition.EntitySQL_FromEdit)))
+                    {
+                        DbSet<T> childProp = acObject.ACUrlCommand(childACUrl) as DbSet<T>;
+                        if (childProp == null)
+                            return null;
+                        return SearchWithEntitySQL<T>(childProp, acObject, queryDefinition, childACUrl, mergeOption);
+                    }
+                    else
+                    {
                         IEnumerable<T> childProp = acObject.ACUrlCommand(childACUrl) as IEnumerable<T>;
                         if (childProp == null)
                             return null;
+                        queryDefinition.QueryContext = acObject;
                         return SearchWithDynQuery<T>(childProp, queryDefinition, mergeOption);
-                    //}
+                    }
                 }
                 else
                 {
@@ -169,9 +174,22 @@ namespace gip.core.datamodel
         {
             return SearchWithDynQuery<T>(list, queryDefinition, mergeOption);
         }
-#endregion
+        #endregion
 
-#region private Methods
+        #region private Methods
+        private static bool? _UseDynLINQ;
+        private static bool UseDynLINQ
+        {
+            get
+            {
+                if (_UseDynLINQ.HasValue)
+                    return _UseDynLINQ.Value;
+                _UseDynLINQ = false;
+                _UseDynLINQ = Database.Root?.Environment?.UseDynLINQ;
+                return _UseDynLINQ.Value;
+            }
+        }
+
         /// <summary>
         /// Searches the data Q.
         /// </summary>
@@ -235,33 +253,25 @@ namespace gip.core.datamodel
             return resultQuery;
         }
 
-        private static IQueryable<T> SearchWithEntitySQL<T>(IACObject context, ACQueryDefinition queryDefinition, string childACUrl, MergeOption mergeOption)
+        private static IQueryable<TEntity> SearchWithEntitySQL<TEntity>(DbSet<TEntity> source, IACObject context, ACQueryDefinition queryDefinition, string childACUrl, MergeOption mergeOption) where TEntity : class
         {
-            /*
-            //if () / if merge ako ne postoje sve 3 opcije tu postaviti upit
+            IQueryable<TEntity> dynQuery;
             queryDefinition.QueryContext = context;
-
-            ObjectQuery<T> dynQuery = new ObjectQuery<T>(queryDefinition.EntitySQL, context as DbContext, mergeOption);
-            List<ObjectParameter> parameterList = queryDefinition.FilterParameters;
-
-            int parameterCount = 0;
-            if (parameterList != null && parameterList.Any())
+            if (ACQueryDefinition.C_SQLNamedParams)
             {
-                foreach (ObjectParameter parameter in parameterList)
-                {
-                    dynQuery.Parameters.Add(parameter);
-                    parameterCount++;
-                }
+                //var formatableString = FormattableStringFactory.Create(queryDefinition.EntitySQL, queryDefinition.SQLParameters.Select(c => c.Value).ToArray());
+                //var dynQuery = source.FromSql<TEntity>(formatableString);
+                dynQuery = source.FromSqlRaw<TEntity>(queryDefinition.EntitySQL, queryDefinition.SQLParameters.Select(c => new Microsoft.Data.SqlClient.SqlParameter(c.Name, c.Value)).ToArray());
+                //dynQuery = source.FromSqlInterpolated<TEntity>(formatableString);
             }
-
-            // Take Count moved to ACAccess
-            //if (queryDefinition.TakeCount > 0)
-            //    dynQuery.Parameters.Add(new ObjectParameter("p" + parameterCount.ToString(), queryDefinition.TakeCount));
-            */
-
-            throw new NotImplementedException();
-
-            //return dynQuery;
+            else
+            {
+                //var formatableString = FormattableStringFactory.Create(queryDefinition.EntitySQL, queryDefinition.SQLParameters.Select(c => c.Value).ToArray());
+                //dynQuery = source.FromSql<TEntity>(formatableString);
+                dynQuery = source.FromSqlRaw<TEntity>(queryDefinition.EntitySQL, queryDefinition.SQLParameters.Select(c => c.Value).ToArray());
+                //dynQuery = source.FromSqlInterpolated<TEntity>(formatableString);
+            }
+            return dynQuery;
         }
 #endregion
     }

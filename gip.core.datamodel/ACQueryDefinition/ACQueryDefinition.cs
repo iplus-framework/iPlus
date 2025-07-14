@@ -19,6 +19,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace gip.core.datamodel
 {
@@ -589,6 +590,18 @@ namespace gip.core.datamodel
             }
         }
 
+        public static bool C_SQLNamedParams = true;
+        private List<ObjectParameter> _SQLParameters;
+        public List<ObjectParameter> SQLParameters
+        {
+            get
+            {
+                if (_SQLParameters != null)
+                    return _SQLParameters;
+                return FilterParameters;
+            }
+        }
+
         private string _OneTimeSearchWord;
         /// <summary>  Searchword, that is used once. After excecuting the search with ACAccess.OneTimeSearchT() this value will be reset to null.</summary>
         /// <value>The one time search word.</value>
@@ -753,20 +766,12 @@ namespace gip.core.datamodel
         {
             get
             {
-                //string queryString = "SELECT VALUE c FROM " + this.ChildACUrl + " AS c ";
-                //ObjectContext context = QueryContext as ObjectContext;
-                //if (context != null)
-                //    queryString = "SELECT VALUE c FROM " + context.DefaultContainerName + "." + this.ChildACUrl + " AS c ";
-                //else
-                //    throw new MissingMemberException("QueryContext in ACQueryDefinition is null or ist not a ObjectContext");
-                //return queryString;
                 if (this.QueryContext == null)
                     return "";
                 DbContext context = QueryContext as DbContext;
                 if (context == null)
                     return "";
-                //string queryString = "SELECT VALUE c FROM " + context.DefaultContainerName + "." + this.ChildACUrl + " AS c ";
-                string queryString = null;
+                string queryString = String.Format("SELECT TOP {0} c.* FROM {1} AS c ", this.TakeCount, this.QueryType.ACIdentifier);
                 return queryString;
             }
         }
@@ -797,7 +802,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                if (!String.IsNullOrEmpty(_EntitySQL_FromItems) && _EntitySQL_FromItems.IndexOf("SELECT VALUE c FROM") >= 0)
+                if (!String.IsNullOrEmpty(_EntitySQL_FromItems) && _EntitySQL_FromItems.IndexOf("SELECT TOP ") >= 0)
                     return _EntitySQL_FromItems;
                 if (String.IsNullOrEmpty(SelectPartOfEntitySQL))
                     return "";
@@ -1187,6 +1192,10 @@ namespace gip.core.datamodel
                     (this.ACObjectChilds as List<IACObject>).Add(toChild);
                 }
             }
+
+            this.EntitySQL_FromEdit = from.EntitySQL_FromEdit;
+            this._EntitySQL_FromItems = from._EntitySQL_FromItems;
+
         }
 
         private void CopyFilterList(BindingList<ACFilterItem> source, BindingList<ACFilterItem> target)
@@ -1277,7 +1286,7 @@ namespace gip.core.datamodel
                 parameterCount = filterValues.Count;
             _EntitySQL_FromItems = SelectPartOfEntitySQL;
             if (!string.IsNullOrEmpty(filter))
-                _EntitySQL_FromItems += "WHERE " + filter;
+                _EntitySQL_FromItems += filter;
             _EntitySQL_FromItems += sortOrder;
             OnPropertyChanged("EntitySQL_FromItems");
             OnPropertyChanged("EntitySQL");
@@ -1299,6 +1308,17 @@ namespace gip.core.datamodel
             OnPropertyChanged("EntitySQL");
         }
 
+        protected class JoinBuilder
+        {
+            public JoinBuilder()
+            {
+                JoinCount = 0;
+                JoinExpressions = new StringBuilder();
+            }
+            public int JoinCount { get; set; }
+            public StringBuilder JoinExpressions { get; set; }
+        }
+
         /// <summary>
         /// Builds a either a LINQ-Statement or a Entity-SQL-Statement from the ACFilterColumns and ACSortColumns
         /// </summary>
@@ -1308,15 +1328,24 @@ namespace gip.core.datamodel
         /// <param name="forEntitySQL"></param>
         protected void BuildFilter(ref string filter, ref List<ObjectParameter> filterValues, ref string sortOrder, bool forEntitySQL = false)
         {
-            sortOrder = GetOrderExpression(forEntitySQL);
+            JoinBuilder joinExpressions = new JoinBuilder();
             filterValues = new List<ObjectParameter>();
-            filter = CreateFilterPart(0, ACFilterColumns.Count() - 1, ref filterValues, forEntitySQL);
+            filter = CreateFilterPart(0, ACFilterColumns.Count() - 1, ref filterValues, ref joinExpressions, forEntitySQL);
+            sortOrder = GetOrderExpression(ref joinExpressions, forEntitySQL);
+            if (forEntitySQL)
+            {
+                if (joinExpressions.JoinCount > 0)
+                    filter = joinExpressions.JoinExpressions.ToString() + " WHERE " + filter;
+                else if (!string.IsNullOrEmpty(filter))
+                    filter = " WHERE " + filter;
+            }
+            _SQLParameters = filterValues;
         }
 
 
-        private string CreateFilterPart(int indexFrom, int indexTo, ref List<ObjectParameter> filterValueList, bool forEntitySQL = false)
+        private string CreateFilterPart(int indexFrom, int indexTo, ref List<ObjectParameter> filterValueList, ref JoinBuilder joinExpressions, bool forEntitySQL = false)
         {
-            string filterPart = "";
+            StringBuilder filterPart = new StringBuilder();
             string nextConnector = "";
 
             for (int i = indexFrom; i < indexTo + 1; i++)
@@ -1347,12 +1376,12 @@ namespace gip.core.datamodel
                                 break;
                             }
                         }
-                        string part = CreateFilterPart(indexFrom1, indexTo1, ref filterValueList, forEntitySQL);
+                        string part = CreateFilterPart(indexFrom1, indexTo1, ref filterValueList, ref joinExpressions, forEntitySQL);
                         if (!string.IsNullOrEmpty(part))
                         {
-                            filterPart += nextConnector;
-                            filterPart += "(" + part + ")";
-                            nextConnector = CreateFilterConnector(filterItem);
+                            filterPart.Append(nextConnector);
+                            filterPart.Append("(" + part.ToString() + ")");
+                            nextConnector = CreateFilterConnector(filterItem, forEntitySQL);
 
                             //if (indexTo1 + 2 < FilterItems.Count()) // Am Ende kein Verknüpfungsoperator
                             //    filterPart += FilterItems[indexTo1 + 1].VerknuepfungsOperator;
@@ -1361,22 +1390,22 @@ namespace gip.core.datamodel
                         break;
                     case Global.FilterTypes.filter:
                         {
-                            string filterstring = CreateFilterExpression(filterItem, ref filterValueList, forEntitySQL);
+                            string filterstring = CreateFilterExpression(filterItem, ref filterValueList, ref joinExpressions, forEntitySQL);
                             if (!string.IsNullOrEmpty(filterstring))
                             {
-                                filterPart += nextConnector;
-                                filterPart += filterstring;
+                                filterPart.Append(nextConnector);
+                                filterPart.Append(filterstring);
                                 if (i + 1 >= ACFilterColumns.Count()) // Am Ende kein Verknüpfungsoperator
                                     break;
                                 if (ACFilterColumns[i + 1].FilterType == Global.FilterTypes.parenthesisClose)
                                     continue;
-                                nextConnector = CreateFilterConnector(filterItem);
+                                nextConnector = CreateFilterConnector(filterItem, forEntitySQL);
                             }
                         }
                         break;
                 }
             }
-            return filterPart;
+            return filterPart.ToString();
         }
 
 
@@ -1388,9 +1417,9 @@ namespace gip.core.datamodel
         /// <param name="filterValueList">The filter value list.</param>
         /// <param name="forEntitySQL">The search word.</param>
         /// <returns>System.String.</returns>
-        private string CreateFilterExpression(ACFilterItem filterItem, ref List<ObjectParameter> filterValueList, bool forEntitySQL = false)
+        private string CreateFilterExpression(ACFilterItem filterItem, ref List<ObjectParameter> filterValueList, ref JoinBuilder joinExpressions, bool forEntitySQL = false)
         {
-            string filterExpression;
+            StringBuilder filterExpression = new StringBuilder();
             string index = filterValueList.Count().ToString();
             ObjectParameter objectParameter = filterItem.GetValueAsObjParameter(QueryType.ObjectType, SearchWordForQuery, "p" + index);
             if (objectParameter == null)
@@ -1406,22 +1435,73 @@ namespace gip.core.datamodel
             string[] memberList = filterItem.PropertyName.Split('\\');
             if (memberList.Count() > 1)
             {
-                filterExpression = "";
-                for (int i = 0; i < memberList.Count(); i++)
+                if (forEntitySQL)
                 {
-                    if (!string.IsNullOrEmpty(filterExpression))
-                        filterExpression += ".";
-                    filterExpression += memberList[i];
+                    // MainTable : Partslist
+                    // Material\BaseMDUnit\UnitName
+                    // SELECT * FROM Partslist c
+                    // LEFT JOIN Material j0 ON j0.MaterialID = c.MaterialID
+                    // LEFT JOIN MDUnit j1 ON j1.MDUnitID = j0.BaseMDUnitID
+                    // WHERE j1.UnitName = @p0
+
+                    string prevAlias = "c";
+                    ACClass prevTable = QueryType as ACClass;
+                    ACClassProperty prevProperty = null;
+                    for (int i = 0; i < memberList.Count(); i++)
+                    {
+                        ACClassProperty acClassProperty = prevTable.Properties.Where(c => c.ACIdentifier == memberList[i]).FirstOrDefault();
+                        if (acClassProperty == null)
+                            return null;
+                        ACClass table = acClassProperty.ValueTypeACClass;
+                        if (table == null)
+                            return null;
+
+                        if (i < memberList.Count() - 1)
+                        {
+                            joinExpressions.JoinExpressions.Append(string.Format(" LEFT JOIN {0} AS j{1} ON j{1}.{0}ID = {2}.{3}ID", table.ACIdentifier, joinExpressions.JoinCount, prevAlias, acClassProperty.ACIdentifier));
+                            prevAlias = "j" + joinExpressions.JoinCount.ToString();
+                            joinExpressions.JoinCount++;
+                        }
+
+                        prevTable = table;
+                        prevProperty = acClassProperty;
+                    }
+                    if (C_SQLNamedParams && objectParameter != null)
+                    {
+                        objectParameter.Name = prevAlias + "." + prevProperty.ACIdentifier;
+                        filterExpression.Append(objectParameter.Name);
+                        objectParameter.Name = objectParameter.Name.Replace(".", "");
+                        //filterExpression.Append(String.Format("{{{0}}}", objectParameter.Name));
+                    }
+                    else
+                        filterExpression.Append(prevAlias + "." + prevProperty.ACIdentifier);
                 }
-                if (forEntitySQL && !String.IsNullOrEmpty(filterExpression))
-                    filterExpression = "c." + filterExpression;
+                else
+                {
+                    for (int i = 0; i < memberList.Count(); i++)
+                    {
+                        if (filterExpression.Length > 0)
+                            filterExpression.Append(".");
+                        filterExpression.Append(memberList[i]);
+                    }
+                }
             }
             else
             {
                 if (forEntitySQL)
-                    filterExpression = "c." + filterItem.PropertyName;
+                {
+                    if (C_SQLNamedParams && objectParameter != null)
+                    {
+                        objectParameter.Name = "c." + filterItem.PropertyName;
+                        filterExpression.Append(objectParameter.Name);
+                        objectParameter.Name = objectParameter.Name.Replace(".", "");
+                        //filterExpression.Append(String.Format("{{{0}}}", objectParameter.Name));
+                    }
+                    else
+                        filterExpression.Append("c." + filterItem.PropertyName);
+                }
                 else
-                    filterExpression = filterItem.PropertyName;
+                    filterExpression.Append(filterItem.PropertyName);
             }
 
             if (filterItem.LogicalOperator == Global.LogicalOperators.contains
@@ -1452,112 +1532,191 @@ namespace gip.core.datamodel
                     {
                         filterValueList.Add(objectParameter);
                         if (forEntitySQL)
-                            filterExpression += " = @p" + index;
+                        {
+                            if (C_SQLNamedParams)
+                                filterExpression.Append(String.Format(" = @{0}", objectParameter.Name));
+                            else
+                                filterExpression.Append(String.Format(" = {{{0}}}", index));
+                        }
                         else
-                            filterExpression += " = @" + index;
+                            filterExpression.Append(" = @" + index.ToString());
                         break;
                     }
                 case Global.LogicalOperators.greaterThan:
                     {
                         filterValueList.Add(objectParameter);
                         if (forEntitySQL)
-                            filterExpression += " > @p" + index;
+                        {
+                            if (C_SQLNamedParams)
+                                filterExpression.Append(String.Format(" > @{0}", objectParameter.Name));
+                            else
+                                filterExpression.Append(String.Format(" > {{{0}}}", index));
+                        }
                         else
-                            filterExpression += " > @" + index;
+                            filterExpression.Append(" > @" + index.ToString());
                         break;
                     }
                 case Global.LogicalOperators.greaterThanOrEqual:
                     {
                         filterValueList.Add(objectParameter);
                         if (forEntitySQL)
-                            filterExpression += " >= @p" + index;
+                        {
+                            if (C_SQLNamedParams)
+                                filterExpression.Append(String.Format(" >= @{0}", objectParameter.Name));
+                            else
+                                filterExpression.Append(String.Format(" >= {{{0}}}", index));
+                        }
                         else
-                            filterExpression += " >= @" + index;
+                            filterExpression.Append(" >= @" + index.ToString());
                         break;
                     }
                 case Global.LogicalOperators.lessThan:
                     {
                         filterValueList.Add(objectParameter);
                         if (forEntitySQL)
-                            filterExpression += " < @p" + index;
+                        {
+                            if (C_SQLNamedParams)
+                                filterExpression.Append(String.Format(" < @{0}", objectParameter.Name));
+                            else
+                                filterExpression.Append(String.Format(" < {{{0}}}", index));
+                        }
                         else
-                            filterExpression += " < @" + index;
+                            filterExpression.Append(" < @" + index.ToString());
                         break;
                     }
                 case Global.LogicalOperators.lessThanOrEqual:
                     {
                         filterValueList.Add(objectParameter);
                         if (forEntitySQL)
-                            filterExpression += " <= @p" + index;
+                        {
+                            if (C_SQLNamedParams)
+                                filterExpression.Append(String.Format(" <= @{0}", objectParameter.Name));
+                            else
+                                filterExpression.Append(String.Format(" <= {{{0}}}", index));
+                        }
                         else
-                            filterExpression += " <= @" + index;
+                            filterExpression.Append(" <= @" + index.ToString());
                         break;
                     }
                 case Global.LogicalOperators.notEqual:
                     {
                         filterValueList.Add(objectParameter);
                         if (forEntitySQL)
-                            filterExpression += " != @p" + index;
+                        {
+                            if (C_SQLNamedParams)
+                                filterExpression.Append(String.Format(" <> @{0}", objectParameter.Name));
+                            else
+                                filterExpression.Append(String.Format(" <> {{{0}}}", index));
+                        }
                         else
-                            filterExpression += " != @" + index;
+                            filterExpression.Append(" != @" + index.ToString());
                         break;
                     }
                 case Global.LogicalOperators.contains:
                     {
                         filterValueList.Add(objectParameter);
                         if (forEntitySQL)
-                            filterExpression += " LIKE '%' + @p" + index + " + '%'";
+                        {
+                            if (C_SQLNamedParams)
+                            {
+                                objectParameter.Value = String.Format("%{0}%", objectParameter.Value);
+                                filterExpression.Append(String.Format(" LIKE @{0}", objectParameter.Name));
+                            }
+                            else
+                            {
+                                objectParameter.Value = String.Format("%{0}%", objectParameter.Value);
+                                filterExpression.Append(String.Format(" LIKE {{{0}}}", index));
+                            }
+                        }
                         else
-                            filterExpression += ".Contains(@" + index + ")";
+                            filterExpression.Append(".Contains(@" + index.ToString() + ")");
                         break;
                     }
                 case Global.LogicalOperators.notContains:
                     {
                         filterValueList.Add(objectParameter);
                         if (forEntitySQL)
-                            filterExpression += " NOT LIKE '%' + @p" + index + " + '%'";
+                        {
+                            if (C_SQLNamedParams)
+                            {
+                                objectParameter.Value = String.Format("%{0}%", objectParameter.Value);
+                                filterExpression.Append(String.Format(" NOT LIKE @{0}", objectParameter.Name));
+                            }
+                            else
+                            {
+                                objectParameter.Value = String.Format("%{0}%", objectParameter.Value);
+                                filterExpression.Append(String.Format(" NOT LIKE {{{0}}}", index));
+                            }
+                        }
                         else
-                            filterExpression = "!" + filterExpression + ".Contains(@" + index + ")";
+                        {
+                            string tmp = filterExpression.ToString();
+                            filterExpression.Clear();
+                            filterExpression.Append("!" + tmp + ".Contains(@" + index.ToString() + ")");
+                        }
                         break;
                     }
                 case Global.LogicalOperators.endsWith:
                     {
                         filterValueList.Add(objectParameter);
                         if (forEntitySQL)
-                            filterExpression += " LIKE '%' + @p" + index;
+                        {
+                            if (C_SQLNamedParams)
+                            {
+                                objectParameter.Value = String.Format("%{0}", objectParameter.Value);
+                                filterExpression.Append(String.Format(" LIKE @{0}", objectParameter.Name));
+                            }
+                            else
+                            {
+                                objectParameter.Value = String.Format("%{0}", objectParameter.Value);
+                                filterExpression.Append(String.Format(" LIKE {{{0}}}", index));
+                            }
+                        }
                         else
-                            filterExpression += ".EndsWith(@" + index + ")";
+                            filterExpression.Append(".EndsWith(@" + index.ToString() + ")");
                         break;
                     }
                 case Global.LogicalOperators.startsWith:
                     {
                         filterValueList.Add(objectParameter);
                         if (forEntitySQL)
-                            filterExpression += " LIKE @p" + index + " + '%'";
+                        {
+                            if (C_SQLNamedParams)
+                            {
+                                objectParameter.Value = String.Format("{0}5", objectParameter.Value);
+                                filterExpression.Append(String.Format(" LIKE @{0}", objectParameter.Name));
+                            }
+                            else
+                            {
+                                objectParameter.Value = String.Format("{0}%", objectParameter.Value);
+                                filterExpression.Append(String.Format(" LIKE {{{0}}}", index));
+                            }
+
+                        }
                         else
-                            filterExpression += ".StartsWith(@" + index + ")";
+                            filterExpression.Append(".StartsWith(@" + index.ToString() + ")");
                         break;
                     }
                 case Global.LogicalOperators.isNotNull:
                     {
                         if (forEntitySQL)
-                            filterExpression += " IS NOT NULL";
+                            filterExpression.Append(" IS NOT NULL");
                         else
-                            filterExpression += " != null";
+                            filterExpression.Append(" != null");
                         break;
                     }
                 case Global.LogicalOperators.isNull:
                     {
                         if (forEntitySQL)
-                            filterExpression += " IS NULL";
+                            filterExpression.Append(" IS NULL");
                         else
-                            filterExpression += " == null";
+                            filterExpression.Append(" == null");
                         break;
                     }
                 default:
                     break;
             }
-            return filterExpression;
+            return filterExpression.ToString();
         }
 
         /// <summary>
@@ -1565,14 +1724,20 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="filterItem">The filter item.</param>
         /// <returns>System.String.</returns>
-        static string CreateFilterConnector(ACFilterItem filterItem)
+        static string CreateFilterConnector(ACFilterItem filterItem, bool forEntitySQL = false)
         {
             switch (filterItem.Operator)
             {
                 case Global.Operators.and:
-                    return " && ";
+                    if (forEntitySQL)
+                        return " AND ";
+                    else
+                        return " && ";
                 case Global.Operators.or:
-                    return " || ";
+                    if (forEntitySQL)
+                        return " OR ";
+                    else
+                        return " || ";
                 default:
                     return null;
             }
@@ -1583,48 +1748,80 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="forEntitySQL">The query definition.</param>
         /// <returns>System.String.</returns>
-        private string GetOrderExpression(bool forEntitySQL = false)
+        private string GetOrderExpression(ref JoinBuilder joinExpressions, bool forEntitySQL = false)
         {
-            string orderExpression = "";
+            StringBuilder orderExpression = new StringBuilder();
             foreach (var orderItem in ACSortColumns)
             {
                 if (String.IsNullOrEmpty(orderItem.PropertyName))
                     continue;
-                if (!string.IsNullOrEmpty(orderExpression))
+                if (orderExpression.Length > 0)
                 {
-                    orderExpression += ",";
+                    orderExpression.Append(", ");
                 }
-                else if (string.IsNullOrEmpty(orderExpression) && forEntitySQL)
-                    orderExpression = " ORDER BY ";
+                else if (orderExpression.Length <= 0 && forEntitySQL)
+                    orderExpression.Append(" ORDER BY ");
 
                 if (forEntitySQL)
-                    orderExpression += "c." + orderItem.PropertyName.Replace('\\', '.');
+                {
+                    string[] memberList = orderItem.PropertyName.Split('\\');
+                    if (memberList.Count() > 1)
+                    {
+                        string prevAlias = "c";
+                        ACClass prevTable = QueryType as ACClass;
+                        ACClassProperty prevProperty = null;
+                        for (int i = 0; i < memberList.Count(); i++)
+                        {
+                            ACClassProperty acClassProperty = prevTable.Properties.Where(c => c.ACIdentifier == memberList[i]).FirstOrDefault();
+                            if (acClassProperty == null)
+                                return null;
+                            ACClass table = acClassProperty.ValueTypeACClass;
+                            if (table == null)
+                                return null;
+
+                            if (i < memberList.Count() - 1)
+                            {
+                                joinExpressions.JoinExpressions.Append(string.Format(" LEFT JOIN {0} AS j{1} ON j{1}.{0}ID = {2}.{3}ID", table.ACIdentifier, joinExpressions.JoinCount, prevAlias, acClassProperty.ACIdentifier));
+                                prevAlias = "j" + joinExpressions.JoinCount.ToString();
+                                joinExpressions.JoinCount++;
+                            }
+
+                            prevTable = table;
+                            prevProperty = acClassProperty;
+                        }
+                        orderExpression.Append(prevAlias + "." + prevProperty.ACIdentifier);
+                    }
+                    else
+                    {
+                        orderExpression.Append("c." + orderItem.PropertyName);
+                    }
+                }
                 else
-                    orderExpression += orderItem.PropertyName.Replace('\\', '.');
+                    orderExpression.Append(orderItem.PropertyName.Replace('\\', '.'));
 
                 switch (orderItem.SortDirection)
                 {
                     case Global.SortDirections.ascending:
                         {
                             if (forEntitySQL)
-                                orderExpression += " ASC";
+                                orderExpression.Append(" ASC");
                             else
-                                orderExpression += " ascending";
+                                orderExpression.Append(" ascending");
                             break;
                         }
                     case Global.SortDirections.descending:
                         {
                             if (forEntitySQL)
-                                orderExpression += " DESC";
+                                orderExpression.Append(" DESC");
                             else
-                                orderExpression += " descending";
+                                orderExpression.Append(" descending");
                             break;
                         }
                     default:
                         break;
                 }
             }
-            return orderExpression;
+            return orderExpression.ToString();
         }
 #endregion
 

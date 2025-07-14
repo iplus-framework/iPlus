@@ -184,14 +184,16 @@ namespace gip.core.datamodel
         /// </summary>
         Int32 AccessDefaultTakeCount { get; }
 
+        bool UseDynLINQ { get; }
+
         #endregion
 
 
-        #region Connection Statistics
+            #region Connection Statistics
 
-        /// <summary>
-        /// Largest number of concurrent database connections
-        /// </summary>
+            /// <summary>
+            /// Largest number of concurrent database connections
+            /// </summary>
         int MaxDBConnectionCount { get; }
 
 
