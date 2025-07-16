@@ -171,6 +171,10 @@
     <Compile Include="BSOiPlus\BSOACClassMessageSelector.cs" />
     <Compile Include="BSOiPlus\BSOSQLQuery.cs" />
     <Compile Include="BSOiPlus\Model\SQLScriptQuery.cs" />
+    <Compile Include="BSOLog\ACBSOLogfileAnalyzerExample.cs" />
+    <Compile Include="BSOLog\ACBSOLogfileAnalyzerBase.cs" />
+    <Compile Include="BSOLog\LogfileReaderLine.cs" />
+    <Compile Include="BSOLog\ACBSOLogfileReader.cs" />
     <Compile Include="Manager\ACProjectManager.cs" />
     <Compile Include="Manager\InsertInMarksSQL.cs" />
     <Compile Include="Manager\IPlusDefSQLExportManager.cs" />
@@ -390,6 +394,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="VBControlScripts\2025-06-12 17-08_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="VBControlScripts\2025-07-16 18-24_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

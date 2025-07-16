@@ -703,6 +703,38 @@ namespace gip.core.datamodel
             return parts;
         }
 
+        static public List<string> SplitSegments(string acUrl, bool breakOnCommand = false)
+        {
+            List<string> parts = new List<string>();
+            string subACUrl = acUrl;
+
+            UrlKeys urlKey = UrlKeys.Unknown;
+            string acUrlPart = null;
+            string nextACUrl = null;
+            char cmdDelimiter = Char.MinValue;
+            char delimiter = Char.MinValue;
+            while (!String.IsNullOrEmpty(subACUrl))
+            {
+                urlKey = AnalyzeSegment(subACUrl, out acUrlPart, out nextACUrl, out delimiter, out cmdDelimiter);
+                subACUrl = nextACUrl;
+                if (breakOnCommand && urlKey != UrlKeys.Root && urlKey != UrlKeys.Child)
+                    break;
+                if (urlKey == UrlKeys.Root)
+                    continue;
+                else if (urlKey == UrlKeys.Child)
+                {
+                    parts.Add(acUrlPart);
+                }
+                else if (delimiter != Char.MinValue)
+                {
+                    parts.Add(acUrlPart);
+                }
+                else
+                    break;
+            }
+            return parts;
+        }
+
         public static int CalcDistance(string acUrl1, string acUrl2)
         {
             if (String.IsNullOrEmpty(acUrl1) || String.IsNullOrEmpty(acUrl2))

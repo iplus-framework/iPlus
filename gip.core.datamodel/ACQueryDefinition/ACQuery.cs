@@ -129,6 +129,7 @@ namespace gip.core.datamodel
                         IEnumerable<T> childProp = acObject.ACUrlCommand(childACUrl) as IEnumerable<T>;
                         if (childProp == null)
                             return null;
+                        queryDefinition.QueryContext = acObject;
                         return SearchWithDynQuery<T>(childProp, queryDefinition, mergeOption);
                     }
                 }
