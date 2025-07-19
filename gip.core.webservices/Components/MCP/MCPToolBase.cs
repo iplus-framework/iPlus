@@ -34,7 +34,7 @@ namespace gip.core.webservices
             {
                 arr =
                 param.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-               .Select(id => id.Trim())
+               .Select(id => id.Trim().Replace("\"","").Replace("{", "").Replace("}", ""))
                .Where(id => !string.IsNullOrEmpty(id))
                .ToArray();
             }
@@ -496,6 +496,12 @@ namespace gip.core.webservices
             // If bulk operations and for each method the LLM has passed separate parameterset, then split the parameters
             if (acMethod.ParameterValueList.Count < bulkValues.Count())
             {
+                if (acMethod.ParameterValueList.Count == 1)
+                {
+                    if (acMethod.ParameterValueList[0].ObjectType == typeof(object[]))
+                        return bulkValues1.ToArray();
+                }
+
                 bulkValues1 = new List<object>();
                 int offset = currCommandPos * acMethod.ParameterValueList.Count;
                 for (int j = 0; j < acMethod.ParameterValueList.Count; j++)
